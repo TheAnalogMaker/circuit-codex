@@ -34,5 +34,14 @@ Findings get fixed in the same session or filed as issues. The judge runs on
 the rendered site (not the repo) deliberately — it sees what visitors see,
 including rendering bugs the data can't show.
 
+**Known blind spot — figures need eyes, not fetches** (learned 2026-07-18):
+text-fetch judges cannot see whether SVG actually *renders* — the
+reading-schematics figures shipped as invisible black shapes while every
+fetch-based check passed, because the styles were scoped and the SVG was
+injected with `set:html` (which bypasses Astro's scoping). Two standing rules:
+(1) any `set:html`-injected SVG must have its styles in an `is:global` block;
+(2) figure-heavy pages get a **screenshot-based** visual pass (a browser, not
+a fetch) before they count as reviewed.
+
 First judge run: 2026-07-18 (caught internal-notes voice leaking into the
 5E3 circuit story, among others — see repo history).
