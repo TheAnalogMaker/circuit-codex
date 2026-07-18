@@ -10,6 +10,23 @@ model:
   anchor: "tube voltage drop ~50 V at Ia=200 mA per plate"
   anchor_source: "RCA Receiving Tube Manual RC-19, 1959, average characteristics"
   note: "Child's-law diode (I = PERV·V^1.5); one plate unit, instantiate twice."
+basing:
+  code: 5T
+  base: octal
+  view: bottom
+  source: >-
+    RCA 5U4-GB data sheet — "Basing Designation for Bottom View" (printed
+    "G-5T"; the EIA arrangement is 5T, shared with the 5Y3GT). Directly heated:
+    the filament is the cathode and floats at B+ with the plates.
+  pins:
+    1: { element: nc }
+    2: { element: filament, hv: true, note: "also the cathode — B+ output" }
+    3: { element: nc }
+    4: { element: diode-plate, unit: 2, hv: true }
+    5: { element: nc }
+    6: { element: diode-plate, unit: 1, hv: true }
+    7: { element: nc }
+    8: { element: filament, hv: true, note: "also the cathode — B+ output" }
 used_in: [5f4]
 datasheets:
   - publisher: RCA

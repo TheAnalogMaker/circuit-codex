@@ -10,6 +10,23 @@ model:
   anchor: "Va=250 V, Vg2=250 V, Vg1=-12.5 V → Ia=45 mA, Ig2=4.5 mA, gm=4100 µmho"
   anchor_source: "RCA Receiving Tube Manual RC-19, 1959, average characteristics"
   note: "µ is the grid-No.1-to-grid-No.2 amplification factor (9.6, RC-19)."
+basing:
+  code: 7AC
+  base: octal
+  view: bottom
+  source: >-
+    GE 6V6GT data sheet (RETMA 7AC); cross-checked against RCA 6V6
+    ("Basing Designation for Bottom View ... 7AC"). Pin 1 is a no-connection
+    on the glass GT (the metal 6V6 grounds it to the shell).
+  pins:
+    1: { element: nc }
+    2: { element: heater }
+    3: { element: plate, hv: true }
+    4: { element: screen-grid, hv: true }
+    5: { element: grid }
+    6: { element: nc }
+    7: { element: heater }
+    8: { element: cathode }
 used_in: ["5e1", "5e3", "5f1", "5f10", "5f2a"]
 datasheets:
   - publisher: RCA

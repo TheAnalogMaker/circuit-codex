@@ -13,6 +13,23 @@ model:
     Two-point fit (adopted 2026-07-18 from the calibration study below): the plate-current curve is held at both tabulated operating points — 250 V/−2 V and 100 V/−1 V — which all four manufacturers print identically. The low-plate-voltage behaviour of this tube was the
     subject of the 12AX7 calibration study.
 study: 12ax7-calibration
+basing:
+  code: 9A
+  base: noval-b9a
+  view: bottom
+  source: >-
+    RCA 12AX7-A data sheet — "Basing Designation for Bottom View ... 9A";
+    cross-checked against the Philips ECC83 connections diagram (identical).
+  pins:
+    1: { element: plate, unit: 2, hv: true }
+    2: { element: grid, unit: 2 }
+    3: { element: cathode, unit: 2 }
+    4: { element: heater }
+    5: { element: heater }
+    6: { element: plate, unit: 1, hv: true }
+    7: { element: grid, unit: 1 }
+    8: { element: cathode, unit: 1 }
+    9: { element: heater-ct }
 used_in: ["5e1", "5e3", "5f1", "5f10", "5f2a", "5f4", "5f6a", "jtm45"]
 datasheets:
   - publisher: RCA

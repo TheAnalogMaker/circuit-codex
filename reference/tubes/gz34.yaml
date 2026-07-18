@@ -10,6 +10,23 @@ model:
   anchor: "tube voltage drop ~17 V at Ia=250 mA per plate (Mullard average)"
   anchor_source: "RCA Receiving Tube Manual RC-19, 1959, average characteristics"
   note: "Child's-law diode (I = PERV·V^1.5); one plate unit, instantiate twice."
+basing:
+  code: 5DA
+  base: octal
+  view: bottom
+  source: >-
+    Mullard and Philips GZ34 data sheets (octal base, viewed from underside);
+    the EIA 5DA arrangement is confirmed on the GE 5AR4 sheet. Indirectly heated,
+    but the cathode is tied to the heater at pin 8, which sits at B+.
+  pins:
+    1: { element: internal-connection }
+    2: { element: heater }
+    3: { element: nc }
+    4: { element: diode-plate, unit: 1, hv: true }
+    5: { element: nc }
+    6: { element: diode-plate, unit: 2, hv: true }
+    7: { element: nc }
+    8: { element: cathode, hv: true, note: "tied to the heater" }
 used_in: [5f6a, jtm45]
 datasheets:
   - publisher: Mullard

@@ -13,6 +13,22 @@ model:
   note: >-
     5881/6L6WGB is treated as 6L6GC-class at these ratings. µ is the
     grid-No.1-to-grid-No.2 amplification factor (8, RC-19).
+basing:
+  code: 7AC
+  base: octal
+  view: bottom
+  source: >-
+    RCA 6L6GC data sheet ("Basing Designation for Bottom View ... 7AC");
+    cross-checked against the Tung-Sol 5881 bottom-view basing diagram (JEDEC 7AC).
+  pins:
+    1: { element: nc }
+    2: { element: heater }
+    3: { element: plate, hv: true }
+    4: { element: screen-grid, hv: true }
+    5: { element: grid }
+    6: { element: nc }
+    7: { element: heater }
+    8: { element: cathode }
 used_in: [5f4, 5f6a]
 datasheets:
   - publisher: RCA

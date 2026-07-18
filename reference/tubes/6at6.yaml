@@ -9,6 +9,22 @@ model:
   file: models/6at6.inc
   anchor: "Va=250 V, Vg=-3 V → Ia=1.0 mA, gm=1200 µmho, µ=70"
   anchor_source: "RCA Receiving Tube Manual RC-19, 1959, average characteristics"
+basing:
+  code: 7BT
+  base: miniature-7pin
+  view: bottom
+  source: >-
+    RCA 6AT6 data sheet — "Basing Designation for Bottom View ... 7BT";
+    cross-checked against GE 6AT6 (RETMA 7BT). Only the triode plate carries
+    B+ in the 5F10 preamp; the two detector-diode plates are unused here.
+  pins:
+    1: { element: grid }
+    2: { element: cathode }
+    3: { element: heater }
+    4: { element: heater }
+    5: { element: diode-plate, unit: 2 }
+    6: { element: diode-plate, unit: 1 }
+    7: { element: plate, hv: true }
 used_in: [5f10]
 datasheets:
   - publisher: RCA

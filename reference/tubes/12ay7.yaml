@@ -9,6 +9,23 @@ model:
   file: models/12ay7.inc
   anchor: "Va=250 V, Vg=-4 V → Ia=3.0 mA, gm=1750 µmho, µ=44"
   anchor_source: "RCA Receiving Tube Manual RC-19, 1959, average characteristics"
+basing:
+  code: 9A
+  base: noval-b9a
+  view: bottom
+  source: >-
+    RCA 12AY7 data sheet — "Basing Designation for Bottom View ... 9A";
+    same dual-triode base as the 12AX7 / ECC83.
+  pins:
+    1: { element: plate, unit: 2, hv: true }
+    2: { element: grid, unit: 2 }
+    3: { element: cathode, unit: 2 }
+    4: { element: heater }
+    5: { element: heater }
+    6: { element: plate, unit: 1, hv: true }
+    7: { element: grid, unit: 1 }
+    8: { element: cathode, unit: 1 }
+    9: { element: heater-ct }
 used_in: ["5e3", "5f4", "5f6a"]
 datasheets:
   - publisher: RCA

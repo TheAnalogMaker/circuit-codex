@@ -15,6 +15,23 @@ model:
     µ is the grid-No.1-to-grid-No.2 amplification factor (9.5), from the
     triode-connection gm·ra on the same sheet. KG2 is anchored on the Class AB1
     push-pull quiescent point (Vg2=300 V, Vg1=-27 V → Ig2=2.5 mA).
+basing:
+  code: 7AC
+  base: octal
+  view: bottom
+  source: >-
+    GEC / M-O Valve Co. KT66 data sheet, Issue 4 — "Base Connections",
+    view from underside of base (International Octal, B8-0). The arrangement is
+    the standard 7AC beam-tetrode base; pin 1 is an internal connection.
+  pins:
+    1: { element: internal-connection }
+    2: { element: heater }
+    3: { element: plate, hv: true }
+    4: { element: screen-grid, hv: true }
+    5: { element: grid }
+    6: { element: nc }
+    7: { element: heater }
+    8: { element: cathode }
 used_in: [jtm45]
 datasheets:
   - publisher: GEC / M-O Valve Co.
