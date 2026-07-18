@@ -31,7 +31,7 @@ items:
   - { ref: RG6B, part: "Carbon comp resistor", value: "220 kΩ · ½ W", role: "V4 grid leak" }
   - { ref: RK66, part: "Wirewound resistor",  value: "250 Ω · 5 W",  role: "Shared 6V6 cathode bias" }
   - { ref: C9,  part: "Electrolytic capacitor", value: "25 µF · 25 V", role: "Shared 6V6 cathode bypass" }
-  - { ref: RD1, part: "Power resistor",       value: "5,000 Ω",       role: "Rail dropper B+1 → B+2" }
+  - { ref: RD1, part: "Power resistor",       value: "5 kΩ",       role: "Rail dropper B+1 → B+2" }
   - { ref: RD2, part: "Power resistor",       value: "22 kΩ",         role: "Rail dropper B+2 → B+3" }
   - { ref: C11, part: "Electrolytic capacitor", value: "16 µF · 450 V", role: "Filter, B+1" }
   - { ref: C12, part: "Electrolytic capacitor", value: "16 µF · 450 V", role: "Filter, B+2" }

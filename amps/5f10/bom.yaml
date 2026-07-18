@@ -34,7 +34,7 @@ items:
   - { ref: D1,  part: "Rectifier (bias)",     value: "selenium (silicon diode in modern builds)", role: "Bias-supply rectifier" }
   - { ref: RB1, part: "Carbon comp resistor", value: "6.8 kΩ · ½ W",  role: "Bias supply series resistor" }
   - { ref: RB2, part: "Carbon comp resistor", value: "56 kΩ · ½ W",   role: "Bias supply bleeder" }
-  - { ref: C11, part: "Electrolytic capacitor", value: "25 µF (×2)",   role: "Bias supply filters" }
+  - { ref: C11, part: "Electrolytic capacitor", value: "25 µF (×2; rating not marked on the drawing)",   role: "Bias supply filters" }
   - { ref: V1,  part: "Preamp tube",          value: "6AT6",           role: "First gain stage (triode section; twin diodes unused)" }
   - { ref: V2,  part: "Preamp tube",          value: "12AX7",          role: "Driver + cathodyne phase inverter (V2A/V2B)" }
   - { ref: V3,  part: "Power tube",           value: "6V6GT",          role: "Push-pull output (upper)" }

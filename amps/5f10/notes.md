@@ -34,9 +34,9 @@ lifted by a shared cathode resistor, so the output tubes idle warm and give up a
 little of the tweed "sag and bloom" for a firmer, louder response. Second, the
 phase inverter is a **cathodyne**: the 12AX7's cathode runs through 1.5 kΩ to a
 junction and then 56 kΩ to ground, with the 1 MΩ grid leak returned to that
-junction so the stage self-biases — simulation puts the cathode pin at 44.2 V and
+junction so the stage self-biases — simulation puts the cathode pin at 44.3 V and
 the junction at 43.0 V, a clean −1.3 V grid-to-cathode. The plate (56 kΩ from the
-+250 V rail) sits at 202.5 V, balancing the two drive signals to the output pair.
++250 V rail) sits at 207 V, balancing the two drive signals to the output pair.
 
 ## Verification — against the printed factory chart
 

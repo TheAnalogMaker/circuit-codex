@@ -46,4 +46,9 @@ export function corpusStats() {
   };
 }
 
+export function displayId(id) {
+  // Fender's own drawings hyphenate A-suffix models: 5F6-A, 5F2-A
+  return id.toUpperCase().replace(/^(\d[A-Z]\d+)A$/, '$1-A');
+}
+
 export const GITHUB = 'https://github.com/TheAnalogMaker/circuit-codex';

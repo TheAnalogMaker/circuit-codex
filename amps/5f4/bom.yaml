@@ -22,7 +22,7 @@ items:
   - { ref: RF1, part: "Carbon comp resistor", value: "4.7 MΩ · ½ W", role: "V2A grid reference / feedback from the tone-stack output" }
   - { ref: RSL, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "Tone-stack slope resistor" }
   - { ref: C5,  part: "Mica capacitor",       value: "250 pF",        role: "Tone stack — treble" }
-  - { ref: VR3, part: "Potentiometer",        value: "1 MΩ",          role: "Treble" }
+  - { ref: VR3, part: "Potentiometer (taper not marked on the drawing)",        value: "1 MΩ",          role: "Treble" }
   - { ref: C6,  part: "Mica capacitor",       value: "0.01 µF",       role: "Tone stack — treble bypass" }
   - { ref: C7,  part: "Film capacitor",       value: "0.005 µF",      role: "Tone stack — bass" }
   - { ref: VR4, part: "Audio-taper potentiometer", value: "1 MΩ",    role: "Bass" }

@@ -4,7 +4,7 @@ The tweed Princeton is the 5F1 Champ grown up: the same one-12AX7, single-ended
 6V6 signal path, but with a tone control added and negative feedback wrapped
 around the driver stage. Five watts of the same sweet breakup, now with a treble
 knob and a firmer, more focused voice than the Champ's. Produced 1957–1961; its
-direct ancestor is the 5F2 (lineage edge lands when `amps/5f2` exists), and it is
+direct ancestor is the 5F2 not yet documented in this archive, and it is
 the tone-control-bearing sibling of the tweed Champ already in this archive.
 
 ## Circuit walkthrough (short form)
@@ -57,5 +57,4 @@ a ~19 V drop across the 6V6's 470 Ω cathode resistor, and 12AX7 plates near
 The match is well inside Fender's ±20 % convention, but the reference is a sibling
 model rather than the 5F2-A itself — a different power transformer could shift the
 absolute B+ — so this circuit is published as a draft pending a voltage chart
-measured on a 5F2-A. Planned refinements otherwise mirror the archive: output-
-transformer primary resistance in the DC deck, and full curve-traced tube models.
+measured on a 5F2-A.

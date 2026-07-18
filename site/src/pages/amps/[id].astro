@@ -1,6 +1,6 @@
 ---
 import Base from '../../layouts/Base.astro';
-import { loadCorpus, GITHUB } from '../../lib/corpus.js';
+import { loadCorpus, displayId, GITHUB } from '../../lib/corpus.js';
 
 export async function getStaticPaths() {
   return loadCorpus().map((amp) => ({ params: { id: amp.id }, props: { amp } }));
@@ -11,11 +11,11 @@ const v = m.verification || {};
 const vDate = v.date ? new Date(v.date).toISOString().slice(0, 10) : null;
 const ghDir = `${GITHUB}/tree/main/amps/${amp.id}`;
 ---
-<Base title={`${amp.id.toUpperCase()} — ${m.name_style} · Circuit Codex`}
+<Base title={`${displayId(amp.id)} — ${m.name_style} · Circuit Codex`}
       description={`${m.name_style} (${m.era.start}–${m.era.end}): structured metadata, simulation-checked netlist, and circuit walkthrough.`}>
 <div class="wrap wrap-wide">
   <header class="amp-head">
-    <h1>{amp.id.toUpperCase()}</h1>
+    <h1>{displayId(amp.id)}</h1>
     <span class="style">{m.name_style} · {m.era.start}–{m.era.end} · {m.wattage} W</span>
     {v.status === 'verified'
       ? <span class="chip ok">✓ verified {vDate}</span>
@@ -66,8 +66,7 @@ const ghDir = `${GITHUB}/tree/main/amps/${amp.id}`;
       {amp.bom && (
         <section>
           <h2>Parts list</h2>
-          <p class="sub">Reference designators match the schematic above. {amp.bom.notes}
-            Vendor purchase links are coming with the BOM tooling.</p>
+          <p class="sub">Reference designators match the schematic above. {amp.bom.notes}</p>
           <div class="tbl"><table>
             <thead><tr><th>Ref</th><th>Part</th><th>Value / rating</th><th>Role</th></tr></thead>
             <tbody>
@@ -94,7 +93,7 @@ const ghDir = `${GITHUB}/tree/main/amps/${amp.id}`;
 
     <aside class="meta">
       <dl>
-        <dt>Circuit</dt><dd>{amp.id.toUpperCase()}</dd>
+        <dt>Circuit</dt><dd>{displayId(amp.id)}</dd>
         <dt>Family</dt><dd>{m.family}</dd>
         <dt>Output</dt><dd>{m.wattage} W</dd>
         <dt>Tubes</dt><dd>{m.tubes.join(', ')}</dd>

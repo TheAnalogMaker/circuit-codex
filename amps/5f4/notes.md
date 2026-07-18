@@ -8,7 +8,7 @@ around two 10-inch speakers instead of the Bassman's four tens. Produced across
 the late-tweed years (1957–1960), it shares the 5F6-A's power section almost
 part-for-part (PT 8087, choke 14684, a 5881/6L6G pair biased near −40 V) while
 running a slightly lower rail set. Its direct ancestor is the 5E-series Super
-(that lineage edge lands when the earlier circuit does).
+not yet published in this archive.
 
 ## Circuit walkthrough (short form)
 

@@ -1,6 +1,6 @@
 ---
 import Base from '../layouts/Base.astro';
-import { loadCorpus, corpusStats, GITHUB } from '../lib/corpus.js';
+import { loadCorpus, corpusStats, displayId, GITHUB } from '../lib/corpus.js';
 const amps = loadCorpus();
 const stats = corpusStats();
 ---
@@ -17,18 +17,18 @@ const stats = corpusStats();
     <div class="stats" role="list">
       <div class="stat" role="listitem"><div class="n">{stats.circuits}</div><div class="l">circuit{stats.circuits === 1 ? '' : 's'}</div></div>
       <div class="stat" role="listitem"><div class="n">{stats.verified}</div><div class="l">verified</div></div>
-      <div class="stat" role="listitem"><div class="n">{stats.models}</div><div class="l">CC0 tube models</div></div>
+      <div class="stat" role="listitem"><div class="n">{stats.models}</div><div class="l">CC0 tube SPICE models</div></div>
     </div>
   </header>
 
   <section id="circuits">
     <h2>The corpus</h2>
-    <p class="sub">Phase 0: the pilot circuits. The tweed canon lands first, then blackface, British, and beyond —
+    <p class="sub">The tweed canon is landing first — blackface, British, and beyond to follow.
       <a href={`${GITHUB}/blob/main/CONTRIBUTING.md`}>contributions welcome</a>.</p>
     <div class="grid">
       {amps.map((a) => (
         <a class="card" href={`/amps/${a.id}/`}>
-          <div class="id">{a.id.toUpperCase()}</div>
+          <div class="id">{displayId(a.id)}</div>
           <div class="style">{a.meta.name_style} · {a.meta.wattage} W</div>
           <div class="tubes">{a.meta.tubes.join(' · ')}</div>
           <div class="chips">

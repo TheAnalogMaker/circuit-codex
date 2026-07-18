@@ -46,7 +46,7 @@ HT rail.
 ## Verification — against the printed factory chart
 
 The drawing carries a full valve-voltage chart, and simulation matches it
-closely. All four supply rails land within about 5 % of their printed values,
+closely. The three derived supply rails land within about 5 % of their printed values,
 and every preamp and phase-inverter **plate** sits within a few percent: the
 input plates at 220 V, the second-stage plate at 190 V, the cathode-follower
 output at 190 V, and both phase-inverter plates at 250 V all reproduce almost

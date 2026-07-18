@@ -6,9 +6,9 @@
 source: "Fender Champ 5E1 (H-EE) drawing, printed chart: rails +320/+305/+260, 12AX7 plates +150 and cathodes +1.5, 6V6 cathode +19. B+1 (+320 reservoir) is the simulation reference; pin values apply to both 12AX7 sections (symmetric stages)."
 nodes:
   BP2: { chart: 305, tol_pct: 8, note: "output B+ after the choke — 6V6 plate (via OT) and screen" }
-  BP3: { chart: 260, tol_pct: 8, note: "preamp node after the 22 kOhm dropper" }
+  BP3: { chart: 260, tol_pct: 8, note: "preamp node after the 22 kΩ dropper" }
   P1A: { chart: 150, tol_pct: 20, note: "12AX7 V1A plate, chart pin value" }
   P1B: { chart: 150, tol_pct: 20, note: "12AX7 V1B plate, chart pin value" }
-  K1A: { chart: 1.5, tol_pct: 20, note: "12AX7 V1A cathode, chart pin value (bypassed 25 uF)" }
+  K1A: { chart: 1.5, tol_pct: 20, note: "12AX7 V1A cathode, chart pin value (bypassed 25 µF)" }
   K1B: { chart: 1.5, tol_pct: 20, note: "12AX7 V1B cathode (unbypassed; NFB 22k parallels at DC)" }
-  K2:  { chart: 19, tol_pct: 20, note: "6V6GT cathode, chart pin value (470 Ohm, 25 uF bypass)" }
+  K2:  { chart: 19, tol_pct: 20, note: "6V6GT cathode, chart pin value (470 Ω, 25 µF bypass)" }
