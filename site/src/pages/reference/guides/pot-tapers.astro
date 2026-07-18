@@ -1,0 +1,443 @@
+---
+import Base from '../../../layouts/Base.astro';
+import { loadCorpus, displayId } from '../../../lib/corpus.js';
+
+// ---------------------------------------------------------------------------
+// (1) Rotation → resistance curves. `frac` is shaft rotation as a fraction of
+// full travel (0 = full CCW, 1 = full CW); both functions return resistance
+// as a fraction of the pot's total value.
+//
+// Linear taper: resistance is proportional to rotation — a straight line.
+//
+// Audio (logarithmic) taper: a true log law is undefined at zero, so
+// commercial "log" pots are wound from two straight resistance sections of
+// different resistivity that meet near the middle of rotation — a "dog-leg",
+// not a smooth curve. Drawn here at a representative 20% breakpoint (20% of
+// total resistance at the midpoint of rotation), the common middle grade
+// between the steeper 10% and shallower 30% pots also sold as "log". See the
+// sources cited below the chart.
+const BREAK_X = 0.5, BREAK_Y = 0.2;
+function audioR(x) {
+  return x <= BREAK_X
+    ? (BREAK_Y / BREAK_X) * x
+    : BREAK_Y + ((1 - BREAK_Y) / (1 - BREAK_X)) * (x - BREAK_X);
+}
+const linearR = (x) => x;
+
+// SVG geometry — plain XY plot, rotation% on x, resistance% on y.
+const VB_W = 620, VB_H = 340;
+const PAD = { l: 50, r: 18, t: 22, b: 40 };
+const PW = VB_W - PAD.l - PAD.r;
+const PH = VB_H - PAD.t - PAD.b;
+const X = (f) => PAD.l + f * PW;
+const Y = (f) => PAD.t + (1 - f) * PH;
+const TICKS = [0, 0.25, 0.5, 0.75, 1];
+
+const audioPts = [0, BREAK_X, 1].map((x) => ({ x, y: audioR(x) }));
+const audioPath = audioPts.map((p, i) => `${i === 0 ? 'M' : 'L'}${X(p.x).toFixed(1)},${Y(p.y).toFixed(1)}`).join(' ');
+const linearPath = `M${X(0).toFixed(1)},${Y(0).toFixed(1)} L${X(1).toFixed(1)},${Y(1).toFixed(1)}`;
+
+// direct label anchor points (chosen where the two curves sit clearly apart)
+const audioLabelPt = { x: X(0.23), y: Y(audioR(0.23)) };
+const linearLabelPt = { x: X(0.79), y: Y(linearR(0.79)) };
+const breakPt = { x: X(BREAK_X), y: Y(BREAK_Y) };
+
+// ---------------------------------------------------------------------------
+// (2) Corpus potentiometer table — every BOM line whose part reads
+// "potentiometer", pulled from each amp's bom.yaml at build time and
+// classified by the taper the drawing itself specifies. Circuit Codex BOMs
+// spell the taper out in English (never a bare letter code) precisely to
+// avoid the old/new letter ambiguity covered further down this page.
+const POT_RE = /potentiometer/i;
+function taperOf(part) {
+  if (/audio-taper/i.test(part)) return 'Audio';
+  if (/linear-taper/i.test(part) || /^linear potentiometer/i.test(part)) return 'Linear';
+  return 'Not marked';
+}
+const TAPER_ORDER = { Audio: 0, Linear: 1, 'Not marked': 2 };
+const TAPER_CHIP = { Audio: 'chip v', Linear: 'chip', 'Not marked': 'chip warn' };
+
+const pots = loadCorpus().flatMap((amp) =>
+  (amp.bom?.items || [])
+    .filter((i) => POT_RE.test(i.part))
+    .map((i) => ({
+      ref: i.ref,
+      value: i.value,
+      role: i.role,
+      taper: taperOf(i.part),
+      ampId: amp.id,
+      ampLabel: displayId(amp.id),
+      ampStyle: amp.meta.name_style,
+    }))
+).sort((a, b) =>
+  (TAPER_ORDER[a.taper] ?? 9) - (TAPER_ORDER[b.taper] ?? 9) ||
+  a.ampId.localeCompare(b.ampId) ||
+  String(a.ref).localeCompare(String(b.ref)));
+
+const nCircuits = new Set(pots.map((p) => p.ampId)).size;
+const nAudio = pots.filter((p) => p.taper === 'Audio').length;
+const nLinear = pots.filter((p) => p.taper === 'Linear').length;
+const nUnmarked = pots.filter((p) => p.taper === 'Not marked').length;
+---
+<Base title="Potentiometer taper: audio vs. linear — Circuit Codex"
+      description="Why a volume control wants a logarithmic 'audio' taper instead of linear, an original interactive rotation-vs-resistance chart, every potentiometer in the corpus classified by taper straight from its BOM, and the century-old mixup between the 'old' and 'new' A/B/C taper letter codes.">
+<div class="wrap">
+  <header class="ghead">
+    <a class="back" href="/reference/">← Reference</a>
+    <div class="eyebrow">Practical guide</div>
+    <h1>Potentiometer taper: audio vs. linear</h1>
+    <p class="lede">Turn a linear pot a quarter-turn and hardly anything happens; turn
+      the last quarter-turn and the level rockets past comfortable. That is not a
+      broken control — it is the wrong taper. Two curves relate a potentiometer's
+      shaft rotation to the resistance it presents, and which one sits under a given
+      knob decides whether it feels smooth or feels broken.</p>
+  </header>
+
+  <section class="tool" aria-label="Potentiometer taper chart">
+    <div class="tool-top">
+      <div class="hint">Drag the shaft below (or hover the chart) to read the
+        resistance each taper presents at that rotation. Both curves start at 0%
+        (full counter-clockwise) and both reach 100% of the pot's value at full
+        clockwise — only the road between the two differs.</div>
+      <div class="shaft-ctl">
+        <svg class="knob" viewBox="0 0 60 60" aria-hidden="true">
+          <circle cx="30" cy="30" r="26" class="knob-body" />
+          <circle cx="30" cy="30" r="26" class="knob-ring" />
+          <g id="tp-knob-g" style="transform-origin:30px 30px">
+            <line x1="30" y1="30" x2="30" y2="10" class="knob-ptr" />
+          </g>
+        </svg>
+        <label class="shaft-in"><span>Shaft rotation</span>
+          <input id="tp-rot" type="range" min="0" max="100" value="50" step="1" />
+        </label>
+        <div class="shaft-val" id="tp-rot-val" aria-hidden="true">50%</div>
+      </div>
+    </div>
+
+    <ul class="tp-legend" aria-hidden="true">
+      <li><span class="sw audio"></span>Audio (log) taper</li>
+      <li><span class="sw linear"></span>Linear taper</li>
+    </ul>
+
+    <div class="tp-fig">
+      <svg class="tp-svg" viewBox={`0 0 ${VB_W} ${VB_H}`} role="img" aria-labelledby="tp-title">
+        <title id="tp-title">Chart of shaft rotation versus resistance for an audio
+          (logarithmic) taper and a linear taper potentiometer, 0 to 100% both axes</title>
+
+        {/* gridlines — hairline, solid, recessive */}
+        {TICKS.map((t) => (
+          <line class="grid" x1={PAD.l} x2={VB_W - PAD.r} y1={Y(t)} y2={Y(t)} />
+        ))}
+        {TICKS.map((t) => (
+          <line class="grid" y1={PAD.t} y2={VB_H - PAD.b} x1={X(t)} x2={X(t)} />
+        ))}
+        {/* axes (0% lines, slightly stronger) */}
+        <line class="axis" x1={PAD.l} x2={VB_W - PAD.r} y1={Y(0)} y2={Y(0)} />
+        <line class="axis" y1={PAD.t} y2={VB_H - PAD.b} x1={X(0)} x2={X(0)} />
+
+        {/* tick labels */}
+        {TICKS.map((t) => (
+          <text class="tick tick-x" x={X(t)} y={VB_H - PAD.b + 18} text-anchor="middle">{Math.round(t * 100)}</text>
+        ))}
+        {TICKS.map((t) => (
+          <text class="tick tick-y" x={PAD.l - 10} y={Y(t)} text-anchor="end" dominant-baseline="central">{Math.round(t * 100)}</text>
+        ))}
+        <text class="axis-label" x={(PAD.l + VB_W - PAD.r) / 2} y={VB_H - 4} text-anchor="middle">Shaft rotation, % of full travel</text>
+        <text class="axis-label" x={-((PAD.t + VB_H - PAD.b) / 2)} y="14" text-anchor="middle" transform="rotate(-90)">Resistance, % of total</text>
+
+        {/* curves */}
+        <path class="curve linear" d={linearPath} />
+        <path class="curve audio" d={audioPath} />
+
+        {/* breakpoint marker */}
+        <circle class="bp-dot" cx={breakPt.x} cy={breakPt.y} r="3.5" />
+        <text class="bp-label" x={breakPt.x + 8} y={breakPt.y + 16}>≈20% R at mid-rotation</text>
+
+        {/* direct labels */}
+        <text class="curve-label audio" x={audioLabelPt.x} y={audioLabelPt.y - 10}>Audio taper</text>
+        <text class="curve-label linear" x={linearLabelPt.x - 6} y={linearLabelPt.y - 12} text-anchor="end">Linear taper</text>
+
+        {/* interactive crosshair + dots (positioned by script) */}
+        <line id="tp-cross" class="cross" x1="0" y1={PAD.t} x2="0" y2={VB_H - PAD.b} />
+        <circle id="tp-dot-linear" class="hit-dot linear" r="5" cx="0" cy="0" />
+        <circle id="tp-dot-audio" class="hit-dot audio" r="5" cx="0" cy="0" />
+
+        {/* pointer capture layer, drawn last */}
+        <rect id="tp-capture" class="capture" x={PAD.l} y={PAD.t} width={PW} height={PH} />
+      </svg>
+    </div>
+
+    <p class="tp-readout" id="tp-readout" aria-live="polite"></p>
+    <p class="tp-formula">Linear: <b>R = rotation</b>. Audio taper drawn as a common
+      two-segment ("dog-leg") implementation: <b>R = 0.4 · rotation</b> up to the
+      midpoint, then <b>R = 0.2 + 1.6 · (rotation − 0.5)</b> from there to full CW.</p>
+  </section>
+
+  <section aria-labelledby="why-h">
+    <h2 id="why-h">Why volume controls want audio taper</h2>
+    <div class="era">
+      <p>Human hearing does not perceive loudness on a straight line — it responds
+        roughly to the <em>logarithm</em> of sound power, a relationship known as the
+        <a href="https://en.wikipedia.org/wiki/Weber%E2%80%93Fechner_law" rel="external nofollow">Weber–Fechner law</a>.
+        Wire a volume pot with a linear taper and the electrical output rises evenly
+        with rotation, but the perceived loudness does not: because the ear's
+        sensitivity itself falls off logarithmically, a linear pot crowds almost all
+        of the <em>audible</em> change into roughly the last quarter of the shaft's
+        travel. The first three-quarters of the knob feels like it is barely doing
+        anything, and then the volume takes off all at once near the top.</p>
+      <p>An audio (logarithmic) taper pot pre-distorts the resistance curve to
+        cancel that effect, so that a given amount of shaft rotation produces
+        roughly the same <em>felt</em> change in loudness whether the knob starts at
+        1 or at 8. On a control marked 0–10, a setting of 5 is meant to sound
+        subjectively about half as loud as a setting of 10 — the textbook definition
+        of an audio-taper pot, per the
+        <a href="https://en.wikipedia.org/wiki/Potentiometer#Audio_control" rel="external nofollow">"Audio control"</a>
+        section of Wikipedia's potentiometer article.</p>
+      <p>A true logarithmic curve is undefined at zero resistance, so it cannot
+        actually be manufactured; ordinary "log" pots approximate it with two
+        straight resistance sections of different resistivity, wound to meet near
+        the middle of rotation — the dog-leg drawn in the chart above. It is a real
+        approximation, not a cosmetic one: the seam where the two sections join is
+        the well-known point where a cheap audio-taper pot can audibly "step," and
+        it is one reason a worn or poor-quality log pot feels scratchy or uneven
+        exactly around noon on the dial. See Wikipedia's
+        <a href="https://en.wikipedia.org/wiki/Potentiometer#Resistance.E2.80.93position_relationship:_.22taper.22" rel="external nofollow">"taper" section</a>
+        and Rod Elliott's
+        <a href="https://web.archive.org/web/20190423021545/http://sound.whsites.net/pots.htm#markings" rel="external nofollow">Beginners' Guide to Potentiometers</a>
+        (Elliott Sound Products) for both points.</p>
+      <p>None of this applies to every knob on an amp, only to controls that stand
+        directly between a signal and a listener's ear — which is exactly the split
+        the corpus table below turns up.</p>
+    </div>
+  </section>
+
+  <section aria-labelledby="corpus-h">
+    <h2 id="corpus-h">Potentiometers in the corpus</h2>
+    <p class="sub">Every potentiometer listed in an amp's parts list, generated at
+      build time straight from the archive — {nAudio} audio-taper, {nLinear} linear,
+      and {nUnmarked} where the published drawing does not mark a taper at all,
+      across {nCircuits} circuits. The taper column reads exactly what each amp's
+      BOM says; where a drawing does not print one, this table says so rather than
+      guessing.</p>
+    <div class="tbl"><table>
+      <thead><tr><th>Circuit</th><th>Ref</th><th>Value</th><th>Taper</th><th>Role</th></tr></thead>
+      <tbody>
+        {pots.map((p) => (
+          <tr>
+            <td><a href={`/amps/${p.ampId}/`}>{p.ampLabel}</a> <span class="style">{p.ampStyle}</span></td>
+            <td style="color:var(--amber)">{p.ref}</td>
+            <td>{p.value}</td>
+            <td><span class={TAPER_CHIP[p.taper]}>{p.taper}</span></td>
+            <td class="role">{p.role}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table></div>
+
+    <div class="era">
+      <p>Two patterns hold across every circuit here. Every <strong>Bass</strong>
+        control (the <a href="/amps/5f4/">5F4</a>, <a href="/amps/5f6a/">5F6-A</a>,
+        and <a href="/amps/jtm45/">JTM45</a>) is audio-taper, and every
+        <strong>Treble</strong> control on a three-knob tone stack — the same three
+        circuits — is the one pot in its amp whose drawing marks no taper at all,
+        a genuine gap in the published documentation rather than an omission on
+        this page's part. The <strong>Middle</strong> and <strong>Presence</strong>
+        controls are linear throughout too — the 5F6-A's BOM notes its Middle pot as
+        rheostat-wired (two terminals in circuit, not three), and every Presence
+        control here sits in the negative-feedback path at the phase-inverter tail
+        rather than in the direct signal-to-ear path. Neither job is "how loud does
+        this feel," so neither needs the perceived-loudness curve a volume or tone
+        knob does.</p>
+      <p>Volume itself is audio-taper in every circuit but two: the
+        <a href="/amps/5f10/">5F10 Harvard</a>'s single volume and both pots on the
+        <a href="/amps/5f2a/">5F2-A Princeton</a> are marked linear on their
+        published drawings. It is not a bias-topology split — the 5F10 is fixed-bias
+        and the 5F2-A is cathode-biased, like most of the other small amps here — so
+        treat it as exactly what each source drawing says rather than an inferred
+        rule, and, as with any taper claim on a decades-old part, confirm it against
+        the original drawing or a meter before assuming a replacement pot should
+        match.</p>
+    </div>
+  </section>
+
+  <section aria-labelledby="era-h">
+    <h2 id="era-h">The letter on the pot means two different things</h2>
+    <div class="era">
+      <p>Potentiometers are often stamped with a single letter for their taper
+        instead of the word — and that letter is not standardized. Manufacturers in
+        the US and Asia generally follow one code; many European makers followed
+        the opposite one for the same letters, and the two "standards" overlap
+        instead of replacing each other cleanly:</p>
+    </div>
+
+    <div class="tbl"><table>
+      <thead><tr><th>Taper</th><th>Old code (commonly European)</th><th>New code (US / Asia)</th><th>Alternate mark</th></tr></thead>
+      <tbody>
+        <tr><td>Linear</td><td style="color:var(--amber)">A</td><td style="color:var(--amber)">B</td><td>LIN</td></tr>
+        <tr><td>Log (audio)</td><td style="color:var(--amber)">C</td><td style="color:var(--amber)">A</td><td>LOG</td></tr>
+        <tr><td>Anti-log (reverse audio)</td><td style="color:var(--amber)">F</td><td>—</td><td>—</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="era">
+      <p>So an "A" pot is the exact opposite of an "A" pot, depending on which
+        convention its maker used: modern US/Asian practice reads
+        <strong>A = log (audio), B = linear</strong>, while the older code some
+        European manufacturers used reads <strong>A = linear</strong>, with log
+        marked <strong>B or C</strong> instead — and the exact code still varies by
+        manufacturer even within those groups. This is exactly the ambiguity every
+        BOM entry in this corpus sidesteps by spelling out "Audio-taper" or "Linear"
+        in English rather than reproducing a single stamped letter. It is also why a
+        letter alone is not enough evidence when sourcing a replacement pot for a
+        vintage circuit: confirm the taper against a manufacturer datasheet, or
+        measure the resistance at the shaft's midpoint with a meter, before trusting
+        the stamp.</p>
+      <p class="cite">Old/new code table per Rod Elliott,
+        <a href="https://web.archive.org/web/20190423021545/http://sound.whsites.net/pots.htm#markings" rel="external nofollow">Beginners' Guide to Potentiometers</a>
+        (Elliott Sound Products); cross-checked against the
+        <a href="https://en.wikipedia.org/wiki/Potentiometer#Resistance.E2.80.93position_relationship:_.22taper.22" rel="external nofollow">"taper" section</a>
+        of Wikipedia's potentiometer article. The
+        <a href="/reference/">reference library</a>'s era-component shelf carries the
+        period design texts — Terman's <em>Radio Engineers' Handbook</em> and
+        <em>Reference Data for Radio Engineers</em>, both 1943 — that document
+        potentiometer taper law from the vacuum-tube era firsthand.</p>
+    </div>
+  </section>
+</div>
+</Base>
+
+<script is:inline>
+(function () {
+  const BREAK_X = 0.5, BREAK_Y = 0.2;
+  function audioR(x) {
+    return x <= BREAK_X
+      ? (BREAK_Y / BREAK_X) * x
+      : BREAK_Y + ((1 - BREAK_Y) / (1 - BREAK_X)) * (x - BREAK_X);
+  }
+  const linearR = (x) => x;
+
+  const VB_W = 620, VB_H = 340;
+  const PAD = { l: 50, r: 18, t: 22, b: 40 };
+  const PW = VB_W - PAD.l - PAD.r;
+  const PH = VB_H - PAD.t - PAD.b;
+  const X = (f) => PAD.l + f * PW;
+  const Y = (f) => PAD.t + (1 - f) * PH;
+
+  const svg = document.querySelector('.tp-svg');
+  const range = document.getElementById('tp-rot');
+  const rotVal = document.getElementById('tp-rot-val');
+  const readout = document.getElementById('tp-readout');
+  const cross = document.getElementById('tp-cross');
+  const dotA = document.getElementById('tp-dot-audio');
+  const dotL = document.getElementById('tp-dot-linear');
+  const capture = document.getElementById('tp-capture');
+  const knobG = document.getElementById('tp-knob-g');
+
+  function render(frac) {
+    frac = Math.min(1, Math.max(0, frac));
+    const pct = Math.round(frac * 100);
+    const xPx = X(frac);
+    cross.setAttribute('x1', xPx.toFixed(1));
+    cross.setAttribute('x2', xPx.toFixed(1));
+    dotA.setAttribute('cx', xPx.toFixed(1));
+    dotA.setAttribute('cy', Y(audioR(frac)).toFixed(1));
+    dotL.setAttribute('cx', xPx.toFixed(1));
+    dotL.setAttribute('cy', Y(linearR(frac)).toFixed(1));
+    rotVal.textContent = pct + '%';
+    knobG.style.transform = 'translate(0,0) rotate(' + (-135 + frac * 270) + 'deg)';
+    readout.textContent = 'At ' + pct + '% rotation — audio taper: '
+      + Math.round(audioR(frac) * 100) + '% of full resistance · linear taper: '
+      + Math.round(linearR(frac) * 100) + '%.';
+    if (range.value != String(pct)) range.value = String(pct);
+  }
+
+  range.addEventListener('input', () => render(Number(range.value) / 100));
+
+  function fromClientX(clientX) {
+    const rect = svg.getBoundingClientRect();
+    const scale = VB_W / rect.width;
+    const svgX = (clientX - rect.left) * scale;
+    return (svgX - PAD.l) / PW;
+  }
+  let dragging = false;
+  capture.addEventListener('pointerdown', (e) => { dragging = true; render(fromClientX(e.clientX)); });
+  capture.addEventListener('pointermove', (e) => { if (dragging || e.buttons) render(fromClientX(e.clientX)); });
+  window.addEventListener('pointerup', () => { dragging = false; });
+  capture.addEventListener('mousemove', (e) => { if (!('PointerEvent' in window)) render(fromClientX(e.clientX)); });
+
+  render(0.5);
+})();
+</script>
+
+<style>
+  .ghead { padding: 44px 0 8px; }
+  .back { font-family: var(--disp); text-transform: uppercase; letter-spacing: .14em; font-size: 11.5px; color: var(--muted); }
+  .eyebrow { font-family: var(--disp); text-transform: uppercase; letter-spacing: .26em; font-size: 12px; color: var(--amber); margin-top: 14px; }
+  h1 { font-size: clamp(28px, 4.5vw, 42px); line-height: 1.12; margin: 8px 0 12px; }
+  .lede { max-width: 62ch; color: var(--muted); font-size: 16.5px; margin: 0; }
+  section { margin-top: 44px; }
+  h2 { font-size: 18px; letter-spacing: .14em; margin: 24px 0 4px; }
+  .sub { color: var(--muted); font-size: 14px; margin: 0 0 18px; max-width: 78ch; line-height: 1.6; }
+
+  /* ---- tool ---- */
+  .tool { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 20px 22px 22px; }
+  .tool-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; flex-wrap: wrap; margin-bottom: 6px; }
+  .hint { color: var(--muted); font-size: 13.5px; max-width: 48ch; line-height: 1.55; }
+
+  .shaft-ctl { display: flex; align-items: center; gap: 12px; flex: none; }
+  .knob { width: 46px; height: 46px; flex: none; }
+  .knob-body { fill: #1c1611; }
+  .knob-ring { fill: none; stroke: var(--line); stroke-width: 2; }
+  .knob-ptr { stroke: var(--amber); stroke-width: 3; stroke-linecap: round; }
+  .shaft-in { display: flex; flex-direction: column; gap: 5px; }
+  .shaft-in > span { font-family: var(--disp); text-transform: uppercase; letter-spacing: .1em; font-size: 10.5px; color: var(--faint); }
+  .shaft-in input[type="range"] { width: 150px; accent-color: var(--amber); }
+  .shaft-val { font-family: var(--mono); font-size: 15px; color: var(--ink); min-width: 3.2em; text-align: right; }
+
+  .tp-legend { list-style: none; display: flex; gap: 18px; margin: 12px 2px 10px; padding: 0; flex-wrap: wrap; }
+  .tp-legend li { display: flex; align-items: center; gap: 8px; font-family: var(--disp); text-transform: uppercase; letter-spacing: .08em; font-size: 11px; color: var(--muted); }
+  .tp-legend .sw { display: inline-block; width: 20px; height: 0; border-top-width: 2.5px; border-top-style: solid; }
+  .tp-legend .sw.audio { border-color: var(--amber); }
+  .tp-legend .sw.linear { border-top-style: dashed; border-color: var(--muted); }
+
+  .tp-fig { background: var(--well); border: 1px solid var(--line-soft); border-radius: 8px; padding: 10px 12px; }
+  .tp-svg { display: block; width: 100%; height: auto; max-height: 400px; }
+
+  .grid { stroke: var(--line-soft); stroke-width: 1; }
+  .axis { stroke: var(--line); stroke-width: 1.3; }
+  .tick { font-family: var(--mono); font-size: 10.5px; fill: var(--faint); }
+  .axis-label { font-family: var(--disp); text-transform: uppercase; letter-spacing: .1em; font-size: 10.5px; fill: var(--faint); }
+
+  .curve { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+  .curve.audio { stroke: var(--amber); stroke-width: 2.5; }
+  .curve.linear { stroke: var(--muted); stroke-width: 2; stroke-dasharray: 6 5; }
+
+  .bp-dot { fill: var(--well); stroke: var(--amber); stroke-width: 2; }
+  .bp-label { font-family: var(--mono); font-size: 11px; fill: var(--faint); }
+
+  .curve-label { font-family: var(--disp); text-transform: uppercase; letter-spacing: .08em; font-size: 12px; }
+  .curve-label.audio { fill: var(--amber); }
+  .curve-label.linear { fill: var(--muted); }
+
+  .cross { stroke: var(--ink); stroke-width: 1; stroke-dasharray: 2 3; opacity: .55; pointer-events: none; }
+  .hit-dot { stroke: #171310; stroke-width: 1.5; pointer-events: none; }
+  .hit-dot.audio { fill: var(--amber); }
+  .hit-dot.linear { fill: var(--muted); }
+  .capture { fill: transparent; cursor: crosshair; touch-action: none; }
+
+  .tp-readout { min-height: 1.4em; margin: 14px 2px 6px; font-family: var(--mono); font-size: 13px; color: var(--ink); }
+  .tp-formula { margin: 6px 2px 0; font-size: 13px; color: var(--muted); line-height: 1.6; }
+  .tp-formula b { font-family: var(--mono); color: var(--ink); font-weight: 400; }
+
+  /* ---- prose ---- */
+  .era p { color: var(--muted); font-size: 15px; line-height: 1.7; max-width: 76ch; margin: 0 0 14px; }
+  .era p:last-child { margin-bottom: 0; }
+  .era strong { color: var(--ink); }
+  .era em { font-style: italic; color: var(--ink); }
+  .era .cite { font-size: 12.5px; color: var(--faint); max-width: 82ch; }
+
+  /* ---- corpus table ---- */
+  td .style { font-family: var(--body); color: var(--faint); font-size: 11.5px; }
+  .role { font-family: var(--body); color: var(--faint); white-space: normal; }
+  .chip.warn { color: var(--oxblood); border-color: var(--oxblood); }
+</style>
