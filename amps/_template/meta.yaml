@@ -1,0 +1,21 @@
+# Circuit Codex metadata — schema: docs/schema.md (v1)
+id: ""                     # lowercase circuit designation, matches directory name
+name_style: ""             # e.g. "Tweed Deluxe-style" — descriptive only
+family: ""                 # tweed | blackface | british | vox | boutique | other
+era:
+  start: 0
+  end: 0
+wattage: 0
+tubes: []                  # ordered, e.g. [12AY7, 12AX7, 6V6GT, 6V6GT, 5Y3GT]
+topology:
+  rectifier: { kind: tube, type: "" }
+  bias: cathode            # cathode | fixed
+  phase_inverter: ""       # cathodyne | long-tailed-pair | paraphase | none
+  tone_stack: ""           # single-knob | fmv | james | cathode-follower-fmv | ...
+lineage:
+  derived_from: []         # circuit ids
+  influenced: []
+sources: []                # published charts, dated revisions, bench measurements
+verification:
+  status: draft            # draft | verified — set to verified ONLY by CI + maintainer
+contributors: []

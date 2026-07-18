@@ -1,0 +1,21 @@
+name: validate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install pyyaml
+      - run: python pipeline/validate.py
+      # Phase-0 roadmap for this workflow:
+      # - kiutils round-trip of amps/*/schematic.kicad_sch
+      # - ngspice run of amps/*/netlist.cir vs voltages.yaml (verified gate)
+      # - schematic SVG rendering via kicad-cli
