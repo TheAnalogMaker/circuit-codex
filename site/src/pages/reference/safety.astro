@@ -59,7 +59,7 @@ const STEPS = [
     readout: 'Re-measuring — the node is safe to touch only once the meter confirms it has fallen to a few volts.' },
   { parts: 'part-caps',
     short: 'Repeat every node',
-    detail: 'A supply has several filter nodes — B+1, B+2, B+3, and the reservoir — each behind its own dropping resistor, each storing its own charge. Discharge and verify every one.',
+    detail: 'A supply has several filter nodes — the reservoir (B+1) and each dropped node after it (B+2, B+3, …), each behind its own dropping resistor and each storing its own charge. Discharge and verify every one.',
     readout: 'Every filter node — each cap holds its own charge and must be discharged and checked in turn.' },
 ];
 const DIS_DEFAULT = 'Hover, tap, or focus a step to trace it on the diagram.';
