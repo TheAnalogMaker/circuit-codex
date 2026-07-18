@@ -8,6 +8,7 @@ import { marked } from 'marked';
 const REPO_ROOT = path.resolve(process.cwd(), '..');
 const AMPS_DIR = path.join(REPO_ROOT, 'amps');
 const MODELS_DIR = path.join(REPO_ROOT, 'models');
+const REFERENCE_DIR = path.join(REPO_ROOT, 'reference');
 
 function readIfExists(p) {
   return fs.existsSync(p) ? fs.readFileSync(p, 'utf8') : null;
@@ -48,7 +49,68 @@ export function corpusStats() {
 
 export function displayId(id) {
   // Fender's own drawings hyphenate A-suffix models: 5F6-A, 5F2-A
-  return id.toUpperCase().replace(/^(\d[A-Z]\d+)A$/, '$1-A');
+  return String(id).toUpperCase().replace(/^(\d[A-Z]\d+)A$/, '$1-A');
 }
 
 export const GITHUB = 'https://github.com/TheAnalogMaker/circuit-codex';
+
+// ---------------------------------------------------------------- reference lib
+// The /reference/ section renders from reference/sources.yaml, reference/tubes/
+// *.yaml, and reference/studies/*.md — the same build-time data pattern the amp
+// pages use. Nothing here is rehosted; every entry points at a holding archive.
+
+export function loadSources() {
+  const raw = fs.readFileSync(path.join(REFERENCE_DIR, 'sources.yaml'), 'utf8');
+  return (yaml.load(raw).sources || []).map((s) => ({ ...s, host: hostOf(s.url) }));
+}
+
+export function loadTubes() {
+  const dir = path.join(REFERENCE_DIR, 'tubes');
+  return fs.readdirSync(dir)
+    .filter((f) => f.endsWith('.yaml'))
+    .map((f) => {
+      const t = yaml.load(fs.readFileSync(path.join(dir, f), 'utf8'));
+      return { ...t, name: String(t.name), datasheets: (t.datasheets || []).map((d) => ({ ...d, host: hostOf(d.url) })) };
+    })
+    .sort((a, b) => a.name.localeCompare(b.name, 'en', { numeric: true }));
+}
+
+export function loadStudies() {
+  const dir = path.join(REFERENCE_DIR, 'studies');
+  if (!fs.existsSync(dir)) return [];
+  return fs.readdirSync(dir)
+    .filter((f) => f.endsWith('.md'))
+    .map((f) => parseStudy(path.join(dir, f), f.replace(/\.md$/, '')))
+    .sort((a, b) => a.title.localeCompare(b.title));
+}
+
+export function loadStudy(slug) {
+  const p = path.join(REFERENCE_DIR, 'studies', `${slug}.md`);
+  return fs.existsSync(p) ? parseStudy(p, slug) : null;
+}
+
+function parseStudy(filePath, slug) {
+  const md = fs.readFileSync(filePath, 'utf8');
+  const titleMatch = md.match(/^#\s+(.+)$/m);
+  const title = titleMatch ? titleMatch[1].trim() : slug;
+  // Subtitle: a leading italic line just under the H1 (e.g. *A metrology study…*).
+  const subMatch = md.match(/^#\s+.+\n+\*(.+?)\*\s*$/m);
+  const subtitle = subMatch ? subMatch[1].trim() : null;
+  // Strip H1 and the subtitle line from the rendered body — they become the header.
+  let body = md.replace(/^#\s+.+\n/, '');
+  if (subtitle) body = body.replace(/^\s*\*.+?\*\s*\n/, '');
+  return { slug, title, subtitle, html: marked.parse(body) };
+}
+
+function hostOf(url) {
+  try { return new URL(url).hostname.replace(/^www\./, ''); } catch { return url; }
+}
+
+// Split a pd_basis string ("pd-outright (published 1920)") into its leading
+// controlled-vocabulary token and the human-readable remainder.
+export function pdBasis(str) {
+  if (!str) return { token: null, rest: '' };
+  const token = str.split(/\s/)[0];
+  const rest = str.slice(token.length).replace(/^[\s—–-]+/, '').trim();
+  return { token, rest };
+}

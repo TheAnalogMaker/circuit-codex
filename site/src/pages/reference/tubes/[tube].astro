@@ -1,0 +1,108 @@
+---
+import Base from '../../../layouts/Base.astro';
+import { loadTubes, loadStudy, displayId, GITHUB } from '../../../lib/corpus.js';
+
+export async function getStaticPaths() {
+  return loadTubes().map((t) => ({ params: { tube: t.tube }, props: { t } }));
+}
+const { t } = Astro.props;
+const modelUrl = `${GITHUB}/blob/main/${t.model.file}`;
+const study = t.study ? loadStudy(t.study) : null;
+---
+<Base title={`${t.name} — tube reference · Circuit Codex`}
+      description={`${t.name}: manufacturer datasheets, the Circuit Codex SPICE model anchor and source, and the circuits in the corpus that use it.`}>
+<div class="wrap wrap-wide">
+  <header class="thead">
+    <a class="back" href="/reference/">← Reference</a>
+    <h1>{t.name}</h1>
+    {t.also_known_as && t.also_known_as.length > 0 && (
+      <span class="aka">also {t.also_known_as.join(' · ')}</span>
+    )}
+  </header>
+  <p class="role">{t.role}</p>
+
+  <div class="cols">
+    <div class="main">
+      <section>
+        <h2>Datasheets</h2>
+        <p class="sub">Primary manufacturer data, via public tube-data archives. The
+          model below is fitted to the tabulated "average characteristics" in these
+          sheets; the datasheet files themselves are linked, never rehosted.</p>
+        <div class="tbl"><table>
+          <thead><tr><th>Publisher</th><th>Type</th><th>Source</th></tr></thead>
+          <tbody>
+            {t.datasheets.map((d) => (
+              <tr>
+                <td style="color:var(--amber)">{d.publisher}</td>
+                <td style="font-family:var(--body)">{d.designation}</td>
+                <td><a href={d.url} rel="external nofollow">{d.host} ↗</a></td>
+              </tr>
+            ))}
+          </tbody>
+        </table></div>
+      </section>
+
+      <section>
+        <h2>Circuit Codex model</h2>
+        <p class="sub">A CC0 ngspice model in the Koren form, fitted here to the
+          published anchor — no parameters copied from other model collections.
+          <a href={`${GITHUB}/blob/main/models/METHODOLOGY.md`}>Methodology →</a></p>
+        <dl class="model">
+          <dt>Anchor</dt><dd>{t.model.anchor}</dd>
+          <dt>Source</dt><dd>
+            {t.model.anchor_source_url
+              ? <a href={t.model.anchor_source_url} rel="external nofollow">{t.model.anchor_source}</a>
+              : t.model.anchor_source}
+          </dd>
+          {t.model.note && (<><dt>Note</dt><dd class="mnote">{t.model.note}</dd></>)}
+          <dt>File</dt><dd><a href={modelUrl} rel="external nofollow">{t.model.file} ↗</a></dd>
+        </dl>
+      </section>
+
+      {study && (
+        <section>
+          <h2>Related study</h2>
+          <a class="studylink" href={`/reference/studies/${study.slug}/`}>
+            <div class="sl-t">{study.title}</div>
+            {study.subtitle && <div class="sl-s">{study.subtitle}</div>}
+          </a>
+        </section>
+      )}
+    </div>
+
+    <aside class="side">
+      <h3>Used in</h3>
+      <ul class="usedin">
+        {t.used_in.map((id) => (
+          <li><a href={`/amps/${id}/`}>{displayId(id)}</a></li>
+        ))}
+      </ul>
+    </aside>
+  </div>
+</div>
+</Base>
+
+<style>
+  .wrap-wide{max-width:1000px}
+  .thead{display:flex;align-items:baseline;gap:16px;flex-wrap:wrap;padding:40px 0 4px}
+  .back{font-family:var(--disp);text-transform:uppercase;letter-spacing:.14em;font-size:11.5px;color:var(--muted);flex-basis:100%}
+  h1{font-size:40px;letter-spacing:.05em;margin:0}
+  .aka{font-family:var(--mono);font-size:13px;color:var(--faint)}
+  .role{color:var(--muted);font-size:16px;max-width:72ch;margin:10px 0 8px}
+  .cols{display:grid;grid-template-columns:1fr minmax(180px,220px);gap:28px;align-items:start;margin-top:8px}
+  @media(max-width:760px){.cols{grid-template-columns:1fr}}
+  h2{font-size:17px;letter-spacing:.14em;margin:28px 0 4px}
+  .sub{color:var(--muted);font-size:13.5px;margin:0 0 14px;max-width:72ch}
+  .model{margin:0;display:grid;grid-template-columns:max-content 1fr;gap:9px 16px;font-size:14px}
+  .model dt{color:var(--faint);text-transform:uppercase;font-family:var(--disp);letter-spacing:.1em;font-size:11px;padding-top:2px}
+  .model dd{margin:0;font-family:var(--mono);font-size:12.5px;overflow-wrap:anywhere;line-height:1.55}
+  .model dd.mnote{font-family:var(--body);color:var(--muted);font-size:13px}
+  .studylink{display:block;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:14px 16px;color:inherit}
+  .studylink:hover{border-color:var(--amber-dim);text-decoration:none}
+  .sl-t{font-family:var(--disp);font-size:16px;letter-spacing:.02em}
+  .sl-s{color:var(--muted);font-size:13px;margin-top:3px}
+  .side{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:16px 18px;position:sticky;top:72px}
+  .side h3{font-size:12px;letter-spacing:.14em;margin:0 0 10px;color:var(--faint)}
+  .usedin{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:7px}
+  .usedin a{font-family:var(--disp);font-size:17px;letter-spacing:.04em}
+</style>
