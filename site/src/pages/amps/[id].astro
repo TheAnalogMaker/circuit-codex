@@ -40,6 +40,16 @@ const ghDir = `${GITHUB}/tree/main/amps/${amp.id}`;
         )}
       </div>
 
+      {amp.hasLayout && (
+        <div class="viewer layout">
+          <div class="viewer-head">Board layout — redrawn from the published layout drawing</div>
+          <div class="layout-canvas">
+            <img src={`/layouts/${amp.id}.svg`} loading="lazy" decoding="async"
+              alt={`${displayId(amp.id)} eyelet board layout — an original, redrawn board diagram showing the principal parts in the order the published layout drawing places them on the board.`} />
+          </div>
+        </div>
+      )}
+
       {amp.voltages && (
         <section>
           <h2>Operating point vs. published chart</h2>
@@ -138,6 +148,8 @@ const ghDir = `${GITHUB}/tree/main/amps/${amp.id}`;
   .viewer-body p{margin:0}
   .viewer-canvas{height:580px}
   .viewer-canvas kicanvas-embed{display:block;width:100%;height:100%}
+  .layout-canvas{padding:10px}
+  .layout-canvas img{display:block;width:100%;height:auto;border-radius:4px}
   h2{font-size:17px;letter-spacing:.14em;margin:28px 0 4px}
   .sub{color:var(--muted);font-size:13.5px;margin:0 0 14px;max-width:70ch}
   .meta{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:18px;position:sticky;top:72px}

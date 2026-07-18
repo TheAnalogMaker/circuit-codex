@@ -31,6 +31,7 @@ export function loadCorpus() {
         notesHtml: notesRaw ? marked.parse(notesRaw.replace(/^# .*\n/, '')) : null,
         hasNetlist: fs.existsSync(path.join(dir, 'netlist.cir')),
         hasSchematic: fs.existsSync(path.join(dir, 'schematic.kicad_sch')),
+        hasLayout: fs.existsSync(path.join(dir, 'layout.svg')),
       };
     })
     .sort((a, b) => a.id.localeCompare(b.id));

@@ -20,6 +20,7 @@ jobs:
       - run: python pipeline/test_models.py
       - run: python pipeline/verify_amps.py
       - run: python pipeline/check_schematics.py
+      - run: python pipeline/check_layouts.py
       # Phase-0 roadmap for this workflow:
       # - kiutils round-trip of amps/*/schematic.kicad_sch
       # - schematic SVG rendering via kicad-cli

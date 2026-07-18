@@ -1,0 +1,75 @@
+# Board layout — redrawn from the published Fender 'Bassman' 5F6-A layout
+# drawing (I-EG). Part refs are the shared key into bom.yaml; the renderer reads
+# each value and part type from there. A legible, schematic-style redraw of the
+# board's principal components in the order the drawing shows them — never a
+# trace or a dimensioned reproduction.
+#
+# This is a big board (~40 parts): the diagram shows the principal components in
+# left→right order — bias/power supply and the fixed-bias 5881 output at the
+# left, the long-tailed-pair phase inverter and cathode-follower tone stack in
+# the centre, the 12AY7 input stage at the right — matching the tube row on the
+# drawing (GZ34 · 5881 · 5881 · 12AX7 · 12AX7 · 12AY7).
+board:
+  rows: 2
+  cols: 31
+  title: "5F6-A · eyelet board layout"
+caption: "Redrawn from the published Fender 5F6-A layout drawing (I-EG) — principal board components of a ~40-part board, in the order the drawing shows them. Some small parts and the tone-stack capacitors (which mount at the pots) are omitted for legibility. Not a trace or a dimensioned reproduction."
+source:
+  desc: "Fender 'Bassman' Model 5F6-A layout drawing (I-EG), page 1"
+  url: "https://el34world.com/charts/Schematics/files/Fender/Fender_bassman_5f6a.pdf"
+
+parts:
+  # bias supply + main filter cans + rail droppers (power end, left)
+  - { ref: C15,  a: [0, 1],  b: [0, 2] }    # 8 µF bias-supply filter
+  - { ref: RB1,  a: [1, 0],  b: [1, 1] }    # 15k bias series
+  - { ref: RB2,  a: [1, 2],  b: [1, 3] }    # 56k bias bleeder
+  - { ref: C11,  a: [0, 3],  b: [0, 5] }    # 20 µF filter, B+1
+  - { ref: C12,  a: [0, 6],  b: [0, 8] }    # 20 µF filter, B+2
+  - { ref: C13,  a: [0, 9],  b: [0, 11] }   # 20 µF filter, B+3
+  - { ref: C14,  a: [0, 12], b: [0, 13] }   # 8 µF filter, B+4
+  - { ref: RD1,  a: [1, 4],  b: [1, 5] }    # 4.7k dropper B+2→B+3
+  - { ref: RD2,  a: [1, 6],  b: [1, 7] }    # 10k dropper B+3→B+4
+  # 5881 output stage: screen resistors + grid leaks from the −48 V bias line
+  - { ref: RS1,  a: [0, 12], b: [1, 12] }   # 470 Ω 1W screen (vertical)
+  - { ref: RGL1, a: [1, 8],  b: [1, 9] }    # 220k V4 grid leak
+  - { ref: RS2,  a: [0, 14], b: [1, 14] }   # 470 Ω 1W screen (vertical)
+  - { ref: RGL2, a: [1, 10], b: [1, 11] }   # 220k V5 grid leak
+  - { ref: C8,   a: [0, 15], b: [0, 17] }   # 0.1 µF PI → V4 grid
+  - { ref: C9,   a: [0, 18], b: [0, 20] }   # 0.1 µF PI → V5 grid
+  # long-tailed-pair phase inverter (82k / 100k plates, 1M leaks to the tail)
+  - { ref: RLA,  a: [1, 13], b: [1, 14] }   # 82k PI plate load (V3A)
+  - { ref: RLB,  a: [1, 15], b: [1, 16] }   # 100k PI plate load (V3B)
+  - { ref: RGA,  a: [1, 17], b: [1, 18] }   # 1M PI grid leak (V3A)
+  - { ref: RGB,  a: [1, 19], b: [1, 20] }   # 1M PI grid leak (V3B)
+  - { ref: RTAIL, a: [0, 21], b: [1, 21] }  # 470 Ω PI tail bias (vertical)
+  # cathode-follower FMV tone stack (slope resistor) + channel mixers
+  - { ref: RSL,  a: [1, 22], b: [1, 23] }   # 56k tone-stack slope
+  - { ref: C6,   a: [0, 22], b: [0, 23] }   # 0.02 µF tone stack → PI grid
+  - { ref: RM1,  a: [1, 24], b: [1, 25] }   # 270k bright-channel mixer
+  - { ref: RM2,  a: [1, 26], b: [1, 27] }   # 270k normal-channel mixer
+  # preamp: V2A second stage / cathode follower, V1 input pair (right end)
+  - { ref: RK2,  a: [0, 24], b: [1, 24] }   # 820 Ω V2A cathode (vertical)
+  - { ref: RL3,  a: [1, 28], b: [1, 29] }   # 100k V2A plate load
+  - { ref: C1,   a: [0, 25], b: [0, 26] }   # 0.02 µF V1A coupler → bright vol
+  - { ref: RK1,  a: [0, 30], b: [1, 30] }   # 820 Ω shared 12AY7 cathode (vertical)
+  - { ref: C3,   a: [0, 28], b: [0, 29] }   # 250 µF 12AY7 cathode bypass
+
+offboard:
+  - { id: PT,   kind: xfmr, edge: left,  at: 0.2, label: "Power trans" }
+  - { id: L1,   ref: L1, kind: choke, edge: left, at: 1.0, label: "Choke" }
+  - { id: V6,   ref: V6, kind: tube, edge: bottom, at: 1.5,  label: "V6 · GZ34" }
+  - { id: V4,   ref: V4, kind: tube, edge: bottom, at: 5,    label: "V4 · 5881" }
+  - { id: V5,   ref: V5, kind: tube, edge: bottom, at: 8.5,  label: "V5 · 5881" }
+  - { id: SPK,  kind: jack, edge: bottom, at: 12.5, label: "Spkr jacks" }
+  - { id: V3,   ref: V3, kind: tube, edge: bottom, at: 17,   label: "V3 · 12AX7 (PI)" }
+  - { id: V2,   ref: V2, kind: tube, edge: bottom, at: 22,   label: "V2 · 12AX7" }
+  - { id: V1,   ref: V1, kind: tube, edge: bottom, at: 28,   label: "V1 · 12AY7" }
+  - { id: VRP,  kind: pot, edge: top, at: 2,  label: "Presence" }
+  - { id: VR5,  ref: VR5, kind: pot, edge: top, at: 5,  label: "Middle" }
+  - { id: VR4,  ref: VR4, kind: pot, edge: top, at: 8,  label: "Bass" }
+  - { id: VR3,  ref: VR3, kind: pot, edge: top, at: 11, label: "Treble" }
+  - { id: VR1,  ref: VR1, kind: pot, edge: top, at: 15, label: "Vol · bright" }
+  - { id: VR2,  ref: VR2, kind: pot, edge: top, at: 19, label: "Vol · normal" }
+  - { id: JB,   kind: jack, edge: top, at: 24, label: "Bright in" }
+  - { id: JN,   kind: jack, edge: top, at: 29, label: "Normal in" }
+  - { id: T3,   ref: T3, kind: xfmr, edge: right, at: 0.5, label: "Output trans" }

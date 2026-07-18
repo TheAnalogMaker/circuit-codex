@@ -22,6 +22,8 @@ sources:
     url: "https://www.ampbooks.com/mobile/classic-circuits/fender-champ-5e1/"
   - desc: "Fender 5F1 published voltage chart — all node/pin values read directly from the published drawing (2026-07-18); no factory drawing reproduced here. Scans are indexed in the EL34World archive"
     url: "https://el34world.com/charts/TubeAmpSchematics.htm"
+  - desc: "Fender 'Champ-Amp' 5F1 layout drawing (K-EE), page 2 — the source for the order the board-layout diagram (amps/5f1/layout.svg) places parts on the eyelet board. Redrawn from the published facts, never traced"
+    url: "https://el34world.com/charts/Schematics/files/Fender/Fender_champ_5f1_schem.pdf"
 verification:
   status: verified   # chart fully read from published drawing; CI-gated
   date: 2026-07-18

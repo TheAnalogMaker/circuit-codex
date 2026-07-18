@@ -1,0 +1,64 @@
+# Board layout — redrawn from the published Fender 'Deluxe' 5E3 layout drawing
+# (F-EE). Part refs are the shared key into bom.yaml; the renderer reads each
+# value and part type from there. A legible, schematic-style redraw of the
+# board's principal components in the order the drawing shows them — never a
+# trace or a dimensioned reproduction.
+#
+# Board reads left→right: rectifier / filter / output end at the left, 12AY7
+# input stage at the right — matching the tube row on the drawing
+# (5Y3GT · 6V6GT · 6V6GT · 12AX7 · 12AY7).
+board:
+  rows: 2
+  cols: 30
+  title: "5E3 · eyelet board layout"
+caption: "Redrawn from the published Fender 5E3 layout drawing (F-EE) — principal board components, in the order the drawing shows them. A few small grid stoppers are omitted for legibility; the tone capacitors mount at the tone pot. Not a trace or a dimensioned reproduction."
+source:
+  desc: "Fender 'Deluxe' Model 5E3 layout drawing (F-EE), page 1"
+  url: "https://el34world.com/charts/Schematics/files/Fender/Fender_deluxe_5e3.pdf"
+
+parts:
+  # power supply + push-pull output cathode (left end)
+  - { ref: RK66, a: [0, 0],  b: [1, 0] }    # 250 Ω 5W shared 6V6 cathode (vertical)
+  - { ref: C9,   a: [0, 1],  b: [0, 2] }    # 25 µF 6V6 cathode bypass
+  - { ref: C11,  a: [0, 3],  b: [0, 5] }    # 16 µF filter, B+1
+  - { ref: C12,  a: [0, 6],  b: [0, 8] }    # 16 µF filter, B+2
+  - { ref: C13,  a: [0, 9],  b: [0, 11] }   # 16 µF filter, B+3
+  - { ref: RD1,  a: [1, 4],  b: [1, 5] }    # 5k dropper B+1→B+2
+  - { ref: RD2,  a: [1, 7],  b: [1, 8] }    # 22k dropper B+2→B+3
+  - { ref: RG6A, a: [1, 9],  b: [1, 10] }   # 220k V3 grid leak
+  - { ref: RG6B, a: [1, 11], b: [1, 12] }   # 220k V4 grid leak
+  # cathodyne phase inverter (its self-bias stack is the amp's signature)
+  - { ref: RKA,  a: [0, 12], b: [1, 12] }   # 1.5k cathode → junction (vertical)
+  - { ref: RL4,  a: [1, 13], b: [1, 14] }   # 56k cathodyne plate load
+  - { ref: RKB,  a: [1, 15], b: [1, 16] }   # 56k junction → ground
+  - { ref: C8,   a: [0, 13], b: [0, 15] }   # 0.1 µF cathode-side coupler → V4
+  - { ref: C7,   a: [0, 16], b: [0, 18] }   # 0.1 µF plate-side coupler → V3
+  - { ref: RGPI, a: [1, 17], b: [1, 18] }   # 1M grid leak, returned to junction
+  # second stage V2A + interactive volume/tone couplers
+  - { ref: RK2,  a: [0, 20], b: [1, 20] }   # 1.5k V2A cathode (vertical)
+  - { ref: C4,   a: [0, 19], b: [0, 20] }   # 25 µF V2A cathode bypass
+  - { ref: RL3,  a: [1, 19], b: [1, 20] }   # 100k V2A plate load
+  - { ref: C1,   a: [0, 21], b: [0, 23] }   # 0.1 µF V1A → instrument volume
+  - { ref: C2,   a: [0, 24], b: [0, 26] }   # 0.1 µF V1B → mic volume
+  - { ref: RL1,  a: [1, 21], b: [1, 22] }   # 100k V1A plate load
+  - { ref: RL2,  a: [1, 23], b: [1, 24] }   # 100k V1B plate load
+  # 12AY7 input stage (right end)
+  - { ref: R1s,  a: [1, 25], b: [1, 26] }   # 68k instrument grid stopper
+  - { ref: R2s,  a: [1, 27], b: [1, 28] }   # 68k mic grid stopper
+  - { ref: RK1,  a: [0, 27], b: [1, 27] }   # 820 Ω shared 12AY7 cathode (vertical)
+  - { ref: C10,  a: [0, 28], b: [0, 29] }   # 25 µF 12AY7 cathode bypass
+
+offboard:
+  - { id: PT,  kind: xfmr, edge: left,   at: 0.5, label: "Power trans" }
+  - { id: V5,  ref: V5, kind: tube, edge: bottom, at: 1.5,  label: "V5 · 5Y3GT" }
+  - { id: V3,  ref: V3, kind: tube, edge: bottom, at: 5,    label: "V3 · 6V6GT" }
+  - { id: V4,  ref: V4, kind: tube, edge: bottom, at: 8.5,  label: "V4 · 6V6GT" }
+  - { id: SPK, kind: jack, edge: bottom, at: 12.5, label: "Spkr jacks" }
+  - { id: V2,  ref: V2, kind: tube, edge: bottom, at: 18,   label: "V2 · 12AX7" }
+  - { id: V1,  ref: V1, kind: tube, edge: bottom, at: 25,   label: "V1 · 12AY7" }
+  - { id: VR3, ref: VR3, kind: pot, edge: top, at: 8,  label: "Tone" }
+  - { id: VR1, ref: VR1, kind: pot, edge: top, at: 14, label: "Volume" }
+  - { id: VR2, ref: VR2, kind: pot, edge: top, at: 18, label: "Volume" }
+  - { id: JI,  kind: jack, edge: top, at: 22, label: "Inst in" }
+  - { id: JM,  kind: jack, edge: top, at: 25, label: "Mic in" }
+  - { id: T2,  ref: T2, kind: xfmr, edge: right, at: 0.5, label: "Output trans" }
