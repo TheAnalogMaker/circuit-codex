@@ -1,0 +1,51 @@
+* 5F10 (Tweed Harvard-style) — DC operating-point netlist
+* Circuit Codex — CC-BY-SA 4.0. Independently drawn from the published 5F10
+* (F-EF) drawing's component values (see meta.yaml); no drawing reproduced.
+*
+* DC conventions: B+1 driven at the printed +305 V; downstream rails DERIVED.
+* The 470 R and 22 k droppers are modeled, so the 6V6 screen current and the
+* preamp current set B+2/B+3 by simulation. OT primary DCR omitted (6V6 plates
+* sit at B+1). Fixed-bias supply replaced by an ideal -21 V source (its selenium
+* rectifier, 6.8 k, 56 k and 25 uF network is AC/ripple filtering). The 56 k
+* negative-feedback resistor returns from the speaker (~0 V DC) to the driver
+* cathode, so at DC it parallels that 1.5 k. Coupling and tone caps omitted
+* (DC open); cathode-bypass caps omitted (DC no-ops). The 6AT6 grid returns to
+* ground through a switched input jack (its 68 k stopper), modeled as 68 k.
+.include models/6at6.inc
+.include models/12ax7.inc
+.include models/6v6gt.inc
+
+VBP1 BP1 0 DC 305
+VBIAS NBIAS 0 DC -21
+
+* rail: 470 -> screens node, 22k -> preamp/PI node
+RD1 BP1 BP2 470
+RD2 BP2 BP3 22k
+
+* V1 6AT6 first stage (1.5k cathode, 25uF bypass; grid ref via input jacks)
+RL1 BP3 PAT 100k
+XV1 PAT GAT KAT 6AT6
+RGAT GAT 0 68k
+RK1 KAT 0 1.5k
+
+* V2A 12AX7 driver — unbypassed 1.5k cathode; 56k NFB from speaker parallels it
+RL2 BP3 P2A 100k
+XV2A P2A G2A K2A 12AX7
+RGD G2A 0 1meg
+RK2 K2A 0 1.5k
+RNFB K2A 0 56k
+
+* V2B 12AX7 cathodyne phase inverter: K -> 1.5k -> J -> 56k -> gnd,
+* 56k plate load, 1M grid leak returned to the junction (tone caps AC-couple)
+RL3 BP3 PPI 56k
+XV2B PPI GPI KPI 12AX7
+RKA KPI JPI 1.5k
+RKB JPI 0 56k
+RGPI GPI JPI 1meg
+
+* 6V6GT pair — fixed bias via 220k leaks from -21 V (1.5k stoppers DC-nil),
+* plates at B+1 (OT primary), screens after the 470 R at B+2, cathodes grounded
+XV3 BP1 BP2 G6A 0 6V6GT
+RG1 NBIAS G6A 220k
+XV4 BP1 BP2 G6B 0 6V6GT
+RG2 NBIAS G6B 220k

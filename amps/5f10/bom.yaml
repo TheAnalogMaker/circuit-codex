@@ -1,0 +1,48 @@
+# Parts list — reference designators match schematic.kicad_sch exactly.
+notes: "The chassis has three input jacks (1/2/3), each with its own 68 kΩ stopper; the 6AT6 grid returns to ground through the switched jacks. Only the 6AT6 triode section is used (its twin diodes are unwired). Parts drawn only as annotations (power transformer, AC-line caps, fuse, switch, pilot lamp) are listed without designators."
+items:
+  - { ref: R1s, part: "Carbon comp resistor", value: "68 kΩ · ½ W",  role: "Input 1 grid stopper (grid returns to ground through this jack)" }
+  - { ref: R2s, part: "Carbon comp resistor", value: "68 kΩ · ½ W",  role: "Input 2 grid stopper" }
+  - { ref: R3s, part: "Carbon comp resistor", value: "68 kΩ · ½ W",  role: "Input 3 grid stopper" }
+  - { ref: RL1, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "6AT6 plate load" }
+  - { ref: RK1, part: "Carbon comp resistor", value: "1.5 kΩ · ½ W", role: "6AT6 cathode bias" }
+  - { ref: C1,  part: "Electrolytic capacitor", value: "25 µF · 25 V", role: "6AT6 cathode bypass" }
+  - { ref: C2,  part: "Coupling capacitor",   value: "0.02 µF · 400 V", role: "6AT6 plate → volume" }
+  - { ref: VR1, part: "Linear potentiometer", value: "1 MΩ",         role: "Volume" }
+  - { ref: C3,  part: "Mica capacitor",       value: "0.0005 µF (500 pF)", role: "Bright cap across the volume" }
+  - { ref: VR2, part: "Audio-taper potentiometer", value: "1 MΩ",    role: "Tone" }
+  - { ref: C4,  part: "Film capacitor",       value: "0.005 µF",      role: "Tone treble-bleed cap" }
+  - { ref: RL2, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "12AX7 driver plate load" }
+  - { ref: RK2, part: "Carbon comp resistor", value: "1.5 kΩ · ½ W", role: "12AX7 driver cathode bias (unbypassed)" }
+  - { ref: RNFB, part: "Carbon comp resistor", value: "56 kΩ · ½ W", role: "Negative feedback, speaker → driver cathode" }
+  - { ref: C5,  part: "Coupling capacitor",   value: "0.02 µF · 400 V", role: "Driver plate → phase-inverter grid" }
+  - { ref: RGPI, part: "Carbon comp resistor", value: "1 MΩ · ½ W",  role: "Cathodyne grid leak, returned to the cathode junction" }
+  - { ref: RL3, part: "Carbon comp resistor", value: "56 kΩ · ½ W",  role: "Cathodyne plate load" }
+  - { ref: RKA, part: "Carbon comp resistor", value: "1.5 kΩ · ½ W", role: "Cathodyne bias (cathode → junction)" }
+  - { ref: RKB, part: "Carbon comp resistor", value: "56 kΩ · ½ W",  role: "Cathodyne cathode load (junction → ground)" }
+  - { ref: C6,  part: "Coupling capacitor",   value: "0.1 µF · 400 V", role: "PI plate → upper 6V6 grid" }
+  - { ref: C7,  part: "Coupling capacitor",   value: "0.1 µF · 200 V", role: "PI cathode → lower 6V6 grid" }
+  - { ref: Rs1, part: "Carbon comp resistor", value: "1.5 kΩ · ½ W", role: "Upper 6V6 grid stopper" }
+  - { ref: Rs2, part: "Carbon comp resistor", value: "1.5 kΩ · ½ W", role: "Lower 6V6 grid stopper" }
+  - { ref: RG1, part: "Carbon comp resistor", value: "220 kΩ · ½ W", role: "Upper 6V6 grid leak, from the −21 V bias line" }
+  - { ref: RG2, part: "Carbon comp resistor", value: "220 kΩ · ½ W", role: "Lower 6V6 grid leak, from the −21 V bias line" }
+  - { ref: RD1, part: "Carbon comp resistor", value: "470 Ω · 1 W",  role: "6V6 screen dropper B+1 → B+2" }
+  - { ref: RD2, part: "Power resistor",       value: "22 kΩ",         role: "Rail dropper B+2 → B+3" }
+  - { ref: C8,  part: "Electrolytic capacitor", value: "16 µF · 450 V", role: "Filter, B+1" }
+  - { ref: C9,  part: "Electrolytic capacitor", value: "16 µF · 450 V", role: "Filter, B+2" }
+  - { ref: C10, part: "Electrolytic capacitor", value: "16 µF · 450 V", role: "Filter, B+3" }
+  - { ref: D1,  part: "Rectifier (bias)",     value: "selenium (silicon diode in modern builds)", role: "Bias-supply rectifier" }
+  - { ref: RB1, part: "Carbon comp resistor", value: "6.8 kΩ · ½ W",  role: "Bias supply series resistor" }
+  - { ref: RB2, part: "Carbon comp resistor", value: "56 kΩ · ½ W",   role: "Bias supply bleeder" }
+  - { ref: C11, part: "Electrolytic capacitor", value: "25 µF (×2)",   role: "Bias supply filters" }
+  - { ref: V1,  part: "Preamp tube",          value: "6AT6",           role: "First gain stage (triode section; twin diodes unused)" }
+  - { ref: V2,  part: "Preamp tube",          value: "12AX7",          role: "Driver + cathodyne phase inverter (V2A/V2B)" }
+  - { ref: V3,  part: "Power tube",           value: "6V6GT",          role: "Push-pull output (upper)" }
+  - { ref: V4,  part: "Power tube",           value: "6V6GT",          role: "Push-pull output (lower)" }
+  - { ref: V5,  part: "Rectifier tube",       value: "5Y3GT",          role: "Full-wave rectifier (V5A/V5B)" }
+  - { ref: T1,  part: "Output transformer",   value: "Push-pull (impedance ratio not printed on the drawing)", role: "Push-pull output into the speaker" }
+  - { ref: "—", part: "Power transformer",    value: "HT (center-tapped) · 6.3 V · 5 V", role: "HT + heaters + rectifier filament (no part number on the drawing)" }
+  - { ref: "—", part: "Film capacitor",       value: "0.05 µF · 600 V", role: "AC-line filter caps (×2, annotation only)" }
+  - { ref: "—", part: "Fuse",                 value: "¾ A",            role: "AC mains fuse (annotation only)" }
+  - { ref: "—", part: "Switch",               value: "SPST",           role: "AC power switch (annotation only)" }
+  - { ref: "—", part: "Pilot lamp",           value: "#47",            role: "Pilot light (annotation only)" }

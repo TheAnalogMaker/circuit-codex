@@ -1,0 +1,16 @@
+# Printed voltage chart from the published Harvard 5F10 (F-EF) drawing.
+# Fender's printed convention: values +/-20%, read to ground with an electronic
+# voltmeter. Rails get 8% (derived through modeled screen/preamp currents);
+# tube pins 20%.
+source: "Fender Harvard 5F10 (F-EF) drawing, printed voltages: rails +305 (plates)/+302 (screens)/+250 (preamp); 6AT6 plate +140, cathode +1.3; 12AX7 driver plate +170, cathode +1.5; cathodyne PI plate +207, cathode +44.3, junction +43; 6V6 fixed bias -21"
+nodes:
+  BP2:  { chart: 302, tol_pct: 8, note: "6V6 screen node, after the 470 ohm" }
+  BP3:  { chart: 250, tol_pct: 8, note: "preamp/PI supply node, after the 22 k dropper" }
+  PAT:  { chart: 140, tol_pct: 20, note: "6AT6 plate, printed pin value" }
+  KAT:  { chart: 1.3, tol_pct: 20, note: "6AT6 cathode above the 1.5 k (25 uF bypass)" }
+  P2A:  { chart: 170, tol_pct: 20, note: "12AX7 driver plate" }
+  K2A:  { chart: null, note: "informational — driver cathode (unbypassed 1.5 k); the 56 k negative-feedback resistor loads it at DC and the anchor-fit 12AX7 slightly under-predicts current here, so simulation (~1.2 V) runs below the printed +1.5 V" }
+  PPI:  { chart: 207, tol_pct: 20, note: "cathodyne plate, 56 k load from +250" }
+  KPI:  { chart: 44.3, tol_pct: 20, note: "cathodyne cathode pin (top of the 1.5 k)" }
+  JPI:  { chart: 43, tol_pct: 20, note: "cathodyne junction (1.5 k / 56 k), grid-leak return" }
+  G6A:  { chart: -21, tol_pct: 8, note: "6V6 grids via 220k from the -21 V fixed-bias line (driven)" }

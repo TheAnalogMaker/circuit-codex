@@ -181,6 +181,16 @@ def main() -> None:
         emit_triode(ay7, {"cgk": 1.3, "cgp": 1.3, "cpk": 0.6}, "") + "\n"
     (MODELS_DIR / "12ay7.inc").write_text(txt)
 
+    # ---- 6AT6 (triode unit): Va=250 V, Vg=-3 V -> Ia=1.0 mA, gm=1200 umho, mu=70
+    at6 = fit_triode("6AT6", mu=70.0, vp=250.0, vg=-3.0, ia=1.0e-3, gm=1200e-6)
+    txt = common_header("6AT6 twin-diode / high-mu triode (triode unit only)",
+                        "Va=250 V, Vg=-3 V -> Ia=1.0 mA, gm=1200 umho, mu=70",
+                        ["Diode units (plate No.1, plate No.2) are unused in this corpus",
+                         "and are not modeled; only the triode amplifier section is fitted.",
+                         "Node order: P G K (triode plate=pin7, grid=pin1, cathode=pin2)"]) + "\n" + \
+        emit_triode(at6, {"cgk": 2.2, "cgp": 2.0, "cpk": 0.8}, "") + "\n"
+    (MODELS_DIR / "6at6.inc").write_text(txt)
+
     # ---- 6V6GT: Va=250, Vg2=250, Vg1=-12.5 -> Ia=45 mA, Ig2=4.5 mA, gm=4100 umho
     v6 = fit_pentode("6V6GT", mu=9.6, vp=250.0, vg2=250.0, vg1=-12.5,
                      ia=45e-3, ig2=4.5e-3, gm=4100e-6)
@@ -235,11 +245,12 @@ Cak A K 4p
     print("fitted parameters:")
     print(f"  12AX7: MU={ax7.mu:g} KP={ax7.kp:.6g} KG1={ax7.kg1:.6g} EX={ax7.ex:g} KVB={ax7.kvb:g}")
     print(f"  12AY7: MU={ay7.mu:g} KP={ay7.kp:.6g} KG1={ay7.kg1:.6g} EX={ay7.ex:g} KVB={ay7.kvb:g}")
+    print(f"  6AT6:  MU={at6.mu:g} KP={at6.kp:.6g} KG1={at6.kg1:.6g} EX={at6.ex:g} KVB={at6.kvb:g}")
     print(f"  6V6GT: MU={v6.mu:g} KP={v6.kp:.6g} KG1={v6.kg1:.6g} KG2={v6.kg2:.6g} KVB={v6.kvb:g}")
     print(f"  5Y3GT: PERV={perv:.6g}")
     print(f"  5881:  MU={p5881.mu:g} KP={p5881.kp:.6g} KG1={p5881.kg1:.6g} KG2={p5881.kg2:.6g}")
     print(f"  GZ34:  PERV={perv_gz:.6g}")
-    print(f"wrote 6 models to {MODELS_DIR}")
+    print(f"wrote 7 models to {MODELS_DIR}")
 
 
 if __name__ == "__main__":

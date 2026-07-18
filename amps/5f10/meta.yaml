@@ -1,0 +1,27 @@
+# Circuit Codex metadata — schema: docs/schema.md (v1)
+id: "5f10"
+name_style: "Tweed Harvard-style"
+family: tweed
+era:
+  start: 1958
+  end: 1961
+wattage: 10
+tubes: [6AT6, 12AX7, 6V6GT, 6V6GT, 5Y3GT]
+topology:
+  rectifier: { kind: tube, type: "5Y3GT" }
+  bias: fixed
+  phase_inverter: cathodyne
+  tone_stack: single-knob
+lineage:
+  derived_from: []   # earlier tweed Harvard revisions are the ancestors — edges land when they do
+  influenced: []     # shares the fixed-bias + cathodyne 6V6 recipe with the brownface Princeton (6G2)
+sources:
+  - desc: "Fender 'Harvard' Model 5F10 drawing (F-EF), schematic + layout: every component value AND the printed voltage chart read directly from the published sheet (+305/+302/+250 rails, -21 V fixed bias, tube pins; cathodyne PI = 56k plate + 1.5k/56k cathode with the 1M leak to the junction; 470 R screen dropper + 22k; 56k negative feedback to the driver cathode). Not reproduced here; archived at EL34World"
+    url: "https://el34world.com/charts/Schematics/files/Fender/Fender_harvard_5f10_schem.pdf"
+  - desc: "RCA 6AT6 datasheet (twin-diode / high-mu triode, Sept 1955) — triode Class-A anchor for the clean-room CC0 tube model (Va=250 V, Vg=-3 V, mu=70, rp=58k, gm=1200 umho, Ia=1 mA); only the triode section is used"
+    url: "https://frank.pocnet.net/sheets/049/6/6AT6.pdf"
+verification:
+  status: verified
+  date: 2026-07-18
+  max_deviation_pct: 8.4   # 6AT6 cathode/plate vs printed chart (convention is +/-20%)
+contributors: [TheAnalogMaker]
