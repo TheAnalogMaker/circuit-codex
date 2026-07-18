@@ -13,7 +13,7 @@ const ghDir = `${GITHUB}/tree/main/amps/${amp.id}`;
 ---
 <Base title={`${amp.id.toUpperCase()} — ${m.name_style} · Circuit Codex`}
       description={`${m.name_style} (${m.era.start}–${m.era.end}): structured metadata, simulation-checked netlist, and circuit walkthrough.`}>
-<div class="wrap">
+<div class="wrap wrap-wide">
   <header class="amp-head">
     <h1>{amp.id.toUpperCase()}</h1>
     <span class="style">{m.name_style} · {m.era.start}–{m.era.end} · {m.wattage} W</span>
@@ -92,7 +92,7 @@ const ghDir = `${GITHUB}/tree/main/amps/${amp.id}`;
 
     <aside class="meta">
       <dl>
-        <dt>Circuit</dt><dd>{amp.id.toUpperCase()} ({m.name_style})</dd>
+        <dt>Circuit</dt><dd>{amp.id.toUpperCase()}</dd>
         <dt>Family</dt><dd>{m.family}</dd>
         <dt>Output</dt><dd>{m.wattage} W</dd>
         <dt>Tubes</dt><dd>{m.tubes.join(', ')}</dd>
@@ -108,14 +108,15 @@ const ghDir = `${GITHUB}/tree/main/amps/${amp.id}`;
         {amp.voltages && <a href={`${ghDir}/voltages.yaml`}>voltages.yaml</a>}
         <a href={ghDir}>browse directory →</a>
       </div>
-      {m.sources && (
-        <div class="files">
-          <h3>Sources</h3>
-          <ul class="src">{m.sources.map((s) => <li>{s}</li>)}</ul>
-        </div>
-      )}
     </aside>
   </div>
+
+  {m.sources && (
+    <section class="sources">
+      <h2>Sources</h2>
+      <ul class="src">{m.sources.map((s) => <li>{s}</li>)}</ul>
+    </section>
+  )}
 </div>
 </Base>
 
@@ -123,7 +124,8 @@ const ghDir = `${GITHUB}/tree/main/amps/${amp.id}`;
   .amp-head{display:flex;align-items:baseline;gap:16px;flex-wrap:wrap;padding:56px 0 8px}
   h1{font-size:38px;letter-spacing:.05em;margin:0}
   .style{color:var(--muted)}
-  .cols{display:grid;grid-template-columns:1.7fr 1fr;gap:18px;align-items:start;margin-top:16px}
+  .wrap-wide{max-width:1140px}
+  .cols{display:grid;grid-template-columns:1fr minmax(280px,340px);gap:24px;align-items:start;margin-top:16px}
   @media(max-width:820px){.cols{grid-template-columns:1fr}}
   .viewer{background:var(--well);border:1px solid var(--line);border-radius:8px;margin-bottom:24px}
   .viewer-head{padding:10px 16px;border-bottom:1px solid var(--line-soft);font-family:var(--disp);text-transform:uppercase;letter-spacing:.12em;font-size:11.5px;color:var(--muted)}
@@ -134,13 +136,14 @@ const ghDir = `${GITHUB}/tree/main/amps/${amp.id}`;
   h2{font-size:17px;letter-spacing:.14em;margin:28px 0 4px}
   .sub{color:var(--muted);font-size:13.5px;margin:0 0 14px;max-width:70ch}
   .meta{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:18px;position:sticky;top:72px}
-  .meta dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:7px 16px;font-size:14px}
+  .meta dl{margin:0;display:grid;grid-template-columns:max-content 1fr;gap:9px 14px;font-size:14px}
   .meta dt{color:var(--faint);text-transform:uppercase;font-family:var(--disp);letter-spacing:.1em;font-size:11px;padding-top:2px}
-  .meta dd{margin:0;font-family:var(--mono);font-size:12.5px}
+  .meta dd{margin:0;font-family:var(--mono);font-size:12.5px;overflow-wrap:anywhere;line-height:1.5}
   .files{margin-top:16px;border-top:1px dashed var(--line);padding-top:12px;display:flex;flex-direction:column;gap:6px}
   .files h3{font-size:12px;letter-spacing:.14em;margin:0 0 2px;color:var(--faint)}
   .files a{font-family:var(--mono);font-size:12.5px}
-  .src{margin:0;padding-left:16px;font-size:12px;color:var(--faint)}
+  .sources{max-width:76ch}
+  .src{margin:0;padding-left:16px;font-size:13px;color:var(--faint)}
   .src li{margin-bottom:6px}
   .notes :global(h2){font-size:15px;letter-spacing:.12em;margin:22px 0 6px}
   .notes :global(p){color:var(--muted);font-size:14.5px;max-width:72ch}
