@@ -1,0 +1,11 @@
+{
+  // Circuit Codex — static site deployment (Cloudflare Workers static assets)
+  // Deploy: npx wrangler deploy   ·   Local preview: npx wrangler dev
+  // site/ is the placeholder landing page; the Astro app replaces it in Phase 1
+  // (build output will land in site/dist and this directory updates accordingly).
+  "name": "circuit-codex",
+  "compatibility_date": "2026-07-18",
+  "assets": {
+    "directory": "./site"
+  }
+}
