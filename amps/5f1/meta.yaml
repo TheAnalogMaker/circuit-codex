@@ -25,5 +25,5 @@ sources:
 verification:
   status: verified   # chart fully read from published drawing; CI-gated
   date: 2026-07-18
-  max_deviation_pct: 14.4   # worst node: V1A plate 171.6 V vs chart 150 V (chart convention is +/-20%)
+  max_deviation_pct: 14.9   # 12AX7 cathode pin vs printed chart (±20% convention)
 contributors: [TheAnalogMaker]

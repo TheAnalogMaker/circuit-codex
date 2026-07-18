@@ -47,7 +47,7 @@ point.
 ## Verification — and what the chart gets wrong
 
 The rails, the 12AY7 front end, the phase inverter's 56 kΩ-side plate, and the
-6L6 fixed-bias supply all verify against the printed chart (worst node 11.4 %,
+6L6 fixed-bias supply all verify against the printed chart (worst node 11.3 %,
 against the chart's own ±20 % convention). Six printed values are excluded as
 disputed, with the arithmetic shown in the voltage table: the chart's V2A pair
 (140 V plate with a 2.2 V cathode) is physically impossible for a 12AX7 — that

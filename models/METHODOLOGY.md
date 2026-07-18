@@ -74,9 +74,14 @@ v1 therefore needs a calibration-source decision before any fitting:
    whether the RCA chart is the outlier.
 3. Never calibrate to the amp charts we verify against (circular).
 
-Until resolved, v0 anchor-point models remain the standard; the known
-symptom is under-predicted current well below the 250 V anchor (documented
-on the 5F4 page).
+Resolution (2026-07-18): the calibration study (reference/studies/
+12ax7-calibration.md) confirmed four-manufacturer unanimity on the tabulated
+points and identified the RCA plate graph as the outlier. The **two-point fit
+is now the standard for the 12AX7** (both tabulated operating points held;
+KP/KG1/KVB fitted, MU/EX fixed). Other tubes remain single-anchor fits until
+they justify the same treatment. Known residual: gm at 100 V reads ~36 % low —
+an inherent single-exponent Koren limit; plate current is exact at both
+points.
 
 ## Verifying locally
 

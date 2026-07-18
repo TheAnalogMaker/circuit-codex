@@ -28,7 +28,7 @@ choke (14684) → **+430 V** screens → 4.7 kΩ → **+385 V** PI (20 µF) → 
 ## Verification — against the printed factory chart
 
 The I-EG drawing prints a full voltage chart, and simulation matches all 14
-compared nodes: rails within 0.8 %, every tube pin within 9.9 % (the chart's
+compared nodes: rails within 0.8 %, every tube pin within 9.6 % (the chart's
 own convention is ±20 %). Working from the drawing also settles two details
 that often circulate incorrectly:
 

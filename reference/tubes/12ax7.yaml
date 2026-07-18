@@ -10,7 +10,7 @@ model:
   anchor: "Va=250 V, Vg=-2 V → Ia=1.2 mA, gm=1600 µmho, µ=100"
   anchor_source: "RCA Receiving Tube Manual RC-19, 1959, average characteristics"
   note: >-
-    Single-anchor fit, calibrated at the tabulated datasheet operating point. The low-plate-voltage behaviour of this tube is the
+    Two-point fit (adopted 2026-07-18 from the calibration study below): the plate-current curve is held at both tabulated operating points — 250 V/−2 V and 100 V/−1 V — which all four manufacturers print identically. The low-plate-voltage behaviour of this tube was the
     subject of the 12AX7 calibration study.
 study: 12ax7-calibration
 used_in: ["5e1", "5e3", "5f1", "5f10", "5f2a", "5f4", "5f6a", "jtm45"]

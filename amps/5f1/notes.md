@@ -28,8 +28,8 @@ cleanly — a nice example of what simulation-verified archiving can do:
 
 | Node | Chart | Sim with 10k | Sim with 22k |
 |---|---|---|---|
-| B+2 | 295 V | 291 V (1.3%) | 292 V (0.9%) |
-| B+3 | 250 V | 273 V (**9.2% off**) | 255 V (2.0%) |
+| B+2 | 295 V | 291 V (1.3%) | 291.5 V (1.2%) |
+| B+3 | 250 V | 273 V (**9.2% off**) | 252 V (0.8%) |
 
 With 22k, the downstream stage voltages fall into line as well.
 **Conclusion:** the second dropper is 22k — a value some descriptions of
@@ -39,7 +39,7 @@ it.
 ## Verification
 
 Simulation is checked against the drawing's full printed voltage chart: the
-6V6 cathode within 0.6 % (18.1 V vs +18 V), rails within 2 %, and the 12AX7
+6V6 cathode within 0.2 % (18.0 V vs +18 V), rails within 1.2 %, and the 12AX7
 pins (+150 V plate, +1.5 V cathode) within the chart's own printed ±20 %
 convention — Fender measured on 1958 production tubes, while these models are
 datasheet-typical, so the preamp simulating slightly leaner than the era

@@ -82,6 +82,83 @@ def fit_triode(name: str, mu: float, vp: float, vg: float, ia: float, gm: float)
     return TriodeFit(name=name, mu=mu, kp=kp, kg1=kg1)
 
 
+def _triode_ia(vp: float, vg: float, mu: float, kp: float, kg1: float,
+               ex: float, kvb: float) -> float:
+    """Koren triode plate current — the same expression emitted into the .inc."""
+    s = math.sqrt(kvb + vp * vp)
+    e1 = (vp / kp) * _softplus(kp * (1.0 / mu + vg / s))
+    return (e1 ** ex) / kg1 if e1 > 0.0 else 0.0
+
+
+def _triode_gm(vp: float, vg: float, p: dict, d: float = 2e-3) -> float:
+    return (_triode_ia(vp, vg + d, **p) - _triode_ia(vp, vg - d, **p)) / (2 * d)
+
+
+def _nelder_mead(f, x0: list[float], step: float = 0.4,
+                 iters: int = 8000, tol: float = 1e-16) -> list[float]:
+    """Deterministic simplex minimiser (pure stdlib). Fixed start + iteration
+    count -> re-running regenerates byte-identical parameters."""
+    n = len(x0)
+    simplex = [list(x0)]
+    for i in range(n):
+        pt = list(x0)
+        pt[i] += step
+        simplex.append(pt)
+    fv = [f(pt) for pt in simplex]
+    for _ in range(iters):
+        order = sorted(range(n + 1), key=lambda k: fv[k])
+        simplex = [simplex[k] for k in order]
+        fv = [fv[k] for k in order]
+        if abs(fv[-1] - fv[0]) < tol:
+            break
+        cen = [sum(simplex[k][j] for k in range(n)) / n for j in range(n)]
+        xr = [cen[j] + (cen[j] - simplex[-1][j]) for j in range(n)]
+        fr = f(xr)
+        if fr < fv[0]:
+            xe = [cen[j] + 2 * (cen[j] - simplex[-1][j]) for j in range(n)]
+            fe = f(xe)
+            simplex[-1], fv[-1] = (xe, fe) if fe < fr else (xr, fr)
+        elif fr < fv[-2]:
+            simplex[-1], fv[-1] = xr, fr
+        else:
+            xc = [cen[j] + 0.5 * (simplex[-1][j] - cen[j]) for j in range(n)]
+            fc = f(xc)
+            if fc < fv[-1]:
+                simplex[-1], fv[-1] = xc, fc
+            else:
+                for k in range(1, n + 1):
+                    simplex[k] = [simplex[0][j] + 0.5 * (simplex[k][j] - simplex[0][j])
+                                  for j in range(n)]
+                    fv[k] = f(simplex[k])
+    order = sorted(range(n + 1), key=lambda k: fv[k])
+    return simplex[order[0]]
+
+
+def fit_triode_multipoint(name: str, mu: float,
+                          ia_points: list[tuple[float, float, float]],
+                          gm_anchor: tuple[float, float, float]) -> TriodeFit:
+    """v1 multi-point fit (12AX7 calibration study, reference/studies/
+    12ax7-calibration.md). Fixes EX=1.5 (Child-Langmuir) and MU to the
+    datasheet amplification factor, then frees KP, KG1, KVB to fit the plate
+    current at every point in `ia_points` [(vp, vg, ia)] plus transconductance
+    at `gm_anchor` (vp, vg, gm) in least squares on relative error. Unlike the
+    single-anchor `fit_triode`, this constrains the plate-current curve at two
+    plate voltages so it does not fall away below the 250 V anchor."""
+    def objective(x: list[float]) -> float:
+        kp, kg1, kvb = math.exp(x[0]), math.exp(x[1]), math.exp(x[2])
+        p = dict(mu=mu, kp=kp, kg1=kg1, ex=EX, kvb=kvb)
+        s = 0.0
+        for vp, vg, ia_t in ia_points:
+            s += ((_triode_ia(vp, vg, **p) - ia_t) / ia_t) ** 2
+        vp, vg, gm_t = gm_anchor
+        s += ((_triode_gm(vp, vg, p) - gm_t) / gm_t) ** 2
+        return s
+
+    x = _nelder_mead(objective, [math.log(400.0), math.log(550.0), math.log(300.0)])
+    return TriodeFit(name=name, mu=mu, kp=math.exp(x[0]),
+                     kg1=math.exp(x[1]), kvb=math.exp(x[2]))
+
+
 @dataclass
 class PentodeFit:
     name: str
@@ -176,10 +253,22 @@ def common_header(tube: str, anchor: str, extra: list[str] | None = None,
 def main() -> None:
     MODELS_DIR.mkdir(exist_ok=True)
 
-    # ---- 12AX7: Va=250 V, Vg=-2 V -> Ia=1.2 mA, gm=1600 umho, mu=100
-    ax7 = fit_triode("12AX7", mu=100.0, vp=250.0, vg=-2.0, ia=1.2e-3, gm=1600e-6)
+    # ---- 12AX7: v1 multi-point fit to the two tabulated operating points that
+    #      RCA, GE, Sylvania and Philips/Mullard all print identically
+    #      (reference/studies/12ax7-calibration.md):
+    #        Va=250 V, Vg=-2 V -> Ia=1.2 mA, gm=1600 umho
+    #        Va=100 V, Vg=-1 V -> Ia=0.5 mA (gm=1250 umho)
+    #      MU=100, EX=1.5 fixed; KP, KG1, KVB fitted so the plate-current curve
+    #      holds at both plate voltages (single-anchor v0 fell to ~0.15 mA at the
+    #      100 V point). The disputed RCA 92CM-6879 plate family (~0.5-0.85 mA at
+    #      250 V/-2 V) is deliberately NOT used — see the study.
+    ax7 = fit_triode_multipoint(
+        "12AX7", mu=100.0,
+        ia_points=[(250.0, -2.0, 1.2e-3), (100.0, -1.0, 0.5e-3)],
+        gm_anchor=(250.0, -2.0, 1600e-6))
     txt = common_header("12AX7 dual triode (one section)",
-                        "Va=250 V, Vg=-2 V -> Ia=1.2 mA, gm=1600 umho, mu=100") + "\n" + \
+                        "Va=250 V/-2 V -> 1.2 mA, 1600 umho AND Va=100 V/-1 V -> 0.5 mA (mu=100); "
+                        "v1 two-point fit, see reference/studies/12ax7-calibration.md") + "\n" + \
         emit_triode(ax7, {"cgk": 1.6, "cgp": 1.7, "cpk": 0.46}, "") + "\n"
     (MODELS_DIR / "12ax7.inc").write_text(txt)
 
@@ -291,7 +380,7 @@ Cak A K 4p
     (MODELS_DIR / "5u4g.inc").write_text(txt)
 
     print("fitted parameters:")
-    print(f"  12AX7: MU={ax7.mu:g} KP={ax7.kp:.6g} KG1={ax7.kg1:.6g} EX={ax7.ex:g} KVB={ax7.kvb:g}")
+    print(f"  12AX7: MU={ax7.mu:g} KP={ax7.kp:.6g} KG1={ax7.kg1:.6g} EX={ax7.ex:g} KVB={ax7.kvb:.6g} (v1 multi-point)")
     print(f"  12AY7: MU={ay7.mu:g} KP={ay7.kp:.6g} KG1={ay7.kg1:.6g} EX={ay7.ex:g} KVB={ay7.kvb:g}")
     print(f"  6AT6:  MU={at6.mu:g} KP={at6.kp:.6g} KG1={at6.kg1:.6g} EX={at6.ex:g} KVB={at6.kvb:g}")
     print(f"  6V6GT: MU={v6.mu:g} KP={v6.kp:.6g} KG1={v6.kg1:.6g} KG2={v6.kg2:.6g} KVB={v6.kvb:g}")

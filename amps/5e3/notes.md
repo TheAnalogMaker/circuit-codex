@@ -24,13 +24,13 @@ The 5E3's phase inverter uses a wiring detail that's easy to miss: V2B's
 cathode runs through **1.5k** to a junction, then **56k** to ground, and the
 **1M grid leak returns to that junction** rather than to ground — the tone
 network's capacitors AC-couple the grid. The stage therefore biases itself:
-simulation puts the cathode at 42.4 V and the junction at 41.3 V — a clean
-−1.1 V bias — with the plate (56k from B+3) at 195 V.
+simulation puts the cathode at 45.8 V and the junction at 44.6 V — a clean
+−1.2 V bias — with the plate (56k from B+3) at 190 V.
 
 ## Verification
 
 Every component value comes from the published Fender drawing. The F-EE sheet
 carries no factory voltage chart (only Fender's ±20 % measurement notice), so
 this circuit is verified against the best published DC measurements instead:
-all seven reference nodes simulate within 12 % — rails within 8 %, stage
-plates within 12 %, and the 6V6 cathode within 8 %.
+all seven reference nodes simulate within 13 % — rails within 8 %, stage
+plates within 13 %, and the 6V6 cathode within 8 %.

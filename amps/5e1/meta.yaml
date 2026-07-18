@@ -23,5 +23,5 @@ sources:
 verification:
   status: verified
   date: 2026-07-18
-  max_deviation_pct: 19.1   # worst node: V1A plate 178.7 V vs chart 150 V (chart convention is +/-20%)
+  max_deviation_pct: 14.7   # input plate vs printed chart (±20% convention); improved by the v1 12AX7 fit
 contributors: [TheAnalogMaker]
