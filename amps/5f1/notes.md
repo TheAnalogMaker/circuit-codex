@@ -18,23 +18,29 @@ parallels the 1.5k through the secondary's near-zero DCR).
 Power: 325-0-325 PT → 5Y3GT full-wave → three 16 µF filter nodes separated by
 two 10k droppers: B+1 (output plate) → B+2 (screen) → B+3 (preamp plates).
 
-## Simulated operating point (Circuit Codex models, B+1 held at 360 V)
+## Operating point: chart vs. simulation (resolved 2026-07-18)
 
-| Node | Simulated | Published figure | Note |
+Chart node values read from the published Fender drawing (GM): **B+1 340 V
+(26 µF/450 V cap), B+2 295 V (8 µF), B+3 250 V (8 µF)**. With B+1 driven at
+340 V, simulation discriminates the dropping-resistor value cleanly:
+
+| Node | Chart | Sim, R11=10k | Sim, R11=22k |
 |---|---|---|---|
-| B+2 (screen) | 308 V | 325 V | −5%; OT primary DCR omitted in v0 deck |
-| B+3 (preamp) | 289 V | "250 V" (walkthrough) | see open question below |
-| V1A/V1B plates | 193 / 190 V | ~170 V | +12–14%; real-world 5F1 measurements also trend above the old chart |
-| V1 cathodes | 1.4 V | −1.4/−1.5 V bias published | matches exactly |
-| 6V6 cathode | 19.3 V | 19 V (ampbooks, 5E1) | 1.4% — strong cross-check |
+| B+2 | 295 V | 291 V (1.3%) | 292 V (0.9%) |
+| B+3 | 250 V | 273 V (**9.2% off**) | 255 V (2.0%) |
+| V1A plate | ~170 V | 183 V | **171.6 V (0.9%)** |
+| V1B plate | ~170 V | 180 V | **169.1 V (0.5%)** |
+| 6V6 cathode | 19 V (5E1 x-ref) | 18.0 V | 18.1 V (4.8%) |
 
-## Open question (why this stays `draft`)
+**Conclusion:** the second dropper is 22k, not the 10k a secondary source
+claimed — with it, every published figure (rails, the walkthrough's 170 V
+plates, the ampbooks cathode cross-reference) reconciles simultaneously.
+The netlist now carries R11 = 22k on that basis.
 
-The secondary-source figure of **B+3 = 250 V is internally inconsistent** with a
-10k dropper: two 12AX7 stages drawing ~1.4 mA total can only drop ~14 V across
-R11, and the simulation agrees (289 V). Either the published chart's node values
-were taken under different conditions, or a source transcription is off.
-**To do before `verified`:** read the node voltages directly from the published
-Fender 5F1 drawing (viewing a scan to read published values is fine — we simply
-never reproduce the drawing) and correct `voltages.yaml` chart entries; add OT
-primary DCR to the deck at the same time.
+## Before `verified`
+
+- [ ] Confirm the printed value of the resistor between the two 8 µF filter
+      caps on the published drawing (expected marking: 22K).
+- [ ] If the drawing's tube-pin voltage chart lists per-pin values, add them
+      to voltages.yaml (plate/cathode pins for V1 and V2).
+- [ ] Optionally add OT primary DCR to the deck (second-order effect).

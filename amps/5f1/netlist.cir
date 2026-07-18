@@ -3,7 +3,8 @@
 * facts (see meta.yaml sources); no factory drawing reproduced.
 *
 * DC conventions (v0, documented in notes.md):
-*  - B+1 driven at the published 360 V figure; downstream nodes are DERIVED.
+*  - B+1 = 340 V per the published chart (read from the drawing, 2026-07-18).
+*  - Downstream nodes are DERIVED by simulation, never asserted.
 *  - Output transformer primary DCR omitted (plate node = B+1, as voltage
 *    charts conventionally annotate).
 *  - Coupling caps omitted (DC open); bypass caps omitted (DC no-ops).
@@ -12,11 +13,11 @@
 .include models/12ax7.inc
 .include models/6v6gt.inc
 
-VBP1 BP1 0 DC 360
+VBP1 BP1 0 DC 340
 
 * power rail droppers
 R10 BP1 BP2 10k
-R11 BP2 BP3 10k
+R11 BP2 BP3 22k
 
 * V1A input stage
 R5  BP3 P1A 100k
