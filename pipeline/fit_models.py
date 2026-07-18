@@ -205,12 +205,41 @@ Cak A K 4p
 """
     (MODELS_DIR / "5y3gt.inc").write_text(txt)
 
+    # ---- 5881 (6L6GC-family beam power): Va=250, Vg2=250, Vg1=-14 ->
+    #      Ia=72 mA, Ig2=5 mA, gm=6000 umho, mu(g1-g2)=8
+    p5881 = fit_pentode("5881", mu=8.0, vp=250.0, vg2=250.0, vg1=-14.0,
+                        ia=72e-3, ig2=5e-3, gm=6000e-6)
+    txt = common_header("5881 beam power tube (6L6GC-family anchor data)",
+                        "Va=250 V, Vg2=250 V, Vg1=-14 V -> Ia=72 mA, Ig2=5 mA, gm=6000 umho",
+                        ["Anchored on RC-19 6L6-GC average characteristics; 5881/6L6WGB",
+                         "is treated as 6L6GC-class at these ratings (see METHODOLOGY).",
+                         "mu is grid-No.1-to-grid-No.2 amplification factor (8, RC-19).",
+                         "Node order: P G2 G1 K"]) + "\n" + \
+        emit_pentode(p5881, {"cin": 10.0, "cgp": 0.6, "cout": 12.0}) + "\n"
+    (MODELS_DIR / "5881.inc").write_text(txt)
+
+    # ---- GZ34: tube drop ~17 V at 250 mA per plate (Mullard datasheet average)
+    perv_gz = fit_rectifier_perveance(v_drop=17.0, i_at_drop=250e-3)
+    txt = common_header("GZ34 full-wave rectifier (ONE plate unit — instantiate twice)",
+                        "tube voltage drop ~17 V at Ia=250 mA per plate (Mullard average)",
+                        ["Child's-law diode: I = PERV * V^1.5; PERV fitted to the drop anchor.",
+                         "Node order: A K (anode, cathode)"]) + f"""
+.subckt GZ34 A K
+* fitted: PERV={perv_gz:.6g} EX=1.5
+Bd A K I=pow(uramp(V(A,K)),1.5)*{perv_gz:.6g}
+Cak A K 4p
+.ends GZ34
+"""
+    (MODELS_DIR / "gz34.inc").write_text(txt)
+
     print("fitted parameters:")
     print(f"  12AX7: MU={ax7.mu:g} KP={ax7.kp:.6g} KG1={ax7.kg1:.6g} EX={ax7.ex:g} KVB={ax7.kvb:g}")
     print(f"  12AY7: MU={ay7.mu:g} KP={ay7.kp:.6g} KG1={ay7.kg1:.6g} EX={ay7.ex:g} KVB={ay7.kvb:g}")
     print(f"  6V6GT: MU={v6.mu:g} KP={v6.kp:.6g} KG1={v6.kg1:.6g} KG2={v6.kg2:.6g} KVB={v6.kvb:g}")
     print(f"  5Y3GT: PERV={perv:.6g}")
-    print(f"wrote 4 models to {MODELS_DIR}")
+    print(f"  5881:  MU={p5881.mu:g} KP={p5881.kp:.6g} KG1={p5881.kg1:.6g} KG2={p5881.kg2:.6g}")
+    print(f"  GZ34:  PERV={perv_gz:.6g}")
+    print(f"wrote 6 models to {MODELS_DIR}")
 
 
 if __name__ == "__main__":

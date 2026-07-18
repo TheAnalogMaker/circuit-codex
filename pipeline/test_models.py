@@ -135,6 +135,18 @@ def main() -> int:
     failures += check("6V6GT", "Ig2", r["ig2"], 4.5e-3, TOL_I)
     failures += check("6V6GT", "gm", (r["ia_hi"] - r["ia_lo"]) / 0.1, 4100e-6, TOL_GM)
 
+    print("5881 @ Va=250, Vg2=250, Vg1=-14:")
+    r = run_bench(PENTODE_BENCH.format(name="5881", inc=MODELS / "5881.inc",
+                                       vp=250, vg2=250, vg1=-14,
+                                       vg_hi=-13.95, vg_lo=-14.05))
+    failures += check("5881", "Ia", r["ia0"], 72e-3, TOL_I)
+    failures += check("5881", "Ig2", r["ig2"], 5e-3, TOL_I)
+    failures += check("5881", "gm", (r["ia_hi"] - r["ia_lo"]) / 0.1, 6000e-6, TOL_GM)
+
+    print("GZ34 @ Va=17 (per plate):")
+    r = run_bench(RECT_BENCH.format(name="GZ34", inc=MODELS / "gz34.inc", va=17))
+    failures += check("GZ34", "Ia", r["ia0"], 250e-3, TOL_I)
+
     print("5Y3GT @ Va=60 (per plate):")
     r = run_bench(RECT_BENCH.format(name="5Y3GT", inc=MODELS / "5y3gt.inc", va=60))
     failures += check("5Y3GT", "Ia", r["ia0"], 125e-3, TOL_I)
