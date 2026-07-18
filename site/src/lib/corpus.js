@@ -20,11 +20,13 @@ export function loadCorpus() {
       const dir = path.join(AMPS_DIR, d.name);
       const meta = yaml.load(fs.readFileSync(path.join(dir, 'meta.yaml'), 'utf8'));
       const voltagesRaw = readIfExists(path.join(dir, 'voltages.yaml'));
+      const bomRaw = readIfExists(path.join(dir, 'bom.yaml'));
       const notesRaw = readIfExists(path.join(dir, 'notes.md'));
       return {
         id: meta.id,
         meta,
         voltages: voltagesRaw ? yaml.load(voltagesRaw) : null,
+        bom: bomRaw ? yaml.load(bomRaw) : null,
         notesHtml: notesRaw ? marked.parse(notesRaw.replace(/^# .*\n/, '')) : null,
         hasNetlist: fs.existsSync(path.join(dir, 'netlist.cir')),
         hasSchematic: fs.existsSync(path.join(dir, 'schematic.kicad_sch')),

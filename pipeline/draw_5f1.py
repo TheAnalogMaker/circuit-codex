@@ -109,11 +109,14 @@ LIB = """  (lib_symbols
 body: list[str] = []
 
 
-def sym(lib: str, ref: str, val: str, x: float, y: float, rot: int = 0) -> None:
+def sym(lib: str, ref: str, val: str, x: float, y: float, rot: int = 0,
+        lx: float = 2.2, ly: float = -3.2) -> None:
+    # Property angle compensates the instance rotation so labels stay horizontal.
+    pa = (360 - rot) % 360
     body.append(f"""  (symbol (lib_id "cx:{lib}") (at {x:g} {y:g} {rot}) (unit 1)
     (in_bom yes) (on_board yes) (uuid "{u()}")
-    (property "Reference" "{ref}" (at {x + 2.2:g} {y - 3.2:g} 0) {FONT_L})
-    (property "Value" "{val}" (at {x + 2.2:g} {y - 0.8:g} 0) {FONT_L}))""")
+    (property "Reference" "{ref}" (at {x + lx:g} {y + ly:g} {pa}) {FONT_L})
+    (property "Value" "{val}" (at {x + lx:g} {y + ly + 2.4:g} {pa}) {FONT_L}))""")
 
 
 def wire(x1: float, y1: float, x2: float, y2: float) -> None:
@@ -146,9 +149,9 @@ text("Heaters and PT primary omitted — see netlist.cir and meta.yaml", 25, 74.
 # V1A input stage -----------------------------------------------------
 glabel("INPUT", 33, 100, 180)
 wire(33, 100, 41.91, 100)
-sym("R", "R3", "68k", 45.72, 100, 90)
+sym("R", "R3", "68k", 45.72, 100, 90, lx=-3.2, ly=-6.0)
 wire(49.53, 100, 53.34, 100)
-sym("TRIODE", "V1A", "1/2 12AX7", 60.96, 100)
+sym("TRIODE", "V1A", "12AX7", 60.96, 100, lx=6.0, ly=-6.4)
 junction(53.34, 100)
 sym("R", "R1", "1M", 53.34, 110.49)
 wire(53.34, 100, 53.34, 106.68)
@@ -169,7 +172,7 @@ wire(60.96, 81.28, 60.96, 78.74)
 glabel("B+3", 60.96, 78.74, 90)
 # coupling to volume
 wire(60.96, 88.9, 68.58, 88.9)
-sym("C", "C1", "22n", 72.39, 88.9, 90)
+sym("C", "C1", "22n", 72.39, 88.9, 90, lx=-3.2, ly=-6.2)
 wire(76.2, 88.9, 81.28, 88.9)
 wire(81.28, 88.9, 81.28, 100)
 junction(81.28, 100)
@@ -179,7 +182,7 @@ gnd(81.28, 110.16)
 
 # V1B driver stage ----------------------------------------------------
 wire(81.28, 100, 99.06, 100)
-sym("TRIODE", "V1B", "1/2 12AX7", 106.68, 100)
+sym("TRIODE", "V1B", "12AX7", 106.68, 100, lx=6.0, ly=-6.4)
 wire(106.68, 107.62, 106.68, 111.76)
 junction(106.68, 111.76)
 sym("R", "R6", "1.5k", 106.68, 115.57)
@@ -199,7 +202,7 @@ sym("R", "R7", "100k", 106.68, 85.09)
 wire(106.68, 81.28, 106.68, 78.74)
 glabel("B+3", 106.68, 78.74, 90)
 wire(106.68, 88.9, 114.3, 88.9)
-sym("C", "C3", "22n", 118.11, 88.9, 90)
+sym("C", "C3", "22n", 118.11, 88.9, 90, lx=-3.2, ly=-6.2)
 wire(121.92, 88.9, 127, 88.9)
 wire(127, 88.9, 127, 100)
 junction(127, 100)
@@ -209,7 +212,7 @@ gnd(127, 110.16)
 
 # 6V6 output stage ----------------------------------------------------
 wire(127, 100, 129.54, 100)
-sym("PENTODE", "V2", "6V6GT", 137.16, 100.635)
+sym("PENTODE", "V2", "6V6GT", 137.16, 100.635, lx=6.2, ly=-7.6)
 # grid pin lands at (129.54, 101.27); tie the run down to it
 wire(129.54, 100, 129.54, 101.27)
 # screen to B+2
@@ -246,10 +249,10 @@ glabel("GND", 168.91, 92.71, 0)
 text("Power supply — 325-0-325 PT secondary, 5Y3GT full-wave", 25, 140, 1.6)
 glabel("HT_A", 50.8, 139.7, 90)
 wire(50.8, 139.7, 50.8, 142.38)
-sym("DIODE_TUBE", "V3A", "1/2 5Y3GT", 50.8, 150)
+sym("DIODE_TUBE", "V3A", "5Y3GT", 50.8, 150, lx=-11.4, ly=-6.4)
 glabel("HT_B", 63.5, 139.7, 90)
 wire(63.5, 139.7, 63.5, 142.38)
-sym("DIODE_TUBE", "V3B", "1/2 5Y3GT", 63.5, 150)
+sym("DIODE_TUBE", "V3B", "5Y3GT", 63.5, 150, lx=6.0, ly=-6.4)
 wire(50.8, 157.62, 50.8, 160.02)
 wire(63.5, 157.62, 63.5, 160.02)
 wire(50.8, 160.02, 95.25, 160.02)
@@ -259,19 +262,19 @@ sym("C", "C5", "26u", 76.2, 163.83)
 gnd(76.2, 167.64)
 glabel("B+1", 95.25, 160.02, 0)
 wire(95.25, 160.02, 97.79, 160.02)
-sym("R", "R10", "10k", 101.6, 160.02, 90)
+sym("R", "R10", "10k", 101.6, 160.02, 90, lx=-3.2, ly=-6.0)
 wire(105.41, 160.02, 114.3, 160.02)
 junction(107.95, 160.02)
-glabel("B+2", 107.95, 157.48, 90)
-wire(107.95, 157.48, 107.95, 160.02)
+glabel("B+2", 107.95, 154.94, 90)
+wire(107.95, 154.94, 107.95, 160.02)
 junction(111.76, 160.02)
 sym("C", "C7", "8u", 111.76, 163.83)
 gnd(111.76, 167.64)
-sym("R", "R11", "22k", 118.11, 160.02, 90)
+sym("R", "R11", "22k", 118.11, 160.02, 90, lx=-3.2, ly=-6.0)
 wire(121.92, 160.02, 129.54, 160.02)
 junction(124.46, 160.02)
-glabel("B+3", 124.46, 157.48, 90)
-wire(124.46, 157.48, 124.46, 160.02)
+glabel("B+3", 124.46, 154.94, 90)
+wire(124.46, 154.94, 124.46, 160.02)
 sym("C", "C8", "8u", 129.54, 163.83)
 gnd(129.54, 167.64)
 

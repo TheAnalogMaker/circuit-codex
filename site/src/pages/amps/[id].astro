@@ -61,6 +61,27 @@ const ghDir = `${GITHUB}/tree/main/amps/${amp.id}`;
         </section>
       )}
 
+      {amp.bom && (
+        <section>
+          <h2>Parts list</h2>
+          <p class="sub">Reference designators match the schematic above. {amp.bom.notes}
+            Vendor purchase links are coming with the BOM tooling.</p>
+          <div class="tbl"><table>
+            <thead><tr><th>Ref</th><th>Part</th><th>Value / rating</th><th>Role</th></tr></thead>
+            <tbody>
+              {amp.bom.items.map((i) => (
+                <tr>
+                  <td style="color:var(--amber)">{i.ref}</td>
+                  <td style="font-family:var(--body)">{i.part}</td>
+                  <td>{i.value}</td>
+                  <td style="font-family:var(--body);color:var(--faint)">{i.role}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table></div>
+        </section>
+      )}
+
       {amp.notesHtml && (
         <section>
           <h2>Circuit story</h2>
@@ -108,7 +129,7 @@ const ghDir = `${GITHUB}/tree/main/amps/${amp.id}`;
   .viewer-head{padding:10px 16px;border-bottom:1px solid var(--line-soft);font-family:var(--disp);text-transform:uppercase;letter-spacing:.12em;font-size:11.5px;color:var(--muted)}
   .viewer-body{padding:22px 18px;color:var(--muted);font-size:14.5px}
   .viewer-body p{margin:0}
-  .viewer-canvas{height:460px}
+  .viewer-canvas{height:580px}
   .viewer-canvas kicanvas-embed{display:block;width:100%;height:100%}
   h2{font-size:17px;letter-spacing:.14em;margin:28px 0 4px}
   .sub{color:var(--muted);font-size:13.5px;margin:0 0 14px;max-width:70ch}
