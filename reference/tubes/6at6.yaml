@@ -1,0 +1,25 @@
+tube: 6at6
+name: 6AT6
+also_known_as: [EBC90]
+role: >-
+  Twin-diode / high-mu (µ=70) triode. Designed as a detector-amplifier for radios,
+  its triode section serves as a preamp gain stage in the 5F10 Harvard. Only the
+  triode unit is modeled; the diode plates are unused in this corpus.
+model:
+  file: models/6at6.inc
+  anchor: "Va=250 V, Vg=-3 V → Ia=1.0 mA, gm=1200 µmho, µ=70"
+  anchor_source: "RCA Receiving Tube Manual RC-19, 1959, average characteristics"
+used_in: [5f10]
+datasheets:
+  - publisher: RCA
+    designation: 6AT6
+    url: https://frank.pocnet.net/sheets/049/6/6AT6.pdf
+    confidence: high
+  - publisher: General Electric
+    designation: 6AT6
+    url: https://frank.pocnet.net/sheets/093/6/6AT6.pdf
+    confidence: high
+  - publisher: Tung-Sol
+    designation: 6AT6
+    url: https://frank.pocnet.net/sheets/127/6/6AT6.pdf
+    confidence: high

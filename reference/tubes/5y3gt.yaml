@@ -1,0 +1,26 @@
+tube: 5y3gt
+name: 5Y3GT
+also_known_as: []
+role: >-
+  Directly-heated full-wave rectifier — the low-current rectifier of the small
+  tweed amps. Its comparatively high forward drop is part of the sag and
+  compression those circuits are prized for.
+model:
+  file: models/5y3gt.inc
+  anchor: "tube voltage drop ~60 V at Ia=125 mA per plate"
+  anchor_source: "RCA Receiving Tube Manual RC-19, 1959, average characteristics"
+  note: "Child's-law diode (I = PERV·V^1.5); one plate unit, instantiate twice."
+used_in: ["5e1", "5e3", "5f1", "5f10", "5f2a"]
+datasheets:
+  - publisher: RCA
+    designation: 5Y3GT
+    url: https://frank.pocnet.net/sheets/049/5/5Y3GT.pdf
+    confidence: high
+  - publisher: General Electric
+    designation: 5Y3GT
+    url: https://frank.pocnet.net/sheets/093/5/5Y3GT.pdf
+    confidence: high
+  - publisher: Tung-Sol
+    designation: 5Y3GT
+    url: https://frank.pocnet.net/sheets/127/5/5Y3GT.pdf
+    confidence: high

@@ -1,0 +1,25 @@
+tube: 12ay7
+name: 12AY7
+also_known_as: ["6072"]
+role: >-
+  Medium-mu (µ=44) dual triode — a lower-gain, lower-noise first stage. It fronts
+  the tweed high-power amps (5F6-A Bassman, 5E3 Deluxe) where a 12AX7 would be too
+  hot and too noisy.
+model:
+  file: models/12ay7.inc
+  anchor: "Va=250 V, Vg=-4 V → Ia=3.0 mA, gm=1750 µmho, µ=44"
+  anchor_source: "RCA Receiving Tube Manual RC-19, 1959, average characteristics"
+used_in: ["5e3", "5f4", "5f6a"]
+datasheets:
+  - publisher: RCA
+    designation: 12AY7
+    url: https://frank.pocnet.net/sheets/049/1/12AY7.pdf
+    confidence: high
+  - publisher: Tung-Sol
+    designation: 12AY7
+    url: https://frank.pocnet.net/sheets/127/1/12AY7.pdf
+    confidence: high
+  - publisher: General Electric
+    designation: 12AY7
+    url: https://frank.pocnet.net/sheets/135/1/12AY7.pdf
+    confidence: high

@@ -1,0 +1,23 @@
+tube: kt66
+name: KT66
+also_known_as: []
+role: >-
+  British beam-power tetrode from GEC / M-O Valve Co. — the output tube of the
+  JTM45, the amplifier that carried the 6L6-class Bassman topology across the
+  Atlantic. Its higher plate dissipation and different drive give the JTM45 its
+  louder, firmer character.
+model:
+  file: models/kt66.inc
+  anchor: "Va=250 V, Vg2=250 V, Vg1=-15 V → Ia=85 mA, gm=7000 µmho (gm test point)"
+  anchor_source: "GEC / M-O Valve Co. KT66 data sheet, Issue 4, April 1963"
+  anchor_source_url: https://frank.pocnet.net/sheets/084/k/KT66_GEC.pdf
+  note: >-
+    µ is the grid-No.1-to-grid-No.2 amplification factor (9.5), from the
+    triode-connection gm·ra on the same sheet. KG2 is anchored on the Class AB1
+    push-pull quiescent point (Vg2=300 V, Vg1=-27 V → Ig2=2.5 mA).
+used_in: [jtm45]
+datasheets:
+  - publisher: GEC / M-O Valve Co.
+    designation: KT66
+    url: https://frank.pocnet.net/sheets/084/k/KT66_GEC.pdf
+    confidence: high

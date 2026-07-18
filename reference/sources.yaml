@@ -1,0 +1,378 @@
+# Circuit Codex reference library — curated source catalog.
+#
+# Posture: we LINK to established archives; we rehost only material with a
+# documented public-domain basis. Nothing in this catalog is rehosted here —
+# every entry points at the holding archive. Extracted data (tube operating
+# points, component characteristics) appear elsewhere in the corpus as facts
+# with attribution, not as reproductions of the source documents.
+#
+# pd_basis vocabulary:
+#   pd-outright        — published pre-1931; public domain in the US regardless of renewal.
+#   pd-mark            — archive carries a CC Public Domain Mark from the uploader (not
+#                        independently verified against Copyright Office renewal records).
+#   non-renewal        — the work's 28-year renewal window was searched and no renewal found
+#                        (real but keyword-based evidence; not a certified negative).
+#   renewal-dependent  — 1931-1963 publication whose PD status turns on a renewal check we
+#                        have not independently completed; freely hosted, link only.
+#   in-copyright       — likely still under copyright; linked for access only, never rehosted.
+#
+# fields: title, url, kind, publisher, year, covers, pd_basis, confidence, category
+# category: tube-manual | era-component   (datasheets live in reference/tubes/<tube>.yaml)
+
+sources:
+  # ---------------------------------------------------------------- tube manuals
+  - title: The Thermionic Vacuum Tube and Its Applications
+    url: https://archive.org/details/thermionicvacuu00bijlgoog
+    kind: article
+    publisher: McGraw-Hill (H. J. van der Bijl)
+    year: 1920
+    covers: >-
+      Foundational tube theory — amplification factor, plate resistance, mu, and
+      the triode/amplifier math that every later design manual builds on.
+    pd_basis: pd-outright (published 1920)
+    confidence: high
+    category: tube-manual
+
+  - title: The A B C of Vacuum Tubes in Radio Reception
+    url: https://archive.org/details/abcofvacuumtubes00lewi
+    kind: manual
+    publisher: Elmer Hugh Lewis
+    year: 1922
+    covers: >-
+      Beginner-level, non-mathematical account of the tube as detector and
+      amplifier — plain-language circuit explanations.
+    pd_basis: pd-outright (published 1922)
+    confidence: high
+    category: tube-manual
+
+  - title: The Wireless Experimenter's Manual
+    url: https://archive.org/details/wirelessexperime00buchrich
+    kind: manual
+    publisher: Elmer E. Bucher
+    year: 1920
+    covers: >-
+      Vacuum-tube amplifier circuits, transmitting/receiving apparatus design,
+      and general radio measurement technique.
+    pd_basis: pd-outright (published 1920)
+    confidence: high
+    category: tube-manual
+
+  - title: RCA Radiotron Tubes (catalog)
+    url: https://archive.org/details/rca-radiotron-tubes-1924
+    kind: datasheet
+    publisher: Radio Corporation of America
+    year: 1924
+    covers: >-
+      The earliest Radiotron tube-type catalog — ratings for the 1920s
+      receiving and detector tubes.
+    pd_basis: pd-outright (published 1924; also carries a CC Public Domain Mark)
+    confidence: high
+    category: tube-manual
+
+  - title: The RCA Radiotron Manual, Technical Series R-10
+    url: https://archive.org/details/the-rca-radiotron-manual-technical-series-r-10
+    kind: manual
+    publisher: RCA Radiotron Co., Inc.
+    year: 1932
+    covers: >-
+      Early-1930s Radiotron tube manual — base diagrams and characteristics for
+      the transition-era tube lineup.
+    pd_basis: pd-mark (1932 itself is renewal-dependent; renewal not independently verified)
+    confidence: medium
+    category: tube-manual
+
+  - title: RCA Receiving Tube Manual, RC-13
+    url: https://archive.org/details/RCA37
+    kind: manual
+    publisher: Radio Corporation of America
+    year: 1937
+    covers: >-
+      Base diagrams, ratings, and typical circuits for the late-1930s tube
+      lineup.
+    pd_basis: pd-mark (1937 is renewal-dependent; not independently verified)
+    confidence: medium
+    category: tube-manual
+
+  - title: RCA Receiving Tube Manual (RC-15)
+    url: https://archive.org/details/rca_receiving_tube_manual_1947_scan1
+    kind: manual
+    publisher: Radio Corporation of America
+    year: 1947
+    covers: >-
+      Post-war receiving-tube manual — ratings and base diagrams for the tube
+      generation feeding the earliest tweed-era amplifiers.
+    pd_basis: >-
+      non-renewal — the 1974-75 CCE Books renewal lists (the window for a
+      1947/48 work) were searched directly and carry no RCA/Radiotron/Receiving
+      Tube Manual renewal. Keyword-based, not a certified negative.
+    confidence: medium
+    category: tube-manual
+
+  - title: RCA Receiving Tube Manual, RC-21
+    url: https://archive.org/details/bitsavers_rca1961RC2nual_52088484
+    kind: manual
+    publisher: Radio Corporation of America
+    year: 1961
+    covers: >-
+      Ratings and base diagrams for early-1960s receiving tubes — covers many
+      of the preamp and driver tubes in blackface-era circuits.
+    pd_basis: renewal-dependent (1961; hosted via bitsavers, freely downloadable)
+    confidence: medium
+    category: tube-manual
+
+  - title: RCA Receiving Tube Manual, RC-22
+    url: https://archive.org/details/bitsavers_rcaRC22RCAJul63_44917251
+    kind: manual
+    publisher: Radio Corporation of America
+    year: 1963
+    covers: >-
+      The last major RCA receiving-tube manual before the 1964+ renewal-certain
+      window begins.
+    pd_basis: renewal-dependent (1963, edge of the window; hosted via bitsavers)
+    confidence: medium
+    category: tube-manual
+
+  - title: Sylvania Tube Manual (1951)
+    url: https://archive.org/details/1951_Sylvania_Tube_Manual
+    kind: manual
+    publisher: Sylvania Electric Products
+    year: 1951
+    covers: >-
+      Full receiving-tube manual — ratings and base diagrams for the early-1950s
+      lineup.
+    pd_basis: renewal-dependent (1951; no PD mark; freely hosted)
+    confidence: medium
+    category: tube-manual
+
+  - title: Sylvania Tube Manual (1959)
+    url: https://archive.org/details/1959_Sylvania_Tube_Manual
+    kind: manual
+    publisher: Sylvania Electric Products
+    year: 1959
+    covers: >-
+      Full tube manual for the late-1950s lineup — covers many tubes used in
+      blackface-era circuits.
+    pd_basis: renewal-dependent (1959; no PD mark; freely hosted)
+    confidence: medium
+    category: tube-manual
+
+  - title: The Radiotron Designer's Handbook, Third Edition
+    url: https://archive.org/details/Radiotron_Designers_Handbook_Third_Edition_P._Langford_Smith_1941
+    kind: manual
+    publisher: RCA / Wireless Press (F. Langford-Smith, ed.)
+    year: 1941
+    covers: >-
+      Classic tube-amplifier design reference — push-pull output stages,
+      power-supply design, distortion analysis. A direct ancestor of guitar-amp
+      topology.
+    pd_basis: renewal-dependent (1941; no PD mark or renewal evidence found)
+    confidence: medium
+    category: tube-manual
+
+  - title: The Radiotron Designer's Handbook, Fourth Edition
+    url: https://archive.org/details/Radiotron_Designers_Handbook_Fourth_Edition_P._Langford_Smith_1953
+    kind: manual
+    publisher: RCA / Amalgamated Wireless Valve Co. (F. Langford-Smith, ed.)
+    year: 1953
+    covers: >-
+      The definitive tube-amplifier design bible (1300+ pages) — output-
+      transformer design, push-pull classes, negative feedback, distortion, and
+      resistor/capacitor/potentiometer characteristics. The most-cited reference
+      in guitar-amp design literature.
+    pd_basis: >-
+      renewal-dependent, higher-risk — first published in Australia, so a US
+      copyright could have been restored under URAA regardless of US renewal.
+      Link only; do not treat as clear-PD without specialist review. (This is
+      the full-access scan, not the borrow-only copy.)
+    confidence: medium
+    category: tube-manual
+
+  - title: Tube Substitution Handbook, Vol. 1
+    url: https://archive.org/details/TubeSubstitutionHandbookV1
+    kind: manual
+    publisher: Howard W. Sams & Co.
+    year: 1960
+    covers: >-
+      Cross-reference of American receiving tubes with industrial and European
+      substitutes.
+    pd_basis: pd-mark (1960 is renewal-dependent; not independently verified)
+    confidence: medium
+    category: tube-manual
+
+  - title: Sylvania Tube Substitution Manual
+    url: https://archive.org/details/Sylvania_Tube_Substitution_Manual_-_1950
+    kind: manual
+    publisher: Sylvania Electric Products
+    year: 1950
+    covers: >-
+      Cross-brand tube substitution guide — useful for finding period-correct
+      alternates for a vintage circuit.
+    pd_basis: renewal-dependent (1950; no PD mark; freely hosted)
+    confidence: medium
+    category: tube-manual
+
+  - title: Rider Receiving Tube Substitution Guide
+    url: https://archive.org/details/rider-receiving-tube-substitution-guide-1950
+    kind: manual
+    publisher: John F. Rider Publisher (H. A. Middleton)
+    year: 1950
+    covers: >-
+      First-edition tube substitution cross-reference — direct and near-direct
+      replacements across manufacturers.
+    pd_basis: renewal-dependent (1950; no PD mark; freely hosted)
+    confidence: medium
+    category: tube-manual
+
+  # ------------------------------------------------------------- era components
+  - title: Electronic Transformers and Circuits
+    url: https://archive.org/details/Electronic_Transformers_and_Circuits_Reuben_Lee_1955
+    kind: manual
+    publisher: John Wiley & Sons (Reuben Lee)
+    year: 1955
+    covers: >-
+      The standard tube-era output/power-transformer design monograph — core
+      materials, winding topology, leakage reactance, interleaving, frequency
+      response.
+    pd_basis: renewal-dependent (hosted unrestricted in the folkscanomy electronics collection)
+    confidence: high
+    category: era-component
+
+  - title: "Transformer Engineering: A Treatise on the Theory, Operation, and Application of Transformers"
+    url: https://archive.org/details/transformer-engineering-blume-camilli-boyajian-1938
+    kind: manual
+    publisher: General Electric Co. (Blume, Camilli, Boyajian, et al.)
+    year: 1938
+    covers: >-
+      Foundational transformer theory — magnetics, core loss, leakage reactance,
+      regulation — underlying all later output-transformer design texts.
+    pd_basis: renewal-dependent (1938; unrestricted full download)
+    confidence: medium
+    category: era-component
+
+  - title: Reference Data for Radio Engineers, 1st Edition
+    url: https://archive.org/details/dli.ernet.288493
+    kind: manual
+    publisher: Federal Telephone and Radio Corporation (later ITT)
+    year: 1943
+    covers: >-
+      Carbon-composition resistor characteristics, capacitor theory,
+      potentiometer/attenuator taper laws, transformer and rectifier reference
+      data — a comprehensive era-correct engineering reference.
+    pd_basis: renewal-dependent (Digital Library of India scan; full open download)
+    confidence: high
+    category: era-component
+
+  - title: Radio Engineers' Handbook
+    url: https://archive.org/details/termanradioengineershandbook1943
+    kind: manual
+    publisher: McGraw-Hill (Frederick Emmons Terman)
+    year: 1943
+    covers: >-
+      Resistor and capacitor theory (paper and electrolytic), rectifier
+      circuits, transformer design, and volume-control taper curves — the other
+      essential period cross-reference alongside Reference Data for Radio Engineers.
+    pd_basis: renewal-dependent (hosted unrestricted; full download open)
+    confidence: high
+    category: era-component
+
+  - title: The Electrolytic Capacitor
+    url: https://archive.org/details/TheElectrolyticCapacitor
+    kind: manual
+    publisher: Alexander M. Georgiev
+    year: 1945
+    covers: >-
+      A dedicated monograph on wet/dry electrolytic-capacitor design,
+      manufacture, aging, leakage, and application — a primary source on the
+      behavior of the era's filter capacitors.
+    pd_basis: non-renewal (archive description states "Original copyright 1945, copyright not renewed")
+    confidence: high
+    category: era-component
+
+  - title: The Cornell-Dubilier Capacitor, Vol. 15 No. 1
+    url: https://archive.org/details/cornelldubilierc00unse
+    kind: article
+    publisher: Cornell-Dubilier Electric Corporation
+    year: 1950
+    covers: >-
+      Manufacturer trade periodical on paper and electrolytic capacitor
+      construction, application notes, and period characteristics.
+    pd_basis: renewal-dependent (hosted unrestricted; full open download)
+    confidence: medium
+    category: era-component
+
+  - title: Selenium Rectifier Handbook
+    url: https://archive.org/details/Selenium_Rectifier_Handbook_Sarkes-Tarzian_Company
+    kind: manual
+    publisher: Sarkes Tarzian, Inc.
+    year: 1950
+    covers: >-
+      Forward-drop and aging characteristics, voltage-multiplier topologies,
+      thermal derating, and replacement data — the definitive period
+      selenium-rectifier reference.
+    pd_basis: renewal-dependent (hosted unrestricted; full open download)
+    confidence: high
+    category: era-component
+
+  - title: "Publication EC-21: Hot-Molded Fixed Resistors"
+    url: https://archive.org/details/1975-0801-allen-bradley-publication-ec-21-hot-molded-fixed-resistors
+    kind: datasheet
+    publisher: Allen-Bradley Company
+    year: 1975
+    covers: >-
+      Manufacturer engineering data for the carbon-composition ("hot-molded")
+      resistor line used throughout vintage tube amps — tolerance, temperature
+      and voltage coefficients, long-term drift. Dated 1975 but describes the
+      unchanged formulation used since the 1930s-40s.
+    pd_basis: in-copyright (manufacturer literature; linked for access only)
+    confidence: high
+    category: era-component
+
+  - title: Loudspeaker Products Catalog
+    url: https://archive.org/details/TNM_Loudspeaker_products_catalog_-_Jensen_The_Mut_20180201_0225
+    kind: datasheet
+    publisher: Jensen Manufacturing Division / The Muter Company
+    year: 1965
+    covers: >-
+      Manufacturer catalog with explicit Alnico-5 magnet weights and specs
+      across the line — Jensen was the principal alnico speaker supplier to
+      guitar-amp makers of the era.
+    pd_basis: in-copyright (1965 catalog; status not verified; linked for access only)
+    confidence: medium
+    category: era-component
+
+  - title: GE Transistor Manual, 2nd Edition
+    url: https://archive.org/details/ge-transistor-manual-2nd-edition
+    kind: manual
+    publisher: General Electric Company
+    year: 1957
+    covers: >-
+      Germanium alloy-junction transistor theory and specs (2N43A family) —
+      early-germanium reference for future fuzz/booster pedal research.
+    pd_basis: renewal-dependent (hosted unrestricted; not independently dated)
+    confidence: medium
+    category: era-component
+
+  - title: GE Transistor Manual (1962 printing)
+    url: https://archive.org/details/ge_transistor_manual_1962
+    kind: manual
+    publisher: General Electric Company
+    year: 1962
+    covers: >-
+      PNP germanium alloy/alloy-diffused transistor data — squarely in the era
+      of the classic germanium fuzz/booster circuits (Fuzz Face, Tone Bender).
+    pd_basis: renewal-dependent (hosted unrestricted)
+    confidence: medium
+    category: era-component
+
+  - title: RCA Transistor Manual, SC-12
+    url: https://archive.org/details/bitsavers_rcadataBoostorManual_39971307
+    kind: manual
+    publisher: Radio Corporation of America
+    year: 1966
+    covers: >-
+      Germanium-to-silicon transition-era transistor manual — device data and
+      bias/application notes matching the vintage of the earliest fuzz/booster
+      designs.
+    pd_basis: renewal-dependent (bitsavers mirror, unrestricted)
+    confidence: medium
+    category: era-component

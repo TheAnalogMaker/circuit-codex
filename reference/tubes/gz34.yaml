@@ -1,0 +1,22 @@
+tube: gz34
+name: GZ34
+also_known_as: [5AR4]
+role: >-
+  Indirectly-heated full-wave rectifier — a low-drop, slow-warmup rectifier that
+  supplies the tweed 5F6-A Bassman and the JTM45. Its low forward drop delivers a
+  stiffer, higher B+ than the directly-heated 5Y3/5U4 rectifiers.
+model:
+  file: models/gz34.inc
+  anchor: "tube voltage drop ~17 V at Ia=250 mA per plate (Mullard average)"
+  anchor_source: "RCA Receiving Tube Manual RC-19, 1959, average characteristics"
+  note: "Child's-law diode (I = PERV·V^1.5); one plate unit, instantiate twice."
+used_in: [5f6a, jtm45]
+datasheets:
+  - publisher: Mullard
+    designation: GZ34
+    url: https://frank.pocnet.net/sheets/129/g/GZ34_Mullard.pdf
+    confidence: high
+  - publisher: Philips
+    designation: GZ34
+    url: https://frank.pocnet.net/sheets/010/g/GZ34.pdf
+    confidence: high

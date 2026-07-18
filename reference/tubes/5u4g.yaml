@@ -1,0 +1,18 @@
+tube: 5u4g
+name: 5U4G
+also_known_as: [5U4GB]
+role: >-
+  Directly-heated high-current full-wave rectifier — the supply rectifier of the
+  larger tweed amps such as the 5F4 Super, where the 5Y3 could not pass enough
+  current.
+model:
+  file: models/5u4g.inc
+  anchor: "tube voltage drop ~50 V at Ia=200 mA per plate"
+  anchor_source: "RCA Receiving Tube Manual RC-19, 1959, average characteristics"
+  note: "Child's-law diode (I = PERV·V^1.5); one plate unit, instantiate twice."
+used_in: [5f4]
+datasheets:
+  - publisher: RCA
+    designation: 5U4GB
+    url: https://frank.pocnet.net/sheets/049/5/5U4GB.pdf
+    confidence: medium

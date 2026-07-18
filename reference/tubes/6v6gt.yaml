@@ -1,0 +1,26 @@
+tube: 6v6gt
+name: 6V6GT
+also_known_as: [6V6, 6V6GTA]
+role: >-
+  Beam-power output tetrode — the low-wattage American output tube. Single-ended
+  in the Champ and Princeton, push-pull in the Deluxe, it defines the compressed,
+  early-breakup voice of the small tweed amps.
+model:
+  file: models/6v6gt.inc
+  anchor: "Va=250 V, Vg2=250 V, Vg1=-12.5 V → Ia=45 mA, Ig2=4.5 mA, gm=4100 µmho"
+  anchor_source: "RCA Receiving Tube Manual RC-19, 1959, average characteristics"
+  note: "µ is the grid-No.1-to-grid-No.2 amplification factor (9.6, RC-19)."
+used_in: ["5e1", "5e3", "5f1", "5f10", "5f2a"]
+datasheets:
+  - publisher: RCA
+    designation: 6V6 / 6V6GT
+    url: https://frank.pocnet.net/sheets/049/6/6V6.pdf
+    confidence: medium
+  - publisher: General Electric
+    designation: 6V6GT
+    url: https://frank.pocnet.net/sheets/093/6/6V6GT.pdf
+    confidence: high
+  - publisher: Tung-Sol
+    designation: 6V6 / 6V6GT
+    url: https://frank.pocnet.net/sheets/127/6/6V6.pdf
+    confidence: medium

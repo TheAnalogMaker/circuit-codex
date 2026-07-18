@@ -1,0 +1,37 @@
+tube: 5881
+name: "5881"
+also_known_as: [6L6WGB, "6L6GC (family)"]
+role: >-
+  Beam-power output tube of the 6L6GC / 5881 family — the higher-power American
+  output tube. It drives the tweed 5F6-A Bassman, and its family model stands in
+  for the 6L6G in the 5F4 Super. The model is anchored on 6L6GC average
+  characteristics.
+model:
+  file: models/5881.inc
+  anchor: "Va=250 V, Vg2=250 V, Vg1=-14 V → Ia=72 mA, Ig2=5 mA, gm=6000 µmho"
+  anchor_source: "RCA Receiving Tube Manual RC-19, 1959, average characteristics (6L6GC)"
+  note: >-
+    5881/6L6WGB is treated as 6L6GC-class at these ratings. µ is the
+    grid-No.1-to-grid-No.2 amplification factor (8, RC-19).
+used_in: [5f4, 5f6a]
+datasheets:
+  - publisher: RCA
+    designation: 6L6GC
+    url: https://frank.pocnet.net/sheets/049/6/6L6GC.pdf
+    confidence: high
+  - publisher: General Electric
+    designation: 6L6GC
+    url: https://frank.pocnet.net/sheets/093/6/6L6GC.pdf
+    confidence: high
+  - publisher: Tung-Sol
+    designation: 6L6GC
+    url: https://frank.pocnet.net/sheets/127/6/6L6GC.pdf
+    confidence: high
+  - publisher: RCA
+    designation: "5881"
+    url: https://frank.pocnet.net/sheets/049/5/5881.pdf
+    confidence: high
+  - publisher: Tung-Sol
+    designation: "5881"
+    url: https://frank.pocnet.net/sheets/127/5/5881.pdf
+    confidence: high
