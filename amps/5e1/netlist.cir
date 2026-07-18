@@ -1,0 +1,43 @@
+* 5E1 (Tweed Champ-style) — DC operating-point netlist
+* Circuit Codex — CC-BY-SA 4.0. Independently drawn from the published Champ
+* 5E1 (H-EE) drawing's component values and printed chart (see meta.yaml);
+* no factory drawing reproduced.
+*
+* DC conventions (documented in notes.md):
+*  - B+1 = 320 V per the published chart (reservoir, the first filter node).
+*  - Downstream nodes are DERIVED by simulation, never asserted.
+*  - Choke modeled as its estimated DCR (RCHOKE): the chart's printed
+*    320 -> 305 drop over the ~43 mA the chart's own pin currents imply is
+*    ~350 ohm. Rails carry 8% tolerance because that DCR is an estimate.
+*  - Output transformer primary DCR omitted, so the 6V6 plate sits at its
+*    B+ node (B+2); the screen ties to the same node on this circuit.
+*  - Coupling caps omitted (DC open); cathode-bypass caps omitted (DC no-ops).
+*  - NFB resistor R11 (22k) included: it parallels V1B's cathode at DC through
+*    the speaker secondary's ~0 ohm DCR.
+.include models/12ax7.inc
+.include models/6v6gt.inc
+
+VBP1 BP1 0 DC 320
+
+* power rail: choke (estimated DCR) then 22k dropper
+RCHOKE BP1 BP2 350
+R10 BP2 BP3 22k
+
+* V1A input stage (grid returned to ground through the 1M leak at DC;
+* the two 68k input stoppers carry no DC current and are omitted)
+R5  BP3 P1A 100k
+XV1A P1A G1A K1A 12AX7
+R3  G1A 0 1meg
+R4  K1A 0 1.5k
+
+* V1B driver stage (grid returned to ground through the 1M volume pot at DC)
+R7  BP3 P1B 100k
+XV1B P1B G1B K1B 12AX7
+RVOL G1B 0 1meg
+R6  K1B 0 1.5k
+R11 K1B 0 22k
+
+* 6V6GT output stage — plate (via OT primary) and screen both at B+2
+XV2 BP2 BP2 G2 K2 6V6GT
+R9  G2 0 220k
+R8  K2 0 470

@@ -1,0 +1,27 @@
+# Circuit Codex metadata — schema: docs/schema.md (v1)
+id: "5e1"
+name_style: "Tweed Champ-style"
+family: tweed
+era:
+  start: 1955
+  end: 1957
+wattage: 5
+tubes: [12AX7, 6V6GT, 5Y3GT]
+topology:
+  rectifier: { kind: tube, type: "5Y3GT" }
+  bias: cathode
+  phase_inverter: none
+  tone_stack: none
+lineage:
+  derived_from: []   # 5D1 is the direct ancestor — edge added when amps/5d1 lands
+  influenced: []     # the 5F1 derives from this circuit — that edge lives on 5f1.derived_from
+sources:
+  - desc: "Fender 'Champ-Amp' Model 5E1 drawing (H-EE): layout, schematic, and the printed voltage chart all read directly from the published sheet 2026-07-18 — component values, the choke-first B+ chain (reservoir +320 -> choke -> +305 -> 22k -> +260), the 6V6 plate+screen sharing the post-choke node, and the 22k negative feedback into the second 12AX7 cathode. The drawing prints no transformer or choke part numbers. Not reproduced here; archived at EL34World"
+    url: "https://el34world.com/charts/Schematics/files/Fender/Fender_champ_5e1.pdf"
+  - desc: "ampbooks.com classic-circuit analysis (Fender Champ 5E1) — cross-reference for stage operating points and the 6V6 single-ended load line"
+    url: "https://www.ampbooks.com/mobile/classic-circuits/fender-champ-5e1/"
+verification:
+  status: verified
+  date: 2026-07-18
+  max_deviation_pct: 19.1   # worst node: V1A plate 178.7 V vs chart 150 V (chart convention is +/-20%)
+contributors: [TheAnalogMaker]

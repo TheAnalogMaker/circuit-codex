@@ -13,7 +13,7 @@ topology:
   phase_inverter: none
   tone_stack: none
 lineage:
-  derived_from: []   # 5E1 is the direct ancestor — edge added when amps/5e1 lands
+  derived_from: ["5e1"]   # 5E1 is the direct ancestor (mid-1950s tweed Champ)
   influenced: []
 sources:
   - desc: "Rob Robinette, 'How Amps Work' (5F1-based walkthrough) — component roles, PT 325-0-325, B+ node structure (its 16uF caps / dual-10k droppers figures were corrected by the drawing read-off: 26/8/8uF, 10k+22k)"
