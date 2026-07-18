@@ -1,0 +1,66 @@
+* JTM45 (Marshall — 5F6-A-derived) — DC operating-point netlist
+* Circuit Codex — CC-BY-SA 4.0. Independently drawn from the published JTM45
+* factory drawing's component values and printed valve-voltage chart (see
+* meta.yaml); no drawing reproduced.
+*
+* DC conventions: B+1 driven at the chart's +450 V reservoir (GZ34 cathode);
+* downstream rails DERIVED through the real dropper values. The 20H choke is
+* modeled as a DCR estimate; the output-transformer primary DCR is omitted, so
+* the KT66 plate node sits at B+1 (chart prints 430 at the plate pin, 20 V of
+* omitted OT/reservoir drop — within the 20% tube-pin tolerance). Coupling and
+* tone-stack caps are DC-open and omitted; the tone stack is fully capacitor-
+* coupled at DC. The fixed-bias network (HT-tap diode, 150k, filter caps and
+* grid-leaks) is replaced by an ideal -50 V source: the drawing prints no bias
+* figure or idle current, so this is a representative estimate. Grid-stopper and
+* grid-leak resistors carry no DC and are omitted (grids sit at their leak
+* return). The tremolo section (V2 + transistor) is not part of this head.
+.include models/12ax7.inc
+.include models/kt66.inc
+
+VBP1 BP1 0 DC 450
+VBIAS NBIAS 0 DC -50
+
+* rail chain: reservoir -> 20H choke -> screens node -> 8.2k -> PI -> 10k -> preamp
+RCHOKE BP1 BP2 150
+RD1 BP2 BP3 8.2k
+RD2 BP3 BP4 10k
+
+* V1 ECC83 — bright + normal input stages, shared 820R cathode (250uF bypass)
+RL1 BP4 P1A 100k
+XV1A P1A G1A KA 12AX7
+RG1 G1A 0 1meg
+RL2 BP4 P1B 100k
+XV1B P1B G1B KA 12AX7
+RG2 G1B 0 1meg
+RK1 KA 0 820
+
+* V3A ECC83 second stage (grid returns through vol pots + 270k mixers at DC)
+RL3 BP4 P3A 100k
+XV3A P3A G3A K3A 12AX7
+RG3 G3A 0 1meg
+RK3 K3A 0 820
+
+* V3B ECC83 cathode follower — grid DC-coupled to V3A plate, plate to preamp
+* rail, 100k cathode load
+XV3B BP4 P3A KCF 12AX7
+RKCF KCF 0 100k
+
+* V4 ECC83 long-tailed-pair phase inverter (82k/100k plates, 470R + 10k tail,
+* both 1M grid leaks returned to the tail junction)
+RLA BP3 PPIA 82k
+XV4A PPIA GPIA KPI 12AX7
+RGA GPIA JPI 1meg
+RLB BP3 PPIB 100k
+XV4B PPIB GPIB KPI 12AX7
+RGB GPIB JPI 1meg
+RTAIL KPI JPI 470
+RT2 JPI 0 10k
+* 27k negative-feedback resistor and 5k presence pot join the tail foot at
+* ~0 V DC (speaker/pot returns) — DC-neutral, omitted here.
+
+* KT66 pair — fixed bias from the -50 V line, 1k 2W screen resistors, cathodes
+* grounded. Plates sit at B+1 (OT primary DCR omitted).
+XV5 BP1 S5 NBIAS 0 KT66
+RS1 BP2 S5 1k
+XV6 BP1 S6 NBIAS 0 KT66
+RS2 BP2 S6 1k

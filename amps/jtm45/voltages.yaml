@@ -1,0 +1,21 @@
+# Printed valve-voltage chart read directly from the published Marshall JTM45
+# factory drawing (tremolo variant). Voltages measured to chassis under no
+# signal with an AVO Model 8 Mk II (20,000 ohm/V). The drawing's chart labels
+# the valves V1/V3/V4/V5/V6/V7 (its V2 is the tremolo valve, absent from this
+# head). Rails get 8% (choke DCR is estimated); tube pins 20%.
+source: "Marshall JTM45 factory drawing, printed chart: rails +450 (GZ34 cathode) / +440 (screens) / +380 (PI) / +310 (preamp); V1 plate 220, cathode 1.6; V3A plate 190, cathode 1.1; V3B (CF) plate 310, grid 190, cathode 190; V4 (PI) plates 250, cathodes 40, grids '+'; V5/V6 KT66 plate 430, screen 440; V7 GZ34 cathode 450"
+nodes:
+  BP2:  { chart: 440, tol_pct: 8, note: "screens node after the 20H choke (DCR estimated); the anchor-point KT66 model draws little screen current here, so the simulated choke drop is smaller than the chart's" }
+  BP3:  { chart: 380, tol_pct: 8, note: "PI supply node after the 8.2 kΩ dropper" }
+  BP4:  { chart: 310, tol_pct: 8, note: "preamp node after the 10 kΩ dropper" }
+  P1A:  { chart: 220, tol_pct: 20, note: "ECC83 input plate (bright)" }
+  P1B:  { chart: 220, tol_pct: 20, note: "ECC83 input plate (normal)" }
+  KA:   { chart: 1.6, tol_pct: 20, note: "shared ECC83 input cathode, 820 Ω" }
+  P3A:  { chart: 190, tol_pct: 20, note: "V3A plate = cathode-follower grid (direct-coupled)" }
+  K3A:  { chart: 1.1, tol_pct: 20, note: "V3A cathode, 820 Ω" }
+  KCF:  { chart: 190, tol_pct: 20, note: "cathode-follower output (chart V3 pin 8)" }
+  PPIA: { chart: 250, tol_pct: 20, note: "PI plate, 82 kΩ side" }
+  PPIB: { chart: 250, tol_pct: 20, note: "PI plate, 100 kΩ side" }
+  KPI:  { chart: 40, tol_pct: 20, note: "PI cathodes above the 470 Ω tail. The charted 40 V is inconsistent with the charted 250 V plates: a 40 V cathode needs ~3.8 mA of tail current, which would pull the 82k/100k plates down to ~190-225 V, not 250 V. Simulation reproduces the plates (250 V) and settles the cathode near 31 V — the same value the identical stage simulates in the 5F6-A. This node keeps the circuit in draft." }
+  JPI:  { chart: null, note: "tail junction; the drawing marks the PI grids only as '+' (qualitative)" }
+  S5:   { chart: null, note: "informational — KT66 screen after the 1 kΩ stopper (chart screen 440 V ≈ B+2)" }

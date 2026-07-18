@@ -1,0 +1,25 @@
+# Circuit Codex metadata — schema: docs/schema.md (v1)
+id: "jtm45"
+name_style: "British lead-style"
+family: british
+era:
+  start: 1962
+  end: 1966
+wattage: 45
+tubes: [ECC83, ECC83, ECC83, KT66, KT66, GZ34]
+topology:
+  rectifier: { kind: tube, type: "GZ34" }
+  bias: fixed
+  phase_inverter: long-tailed-pair
+  tone_stack: cathode-follower-fmv
+lineage:
+  derived_from: ["5f6a"]   # Marshall's copy of the tweed 5F6-A
+  influenced: []
+sources:
+  - desc: "Marshall factory drawing 'Basic schematic for Marshall trem amps, types 1961, 1962, 1987/T' — every component value AND the printed valve-voltage chart read directly from the published schematic. Core (non-tremolo) head: 3x ECC83 + 2x KT66 + GZ34; input 100k plates / shared 820R+250uF cathode; V3 cathode-follower TMB stack (56k slope, 270pF/.02/.01, 250k/1M/25k); long-tailed-pair PI (82k/100k plates, 470R+10k tail, 1M leaks to the junction); KT66 with 1k 2W screen stoppers and 33k grid stoppers; fixed bias from an HT-tap diode + 150k + .05uF/25uF; power 360-0-360 HT, GZ34, 20H choke, 8.2k + 10k droppers. Rails +450/+440/+380/+310, KT66 plates 430. Not reproduced here; archived at Dr. Tube."
+    url: "https://www.drtube.com/schematics/marshall/jtm45tr.gif"
+  - desc: "GEC / M-O Valve Co. KT66 data sheet (Issue 4, April 1963) — anchor for the CC0 KT66 tube model: Va=250 V, Vg2=250 V, Vg1=-15 V -> Ia=85 mA, gm=7 mA/V; screen Ig2=2.5 mA at the Class AB1 push-pull tetrode point (Vg2=300, Vg1=-27); mu(g1-g2)=9.5 from the triode-connection gm.ra"
+    url: "https://frank.pocnet.net/sheets/084/k/KT66_GEC.pdf"
+verification:
+  status: draft   # 12 of 13 charted nodes verify; the PI cathode (chart 40 V, sim ~31 V) is inconsistent with the charted 250 V PI plates — see notes.md
+contributors: [TheAnalogMaker]

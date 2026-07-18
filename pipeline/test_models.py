@@ -149,6 +149,19 @@ def main() -> int:
     failures += check("5881", "Ig2", r["ig2"], 5e-3, TOL_I)
     failures += check("5881", "gm", (r["ia_hi"] - r["ia_lo"]) / 0.1, 6000e-6, TOL_GM)
 
+    print("KT66 @ Va=250, Vg2=250, Vg1=-15 (plate/gm anchor):")
+    r = run_bench(PENTODE_BENCH.format(name="KT66", inc=MODELS / "kt66.inc",
+                                       vp=250, vg2=250, vg1=-15,
+                                       vg_hi=-14.95, vg_lo=-15.05))
+    failures += check("KT66", "Ia", r["ia0"], 85e-3, TOL_I)
+    failures += check("KT66", "gm", (r["ia_hi"] - r["ia_lo"]) / 0.1, 7000e-6, TOL_GM)
+
+    print("KT66 @ Va=415, Vg2=300, Vg1=-27 (screen anchor):")
+    r = run_bench(PENTODE_BENCH.format(name="KT66", inc=MODELS / "kt66.inc",
+                                       vp=415, vg2=300, vg1=-27,
+                                       vg_hi=-26.95, vg_lo=-27.05))
+    failures += check("KT66", "Ig2", r["ig2"], 2.5e-3, TOL_I)
+
     print("GZ34 @ Va=17 (per plate):")
     r = run_bench(RECT_BENCH.format(name="GZ34", inc=MODELS / "gz34.inc", va=17))
     failures += check("GZ34", "Ia", r["ia0"], 250e-3, TOL_I)

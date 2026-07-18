@@ -14,7 +14,7 @@ topology:
   tone_stack: cathode-follower-fmv
 lineage:
   derived_from: []   # 5F6 is the direct ancestor — edge added when amps/5f6 lands
-  influenced: []     # jtm45 edge added when amps/jtm45 lands
+  influenced: ["jtm45"]   # Marshall's JTM45 is the KT66 copy of this circuit
 sources:
   - desc: "Fender 'Bassman' Model 5F6-A drawing (I-EG): every component value AND the printed voltage chart read directly from the published schematic 2026-07-18 (+432/+430/+385/+325 rails, -48 V bias, tube pins; PI = 82k/100k 5% plates, 470R+10k tail, 1M leaks to the junction; 470R-1W screen resistors; PT 8087 325-0-325, choke 14684, OT 45249). Not reproduced here; archived at EL34World"
     url: "https://el34world.com/charts/Schematics/files/Fender/Fender_bassman_5f6a.pdf"
