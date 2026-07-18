@@ -15,8 +15,9 @@ cathode) → 0.022 µF coupling → 1M audio volume pot → **V1B** (12AX7, 100k
 Negative feedback: 22k from the speaker jack into V1B's cathode (at DC this
 parallels the 1.5k through the secondary's near-zero DCR).
 
-Power: 325-0-325 PT → 5Y3GT full-wave → three 16 µF filter nodes separated by
-two 10k droppers: B+1 (output plate) → B+2 (screen) → B+3 (preamp plates).
+Power: 325-0-325 PT → 5Y3GT full-wave → filter nodes 26 µF / 8 µF / 8 µF (450 V,
+as marked on the drawing) separated by a 10k and a 22k dropper:
+B+1 340 V (output plate) → B+2 295 V (screen) → B+3 250 V (preamp plates).
 
 ## Operating point: chart vs. simulation (resolved 2026-07-18)
 
