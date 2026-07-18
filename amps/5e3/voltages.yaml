@@ -3,14 +3,14 @@
 # meta.yaml), under the same ±20% convention Fender printed on its charts.
 source: "Rob Robinette's published 5E3 DC measurements (B+ 370/295/250; stage drops 110/83/47 V; 6V6 cathode 19 V); F-EE drawing supplies all component values but no chart"
 nodes:
-  BP2:  { chart: 295, tol_pct: 20, note: "screens node (after 5k dropper)" }
-  BP3:  { chart: 250, tol_pct: 20, note: "preamp node (after 22k dropper)" }
+  BP2:  { chart: 295, tol_pct: 20, note: "screens node (after the 5 kΩ dropper)" }
+  BP3:  { chart: 250, tol_pct: 20, note: "preamp node (after the 22 kΩ dropper)" }
   PAY1: { chart: 140, tol_pct: 20, note: "12AY7 plate — Robinette: 110 V drop across 100k from 250 V" }
   PAY2: { chart: 140, tol_pct: 20, note: "12AY7 plate (second channel)" }
   P2A:  { chart: 167, tol_pct: 20, note: "12AX7 V2A plate — 83 V drop across 100k" }
   PPI:  { chart: 203, tol_pct: 20, note: "cathodyne plate — 47 V drop across 56k" }
-  KPI:  { chart: null, note: "informational — cathodyne cathode (self-biased via 1.5k/56k stack)" }
+  KPI:  { chart: null, note: "informational — cathodyne cathode (self-biased via 1.5 kΩ/56 kΩ stack)" }
   JPI:  { chart: null, note: "informational — grid-leak return junction" }
   KAY:  { chart: null, note: "informational — shared 12AY7 cathode" }
-  K2A:  { chart: null, note: "informational" }
-  K66:  { chart: 19, tol_pct: 20, note: "shared 6V6 cathode, 250R/5W" }
+  K2A:  { chart: null, note: "informational — V2A cathode (1.5 k bias)" }
+  K66:  { chart: 19, tol_pct: 20, note: "shared 6V6 cathode, 250 Ω 5 W" }

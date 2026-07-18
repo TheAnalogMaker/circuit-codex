@@ -11,33 +11,30 @@ ancestor: the 5E1 (lineage edge lands when `amps/5e1` exists).
 Input jack → 68k grid stopper → **V1A** (12AX7, 100k plate load, 1.5k bypassed
 cathode) → 0.022 µF coupling → 1M audio volume pot → **V1B** (12AX7, 100k plate,
 1.5k cathode) → 0.022 µF coupling → **V2** 6V6GT (cathode-biased, 470 Ω 5 W,
-220k grid leak) → single-ended output transformer (~8k:8Ω class) → speaker.
+220k grid leak) → single-ended output transformer (≈5 kΩ : 8 Ω, typical for a single-ended 6V6;
+the drawing doesn't mark it) → speaker.
 Negative feedback: 22k from the speaker jack into V1B's cathode (at DC this
 parallels the 1.5k through the secondary's near-zero DCR).
 
-Power: 325-0-325 PT → 5Y3GT full-wave → filter nodes 26 µF / 8 µF / 8 µF (450 V,
-as marked on the drawing) separated by a 10k and a 22k dropper:
+Power: 325-0-325 PT → 5Y3GT full-wave → filter nodes 16 µF / 8 µF / 8 µF (450 V)
+separated by a 10k and a 22k dropper (all confirmed in print on the K-EE sheet):
 B+1 340 V (output plate) → B+2 295 V (screen) → B+3 250 V (preamp plates).
 
 ## How simulation pinned down the rail dropper
 
-The published chart marks **B+1 340 V (26 µF/450 V cap), B+2 295 V (8 µF),
-B+3 250 V (8 µF)**. Driving B+1 at 340 V, simulation discriminates the
-second dropping-resistor value cleanly — a nice example of what
-simulation-verified archiving can do:
+The published chart marks **B+1 340 V, B+2 295 V, B+3 250 V**. Driving B+1
+at 340 V, simulation discriminates the second dropping-resistor value
+cleanly — a nice example of what simulation-verified archiving can do:
 
-| Node | Chart | Sim, R11=10k | Sim, R11=22k |
+| Node | Chart | Sim with 10k | Sim with 22k |
 |---|---|---|---|
 | B+2 | 295 V | 291 V (1.3%) | 292 V (0.9%) |
 | B+3 | 250 V | 273 V (**9.2% off**) | 255 V (2.0%) |
-| V1A plate | ~170 V | 183 V | **171.6 V (0.9%)** |
-| V1B plate | ~170 V | 180 V | **169.1 V (0.5%)** |
-| 6V6 cathode | 19 V (5E1 x-ref) | 18.0 V | 18.1 V (4.8%) |
 
-**Conclusion:** the second dropper is 22k — a value some descriptions of this
-circuit get wrong — and with it every published figure (the rails, the 170 V
-plate figure, the independent cathode cross-reference) reconciles at once.
-The drawing's printed 22K marking confirms it.
+With 22k, the downstream stage voltages fall into line as well.
+**Conclusion:** the second dropper is 22k — a value some descriptions of
+this circuit get wrong — and the schematic's printed 22K marking confirms
+it.
 
 ## Verification
 

@@ -44,7 +44,9 @@ const ghDir = `${GITHUB}/tree/main/amps/${amp.id}`;
         <section>
           <h2>Operating point vs. published chart</h2>
           <p class="sub">Chart values read from the published drawing (never reproduced).
-            {v.status === 'verified' && ` Simulation matches every node within tolerance — worst deviation ${v.max_deviation_pct}% (chart convention is ±20%).`}</p>
+            Tolerances are this project's verification targets — tighter on power rails
+            than the ±20% measurement convention Fender printed on its charts.
+            {v.status === 'verified' && ` Simulation matches every node within target — worst deviation ${v.max_deviation_pct}%.`}</p>
           <div class="tbl"><table>
             <thead><tr><th>Node</th><th>Chart</th><th>Tolerance</th><th>Note</th></tr></thead>
             <tbody>
