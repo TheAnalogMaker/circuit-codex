@@ -1,0 +1,68 @@
+---
+import Base from '../layouts/Base.astro';
+import { loadCorpus, corpusStats, GITHUB } from '../lib/corpus.js';
+const amps = loadCorpus();
+const stats = corpusStats();
+---
+<Base title="Circuit Codex — the open archive of classic guitar amp circuits"
+      description="Every classic tube amp circuit — redrawn KiCad schematics, ngspice-verified netlists, and the lineage that connects them. Open, machine-readable, CC-BY-SA.">
+<div class="wrap">
+  <header class="hero">
+    <div class="eyebrow">An open, machine-readable archive</div>
+    <h1>Every classic tube amp circuit.<br />Redrawn. Verified. Connected.</h1>
+    <p class="lede">The amplifiers that made electric guitar — as clean KiCad schematics,
+      <strong>simulation-verified netlists</strong>, and structured metadata, built in the open.
+      No scans, no mystery: every circuit redrawn from the underlying facts and checked
+      against its published voltage chart in CI. Free forever, CC-BY-SA.</p>
+    <div class="stats" role="list">
+      <div class="stat" role="listitem"><div class="n">{stats.circuits}</div><div class="l">circuit{stats.circuits === 1 ? '' : 's'}</div></div>
+      <div class="stat" role="listitem"><div class="n">{stats.verified}</div><div class="l">verified</div></div>
+      <div class="stat" role="listitem"><div class="n">{stats.models}</div><div class="l">CC0 tube models</div></div>
+    </div>
+  </header>
+
+  <section id="circuits">
+    <h2>The corpus</h2>
+    <p class="sub">Phase 0: the pilot circuits. The tweed canon lands first, then blackface, British, and beyond —
+      <a href={`${GITHUB}/blob/main/CONTRIBUTING.md`}>contributions welcome</a>.</p>
+    <div class="grid">
+      {amps.map((a) => (
+        <a class="card" href={`/amps/${a.id}/`}>
+          <div class="id">{a.id.toUpperCase()}</div>
+          <div class="style">{a.meta.name_style} · {a.meta.wattage} W</div>
+          <div class="tubes">{a.meta.tubes.join(' · ')}</div>
+          <div class="chips">
+            <span class="chip">{a.meta.era.start}–{a.meta.era.end}</span>
+            <span class="chip">{a.meta.topology.phase_inverter === 'none' ? 'single-ended' : a.meta.topology.phase_inverter}</span>
+            {a.meta.verification?.status === 'verified'
+              ? <span class="chip v">verified</span>
+              : <span class="chip">draft</span>}
+          </div>
+        </a>
+      ))}
+    </div>
+  </section>
+</div>
+</Base>
+
+<style>
+  .hero{padding:72px 0 40px}
+  .eyebrow{font-family:var(--disp);text-transform:uppercase;letter-spacing:.26em;font-size:12.5px;color:var(--amber)}
+  h1{font-size:clamp(32px,5.5vw,54px);line-height:1.08;margin:14px 0 18px}
+  .lede{max-width:60ch;color:var(--muted);font-size:17px}
+  .lede strong{color:var(--ink)}
+  .stats{display:flex;margin:36px 0 8px;border:1px solid var(--line);border-radius:6px;background:var(--panel);overflow-x:auto;width:fit-content}
+  .stat{padding:16px 26px;border-right:1px solid var(--line-soft);min-width:110px}
+  .stat:last-child{border-right:0}
+  .stat .n{font-family:var(--disp);font-size:30px;color:var(--amber);font-variant-numeric:tabular-nums}
+  .stat .l{font-size:12px;text-transform:uppercase;letter-spacing:.12em;color:var(--faint)}
+  h2{font-size:20px;letter-spacing:.14em;margin:24px 0 4px}
+  .sub{color:var(--muted);font-size:14.5px;margin:0 0 22px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:18px 18px 14px;display:flex;flex-direction:column;gap:8px;color:inherit}
+  .card:hover{border-color:var(--amber-dim);text-decoration:none}
+  .card .id{font-family:var(--disp);font-size:24px;letter-spacing:.04em}
+  .card .style{color:var(--muted);font-size:13.5px;margin-top:-6px}
+  .card .tubes{font-family:var(--mono);font-size:12px;color:var(--faint)}
+  .chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:auto;padding-top:8px}
+</style>
