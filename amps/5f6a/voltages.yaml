@@ -1,0 +1,19 @@
+# Printed voltage chart read directly from the published 5F6-A (I-EG) drawing
+# (2026-07-18). Fender's printed convention: values ±20%, electronic voltmeter.
+# Rails get 8% (choke DCR is estimated); tube pins 20%.
+source: "Fender 5F6-A (I-EG) drawing, printed voltages: rails +432/+430/+385/+325, bias -48; pins 12AY7 +150/+2.5, V2A +180/+1.2? (printed near cathode), CF +180, PI plates +235/+230, PI cathodes +34, tail junction +32.5"
+nodes:
+  BP2:  { chart: 430, tol_pct: 8, note: "screens node after choke (DCR estimated at 130R)" }
+  BP3:  { chart: 385, tol_pct: 8, note: "PI supply node after 4700R" }
+  BP4:  { chart: 325, tol_pct: 8, note: "preamp node after 10k" }
+  PAY1: { chart: 150, tol_pct: 20, note: "12AY7 plate, printed pin value" }
+  PAY2: { chart: 150, tol_pct: 20 }
+  KAY:  { chart: 2.5, tol_pct: 20, note: "shared 12AY7 cathode, 820R" }
+  P2A:  { chart: 180, tol_pct: 20, note: "V2A plate = CF grid (direct-coupled)" }
+  KCF:  { chart: 180, tol_pct: 20, note: "cathode follower output, printed +180" }
+  PPIA: { chart: 235, tol_pct: 20, note: "PI plate, 82k 5% side" }
+  PPIB: { chart: 230, tol_pct: 20, note: "PI plate, 100k 5% side" }
+  KPI:  { chart: 34, tol_pct: 20, note: "PI cathodes above 470R" }
+  JPI:  { chart: 32.5, tol_pct: 20, note: "tail junction (grid-leak return)" }
+  S51:  { chart: null, note: "informational — 5881 screen after 470R" }
+  G51:  { chart: -48, tol_pct: 8, note: "fixed bias via 220k from the -48 V supply" }

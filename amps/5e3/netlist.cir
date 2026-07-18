@@ -1,0 +1,47 @@
+* 5E3 (Tweed Deluxe-style) — DC operating-point netlist
+* Circuit Codex — CC-BY-SA 4.0. Independently drawn from the published 5E3
+* (F-EE) drawing's component values (see meta.yaml); no drawing reproduced.
+*
+* DC conventions: B+1 driven at Robinette's published 370 V measurement
+* (the F-EE drawing carries no voltage chart); downstream nodes DERIVED.
+* OT primary DCR omitted. Coupling/tone caps omitted (DC open).
+* Cathodyne PI per the drawing: cathode -> 1.5k -> junction -> 56k -> gnd,
+* with the 1M grid leak returned to the junction (tone caps AC-couple the grid).
+.include models/12ay7.inc
+.include models/12ax7.inc
+.include models/6v6gt.inc
+
+VBP1 BP1 0 DC 370
+
+* rail droppers (5,000 ohm then 22k per the drawing; three 16 uF/450 V caps)
+RD1 BP1 BP2 5k
+RD2 BP2 BP3 22k
+
+* V1 12AY7 — two channels, shared 820R cathode (25 uF bypass omitted for DC)
+RL1 BP3 PAY1 100k
+XV1A PAY1 GAY1 KAY 12AY7
+RG1 GAY1 0 1meg
+RL2 BP3 PAY2 100k
+XV1B PAY2 GAY2 KAY 12AY7
+RG2 GAY2 0 1meg
+RK1 KAY 0 820
+
+* V2A 12AX7 second stage (grid returns through the 1M volume pots at DC)
+RL3 BP3 P2A 100k
+XV2A P2A G2A K2A 12AX7
+RG3 G2A 0 1meg
+RK2 K2A 0 1.5k
+
+* V2B cathodyne phase inverter
+RL4 BP3 PPI 56k
+XV2B PPI GPI KPI 12AX7
+RKA KPI JPI 1.5k
+RKB JPI 0 56k
+RGPI GPI JPI 1meg
+
+* 6V6GT pair, shared 250R/5W cathode, 220k grid leaks (1.5k stoppers DC-nil)
+XV3 BP1 BP2 G6A K66 6V6GT
+RG6A G6A 0 220k
+XV4 BP1 BP2 G6B K66 6V6GT
+RG6B G6B 0 220k
+RK66 K66 0 250

@@ -1,0 +1,27 @@
+# Circuit Codex metadata — schema: docs/schema.md (v1)
+id: "5f6a"
+name_style: "Tweed Bassman-style"
+family: tweed
+era:
+  start: 1958
+  end: 1960
+wattage: 40
+tubes: [12AY7, 12AX7, 12AX7, 5881, 5881, GZ34]
+topology:
+  rectifier: { kind: tube, type: "GZ34" }
+  bias: fixed
+  phase_inverter: long-tailed-pair
+  tone_stack: cathode-follower-fmv
+lineage:
+  derived_from: []   # 5F6 is the direct ancestor — edge added when amps/5f6 lands
+  influenced: []     # jtm45 edge added when amps/jtm45 lands
+sources:
+  - desc: "Fender 'Bassman' Model 5F6-A drawing (I-EG): every component value AND the printed voltage chart read directly from the published schematic 2026-07-18 (+432/+430/+385/+325 rails, -48 V bias, tube pins; PI = 82k/100k 5% plates, 470R+10k tail, 1M leaks to the junction; 470R-1W screen resistors; PT 8087 325-0-325, choke 14684, OT 45249). Not reproduced here; archived at EL34World"
+    url: "https://el34world.com/charts/Schematics/files/Fender/Fender_bassman_5f6a.pdf"
+  - desc: "Rob Robinette, 5F6A modifications page — cross-reference; note its '6.8k stock PI tail' claim is corrected by the I-EG drawing (10k printed)"
+    url: "https://robrobinette.com/5F6A_Modifications.htm"
+verification:
+  status: verified
+  date: 2026-07-18
+  max_deviation_pct: 9.7   # 12AY7 plates vs printed chart (convention is +/-20%)
+contributors: [TheAnalogMaker]

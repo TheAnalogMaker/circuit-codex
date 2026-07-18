@@ -1,0 +1,61 @@
+* 5F6-A (Tweed Bassman-style) — DC operating-point netlist
+* Circuit Codex — CC-BY-SA 4.0. Independently drawn from the published 5F6-A
+* (I-EG) drawing's component values (see meta.yaml); no drawing reproduced.
+*
+* DC conventions: B+1 driven at the printed +432 V; downstream nodes DERIVED.
+* Choke (14684) modeled as 130R DCR estimate (drawing prints 432 -> 430 across
+* it). OT primary DCR omitted. Bias supply replaced by an ideal -48 V source
+* (its 15k/56k/8uF network is AC/ripple filtering). Coupling and tone caps
+* omitted (DC open); tone stack is fully capacitor-coupled at DC.
+.include models/12ay7.inc
+.include models/12ax7.inc
+.include models/5881.inc
+
+VBP1 BP1 0 DC 432
+VBIAS NBIAS 0 DC -48
+
+* rail: choke -> screens node, 4700R -> PI node, 10k -> preamp node
+RCHOKE BP1 BP2 130
+RD1 BP2 BP3 4.7k
+RD2 BP3 BP4 10k
+
+* V1 12AY7 — bright + normal channels, shared 820R cathode (250uF bypass)
+RL1 BP4 PAY1 100k
+XV1A PAY1 GAY1 KAY 12AY7
+RG1 GAY1 0 1meg
+RL2 BP4 PAY2 100k
+XV1B PAY2 GAY2 KAY 12AY7
+RG2 GAY2 0 1meg
+RK1 KAY 0 820
+
+* V2A 12AX7 second stage (grid returns through vol pots + 270k mixers at DC)
+RL3 BP4 P2A 100k
+XV2A P2A G2A K2A 12AX7
+RG3 G2A 0 1meg
+RK2 K2A 0 820
+
+* V2B cathode follower — grid DC-coupled to V2A plate, 100k cathode load
+XV2B BP4 P2A KCF 12AX7
+RKCF KCF 0 100k
+
+* Long-tailed-pair phase inverter (82k/100k 5% plates, 470R + 10k tail,
+* both 1M grid leaks to the tail junction; NFB 27k + presence 5k at the foot)
+RLA BP3 PPIA 82k
+XPIA PPIA GPIA KPI 12AX7
+RGA GPIA JPI 1meg
+RLB BP3 PPIB 100k
+XPIB PPIB GPIB KPI 12AX7
+RGB GPIB JPI 1meg
+RTAIL KPI JPI 470
+RT2 JPI 0 10k
+* NFB (27k from speaker) + presence (5k pot) join at the tail foot but sit at
+* ~0 V DC through the speaker/pot returns — DC-neutral, omitted here. The
+* printed chart (J +32.5 V = Itail x 10k) confirms this reading.
+
+* 5881 pair — fixed bias via 220k leaks from -48 V, 470R-1W screen resistors
+RGL1 NBIAS G51 220k
+XV5A BP1 S51 G51 0 5881
+RS1 BP2 S51 470
+RGL2 NBIAS G52 220k
+XV5B BP1 S52 G52 0 5881
+RS2 BP2 S52 470
