@@ -52,12 +52,31 @@ Every model is then verified in actual ngspice by `pipeline/test_models.py`
 - No grid-current model; no heater model (rated heater assumed).
 - Rectifier model is per-plate and ignores sag interaction beyond the V^1.5 law.
 
-## Roadmap (v1 — curve-traced fits)
+## Roadmap (v1 — curve-traced fits) and the calibration-source finding
 
-Trace full plate-characteristic families from scanned datasheet figures
-(documented per-figure), fit all parameters (including EX and KVB) by least
-squares over the family, and add grid-current terms. The anchor-point tests
-stay as the CI floor; curve-fit residuals become an additional report.
+The original v1 plan — trace the datasheet plate-characteristic family and
+least-squares fit all parameters — hit a real metrology problem when first
+attempted (2026-07-18, 12AX7): **RCA's average plate characteristics chart
+(92CM-6879) disagrees with RCA's own tabulated typical operation by roughly
+2×.** Reading the chart at Va=250 V, Vg=−2 V gives ~0.5–0.85 mA; the tabulated
+datasheet point (the v0 anchor) says 1.2 mA. Fender's printed amp voltage
+charts side with the tabulated value — measured plate voltages imply tube
+currents at or above the tabulated point, never down at the chart-family
+level. Fitting v1 to that plate family would therefore make every amp verify
+*worse* against the factory charts.
+
+v1 therefore needs a calibration-source decision before any fitting:
+
+1. **gm/rp/µ curves** (92CM-6880: gm vs Vg at Eb=100/200/300) + the tabulated
+   point — constrains voltage-dependence without inheriting the plate-family
+   offset. Likely the right primary source.
+2. Cross-manufacturer plate families (GE/Sylvania/Mullard ECC83) to see
+   whether the RCA chart is the outlier.
+3. Never calibrate to the amp charts we verify against (circular).
+
+Until resolved, v0 anchor-point models remain the standard; the known
+symptom is under-predicted current well below the 250 V anchor (documented
+on the 5F4 page).
 
 ## Verifying locally
 
