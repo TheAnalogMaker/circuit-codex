@@ -26,6 +26,8 @@ const guides = [
     desc: 'Interactive bottom-view basing for all nine tubes — noval, 7-pin, and octal.' },
   { href: '/reference/guides/calculators/', title: 'Amp builder calculators',
     desc: "Ohm's law, cathode bias, coupling-cap corners, and transformer ratios." },
+  { href: '/reference/glossary/', title: 'Glossary',
+    desc: 'Plain-language definitions for the amp-building and tube-electronics terms used across the corpus, with a stable anchor per term.' },
 ];
 ---
 <Base title="Reference library — Circuit Codex"
@@ -64,8 +66,9 @@ const guides = [
 
   <section>
     <h2>Practical guides</h2>
-    <p class="sub">Interactive bench tools built from the same references — decode a
-      part, or run the small sums that come up while working on these circuits.</p>
+    <p class="sub">Interactive bench tools and quick references built from the same
+      corpus — decode a part, run the small sums that come up while working on these
+      circuits, or look up a term.</p>
     <div class="grid">
       {guides.map((g) => (
         <a class="card guide" href={g.href}>

@@ -1,0 +1,117 @@
+---
+import Base from '../../layouts/Base.astro';
+import { loadGlossary } from '../../lib/corpus.js';
+
+// Single source of truth: reference/glossary.yaml — the same build-time data
+// pattern as reference/sources.yaml and reference/tubes/*.yaml. loadGlossary()
+// alphabetizes by sort_key (a plain-text key that irons out "B+", "µ …", etc.).
+const terms = loadGlossary();
+const bySlug = Object.fromEntries(terms.map((t) => [t.slug, t]));
+
+// Group into letter sections for the printed list and the quick-jump nav.
+const groups = [];
+for (const t of terms) {
+  const letter = t.sort_key[0].toUpperCase();
+  let g = groups.find((g) => g.letter === letter);
+  if (!g) { g = { letter, items: [] }; groups.push(g); }
+  g.items.push(t);
+}
+---
+<Base title="Glossary — Circuit Codex"
+      description="Plain-language definitions for the amp-building and tube-electronics terms used across this archive — cathodyne, long-tailed pair, B+, tone stack, NFB, and more — each linked back to a circuit or reference page that uses it.">
+<div class="wrap">
+  <header class="ghead">
+    <a class="back" href="/reference/">← Reference</a>
+    <div class="eyebrow">Reference</div>
+    <h1>Glossary</h1>
+    <p class="lede">The vocabulary this archive actually uses, defined once and linked
+      everywhere else. Each entry has its own address — <code>#cathodyne</code>,
+      say — so any amp page or reference note can point straight at a definition.</p>
+  </header>
+
+  <nav class="jump" aria-label="Jump to letter">
+    {groups.map((g) => (
+      <a href={`#letter-${g.letter}`}>{g.letter}</a>
+    ))}
+  </nav>
+
+  {groups.map((g) => (
+    <section class="letter-group">
+      <h2 id={`letter-${g.letter}`}>{g.letter}</h2>
+      <div class="entries">
+        {g.items.map((t) => (
+          <article class="entry" id={t.slug}>
+            <h3><a class="term-link" href={`#${t.slug}`}>{t.term}<span class="pilcrow" aria-hidden="true">¶</span></a></h3>
+            <p class="def">{t.definition}</p>
+            {t.related && t.related.length > 0 && (
+              <p class="row related">
+                <span class="lbl">Related</span>
+                {t.related.map((r, i) => (
+                  <>{i > 0 && <span class="sep">·</span>}<a href={`#${r}`}>{bySlug[r]?.term ?? r}</a></>
+                ))}
+              </p>
+            )}
+            {t.appears && t.appears.length > 0 && (
+              <p class="row appears">
+                <span class="lbl">Appears in</span>
+                {t.appears.map((a, i) => (
+                  <>{i > 0 && <span class="sep">·</span>}<a href={a.href}>{a.label}</a></>
+                ))}
+              </p>
+            )}
+          </article>
+        ))}
+      </div>
+    </section>
+  ))}
+
+  <p class="foot-note">Definitions are written for this archive, in plain language, and
+    checked against the datasheets and design texts in the <a href="/reference/">reference
+    library</a> — they describe usage here, not a formal standard. Found a term used on a
+    page that isn't listed? Open an issue or a
+    <a href="https://github.com/TheAnalogMaker/circuit-codex/blob/main/CONTRIBUTING.md">pull
+    request</a> against <code>reference/glossary.yaml</code>.</p>
+</div>
+</Base>
+
+<style>
+  .ghead { padding: 44px 0 8px; }
+  .back { font-family: var(--disp); text-transform: uppercase; letter-spacing: .14em; font-size: 11.5px; color: var(--muted); }
+  .eyebrow { font-family: var(--disp); text-transform: uppercase; letter-spacing: .26em; font-size: 12px; color: var(--amber); margin-top: 14px; }
+  h1 { font-size: clamp(28px, 4.5vw, 42px); line-height: 1.12; margin: 8px 0 12px; }
+  .lede { max-width: 66ch; color: var(--muted); font-size: 16.5px; margin: 0; }
+  .lede code { font-family: var(--mono); color: var(--ink); font-size: 14px; }
+
+  .jump { display: flex; flex-wrap: wrap; gap: 4px; margin: 30px 0 8px; padding: 10px 0;
+    border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+  .jump a { font-family: var(--disp); font-size: 12.5px; letter-spacing: .04em; color: var(--muted);
+    border: 1px solid var(--line); border-radius: 6px; width: 26px; height: 26px; display: flex;
+    align-items: center; justify-content: center; text-decoration: none; flex: none; }
+  .jump a:hover, .jump a:focus-visible { color: var(--amber); border-color: var(--amber-dim); }
+
+  .letter-group { margin-top: 8px; }
+  .letter-group h2 { font-family: var(--disp); font-size: 26px; letter-spacing: .06em;
+    color: var(--amber); border-bottom: 1px solid var(--line); padding: 26px 0 8px; margin: 0;
+    scroll-margin-top: 90px; }
+  .entries { display: flex; flex-direction: column; }
+
+  .entry { padding: 20px 0; border-bottom: 1px solid var(--line-soft); scroll-margin-top: 90px; }
+  .entries .entry:last-child { border-bottom: 0; }
+  .entry h3 { margin: 0 0 8px; font-size: 17px; letter-spacing: .02em; text-transform: none;
+    font-family: var(--body); font-weight: 600; }
+  .term-link { color: var(--ink); }
+  .term-link:hover, .term-link:focus-visible { color: var(--ink); text-decoration: none; }
+  .term-link:hover .pilcrow, .term-link:focus-visible .pilcrow { opacity: 1; }
+  .pilcrow { color: var(--amber-dim); opacity: 0; margin-left: 8px; font-size: 14px; transition: opacity .12s ease; }
+
+  .def { color: var(--muted); font-size: 15px; line-height: 1.7; max-width: 76ch; margin: 0; }
+  .row { margin: 10px 0 0; font-size: 12.5px; display: flex; flex-wrap: wrap; gap: 4px 8px; align-items: baseline; }
+  .row .lbl { font-family: var(--disp); text-transform: uppercase; letter-spacing: .12em; font-size: 10.5px; color: var(--faint); margin-right: 2px; }
+  .row a { font-family: var(--mono); }
+  .row.appears a { font-family: var(--body); color: var(--muted); }
+  .row.appears a:hover { color: var(--amber); }
+  .sep { color: var(--faint); }
+
+  .foot-note { margin-top: 36px; padding-top: 16px; border-top: 1px dashed var(--line); color: var(--faint); font-size: 12.5px; max-width: 82ch; }
+  .foot-note code { font-family: var(--mono); color: var(--muted); font-size: 11.5px; }
+</style>

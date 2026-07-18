@@ -106,6 +106,12 @@ function hostOf(url) {
   try { return new URL(url).hostname.replace(/^www\./, ''); } catch { return url; }
 }
 
+export function loadGlossary() {
+  const raw = fs.readFileSync(path.join(REFERENCE_DIR, 'glossary.yaml'), 'utf8');
+  const terms = yaml.load(raw).terms || [];
+  return [...terms].sort((a, b) => a.sort_key.localeCompare(b.sort_key, 'en'));
+}
+
 // Split a pd_basis string ("pd-outright (published 1920)") into its leading
 // controlled-vocabulary token and the human-readable remainder.
 export function pdBasis(str) {

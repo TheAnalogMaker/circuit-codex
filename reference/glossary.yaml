@@ -1,0 +1,505 @@
+# Circuit Codex glossary — data-driven, same build-time pattern as
+# reference/sources.yaml and reference/tubes/*.yaml. Rendered at
+# /reference/glossary/, grouped alphabetically with a stable #<slug> anchor per
+# term so amp and reference pages can deep-link a definition later.
+#
+# fields:
+#   term       display name (may include shorthand, e.g. "OT / PT")
+#   slug       anchor id, kebab-case, stable — do not rename once linked
+#   sort_key   plain-text key used only to alphabetize/group (handles "B+", "µ …")
+#   definition 2-3 sentences, plain house voice, no process narration
+#   related    list of other terms' slugs in this file
+#   appears    list of {label, href} — one or two live pages that use the term
+
+terms:
+  - term: Anchor
+    slug: anchor
+    sort_key: anchor
+    definition: >-
+      The one or two published datasheet operating points — a plate voltage, grid
+      voltage, plate current, and transconductance read straight from a
+      manufacturer's "typical operation" table — that a tube's SPICE model is fitted
+      to reproduce exactly. Anchors come only from datasheets, never from an
+      amplifier's own voltage chart, so a model can later verify that chart
+      independently instead of being tuned to match it.
+    related: [operating-point, mu-gm-rp, verified-draft]
+    appears:
+      - { label: "12AX7 calibration study", href: "/reference/studies/12ax7-calibration/" }
+      - { label: "12AX7 reference page", href: "/reference/tubes/12ax7/" }
+
+  - term: "B+"
+    slug: b-plus
+    sort_key: bplus
+    definition: >-
+      The rectified, filtered high-voltage DC supply that feeds tube plates and
+      screens — the name survives from multi-battery radio sets, where "A" was the
+      filament battery, "B" the plate battery, and "C" the grid-bias battery. It
+      starts at several hundred volts at the rectifier and steps down through a
+      choke or dropping resistors to each stage after it, losing a little rail at
+      every step.
+    related: [rectifier, choke, reservoir-cap, heater]
+    appears:
+      - { label: "5E1 — Tweed Champ-style", href: "/amps/5e1/" }
+      - { label: "5F6-A — Tweed Bassman-style", href: "/amps/5f6a/" }
+
+  - term: Basing
+    slug: basing
+    sort_key: basing
+    definition: >-
+      The standardized pin arrangement of a tube's base, identified by a short
+      RETMA/EIA code — 9A, 7BT, 7AC, 5T, 5DA in this archive — that names one fixed
+      wiring of elements to pins. Tubes sharing a code share a socket wiring, which
+      is why the 6V6GT, 5881, and KT66 all read 7AC and drop into the same
+      output-stage layout; every diagram here is read bottom view, from the wiring
+      side.
+    related: [heater, screen-grid]
+    appears:
+      - { label: "Tube pinout diagrams", href: "/reference/guides/tube-pinouts/" }
+      - { label: "12AX7 reference page", href: "/reference/tubes/12ax7/" }
+
+  - term: Beam power (tube)
+    slug: beam-power
+    sort_key: beam power
+    definition: >-
+      An output tetrode design — the 6V6GT, the 5881/6L6 family, the KT66 — that
+      uses shaped beam-forming plates instead of a true suppressor grid to focus the
+      electron stream and suppress secondary emission, giving higher plate
+      efficiency than a plain tetrode of similar size. Every power tube modeled in
+      this archive is a beam-power type, and all three share the 7AC octal basing.
+    related: [screen-grid, push-pull, ot-pt]
+    appears:
+      - { label: "6V6GT reference page", href: "/reference/tubes/6v6gt/" }
+      - { label: "KT66 reference page", href: "/reference/tubes/kt66/" }
+
+  - term: Bias (cathode / fixed)
+    slug: bias
+    sort_key: bias
+    definition: >-
+      The DC offset that holds a tube's control grid negative relative to its
+      cathode, setting where on the tube's curve it idles. Cathode bias lets a stage
+      set its own operating point off the voltage a resistor develops between
+      cathode and ground; fixed bias instead applies a separate negative supply
+      straight to the grid, which is how every push-pull output stage in this
+      archive is biased.
+    related: [bypass-cap, grid-leak, operating-point, selenium-rectifier]
+    appears:
+      - { label: "5F6-A — Tweed Bassman-style", href: "/amps/5f6a/" }
+      - { label: "5E1 — Tweed Champ-style", href: "/amps/5e1/" }
+
+  - term: Bright cap
+    slug: bright-cap
+    sort_key: bright cap
+    definition: >-
+      A small capacitor, often around 100 pF, wired across a channel's volume
+      potentiometer so a treble-boosting bypass path opens as the wiper turns down —
+      the cap matters least at full volume and most in the lower range. Several
+      circuits here fit it only to the bright-marked input or channel, which is
+      where the name comes from.
+    related: [coupling-cap, tone-stack]
+    appears:
+      - { label: "Capacitor code chart & decoder", href: "/reference/guides/capacitor-codes/" }
+      - { label: "JTM45 — British lead-style", href: "/amps/jtm45/" }
+
+  - term: Bypass cap
+    slug: bypass-cap
+    sort_key: bypass cap
+    definition: >-
+      A capacitor placed across a cathode resistor so signal current can skip
+      around it to ground while DC bias current still passes through; without it,
+      the cathode resistor also degenerates (reduces) the stage's AC gain. Leaving
+      one triode of a shared-cathode pair deliberately unbypassed, so a
+      negative-feedback signal has somewhere to act, is a recurring trick in the
+      smaller circuits here.
+    related: [coupling-cap, bias, nfb]
+    appears:
+      - { label: "5F10 — Tweed Harvard-style", href: "/amps/5f10/" }
+      - { label: "5E1 — Tweed Champ-style", href: "/amps/5e1/" }
+
+  - term: Cathode follower
+    slug: cathode-follower
+    sort_key: cathode follower
+    definition: >-
+      A triode stage whose output is taken from the cathode instead of the plate,
+      giving voltage gain just under unity, very low output impedance, and no phase
+      inversion. Several circuits here run one direct-coupled straight out of a gain
+      stage to drive the tone stack, buffering it from the stages before and after.
+    related: [tone-stack, phase-inverter]
+    appears:
+      - { label: "5F6-A — Tweed Bassman-style", href: "/amps/5f6a/" }
+      - { label: "JTM45 — British lead-style", href: "/amps/jtm45/" }
+
+  - term: Cathodyne
+    slug: cathodyne
+    sort_key: cathodyne
+    definition: >-
+      A phase-inverter topology built from a single triode with matched plate and
+      cathode load resistors, so one input produces two output signals of equal
+      amplitude and opposite phase — also called a split-load or concertina
+      inverter. It is the phase inverter this archive's smaller push-pull circuit
+      uses in place of a second gain tube.
+    related: [phase-inverter, long-tailed-pair, grid-leak]
+    appears:
+      - { label: "5F10 — Tweed Harvard-style", href: "/amps/5f10/" }
+
+  - term: Choke
+    slug: choke
+    sort_key: choke
+    definition: >-
+      An iron-core inductor wired in series inside the B+ supply, between filter
+      capacitors, that smooths ripple more effectively — and with a softer voltage
+      sag under load — than a plain dropping resistor would in its place. One
+      circuit here traded its choke for a resistor in the very next design revision,
+      giving up some of that sag for one fewer iron part to buy.
+    related: [reservoir-cap, b-plus, sag]
+    appears:
+      - { label: "5E1 — Tweed Champ-style", href: "/amps/5e1/" }
+      - { label: "5F6-A — Tweed Bassman-style", href: "/amps/5f6a/" }
+
+  - term: Coupling cap
+    slug: coupling-cap
+    sort_key: coupling cap
+    definition: >-
+      A capacitor wired in series between two stages to pass AC signal while
+      blocking the DC plate voltage of the stage before it. Paired with the
+      following stage's grid-leak resistor it forms a high-pass filter, and that
+      pair's corner frequency sets how much bass survives into the next stage.
+    related: [grid-leak, bypass-cap, tone-stack]
+    appears:
+      - { label: "Amp builder calculators", href: "/reference/guides/calculators/" }
+      - { label: "5E1 — Tweed Champ-style", href: "/amps/5e1/" }
+
+  - term: FMV
+    slug: fmv
+    sort_key: fmv
+    definition: >-
+      Shorthand — Fender / Marshall / Vox — for the three-knob passive
+      treble-bass-mid tone-stack topology all three makers built around: a treble
+      cap and bass cap in a bridged network, tapped by pots, with the mid control
+      returning the network's floor to ground through a fixed slope resistor. It
+      sits after the gain stages and ahead of the phase inverter, and it always
+      costs some signal level on the way through.
+    related: [tone-stack, cathode-follower]
+    appears:
+      - { label: "5F6-A — Tweed Bassman-style", href: "/amps/5f6a/" }
+      - { label: "JTM45 — British lead-style", href: "/amps/jtm45/" }
+
+  - term: Grid leak
+    slug: grid-leak
+    sort_key: grid leak
+    definition: >-
+      A resistor — 1 MΩ is the common value in this archive — that returns a
+      triode's control grid to ground, or to a phase-inverter tail junction, giving
+      a defined DC path for any coupling-cap leakage rather than letting the grid
+      float. Paired with the coupling cap ahead of it, its value also sets that
+      stage's bass corner frequency.
+    related: [coupling-cap, grid-stopper, cathodyne, long-tailed-pair]
+    appears:
+      - { label: "5E1 — Tweed Champ-style", href: "/amps/5e1/" }
+      - { label: "Amp builder calculators", href: "/reference/guides/calculators/" }
+
+  - term: Grid stopper
+    slug: grid-stopper
+    sort_key: grid stopper
+    definition: >-
+      A small resistor, typically tens of kΩ, wired directly at a control grid right
+      at the tube socket to damp parasitic RF oscillation and cushion the grid
+      against an input signal swinging positive. Every input jack in this archive
+      carries one, and output-tube grids often get a second, larger-value stopper of
+      their own.
+    related: [grid-leak, screen-grid]
+    appears:
+      - { label: "JTM45 — British lead-style", href: "/amps/jtm45/" }
+      - { label: "5E1 — Tweed Champ-style", href: "/amps/5e1/" }
+
+  - term: Heater
+    slug: heater
+    sort_key: heater
+    definition: >-
+      The resistive filament element that heats a tube's cathode so thermionic
+      emission can occur — or, in a directly-heated rectifier, that filament is the
+      cathode itself. Heater wiring is universally AC and never affects a tube's DC
+      operating point, which is why it is omitted from the redrawn schematics in
+      this archive.
+    related: [basing, rectifier]
+    appears:
+      - { label: "Tube pinout diagrams", href: "/reference/guides/tube-pinouts/" }
+      - { label: "5Y3GT reference page", href: "/reference/tubes/5y3gt/" }
+
+  - term: Lineage
+    slug: lineage
+    sort_key: lineage
+    definition: >-
+      The ancestry this archive records between circuits: a direct
+      "derived from" edge for a traceable descendant redrawn stage-for-stage from an
+      earlier design, and a looser "influenced" edge where ideas spread without a
+      literal copy. Lineage is metadata, cited like any other fact — never a stand-in
+      for the maker names this project keeps out of ids and titles.
+    related: [verified-draft, basing]
+    appears:
+      - { label: "JTM45 — British lead-style", href: "/amps/jtm45/" }
+      - { label: "5F6-A — Tweed Bassman-style", href: "/amps/5f6a/" }
+
+  - term: Long-tailed pair
+    slug: long-tailed-pair
+    sort_key: long tailed pair
+    definition: >-
+      A phase-inverter topology using two triodes sharing a common "tail" — a
+      cathode resistor or network returned toward ground or a negative supply — so a
+      signal into one grid appears inverted and amplified equally at both plates.
+      It is the phase inverter behind every push-pull circuit in this archive larger
+      than the smallest amps.
+    related: [cathodyne, phase-inverter, push-pull, nfb]
+    appears:
+      - { label: "5F6-A — Tweed Bassman-style", href: "/amps/5f6a/" }
+      - { label: "JTM45 — British lead-style", href: "/amps/jtm45/" }
+
+  - term: "µ / gm / rp"
+    slug: mu-gm-rp
+    sort_key: mu gm rp
+    definition: >-
+      The three figures a datasheet's "typical operation" table reports for a triode
+      at a stated point: µ (amplification factor) is how many volts of plate swing
+      one grid volt is worth; gm (transconductance, µmho) is how much plate current
+      changes per grid volt; rp (plate resistance, kΩ) is the tube's own internal AC
+      resistance. The three are never independent — µ = gm × rp always holds — which
+      is one of the cross-checks this archive's calibration study used to validate a
+      contested datasheet reading.
+    related: [anchor, operating-point]
+    appears:
+      - { label: "12AX7 calibration study", href: "/reference/studies/12ax7-calibration/" }
+      - { label: "12AX7 reference page", href: "/reference/tubes/12ax7/" }
+
+  - term: NFB
+    slug: nfb
+    sort_key: nfb
+    definition: >-
+      Negative feedback: a fraction of the output transformer's secondary signal fed
+      back, out of phase, into an early stage — usually the phase-inverter tail — to
+      trade some gain for lower output impedance, wider frequency response, and
+      lower distortion. The presence control works from inside this loop.
+    related: [presence, long-tailed-pair, tone-stack]
+    appears:
+      - { label: "5F6-A — Tweed Bassman-style", href: "/amps/5f6a/" }
+      - { label: "5E1 — Tweed Champ-style", href: "/amps/5e1/" }
+
+  - term: Operating point
+    slug: operating-point
+    sort_key: operating point
+    definition: >-
+      The specific plate voltage, grid voltage, and resulting plate current at which
+      a tube sits at idle — what a factory voltage chart records node by node, and
+      what this archive's simulation is checked against. A stage's operating point
+      is set by its plate load, its bias arrangement, and the B+ rail feeding it.
+    related: [anchor, tolerance, verified-draft, mu-gm-rp]
+    appears:
+      - { label: "12AX7 calibration study", href: "/reference/studies/12ax7-calibration/" }
+      - { label: "5F4 — Tweed Super-style", href: "/amps/5f4/" }
+
+  - term: "OT / PT"
+    slug: ot-pt
+    sort_key: ot pt
+    definition: >-
+      The output transformer (OT) couples the output tubes to the low-impedance
+      speaker load, its turns ratio set for the plate-to-plate load those tubes
+      want; the power transformer (PT) steps the mains up to the high-tension
+      winding that feeds the rectifier, and down to filament voltage. Both are cited
+      by their manufacturer part number wherever the source schematic prints one.
+    related: [rectifier, choke, beam-power]
+    appears:
+      - { label: "5F6-A — Tweed Bassman-style", href: "/amps/5f6a/" }
+      - { label: "Amp builder calculators", href: "/reference/guides/calculators/" }
+
+  - term: Phase inverter
+    slug: phase-inverter
+    sort_key: phase inverter
+    definition: >-
+      A stage that turns one signal into two copies of equal amplitude and opposite
+      phase to drive a push-pull output pair. This archive models two families of
+      it — the single-tube cathodyne and the two-tube long-tailed pair — and a
+      single-ended amp needs neither.
+    related: [cathodyne, long-tailed-pair, push-pull, single-ended]
+    appears:
+      - { label: "5F10 — Tweed Harvard-style", href: "/amps/5f10/" }
+      - { label: "5F6-A — Tweed Bassman-style", href: "/amps/5f6a/" }
+
+  - term: Plate load
+    slug: plate-load
+    sort_key: plate load
+    definition: >-
+      The resistor — or, in an output stage, the transformer primary — between a
+      tube's plate and B+, across which the tube's varying plate current develops
+      the stage's output swing. Its value trades gain against headroom, and against
+      how far it lets the B+ rail sag into the next stage down the chain.
+    related: [operating-point, b-plus, tolerance]
+    appears:
+      - { label: "Amp builder calculators", href: "/reference/guides/calculators/" }
+      - { label: "12AX7 reference page", href: "/reference/tubes/12ax7/" }
+
+  - term: Presence
+    slug: presence
+    sort_key: presence
+    definition: >-
+      A control, usually a pot inside the negative-feedback loop, that shelves how
+      much high frequency reaches the phase-inverter tail. Because feedback
+      normally suppresses gain, removing treble from the feedback path makes an amp
+      sound brighter and more open as the control is turned up, rather than boosting
+      treble directly.
+    related: [nfb, tone-stack, long-tailed-pair]
+    appears:
+      - { label: "5F6-A — Tweed Bassman-style", href: "/amps/5f6a/" }
+      - { label: "JTM45 — British lead-style", href: "/amps/jtm45/" }
+
+  - term: Push-pull
+    slug: push-pull
+    sort_key: push pull
+    definition: >-
+      An output stage using two or more tubes that alternately handle the positive
+      and negative halves of the waveform, driven out of phase by a phase inverter
+      and recombined across the output-transformer primary. It cancels even-order
+      distortion and supply ripple that a single-ended stage cannot, and is how
+      every output stage in this archive above the smallest amps is built.
+    related: [phase-inverter, single-ended, ot-pt, beam-power]
+    appears:
+      - { label: "5F6-A — Tweed Bassman-style", href: "/amps/5f6a/" }
+      - { label: "6V6GT reference page", href: "/reference/tubes/6v6gt/" }
+
+  - term: Rectifier
+    slug: rectifier
+    sort_key: rectifier
+    definition: >-
+      The stage that turns the power transformer's AC high-tension winding into the
+      pulsating DC that filter capacitors and a choke then smooth into B+. This
+      archive covers tube rectifiers (full-wave from a center-tapped winding) and
+      solid-state diode bridges; a tube rectifier's own forward drop, and how it
+      rises under load, is a deliberate part of a vintage amp's sag.
+    related: [sag, choke, b-plus, selenium-rectifier]
+    appears:
+      - { label: "5Y3GT reference page", href: "/reference/tubes/5y3gt/" }
+      - { label: "GZ34 reference page", href: "/reference/tubes/gz34/" }
+
+  - term: Reservoir cap
+    slug: reservoir-cap
+    sort_key: reservoir cap
+    definition: >-
+      The first filter capacitor after the rectifier, charged near the peak of the
+      rectified waveform and partly discharged between peaks by the current the
+      circuit draws. Its size, together with the rectifier's own characteristics,
+      sets how much the B+ rail sags and ripples before a choke or resistor smooths
+      it further downstream.
+    related: [choke, b-plus, sag]
+    appears:
+      - { label: "5E1 — Tweed Champ-style", href: "/amps/5e1/" }
+      - { label: "JTM45 — British lead-style", href: "/amps/jtm45/" }
+
+  - term: Sag
+    slug: sag
+    sort_key: sag
+    definition: >-
+      The momentary drop in B+ voltage under playing dynamics, most pronounced with
+      a tube rectifier — whose forward drop rises with the current drawn through it
+      — feeding a modest reservoir capacitor. Heard as a soft compression and
+      "bloom" on transients, it is a deliberately kept character of this archive's
+      smaller circuits rather than a fault to design out.
+    related: [rectifier, reservoir-cap, choke]
+    appears:
+      - { label: "5F10 — Tweed Harvard-style", href: "/amps/5f10/" }
+      - { label: "5Y3GT reference page", href: "/reference/tubes/5y3gt/" }
+
+  - term: Screen grid
+    slug: screen-grid
+    sort_key: screen grid
+    definition: >-
+      The second grid in a tetrode or beam-power tube, held near B+ between the
+      control grid and the plate, where it accelerates electrons toward the plate
+      while shielding the control grid from the plate's field — giving far more gain
+      than a triode of similar size. It draws its own screen current and is usually
+      fed through its own dropping resistor, separate from the plate supply.
+    related: [beam-power, plate-load, grid-stopper]
+    appears:
+      - { label: "Tube pinout diagrams", href: "/reference/guides/tube-pinouts/" }
+      - { label: "6V6GT reference page", href: "/reference/tubes/6v6gt/" }
+
+  - term: Selenium rectifier
+    slug: selenium-rectifier
+    sort_key: selenium rectifier
+    definition: >-
+      A solid-state metal-oxide rectifier technology common from the 1940s into the
+      1960s, before silicon diodes took over, used in this archive's bias supplies
+      to turn a small AC tap into the fixed negative grid voltage that biases an
+      output stage. Selenium rectifiers age by rising forward drop, and a failing
+      one is notorious for an acrid smell.
+    related: [rectifier, bias, b-plus]
+    appears:
+      - { label: "5F6-A — Tweed Bassman-style", href: "/amps/5f6a/" }
+      - { label: "5F4 — Tweed Super-style", href: "/amps/5f4/" }
+
+  - term: Single-ended
+    slug: single-ended
+    sort_key: single ended
+    definition: >-
+      An output stage built around one power tube, passing the whole signal
+      waveform through it rather than splitting the load between a push-pull pair.
+      It needs no phase inverter, runs class A, and its even-order distortion and
+      supply-ripple sensitivity are part of the compressed voice of the smallest
+      amps in this archive.
+    related: [push-pull, phase-inverter, bias]
+    appears:
+      - { label: "5E1 — Tweed Champ-style", href: "/amps/5e1/" }
+      - { label: "6V6GT reference page", href: "/reference/tubes/6v6gt/" }
+
+  - term: Standby switch
+    slug: standby-switch
+    sort_key: standby switch
+    definition: >-
+      A switch placed between the rectifier's output and the rest of the B+ supply,
+      letting the heaters stay warm while high voltage is held off the plates. It
+      lets a player silence an amp between sets without a full thermal cycle, and
+      spares a tube rectifier from delivering full B+ into cold, high-impedance
+      tubes. Present on every circuit in this archive, it is omitted from the
+      redrawn schematics since it never affects DC operating point.
+    related: [rectifier, b-plus]
+    appears:
+      - { label: "JTM45 — British lead-style", href: "/amps/jtm45/" }
+      - { label: "5F4 — Tweed Super-style", href: "/amps/5f4/" }
+
+  - term: Tolerance
+    slug: tolerance
+    sort_key: tolerance
+    definition: >-
+      The allowed spread between a stated value and what an actual part, or
+      measurement, may show while still being in spec. A component's tolerance is a
+      printed percentage — a resistor's color band, a capacitor's letter code —
+      while each factory voltage chart modeled in this archive carries its own
+      stated measurement tolerance, most often ±20%, against which this archive's
+      simulated-versus-chart verification is judged.
+    related: [verified-draft, operating-point]
+    appears:
+      - { label: "Resistor color code calculator", href: "/reference/guides/resistor-color-code/" }
+      - { label: "12AX7 calibration study", href: "/reference/studies/12ax7-calibration/" }
+
+  - term: Tone stack
+    slug: tone-stack
+    sort_key: tone stack
+    definition: >-
+      The passive network of capacitors, resistors, and usually three
+      potentiometers — bass, mid, and treble — that shapes an amp's frequency
+      response between the gain stages and the phase inverter. Being entirely
+      passive, it always costs some signal level, which is why several circuits here
+      buffer it with a cathode follower.
+    related: [fmv, cathode-follower, presence, bright-cap]
+    appears:
+      - { label: "5F6-A — Tweed Bassman-style", href: "/amps/5f6a/" }
+      - { label: "Amp builder calculators", href: "/reference/guides/calculators/" }
+
+  - term: Verified / draft
+    slug: verified-draft
+    sort_key: verified draft
+    definition: >-
+      The two status values this archive assigns a circuit's metadata. Every new
+      circuit lands as draft; verified is set only once its simulated DC operating
+      point falls within the published chart's own tolerance and a maintainer signs
+      off — CI can propose the check, but only a maintainer can promote the badge.
+    related: [operating-point, tolerance, anchor]
+    appears:
+      - { label: "5F6-A — Tweed Bassman-style (verified)", href: "/amps/5f6a/" }
+      - { label: "5F2-A — Tweed Princeton-style (draft)", href: "/amps/5f2a/" }
