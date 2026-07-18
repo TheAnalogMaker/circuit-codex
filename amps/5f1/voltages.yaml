@@ -1,0 +1,12 @@
+# Published chart values vs. simulated DC operating point (see notes.md for
+# the source-conflict discussion — this circuit stays draft until the Fender
+# chart figures are confirmed from the published drawing).
+source: "Rob Robinette 5F1 walkthrough (B+ nodes, preamp plate ~170 V); ampbooks 5E1 analysis (6V6 cathode 19 V, adjacent revision)"
+nodes:
+  BP2: { chart: 325, tol_pct: 10 }
+  BP3: { chart: null, note: "walkthrough states 250 V; inconsistent with 10k dropper at preamp currents — pending chart confirmation" }
+  P1A: { chart: 170, tol_pct: 15, note: "walkthrough figure; pending chart confirmation" }
+  P1B: { chart: 170, tol_pct: 15, note: "walkthrough figure; pending chart confirmation" }
+  K1A: { chart: null, note: "informational" }
+  K1B: { chart: null, note: "informational (NFB 22k parallels cathode at DC)" }
+  K2:  { chart: 19, tol_pct: 15, note: "ampbooks 5E1 value (adjacent revision, 305 V rail); 5F1 at 360 V should sit higher" }

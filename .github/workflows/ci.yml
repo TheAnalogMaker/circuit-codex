@@ -18,7 +18,7 @@ jobs:
       - run: python pipeline/validate.py
       - run: python pipeline/fit_models.py && git diff --exit-code models/
       - run: python pipeline/test_models.py
+      - run: python pipeline/verify_amps.py
       # Phase-0 roadmap for this workflow:
       # - kiutils round-trip of amps/*/schematic.kicad_sch
-      # - ngspice run of amps/*/netlist.cir vs voltages.yaml (verified gate)
       # - schematic SVG rendering via kicad-cli

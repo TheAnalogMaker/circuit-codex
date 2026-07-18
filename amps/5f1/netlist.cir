@@ -1,0 +1,37 @@
+* 5F1 (Tweed Champ-style) — DC operating-point netlist
+* Circuit Codex — CC-BY-SA 4.0. Independently drawn from published circuit
+* facts (see meta.yaml sources); no factory drawing reproduced.
+*
+* DC conventions (v0, documented in notes.md):
+*  - B+1 driven at the published 360 V figure; downstream nodes are DERIVED.
+*  - Output transformer primary DCR omitted (plate node = B+1, as voltage
+*    charts conventionally annotate).
+*  - Coupling caps omitted (DC open); bypass caps omitted (DC no-ops).
+*  - NFB resistor R13 (22k) included: it parallels V1B's cathode at DC
+*    through the speaker secondary's ~0 ohm DCR.
+.include models/12ax7.inc
+.include models/6v6gt.inc
+
+VBP1 BP1 0 DC 360
+
+* power rail droppers
+R10 BP1 BP2 10k
+R11 BP2 BP3 10k
+
+* V1A input stage
+R5  BP3 P1A 100k
+XV1A P1A G1A K1A 12AX7
+R1  G1A 0 1meg
+R4  K1A 0 1.5k
+
+* V1B driver stage (grid returned to ground through 1M volume pot at DC)
+R7  BP3 P1B 100k
+XV1B P1B G1B K1B 12AX7
+RVOL G1B 0 1meg
+R6  K1B 0 1.5k
+R13 K1B 0 22k
+
+* 6V6GT output stage (plate at B+1, screen at B+2)
+XV2 BP1 BP2 G2 K2 6V6GT
+R9  G2 0 220k
+R8  K2 0 470
