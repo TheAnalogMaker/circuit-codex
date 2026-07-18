@@ -1,0 +1,332 @@
+---
+import Base from '../../../layouts/Base.astro';
+
+// Single source of truth for the interactive tool AND the printed reference
+// table below. mp = multiplier power (10^mp); tolPct = tolerance band value.
+const COLORS = [
+  { name: 'Black',  hex: '#141414', digit: 0,    mp: 0,  multStr: '× 1',     tolPct: null },
+  { name: 'Brown',  hex: '#5c3a21', digit: 1,    mp: 1,  multStr: '× 10',    tolPct: 1 },
+  { name: 'Red',    hex: '#b23b2e', digit: 2,    mp: 2,  multStr: '× 100',   tolPct: 2 },
+  { name: 'Orange', hex: '#cf7a2a', digit: 3,    mp: 3,  multStr: '× 1 k',   tolPct: null },
+  { name: 'Yellow', hex: '#d8b53a', digit: 4,    mp: 4,  multStr: '× 10 k',  tolPct: null },
+  { name: 'Green',  hex: '#3f8f5b', digit: 5,    mp: 5,  multStr: '× 100 k', tolPct: 0.5 },
+  { name: 'Blue',   hex: '#3966a6', digit: 6,    mp: 6,  multStr: '× 1 M',   tolPct: 0.25 },
+  { name: 'Violet', hex: '#7d4f9c', digit: 7,    mp: 7,  multStr: '× 10 M',  tolPct: 0.1 },
+  { name: 'Grey',   hex: '#8b8b8b', digit: 8,    mp: 8,  multStr: '× 100 M', tolPct: 0.05 },
+  { name: 'White',  hex: '#e6e0d4', digit: 9,    mp: 9,  multStr: '× 1 G',   tolPct: null },
+  { name: 'Gold',   hex: '#c79a41', digit: null, mp: -1, multStr: '× 0.1',   tolPct: 5 },
+  { name: 'Silver', hex: '#b7bbc0', digit: null, mp: -2, multStr: '× 0.01',  tolPct: 10 },
+];
+const fmtTol = (t) => (t === null ? '—' : `±${t}%`);
+---
+<Base title="Resistor color code calculator — Circuit Codex"
+      description="Read the color bands on a resistor, or type a value and see its bands. Interactive 4-band and 5-band decoder with a full color, multiplier, and tolerance chart, plus why vintage-amp resistors drift off their printed value.">
+<div class="wrap">
+  <header class="ghead">
+    <a class="back" href="/reference/">← Reference</a>
+    <div class="eyebrow">Practical guide</div>
+    <h1>Resistor color code calculator</h1>
+    <p class="lede">Read the bands on a carbon-composition or film resistor, or type a
+      value and watch the bands appear. Works both ways, in four-band and five-band,
+      with the tolerance ring included.</p>
+  </header>
+
+  <section class="tool" aria-label="Resistor color code tool">
+    <div class="tool-top">
+      <div class="hint">Click a band to cycle its color, or use the menus below. Type
+        a value to set the bands from a number.</div>
+      <div class="seg" role="radiogroup" aria-label="Number of bands">
+        <label><input type="radio" name="nbands" value="4" checked /><span>4-band</span></label>
+        <label><input type="radio" name="nbands" value="5" /><span>5-band</span></label>
+      </div>
+    </div>
+
+    <div class="rc-fig">
+      <svg class="rc-svg" viewBox="0 0 440 170" role="img" aria-labelledby="rc-svg-title">
+        <title id="rc-svg-title">Resistor with color bands</title>
+        <defs>
+          <linearGradient id="rc-body" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#c8ac78" />
+            <stop offset="0.5" stop-color="#a8895b" />
+            <stop offset="1" stop-color="#7e5f3a" />
+          </linearGradient>
+          <linearGradient id="rc-lead" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#dadee2" />
+            <stop offset="0.5" stop-color="#9aa0a6" />
+            <stop offset="1" stop-color="#686d73" />
+          </linearGradient>
+          <clipPath id="rc-barrel"><path d="M100,58 Q220,40 340,58 L340,112 Q220,130 100,112 Z" /></clipPath>
+        </defs>
+        <line x1="8" y1="85" x2="104" y2="85" stroke="url(#rc-lead)" stroke-width="7" stroke-linecap="round" />
+        <line x1="336" y1="85" x2="432" y2="85" stroke="url(#rc-lead)" stroke-width="7" stroke-linecap="round" />
+        <g clip-path="url(#rc-barrel)">
+          <rect x="96" y="34" width="248" height="102" fill="url(#rc-body)" />
+          <rect x="96" y="34" width="248" height="15" fill="#ffffff" opacity="0.12" />
+          <rect x="96" y="121" width="248" height="15" fill="#000000" opacity="0.18" />
+          <rect class="rc-band" data-slot="d1"   x="130" y="30" width="20" height="112" fill="#5c3a21" role="button" tabindex="0" />
+          <rect class="rc-band" data-slot="d2"   x="160" y="30" width="20" height="112" fill="#141414" role="button" tabindex="0" />
+          <rect class="rc-band" data-slot="d3"   x="190" y="30" width="20" height="112" fill="#7e5f3a" role="button" tabindex="0" style="display:none" />
+          <rect class="rc-band" data-slot="mult" x="190" y="30" width="20" height="112" fill="#d8b53a" role="button" tabindex="0" />
+          <rect class="rc-band" data-slot="tol"  x="296" y="30" width="20" height="112" fill="#c79a41" role="button" tabindex="0" />
+        </g>
+        <path d="M100,58 Q220,40 340,58 L340,112 Q220,130 100,112 Z" fill="none" stroke="#241c14" stroke-width="2" />
+      </svg>
+    </div>
+
+    <div class="rc-out" aria-live="polite">
+      <div class="rc-value" id="rc-value">100 kΩ</div>
+      <div class="rc-side">
+        <div class="rc-tol" id="rc-tol">±5%</div>
+        <div class="rc-range" id="rc-range">95 kΩ – 105 kΩ</div>
+      </div>
+      <div class="rc-names" id="rc-names">Brown · Black · Yellow · Gold</div>
+    </div>
+
+    <div class="rc-controls" id="rc-controls">
+      <label class="rc-ctl"><span>Digit 1</span><select data-slot="d1"></select></label>
+      <label class="rc-ctl"><span>Digit 2</span><select data-slot="d2"></select></label>
+      <label class="rc-ctl" data-only="5" style="display:none"><span>Digit 3</span><select data-slot="d3"></select></label>
+      <label class="rc-ctl"><span>Multiplier</span><select data-slot="mult"></select></label>
+      <label class="rc-ctl"><span>Tolerance</span><select data-slot="tol"></select></label>
+      <label class="rc-ctl rc-val"><span>Type a value</span>
+        <input type="text" id="rc-input" inputmode="text" placeholder="e.g. 4.7k · 470R · 1M" autocomplete="off" spellcheck="false" />
+      </label>
+    </div>
+    <p class="rc-note" id="rc-note" aria-live="polite"></p>
+  </section>
+
+  <section>
+    <h2>Color reference</h2>
+    <p class="sub">Two significant figures on a four-band resistor, three on a
+      five-band. The multiplier band sets the decimal place; the last ring is
+      tolerance.</p>
+    <div class="tbl"><table>
+      <thead><tr><th>Color</th><th>Digit</th><th>Multiplier</th><th>Tolerance</th></tr></thead>
+      <tbody>
+        {COLORS.map((c) => (
+          <tr>
+            <td><span class="sw" style={`background:${c.hex}`}></span>{c.name}</td>
+            <td>{c.digit === null ? '—' : c.digit}</td>
+            <td>{c.multStr}</td>
+            <td>{fmtTol(c.tolPct)}</td>
+          </tr>
+        ))}
+        <tr>
+          <td><span class="sw sw-none"></span>No band</td>
+          <td>—</td>
+          <td>—</td>
+          <td>±20%</td>
+        </tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <section class="era">
+    <h2>Why vintage amps measure off-print</h2>
+    <p>Most resistors in a tweed- or plexi-era amplifier are carbon composition — a
+      slug of carbon and binder molded around the leads. They are cheap, quiet enough
+      for audio, and shrug off the brief overloads a guitar amp hands them. What they
+      are not is precise. A gold tolerance ring means ±5%, silver means ±10%, and a
+      resistor wearing no fourth band at all was sold at ±20%. A "100 k" plate resistor
+      from 1959 could have left the factory anywhere from 80 k to 120 k and still been
+      in spec.</p>
+    <p>Age widens the gap. Carbon composition drifts — almost always upward — as the
+      binder absorbs moisture and decades of heat cook the slug. It is routine to pull
+      a half-century-old resistor and measure it 10–20% high, sometimes more where it
+      ran hot next to a power tube. That drift is why a vintage amp rarely matches its
+      printed voltage chart node-for-node, and why builders chasing an original tone
+      often measure the old parts before deciding which to keep. The
+      <a href="/reference/">reference library</a> lists the datasheets and
+      era-component sources behind those original values.</p>
+  </section>
+</div>
+</Base>
+
+<script type="application/json" id="rc-data" is:inline set:html={JSON.stringify(COLORS)}></script>
+<script is:inline>
+(function () {
+  const COLORS = JSON.parse(document.getElementById('rc-data').textContent);
+  const bands = {};
+  document.querySelectorAll('.rc-band').forEach((el) => { bands[el.dataset.slot] = el; });
+  const sel = {};
+  document.querySelectorAll('.rc-controls select').forEach((el) => { sel[el.dataset.slot] = el; });
+  const valueEl = document.getElementById('rc-value');
+  const tolEl = document.getElementById('rc-tol');
+  const rangeEl = document.getElementById('rc-range');
+  const namesEl = document.getElementById('rc-names');
+  const noteEl = document.getElementById('rc-note');
+  const input = document.getElementById('rc-input');
+  const d3ctl = document.querySelector('[data-only="5"]');
+  const svgTitle = document.getElementById('rc-svg-title');
+
+  let nB = 4;
+  const slots = { d1: 1, d2: 0, d3: 0, mult: 4, tol: 10 }; // 100 kΩ ±5%
+  const TOL_ORDER = [1, 2, 5, 6, 7, 8, 10, 11, -1]; // color indices; -1 = no band (±20%)
+  const P4 = { d1: 130, d2: 160, mult: 190, tol: 296 };
+  const P5 = { d1: 122, d2: 148, d3: 174, mult: 200, tol: 296 };
+
+  function fmtOhms(v) {
+    let unit = 'Ω', x = v;
+    if (v >= 1e6) { x = v / 1e6; unit = 'MΩ'; }
+    else if (v >= 1e3) { x = v / 1e3; unit = 'kΩ'; }
+    return Number(x.toPrecision(4)) + ' ' + unit;
+  }
+  function tolOf(i) { return i === -1 ? 20 : COLORS[i].tolPct; }
+  function nameOf(i) { return i === -1 ? 'None' : COLORS[i].name; }
+
+  // Build <option> lists once.
+  function opt(v, label) { const o = document.createElement('option'); o.value = v; o.textContent = label; return o; }
+  [sel.d1, sel.d2, sel.d3].forEach((s) => {
+    for (let i = 0; i < 10; i++) s.appendChild(opt(i, i + ' — ' + COLORS[i].name));
+  });
+  COLORS.forEach((c, i) => sel.mult.appendChild(opt(i, c.multStr + ' — ' + c.name)));
+  TOL_ORDER.forEach((i) => sel.tol.appendChild(opt(i, i === -1 ? 'No band — ±20%' : '±' + COLORS[i].tolPct + '% — ' + COLORS[i].name)));
+
+  function compute() {
+    const idx = nB === 5 ? [slots.d1, slots.d2, slots.d3] : [slots.d1, slots.d2];
+    const sig = parseInt(idx.map((i) => COLORS[i].digit).join(''), 10);
+    const ohms = sig * Math.pow(10, COLORS[slots.mult].mp);
+    const tolPct = tolOf(slots.tol);
+    const names = idx.map((i) => COLORS[i].name).concat(COLORS[slots.mult].name, nameOf(slots.tol));
+    return { ohms, tolPct, names };
+  }
+
+  function render() {
+    d3ctl.style.display = nB === 5 ? '' : 'none';
+    bands.d3.style.display = nB === 5 ? '' : 'none';
+    const pos = nB === 5 ? P5 : P4;
+    bands.d1.setAttribute('x', pos.d1);
+    bands.d2.setAttribute('x', pos.d2);
+    if (nB === 5) bands.d3.setAttribute('x', pos.d3);
+    bands.mult.setAttribute('x', pos.mult);
+    bands.tol.setAttribute('x', pos.tol);
+
+    bands.d1.setAttribute('fill', COLORS[slots.d1].hex);
+    bands.d2.setAttribute('fill', COLORS[slots.d2].hex);
+    bands.d3.setAttribute('fill', COLORS[slots.d3].hex);
+    bands.mult.setAttribute('fill', COLORS[slots.mult].hex);
+    if (slots.tol === -1) { bands.tol.style.display = 'none'; }
+    else { bands.tol.style.display = ''; bands.tol.setAttribute('fill', COLORS[slots.tol].hex); }
+
+    sel.d1.value = slots.d1; sel.d2.value = slots.d2; sel.d3.value = slots.d3;
+    sel.mult.value = slots.mult; sel.tol.value = slots.tol;
+
+    const r = compute();
+    valueEl.textContent = fmtOhms(r.ohms);
+    tolEl.textContent = '±' + r.tolPct + '%';
+    rangeEl.textContent = fmtOhms(r.ohms * (1 - r.tolPct / 100)) + ' – ' + fmtOhms(r.ohms * (1 + r.tolPct / 100));
+    namesEl.textContent = r.names.join(' · ');
+    svgTitle.textContent = 'Resistor reading ' + fmtOhms(r.ohms) + ' ±' + r.tolPct + '% — bands ' + r.names.join(', ');
+
+    // Band aria-labels
+    const lab = { d1: 'Digit 1', d2: 'Digit 2', d3: 'Digit 3', mult: 'Multiplier', tol: 'Tolerance' };
+    ['d1', 'd2', 'd3', 'mult', 'tol'].forEach((k) => {
+      bands[k].setAttribute('aria-label', lab[k] + ' band: ' + (k === 'tol' ? nameOf(slots.tol) : COLORS[slots[k]].name));
+    });
+  }
+
+  function cycle(slot) {
+    if (slot === 'd1' || slot === 'd2' || slot === 'd3') slots[slot] = (slots[slot] + 1) % 10;
+    else if (slot === 'mult') slots.mult = (slots.mult + 1) % COLORS.length;
+    else if (slot === 'tol') slots.tol = TOL_ORDER[(TOL_ORDER.indexOf(slots.tol) + 1) % TOL_ORDER.length];
+    noteEl.textContent = '';
+    render();
+  }
+
+  function parseR(s) {
+    s = s.trim().toLowerCase().replace(/ohms?|Ω/g, '').replace(/\s+/g, '');
+    if (!s) return null;
+    const mult = { r: 1, k: 1e3, m: 1e6 };
+    let m = s.match(/^(\d*)([rkm])(\d+)$/); // 4k7, 4r7, 1m5
+    if (m) return parseFloat((m[1] || '0') + '.' + m[3]) * mult[m[2]];
+    m = s.match(/^(\d*\.?\d+)([rkm]?)$/);
+    if (m) return parseFloat(m[1]) * (m[2] ? mult[m[2]] : 1);
+    return null;
+  }
+
+  function fromValue(str) {
+    const ohms = parseR(str);
+    if (ohms === null || !(ohms > 0)) { noteEl.textContent = 'Enter a value like 4.7k, 470R, or 1M.'; return; }
+    const nDig = nB === 5 ? 3 : 2;
+    let exp = Math.floor(Math.log10(ohms));
+    let mp = exp - (nDig - 1);
+    let sig = Math.round(ohms / Math.pow(10, mp));
+    if (sig >= Math.pow(10, nDig)) { sig = Math.round(sig / 10); mp += 1; }
+    if (mp < -2 || mp > 9) { noteEl.textContent = 'That value is outside the standard band range.'; return; }
+    const digs = String(sig).padStart(nDig, '0').split('').map(Number);
+    slots.d1 = digs[0]; slots.d2 = digs[1]; if (nDig === 3) slots.d3 = digs[2];
+    slots.mult = COLORS.findIndex((c) => c.mp === mp);
+    render();
+    const actual = sig * Math.pow(10, mp);
+    noteEl.textContent = Math.abs(actual - ohms) / ohms > 1e-9
+      ? 'Nearest ' + nDig + '-band value shown: ' + fmtOhms(actual) + '.'
+      : '';
+  }
+
+  // Wire up.
+  document.querySelectorAll('input[name="nbands"]').forEach((r) => r.addEventListener('change', (e) => {
+    nB = parseInt(e.target.value, 10); noteEl.textContent = ''; render();
+    if (input.value.trim()) fromValue(input.value);
+  }));
+  Object.keys(sel).forEach((k) => sel[k].addEventListener('change', (e) => {
+    slots[k] = parseInt(e.target.value, 10); noteEl.textContent = ''; render();
+  }));
+  Object.keys(bands).forEach((k) => {
+    bands[k].addEventListener('click', () => cycle(k));
+    bands[k].addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); cycle(k); }
+    });
+  });
+  input.addEventListener('input', () => fromValue(input.value));
+
+  render();
+})();
+</script>
+
+<style>
+  .ghead { padding: 44px 0 8px; }
+  .back { font-family: var(--disp); text-transform: uppercase; letter-spacing: .14em; font-size: 11.5px; color: var(--muted); }
+  .eyebrow { font-family: var(--disp); text-transform: uppercase; letter-spacing: .26em; font-size: 12px; color: var(--amber); margin-top: 14px; }
+  h1 { font-size: clamp(28px, 4.5vw, 42px); line-height: 1.12; margin: 8px 0 12px; }
+  .lede { max-width: 60ch; color: var(--muted); font-size: 16.5px; margin: 0; }
+  section { margin-top: 40px; }
+  h2 { font-size: 18px; letter-spacing: .14em; margin: 24px 0 4px; }
+  .sub { color: var(--muted); font-size: 14px; margin: 0 0 16px; max-width: 72ch; }
+
+  .tool { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 20px 22px 22px; }
+  .tool-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; flex-wrap: wrap; margin-bottom: 14px; }
+  .hint { color: var(--muted); font-size: 13.5px; max-width: 52ch; }
+  .seg { display: inline-flex; border: 1px solid var(--line); border-radius: 99px; overflow: hidden; flex: none; }
+  .seg label { position: relative; }
+  .seg input { position: absolute; opacity: 0; width: 100%; height: 100%; margin: 0; cursor: pointer; }
+  .seg span { display: block; padding: 7px 16px; font-family: var(--disp); text-transform: uppercase; letter-spacing: .12em; font-size: 12px; color: var(--muted); cursor: pointer; }
+  .seg label:has(:checked) span { background: var(--amber); color: #171310; }
+  .seg label:has(:focus-visible) span { outline: 2px solid var(--amber); outline-offset: 2px; }
+
+  .rc-fig { background: var(--well); border: 1px solid var(--line-soft); border-radius: 8px; padding: 8px 14px; }
+  .rc-svg { display: block; width: 100%; height: auto; max-height: 220px; }
+  .rc-band { cursor: pointer; }
+  .rc-band:hover { stroke: var(--ink); stroke-width: 1.5; }
+
+  .rc-out { display: flex; align-items: baseline; gap: 20px 26px; flex-wrap: wrap; margin: 18px 2px 4px; }
+  .rc-value { font-family: var(--disp); font-size: clamp(30px, 6vw, 46px); letter-spacing: .02em; color: var(--amber); line-height: 1; }
+  .rc-side { display: flex; align-items: baseline; gap: 14px; }
+  .rc-tol { font-family: var(--mono); font-size: 18px; color: var(--ink); }
+  .rc-range { font-family: var(--mono); font-size: 12.5px; color: var(--faint); }
+  .rc-names { font-family: var(--disp); text-transform: uppercase; letter-spacing: .1em; font-size: 12px; color: var(--muted); margin-left: auto; }
+
+  .rc-controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(126px, 1fr)); gap: 12px; margin-top: 18px; }
+  .rc-ctl { display: flex; flex-direction: column; gap: 5px; }
+  .rc-ctl > span { font-family: var(--disp); text-transform: uppercase; letter-spacing: .12em; font-size: 10.5px; color: var(--faint); }
+  .rc-ctl select, .rc-ctl input { background: var(--well); border: 1px solid var(--line); border-radius: 6px; color: var(--ink); font-family: var(--mono); font-size: 12.5px; padding: 8px 9px; width: 100%; }
+  .rc-val { grid-column: 1 / -1; }
+  .rc-note { min-height: 1.2em; margin: 10px 2px 0; color: var(--amber-dim); font-size: 13px; font-family: var(--mono); }
+
+  .sw { display: inline-block; width: 13px; height: 13px; border-radius: 3px; margin-right: 9px; vertical-align: -2px; border: 1px solid rgba(0,0,0,.35); }
+  .sw-none { background: repeating-linear-gradient(45deg, var(--faint), var(--faint) 3px, transparent 3px, transparent 6px); }
+  td .sw { flex: none; }
+
+  .era p { color: var(--muted); font-size: 15px; line-height: 1.7; max-width: 74ch; }
+  .era p + p { margin-top: 14px; }
+  .era strong { color: var(--ink); }
+</style>
