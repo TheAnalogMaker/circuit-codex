@@ -474,25 +474,7 @@ const LIBURL = `${GITHUB}/blob/main/pipeline/schematic_lib.py`;
 })();
 </script>
 
-<style>
-  .ghead { padding: 44px 0 8px; }
-  .back { font-family: var(--disp); text-transform: uppercase; letter-spacing: .14em; font-size: 11.5px; color: var(--muted); }
-  .eyebrow { font-family: var(--disp); text-transform: uppercase; letter-spacing: .26em; font-size: 12px; color: var(--amber); margin-top: 14px; }
-  h1 { font-size: clamp(28px, 4.5vw, 42px); line-height: 1.12; margin: 8px 0 12px; }
-  .lede { max-width: 66ch; color: var(--muted); font-size: 16.5px; margin: 0; }
-  section { margin-top: 44px; }
-  h2 { font-size: 18px; letter-spacing: .14em; margin: 24px 0 4px; }
-  .sub { color: var(--muted); font-size: 14px; margin: 0 0 18px; max-width: 78ch; line-height: 1.6; }
-  .sub a, .body a, .walk a, .nextlist a, .foot-note a { color: var(--amber); }
-  .k { font-family: var(--mono); color: var(--ink); font-size: .95em; }
-
-  .intro p { color: var(--muted); font-size: 15px; line-height: 1.7; max-width: 78ch; margin: 0 0 12px; }
-  .intro strong { color: var(--ink); }
-  .intro em { font-style: italic; color: var(--ink); }
-  .body { color: var(--muted); font-size: 15px; line-height: 1.7; max-width: 78ch; margin: 4px 0 0; }
-  .body strong { color: var(--ink); }
-  .body em { font-style: italic; color: var(--ink); }
-
+<style is:global>
   /* ---- shared schematic-symbol styling ---- */
   .sch { display: block; width: 100%; height: auto; }
   .sch .e-glass, .sch .e-plate, .sch .e-grid, .sch .e-screen, .sch .e-cathode,
@@ -522,6 +504,36 @@ const LIBURL = `${GITHUB}/blob/main/pipeline/schematic_lib.py`;
   .sch .pv { font-family: var(--mono); font-size: 10.5px; fill: var(--muted); }
   .sch .cap2 { font-family: var(--disp); text-transform: uppercase; letter-spacing: .1em; font-size: 10px; fill: var(--faint); }
 
+
+  .part { cursor: pointer; }
+  .part:focus-visible { outline: none; }
+  .part:is(:hover, :focus-visible, .is-active) :is(.e-glass, .e-plate, .e-grid, .e-screen, .e-cathode, .e-lead, .wire) {
+    stroke: var(--amber); stroke-width: 2.5; }
+  .part:is(:hover, :focus-visible, .is-active) .gndsym line { stroke: var(--amber); }
+  .part:is(:hover, :focus-visible, .is-active) .rail rect,
+  .part:is(:hover, :focus-visible, .is-active) .rail line { stroke: var(--amber); }
+  .part:focus-visible .hit { stroke: var(--amber); stroke-width: 1.5; stroke-dasharray: 4 4; }
+</style>
+
+<style>
+  .ghead { padding: 44px 0 8px; }
+  .back { font-family: var(--disp); text-transform: uppercase; letter-spacing: .14em; font-size: 11.5px; color: var(--muted); }
+  .eyebrow { font-family: var(--disp); text-transform: uppercase; letter-spacing: .26em; font-size: 12px; color: var(--amber); margin-top: 14px; }
+  h1 { font-size: clamp(28px, 4.5vw, 42px); line-height: 1.12; margin: 8px 0 12px; }
+  .lede { max-width: 66ch; color: var(--muted); font-size: 16.5px; margin: 0; }
+  section { margin-top: 44px; }
+  h2 { font-size: 18px; letter-spacing: .14em; margin: 24px 0 4px; }
+  .sub { color: var(--muted); font-size: 14px; margin: 0 0 18px; max-width: 78ch; line-height: 1.6; }
+  .sub a, .body a, .walk a, .nextlist a, .foot-note a { color: var(--amber); }
+  .k { font-family: var(--mono); color: var(--ink); font-size: .95em; }
+
+  .intro p { color: var(--muted); font-size: 15px; line-height: 1.7; max-width: 78ch; margin: 0 0 12px; }
+  .intro strong { color: var(--ink); }
+  .intro em { font-style: italic; color: var(--ink); }
+  .body { color: var(--muted); font-size: 15px; line-height: 1.7; max-width: 78ch; margin: 4px 0 0; }
+  .body strong { color: var(--ink); }
+  .body em { font-style: italic; color: var(--ink); }
+
   /* ---- symbol gallery ---- */
   .sym-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 16px; }
   .sym-card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px;
@@ -544,14 +556,6 @@ const LIBURL = `${GITHUB}/blob/main/pipeline/schematic_lib.py`;
   .stage-stage { background: var(--well); border: 1px solid var(--line-soft); border-radius: 10px;
     padding: 12px; overflow-x: auto; }
   .stage-svg { max-width: 680px; margin: 0 auto; min-width: 520px; }
-  .part { cursor: pointer; }
-  .part:focus-visible { outline: none; }
-  .part:is(:hover, :focus-visible, .is-active) :is(.e-glass, .e-plate, .e-grid, .e-screen, .e-cathode, .e-lead, .wire) {
-    stroke: var(--amber); stroke-width: 2.5; }
-  .part:is(:hover, :focus-visible, .is-active) .gndsym line { stroke: var(--amber); }
-  .part:is(:hover, :focus-visible, .is-active) .rail rect,
-  .part:is(:hover, :focus-visible, .is-active) .rail line { stroke: var(--amber); }
-  .part:focus-visible .hit { stroke: var(--amber); stroke-width: 1.5; stroke-dasharray: 4 4; }
   .stage-readout { min-height: 3.2em; margin: 12px 4px 0; font-family: var(--mono); font-size: 13px;
     color: var(--ink); max-width: 82ch; line-height: 1.5; }
 
