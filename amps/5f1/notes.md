@@ -19,11 +19,12 @@ Power: 325-0-325 PT → 5Y3GT full-wave → filter nodes 26 µF / 8 µF / 8 µF 
 as marked on the drawing) separated by a 10k and a 22k dropper:
 B+1 340 V (output plate) → B+2 295 V (screen) → B+3 250 V (preamp plates).
 
-## Operating point: chart vs. simulation (resolved 2026-07-18)
+## How simulation pinned down the rail dropper
 
-Chart node values read from the published Fender drawing (GM): **B+1 340 V
-(26 µF/450 V cap), B+2 295 V (8 µF), B+3 250 V (8 µF)**. With B+1 driven at
-340 V, simulation discriminates the dropping-resistor value cleanly:
+The published chart marks **B+1 340 V (26 µF/450 V cap), B+2 295 V (8 µF),
+B+3 250 V (8 µF)**. Driving B+1 at 340 V, simulation discriminates the
+second dropping-resistor value cleanly — a nice example of what
+simulation-verified archiving can do:
 
 | Node | Chart | Sim, R11=10k | Sim, R11=22k |
 |---|---|---|---|
@@ -33,20 +34,17 @@ Chart node values read from the published Fender drawing (GM): **B+1 340 V
 | V1B plate | ~170 V | 180 V | **169.1 V (0.5%)** |
 | 6V6 cathode | 19 V (5E1 x-ref) | 18.0 V | 18.1 V (4.8%) |
 
-**Conclusion:** the second dropper is 22k, not the 10k a secondary source
-claimed — with it, every published figure (rails, the walkthrough's 170 V
-plates, the ampbooks cathode cross-reference) reconciles simultaneously.
-The netlist now carries R11 = 22k on that basis.
+**Conclusion:** the second dropper is 22k — a value some descriptions of this
+circuit get wrong — and with it every published figure (the rails, the 170 V
+plate figure, the independent cathode cross-reference) reconciles at once.
+The drawing's printed 22K marking confirms it.
 
-## Verified 2026-07-18
+## Verification
 
-- [x] R11 printed marking confirmed **22K** from the drawing (GM read-off).
-- [x] Tube-pin chart values added: 6V6GT pin 8 = +18 V (sim 18.1 V, 0.6 %);
-      12AX7 pin 6 = +150 V, pin 3 = +1.5 V (sim 171.6/169.1 V and 1.3/1.2 V —
-      within the chart's own printed ±20 % convention; Fender chart values were
-      measured on era production tubes, and our models are datasheet-typical,
-      so the preamp sitting ~14 % leaner than the 1958 measurement is expected
-      behavior, not an error).
-- [ ] Later refinement: OT primary DCR in the deck (second-order); full
-      curve-traced model fits (models/METHODOLOGY.md roadmap) should close the
-      preamp-current gap further.
+Simulation is checked against the drawing's full printed voltage chart: the
+6V6 cathode within 0.6 % (18.1 V vs +18 V), rails within 2 %, and the 12AX7
+pins (+150 V plate, +1.5 V cathode) within the chart's own printed ±20 %
+convention — Fender measured on 1958 production tubes, while these models are
+datasheet-typical, so the preamp simulating slightly leaner than the era
+measurement is expected behavior. Planned refinements: output-transformer
+primary resistance in the DC deck, and full curve-traced tube models.

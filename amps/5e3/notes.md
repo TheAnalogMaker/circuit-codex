@@ -18,18 +18,19 @@ shared 250Ω 5W bypassed cathode) → 8k:8Ω output transformer.
 Power: 325-0-325 PT → 5Y3GT → three 16 µF/450 V nodes separated by **5,000 Ω**
 and **22k** droppers: B+1 (output plates) → B+2 (screens) → B+3 (preamp).
 
-## The cathodyne detail the secondary sources garble
+## How the cathodyne biases itself
 
-The published F-EE drawing settles the phase-inverter wiring that conflicting
-descriptions obscure: V2B's cathode runs through **1.5k** to a junction, then
-**56k** to ground; the **1M grid leak returns to that junction** (not to
-ground), and the tone network's capacitors AC-couple the grid. The stage
-self-biases: simulation puts the cathode at 42.4 V, junction at 41.3 V —
-a clean −1.1 V bias, with the plate (56k from B+3) at 195 V.
+The 5E3's phase inverter uses a wiring detail that's easy to miss: V2B's
+cathode runs through **1.5k** to a junction, then **56k** to ground, and the
+**1M grid leak returns to that junction** rather than to ground — the tone
+network's capacitors AC-couple the grid. The stage therefore biases itself:
+simulation puts the cathode at 42.4 V and the junction at 41.3 V — a clean
+−1.1 V bias — with the plate (56k from B+3) at 195 V.
 
-## Verified 2026-07-18
+## Verification
 
-The F-EE drawing carries **no factory voltage chart** (only the ±20 % notice),
-so verification uses Rob Robinette's published DC measurements as the
-reference: all seven charted nodes simulate within 12 % (rails 5–8 %, stage
-plates 4–12 %, 6V6 cathode 7.8 %). Component values are 100 % drawing-read.
+Every component value comes from the published Fender drawing. The F-EE sheet
+carries no factory voltage chart (only Fender's ±20 % measurement notice), so
+this circuit is verified against the best published DC measurements instead:
+all seven reference nodes simulate within 12 % — rails within 8 %, stage
+plates within 12 %, and the 6V6 cathode within 8 %.

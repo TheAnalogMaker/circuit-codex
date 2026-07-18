@@ -25,16 +25,15 @@ choke (14684) → **+430 V** screens → 4700Ω → **+385 V** PI (20 µF) → 1
 **+325 V** preamp (8 µF). Bias supply: selenium rectifier, 15k/56k, two
 8 µF/150 V → **−48 V**.
 
-## Verified 2026-07-18 — against the printed factory chart
+## Verification — against the printed factory chart
 
-The I-EG drawing prints a full voltage chart, and the simulation matches all
-14 compared nodes: rails within 0.8 %, every tube pin within 9.9 %
-(chart convention ±20 %). Two source corrections came out of the read-off:
+The I-EG drawing prints a full voltage chart, and simulation matches all 14
+compared nodes: rails within 0.8 %, every tube pin within 9.9 % (the chart's
+own convention is ±20 %). Working from the drawing also settles two details
+that often circulate incorrectly:
 
-- A widely-cited secondary source claims a **6.8k stock PI tail** — the
-  drawing prints **10k** (with 470Ω bias), and the chart's +32.5 V junction
-  value confirms it (32.5 V ÷ 10k ≈ the 3.2 mA tail current the plate drops
-  imply).
-- The chart also settles the NFB/presence wiring at DC: the tail's 10k
-  returns effectively straight to ground; the 27k feedback and presence pot
-  hang at the foot at ~0 V DC.
+- The phase-inverter tail is **10k** (with a 470Ω bias resistor) — not the
+  6.8k sometimes quoted. The chart's own +32.5 V junction figure confirms it:
+  32.5 V across 10k matches the ~3.2 mA the plate drops imply.
+- At DC the tail's 10k returns effectively straight to ground; the 27k
+  feedback resistor and presence pot sit at the foot at roughly 0 V.

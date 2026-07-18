@@ -1,0 +1,45 @@
+# Parts list — reference designators match schematic.kicad_sch exactly.
+notes: "The schematic draws one input jack per channel (the real chassis has four, sharing these grid resistors). Dropper wattages are not marked on the drawing."
+items:
+  - { ref: R1s, part: "Carbon comp resistor", value: "68 kΩ · ½ W",  role: "Instrument-channel grid stopper" }
+  - { ref: R2s, part: "Carbon comp resistor", value: "68 kΩ · ½ W",  role: "Mic-channel grid stopper" }
+  - { ref: RG1, part: "Carbon comp resistor", value: "1 MΩ · ½ W",   role: "Instrument input grid leak" }
+  - { ref: RG2, part: "Carbon comp resistor", value: "1 MΩ · ½ W",   role: "Mic input grid leak" }
+  - { ref: RL1, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "V1A plate load" }
+  - { ref: RL2, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "V1B plate load" }
+  - { ref: RK1, part: "Carbon comp resistor", value: "820 Ω · ½ W",  role: "Shared 12AY7 cathode bias" }
+  - { ref: C10, part: "Electrolytic capacitor", value: "25 µF · 25 V", role: "Shared 12AY7 cathode bypass" }
+  - { ref: C1,  part: "Coupling capacitor",   value: "0.1 µF · 400 V", role: "V1A → instrument volume" }
+  - { ref: C2,  part: "Coupling capacitor",   value: "0.1 µF · 400 V", role: "V1B → mic volume" }
+  - { ref: VR1, part: "Audio-taper potentiometer", value: "1 MΩ",    role: "Instrument volume" }
+  - { ref: VR2, part: "Audio-taper potentiometer", value: "1 MΩ",    role: "Mic volume" }
+  - { ref: RL3, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "V2A plate load" }
+  - { ref: RK2, part: "Carbon comp resistor", value: "1.5 kΩ · ½ W", role: "V2A cathode bias" }
+  - { ref: C4,  part: "Electrolytic capacitor", value: "25 µF · 25 V", role: "V2A cathode bypass" }
+  - { ref: C5,  part: "Mica capacitor",       value: "500 pF",        role: "Tone — treble path" }
+  - { ref: VR3, part: "Audio-taper potentiometer", value: "1 MΩ",    role: "Tone" }
+  - { ref: C6,  part: "Film capacitor",       value: "0.005 µF · 600 V", role: "Tone — cut path to ground" }
+  - { ref: RL4, part: "Carbon comp resistor", value: "56 kΩ · ½ W",  role: "Cathodyne plate load" }
+  - { ref: RKA, part: "Carbon comp resistor", value: "1.5 kΩ · ½ W", role: "Cathodyne bias (cathode → junction)" }
+  - { ref: RKB, part: "Carbon comp resistor", value: "56 kΩ · ½ W",  role: "Cathodyne cathode load (junction → ground)" }
+  - { ref: RGPI, part: "Carbon comp resistor", value: "1 MΩ · ½ W",  role: "Cathodyne grid leak, returned to the junction" }
+  - { ref: C7,  part: "Coupling capacitor",   value: "0.1 µF · 400 V", role: "Cathodyne plate → V3 grid" }
+  - { ref: C8,  part: "Coupling capacitor",   value: "0.1 µF · 200 V", role: "Cathodyne cathode → V4 grid" }
+  - { ref: R3s, part: "Carbon comp resistor", value: "1.5 kΩ · ½ W", role: "V3 grid stopper" }
+  - { ref: R4s, part: "Carbon comp resistor", value: "1.5 kΩ · ½ W", role: "V4 grid stopper" }
+  - { ref: RG6A, part: "Carbon comp resistor", value: "220 kΩ · ½ W", role: "V3 grid leak" }
+  - { ref: RG6B, part: "Carbon comp resistor", value: "220 kΩ · ½ W", role: "V4 grid leak" }
+  - { ref: RK66, part: "Wirewound resistor",  value: "250 Ω · 5 W",  role: "Shared 6V6 cathode bias" }
+  - { ref: C9,  part: "Electrolytic capacitor", value: "25 µF · 25 V", role: "Shared 6V6 cathode bypass" }
+  - { ref: RD1, part: "Power resistor",       value: "5,000 Ω",       role: "Rail dropper B+1 → B+2" }
+  - { ref: RD2, part: "Power resistor",       value: "22 kΩ",         role: "Rail dropper B+2 → B+3" }
+  - { ref: C11, part: "Electrolytic capacitor", value: "16 µF · 450 V", role: "Filter, B+1" }
+  - { ref: C12, part: "Electrolytic capacitor", value: "16 µF · 450 V", role: "Filter, B+2" }
+  - { ref: C13, part: "Electrolytic capacitor", value: "16 µF · 450 V", role: "Filter, B+3" }
+  - { ref: V1,  part: "Preamp tube",          value: "12AY7",          role: "Both input stages (V1A/V1B)" }
+  - { ref: V2,  part: "Preamp tube",          value: "12AX7",          role: "Second stage + cathodyne (V2A/V2B)" }
+  - { ref: V3,  part: "Power tube",           value: "6V6GT",          role: "Push-pull output (upper)" }
+  - { ref: V4,  part: "Power tube",           value: "6V6GT",          role: "Push-pull output (lower)" }
+  - { ref: V5,  part: "Rectifier tube",       value: "5Y3GT",          role: "Full-wave rectifier (V5A/V5B)" }
+  - { ref: T2,  part: "Output transformer",   value: "8 kΩ : 8 Ω",     role: "Push-pull output" }
+  - { ref: "—", part: "Power transformer",    value: "325-0-325 V · 6.3 V · 5 V", role: "HT + heaters + rectifier filament" }
