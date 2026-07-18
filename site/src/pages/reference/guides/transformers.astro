@@ -1,0 +1,335 @@
+---
+import Base from '../../../layouts/Base.astro';
+import { loadCorpus, displayId } from '../../../lib/corpus.js';
+
+// ---------------------------------------------------------------------------
+// (1) Power-transformer lead colours. Read directly off two published Fender
+// layout drawings this archive already cites — the "Deluxe" 5E3 (F-EE) and the
+// "Bassman" 5F6-A (I-EG) — where every winding lead is labelled by colour.
+// The 5E3 shows BLACK·BLACK / RED·RED / RED-YELLOW / YELLOW·YELLOW / GREEN·GREEN;
+// the 5F6-A adds the GREEN-YELLOW heater centre tap and labels the HT ends
+// "325 V. AC". Colours are the drawn wire colours; hexes match the resistor
+// chart's palette so the whole reference reads as one system.
+const WIRE = { black: '#1c1c1c', red: '#b23b2e', yellow: '#d8b53a', green: '#3f8f5b' };
+
+const LEAD_ROWS = [
+  { key: 'pri',  chips: ['black'],           name: 'Black + Black',       count: '×2', winding: 'Primary',                  service: 'Mains input, ~120 V AC — switched through the fuse and power switch' },
+  { key: 'ht',   chips: ['red'],             name: 'Red + Red',           count: '×2', winding: 'High-voltage secondary',   service: 'Plate supply to the rectifier — the ends of the HT winding (325-0-325 V AC on both drawings)' },
+  { key: 'ht',   chips: ['red', 'yellow'],   name: 'Red / yellow',        count: '×1', winding: 'HT centre tap',            service: 'Midpoint of the HT winding — the B+ return, to the first filter / ground' },
+  { key: 'rec',  chips: ['yellow'],          name: 'Yellow + Yellow',     count: '×2', winding: 'Rectifier filament',       service: '5 V for a directly-heated tube rectifier — 5Y3GT, 5U4G, GZ34' },
+  { key: 'htr',  chips: ['green'],           name: 'Green + Green',        count: '×2', winding: 'Heater secondary',        service: '6.3 V for the preamp and power-tube heaters' },
+  { key: 'htr',  chips: ['green', 'yellow'], name: 'Green / yellow',      count: '×1', winding: 'Heater centre tap',        service: 'Midpoint of the 6.3 V winding — hum reference, grounded or elevated (present on the 5F6-A, not the 5E3)' },
+];
+
+// SVG lead geometry. Each lead is a curved path from the core edge out to an
+// endpoint dot; striped leads carry a dashed tracer over the base colour.
+// Grouped by winding so hovering any lead lights the whole winding.
+const GROUPS = [
+  {
+    id: 'pri',
+    label: ['Primary', '120 V mains'], labelX: 96, labelY: 128, labelAnchor: 'end',
+    readout: 'Primary — two BLACK leads · ~120 V AC mains, switched through the fuse and power switch.',
+    aria: 'Primary winding, two black leads',
+    leads: [
+      { base: 'black', d: 'M300 194 C 232 194, 196 100, 128 96',  x: 128, y: 96 },
+      { base: 'black', d: 'M300 226 C 232 226, 196 156, 128 160', x: 128, y: 160 },
+    ],
+  },
+  {
+    id: 'ht',
+    label: ['HT / plate', '325-0-325 V'], labelX: 632, labelY: 92, labelAnchor: 'start',
+    readout: 'High-voltage secondary — two RED end leads + a RED-YELLOW centre tap · the plate supply, 325-0-325 V AC to the rectifier.',
+    aria: 'High-voltage secondary, two red leads and a red-yellow centre tap',
+    leads: [
+      { base: 'red',                  d: 'M420 176 C 502 176, 520 60, 604 56',  x: 604, y: 56 },
+      { base: 'red', tracer: 'yellow', d: 'M420 190 C 508 190, 522 104, 604 104', x: 604, y: 104 },
+      { base: 'red',                  d: 'M420 204 C 502 204, 520 152, 604 152', x: 604, y: 152 },
+    ],
+  },
+  {
+    id: 'htr',
+    label: ['Heaters', '6.3 V'], labelX: 632, labelY: 232, labelAnchor: 'start',
+    readout: 'Heater winding — two GREEN leads + a GREEN-YELLOW centre tap · 6.3 V for the preamp and power-tube heaters.',
+    aria: 'Heater winding, two green leads and a green-yellow centre tap',
+    leads: [
+      { base: 'green',                  d: 'M420 210 C 505 210, 520 204, 604 204', x: 604, y: 204 },
+      { base: 'green', tracer: 'yellow', d: 'M420 214 C 508 214, 522 248, 604 248', x: 604, y: 248 },
+      { base: 'green',                  d: 'M420 218 C 505 218, 520 292, 604 292', x: 604, y: 292 },
+    ],
+  },
+  {
+    id: 'rec',
+    label: ['Rectifier', '5 V'], labelX: 632, labelY: 356, labelAnchor: 'start',
+    readout: 'Rectifier filament — two YELLOW leads · 5 V for a directly-heated tube rectifier (5Y3GT, 5U4G, GZ34).',
+    aria: 'Rectifier filament winding, two yellow leads',
+    leads: [
+      { base: 'yellow', d: 'M420 236 C 500 236, 520 344, 604 344', x: 604, y: 344 },
+      { base: 'yellow', d: 'M420 244 C 500 244, 520 384, 604 384', x: 604, y: 384 },
+    ],
+  },
+];
+const DEFAULT_READOUT = 'Hover, tap, or focus a winding to name its leads.';
+
+// ---------------------------------------------------------------------------
+// (2) Corpus magnetics table — auto-generated at build time from every amp's
+// bom.yaml (part + value + role) joined to meta.yaml (name_style) via the
+// corpus loader. Anything whose part reads "transformer" or "choke" is pulled.
+const MAG_RE = /transformer|choke/i;
+const TYPE_ORDER = { 'Power transformer': 0, 'Output transformer': 1, 'Filter choke': 2 };
+const magnetics = loadCorpus().flatMap((amp) =>
+  (amp.bom?.items || [])
+    .filter((i) => MAG_RE.test(i.part))
+    .map((i) => ({
+      type: i.part,
+      spec: i.value,
+      role: i.role,
+      ampId: amp.id,
+      ampLabel: displayId(amp.id),
+      ampStyle: amp.meta.name_style,
+    }))
+).sort((a, b) =>
+  (TYPE_ORDER[a.type] ?? 9) - (TYPE_ORDER[b.type] ?? 9) || a.ampId.localeCompare(b.ampId));
+
+const nCircuits = new Set(magnetics.map((m) => m.ampId)).size;
+const nTransformers = magnetics.filter((m) => /transformer/i.test(m.type)).length;
+const nChokes = magnetics.filter((m) => /choke/i.test(m.type)).length;
+---
+<Base title="Era transformer reference — lead colours, corpus parts & impedance ratio · Circuit Codex"
+      description="How the windings of a tweed-era Fender power transformer are colour-coded — black primary, red HT with a red-yellow centre tap, yellow rectifier filament, green heaters — read straight off the published Fender layout drawings, with an original interactive diagram and reference table. Plus every transformer and choke in the corpus, and a one-line impedance-ratio refresher.">
+<div class="wrap">
+  <header class="ghead">
+    <a class="back" href="/reference/">← Reference</a>
+    <div class="eyebrow">Practical guide</div>
+    <h1>Transformer reference</h1>
+    <p class="lede">The iron in a tube amp does three jobs — step the mains up for the plates,
+      step it down for the heaters, and match the output tubes to the speaker. This is the
+      lead-colour code for the power transformer, every transformer and choke in the archive,
+      and the one sum behind an output transformer's ratio.</p>
+  </header>
+
+  <section aria-labelledby="leads-h">
+    <h2 id="leads-h">Power-transformer lead colours</h2>
+    <p class="sub">A tube-amp power transformer brings its windings out as loose, colour-coded
+      leads. On the tweed-era Fender drawings the code is consistent: hover a winding below to
+      read its leads, or work from the chart. The centre-tap leads carry a second colour as a
+      tracer stripe.</p>
+
+    <figure class="pt-fig">
+      <div class="pt-stage">
+        <svg viewBox="0 0 760 430" class="pt-svg" role="img" aria-labelledby="pt-title">
+          <title id="pt-title">A power transformer with colour-coded winding leads: black primary,
+            red high-voltage secondary with a red-yellow centre tap, yellow rectifier filament,
+            and green heaters with a green-yellow centre tap.</title>
+
+          <!-- core + bobbin -->
+          <g aria-hidden="true">
+            <rect x="300" y="150" width="120" height="120" rx="7" class="pt-core" />
+            <line x1="318" y1="150" x2="318" y2="270" class="pt-lam" />
+            <line x1="336" y1="150" x2="336" y2="270" class="pt-lam" />
+            <line x1="402" y1="150" x2="402" y2="270" class="pt-lam" />
+            <line x1="384" y1="150" x2="384" y2="270" class="pt-lam" />
+            <rect x="344" y="138" width="32" height="144" rx="5" class="pt-bobbin" />
+            <text x="360" y="214" class="pt-mark" text-anchor="middle" dominant-baseline="central">PT</text>
+          </g>
+
+          {GROUPS.map((g) => (
+            <g class="lead-grp" data-grp={g.id} tabindex="0" role="button"
+               aria-label={g.aria} data-readout={g.readout}>
+              {/* wide invisible hit area so thin leads are easy to hover / tap */}
+              {g.leads.map((l) => <path class="hit" d={l.d} />)}
+              {g.leads.map((l) => <path class="casing" d={l.d} />)}
+              {g.leads.map((l) => <path class="wire" style={`stroke:${WIRE[l.base]}`} d={l.d} />)}
+              {g.leads.map((l) => (l.tracer
+                ? <path class="tracer" style={`stroke:${WIRE[l.tracer]}`} d={l.d} /> : null))}
+              {g.leads.map((l) => (
+                <circle class="end" cx={l.x} cy={l.y} r="6.5"
+                        style={`fill:${WIRE[l.base]}`} />
+              ))}
+              <text class="grp-label" x={g.labelX} y={g.labelY} text-anchor={g.labelAnchor}>
+                <tspan x={g.labelX} dy="0">{g.label[0]}</tspan>
+                <tspan x={g.labelX} dy="15" class="grp-sub">{g.label[1]}</tspan>
+              </text>
+            </g>
+          ))}
+        </svg>
+      </div>
+      <p class="pt-readout" aria-live="polite" data-default={DEFAULT_READOUT}>{DEFAULT_READOUT}</p>
+    </figure>
+
+    <div class="tbl"><table>
+      <thead><tr><th>Lead</th><th></th><th>Winding</th><th>Carries</th></tr></thead>
+      <tbody>
+        {LEAD_ROWS.map((r) => (
+          <tr>
+            <td class="lead-cell">
+              <span class="chip-wire" aria-hidden="true">
+                {r.chips.map((c) => <span class="sw" style={`background:${WIRE[c]}`}></span>)}
+              </span>
+              {r.name}
+            </td>
+            <td class="ct">{r.count}</td>
+            <td class="wnd">{r.winding}</td>
+            <td class="svc">{r.service}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table></div>
+
+    <div class="warn">
+      <strong>Verify every lead with a meter — this chart is a starting point, not a guarantee.</strong>
+      Colour conventions vary by manufacturer and era, replacement transformers follow their own
+      schemes, and old leads get spliced, faded, or swapped. A primary wired to a high-voltage
+      winding, or an HT centre tap left floating, is a lethal mistake. Confirm the resistance and
+      identity of each lead cold, discharged, and out of circuit before you power anything up.
+      Treat every lead as live until you have proven otherwise.
+    </div>
+
+    <p class="cite">Lead colours read directly from the published Fender layout drawings:
+      the <a href="https://el34world.com/charts/Schematics/files/Fender/Fender_deluxe_5e3.pdf"
+        rel="external nofollow">"Deluxe" 5E3 (F-EE)</a> and the
+      <a href="https://el34world.com/charts/Schematics/files/Fender/Fender_bassman_5f6a.pdf"
+        rel="external nofollow">"Bassman" 5F6-A (I-EG)</a>, both archived at EL34World. The
+      diagram is redrawn here, never traced from the source documents.</p>
+  </section>
+
+  <section aria-labelledby="corpus-h">
+    <h2 id="corpus-h">Transformers &amp; chokes in the corpus</h2>
+    <p class="sub">Every transformer and choke listed in an amp's parts list, generated straight
+      from the archive at build time — {nTransformers} transformer{nTransformers === 1 ? '' : 's'}
+      and {nChokes} choke{nChokes === 1 ? '' : 's'} across {nCircuits} circuit{nCircuits === 1 ? '' : 's'}.
+      Where a drawing prints only a Fender part number, that number is what appears here; where it
+      prints an impedance or a winding voltage, that does.</p>
+    <div class="tbl"><table>
+      <thead><tr><th>Part</th><th>Spec</th><th>In circuit</th><th>Role</th></tr></thead>
+      <tbody>
+        {magnetics.map((m) => (
+          <tr>
+            <td class="part">{m.type}</td>
+            <td>{m.spec}</td>
+            <td><a href={`/amps/${m.ampId}/`}>{m.ampLabel}</a> <span class="style">{m.ampStyle}</span></td>
+            <td class="role">{m.role}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table></div>
+  </section>
+
+  <section aria-labelledby="imp-h" class="imp">
+    <h2 id="imp-h">Impedance ratio, in one line</h2>
+    <p>An output transformer matches the high plate impedance of the output tubes to the low
+      impedance of the speaker. The turns ratio does it, and the impedance ratio is that ratio
+      squared:</p>
+    <p class="eq"><b>N = √(Z<sub>pri</sub> / Z<sub>sec</sub>)</b> &nbsp;·&nbsp;
+      <b>Z<sub>pri</sub> = Z<sub>sec</sub> × N²</b></p>
+    <p>So the 8 kΩ : 8 Ω output transformer in the <a href="/amps/5e3/">5E3</a> is a 1000 : 1
+      impedance ratio — about 31.6 : 1 turns. That also runs backwards: the plates only see
+      8 kΩ when an 8 Ω speaker is on the secondary. Drop to a 4 Ω load and the plates see 4 kΩ,
+      which is why a speaker-impedance mismatch shifts the whole load line, not just the level.</p>
+    <p class="ptr">Put your own numbers in — the <a href="/reference/guides/calculators/">amp builder
+      calculators</a> include a live output-transformer ratio tool. For the design theory behind the
+      iron, see <a href="https://archive.org/details/Electronic_Transformers_and_Circuits_Reuben_Lee_1955"
+        rel="external nofollow">Reuben Lee, <em>Electronic Transformers and Circuits</em> (1955)</a>.</p>
+  </section>
+</div>
+</Base>
+
+<script is:inline>
+(function () {
+  document.querySelectorAll('.pt-fig').forEach((root) => {
+    const readout = root.querySelector('.pt-readout');
+    const svg = root.querySelector('.pt-svg');
+    const def = readout.getAttribute('data-default');
+    const groups = root.querySelectorAll('.lead-grp');
+    const activate = (g) => {
+      readout.textContent = g.getAttribute('data-readout');
+      groups.forEach((x) => x.classList.toggle('is-active', x === g));
+    };
+    const reset = () => {
+      if (root.contains(document.activeElement) && document.activeElement.classList.contains('lead-grp')) return;
+      readout.textContent = def;
+      groups.forEach((x) => x.classList.remove('is-active'));
+    };
+    groups.forEach((g) => {
+      g.addEventListener('mouseenter', () => activate(g));
+      g.addEventListener('focus', () => activate(g));
+      g.addEventListener('click', () => activate(g));
+      g.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); activate(g); }
+      });
+    });
+    svg.addEventListener('mouseleave', reset);
+    root.addEventListener('focusout', () => setTimeout(reset, 0));
+  });
+})();
+</script>
+
+<style>
+  .ghead { padding: 44px 0 8px; }
+  .back { font-family: var(--disp); text-transform: uppercase; letter-spacing: .14em; font-size: 11.5px; color: var(--muted); }
+  .eyebrow { font-family: var(--disp); text-transform: uppercase; letter-spacing: .26em; font-size: 12px; color: var(--amber); margin-top: 14px; }
+  h1 { font-size: clamp(28px, 4.5vw, 42px); line-height: 1.12; margin: 8px 0 12px; }
+  .lede { max-width: 64ch; color: var(--muted); font-size: 16.5px; margin: 0; }
+  section { margin-top: 44px; }
+  h2 { font-size: 18px; letter-spacing: .14em; margin: 24px 0 4px; }
+  .sub { color: var(--muted); font-size: 14px; margin: 0 0 18px; max-width: 76ch; line-height: 1.6; }
+
+  /* ---- lead diagram ---- */
+  .pt-fig { margin: 0 0 22px; }
+  .pt-stage { background: var(--well); border: 1px solid var(--line-soft); border-radius: 10px; padding: 12px; }
+  .pt-svg { display: block; width: 100%; height: auto; max-width: 620px; margin: 0 auto; }
+
+  .pt-core { fill: #1c1611; stroke: var(--line); stroke-width: 2; }
+  .pt-lam { stroke: var(--line-soft); stroke-width: 1.5; }
+  .pt-bobbin { fill: #2c241c; stroke: var(--faint); stroke-width: 1; }
+  .pt-mark { font-family: var(--disp); font-size: 15px; letter-spacing: .12em; fill: var(--faint); }
+
+  .lead-grp { cursor: pointer; }
+  .lead-grp:focus-visible { outline: none; }
+  .hit { fill: none; stroke: transparent; stroke-width: 20; }
+  .casing { fill: none; stroke: var(--line); stroke-width: 8; stroke-linecap: round; }
+  .wire { fill: none; stroke-width: 5; stroke-linecap: round; transition: stroke-width .12s ease; }
+  .tracer { fill: none; stroke-width: 5; stroke-linecap: butt; stroke-dasharray: 4 9; }
+  .end { stroke: #171310; stroke-width: 1.5; transition: r .12s ease; }
+  .grp-label { font-family: var(--disp); text-transform: uppercase; letter-spacing: .1em;
+    font-size: 13px; fill: var(--ink); }
+  .grp-sub { font-size: 11px; fill: var(--faint); letter-spacing: .06em; }
+
+  .lead-grp:hover .wire, .lead-grp:focus-visible .wire, .lead-grp.is-active .wire { stroke-width: 7; }
+  .lead-grp:hover .end, .lead-grp:focus-visible .end, .lead-grp.is-active .end { r: 8; }
+  .lead-grp:hover .casing, .lead-grp:focus-visible .casing, .lead-grp.is-active .casing { stroke: var(--faint); }
+  .lead-grp:focus-visible .grp-label, .lead-grp.is-active .grp-label { fill: var(--amber); }
+  .lead-grp:focus-visible .end { stroke: var(--amber); stroke-width: 2.5; }
+
+  .pt-readout { min-height: 2.6em; margin: 12px 4px 0; font-family: var(--mono); font-size: 13px;
+    color: var(--ink); max-width: 78ch; line-height: 1.5; }
+
+  /* ---- lead table ---- */
+  .lead-cell { white-space: nowrap; }
+  .chip-wire { display: inline-flex; gap: 2px; margin-right: 9px; vertical-align: -2px; }
+  .sw { display: inline-block; width: 11px; height: 13px; border-radius: 2px;
+    border: 1px solid rgba(0,0,0,.4); }
+  .chip-wire .sw:first-child:last-child { width: 14px; }
+  .ct { color: var(--faint); }
+  .wnd { font-family: var(--body); }
+  .svc { font-family: var(--body); color: var(--muted); white-space: normal; }
+
+  /* ---- corpus table ---- */
+  .part { font-family: var(--body); }
+  td .style { font-family: var(--body); color: var(--faint); font-size: 11.5px; }
+  .role { font-family: var(--body); color: var(--faint); white-space: normal; }
+
+  /* ---- warning + citation ---- */
+  .warn { margin-top: 18px; background: var(--panel); border: 1px solid var(--line);
+    border-left: 3px solid var(--oxblood); border-radius: 6px; padding: 14px 16px;
+    color: var(--muted); font-size: 14px; line-height: 1.6; max-width: 82ch; }
+  .warn strong { color: var(--ink); }
+  .cite { margin-top: 16px; color: var(--faint); font-size: 12.5px; line-height: 1.6; max-width: 82ch; }
+
+  /* ---- impedance section ---- */
+  .imp p { color: var(--muted); font-size: 15px; line-height: 1.7; max-width: 76ch; margin: 0 0 12px; }
+  .imp a { color: var(--amber); }
+  .eq { font-family: var(--mono); background: var(--well); border: 1px solid var(--line-soft);
+    border-radius: 8px; padding: 14px 16px; color: var(--ink) !important; font-size: 15px; }
+  .eq b { color: var(--amber); }
+  .ptr { border-top: 1px dashed var(--line); padding-top: 14px; }
+</style>
