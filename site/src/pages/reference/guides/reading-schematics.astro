@@ -1,0 +1,573 @@
+---
+import Base from '../../../layouts/Base.astro';
+import { GITHUB } from '../../../lib/corpus.js';
+
+// ---------------------------------------------------------------------------
+// Original symbol artwork, redrawn from this archive's KiCad symbol library
+// (pipeline/schematic_lib.py). Each glyph is authored in the library's own
+// coordinate space — millimetres, +Y up — and rendered inside a flipped,
+// scaled <g> so the shapes match the KiCad symbols pin-for-pin. Strokes are
+// kept crisp with vector-effect:non-scaling-stroke; text callouts sit outside
+// the flipped group in screen space. `c` tags each stroke with its electrode
+// family so the tube elements read in the same colours as the pinout guide.
+
+const RES_V = [
+  { k: 'poly', c: 'e-lead', p: [[-1.016, -2.54], [1.016, -2.54], [1.016, 2.54], [-1.016, 2.54], [-1.016, -2.54]] },
+  { k: 'line', c: 'e-lead', p: [0, 3.81, 0, 2.54] },
+  { k: 'line', c: 'e-lead', p: [0, -2.54, 0, -3.81] },
+];
+const RES_H = [
+  { k: 'poly', c: 'e-lead', p: [[-2.54, -1.016], [2.54, -1.016], [2.54, 1.016], [-2.54, 1.016], [-2.54, -1.016]] },
+  { k: 'line', c: 'e-lead', p: [-3.81, 0, -2.54, 0] },
+  { k: 'line', c: 'e-lead', p: [2.54, 0, 3.81, 0] },
+];
+const CAP_V = [
+  { k: 'poly', c: 'e-lead', p: [[-2.032, 0.762], [2.032, 0.762]] },
+  { k: 'poly', c: 'e-lead', p: [[-2.032, -0.762], [2.032, -0.762]] },
+  { k: 'line', c: 'e-lead', p: [0, 3.81, 0, 0.762] },
+  { k: 'line', c: 'e-lead', p: [0, -0.762, 0, -3.81] },
+];
+const CAP_H = [
+  { k: 'poly', c: 'e-lead', p: [[-0.762, -2.032], [-0.762, 2.032]] },
+  { k: 'poly', c: 'e-lead', p: [[0.762, -2.032], [0.762, 2.032]] },
+  { k: 'line', c: 'e-lead', p: [-3.81, 0, -0.762, 0] },
+  { k: 'line', c: 'e-lead', p: [0.762, 0, 3.81, 0] },
+];
+const POT_V = [
+  { k: 'poly', c: 'e-lead', p: [[-1.016, -2.54], [1.016, -2.54], [1.016, 2.54], [-1.016, 2.54], [-1.016, -2.54]] },
+  { k: 'line', c: 'e-lead', p: [0, 3.81, 0, 2.54] },
+  { k: 'line', c: 'e-lead', p: [0, -2.54, 0, -3.81] },
+  { k: 'line', c: 'e-lead', p: [5.08, 0, 3.302, 0] },
+  { k: 'poly', c: 'e-lead', p: [[3.302, 0], [1.778, 0.762], [1.778, -0.762], [3.302, 0]] },
+];
+const TRIODE_V = [
+  { k: 'circle', c: 'e-glass', cx: 0, cy: 0, r: 5.08 },
+  { k: 'poly', c: 'e-plate', p: [[-2.54, 1.905], [2.54, 1.905]] },
+  { k: 'line', c: 'e-plate', p: [0, 1.905, 0, 5.08] },
+  { k: 'line', c: 'e-plate', p: [0, 7.62, 0, 5.08] },
+  { k: 'poly', c: 'e-grid', p: [[-2.286, 0], [-1.27, 0]] },
+  { k: 'poly', c: 'e-grid', p: [[-0.508, 0], [0.508, 0]] },
+  { k: 'poly', c: 'e-grid', p: [[1.27, 0], [2.286, 0]] },
+  { k: 'line', c: 'e-grid', p: [-7.62, 0, -2.286, 0] },
+  { k: 'poly', c: 'e-cathode', p: [[-1.905, -1.905], [1.905, -1.905]] },
+  { k: 'line', c: 'e-cathode', p: [0, -1.905, 0, -5.08] },
+  { k: 'line', c: 'e-cathode', p: [0, -7.62, 0, -5.08] },
+];
+const PENTODE_V = [
+  { k: 'circle', c: 'e-glass', cx: 0, cy: 0, r: 5.08 },
+  { k: 'poly', c: 'e-plate', p: [[-2.54, 2.54], [2.54, 2.54]] },
+  { k: 'line', c: 'e-plate', p: [0, 2.54, 0, 5.08] },
+  { k: 'line', c: 'e-plate', p: [0, 7.62, 0, 5.08] },
+  { k: 'poly', c: 'e-screen', p: [[-2.286, 0.635], [-1.27, 0.635]] },
+  { k: 'poly', c: 'e-screen', p: [[-0.508, 0.635], [0.508, 0.635]] },
+  { k: 'poly', c: 'e-screen', p: [[1.27, 0.635], [2.286, 0.635]] },
+  { k: 'line', c: 'e-screen', p: [7.62, 0.635, 2.286, 0.635] },
+  { k: 'poly', c: 'e-grid', p: [[-2.286, -0.635], [-1.27, -0.635]] },
+  { k: 'poly', c: 'e-grid', p: [[-0.508, -0.635], [0.508, -0.635]] },
+  { k: 'poly', c: 'e-grid', p: [[1.27, -0.635], [2.286, -0.635]] },
+  { k: 'line', c: 'e-grid', p: [-7.62, -0.635, -2.286, -0.635] },
+  { k: 'poly', c: 'e-cathode', p: [[-1.905, -2.54], [1.905, -2.54]] },
+  { k: 'line', c: 'e-cathode', p: [0, -2.54, 0, -5.08] },
+  { k: 'line', c: 'e-cathode', p: [0, -7.62, 0, -5.08] },
+];
+const DIODE_V = [
+  { k: 'circle', c: 'e-glass', cx: 0, cy: 0, r: 5.08 },
+  { k: 'poly', c: 'e-plate', p: [[-2.54, 1.905], [2.54, 1.905], [0, -0.635], [-2.54, 1.905]] },
+  { k: 'poly', c: 'e-cathode', p: [[-2.54, -0.635], [2.54, -0.635]] },
+  { k: 'line', c: 'e-plate', p: [0, 1.905, 0, 5.08] },
+  { k: 'line', c: 'e-plate', p: [0, 7.62, 0, 5.08] },
+  { k: 'line', c: 'e-cathode', p: [0, -0.635, 0, -5.08] },
+  { k: 'line', c: 'e-cathode', p: [0, -7.62, 0, -5.08] },
+];
+const OT_BOX = [
+  { k: 'poly', c: 'e-lead', p: [[-6.35, -8.89], [6.35, -8.89], [6.35, 8.89], [-6.35, 8.89], [-6.35, -8.89]] },
+  { k: 'line', c: 'e-lead', p: [-8.89, 5.08, -6.35, 5.08] },
+  { k: 'line', c: 'e-lead', p: [-8.89, 0, -6.35, 0] },
+  { k: 'line', c: 'e-lead', p: [-8.89, -5.08, -6.35, -5.08] },
+  { k: 'line', c: 'e-lead', p: [8.89, 2.54, 6.35, 2.54] },
+  { k: 'line', c: 'e-lead', p: [8.89, -2.54, 6.35, -2.54] },
+];
+
+// mm-space primitive list → SVG string, dropped inside a scaled+flipped <g>.
+function shp(list) {
+  return list.map((sh) => {
+    if (sh.k === 'line') return `<line class="${sh.c}" x1="${sh.p[0]}" y1="${sh.p[1]}" x2="${sh.p[2]}" y2="${sh.p[3]}"/>`;
+    if (sh.k === 'poly') return `<polyline class="${sh.c}" points="${sh.p.map((q) => q.join(',')).join(' ')}"/>`;
+    if (sh.k === 'circle') return `<circle class="${sh.c}" cx="${sh.cx}" cy="${sh.cy}" r="${sh.r}"/>`;
+    return '';
+  }).join('');
+}
+const G = (x, y, s, list) => `<g transform="translate(${x} ${y}) scale(${s} ${-s})">${shp(list)}</g>`;
+const w = (x1, y1, x2, y2) => `<line class="wire" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"/>`;
+const jn = (x, y) => `<circle class="jn" cx="${x}" cy="${y}" r="2.6"/>`;
+const rail = (x, y, t) => `<g class="rail"><rect x="${x - 20}" y="${y - 31}" width="40" height="17" rx="3"/>` +
+  `<text x="${x}" y="${y - 22}" text-anchor="middle" dominant-baseline="middle">${t}</text>` +
+  `<line x1="${x}" y1="${y - 14}" x2="${x}" y2="${y}"/></g>`;
+const gnd = (x, y) => `<g class="gndsym"><line x1="${x}" y1="${y}" x2="${x}" y2="${y + 7}"/>` +
+  `<line x1="${x - 9}" y1="${y + 7}" x2="${x + 9}" y2="${y + 7}"/>` +
+  `<line x1="${x - 5.5}" y1="${y + 11}" x2="${x + 5.5}" y2="${y + 11}"/>` +
+  `<line x1="${x - 2.5}" y1="${y + 15}" x2="${x + 2.5}" y2="${y + 15}"/></g>`;
+
+// ---- symbol gallery --------------------------------------------------------
+const GALLERY = [
+  {
+    title: 'Resistor', S: 8, cx: 65, cy: 56, vb: [130, 118], list: RES_V,
+    aria: 'Resistor symbol — a rectangle with a lead at each end',
+    caption: 'A plain rectangle with a lead at each end — the IEC form, not the zig-zag. Its value (say 100 kΩ) is printed beside it; the two ends are interchangeable.',
+    callouts: [],
+  },
+  {
+    title: 'Capacitor', S: 8, cx: 65, cy: 56, vb: [130, 118], list: CAP_V,
+    aria: 'Capacitor symbol — two parallel plates with a lead off each',
+    caption: 'Two parallel plates with a small gap and a lead off each. Non-polarised as drawn here; the value and voltage rating (0.1 µF · 400 V) sit alongside. It passes AC and blocks DC.',
+    callouts: [],
+  },
+  {
+    title: 'Potentiometer', S: 8, cx: 52, cy: 56, vb: [188, 118], list: POT_V,
+    aria: 'Potentiometer symbol — a resistor with a third wiper terminal',
+    caption: 'A resistor with a third terminal — the wiper — that taps a movable point along the track. A volume or tone control is a pot; the two ends and the wiper are its three connections.',
+    callouts: [
+      { mx: 0, my: 3.81, dx: 7, dy: -3, a: 'start', t: '1' },
+      { mx: 0, my: -3.81, dx: 7, dy: 10, a: 'start', t: '3' },
+      { mx: 5.08, my: 0, dx: 8, dy: 4, a: 'start', t: 'Wiper (2)' },
+    ],
+  },
+  {
+    title: 'Triode', S: 6, cx: 118, cy: 74, vb: [240, 150], list: TRIODE_V,
+    aria: 'Triode symbol — plate, control grid and cathode inside a glass envelope',
+    caption: 'One amplifying tube in a glass envelope: the plate on top, the dashed control grid at the side, the cathode below. A twin-triode bottle like a 12AX7 is drawn as two of these (V1A, V1B).',
+    callouts: [
+      { mx: 0, my: 7.62, dx: 9, dy: -2, a: 'start', t: 'Plate', col: 'plate' },
+      { mx: -7.62, my: 0, dx: -9, dy: 4, a: 'end', t: 'Grid', col: 'grid' },
+      { mx: 0, my: -7.62, dx: 9, dy: 6, a: 'start', t: 'Cathode', col: 'cathode' },
+    ],
+  },
+  {
+    title: 'Pentode / beam tube', S: 6, cx: 120, cy: 80, vb: [250, 168], list: PENTODE_V,
+    aria: 'Pentode symbol — plate, screen grid, control grid and cathode',
+    caption: 'An output tube: plate on top, cathode below, and two grids — the control grid (G1) it amplifies with, and the screen grid (G2), which takes its own supply. A 6V6 or 6L6 is drawn this way.',
+    callouts: [
+      { mx: 0, my: 7.62, dx: 9, dy: -2, a: 'start', t: 'Plate', col: 'plate' },
+      { mx: -7.62, my: -0.635, dx: -9, dy: 4, a: 'end', t: 'Grid (G1)', col: 'grid' },
+      { mx: 7.62, my: 0.635, dx: 9, dy: 4, a: 'start', t: 'Screen (G2)', col: 'screen' },
+      { mx: 0, my: -7.62, dx: 9, dy: 6, a: 'start', t: 'Cathode', col: 'cathode' },
+    ],
+  },
+  {
+    title: 'Tube rectifier', S: 6, cx: 118, cy: 74, vb: [236, 150], list: DIODE_V,
+    aria: 'Tube rectifier symbol — an anode above a cathode in a glass envelope',
+    caption: 'One rectifier plate: an anode (the triangle) above its cathode. A full-wave rectifier such as a 5Y3 holds two of these and is drawn as V5A and V5B. Current passes one way only.',
+    callouts: [
+      { mx: 0, my: 7.62, dx: 9, dy: -2, a: 'start', t: 'Anode (A)', col: 'plate' },
+      { mx: 0, my: -7.62, dx: 9, dy: 6, a: 'start', t: 'Cathode (K)', col: 'cathode' },
+    ],
+  },
+  {
+    title: 'Output transformer', S: 5, cx: 110, cy: 78, vb: [240, 164], list: OT_BOX, mark: 'OT',
+    aria: 'Output transformer symbol — a labelled box with primary and secondary taps',
+    caption: 'Drawn as a labelled box, not a coil. The push-pull primary has three taps — two plate ends and a centre tap that feeds B+ — and the secondary drives the speaker.',
+    callouts: [
+      { mx: -8.89, my: 5.08, dx: -8, dy: 4, a: 'end', t: 'Plate A' },
+      { mx: -8.89, my: 0, dx: -8, dy: 4, a: 'end', t: 'CT → B+' },
+      { mx: -8.89, my: -5.08, dx: -8, dy: 4, a: 'end', t: 'Plate B' },
+      { mx: 8.89, my: 2.54, dx: 8, dy: 4, a: 'start', t: 'Spkr' },
+      { mx: 8.89, my: -2.54, dx: 8, dy: 4, a: 'start', t: 'GND' },
+    ],
+  },
+];
+
+// ---- rails & grounds mini-figure ------------------------------------------
+const railsFig = rail(100, 64, 'B+1') + w(100, 64, 100, 96) + jn(100, 96) + gnd(280, 56) +
+  '<text class="cap2" x="100" y="120" text-anchor="middle">Supply-rail label</text>' +
+  '<text class="cap2" x="280" y="120" text-anchor="middle">Ground (0 V)</text>';
+
+// ---- interactive single-stage schematic -----------------------------------
+// Neutral base layer: the shared signal wire and the tee junctions.
+const stageBase = w(172.86, 170, 304.28, 170) + jn(250, 170) + jn(350, 124.28);
+
+const STAGE = [
+  {
+    id: 'cin', aria: 'Input coupling capacitor',
+    r: 'Input coupling capacitor — passes the AC signal in from the previous stage while blocking that stage’s DC plate voltage. With the grid-leak resistor it forms a high-pass filter that sets how much bass gets through.',
+    g: G(150, 170, 6, CAP_H) + w(80, 170, 127.14, 170) + '<text class="io-lbl" x="74" y="174" text-anchor="end">in</text>',
+    h: [96, 150, 92, 42],
+  },
+  {
+    id: 'rg', aria: 'Grid-leak resistor',
+    r: 'Grid-leak resistor — ties the grid down to ground so the tube keeps a steady 0 V bias reference and any stray charge drains away. It also sets the stage’s input impedance; 1 MΩ is typical.',
+    g: G(250, 200, 6, RES_V) + w(250, 170, 250, 177.14) + w(250, 222.86, 250, 236) + gnd(250, 236),
+    h: [228, 168, 44, 80],
+  },
+  {
+    id: 'tube', aria: 'Triode, the amplifying stage',
+    r: 'Triode — the amplifying element. A small voltage swing on the grid steers a much larger current through the plate; the plate load then turns that current back into a bigger voltage swing.',
+    g: G(350, 170, 6, TRIODE_V),
+    h: [312, 132, 76, 82],
+  },
+  {
+    id: 'rp', aria: 'Plate-load resistor and B-plus rail',
+    r: 'Plate-load resistor — the tube’s changing current flows through it down from the B+ rail, and the voltage it drops is the amplified output. A larger load gives more gain but a lower plate voltage. Often 100 kΩ.',
+    g: G(350, 80, 6, RES_V) + w(350, 124.28, 350, 102.86) + rail(350, 57.14, 'B+'),
+    h: [330, 24, 40, 84],
+  },
+  {
+    id: 'rk', aria: 'Cathode resistor with bypass capacitor',
+    r: 'Cathode resistor with its bypass capacitor — the resistor lifts the cathode a volt or two above ground to bias the tube; the capacitor carries the audio around the resistor so it doesn’t reduce the gain. Something like 1.5 kΩ with 25 µF.',
+    g: G(350, 253, 6, RES_V) + G(410, 253, 6, CAP_V) + w(350, 215.72, 350, 230.14) +
+      w(350, 230.14, 410, 230.14) + w(350, 275.86, 410, 275.86) + w(380, 275.86, 380, 275.86) + gnd(380, 275.86),
+    h: [326, 220, 108, 70],
+  },
+  {
+    id: 'cout', aria: 'Output coupling capacitor',
+    r: 'Output coupling capacitor — carries the amplified AC on to the next tube’s grid while blocking the plate’s high DC voltage. The same part as the input cap, one stage further along.',
+    g: G(470, 124.28, 6, CAP_H) + w(350, 124.28, 447.14, 124.28) + w(492.86, 124.28, 560, 124.28) +
+      '<text class="io-lbl" x="566" y="128.5" text-anchor="start">out</text>',
+    h: [428, 104, 152, 42],
+  },
+];
+const STAGE_DEFAULT = 'Hover, tap, or focus a part of the stage to read what it does.';
+
+// ---- power-section figure --------------------------------------------------
+const powerFig =
+  rail(110, 51.9, 'HT') + G(110, 90, 5, DIODE_V) + w(110, 128.1, 110, 150) +
+  w(110, 150, 170, 150) + jn(170, 150) + rail(170, 150, 'B+1') +
+  G(170, 178, 5, CAP_V) + w(170, 150, 170, 158.95) + gnd(170, 197.05) +
+  w(170, 150, 210.95, 150) + G(230, 150, 5, RES_H) + w(249.05, 150, 300, 150) +
+  jn(300, 150) + rail(300, 150, 'B+2') +
+  G(300, 178, 5, CAP_V) + w(300, 150, 300, 158.95) + gnd(300, 197.05) +
+  w(300, 150, 340.95, 150) + G(360, 150, 5, RES_H) + w(379.05, 150, 430, 150) +
+  jn(430, 150) + rail(430, 150, 'B+3') +
+  G(430, 178, 5, CAP_V) + w(430, 150, 430, 158.95) + gnd(430, 197.05) +
+  '<text class="pv" x="170" y="183" text-anchor="middle">16 µF</text>' +
+  '<text class="pv" x="300" y="183" text-anchor="middle">16 µF</text>' +
+  '<text class="pv" x="430" y="183" text-anchor="middle">16 µF</text>' +
+  '<text class="pv" x="230" y="171" text-anchor="middle">5 kΩ</text>' +
+  '<text class="pv" x="360" y="171" text-anchor="middle">22 kΩ</text>' +
+  '<text class="pv" x="110" y="171" text-anchor="middle">5Y3</text>';
+
+const scx = (g, mx) => g.cx + mx * g.S;
+const scy = (g, my) => g.cy - my * g.S;
+const LIBURL = `${GITHUB}/blob/main/pipeline/schematic_lib.py`;
+---
+<Base title="How to read a tube amp schematic — symbols, rails & one stage · Circuit Codex"
+      description="A first-timer's guide to reading the schematics in this archive: the resistor, capacitor, potentiometer, triode, pentode, tube-rectifier and output-transformer symbols exactly as drawn here; signal flow left to right; B+ rail and ground labels; how to read a single gain stage — grid leak, cathode RC, plate load, coupling caps; and the power section — closing on a real stage of the 5E3, with original interactive SVG artwork throughout.">
+<div class="wrap">
+  <header class="ghead">
+    <a class="back" href="/reference/">← Reference</a>
+    <div class="eyebrow">Practical guide</div>
+    <h1>How to read a tube amp schematic</h1>
+    <p class="lede">A schematic is a map of the circuit, not a picture of the chassis. Every part
+      is a symbol and every line a connection — and once you know the handful of symbols a tube
+      amp uses, the drawings in this archive read straight through, from the input jack on the
+      left to the speaker on the right. This is that handful, drawn the way the archive draws them.</p>
+  </header>
+
+  <section class="intro" aria-labelledby="layout-h">
+    <h2 id="layout-h">How the drawing is laid out</h2>
+    <p><strong>Signal flows left to right.</strong> The input jack sits at the left edge, each
+      amplifying stage a little further right, and the output transformer and speaker at the far
+      right. To follow the sound, read across the page in that direction.</p>
+    <p><strong>Power lives apart, along the top and bottom.</strong> The high-voltage supply runs
+      as labelled rails (B+1, B+2, B+3) rather than one long wire; ground — the common 0 V return —
+      sits at the bottom. A part connects <em>up</em> to a rail or <em>down</em> to ground by name,
+      so the drawing never becomes a web of crossing lines.</p>
+    <p><strong>One tube is one stage.</strong> Each triode or output tube, together with its plate
+      resistor, its cathode parts, and the capacitor that couples it to the next tube, is a
+      self-contained gain stage. Count the tubes and you have counted the stages.</p>
+  </section>
+
+  <section aria-labelledby="symbols-h">
+    <h2 id="symbols-h">The symbols</h2>
+    <p class="sub">These are the exact shapes used in this archive&rsquo;s schematics, redrawn from
+      its <a href={LIBURL} rel="external nofollow">KiCad symbol library</a>. Every circuit page is
+      built from them, so a symbol learned here appears unchanged on every amplifier. Colour marks
+      the electrodes of each tube — plate amber, control grid green, screen grid gold, cathode teal —
+      the same coding as the <a href="/reference/guides/tube-pinouts/">pinout diagrams</a>.</p>
+    <div class="sym-grid">
+      {GALLERY.map((g) => (
+        <figure class="sym-card">
+          <div class="sym-stage">
+            <svg class="sch sym" viewBox={`0 0 ${g.vb[0]} ${g.vb[1]}`} role="img" aria-label={g.aria}>
+              <g transform={`translate(${g.cx} ${g.cy}) scale(${g.S} ${-g.S})`} set:html={shp(g.list)} />
+              {g.mark && (
+                <text class="sym-mark" x={g.cx} y={g.cy} text-anchor="middle" dominant-baseline="central">{g.mark}</text>
+              )}
+              {g.callouts.map((c) => (
+                <g>
+                  <circle class="nose" cx={scx(g, c.mx)} cy={scy(g, c.my)} r="2.4" />
+                  <text class:list={['cl', c.col && `cl-${c.col}`]}
+                        x={scx(g, c.mx) + c.dx} y={scy(g, c.my) + c.dy} text-anchor={c.a}>{c.t}</text>
+                </g>
+              ))}
+            </svg>
+          </div>
+          <div class="sym-meta">
+            <h3>{g.title}</h3>
+            <p>{g.caption}</p>
+          </div>
+        </figure>
+      ))}
+    </div>
+  </section>
+
+  <section aria-labelledby="rails-h">
+    <h2 id="rails-h">Rails and grounds</h2>
+    <p class="sub">To keep a drawing legible, the supply and ground connections are written as
+      labels instead of wires. A tag reading <span class="k">B+1</span> is a named wire; the same
+      tag anywhere else on the sheet is the <em>same</em> wire, joined without a line drawn between
+      them. That is why a plate resistor can rise to <span class="k">B+</span> and a cathode
+      resistor drop to ground with only a short stub and a name.</p>
+    <figure class="mini">
+      <div class="mini-stage">
+        <svg class="sch dgm" viewBox="0 0 380 138" role="img"
+             aria-label="A supply-rail label and a ground symbol, side by side" set:html={railsFig} />
+      </div>
+    </figure>
+    <p class="sub">Supply rails carry the plate voltage — hundreds of volts — and enter a stage from
+      above; several appear because the voltage is dropped and cleaned in steps (B+1 is the highest,
+      B+3 the lowest and quietest). Ground is the 0 V return everything measures against and is drawn
+      at the bottom. This archive marks ground with a <span class="k">GND</span> label rather than the
+      three-line ground symbol above, but they name the same node.</p>
+  </section>
+
+  <section aria-labelledby="stage-h">
+    <h2 id="stage-h">Reading one stage</h2>
+    <p class="sub">Here is a single gain stage — the pattern that repeats through every preamp. The
+      signal arrives at the grid on the left and leaves, amplified, from the plate on the right.
+      Hover, tap, or focus each part to read its job.</p>
+
+    <figure class="stage-fig">
+      <div class="stage-stage">
+        <svg class="sch dgm stage-svg" viewBox="0 0 660 402" role="img"
+             aria-label="A common-cathode triode gain stage: an input coupling capacitor and grid-leak resistor feeding the grid, a plate-load resistor to the B-plus rail, a bypassed cathode resistor to ground, and an output coupling capacitor.">
+          <g set:html={stageBase} />
+          {STAGE.map((p) => (
+            <g class="part" tabindex="0" role="button" aria-label={p.aria} data-readout={p.r}>
+              <g set:html={p.g} />
+              <rect class="hit" x={p.h[0]} y={p.h[1]} width={p.h[2]} height={p.h[3]} />
+            </g>
+          ))}
+        </svg>
+      </div>
+      <p class="stage-readout" aria-live="polite" data-default={STAGE_DEFAULT}>{STAGE_DEFAULT}</p>
+    </figure>
+
+    <p class="body">Read left to right, that is the whole story of a preamp stage: the
+      <strong>coupling capacitor</strong> lets the previous stage&rsquo;s audio onto the grid but
+      not its DC; the <strong>grid-leak resistor</strong> holds the grid at ground for a bias
+      reference; the <strong>cathode resistor</strong> sets how hard the tube runs and its
+      <strong>bypass capacitor</strong> keeps that setting from eating the gain; the tube amplifies;
+      and the <strong>plate-load resistor</strong> converts the result into the output voltage,
+      which the next coupling capacitor passes along. Every triode stage in the archive is a
+      variation on exactly this.</p>
+  </section>
+
+  <section aria-labelledby="couple-h">
+    <h2 id="couple-h">Coupling between stages</h2>
+    <p class="body">The capacitor between one plate and the next grid does two things at once. It
+      <em>blocks DC</em> — the plate sits at a couple of hundred volts, the next grid near zero, and
+      the cap keeps those apart — while it <em>passes AC</em>, the audio riding on top. Paired with
+      the grid-leak resistor it also forms a high-pass filter, so its value sets how much low end
+      survives the hop: a 0.1 µF · 400 V cap into 1 MΩ passes everything, a small 0.001 µF cap
+      deliberately thins the bass. Put numbers to that corner with the
+      <a href="/reference/guides/calculators/">coupling-cap tool</a> in the calculators.</p>
+  </section>
+
+  <section aria-labelledby="power-h">
+    <h2 id="power-h">The power section</h2>
+    <p class="sub">The other half of the drawing is the power supply, and it has its own left-to-right
+      flow. The rectifier turns the transformer&rsquo;s AC into DC; a reservoir capacitor smooths it;
+      then a chain of dropping resistors and more capacitors steps the voltage down and cleans it,
+      handing out a rail at each node.</p>
+    <figure class="mini">
+      <div class="mini-stage">
+        <svg class="sch dgm" viewBox="0 0 520 210" role="img"
+             aria-label="A power supply: the HT winding into a tube rectifier, a reservoir capacitor to ground, then two dropping resistors each followed by a filter capacitor, producing the B-plus-1, B-plus-2 and B-plus-3 rails."
+             set:html={powerFig} />
+      </div>
+    </figure>
+    <p class="body">Follow it across: the high-voltage winding (<span class="k">HT</span>) meets the
+      rectifier, whose output charges the first 16 µF capacitor to make <span class="k">B+1</span> —
+      the stiffest, highest rail, feeding the output tubes. Each resistor after it drops a little
+      voltage, and each capacitor shunts the leftover ripple to ground, so <span class="k">B+2</span>
+      (the screens) and <span class="k">B+3</span> (the preamp) come out progressively lower and
+      quieter. A stage taps whichever rail suits it — the preamp wants the cleanest, so its plate
+      loads climb to B+3. Every part here is a symbol already met above: a
+      <a href="#symbols-h">tube rectifier</a>, capacitors, and resistors.</p>
+  </section>
+
+  <section aria-labelledby="walk-h">
+    <h2 id="walk-h">Walk one stage of the 5E3</h2>
+    <p class="sub">Put it together on a real drawing. The first stage of the
+      <a href="/amps/5e3/">5E3</a> is a textbook example of the pattern above — here is how it reads,
+      part by part, straight off the schematic.</p>
+    <div class="walk">
+      <p>The instrument jack feeds a <strong>68 kΩ</strong> grid stopper into the grid of
+        <strong>V1A</strong>, one half of the 12AY7 twin triode. A <strong>1 MΩ</strong> grid-leak
+        resistor holds that grid at ground. From the cathode, a single <strong>820 Ω</strong>
+        resistor — shared with the other channel&rsquo;s triode and bypassed by a
+        <strong>25 µF · 25 V</strong> capacitor — sets the bias. The plate climbs through a
+        <strong>100 kΩ</strong> load resistor to the <strong>B+3</strong> preamp rail, where the
+        archive&rsquo;s published measurements put it near <strong>140 V</strong>. And a
+        <strong>0.1 µF · 400 V</strong> coupling capacitor carries the amplified signal off the plate
+        to the 1 MΩ volume control and the stage that follows.</p>
+      <p>That is the same six ideas — coupling in, grid leak, cathode RC, the tube, plate load,
+        coupling out — with this circuit&rsquo;s actual values filled in. Open the
+        <a href="/amps/5e3/">5E3&rsquo;s interactive schematic</a> and the whole amplifier is this
+        stage and its siblings, chained left to right into the 6V6 output pair and the 8 kΩ : 8 Ω
+        output transformer, with the 5Y3 power supply along the bottom.</p>
+    </div>
+  </section>
+
+  <section aria-labelledby="next-h" class="next">
+    <h2 id="next-h">Keep going</h2>
+    <ul class="nextlist">
+      <li><a href="/reference/guides/tube-pinouts/">Tube pinout diagrams</a> — which socket pin is
+        the plate, grid, or cathode you just learned to spot on the schematic.</li>
+      <li><a href="/reference/guides/resistor-color-code/">Resistor colour code</a> and
+        <a href="/reference/guides/capacitor-codes/">capacitor codes</a> — read the value a symbol
+        is labelled with off the real part.</li>
+      <li><a href="/reference/guides/transformers/">Transformer reference</a> — the iron the power
+        and output sections are built around.</li>
+      <li><a href="/reference/guides/calculators/">Amp builder calculators</a> — run the small sums
+        behind a plate load, a cathode bias, or a coupling-cap corner.</li>
+    </ul>
+  </section>
+
+  <p class="foot-note">Every symbol on this page is original artwork, redrawn from this archive&rsquo;s
+    KiCad symbol library (<a href={LIBURL} rel="external nofollow">pipeline/schematic_lib.py</a>); the
+    5E3 values and the ~140 V first-stage plate figure are read from the published
+    <a href="https://el34world.com/charts/Schematics/files/Fender/Fender_deluxe_5e3.pdf" rel="external nofollow">Fender
+    5E3 (F-EE) drawing</a> and Rob Robinette&rsquo;s
+    <a href="https://robrobinette.com/How_The_5E3_Deluxe_Works.htm" rel="external nofollow">published
+    5E3 measurements</a>, as recorded on the <a href="/amps/5e3/">5E3 circuit page</a>.</p>
+</div>
+</Base>
+
+<script is:inline>
+(function () {
+  document.querySelectorAll('.stage-fig').forEach((root) => {
+    const readout = root.querySelector('.stage-readout');
+    const svg = root.querySelector('.stage-svg');
+    const def = readout.getAttribute('data-default');
+    const parts = root.querySelectorAll('.part');
+    const activate = (p) => {
+      readout.textContent = p.getAttribute('data-readout');
+      parts.forEach((x) => x.classList.toggle('is-active', x === p));
+    };
+    const reset = () => {
+      if (root.contains(document.activeElement) && document.activeElement.classList.contains('part')) return;
+      readout.textContent = def;
+      parts.forEach((x) => x.classList.remove('is-active'));
+    };
+    parts.forEach((p) => {
+      p.addEventListener('mouseenter', () => activate(p));
+      p.addEventListener('focus', () => activate(p));
+      p.addEventListener('click', () => activate(p));
+      p.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); activate(p); }
+      });
+    });
+    svg.addEventListener('mouseleave', reset);
+    root.addEventListener('focusout', () => setTimeout(reset, 0));
+  });
+})();
+</script>
+
+<style>
+  .ghead { padding: 44px 0 8px; }
+  .back { font-family: var(--disp); text-transform: uppercase; letter-spacing: .14em; font-size: 11.5px; color: var(--muted); }
+  .eyebrow { font-family: var(--disp); text-transform: uppercase; letter-spacing: .26em; font-size: 12px; color: var(--amber); margin-top: 14px; }
+  h1 { font-size: clamp(28px, 4.5vw, 42px); line-height: 1.12; margin: 8px 0 12px; }
+  .lede { max-width: 66ch; color: var(--muted); font-size: 16.5px; margin: 0; }
+  section { margin-top: 44px; }
+  h2 { font-size: 18px; letter-spacing: .14em; margin: 24px 0 4px; }
+  .sub { color: var(--muted); font-size: 14px; margin: 0 0 18px; max-width: 78ch; line-height: 1.6; }
+  .sub a, .body a, .walk a, .nextlist a, .foot-note a { color: var(--amber); }
+  .k { font-family: var(--mono); color: var(--ink); font-size: .95em; }
+
+  .intro p { color: var(--muted); font-size: 15px; line-height: 1.7; max-width: 78ch; margin: 0 0 12px; }
+  .intro strong { color: var(--ink); }
+  .intro em { font-style: italic; color: var(--ink); }
+  .body { color: var(--muted); font-size: 15px; line-height: 1.7; max-width: 78ch; margin: 4px 0 0; }
+  .body strong { color: var(--ink); }
+  .body em { font-style: italic; color: var(--ink); }
+
+  /* ---- shared schematic-symbol styling ---- */
+  .sch { display: block; width: 100%; height: auto; }
+  .sch .e-glass, .sch .e-plate, .sch .e-grid, .sch .e-screen, .sch .e-cathode,
+  .sch .e-lead, .sch .wire {
+    fill: none; stroke: var(--ink); stroke-width: 1.7; vector-effect: non-scaling-stroke;
+    stroke-linecap: round; stroke-linejoin: round; transition: stroke .12s ease, stroke-width .12s ease;
+  }
+  .sch .e-glass { stroke: var(--faint); }
+  .sch .e-plate { stroke: #e89b3f; }
+  .sch .e-grid { stroke: #8fae7e; }
+  .sch .e-screen { stroke: #d98f34; }
+  .sch .e-cathode { stroke: #7fa6ad; }
+  .sch .gndsym line { stroke: var(--faint); stroke-width: 1.7; vector-effect: non-scaling-stroke; stroke-linecap: round; transition: stroke .12s ease; }
+  .sch .jn { fill: var(--ink); stroke: none; }
+  .sch .nose { fill: var(--faint); stroke: none; }
+  .sch .rail rect { fill: var(--panel); stroke: var(--amber-dim); stroke-width: 1.4; transition: stroke .12s ease; }
+  .sch .rail line { stroke: var(--amber-dim); stroke-width: 1.5; vector-effect: non-scaling-stroke; transition: stroke .12s ease; }
+  .sch .rail text { fill: var(--amber); font-family: var(--disp); font-size: 11px; letter-spacing: .05em; }
+  .sch .hit { fill: transparent; stroke: none; }
+  .sch .cl { font-family: var(--mono); font-size: 11px; fill: var(--muted); }
+  .sch .cl-plate { fill: #e89b3f; }
+  .sch .cl-grid { fill: #8fae7e; }
+  .sch .cl-screen { fill: #d98f34; }
+  .sch .cl-cathode { fill: #7fa6ad; }
+  .sch .sym-mark { font-family: var(--disp); font-size: 12px; letter-spacing: .1em; fill: var(--faint); }
+  .sch .io-lbl { font-family: var(--disp); text-transform: uppercase; letter-spacing: .14em; font-size: 11px; fill: var(--muted); }
+  .sch .pv { font-family: var(--mono); font-size: 10.5px; fill: var(--muted); }
+  .sch .cap2 { font-family: var(--disp); text-transform: uppercase; letter-spacing: .1em; font-size: 10px; fill: var(--faint); }
+
+  /* ---- symbol gallery ---- */
+  .sym-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 16px; }
+  .sym-card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px;
+    padding: 14px 16px 16px; margin: 0; display: flex; flex-direction: column; }
+  .sym-stage { background: var(--well); border: 1px solid var(--line-soft); border-radius: 8px;
+    padding: 10px; }
+  .sym-stage .sym { max-width: 100%; max-height: 150px; margin: 0 auto; }
+  .sym-meta h3 { font-family: var(--disp); text-transform: uppercase; letter-spacing: .06em;
+    font-size: 14px; margin: 13px 0 5px; color: var(--ink); }
+  .sym-meta p { color: var(--muted); font-size: 12.8px; line-height: 1.5; margin: 0; }
+
+  /* ---- mini figures (rails, power) ---- */
+  .mini { margin: 0 0 4px; }
+  .mini-stage { background: var(--well); border: 1px solid var(--line-soft); border-radius: 10px;
+    padding: 12px; overflow-x: auto; }
+  .mini-stage .sch { max-width: 560px; margin: 0 auto; min-width: 340px; }
+
+  /* ---- interactive stage ---- */
+  .stage-fig { margin: 0 0 20px; }
+  .stage-stage { background: var(--well); border: 1px solid var(--line-soft); border-radius: 10px;
+    padding: 12px; overflow-x: auto; }
+  .stage-svg { max-width: 680px; margin: 0 auto; min-width: 520px; }
+  .part { cursor: pointer; }
+  .part:focus-visible { outline: none; }
+  .part:is(:hover, :focus-visible, .is-active) :is(.e-glass, .e-plate, .e-grid, .e-screen, .e-cathode, .e-lead, .wire) {
+    stroke: var(--amber); stroke-width: 2.5; }
+  .part:is(:hover, :focus-visible, .is-active) .gndsym line { stroke: var(--amber); }
+  .part:is(:hover, :focus-visible, .is-active) .rail rect,
+  .part:is(:hover, :focus-visible, .is-active) .rail line { stroke: var(--amber); }
+  .part:focus-visible .hit { stroke: var(--amber); stroke-width: 1.5; stroke-dasharray: 4 4; }
+  .stage-readout { min-height: 3.2em; margin: 12px 4px 0; font-family: var(--mono); font-size: 13px;
+    color: var(--ink); max-width: 82ch; line-height: 1.5; }
+
+  /* ---- 5E3 walk ---- */
+  .walk { background: var(--panel); border: 1px solid var(--line); border-left: 3px solid var(--amber);
+    border-radius: 6px; padding: 16px 18px; max-width: 82ch; }
+  .walk p { color: var(--muted); font-size: 15px; line-height: 1.75; margin: 0; }
+  .walk p + p { margin-top: 14px; }
+  .walk strong { color: var(--ink); }
+
+  /* ---- next steps ---- */
+  .nextlist { list-style: none; margin: 0; padding: 0; }
+  .nextlist li { padding: 11px 2px; border-bottom: 1px solid var(--line-soft); color: var(--muted);
+    font-size: 14px; line-height: 1.55; }
+  .nextlist li:last-child { border-bottom: 0; }
+
+  .foot-note { margin-top: 44px; padding-top: 16px; border-top: 1px dashed var(--line);
+    color: var(--faint); font-size: 12.5px; max-width: 84ch; line-height: 1.6; }
+</style>
