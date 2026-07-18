@@ -13,12 +13,13 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - run: pip install pyyaml
+      - run: pip install pyyaml kiutils
       - run: sudo apt-get update -qq && sudo apt-get install -y -qq ngspice
       - run: python pipeline/validate.py
       - run: python pipeline/fit_models.py && git diff --exit-code models/
       - run: python pipeline/test_models.py
       - run: python pipeline/verify_amps.py
+      - run: python pipeline/check_schematics.py
       # Phase-0 roadmap for this workflow:
       # - kiutils round-trip of amps/*/schematic.kicad_sch
       # - schematic SVG rendering via kicad-cli

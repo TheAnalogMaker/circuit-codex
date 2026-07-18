@@ -25,14 +25,19 @@ const ghDir = `${GITHUB}/tree/main/amps/${amp.id}`;
   <div class="cols">
     <div class="main">
       <div class="viewer">
-        <div class="viewer-head">Schematic</div>
-        <div class="viewer-body">
-          {amp.hasSchematic
-            ? <p>Interactive schematic viewer coming online.</p>
-            : <p>Redrawn KiCad schematic in progress. The simulation-checked
-                <a href={`${ghDir}/netlist.cir`}> netlist</a> is already available —
-                every voltage below derives from it.</p>}
-        </div>
+        <div class="viewer-head">Schematic — redrawn in KiCad · scroll to zoom, drag to pan</div>
+        {amp.hasSchematic ? (
+          <div class="viewer-canvas">
+            <script type="module" src="/vendor/kicanvas.js" is:inline></script>
+            <kicanvas-embed src={`/schematics/${amp.id}.kicad_sch`} controls="basic"></kicanvas-embed>
+          </div>
+        ) : (
+          <div class="viewer-body">
+            <p>Redrawn KiCad schematic in progress. The simulation-checked
+              <a href={`${ghDir}/netlist.cir`}> netlist</a> is already available —
+              every voltage below derives from it.</p>
+          </div>
+        )}
       </div>
 
       {amp.voltages && (
@@ -103,6 +108,8 @@ const ghDir = `${GITHUB}/tree/main/amps/${amp.id}`;
   .viewer-head{padding:10px 16px;border-bottom:1px solid var(--line-soft);font-family:var(--disp);text-transform:uppercase;letter-spacing:.12em;font-size:11.5px;color:var(--muted)}
   .viewer-body{padding:22px 18px;color:var(--muted);font-size:14.5px}
   .viewer-body p{margin:0}
+  .viewer-canvas{height:460px}
+  .viewer-canvas kicanvas-embed{display:block;width:100%;height:100%}
   h2{font-size:17px;letter-spacing:.14em;margin:28px 0 4px}
   .sub{color:var(--muted);font-size:13.5px;margin:0 0 14px;max-width:70ch}
   .meta{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:18px;position:sticky;top:72px}
