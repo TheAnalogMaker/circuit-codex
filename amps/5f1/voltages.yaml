@@ -1,12 +1,14 @@
-# Published chart values (read from the drawing by GM, 2026-07-18) vs. simulated
-# DC operating point. One confirmation outstanding before verified: the printed
-# value of the second dropping resistor (sim indicates 22k — see notes.md).
-source: "Published Fender 5F1 chart, node values read from the drawing by GM 2026-07-18 (B+1 340, B+2 295, B+3 250; caps 26/8/8 uF as marked); ampbooks 5E1 analysis (6V6 cathode cross-check)"
+# Published Fender 5F1 chart values, read from the drawing by GM 2026-07-18:
+# rails B+1 340 / B+2 295 / B+3 250 (caps 26/8/8 uF, 450 V); R11 printed value
+# confirmed 22K; tube pins: 6V6GT pin 8 = +18 V, 12AX7 pin 6 = +150 V,
+# pin 3 = +1.5 V. Rail tolerance 5%; tube-pin tolerance 20% per the chart's own
+# printed convention (values measured on era production tubes, +/-20%).
+source: "Published Fender 5F1 chart (drawing read-off by GM, 2026-07-18); pin-6/pin-3 values applied to both 12AX7 sections (symmetric stages)"
 nodes:
   BP2: { chart: 295, tol_pct: 5 }
   BP3: { chart: 250, tol_pct: 5 }
-  P1A: { chart: 170, tol_pct: 15, }
-  P1B: { chart: 170, tol_pct: 15, }
-  K1A: { chart: null, note: "informational" }
-  K1B: { chart: null, note: "informational (NFB 22k parallels cathode at DC)" }
-  K2:  { chart: 19, tol_pct: 15, note: "ampbooks 5E1 cross-check value (adjacent revision)" }
+  P1A: { chart: 150, tol_pct: 20, note: "12AX7 plate, chart pin value" }
+  P1B: { chart: 150, tol_pct: 20, note: "12AX7 plate, chart pin value" }
+  K1A: { chart: 1.5, tol_pct: 20, note: "12AX7 cathode, chart pin value" }
+  K1B: { chart: 1.5, tol_pct: 20, note: "12AX7 cathode (NFB 22k parallels at DC)" }
+  K2:  { chart: 18, tol_pct: 20, note: "6V6GT cathode, chart pin 8" }

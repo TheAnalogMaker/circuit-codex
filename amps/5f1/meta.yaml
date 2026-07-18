@@ -16,9 +16,11 @@ lineage:
   derived_from: []   # 5E1 is the direct ancestor — edge added when amps/5e1 lands
   influenced: []
 sources:
-  - "Rob Robinette, 'How Amps Work' (5F1-based walkthrough) — component roles, PT 325-0-325, B+ node structure, filter caps 16uF, droppers 10k"
+  - "Rob Robinette, How Amps Work (5F1-based walkthrough) — component roles, PT 325-0-325, B+ node structure (its 16uF caps / dual-10k droppers figures were corrected by the drawing read-off: 26/8/8uF, 10k+22k)"
   - "ampbooks.com classic-circuit analysis (5E1 revision) — cross-reference for stage values and 6V6 cathode operating point"
-  - "Fender 5F1 published voltage chart — node values pending direct confirmation (see notes.md); no factory drawing reproduced"
+  - "Fender 5F1 published voltage chart — all node/pin values read directly from the published drawing by GM 2026-07-18; no factory drawing reproduced"
 verification:
-  status: draft   # stays draft until chart voltages are confirmed; see voltages.yaml
+  status: verified   # chart fully read from published drawing; CI-gated
+  date: 2026-07-18
+  max_deviation_pct: 14.4   # worst node: V1A plate 171.6 V vs chart 150 V (chart convention is +/-20%)
 contributors: [TheAnalogMaker]

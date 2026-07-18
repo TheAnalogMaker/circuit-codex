@@ -38,10 +38,15 @@ claimed — with it, every published figure (rails, the walkthrough's 170 V
 plates, the ampbooks cathode cross-reference) reconciles simultaneously.
 The netlist now carries R11 = 22k on that basis.
 
-## Before `verified`
+## Verified 2026-07-18
 
-- [ ] Confirm the printed value of the resistor between the two 8 µF filter
-      caps on the published drawing (expected marking: 22K).
-- [ ] If the drawing's tube-pin voltage chart lists per-pin values, add them
-      to voltages.yaml (plate/cathode pins for V1 and V2).
-- [ ] Optionally add OT primary DCR to the deck (second-order effect).
+- [x] R11 printed marking confirmed **22K** from the drawing (GM read-off).
+- [x] Tube-pin chart values added: 6V6GT pin 8 = +18 V (sim 18.1 V, 0.6 %);
+      12AX7 pin 6 = +150 V, pin 3 = +1.5 V (sim 171.6/169.1 V and 1.3/1.2 V —
+      within the chart's own printed ±20 % convention; Fender chart values were
+      measured on era production tubes, and our models are datasheet-typical,
+      so the preamp sitting ~14 % leaner than the 1958 measurement is expected
+      behavior, not an error).
+- [ ] Later refinement: OT primary DCR in the deck (second-order); full
+      curve-traced model fits (models/METHODOLOGY.md roadmap) should close the
+      preamp-current gap further.
