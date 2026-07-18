@@ -1,0 +1,35 @@
+# Parts list — reference designators match schematic.kicad_sch exactly.
+# The drawing assigns no designators; numbering is Circuit Codex's own, following
+# the schematic left-to-right. vendor_url fields land with the Phase-1 BOM work.
+notes: "The 5F2-A has one channel across two input jacks (high/low), each with its own 68 kΩ stopper sharing the 1 MΩ leak. V1B's cathode is deliberately UNbypassed — the 22 kΩ feedback resistor from the speaker works against it. Power transformer is listed at the end without a designator; its HT winding voltage is not printed on the drawing."
+items:
+  - { ref: R1,  part: "Carbon comp resistor",      value: "68 kΩ · ½ W",      role: "Input grid stopper, jack 1 (high)" }
+  - { ref: R2,  part: "Carbon comp resistor",      value: "68 kΩ · ½ W",      role: "Input grid stopper, jack 2 (low)" }
+  - { ref: R3,  part: "Carbon comp resistor",      value: "1 MΩ · ½ W",       role: "Input grid leak" }
+  - { ref: R4,  part: "Carbon comp resistor",      value: "100 kΩ · ½ W",     role: "V1A plate load" }
+  - { ref: R5,  part: "Carbon comp resistor",      value: "1.5 kΩ · ½ W",     role: "V1A cathode bias" }
+  - { ref: R6,  part: "Carbon comp resistor",      value: "100 kΩ · ½ W",     role: "V1B plate load" }
+  - { ref: R7,  part: "Carbon comp resistor",      value: "1.5 kΩ · ½ W",     role: "V1B cathode bias (unbypassed)" }
+  - { ref: R8,  part: "Carbon comp resistor",      value: "220 kΩ · ½ W",     role: "6V6 grid leak" }
+  - { ref: R9,  part: "Wirewound resistor",        value: "470 Ω · 1 W",      role: "6V6 cathode bias" }
+  - { ref: R10, part: "Power resistor",            value: "10 kΩ · 1 W",      role: "Rail dropper B+1→B+2" }
+  - { ref: R11, part: "Carbon comp resistor",      value: "22 kΩ · ½ W",      role: "Rail dropper B+2→B+3" }
+  - { ref: R12, part: "Carbon comp resistor",      value: "22 kΩ · ½ W",      role: "Negative feedback, speaker→V1B cathode" }
+  - { ref: VR1, part: "Linear-taper potentiometer", value: "1 MΩ",            role: "Volume" }
+  - { ref: VR2, part: "Linear-taper potentiometer", value: "1 MΩ",            role: "Tone" }
+  - { ref: C1,  part: "Electrolytic capacitor",    value: "25 µF · 25 V",     role: "V1A cathode bypass" }
+  - { ref: C2,  part: "Coupling capacitor",        value: "0.02 µF · 400 V",  role: "V1A → tone/volume network" }
+  - { ref: C3,  part: "Mica capacitor",            value: "0.005 µF",         role: "Tone — treble shunt to ground" }
+  - { ref: C4,  part: "Mica capacitor",            value: "500 pF",           role: "Tone — network to V1B grid" }
+  - { ref: C5,  part: "Coupling capacitor",        value: "0.02 µF · 400 V",  role: "V1B → 6V6 grid" }
+  - { ref: C6,  part: "Electrolytic capacitor",    value: "25 µF · 25 V",     role: "6V6 cathode bypass" }
+  - { ref: C7,  part: "Electrolytic capacitor",    value: "16 µF · 450 V",    role: "Filter, B+1" }
+  - { ref: C8,  part: "Electrolytic capacitor",    value: "16 µF · 450 V",    role: "Filter, B+1 (paralleled)" }
+  - { ref: C9,  part: "Electrolytic capacitor",    value: "8 µF · 450 V",     role: "Filter, B+2" }
+  - { ref: C10, part: "Electrolytic capacitor",    value: "8 µF · 450 V",     role: "Filter, B+3" }
+  - { ref: C11, part: "Film capacitor",            value: "0.05 µF · 600 V",  role: "Across the AC line" }
+  - { ref: V1,  part: "Preamp tube",               value: "12AX7",            role: "Both gain stages (V1A/V1B)" }
+  - { ref: V2,  part: "Power tube",                value: "6V6GT",            role: "Single-ended output" }
+  - { ref: V3,  part: "Rectifier tube",            value: "5Y3GT",            role: "Full-wave rectifier (V3A/V3B)" }
+  - { ref: T2,  part: "Output transformer",        value: "≈ 5 kΩ : 8 Ω",     role: "Single-ended output (part 265; impedance not marked on the drawing; typical SE 6V6 load)" }
+  - { ref: "—", part: "Power transformer",         value: "HT c.t. · 6.3 V · 5 V", role: "Part 66079; HT winding voltage not printed on the drawing" }

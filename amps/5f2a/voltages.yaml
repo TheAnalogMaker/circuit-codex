@@ -1,0 +1,16 @@
+# The published 5F2-A (K-EG) drawing carries NO voltage chart. The 5F2-A's DC
+# signal path is identical to the 5F1 Champ (the tone control is fully
+# capacitor-coupled), so verification uses Rob Robinette's published DC
+# measurements for that tweed 6V6 single-ended circuit as the reference, under
+# the same +/-20% convention Fender printed on its charts. Because the reference
+# is a sibling model (different power transformer), this circuit is kept draft
+# pending a 5F2-A-specific measured chart — see notes.md.
+source: "Rob Robinette 'How Amps Work' measured DC for the DC-identical tweed 6V6 SE circuit (B+ 360/325/250; 6V6 ~19 V cathode; 12AX7 plates ~170 V; cathodes ~1.5 V). B+1 driven at 360 V; downstream nodes derived."
+nodes:
+  BP2:  { chart: 325, tol_pct: 10, note: "6V6 screen node, after the 10 kΩ dropper" }
+  BP3:  { chart: 250, tol_pct: 10, note: "preamp node, after the 22 kΩ dropper" }
+  P1A:  { chart: 170, tol_pct: 20, note: "V1A 12AX7 plate, reference pin value" }
+  P1B:  { chart: 170, tol_pct: 20, note: "V1B 12AX7 plate (22k feedback on its cathode)" }
+  K2:   { chart: 19,  tol_pct: 20, note: "6V6GT cathode across 470 Ω 1 W" }
+  K1A:  { chart: null, note: "informational — V1A cathode, ~1.5 V self-bias" }
+  K1B:  { chart: null, note: "informational — V1B cathode; 22k speaker feedback parallels the 1.5k at DC" }

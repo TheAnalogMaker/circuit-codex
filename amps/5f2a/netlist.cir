@@ -1,0 +1,43 @@
+* 5F2-A (Tweed Princeton-style) — DC operating-point netlist
+* Circuit Codex — CC-BY-SA 4.0. Independently drawn from the published 5F2-A
+* (K-EG) drawing's component values (see meta.yaml sources); no drawing reproduced.
+*
+* DC conventions (per the exemplars):
+*  - B+1 driven at 360 V. The K-EG drawing prints no voltage chart; 360 V is
+*    Rob Robinette's measured first-node value for this DC-identical tweed
+*    6V6 single-ended circuit (the 5F2-A is the 5F1 Champ plus a tone control).
+*  - Downstream nodes are DERIVED by simulation, never asserted.
+*  - Output-transformer primary DCR omitted (6V6 plate node = B+1, as voltage
+*    charts conventionally annotate).
+*  - Coupling and tone caps omitted (DC open); cathode-bypass caps omitted
+*    (DC no-ops). The whole tone/volume network is capacitor-coupled, so V1B's
+*    grid returns to ground only through the 1 M volume pot at DC.
+*  - Input 68k grid stoppers omitted (carry no DC grid current).
+*  - Feedback resistor R12 (22k) included: it parallels V1B's UNbypassed 1.5k
+*    cathode at DC through the speaker secondary's ~0 ohm DCR.
+.include models/12ax7.inc
+.include models/6v6gt.inc
+
+VBP1 BP1 0 DC 360
+
+* power-rail droppers (10k-1W then 22k; filters 32u / 8u / 8u, 450 V)
+R10 BP1 BP2 10k
+R11 BP2 BP3 22k
+
+* V1A input stage
+R4  BP3 P1A 100k
+XV1A P1A G1A K1A 12AX7
+R3  G1A 0 1meg
+R5  K1A 0 1.5k
+
+* V1B driver stage (grid returned to ground through the 1M volume pot at DC)
+R6  BP3 P1B 100k
+XV1B P1B G1B K1B 12AX7
+RVOL G1B 0 1meg
+R7  K1B 0 1.5k
+R12 K1B 0 22k
+
+* 6V6GT output stage (plate at B+1, screen at B+2)
+XV2 BP1 BP2 G2 K2 6V6GT
+R8  G2 0 220k
+R9  K2 0 470

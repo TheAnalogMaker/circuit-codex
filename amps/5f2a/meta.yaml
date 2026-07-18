@@ -1,0 +1,28 @@
+# Circuit Codex metadata — schema: docs/schema.md (v1)
+id: "5f2a"
+name_style: "Tweed Princeton-style"
+family: tweed
+era:
+  start: 1957
+  end: 1961
+wattage: 5
+tubes: [12AX7, 6V6GT, 5Y3GT]
+topology:
+  rectifier: { kind: tube, type: "5Y3GT" }
+  bias: cathode
+  phase_inverter: none
+  tone_stack: single-knob
+lineage:
+  derived_from: []   # 5F2 is the direct ancestor — edge added when amps/5f2 lands
+  influenced: []     # sibling of the 5F1 Champ (same DC signal path + a tone control);
+                     # that edge lands when the family tree fills in
+sources:
+  - desc: "Fender 'Princeton' Model 5F2-A drawing (K-EG), layout + schematic sheets: every component value read directly from the published drawing 2026-07-18 — two-jack input (68k stoppers, 1M leak), V1A 100k/1.5k-bypassed, the single tone/volume network (1M lin pots, 0.02/0.005/0.0005 uF caps), V1B 100k with an UNbypassed 1.5k cathode carrying the 22k speaker feedback, 6V6GT 470R-1W/220k, and the 32u/8u/8u supply split by a 10k-1W and a 22k dropper (PT 66079, OT 265). The drawing prints no voltage chart. Not reproduced here; archived at EL34World"
+    url: "https://el34world.com/charts/Schematics/files/Fender/Fender_princeton_5f2a.pdf"
+  - desc: "Rob Robinette, 'How Amps Work' (tweed 5F1/6V6 single-ended walkthrough) — published DC measurements used as the verification reference in lieu of a factory chart: B+ 360/325/250, 6V6 ~19 V cathode drop across 470R, 12AX7 plates ~170 V, cathodes ~1.5 V. The 5F2-A shares this circuit's DC signal path exactly (the tone control is capacitor-coupled)"
+    url: "https://robrobinette.com/How_Amps_Work.htm"
+verification:
+  status: draft   # drawing carries no chart, and no 5F2-A-specific measured chart
+                  # was obtainable; simulation is checked against the DC-identical
+                  # 5F1 Champ's published measurements (see notes.md, Verification)
+contributors: [TheAnalogMaker]
