@@ -1,0 +1,292 @@
+---
+import Base from '../../../layouts/Base.astro';
+
+const COMMON = [
+  { uF: '0.1',      nF: '100',   pF: '100,000', code: '104', use: 'Cathode bypass, coupling' },
+  { uF: '0.047',    nF: '47',    pF: '47,000',  code: '473', use: 'Coupling' },
+  { uF: '0.022',    nF: '22',    pF: '22,000',  code: '223', use: 'Coupling, bright channel' },
+  { uF: '0.02',     nF: '20',    pF: '20,000',  code: '203', use: 'Coupling (older value)' },
+  { uF: '0.01',     nF: '10',    pF: '10,000',  code: '103', use: 'Coupling, bypass' },
+  { uF: '0.0047',   nF: '4.7',   pF: '4,700',   code: '472', use: 'Tone, coupling' },
+  { uF: '0.001',    nF: '1',     pF: '1,000',   code: '102', use: 'Bright / treble cap' },
+  { uF: '0.0005',   nF: '0.5',   pF: '500',     code: '501', use: 'Treble peaker' },
+  { uF: '0.00025',  nF: '0.25',  pF: '250',     code: '251', use: 'Bright cap' },
+  { uF: '0.0001',   nF: '0.1',   pF: '100',     code: '101', use: 'Treble bleed, stability' },
+  { uF: '0.000047', nF: '0.047', pF: '47',      code: '470', use: 'Grid, stability' },
+];
+const TOLS = [
+  { code: 'B', tol: '±0.1 pF',     note: 'Absolute — small values' },
+  { code: 'C', tol: '±0.25 pF',    note: 'Absolute — small values' },
+  { code: 'D', tol: '±0.5 pF',     note: 'Absolute — small values' },
+  { code: 'F', tol: '±1%',         note: '' },
+  { code: 'G', tol: '±2%',         note: '' },
+  { code: 'H', tol: '±3%',         note: '' },
+  { code: 'J', tol: '±5%',         note: 'Common on film caps' },
+  { code: 'K', tol: '±10%',        note: 'Common on film caps' },
+  { code: 'M', tol: '±20%',        note: 'Common on ceramics' },
+  { code: 'Z', tol: '+80% / −20%', note: 'Ceramics, non-critical' },
+];
+---
+<Base title="Capacitor code chart and decoder — Circuit Codex"
+      description="Decode a three-digit capacitor code (103 → 0.01 µF), read the letter tolerance, and convert between µF, nF, and pF. With an illustrated guide to the capacitor types you meet inside a vintage amplifier.">
+<div class="wrap">
+  <header class="ghead">
+    <a class="back" href="/reference/">← Reference</a>
+    <div class="eyebrow">Practical guide</div>
+    <h1>Capacitor code chart &amp; decoder</h1>
+    <p class="lede">Type the number stamped on a capacitor and read its value in
+      microfarads, nanofarads, and picofarads — plus the letter that tells you the
+      tolerance. A conversion chart and an illustrated tour of vintage-amp cap types
+      follow below.</p>
+  </header>
+
+  <section class="tool" aria-label="Capacitor code decoder">
+    <div class="dec">
+      <label class="dec-in">
+        <span>Capacitor code</span>
+        <input id="cc-code" value="103K" placeholder="e.g. 103K · 223 · 4R7 · 47" autocomplete="off" spellcheck="false" />
+      </label>
+      <div class="dec-out" aria-live="polite">
+        <div class="cc-head" id="cc-head">0.01 µF</div>
+        <div class="cc-trio" id="cc-trio">10 nF · 10,000 pF</div>
+        <div class="cc-meta">
+          <span class="cc-tol" id="cc-tol">Tolerance ±10% (K)</span>
+          <span class="cc-work" id="cc-work">10 × 10³ pF</span>
+        </div>
+      </div>
+    </div>
+    <p class="dec-help">Three-digit code: the first two figures are significant, the
+      third is the number of zeros — so <b>103</b> is 10 followed by three zeros,
+      10,000 pF. A one- or two-digit number is the value in picofarads directly
+      (<b>47</b> = 47 pF); an <b>R</b> stands in for a decimal point (<b>4R7</b> =
+      4.7 pF). A trailing letter is the tolerance.</p>
+  </section>
+
+  <section>
+    <h2>Microfarads, nanofarads, picofarads</h2>
+    <p class="sub">One farad is enormous; amplifier values live far down the ladder.
+      Each step is a factor of a thousand.</p>
+    <div class="ladder">1 µF <span>=</span> 1,000 nF <span>=</span> 1,000,000 pF</div>
+    <p class="sub" style="margin-top:18px">Common amplifier values, in all three units
+      and their coded form. The last two columns are what you will actually see printed
+      on the part.</p>
+    <div class="tbl"><table>
+      <thead><tr><th>µF</th><th>nF</th><th>pF</th><th>Code</th><th>Typical use</th></tr></thead>
+      <tbody>
+        {COMMON.map((c) => (
+          <tr>
+            <td>{c.uF}</td>
+            <td>{c.nF}</td>
+            <td>{c.pF}</td>
+            <td style="color:var(--amber)">{c.code}</td>
+            <td style="font-family:var(--body);color:var(--faint)">{c.use}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table></div>
+  </section>
+
+  <section>
+    <h2>Tolerance letters</h2>
+    <p class="sub">The letter after the numeric code is the tolerance. On small
+      picofarad parts it is an absolute figure; on larger film capacitors it is a
+      percentage.</p>
+    <div class="tbl"><table>
+      <thead><tr><th>Letter</th><th>Tolerance</th><th>Notes</th></tr></thead>
+      <tbody>
+        {TOLS.map((t) => (
+          <tr>
+            <td style="color:var(--amber)">{t.code}</td>
+            <td>{t.tol}</td>
+            <td style="font-family:var(--body);color:var(--faint)">{t.note || '—'}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table></div>
+  </section>
+
+  <section>
+    <h2>Capacitor types in a vintage amp</h2>
+    <p class="sub">Open an old chassis and you meet a handful of recurring shapes.
+      Knowing them at a glance helps you find the coupling, bypass, and tone caps
+      without tracing every lead. These are line drawings, not any one manufacturer's
+      part.</p>
+    <div class="cap-grid">
+      <figure class="cap-art">
+        <svg viewBox="0 0 170 110" role="img" aria-label="Molded tubular paper or film capacitor with axial leads and an outer-foil band">
+          <line class="lead" x1="6" y1="55" x2="42" y2="55" />
+          <line class="lead" x1="128" y1="55" x2="164" y2="55" />
+          <rect class="fill" x="42" y="32" width="86" height="46" rx="22" />
+          <line class="acc" x1="56" y1="34" x2="56" y2="76" />
+          <line class="ln" x1="98" y1="36" x2="98" y2="74" />
+          <line class="ln" x1="108" y1="36" x2="108" y2="74" />
+        </svg>
+        <figcaption>
+          <h3>Molded paper / film tubular</h3>
+          <p>Axial leads out each end, a band marking the outer-foil connection. The
+            paper-dielectric versions are the classic leaky suspects in an old amp —
+            worth measuring before you trust them.</p>
+        </figcaption>
+      </figure>
+
+      <figure class="cap-art">
+        <svg viewBox="0 0 170 110" role="img" aria-label="Ceramic disc capacitor, a dipped disc on two leads">
+          <line class="lead" x1="74" y1="66" x2="74" y2="104" />
+          <line class="lead" x1="96" y1="66" x2="96" y2="104" />
+          <ellipse class="fill" cx="85" cy="42" rx="40" ry="32" />
+          <line class="ln" x1="85" y1="18" x2="85" y2="66" opacity="0.5" />
+        </svg>
+        <figcaption>
+          <h3>Ceramic disc</h3>
+          <p>A dipped disc on two radial leads. Cheap and stable enough for small
+            values — you will find these as bright caps and around the phase inverter.</p>
+        </figcaption>
+      </figure>
+
+      <figure class="cap-art">
+        <svg viewBox="0 0 170 110" role="img" aria-label="Electrolytic can capacitor, an upright cylinder with a plus polarity mark">
+          <line class="lead" x1="72" y1="90" x2="72" y2="104" />
+          <line class="lead" x1="98" y1="90" x2="98" y2="104" />
+          <rect class="fill" x="52" y="24" width="66" height="66" rx="6" />
+          <ellipse class="fill" cx="85" cy="24" rx="33" ry="9" />
+          <line class="acc" x1="63" y1="40" x2="73" y2="40" />
+          <line class="acc" x1="68" y1="35" x2="68" y2="45" />
+          <line class="ln" x1="105" y1="34" x2="105" y2="80" opacity="0.5" />
+        </svg>
+        <figcaption>
+          <h3>Electrolytic can</h3>
+          <p>Polarized — mind the mark. Filters the power supply and bypasses cathodes.
+            Vintage multi-section cans pack several capacitors into one aluminum tube.</p>
+        </figcaption>
+      </figure>
+
+      <figure class="cap-art">
+        <svg viewBox="0 0 170 110" role="img" aria-label="Molded mica capacitor, a small flat rectangular block on two leads">
+          <line class="lead" x1="66" y1="76" x2="66" y2="104" />
+          <line class="lead" x1="104" y1="76" x2="104" y2="104" />
+          <rect class="fill" x="45" y="26" width="80" height="50" rx="9" />
+          <circle class="dot" cx="63" cy="44" r="5" />
+          <circle class="dot" cx="85" cy="44" r="5" />
+          <circle class="dot" cx="107" cy="44" r="5" />
+        </svg>
+        <figcaption>
+          <h3>Silver mica</h3>
+          <p>A small molded block — very stable and low-loss. It holds its value for
+            decades, which is why it turns up in tone-shaping and treble-peaking spots.</p>
+        </figcaption>
+      </figure>
+    </div>
+    <p class="sub" style="margin-top:20px">Not everything is coded. The earliest amps
+      often mark a capacitor with its value spelled out — <span class="mono">.02 400 V</span>
+      — rather than a three-digit number. When the printing has worn away, the
+      <a href="/reference/">era-component references</a> in the library help pin down
+      what belongs in a given position.</p>
+  </section>
+</div>
+</Base>
+
+<script is:inline>
+(function () {
+  const input = document.getElementById('cc-code');
+  const headEl = document.getElementById('cc-head');
+  const trioEl = document.getElementById('cc-trio');
+  const tolEl = document.getElementById('cc-tol');
+  const workEl = document.getElementById('cc-work');
+  const SUP = ['⁰', '¹', '²', '³', '⁴', '⁵', '⁶', '⁷', '⁸', '⁹'];
+  const TOL = { B: '±0.1 pF', C: '±0.25 pF', D: '±0.5 pF', F: '±1%', G: '±2%', H: '±3%', J: '±5%', K: '±10%', M: '±20%', Z: '+80% / −20%' };
+
+  function fmt(x) { return Number(x.toPrecision(6)).toLocaleString('en-US', { maximumSignificantDigits: 6 }); }
+
+  function decode(raw) {
+    let s = (raw || '').trim().toUpperCase().replace(/\s+/g, '');
+    if (!s) return null;
+    let tolTxt = '';
+    const last = s[s.length - 1];
+    if (TOL[last] && s.length >= 2 && /[0-9R.]/.test(s[s.length - 2])) {
+      tolTxt = TOL[last] + ' (' + last + ')';
+      s = s.slice(0, -1);
+    }
+    let pf, work;
+    if (/[R.]/.test(s)) {
+      const num = parseFloat(s.replace('R', '.'));
+      if (!isFinite(num) || num <= 0) return { error: 1 };
+      pf = num; work = 'Direct value';
+    } else if (/^\d+$/.test(s)) {
+      if (s.length === 3) {
+        const sig = parseInt(s.slice(0, 2), 10);
+        const md = parseInt(s[2], 10);
+        if (md <= 6) { pf = sig * Math.pow(10, md); work = sig + ' × 10' + SUP[md] + ' pF'; }
+        else if (md === 8) { pf = sig * 0.01; work = sig + ' × 0.01 pF'; }
+        else if (md === 9) { pf = sig * 0.1; work = sig + ' × 0.1 pF'; }
+        else return { error: 1 };
+      } else {
+        pf = parseInt(s, 10);
+        if (pf <= 0) return { error: 1 };
+        work = 'Direct value in pF';
+      }
+    } else return { error: 1 };
+    return { pf, tolTxt, work };
+  }
+
+  function render() {
+    const r = decode(input.value);
+    if (r === null) { headEl.textContent = '—'; trioEl.textContent = 'Enter a code'; tolEl.textContent = ''; workEl.textContent = ''; return; }
+    if (r.error) { headEl.textContent = '—'; trioEl.textContent = 'Unrecognized code'; tolEl.textContent = ''; workEl.textContent = ''; return; }
+    const pf = r.pf;
+    if (pf >= 1000) {
+      headEl.textContent = fmt(pf / 1e6) + ' µF';
+      trioEl.textContent = fmt(pf / 1e3) + ' nF · ' + fmt(pf) + ' pF';
+    } else {
+      headEl.textContent = fmt(pf) + ' pF';
+      trioEl.textContent = fmt(pf / 1e3) + ' nF · ' + fmt(pf / 1e6) + ' µF';
+    }
+    tolEl.textContent = r.tolTxt ? 'Tolerance ' + r.tolTxt : 'No tolerance letter';
+    workEl.textContent = r.work;
+  }
+
+  input.addEventListener('input', render);
+  render();
+})();
+</script>
+
+<style>
+  .ghead { padding: 44px 0 8px; }
+  .back { font-family: var(--disp); text-transform: uppercase; letter-spacing: .14em; font-size: 11.5px; color: var(--muted); }
+  .eyebrow { font-family: var(--disp); text-transform: uppercase; letter-spacing: .26em; font-size: 12px; color: var(--amber); margin-top: 14px; }
+  h1 { font-size: clamp(28px, 4.5vw, 42px); line-height: 1.12; margin: 8px 0 12px; }
+  .lede { max-width: 64ch; color: var(--muted); font-size: 16.5px; margin: 0; }
+  section { margin-top: 40px; }
+  h2 { font-size: 18px; letter-spacing: .14em; margin: 24px 0 4px; }
+  .sub { color: var(--muted); font-size: 14px; margin: 0 0 16px; max-width: 74ch; }
+  .sub .mono, .mono { font-family: var(--mono); color: var(--ink); font-size: 12.5px; }
+
+  .tool { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 20px 22px 22px; }
+  .dec { display: grid; grid-template-columns: minmax(180px, 260px) 1fr; gap: 22px; align-items: center; }
+  @media (max-width: 620px) { .dec { grid-template-columns: 1fr; } }
+  .dec-in { display: flex; flex-direction: column; gap: 6px; }
+  .dec-in span { font-family: var(--disp); text-transform: uppercase; letter-spacing: .12em; font-size: 10.5px; color: var(--faint); }
+  .dec-in input { background: var(--well); border: 1px solid var(--line); border-radius: 6px; color: var(--ink); font-family: var(--mono); font-size: 20px; letter-spacing: .08em; padding: 12px 14px; width: 100%; text-transform: uppercase; }
+  .dec-out { border-left: 2px solid var(--line); padding-left: 22px; }
+  @media (max-width: 620px) { .dec-out { border-left: 0; border-top: 1px solid var(--line); padding-left: 0; padding-top: 16px; } }
+  .cc-head { font-family: var(--disp); font-size: clamp(30px, 6vw, 44px); color: var(--amber); line-height: 1; }
+  .cc-trio { font-family: var(--mono); font-size: 14px; color: var(--ink); margin-top: 8px; }
+  .cc-meta { display: flex; gap: 8px 18px; flex-wrap: wrap; margin-top: 10px; }
+  .cc-tol { font-family: var(--mono); font-size: 12.5px; color: var(--muted); }
+  .cc-work { font-family: var(--mono); font-size: 12.5px; color: var(--faint); }
+  .dec-help { color: var(--muted); font-size: 13.5px; line-height: 1.65; margin: 18px 2px 0; max-width: 78ch; }
+  .dec-help b { color: var(--ink); font-family: var(--mono); font-weight: 400; }
+
+  .ladder { font-family: var(--disp); text-transform: uppercase; letter-spacing: .08em; font-size: clamp(16px, 3.4vw, 22px); color: var(--ink); background: var(--well); border: 1px solid var(--line-soft); border-radius: 8px; padding: 16px 20px; display: inline-block; }
+  .ladder span { color: var(--amber); margin: 0 8px; }
+
+  .cap-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
+  .cap-art { margin: 0; background: var(--well); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px 18px; }
+  .cap-art svg { width: 100%; height: auto; max-height: 130px; display: block; margin-bottom: 6px; }
+  .cap-art .ln { fill: none; stroke: var(--muted); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .cap-art .fill { fill: var(--panel); stroke: var(--muted); stroke-width: 2; }
+  .cap-art .acc { fill: none; stroke: var(--amber); stroke-width: 2.5; stroke-linecap: round; }
+  .cap-art .lead { stroke: var(--faint); stroke-width: 2.5; stroke-linecap: round; }
+  .cap-art .dot { fill: none; stroke: var(--faint); stroke-width: 1.6; }
+  .cap-art h3 { font-family: var(--disp); text-transform: uppercase; letter-spacing: .06em; font-size: 15px; margin: 4px 0 5px; }
+  .cap-art figcaption p { color: var(--muted); font-size: 13px; line-height: 1.55; margin: 0; }
+</style>
