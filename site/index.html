@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Circuit Codex — the open archive of classic guitar amp circuits</title>
+<meta name="description" content="Every classic tube amp circuit — redrawn KiCad schematics, ngspice-verified netlists, and the lineage that connects them. Open, machine-readable, CC-BY-SA.">
+<style>
+  :root{--ground:#171310;--panel:#211a14;--ink:#eee2c8;--muted:#a3927b;--faint:#7a6a54;
+    --amber:#e89b3f;--line:#3a3025;
+    --disp:"Avenir Next Condensed","Arial Narrow","Helvetica Neue",Arial,sans-serif;
+    --mono:"SF Mono",Menlo,Consolas,monospace}
+  body{background:var(--ground);color:var(--ink);margin:0;min-height:100vh;display:grid;place-items:center;
+    font-family:"Avenir Next",Seravek,"Segoe UI",system-ui,sans-serif;line-height:1.6}
+  main{max-width:640px;padding:48px 24px;text-align:center}
+  .eyebrow{font-family:var(--disp);text-transform:uppercase;letter-spacing:.26em;font-size:13px;color:var(--amber)}
+  h1{font-family:var(--disp);text-transform:uppercase;letter-spacing:.06em;font-weight:600;
+    font-size:clamp(30px,7vw,46px);line-height:1.1;margin:14px 0 16px}
+  p{color:var(--muted);margin:0 auto 12px;max-width:52ch}
+  .glow{margin:34px auto;width:14px;height:14px;border-radius:50%;background:var(--amber);
+    box-shadow:0 0 24px 6px rgba(232,155,63,.45)}
+  @media (prefers-reduced-motion: no-preference){
+    .glow{animation:heat 3.2s ease-in-out infinite}
+    @keyframes heat{0%,100%{box-shadow:0 0 24px 6px rgba(232,155,63,.45)}50%{box-shadow:0 0 34px 10px rgba(232,155,63,.65)}}}
+  .links{display:flex;gap:22px;justify-content:center;flex-wrap:wrap;margin-top:8px;
+    font-family:var(--disp);text-transform:uppercase;letter-spacing:.14em;font-size:13px}
+  a{color:var(--amber);text-decoration:none;border-bottom:1px solid var(--line);padding-bottom:2px}
+  a:hover,a:focus-visible{border-color:var(--amber)}
+  :focus-visible{outline:2px solid var(--amber);outline-offset:3px}
+  .foot{margin-top:44px;font-family:var(--mono);font-size:12px;color:var(--faint)}
+</style>
+</head>
+<body>
+<main>
+  <div class="eyebrow">An Analog Maker project</div>
+  <h1>Circuit Codex</h1>
+  <p>The open, machine-readable archive of the circuits that made electric guitar —
+    redrawn KiCad schematics, simulation-verified netlists, and the lineage that connects
+    5F6-A to JTM45 to everything after.</p>
+  <div class="glow" aria-hidden="true"></div>
+  <p>Filaments warming. First circuits landing soon.</p>
+  <div class="links">
+    <a href="https://github.com/TheAnalogMaker/circuit-codex">GitHub — watch the corpus grow</a>
+    <a href="https://www.youtube.com/@theanalogmaker">YouTube — The Analog Maker</a>
+  </div>
+  <div class="foot">circuit data CC-BY-SA · code MIT · tube models CC0 · no scans, redrawn from facts</div>
+</main>
+</body>
+</html>
