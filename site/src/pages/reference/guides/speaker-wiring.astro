@@ -1,0 +1,519 @@
+---
+import Base from '../../../layouts/Base.astro';
+
+// Single source of truth for the quick-reference table below AND the calculator
+// logic (mirrored in the inline script). Each scheme is m strings of k speakers:
+// string impedance = k·Z; the m strings sit in parallel, so total = k·Z / m.
+// With matched speakers every driver dissipates an equal share, 1/n of the amp's
+// power, whatever the wiring — series never "starves" a speaker.
+const SCHEMES = [
+  { count: 1, wiring: 'single',          name: 'Single speaker',   general: 'Z',      z8: '8 Ω',  share: '100%' },
+  { count: 2, wiring: 'series',          name: 'Two, in series',   general: '2 × Z',  z8: '16 Ω', share: '50%'  },
+  { count: 2, wiring: 'parallel',        name: 'Two, in parallel', general: 'Z ÷ 2',  z8: '4 Ω',  share: '50%'  },
+  { count: 4, wiring: 'series',          name: 'Four, in series',  general: '4 × Z',  z8: '32 Ω', share: '25%'  },
+  { count: 4, wiring: 'parallel',        name: 'Four, in parallel',general: 'Z ÷ 4',  z8: '2 Ω',  share: '25%'  },
+  { count: 4, wiring: 'series-parallel', name: 'Four, series-parallel', general: 'Z', z8: '8 Ω',  share: '25%'  },
+];
+---
+<Base title="Speaker wiring & impedance calculator — series, parallel, series-parallel · Circuit Codex"
+      description="Pick one, two, or four speakers and a wiring scheme and watch an original wiring diagram redraw — speaker frames, plus and minus terminals, and the wire runs — while the total impedance and per-speaker power share update live. Series adds, parallel divides; matched speakers always share power equally. Real-amp presets for a tweed Champ-style 1×8 and a tweed Bassman-style 4×10 at 2 Ω, with a note on matching the output-transformer tap.">
+<div class="wrap">
+  <header class="ghead">
+    <a class="back" href="/reference/">← Reference</a>
+    <div class="eyebrow">Practical guide</div>
+    <h1>Speaker wiring &amp; impedance</h1>
+    <p class="lede">Choose how many speakers you have and how they are wired; the diagram
+      redraws to match, and the total impedance the amp sees updates with it. Series adds,
+      parallel divides — and matched speakers always split the power evenly, however you
+      wire them.</p>
+  </header>
+
+  <section class="tool" aria-label="Speaker wiring calculator">
+    <div class="controls">
+      <div class="ctl">
+        <span class="ctl-label">Speakers</span>
+        <div class="seg" role="radiogroup" aria-label="Number of speakers" id="sw-count">
+          <label><input type="radio" name="swcount" value="1" /><span>1</span></label>
+          <label><input type="radio" name="swcount" value="2" /><span>2</span></label>
+          <label><input type="radio" name="swcount" value="4" checked /><span>4</span></label>
+        </div>
+      </div>
+
+      <div class="ctl">
+        <span class="ctl-label">Each speaker</span>
+        <div class="seg" role="radiogroup" aria-label="Impedance of each speaker" id="sw-z">
+          <label><input type="radio" name="swz" value="4" /><span>4 Ω</span></label>
+          <label><input type="radio" name="swz" value="8" checked /><span>8 Ω</span></label>
+          <label><input type="radio" name="swz" value="16" /><span>16 Ω</span></label>
+        </div>
+      </div>
+
+      <div class="ctl ctl-wide">
+        <span class="ctl-label">Wiring</span>
+        <div class="seg" role="radiogroup" aria-label="Wiring scheme" id="sw-wiring">
+          <label data-w="single"><input type="radio" name="swwiring" value="single" /><span>Single</span></label>
+          <label data-w="series"><input type="radio" name="swwiring" value="series" /><span>Series</span></label>
+          <label data-w="parallel"><input type="radio" name="swwiring" value="parallel" checked /><span>Parallel</span></label>
+          <label data-w="series-parallel"><input type="radio" name="swwiring" value="series-parallel" /><span>Series-parallel</span></label>
+        </div>
+      </div>
+    </div>
+
+    <div class="presets">
+      <span class="ctl-label">Real-amp presets</span>
+      <button type="button" class="preset" data-count="1" data-z="8" data-wiring="single" data-watts="5">
+        Tweed Champ-style · 1×8
+      </button>
+      <button type="button" class="preset" data-count="4" data-z="8" data-wiring="parallel" data-watts="40">
+        Tweed Bassman-style · 4×10 → 2 Ω
+      </button>
+    </div>
+
+    <div class="stage">
+      <svg viewBox="0 0 680 420" id="sw-svg" role="img" aria-labelledby="sw-svg-title">
+        <title id="sw-svg-title">Speaker wiring diagram</title>
+        <!-- amplifier output block (static; the tap label updates) -->
+        <g aria-hidden="true">
+          <rect x="24" y="150" width="92" height="120" rx="10" class="amp-body" />
+          <line x1="40" y1="176" x2="100" y2="176" class="amp-slot" />
+          <line x1="40" y1="192" x2="100" y2="192" class="amp-slot" />
+          <text x="70" y="222" class="amp-mark" text-anchor="middle">AMP</text>
+          <text x="70" y="244" class="amp-sub" text-anchor="middle">OUT</text>
+          <text x="70" y="292" class="amp-tap" text-anchor="middle" id="sw-amp-tap">8 Ω tap</text>
+          <circle cx="116" cy="180" r="5" class="lug lug-p" />
+          <text x="122" y="172" class="lug-lbl">+</text>
+          <circle cx="116" cy="240" r="5" class="lug lug-n" />
+          <text x="122" y="234" class="lug-lbl neg">−</text>
+        </g>
+        <!-- speaker network (regenerated on every change) -->
+        <g id="sw-net"></g>
+      </svg>
+    </div>
+
+    <div class="readout">
+      <div class="rd-main">
+        <div class="rd-z" id="sw-total">2 Ω</div>
+        <div class="rd-cap">Total load the amp sees</div>
+      </div>
+      <div class="rd-side">
+        <div class="rd-config" id="sw-config">Four 8 Ω speakers in parallel</div>
+        <div class="rd-share" id="sw-share">Each speaker: 25% of amp power</div>
+      </div>
+    </div>
+    <p class="live" id="sw-live" aria-live="polite">Hover, tap, or focus a speaker to read its share.</p>
+
+    <div class="tap-note" id="sw-tap-note">
+      <strong>Match the tap.</strong> Set the amp's output-transformer secondary to the total
+      load shown above. Common taps are 4, 8, and 16 Ω; the total here is <b id="sw-tap-val">2 Ω</b>,
+      <span id="sw-tap-msg">which matches a standard output tap.</span> Working out a tap from the plate load is
+      the job of the output-transformer ratio tool in the
+      <a href="/reference/guides/calculators/">amp builder calculators</a>, and the
+      <a href="/reference/guides/transformers/">transformer reference</a> explains why the load the
+      plates see moves with the speaker impedance.
+    </div>
+  </section>
+
+  <section aria-labelledby="rules-h">
+    <h2 id="rules-h">How the impedance combines</h2>
+    <p class="sub">Two rules cover every guitar- or bass-amp cabinet. They come straight from the
+      way current and voltage divide, and they are worth committing to memory.</p>
+    <div class="rules">
+      <div class="rule">
+        <div class="rule-h">Series — the impedances add</div>
+        <p class="eq">Z<sub>total</sub> = Z<sub>1</sub> + Z<sub>2</sub> + …</p>
+        <p>One path through all the speakers, so the same current flows through each and the
+          impedances stack. Two 8 Ω speakers in series read 16 Ω; four read 32 Ω.</p>
+      </div>
+      <div class="rule">
+        <div class="rule-h">Parallel — the reciprocals add</div>
+        <p class="eq">1 / Z<sub>total</sub> = 1 / Z<sub>1</sub> + 1 / Z<sub>2</sub> + …</p>
+        <p>Every speaker sees the full drive voltage on its own path. For matched speakers that is
+          just Z ÷ n — two 8 Ω speakers give 4 Ω, four give 2 Ω.</p>
+      </div>
+      <div class="rule">
+        <div class="rule-h">Series-parallel — do both</div>
+        <p class="eq">Two series pairs, wired in parallel</p>
+        <p>Add within each pair, then combine the pairs in parallel. Four 8 Ω speakers become two
+          16 Ω strings in parallel — back to 8 Ω, the everyday way to wire a 4×12.</p>
+      </div>
+    </div>
+
+    <div class="tbl"><table>
+      <thead><tr><th>Wiring</th><th>Speakers</th><th>Total (each = Z)</th><th>With 8 Ω speakers</th><th>Power each</th></tr></thead>
+      <tbody>
+        {SCHEMES.map((s) => (
+          <tr>
+            <td class="wname">{s.name}</td>
+            <td class="ct">{s.count}</td>
+            <td>{s.general}</td>
+            <td class="z8">{s.z8}</td>
+            <td class="ct">{s.share}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table></div>
+  </section>
+
+  <section aria-labelledby="power-h" class="prose">
+    <h2 id="power-h">Matched speakers share the power equally</h2>
+    <p>A common worry is that wiring speakers in series "starves" them while parallel "drives them
+      harder". With identical speakers, neither is true. In series the same current passes through
+      every driver, so each dissipates the same I²Z. In parallel every driver sees the same voltage,
+      so each dissipates the same V²/Z. Either way, and in series-parallel too, matched speakers split
+      the amplifier's output in equal fractions — half each for two, a quarter each for four. What the
+      wiring changes is the <em>total impedance</em>, and therefore whether that impedance matches the
+      amp; it does not change how the power is shared.</p>
+    <p>The equal-share rule only holds while the speakers actually match. Mix a 4 Ω and an 8 Ω driver
+      and the current or voltage divides unevenly, one runs hotter than the other, and the tidy
+      fractions break down. In a guitar or bass cabinet the speakers are normally identical for exactly
+      this reason, and every scheme in the tool above assumes matched drivers.</p>
+  </section>
+
+  <section aria-labelledby="match-h" class="prose">
+    <h2 id="match-h">Why matching the amp matters</h2>
+    <p>A tube amplifier reaches the speaker through an output transformer, and that transformer only
+      reflects the intended load up to the tubes when the speaker impedance matches the tap it is wired
+      to. Present the wrong impedance and the whole load line shifts — a lighter load than the tap
+      raises the voltage the tubes swing and stresses them; a heavier load lowers the available power.
+      The single-ended tweed Champ-style circuit in this archive winds its
+      <a href="/amps/5f1/">output transformer for roughly 5 kΩ : 8 Ω</a>, expecting one 8 Ω speaker;
+      the push-pull tweed Bassman-style circuit uses a
+      <a href="/amps/5f6a/">transformer fixed at a 2 Ω secondary</a> to feed its four 8 Ω speakers
+      wired in parallel. Both are just the wiring rules above, chosen to land on the transformer the
+      builder specified.</p>
+    <div class="warn">
+      <strong>Never run a tube amp with no speaker load, and keep a mismatch small.</strong> With the
+      secondary open, the collapsing field can drive the primary to a voltage high enough to arc the
+      output transformer or the tubes. Match the tap when you can; being off by a single step — an 8 Ω
+      tap into 4 Ω or 16 Ω — is usually tolerated, but a large mismatch or an open circuit is not.
+      Solid-state amps have their own minimum-load limits; check the maker's rating before wiring below it.
+    </div>
+    <p class="cite">Speaker figures for the two presets are read from the parts lists of the
+      <a href="/amps/5f1/">tweed Champ-style</a> and <a href="/amps/5f6a/">tweed Bassman-style</a>
+      circuits in this archive. For the transformer theory behind an impedance match, see
+      <a href="https://archive.org/details/Electronic_Transformers_and_Circuits_Reuben_Lee_1955"
+        rel="external nofollow">Reuben Lee, <em>Electronic Transformers and Circuits</em> (1955)</a>,
+      and this site's <a href="/reference/guides/transformers/">transformer reference</a>.</p>
+  </section>
+</div>
+</Base>
+
+<script is:inline>
+(function () {
+  const NET = document.getElementById('sw-net');
+  const SVG = document.getElementById('sw-svg');
+  const TITLE = document.getElementById('sw-svg-title');
+  const TAPTXT = document.getElementById('sw-amp-tap');
+  const TOTAL = document.getElementById('sw-total');
+  const CONFIG = document.getElementById('sw-config');
+  const SHARE = document.getElementById('sw-share');
+  const LIVE = document.getElementById('sw-live');
+  const TAPVAL = document.getElementById('sw-tap-val');
+  const TAPMSG = document.getElementById('sw-tap-msg');
+
+  // geometry constants
+  const X_L = 152, X_R = 648;   // left (+) and right (−) rail x
+  const AMP_P = { x: 116, y: 180 }, AMP_N = { x: 116, y: 240 };
+  const RET_Y = 398;            // bottom return-wire y
+  const STD_TAPS = [2, 4, 8, 16];
+
+  const state = { count: 4, z: 8, wiring: 'parallel', watts: 40 };
+  const DEFAULT_LIVE = 'Hover, tap, or focus a speaker to read its share.';
+
+  // count → available wiring options
+  const WIRINGS = { 1: ['single'], 2: ['series', 'parallel'], 4: ['series', 'parallel', 'series-parallel'] };
+
+  // m strings of k speakers each
+  function topology() {
+    const c = state.count, w = state.wiring;
+    if (c === 1) return { m: 1, k: 1 };
+    if (w === 'series') return { m: 1, k: c };
+    if (w === 'parallel') return { m: c, k: 1 };
+    return { m: 2, k: c / 2 }; // series-parallel
+  }
+
+  function fmtOhms(v) {
+    return (Number.isInteger(v) ? v : Number(v.toFixed(1))) + ' Ω';
+  }
+  function fmtWatts(w) {
+    if (!(w > 0)) return '';
+    const each = w / state.count;
+    const r = each >= 10 ? Math.round(each) : Number(each.toFixed(1));
+    return '≈ ' + r + ' W';
+  }
+  function rungYs(m) {
+    if (m === 1) return [210];
+    if (m === 2) return [150, 272];
+    return [96, 178, 260, 342];
+  }
+  function radius(k, m) {
+    const cellW = (X_R - X_L - 60) / k;
+    const cellH = m === 1 ? 200 : (m === 2 ? 120 : 86);
+    return Math.max(24, Math.min(58, Math.min(cellW, cellH) * 0.36));
+  }
+  const wire = (x1, y1, x2, y2) => `<path class="wire" d="M${x1} ${y1} L${x2} ${y2}" />`;
+  const poly = (pts) => `<path class="wire" d="M${pts.map((p) => p.join(' ')).join(' L')}" />`;
+
+  function speaker(cx, cy, r, idx, n, z, wattsStr) {
+    const tipL = cx - r - 12, tipR = cx + r + 12;
+    const cone = (r * 0.66).toFixed(1), cap = (r * 0.30).toFixed(1);
+    const b = (r * 0.72).toFixed(1);
+    const share = Math.round(100 / n);
+    const readout = `Speaker ${idx + 1} of ${n} — ${z} Ω · ${share}% of amp power`
+      + (wattsStr ? ` (${wattsStr} each)` : '');
+    const aria = `Speaker ${idx + 1} of ${n}, ${z} ohms, ${share} percent of amp power`;
+    return `<g class="spk" tabindex="0" role="button" aria-label="${aria}" data-readout="${readout}">`
+      + wire(cx - r, cy, tipL, cy) + wire(cx + r, cy, tipR, cy)
+      + `<rect class="spk-flange" x="${cx - r}" y="${cy - r}" width="${2 * r}" height="${2 * r}" rx="${(r * 0.2).toFixed(1)}" />`
+      + [[-1, -1], [1, -1], [-1, 1], [1, 1]].map(([sx, sy]) =>
+          `<circle class="spk-bolt" cx="${(cx + sx * b).toFixed(1)}" cy="${(cy + sy * b).toFixed(1)}" r="2.4" />`).join('')
+      + `<circle class="spk-frame" cx="${cx}" cy="${cy}" r="${(r * 0.9).toFixed(1)}" />`
+      + `<circle class="spk-cone" cx="${cx}" cy="${cy}" r="${cone}" />`
+      + `<circle class="spk-cap" cx="${cx}" cy="${cy}" r="${cap}" />`
+      + `<circle class="term term-p" cx="${cx - r}" cy="${cy}" r="4.5" />`
+      + `<circle class="term term-n" cx="${cx + r}" cy="${cy}" r="4.5" />`
+      + `<text class="term-lbl" x="${cx - r}" y="${cy - 10}" text-anchor="middle">+</text>`
+      + `<text class="term-lbl neg" x="${cx + r}" y="${cy - 10}" text-anchor="middle">−</text>`
+      + `</g>`;
+  }
+
+  function build() {
+    const { m, k } = topology();
+    const n = m * k;
+    const z = state.z;
+    const total = (k * z) / m;
+    const ys = rungYs(m);
+    const railTop = Math.min(...ys), railBot = Math.max(...ys);
+    const r = radius(k, m);
+    const cx0 = X_L + 34, cx1 = X_R - 34;
+    const wattsStr = fmtWatts(state.watts);
+
+    let s = '';
+    // rails (or a single node when there is only one rung)
+    if (railTop !== railBot) {
+      s += `<path class="rail" d="M${X_L} ${railTop} L${X_L} ${railBot}" />`;
+      s += `<path class="rail" d="M${X_R} ${railTop} L${X_R} ${railBot}" />`;
+    }
+    // amp + → top of left rail
+    s += poly([[AMP_P.x, AMP_P.y], [134, AMP_P.y], [134, railTop], [X_L, railTop]]);
+    // amp − → along the bottom → up to bottom of right rail (the return loop)
+    s += poly([[AMP_N.x, AMP_N.y], [AMP_N.x, RET_Y], [X_R, RET_Y], [X_R, railBot]]);
+    // rail junction nodes
+    s += `<circle class="node" cx="${X_L}" cy="${railTop}" r="4" />`;
+    s += `<circle class="node" cx="${X_R}" cy="${railBot}" r="4" />`;
+
+    // each string: a horizontal rung of k speakers in series between the rails
+    ys.forEach((y) => {
+      const xs = [];
+      for (let i = 0; i < k; i++) xs.push(k === 1 ? (cx0 + cx1) / 2 : cx0 + (cx1 - cx0) * (i / (k - 1)));
+      // left rail → first speaker +
+      s += wire(X_L, y, xs[0] - r - 12, y);
+      // series links between adjacent speakers
+      for (let i = 0; i < k - 1; i++) s += wire(xs[i] + r + 12, y, xs[i + 1] - r - 12, y);
+      // last speaker − → right rail
+      s += wire(xs[k - 1] + r + 12, y, X_R, y);
+      // speakers on top of the wires
+      xs.forEach((cx, i) => { s += speaker(cx, y, r, globalIdx++, n, z, wattsStr); });
+    });
+
+    NET.innerHTML = s;
+
+    // readouts
+    const configText = state.count === 1
+      ? `One ${z} Ω speaker`
+      : `${numWord(n)} ${z} Ω speakers ${wiringPhrase()}`;
+    TOTAL.textContent = fmtOhms(total);
+    TAPTXT.textContent = fmtOhms(total) + ' tap';
+    CONFIG.textContent = configText;
+    const share = Math.round(100 / n);
+    SHARE.textContent = state.count === 1
+      ? 'One speaker takes the full output'
+      : `Each speaker: ${share}% of amp power` + (wattsStr ? ` (${wattsStr})` : '');
+    TITLE.textContent = configText + ' — total load ' + fmtOhms(total);
+    SVG.setAttribute('aria-label', configText + ', total load ' + fmtOhms(total));
+
+    // tap note
+    TAPVAL.textContent = fmtOhms(total);
+    if (STD_TAPS.includes(total)) {
+      TAPMSG.textContent = `which matches a standard output tap.`;
+    } else if (total < 2) {
+      TAPMSG.textContent = `which sits below the usual 2–16 Ω taps — an unusually heavy load for most amps.`;
+    } else {
+      TAPMSG.textContent = `which sits above the usual 2–16 Ω taps — few amplifiers offer a tap this high.`;
+    }
+  }
+
+  let globalIdx = 0;
+  function render() { globalIdx = 0; build(); }
+
+  function numWord(n) { return ({ 1: 'One', 2: 'Two', 4: 'Four' })[n] || String(n); }
+  function wiringPhrase() {
+    if (state.wiring === 'series') return 'in series';
+    if (state.wiring === 'parallel') return 'in parallel';
+    if (state.wiring === 'series-parallel') return 'in series-parallel';
+    return '';
+  }
+
+  // ---- wiring options track the speaker count ------------------------------
+  function syncWiring() {
+    const allowed = WIRINGS[state.count];
+    document.querySelectorAll('#sw-wiring label').forEach((lab) => {
+      const w = lab.dataset.w;
+      const ok = allowed.includes(w);
+      lab.hidden = !ok;
+      lab.querySelector('input').disabled = !ok;
+    });
+    if (!allowed.includes(state.wiring)) {
+      state.wiring = allowed.includes('parallel') ? 'parallel' : allowed[0];
+    }
+    const active = document.querySelector(`#sw-wiring input[value="${state.wiring}"]`);
+    if (active) active.checked = true;
+  }
+
+  // ---- controls ------------------------------------------------------------
+  document.querySelectorAll('#sw-count input').forEach((el) =>
+    el.addEventListener('change', (e) => { state.count = parseInt(e.target.value, 10); syncWiring(); render(); }));
+  document.querySelectorAll('#sw-z input').forEach((el) =>
+    el.addEventListener('change', (e) => { state.z = parseInt(e.target.value, 10); render(); }));
+  document.querySelectorAll('#sw-wiring input').forEach((el) =>
+    el.addEventListener('change', (e) => { state.wiring = e.target.value; render(); }));
+
+  document.querySelectorAll('.preset').forEach((btn) => btn.addEventListener('click', () => {
+    state.count = parseInt(btn.dataset.count, 10);
+    state.z = parseInt(btn.dataset.z, 10);
+    state.wiring = btn.dataset.wiring;
+    state.watts = parseInt(btn.dataset.watts, 10);
+    document.querySelector(`#sw-count input[value="${state.count}"]`).checked = true;
+    document.querySelector(`#sw-z input[value="${state.z}"]`).checked = true;
+    syncWiring();
+    render();
+  }));
+
+  // ---- per-speaker hover / focus readout (event-delegated; net is rebuilt) --
+  function speakerReadout(g) { LIVE.textContent = g.getAttribute('data-readout'); }
+  function resetReadout() {
+    if (NET.contains(document.activeElement) && document.activeElement.classList.contains('spk')) return;
+    LIVE.textContent = DEFAULT_LIVE;
+  }
+  NET.addEventListener('mouseover', (e) => { const g = e.target.closest('.spk'); if (g) speakerReadout(g); });
+  NET.addEventListener('mouseleave', resetReadout);
+  NET.addEventListener('focusin', (e) => { const g = e.target.closest('.spk'); if (g) speakerReadout(g); });
+  NET.addEventListener('focusout', () => setTimeout(resetReadout, 0));
+  NET.addEventListener('keydown', (e) => {
+    if (e.key !== 'Enter' && e.key !== ' ') return;
+    const g = e.target.closest('.spk'); if (!g) return;
+    e.preventDefault(); speakerReadout(g);
+  });
+
+  syncWiring();
+  render();
+})();
+</script>
+
+<!-- Global (namespaced to #sw-svg) so the innerHTML-injected speaker network is
+     styled — scoped Astro styles never reach dynamically inserted nodes. Every
+     selector is prefixed with #sw-svg, so nothing leaks to the rest of the page. -->
+<style is:global>
+  #sw-svg { display: block; width: 100%; height: auto; max-width: 640px; margin: 0 auto; }
+
+  #sw-svg .amp-body { fill: #1c1611; stroke: var(--line); stroke-width: 2; }
+  #sw-svg .amp-slot { stroke: var(--line-soft); stroke-width: 2; stroke-linecap: round; }
+  #sw-svg .amp-mark { font-family: var(--disp); font-size: 17px; letter-spacing: .14em; fill: var(--muted); }
+  #sw-svg .amp-sub { font-family: var(--disp); font-size: 10px; letter-spacing: .2em; fill: var(--faint); }
+  #sw-svg .amp-tap { font-family: var(--mono); font-size: 12px; fill: var(--amber); }
+
+  #sw-svg .rail { fill: none; stroke: var(--amber-dim); stroke-width: 3.5; stroke-linecap: round; }
+  #sw-svg .wire { fill: none; stroke: var(--amber-dim); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+  #sw-svg .node { fill: var(--amber-dim); }
+  #sw-svg .lug { stroke: #171310; stroke-width: 1.5; }
+  #sw-svg .lug-p { fill: var(--amber); }
+  #sw-svg .lug-n { fill: #7fa6ad; }
+  #sw-svg .lug-lbl { font-family: var(--disp); font-size: 15px; fill: var(--amber); }
+  #sw-svg .lug-lbl.neg { fill: #7fa6ad; }
+
+  #sw-svg .spk { cursor: pointer; }
+  #sw-svg .spk:focus-visible { outline: none; }
+  #sw-svg .spk-flange { fill: #241d15; stroke: var(--line); stroke-width: 1.5; }
+  #sw-svg .spk-bolt { fill: var(--faint); }
+  #sw-svg .spk-frame { fill: #14100b; stroke: var(--faint); stroke-width: 2; }
+  #sw-svg .spk-cone { fill: #2c241c; stroke: var(--line); stroke-width: 1; }
+  #sw-svg .spk-cap { fill: #3a3025; stroke: var(--faint); stroke-width: 1; }
+  #sw-svg .term { stroke: #171310; stroke-width: 1.25; }
+  #sw-svg .term-p { fill: var(--amber); }
+  #sw-svg .term-n { fill: #7fa6ad; }
+  #sw-svg .term-lbl { font-family: var(--disp); font-size: 13px; fill: var(--amber); pointer-events: none; user-select: none; }
+  #sw-svg .term-lbl.neg { fill: #7fa6ad; }
+
+  #sw-svg .spk:hover .spk-frame, #sw-svg .spk:focus-visible .spk-frame { stroke: var(--amber); stroke-width: 3; }
+  #sw-svg .spk:hover .spk-cap, #sw-svg .spk:focus-visible .spk-cap { fill: var(--amber-dim); }
+  #sw-svg .spk:focus-visible .spk-flange { stroke: var(--amber); }
+</style>
+
+<style>
+  .ghead { padding: 44px 0 8px; }
+  .back { font-family: var(--disp); text-transform: uppercase; letter-spacing: .14em; font-size: 11.5px; color: var(--muted); }
+  .eyebrow { font-family: var(--disp); text-transform: uppercase; letter-spacing: .26em; font-size: 12px; color: var(--amber); margin-top: 14px; }
+  h1 { font-size: clamp(28px, 4.5vw, 42px); line-height: 1.12; margin: 8px 0 12px; }
+  .lede { max-width: 62ch; color: var(--muted); font-size: 16.5px; margin: 0; }
+  section { margin-top: 44px; }
+  h2 { font-size: 18px; letter-spacing: .14em; margin: 24px 0 4px; }
+  .sub { color: var(--muted); font-size: 14px; margin: 0 0 18px; max-width: 74ch; }
+
+  /* ---- tool shell ---- */
+  .tool { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 20px 22px 22px; }
+  .controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px 20px; align-items: start; }
+  .ctl { display: flex; flex-direction: column; gap: 8px; }
+  .ctl-wide { grid-column: 1 / -1; }
+  .ctl-label { font-family: var(--disp); text-transform: uppercase; letter-spacing: .14em; font-size: 10.5px; color: var(--faint); }
+
+  .seg { display: inline-flex; border: 1px solid var(--line); border-radius: 99px; overflow: hidden; flex-wrap: wrap; width: fit-content; }
+  .seg label { position: relative; }
+  .seg label[hidden] { display: none; }
+  .seg input { position: absolute; opacity: 0; width: 100%; height: 100%; margin: 0; cursor: pointer; }
+  .seg span { display: block; padding: 7px 16px; font-family: var(--disp); text-transform: uppercase; letter-spacing: .1em; font-size: 12px; color: var(--muted); cursor: pointer; white-space: nowrap; }
+  .seg label:has(:checked) span { background: var(--amber); color: #171310; }
+  .seg label:has(:focus-visible) span { outline: 2px solid var(--amber); outline-offset: 2px; }
+
+  .presets { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 18px; }
+  .preset { background: var(--well); border: 1px solid var(--line); border-radius: 99px; color: var(--ink); font-family: var(--disp); text-transform: uppercase; letter-spacing: .1em; font-size: 11.5px; padding: 8px 15px; cursor: pointer; }
+  .preset:hover { border-color: var(--amber-dim); color: var(--amber); }
+  .preset:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
+
+  /* ---- diagram (SVG interior styled in the global block below, because the
+     speaker network is injected via innerHTML and would miss scoped styles) ---- */
+  .stage { background: var(--well); border: 1px solid var(--line-soft); border-radius: 8px; padding: 10px 12px; margin-top: 18px; }
+
+  /* ---- readout ---- */
+  .readout { display: flex; align-items: center; gap: 22px 30px; flex-wrap: wrap; margin: 20px 2px 0; }
+  .rd-main { display: flex; flex-direction: column; }
+  .rd-z { font-family: var(--disp); font-size: clamp(34px, 7vw, 52px); letter-spacing: .02em; color: var(--amber); line-height: 1; }
+  .rd-cap { font-family: var(--disp); text-transform: uppercase; letter-spacing: .12em; font-size: 10.5px; color: var(--faint); margin-top: 6px; }
+  .rd-side { display: flex; flex-direction: column; gap: 4px; margin-left: auto; text-align: right; }
+  .rd-config { font-family: var(--disp); text-transform: uppercase; letter-spacing: .08em; font-size: 13px; color: var(--ink); }
+  .rd-share { font-family: var(--mono); font-size: 12.5px; color: var(--muted); }
+  .live { min-height: 1.3em; margin: 10px 2px 0; font-family: var(--mono); font-size: 13px; color: var(--ink); }
+
+  .tap-note { margin-top: 16px; background: var(--well); border: 1px solid var(--line-soft); border-radius: 8px; padding: 14px 16px; color: var(--muted); font-size: 13.5px; line-height: 1.6; max-width: 82ch; }
+  .tap-note strong { color: var(--ink); }
+  .tap-note b { color: var(--amber); font-family: var(--mono); }
+
+  /* ---- rules ---- */
+  .rules { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 14px; margin-bottom: 22px; }
+  .rule { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; }
+  .rule-h { font-family: var(--disp); text-transform: uppercase; letter-spacing: .1em; font-size: 12.5px; color: var(--amber); margin-bottom: 10px; }
+  .rule p { color: var(--muted); font-size: 13.5px; line-height: 1.6; margin: 0; }
+  .rule .eq { font-family: var(--mono); background: var(--well); border: 1px solid var(--line-soft); border-radius: 6px; padding: 9px 11px; color: var(--ink); font-size: 13.5px; margin-bottom: 10px; }
+
+  .wname { font-family: var(--body); white-space: nowrap; }
+  .ct { color: var(--faint); }
+  .z8 { color: var(--amber); }
+
+  /* ---- prose ---- */
+  .prose p { color: var(--muted); font-size: 15px; line-height: 1.7; max-width: 76ch; margin: 0 0 14px; }
+  .prose em { color: var(--ink); font-style: italic; }
+  .prose a { color: var(--amber); }
+  .warn { margin: 6px 0 16px; background: var(--panel); border: 1px solid var(--line); border-left: 3px solid var(--oxblood); border-radius: 6px; padding: 14px 16px; color: var(--muted); font-size: 14px; line-height: 1.6; max-width: 82ch; }
+  .warn strong { color: var(--ink); }
+  .cite { color: var(--faint) !important; font-size: 12.5px !important; line-height: 1.6; max-width: 82ch; border-top: 1px dashed var(--line); padding-top: 14px; }
+  .cite a { color: var(--muted); }
+</style>
