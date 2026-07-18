@@ -1,0 +1,26 @@
+# Printed voltage chart read directly from the published 5F4 (C-EG) drawing
+# (2026-07-18). Fender's printed convention: values ±20%, electronic voltmeter.
+# Rails get 8% tolerance; tube pins 20%.
+#
+# STATUS: draft. The rails, the 12AY7 front end, and the 6L6 fixed-bias supply
+# all reproduce within tolerance. The 12AX7 stages (V2A gain, cathode follower,
+# and the phase inverter) sit near +140-270 V on their plates — far from the
+# 12AX7 model's Va=250 V datasheet anchor — where the v0 anchor-fit model
+# mispredicts current, so those nodes deviate. This is a documented model
+# limitation, not a circuit-value error (see notes.md, "Verification").
+source: "Fender 5F4 (C-EG) drawing, printed voltages: rails +415/+410/+332/+280, bias -40; 12AY7 plates +140, cathode +2.2; V2A plate +140, cathode +2.2, cathode-follower +140; PI plates +270/+213, cathodes +55, tail junction +53.3"
+nodes:
+  BP2:  { chart: 410, tol_pct: 8, note: "screens node after the choke (DCR estimated at 130 Ω)" }
+  BP3:  { chart: 332, tol_pct: 8, note: "PI supply node after the first 10 kΩ dropper" }
+  BP4:  { chart: 280, tol_pct: 8, note: "preamp node after the second 10 kΩ dropper" }
+  PAY1: { chart: 140, tol_pct: 20, note: "12AY7 plate (channel 1)" }
+  PAY2: { chart: 140, tol_pct: 20, note: "12AY7 plate (channel 2)" }
+  KAY:  { chart: 2.2, tol_pct: 20, note: "shared 12AY7 cathode, 820 Ω" }
+  P2A:  { chart: 140, tol_pct: 20, note: "12AX7 V2A plate; runs at +140 V, well below the model's 250 V anchor — deviates (draft)" }
+  K2A:  { chart: 2.2, tol_pct: 20, note: "V2A cathode, 1.5 kΩ; low-Va model current is under-read — deviates (draft)" }
+  KCF:  { chart: 140, tol_pct: 20, note: "cathode-follower output = V2A plate (direct-coupled); follows P2A — deviates (draft)" }
+  PPIA: { chart: 270, tol_pct: 20, note: "PI plate, 56 kΩ side" }
+  PPIB: { chart: 213, tol_pct: 20, note: "PI plate, 100 kΩ side; low-Va model current under-read — deviates (draft)" }
+  KPI:  { chart: 55, tol_pct: 20, note: "PI cathodes above the 1.5 kΩ tail resistor — deviates (draft)" }
+  JPI:  { chart: 53.3, tol_pct: 20, note: "PI tail junction (grid-leak return, above the 56 kΩ) — deviates (draft)" }
+  G51:  { chart: -40, tol_pct: 8, note: "6L6G fixed bias via 220k from the -40 V supply" }

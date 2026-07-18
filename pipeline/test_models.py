@@ -157,6 +157,10 @@ def main() -> int:
     r = run_bench(RECT_BENCH.format(name="5Y3GT", inc=MODELS / "5y3gt.inc", va=60))
     failures += check("5Y3GT", "Ia", r["ia0"], 125e-3, TOL_I)
 
+    print("5U4G @ Va=50 (per plate):")
+    r = run_bench(RECT_BENCH.format(name="5U4G", inc=MODELS / "5u4g.inc", va=50))
+    failures += check("5U4G", "Ia", r["ia0"], 200e-3, TOL_I)
+
     if failures:
         print(f"\n{len(failures)} anchor check(s) FAILED: {', '.join(failures)}")
         return 1

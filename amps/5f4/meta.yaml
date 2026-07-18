@@ -1,0 +1,23 @@
+# Circuit Codex metadata — schema: docs/schema.md (v1)
+id: "5f4"
+name_style: "Tweed Super-style"
+family: tweed
+era:
+  start: 1957
+  end: 1960
+wattage: 26
+tubes: [12AY7, 12AX7, 12AX7, 6L6G, 6L6G, 5U4G]
+topology:
+  rectifier: { kind: tube, type: "5U4G" }
+  bias: fixed
+  phase_inverter: long-tailed-pair
+  tone_stack: cathode-follower-fmv
+lineage:
+  derived_from: []   # the tweed 5E-series Super is the direct ancestor — edge added when that circuit lands
+  influenced: []     # sibling to the 5F6-A Bassman (shared CF + LTP preamp architecture); see notes
+sources:
+  - desc: "Fender 'Super-Amp' Model 5F4 drawing (C-EG): every component value AND the printed voltage chart read directly from the published schematic 2026-07-18 — 12AY7 two-channel front end (68k stoppers, 1M leaks, shared 820Ω/25µF cathode, 100k plates), a 12AX7 gain stage plus a DC-coupled cathode follower feeding the treble/bass tone stack, a 12AX7 long-tailed-pair PI (56k/100k plates, 1.5k+56k tail, 1M grid leaks to the tail junction), a 6L6G pair fixed-biased at -40 V through 220k leaks, and a 5U4G rectifier; rails +415/+410/+332/+280, PT 8087, OT 45216, choke 14684. Not reproduced here; archived at EL34World"
+    url: "https://el34world.com/charts/Schematics/files/Fender/Fender_super_5f4.pdf"
+verification:
+  status: draft
+contributors: [TheAnalogMaker]

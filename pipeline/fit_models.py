@@ -242,6 +242,21 @@ Cak A K 4p
 """
     (MODELS_DIR / "gz34.inc").write_text(txt)
 
+    # ---- 5U4G: tube drop ~50 V at 200 mA per plate (RC-19 average characteristic)
+    perv_5u4 = fit_rectifier_perveance(v_drop=50.0, i_at_drop=200e-3)
+    txt = common_header("5U4G full-wave rectifier (ONE plate unit — instantiate twice)",
+                        "tube voltage drop ~50 V at Ia=200 mA per plate",
+                        ["Child's-law diode: I = PERV * V^1.5; PERV fitted to the drop anchor.",
+                         "Directly-heated high-current twin-plate rectifier (5U4G/5U4GB class).",
+                         "Node order: A K (anode, cathode/filament)"]) + f"""
+.subckt 5U4G A K
+* fitted: PERV={perv_5u4:.6g} EX=1.5
+Bd A K I=pow(uramp(V(A,K)),1.5)*{perv_5u4:.6g}
+Cak A K 4p
+.ends 5U4G
+"""
+    (MODELS_DIR / "5u4g.inc").write_text(txt)
+
     print("fitted parameters:")
     print(f"  12AX7: MU={ax7.mu:g} KP={ax7.kp:.6g} KG1={ax7.kg1:.6g} EX={ax7.ex:g} KVB={ax7.kvb:g}")
     print(f"  12AY7: MU={ay7.mu:g} KP={ay7.kp:.6g} KG1={ay7.kg1:.6g} EX={ay7.ex:g} KVB={ay7.kvb:g}")
@@ -250,7 +265,8 @@ Cak A K 4p
     print(f"  5Y3GT: PERV={perv:.6g}")
     print(f"  5881:  MU={p5881.mu:g} KP={p5881.kp:.6g} KG1={p5881.kg1:.6g} KG2={p5881.kg2:.6g}")
     print(f"  GZ34:  PERV={perv_gz:.6g}")
-    print(f"wrote 7 models to {MODELS_DIR}")
+    print(f"  5U4G:  PERV={perv_5u4:.6g}")
+    print(f"wrote 8 models to {MODELS_DIR}")
 
 
 if __name__ == "__main__":

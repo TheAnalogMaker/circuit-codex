@@ -1,0 +1,63 @@
+* 5F4 (Tweed Super-style) — DC operating-point netlist
+* Circuit Codex — CC-BY-SA 4.0. Independently drawn from the published 5F4
+* (C-EG) drawing's component values (see meta.yaml); no drawing reproduced.
+*
+* DC conventions: B+1 driven at the printed +415 V; downstream nodes DERIVED.
+* Choke (14684) modeled as a 130R DCR estimate (drawing prints 415 -> 410 across
+* it). OT primary DCR omitted. Bias supply replaced by an ideal -40 V source
+* (its 6.8k/56k/selenium network is AC/ripple filtering). Coupling and tone
+* caps omitted (DC open); the treble/bass tone stack is capacitor-coupled at DC.
+* Output tubes are drawn "6L6G"; the 6L6-family 5881 model stands in (see notes).
+.include models/12ay7.inc
+.include models/12ax7.inc
+.include models/5881.inc
+
+VBP1 BP1 0 DC 415
+VBIAS NBIAS 0 DC -40
+
+* rail: choke -> screens node, 10k -> PI node, 10k -> preamp node
+RCHOKE BP1 BP2 130
+RD1 BP2 BP3 10k
+RD2 BP3 BP4 10k
+
+* V1 12AY7 — two channels, shared 820R cathode (25uF bypass omitted for DC)
+RL1 BP4 PAY1 100k
+XV1A PAY1 GAY1 KAY 12AY7
+RG1 GAY1 0 1meg
+RL2 BP4 PAY2 100k
+XV1B PAY2 GAY2 KAY 12AY7
+RG2 GAY2 0 1meg
+RK1 KAY 0 820
+
+* V2A 12AX7 gain stage. Grid returns to ~ground: the 4.7M loops back to the
+* tone-stack output (≈0 V DC) and the 270k mixers reach ground through the
+* volume pots; modeled here as a single 4.7M leak to ground.
+RL3 BP4 P2A 100k
+XV2A P2A G2A K2A 12AX7
+RG3 G2A 0 4.7meg
+RK2 K2A 0 1.5k
+
+* V2B cathode follower — grid DC-coupled to V2A plate, 100k cathode load,
+* plate straight to the preamp rail.
+XV2B BP4 P2A KCF 12AX7
+RKCF KCF 0 100k
+
+* Long-tailed-pair phase inverter: 56k (V3A) and 100k (V3B) plate loads,
+* 1.5k tail + 56k to ground, both 1M grid leaks returned to the tail junction
+* (the drawing's elevated +55 V cathodes / +53.3 V junction). Input coupled
+* from the tone stack (cap open at DC); NFB 56k + 5k presence sit at ~0 V DC.
+RLA BP3 PPIA 56k
+XPIA PPIA GPIA KPI 12AX7
+RGA GPIA JPI 1meg
+RLB BP3 PPIB 100k
+XPIB PPIB GPIB KPI 12AX7
+RGB GPIB JPI 1meg
+RTAIL KPI JPI 1.5k
+RT2 JPI 0 56k
+
+* 6L6G pair — fixed bias via 220k leaks from the -40 V supply; screens tied
+* straight to the +410 V node (no screen resistors on the C-EG drawing).
+RGL1 NBIAS G51 220k
+XV4 BP1 BP2 G51 0 5881
+RGL2 NBIAS G52 220k
+XV5 BP1 BP2 G52 0 5881
