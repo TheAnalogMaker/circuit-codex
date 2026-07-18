@@ -14,7 +14,10 @@ jobs:
         with:
           python-version: "3.12"
       - run: pip install pyyaml
+      - run: sudo apt-get update -qq && sudo apt-get install -y -qq ngspice
       - run: python pipeline/validate.py
+      - run: python pipeline/fit_models.py && git diff --exit-code models/
+      - run: python pipeline/test_models.py
       # Phase-0 roadmap for this workflow:
       # - kiutils round-trip of amps/*/schematic.kicad_sch
       # - ngspice run of amps/*/netlist.cir vs voltages.yaml (verified gate)
