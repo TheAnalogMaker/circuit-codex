@@ -1,0 +1,206 @@
+---
+import Base from '../../../layouts/Base.astro';
+
+// Common dB ratios shown in the reference table below. Voltage-ratio form
+// (20·log10) since every dB figure elsewhere in this corpus — the gain-ladder
+// Δ dB column, the coupling-cap corner — compares AC voltages, not power.
+const DB = [
+  { db: '+40 dB', ratio: '100×',    note: 'two 20 dB stages stacked' },
+  { db: '+20 dB', ratio: '10×',     note: 'one decade' },
+  { db: '+6 dB',  ratio: '≈ 2.0×',  note: 'a doubling' },
+  { db: '0 dB',   ratio: '1.0×',    note: 'no change — the reference' },
+  { db: '−3 dB',  ratio: '≈ 0.71×', note: 'the corner of a filter — half the power' },
+  { db: '−6 dB',  ratio: '0.5×',    note: 'a halving' },
+  { db: '−12 dB', ratio: '0.25×',   note: 'a quartering' },
+];
+---
+<Base title="Units & notation — Circuit Codex"
+      description="How this archive writes things: the Ω/kΩ/MΩ and µF/nF/pF ladders, a plain-language dB refresher, the ±20% tolerance story behind Fender's own voltage charts, and the dash shorthand — .05-600, 250-5 — printed directly on the original factory drawings.">
+<div class="wrap">
+  <header class="ghead">
+    <a class="back" href="/reference/">← Reference</a>
+    <div class="eyebrow">Practical guide</div>
+    <h1>Units &amp; notation</h1>
+    <p class="lede">A short key to how this archive writes a value, for anyone new to
+      reading tube-amp schematics. Prefixes, decibels, what "±20%" means (it means two
+      different things), and the compressed shorthand printed directly on the original
+      factory drawings.</p>
+  </header>
+
+  <section aria-labelledby="resistance">
+    <h2 id="resistance">Resistance — Ω, kΩ, MΩ</h2>
+    <p class="sub">Ohms scale in steps of a thousand, same as every metric prefix. Most
+      values in this archive sit in the kΩ range; only grid-leak and grid-return
+      resistors commonly reach into MΩ.</p>
+    <div class="ladder">1 MΩ <span>=</span> 1,000 kΩ <span>=</span> 1,000,000 Ω</div>
+    <p class="sub" style="margin-top:16px">Shorthand drops the decimal point in favor of
+      the unit letter itself — <b class="k">4k7</b> for 4.7 kΩ, <b class="k">1M</b> for
+      1 MΩ — so a smudged or faded decimal point can't turn 4.7 kΩ into 47 kΩ. The
+      <a href="/reference/guides/resistor-color-code/">resistor color code calculator</a>
+      reads and writes exactly this shorthand.</p>
+  </section>
+
+  <section aria-labelledby="capacitance">
+    <h2 id="capacitance" style="text-transform:none">Capacitance — µF, nF, pF</h2>
+    <p class="sub">Capacitance in a tube amp spans a much wider range than resistance —
+      from a handful of picofarads in a treble-peaking mica to tens of microfarads in a
+      filter cap, six decades in one chassis.</p>
+    <div class="ladder">1 µF <span>=</span> 1,000 nF <span>=</span> 1,000,000 pF</div>
+    <p class="sub" style="margin-top:16px">American tube-era documentation almost never
+      uses nF at all — mica and ceramic parts are given directly in pF, everything
+      larger jumps straight to µF, written out longhand as <b class="k">MFD.</b> (the µ
+      symbol was awkward on a typewriter and harder still on a drafting pen). This
+      archive uses <b class="k">µF</b> throughout instead; both mean the same
+      microfarad. The
+      <a href="/reference/guides/capacitor-codes/">capacitor code chart &amp; decoder</a>
+      converts between all three units and the three-digit codes printed on modern
+      parts.</p>
+  </section>
+
+  <section aria-labelledby="db">
+    <h2 id="db">Decibels (dB)</h2>
+    <p class="sub">A decibel is never an absolute quantity — it's a ratio, expressed on a
+      logarithmic scale so that multiplying signals turns into adding decibels. Two
+      forms turn up here, and they differ by a factor of two because power goes as
+      voltage squared:</p>
+    <p class="eq">Voltage ratio: <b>dB = 20 · log₁₀(V₁ / V₂)</b><br />
+      Power ratio: <b>dB = 10 · log₁₀(P₁ / P₂)</b></p>
+    <p class="sub">Every dB figure elsewhere in this archive is the voltage form — the
+      <a href="/reference/guides/tube-substitution/">tube substitution guide</a>'s Δ dB
+      column compares AC voltage gains, and the coupling-cap corner in the
+      <a href="/reference/guides/calculators/">amp builder calculators</a> is conventionally
+      called the "−3 dB point," the frequency where output has fallen to about 71% of
+      input — half the power, not half the voltage.</p>
+    <div class="tbl"><table>
+      <thead><tr><th>dB</th><th>Voltage ratio</th><th>Reading it</th></tr></thead>
+      <tbody>
+        {DB.map((d) => (
+          <tr>
+            <td style="color:var(--amber)">{d.db}</td>
+            <td>{d.ratio}</td>
+            <td style="font-family:var(--body);color:var(--faint)">{d.note}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table></div>
+    <p class="sub" style="margin-top:12px">Concretely: the gain ladder's <strong>5751</strong>
+      sits at −2.9 dB against a 12AX7 — about three-quarters of the voltage, reading the
+      table above between 0 and −6 dB. Its <strong>12AU7</strong> sits at −11.8 dB, about
+      a quarter — between −6 and −12 dB. Same table, real numbers.</p>
+  </section>
+
+  <section aria-labelledby="tolerance">
+    <h2 id="tolerance">Tolerance, and why "±20%" means two different things</h2>
+    <p class="sub"><a href="/reference/glossary/#tolerance">Tolerance</a> is simply the
+      allowed spread around a stated value. This archive uses the number 20% in two
+      unrelated places, and it is worth keeping them apart.</p>
+    <p>The first is a <strong>component's own</strong> tolerance: the resistor
+      color-code calculator's uncoloured fourth band, or a capacitor's <b class="k">M</b>
+      letter, both mean the part itself was sold at ±20% of its stamped value — see the
+      <a href="/reference/guides/resistor-color-code/">resistor color code calculator</a>
+      and the <a href="/reference/guides/capacitor-codes/">capacitor code chart</a> for
+      the full tolerance tables.</p>
+    <p>The second is <strong>Fender's own reading tolerance</strong>, printed directly on
+      the factory layout drawings this archive cites — the "NOTICE" box on both the
+      <a href="https://el34world.com/charts/Schematics/files/Fender/Fender_deluxe_5e3.pdf" rel="external nofollow">"Deluxe" 5E3</a>
+      and the <a href="https://el34world.com/charts/Schematics/files/Fender/Fender_bassman_5f6a.pdf" rel="external nofollow">"Bassman" 5F6-A</a>
+      layouts reads: <em>"Voltages read to ground with electronic voltmeter, values
+      shown ± or − 20%."</em> That is a statement about how loosely a bench voltmeter
+      reading was expected to match the chart — the same figure this project's own
+      simulation-versus-chart verification is judged against (see any
+      <a href="/amps/5f6a/">verified circuit's</a> "Operating point vs. published chart"
+      section, where the deviation is checked against exactly that convention).</p>
+    <p>The two are unrelated, and on the 5F6-A drawing they are even different numbers:
+      its own footnote reads <em>"Note — all resistors are one-half watt, 10% tolerance,
+      unless otherwise noted"</em> — a tighter component tolerance than the 20% voltage
+      reading printed a few inches above it, on the same sheet.</p>
+  </section>
+
+  <section aria-labelledby="era-shorthand">
+    <h2 id="era-shorthand">Reading the shorthand on the original drawings</h2>
+    <p class="sub">This archive's own redrawn schematics spell every value out in full —
+      <b class="k">0.1 µF · 400 V</b>, <b class="k">250 Ω · 5 W</b> — but the factory
+      drawings behind them compress a part's value and its second rating onto one short
+      line, right beside the symbol, with no separate parts-list column at all.</p>
+
+    <figure class="es-fig">
+      <div class="es-card">
+        <svg viewBox="0 0 140 90" role="img" aria-label="Capacitor symbol labelled .05 dash 600, as printed on the factory drawing">
+          <line x1="20" y1="45" x2="58" y2="45" class="es-lead" />
+          <line x1="82" y1="45" x2="120" y2="45" class="es-lead" />
+          <line x1="58" y1="20" x2="58" y2="70" class="es-plate" />
+          <line x1="82" y1="20" x2="82" y2="70" class="es-plate" />
+          <text x="70" y="14" text-anchor="middle" class="es-tag">.05-600</text>
+        </svg>
+        <figcaption>Capacitor: <b>value–voltage</b> — 0.05 µF, 600 V. Printed on the
+          <a href="https://el34world.com/charts/Schematics/files/Fender/Fender_bassman_5f6a.pdf" rel="external nofollow">5F6-A "Bassman" layout</a>,
+          across the ground and AC-switch contacts.</figcaption>
+      </div>
+      <div class="es-card">
+        <svg viewBox="0 0 140 90" role="img" aria-label="Resistor symbol labelled 250 dash 5, as printed on the factory drawing">
+          <line x1="20" y1="45" x2="45" y2="45" class="es-lead" />
+          <line x1="95" y1="45" x2="120" y2="45" class="es-lead" />
+          <rect x="45" y="30" width="50" height="30" rx="4" class="es-body" />
+          <text x="70" y="14" text-anchor="middle" class="es-tag">250-5</text>
+        </svg>
+        <figcaption>Resistor: <b>ohms–watts</b> — 250 Ω, 5 W. Printed on the
+          <a href="https://el34world.com/charts/Schematics/files/Fender/Fender_deluxe_5e3.pdf" rel="external nofollow">5E3 "Deluxe" layout</a>
+          for the shared 6V6 cathode resistor — the same part reads
+          <a href="/amps/5e3/">"250 Ω · 5 W," ref RK66</a> in this archive's parts list.</figcaption>
+      </div>
+    </figure>
+
+    <p>The pattern is a dash standing in for a slash: value, then whichever second rating
+      actually matters for that part — working voltage for a capacitor, power
+      dissipation for a resistor big enough to need one stated. Ordinary ½ W carbon
+      resistors get no such suffix at all on these drawings, just a bare number with a
+      <b class="k">K</b> or <b class="k">MEG.</b> — the wattage is implied by the sheet's
+      own footnote (see the tolerance note above), not written per part. That K/MEG.
+      suffix is the same <a href="#resistance">Ω ladder</a> covered above, just
+      hand-lettered eighty years before this archive's calculators were.</p>
+  </section>
+
+  <p class="foot-note">Quoted drawing text and the two dash-shorthand examples are
+    transcribed directly from the cited Fender layout drawings, archived at
+    <a href="https://el34world.com" rel="external nofollow">el34world.com</a> — the
+    diagrams above are redrawn schematic symbols in this archive's own house style,
+    never traced from the source documents.</p>
+</div>
+</Base>
+
+<style>
+  .ghead { padding: 44px 0 8px; }
+  .back { font-family: var(--disp); text-transform: uppercase; letter-spacing: .14em; font-size: 11.5px; color: var(--muted); }
+  .eyebrow { font-family: var(--disp); text-transform: uppercase; letter-spacing: .26em; font-size: 12px; color: var(--amber); margin-top: 14px; }
+  h1 { font-size: clamp(28px, 4.5vw, 42px); line-height: 1.12; margin: 8px 0 12px; }
+  .lede { max-width: 64ch; color: var(--muted); font-size: 16.5px; margin: 0; }
+  section { margin-top: 40px; }
+  h2 { font-size: 18px; letter-spacing: .14em; margin: 24px 0 4px; }
+  .sub { color: var(--muted); font-size: 14px; margin: 0 0 16px; max-width: 76ch; line-height: 1.6; }
+  .sub .k, .k { font-family: var(--mono); color: var(--ink); font-weight: 400; }
+
+  section > p:not(.sub):not(.eq) { color: var(--muted); font-size: 15px; line-height: 1.7; max-width: 76ch; margin: 14px 0 0; }
+  section > p:not(.sub):not(.eq) strong { color: var(--ink); }
+  section > p:not(.sub):not(.eq) em { font-style: italic; color: var(--ink); }
+  section > p a { color: var(--amber); }
+
+  .ladder { font-family: var(--disp); text-transform: none; letter-spacing: .08em; font-size: clamp(15px, 3vw, 20px); color: var(--ink); background: var(--well); border: 1px solid var(--line-soft); border-radius: 8px; padding: 14px 18px; display: inline-block; }
+  .ladder span { color: var(--amber); margin: 0 8px; }
+
+  .eq { font-family: var(--mono); background: var(--well); border: 1px solid var(--line-soft); border-radius: 8px; padding: 14px 16px; color: var(--ink) !important; font-size: 14.5px; line-height: 1.8; max-width: 76ch; }
+  .eq b { color: var(--amber); }
+
+  .es-fig { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; margin-top: 4px; }
+  .es-card { background: var(--well); border: 1px solid var(--line-soft); border-radius: 8px; padding: 14px 16px 16px; }
+  .es-card svg { display: block; width: 100%; height: auto; max-height: 100px; }
+  .es-lead { stroke: var(--faint); stroke-width: 2.5; stroke-linecap: round; }
+  .es-plate { stroke: var(--amber); stroke-width: 3; stroke-linecap: round; }
+  .es-body { fill: var(--panel); stroke: var(--amber); stroke-width: 2; }
+  .es-tag { font-family: var(--mono); font-size: 15px; fill: var(--ink); }
+  .es-card figcaption { color: var(--muted); font-size: 13px; line-height: 1.55; margin-top: 8px; }
+  .es-card figcaption b { color: var(--ink); font-weight: 400; font-family: var(--mono); }
+  .es-card figcaption a { color: var(--amber); }
+
+  .foot-note { margin-top: 40px; padding-top: 16px; border-top: 1px dashed var(--line); color: var(--faint); font-size: 12.5px; max-width: 82ch; line-height: 1.6; }
+  .foot-note a { color: var(--muted); }
+</style>

@@ -1,0 +1,162 @@
+---
+import Base from '../../../layouts/Base.astro';
+
+// American Wire Gauge — diameter and a conservative "chassis wiring" ampacity
+// (single conductor, free air, not bundled). Figures follow the AWG standard
+// formula and its published load chart; see the citation at the foot of the
+// page. `use` is this archive's own read on where each gauge turns up in a
+// point-to-point tube-amp chassis, not a spec off any one build sheet.
+const AWG = [
+  { g: 14, mm: '1.63', inch: '0.064', amps: 32, use: 'Mains lead, chassis safety earth' },
+  { g: 16, mm: '1.29', inch: '0.051', amps: 22, use: 'Power-transformer primary, HT bus to first filter cap' },
+  { g: 18, mm: '1.02', inch: '0.040', amps: 16, use: 'Heater wiring (18–20 AWG), B+ distribution' },
+  { g: 20, mm: '0.81', inch: '0.032', amps: 11, use: 'Heater wiring (18–20 AWG), speaker leads' },
+  { g: 22, mm: '0.65', inch: '0.025', amps: 7,  use: 'Signal wiring (22–24 AWG), pots & switches' },
+  { g: 24, mm: '0.51', inch: '0.020', amps: 3.5, use: 'Signal wiring (22–24 AWG), tight tag-strip runs' },
+];
+---
+<Base title="Wire gauge reference — AWG diameter & ampacity · Circuit Codex"
+      description="American Wire Gauge sizes used inside a tube-amp chassis — diameter, a conservative chassis-wiring ampacity, and where each gauge actually turns up: 18–20 AWG heaters, 22–24 AWG signal wiring, heavier gauges for the mains lead and HT bus. Plus the cloth-covered push-back wire of the tube era.">
+<div class="wrap">
+  <header class="ghead">
+    <a class="back" href="/reference/">← Reference</a>
+    <div class="eyebrow">Practical guide</div>
+    <h1>Wire gauge reference</h1>
+    <p class="lede">The gauge printed on a spool of hookup wire, translated into what it
+      can carry and where it actually belongs inside a chassis — from the heavy mains
+      lead down to a grid lead barely thicker than a hair.</p>
+  </header>
+
+  <section aria-labelledby="awg-h">
+    <h2 id="awg-h">American Wire Gauge, by size</h2>
+    <p class="sub">AWG numbers run backwards from diameter — the smaller the number, the
+      thicker the wire — on a scale where every 3-gauge step roughly doubles the
+      cross-sectional area (and every 6-gauge step doubles the diameter). It is a
+      geometric ladder, the same shape as the dB scale on the
+      <a href="/reference/guides/units-conventions/#db">units &amp; notation guide</a>.</p>
+    <div class="tbl"><table>
+      <thead><tr><th>AWG</th><th>Diameter</th><th>Chassis-wiring ampacity</th><th>Typical use in an amp</th></tr></thead>
+      <tbody>
+        {AWG.map((r) => (
+          <tr>
+            <td style="color:var(--amber)">{r.g} AWG</td>
+            <td>{r.mm} mm / {r.inch} in</td>
+            <td>{r.amps} A</td>
+            <td style="font-family:var(--body);color:var(--faint)">{r.use}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table></div>
+    <p class="sub" style="margin-top:16px">Two ranges cover most of the wire in a
+      point-to-point chassis. Heater wiring runs <b class="k">18–20 AWG</b> — a 6.3 V
+      winding is low-voltage but not low-current, and a twisted, dressed pair keeps its
+      hum off nearby grids. Everything else — grid returns, pot and switch wiring,
+      tone-stack legs — is signal wiring at <b class="k">22–24 AWG</b>, thin enough to
+      route through a crowded eyelet board without stiffening the layout. The gauges
+      below that pair are reserved for the mains lead and the high-voltage bus, where
+      fault current is the concern, not signal.</p>
+    <p class="note">"Chassis wiring" ampacity assumes one insulated conductor in free
+      air, not bundled with others — a conservative bench rule of thumb, not a building
+      code. Point-to-point amp wiring almost never approaches these ceilings; what
+      actually decides a gauge is the insulation's voltage rating, whether it fits the
+      lug or eyelet it is soldered to, and whether it survives years of heat next to a
+      power tube — not raw current capacity. See the
+      <a href="/reference/guides/calculators/">Ohm's law calculator</a> for the I·V·R·P
+      sums behind any of these figures, and the
+      <a href="/reference/guides/transformers/">transformer reference</a> for how the
+      power transformer's own colour-coded leads carry the heavier currents on this
+      table.</p>
+  </section>
+
+  <section aria-labelledby="pushback-h" class="era-section">
+    <h2 id="pushback-h">Cloth-covered push-back wire</h2>
+    <p class="sub">Before PVC and silicone hookup wire took over, tube-era chassis were
+      wired in a braided cotton or rayon sleeve over tinned stranded copper, most
+      commonly in the 20–22 AWG range — right in the heater and signal gauges above.</p>
+
+    <figure class="pb-fig">
+      <svg viewBox="0 0 380 130" role="img"
+        aria-label="A length of wire: cloth braid insulation on the left, gathered where it has been pushed back, exposing tinned stranded copper ending in a soldered tip on the right">
+        <defs>
+          <pattern id="braid" width="10" height="10" patternUnits="userSpaceOnUse" patternTransform="rotate(35)">
+            <line x1="0" y1="0" x2="0" y2="10" class="braid-ln" />
+          </pattern>
+          <pattern id="braid2" width="10" height="10" patternUnits="userSpaceOnUse" patternTransform="rotate(-35)">
+            <line x1="0" y1="0" x2="0" y2="10" class="braid-ln" />
+          </pattern>
+        </defs>
+        <line x1="0" y1="65" x2="20" y2="65" class="pb-stub" />
+        <rect x="20" y="48" width="170" height="34" rx="16" class="pb-body" />
+        <rect x="20" y="48" width="170" height="34" rx="16" fill="url(#braid)" />
+        <rect x="20" y="48" width="170" height="34" rx="16" fill="url(#braid2)" />
+        <rect x="20" y="48" width="170" height="34" rx="16" class="pb-outline" />
+        <g class="pb-cuff">
+          <ellipse cx="196" cy="65" rx="9" ry="19" />
+          <ellipse cx="204" cy="65" rx="7" ry="16" />
+        </g>
+        <path d="M214 58 C 250 50, 290 52, 330 60" class="pb-strand" />
+        <path d="M214 65 C 250 62, 290 63, 330 65" class="pb-strand" />
+        <path d="M214 72 C 250 78, 290 76, 330 70" class="pb-strand" />
+        <ellipse cx="345" cy="65" rx="16" ry="10" class="pb-tip" />
+
+        <text x="105" y="30" text-anchor="middle" class="pb-label">Cloth / lacquer braid</text>
+        <line x1="105" y1="34" x2="105" y2="48" class="pb-tick" />
+        <text x="200" y="112" text-anchor="middle" class="pb-label">Braid pushed back</text>
+        <line x1="200" y1="106" x2="200" y2="86" class="pb-tick" />
+        <text x="300" y="30" text-anchor="middle" class="pb-label">Tinned strands</text>
+        <line x1="300" y1="34" x2="300" y2="55" class="pb-tick" />
+      </svg>
+    </figure>
+
+    <p>The braid is wound loosely enough to slide — "push back" — off the last half-inch
+      of conductor, so the wire needed no stripper: a fingernail and a twist bared tinned
+      strands ready for a turret lug or an eyelet board. The wax or lacquer impregnating
+      the braid gave it a working voltage rating and a little resistance to the heat
+      radiating off a nearby power tube, in place of a plastic jacket.</p>
+    <p>It is still made and sold today, mostly for the reason it was used originally —
+      builders reproducing or restoring an amp from this era wire it point-to-point the
+      way the factory did, in the same 20–22 AWG range, often colour-matched the way the
+      <a href="/reference/guides/transformers/">power-transformer leads</a> are.</p>
+  </section>
+
+  <p class="cite">Diameters and the chassis-wiring ampacity above follow the American Wire
+    Gauge standard and its published load chart —
+    <a href="https://en.wikipedia.org/wiki/American_wire_gauge" rel="external nofollow">Wikipedia, "American wire gauge"</a>
+    and the <a href="https://www.powerstream.com/Wire_Size.htm" rel="external nofollow">PowerStream AWG wire size chart</a>,
+    itself drawn from the <em>Handbook of Electronic Tables and Formulas for American
+    Wire Gauge</em>. Treat the ampacity column as a bench rule of thumb, not a code
+    reference — anything feeding mains current should follow the National Electrical
+    Code and a qualified electrician.</p>
+</div>
+</Base>
+
+<style>
+  .ghead { padding: 44px 0 8px; }
+  .back { font-family: var(--disp); text-transform: uppercase; letter-spacing: .14em; font-size: 11.5px; color: var(--muted); }
+  .eyebrow { font-family: var(--disp); text-transform: uppercase; letter-spacing: .26em; font-size: 12px; color: var(--amber); margin-top: 14px; }
+  h1 { font-size: clamp(28px, 4.5vw, 42px); line-height: 1.12; margin: 8px 0 12px; }
+  .lede { max-width: 62ch; color: var(--muted); font-size: 16.5px; margin: 0; }
+  section { margin-top: 40px; }
+  h2 { font-size: 18px; letter-spacing: .14em; margin: 24px 0 4px; }
+  .sub { color: var(--muted); font-size: 14px; margin: 0 0 16px; max-width: 76ch; line-height: 1.6; }
+  .sub .k, .k { font-family: var(--mono); color: var(--ink); font-weight: 400; }
+
+  .note { margin-top: 16px; background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 13px 16px; color: var(--muted); font-size: 13.5px; line-height: 1.6; max-width: 82ch; }
+
+  .era-section p:not(.sub) { color: var(--muted); font-size: 15px; line-height: 1.7; max-width: 74ch; margin: 14px 0 0; }
+  .era-section a { color: var(--amber); }
+
+  .pb-fig { background: var(--well); border: 1px solid var(--line-soft); border-radius: 8px; padding: 14px; margin: 6px 0 0; }
+  .pb-fig svg { display: block; width: 100%; height: auto; max-width: 480px; margin: 0 auto; }
+  .braid-ln { stroke: var(--faint); stroke-width: 1; opacity: .8; }
+  .pb-body { fill: var(--panel); }
+  .pb-outline { fill: none; stroke: var(--muted); stroke-width: 2; }
+  .pb-stub { stroke: var(--faint); stroke-width: 3; stroke-linecap: round; }
+  .pb-cuff ellipse { fill: var(--panel); stroke: var(--muted); stroke-width: 1.6; }
+  .pb-strand { fill: none; stroke: var(--muted); stroke-width: 2; stroke-linecap: round; }
+  .pb-tip { fill: var(--amber-dim); stroke: var(--amber); stroke-width: 1.5; }
+  .pb-label { font-family: var(--disp); text-transform: uppercase; letter-spacing: .08em; font-size: 10.5px; fill: var(--faint); }
+  .pb-tick { stroke: var(--line); stroke-width: 1.5; stroke-dasharray: 2 2; }
+
+  .cite { margin-top: 32px; padding-top: 16px; border-top: 1px dashed var(--line); color: var(--faint); font-size: 12.5px; line-height: 1.6; max-width: 82ch; }
+</style>
