@@ -16,6 +16,15 @@ const pdClass = {
   'renewal-dependent': '',
   'in-copyright': 'warn',
 };
+
+const guides = [
+  { href: '/reference/guides/resistor-color-code/', title: 'Resistor color code calculator',
+    desc: 'Read the bands or type a value — four-band and five-band, with tolerance.' },
+  { href: '/reference/guides/capacitor-codes/', title: 'Capacitor code chart & decoder',
+    desc: 'Decode three-digit codes and tolerance letters; convert µF, nF, and pF.' },
+  { href: '/reference/guides/calculators/', title: 'Amp builder calculators',
+    desc: "Ohm's law, cathode bias, coupling-cap corners, and transformer ratios." },
+];
 ---
 <Base title="Reference library — Circuit Codex"
       description="The datasheets, tube manuals, and era-component references behind the corpus — linked to established archives, with a documented public-domain basis noted for each. Plus original metrology studies.">
@@ -50,6 +59,21 @@ const pdClass = {
       </div>
     </section>
   )}
+
+  <section>
+    <h2>Practical guides</h2>
+    <p class="sub">Interactive bench tools built from the same references — decode a
+      part, or run the small sums that come up while working on these circuits.</p>
+    <div class="grid">
+      {guides.map((g) => (
+        <a class="card guide" href={g.href}>
+          <div class="ct">Guide</div>
+          <div class="cid">{g.title}</div>
+          <div class="cdesc">{g.desc}</div>
+        </a>
+      ))}
+    </div>
+  </section>
 
   <section>
     <h2>Datasheets by tube</h2>
@@ -144,7 +168,7 @@ const pdClass = {
   .card:hover{border-color:var(--amber-dim);text-decoration:none}
   .card .cid{font-family:var(--disp);font-size:22px;letter-spacing:.04em;text-transform:uppercase}
   .card .ct{font-family:var(--disp);text-transform:uppercase;letter-spacing:.16em;font-size:10.5px;color:var(--amber)}
-  .card.study .cid{font-size:17px;line-height:1.25;text-transform:none;letter-spacing:.01em}
+  .card.study .cid,.card.guide .cid{font-size:17px;line-height:1.25;text-transform:none;letter-spacing:.01em}
   .card .cdesc{color:var(--muted);font-size:13px;line-height:1.4}
   .card .cdesc.aka{font-family:var(--mono);font-size:11.5px;color:var(--faint);margin-top:-2px}
   .chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:auto;padding-top:8px}
