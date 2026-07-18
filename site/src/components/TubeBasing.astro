@@ -1,0 +1,205 @@
+---
+// TubeBasing.astro — original, interactive bottom-view socket diagram drawn
+// from a tube's `basing` block (see reference/tubes/*.yaml). Geometry is
+// generated here per base type; pins are colour-coded by element family, with
+// B+ (high-voltage) pins carrying the oxblood danger accent. Hover / tap /
+// focus a pin to read out what it is. Multiple diagrams per page are supported.
+const { basing, name = '', compact = false } = Astro.props;
+
+// ---- geometry per base type ------------------------------------------------
+// Angles are degrees measured clockwise from the top (12 o'clock). The index
+// feature (noval/7-pin gap, octal key) sits at the bottom, matching how these
+// sockets are drawn on the datasheets and seen from the wiring side.
+const CX = 130, CY = 130;
+const GEO = {
+  'noval-b9a':      { ring: 86, r: 15, spigot: false,
+    angles: { 1: 216, 2: 252, 3: 288, 4: 324, 5: 0, 6: 36, 7: 72, 8: 108, 9: 144 } },
+  'miniature-7pin': { ring: 80, r: 16, spigot: false,
+    angles: { 1: 225, 2: 270, 3: 315, 4: 0, 5: 45, 6: 90, 7: 135 } },
+  'octal':          { ring: 90, r: 15, spigot: true,
+    angles: { 1: 202.5, 2: 247.5, 3: 292.5, 4: 337.5, 5: 22.5, 6: 67.5, 7: 112.5, 8: 157.5 } },
+};
+const geo = GEO[basing.base] || GEO['octal'];
+const pos = (deg, rad) => {
+  const t = (deg * Math.PI) / 180;
+  return { x: CX + rad * Math.sin(t), y: CY - rad * Math.cos(t) };
+};
+
+// ---- element families ------------------------------------------------------
+const OX = '#9c4a38'; // oxblood — high voltage / danger accent
+const ELEMENTS = {
+  'plate':               { label: 'Plate',              fam: 'plate',   color: '#e89b3f', dark: true },
+  'diode-plate':         { label: 'Diode plate',        fam: 'plate',   color: '#e89b3f', dark: true },
+  'screen-grid':         { label: 'Screen grid',        fam: 'screen',  color: '#d98f34', dark: true },
+  'grid':                { label: 'Control grid',       fam: 'grid',    color: '#8fae7e', dark: true },
+  'cathode':             { label: 'Cathode',            fam: 'cathode', color: '#7fa6ad', dark: true },
+  'heater':              { label: 'Heater',             fam: 'heater',  color: '#8a6f52', dark: false },
+  'heater-ct':           { label: 'Heater center-tap',  fam: 'heater',  color: '#8a6f52', dark: false },
+  'filament':            { label: 'Filament',           fam: 'heater',  color: '#8a6f52', dark: false },
+  'nc':                  { label: 'No connection',      fam: 'nc',      color: '#241d15', dark: false },
+  'internal-connection': { label: 'Internal connection', fam: 'ic',     color: '#241d15', dark: false },
+};
+const meta = (el) => ELEMENTS[el] || { label: el, fam: 'nc', color: '#241d15', dark: false };
+
+function unitSuffix(el, unit) {
+  if (unit == null) return '';
+  if (el === 'plate' || el === 'grid' || el === 'cathode') return ` · triode ${unit}`;
+  if (el === 'diode-plate') return ` ${unit}`;
+  return '';
+}
+
+// ---- build the pin list ----------------------------------------------------
+const pins = Object.entries(basing.pins).map(([num, p]) => {
+  const m = meta(p.element);
+  const n = Number(num);
+  const { x, y } = pos(geo.angles[n], geo.ring);
+  const hv = p.hv === true;
+  const fill = hv ? OX : m.color;
+  const dim = m.fam === 'nc' || m.fam === 'ic';
+  const numColor = dim ? '#7a6a54' : (hv ? '#f2e6cf' : (m.dark ? '#171310' : '#eee2c8'));
+  const display = m.label + unitSuffix(p.element, p.unit);
+  const readout = `Pin ${n} — ${display}` + (hv ? ' · carries B+ (high voltage)' : '') +
+    (p.note ? ` · ${p.note}` : '');
+  const aria = `Pin ${n}, ${display}${hv ? ', high voltage' : ''}`;
+  return { n, x, y, fill, dim, numColor, readout, aria, hv, fam: m.fam };
+}).sort((a, b) => a.n - b.n);
+
+// key/gap marker point (bottom)
+const key = pos(180, geo.ring);
+
+// ---- legend (only families actually present) -------------------------------
+const LEG = {
+  hv:      { color: OX,        label: 'High voltage (B+)', order: 0 },
+  plate:   { color: '#e89b3f', label: 'Diode plate',       order: 1 },
+  screen:  { color: '#d98f34', label: 'Screen grid',       order: 2 },
+  grid:    { color: '#8fae7e', label: 'Control grid',      order: 3 },
+  cathode: { color: '#7fa6ad', label: 'Cathode',           order: 4 },
+  heater:  { color: '#8a6f52', label: 'Heater / filament', order: 5 },
+  nc:      { color: '#241d15', label: 'No connection',     order: 6, hollow: true },
+  ic:      { color: '#241d15', label: 'Internal connection', order: 7, hollow: true },
+};
+const groupsPresent = new Set(pins.map((p) => (p.hv ? 'hv' : p.fam)));
+const legend = [...groupsPresent].map((g) => ({ g, ...LEG[g] }))
+  .filter((x) => x.label).sort((a, b) => a.order - b.order);
+const hasHv = groupsPresent.has('hv');
+
+const BASE_LABEL = {
+  'noval-b9a': 'noval 9-pin (B9A)',
+  'miniature-7pin': 'miniature 7-pin (B7G)',
+  'octal': 'octal',
+};
+const baseLabel = BASE_LABEL[basing.base] || basing.base;
+const titleText = `${name ? name + ' ' : ''}socket, bottom view — ${baseLabel}, basing ${basing.code}`;
+const defaultReadout = 'Hover, tap, or focus a pin to name it.';
+---
+<figure class:list={['tube-basing', { compact }]} data-name={name}>
+  <div class="tb-stage">
+    <svg viewBox="0 0 260 260" role="img" aria-label={titleText} class="tb-svg">
+      <!-- envelope / socket body -->
+      <circle cx={CX} cy={CY} r="108" class="tb-body" />
+      <circle cx={CX} cy={CY} r="108" class="tb-body-ring" />
+
+      {/* octal keyed spigot, or the index-gap tick for noval / 7-pin */}
+      {geo.spigot ? (
+        <g class="tb-key" aria-hidden="true">
+          <circle cx={CX} cy={CY} r="24" class="tb-spigot" />
+          <rect x={CX - 6} y={CY + 14} width="12" height="20" rx="3" class="tb-keyway" />
+        </g>
+      ) : (
+        <g class="tb-gap" aria-hidden="true">
+          <line x1={key.x} y1={key.y - 12} x2={key.x} y2={key.y + 12} class="tb-gap-tick" />
+        </g>
+      )}
+
+      {pins.map((p) => (
+        <g class:list={['tb-pin', { 'is-dim': p.dim, 'is-hv': p.hv }]}
+           tabindex="0" role="button" aria-label={p.aria} data-readout={p.readout}>
+          <circle class="tb-dot" cx={p.x} cy={p.y} r={geo.r} style={`fill:${p.fill}`} />
+          <text class="tb-num" x={p.x} y={p.y} style={`fill:${p.numColor}`}
+                dominant-baseline="central" text-anchor="middle">{p.n}</text>
+        </g>
+      ))}
+    </svg>
+  </div>
+
+  <p class="tb-readout" aria-live="polite" data-default={defaultReadout}>{defaultReadout}</p>
+
+  <ul class="tb-legend">
+    {legend.map((l) => (
+      <li><span class:list={['tb-sw', { hollow: l.hollow }]} style={`--sw:${l.color}`}></span>{l.label}</li>
+    ))}
+  </ul>
+
+  <p class="tb-cap">Viewed from below (socket / wiring side) · {baseLabel} · basing {basing.code}</p>
+  {hasHv && (
+    <p class="tb-safety">⚡ Oxblood pins sit at B+ — hundreds of volts in service, lethal, and
+      still charged after power-off.</p>
+  )}
+</figure>
+
+<style>
+  .tube-basing { margin: 0; }
+  .tb-stage { background: var(--well); border: 1px solid var(--line-soft); border-radius: 10px;
+    padding: 10px; }
+  .tb-svg { display: block; width: 100%; height: auto; max-width: 340px; margin: 0 auto; }
+  .tube-basing.compact .tb-svg { max-width: 260px; }
+
+  .tb-body { fill: #1c1611; }
+  .tb-body-ring { fill: none; stroke: var(--line); stroke-width: 2; }
+  .tb-spigot { fill: #120f0c; stroke: var(--line); stroke-width: 2; }
+  .tb-keyway { fill: #2c241c; stroke: var(--faint); stroke-width: 1; }
+  .tb-gap-tick { stroke: var(--faint); stroke-width: 2.5; stroke-linecap: round; }
+
+  .tb-pin { cursor: pointer; transform-box: fill-box; transform-origin: center;
+    transition: transform .12s ease; }
+  .tb-dot { stroke: #171310; stroke-width: 1.5; transition: stroke .12s ease, stroke-width .12s ease; }
+  .tb-pin.is-dim .tb-dot { stroke: var(--faint); stroke-dasharray: 3 3; }
+  .tb-num { font-family: var(--disp); font-size: 15px; font-weight: 600; pointer-events: none;
+    user-select: none; }
+  .tb-pin:hover, .tb-pin:focus-visible, .tb-pin.is-active { transform: scale(1.14); outline: none; }
+  .tb-pin:hover .tb-dot, .tb-pin:focus-visible .tb-dot, .tb-pin.is-active .tb-dot {
+    stroke: var(--ink); stroke-width: 3; stroke-dasharray: none; }
+
+  .tb-readout { min-height: 1.4em; margin: 12px 2px 6px; font-family: var(--mono);
+    font-size: 13px; color: var(--ink); }
+  .tb-legend { list-style: none; margin: 8px 0 0; padding: 0; display: flex; flex-wrap: wrap;
+    gap: 6px 14px; }
+  .tb-legend li { display: flex; align-items: center; gap: 7px; font-size: 12px; color: var(--muted); }
+  .tb-sw { width: 13px; height: 13px; border-radius: 99px; background: var(--sw);
+    border: 1px solid rgba(0,0,0,.4); flex: none; }
+  .tb-sw.hollow { background: var(--well); border: 1.5px dashed var(--faint); }
+  .tb-cap { margin: 12px 2px 0; font-size: 12px; color: var(--faint);
+    font-family: var(--disp); text-transform: uppercase; letter-spacing: .1em; }
+  .tb-safety { margin: 6px 2px 0; font-size: 12.5px; color: var(--oxblood); max-width: 46ch; }
+</style>
+
+<script>
+  // Wire every diagram on the page. Hover / focus / tap a pin to update its
+  // readout; the whole thing is keyboard-reachable (each pin is a focusable
+  // button with an aria-label).
+  document.querySelectorAll('.tube-basing').forEach((root) => {
+    const readout = root.querySelector('.tb-readout');
+    const svg = root.querySelector('.tb-svg');
+    const def = readout.getAttribute('data-default');
+    const pins = root.querySelectorAll('.tb-pin');
+    const activate = (p) => {
+      readout.textContent = p.getAttribute('data-readout');
+      pins.forEach((x) => x.classList.toggle('is-active', x === p));
+    };
+    const reset = () => {
+      if (root.contains(document.activeElement) && document.activeElement.classList.contains('tb-pin')) return;
+      readout.textContent = def;
+      pins.forEach((x) => x.classList.remove('is-active'));
+    };
+    pins.forEach((p) => {
+      p.addEventListener('mouseenter', () => activate(p));
+      p.addEventListener('focus', () => activate(p));
+      p.addEventListener('click', () => activate(p));
+      p.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); activate(p); }
+      });
+    });
+    svg.addEventListener('mouseleave', reset);
+    root.addEventListener('focusout', () => setTimeout(reset, 0));
+  });
+</script>

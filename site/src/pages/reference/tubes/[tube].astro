@@ -1,5 +1,6 @@
 ---
 import Base from '../../../layouts/Base.astro';
+import TubeBasing from '../../../components/TubeBasing.astro';
 import { loadTubes, loadStudy, displayId, GITHUB } from '../../../lib/corpus.js';
 
 export async function getStaticPaths() {
@@ -23,6 +24,16 @@ const study = t.study ? loadStudy(t.study) : null;
 
   <div class="cols">
     <div class="main">
+      {t.basing && (
+        <section>
+          <h2>Basing (pinout)</h2>
+          <p class="sub">Bottom view — the socket as you see it from the wiring side. Hover, tap,
+            or focus a pin to name it. Read from the datasheet basing diagram
+            (<a href={`/reference/guides/tube-pinouts/`}>how to read these →</a>).</p>
+          <div class="basing-wrap"><TubeBasing basing={t.basing} name={t.name} /></div>
+        </section>
+      )}
+
       <section>
         <h2>Datasheets</h2>
         <p class="sub">Primary manufacturer data, via public tube-data archives. The
@@ -93,6 +104,7 @@ const study = t.study ? loadStudy(t.study) : null;
   @media(max-width:760px){.cols{grid-template-columns:1fr}}
   h2{font-size:17px;letter-spacing:.14em;margin:28px 0 4px}
   .sub{color:var(--muted);font-size:13.5px;margin:0 0 14px;max-width:72ch}
+  .basing-wrap{max-width:400px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px 18px}
   .model{margin:0;display:grid;grid-template-columns:max-content 1fr;gap:9px 16px;font-size:14px}
   .model dt{color:var(--faint);text-transform:uppercase;font-family:var(--disp);letter-spacing:.1em;font-size:11px;padding-top:2px}
   .model dd{margin:0;font-family:var(--mono);font-size:12.5px;overflow-wrap:anywhere;line-height:1.55}

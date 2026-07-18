@@ -1,0 +1,152 @@
+---
+import Base from '../../../layouts/Base.astro';
+import TubeBasing from '../../../components/TubeBasing.astro';
+import { loadTubes } from '../../../lib/corpus.js';
+
+const tubes = loadTubes().filter((t) => t.basing);
+const byBase = (b) => tubes.filter((t) => t.basing.base === b);
+const noval = byBase('noval-b9a');
+const sevenPin = byBase('miniature-7pin');
+const octal = byBase('octal');
+const octalPower = octal.filter((t) => t.basing.code === '7AC');
+const octalRect = octal.filter((t) => t.basing.code !== '7AC');
+
+// First sentence of the role blurb, for a one-line caption under each diagram.
+const oneLine = (s) => {
+  const flat = String(s).replace(/\s+/g, ' ').trim();
+  const cut = flat.indexOf('. ');
+  return cut === -1 ? flat : flat.slice(0, cut + 1);
+};
+---
+<Base title="Tube pinout diagrams — 12AX7, 6V6, octal & noval basing · Circuit Codex"
+      description="Interactive bottom-view basing diagrams for the nine amp tubes in the corpus — 12AX7, 12AY7, 6AT6, 6V6GT, 5881, KT66, 5Y3GT, 5U4G and GZ34. Read each pin by hovering it, grouped by base family, with a short guide to bottom-view convention, index-gap orientation, and RETMA basing codes.">
+<div class="wrap">
+  <header class="ghead">
+    <a class="back" href="/reference/">← Reference</a>
+    <div class="eyebrow">Practical guide</div>
+    <h1>Tube pinout diagrams</h1>
+    <p class="lede">Every tube in this archive, drawn as a bottom-view socket. Hover, tap, or
+      focus a pin to name it — grouped by base so the shared wiring is easy to see. The
+      pins that carry B+ are marked in oxblood.</p>
+  </header>
+
+  <section class="intro">
+    <h2>Reading a basing diagram</h2>
+    <p><strong>It's a bottom view.</strong> Each diagram shows the tube from underneath — the
+      way the socket faces you from the solder side while you wire it. Turn a real tube over
+      and its pins line up with the drawing. (Look at the tube from the top instead and the
+      order mirrors, which is how miswired sockets happen.)</p>
+    <p><strong>Find the index, then count clockwise.</strong> A noval or 7-pin miniature tube
+      has a wider <em>gap</em> in its ring of pins; an octal tube has a keyed centre spigot.
+      Hold that gap or key at the bottom, and pin 1 is the first pin to its left. The numbers
+      run clockwise from there — up the left side, across the top, down the right.</p>
+    <p><strong>The code is a standard.</strong> The short label on each diagram — 9A, 7BT, 7AC,
+      5T, 5DA — is the RETMA/EIA basing designation: a fixed name for one arrangement of
+      elements on the pins. Tubes that share a code share a socket wiring, which is why the
+      6V6GT, 5881, and KT66 all read 7AC and drop into the same output-stage layout. Every map
+      here is read straight from the manufacturer datasheets linked on each tube's page.</p>
+  </section>
+
+  <section>
+    <h2>Noval 9-pin (B9A)</h2>
+    <p class="sub">The small-button nine-pin preamp bottle. Both of these are dual triodes —
+      two independent gain stages in one glass, their pins interleaved around the ring.</p>
+    <div class="pin-grid">
+      {noval.map((t) => (
+        <article class="pin-card">
+          <div class="pc-head">
+            <a class="pc-name" href={`/reference/tubes/${t.tube}/`}>{t.name}</a>
+            <span class="chip v">{t.basing.code}</span>
+          </div>
+          <TubeBasing basing={t.basing} name={t.name} compact />
+          <p class="pc-role">{oneLine(t.role)}</p>
+        </article>
+      ))}
+    </div>
+  </section>
+
+  <section>
+    <h2>Miniature 7-pin (B7G)</h2>
+    <p class="sub">The seven-pin miniature base — one detector-triode preamp tube in this
+      corpus. Only the triode plate carries B+; the two diode plates sit idle here.</p>
+    <div class="pin-grid">
+      {sevenPin.map((t) => (
+        <article class="pin-card">
+          <div class="pc-head">
+            <a class="pc-name" href={`/reference/tubes/${t.tube}/`}>{t.name}</a>
+            <span class="chip v">{t.basing.code}</span>
+          </div>
+          <TubeBasing basing={t.basing} name={t.name} compact />
+          <p class="pc-role">{oneLine(t.role)}</p>
+        </article>
+      ))}
+    </div>
+  </section>
+
+  <section>
+    <h2>Octal — output tubes</h2>
+    <p class="sub">The eight-pin octal base with its keyed centre spigot. The beam-power output
+      tubes all follow the 7AC arrangement: plate on 3, screen on 4, control grid on 5 — both
+      the plate and screen sit at B+.</p>
+    <div class="pin-grid">
+      {octalPower.map((t) => (
+        <article class="pin-card">
+          <div class="pc-head">
+            <a class="pc-name" href={`/reference/tubes/${t.tube}/`}>{t.name}</a>
+            <span class="chip v">{t.basing.code}</span>
+          </div>
+          <TubeBasing basing={t.basing} name={t.name} compact />
+          <p class="pc-role">{oneLine(t.role)}</p>
+        </article>
+      ))}
+    </div>
+  </section>
+
+  <section>
+    <h2>Octal — rectifiers</h2>
+    <p class="sub">Same octal base, different job. In the directly-heated 5Y3 and 5U4 the
+      filament is the cathode, so it floats at B+ alongside the plates; the GZ34 (5DA) adds a
+      separate heater but ties its cathode to pin 8. On a rectifier, nearly every pin is hot.</p>
+    <div class="pin-grid">
+      {octalRect.map((t) => (
+        <article class="pin-card">
+          <div class="pc-head">
+            <a class="pc-name" href={`/reference/tubes/${t.tube}/`}>{t.name}</a>
+            <span class="chip v">{t.basing.code}</span>
+          </div>
+          <TubeBasing basing={t.basing} name={t.name} compact />
+          <p class="pc-role">{oneLine(t.role)}</p>
+        </article>
+      ))}
+    </div>
+  </section>
+
+  <p class="foot-note">Pin maps are transcribed from the manufacturer basing diagrams — RCA,
+    GE, Tung-Sol, Mullard, Philips and GEC — linked on each tube's reference page, and
+    cross-checked against a second sheet where one is available. The socket drawings are
+    redrawn here, never traced from the source documents.</p>
+</div>
+</Base>
+
+<style>
+  .ghead { padding: 44px 0 8px; }
+  .back { font-family: var(--disp); text-transform: uppercase; letter-spacing: .14em; font-size: 11.5px; color: var(--muted); }
+  .eyebrow { font-family: var(--disp); text-transform: uppercase; letter-spacing: .26em; font-size: 12px; color: var(--amber); margin-top: 14px; }
+  h1 { font-size: clamp(28px, 4.5vw, 42px); line-height: 1.12; margin: 8px 0 12px; }
+  .lede { max-width: 62ch; color: var(--muted); font-size: 16.5px; margin: 0; }
+  section { margin-top: 40px; }
+  h2 { font-size: 18px; letter-spacing: .14em; margin: 24px 0 4px; }
+  .sub { color: var(--muted); font-size: 14px; margin: 0 0 18px; max-width: 74ch; }
+
+  .intro p { color: var(--muted); font-size: 15px; line-height: 1.7; max-width: 74ch; margin: 0 0 12px; }
+  .intro strong { color: var(--ink); }
+  .intro em { font-style: italic; color: var(--ink); }
+
+  .pin-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
+  .pin-card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px 14px; }
+  .pc-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
+  .pc-name { font-family: var(--disp); font-size: 22px; letter-spacing: .04em; text-transform: uppercase; }
+  .pc-role { color: var(--muted); font-size: 13px; line-height: 1.45; margin: 12px 0 0; }
+
+  .foot-note { margin-top: 40px; padding-top: 16px; border-top: 1px dashed var(--line); color: var(--faint); font-size: 12.5px; max-width: 82ch; }
+</style>
