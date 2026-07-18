@@ -1,0 +1,241 @@
+---
+import Base from '../../../layouts/Base.astro';
+---
+<Base title="Amp builder calculators — Ohm's law, bias, coupling caps — Circuit Codex"
+      description="Small working calculators for tube-amp work: Ohm's law and power, voltage divider, cathode bias resistor and dissipation, coupling-cap corner frequency, and output-transformer impedance ratio. Instant, client-side, with real amp defaults.">
+<div class="wrap">
+  <header class="ghead">
+    <a class="back" href="/reference/">← Reference</a>
+    <div class="eyebrow">Practical guide</div>
+    <h1>Amp builder calculators</h1>
+    <p class="lede">The handful of sums that come up over and over on the bench —
+      each one live, each one loaded with a real amplifier value to start from. Change
+      a number and the answer updates as you type.</p>
+  </header>
+
+  <div class="cards">
+    <section class="calc" aria-label="Ohm's law and power">
+      <h2>Ohm's law &amp; power</h2>
+      <p class="sub">Enter any two of voltage, current, resistance, and power; the
+        other two fill in.</p>
+      <div class="fields">
+        <label class="f"><span>Voltage</span><span class="io"><input id="ol-v" inputmode="decimal" value="250" autocomplete="off" /><i>V</i></span></label>
+        <label class="f"><span>Current</span><span class="io"><input id="ol-i" inputmode="decimal" autocomplete="off" /><i>mA</i></span></label>
+        <label class="f"><span>Resistance</span><span class="io"><input id="ol-r" inputmode="text" value="100k" autocomplete="off" /><i>Ω</i></span></label>
+        <label class="f"><span>Power</span><span class="io"><input id="ol-p" inputmode="decimal" autocomplete="off" /><i>W</i></span></label>
+      </div>
+      <p class="hint">Resistance accepts shorthand — <span class="k">100k</span>,
+        <span class="k">1M</span>, <span class="k">4k7</span>.</p>
+    </section>
+
+    <section class="calc" aria-label="Voltage divider">
+      <h2>Voltage divider</h2>
+      <p class="sub">Two resistors from a supply down to ground; the tap sits between
+        them. R1 is the top (supply-side) resistor.</p>
+      <div class="fields">
+        <label class="f"><span>Input</span><span class="io"><input id="dv-vin" inputmode="decimal" value="325" autocomplete="off" /><i>V</i></span></label>
+        <label class="f"><span>R1 top</span><span class="io"><input id="dv-r1" inputmode="text" value="100k" autocomplete="off" /><i>Ω</i></span></label>
+        <label class="f"><span>R2 bottom</span><span class="io"><input id="dv-r2" inputmode="text" value="100k" autocomplete="off" /><i>Ω</i></span></label>
+      </div>
+      <div class="rd" aria-live="polite"><b id="dv-out">—</b><span class="rd-sub" id="dv-sub"></span></div>
+    </section>
+
+    <section class="calc" aria-label="Cathode bias">
+      <h2>Cathode bias</h2>
+      <p class="sub">With the grid returned to ground, the cathode sits at the bias
+        voltage. Give the target cathode current and that bias voltage to size the
+        cathode resistor.</p>
+      <div class="fields">
+        <label class="f"><span>Cathode current</span><span class="io"><input id="cb-ik" inputmode="decimal" value="1" autocomplete="off" /><i>mA</i></span></label>
+        <label class="f"><span>Grid bias</span><span class="io"><input id="cb-vg" inputmode="decimal" value="1.5" autocomplete="off" /><i>V</i></span></label>
+      </div>
+      <div class="rd" aria-live="polite"><b id="cb-rk">—</b><span class="rd-sub" id="cb-sub"></span></div>
+      <p class="note">Each amp's parts list on this site records the cathode resistor
+        that was actually fitted; this is the design target before tube spread and
+        real-world tolerance. Browse the <a href="/#circuits">circuits</a> to see the
+        values in context.</p>
+    </section>
+
+    <section class="calc" aria-label="Coupling-cap corner frequency">
+      <h2>Coupling-cap corner</h2>
+      <p class="sub">A coupling capacitor and the following stage's grid-leak resistor
+        form a high-pass filter. Below the corner, bass rolls away.</p>
+      <div class="fields">
+        <label class="f"><span>Capacitor</span><span class="io"><input id="cc-c" inputmode="text" value="0.02" autocomplete="off" /><i>µF</i></span></label>
+        <label class="f"><span>Grid-leak R</span><span class="io"><input id="cc-r" inputmode="text" value="1M" autocomplete="off" /><i>Ω</i></span></label>
+      </div>
+      <div class="rd" aria-live="polite"><b id="cc-f">—</b><span class="rd-sub" id="cc-sub"></span></div>
+      <p class="hint">f₋₃dB = 1 / (2π · R · C). Cap accepts
+        <span class="k">0.02</span>, <span class="k">22n</span>,
+        <span class="k">470p</span>.</p>
+    </section>
+
+    <section class="calc" aria-label="Output-transformer impedance ratio">
+      <h2>Output-transformer ratio</h2>
+      <p class="sub">Primary and secondary impedances set the turns ratio, and the
+        turns ratio squared is the impedance ratio. Enter any two.</p>
+      <div class="fields">
+        <label class="f"><span>Primary Z</span><span class="io"><input id="ot-zp" inputmode="text" value="8000" autocomplete="off" /><i>Ω</i></span></label>
+        <label class="f"><span>Secondary Z</span><span class="io"><input id="ot-zs" inputmode="text" value="8" autocomplete="off" /><i>Ω</i></span></label>
+        <label class="f"><span>Turns ratio</span><span class="io"><input id="ot-n" inputmode="decimal" autocomplete="off" /><i>: 1</i></span></label>
+      </div>
+      <div class="rd" aria-live="polite"><b id="ot-out">—</b><span class="rd-sub" id="ot-sub"></span></div>
+    </section>
+  </div>
+</div>
+</Base>
+
+<script is:inline>
+(function () {
+  const el = (id) => document.getElementById(id);
+
+  // ---- parsers ------------------------------------------------------------
+  function num(v) { if (v == null) return null; v = String(v).trim(); if (v === '') return null; const n = parseFloat(v); return isFinite(n) ? n : null; }
+  function ohms(v) {
+    if (v == null) return null;
+    let s = String(v).trim().toLowerCase().replace(/ohms?|Ω/g, '').replace(/\s+/g, '');
+    if (s === '') return null;
+    const mult = { r: 1, k: 1e3, m: 1e6 };
+    let m = s.match(/^(\d*)([rkm])(\d+)$/); if (m) return parseFloat((m[1] || '0') + '.' + m[3]) * mult[m[2]];
+    m = s.match(/^(\d*\.?\d+)([rkm]?)$/); if (m) return parseFloat(m[1]) * (m[2] ? mult[m[2]] : 1);
+    return null;
+  }
+  function farads(v) {
+    if (v == null) return null;
+    let s = String(v).trim().toLowerCase().replace(/farads?/g, '').replace(/\s+/g, '').replace(/f$/, '');
+    if (s === '') return null;
+    const suf = { p: 1e-12, n: 1e-9, u: 1e-6, 'µ': 1e-6, m: 1e-3 };
+    const m = s.match(/^(\d*\.?\d+)([pnuµm]?)$/);
+    if (!m) return null;
+    return parseFloat(m[1]) * (m[2] ? suf[m[2]] : 1e-6); // no suffix → µF
+  }
+
+  // ---- formatters (house unit style) --------------------------------------
+  const t = (x, s) => String(Number(x.toPrecision(s || 4)));
+  function fR(o) { if (!isFinite(o)) return '—'; let u = 'Ω', x = o; if (Math.abs(o) >= 1e6) { x = o / 1e6; u = 'MΩ'; } else if (Math.abs(o) >= 1e3) { x = o / 1e3; u = 'kΩ'; } return t(x) + ' ' + u; }
+  function fI(a) { if (!isFinite(a)) return '—'; let u = 'A', x = a; const m = Math.abs(a); if (m < 1e-3) { x = a * 1e6; u = 'µA'; } else if (m < 1) { x = a * 1e3; u = 'mA'; } return t(x) + ' ' + u; }
+  function fP(w) { if (!isFinite(w)) return '—'; let u = 'W', x = w; if (Math.abs(w) < 1) { x = w * 1e3; u = 'mW'; } return t(x) + ' ' + u; }
+  function fF(h) { if (!isFinite(h)) return '—'; let u = 'Hz', x = h; if (Math.abs(h) >= 1000) { x = h / 1000; u = 'kHz'; } return t(x) + ' ' + u; }
+  function fVv(v) { return isFinite(v) ? t(v) + ' V' : '—'; }
+  function engR(o) { if (!isFinite(o)) return ''; if (Math.abs(o) >= 1e6) return t(o / 1e6) + 'M'; if (Math.abs(o) >= 1e3) return t(o / 1e3) + 'k'; return t(o); }
+  function push(arr, k) { const i = arr.indexOf(k); if (i >= 0) arr.splice(i, 1); arr.unshift(k); }
+
+  // ---- 1. Ohm's law & power ----------------------------------------------
+  const ol = { V: el('ol-v'), I: el('ol-i'), R: el('ol-r'), P: el('ol-p') };
+  let olOrder = ['R', 'V'];
+  function olRead() { const i = num(ol.I.value); return { V: num(ol.V.value), I: i == null ? null : i / 1000, R: ohms(ol.R.value), P: num(ol.P.value) }; }
+  function solveOhm(K) {
+    let V = K.V ?? null, I = K.I ?? null, R = K.R ?? null, P = K.P ?? null;
+    if (V != null && I != null) { R = V / I; P = V * I; }
+    else if (V != null && R != null) { I = V / R; P = V * V / R; }
+    else if (V != null && P != null) { I = P / V; R = V * V / P; }
+    else if (I != null && R != null) { V = I * R; P = I * I * R; }
+    else if (I != null && P != null) { V = P / I; R = P / (I * I); }
+    else if (R != null && P != null) { V = Math.sqrt(P * R); I = Math.sqrt(P / R); }
+    return { V, I, R, P };
+  }
+  function olSet(k, si) {
+    if (k === 'V') ol.V.value = si == null ? '' : t(si);
+    else if (k === 'I') ol.I.value = si == null ? '' : t(si * 1000);
+    else if (k === 'R') ol.R.value = si == null ? '' : engR(si);
+    else if (k === 'P') ol.P.value = si == null ? '' : t(si);
+  }
+  function olCompute() {
+    const si = olRead();
+    const valid = olOrder.filter((k) => si[k] != null && isFinite(si[k]));
+    if (valid.length < 2) return;
+    const drv = valid.slice(0, 2);
+    const K = {}; drv.forEach((k) => K[k] = si[k]);
+    const r = solveOhm(K);
+    ['V', 'I', 'R', 'P'].forEach((k) => { if (!drv.includes(k)) olSet(k, (r[k] != null && isFinite(r[k])) ? r[k] : null); });
+  }
+  ['V', 'I', 'R', 'P'].forEach((k) => ol[k].addEventListener('input', () => { push(olOrder, k); olCompute(); }));
+
+  // ---- 2. Voltage divider -------------------------------------------------
+  const dv = { vin: el('dv-vin'), r1: el('dv-r1'), r2: el('dv-r2'), out: el('dv-out'), sub: el('dv-sub') };
+  function dvCompute() {
+    const Vin = num(dv.vin.value), R1 = ohms(dv.r1.value), R2 = ohms(dv.r2.value);
+    if (Vin == null || R1 == null || R2 == null || (R1 + R2) <= 0) { dv.out.textContent = '—'; dv.sub.textContent = ''; return; }
+    dv.out.textContent = fVv(Vin * R2 / (R1 + R2));
+    dv.sub.textContent = 'Divider current ' + fI(Vin / (R1 + R2));
+  }
+  ['vin', 'r1', 'r2'].forEach((k) => dv[k].addEventListener('input', dvCompute));
+
+  // ---- 3. Cathode bias ----------------------------------------------------
+  const cb = { ik: el('cb-ik'), vg: el('cb-vg'), rk: el('cb-rk'), sub: el('cb-sub') };
+  function cbCompute() {
+    const Ik = num(cb.ik.value), Vg = num(cb.vg.value);
+    if (Ik == null || Vg == null || Ik <= 0) { cb.rk.textContent = '—'; cb.sub.textContent = ''; return; }
+    const Ia = Ik / 1000, Rk = Vg / Ia, P = Vg * Ia;
+    const ratings = [0.25, 0.5, 1, 2, 3, 5];
+    const rec = ratings.find((r) => r >= 2 * P);
+    cb.rk.textContent = fR(Rk);
+    cb.sub.textContent = 'Dissipation ' + fP(P) + ' · suggest ≥ ' + (rec ? rec + ' W' : '5 W+') + ' resistor';
+  }
+  ['ik', 'vg'].forEach((k) => cb[k].addEventListener('input', cbCompute));
+
+  // ---- 4. Coupling-cap corner --------------------------------------------
+  const cc = { c: el('cc-c'), r: el('cc-r'), f: el('cc-f'), sub: el('cc-sub') };
+  function ccCompute() {
+    const C = farads(cc.c.value), R = ohms(cc.r.value);
+    if (C == null || R == null || C <= 0 || R <= 0) { cc.f.textContent = '—'; cc.sub.textContent = ''; return; }
+    cc.f.textContent = fF(1 / (2 * Math.PI * R * C));
+    cc.sub.textContent = '−3 dB corner · below it, bass rolls off at 6 dB/octave';
+  }
+  ['c', 'r'].forEach((k) => cc[k].addEventListener('input', ccCompute));
+
+  // ---- 5. Output-transformer ratio ---------------------------------------
+  const ot = { Zp: el('ot-zp'), Zs: el('ot-zs'), N: el('ot-n'), out: el('ot-out'), sub: el('ot-sub') };
+  let otOrder = ['Zp', 'Zs'];
+  function otCompute() {
+    const si = { Zp: ohms(ot.Zp.value), Zs: ohms(ot.Zs.value), N: num(ot.N.value) };
+    const valid = otOrder.filter((k) => si[k] != null && isFinite(si[k]) && si[k] > 0);
+    if (valid.length < 2) { ot.out.textContent = '—'; ot.sub.textContent = ''; return; }
+    const drv = valid.slice(0, 2);
+    let Zp = drv.includes('Zp') ? si.Zp : null, Zs = drv.includes('Zs') ? si.Zs : null, N = drv.includes('N') ? si.N : null;
+    if (Zp != null && Zs != null) N = Math.sqrt(Zp / Zs);
+    else if (Zp != null && N != null) Zs = Zp / (N * N);
+    else if (Zs != null && N != null) Zp = Zs * N * N;
+    const target = ['Zp', 'Zs', 'N'].find((k) => !drv.includes(k));
+    if (target === 'Zp') ot.Zp.value = engR(Zp);
+    else if (target === 'Zs') ot.Zs.value = engR(Zs);
+    else ot.N.value = t(N);
+    ot.out.textContent = isFinite(N) ? t(N) + ' : 1' : '—';
+    ot.sub.textContent = isFinite(N) ? 'Impedance ratio ' + t(N * N) + ' : 1' : '';
+  }
+  ['Zp', 'Zs', 'N'].forEach((k) => ot[k].addEventListener('input', () => { push(otOrder, k); otCompute(); }));
+
+  // ---- init ---------------------------------------------------------------
+  olCompute(); dvCompute(); cbCompute(); ccCompute(); otCompute();
+})();
+</script>
+
+<style>
+  .ghead { padding: 44px 0 8px; }
+  .back { font-family: var(--disp); text-transform: uppercase; letter-spacing: .14em; font-size: 11.5px; color: var(--muted); }
+  .eyebrow { font-family: var(--disp); text-transform: uppercase; letter-spacing: .26em; font-size: 12px; color: var(--amber); margin-top: 14px; }
+  h1 { font-size: clamp(28px, 4.5vw, 42px); line-height: 1.12; margin: 8px 0 12px; }
+  .lede { max-width: 62ch; color: var(--muted); font-size: 16.5px; margin: 0; }
+
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; margin-top: 34px; }
+  .calc { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 18px 20px 20px; }
+  .calc h2 { font-size: 16px; letter-spacing: .12em; margin: 0 0 6px; }
+  .sub { color: var(--muted); font-size: 13.5px; margin: 0 0 14px; line-height: 1.55; }
+
+  .fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(112px, 1fr)); gap: 11px; }
+  .f { display: flex; flex-direction: column; gap: 5px; }
+  .f > span { font-family: var(--disp); text-transform: uppercase; letter-spacing: .1em; font-size: 10px; color: var(--faint); }
+  .io { display: flex; align-items: center; background: var(--well); border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
+  .io:focus-within { border-color: var(--amber-dim); }
+  .io input { border: 0; background: transparent; color: var(--ink); font-family: var(--mono); font-size: 14px; padding: 9px 3px 9px 10px; width: 100%; min-width: 0; }
+  .io input:focus-visible { outline: none; }
+  .io i { font-style: normal; font-family: var(--mono); font-size: 11.5px; color: var(--faint); padding: 0 10px 0 3px; white-space: nowrap; }
+
+  .rd { margin-top: 15px; background: var(--well); border: 1px solid var(--line-soft); border-radius: 8px; padding: 13px 16px; display: flex; align-items: baseline; gap: 8px 16px; flex-wrap: wrap; }
+  .rd b { font-family: var(--disp); font-size: 30px; letter-spacing: .02em; color: var(--amber); line-height: 1; }
+  .rd-sub { font-family: var(--mono); font-size: 12px; color: var(--muted); }
+
+  .hint { color: var(--faint); font-size: 12.5px; margin: 12px 0 0; line-height: 1.5; }
+  .hint .k, .k { font-family: var(--mono); color: var(--muted); }
+  .note { color: var(--muted); font-size: 13px; line-height: 1.6; margin: 14px 0 0; border-top: 1px dashed var(--line); padding-top: 12px; }
+</style>
