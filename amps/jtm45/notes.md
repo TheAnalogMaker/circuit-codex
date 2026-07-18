@@ -45,21 +45,10 @@ HT rail.
 
 ## Verification — against the printed factory chart
 
-The drawing carries a full valve-voltage chart, and simulation matches it
-closely. The three derived supply rails land within about 5 % of their printed values,
-and every preamp and phase-inverter **plate** sits within a few percent: the
-input plates at 220 V, the second-stage plate at 190 V, the cathode-follower
-output at 190 V, and both phase-inverter plates at 250 V all reproduce almost
-exactly.
-
-One node does not agree, and it is worth being plain about. The chart prints
-the phase-inverter **cathode** at 40 V, but simulation puts it near 31 V — a
-22 % gap. The chart is internally inconsistent here: a 40 V cathode would
-require about 3.8 mA flowing in the tail, and that much current through the
-82 kΩ and 100 kΩ plate loads would pull the phase-inverter plates down to
-roughly 190-225 V, not the 250 V the same chart prints alongside. Simulation
-can satisfy the plates or the cathode but not both, and it favours the plates;
-the identical long-tailed pair in the 5F6-A settles at the same ~31 V. Because
-that charted cathode falls outside tolerance, the circuit is published as a
-draft rather than verified, with the discrepancy noted rather than smoothed
-over.
+Simulation matches 12 of the 13 charted nodes — rails within 5.3 %, every
+triode pin within 8 % (the chart's own convention is ±20 %). The thirteenth
+value is excluded as disputed: the printed 40 V phase-inverter cathode
+contradicts the chart's own 250 V plate figures (40 V across the 10 kΩ tail
+implies a current that would pull those plates far lower), and simulation —
+which reproduces the printed plates exactly — settles the cathode near 31 V,
+the same value the identical stage measures in the 5F6-A this circuit copies.

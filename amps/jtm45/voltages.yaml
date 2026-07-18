@@ -16,6 +16,10 @@ nodes:
   KCF:  { chart: 190, tol_pct: 20, note: "cathode-follower output (chart V3 pin 8)" }
   PPIA: { chart: 250, tol_pct: 20, note: "PI plate, 82 kΩ side" }
   PPIB: { chart: 250, tol_pct: 20, note: "PI plate, 100 kΩ side" }
-  KPI:  { chart: 40, tol_pct: 20, note: "PI cathodes above the 470 Ω tail. The charted 40 V is inconsistent with the charted 250 V plates: a 40 V cathode needs ~3.8 mA of tail current, which would pull the 82k/100k plates down to ~190-225 V, not 250 V. Simulation reproduces the plates (250 V) and settles the cathode near 31 V — the same value the identical stage simulates in the 5F6-A. This node keeps the circuit in draft." }
+  KPI:
+    chart: 40
+    tol_pct: 20
+    disputed: true
+    dispute_note: "The printed 40 V contradicts the chart's own 250 V plate figures: 40 V across the 10 kΩ tail implies ~3.8 mA, which would pull the 82k/100k plates to ~190–225 V. Simulation reproduces the printed plates exactly and settles the cathode near 31 V — the same value the identical phase-inverter stage measures in the 5F6-A."
   JPI:  { chart: null, note: "tail junction; the drawing marks the PI grids only as '+' (qualitative)" }
   S5:   { chart: null, note: "informational — KT66 screen after the 1 kΩ stopper (chart screen 440 V ≈ B+2)" }

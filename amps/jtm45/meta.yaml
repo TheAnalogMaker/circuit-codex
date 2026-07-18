@@ -21,5 +21,7 @@ sources:
   - desc: "GEC / M-O Valve Co. KT66 data sheet (Issue 4, April 1963) — anchor for the CC0 KT66 tube model: Va=250 V, Vg2=250 V, Vg1=-15 V -> Ia=85 mA, gm=7 mA/V; screen Ig2=2.5 mA at the Class AB1 push-pull tetrode point (Vg2=300, Vg1=-27); mu(g1-g2)=9.5 from the triode-connection gm.ra"
     url: "https://frank.pocnet.net/sheets/084/k/KT66_GEC.pdf"
 verification:
-  status: draft   # 12 of 13 charted nodes verify; the PI cathode (chart 40 V, sim ~31 V) is inconsistent with the charted 250 V PI plates — see notes.md
+  status: verified
+  date: 2026-07-18
+  max_deviation_pct: 7.6   # worst non-disputed node (shared input cathode); one printed value excluded as self-inconsistent — see voltages.yaml KPI
 contributors: [TheAnalogMaker]

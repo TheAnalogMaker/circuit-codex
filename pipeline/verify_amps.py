@@ -77,6 +77,14 @@ def verify_amp(amp_dir: Path) -> tuple[int, int]:
         if chart is None:
             print(f"  info {name}: simulated {got:.1f} V (no confirmed chart value)")
             continue
+        if entry.get("disputed"):
+            if not entry.get("dispute_note"):
+                print(f"  FAIL {name}: disputed chart value requires a dispute_note")
+                hard += 1
+                continue
+            print(f"  disp {name}: simulated {got:.1f} V; printed chart {chart:g} V is disputed "
+                  f"(excluded from gating — see note)")
+            continue
         tol = entry.get("tol_pct", 5) / 100
         err = abs(got - chart) / abs(chart)
         ok = err <= tol

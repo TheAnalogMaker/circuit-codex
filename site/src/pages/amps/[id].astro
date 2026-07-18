@@ -54,8 +54,8 @@ const ghDir = `${GITHUB}/tree/main/amps/${amp.id}`;
                 <tr>
                   <td>{node}</td>
                   <td>{e.chart === null || e.chart === undefined ? '—' : `${e.chart} V`}</td>
-                  <td>{e.chart === null || e.chart === undefined ? '' : `±${e.tol_pct ?? 5}%`}</td>
-                  <td style="font-family:var(--body);color:var(--faint)">{e.note || ''}</td>
+                  <td>{e.disputed ? <span class="chip">chart disputed</span> : (e.chart === null || e.chart === undefined ? '' : `±${e.tol_pct ?? 5}%`)}</td>
+                  <td style="font-family:var(--body);color:var(--faint)">{e.dispute_note || e.note || ''}</td>
                 </tr>
               ))}
             </tbody>
