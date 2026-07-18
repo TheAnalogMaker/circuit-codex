@@ -8,6 +8,7 @@ export async function getStaticPaths() {
 const { amp } = Astro.props;
 const m = amp.meta;
 const v = m.verification || {};
+const vDate = v.date ? new Date(v.date).toISOString().slice(0, 10) : null;
 const ghDir = `${GITHUB}/tree/main/amps/${amp.id}`;
 ---
 <Base title={`${amp.id.toUpperCase()} — ${m.name_style} · Circuit Codex`}
@@ -17,7 +18,7 @@ const ghDir = `${GITHUB}/tree/main/amps/${amp.id}`;
     <h1>{amp.id.toUpperCase()}</h1>
     <span class="style">{m.name_style} · {m.era.start}–{m.era.end} · {m.wattage} W</span>
     {v.status === 'verified'
-      ? <span class="chip ok">✓ verified {v.date}</span>
+      ? <span class="chip ok">✓ verified {vDate}</span>
       : <span class="chip">draft</span>}
   </header>
 
