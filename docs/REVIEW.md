@@ -45,3 +45,20 @@ a fetch) before they count as reviewed.
 
 First judge run: 2026-07-18 (caught internal-notes voice leaking into the
 5E3 circuit story, among others — see repo history).
+
+## Board-layout diagrams — render, then LOOK
+
+The same "figures need eyes" rule governs `amps/<id>/layout.svg`. CI
+(`check_layouts.py`) proves a layout renders to valid, deterministic SVG and
+that every reference resolves — but it cannot see whether the drawing *reads*.
+Before a new or changed layout (especially one with a `runs`/`bus` wiring layer)
+counts as reviewed, its author converts it to PNG and reads it:
+
+```
+python pipeline/render_layouts.py --png <id>   # → /tmp/<id>.png (installs librsvg if absent)
+```
+
+Check, at minimum: labels legible and clear of wires; no body/wire overlaps that
+hide a value; every wiring run traceable end to end; wire colours match the
+published drawing; off-board components clearly placed. Iterate until it reads
+like a reference diagram a builder could follow.
