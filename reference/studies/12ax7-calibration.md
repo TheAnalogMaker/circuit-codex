@@ -183,7 +183,7 @@ better description of the tube.
 Rebuilding the model and re-simulating every circuit shows the recalibration helping
 where the model was genuinely wrong — the low-plate gain stages — and drifting
 slightly on stages that were already accurate. No circuit that passed before fails
-after; the continuous-integration voltage checks stay green.
+after; the automated voltage checks stay green.
 
 | Circuit · node | printed chart | single-anchor | two-point |
 |---|---|---|---|

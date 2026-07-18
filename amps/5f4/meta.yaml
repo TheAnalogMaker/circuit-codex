@@ -19,5 +19,7 @@ sources:
   - desc: "Fender 'Super-Amp' Model 5F4 drawing (C-EG): every component value AND the printed voltage chart read directly from the published schematic (2026-07-18) — 12AY7 two-channel front end (68k stoppers, 1M leaks, shared 820Ω/25µF cathode, 100k plates), a 12AX7 gain stage plus a DC-coupled cathode follower feeding the treble/bass tone stack, a 12AX7 long-tailed-pair PI (56k/100k plates, 1.5k+56k tail, 1M grid leaks to the tail junction), a 6L6G pair fixed-biased at -40 V through 220k leaks, and a 5U4G rectifier; rails +415/+410/+332/+280, PT 8087, OT 45216, choke 14684. Not reproduced here; archived at EL34World"
     url: "https://el34world.com/charts/Schematics/files/Fender/Fender_super_5f4.pdf"
 verification:
-  status: draft
+  status: verified
+  date: 2026-07-18
+  max_deviation_pct: 11.4   # worst non-disputed node (PI 56k-side plate); six printed values excluded as physically impossible/self-inconsistent — see voltages.yaml and the 12AX7 calibration study
 contributors: [TheAnalogMaker]

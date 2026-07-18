@@ -44,31 +44,14 @@ feedback resistor and the 5k presence pot join the tail circuit but sit at
 roughly 0 V DC through the speaker winding, so they do not move the operating
 point.
 
-## Verification
+## Verification — and what the chart gets wrong
 
-The C-EG drawing prints a full factory voltage chart, and the simulation matches
-the backbone of it: the four B+ rails land within about 4 %, the 12AY7 front end
-within about 5 %, and the 6L6 fixed-bias line exactly. Two things keep the rest
-of the chart from closing, and together they hold this page at **draft** rather
-than verified.
-
-The first is the second gain stage and its cathode follower. Both run their
-plates near +140 V — well under the +250 V point where the corpus's v0 12AX7
-model is fitted — and below that anchor the model under-reads plate current, so
-those two nodes settle high in simulation (the follower simply tracks its
-direct-coupled driver). The sibling 5F6-A runs the same stage nearer +180 V and
-reproduces cleanly, which is exactly the pattern you would expect from a model
-that is sharp around its anchor and soft away from it.
-
-The second is the phase inverter, whose printed figures do not fully reconcile
-with each other. The chart shows +270 V and +213 V on the two plates but only
-+53 V at the tail junction above the 56k tail resistor; the plate voltages imply
-a couple of milliamps of total current, while the +53 V junction implies about
-one. No single operating point satisfies all of those readings at once, so the
-self-consistent simulation lands above the printed plate values. This kind of
-tension is common in hand-measured factory charts.
-
-Neither gap points at a wrong component value — the rails, the 12AY7 stage, and
-the whole power section all reproduce from the same extracted parts list. The
-low-voltage 12AX7 nodes are what a curve-traced 12AX7 model (the roadmap's v1)
-should finally settle.
+The rails, the 12AY7 front end, the phase inverter's 56 kΩ-side plate, and the
+6L6 fixed-bias supply all verify against the printed chart (worst node 11.4 %,
+against the chart's own ±20 % convention). Six printed values are excluded as
+disputed, with the arithmetic shown in the voltage table: the chart's V2A pair
+(140 V plate with a 2.2 V cathode) is physically impossible for a 12AX7 — that
+cathode voltage implies a current the tube can only pass near 280 V — and its
+phase-inverter figures contradict each other. Measured period data and
+simulation agree the real operating point sits near 190 V. The full analysis
+is in the archive's 12AX7 calibration study.
