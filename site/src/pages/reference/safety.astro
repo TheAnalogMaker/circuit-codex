@@ -1,0 +1,676 @@
+---
+import Base from '../../layouts/Base.astro';
+import { loadCorpus, displayId } from '../../lib/corpus.js';
+
+// ---------------------------------------------------------------------------
+// (1) The high-voltage filter capacitors in the corpus — the parts that store
+// the dangerous charge. Generated at build time from every amp's bom.yaml: the
+// electrolytics on the B+ supply-filter nodes. Cathode-bypass electrolytics
+// (which sit at tens of volts) and the low-voltage bias-supply filters are
+// excluded, so the table shows only the caps that hold a lethal charge.
+const FILTER_RE = /filter|reservoir/i;
+const filterCaps = loadCorpus().flatMap((amp) =>
+  (amp.bom?.items || [])
+    .filter((i) => /electrolytic/i.test(i.part) && FILTER_RE.test(i.role) && !/bias/i.test(i.role))
+    .map((i) => ({
+      value: i.value, node: i.role, ref: i.ref,
+      ampId: amp.id, ampLabel: displayId(amp.id), ampStyle: amp.meta.name_style,
+    }))
+).sort((a, b) => a.ampId.localeCompare(b.ampId) || String(a.ref).localeCompare(String(b.ref)));
+const nFilterCircuits = new Set(filterCaps.map((c) => c.ampId)).size;
+
+// (2) The era AC-line / "death-cap" capacitor as it appears in this archive —
+// the 0.05 µF · 600 V cap on the AC-line/ground network of the tweed circuits.
+// Read at build time so the list stays honest to the schematics: an amp is only
+// named here if its own parts list carries the part.
+const deathCaps = loadCorpus().flatMap((amp) =>
+  (amp.bom?.items || [])
+    .filter((i) => /line/i.test(i.role) && /0\.05\s*µF/.test(i.value))
+    .map((i) => ({
+      value: i.value, role: i.role, part: i.part,
+      ampId: amp.id, ampLabel: displayId(amp.id), ampStyle: amp.meta.name_style,
+    }))
+).sort((a, b) => a.ampId.localeCompare(b.ampId));
+
+// ---------------------------------------------------------------------------
+// (3) The capacitor-discharge procedure. This single list drives both the
+// interactive diagram (each step lights the parts it names in `parts`) and the
+// written procedure printed below it.
+const STEPS = [
+  { parts: 'part-mains',
+    short: 'Power down and unplug',
+    detail: 'Switch off and pull the mains plug from the wall. Standby does not make a chassis safe — only unplugging stops the supply drawing new charge.',
+    readout: 'Mains cord, unplugged — the only state in which the amplifier draws no new charge.' },
+  { parts: 'part-meter',
+    short: 'Meter to DC volts',
+    detail: "Set a meter you trust to DC volts, on a range above the amp's B+ — 600 V or higher. Confirm it reads on a known source first.",
+    readout: 'Meter on DC volts, ranged above B+ — the instrument that tells you whether a cap is safe.' },
+  { parts: 'part-meter cap1',
+    short: 'Measure the first cap',
+    detail: 'Probe across the reservoir (first filter) capacitor. Expect a reading near full B+ — 300 to 450 V is normal, even long after power-off.',
+    readout: 'Reservoir cap, still near B+ — a filter capacitor holds its charge for minutes to hours.' },
+  { parts: 'part-resistor cap1',
+    short: 'Discharge through a resistor',
+    detail: "Bleed the charge through a resistor on insulated leads — roughly 1 kΩ to 50 kΩ, a few watts — from the cap's positive terminal to chassis, held for several seconds. Never short a cap with a bare screwdriver.",
+    readout: 'Discharge tool — a resistor on insulated leads bleeds the charge without the violent spark, pitted contacts, and stressed cap of a dead short.' },
+  { parts: 'part-meter cap1',
+    short: 'Verify near zero',
+    detail: 'Measure again. Only when the cap reads a few volts or less is that node safe to touch. Trust the meter, never a count of seconds.',
+    readout: 'Re-measuring — the node is safe to touch only once the meter confirms it has fallen to a few volts.' },
+  { parts: 'part-caps',
+    short: 'Repeat every node',
+    detail: 'A supply has several filter nodes — B+1, B+2, B+3, and the reservoir — each behind its own dropping resistor, each storing its own charge. Discharge and verify every one.',
+    readout: 'Every filter node — each cap holds its own charge and must be discharged and checked in turn.' },
+];
+const DIS_DEFAULT = 'Hover, tap, or focus a step to trace it on the diagram.';
+
+// (4) The standing rules, as cards.
+const RULES = [
+  { k: 'One hand', t: 'Work one-handed',
+    b: 'Keep one hand in a pocket or behind your back when a circuit may be live, so a shock cannot cross your chest and stop your heart. One hand in, one hand out.' },
+  { k: 'Never alone', t: 'Never work alone',
+    b: 'Have someone within earshot who knows where the mains disconnect is and how to break you free of a live circuit without becoming a second casualty.' },
+  { k: 'Assume live', t: 'Assume every cap is charged',
+    b: 'A bleeder resistor may be absent, wrong, or failed. Treat every filter capacitor as holding full B+ until your own meter, on that cap, proves otherwise.' },
+  { k: 'Meter', t: 'Meter, then hands',
+    b: 'A meter you trust — rated CAT II 600 V or better, with sound probes — is the only thing that tells you a node is dead. Prove the reading before you reach in.' },
+];
+---
+<Base title="High-voltage safety — discharging filter capacitors & the death cap · Circuit Codex"
+      description="The bench-safety primer for working on vintage tube amplifiers: why a chassis stays lethal after power-off (B+ of 300–450 V stored in the filter capacitors), the standard capacitor-discharge procedure amp technicians use, the one-hand rule, meter practice, and never working alone. Plus the tweed-era 0.05 µF · 600 V 'death cap' — what it was for, why it is unsafe on modern mains, and the universal fix: remove it and fit a three-wire grounded cord.">
+<div class="wrap">
+  <header class="ghead">
+    <a class="back" href="/reference/">← Reference</a>
+    <div class="eyebrow">Bench safety</div>
+    <h1>High-voltage safety</h1>
+    <p class="lede">A tube amplifier is a high-voltage device. Its plate supply runs at
+      300 to 450 volts, and its filter capacitors hold that charge for a long time after
+      the amp is switched off and unplugged. This is the standard safety practice every
+      amp manual and repair text sets out — read it before a chassis is ever opened.</p>
+  </header>
+
+  <div class="alert" role="note">
+    <strong>These voltages can kill.</strong> The plate rail in the amplifiers documented
+    here reaches several hundred volts, and the supply's filter capacitors stay charged
+    near that level for minutes to hours after power-off. Opening a chassis, or reaching
+    inside a powered one, without discharging those capacitors and confirming with a meter
+    is how people are hurt and killed. If the routine below is not already second nature,
+    this is study material — not a licence to open a live amplifier.
+  </div>
+
+  <section aria-labelledby="why-h">
+    <h2 id="why-h">Why a tube amp stays dangerous after power-off</h2>
+    <p class="sub">The danger is not only the wall socket. It is the energy the amplifier
+      deliberately stores, and keeps storing after the power is gone.</p>
+    <div class="era">
+      <p><strong>B+ is a lethal voltage.</strong> A guitar amp rectifies the power
+        transformer's high-voltage winding up to its plate supply — its <em>B+</em> — and
+        runs the output tubes from it. In the circuits documented here that rail sits
+        between about 300 V and 450 V. Mains-frequency current at those potentials, across
+        the body, is far more than enough to stop a heart; it is the current that kills,
+        and a few tens of milliamps is enough.</p>
+      <p><strong>Filter capacitors store the charge — and hold it.</strong> To smooth the
+        rectified supply into steady DC, the amp charges a bank of electrolytic filter
+        capacitors to the full B+. Switch off and the tubes stop drawing, but the capacitors
+        stay charged: a 16 µF capacitor at 450 V holds more than a joule, and with no load to
+        drain it, it can sit at a lethal voltage for many minutes — sometimes hours. A
+        capacitor is, by design, a device for holding a charge, and it does its job long
+        after the amp is dark.</p>
+      <p><strong>A pilot lamp proves nothing.</strong> The lamp goes out and the tubes stop
+        glowing while the reservoir cap is still at hundreds of volts. Some amps fit a
+        <em>bleeder</em> resistor across the first filter cap to drain it slowly, but many do
+        not, and a bleeder can be the wrong value, disconnected, or failed open. Nothing you
+        can see from outside tells you a capacitor is safe. Only a meter, on that capacitor,
+        does.</p>
+    </div>
+  </section>
+
+  <section aria-labelledby="dis-h">
+    <h2 id="dis-h">Discharging a filter capacitor</h2>
+    <p class="sub">This is the routine amp technicians run every time a chassis is opened.
+      The idea is simple: bleed each capacitor's charge away through a resistor, then prove
+      with a meter that it is gone — before any part of you enters the chassis. Hover, tap,
+      or focus a step to trace it on the diagram.</p>
+
+    <figure class="dis-fig">
+      <div class="dis-stage">
+        <svg class="dis-svg" viewBox="0 0 720 320" role="img" aria-labelledby="dis-title">
+          <title id="dis-title">Discharging a filter capacitor: unplug the amplifier, measure
+            across the reservoir capacitor with a meter set to DC volts, bleed the charge
+            through a resistor on insulated leads down to the chassis, then re-measure before
+            touching — and repeat for every filter node.</title>
+
+          <!-- chassis ground rail (always shown) -->
+          <g class="gnd" aria-hidden="true">
+            <line x1="40" y1="268" x2="680" y2="268" class="rail" />
+            <line x1="352" y1="268" x2="352" y2="284" class="rail" />
+            <line x1="338" y1="284" x2="366" y2="284" class="rail" />
+            <line x1="343" y1="290" x2="361" y2="290" class="rail" />
+            <line x1="348" y1="296" x2="356" y2="296" class="rail" />
+            <text x="378" y="292" class="dlab">Chassis ground</text>
+          </g>
+
+          <!-- top B+ bus, rectifier feed, droppers -->
+          <g class="bus" aria-hidden="true">
+            <line x1="150" y1="92" x2="560" y2="92" class="wire" />
+            <text x="150" y="70" class="dlab feed" text-anchor="start">from rectifier →</text>
+            <!-- dropper resistors between nodes -->
+            <rect x="266" y="86" width="34" height="12" rx="2" class="wire-box" />
+            <rect x="426" y="86" width="34" height="12" rx="2" class="wire-box" />
+          </g>
+
+          <!-- mains / plug -->
+          <g class="part part-mains">
+            <line x1="52" y1="40" x2="96" y2="40" class="em lead" />
+            <line x1="52" y1="52" x2="96" y2="52" class="em lead" />
+            <rect x="30" y="30" width="24" height="32" rx="4" class="em plug" />
+            <line x1="110" y1="46" x2="150" y2="46" class="lead broken" />
+            <line x1="100" y1="34" x2="120" y2="58" class="em cut" />
+            <line x1="120" y1="34" x2="100" y2="58" class="em cut" />
+            <text x="30" y="22" class="dlab">Unplug</text>
+          </g>
+
+          <!-- filter cap 1 (reservoir) -->
+          <g class="part part-caps cap1">
+            <line x1="200" y1="92" x2="200" y2="140" class="lead" />
+            <line x1="182" y1="140" x2="218" y2="140" class="em plate" />
+            <path d="M182 160 q18 -12 36 0" class="em plate curve" />
+            <line x1="200" y1="162" x2="200" y2="268" class="lead" />
+            <text x="196" y="132" class="dsign">+</text>
+            <text x="200" y="188" class="dlab strong" text-anchor="middle">B+1</text>
+            <text x="200" y="204" class="dsub" text-anchor="middle">reservoir</text>
+          </g>
+          <!-- filter cap 2 -->
+          <g class="part part-caps">
+            <line x1="360" y1="92" x2="360" y2="144" class="lead" />
+            <line x1="346" y1="144" x2="374" y2="144" class="em plate" />
+            <path d="M346 160 q14 -10 28 0" class="em plate curve" />
+            <line x1="360" y1="162" x2="360" y2="268" class="lead" />
+            <text x="357" y="137" class="dsign sm">+</text>
+            <text x="360" y="186" class="dlab" text-anchor="middle">B+2</text>
+          </g>
+          <!-- filter cap 3 -->
+          <g class="part part-caps">
+            <line x1="520" y1="92" x2="520" y2="144" class="lead" />
+            <line x1="506" y1="144" x2="534" y2="144" class="em plate" />
+            <path d="M506 160 q14 -10 28 0" class="em plate curve" />
+            <line x1="520" y1="162" x2="520" y2="268" class="lead" />
+            <text x="517" y="137" class="dsign sm">+</text>
+            <text x="520" y="186" class="dlab" text-anchor="middle">B+3</text>
+          </g>
+
+          <!-- discharge resistor tool, clipped across cap 1 (to the left) -->
+          <g class="part part-resistor">
+            <line x1="200" y1="92" x2="120" y2="92" class="em toollead" />
+            <line x1="120" y1="92" x2="120" y2="120" class="em toollead" />
+            <rect x="104" y="120" width="32" height="46" rx="4" class="em res" />
+            <line x1="120" y1="166" x2="120" y2="268" class="em toollead" />
+            <circle cx="200" cy="92" r="4.5" class="em clip" />
+            <circle cx="120" cy="268" r="4.5" class="em clip" />
+            <text x="120" y="112" class="dlab res-lab" text-anchor="middle">R</text>
+            <text x="70" y="147" class="dsub tool-lab" text-anchor="middle">1–50 kΩ</text>
+          </g>
+
+          <!-- meter (DMM), probing across cap 1 (to the right) -->
+          <g class="part part-meter">
+            <rect x="250" y="120" width="92" height="70" rx="8" class="em meter-body" />
+            <rect x="260" y="130" width="72" height="26" rx="3" class="meter-screen" />
+            <text x="296" y="148" class="meter-read" text-anchor="middle">DC V</text>
+            <circle cx="272" cy="176" r="4" class="meter-jack" />
+            <circle cx="320" cy="176" r="4" class="meter-jack" />
+            <path d="M272 180 C 250 214, 210 210, 200 130" class="em probe" />
+            <path d="M320 180 C 330 220, 300 262, 260 268" class="em probe" />
+            <circle cx="200" cy="122" r="4.5" class="em probe-tip" />
+            <circle cx="260" cy="268" r="4.5" class="em probe-tip" />
+            <text x="296" y="208" class="dsub" text-anchor="middle">meter</text>
+          </g>
+        </svg>
+      </div>
+
+      <p class="dis-readout" aria-live="polite" data-default={DIS_DEFAULT}>{DIS_DEFAULT}</p>
+
+      <ol class="dis-steps">
+        {STEPS.map((s) => (
+          <li class="dstep" tabindex="0" role="button" data-parts={s.parts}
+              data-readout={s.readout} aria-label={`${s.short}. ${s.detail}`}>
+            <span class="dnum" aria-hidden="true"></span>
+            <span class="dtext"><strong>{s.short}.</strong> {s.detail}</span>
+          </li>
+        ))}
+      </ol>
+    </figure>
+
+    <div class="warn">
+      <strong>Discharge through a resistor, not a screwdriver.</strong> Shorting a charged
+      filter cap with a bare blade throws a violent spark, pits the tool and the cap's
+      terminals, and stresses the capacitor — and it teaches the wrong reflex. A resistor of
+      about 1 kΩ to 50 kΩ, a few watts, on insulated leads, bleeds the same charge away in a
+      second or two with no drama. Then <em>verify with the meter</em>: the discharge is only
+      done when the meter, on that cap, reads a few volts or less.
+    </div>
+
+    <p class="cite">The procedure is the one given in every reputable amp-repair text and
+      service manual. Clear public write-ups include Rob Robinette's
+      <a href="https://robrobinette.com/Tube_Amp_Safety.htm" rel="external nofollow">Tube
+      Amp Safety</a> and Merlin Blencowe's <a href="https://www.valvewizard.co.uk/smoothing.html"
+        rel="external nofollow">The Valve Wizard</a> power-supply notes; the technical library
+      at <a href="https://www.aikenamps.com/index.php/tech-info" rel="external nofollow">Aiken
+      Amplification</a> covers the same ground.</p>
+  </section>
+
+  <section aria-labelledby="rules-h">
+    <h2 id="rules-h">The standing rules</h2>
+    <p class="sub">Discharging the caps clears the stored charge. These four rules cover the
+      rest — the habits that keep a live-chassis mistake from becoming a fatal one.</p>
+    <div class="rules">
+      {RULES.map((r) => (
+        <div class="rule">
+          <div class="rk">{r.k}</div>
+          <h3>{r.t}</h3>
+          <p>{r.b}</p>
+        </div>
+      ))}
+    </div>
+    <p class="ptr">On the meter: a digital multimeter used near B+ should be rated for the
+      job — CAT II at 600 V or better, with intact leads and probes — and the range set above
+      the expected voltage before the probes touch anything. A meter you have not proven on a
+      known voltage is not evidence a node is dead. The oxblood pins on the
+      <a href="/reference/guides/tube-pinouts/">tube pinout diagrams</a> mark exactly the
+      points that sit at B+ in service.</p>
+  </section>
+
+  <section aria-labelledby="caps-h">
+    <h2 id="caps-h">The charge-storing caps in this archive</h2>
+    <p class="sub">These are the high-voltage filter capacitors listed in the corpus, generated
+      straight from each amp's parts list — {filterCaps.length} caps across
+      {nFilterCircuits} circuit{nFilterCircuits === 1 ? '' : 's'}. Every one of them charges to
+      its node's B+ in service and holds it after power-off. This is the bank the procedure
+      above clears, node by node.</p>
+    <div class="tbl"><table>
+      <thead><tr><th>Ref</th><th>Capacitor</th><th>Node</th><th>In circuit</th></tr></thead>
+      <tbody>
+        {filterCaps.map((c) => (
+          <tr>
+            <td style="color:var(--amber)">{c.ref}</td>
+            <td>{c.value}</td>
+            <td class="node">{c.node}</td>
+            <td><a href={`/amps/${c.ampId}/`}>{c.ampLabel}</a> <span class="style">{c.ampStyle}</span></td>
+          </tr>
+        ))}
+      </tbody>
+    </table></div>
+    <p class="cite">Values are read from the published parts lists; cathode-bypass and
+      bias-supply electrolytics, which sit at far lower voltages, are left out so the table
+      shows only the caps that hold a dangerous charge.</p>
+  </section>
+
+  <section aria-labelledby="dc-h" class="deathcap">
+    <h2 id="dc-h">The death cap</h2>
+    <p class="sub">One era-specific part deserves its own warning: the small capacitor wired
+      from the AC line to the chassis on amps built for two-wire, ungrounded mains. Technicians
+      call it the <strong>death cap</strong>, and the standard advice is unambiguous — remove it.</p>
+
+    <div class="dc-fig">
+      <figure class="dc-panel danger">
+        <figcaption><span class="dc-tag bad">Original — two-wire cord</span></figcaption>
+        <svg viewBox="0 0 340 240" role="img" aria-labelledby="dc-a-title">
+          <title id="dc-a-title">A two-wire mains cord with a 0.05 µF capacitor wired from one
+            line conductor, through a ground/polarity switch, to the chassis — the death-cap
+            arrangement. The chassis is not connected to mains earth.</title>
+          <!-- two-wire plug -->
+          <rect x="16" y="70" width="26" height="46" rx="4" class="dc-plug" />
+          <line x1="42" y1="82" x2="90" y2="82" class="dc-wire live" />
+          <line x1="42" y1="104" x2="90" y2="104" class="dc-wire" />
+          <text x="14" y="62" class="dc-lab">2-wire</text>
+          <text x="96" y="79" class="dc-lab sm live-t">line</text>
+          <text x="96" y="118" class="dc-lab sm">neutral</text>
+          <!-- fuse + switch on the line -->
+          <rect x="90" y="76" width="26" height="12" rx="2" class="dc-box" />
+          <text x="103" y="70" class="dc-lab xs" text-anchor="middle">fuse</text>
+          <line x1="116" y1="82" x2="150" y2="82" class="dc-wire live" />
+          <!-- to PT primary -->
+          <rect x="150" y="66" width="34" height="52" rx="4" class="dc-box" />
+          <text x="167" y="96" class="dc-lab xs" text-anchor="middle">PT</text>
+          <line x1="90" y1="104" x2="184" y2="104" class="dc-wire" />
+          <!-- ground switch + death cap from line to chassis -->
+          <line x1="128" y1="82" x2="128" y2="120" class="dc-wire live" />
+          <line x1="128" y1="120" x2="140" y2="136" class="dc-wire sw" />
+          <text x="150" y="132" class="dc-lab xs">ground switch</text>
+          <!-- capacitor symbol -->
+          <line x1="128" y1="136" x2="128" y2="150" class="dc-wire" />
+          <line x1="114" y1="150" x2="142" y2="150" class="dc-cap-plate" />
+          <line x1="114" y1="158" x2="142" y2="158" class="dc-cap-plate" />
+          <line x1="128" y1="158" x2="128" y2="196" class="dc-wire" />
+          <text x="150" y="160" class="dc-lab xs">0.05 µF</text>
+          <!-- chassis bar, not earthed -->
+          <line x1="40" y1="196" x2="300" y2="196" class="dc-chassis" />
+          <line x1="184" y1="118" x2="184" y2="196" class="dc-wire" />
+          <text x="40" y="216" class="dc-lab danger-t">Chassis — not earthed</text>
+        </svg>
+        <p class="dc-note bad">A shorted or leaky cap, or a ground switch left on the hot leg,
+          puts the full line voltage on the chassis. Anyone touching the chassis and ground
+          completes the circuit.</p>
+      </figure>
+
+      <figure class="dc-panel safe">
+        <figcaption><span class="dc-tag good">Modern practice — three-wire cord</span></figcaption>
+        <svg viewBox="0 0 340 240" role="img" aria-labelledby="dc-b-title">
+          <title id="dc-b-title">A three-wire grounded mains cord: line and neutral feed the
+            power transformer through the fuse and switch, and the earth conductor bonds
+            directly to the chassis. The death cap and ground switch are removed.</title>
+          <!-- three-wire plug -->
+          <rect x="16" y="64" width="26" height="66" rx="4" class="dc-plug" />
+          <line x1="42" y1="76" x2="90" y2="76" class="dc-wire live" />
+          <line x1="42" y1="98" x2="90" y2="98" class="dc-wire" />
+          <line x1="42" y1="120" x2="120" y2="120" class="dc-wire earth" />
+          <text x="14" y="56" class="dc-lab">3-wire</text>
+          <text x="96" y="73" class="dc-lab sm live-t">line</text>
+          <text x="96" y="112" class="dc-lab sm">neutral</text>
+          <text x="126" y="124" class="dc-lab sm earth-t">earth</text>
+          <!-- fuse + switch -->
+          <rect x="90" y="70" width="26" height="12" rx="2" class="dc-box" />
+          <text x="103" y="64" class="dc-lab xs" text-anchor="middle">fuse</text>
+          <line x1="116" y1="76" x2="170" y2="76" class="dc-wire live" />
+          <!-- PT primary -->
+          <rect x="170" y="60" width="34" height="52" rx="4" class="dc-box" />
+          <text x="187" y="90" class="dc-lab xs" text-anchor="middle">PT</text>
+          <line x1="90" y1="98" x2="170" y2="98" class="dc-wire" />
+          <!-- earth bonds to chassis -->
+          <line x1="120" y1="120" x2="120" y2="188" class="dc-wire earth" />
+          <line x1="204" y1="112" x2="204" y2="188" class="dc-wire" />
+          <!-- chassis bar, earthed -->
+          <line x1="40" y1="188" x2="300" y2="188" class="dc-chassis good" />
+          <circle cx="120" cy="188" r="4" class="dc-bond" />
+          <!-- earth symbol -->
+          <line x1="250" y1="188" x2="250" y2="204" class="dc-wire earth" />
+          <line x1="236" y1="204" x2="264" y2="204" class="dc-wire earth" />
+          <line x1="241" y1="210" x2="259" y2="210" class="dc-wire earth" />
+          <line x1="246" y1="216" x2="254" y2="216" class="dc-wire earth" />
+          <text x="40" y="228" class="dc-lab good-t">Chassis — bonded to mains earth</text>
+        </svg>
+        <p class="dc-note good">The chassis is tied straight to the mains safety earth. Hum is
+          handled by the ground, not a cap. No death cap, no ground switch.</p>
+      </figure>
+    </div>
+
+    <div class="era">
+      <p><strong>What it is.</strong> On amps built for two-wire mains — the era before a
+        third, earth conductor was standard — there was no safety ground. To quiet hum, the
+        designer wired a small capacitor, typically 0.05 µF at 600 V, from one leg of the AC
+        line to the chassis, often through a two-position <em>ground</em> or
+        <em>polarity</em> switch that chose which line conductor the cap connected to. The
+        switch let the player flip the plug's effective orientation to find the quieter
+        setting.</p>
+      <p><strong>Why it was there.</strong> With no earth ground, the cap gave the chassis a
+        high-impedance AC path to the grounded (neutral) side of the line, shunting hum and
+        RF away. On the two-prong wiring of the day it was a reasonable, common trick, and it
+        appears across tweed-era amplifiers.</p>
+      <p><strong>Why it is unsafe on modern mains.</strong> A two-wire plug can go into the
+        socket either way, so there is no guarantee which prong is neutral. If the plug or the
+        switch connects the cap — and through it the chassis — to the <em>hot</em> leg, the
+        chassis is coupled to the live line. Worse, these capacitors age and fail
+        <em>shorted</em>: a failed death cap ties the chassis directly to a line conductor at
+        full mains potential. The chassis, the guitar's strings through the amp ground, and a
+        connected microphone all become live, and a person touching any of them and a grounded
+        surface completes the circuit. This arrangement has caused electrocutions, which is
+        how it earned its name.</p>
+      <p><strong>The fix everyone agrees on.</strong> Remove the death cap and the ground
+        switch entirely, and replace the two-wire cord with a modern three-wire grounded cord:
+        line and neutral to the fuse, switch, and power transformer as before, and the third
+        (green) earth conductor bonded directly to the chassis at a solid ground point. The
+        chassis is then held at earth potential by the mains ground, not floated through a
+        capacitor, and any fault trips the breaker instead of energising the chassis. Adding a
+        proper earth is not enough on its own — the cap and switch come out. This is the
+        standard, universally recommended conversion for any vintage amp returned to service.</p>
+    </div>
+
+    {deathCaps.length > 0 && (
+      <>
+      <p class="sub caps-intro">The era cap appears on the AC-line network of these circuits in
+        the archive — drawn as period annotation, never as a part to keep:</p>
+      <div class="tbl"><table>
+        <thead><tr><th>Capacitor</th><th>As drawn</th><th>Circuit</th></tr></thead>
+        <tbody>
+          {deathCaps.map((c) => (
+            <tr>
+              <td>{c.value}</td>
+              <td class="node">{c.role}</td>
+              <td><a href={`/amps/${c.ampId}/`}>{c.ampLabel}</a> <span class="style">{c.ampStyle}</span></td>
+            </tr>
+          ))}
+        </tbody>
+      </table></div>
+      </>
+    )}
+
+    <p class="cite">On the death cap and the three-wire conversion, see Rob Robinette's
+      <a href="https://robrobinette.com/Tube_Amp_Safety.htm" rel="external nofollow">Tube Amp
+      Safety</a>. The period arrangement is visible on the factory drawings this archive cites,
+      among them the <a href="https://el34world.com/charts/Schematics/files/Fender/Fender_champ_5e1.pdf"
+        rel="external nofollow">Champ 5E1</a> and other tweed schematics archived at EL34World.</p>
+  </section>
+
+  <section aria-labelledby="src-h">
+    <h2 id="src-h">Sources</h2>
+    <p class="sub">This page collects the safety practice common to the amp-repair literature
+      and the original service manuals. The references below are linked, never rehosted; the
+      manufacturer manuals of the era sit on the <a href="/reference/">reference shelf</a>.</p>
+    <ul class="srclist">
+      <li>
+        <a href="https://robrobinette.com/Tube_Amp_Safety.htm" rel="external nofollow">Rob Robinette — Tube Amp Safety</a>
+        <span class="src-host">robrobinette.com ↗</span>
+      </li>
+      <li>
+        <a href="https://www.valvewizard.co.uk/smoothing.html" rel="external nofollow">Merlin Blencowe (The Valve Wizard) — Power supplies &amp; smoothing</a>
+        <span class="src-host">valvewizard.co.uk ↗</span>
+      </li>
+      <li>
+        <a href="https://www.aikenamps.com/index.php/tech-info" rel="external nofollow">Aiken Amplification — Technical information library</a>
+        <span class="src-host">aikenamps.com ↗</span>
+      </li>
+    </ul>
+  </section>
+
+  <p class="foot-note">This primer describes standard practice; it is not a substitute for
+    hands-on training. High-voltage work carries real risk of injury and death, and the
+    responsibility for working safely rests with the person holding the probes. If any part of
+    the routine above is unfamiliar, do not open a powered or recently-powered amplifier —
+    learn the practice first, ideally alongside someone who already works on these circuits.</p>
+</div>
+</Base>
+
+<script type="application/json" id="dis-default" is:inline set:html={JSON.stringify(DIS_DEFAULT)}></script>
+<script is:inline>
+(function () {
+  const fig = document.querySelector('.dis-fig');
+  if (!fig) return;
+  const svg = fig.querySelector('.dis-svg');
+  const readout = fig.querySelector('.dis-readout');
+  const def = readout.getAttribute('data-default');
+  const steps = [...fig.querySelectorAll('.dstep')];
+
+  const clear = () => {
+    fig.classList.remove('has-active');
+    svg.querySelectorAll('.part.lit').forEach((p) => p.classList.remove('lit'));
+    steps.forEach((s) => s.classList.remove('is-active'));
+  };
+  const activate = (step) => {
+    clear();
+    fig.classList.add('has-active');
+    step.classList.add('is-active');
+    readout.textContent = step.getAttribute('data-readout');
+    step.getAttribute('data-parts').split(/\s+/).forEach((tok) => {
+      svg.querySelectorAll('.' + tok).forEach((el) => el.classList.add('lit'));
+    });
+  };
+  const reset = () => {
+    if (fig.contains(document.activeElement) && document.activeElement.classList.contains('dstep')) return;
+    clear();
+    readout.textContent = def;
+  };
+  steps.forEach((step) => {
+    step.addEventListener('mouseenter', () => activate(step));
+    step.addEventListener('focus', () => activate(step));
+    step.addEventListener('click', () => activate(step));
+    step.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); activate(step); }
+    });
+  });
+  fig.addEventListener('mouseleave', reset);
+  fig.addEventListener('focusout', () => setTimeout(reset, 0));
+})();
+</script>
+
+<style>
+  .ghead { padding: 44px 0 8px; }
+  .back { font-family: var(--disp); text-transform: uppercase; letter-spacing: .14em; font-size: 11.5px; color: var(--muted); }
+  .eyebrow { font-family: var(--disp); text-transform: uppercase; letter-spacing: .26em; font-size: 12px; color: var(--amber); margin-top: 14px; }
+  h1 { font-size: clamp(28px, 4.5vw, 42px); line-height: 1.12; margin: 8px 0 12px; }
+  .lede { max-width: 66ch; color: var(--muted); font-size: 16.5px; margin: 0; }
+  section { margin-top: 44px; }
+  h2 { font-size: 18px; letter-spacing: .14em; margin: 24px 0 4px; }
+  .sub { color: var(--muted); font-size: 14px; margin: 0 0 18px; max-width: 78ch; line-height: 1.6; }
+  .sub strong { color: var(--ink); }
+
+  /* top caution */
+  .alert { margin-top: 22px; background: var(--panel); border: 1px solid var(--oxblood);
+    border-left: 4px solid var(--oxblood); border-radius: 8px; padding: 16px 18px;
+    color: var(--muted); font-size: 14.5px; line-height: 1.65; max-width: 84ch; }
+  .alert strong { color: var(--ink); }
+
+  /* era prose blocks */
+  .era p { color: var(--muted); font-size: 15px; line-height: 1.7; max-width: 78ch; margin: 14px 0 0; }
+  .era p:first-child { margin-top: 4px; }
+  .era strong { color: var(--ink); }
+  .era em { font-style: italic; color: var(--ink); }
+
+  /* ---- discharge diagram ---- */
+  .dis-fig { margin: 0 0 22px; }
+  .dis-stage { background: var(--well); border: 1px solid var(--line-soft); border-radius: 10px; padding: 14px; }
+  .dis-svg { display: block; width: 100%; height: auto; max-width: 660px; margin: 0 auto; }
+
+  .rail { stroke: var(--faint); stroke-width: 2; stroke-linecap: round; }
+  .wire { stroke: var(--line); stroke-width: 2; }
+  .wire-box { fill: #1c1611; stroke: var(--faint); stroke-width: 1.5; }
+  .lead { stroke: var(--faint); stroke-width: 2; stroke-linecap: round; }
+  .lead.broken { stroke-dasharray: 3 4; }
+  .plate { stroke: var(--ink); stroke-width: 3; stroke-linecap: round; }
+  .plate.curve { fill: none; }
+  .plug { fill: #2c241c; stroke: var(--faint); stroke-width: 1.5; }
+  .cut { stroke: var(--oxblood); stroke-width: 2.5; stroke-linecap: round; }
+  .res { fill: #1c1611; stroke: var(--amber-dim); stroke-width: 2; }
+  .toollead { stroke: var(--amber-dim); stroke-width: 2.5; stroke-linecap: round; fill: none; }
+  .clip { fill: var(--amber-dim); }
+  .probe { fill: none; stroke: var(--faint); stroke-width: 2; }
+  .probe-tip { fill: var(--muted); }
+  .meter-body { fill: var(--panel); stroke: var(--line); stroke-width: 1.5; }
+  .meter-screen { fill: #101a12; stroke: var(--line-soft); stroke-width: 1; }
+  .meter-read { font-family: var(--mono); font-size: 12px; fill: var(--ok); letter-spacing: .1em; }
+  .meter-jack { fill: #120f0c; stroke: var(--faint); stroke-width: 1; }
+
+  .dsign { font-family: var(--body); font-size: 16px; fill: var(--oxblood); font-weight: 700; }
+  .dsign.sm { font-size: 12px; }
+  .dlab { font-family: var(--disp); text-transform: uppercase; letter-spacing: .08em; font-size: 11px; fill: var(--faint); }
+  .dlab.xs { font-size: 9.5px; letter-spacing: .05em; }
+  .dlab.sm { font-size: 10px; }
+  .dlab.strong { fill: var(--ink); font-size: 12px; }
+  .dlab.feed { fill: var(--muted); }
+  .dlab.res-lab { fill: var(--amber); font-size: 12px; }
+  .dsub { font-family: var(--mono); font-size: 10px; fill: var(--faint); }
+  .dlab.danger-t, .live-t { fill: var(--oxblood); }
+
+  /* highlight behaviour */
+  .part { transition: opacity .12s ease; }
+  .dis-fig.has-active .part:not(.lit) { opacity: .32; }
+  .part.lit .em { stroke: var(--amber); }
+  .part.lit .plate, .part.lit .toollead, .part.lit .probe, .part.lit .res,
+  .part.lit .meter-body { stroke: var(--amber); }
+  .part.lit .clip, .part.lit .probe-tip { fill: var(--amber); }
+  .part.lit .dlab, .part.lit .dsub { fill: var(--amber); }
+
+  /* ---- step list ---- */
+  .dis-readout { min-height: 2.4em; margin: 12px 4px 8px; font-family: var(--mono); font-size: 13px;
+    color: var(--ink); max-width: 80ch; line-height: 1.5; }
+  .dis-steps { list-style: none; counter-reset: dstep; margin: 6px 0 0; padding: 0;
+    display: flex; flex-direction: column; gap: 8px; }
+  .dstep { counter-increment: dstep; display: flex; gap: 14px; align-items: flex-start;
+    background: var(--panel); border: 1px solid var(--line); border-radius: 8px;
+    padding: 12px 14px; cursor: pointer; transition: border-color .12s ease, background .12s ease; }
+  .dstep:hover, .dstep.is-active { border-color: var(--amber-dim); background: #271e16; }
+  .dstep:focus-visible { outline: none; border-color: var(--amber); }
+  .dnum { flex: none; width: 26px; height: 26px; border-radius: 99px; display: grid; place-items: center;
+    font-family: var(--disp); font-size: 14px; color: var(--amber); border: 1px solid var(--amber-dim); }
+  .dnum::before { content: counter(dstep); }
+  .dstep.is-active .dnum, .dstep:hover .dnum { background: var(--amber); color: var(--ground); border-color: var(--amber); }
+  .dtext { font-size: 14px; color: var(--muted); line-height: 1.55; }
+  .dtext strong { color: var(--ink); font-family: var(--disp); text-transform: uppercase;
+    letter-spacing: .06em; font-size: 12.5px; }
+
+  /* ---- rules ---- */
+  .rules { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 14px; }
+  .rule { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 15px 17px; }
+  .rk { font-family: var(--disp); text-transform: uppercase; letter-spacing: .16em; font-size: 10.5px; color: var(--amber); }
+  .rule h3 { font-family: var(--disp); text-transform: uppercase; letter-spacing: .08em; font-size: 14px;
+    margin: 8px 0 6px; color: var(--ink); }
+  .rule p { color: var(--muted); font-size: 13.5px; line-height: 1.55; margin: 0; }
+  .ptr { margin-top: 18px; color: var(--muted); font-size: 14px; line-height: 1.65; max-width: 80ch; }
+  .ptr a { color: var(--amber); }
+
+  /* ---- tables ---- */
+  .node { font-family: var(--body); color: var(--muted); white-space: normal; }
+  td .style { font-family: var(--body); color: var(--faint); font-size: 11.5px; }
+  td a { color: var(--amber); }
+
+  /* ---- warning + citation ---- */
+  .warn { margin-top: 18px; background: var(--panel); border: 1px solid var(--line);
+    border-left: 3px solid var(--oxblood); border-radius: 6px; padding: 14px 16px;
+    color: var(--muted); font-size: 14px; line-height: 1.6; max-width: 84ch; }
+  .warn strong { color: var(--ink); }
+  .warn em { color: var(--ink); font-style: italic; }
+  .cite { margin-top: 16px; color: var(--faint); font-size: 12.5px; line-height: 1.6; max-width: 84ch; }
+  .cite a { color: var(--muted); }
+
+  /* ---- death cap ---- */
+  .deathcap .caps-intro { margin-top: 26px; }
+  .dc-fig { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 8px 0 8px; }
+  @media (max-width: 720px) { .dc-fig { grid-template-columns: 1fr; } }
+  .dc-panel { margin: 0; background: var(--well); border: 1px solid var(--line-soft); border-radius: 10px;
+    padding: 12px 14px 14px; }
+  .dc-panel.danger { border-color: rgba(156, 74, 56, .5); }
+  .dc-panel.safe { border-color: rgba(143, 174, 126, .4); }
+  .dc-panel figcaption { margin-bottom: 6px; }
+  .dc-tag { font-family: var(--disp); text-transform: uppercase; letter-spacing: .1em; font-size: 10.5px;
+    padding: 2px 9px; border-radius: 99px; border: 1px solid var(--line); }
+  .dc-tag.bad { color: var(--oxblood); border-color: var(--oxblood); }
+  .dc-tag.good { color: var(--ok); border-color: var(--ok); }
+  .dc-panel svg { display: block; width: 100%; height: auto; }
+  .dc-plug { fill: #2c241c; stroke: var(--faint); stroke-width: 1.5; }
+  .dc-box { fill: #1c1611; stroke: var(--faint); stroke-width: 1.5; }
+  .dc-wire { stroke: var(--muted); stroke-width: 2; stroke-linecap: round; fill: none; }
+  .dc-wire.live { stroke: var(--oxblood); }
+  .dc-wire.earth { stroke: var(--ok); }
+  .dc-wire.sw { stroke-dasharray: 3 3; }
+  .dc-cap-plate { stroke: var(--ink); stroke-width: 3; stroke-linecap: round; }
+  .dc-chassis { stroke: var(--faint); stroke-width: 3; stroke-linecap: round; }
+  .dc-chassis.good { stroke: var(--ok); }
+  .dc-bond { fill: var(--ok); }
+  .dc-lab { font-family: var(--disp); text-transform: uppercase; letter-spacing: .06em; font-size: 10px; fill: var(--faint); }
+  .dc-lab.sm { font-size: 9px; }
+  .dc-lab.xs { font-size: 8.5px; letter-spacing: .03em; }
+  .dc-lab.live-t, .dc-lab.danger-t { fill: var(--oxblood); }
+  .dc-lab.earth-t, .dc-lab.good-t { fill: var(--ok); }
+  .dc-note { font-size: 12.5px; line-height: 1.55; margin: 8px 0 0; color: var(--muted); }
+  .dc-note.bad { color: var(--oxblood); }
+  .dc-note.good { color: var(--ok); }
+
+  /* ---- sources ---- */
+  .srclist { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
+  .srclist li { display: flex; align-items: baseline; justify-content: space-between; gap: 12px;
+    padding: 11px 2px; border-bottom: 1px solid var(--line-soft); flex-wrap: wrap; }
+  .srclist li:last-child { border-bottom: 0; }
+  .srclist a { font-family: var(--disp); font-size: 15px; letter-spacing: .02em; }
+  .src-host { font-family: var(--mono); font-size: 11.5px; color: var(--faint); }
+
+  .foot-note { margin-top: 40px; padding-top: 16px; border-top: 1px dashed var(--line);
+    color: var(--faint); font-size: 12.5px; max-width: 84ch; line-height: 1.6; }
+</style>
