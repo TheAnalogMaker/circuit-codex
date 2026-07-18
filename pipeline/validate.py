@@ -37,6 +37,11 @@ def validate(meta_path: Path) -> list[str]:
                 errors.append(f"{meta_path}: verified circuits require verification.{key}")
         if not (meta_path.parent / "voltages.yaml").exists():
             errors.append(f"{meta_path}: verified circuits require voltages.yaml")
+    for i, src in enumerate(meta.get("sources") or []):
+        if not isinstance(src, dict) or not src.get("desc"):
+            errors.append(f"{meta_path}: sources[{i}] must be a mapping with 'desc' (and ideally 'url')")
+        elif "url" in src and not str(src["url"]).startswith("http"):
+            errors.append(f"{meta_path}: sources[{i}].url must be an http(s) link")
     for ancestor in (meta.get("lineage") or {}).get("derived_from", []) or []:
         if not (meta_path.parent.parent / ancestor).is_dir():
             errors.append(f"{meta_path}: lineage.derived_from '{ancestor}' has no amps/ directory")

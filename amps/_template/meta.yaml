@@ -15,7 +15,9 @@ topology:
 lineage:
   derived_from: []         # circuit ids
   influenced: []
-sources: []                # published charts, dated revisions, bench measurements
+sources: []                # list of {desc, url} — cite AND link every claim source
+                           # e.g. - desc: "Published X chart — values read from the drawing"
+                           #        url: "https://..."
 verification:
   status: draft            # draft | verified — set to verified ONLY by CI + maintainer
 contributors: []

@@ -114,7 +114,11 @@ const ghDir = `${GITHUB}/tree/main/amps/${amp.id}`;
   {m.sources && (
     <section class="sources">
       <h2>Sources</h2>
-      <ul class="src">{m.sources.map((s) => <li>{s}</li>)}</ul>
+      <ul class="src">{m.sources.map((s) => (
+        <li>{typeof s === 'string' ? s : (<>
+          {s.desc}{s.url && <> — <a href={s.url} rel="external nofollow">{new URL(s.url).hostname}</a></>}
+        </>)}</li>
+      ))}</ul>
     </section>
   )}
 </div>

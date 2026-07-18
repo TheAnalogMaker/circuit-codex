@@ -19,7 +19,7 @@ Schema will stabilize at the end of Phase 0 (pilot: 5f1, 5e3, 5f6a).
 | `topology.tone_stack` | string | ✓ | `single-knob` · `fmv` · `james` · `cathode-follower-fmv` · … |
 | `lineage.derived_from` | list of ids | — | Direct circuit ancestors (solid edges in the graph) |
 | `lineage.influenced` | list of ids | — | Looser influence (dashed edges) |
-| `sources` | list | ✓ | Where the circuit facts came from (published charts, dated revisions, measurements) — never "traced from factory drawing" |
+| `sources` | list of `{desc, url}` | ✓ | Where the circuit facts came from (published charts, dated revisions, measurements) — cite and link; `url` optional only when no canonical link exists. Never "traced from factory drawing" |
 | `verification.status` | enum | ✓ | `draft` · `verified` — **only CI + maintainer review set `verified`** |
 | `verification.date` | date | when verified | |
 | `verification.max_deviation_pct` | number | when verified | Worst node deviation, simulated vs published chart |
