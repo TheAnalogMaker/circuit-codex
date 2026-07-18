@@ -1,0 +1,494 @@
+---
+import Base from '../../../layouts/Base.astro';
+
+// Single source of truth for the interactive gain ladder AND the printed table
+// below. Every µ, gm, and plate resistance is read from a manufacturer datasheet
+// (linked per row), taken at that sheet's Class A₁ operating anchor. gm is in
+// µmho; rp in ohms; ia in mA at the anchor.
+const TUBES9A = [
+  { tube: '12ax7', name: '12AX7', aka: 'ECC83 · 7025', mu: 100, gm: 1600, rp: 62500,
+    anchor: '250 V, −2 V', ia: 1.2, ds: 'RCA 12AX7-A',
+    dsurl: 'https://frank.pocnet.net/sheets/049/1/12AX7A.pdf', corpus: '/reference/tubes/12ax7/' },
+  { tube: '5751', name: '5751', aka: '(no ECC equivalent)', mu: 70, gm: 1200, rp: 58000,
+    anchor: '250 V, −3 V', ia: 1.0, ds: 'RCA 5751',
+    dsurl: 'https://frank.pocnet.net/sheets/049/5/5751.pdf', corpus: null },
+  { tube: '12at7', name: '12AT7', aka: 'ECC81', mu: 60, gm: 5500, rp: 10900,
+    anchor: '250 V, Rk 200 Ω', ia: 10, ds: 'RCA 12AT7',
+    dsurl: 'https://frank.pocnet.net/sheets/049/1/12AT7.pdf', corpus: null },
+  { tube: '12ay7', name: '12AY7', aka: '6072', mu: 44, gm: 1750, rp: 25000,
+    anchor: '250 V, −4 V', ia: 3.0, ds: 'Tung-Sol 12AY7',
+    dsurl: 'https://frank.pocnet.net/sheets/127/1/12AY7.pdf', corpus: '/reference/tubes/12ay7/' },
+  { tube: '12au7', name: '12AU7', aka: 'ECC82', mu: 17, gm: 2200, rp: 7700,
+    anchor: '250 V, −8.5 V', ia: 10.5, ds: 'RCA 12AU7-A',
+    dsurl: 'https://frank.pocnet.net/sheets/049/1/12AU7A.pdf', corpus: null },
+];
+
+// The stage the guide is built around: a 100 kΩ plate load, cathode bypassed.
+// Unloaded-plate AC voltage gain of a common-cathode triode stage:
+//   A = µ · RL / (rp + RL)   (equivalently gm · (rp ∥ RL), since µ = gm·rp)
+const RL0 = 100000;
+const gainAt = (t, RL) => (t.mu * RL) / (t.rp + RL);
+const rows = TUBES9A.map((t) => ({ ...t, A: gainAt(t, RL0) }));
+const ref = rows.find((r) => r.tube === '12ax7').A;
+const maxA = Math.max(...rows.map((r) => r.A));
+
+const fmtRp = (o) => (o / 1000).toFixed(1) + ' kΩ';
+const dB = (r) => (20 * Math.log10(r)).toFixed(1);
+
+// SVG gain-ladder geometry (shared conceptually with the client script).
+const BAR_X = 96, BAR_W = 236, ROW_H = 40, TOP = 22, BAR_H = 22;
+const barW = (A) => (A / maxA) * BAR_W;
+
+// Power output tubes — all octal, RETMA/JEDEC 7AC (plate 3 · screen 4 · grid 5 ·
+// cathode 8 · heaters 2 & 7). Dissipation, heater draw, and max plate voltage
+// from the datasheet linked on each row.
+const POWER = [
+  { name: '6V6GT', fam: 'American, small', pa: '12 W', heat: '6.3 V / 0.45 A',
+    pair: '0.9 A', vmax: '315 V', load: '≈ 8 kΩ', out: '≈ 14 W',
+    ds: 'GE 6V6-GT', dsurl: 'https://frank.pocnet.net/sheets/093/6/6V6GT.pdf',
+    corpus: '/reference/tubes/6v6gt/' },
+  { name: '5881', fam: '6L6 family, rugged', pa: '23 W', heat: '6.3 V / 0.9 A',
+    pair: '1.8 A', vmax: '400 V', load: '≈ 4–6.6 kΩ', out: '≈ 30–40 W',
+    ds: 'RCA 5881', dsurl: 'https://frank.pocnet.net/sheets/049/5/5881.pdf',
+    corpus: '/reference/tubes/5881/' },
+  { name: '6L6GC', fam: '6L6 family', pa: '30 W', heat: '6.3 V / 0.9 A',
+    pair: '1.8 A', vmax: '500 V', load: '≈ 3.8–6.6 kΩ', out: '≈ 40–55 W',
+    ds: 'RCA 6L6GC', dsurl: 'https://frank.pocnet.net/sheets/049/6/6L6GC.pdf',
+    corpus: null },
+  { name: 'KT66', fam: 'British', pa: '25 W (30 W abs.)', heat: '6.3 V / 1.3 A',
+    pair: '2.6 A', vmax: '500 V (550 abs.)', load: '≈ 8 kΩ', out: '≈ 30 W',
+    ds: 'GEC KT66', dsurl: 'https://frank.pocnet.net/sheets/084/k/KT66_GEC.pdf',
+    corpus: '/reference/tubes/kt66/' },
+];
+
+// Rectifiers — the forward drop is the value each Circuit Codex model is anchored
+// to (see the linked tube page); the heater / filament current is from the
+// datasheet. Base 5T is directly heated (filament = cathode); 5DA is indirectly
+// heated with the cathode brought out separately.
+const RECT = [
+  { name: '5Y3GT', base: '5T', heated: 'directly', heat: '5 V / 2 A',
+    drop: '≈ 60 V @ 125 mA/plate', iout: '125 mA', sag: 'most (softest)',
+    corpus: '/reference/tubes/5y3gt/' },
+  { name: '5U4G', base: '5T', heated: 'directly', heat: '5 V / 3 A',
+    drop: '≈ 50 V @ 200 mA/plate', iout: '≈ 225 mA', sag: 'medium',
+    corpus: '/reference/tubes/5u4g/' },
+  { name: 'GZ34', base: '5DA', heated: 'indirectly', heat: '5 V / 1.9 A',
+    drop: '≈ 17 V @ 250 mA/plate', iout: '250 mA', sag: 'least (stiffest)',
+    corpus: '/reference/tubes/gz34/' },
+];
+---
+<Base title="Tube substitution & the gain ladder — 12AX7, 5751, 12AT7, 12AY7, 12AU7 · Circuit Codex"
+      description="A gain-and-bias interchange guide for amp tubes. Interactive 9A dual-triode gain ladder (12AX7, 5751, 12AT7, 12AY7, 12AU7) computed from datasheet µ and plate resistance in a 100 kΩ / 1.5 kΩ stage; power-tube interchange (6V6, 6L6/5881, KT66) and rectifier swaps (5Y3, 5U4, GZ34) with B+, sag, and heater-current notes.">
+<div class="wrap">
+  <header class="ghead">
+    <a class="back" href="/reference/">← Reference</a>
+    <div class="eyebrow">Practical guide</div>
+    <h1>Tube substitution &amp; the gain ladder</h1>
+    <p class="lede">Which tubes drop into which socket, and what actually changes when
+      they do — gain, bias, headroom, sag. The numbers below are computed from the
+      manufacturer datasheets, and every swap is cross-linked to the tubes and
+      amplifiers in this archive that share the socket.</p>
+  </header>
+
+  <section class="tool" aria-label="Dual-triode gain ladder">
+    <div class="tool-top">
+      <div class="hint">Pick a plate load and read the AC voltage gain of each 9A
+        dual triode in a common-cathode stage. Click, tap, or focus a bar for its
+        full characteristics. All five share the noval 9-pin base, so any of them
+        physically drops into a 12AX7 socket.</div>
+      <label class="rl-ctl"><span>Plate load R<sub>L</sub></span>
+        <span class="io"><input id="ts-rl" inputmode="text" value="100k" autocomplete="off"
+          spellcheck="false" placeholder="e.g. 100k" /><i>Ω</i></span></label>
+    </div>
+
+    <div class="gl-fig">
+      <svg class="gl-svg" viewBox={`0 0 400 ${TOP + ROW_H * rows.length + 6}`}
+           role="img" aria-labelledby="gl-title">
+        <title id="gl-title">Gain ladder: AC voltage gain of five dual triodes into the chosen plate load</title>
+        {rows.map((t, i) => {
+          const y = TOP + i * ROW_H;
+          const cy = y + BAR_H / 2;
+          const w = barW(t.A);
+          return (
+            <g class:list={['gl-row', { 'is-sel': t.tube === '12ax7' }]} data-tube={t.tube}
+               tabindex="0" role="button" aria-label={`${t.name}, stage gain ${t.A.toFixed(0)}`}>
+              <rect class="gl-hit" x="0" y={y - 6} width="400" height={BAR_H + 12} />
+              <text class="gl-name" x="86" y={cy} text-anchor="end" dominant-baseline="central">{t.name}</text>
+              <rect class="gl-track" x={BAR_X} y={y} width={BAR_W} height={BAR_H} rx="3" />
+              <rect class="gl-bar" x={BAR_X} y={y} width={w} height={BAR_H} rx="3" />
+              <text class="gl-val" x={BAR_X + w + 7} y={cy} dominant-baseline="central">{t.A.toFixed(0)}</text>
+            </g>
+          );
+        })}
+      </svg>
+    </div>
+
+    <p class="gl-readout" id="gl-readout" aria-live="polite"></p>
+    <p class="gl-formula">Stage gain <b>A = µ · R<sub>L</sub> / (r<sub>p</sub> + R<sub>L</sub>)</b>,
+      cathode bypassed, plate unloaded. Equivalent to g<sub>m</sub> · (r<sub>p</sub> ∥ R<sub>L</sub>).</p>
+  </section>
+
+  <section>
+    <h2>The 9A dual-triode family</h2>
+    <p class="sub">Five twin triodes on the same noval 9-pin base (RETMA 9A / JEDEC
+      E9-1), listed by amplification factor. µ sets the ceiling on gain; the plate
+      resistance r<sub>p</sub> decides how much of that ceiling a real plate load
+      reaches. Values are each datasheet's Class A₁ anchor.</p>
+    <div class="tbl"><table>
+      <thead><tr>
+        <th>Tube</th><th>Also</th><th>µ</th><th>g<sub>m</sub></th><th>r<sub>p</sub></th>
+        <th>Anchor</th><th>Datasheet</th>
+      </tr></thead>
+      <tbody>
+        {rows.map((t) => (
+          <tr>
+            <td style="color:var(--amber)">{t.corpus ? <a href={t.corpus}>{t.name}</a> : t.name}</td>
+            <td style="font-family:var(--body);color:var(--faint)">{t.aka}</td>
+            <td>{t.mu}</td>
+            <td>{t.gm} µmho</td>
+            <td>{fmtRp(t.rp)}</td>
+            <td>{t.anchor}</td>
+            <td><a href={t.dsurl} rel="external nofollow">{t.ds} ↗</a></td>
+          </tr>
+        ))}
+      </tbody>
+    </table></div>
+  </section>
+
+  <section>
+    <h2>What a swap does to gain</h2>
+    <p class="sub">A common-cathode triode with a bypassed cathode gives an AC voltage
+      gain of <span class="k">A = µ · R<sub>L</sub> / (r<sub>p</sub> + R<sub>L</sub>)</span>.
+      Into the classic 100 kΩ plate load, each tube reaches only the fraction
+      <span class="k">R<sub>L</sub> / (r<sub>p</sub> + R<sub>L</sub>)</span> of its µ:</p>
+    <div class="tbl"><table>
+      <thead><tr>
+        <th>Tube</th><th>µ</th><th>r<sub>p</sub></th><th>A into 100 kΩ</th>
+        <th>vs 12AX7</th><th>Δ dB</th>
+      </tr></thead>
+      <tbody>
+        {rows.map((t) => (
+          <tr>
+            <td style="color:var(--amber)">{t.name}</td>
+            <td>{t.mu}</td>
+            <td>{fmtRp(t.rp)}</td>
+            <td>{t.mu} · 100 / ({fmtRp(t.rp).replace(' kΩ','')} + 100) = <b style="color:var(--ink)">{t.A.toFixed(1)}</b></td>
+            <td>{(t.A / ref).toFixed(2)}×</td>
+            <td>{t.A === ref ? '0.0' : dB(t.A / ref)}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table></div>
+    <div class="era">
+      <p>The order is not simply the µ order. A <strong>5751</strong> has the second-highest
+        µ (70) yet lands <em>below</em> the <strong>12AT7</strong> (µ 60) into 100 kΩ, because
+        the 12AT7's plate resistance is tiny — 10.9 kΩ against the 5751's 58 kΩ — so it
+        keeps a far larger share of its µ. µ tells you the ceiling; r<sub>p</sub> tells
+        you how close a given load gets to it. Shrink R<sub>L</sub> in the tool above and
+        the low-r<sub>p</sub> tubes climb past the high-µ ones entirely — into a light
+        load, transconductance wins.</p>
+      <p>For everyday purposes the two useful landmarks are the ends of the ladder. The
+        <strong>5751</strong> is the drop-in that trims a 12AX7's gain to about
+        three-quarters (0.72×, −2.9 dB) while sitting at almost the same current — the
+        standard "tame a hot front end" move. The <strong>12AU7</strong> is the other end:
+        about a quarter of the 12AX7's gain (0.26×, −11.8 dB), the choice when a stage needs
+        to run clean with headroom to spare.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>What a swap does to bias</h2>
+    <p class="sub">The 9A family all self-bias, which is why the swaps work at all
+      without rewiring — but the DC operating point moves.</p>
+    <div class="era">
+      <p>In a cathode-biased stage the grid returns to ground and the cathode floats up
+        to <span class="k">V<sub>k</sub> = I<sub>a</sub> · R<sub>k</sub></span>. A 12AX7
+        drawing 1.2 mA through the stock 1.5 kΩ cathode resistor sits at 1.2 mA · 1.5 kΩ =
+        <strong>1.8 V</strong> — which is essentially the −2 V grid its datasheet anchor
+        assumes. That is why 1.5 kΩ is the value you find under a 12AX7 first stage.</p>
+      <p>Change the tube and the resistor sets the point automatically: a tube that wants
+        more current develops more voltage across the same 1.5 kΩ, which biases it back
+        down. The 100 kΩ plate resistor helps — off a 300 V node it caps the current near
+        (300 V − V<sub>plate</sub>) / 100 kΩ, a couple of milliamps at most, holding the
+        plate around mid-supply (1 mA drops 100 V across it, so V<sub>plate</sub> ≈ 200 V).
+        The <strong>5751</strong> lands almost exactly where the 12AX7 did — same current,
+        same 1.5 V or so of bias — the true drop-in. The lower-µ tubes
+        (<strong>12AT7</strong>, <strong>12AU7</strong>) reach a given current at a less
+        negative grid, so they settle at slightly more current and pull the plate down a
+        little, trading a touch of headroom for the far bigger change, which is the gain.
+        No swap in this family needs the bias re-set; only the plate voltage drifts.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>Power tubes — the 7AC octal family</h2>
+    <p class="sub">The output tubes below all wear the same octal 7AC base — plate on
+      pin 3, screen on 4, control grid on 5, cathode on 8, heaters on 2 and 7 — so they
+      drop into the same socket. What they do <em>not</em> share is heater draw, plate
+      dissipation, or the plate voltage they can survive, and those are what decide
+      whether a swap is safe.</p>
+    <div class="tbl"><table>
+      <thead><tr>
+        <th>Tube</th><th>Family</th><th>P<sub>a</sub> max</th><th>Heater (each)</th>
+        <th>Pair draws</th><th>V<sub>a</sub> max</th><th>P-P load</th><th>P-P out</th>
+      </tr></thead>
+      <tbody>
+        {POWER.map((p) => (
+          <tr>
+            <td style="color:var(--amber)">{p.corpus ? <a href={p.corpus}>{p.name}</a> : p.name}</td>
+            <td style="font-family:var(--body);color:var(--muted)">{p.fam}</td>
+            <td>{p.pa}</td>
+            <td>{p.heat}</td>
+            <td>{p.pair}</td>
+            <td>{p.vmax}</td>
+            <td>{p.load}</td>
+            <td>{p.out}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table></div>
+    <div class="era">
+      <p><strong>6V6 ↔ 6L6 / 5881 — dissipation and bias current.</strong> A 6V6GT idles
+        and dissipates at roughly half the level of a 6L6-family tube (12 W plate rating
+        against 23–30 W). In a <em>fixed-bias</em> amp — the
+        <a href="/amps/5f6a/">5F6-A</a>, <a href="/amps/5f4/">5F4</a>, or
+        <a href="/amps/jtm45/">JTM45</a> — the bias supply must be re-set for the tube
+        type: more negative for a bigger tube, less negative for a smaller one. Drop 6L6s
+        into a bias set for 6V6s and they run cold and thin; drop 6V6s into a bias set for
+        6L6s and they red-plate. In a <em>cathode-biased</em> amp like the
+        <a href="/amps/5e3/">5E3</a> the shared cathode resistor self-corrects to a degree,
+        but it was sized for the tube fitted, and a much larger tube will overheat it.</p>
+      <p><strong>Plate voltage is the hard limit.</strong> A 6V6GT is rated to about 315 V
+        on the plate; a Bassman or JTM45 runs its output tubes near 430–450 V, well past
+        that. The big tubes tolerate a small amp's voltage happily, so
+        <em>up</em>-sizing (6V6 → 6L6) is limited by heaters and bias, but
+        <em>down</em>-sizing (6L6 → 6V6) is limited by voltage — a 6V6 in a big-bottle amp
+        is over its plate and screen ratings.</p>
+      <p><strong>5881 vs 6L6GC.</strong> The 5881 is a rugged 6L6 with lower ratings — 23 W
+        and 400 V against the 6L6GC's 30 W and 500 V. A 6L6GC stands in for a 5881 with
+        margin to spare; a 5881 asked to do a 6L6GC's job at high B+ has less. This archive
+        models the 5881 as 6L6GC-class at tweed voltages, where the two are interchangeable.</p>
+      <p><strong>KT66 in a 6L6 socket.</strong> The KT66 is 7AC-compatible (its pin 1 is an
+        internal connection where the American tubes leave pin 1 unused) and slots straight
+        in, but it draws a heavier 1.3 A heater and gives a firmer, louder British voice.
+        The <a href="/amps/jtm45/">JTM45</a> is exactly this substitution made permanent —
+        the 6L6/5881 <a href="/amps/5f6a/">Bassman</a> topology fitted with a pair of KT66s.
+        Comparing those two amplifiers is the clearest illustration of the swap in this
+        corpus.</p>
+      <p><strong>Heater winding.</strong> A pair of 6V6s asks 0.9 A of the 6.3 V heater
+        winding; a pair of 6L6/5881s asks 1.8 A; a pair of KT66s asks 2.6 A. A power
+        transformer wound for 6V6s cannot necessarily feed the bigger tubes — check the
+        winding's rating before up-sizing.</p>
+      <p><strong>Output-transformer load.</strong> The primary impedance is chosen for the
+        tube and its voltage — roughly 8 kΩ plate-to-plate for a 6V6 or KT66 pair, near
+        4–6.6 kΩ for a 6L6 pair. A family swap detunes that match: the amp still plays, but
+        maximum power and the feel of the damping shift.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>Rectifiers — drop, B+, and sag</h2>
+    <p class="sub">A rectifier's forward drop sets how much of the transformer's voltage
+      reaches the first filter cap, and how much the supply sags when the amp pulls
+      current. The drops below are the values each Circuit Codex model is anchored to;
+      follow a tube for its model and datasheets.</p>
+    <div class="tbl"><table>
+      <thead><tr>
+        <th>Tube</th><th>Base</th><th>Heated</th><th>Filament / heater</th>
+        <th>Forward drop</th><th>Output</th><th>Sag</th>
+      </tr></thead>
+      <tbody>
+        {RECT.map((r) => (
+          <tr>
+            <td style="color:var(--amber)"><a href={r.corpus}>{r.name}</a></td>
+            <td>{r.base}</td>
+            <td style="font-family:var(--body)">{r.heated}</td>
+            <td>{r.heat}</td>
+            <td>{r.drop}</td>
+            <td>{r.iout}</td>
+            <td style="font-family:var(--body);color:var(--muted)">{r.sag}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table></div>
+    <div class="era">
+      <p><strong>Lower drop, higher B+.</strong> The GZ34 drops about 17 V, the 5U4 about
+        50 V, the 5Y3 about 60 V. Swap a 5Y3 for a GZ34 and roughly 40 V of supply comes
+        back; swap a 5U4 for a GZ34 and about 30 V does. (The exact figure scales with how
+        much current the amp draws, since the drop rises with current.) More B+ means more
+        clean headroom and output, a hotter idle everywhere downstream, and bias points
+        that have all moved — worth a re-check on a fixed-bias amp.</p>
+      <p><strong>Sag is the point, on a tweed amp.</strong> Forward drop plus internal
+        resistance means the supply dips under a hard transient and recovers a beat later —
+        the compression and "give" those circuits are prized for. The 5Y3 sags most (it is
+        also the softest and lowest-current, 125 mA), the 5U4 sits in the middle with a
+        stiffer 21 Ω source impedance, and the GZ34 sags least — tight and solid, the
+        closest of the three to a silicon rectifier, which drops almost nothing and does
+        not sag at all.</p>
+      <p><strong>Warm-up.</strong> The directly-heated 5Y3 and 5U4 have the filament for a
+        cathode, so they conduct almost as soon as the heaters glow. The GZ34 is indirectly
+        heated and comes up slowly, delaying B+ until the rest of the tubes are ready —
+        gentler on the filter caps, and a genuine reason to prefer it.</p>
+      <p><strong>Filament current — check the 5 V winding.</strong> The rectifier is fed by
+        the transformer's 5 V winding, and the three tubes load it very differently: 5Y3 at
+        2 A, 5U4 at 3 A, GZ34 at 1.9 A. Moving up from a 5Y3 to a 5U4 adds a full amp to
+        that winding — a transformer wound for a 5Y3 may not stand it. The GZ34 draws the
+        least of the three, so it never overloads the winding on that count.</p>
+      <p><strong>Socket wiring.</strong> The 5Y3 and 5U4 share the 5T base exactly
+        (filament = cathode, B+ taken from the filament pins, plates on 4 and 6), so they
+        interchange directly. The GZ34 uses the 5DA base: its cathode is separate, brought
+        out on pin 8, with the heater on pins 2 and 8. Where an amp takes B+ from pin 8 the
+        GZ34 drops straight in; where an amp bridges <em>both</em> filament pins to B+ — as
+        some directly-heated designs do — the socket needs a small rewire (lift pin 2 off
+        B+) so the 5 V winding is not compromised. Confirm the socket before assuming a
+        drop-in.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>Sources</h2>
+    <p class="sub">Every characteristic on this page is read from a manufacturer
+      datasheet at its stated operating anchor, via public tube-data archives; the sheets
+      are linked, never rehosted. The rectifier forward drops are the anchors of the
+      models on each tube's <a href="/reference/">reference page</a>.</p>
+    <ul class="srclist">
+      {[...TUBES9A, ...POWER].map((t) => (
+        <li>
+          <a href={t.dsurl} rel="external nofollow">{t.ds} — {t.name}</a>
+          <span class="src-host">frank.pocnet.net ↗</span>
+        </li>
+      ))}
+    </ul>
+  </section>
+
+  <p class="foot-note">Characteristics are datasheet averages taken at a single operating
+    anchor; a real stage's numbers move with its supply voltage and load, and the computed
+    gains above are best read as a ranking and a set of ratios, not exact bench readings.
+    Ratings differ between makers and between date codes of the same type — treat the
+    figures here as representative, and read the specific sheet before relying on a margin.</p>
+</div>
+</Base>
+
+<script type="application/json" id="ts-data" is:inline set:html={JSON.stringify(TUBES9A)}></script>
+<script is:inline>
+(function () {
+  const TUBES = JSON.parse(document.getElementById('ts-data').textContent);
+  const byTube = {}; TUBES.forEach((t) => { byTube[t.tube] = t; });
+  const svg = document.querySelector('.gl-svg');
+  const rows = [...svg.querySelectorAll('.gl-row')];
+  const input = document.getElementById('ts-rl');
+  const readout = document.getElementById('gl-readout');
+
+  const BAR_X = 96, BAR_W = 236, ROW_H = 40, TOP = 22, BAR_H = 22;
+
+  function ohms(v) {
+    if (v == null) return null;
+    let s = String(v).trim().toLowerCase().replace(/ohms?|Ω/g, '').replace(/\s+/g, '');
+    if (s === '') return null;
+    const mult = { r: 1, k: 1e3, m: 1e6 };
+    let m = s.match(/^(\d*)([rkm])(\d+)$/); if (m) return parseFloat((m[1] || '0') + '.' + m[3]) * mult[m[2]];
+    m = s.match(/^(\d*\.?\d+)([rkm]?)$/); if (m) return parseFloat(m[1]) * (m[2] ? mult[m[2]] : 1);
+    return null;
+  }
+  const gainAt = (t, RL) => (t.mu * RL) / (t.rp + RL);
+  const fmtRL = (o) => (o >= 1e6 ? Number((o / 1e6).toPrecision(4)) + ' MΩ'
+    : o >= 1e3 ? Number((o / 1e3).toPrecision(4)) + ' kΩ' : Number(o.toPrecision(4)) + ' Ω');
+  const fmtRp = (o) => (o / 1000).toFixed(1) + ' kΩ';
+
+  let selected = '12ax7';
+
+  function render() {
+    const RL = ohms(input.value);
+    if (RL == null || RL <= 0) { readout.textContent = 'Enter a plate load like 100k, 47k, or 220k.'; return; }
+    const gains = TUBES.map((t) => gainAt(t, RL));
+    const maxA = Math.max(...gains);
+    const ref = gainAt(byTube['12ax7'], RL);
+    rows.forEach((row) => {
+      const t = byTube[row.dataset.tube];
+      const A = gainAt(t, RL);
+      const w = maxA > 0 ? (A / maxA) * BAR_W : 0;
+      const i = TUBES.findIndex((x) => x.tube === t.tube);
+      const cy = TOP + i * ROW_H + BAR_H / 2;
+      row.querySelector('.gl-bar').setAttribute('width', w.toFixed(2));
+      const val = row.querySelector('.gl-val');
+      val.setAttribute('x', (BAR_X + w + 7).toFixed(2));
+      val.textContent = A.toFixed(0);
+      row.setAttribute('aria-label', t.name + ', stage gain ' + A.toFixed(0));
+      row.classList.toggle('is-sel', t.tube === selected);
+    });
+    const t = byTube[selected];
+    const A = gainAt(t, RL);
+    const rel = ref > 0 ? A / ref : 0;
+    const relTxt = t.tube === '12ax7' ? '0 dB, reference'
+      : (20 * Math.log10(rel)).toFixed(1) + ' dB vs 12AX7 (' + rel.toFixed(2) + '×)';
+    readout.textContent = t.name + ' · µ ' + t.mu + ' · gm ' + t.gm + ' µmho · rp ' + fmtRp(t.rp)
+      + ' · into ' + fmtRL(RL) + ': gain ' + A.toFixed(1) + ' (' + relTxt + ')';
+  }
+
+  rows.forEach((row) => {
+    const pick = () => { selected = row.dataset.tube; render(); };
+    row.addEventListener('mouseenter', pick);
+    row.addEventListener('focus', pick);
+    row.addEventListener('click', pick);
+    row.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pick(); } });
+  });
+  input.addEventListener('input', render);
+  render();
+})();
+</script>
+
+<style>
+  .ghead { padding: 44px 0 8px; }
+  .back { font-family: var(--disp); text-transform: uppercase; letter-spacing: .14em; font-size: 11.5px; color: var(--muted); }
+  .eyebrow { font-family: var(--disp); text-transform: uppercase; letter-spacing: .26em; font-size: 12px; color: var(--amber); margin-top: 14px; }
+  h1 { font-size: clamp(28px, 4.5vw, 42px); line-height: 1.12; margin: 8px 0 12px; }
+  .lede { max-width: 64ch; color: var(--muted); font-size: 16.5px; margin: 0; }
+  section { margin-top: 40px; }
+  h2 { font-size: 18px; letter-spacing: .14em; margin: 24px 0 4px; }
+  .sub { color: var(--muted); font-size: 14px; margin: 0 0 16px; max-width: 76ch; line-height: 1.6; }
+  .sub .k, .k { font-family: var(--mono); color: var(--ink); font-size: .95em; }
+
+  /* interactive gain ladder */
+  .tool { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 20px 22px 22px; }
+  .tool-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; flex-wrap: wrap; margin-bottom: 14px; }
+  .hint { color: var(--muted); font-size: 13.5px; max-width: 56ch; line-height: 1.55; }
+  .rl-ctl { display: flex; flex-direction: column; gap: 5px; flex: none; }
+  .rl-ctl > span { font-family: var(--disp); text-transform: uppercase; letter-spacing: .1em; font-size: 10.5px; color: var(--faint); }
+  .io { display: flex; align-items: center; background: var(--well); border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
+  .io:focus-within { border-color: var(--amber-dim); }
+  .io input { border: 0; background: transparent; color: var(--ink); font-family: var(--mono); font-size: 14px; padding: 8px 3px 8px 10px; width: 92px; }
+  .io input:focus-visible { outline: none; }
+  .io i { font-style: normal; font-family: var(--mono); font-size: 11.5px; color: var(--faint); padding: 0 10px 0 3px; }
+
+  .gl-fig { background: var(--well); border: 1px solid var(--line-soft); border-radius: 8px; padding: 12px 14px; }
+  .gl-svg { display: block; width: 100%; height: auto; }
+  .gl-row { cursor: pointer; }
+  .gl-hit { fill: transparent; }
+  .gl-name { font-family: var(--disp); font-size: 15px; letter-spacing: .04em; fill: var(--muted); text-transform: uppercase; }
+  .gl-track { fill: #191410; stroke: var(--line-soft); stroke-width: 1; }
+  .gl-bar { fill: var(--amber-dim); transition: width .12s ease, fill .12s ease; }
+  .gl-val { font-family: var(--mono); font-size: 13px; fill: var(--faint); }
+  .gl-row:hover .gl-name, .gl-row:focus-visible .gl-name, .gl-row.is-sel .gl-name { fill: var(--ink); }
+  .gl-row:hover .gl-bar, .gl-row:focus-visible .gl-bar, .gl-row.is-sel .gl-bar { fill: var(--amber); }
+  .gl-row:hover .gl-val, .gl-row.is-sel .gl-val { fill: var(--ink); }
+  .gl-row:focus-visible { outline: none; }
+  .gl-row:focus-visible .gl-track { stroke: var(--amber); stroke-width: 2; }
+
+  .gl-readout { min-height: 1.4em; margin: 14px 2px 6px; font-family: var(--mono); font-size: 13px; color: var(--ink); }
+  .gl-formula { margin: 6px 2px 0; font-size: 13px; color: var(--muted); }
+  .gl-formula b { font-family: var(--mono); color: var(--ink); font-weight: 400; }
+
+  td a { color: var(--amber); }
+  .era p { color: var(--muted); font-size: 15px; line-height: 1.7; max-width: 76ch; margin: 14px 0 0; }
+  .era p:first-child { margin-top: 4px; }
+  .era strong { color: var(--ink); }
+  .era em { font-style: italic; color: var(--ink); }
+
+  .srclist { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
+  .srclist li { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding: 11px 2px; border-bottom: 1px solid var(--line-soft); flex-wrap: wrap; }
+  .srclist li:last-child { border-bottom: 0; }
+  .srclist a { font-family: var(--disp); font-size: 15px; letter-spacing: .02em; }
+  .src-host { font-family: var(--mono); font-size: 11.5px; color: var(--faint); }
+
+  .foot-note { margin-top: 40px; padding-top: 16px; border-top: 1px dashed var(--line); color: var(--faint); font-size: 12.5px; max-width: 82ch; line-height: 1.6; }
+</style>
