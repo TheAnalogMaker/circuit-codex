@@ -1,0 +1,31 @@
+# NO PUBLISHED VOLTAGE CHART. The Marshall model 1987 factory drawing (Unicord
+# 70-19-11, July 1970) — like Marshall drawings of this era — prints component
+# values only, never a valve-voltage chart, and no publishable measured-voltage
+# reference for this exact circuit was located. Every node below therefore carries
+# `chart: null` and is reported INFORMATIONALLY (simulated only, never gate-
+# compared). This is why the amp is DRAFT: verified is earned against a measured
+# reference, and none exists here to earn it — see notes.md and meta.yaml.
+#
+# The netlist drives the reservoir B+1 at 490 V (a representative published-Plexi
+# HT figure, stated as a modelling assumption, NOT a measurement) and derives the
+# downstream rails through the drawn decoupling network. The preamp / phase-
+# inverter nodes come from the well-characterised 12AX7 model; the EL34 output
+# operating point is only a rough estimate (single-anchor v0 fit extrapolated far
+# past its 250 V datasheet anchor — see models/METHODOLOGY.md), which is a second,
+# independent reason this circuit is not offered as verified.
+source: "Marshall model 1987 factory drawing (Unicord 70-19-11, July 1970) — component values only; the drawing prints NO valve-voltage chart. Values below are simulated from the redrawn netlist, not read from any chart."
+nodes:
+  BP2:  { chart: null, note: "EL34 screen-grid supply node, after the filter choke (~B+1)" }
+  BP3:  { chart: null, note: "phase-inverter supply node" }
+  BP4:  { chart: null, note: "second-stage / cathode-follower supply node, after the 47 kΩ dropper" }
+  BP5:  { chart: null, note: "input-stage supply node, after the 10 kΩ dropper" }
+  P1A:  { chart: null, note: "V1A plate — channel I (high-treble) input, 100 kΩ load, 820 Ω cathode" }
+  K1A:  { chart: null, note: "V1A cathode (820 Ω; 320 µF bypass)" }
+  P1B:  { chart: null, note: "V1B plate — channel II (normal) input, 100 kΩ load, 2.7 kΩ cathode" }
+  K1B:  { chart: null, note: "V1B cathode (2.7 kΩ; 0.68 µF bypass) — the colder-biased channel" }
+  P2A:  { chart: null, note: "V2A plate — second gain stage (100 kΩ load), DC-coupled to the cathode follower" }
+  K2A:  { chart: null, note: "V2A cathode (820 Ω; 0.68 µF bypass)" }
+  KCF:  { chart: null, note: "V2B cathode follower output (100 kΩ load) feeding the TMB tone stack" }
+  PPIA: { chart: null, note: "phase-inverter plate, 100 kΩ side (V3A)" }
+  PPIB: { chart: null, note: "phase-inverter plate, 82 kΩ side (V3B)" }
+  KPI:  { chart: null, note: "phase-inverter shared cathode over the 470 Ω / 10 kΩ tail" }

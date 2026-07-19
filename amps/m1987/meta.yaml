@@ -1,0 +1,29 @@
+# Circuit Codex metadata — schema: docs/schema.md (v1)
+id: "m1987"
+name_style: "Plexi lead 50-style"
+family: british
+era:
+  start: 1967
+  end: 1981
+wattage: 50
+tubes: [ECC83, ECC83, ECC83, EL34, EL34]
+topology:
+  rectifier: { kind: solid-state, type: "silicon full-wave" }
+  bias: fixed
+  phase_inverter: long-tailed-pair
+  tone_stack: cathode-follower-fmv
+lineage:
+  derived_from: ["jtm45"]   # the EL34 evolution of the KT66 JTM45
+  influenced: []
+sources:
+  - desc: "Marshall model 1987 factory drawing — Unicord drawing 70-19-11, dated July 1970 (Unicord Inc., Westbury NY, Marshall's US importer). Title block reads 'MARSHALL 1987'; complement 3x ECC83 (V1/V2/V3) + 2x EL34 (V4/V5), silicon full-wave rectifier (NO rectifier valve). Every component value read directly from the published drawing: dual-channel input (68k/68k stoppers, 1M leaks, 100k plates; V1A cathode 820R/320uF, V1B cathode 2.7k/0.68uF); V2A second stage (100k plate, 820R/0.68uF cathode, drawing annotates the 820R as '(1k)' variant); V2B DC-coupled cathode follower (100k load); FMV tone stack (33k slope, 500pF/250k treble, 0.022/1M bass, 0.022/25k mid); long-tailed-pair PI (100k/82k plates, 470R + 10k tail, 1M leaks to the junction, 47pF); EL34 pair fixed-biased through 220k grid leaks off a diode/220k/15k/25k/8uF bias supply; power 490-ish HT, choke, 50uF/80uF reservoir, 10k/1W + 47k droppers, universal mains taps 110/120/200/225/245. The drawing prints NO valve-voltage chart. Not reproduced here; archived at Dr. Tube."
+    url: "https://www.drtube.com/schematics/marshall/1987u.gif"
+  - desc: "Marshall 'Model 1987 (plexi)' schematic redrawn by Joe Piazza, 1/15/97 — cross-reference. Independently confirms the topology and the unusual V1B 2.7k cathode. It differs from the factory drawing on the V1B/V2A cathode-bypass caps, printing them as 68uF where the Unicord drawing reads 0.68uF; the factory value is used here. (The bypass-cap value is open at DC and does not affect the operating point either way.)"
+    url: "https://www.drtube.com/schematics/marshall/1987pljp.gif"
+  - desc: "Mullard/Philips EL34 data sheet, January 1969 (A.F. Output Pentode) — anchor for the CC0 EL34 tube model and the octal basing (socket 5903/13): Va=250 V, Vg2=250 V, Vg1=-13.5 V -> Ia=100 mA, Ig2=14.9 mA, gm=12.5 mA/V, mu(g1-g2)=11"
+    url: "https://frank.pocnet.net/sheets/010/e/EL34.pdf"
+verification:
+  status: draft   # no factory voltage chart exists and no publishable measured
+                  # reference was found; the EL34 v0 model is also only a rough
+                  # fit at this rail — verified must be earned, so it stays draft
+contributors: [TheAnalogMaker]

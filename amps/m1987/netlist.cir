@@ -1,0 +1,100 @@
+* Marshall model 1987 "Plexi" 50 W lead — DC operating-point netlist
+* Circuit Codex — CC-BY-SA 4.0. Independently drawn from the published Marshall
+* 1987 factory drawing's component values (Unicord drawing 70-19-11, July 1970;
+* see meta.yaml). No drawing reproduced.
+*
+* NO PUBLISHED VOLTAGE CHART: Marshall drawings of this era print component
+* values only, never a valve-voltage chart. This amp therefore lands as DRAFT
+* (verified is earned against a measured reference, never forced). The reservoir
+* B+1 is DRIVEN at 490 V — a representative figure for the published 50 W Plexi
+* HT rail, stated as a modelling assumption, NOT a measurement — and the
+* downstream rails are DERIVED through the drawn decoupling network (choke +
+* 10 kΩ/1 W droppers + the 47 kΩ PI->2nd-stage dropper). Node voltages are
+* reported informationally in voltages.yaml (chart: null); none is gate-compared.
+*
+* DC conventions (as in the sibling amps): the output-transformer primary DCR is
+* omitted, so each EL34 plate node sits at B+1. DC-open caps whose BOTH leads land
+* on named DC nodes are modelled (they move no operating point but let the layout
+* net-check verify their placement): the cathode-bypass caps C1/C2/C7, the PI
+* plate-to-plate compensation cap C12, and the PI->EL34-grid couplers C13/C14.
+* Caps with a lead inside an abstracted network (the volume/tone couplers C3/C4/
+* C11, tone-stack internals) stay out. The fixed-bias network (HT-tap diode,
+* 220k/15k/25k + 8uF filters) is replaced by an ideal negative source; the drawing
+* prints no bias figure, so the value is a representative estimate. Grid-leak and
+* grid-return resistors carry ~0 DC; grids sit at their leak return. Heaters, the
+* pilot lamp and the PT/rectifier AC side are not modelled.
+.include models/12ax7.inc
+.include models/el34.inc
+
+VBP1 BP1 0 DC 490
+VBIAS NBIAS 0 DC -48
+
+* Rail chain: reservoir -> choke -> EL34 screens -> 10k -> PI -> 47k -> 2nd stage
+* -> 10k -> input stage. Choke DCR estimated; dropper values from the drawing.
+RCHOKE BP1 BP2 50
+RD1 BP2 BP3 10k
+RD2 BP3 BP4 47k
+RD3 BP4 BP5 10k
+
+* --- V1 (ECC83) input valve: two channels ---
+* V1A channel I (high-treble): 100k plate, 820R cathode, 320uF bypass
+RL1 BP5 P1A 100k
+XV1A P1A G1A K1A 12AX7
+RG1 G1A 0 1meg
+RK1 K1A 0 820
+C1 K1A 0 320u
+* V1B channel II (normal): 100k plate, 2.7k cathode, 0.68uF partial bypass
+RL2 BP5 P1B 100k
+XV1B P1B G1B K1B 12AX7
+RG2 G1B 0 1meg
+RK2 K1B 0 2.7k
+C2 K1B 0 0.68u
+
+* --- V2 (ECC83) second stage + cathode follower ---
+* V2A gain stage: grid returns to ground through the volume pots + 470k mixers
+* (represented as a 470k DC return); 100k plate; 820R cathode (0.68uF bypass)
+RL3 BP4 P2A 100k
+XV2A P2A G2A K2A 12AX7
+RGMIX G2A 0 470k
+RK3 K2A 0 820
+C7 K2A 0 0.68u
+* V2B cathode follower: grid DC-coupled to V2A plate, plate to the 2nd-stage
+* rail, 100k cathode load feeding the TMB tone stack
+XV2B BP4 P2A KCF 12AX7
+RKCF KCF 0 100k
+
+* --- V3 (ECC83) long-tailed-pair phase inverter ---
+* 100k (V3A) / 82k (V3B) plate loads from the PI rail; 470R shared cathode over a
+* 10k tail; V3A grid from the tone stack (0.022 coupler, DC-open) with a 1M leak;
+* V3B grid AC-grounded, DC-referred to the tail junction through its 1M leak.
+RLA BP3 PPIA 100k
+XV3A PPIA GPIA KPI 12AX7
+RGA GPIA JPI 1meg
+RLB BP3 PPIB 82k
+XV3B PPIB GPIB KPI 12AX7
+RGB GPIB JPI 1meg
+RTAIL KPI JPI 470
+RT2 JPI 0 10k
+* 47pF plate-to-plate phase-compensation cap (DC-open, both leads on named nodes)
+C12 PPIA PPIB 47p
+
+* --- V4 / V5 (EL34) push-pull output, fixed bias ---
+* Cathodes grounded; screens from the screen node (B+2); plates at B+1 (OT primary
+* DCR omitted). Each grid sits at the -37 V bias line through its 220k leak (the
+* PI plates couple in through 0.022uF caps that are open at DC). g3 (suppressor)
+* is tied to the cathode in use; the model's node order is P G2 G1 K.
+* The 0.022uF PI->grid couplers (C13/C14) are open at DC (no op-point shift) but
+* are modelled — both leads on named DC nodes — so the layout net-check proves the
+* push-pull phase natively: a coupler on the wrong grid, or crossed PI outputs,
+* becomes a WRONG TERMINAL rather than escaping as unmodelled wiring.
+* NOTE the -48 V modelling bias is MORE negative than a real 1987's measured
+* ~-34..-40 V grid bias: the single-anchor EL34 fit (anchored at Va=Vg2=250,
+* Vg1=-13.5) over-predicts plate current when extrapolated to the 490 V rail, so a
+* colder bias is needed to land a physical ~40 mA/tube idle. This is a v0-model
+* limitation (models/METHODOLOGY.md), and is why the amp is DRAFT, not verified.
+RGL1 G4 NBIAS 220k
+C13 PPIA G4 0.022u
+XV4 BP1 BP2 G4 0 EL34
+RGL2 G5 NBIAS 220k
+C14 PPIB G5 0.022u
+XV5 BP1 BP2 G5 0 EL34

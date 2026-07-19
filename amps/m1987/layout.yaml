@@ -1,0 +1,278 @@
+# Board layout — DERIVED FROM THE SCHEMATIC. No factory Marshall model 1987
+# layout sheet was located: Marshall built the 1987 on a turret board and, unlike
+# Fender, published a schematic (the Unicord drawing cited in meta.yaml) rather
+# than a Fender-style dimensioned layout drawing. The board order and lead-by-lead
+# wiring below are therefore reconstructed from schematic.kicad_sch / netlist.cir
+# (the electrical authority). Part refs are the shared key into bom.yaml; the
+# renderer reads each value and part type from there. This is a legible,
+# schematic-style redraw — never a trace or a dimensioned reproduction.
+#
+# Board reads left->right along the chassis: the silicon rectifier, reservoir,
+# choke, dropper chain and negative-bias supply at the left; the two EL34 output
+# valves and their grid couplers next; the long-tailed-pair phase inverter in the
+# centre; the cathode-follower TMB tone stack and V2 second stage centre-right; the
+# ECC83 input pair at the right.
+board:
+  rows: 2
+  cols: 81
+  title: "Model 1987 · turret board layout (derived)"
+caption: "Layout derived from the schematic — no factory layout sheet located. The Marshall model 1987 was a turret-board amp, documented by the factory as a schematic (Unicord 70-19-11, cited in meta.yaml), not a Fender-style dimensioned layout drawing. Board order and point-to-point wiring are reconstructed from schematic.kicad_sch / netlist.cir. All hookup and transformer leads are drawn in the neutral tone: with no layout sheet, no Marshall/Drake lead colours are asserted. The two input channels are unmatched by design — the high-treble channel (V1A) runs an 820 Ω cathode fully bypassed by 320 µF, the normal channel (V1B) a colder 2.7 kΩ with a 0.68 µF partial bypass. Parts drawn off the board here: the TMB tone-stack caps (C8/C9/C10) mount at the tone pots; the bright caps (C5/C6) and their 470 kΩ resistors (RB1/RB2) mount across the volume pots; the input grid stoppers (68 kΩ) and 1 MΩ grid leaks (RG1/RG2) sit at the input jacks; the rectifier snubbers (C23/C24) sit across the diodes; and the 15 kΩ / 25 kΩ-trim / 47 kΩ bias divider (RBB/VR6/RBC) sets the negative-bias level at the bias supply. The 6.3 V heater chain (green twisted pair, PT → pilot lamp → the two EL34 outputs → the ECC83 phase inverter → the ECC83 second stage → the ECC83 input) is likewise derived: with no layout sheet its daisy order is the physical socket order and the twisted-pair green is the house heater idiom, not a sourced wire colour. Not a trace or a dimensioned reproduction."
+source:
+  desc: "Marshall model 1987 factory drawing (Unicord 70-19-11, July 1970) — layout derived from this schematic; no factory layout sheet located"
+  url: "https://www.drtube.com/schematics/marshall/1987u.gif"
+
+# Wiring proven electrically equivalent to the verified netlist by
+# pipeline/verify_layout_nets.py (see the net_map block at the foot of this file).
+# All three ECC83 dual-triodes (input V1, second stage + CF V2, phase inverter V3)
+# and the two EL34 outputs (V4/V5) anchor by basing (0 UNANCHORED). The PI-plate ->
+# EL34-grid couplers (C13/C14), the plate-to-plate compensation cap (C12) and the
+# cathode-bypass caps (C1/C2/C7) are modelled in netlist.cir, so the push-pull
+# phase and the inter-stage routing are machine-checked, not trusted.
+wiring_claim: verified
+
+# Board-mounted parts. a / b are eyelet endpoints [row, col]; the body is drawn
+# between them (same row = axial part; shared column across rows = vertical leg).
+parts:
+  # --- negative-bias supply (HT-tap diode -> 220k -> -BIAS, 8u + 8u filters) ----
+  - { ref: C15,  a: [0, 0],  b: [0, 1] }    # 8 µF bias filter
+  - { ref: C16,  a: [0, 3],  b: [0, 4] }    # 8 µF bias filter
+  - { ref: RBA,  a: [1, 1],  b: [1, 2] }    # 220k bias series
+  - { ref: D1,   a: [1, 4],  b: [1, 5] }    # bias-supply rectifier diode
+  # --- silicon HT rectifier + reservoir (B+1) ---------------------------------
+  - { ref: D2,   a: [1, 7],  b: [1, 8] }    # HT rectifier (upper)
+  - { ref: D3,   a: [1, 10], b: [1, 11] }   # HT rectifier (lower)
+  - { ref: C17,  a: [0, 6],  b: [0, 8] }    # 50 µF reservoir, B+1
+  - { ref: C18,  a: [0, 9],  b: [0, 11] }   # 80 µF reservoir, B+1
+  # --- filter cans + rail droppers (screens, PI, 2nd stage, input) ------------
+  - { ref: C19,  a: [0, 13], b: [0, 15] }   # 50 µF filter, B+2 (screens)
+  - { ref: RD1,  a: [1, 15], b: [1, 16] }   # 10k dropper B+2->B+3
+  - { ref: C20,  a: [0, 17], b: [0, 19] }   # 50 µF filter, B+3 (PI)
+  - { ref: RD2,  a: [1, 19], b: [1, 20] }   # 47k dropper B+3->B+4
+  - { ref: C21,  a: [0, 21], b: [0, 23] }   # 50 µF filter, B+4 (2nd stage / CF)
+  - { ref: RD3,  a: [1, 23], b: [1, 24] }   # 10k dropper B+4->B+5
+  - { ref: C22,  a: [0, 25], b: [0, 27] }   # 50 µF filter, B+5 (input)
+  # --- EL34 output support: PI-plate couplers + 220k grid leaks ---------------
+  - { ref: RGL1, a: [1, 29], b: [1, 30] }   # 220k V4 grid leak -> -BIAS
+  - { ref: C13,  a: [0, 30], b: [0, 32] }   # 0.022 µF PI(A) -> V4 grid coupler
+  - { ref: RGL2, a: [1, 37], b: [1, 38] }   # 220k V5 grid leak -> -BIAS
+  - { ref: C14,  a: [0, 37], b: [0, 39] }   # 0.022 µF PI(B) -> V5 grid coupler
+  # --- long-tailed-pair phase inverter (V3) -----------------------------------
+  - { ref: C11,  a: [0, 41], b: [0, 43] }   # 0.022 µF tone-stack -> PI(A) grid coupler
+  - { ref: RLA,  a: [1, 42], b: [1, 43] }   # 100k PI(A) plate load
+  - { ref: RLB,  a: [1, 44], b: [1, 45] }   # 82k PI(B) plate load
+  - { ref: C12,  a: [0, 45], b: [0, 47] }   # 47 pF plate-to-plate compensation
+  - { ref: RGA,  a: [1, 47], b: [1, 48] }   # 1M PI(A) grid leak -> tail junction
+  - { ref: RGB,  a: [1, 49], b: [1, 50] }   # 1M PI(B) grid leak -> tail junction
+  - { ref: RTAIL, a: [0, 52], b: [1, 52] }  # 470 PI tail (vertical)
+  - { ref: RT2,  a: [1, 53], b: [1, 54] }   # 10k tail junction -> ground
+  # --- cathode-follower TMB tone stack (slope + CF load; caps at the pots) -----
+  - { ref: RSL,  a: [1, 55], b: [1, 56] }   # 33k tone-stack slope
+  - { ref: RKCF, a: [0, 57], b: [1, 57] }   # 100k cathode-follower load (vertical)
+  # --- channel mixers + V2 second stage ---------------------------------------
+  - { ref: RM1,  a: [1, 58], b: [1, 59] }   # 470k bright-channel mixer
+  - { ref: RM2,  a: [1, 60], b: [1, 61] }   # 470k normal-channel mixer
+  - { ref: RK3,  a: [0, 63], b: [1, 63] }   # 820 V2A cathode (vertical)
+  - { ref: C7,   a: [0, 64], b: [0, 65] }   # 0.68 µF V2A cathode bypass
+  - { ref: RL3,  a: [1, 65], b: [1, 66] }   # 100k V2A plate load
+  # --- ECC83 input pair (V1): bright (V1A) + normal (V1B), right end -----------
+  - { ref: C3,   a: [0, 67], b: [0, 69] }   # 0.022 µF V1A -> bright volume
+  - { ref: RL1,  a: [1, 67], b: [1, 68] }   # 100k V1A plate load
+  - { ref: C4,   a: [0, 70], b: [0, 72] }   # 0.0022 µF V1B -> normal volume
+  - { ref: RL2,  a: [1, 70], b: [1, 71] }   # 100k V1B plate load
+  - { ref: RK1,  a: [0, 74], b: [1, 74] }   # 820 V1A cathode (vertical)
+  - { ref: C1,   a: [0, 75], b: [0, 77] }   # 320 µF V1A cathode bypass
+  - { ref: RK2,  a: [0, 78], b: [1, 78] }   # 2.7k V1B cathode (vertical)
+  - { ref: C2,   a: [0, 79], b: [0, 80] }   # 0.68 µF V1B cathode bypass
+
+# Off-board items as labelled stubs: tubes along the bottom (EL34 · EL34 · ECC83
+# PI · ECC83 · ECC83 order), pots + input jacks up top, transformers + choke to
+# the sides. The silicon rectifier diodes sit on the board (D2/D3 above).
+offboard:
+  - { id: PT,  kind: xfmr,  edge: left,   at: 0.3, label: "Power trans" }
+  - { id: L1,  ref: L1, kind: choke, edge: left, at: 1.5, label: "Choke" }
+  - { id: PL1, kind: part, glyph: lamp, edge: left, at: 2.6, label: "Pilot lamp" }
+  - { id: V4,  ref: V4, kind: tube, edge: bottom, at: 31,   label: "V4 · EL34" }
+  - { id: V5,  ref: V5, kind: tube, edge: bottom, at: 38,   label: "V5 · EL34" }
+  - { id: SPK, kind: jack, edge: bottom, at: 41, label: "Spkr jacks" }
+  # NFB resistor (annotation only — no board designator): taps the speaker /
+  # OT-secondary node and returns to the phase-inverter tail foot. Drawn as a
+  # discrete 2-lead off-board part so the wiring reads true — a bare wire here
+  # would falsely short the speaker node to the tail junction.
+  - { id: RNFB, kind: part, edge: bottom, at: 44, label: "NFB" }
+  - { id: V3,  ref: V3, kind: tube, edge: bottom, at: 46,   label: "V3 · ECC83 (PI)" }
+  - { id: V2,  ref: V2, kind: tube, edge: bottom, at: 60,   label: "V2 · ECC83" }
+  - { id: V1,  ref: V1, kind: tube, edge: bottom, at: 72,   label: "V1 · ECC83" }
+  - { id: VRP, kind: pot, edge: top, at: 50.5, label: "Presence" }
+  - { id: VR3, ref: VR3, kind: pot, edge: top, at: 52,   label: "Treble", value_nudge: [30, 14] }
+  - { id: VR4, ref: VR4, kind: pot, edge: top, at: 54,   label: "Bass", value_nudge: [26, 0] }
+  - { id: VR5, ref: VR5, kind: pot, edge: top, at: 56.5, label: "Middle", value_nudge: [26, 2] }
+  - { id: VR1, ref: VR1, kind: pot, edge: top, at: 67,   label: "Vol · bright", value_nudge: [24, 0] }
+  - { id: VR2, ref: VR2, kind: pot, edge: top, at: 72,   label: "Vol · normal", value_nudge: [24, -2] }
+  - { id: JB,  kind: jack, edge: top, at: 64, label: "Bright in" }
+  - { id: JN,  kind: jack, edge: top, at: 70, label: "Normal in" }
+  - { id: T1,  ref: T1, kind: xfmr, edge: right, at: 0.5, label: "Output trans" }
+
+# Ground bus — the bare tinned rail running the length of the board just below the
+# bottom eyelet row; filter, cathode, bias, grid-leak and pot grounds tie to it.
+bus:
+  - { from: [1.45, -0.4], to: [1.45, 80.4] }
+
+runs:
+  # --- silicon rectifier + reservoir (B+1) -----------------------------------
+  - { from: PT.ht1,  to: D2.a, via: [[2.6, 0.35], [6.6, 0.6]] }   # HT winding -> rectifier upper (PT-AC)
+  - { from: PT.ht2,  to: D3.a, via: [[3.4, 0.95], [9.6, 0.62]] }  # HT winding -> rectifier lower (PT-AC)
+  - { from: PT.htct, to: [1.45, 12], via: [[1.6, 1.75], [12, 1.75]] } # HT centre tap -> ground (PT-AC)
+  - { from: D2.b, to: C17.a, via: [[7.6, 0.42]] }        # rectifier -> reservoir B+1
+  - { from: D3.b, to: C17.a, via: [[10.6, 0.5], [6.6, 0.42]] }   # rectifier -> reservoir B+1
+  - { from: C17.a, to: C18.a, via: [[7.5, -0.4]] }       # reservoir parallel (B+1)
+  - { from: C17.b, to: [1.45, 8], via: [[7.4, 0.9]] }    # reservoir - -> ground
+  - { from: C18.b, to: [1.45, 11], via: [[10.4, 0.9]] }
+  - { from: C18.a, to: L1.hi, via: [[5.5, 2.5]] }        # B+1 -> choke
+  - { from: T1.ct, to: C18.a, via: [[80.3, 0.5], [80.3, 3.12], [8.7, 3.12]] } # OT centre tap -> B+1
+
+  # --- filtered B+ rail: choke, then 10k / 47k / 10k droppers ----------------
+  - { from: L1.lo, to: C19.a, via: [[13, 2.5]] }         # choke -> B+2 (screens)
+  - { from: C19.a, to: RD1.a, via: [[15.4, 0.5]] }       # B+2 -> 10k dropper
+  - { from: RD1.b, to: C20.a, via: [[16.6, 0.5]] }       # -> B+3 (PI)
+  - { from: C20.a, to: RD2.a, via: [[19.4, 0.5]] }       # B+3 -> 47k dropper
+  - { from: RD2.b, to: C21.a, via: [[20.6, 0.5]] }       # -> B+4 (2nd stage / CF)
+  - { from: C21.a, to: RD3.a, via: [[23.4, 0.5]] }       # B+4 -> 10k dropper
+  - { from: RD3.b, to: C22.a, via: [[24.6, 0.5]] }       # -> B+5 (input)
+  - { from: C19.b, to: [1.45, 14.5], via: [[14.5, 0.6]] }
+  - { from: C20.b, to: [1.45, 18.5], via: [[18.5, 0.6]] }
+  - { from: C21.b, to: [1.45, 22.5], via: [[22.5, 0.6]] }
+  - { from: C22.b, to: [1.45, 27] }
+
+  # --- negative-bias supply: HT tap -> D1 -> 220k -> -BIAS (8u + 8u) ----------
+  - { from: PT.bias, to: D1.a, via: [[2.9, 0.7], [4, 1.35]] }    # HT tap -> bias diode (PT-AC)
+  - { from: D1.b, to: RBA.b, via: [[3.4, 1.35]] }        # diode -> 220k series
+  - { from: RBA.a, to: C15.a, via: [[0.4, 0.5]] }        # -BIAS: 220k -> filter
+  - { from: C15.a, to: C16.a, via: [[1.5, -0.35]] }      # -BIAS filters parallel
+  - { from: C15.b, to: [1.45, 0.5], via: [[0.6, 0.7]] }
+  - { from: C16.b, to: [1.45, 5], via: [[4, 0.7]] }
+  - { from: RGL1.b, to: RGL2.b, via: [[30.4, 1.16], [36.9, 1.16]] } # -BIAS ties both grid leaks
+  - { from: RGL1.b, to: C16.a, via: [[29.5, 1.15], [28.3, 1.15], [28.3, 2.5], [3.4, 2.5]] } # -BIAS backbone -> bias node
+
+  # --- EL34 output: grids, screens, plates, cathodes, OT ---------------------
+  - { from: C13.b, to: V4.pin5, via: [[31.6, 1.5]] }     # PI coupler -> V4 grid
+  - { from: RGL1.a, to: V4.pin5, via: [[30.3, 2.0], [31.4, 1.9]] } # grid leak -> V4 grid
+  - { from: C14.b, to: V5.pin5, via: [[38.6, 1.5]] }     # PI coupler -> V5 grid
+  - { from: RGL2.a, to: V5.pin5, via: [[37.8, 1.45], [38.7, 1.75]] } # grid leak -> V5 grid
+  - { from: V4.pin4, to: C19.a, via: [[29.7, 1.6], [28.2, 2.24], [13.6, 2.24], [13.4, 0.45]] } # V4 screen -> B+2
+  - { from: V5.pin4, to: V4.pin4, via: [[37.4, 1.58], [31.2, 1.58]] }  # V5 screen -> V4 screen (B+2 link)
+  - { from: V4.pin1, to: V4.pin8 }                       # V4 suppressor -> cathode
+  - { from: V4.pin8, to: [1.45, 32], via: [[31.9, 1.62]] } # V4 cathode -> ground
+  - { from: V5.pin1, to: V5.pin8 }                       # V5 suppressor -> cathode
+  - { from: V5.pin8, to: [1.45, 39], via: [[38.9, 1.62]] } # V5 cathode -> ground
+  - { from: V4.pin3, to: T1.pa, via: [[29.4, 2.0], [28.9, 2.88], [79.4, 2.88], [79.4, 0.31]] }  # V4 plate -> OT
+  - { from: V5.pin3, to: T1.pb, via: [[36.4, 2.0], [35.9, 3.0], [79.6, 3.0], [79.6, 0.41]] }    # V5 plate -> OT
+  - { from: T1.sa, to: SPK, via: [[80.5, 0.6], [80.5, 3.36], [41.4, 3.36], [41.4, 2.15]] } # OT secondary -> speaker
+  - { from: T1.sb, to: SPK, via: [[80.7, 0.7], [80.7, 3.48], [40.6, 3.48]] } # OT secondary -> speaker
+  - { from: SPK, to: RNFB.a, via: [[41.2, 2.32], [42.8, 2.72]] }            # speaker node -> NFB
+  - { from: RNFB.b, to: RT2.a, via: [[43.4, 2.7], [43.4, 3.24], [53.2, 3.24]] } # NFB -> tail junction
+
+  # --- long-tailed-pair phase inverter (V3) ----------------------------------
+  - { from: RLA.a, to: C20.a, via: [[41.6, 2.34], [17.6, 2.34], [17.4, 0.45]] } # PI(A) plate load -> B+3
+  - { from: RLB.a, to: RLA.a, via: [[44, 1.22], [42.4, 1.22]] } # B+3 backbone -> RLB.a
+  - { from: RLA.b, to: V3.pin6, via: [[43.4, 1.7], [45.9, 1.75]] } # -> V3A plate (PPIA)
+  - { from: RLB.b, to: V3.pin1, via: [[45.6, 1.35], [45.9, 2.05]] } # -> V3B plate (PPIB)
+  - { from: C12.a, to: RLA.b, via: [[45, 0.55], [43.4, 0.55]] } # 47pF plate-to-plate: PPIA side
+  - { from: C12.b, to: RLB.b, via: [[46.6, 0.6], [45, 0.6]] }   # 47pF: PPIB side
+  - { from: C13.a, to: RLA.b, via: [[33, 0.6], [33, 2.44], [42.6, 2.44]] } # PPIA -> V4 coupler (deep lane)
+  - { from: C14.a, to: RLB.b, via: [[36, 0.6], [36, 2.54], [45, 2.54]] } # PPIB -> V5 coupler (deep lane)
+  - { from: C11.b, to: V3.pin7, via: [[42.4, 1.05], [46.2, 1.6], [46.8, 1.8]] } # tone coupler -> V3A grid
+  - { from: RGA.a, to: V3.pin7, via: [[47.2, 1.72]] }          # 1M grid leak -> V3A grid
+  - { from: RGA.b, to: RT2.a, via: [[47.6, 1.32], [52.6, 1.32]] } # 1M grid leak -> tail junction
+  - { from: RGB.a, to: V3.pin2, via: [[48.8, 1.6], [45.6, 2.0]] } # 1M grid leak -> V3B grid
+  - { from: RGB.b, to: RT2.a, via: [[49.6, 1.52], [52.7, 1.52]] } # 1M grid leak -> tail junction
+  - { from: V3.pin8, to: RTAIL.a, via: [[47.4, 1.5], [47.4, 0.68], [51.6, 0.68]] } # V3A cathode -> tail top (KPI)
+  - { from: V3.pin3, to: RTAIL.a, via: [[44.8, 1.3], [44.8, 0.5], [51.4, 0.5]] } # V3B cathode -> tail top
+  - { from: RTAIL.b, to: RT2.a, via: [[52.5, 1.05]] }         # tail (JPI) -> junction
+  - { from: RT2.b, to: [1.45, 54] }                           # 10k tail -> ground bus
+
+  # --- cathode-follower TMB tone stack (C8/C9/C10 mount at the pots) ----------
+  - { from: V2.pin3, to: RKCF.a, via: [[57.8, 1.5]] }         # CF cathode (KCF) -> 100k load
+  - { from: RKCF.b, to: [1.45, 57] }                          # CF load -> ground
+  - { from: V2.pin3, to: RSL.a, via: [[58.2, 1.75], [55.4, 1.6]] } # CF cathode -> 33k slope
+  - { from: RSL.b, to: VR3.lug3, via: [[52.6, 0.4], [52.3, -0.5]] }   # slope -> treble top
+  - { from: RSL.b, to: VR4.lug3, via: [[55, 0.35], [54.3, -0.5]] }    # slope -> bass top
+  - { from: VR3.lug1, to: VR4.lug3, via: [[52, -0.72], [54, -0.72]] } # treble bottom -> bass-top node
+  - { from: VR3.lug2, to: C11.a, via: [[52, -0.55], [41.5, -0.55]] }  # treble wiper -> PI coupler
+  - { from: VR4.lug2, to: C11.a, via: [[54, -0.66], [41, -0.66]] }    # bass wiper -> PI coupler
+  - { from: VR4.lug1, to: VR5.lug3, via: [[53.9, -0.55], [56.6, -0.55]] } # bass bottom -> middle top
+  - { from: VR5.lug2, to: VR5.lug3 }                          # middle wired as rheostat
+  - { from: VR5.lug1, to: [1.45, 56.5], via: [[56.5, -0.4], [56.5, 1.9]] } # middle bottom -> ground (C10 at pot)
+
+  # --- V2A second stage + V2B cathode follower + mixers ----------------------
+  - { from: RL3.a, to: C21.a, via: [[65.3, 2.76], [22, 2.76], [21.6, 0.45]] } # V2A plate load -> B+4 (deep lane)
+  - { from: RL3.b, to: V2.pin6, via: [[65.5, 1.6], [60.6, 1.75]] } # -> V2A plate (P2A)
+  - { from: V2.pin6, to: V2.pin2, via: [[60.4, 1.5], [59.3, 1.9]] } # V2A plate -> V2B grid (DC-coupled)
+  - { from: V2.pin1, to: RL3.a, via: [[59.2, 2.4], [64.2, 2.4]] } # V2B (CF) plate -> B+4
+  - { from: V2.pin8, to: RK3.a, via: [[62.5, 1.5]] }          # V2A cathode -> 820 (K2A)
+  - { from: RK3.b, to: [1.45, 63] }                           # 820 -> ground bus
+  - { from: C7.a, to: RK3.a }                                 # bypass across the cathode R
+  - { from: C7.b, to: [1.45, 64.3], via: [[64.3, 0.6]] }      # bypass -> ground
+  - { from: RM1.b, to: V2.pin7, via: [[59.2, 1.6], [60.6, 1.95]] } # bright mixer -> V2A grid
+  - { from: RM2.b, to: V2.pin7, via: [[60.9, 1.72]] }         # normal mixer -> V2A grid
+
+  # --- volume controls -> channel mixers -------------------------------------
+  - { from: VR1.lug2, to: RM1.a, via: [[67, -0.5], [58, -0.5]] }   # bright vol wiper -> mixer
+  - { from: VR2.lug2, to: RM2.a, via: [[72, -0.62], [60, -0.62]] } # normal vol wiper -> mixer
+  - { from: VR1.lug1, to: [1.45, 66.5], via: [[66.5, 0.6]] }   # bright volume ground
+  - { from: VR2.lug1, to: [1.45, 72.9], via: [[71.6, -0.25], [72.7, -0.25], [72.9, 0.55]] } # normal volume ground
+  - { from: C3.b, to: VR1.lug3, via: [[69, -0.44], [67, -0.44]] }  # V1A coupler -> bright vol top
+  - { from: C4.b, to: VR2.lug3, via: [[72.1, -0.2]] }             # V1B coupler -> normal vol top
+
+  # --- ECC83 input pair (V1): bright (V1A) + normal (V1B) --------------------
+  - { from: JB, to: V1.pin7, via: [[64, -0.56], [71.6, -0.56]] }   # bright jack -> V1A grid
+  - { from: JN, to: V1.pin2, via: [[70, -0.72], [70.6, -0.72], [70.6, 1.85]] } # normal jack -> V1B grid
+  - { from: RL1.a, to: C22.a, via: [[66.6, 2.64], [26.4, 2.64], [26.2, 0.45]] } # V1A plate load -> B+5 (deep lane)
+  - { from: RL2.a, to: RL1.a, via: [[70, 1.24], [67.4, 1.24]] } # B+5 backbone -> RL2.a
+  - { from: V1.pin6, to: RL1.b, via: [[68.4, 1.6]] }          # V1A plate -> 100k load
+  - { from: V1.pin6, to: C3.a, via: [[70.5, 1.55], [67.4, 1.72]] } # V1A plate -> coupler
+  - { from: V1.pin1, to: RL2.b, via: [[71.9, 1.6], [71, 1.3]] } # V1B plate -> 100k load
+  - { from: V1.pin1, to: C4.a, via: [[71.5, 0.6], [70, 0.6]] } # V1B plate -> coupler
+  - { from: V1.pin8, to: RK1.a, via: [[73.2, 1.6]] }          # V1A cathode -> 820 (K1A)
+  - { from: RK1.b, to: [1.45, 74] }                           # 820 -> ground bus
+  - { from: C1.a, to: RK1.a }                                 # V1A bypass across the cathode R
+  - { from: C1.b, to: [1.45, 75], via: [[75, 0.6]] }
+  - { from: V1.pin3, to: RK2.a, via: [[71.9, 2.2], [77.4, 2.35], [77.6, 0.6]] } # V1B cathode -> 2.7k (K1B)
+  - { from: RK2.b, to: [1.45, 78] }                           # 2.7k -> ground bus
+  - { from: C2.a, to: RK2.a }                                 # V1B bypass across the cathode R
+  - { from: C2.b, to: [1.45, 79] }
+
+  # --- presence control (off-board) at the phase-inverter tail foot ----------
+  - { from: VRP.lug3, to: RT2.a, via: [[50.5, -0.78], [53, -0.78]] } # presence -> tail junction
+  - { from: VRP.lug1, to: [1.45, 51] }                        # presence ground
+
+  # --- 6.3 V heater chain (green twisted pair, standard-practice / derived) ---
+  # No factory layout sheet exists, so the daisy order is the physical socket
+  # order: PT heater winding -> pilot lamp -> the two EL34 outputs -> the ECC83
+  # phase inverter -> the ECC83 second stage -> the ECC83 input. No rectifier
+  # valve to skip (silicon). Twisted runs land only on heater pins (EL34 octal
+  # 2/7, ECC83 noval 4/5), routed in a deep lane below the output harness.
+  - { from: PT.heat, to: PL1.a, style: twisted }                                    # 6.3 V -> pilot lamp
+  - { from: PL1.b, to: V4.pin7, style: twisted, via: [[-1.4, 3.66], [31, 3.66]] }   # lamp -> V4 EL34 heater
+  - { from: V4.pin2, to: V5.pin7, style: twisted, via: [[31, 3.68], [38, 3.68]] }   # V4 -> V5 EL34 heater
+  - { from: V5.pin2, to: V3.pin4, style: twisted, via: [[38, 3.7], [46, 3.7]] }     # V5 -> V3 ECC83 heater
+  - { from: V3.pin5, to: V2.pin4, style: twisted, via: [[46, 3.66], [60, 3.66]] }   # V3 -> V2 ECC83 heater
+  - { from: V2.pin5, to: V1.pin4, style: twisted, via: [[60, 3.66], [72, 3.66]] }   # V2 -> V1 ECC83 heater
+  - { from: V1.pin4, to: V1.pin5, style: twisted }  # close the pair at the last socket
+
+# net_map — the reviewable data layer reconciling the drawn wiring with the DC
+# netlist for pipeline/verify_layout_nets.py. See docs/layout-schema.md.
+net_map:
+  # The two EL34 plates and the OT primary centre tap co-anchor to B+1 — the
+  # netlist omits the OT primary DCR, so both plate nodes and the CT collapse to B+1.
+  anchors:
+    T1.pa: BP1       # V4 EL34 plate -> OT primary
+    T1.pb: BP1       # V5 EL34 plate -> OT primary
+    T1.ct: BP1       # OT primary centre tap -> B+1
+    SPK: "0"         # speaker jack — OT-secondary DCR folded into ground (NFB return reads as ground at DC)
+  # Netlist elements realised off the board or by a control — reported in
+  # coverage, never a failure (their nodes still have to check out).
+  netlist_unplaced:
+    RCHOKE: "filter choke L1 sits on the board (B+1 -> B+2); the netlist models its DCR as RCHOKE"
+    RG1: "V1A grid leak — 1 MΩ chassis-mounted at the bright input jack, off the board"
+    RG2: "V1B grid leak — 1 MΩ chassis-mounted at the normal input jack, off the board"
+    RGMIX: "V2A grid return — realised through the volume pots (VR1/VR2) and 470k channel mixers (RM1/RM2) to ground, not a discrete board resistor"
