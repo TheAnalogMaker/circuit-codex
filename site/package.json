@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "dev": "astro dev",
-    "build": "node scripts/sync-assets.mjs && astro build",
+    "build": "node scripts/sync-assets.mjs && astro build && pagefind --site dist",
     "preview": "astro preview"
   },
   "dependencies": {
@@ -12,5 +12,8 @@
     "astro": "^5.0.0",
     "js-yaml": "^4.1.0",
     "marked": "^12.0.0"
+  },
+  "devDependencies": {
+    "pagefind": "^1.5.2"
   }
 }

@@ -1,0 +1,72 @@
+---
+import Base from '../layouts/Base.astro';
+
+const title = 'Search · Circuit Codex';
+const description = 'Search the Circuit Codex archive — circuits, tube reference, and guides.';
+---
+<Base title={title} description={description}>
+<div class="wrap" data-pagefind-ignore>
+  <header class="page-head">
+    <h1>Search the archive</h1>
+    <p class="lede">Find a circuit, tube, or reference page by name, part, or topology.</p>
+  </header>
+  <div id="search"></div>
+</div>
+<link rel="stylesheet" href="/pagefind/pagefind-ui.css" />
+<script type="module" is:inline>
+  import { PagefindUI } from '/pagefind/pagefind-ui.js';
+  new PagefindUI({
+    element: '#search',
+    showSubResults: true,
+    showImages: false,
+    autofocus: true,
+    translations: {
+      placeholder: 'Search circuits, tubes, guides…',
+      zero_results: 'No results for [SEARCH_TERM]. Try a circuit id (5e3), a tube (6L6), or a part value.',
+      many_results: '[COUNT] results for [SEARCH_TERM]',
+      one_result: '[COUNT] result for [SEARCH_TERM]',
+    },
+  });
+</script>
+</Base>
+
+<style>
+  .page-head{padding:56px 0 28px}
+  .lede{max-width:60ch;color:var(--muted);font-size:16px}
+
+  /* Pagefind UI themed to the Circuit Codex house palette via its documented
+     CSS custom properties — see Base.astro :root for the shared token set. */
+  #search{
+    --pagefind-ui-scale: 1;
+    --pagefind-ui-primary: var(--amber);
+    --pagefind-ui-text: var(--ink);
+    --pagefind-ui-background: var(--panel);
+    --pagefind-ui-border: var(--line);
+    --pagefind-ui-tag: var(--faint);
+    --pagefind-ui-border-width: 1px;
+    --pagefind-ui-border-radius: 8px;
+    --pagefind-ui-image-border-radius: 6px;
+    --pagefind-ui-image-box-ratio: 3 / 2;
+    --pagefind-ui-font: var(--body);
+    padding-bottom:80px;
+  }
+  #search :global(.pagefind-ui__form) { margin-bottom: 18px; }
+  #search :global(.pagefind-ui__search-input) {
+    font-family: var(--body);
+    background: var(--well);
+    color: var(--ink);
+  }
+  #search :global(.pagefind-ui__search-input)::placeholder { color: var(--faint); }
+  #search :global(.pagefind-ui__search-clear) { color: var(--muted); }
+  #search :global(.pagefind-ui__result) {
+    background: var(--panel);
+    border-color: var(--line);
+  }
+  #search :global(.pagefind-ui__result-link) { color: var(--amber); }
+  #search :global(.pagefind-ui__result-excerpt mark) {
+    background: transparent;
+    color: var(--amber);
+    font-weight: 600;
+  }
+  #search :global(.pagefind-ui__message) { color: var(--muted); font-size: 14.5px; }
+</style>

@@ -84,20 +84,21 @@ if (!ld && isGuide) {
   .tbl{overflow-x:auto;border:1px solid var(--line);border-radius:8px}
 </style>
 </head>
-<body>
-<nav><div class="wrap nav-in">
+<body data-pagefind-body>
+<nav data-pagefind-ignore><div class="wrap nav-in">
   <a href="/" style="text-decoration:none"><span class="brand">The Analog Maker <b>/ Circuit Codex</b></span></a>
   <span class="nav-links">
     <a href="/#circuits">Circuits</a>
     <a href="/lineage/">Lineage</a>
     <a href="/reference/">Reference</a>
     <a href="/about/">About</a>
+    <a href="/search/">Search</a>
     <a href={GITHUB}>GitHub</a>
     <a href="https://www.youtube.com/@theanalogmaker">YouTube</a>
   </span>
 </div></nav>
 <slot />
-<footer><div class="wrap">
+<footer data-pagefind-ignore><div class="wrap">
   <div class="row">
     <span>© 2026 The Analog Maker</span>
     <a href="/about/">About &amp; start here</a>
