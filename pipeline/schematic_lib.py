@@ -141,7 +141,31 @@ LIB = f"""  (lib_symbols
         {_pin("passive", -8.89, 0, 0, 2.54, "CT", "2")}
         {_pin("passive", -8.89, -5.08, 0, 2.54, "PRI_B", "3")}
         {_pin("passive", 8.89, 2.54, 180, 2.54, "SEC_H", "4")}
-        {_pin("passive", 8.89, -2.54, 180, 2.54, "SEC_C", "5")})))
+        {_pin("passive", 8.89, -2.54, 180, 2.54, "SEC_C", "5")}))
+    (symbol "cx:PT" (pin_numbers hide) (pin_names hide) (in_bom yes) (on_board yes)
+      (property "Reference" "T" (at -6.35 12.7 0) {FONT})
+      (property "Value" "PT" (at 0 0 0) {FONT})
+      (symbol "PT_0_1" (rectangle (start -6.35 -8.89) (end 6.35 8.89) {_STROKE}))
+      (symbol "PT_1_1"
+        {_pin("passive", -8.89, 5.08, 0, 2.54, "PRI_1", "1")}
+        {_pin("passive", -8.89, -5.08, 0, 2.54, "PRI_2", "2")}
+        {_pin("passive", 8.89, 5.08, 180, 2.54, "HT_A", "3")}
+        {_pin("passive", 8.89, 0, 180, 2.54, "HT_CT", "4")}
+        {_pin("passive", 8.89, -5.08, 180, 2.54, "HT_B", "5")}))
+    (symbol "cx:OPTO" (pin_numbers hide) (pin_names hide) (in_bom yes) (on_board yes)
+      (property "Reference" "U" (at 5.08 5.08 0) {FONT})
+      (property "Value" "opto" (at 5.08 -5.08 0) {FONT})
+      (symbol "OPTO_0_1"
+        (rectangle (start -3.81 -3.81) (end 3.81 3.81) {_STROKE})
+        (circle (center -1.905 0) (radius 1.016) {_STROKE})
+        {_poly("(xy 0.635 -1.905) (xy 3.048 1.905)")}
+        {_poly("(xy 3.048 1.905) (xy 2.286 1.397)")}
+        {_poly("(xy 3.048 1.905) (xy 2.667 2.286)")})
+      (symbol "OPTO_1_1"
+        {_pin("passive", -6.35, 2.54, 0, 2.54, "L1", "1")}
+        {_pin("passive", -6.35, -2.54, 0, 2.54, "L2", "2")}
+        {_pin("passive", 6.35, 2.54, 180, 2.54, "P1", "3")}
+        {_pin("passive", 6.35, -2.54, 180, 2.54, "P2", "4")})))
 """
 
 
@@ -228,14 +252,29 @@ class Sch:
         self.wire(x, py - gap - 7.62, x, py - gap - 10.16)
         self.glabel(rail, x, py - gap - 10.16, 90)
 
-    def write(self, path, title_lines: list[tuple]) -> None:
+    def pt(self, ref: str, val: str, x: float, y: float,
+           lx: float = -6.35, ly: float = -11.9) -> dict:
+        """Power transformer: primary (2 pins, left), HT centre-tapped (3, right)."""
+        self.sym("PT", ref, val, x, y, lx=lx, ly=ly)
+        return {"pri1": (x - 8.89, y - 5.08), "pri2": (x - 8.89, y + 5.08),
+                "ht_a": (x + 8.89, y - 5.08), "ht_ct": (x + 8.89, y),
+                "ht_b": (x + 8.89, y + 5.08)}
+
+    def opto(self, ref: str, val: str, x: float, y: float,
+             lx: float = 4.4, ly: float = -8.0) -> dict:
+        """Optocoupler: neon lamp side (left, 2 pins), photocell side (right, 2)."""
+        self.sym("OPTO", ref, val, x, y, lx=lx, ly=ly)
+        return {"l1": (x - 6.35, y - 2.54), "l2": (x - 6.35, y + 2.54),
+                "p1": (x + 6.35, y - 2.54), "p2": (x + 6.35, y + 2.54)}
+
+    def write(self, path, title_lines: list[tuple], paper: str = "A4") -> None:
         head = "\n".join(
             f"""  (text "{t}" (at {x:g} {y:g} 0)
     (effects (font (size {s:g} {s:g})) (justify left)) (uuid "{_u()}"))"""
             for (t, x, y, s) in title_lines)
         doc = f"""(kicad_sch (version 20231120) (generator "circuit-codex")
   (uuid "{_u()}")
-  (paper "A4")
+  (paper "{paper}")
 {LIB}
 {head}
 {chr(10).join(self.body)}

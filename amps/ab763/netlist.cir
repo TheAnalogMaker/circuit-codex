@@ -37,20 +37,22 @@ VBP1 BP1 0 DC 415
 VBC  BC  0 DC 325
 VBIAS NBIAS 0 DC -35
 
-* input-stage rail: BC -> 10k -> BD (drawing's second dropper)
-RD1 BC BD 10k
+* input-stage rail: BC -> 10k -> BD (the +325 -> +180 dropper; BOM ref RD2. The
+* +415 -> +325 dropper, BOM RD1, is not modelled — BC is driven at its charted
+* value, so that dropper carries no DC the solve needs).
+RD2 BC BD 10k
 
 * --- Normal channel input V1a (12AX7): 100k plate, 1.5k cathode (25uF), grid
 *     returned to ground through the input jacks' 1M leak. Plate rail BD.
 RLN1 BD PN1 100k
-XVN1 PN1 GN1 KN1 12AX7
+XV1A PN1 GN1 KN1 12AX7
 RGN1 GN1 0 1meg
 RKN1 KN1 0 1500
 CKN1 KN1 0 25u
 
 * --- Vibrato channel input V2a (12AX7): identical topology, plate rail BD.
 RLV1 BD PV1 100k
-XVV1 PV1 GV1 KV1 12AX7
+XV2A PV1 GV1 KV1 12AX7
 RGV1 GV1 0 1meg
 RKV1 KV1 0 1500
 CKV1 KV1 0 25u
@@ -58,7 +60,7 @@ CKV1 KV1 0 25u
 * --- Vibrato channel 2nd stage V2b (12AX7): 100k plate, 820 cathode (25uF),
 *     grid returns through the vibrato volume pot (~0 V DC). Plate rail BC.
 RLV2 BC PV2 100k
-XVV2 PV2 GV2 KV2 12AX7
+XV2B PV2 GV2 KV2 12AX7
 RGV2 GV2 0 1meg
 RKV2 KV2 0 820
 CKV2 KV2 0 25u
@@ -66,8 +68,8 @@ CKV2 KV2 0 25u
 * --- Reverb-recovery amp V3b (12AX7): 100k plate, 820 cathode (25uF), grid from
 *     the reverb tank output through a 3.3M/220k network (~0 V DC). Plate rail BC.
 RLR1 BC PR1 100k
-XVR1 PR1 GR1 KR1 12AX7
-RGR1 GR1 0 1meg
+XV3B PR1 GR1 KR1 12AX7
+RGRV GR1 0 1meg
 RKR1 KR1 0 820
 CKR1 KR1 0 25u
 
@@ -75,7 +77,7 @@ CKR1 KR1 0 25u
 *     grid carries the mixed dry+reverb signal and is shunted by the tremolo
 *     optocoupler (DC-open path). DC grid ~0 via the 3.3M leak. Plate rail BC.
 RLD1 BC PD1 100k
-XVD1 PD1 GD1 KD1 12AX7
+XV3A PD1 GD1 KD1 12AX7
 RGD1 GD1 0 3.3meg
 RKD1 KD1 0 820
 CKD1 KD1 0 25u

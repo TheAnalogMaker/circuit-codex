@@ -282,6 +282,24 @@ netlist node runs through it. `netlist_unplaced` names netlist elements realised
 off the board or by a control (input grid leaks at the jacks; pots the netlist
 models as grid-leak resistors) — reported in coverage, never a failure.
 
+`excluded_tubes` (map `socket_id: reason`) is the explicit, reviewable
+declaration for a tube socket the DC netlist legitimately omits — a **tremolo /
+vibrato oscillator** is a running phase-shift oscillator with no static operating
+point, so it cannot be a quiescent stage the equivalence check verifies (see
+`amps/ab763`, whose `netlist.cir` excludes the V5 12AX7 for exactly this reason).
+A declared socket becomes an annotation-layer exclusion, printed loudly in the
+tube tally like the rectifier — its 6.3 V heater is still validated onto heater
+pins by the twisted-run check, and no signal pin is DC-checked. The declaration
+never widens an exclusion to bury a failure: an **UNdeclared** unmodelled signal
+tube still hard-fails (`_resolve_bottles` proves this in `--selftest`), so you
+cannot hide a dropped tube by leaving it out of the block.
+
+```yaml
+net_map:
+  excluded_tubes:
+    V5: "12AX7 tremolo oscillator — no static DC operating point (excluded from netlist.cir)"
+```
+
 ### Gate hardening (2026-07-19) — what the checker now proves
 
 An adversarial audit planted 26 faults and 12 escaped. Each escape is closed at
@@ -297,7 +315,7 @@ case for every one:
   socket by id, else by a unique tube-**type** cross-reference, so a
   function-named instance (`XPIA`) still anchors without relying on its label.
   The run prints a full tube tally — every bottle *anchored* / *declared-excluded*
-  (rectifier) / **UNANCHORED** — and an unanchored tube on a claimed amp fails CI.
+  (rectifier, or a `net_map.excluded_tubes` socket) / **UNANCHORED** — and an unanchored tube on a claimed amp fails CI.
 - **Signal-path parts are modelled (H5/H6).** `netlist.cir` now carries the
   inter-stage parts it used to omit — the PI-plate→output-grid **coupling caps**,
   the **output-tube grid leaks**, and the **grid stoppers** — so the existing

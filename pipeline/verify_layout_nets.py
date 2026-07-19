@@ -523,14 +523,16 @@ def _sockets(R: Renderer) -> dict:
     return out
 
 
-def _resolve_bottles(comps, sockets: dict) -> tuple[dict, list, list]:
+def _resolve_bottles(comps, sockets: dict,
+                     excluded_ids: "dict | None" = None) -> tuple[dict, list, list]:
     """Map every netlist tube BOTTLE to a physical socket, robustly (H2/H3).
 
     Returns (bottle_socket, unresolved, excluded_sockets):
       bottle_socket    netlist-bottle -> socket-id
       unresolved       [(bottle, reason)] bottles that anchor to no socket
       excluded_sockets [(socket_id, reason)] tube sockets with NO netlist device
-                       (rectifiers / PS front-end tubes abstracted to the rail)
+                       (rectifiers / PS front-end tubes abstracted to the rail;
+                       plus any DECLARED in net_map.excluded_tubes — see below)
 
     A netlist bottle binds to a socket by (1) exact id match — the socket basing
     is authoritative even when the SPICE model differs (a 6L6G socket runs the
@@ -538,7 +540,14 @@ def _resolve_bottles(comps, sockets: dict) -> tuple[dict, list, list]:
     so a function-named instance (XPIA) still lands on its socket without relying
     on the label. Anything left over is UNRESOLVED — a hard failure on a claimed
     amp (never a silent skip). A non-rectifier socket with no netlist device is
-    also unresolved coverage (a whole signal tube left unmodelled)."""
+    also unresolved coverage (a whole signal tube left unmodelled) — UNLESS it is
+    named in `excluded_ids` (net_map.excluded_tubes), the EXPLICIT, reviewable
+    declaration for a tube the DC netlist legitimately omits (a tremolo/vibrato
+    oscillator has no static operating point, so it cannot be a quiescent stage —
+    see amps/ab763). A declaration turns that one socket into an annotation-layer
+    exclusion, printed loudly like the rectifier; an UNdeclared unmodelled signal
+    tube still fails (you cannot bury a dropped tube by leaving it undeclared)."""
+    excluded_ids = excluded_ids or {}
     xbottles: dict = {}
     for c in comps:
         if c.kind != "X":
@@ -578,6 +587,10 @@ def _resolve_bottles(comps, sockets: dict) -> tuple[dict, list, list]:
             excluded_sockets.append((sid,
                 f"{meta['value']} rectifier — not in the DC netlist "
                 f"(PT+rectifier+reservoir abstracted to the ideal rail)"))
+        elif sid in excluded_ids:
+            excluded_sockets.append((sid,
+                f"{meta['value']} — DECLARED EXCLUDED (net_map.excluded_tubes): "
+                f"{excluded_ids[sid]}"))
         else:
             unresolved.append((f"socket:{sid}",
                 f"socket {sid} ({meta['value']}) carries no netlist device — a "
@@ -590,7 +603,8 @@ def _tube_anchoring(comps, R: Renderer):
     (basing_inv, bottle_socket, unresolved, excluded_sockets, sockets), with
     basing_inv keyed by NETLIST BOTTLE: bottle -> (role,unit)->pin."""
     sockets = _sockets(R)
-    bottle_socket, unresolved, excluded_sockets = _resolve_bottles(comps, sockets)
+    excluded_ids = (R.layout.get("net_map") or {}).get("excluded_tubes") or {}
+    bottle_socket, unresolved, excluded_sockets = _resolve_bottles(comps, sockets, excluded_ids)
     basing_inv: dict = {}
     for bottle, sid in list(bottle_socket.items()):
         b = load_basing(sockets[sid]["slug"])
@@ -1376,6 +1390,26 @@ def selftest() -> int:
                                              "V2": _fakesock("6v6gt", "Power tube")})
     h3b_ok = any(b == "socket:V2" for b, _ in unres3b)
     print(f"  [H3] unmodelled signal socket V2 -> UNRESOLVED: {'OK' if h3b_ok else 'FAIL'}")
+    # DECLARED tube-exclusion (net_map.excluded_tubes): a documented non-DC tube
+    # (a tremolo oscillator has no static operating point) may be declared excluded
+    # so its socket is annotation, not a hard failure — but an UNDECLARED unmodelled
+    # signal tube still fails (a dropped tube cannot hide behind the declaration).
+    _bs3c, unres3c, excl3c = _resolve_bottles(
+        [_fakecomp("V1", None, "12AX7")],
+        {"V1": _fakesock("12ax7"), "V5": _fakesock("12ax7", "Preamp tube")},
+        excluded_ids={"V5": "tremolo oscillator — no static DC point"})
+    h3c_ok = (any(sid == "V5" for sid, _ in excl3c)
+              and not any(b == "socket:V5" for b, _ in unres3c))
+    print(f"  [EXC] declared-excluded tremolo socket V5 -> excluded, not "
+          f"UNRESOLVED: {'OK' if h3c_ok else 'FAIL'}")
+    _bs3d, unres3d, _e3d = _resolve_bottles(
+        [_fakecomp("V1", None, "12AX7")],
+        {"V1": _fakesock("12ax7"), "V5": _fakesock("12ax7", "Preamp tube"),
+         "V7": _fakesock("6v6gt", "Power tube")},
+        excluded_ids={"V5": "declared"})
+    h3d_ok = any(b == "socket:V7" for b, _ in unres3d)   # V7 undeclared -> still fails
+    print(f"  [EXC] undeclared unmodelled socket V7 still UNRESOLVED despite an "
+          f"excluded_tubes block: {'OK' if h3d_ok else 'FAIL'}")
 
     # ---- PHANTOM-PIN full path: a FUNCTION-named bottle must anchor to the
     #      physical SOCKET, not to a 'bottle.pin' terminal that isn't on the
@@ -1470,8 +1504,9 @@ def selftest() -> int:
           f"RB1 on 'BP1': {'OK' if bias_surfaced else 'FAIL'}"
           + ("" if r_biaserr.ok else "  (+ raised a DIFF)"))
 
-    unit_ok = all([h2_ok, h2b_ok, h3_ok, h3b_ok, h4_ok, h8_red_ok, h8_con_ok,
-                   pp_base_ok, pp_break_caught, pot_surfaced, bias_surfaced])
+    unit_ok = all([h2_ok, h2b_ok, h3_ok, h3b_ok, h3c_ok, h3d_ok, h4_ok,
+                   h8_red_ok, h8_con_ok, pp_base_ok, pp_break_caught,
+                   pot_surfaced, bias_surfaced])
     all_ok = ok_mut and unit_ok
     print(f"\nselftest: {passed}/{n_mut} planted-fault mutations caught; "
           f"resolver/island/anchor unit checks {'all OK' if unit_ok else 'FAILED'}"
