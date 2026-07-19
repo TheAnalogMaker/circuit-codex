@@ -7,6 +7,13 @@
 # Board reads left→right: rectifier / filter / output end at the left, 12AY7
 # input stage at the right — matching the tube row on the drawing
 # (5Y3GT · 6V6GT · 6V6GT · 12AX7 · 12AY7).
+# Machine-checked equivalence: the point-to-point wiring drawn below has been
+# verified electrically equivalent to the simulated netlist (netlist.cir) by
+# pipeline/verify_layout_nets.py — see the net_map block at the foot of this file
+# and docs/layout-schema.md. Heaters, the pilot lamp, and the PT/rectifier AC
+# side are an excluded annotation layer (not modelled in netlist.cir).
+wiring_claim: verified
+
 board:
   rows: 2
   cols: 30
@@ -28,7 +35,7 @@ parts:
   - { ref: RG6A, a: [1, 9],  b: [1, 10] }   # 220k V3 grid leak
   - { ref: RG6B, a: [1, 11], b: [1, 12] }   # 220k V4 grid leak
   # cathodyne phase inverter (its self-bias stack is the amp's signature)
-  - { ref: RKA,  a: [0, 12], b: [1, 12], nudge: [2, -26] }   # 1.5k cathode → junction (vertical)
+  - { ref: RKA,  a: [0, 12.5], b: [1, 12.5], nudge: [2, -26] }   # 1.5k cathode → junction (vertical; own eyelet, clear of RG6B's ground tie)
   - { ref: RL4,  a: [1, 13], b: [1, 14] }   # 56k cathodyne plate load
   - { ref: RKB,  a: [1, 15], b: [1, 16] }   # 56k junction → ground
   - { ref: C8,   a: [0, 13], b: [0, 15] }   # 0.1 µF cathode-side coupler → V4
@@ -37,7 +44,7 @@ parts:
   # second stage V2A + interactive volume/tone couplers
   - { ref: RK2,  a: [0, 20], b: [1, 20], nudge: [2, -26] }   # 1.5k V2A cathode (vertical)
   - { ref: C4,   a: [0, 19], b: [0, 20] }   # 25 µF V2A cathode bypass
-  - { ref: RL3,  a: [1, 19], b: [1, 20] }   # 100k V2A plate load
+  - { ref: RL3,  a: [1, 18.7], b: [1, 19.6] }   # 100k V2A plate load (own eyelets, clear of RK2 ground tie [1,20] and C4 ground tie under [0,19])
   - { ref: C1,   a: [0, 21], b: [0, 23] }   # 0.1 µF V1A → instrument volume
   - { ref: C2,   a: [0, 24], b: [0, 26] }   # 0.1 µF V1B → mic volume
   - { ref: RL1,  a: [1, 21], b: [1, 22] }   # 100k V1A plate load
@@ -45,7 +52,7 @@ parts:
   # 12AY7 input stage (right end)
   - { ref: R1s,  a: [1, 25], b: [1, 26] }   # 68k instrument grid stopper
   - { ref: R2s,  a: [1, 27], b: [1, 28] }   # 68k mic grid stopper
-  - { ref: RK1,  a: [0, 27], b: [1, 27] }   # 820 Ω shared 12AY7 cathode (vertical)
+  - { ref: RK1,  a: [0, 26.5], b: [1, 26.5] }   # 820 Ω shared 12AY7 cathode (vertical; own eyelet, clear of R2s's grid tie at [1,27])
   - { ref: C10,  a: [0, 28], b: [0, 29] }   # 25 µF 12AY7 cathode bypass
 
 offboard:
@@ -109,10 +116,10 @@ runs:
   - { from: C11.a, to: T2.red, via: [[3, 2.6], [30.2, 2.6], [30.2, 0.38]] }    # B+1 → OT centre tap (drop col 30.2)
   - { from: T2.blue, to: V3.pin3, via: [[30.5, 0.5], [30.5, 2.72], [4, 2.72]] }    # OT primary → V3 plate (drop col 30.5)
   - { from: T2.brown, to: V4.pin3, via: [[30.7, 0.62], [30.7, 2.84], [7.4, 2.84]] } # OT primary → V4 plate (drop col 30.7)
-  # The 6V6 screens tie to the B+1 rail at the dropper input (RD1.a = C11.a node),
-  # leaving that node at distinct bearings from the rectifier/CT feeds.
-  - { from: RD1.a, to: V3.pin4, via: [[3.5, 2.96], [5, 2.96]] }   # B+1 rail → V3 screen (drop col 3.5, approach from right)
-  - { from: RD1.a, to: V4.pin4, via: [[6.5, 1.5], [6.5, 3.08], [9.8, 3.08]] }   # B+1 rail → V4 screen (down-right)
+  # The 6V6 screens tie to the B+2 rail (the 5 kΩ-dropper output, RD2.a = C12.a
+  # node) — the screen supply per the schematic; routed in the deep harness band.
+  - { from: RD1.b, to: V3.pin4, via: [[4.4, 2.55]] }   # B+2 rail (dropper output) → V3 screen (own lane, clear of the pin-5 grid feed)
+  - { from: RD2.a, to: V4.pin4, via: [[7.2, 3.08], [9.8, 3.08]] }   # B+2 rail → V4 screen (down-right)
   - { from: RK66.b, to: [1.45, 0] }                    # 250 Ω → ground bus
   - { from: C9.a, to: RK66.a }                         # cathode bypass across 250 Ω
   - { from: C9.b, to: [1.45, 2] }
@@ -123,11 +130,11 @@ runs:
 
   # --- cathodyne phase inverter (V2B) ---------------------------------------
   - { from: V2.pin1, to: RL4.b, via: [[17.3, 2.35], [14, 2.35]] }  # V2B plate → 56k plate load (dip clears pin 2)
-  - { from: RL4.a, to: C12.a }                       # plate load → B+2
+  - { from: RL4.a, to: C13.a, via: [[13, 0.5], [9.6, 0.5]] }   # cathodyne plate load → B+3 (per schematic)
   - { from: V2.pin1, to: C7.a, via: [[18, 1.5]] }    # V2B plate → plate-side coupler
   - { from: C7.b, to: V3.pin5, via: [[16, 0.5], [14, 3.2], [5, 3.2]] }    # coupler → V3 grid (down-left, clear of V2 pins)
   - { from: V2.pin3, to: RKA.a, via: [[13, 1.6]] }   # V2B cathode → 1.5k
-  - { from: RKA.b, to: RKB.a, via: [[12.6, 1.55], [15.4, 1.55]] }  # junction → 56k cathode load (lane clear of RL4)
+  - { from: RKA.b, to: RKB.a, via: [[13.1, 1.55], [15.4, 1.55]] }  # junction → 56k cathode load (lane clear of RL4)
   - { from: RKB.b, to: [1.45, 16] }                  # 56k → ground bus
   - { from: RKA.b, to: C8.a, via: [[13, 0.55]] }     # junction → cathode-side coupler
   - { from: C8.b, to: V4.pin5, via: [[15.5, 3.32], [8.5, 3.32]] }  # coupler → V4 grid (approach from left of pin 8)
@@ -135,14 +142,14 @@ runs:
   - { from: RGPI.b, to: V2.pin2, via: [[18.6, 1.7]] }  # PI grid leak → V2B grid (from right)
 
   # --- driver / second stage (V2A) + tone -----------------------------------
-  - { from: V2.pin6, to: RL3.a, via: [[19.5, 1.55]] }  # V2A plate → 100k plate load (from right)
-  - { from: RL3.b, to: C12.a, via: [[19.5, -0.68], [6.5, -0.68]] }  # plate load → B+2 (over the top)
+  - { from: V2.pin6, to: RL3.a, via: [[18.7, 1.55]] }  # V2A plate → 100k plate load
+  - { from: RL3.b, to: C13.a, via: [[19.6, -0.72], [9.4, -0.72]] }  # V2A plate load → B+3 (over the top, per schematic)
   - { from: V2.pin6, to: VR3.lug3, via: [[18.2, -0.6], [8, -0.6]] } # V2A plate → tone (over the top)
   - { from: VR3.lug2, to: V2.pin2, via: [[8, -0.5], [14, 0.7], [16, 1.9]] } # tone wiper → PI grid (clears RL4.a)
   - { from: VR3.lug1, to: [1.45, 7.6] }              # tone ground
   - { from: V2.pin8, to: RK2.a, via: [[20.6, 1.55]] }  # V2A cathode → 1.5k (from right)
-  - { from: RK2.b, to: [1.45, 19.6] }                # 1.5k → ground bus
-  - { from: C4.a, to: [1.45, 19.7] }                 # cathode bypass ground
+  - { from: RK2.b, to: [1.45, 20] }                  # 1.5k → ground bus
+  - { from: C4.a, to: [1.45, 19.3] }                 # cathode bypass ground (lane between the V2.pin7 wiper feed and RL3.b)
 
   # --- volume controls → V2A grid -------------------------------------------
   - { from: VR1.lug2, to: V2.pin7, via: [[14, -0.45], [16.5, 1.0], [18.6, 1.55]] } # inst vol wiper (clears RGPI.a)
@@ -180,3 +187,24 @@ runs:
   - { from: V4.pin2, to: V2.pin4, style: twisted, via: [[8.5, 3.64], [18, 3.64]] }  # V4 → V2 heater
   - { from: V2.pin5, to: V1.pin4, style: twisted, via: [[18, 3.6], [25, 3.6]] }     # V2 → V1 heater
   - { from: V1.pin4, to: V1.pin5, style: twisted } # close the pair at the last socket
+
+# net_map — reviewable reconciliation of the drawn wiring with the DC netlist
+# (netlist.cir) for pipeline/verify_layout_nets.py. See docs/layout-schema.md.
+net_map:
+  # The push-pull OT primary: both 6V6 plate leads and the B+ centre tap sit at
+  # B+1 at DC (the netlist omits the OT primary DCR and models both plates == B+1),
+  # so all three primary leads are one node.
+  anchors:
+    T2.red:   BP1    # OT primary centre tap (B+ feed)
+    T2.blue:  BP1    # OT primary, V3 plate lead
+    T2.brown: BP1    # OT primary, V4 plate lead
+  # DC-transparent grid stoppers the netlist omits (no DC grid current):
+  series_bridge:
+    R1s: "68 k instrument-channel grid stopper — omitted from netlist (grid == input node at DC)"
+    R2s: "68 k mic-channel grid stopper — omitted from netlist"
+  # Netlist elements realised off the board or by a control, not a discrete board
+  # part — reported in coverage, never a failure (their nodes still check out):
+  netlist_unplaced:
+    RG1: "1 M instrument input grid leak — mounted at the input jacks, not on the eyelet board"
+    RG2: "1 M mic input grid leak — mounted at the input jacks, not on the eyelet board"
+    RG3: "the two 1 M volume pots (VR1/VR2) — netlist models their shared DC return as one grid-leak (G2A -> 0)"

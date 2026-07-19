@@ -8,6 +8,14 @@
 #
 # Board reads left→right: rectifier/filter end at the left, input stage at the
 # right (the tube row on the drawing runs 5Y3GT · 6V6GT · 12AX7 the same way).
+
+# Machine-checked equivalence: the point-to-point wiring drawn below has been
+# verified electrically equivalent to the simulated netlist (netlist.cir) by
+# pipeline/verify_layout_nets.py — see the net_map block at the foot of this file
+# and docs/layout-schema.md. Heaters, the pilot lamp, and the PT/rectifier AC
+# side are an excluded annotation layer (not modelled in netlist.cir).
+wiring_claim: verified
+
 board:
   rows: 2
   cols: 20
@@ -147,3 +155,26 @@ runs:
   - { from: PL1.b, to: V2.pin7, style: twisted, via: [[-1.2, 2.9], [8, 2.9]] }   # lamp → 6V6 heater
   - { from: V2.pin2, to: V1.pin4, style: twisted, via: [[8, 2.92], [17, 2.92]] } # 6V6 → 12AX7 heater
   - { from: V1.pin4, to: V1.pin5, style: twisted } # close the pair at the last socket
+
+# net_map — the reviewable data layer that reconciles the drawn wiring with the
+# DC-operating-point netlist (netlist.cir) for pipeline/verify_layout_nets.py.
+# Every entry records a documented abstraction the netlist makes, so the
+# equivalence check never has to guess in code. See docs/layout-schema.md.
+net_map:
+  # Terminals the netlist gives no discrete node to reach on their own — anchored
+  # to the netlist node they belong to. Two leads anchored to the SAME node
+  # declare a DC bridge the netlist collapses (here: the output-transformer
+  # primary, whose DCR the netlist omits so the 6V6 plate node == B+1).
+  anchors:
+    T2.blue:  BP1    # OT primary, plate lead — netlist omits OT primary DCR (plate node = B+1)
+    T2.bplus: BP1    # OT primary, B+ lead
+    SPK: "0"         # speaker jack — the netlist folds the OT-secondary DCR (~0 Ω) into ground,
+                     #   so the negative-feedback return (R13) reads as ground at DC
+  # DC-transparent series parts the netlist omits (no DC grid current -> zero
+  # drop): their two leads are shorted so the netlist node runs through them.
+  series_bridge:
+    R3: "68 k input grid stopper — omitted from netlist (grid == input node at DC)"
+  # Netlist elements with no discrete board part — reported in coverage, never a
+  # failure (their nodes still have to check out).
+  netlist_unplaced:
+    RVOL: "1 M volume pot VR1 — netlist models the pot as a grid-leak (G1B -> 0); its wiper->grid tie is verified at the grid net"
