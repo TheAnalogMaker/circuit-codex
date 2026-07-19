@@ -92,7 +92,7 @@ const jsonld = {
       {amp.voltages && (
         <section>
           <h2>Operating point vs. published chart</h2>
-          <p class="sub">Chart values read from the published drawing (never reproduced).
+          <p class="sub">Chart values read from the published drawing — or, where the drawing carries no voltage chart, from the cited published measurements (never reproduced).
             Tolerances are this project's verification targets — tighter on power rails
             than the ±20% measurement convention Fender printed on its charts.
             {v.status === 'verified' && ` Simulation matches every node within target — worst deviation ${v.max_deviation_pct}%.`}</p>

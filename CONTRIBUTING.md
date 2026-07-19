@@ -46,7 +46,7 @@ New here — human or AI agent? Start with the site's
 [About page](https://circuitcodex.com/about/) and this repo's `AGENTS.md` for the
 binding conventions.
 
-Not sure what to work on? Check the **wanted circuits** issue label.
+Not sure what to work on? Check the [wanted circuits](https://github.com/TheAnalogMaker/circuit-codex/issues?q=is%3Aissue+is%3Aopen+label%3A%22wanted+circuits%22) issue list.
 
 ## Corrections
 

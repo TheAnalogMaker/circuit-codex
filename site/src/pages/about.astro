@@ -131,9 +131,10 @@ const description =
       suite; adversarial review passes deliberately try to break the site's claims; and a
       human maintainer signs off on every verified badge. When errors are found, they are
       fixed in public — the repository history is the audit trail. (Example: the layout
-      equivalence gate, on its first full run, found thirteen wiring errors in drawings
-      that had already passed both automated and human review. They are fixed, and the
-      commits say exactly what was wrong.)</p>
+      equivalence gate, on its first full run, found thirteen errors — eleven wiring
+      errors in the drawings and two netlist naming errors — in work that had already
+      passed both automated and human review. They are fixed, and the commits say
+      exactly what was wrong.)</p>
     <p><strong>Treat this site like any secondary source.</strong> The citations are
       there — check them. Do not trust any single document, this one included, with your
       money, your build, or your safety.</p>
@@ -172,7 +173,7 @@ const description =
         circuits land as draft; verified is earned, not granted on merge. Full
         instructions: <a href={`${GITHUB}/blob/main/CONTRIBUTING.md`}>CONTRIBUTING.md</a>.
         Not sure where to start? Check the
-        <a href={`${GITHUB}/issues`}>wanted-circuits label</a>.</li>
+        <a href={`${GITHUB}/issues?q=is%3Aissue+is%3Aopen+label%3A%22wanted+circuits%22`}>wanted-circuits list</a>.</li>
     </ol>
     <p>Three hard rules bind every contribution, stated here because PRs that break them
       are closed regardless of quality: <strong>redraw from facts</strong> (never scan or
