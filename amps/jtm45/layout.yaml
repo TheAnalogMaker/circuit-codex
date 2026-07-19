@@ -103,11 +103,11 @@ offboard:
   - { id: V3,  ref: V3, kind: tube, edge: bottom, at: 50,   label: "V3 · ECC83" }
   - { id: V1,  ref: V1, kind: tube, edge: bottom, at: 59,   label: "V1 · ECC83" }
   - { id: VRP, kind: pot, edge: top, at: 40,   label: "Presence" }
-  - { id: VR3, ref: VR3, kind: pot, edge: top, at: 43,   label: "Treble" }
-  - { id: VR4, ref: VR4, kind: pot, edge: top, at: 45,   label: "Bass" }
-  - { id: VR5, ref: VR5, kind: pot, edge: top, at: 47.5, label: "Middle" }
-  - { id: VR1, ref: VR1, kind: pot, edge: top, at: 54,   label: "Vol · bright" }
-  - { id: VR2, ref: VR2, kind: pot, edge: top, at: 59,   label: "Vol · normal" }
+  - { id: VR3, ref: VR3, kind: pot, edge: top, at: 43,   label: "Treble", value_nudge: [32, 14] }
+  - { id: VR4, ref: VR4, kind: pot, edge: top, at: 45,   label: "Bass", value_nudge: [28, 0] }
+  - { id: VR5, ref: VR5, kind: pot, edge: top, at: 47.5, label: "Middle", value_nudge: [26, 2] }
+  - { id: VR1, ref: VR1, kind: pot, edge: top, at: 54,   label: "Vol · bright", value_nudge: [24, 0] }
+  - { id: VR2, ref: VR2, kind: pot, edge: top, at: 59,   label: "Vol · normal", value_nudge: [24, -2] }
   - { id: JB,  kind: jack, edge: top, at: 56, label: "Bright in" }
   - { id: JN,  kind: jack, edge: top, at: 62, label: "Normal in" }
   - { id: T3,  ref: T3, kind: xfmr, edge: right, at: 0.5, label: "Output trans" }

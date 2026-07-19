@@ -26,13 +26,20 @@ Everything below `parts` / `offboard` is unchanged; `runs` and `bus` are new.
 board:            { rows, cols, title }
 caption:          provenance line (public-documentation voice)
 source:           { desc, url }               the published layout drawing
-parts:            [ { ref, a:[row,col], b:[row,col], nudge?:[dx,dy] } ]
+parts:            [ { ref, a:[row,col], b:[row,col], nudge?:[dx,dy],
+                      value_nudge?:[dx,dy] } ]
                     Board-mounted parts. `ref` keys into bom.yaml (value + type).
                     Same row -> axial body; shared column -> vertical leg.
-                    Optional `nudge` shifts the ref/value label pair (px) to
-                    keep it clear of wiring.
-offboard:         [ { id, ref?, kind, edge, at, label, glyph? } ]
+                    Optional `nudge` shifts the ref/value label pair (px);
+                    `value_nudge` shifts the VALUE alone, to slide a value out
+                    from under a supply lead while its ref stays put. Both keep
+                    the drawing clear of wiring.
+offboard:         [ { id, ref?, kind, edge, at, label, glyph?,
+                      label_nudge?:[dx,dy], value_nudge?:[dx,dy] } ]
                     kind: tube | pot | jack | xfmr | choke | switch | part
+                    On a pot, `label_nudge` shifts the name+value pair and
+                    `value_nudge` the value alone (px), keeping the halo — the
+                    escape hatch for a value still sitting under a lug-lead run.
                     Tubes draw their real pin ring + numbers (pin count read
                     from reference/tubes/<tube>.yaml basing data).
                     kind: part is a generic 2-lead off-board component with two
@@ -880,6 +887,7 @@ class Renderer:
         x2, y2 = self.ex(c2), self.ey(r2)
         vertical = c1 == c2 and r1 != r2
         ndx, ndy = (part.get("nudge") or [0, 0])[:2]
+        vndx, vndy = (part.get("value_nudge") or [0, 0])[:2]
         els = []
         # leads (short wires) drawn under the body
         els.append(f'<line x1="{fmt(x1)}" y1="{fmt(y1)}" x2="{fmt(x2)}" y2="{fmt(y2)}" '
@@ -887,22 +895,26 @@ class Renderer:
         if vertical:
             cx = x1
             cy = (y1 + y2) / 2
-            els += self._body_vertical(cat, cx, cy, val, ref, ndx, ndy)
+            els += self._body_vertical(cat, cx, cy, val, ref, ndx, ndy, vndx, vndy)
         else:
             cx = (x1 + x2) / 2
             cy = y1
             span = abs(c2 - c1)
-            els += self._body_horizontal(cat, cx, cy, span, val, ref, ndx, ndy)
+            els += self._body_horizontal(cat, cx, cy, span, val, ref, ndx, ndy, vndx, vndy)
         # eyelets on top of leads
         els.append(eyelet(x1, y1))
         els.append(eyelet(x2, y2))
         return "".join(els)
 
-    def _label_pair(self, cx, top_y, bot_y, ref, val, ndx=0, ndy=0):
+    def _label_pair(self, cx, top_y, bot_y, ref, val, ndx=0, ndy=0, vndx=0, vndy=0):
+        # `nudge` (ndx/ndy) shifts the ref+value pair; `value_nudge` (vndx/vndy)
+        # shifts the VALUE alone — so a value sitting under a supply lead can be
+        # moved to clear space while its ref stays put.
         return (text(cx + ndx, top_y + ndy, ref, BOARD_REF, 11.5, weight=700, spacing="0.02em")
-                + text(cx + ndx, bot_y + ndy, val, BOARD_VAL, 11, font=FONT_MONO, weight=600))
+                + text(cx + ndx + vndx, bot_y + ndy + vndy, val, BOARD_VAL, 11,
+                       font=FONT_MONO, weight=600))
 
-    def _body_horizontal(self, cat, cx, cy, span, val, ref, ndx=0, ndy=0):
+    def _body_horizontal(self, cat, cx, cy, span, val, ref, ndx=0, ndy=0, vndx=0, vndy=0):
         w = max(26.0, span * CW - 16)
         els = []
         if cat == "electro":
@@ -918,13 +930,13 @@ class Renderer:
                        f'stroke="{WELL}" stroke-width="1.6"/>')  # + stem
             els.append(f'<line x1="{fmt(x)}" y1="{fmt(cy+8-2)}" x2="{fmt(x+w)}" y2="{fmt(cy+8-2)}" '
                        f'stroke="{ELEC_EDGE}" stroke-width="1"/>')
-            els.append(self._label_pair(cx, y - 6, cy + 24, ref, val, ndx, ndy))
+            els.append(self._label_pair(cx, y - 6, cy + 24, ref, val, ndx, ndy, vndx, vndy))
         elif cat == "mica":
             h = 16
             x, y = cx - w / 2, cy - h / 2
             els.append(f'<rect x="{fmt(x)}" y="{fmt(y)}" width="{fmt(w)}" height="{fmt(h)}" '
                        f'rx="4" fill="{MICA_BODY}" stroke="{MICA_EDGE}" stroke-width="1.2"/>')
-            els.append(self._label_pair(cx, y - 6, cy + 20, ref, val, ndx, ndy))
+            els.append(self._label_pair(cx, y - 6, cy + 20, ref, val, ndx, ndy, vndx, vndy))
         elif cat == "film":
             h = 22
             x, y = cx - w / 2, cy - h / 2
@@ -932,7 +944,7 @@ class Renderer:
                        f'rx="10" fill="{FILM_BODY}" stroke="{FILM_EDGE}" stroke-width="1.2"/>')
             els.append(f'<line x1="{fmt(cx)}" y1="{fmt(y+2)}" x2="{fmt(cx)}" y2="{fmt(y+h-2)}" '
                        f'stroke="{FILM_EDGE}" stroke-width="0.8" opacity="0.7"/>')
-            els.append(self._label_pair(cx, y - 6, cy + 22, ref, val, ndx, ndy))
+            els.append(self._label_pair(cx, y - 6, cy + 22, ref, val, ndx, ndy, vndx, vndy))
         else:  # resistor / other
             h = 16
             x, y = cx - w / 2, cy - h / 2
@@ -941,10 +953,10 @@ class Renderer:
             for ex_ in (x + 5, x + w - 5):
                 els.append(f'<line x1="{fmt(ex_)}" y1="{fmt(y+1)}" x2="{fmt(ex_)}" y2="{fmt(y+h-1)}" '
                            f'stroke="{RES_END}" stroke-width="2"/>')
-            els.append(self._label_pair(cx, y - 6, cy + 21, ref, val, ndx, ndy))
+            els.append(self._label_pair(cx, y - 6, cy + 21, ref, val, ndx, ndy, vndx, vndy))
         return els
 
-    def _body_vertical(self, cat, cx, cy, val, ref, ndx=0, ndy=0):
+    def _body_vertical(self, cat, cx, cy, val, ref, ndx=0, ndy=0, vndx=0, vndy=0):
         # vertical carbon/wirewound resistor bridging the two rows (cathode legs)
         h = 40
         w = 15
@@ -967,8 +979,8 @@ class Renderer:
             lx, anchor = cx + w / 2 + 6, "start"
         els.append(text(lx + ndx, cy - 3 + ndy, ref, BOARD_REF, 11.5, weight=700,
                         anchor=anchor, spacing="0.02em"))
-        els.append(text(lx + ndx, cy + 11 + ndy, val, BOARD_VAL, 11, anchor=anchor,
-                        font=FONT_MONO, weight=600))
+        els.append(text(lx + ndx + vndx, cy + 11 + ndy + vndy, val, BOARD_VAL, 11,
+                        anchor=anchor, font=FONT_MONO, weight=600))
         return els
 
     # ---- off-board stubs ----------------------------------------------------
@@ -1029,12 +1041,18 @@ class Renderer:
             # ref/value labels get an opaque halo (matching the canvas well):
             # on a dense board the lug fan's converging leads pass right
             # through this band, and the halo keeps the text reading clearly
-            # over a crossing lead instead of merging with it.
-            els.append(text(x, y + r + 14, label, INK, 11.5, spacing="0.04em",
-                            halo=WELL, halo_width=3.2))
+            # over a crossing lead instead of merging with it. Optional nudges
+            # move the pair (label_nudge) or the value alone (value_nudge, px)
+            # into clear space when the halo isn't enough — the drawing-review
+            # escape hatch for a value that still sits under a lead run.
+            lnx, lny = (item.get("label_nudge") or [0, 0])[:2]
+            vnx, vny = (item.get("value_nudge") or [0, 0])[:2]
+            els.append(text(x + lnx, y + r + 14 + lny, label, INK, 11.5,
+                            spacing="0.04em", halo=WELL, halo_width=3.2))
             if val:
-                els.append(text(x, y + r + 27, val, MUTED, 10.5, font=FONT_MONO,
-                                weight=500, halo=WELL, halo_width=3.0))
+                els.append(text(x + lnx + vnx, y + r + 27 + lny + vny, val, MUTED,
+                                10.5, font=FONT_MONO, weight=500, halo=WELL,
+                                halo_width=3.0))
         elif kind == "jack":
             r = 9
             els.append(f'<circle cx="{fmt(x)}" cy="{fmt(y)}" r="{fmt(r)}" fill="{WELL}" '

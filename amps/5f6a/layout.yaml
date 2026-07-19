@@ -86,11 +86,11 @@ offboard:
   - { id: V2,   ref: V2, kind: tube, edge: bottom, at: 31,   label: "V2 · 12AX7" }
   - { id: V1,   ref: V1, kind: tube, edge: bottom, at: 38,   label: "V1 · 12AY7" }
   - { id: VRP,  kind: pot, edge: top, at: 4,  label: "Presence" }
-  - { id: VR5,  ref: VR5, kind: pot, edge: top, at: 8,  label: "Middle" }
-  - { id: VR4,  ref: VR4, kind: pot, edge: top, at: 12, label: "Bass" }
-  - { id: VR3,  ref: VR3, kind: pot, edge: top, at: 16, label: "Treble" }
-  - { id: VR1,  ref: VR1, kind: pot, edge: top, at: 23, label: "Vol · bright" }
-  - { id: VR2,  ref: VR2, kind: pot, edge: top, at: 28, label: "Vol · normal" }
+  - { id: VR5,  ref: VR5, kind: pot, edge: top, at: 8,  label: "Middle", value_nudge: [8, 0] }
+  - { id: VR4,  ref: VR4, kind: pot, edge: top, at: 12, label: "Bass", value_nudge: [-18, 0] }
+  - { id: VR3,  ref: VR3, kind: pot, edge: top, at: 16, label: "Treble", value_nudge: [-34, 0] }
+  - { id: VR1,  ref: VR1, kind: pot, edge: top, at: 23, label: "Vol · bright", value_nudge: [0, 0] }
+  - { id: VR2,  ref: VR2, kind: pot, edge: top, at: 28, label: "Vol · normal", value_nudge: [36, 6] }
   - { id: JB,   kind: jack, edge: top, at: 34, label: "Bright in" }
   - { id: JN,   kind: jack, edge: top, at: 40, label: "Normal in" }
   # 1 MΩ input grid leaks (RG1 bright, RG2 normal) are chassis-mounted at the

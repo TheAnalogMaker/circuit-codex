@@ -39,9 +39,9 @@ source:
 parts:
   # --- bias supply + main filter cans + rail droppers (power end, left) -------
   - { ref: C15,  a: [0, 0],  b: [0, 2] }    # 8 µF bias-supply filter (drawn "100/25" on the sheet)
-  - { ref: RB1,  a: [1, 0],  b: [1, 1] }    # 6.8k bias series (from selenium rect)
+  - { ref: RB1,  a: [1, 0],  b: [1, 1], value_nudge: [-2, 11] }    # 6.8k bias series (from selenium rect)
   - { ref: RB2,  a: [1, 2],  b: [1, 3] }    # 56k bias bleeder
-  - { ref: C11,  a: [0, 3],  b: [0, 5] }    # 16 µF filter, B+1 (+415, output plates / OT CT)
+  - { ref: C11,  a: [0, 3],  b: [0, 5], value_nudge: [26, 3] }    # 16 µF filter, B+1 (+415, output plates / OT CT)
   - { ref: C12,  a: [0, 6],  b: [0, 8] }    # 16 µF filter, B+2 (+410, screens)
   - { ref: C13,  a: [0, 9],  b: [0, 11] }   # 16 µF filter, B+3 (+332, PI)
   - { ref: RD1,  a: [1, 4],  b: [1, 5] }    # 10k dropper B+2->B+3
@@ -59,7 +59,7 @@ parts:
   - { ref: RLB,  a: [1, 18], b: [1, 19] }   # 100k PI plate load (V3B)
   - { ref: RGA,  a: [1, 20], b: [1, 21] }   # 1M PI grid leak (V3A) -> tail junction
   - { ref: RGB,  a: [1, 22], b: [1, 23] }   # 1M PI grid leak (V3B) -> tail junction
-  - { ref: RTAIL, a: [0, 24], b: [1, 24] }  # 1.5k PI tail (vertical, cathodes -> junction)
+  - { ref: RTAIL, a: [0, 24], b: [1, 24], nudge: [46, -8] }  # 1.5k PI tail (vertical, cathodes -> junction)
   - { ref: RT2,  a: [1, 25], b: [1, 26] }   # 56k tail junction -> ground
   # --- cathode-follower treble/bass tone stack (caps mount at the pots) -------
   - { ref: C8,   a: [0, 25], b: [0, 27] }   # 0.02 µF tone stack -> PI grid
@@ -98,10 +98,10 @@ offboard:
   - { id: V2,  ref: V2, kind: tube, edge: bottom, at: 33,   label: "V2 · 12AX7" }
   - { id: V1,  ref: V1, kind: tube, edge: bottom, at: 44,   label: "V1 · 12AY7" }
   - { id: VRP, kind: pot, edge: top, at: 4,  label: "Presence" }
-  - { id: VR4, ref: VR4, kind: pot, edge: top, at: 24, label: "Bass" }
-  - { id: VR3, ref: VR3, kind: pot, edge: top, at: 28, label: "Treble" }
-  - { id: VR1, ref: VR1, kind: pot, edge: top, at: 39, label: "Volume · 1" }
-  - { id: VR2, ref: VR2, kind: pot, edge: top, at: 43, label: "Volume · 2" }
+  - { id: VR4, ref: VR4, kind: pot, edge: top, at: 24, label: "Bass", value_nudge: [-28, 2] }
+  - { id: VR3, ref: VR3, kind: pot, edge: top, at: 28, label: "Treble", value_nudge: [-28, 2] }
+  - { id: VR1, ref: VR1, kind: pot, edge: top, at: 39, label: "Volume · 1", value_nudge: [-30, 2] }
+  - { id: VR2, ref: VR2, kind: pot, edge: top, at: 43, label: "Volume · 2", value_nudge: [-30, 2] }
   - { id: JI,  kind: jack, edge: top, at: 46, label: "Ch 1 in" }
   - { id: JM,  kind: jack, edge: top, at: 48, label: "Ch 2 in" }
   # RG1 / RG2 (1 MΩ input grid leaks) mount at the channel jacks per the drawing —
