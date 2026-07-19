@@ -7,6 +7,11 @@ knob and a firmer, more focused voice than the Champ's. Produced 1957–1961; it
 direct ancestor is the 5F2 not yet documented in this archive, and it is
 the tone-control-bearing sibling of the tweed Champ already in this archive.
 
+One naming caution: later amps that carry the Princeton name are different
+circuits entirely — the brown 6G2 (1961 on) and the blackface Princeton and
+Princeton Reverb moved to a push-pull pair of 6V6s at roughly 12–15 W. This
+page documents the single-ended tweed 5F2-A only.
+
 ## Circuit walkthrough (short form)
 
 Two input jacks (high/low, each a 68 kΩ stopper sharing a 1 MΩ leak) → **V1A**
