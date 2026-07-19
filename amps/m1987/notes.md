@@ -8,6 +8,10 @@ Those two changes — a higher, stiffer rail behind faster output valves — are
 of what turned the JTM45's bluesy roar into the brighter, harder-edged voice of
 late-1960s British rock.
 
+"Plexi" names the circuit and its voicing, not the panel: Marshall switched from
+the gold acrylic (Perspex) front panel to a brushed-metal panel around 1969, so
+the factory drawing cited here (Unicord, July 1970) is metal-panel era.
+
 ## Circuit walkthrough (short form)
 
 Two channels, each with high and low inputs (68 kΩ stoppers, 1 MΩ leaks) →

@@ -80,7 +80,7 @@ C12 PPIA PPIB 47p
 
 * --- V4 / V5 (EL34) push-pull output, fixed bias ---
 * Cathodes grounded; screens from the screen node (B+2); plates at B+1 (OT primary
-* DCR omitted). Each grid sits at the -37 V bias line through its 220k leak (the
+* DCR omitted). Each grid sits at the -48 V bias line through its 220k leak (the
 * PI plates couple in through 0.022uF caps that are open at DC). g3 (suppressor)
 * is tied to the cathode in use; the model's node order is P G2 G1 K.
 * The 0.022uF PI->grid couplers (C13/C14) are open at DC (no op-point shift) but
