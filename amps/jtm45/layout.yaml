@@ -26,7 +26,6 @@ source:
 
 # Wiring proven electrically equivalent to the verified netlist by
 # pipeline/verify_layout_nets.py (see the net_map block at the foot of this file).
-wiring_claim: verified
 
 # Board-mounted parts. a / b are eyelet endpoints [row, col]; the body is drawn
 # between them (same row = axial part; shared column across rows = vertical leg).

@@ -20,7 +20,6 @@ source:
 
 # Wiring proven electrically equivalent to the verified netlist by
 # pipeline/verify_layout_nets.py (see the net_map block at the foot of this file).
-wiring_claim: verified
 
 parts:
   # bias supply + main filter cans + rail droppers (power end, left)
