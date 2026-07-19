@@ -75,7 +75,8 @@ s.plate_load("RL2", "100k", t2a["p"], "B+3")
 # unbypassed 1.5k cathode; 56k NFB from the speaker returns here
 s.wire(114, 117.62, 114, 120)
 s.junction(114, 120)
-s.sym("R", "RK2", "1.5k", 114, 123.81)
+# RK2 label lifted so its reference clears the 56k NFB wire at y=120
+s.sym("R", "RK2", "1.5k", 114, 123.81, ly=-5.0)
 s.gnd(114, 127.62)
 nl, nr = s.series_h("R", "RNFB", "56k", 124, 120)
 s.wire(114, 120, nl, 120)
@@ -103,7 +104,8 @@ s.gnd(140, 135.23)
 # grid leak from PI grid down to the junction J (140,127.62)
 s.wire(132.38, 110, 132.38, 127.62)
 s.junction(132.38, 110)
-s.sym("R", "RGPI", "1M", 132.38, 123.81, lx=-9.4)
+# RGPI label moved to the clear gap on the right (was overlapping the 56k NFB R)
+s.sym("R", "RGPI", "1M", 132.38, 123.81)
 s.wire(132.38, 127.62, 140, 127.62)
 
 # ---- couplers from the PI to the 6V6 grids ------------------------------

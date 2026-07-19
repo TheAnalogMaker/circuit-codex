@@ -56,7 +56,8 @@ s.junction(84, 88.9)
 s.junction(84, 100)
 
 # volume pot VR1: top = X, bottom = gnd, wiper -> node Y (V1B grid)
-s.sym("POT", "VR1", "1M vol", 84, 103.81)
+# label lifted so "1M vol" clears the wiper-output wire at y=103.81
+s.sym("POT", "VR1", "1M vol", 84, 103.81, ly=-4.2)
 s.wire(84, 107.62, 84, 110)
 s.gnd(84, 110)
 s.wire(89.08, 103.81, 102, 103.81)
@@ -72,8 +73,9 @@ s.junction(102, 100)
 
 # tone: C3 (.005) in series with VR2 (1M) as a variable treble shunt X -> gnd
 s.wire(84, 100, 76, 100)
-s.sym("C", "C3", ".005u", 76, 103.81)   # top = X tap, bottom = tone node
-s.sym("POT", "VR2", "1M tone", 76, 111.43)
+# C3 value lifted clear of the VR1 body; VR2 value dropped below its wiper wire
+s.sym("C", "C3", ".005u", 76, 103.81, ly=-6.2)  # top = X tap, bottom = tone node
+s.sym("POT", "VR2", "1M tone", 76, 111.43, ly=2.2)
 s.wire(81.08, 111.43, 81.08, 107.62)    # wiper tied to top -> variable resistor
 s.wire(81.08, 107.62, 76, 107.62)
 s.wire(76, 115.24, 76, 117)
