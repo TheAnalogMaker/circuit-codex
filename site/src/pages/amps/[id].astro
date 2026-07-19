@@ -67,13 +67,17 @@ const jsonld = {
           </div>
           <p class="layout-note">
             {wiringVerified && (
-              <><strong>Machine-checked wiring.</strong> Every point-to-point connection
-              drawn here has been verified — by an automated netlist-equivalence check in
-              CI — to be electrically equivalent to the simulated netlist this circuit is
-              verified against: the same net structure, terminal for terminal, with no
-              missing or extra connections. The 6.3&nbsp;V heater chain, pilot lamp, and
-              power-transformer / rectifier AC side are an excluded annotation layer (they
-              are not part of the operating-point netlist). </>
+              <><strong>Machine-checked wiring.</strong> Every connection the operating-point
+              netlist models — the tube sockets, the plate, cathode and grid-leak resistors,
+              the power-rail droppers, and the coupling and bypass capacitors whose two leads
+              are both named DC nodes — has been verified in CI, terminal for terminal, to be
+              electrically equivalent to the simulated netlist this circuit is verified
+              against: the same net structure, no missing or extra connections. Parts outside
+              that DC model — the volume / tone / mixer control-network internals, the
+              negative-bias front end, and the heater chain, pilot lamp and power-transformer /
+              rectifier AC side — are drawn from the cited sources but are <em>not</em>
+              machine-checked; the CI report enumerates every one of their terminals so the
+              boundary is explicit rather than silent. </>
             )}
             This diagram documents connectivity and part arrangement — it is not a
             dimensioned 1:1 build template. Board and part positions are drawn at
