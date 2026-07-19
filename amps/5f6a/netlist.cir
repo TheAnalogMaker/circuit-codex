@@ -52,10 +52,15 @@ RT2 JPI 0 10k
 * ~0 V DC through the speaker/pot returns — DC-neutral, omitted here. The
 * printed chart (J +32.5 V = Itail x 10k) confirms this reading.
 
-* 5881 pair — fixed bias via 220k leaks from -48 V, 470R-1W screen resistors
+* 5881 pair — two separate output bottles V4 and V5 (each a full 5881 on its own
+* octal socket), fixed bias via 220k leaks from -48 V, 470R-1W screen resistors.
+* NOTE: these MUST be two distinct bottle instances (XV4 / XV5). Naming them
+* XV5A / XV5B would collapse them into one dual-section bottle "V5" (the netlist
+* parser reads the trailing A/B as triode-half sections), which is wrong for two
+* single-ended power pentodes and mis-anchors the layout-equivalence check.
 RGL1 NBIAS G51 220k
-XV5A BP1 S51 G51 0 5881
+XV4 BP1 S51 G51 0 5881
 RS1 BP2 S51 470
 RGL2 NBIAS G52 220k
-XV5B BP1 S52 G52 0 5881
+XV5 BP1 S52 G52 0 5881
 RS2 BP2 S52 470

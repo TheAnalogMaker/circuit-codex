@@ -18,6 +18,10 @@ source:
   desc: "Fender 'Bassman' Model 5F6-A layout drawing (I-EG), page 1"
   url: "https://el34world.com/charts/Schematics/files/Fender/Fender_bassman_5f6a.pdf"
 
+# Wiring proven electrically equivalent to the verified netlist by
+# pipeline/verify_layout_nets.py (see the net_map block at the foot of this file).
+wiring_claim: verified
+
 parts:
   # bias supply + main filter cans + rail droppers (power end, left)
   - { ref: C15,  a: [0, 0],  b: [0, 2] }    # 8 µF bias-supply filter
@@ -69,6 +73,11 @@ offboard:
   - { id: V4,   ref: V4, kind: tube, edge: bottom, at: 6.5,  label: "V4 · 5881" }
   - { id: V5,   ref: V5, kind: tube, edge: bottom, at: 10.5, label: "V5 · 5881" }
   - { id: SPK,  kind: jack, edge: bottom, at: 15, label: "Spkr jacks" }
+  # 27 kΩ negative-feedback resistor (annotation only — no board designator):
+  # taps the speaker/OT-secondary node and returns to the phase-inverter tail
+  # foot. Drawn as a discrete 2-lead off-board part so the wiring reads true — a
+  # bare wire here would falsely short the speaker node to the tail junction.
+  - { id: RNFB, kind: part, edge: bottom, at: 18.5, label: "27k NFB" }
   - { id: V3,   ref: V3, kind: tube, edge: bottom, at: 20,   label: "V3 · 12AX7 (PI)" }
   - { id: V2,   ref: V2, kind: tube, edge: bottom, at: 31,   label: "V2 · 12AX7" }
   - { id: V1,   ref: V1, kind: tube, edge: bottom, at: 38,   label: "V1 · 12AY7" }
@@ -150,7 +159,8 @@ runs:
   - { from: V5.pin8, to: [1.45, 10.5] }            # V5 cathode → ground
   - { from: T3.black, to: SPK, via: [[42, 3.05], [16.5, 3.05], [16.5, 1.86]] }  # OT secondary → speaker (up the right of the Spkr label)
   - { from: T3.green, to: SPK, via: [[42, 3.2], [17.0, 3.2], [17.0, 1.78]] }    # OT secondary → speaker (staggered right of label)
-  - { from: SPK, to: RT2.a, via: [[17.5, 1.94], [17.5, 3.35], [25, 3.35]] }     # 27k NFB (off-board) → tail junction (exits jack upper-right, clear of label)
+  - { from: SPK, to: RNFB.a, via: [[17.5, 1.94], [17.5, 2.6]] }                 # speaker/OT-secondary node → 27k NFB
+  - { from: RNFB.b, to: RT2.a, via: [[19.5, 2.6], [19.5, 3.35], [25, 3.35]] }   # 27k NFB → tail junction (routed in the deep band)
 
   # --- long-tailed-pair phase inverter (V3) ---------------------------------
   - { from: RLA.a, to: C13.a, via: [[16, 0.62], [9, 0.62]] }  # 82k plate load → B+3
@@ -242,3 +252,21 @@ runs:
   - { from: V2.pin5, to: V1.pin4, style: twisted, via: [[31, 3.6], [38, 3.6]] }      # V2 → V1 12AY7 heater
   - { from: V1.pin4, to: V1.pin5, style: twisted } # close the pair at the last socket
   - { from: PT.green-yellow, to: [1.45, 0.3] }                                       # heater winding centre tap → ground (chassis)
+
+# net_map — the reviewable data layer reconciling the drawn wiring with the DC
+# netlist for pipeline/verify_layout_nets.py. See docs/layout-schema.md.
+net_map:
+  # Terminals the netlist gives no discrete node to reach on their own. The two
+  # 5881 plates and the OT primary centre tap all co-anchor to B+1 — the netlist
+  # omits the OT primary DCR, so both plate nodes and the CT collapse to B+1.
+  anchors:
+    T3.blue:  BP1    # V4 5881 plate → OT primary
+    T3.brown: BP1    # V5 5881 plate → OT primary
+    T3.red:   BP1    # OT primary centre tap → B+1
+    SPK: "0"         # speaker jack — OT-secondary DCR folded into ground (the NFB return reads as ground at DC)
+  # Netlist elements with no discrete same-named board part — reported in
+  # coverage, never a failure (their nodes still have to check out).
+  netlist_unplaced:
+    RCHOKE: "filter choke L1 sits on the board (B+1 → B+2); the netlist models its ~130 Ω DCR as RCHOKE"
+    RG3:  "V2A grid return — realised through the volume pots (VR1/VR2) and 270k channel mixers to ground, not a discrete board resistor"
+    RKCF: "V2B cathode-follower load — realised through the FMV tone-stack network to ground, not a discrete board resistor"
