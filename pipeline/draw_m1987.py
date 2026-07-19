@@ -297,32 +297,36 @@ s.sym("C", "C22", "50u", 129, 177.81)
 s.gnd(129, 181.62)
 
 # ======================= negative-bias supply ===============================
-# HT tap -> D1 -> 220k(RBA) -> node; 15k(RBB)/25k trim(VR6)/47k(RBC) divider;
-# 8u+8u filters -> -BIAS.
-s.glabel("HT_B", 150, 160, 180)
-s.wire(150, 160, 154, 160)
-s.sym("DIODE_SS", "D1", "1N4007", 159, 160, lx=-2.0, ly=-5.4)
-s.wire(164.08, 160, 168, 160)
-l, r = s.series_h("R", "RBA", "220k", 172, 160)
-s.wire(168, 160, l, 160)
-s.wire(r, 160, 178, 160)
-s.junction(178, 160)
-# filter 8u
-s.sym("C", "C15", "8u", 178, 163.81)
-s.gnd(178, 167.62)
-# 15k + 25k trim + 47k divider down to ground; wiper is the bias line
-s.wire(178, 160, 184, 160)
-s.sym("R", "RBB", "15k", 184, 163.81)
-s.wire(184, 167.62, 184, 170)
-s.sym("POT", "VR6", "25k adj", 184, 173.81)
-s.wire(189.08, 173.81, 192, 173.81)       # wiper -> bias line
-s.glabel("-BIAS", 192, 173.81, 0)
-s.junction(192, 173.81)
-s.sym("C", "C16", "8u", 195, 177, lx=2.2)
-s.gnd(195, 180.81)
-s.wire(184, 177.62, 184, 180)
-s.sym("R", "RBC", "47k", 184, 183.81)
-s.gnd(184, 187.62)
+# HT tap -> D1 -> 220k(RBA) -> supply node (C15 8u filter); the 15k(RBB) / 25k
+# trim(VR6) / 47k(RBC) divider bleeds that node to ground and the trim wiper sets
+# -BIAS (C16 8u). Drawn as a shallow horizontal row — like the JTM45 / 5F4 bias
+# rows — so nothing drops into the A4 title block in the bottom-right corner.
+BY = 160.72
+s.glabel("HT_B", 150.1, BY, 180)
+s.wire(150.1, BY, 153.91, BY)
+s.sym("DIODE_SS", "D1", "1N4007", 158.99, BY, lx=-2.0, ly=-5.4)
+s.wire(164.07, BY, 167.88, BY)
+l, r = s.series_h("R", "RBA", "220k", 171.69, BY)
+s.wire(167.88, BY, l, BY)
+s.wire(r, BY, 178.04, BY)
+s.junction(178.04, BY)
+# supply-node filter (one cap dropped to ground, like the JTM45 bias row)
+s.sym("C", "C15", "8u", 178.04, BY + 3.81)
+s.gnd(178.04, BY + 7.62)
+# 15k / 25k-trim / 47k divider along the same row; VR6 wiper sets -BIAS
+lb, rb = s.series_h("R", "RBB", "15k", 183.5, BY)
+s.wire(178.04, BY, lb, BY)
+s.wire(rb, BY, 189, BY)                         # supply -> 15k -> node A (VR6 top)
+s.sym("POT", "VR6", "25k adj", 189, BY + 3.81)  # top = A, bottom = B, wiper = -BIAS
+# node B -> 47k -> ground (short bleeder drop, well clear of the title block)
+s.sym("R", "RBC", "47k", 189, BY + 11.43)       # top pin = node B (189, BY+7.62)
+s.gnd(189, BY + 15.24)
+# trim wiper -> -BIAS, filtered by C16 (a separate short drop to its right)
+s.wire(194.08, BY + 3.81, 197, BY + 3.81)
+s.junction(197, BY + 3.81)
+s.glabel("-BIAS", 197, BY + 3.81, 0)
+s.sym("C", "C16", "8u", 197, BY + 7.62, lx=2.2)  # top pin at the -BIAS node
+s.gnd(197, BY + 11.43)
 
 s.write(OUT, [
     ("Model 1987 — Plexi lead 50-style · Circuit Codex · CC-BY-SA 4.0 · redrawn "
