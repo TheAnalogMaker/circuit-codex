@@ -6,16 +6,12 @@
 #
 # Format:  <amp_id>: "<reason>"
 #
-# The pilot fixed 5f1 and 5e3 to zero lint (lane/via adjustments preserving the
-# published routing and era wire colours). 5e1, 5f2a and 5f10 have since been
-# brought to zero lint the same way. The one below carries the remaining
-# legibility debt and is queued for the same remediation; its wiring is
-# already electrically verified (wiring_claim: verified) — only the collision
-# lint is outstanding.
-#
-# 5f4 was brought to zero lint 2026-07-19 (80 -> 0) by via/lane re-routing that
-# preserved every endpoint (wiring re-verified equivalent); its waiver is gone.
-# 5f6a followed the same day (139 -> 0: 58 near-parallel + 81 terminal-ambiguity
-# both to zero), endpoints preserved; its waiver is gone too.
-waivers:
-  jtm45: "pending legibility remediation 2026-07-19 (wiring verified under hardened gate; ECC83 sockets corrected 8->9 pin, via re-tuning outstanding)"
+# As of 2026-07-19 the list is EMPTY: all eight pilot amps pass the collision
+# lint with zero failures. The final three (5f4, 5f6a, jtm45) were brought to
+# zero the same way as the rest — via/lane re-routing that preserved every
+# endpoint, with the wiring re-verified electrically equivalent to the netlist
+# (wiring_claim: verified). jtm45 was routed on its monochrome board with
+# deep-lane separation and far-side pin approaches — no invented wire colours.
+# Keep this mechanism in place: any future amp that lands with lint debt gets a
+# documented entry here rather than a silent downgrade.
+waivers: {}
