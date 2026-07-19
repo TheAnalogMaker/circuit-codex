@@ -38,7 +38,9 @@ RK1 KA 0 820
 RL3 BP4 P3A 100k
 XV3A P3A G3A K3A 12AX7
 RG3 G3A 0 1meg
-RK3 K3A 0 820
+* V3A cathode bias resistor — designator RK2 to match the board part, BOM, and
+* schematic (all name this RK2; a lone RK3 here would break the layout-net check).
+RK2 K3A 0 820
 
 * V3B ECC83 cathode follower — grid DC-coupled to V3A plate, plate to preamp
 * rail, 100k cathode load

@@ -24,6 +24,10 @@ source:
   desc: "Marshall JTM45 factory schematic ('Basic schematic for Marshall trem amps, types 1961, 1962, 1987/T') — layout derived from this schematic; no factory layout sheet located"
   url: "https://www.drtube.com/schematics/marshall/jtm45tr.gif"
 
+# Wiring proven electrically equivalent to the verified netlist by
+# pipeline/verify_layout_nets.py (see the net_map block at the foot of this file).
+wiring_claim: verified
+
 # Board-mounted parts. a / b are eyelet endpoints [row, col]; the body is drawn
 # between them (same row = axial part; shared column across rows = vertical leg).
 parts:
@@ -84,6 +88,11 @@ offboard:
   - { id: V5,  ref: V5, kind: tube, edge: bottom, at: 20,   label: "V5 · KT66" }
   - { id: V6,  ref: V6, kind: tube, edge: bottom, at: 27,   label: "V6 · KT66" }
   - { id: SPK, kind: jack, edge: bottom, at: 33, label: "Spkr jacks" }
+  # 27 kΩ negative-feedback resistor (annotation only — no board designator):
+  # taps the speaker/OT-secondary node and returns to the phase-inverter tail
+  # foot. Drawn as a discrete 2-lead off-board part so the wiring reads true — a
+  # bare wire here would falsely short the speaker node to the tail junction.
+  - { id: RNFB, kind: part, edge: bottom, at: 35, label: "27k NFB" }
   - { id: V4,  ref: V4, kind: tube, edge: bottom, at: 37,   label: "V4 · ECC83 (PI)" }
   - { id: V3,  ref: V3, kind: tube, edge: bottom, at: 50,   label: "V3 · ECC83" }
   - { id: V1,  ref: V1, kind: tube, edge: bottom, at: 59,   label: "V1 · ECC83" }
@@ -161,7 +170,8 @@ runs:
   - { from: V6.pin8, to: [1.45, 27] }              # V6 cathode -> ground
   - { from: T3.sa,  to: SPK, via: [[62.5, 3.2], [31, 3.2], [31, 1.86]] }    # OT secondary -> speaker (up the left of the Spkr label)
   - { from: T3.sb,  to: SPK, via: [[62.5, 3.34], [30.5, 3.34], [30.5, 1.78]] }  # OT secondary -> speaker (staggered left of label)
-  - { from: SPK, to: RT2.a, via: [[35, 1.9], [35, 3.08], [43, 3.08]] }     # 27k NFB (off-board) -> tail jct (exits jack upper-right, clear of label)
+  - { from: SPK, to: RNFB.a, via: [[34, 1.9], [34, 2.6]] }                 # speaker/OT-secondary node -> 27k NFB
+  - { from: RNFB.b, to: RT2.a, via: [[36, 2.6], [36, 3.08], [43, 3.08]] }  # 27k NFB -> tail junction (routed in the deep band)
 
   # --- long-tailed-pair phase inverter (V4) ----------------------------------
   - { from: RLA.a, to: C13.a, via: [[31, 2.15], [12.5, 2.15]] } # 82k plate load -> B+3
@@ -247,3 +257,29 @@ runs:
   - { from: V4.pin5, to: V3.pin4, style: twisted, via: [[37, 3.7], [50, 3.7]] }     # V4 -> V3 ECC83 heater
   - { from: V3.pin5, to: V1.pin4, style: twisted, via: [[50, 3.7], [59, 3.7]] }     # V3 -> V1 ECC83 heater
   - { from: V1.pin4, to: V1.pin5, style: twisted } # close the pair at the last socket
+
+# net_map — the reviewable data layer reconciling the drawn wiring with the DC
+# netlist for pipeline/verify_layout_nets.py. See docs/layout-schema.md.
+net_map:
+  # Terminals the netlist gives no discrete node to reach on their own. The two
+  # KT66 plates and the OT primary centre tap all co-anchor to B+1 — the netlist
+  # omits the OT primary DCR, so both plate nodes and the CT collapse to B+1.
+  anchors:
+    T3.pa: BP1       # V5 KT66 plate → OT primary
+    T3.pb: BP1       # V6 KT66 plate → OT primary
+    T3.ct: BP1       # OT primary centre tap → B+1
+    SPK: "0"         # speaker jack — OT-secondary DCR folded into ground (the NFB return reads as ground at DC)
+  # DC-transparent parts the netlist omits: their leads are shorted so the
+  # netlist node runs through them. The KT66 grid leaks carry no DC (grid current
+  # ≈ 0), so each output grid sits at the −50 V bias node the netlist wires it to
+  # directly (XV5/XV6 grid == NBIAS).
+  series_bridge:
+    RGL1: "220k V5 KT66 grid leak — no DC grid current, grid sits at the −50 V bias node (NBIAS)"
+    RGL2: "220k V6 KT66 grid leak — no DC grid current, grid sits at the −50 V bias node (NBIAS)"
+  # Netlist elements with no discrete same-named board part — reported in
+  # coverage, never a failure (their nodes still have to check out).
+  netlist_unplaced:
+    RCHOKE: "filter choke L1 sits on the board (B+1 → B+2); the netlist models its ~150 Ω DCR as RCHOKE"
+    RG1: "V1A grid leak — 1 MΩ chassis-mounted at the bright input jack, off the board"
+    RG2: "V1B grid leak — 1 MΩ chassis-mounted at the normal input jack, off the board"
+    RG3: "V3A grid return — realised through the volume pots (VR1/VR2) and 270k channel mixers to ground, not a discrete board resistor"
