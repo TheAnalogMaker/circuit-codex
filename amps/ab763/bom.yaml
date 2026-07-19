@@ -1,0 +1,124 @@
+# Parts list — read from the published AB763 Deluxe Reverb-Amp drawing.
+# This amp ships as a draft data core (no schematic.kicad_sch yet), so reference
+# designators follow the DC netlist where a part is modeled and are descriptive
+# otherwise; they will be reconciled to a schematic when one is drawn. Values are
+# the drawing's; the notice sets 1/2 W / 10% resistors and 400 V caps unless noted.
+notes: "The drawing shows one jack per channel input pair; the chassis carries two per channel. Tremolo-oscillator and reverb-tank interconnect parts are listed but the oscillator's DC point is excluded from the netlist (see notes.md)."
+items:
+  # --- Normal channel input (V1a) ---
+  - { ref: R1n, part: "Carbon comp resistor", value: "68 kΩ · ½ W",  role: "Normal input grid stopper (jack 1)" }
+  - { ref: R2n, part: "Carbon comp resistor", value: "68 kΩ · ½ W",  role: "Normal input grid stopper (jack 2)" }
+  - { ref: RGN1, part: "Carbon comp resistor", value: "1 MΩ · ½ W",  role: "Normal input grid leak" }
+  - { ref: RLN1, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "V1a plate load" }
+  - { ref: RKN1, part: "Carbon comp resistor", value: "1.5 kΩ · ½ W", role: "V1a cathode bias" }
+  - { ref: CKN1, part: "Electrolytic capacitor", value: "25 µF · 25 V", role: "V1a cathode bypass" }
+  # --- Normal tone stack ---
+  - { ref: CTN, part: "Mica capacitor",       value: "250 pF",         role: "Normal treble cap" }
+  - { ref: VRTN, part: "Potentiometer",       value: "250 kΩ-A",       role: "Normal treble" }
+  - { ref: RSN, part: "Carbon comp resistor", value: "100 kΩ · ½ W",   role: "Normal tone-stack slope resistor" }
+  - { ref: CBN, part: "Coupling capacitor",   value: "0.1 µF",         role: "Normal tone-stack coupling" }
+  - { ref: VRBN, part: "Potentiometer",       value: "250 kΩ-A",       role: "Normal bass" }
+  - { ref: CBN2, part: "Coupling capacitor",  value: "0.047 µF",       role: "Normal bass cap" }
+  - { ref: RSLN, part: "Carbon comp resistor", value: "6.8 kΩ · ½ W",  role: "Normal tone-stack bleed resistor" }
+  - { ref: VRVN, part: "Audio-taper potentiometer", value: "1 MΩ-A",   role: "Normal volume" }
+  # --- Vibrato channel input (V2a) + 2nd stage (V2b) ---
+  - { ref: R1v, part: "Carbon comp resistor", value: "68 kΩ · ½ W",  role: "Vibrato input grid stopper (jack 1)" }
+  - { ref: R2v, part: "Carbon comp resistor", value: "68 kΩ · ½ W",  role: "Vibrato input grid stopper (jack 2)" }
+  - { ref: RGV1, part: "Carbon comp resistor", value: "1 MΩ · ½ W",  role: "Vibrato input grid leak" }
+  - { ref: RLV1, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "V2a plate load" }
+  - { ref: RKV1, part: "Carbon comp resistor", value: "1.5 kΩ · ½ W", role: "V2a cathode bias" }
+  - { ref: CKV1, part: "Electrolytic capacitor", value: "25 µF · 25 V", role: "V2a cathode bypass" }
+  - { ref: CTV, part: "Mica capacitor",       value: "250 pF",         role: "Vibrato treble cap" }
+  - { ref: CBRV, part: "Mica capacitor",      value: "47 pF",          role: "Vibrato bright cap" }
+  - { ref: VRTV, part: "Potentiometer",       value: "250 kΩ-A",       role: "Vibrato treble" }
+  - { ref: VRBV, part: "Potentiometer",       value: "250 kΩ-A",       role: "Vibrato bass" }
+  - { ref: RSLV, part: "Carbon comp resistor", value: "6.8 kΩ · ½ W",  role: "Vibrato tone-stack bleed resistor" }
+  - { ref: VRVV, part: "Audio-taper potentiometer", value: "1 MΩ-A",   role: "Vibrato volume" }
+  - { ref: RLV2, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "V2b (vibrato 2nd stage) plate load" }
+  - { ref: RKV2, part: "Carbon comp resistor", value: "820 Ω · ½ W",  role: "V2b cathode bias" }
+  - { ref: CKV2, part: "Electrolytic capacitor", value: "25 µF · 25 V", role: "V2b cathode bypass" }
+  - { ref: CCV2, part: "Coupling capacitor",  value: "0.02 µF",        role: "V2b output coupling" }
+  # --- Reverb send/driver (V4 12AT7) + tank + recovery (V3b) ---
+  - { ref: CRS, part: "Coupling capacitor",   value: "500 pF",         role: "Reverb send coupling to driver grid" }
+  - { ref: RGRD, part: "Carbon comp resistor", value: "1 MΩ · ½ W",   role: "Reverb-driver 12AT7 grid leak" }
+  - { ref: RKRD, part: "Carbon comp resistor", value: "2.2 kΩ · ½ W", role: "Reverb-driver shared cathode bias" }
+  - { ref: CKRD, part: "Electrolytic capacitor", value: "25 µF · 25 V", role: "Reverb-driver cathode bypass" }
+  - { ref: T4,  part: "Reverb transformer",   value: "Fender 125A20B", role: "Reverb driver → tank input" }
+  - { ref: RGR1, part: "Carbon comp resistor", value: "220 kΩ · ½ W", role: "Reverb-recovery grid resistor (tank output)" }
+  - { ref: RLR1, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "V3b (reverb recovery) plate load" }
+  - { ref: RKR1, part: "Carbon comp resistor", value: "820 Ω · ½ W",  role: "V3b cathode bias" }
+  - { ref: CKR1, part: "Electrolytic capacitor", value: "25 µF · 25 V", role: "V3b cathode bypass" }
+  - { ref: CCR1, part: "Coupling capacitor",  value: "0.003 µF",       role: "Reverb-recovery output coupling" }
+  - { ref: VRREV, part: "Linear potentiometer", value: "100 kΩ-L",     role: "Reverb level" }
+  - { ref: RMR, part: "Carbon comp resistor", value: "470 kΩ · ½ W",  role: "Reverb mix resistor" }
+  # --- Vibrato/reverb mix driver (V3a) ---
+  - { ref: RLD1, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "V3a (mix driver) plate load" }
+  - { ref: RGD1, part: "Carbon comp resistor", value: "3.3 MΩ · ½ W", role: "V3a grid leak (tremolo shunt node)" }
+  - { ref: RKD1, part: "Carbon comp resistor", value: "820 Ω · ½ W",  role: "V3a cathode bias" }
+  - { ref: CKD1, part: "Electrolytic capacitor", value: "25 µF · 25 V", role: "V3a cathode bypass" }
+  - { ref: CBD1, part: "Mica capacitor",      value: "10 pF",          role: "V3a grid bright cap" }
+  - { ref: RMD1, part: "Carbon comp resistor", value: "220 kΩ · ½ W", role: "Mix-driver to PI grid resistor" }
+  - { ref: CCD1, part: "Coupling capacitor",  value: "0.001 µF",       role: "Mix-driver → PI coupling" }
+  # --- Tremolo oscillator (V5 12AX7) — DC point excluded (see notes.md) ---
+  - { ref: VRSPD, part: "Reverse-audio potentiometer", value: "3 MΩ-RA", role: "Tremolo speed" }
+  - { ref: VRINT, part: "Reverse-audio potentiometer", value: "50 kΩ-RA", role: "Tremolo intensity" }
+  - { ref: RTO1, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "Tremolo oscillator plate load" }
+  - { ref: RTO2, part: "Carbon comp resistor", value: "220 kΩ · ½ W", role: "Tremolo oscillator plate load" }
+  - { ref: RTOG, part: "Carbon comp resistor", value: "2.2 MΩ · ½ W", role: "Tremolo oscillator grid" }
+  - { ref: RTOG2, part: "Carbon comp resistor", value: "1 MΩ · ½ W",  role: "Tremolo phase-shift resistor" }
+  - { ref: RTOG3, part: "Carbon comp resistor", value: "1 MΩ · ½ W",  role: "Tremolo phase-shift resistor" }
+  - { ref: RTO10, part: "Carbon comp resistor", value: "10 MΩ · ½ W", role: "Tremolo oscillator grid leak" }
+  - { ref: RKTO1, part: "Carbon comp resistor", value: "2.7 kΩ · ½ W", role: "Tremolo oscillator cathode" }
+  - { ref: RKTO2, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "Tremolo oscillator cathode/plate" }
+  - { ref: CTO1, part: "Film capacitor",      value: "0.01 µF",        role: "Tremolo phase-shift cap" }
+  - { ref: CTO2, part: "Film capacitor",      value: "0.01 µF",        role: "Tremolo phase-shift cap" }
+  - { ref: CTO3, part: "Film capacitor",      value: "0.02 µF",        role: "Tremolo phase-shift cap" }
+  - { ref: RINT, part: "Carbon comp resistor", value: "10 kΩ · ½ W",  role: "Tremolo intensity series" }
+  - { ref: OPTO, part: "Optocoupler",         value: "neon lamp + photoresistor", role: "Tremolo modulator (shunts V3a grid)" }
+  # --- Phase inverter (V6 12AT7 LTP) ---
+  - { ref: RLPA, part: "Carbon comp resistor", value: "82 kΩ · ½ W · 5%", role: "PI plate load (hot side)" }
+  - { ref: RLPB, part: "Carbon comp resistor", value: "100 kΩ · ½ W · 5%", role: "PI plate load (cold side)" }
+  - { ref: RGPA, part: "Carbon comp resistor", value: "1 MΩ · ½ W",   role: "PI grid leak (hot), returned to tail junction" }
+  - { ref: RGPB, part: "Carbon comp resistor", value: "1 MΩ · ½ W",   role: "PI grid leak (cold), returned to tail junction" }
+  - { ref: RTAIL, part: "Carbon comp resistor", value: "470 Ω · ½ W", role: "PI cathode resistor" }
+  - { ref: RT2, part: "Carbon comp resistor", value: "22 kΩ · ½ W",   role: "PI tail (junction → ground)" }
+  - { ref: CPIA, part: "Coupling capacitor",  value: "0.001 µF",       role: "PI hot-grid input coupling" }
+  - { ref: CPIB, part: "Coupling capacitor",  value: "0.1 µF · 200 V", role: "PI cold-grid AC ground" }
+  - { ref: RNFB, part: "Carbon comp resistor", value: "820 Ω · ½ W",  role: "Negative feedback, OT secondary → PI (DC-neutral)" }
+  - { ref: RNF2, part: "Carbon comp resistor", value: "47 Ω · ½ W",   role: "NFB return / PI cold-grid reference" }
+  - { ref: C1,  part: "Coupling capacitor",   value: "0.1 µF · 400 V", role: "PI hot plate → V7 grid" }
+  - { ref: C2,  part: "Coupling capacitor",   value: "0.1 µF · 400 V", role: "PI cold plate → V8 grid" }
+  # --- Output stage (6V6GT pair) ---
+  - { ref: RGL1, part: "Carbon comp resistor", value: "220 kΩ · ½ W · 5%", role: "V7 grid leak, from the −35 V bias line" }
+  - { ref: RGL2, part: "Carbon comp resistor", value: "220 kΩ · ½ W · 5%", role: "V8 grid leak, from the −35 V bias line" }
+  - { ref: RS1, part: "Wirewound resistor",   value: "470 Ω · 1 W",   role: "V7 screen resistor" }
+  - { ref: RS2, part: "Wirewound resistor",   value: "470 Ω · 1 W",   role: "V8 screen resistor" }
+  - { ref: T3,  part: "Output transformer",   value: "Fender 125A1A", role: "Push-pull 6V6 output" }
+  # --- Power supply ---
+  - { ref: T1,  part: "Power transformer",    value: "Fender 125P33A · 330-0-330 V", role: "HT + heaters + rectifier filament" }
+  - { ref: T2,  part: "Filter choke",         value: "Fender 125C3A", role: "Reservoir → screen rail" }
+  - { ref: C10, part: "Electrolytic capacitor", value: "16 µF · 450 V (×2)", role: "Reservoir filter (post-standby)" }
+  - { ref: C11, part: "Electrolytic capacitor", value: "16 µF · 450 V", role: "Filter, node B (screens/+415)" }
+  - { ref: C12, part: "Electrolytic capacitor", value: "16 µF · 450 V", role: "Filter, node C (+325 PI/preamp)" }
+  - { ref: C13, part: "Electrolytic capacitor", value: "16 µF · 450 V", role: "Filter, node D (input-stage rail)" }
+  - { ref: RD1, part: "Carbon comp resistor", value: "10 kΩ · ½ W",   role: "Rail dropper B → C" }
+  - { ref: RD2, part: "Carbon comp resistor", value: "10 kΩ · ½ W",   role: "Rail dropper C → D" }
+  # --- Bias supply ---
+  - { ref: RBIAS, part: "Wirewound resistor", value: "470 Ω · 1 W",   role: "Bias-supply series resistor" }
+  - { ref: DBIAS, part: "Rectifier (bias)",   value: "silicon diode", role: "Bias-supply rectifier" }
+  - { ref: CB1, part: "Electrolytic capacitor", value: "25 µF · 50 V", role: "Bias-supply filter" }
+  - { ref: CB2, part: "Electrolytic capacitor", value: "50 µF · 50 V", role: "Bias-supply filter" }
+  - { ref: VRBAL, part: "Linear potentiometer", value: "10 kΩ-L",     role: "Hum-balance / bias divider" }
+  - { ref: RBAL, part: "Carbon comp resistor", value: "10 kΩ · ½ W",  role: "Bias divider" }
+  # --- Death cap / mains (period part) ---
+  - { ref: CDEATH, part: "Ceramic capacitor", value: "0.047 µF · 600 V", role: "Ground-switch cap (period; not in modern builds)" }
+  # --- Tubes ---
+  - { ref: V1,  part: "Preamp tube",          value: "12AX7 (7025)",   role: "Normal channel input (V1a)" }
+  - { ref: V2,  part: "Preamp tube",          value: "12AX7 (7025)",   role: "Vibrato channel input + 2nd stage (V2a/V2b)" }
+  - { ref: V3,  part: "Preamp tube",          value: "12AX7 (7025)",   role: "Reverb recovery + mix driver (V3a/V3b)" }
+  - { ref: V4,  part: "Preamp/driver tube",   value: "12AT7",          role: "Reverb driver (both sections paralleled)" }
+  - { ref: V5,  part: "Preamp tube",          value: "12AX7",          role: "Tremolo oscillator (DC point excluded)" }
+  - { ref: V6,  part: "Preamp/driver tube",   value: "12AT7",          role: "Long-tailed-pair phase inverter" }
+  - { ref: V7,  part: "Power tube",           value: "6V6GT",          role: "Push-pull output (hot side)" }
+  - { ref: V8,  part: "Power tube",           value: "6V6GT",          role: "Push-pull output (cold side)" }
+  - { ref: V9,  part: "Rectifier tube",       value: "GZ34",           role: "Full-wave rectifier (V9A/V9B)" }

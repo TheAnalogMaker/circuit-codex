@@ -1,0 +1,120 @@
+* AB763 (Blackface Deluxe Reverb-style) — DC operating-point netlist
+* Circuit Codex — CC-BY-SA 4.0. Independently drawn from the published AB763
+* Deluxe Reverb-Amp drawing's component values (see meta.yaml); no drawing
+* reproduced. The drawing labels the preamp bottles 7025 — an alias for the
+* 12AX7 (reference/tubes/12ax7.yaml also_known_as); the two 12AT7 (reverb
+* driver, phase inverter) use the clean-room 12AT7 model added with this amp.
+*
+* DC conventions. Two printed rail nodes are driven at their charted values and
+* the rest of each stage is solved: BP1 = +415 V (6V6 plates / OT centre tap,
+* OT primary DCR omitted) and BC = +325 V (the printed node feeding the phase-
+* inverter plates and the 820 Ohm-cathode preamp stages). The 6V6 screens hang
+* off BP1 through their 470 Ohm stoppers; the reverb driver hangs off BP1 through
+* the reverb transformer (TR4, 125A20B) primary DCR, modeled at 200 Ohm. The
+* input-stage rail BD is derived from BC through the drawing's 10k dropper.
+*
+* Fixed-bias supply (470 Ohm-1W + rectifier + 25/50 uF cans + 10k/10k-L divider)
+* is replaced by an ideal -35 V source, exactly as its AC/ripple-filtering role
+* warrants. DC-open caps are MODELLED where BOTH leads land on a named DC node
+* (the PI->6V6 coupling caps and every cathode-bypass can) so an eventual layout
+* is placement-checked; open at DC they move no operating point. Caps into the
+* abstracted volume / tone / reverb-mix / tremolo networks stay omitted.
+*
+* EXCLUDED — the tremolo (vibrato) oscillator V5 (12AX7). It is a running phase-
+* shift oscillator: its chart-printed pins (+270 V plate, +2.1 V cathode, +345 V,
+* +17.0 V) are dynamic averages shifted by grid-leak detection, not a static
+* quiescent point. A static DC solve of the printed 220k/2.7k self-bias stage
+* lands near +200 V, ~26% off the printed +270 V, so force-fitting it would break
+* the honesty rule (an internally-driven node with no well-defined DC point). It
+* is documented in notes.md, not modeled. Its plate supply taps the input-stage
+* rail (BD); with it excluded, BD reads above the factory value, so the two input-
+* stage plates are reported informational (voltages.yaml), never gated.
+.include models/12ax7.inc
+.include models/12at7.inc
+.include models/6v6gt.inc
+
+VBP1 BP1 0 DC 415
+VBC  BC  0 DC 325
+VBIAS NBIAS 0 DC -35
+
+* input-stage rail: BC -> 10k -> BD (drawing's second dropper)
+RD1 BC BD 10k
+
+* --- Normal channel input V1a (12AX7): 100k plate, 1.5k cathode (25uF), grid
+*     returned to ground through the input jacks' 1M leak. Plate rail BD.
+RLN1 BD PN1 100k
+XVN1 PN1 GN1 KN1 12AX7
+RGN1 GN1 0 1meg
+RKN1 KN1 0 1500
+CKN1 KN1 0 25u
+
+* --- Vibrato channel input V2a (12AX7): identical topology, plate rail BD.
+RLV1 BD PV1 100k
+XVV1 PV1 GV1 KV1 12AX7
+RGV1 GV1 0 1meg
+RKV1 KV1 0 1500
+CKV1 KV1 0 25u
+
+* --- Vibrato channel 2nd stage V2b (12AX7): 100k plate, 820 cathode (25uF),
+*     grid returns through the vibrato volume pot (~0 V DC). Plate rail BC.
+RLV2 BC PV2 100k
+XVV2 PV2 GV2 KV2 12AX7
+RGV2 GV2 0 1meg
+RKV2 KV2 0 820
+CKV2 KV2 0 25u
+
+* --- Reverb-recovery amp V3b (12AX7): 100k plate, 820 cathode (25uF), grid from
+*     the reverb tank output through a 3.3M/220k network (~0 V DC). Plate rail BC.
+RLR1 BC PR1 100k
+XVR1 PR1 GR1 KR1 12AX7
+RGR1 GR1 0 1meg
+RKR1 KR1 0 820
+CKR1 KR1 0 25u
+
+* --- Vibrato/reverb mix driver V3a (12AX7): 100k plate, 820 cathode (25uF); its
+*     grid carries the mixed dry+reverb signal and is shunted by the tremolo
+*     optocoupler (DC-open path). DC grid ~0 via the 3.3M leak. Plate rail BC.
+RLD1 BC PD1 100k
+XVD1 PD1 GD1 KD1 12AX7
+RGD1 GD1 0 3.3meg
+RKD1 KD1 0 820
+CKD1 KD1 0 25u
+
+* --- Reverb driver V4 (12AT7, BOTH sections in parallel): shared 2.2k cathode
+*     (25uF), grids tied through a 1M leak, plates tied and fed from BP1 through
+*     the reverb transformer TR4 (125A20B) primary DCR (modeled 200 Ohm).
+RTR4 BP1 PRD 200
+XV4A PRD GRD KRD 12AT7
+XV4B PRD GRD KRD 12AT7
+RGRD GRD 0 1meg
+RKRD KRD 0 2.2k
+CKRD KRD 0 25u
+
+* --- Phase inverter V6 (12AT7 long-tailed pair): 82k (hot) and 100k (cold)
+*     plate loads from BC; cathodes joined at KPI, 470 Ohm to the tail junction
+*     JPI, 22k tail from JPI to ground; both 1M grid leaks return to JPI. The
+*     820 Ohm/OT-secondary negative-feedback loop sits at ~0 V DC (omitted).
+RLPA BC PPIA 82k
+XV6A PPIA GPIA KPI 12AT7
+RGPA GPIA JPI 1meg
+RLPB BC PPIB 100k
+XV6B PPIB GPIB KPI 12AT7
+RGPB GPIB JPI 1meg
+RTAIL KPI JPI 470
+RT2 JPI 0 22k
+
+* --- Output pair 6V6GT (fixed bias): grids to -35 V through 220k leaks, screens
+*     off BP1 through 470 Ohm-1W stoppers, cathodes grounded, plates at BP1 (OT
+*     primary DCR omitted). Two distinct single-ended bottles V7 / V8.
+RGL1 NBIAS G61 220k
+XV7 BP1 S61 G61 0 6V6GT
+RS1 BP1 S61 470
+RGL2 NBIAS G62 220k
+XV8 BP1 S62 G62 0 6V6GT
+RS2 BP1 S62 470
+
+* PI-plate -> 6V6-grid coupling caps (0.1u, DC-open). Modeled so an eventual
+* layout's inter-stage routing and push-pull phase are machine-checked; each 6V6
+* grid still sits at -35 V through its 220k leak, so the op point is unmoved.
+C1 PPIA G61 0.1u
+C2 PPIB G62 0.1u

@@ -1,0 +1,30 @@
+# Printed voltage chart read directly from the published AB763 Deluxe Reverb-Amp
+# drawing (schematic + layout, both carry the same values). The drawing's notice:
+# "Voltages read to ground with electronic voltmeter. Values shown + or - 20%."
+# Tube pins therefore get 20%; the driven supply / bias rails get tighter targets.
+#
+# Two rails are DRIVEN at their printed values (BP1 = +415 V plates, BC = +325 V
+# phase-inverter/preamp node) and every stage below is solved; see netlist.cir.
+# The input-stage rail is derived through the drawing's 10k dropper, and because
+# the excluded tremolo oscillator taps that rail (notes.md), the two channel-input
+# plates are reported for information, not gated.
+source: "Fender AB763 Deluxe Reverb-Amp drawing, printed voltages: +415 (6V6 plates, screens), +420 (OT centre tap), +410 (reverb-driver plate), +345/+270 (tremolo oscillator, excluded), +325 (PI/preamp node), +180/+170 (preamp plates), PI +170/+180 plates with +77/+75.5 tail, +8.7 (reverb-driver cathode), +1.3 (preamp cathodes), -35 (6V6 fixed bias)"
+nodes:
+  S61:  { chart: 415, tol_pct: 8,  note: "6V6 (V7) screen after its 470 Ohm-1W stopper, off the +415 plate rail" }
+  G61:  { chart: -35, tol_pct: 8,  note: "6V6 (V7) grid, fixed bias via 220k from the -35 V supply" }
+  PRD:  { chart: 410, tol_pct: 20, note: "reverb-driver 12AT7 plate (paralleled sections), off BP1 through the TR4 primary DCR" }
+  KRD:  { chart: 8.7, tol_pct: 20, note: "reverb-driver 12AT7 shared cathode over 2.2k" }
+  PV2:  { chart: 170, tol_pct: 20, note: "vibrato-channel 2nd stage plate, 100k from +325" }
+  KV2:  { chart: 1.3, tol_pct: 20, note: "vibrato-channel 2nd stage cathode over 820 Ohm" }
+  PR1:  { chart: 170, tol_pct: 20, note: "reverb-recovery plate, 100k from +325" }
+  KR1:  { chart: 1.3, tol_pct: 20, note: "reverb-recovery cathode over 820 Ohm" }
+  PD1:  { chart: 180, tol_pct: 20, note: "vibrato/reverb mix-driver plate, 100k from +325" }
+  KD1:  { chart: 1.3, tol_pct: 20, note: "mix-driver cathode over 820 Ohm" }
+  PPIA: { chart: 170, tol_pct: 20, note: "PI plate, 82k (hot) side" }
+  PPIB: { chart: 180, tol_pct: 20, note: "PI plate, 100k (cold) side" }
+  KPI:  { chart: 77,   tol_pct: 20, note: "PI joined cathodes, above the 470 Ohm" }
+  JPI:  { chart: 75.5, tol_pct: 20, note: "PI tail junction (470 Ohm / 22k), grid-leak return" }
+  PN1:  { chart: null, note: "normal-channel input plate — printed +180 V. Reported, not gated: this stage's rail is shared with the excluded tremolo oscillator, so the un-loaded derived rail runs the plate high (sim ~199 V)" }
+  KN1:  { chart: null, note: "normal-channel input cathode over 1.5k — printed +1.3 V (informational, same shared-rail reason)" }
+  PV1:  { chart: null, note: "vibrato-channel input plate — printed +170 V (informational, shared-rail with the excluded tremolo)" }
+  KV1:  { chart: null, note: "vibrato-channel input cathode over 1.5k — printed +1.3 V (informational)" }
