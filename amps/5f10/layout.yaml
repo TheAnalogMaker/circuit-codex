@@ -19,6 +19,13 @@
 # colour. Grid stoppers mounted directly at a tube socket (the 6V6 pair's
 # 1.5 kΩ stoppers) are likewise omitted for legibility, as are the tone/bright
 # caps that mount right at the pot lugs rather than on the board.
+# Machine-checked equivalence: the point-to-point wiring drawn below has been
+# verified electrically equivalent to the simulated netlist (netlist.cir) by
+# pipeline/verify_layout_nets.py — see the net_map block at the foot of this
+# file and docs/layout-schema.md. Heaters, the pilot lamp, and the PT/rectifier
+# AC side are an excluded annotation layer (not modelled in netlist.cir).
+wiring_claim: verified
+
 board:
   rows: 2
   cols: 60
@@ -104,12 +111,12 @@ bus:
 # transformer leads.
 runs:
   # --- power transformer secondary → 5Y3GT rectifier (marked colours) -------
-  - { from: PT.red1, to: V5.pin4 }                    # HT plate 1
-  - { from: PT.red2, to: V5.pin6 }                    # HT plate 2
-  - { from: PT.red-yellow, to: [1.45, 2] }             # HT centre tap → ground bus (drawing labels this lead "yellow-red")
-  - { from: PT.yellow1, to: V5.pin2 }                  # 5 V rectifier filament
-  - { from: PT.yellow2, to: V5.pin8 }                  # 5 V rectifier filament / B+ output
-  - { from: V5.pin8, to: C8.a, color: red, via: [[6, 1.55]] }   # B+ out → first filter
+  - { from: PT.red1, to: V5.pin4, via: [[2.6, 0.5], [3.0, 1.7]] }                    # HT plate 1
+  - { from: PT.red2, to: V5.pin6, via: [[2.6, 0.85], [4.2, 2.0]] }                    # HT plate 2
+  - { from: PT.red-yellow, to: [1.45, 2], via: [[1.2, 1.15]] }             # HT centre tap → ground bus (drawing labels this lead "yellow-red")
+  - { from: PT.yellow1, to: V5.pin2, via: [[1.5, 0.5], [0.6, 2.5], [2.3, 2.75]] }                  # 5 V rectifier filament
+  - { from: PT.yellow2, to: V5.pin8, via: [[3.3, 0.55], [3.3, 2.3]] }                  # 5 V rectifier filament / B+ output
+  - { from: V5.pin8, to: C8.a, color: red, via: [[5.2, 1.55]] }   # B+ out → first filter
 
   # --- B+ filter chain (three 16 µF cans, 470 Ω then 22k droppers) ----------
   - { from: C8.a, to: RD1.a }
@@ -121,52 +128,52 @@ runs:
   - { from: C10.b, to: [1.45, 18] }
 
   # --- bias supply: selenium rectifier, 6.8k/56k, filter can, -21V feed ----
-  - { from: PT.white, to: SELRECT, via: [[1.6, -0.15]] }     # bias AC tap
-  - { from: PT.green1, to: SELRECT, via: [[0.9, 0.15]] }     # bias AC tap, return
+  - { from: PT.white, to: SELRECT, via: [[3.3, -0.55]] }     # bias AC tap
+  - { from: PT.green1, to: SELRECT, via: [[0.5, 0.35]] }     # bias AC tap, return
   - { from: SELRECT, to: RB1.a }
   - { from: RB1.b, to: RB2.a }                              # junction: the -21 V node
   - { from: RB2.b, to: [1.45, 0] }
   - { from: RB1.b, to: C11.a }
   - { from: C11.b, to: [1.45, 4] }
-  - { from: RB1.b, to: RG1.b, via: [[2, 1.85], [34, 1.85]] }    # -21 V line → upper 6V6 grid leak (routed under the board)
-  - { from: RB1.b, to: RG2.b, via: [[2, 2.0], [36, 2.0]] }      # -21 V line → lower 6V6 grid leak (routed under the board)
+  - { from: RB1.b, to: RG1.b, via: [[2.6, 1.95], [34, 1.95]] }    # -21 V line → upper 6V6 grid leak (routed under the board)
+  - { from: RB1.b, to: RG2.b, via: [[4.2, 2.35], [36, 2.35]] }      # -21 V line → lower 6V6 grid leak (routed under the board)
 
   # --- output stage: OT (derived), screens, grids ---------------------------
-  - { from: C8.a, to: T1.ct, via: [[6, 2.6], [60.3, 2.6]] }        # B+1 → OT primary centre tap
-  - { from: V3.pin3, to: T1.plateA, via: [[19, 2.72], [60.5, 2.72]] }  # upper 6V6 plate → OT primary (drop left of the V3 label)
-  - { from: V4.pin3, to: T1.plateB, via: [[25, 2.84], [60.7, 2.84]] }  # lower 6V6 plate → OT primary (drop left of the V4 label)
-  - { from: T1.sec1, to: SPK.tip }
-  - { from: T1.sec2, to: SPK.sleeve }
-  - { from: V3.pin4, to: C9.a, via: [[19, 2.4], [12, 2.4]] }       # upper 6V6 screen → B+2 (drop left of the V3 label)
-  - { from: V4.pin4, to: C9.a, via: [[25, 2.5], [12, 2.5]] }       # lower 6V6 screen → B+2 (drop left of the V4 label)
-  - { from: V3.pin8, to: [1.45, 22] }                              # upper 6V6 cathode → ground bus
-  - { from: V4.pin8, to: [1.45, 28] }                              # lower 6V6 cathode → ground bus
+  - { from: C8.a, to: T1.ct, via: [[6.7, 2.55], [59.2, 2.55], [59.2, 0.11]] }        # B+1 → OT primary centre tap
+  - { from: V3.pin3, to: T1.plateA, via: [[19, 2.72], [59.6, 2.72], [59.6, 0.2]] }  # upper 6V6 plate → OT primary (drop left of the V3 label)
+  - { from: V4.pin3, to: T1.plateB, via: [[25, 2.9], [60.0, 2.9], [60.0, 0.3]] }  # lower 6V6 plate → OT primary (drop left of the V4 label)
+  - { from: T1.sec1, to: SPK.tip, via: [[61.4, 0.42], [61.4, 2.98], [35.2, 2.98]] }
+  - { from: T1.sec2, to: SPK.sleeve, via: [[61.8, 0.53], [61.8, 3.42], [36.0, 3.42]] }
+  - { from: V3.pin4, to: C9.a, via: [[20.6, 2.4], [11.0, 2.4], [11.0, 0.2]] }       # upper 6V6 screen → B+2 (drop left of the V3 label)
+  - { from: V4.pin4, to: C9.a, via: [[26.6, 2.5], [12.9, 2.5], [12.9, 0.2]] }       # lower 6V6 screen → B+2 (drop left of the V4 label)
+  - { from: V3.pin8, to: [1.45, 22.7] }                              # upper 6V6 cathode → ground bus
+  - { from: V4.pin8, to: [1.45, 27.6] }                              # lower 6V6 cathode → ground bus
 
   # --- cathodyne phase inverter (V2, unit 2 = pins 1/2/3) -------------------
-  - { from: V2.pin1, to: RL3.a, via: [[41, 1.6]] }      # cathodyne plate → 56k plate load
-  - { from: RL3.b, to: C10.a, via: [[40, 0.7], [18.3, 0.7]] }   # plate load → B+3
-  - { from: V2.pin1, to: C6.a, via: [[41.3, 1.5]] }     # cathodyne plate → plate-side coupler
-  - { from: C6.b, to: V3.pin5, via: [[38, 3.2], [24, 3.2], [24, 1.95]] }   # coupler → upper 6V6 grid (rise right of the V3 label, into pin 5)
-  - { from: RG1.a, to: C6.b, via: [[34, 0.72], [37.7, 0.72]] }   # bias grid leak → same grid node
-  - { from: V2.pin3, to: RKA.a, via: [[40.6, 0.74], [20.3, 0.74]] }    # cathodyne cathode → 1.5k
+  - { from: V2.pin1, to: RL3.a, via: [[41.8, 2.4], [39.4, 2.4], [39.4, 0.5]] }      # cathodyne plate → 56k plate load
+  - { from: RL3.b, to: C10.a, via: [[40, 0.44], [18.2, 0.44]] }   # plate load → B+3
+  - { from: V2.pin1, to: C6.a, via: [[40.8, 2.35], [37.8, 2.35], [37.8, 0.55]] }     # cathodyne plate → plate-side coupler
+  - { from: C6.b, to: V3.pin5, via: [[38, 3.12], [24.7, 3.12], [24.7, 1.9]] }   # coupler → upper 6V6 grid (rise right of the V3 label, into pin 5)
+  - { from: RG1.a, to: C6.b, via: [[34, 0.93], [37.7, 0.93]] }   # bias grid leak → same grid node
+  - { from: V2.pin3, to: RKA.a, via: [[41.5, 0.58], [20.3, 0.58]] }    # cathodyne cathode → 1.5k
   - { from: RKA.b, to: RKB.a }                          # junction → 56k cathode load
   - { from: RKB.b, to: [1.45, 24] }                     # 56k → ground bus
-  - { from: RKA.b, to: C7.a, via: [[20.6, 0.76], [31.7, 0.76]] }   # junction → cathode-side coupler
-  - { from: C7.b, to: V4.pin5, via: [[32, 3.32], [30, 3.32], [30, 1.95]] }   # coupler → lower 6V6 grid (rise right of the V4 label, into pin 5)
-  - { from: RG2.a, to: C7.b, via: [[36, 0.78], [32.3, 0.78]] }   # bias grid leak → same grid node
+  - { from: RKA.b, to: C7.a, via: [[20.6, 0.65], [31.7, 0.65]] }   # junction → cathode-side coupler
+  - { from: C7.b, to: V4.pin5, via: [[31.6, 3.35], [30, 3.35], [30, 1.95]] }   # coupler → lower 6V6 grid (rise right of the V4 label, into pin 5)
+  - { from: RG2.a, to: C7.b, via: [[36, 0.37], [32.3, 0.37]] }   # bias grid leak → same grid node
   - { from: RGPI.a, to: RKA.b }                         # PI grid leak → junction
   - { from: RGPI.b, to: V2.pin2, via: [[30, 1.6]] }     # PI grid leak → cathodyne grid
 
   # --- driver stage (V2, unit 1 = pins 6/7/8) + NFB -------------------------
-  - { from: V2.pin6, to: RL2.a, via: [[41, 1.55]] }     # driver plate → 100k plate load
-  - { from: RL2.b, to: C10.a, via: [[42, 0.72], [18.3, 0.72]] }   # plate load → B+3
-  - { from: V2.pin6, to: C5.a, via: [[41.2, 1.45]] }     # driver plate → coupler
+  - { from: V2.pin6, to: RL2.a, via: [[41.4, 1.5]] }     # driver plate → 100k plate load
+  - { from: RL2.b, to: C10.a, via: [[42, 0.53], [18.9, 0.53]] }   # plate load → B+3
+  - { from: V2.pin6, to: C5.a, via: [[42.4, 1.6]] }     # driver plate → coupler
   - { from: C5.b, to: V2.pin2, via: [[44, 1.7], [41.3, 1.65]] }  # coupler → PI grid (same node as RGPI)
-  - { from: V2.pin8, to: RK2.a, via: [[40.8, 0.75], [26.3, 0.75]] }    # driver cathode → 1.5k (unbypassed)
-  - { from: V2.pin8, to: RNFB.a, via: [[40.4, 0.78], [28.3, 0.78]] }    # driver cathode → NFB resistor
+  - { from: V2.pin8, to: RK2.a, via: [[41.8, 2.45], [26.3, 2.45], [26.3, 0.72]] }    # driver cathode → 1.5k (unbypassed)
+  - { from: V2.pin8, to: RNFB.a, via: [[42.4, 2.62], [28.9, 2.62], [28.9, 0.79]] }    # driver cathode → NFB resistor
   - { from: RK2.b, to: [1.45, 26] }                      # 1.5k → ground bus
-  - { from: RNFB.b, to: SPK.tip, via: [[28.3, 3.4], [33, 3.4], [33, 1.9]] }   # NFB → speaker line (rise left of the Spkr-jack label, into the tip)
-  - { from: VR1.lug2, to: V2.pin7, via: [[32, -0.45], [32.3, 0.76], [41.2, 1.55]] }  # volume wiper → driver grid
+  - { from: RNFB.b, to: SPK.tip, via: [[27.7, 3.45], [34.3, 3.45], [34.3, 1.9]] }   # NFB → speaker line (rise left of the Spkr-jack label, into the tip)
+  - { from: VR1.lug2, to: V2.pin7, via: [[32, -0.7], [42.2, -0.7], [43.4, 1.5]] }  # volume wiper → driver grid
 
   # --- 6AT6 input stage: three jacks, volume/tone, plate, cathode ----------
   - { from: JI1, to: R1s.a, via: [[48, -0.45]] }
@@ -174,14 +181,14 @@ runs:
   - { from: JI3, to: R3s.a, via: [[54, -0.45]] }
   - { from: R1s.b, to: V1.pin1, via: [[50, 1.6]] }       # grid-stopper junction → 6AT6 grid
   - { from: R2s.b, to: R1s.b }
-  - { from: R3s.b, to: R1s.b }
+  - { from: R3s.b, to: R1s.b, via: [[53, 1.24], [51, 1.24]] }
   - { from: V1.pin7, to: RL1.a, via: [[53, 1.6]] }       # 6AT6 plate → 100k load
-  - { from: RL1.b, to: C10.a, via: [[46, 0.74], [18.3, 0.74]] }   # plate load → B+3
-  - { from: V1.pin7, to: C2.a, via: [[53.2, 1.65]] }     # 6AT6 plate → coupler
-  - { from: C2.b, to: VR2.lug3, via: [[48, -0.45], [24, -0.5]] }   # coupler → tone (first pot after 6AT6)
+  - { from: RL1.b, to: C10.a, via: [[46, 0.9], [20.3, 0.9]] }   # plate load → B+3
+  - { from: V1.pin7, to: C2.a, via: [[52.4, 1.45]] }     # 6AT6 plate → coupler
+  - { from: C2.b, to: VR2.lug3, via: [[47.5, -0.5], [24, -0.5]] }   # coupler → tone (first pot after 6AT6)
   - { from: VR2.lug2, to: VR1.lug3, via: [[24, -0.85], [32, -0.85]] }  # tone wiper → volume input
-  - { from: VR2.lug1, to: [1.45, 24] }                    # tone ground
-  - { from: VR1.lug1, to: [1.45, 32] }                    # volume ground
+  - { from: VR2.lug1, to: [1.45, 23.2], via: [[24.8, 0.85], [23.2, 1.35]] }                    # tone ground
+  - { from: VR1.lug1, to: [1.45, 33.0], via: [[31.0, 0.8], [33.0, 1.35]] }                    # volume ground
   - { from: V1.pin2, to: RK1.a, via: [[53.4, 1.7]] }     # 6AT6 cathode → 1.5k
   - { from: RK1.b, to: [1.45, 56] }                       # 1.5k → ground bus
   - { from: C1.a, to: RK1.a }                             # cathode bypass
@@ -199,3 +206,26 @@ runs:
   - { from: V4.pin2, to: V2.pin4, style: twisted, via: [[28, 3.74], [41, 3.74]] }  # V4 → V2 heater
   - { from: V2.pin5, to: V1.pin3, style: twisted, via: [[41, 3.72], [53, 3.72]] }  # V2 → V1 (6AT6) heater
   - { from: V1.pin3, to: V1.pin4, style: twisted } # close the pair at the last socket
+
+# net_map — the reviewable data layer reconciling the drawn wiring with the
+# DC-operating-point netlist (netlist.cir) for pipeline/verify_layout_nets.py.
+# See docs/layout-schema.md. Every entry records a documented abstraction the
+# netlist makes so the equivalence check never guesses in code.
+net_map:
+  # Terminals the netlist gives no discrete node to reach on their own — anchored
+  # to the netlist node they belong to. Co-anchoring to the SAME node declares a
+  # DC bridge the netlist collapses (the output-transformer primary DCR is
+  # omitted, so both 6V6 plates and the CT read as B+1; the OT secondary DCR is
+  # folded into ground, so the negative-feedback return reads as ground at DC).
+  anchors:
+    T1.plateA: BP1    # OT primary, upper-6V6 plate lead — netlist omits OT primary DCR (plate node = B+1)
+    T1.plateB: BP1    # OT primary, lower-6V6 plate lead
+    T1.ct:     BP1    # OT primary centre tap → first filter (B+1)
+    SPK.tip:  "0"     # speaker jack tip — netlist folds the OT-secondary DCR (~0 Ω) into ground,
+                      #   so the 56 k NFB return (RNFB) from the speaker line reads as ground at DC
+  # Netlist elements with no discrete board part — reported in coverage, never a
+  # failure (their nodes still have to check out). Both are single-resistor DC
+  # abstractions of grid-reference networks realised at a control / at the jacks.
+  netlist_unplaced:
+    RGAT: "6AT6 grid return — the netlist's 68 k model of the grid reference through the switched input jacks (the three 68 k stoppers R1s/R2s/R3s normalling to ground when unplugged); realised at the jacks, no single board part"
+    RGD:  "driver (V2A) grid leak — realised by the 1 M volume pot VR1 (wiper → grid), which the netlist models as a 1 M grid-leak to ground"
