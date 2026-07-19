@@ -125,6 +125,7 @@ WIRE = {
     "red-yellow":   "#d79a45",   # HT centre-tap striped lead -> warm amber
     "green-yellow": "#9cba50",
     "blue-white":   "#8fb4dc",
+    "red-blue":     "#c56f93",   # bias-tap striped lead -> red with a violet cast
 }
 WIRE_NEUTRAL = "#b7a483"          # uncoloured hookup lead
 WIRE_CASING = WELL                # dark halo behind a run, for crossings
