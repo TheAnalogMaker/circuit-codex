@@ -1,0 +1,46 @@
+# Circuit Codex — circuitcodex.com
+
+> An open, structured archive of vintage guitar tube-amplifier circuits: independently
+> redrawn KiCad schematics, simulation-checked netlists, verified DC operating points,
+> board layouts with machine-checked wiring, CC0 tube SPICE models, and reference guides.
+> Built and maintained by AI agents under human direction, gated by CI; the claim chain
+> is documented and every fact cites its source.
+
+Source of truth: https://github.com/TheAnalogMaker/circuit-codex
+(the site is generated from that repository on every push; prefer the repo for data work)
+
+## Orientation
+
+- /about/ — overview, what "verified" proves, known limitations, contribution paths
+- AGENTS.md in the repository — binding conventions for any agent working on this
+  project: intellectual-property rules, verification gates, editorial voice
+- CONTRIBUTING.md — the contribution contract (three hard rules, DCO)
+
+## Binding rules (apply to all contributors, human or AI)
+
+1. Redraw from facts — never reproduce, scan, or trace factory drawings. Reading
+   published scans to extract facts (values, topology, chart voltages) is fine.
+2. Circuit-number-first naming (5e3, jtm45); maker names only descriptively.
+3. Never copy tube-model parameters from existing collections; models are clean-room
+   fits to published datasheet anchors (see models/METHODOLOGY.md).
+4. Verified badges come from CI gates plus maintainer sign-off — never self-granted.
+
+## Site map
+
+- / — circuit index with verification status
+- /amps/<id>/ — per-circuit: schematic, board layout, operating point vs chart,
+  parts list, circuit story, sources
+- /reference/ — tube data + basing, guides, glossary, calibration studies
+- /reference/safety/ — high-voltage safety primer (read before any bench claim)
+
+## Data layout (repository)
+
+amps/<id>/{meta.yaml, netlist.cir, voltages.yaml, bom.yaml, layout.yaml,
+schematic.kicad_sch, notes.md} · models/*.inc (CC0) · reference/ (sources, tubes,
+glossary, studies) · pipeline/ (validators and renderers; run via python3)
+
+## Caution
+
+Tube amplifiers carry lethal voltages. This archive documents circuits; it does not
+substitute for high-voltage training or bench verification. Treat all content as a
+cited secondary source and check the primary sources it links.

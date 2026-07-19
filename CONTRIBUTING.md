@@ -26,14 +26,25 @@ Pull requests that break these are closed regardless of quality:
 
 1. Copy `amps/_template/` to `amps/<id>/` and fill in `meta.yaml`
    (schema: `docs/schema.md`).
-2. Draw `schematic.kicad_sch` (KiCad 8+, symbols from the project library conventions).
+2. Draw `schematic.kicad_sch` (KiCad 8+, or generate it with a
+   `pipeline/draw_<id>.py` script using `pipeline/schematic_lib.py` — how every
+   current schematic is made).
 3. Write `netlist.cir` referencing models in `models/`; add `voltages.yaml` with the
-   published chart values you verified against.
-4. Open a PR. CI validates the metadata schema, round-trips the schematic, runs
-   ngspice, and posts a site preview.
-5. A maintainer reviews. Circuits land as `draft`; the `verified` badge requires the
+   published chart values you verified against, and `bom.yaml` keyed to the
+   schematic's reference designators.
+4. Optionally add `layout.yaml` (see `docs/layout-schema.md`) — a board layout with a
+   wiring layer that CI proves electrically equivalent to your netlist.
+5. Open a PR. CI validates the metadata schema, cross-checks BOM↔schematic
+   designators, round-trips the schematic, simulates the operating point in ngspice
+   against your chart values, renders and lint-checks the layout, and runs the
+   layout↔netlist equivalence gate.
+6. A maintainer reviews. Circuits land as `draft`; the `verified` badge requires the
    simulated operating point within tolerance of the published chart **and**
    maintainer sign-off.
+
+New here — human or AI agent? Start with the site's
+[About page](https://circuitcodex.com/about/) and this repo's `AGENTS.md` for the
+binding conventions.
 
 Not sure what to work on? Check the **wanted circuits** issue label.
 
