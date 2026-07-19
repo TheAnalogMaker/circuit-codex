@@ -55,14 +55,34 @@ referenced designator that is absent from `bom.yaml` fails the render — and CI
 |---|---|
 | `id` | Stub identifier (a `leads[]` endpoint may reference it) |
 | `ref` | Optional BOM ref; when present its value is shown under the label |
-| `kind` | `tube` · `pot` · `jack` · `xfmr` · `choke` · `switch` |
+| `kind` | `tube` · `pot` · `jack` · `xfmr` · `choke` · `switch` · `part` |
 | `edge` | `top` · `bottom` · `left` · `right` — which side of the board it sits on |
 | `at` | Position along that edge: a column coordinate for top/bottom, a row coordinate for left/right (fractions allowed) |
 | `label` | Text drawn under the stub |
+| `glyph` | Only for `kind: part` — `lamp` draws the pilot-lamp glyph; otherwise a small axial body |
 
 Tubes draw their real pin ring with pin numbers; the pin count is read from the
 tube's `reference/tubes/<tube>.yaml` basing data (via the `ref`'s BOM value), so
 `runs` can address a socket pin and have it validated.
+
+### Generic 2-lead off-board parts (`kind: part`)
+
+Not every part sits on the eyelet board. `kind: part` is a generic off-board
+component with **two addressable terminals** — `REF.a` and `REF.b` — for the
+chassis-mounted odds and ends the board grid can't hold: the pilot lamp and
+chassis-mounted resistors (e.g. an input grid-leak wired at the jacks). Its two
+terminals face the board so `runs` land on them exactly like a board part's
+`.a` / `.b` eyelets.
+
+```yaml
+- { id: PL1, kind: part, glyph: lamp, edge: left, at: 1.5,  label: "Pilot lamp" }
+- { id: R1,  ref: R1,    kind: part, edge: top,   at: 19.3, label: "R1" }
+```
+
+`glyph: lamp` renders the pilot lamp (bulb + bayonet-base hint). Without a
+glyph, a small axial body is drawn — typed and valued from `bom.yaml` when a
+`ref` is given (so a chassis resistor still restates nothing), or neutral when
+it isn't.
 
 ## Wiring layer (schema v2)
 
@@ -78,8 +98,8 @@ Every `runs`/`bus` endpoint is one of:
 | Form | Means |
 |---|---|
 | `[row, col]` | a bare board eyelet (or a routing point on the ground bus) |
-| `"REF.a"` / `"REF.b"` | a board part's eyelet (`REF` is a `parts[]` ref) |
-| `"V1.pin3"` | a tube socket pin — **validated** against `reference/tubes/<tube>.yaml` basing; an out-of-range/unknown pin fails the render (and CI) |
+| `"REF.a"` / `"REF.b"` | a board part's eyelet (`REF` is a `parts[]` ref), **or** a generic 2-lead off-board part's terminal (`REF` is an `offboard` `kind: part` id) |
+| `"V1.pin3"` | a tube socket pin — **validated** against `reference/tubes/<tube>.yaml` basing; an out-of-range/unknown pin fails the render (and CI). On a `style: twisted` (heater) run a tube endpoint must additionally be a **heater/filament** pin |
 | `"VR1.lug2"` | a potentiometer lug (`1` \| `2` \| `3`; `2` is the wiper) |
 | `"JI"` / `"JI.tip"` / `"JI.sleeve"` | a jack (bare id = body) |
 | `"T2.green"` | a transformer / choke lead by colour name — each distinct colour gets its own stacked, colour-matched pigtail on the board-facing edge |
@@ -97,7 +117,19 @@ runs:
 |---|---|
 | `from` / `to` | endpoints (grammar above) |
 | `color` | optional era wire-colour **name** (`red`, `green`, `yellow`, `blue`, `brown`, `black`, `red-yellow`, …). Mapped to a house-tuned palette that stays legible on the dark board and shown in the drawing's colour legend. A run onto a transformer lead inherits that lead's colour automatically. Uncoloured runs render in the neutral hookup-lead tone. |
-| `via` | optional routing waypoints in **grid** units `[x, y]` where `x` = column axis, `y` = row axis (note this is horizontal-first — the opposite order from a part's `[row, col]`). `y < 0` routes above the board, `y > rows-1` below it (fractions allowed). Runs bend through these with rounded elbows; a couple of waypoints keep a lead in a clean lane clear of its neighbours. |
+| `style` | optional. `twisted` draws the run as two interleaved sinusoidal strands sharing its endpoints — the classic **6.3 V heater** idiom. Twisted runs render in the heater green (`green-yellow` gives the centre-tap strand where a drawing marks one) and get a dedicated legend entry ("6.3 V heaters — twisted pair") rather than a colour swatch. |
+| `via` | optional routing waypoints in **grid** units `[x, y]` where `x` = column axis, `y` = row axis (note this is horizontal-first — the opposite order from a part's `[row, col]`). `y < 0` routes above the board, `y > rows-1` below it (fractions allowed). Runs bend through these with rounded elbows; a couple of waypoints keep a lead in a clean lane clear of its neighbours. A deep lane (e.g. the twisted heater bus below the output harness) grows the drawing's bottom band automatically so it clears the legend. |
+
+#### Heater chains (twisted pairs)
+
+The 6.3 V filament wiring is drawn as a `style: twisted` chain in the drawing's
+daisy order: **PT green pair → pilot lamp → socket to socket**. Heater/filament
+socket pins are read from `reference/tubes/<tube>.yaml` basing (noval 4/5 with
+9 the centre tap; octal power tubes 2/7; directly-heated rectifiers 2/8 —
+those sit on the 5 V winding, not the 6.3 V chain). A twisted run onto a tube
+is **validated to land on a heater pin** — a heater lead routed to a signal pin
+fails the render (and CI). The pilot lamp is an `offboard` `kind: part` with a
+`lamp` glyph; the pair enters `PL1.a` and leaves `PL1.b` to the first socket.
 
 ### `bus[]` — ground-bus segments
 

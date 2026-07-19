@@ -31,22 +31,36 @@ parts:            [ { ref, a:[row,col], b:[row,col], nudge?:[dx,dy] } ]
                     Same row -> axial body; shared column -> vertical leg.
                     Optional `nudge` shifts the ref/value label pair (px) to
                     keep it clear of wiring.
-offboard:         [ { id, ref?, kind, edge, at, label } ]
-                    kind: tube | pot | jack | xfmr | choke | switch
+offboard:         [ { id, ref?, kind, edge, at, label, glyph? } ]
+                    kind: tube | pot | jack | xfmr | choke | switch | part
                     Tubes draw their real pin ring + numbers (pin count read
                     from reference/tubes/<tube>.yaml basing data).
+                    kind: part is a generic 2-lead off-board component with two
+                    addressable terminals (REF.a / REF.b) — the pilot lamp and
+                    chassis-mounted resistors (e.g. a grid-leak at the input
+                    jacks) that don't sit on the eyelet board. glyph: lamp draws
+                    the pilot-lamp glyph (bulb + bayonet base hint); otherwise a
+                    small axial body is drawn (typed from bom.yaml when a ref is
+                    given, else neutral). Its .a/.b terminals face the board so
+                    runs land on them like any other endpoint.
 
 --- runs: routed hookup leads -------------------------------------------------
 runs:
-  - { from: <endpoint>, to: <endpoint>, color?: <name>, via?: [[x,y], ...] }
+  - { from: <endpoint>, to: <endpoint>, color?: <name>, style?: twisted,
+      via?: [[x,y], ...] }
 
   <endpoint> is one of:
     [row, col]      a bare board eyelet (row 0/1, integer col)
     "REF.a"/"REF.b" a board part's eyelet (REF is a parts[] ref; .a/.b picks
-                    which of its two endpoints)
+                    which of its two endpoints). Also addresses a generic
+                    2-lead OFF-board part (kind: part) by its .a/.b terminals.
     "V1.pin3"       a tube socket pin. The pin number is VALIDATED against the
                     tube's basing data in reference/tubes/<tube>.yaml — an
-                    out-of-range or unknown pin fails the render (and CI).
+                    out-of-range or unknown pin fails the render (and CI). On a
+                    style:twisted (heater) run, a tube endpoint is additionally
+                    required to be a HEATER/FILAMENT pin (element heater |
+                    heater-ct | filament in the basing — noval 4/5/9, octal 2/7,
+                    rectifier filament 2/8); a signal pin on a heater run fails.
     "VR1.lug2"      a potentiometer lug (1 | 2 | 3; 2 is the wiper).
     "JI" / "JI.tip" / "JI.sleeve"   a jack (bare id = body; .tip/.sleeve pin).
     "T2.green"      a transformer / choke lead, addressed by colour name. Each
@@ -57,6 +71,13 @@ runs:
           small house-tuned palette that stays legible on the dark board, and
           shows up in the drawing's colour legend. Uncoloured runs render in
           the neutral hookup-lead tone.
+  style?  optional. "twisted" renders the run as two interleaved sinusoidal
+          strands sharing the run's endpoints — the classic 6.3 V heater idiom.
+          Twisted runs default to the heater green (with green-yellow available
+          for a centre-tap lead where a drawing marks one) and earn their own
+          legend entry ("6.3 V heaters — twisted pair") instead of a colour
+          swatch. Use for the filament/heater chain: PT green pair → pilot
+          lamp → socket to socket in the drawing's daisy order.
   via?    optional routing waypoints, in GRID units [x, y] where x = column
           axis and y = row axis (same axes as eyelets, but note the [x, y]
           order is the drawing's, i.e. horizontal-first — the opposite of a
@@ -129,6 +150,13 @@ WIRE = {
 }
 WIRE_NEUTRAL = "#b7a483"          # uncoloured hookup lead
 WIRE_CASING = WELL                # dark halo behind a run, for crossings
+# 6.3 V heater / filament twisted pair: the heater green, a touch brighter than
+# the generic "green" run so the interleaved strands read as the heater idiom.
+HEATER = "#6fbf59"
+HEATER_CT = "#9cba50"             # green-yellow centre-tap strand, when marked
+# pilot-lamp glyph
+LAMP_GLASS, LAMP_GLASS_EDGE = "#e8b552", "#9c6b1f"   # warm amber jewel
+LAMP_BASE, LAMP_BASE_EDGE = "#9aa2a9", "#5b636a"     # bayonet base
 # bare-wire ground bus: a light tinned-wire core over a darker edge, so it
 # reads as a solid rod laid across the board.
 BUS_CORE, BUS_EDGE = "#e6dcc2", "#6f5836"
@@ -226,6 +254,31 @@ def load_tube_pins(slug: str) -> set[int] | None:
         return None
 
 
+_HEATER_ELEMENTS = {"heater", "heater-ct", "filament"}
+
+
+def load_tube_heater_pins(slug: str) -> set[int] | None:
+    """Heater / filament pin numbers for a tube (element in {heater, heater-ct,
+    filament}) from reference/tubes/<slug>.yaml basing, or None if unknown.
+    Noval dual-triodes: 4/5 heater + 9 heater-ct; octal power tubes: 2/7;
+    directly-heated rectifiers: 2/8 filament. A style:twisted (heater) run is
+    validated against this set so a heater lead can't land on a signal pin."""
+    path = ROOT / "reference" / "tubes" / f"{slug}.yaml"
+    if not path.exists():
+        return None
+    data = yaml.safe_load(path.read_text()) or {}
+    pins = ((data.get("basing") or {}).get("pins") or {})
+    out: set[int] = set()
+    for k, meta in pins.items():
+        try:
+            num = int(k)
+        except (TypeError, ValueError):
+            continue
+        if isinstance(meta, dict) and str(meta.get("element", "")).lower() in _HEATER_ELEMENTS:
+            out.add(num)
+    return out or None
+
+
 # ---- small SVG element builders --------------------------------------------
 def text(x, y, s, fill, size, *, anchor="middle", font=FONT_DISP, weight=600,
          spacing=None, upper=False):
@@ -271,6 +324,51 @@ def rounded_path(points, r=11.0):
     return " ".join(d)
 
 
+def twisted_strands(points, amp=3.4, wavelen=15.0, step=3.0):
+    """Two interleaved sinusoidal strand paths through `points` [(x,y),...] that
+    share the polyline's endpoints — the classic twisted-pair (heater) idiom.
+    A half-sine amplitude window forces both strands to meet exactly at the two
+    ends; between them they weave with opposite phase so they read as a twist.
+    Deterministic. Returns (d_strand1, d_strand2)."""
+    pts = [(float(x), float(y)) for x, y in points]
+    if len(pts) < 2:
+        return "", ""
+    # cumulative arc length along the straight polyline
+    seg = []
+    total = 0.0
+    for i in range(len(pts) - 1):
+        dx = pts[i + 1][0] - pts[i][0]
+        dy = pts[i + 1][1] - pts[i][1]
+        d = math.hypot(dx, dy) or 1e-6
+        seg.append((total, d, (dx / d, dy / d)))
+        total += d
+    if total < 1e-6:
+        return "", ""
+    k = 2 * math.pi / wavelen
+    n = max(2, int(total / step))
+    s1, s2 = [], []
+    for j in range(n + 1):
+        s = total * j / n
+        # locate segment
+        idx = 0
+        for m in range(len(seg)):
+            if s >= seg[m][0] and (m == len(seg) - 1 or s < seg[m + 1][0]):
+                idx = m
+                break
+        s0, d, (ux, uy) = seg[idx]
+        t = s - s0
+        px = pts[idx][0] + ux * t
+        py = pts[idx][1] + uy * t
+        nx, ny = -uy, ux                       # left normal
+        env = amp * math.sin(math.pi * s / total)   # 0 at both ends
+        off = env * math.sin(k * s)
+        s1.append((px + nx * off, py + ny * off))
+        s2.append((px - nx * off, py - ny * off))
+    d1 = "M " + " L ".join(f"{fmt(x)} {fmt(y)}" for x, y in s1)
+    d2 = "M " + " L ".join(f"{fmt(x)} {fmt(y)}" for x, y in s2)
+    return d1, d2
+
+
 class Renderer:
     def __init__(self, layout: dict, bom: dict, amp_id: str):
         self.layout = layout
@@ -296,9 +394,11 @@ class Renderer:
                 pins = load_tube_pins(slug) if slug else None
                 it["_pins"] = pins
                 it["_pincount"] = (max(pins) if pins else 8)
+                it["_heater_pins"] = load_tube_heater_pins(slug) if slug else None
         # transformer lead colour slots (assigned from run/bus endpoints)
         self._assign_xfmr_leads()
         self._colours_used: list[str] = []
+        self._has_twisted = False
         # board pixel box
         self.board_x = MARGIN_L
         self.board_y = MARGIN_TOP
@@ -307,7 +407,24 @@ class Renderer:
         self.width = self.board_x + self.board_w + MARGIN_R
         # a wired layout needs an under-chassis band below the sockets for the
         # long left-right harness leads; a placement-only layout stays compact.
-        self.margin_bot = 336 if (self.runs or self.bus) else MARGIN_BOT
+        # A deep routing lane (e.g. the twisted heater bus laid below the output
+        # harness) grows the band so it clears the bottom legend/attribution.
+        if self.runs or self.bus:
+            deep_row = float(self.rows - 1)
+            for spec in (list(self.runs) + list(self.bus)):
+                for v in (spec.get("via") or []):
+                    if isinstance(v, (list, tuple)) and len(v) == 2:
+                        try:
+                            deep_row = max(deep_row, float(v[1]))
+                        except (TypeError, ValueError):
+                            pass
+            # ey() needs board_y (set above); +14 clears the wire + twist amp,
+            # +74 leaves room for the three stacked legend lines. Floored at 336
+            # so ordinary under-chassis layouts are unchanged.
+            needed = self.ey(deep_row) + 14 + 74 - (self.board_y + self.board_h)
+            self.margin_bot = max(336, int(math.ceil(needed)))
+        else:
+            self.margin_bot = MARGIN_BOT
         self.height = self.board_y + self.board_h + self.margin_bot
 
     # ---- coordinates --------------------------------------------------------
@@ -361,6 +478,21 @@ class Renderer:
         if edge == "right":
             return cx - r - 4, cy + (lug - 2) * 11
         return cx + (lug - 2) * 11, cy + r + 4          # top (board below)
+
+    def part_terminal_pos(self, item, term):
+        """The two terminals of a generic off-board 2-lead part (kind: part),
+        placed on the board-facing side of the body so runs land cleanly. term
+        is 'a' or 'b'; a is the first terminal (left / top), b the second."""
+        cx, cy = self.off_pos(item)
+        edge = item.get("edge", "top")
+        s = -1 if term == "a" else 1
+        if edge == "top":       # board below -> terminals below body
+            return cx + s * 14, cy + 16
+        if edge == "bottom":    # board above -> terminals above body
+            return cx + s * 14, cy - 16
+        if edge == "left":      # board right -> terminals to the right
+            return cx + 16, cy + s * 14
+        return cx - 16, cy + s * 14        # right: board left -> terminals left
 
     def xfmr_lead_pos(self, item, colour):
         cx, cy = self.off_pos(item)
@@ -448,6 +580,12 @@ class Renderer:
         if kind in ("xfmr", "choke"):
             x, y, _ = self.xfmr_lead_pos(it, suffix)
             return x, y
+        if kind == "part":
+            if suffix not in ("a", "b"):
+                self.errors.append(
+                    f"{ctx}: off-board part '{name}' terminal must be .a or .b, got '.{suffix}'")
+                return None
+            return self.part_terminal_pos(it, suffix)
         self.errors.append(f"{ctx}: endpoint '{ep}' unsupported for kind '{kind}'")
         return None
 
@@ -632,12 +770,84 @@ class Renderer:
             els.append(text(x, y + h / 2 + 14, label, INK, 11.5, spacing="0.04em"))
             if val:
                 els.append(text(x, y + h / 2 + 27, val, MUTED, 10.5, font=FONT_MONO, weight=500))
+        elif kind == "part":
+            els += self._part_glyph(item, x, y, label, val)
         else:  # switch / fuse / misc
             w, h = 34, 18
             els.append(f'<rect x="{fmt(x-w/2)}" y="{fmt(y-h/2)}" width="{w}" height="{h}" rx="4" '
                        f'fill="{PANEL}" stroke="{LINE}" stroke-width="1.4"/>')
             els.append(text(x, y + h / 2 + 13, label, MUTED, 10.5, spacing="0.03em"))
         return "".join(els)
+
+    def _part_glyph(self, item, x, y, label, val):
+        """Generic off-board 2-lead part (kind: part): a pilot lamp (glyph:
+        lamp) or a small axial body, with two board-facing terminals wired as
+        REF.a / REF.b."""
+        edge = item.get("edge", "top")
+        away = {"top": (0, -1), "bottom": (0, 1),
+                "left": (-1, 0), "right": (1, 0)}.get(edge, (0, -1))
+        ta = self.part_terminal_pos(item, "a")
+        tb = self.part_terminal_pos(item, "b")
+        els = []
+        if item.get("glyph") == "lamp":
+            # base sits just off the terminals; bulb (jewel) sits further away
+            cbx, cby = x + away[0] * 2, y + away[1] * 2       # bayonet base centre
+            bx, by = x + away[0] * 15, y + away[1] * 15       # bulb centre
+            for (tx, ty) in (ta, tb):
+                els.append(f'<line x1="{fmt(tx)}" y1="{fmt(ty)}" x2="{fmt(cbx)}" '
+                           f'y2="{fmt(cby)}" stroke="{LEAD}" stroke-width="2"/>')
+            els.append(f'<rect x="{fmt(cbx-8)}" y="{fmt(cby-6)}" width="16" height="12" '
+                       f'rx="2" fill="{LAMP_BASE}" stroke="{LAMP_BASE_EDGE}" stroke-width="1"/>')
+            # bayonet pin hints on the base flanks
+            els.append(f'<circle cx="{fmt(cbx-8)}" cy="{fmt(cby)}" r="1.7" fill="{LAMP_BASE_EDGE}"/>')
+            els.append(f'<circle cx="{fmt(cbx+8)}" cy="{fmt(cby)}" r="1.7" fill="{LAMP_BASE_EDGE}"/>')
+            els.append(f'<circle cx="{fmt(bx)}" cy="{fmt(by)}" r="9.5" fill="{LAMP_GLASS}" '
+                       f'stroke="{LAMP_GLASS_EDGE}" stroke-width="1.4"/>')
+            els.append(f'<circle cx="{fmt(bx-2.6)}" cy="{fmt(by-2.6)}" r="2.4" fill="{INK}" '
+                       f'opacity="0.5"/>')
+            # filament squiggle inside the jewel
+            els.append(f'<path d="M {fmt(bx-3.5)} {fmt(by+1.5)} q 1.8 -5 3.5 0 q 1.8 5 3.5 0" '
+                       f'fill="none" stroke="{LAMP_GLASS_EDGE}" stroke-width="0.9"/>')
+            laby = by - 15 if away[1] < 0 else by + 24
+            els.append(text(bx, laby, label, INK, 11.5, spacing="0.04em"))
+            for (tx, ty) in (ta, tb):
+                els.append(term_dot(tx, ty, 2.2))
+            return els
+        # generic axial 2-lead body drawn between the terminals
+        horiz = edge in ("top", "bottom")
+        midx, midy = (ta[0] + tb[0]) / 2, (ta[1] + tb[1]) / 2
+        els.append(f'<line x1="{fmt(ta[0])}" y1="{fmt(ta[1])}" x2="{fmt(tb[0])}" '
+                   f'y2="{fmt(tb[1])}" stroke="{LEAD}" stroke-width="2"/>')
+        if horiz:
+            bw = max(22.0, abs(tb[0] - ta[0]) - 8)
+            bh = 15.0
+            rx, ry = midx - bw / 2, midy - bh / 2
+            els.append(f'<rect x="{fmt(rx)}" y="{fmt(ry)}" width="{fmt(bw)}" height="{fmt(bh)}" '
+                       f'rx="6" fill="{RES_BODY}" stroke="{RES_END}" stroke-width="1"/>')
+            for ex_ in (rx + 5, rx + bw - 5):
+                els.append(f'<line x1="{fmt(ex_)}" y1="{fmt(ry+1)}" x2="{fmt(ex_)}" '
+                           f'y2="{fmt(ry+bh-1)}" stroke="{RES_END}" stroke-width="2"/>')
+            top = away[1] < 0
+            ref_y = (ry - 18) if top else (ry + bh + 24)
+            val_y = (ry - 5) if top else (ry + bh + 11)
+            els.append(text(midx, ref_y, label, INK, 11.5, weight=700, spacing="0.02em"))
+            if val:
+                els.append(text(midx, val_y, val, MUTED, 10.5, font=FONT_MONO, weight=500))
+        else:
+            bw, bh = 15.0, max(22.0, abs(tb[1] - ta[1]) - 8)
+            rx, ry = midx - bw / 2, midy - bh / 2
+            els.append(f'<rect x="{fmt(rx)}" y="{fmt(ry)}" width="{fmt(bw)}" height="{fmt(bh)}" '
+                       f'rx="6" fill="{RES_BODY}" stroke="{RES_END}" stroke-width="1"/>')
+            lx = midx + away[0] * 16
+            anchor = "end" if away[0] < 0 else "start"
+            els.append(text(lx, midy - 3, label, INK, 11.5, weight=700, anchor=anchor,
+                            spacing="0.02em"))
+            if val:
+                els.append(text(lx, midy + 11, val, MUTED, 10.5, anchor=anchor,
+                                font=FONT_MONO, weight=500))
+        for (tx, ty) in (ta, tb):
+            els.append(term_dot(tx, ty, 2.2))
+        return els
 
     # ---- legacy soft leads (kept for back-compat) --------------------------
     def lead_run(self, lead):
@@ -681,13 +891,51 @@ class Renderer:
                 return lead_base(suffix)
         return None
 
+    def _check_heater_endpoint(self, ep, ctx):
+        """A style:twisted (heater) run onto a tube socket must land on a
+        heater/filament pin — validated against reference/tubes basing."""
+        if not (isinstance(ep, str) and "." in ep):
+            return
+        name, suffix = ep.split(".", 1)
+        it = self.off_by_id.get(name)
+        if not (it and it.get("kind") == "tube"):
+            return
+        digits = "".join(ch for ch in suffix if ch.isdigit())
+        if not digits:
+            return
+        pin = int(digits)
+        heaters = it.get("_heater_pins")
+        if heaters is not None and pin not in heaters:
+            self.errors.append(
+                f"{ctx}: heater (twisted) run onto tube '{name}' pin {pin} is not a "
+                f"heater/filament pin (heater pins: {sorted(heaters)} per reference/tubes basing)")
+
     def run_wire(self, spec, i):
         pts = self._run_points(spec, f"run[{i}]")
         if not pts:
             return "", []
+        twisted = str(spec.get("style", "")).lower() == "twisted"
         colour = spec.get("color")
         if not colour:
             colour = self._endpoint_colour(spec.get("from")) or self._endpoint_colour(spec.get("to"))
+        if twisted:
+            # heater pair: validate endpoints, default to the heater green, and
+            # earn a dedicated legend entry instead of a colour swatch.
+            self._check_heater_endpoint(spec.get("from"), f"run[{i}] from")
+            self._check_heater_endpoint(spec.get("to"), f"run[{i}] to")
+            self._has_twisted = True
+            base = lead_base(colour) if colour else None
+            stroke = HEATER_CT if base == "green-yellow" else HEATER
+            d1, d2 = twisted_strands(pts)
+            center = rounded_path(pts, r=11)
+            casing = (f'<path d="{center}" fill="none" stroke="{WIRE_CASING}" '
+                      f'stroke-width="5.0" stroke-linecap="round" stroke-linejoin="round" '
+                      f'opacity="0.6"/>')
+            strands = (f'<path d="{d1}" fill="none" stroke="{stroke}" stroke-width="1.7" '
+                       f'stroke-linecap="round" stroke-linejoin="round"/>'
+                       f'<path d="{d2}" fill="none" stroke="{stroke}" stroke-width="1.7" '
+                       f'stroke-linecap="round" stroke-linejoin="round"/>')
+            return casing + strands, [pts[0], pts[-1]]
         stroke = colour_hex(colour) if colour else WIRE_NEUTRAL
         if colour:
             key = str(colour).lower()
@@ -802,6 +1050,16 @@ class Renderer:
                            f'stroke="{BUS_CORE}" stroke-width="3.4" stroke-linecap="round"/>')
                 els.append(text(cx + 24, y, "ground bus", MUTED, 10.5, anchor="start",
                                 font=FONT_MONO, weight=500))
+                cx += 24 + len("ground bus") * 6.4 + 16
+            if self._has_twisted:
+                # a small twisted-pair swatch, then the heater label
+                d1, d2 = twisted_strands([(cx, y - 3), (cx + 20, y - 3)], amp=2.6, wavelen=8.0)
+                els.append(f'<path d="{d1}" fill="none" stroke="{HEATER}" stroke-width="1.5" '
+                           f'stroke-linecap="round"/>')
+                els.append(f'<path d="{d2}" fill="none" stroke="{HEATER}" stroke-width="1.5" '
+                           f'stroke-linecap="round"/>')
+                els.append(text(cx + 26, y, "6.3 V heaters — twisted pair", MUTED, 10.5,
+                                anchor="start", font=FONT_MONO, weight=500))
         # bodies legend
         items = [(RES_BODY, "resistor"), (FILM_BODY, "film / coupling cap"),
                  (ELEC_BODY, "electrolytic"), (MICA_BODY, "mica")]
