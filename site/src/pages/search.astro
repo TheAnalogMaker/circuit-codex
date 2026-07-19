@@ -13,20 +13,27 @@ const description = 'Search the Circuit Codex archive — circuits, tube referen
   <div id="search"></div>
 </div>
 <link rel="stylesheet" href="/pagefind/pagefind-ui.css" />
-<script type="module" is:inline>
-  import { PagefindUI } from '/pagefind/pagefind-ui.js';
-  new PagefindUI({
-    element: '#search',
-    showSubResults: true,
-    showImages: false,
-    autofocus: true,
-    translations: {
-      placeholder: 'Search circuits, tubes, guides…',
-      zero_results: 'No results for [SEARCH_TERM]. Try a circuit id (5e3), a tube (6L6), or a part value.',
-      many_results: '[COUNT] results for [SEARCH_TERM]',
-      one_result: '[COUNT] result for [SEARCH_TERM]',
-    },
-  });
+<script src="/pagefind/pagefind-ui.js" is:inline></script>
+<script is:inline>
+  // pagefind-ui.js is a classic script exposing a global, not an ES module.
+  (function mount() {
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', mount);
+      return;
+    }
+    new PagefindUI({
+      element: '#search',
+      showSubResults: true,
+      showImages: false,
+      autofocus: true,
+      translations: {
+        placeholder: 'Search circuits, tubes, guides…',
+        zero_results: 'No results for [SEARCH_TERM]. Try a circuit id (5e3), a tube (6L6), or a part value.',
+        many_results: '[COUNT] results for [SEARCH_TERM]',
+        one_result: '[COUNT] result for [SEARCH_TERM]',
+      },
+    });
+  })();
 </script>
 </Base>
 
