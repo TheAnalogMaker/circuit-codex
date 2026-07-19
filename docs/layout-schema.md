@@ -272,6 +272,40 @@ netlist node runs through it. `netlist_unplaced` names netlist elements realised
 off the board or by a control (input grid leaks at the jacks; pots the netlist
 models as grid-leak resistors) — reported in coverage, never a failure.
 
+### Gate hardening (2026-07-19) — what the checker now proves
+
+An adversarial audit planted 26 faults and 12 escaped. Each escape is closed at
+the level that makes it structural, and the `--selftest` carries a regression
+case for every one:
+
+- **Valve aliases (H1).** A valve printed under its European name
+  (`ECC83 (12AX7)`) resolves to its basing (`12ax7`) via `resolve_tube_slug`,
+  built data-first from each `reference/tubes/*.yaml` `also_known_as` list.
+  *Basing not found for a tube on a claimed amp is a hard failure* — never a
+  silent skip.
+- **Robust tube anchoring (H2/H3).** Each netlist tube **bottle** binds to a
+  socket by id, else by a unique tube-**type** cross-reference, so a
+  function-named instance (`XPIA`) still anchors without relying on its label.
+  The run prints a full tube tally — every bottle *anchored* / *declared-excluded*
+  (rectifier) / **UNANCHORED** — and an unanchored tube on a claimed amp fails CI.
+- **Signal-path parts are modelled (H5/H6).** `netlist.cir` now carries the
+  inter-stage parts it used to omit — the PI-plate→output-grid **coupling caps**,
+  the **output-tube grid leaks**, and the **grid stoppers** — so the existing
+  isomorphism check covers routing and push-pull phase **natively**: a coupler on
+  the wrong power-tube grid, or crossed phase-inverter outputs, is now a
+  `WRONG TERMINAL`. These caps are DC-open and the leaks carry no grid current, so
+  the DC operating point is unmoved (verified against `voltages.yaml`).
+- **Twisted-run validation (H7).** A `style: twisted` run is excluded as a heater
+  run *only after* every tube endpoint is validated to be a heater/filament pin.
+  Relabelling a signal run `twisted` to duck the check is a hard failure.
+- **Anchor classification (H8).** Each `net_map` anchor is re-solved with it
+  removed and printed **CONSTRAINING** or **REDUNDANT**, so an inert anchor can't
+  read as if it holds the verdict up.
+- **Unverified island, declared (H4).** The pot / mixer / tone control networks
+  the netlist abstracts are printed **terminal-by-terminal** ("unverified
+  island"), so what is *not* machine-checked is stated out loud rather than
+  trusted in silence.
+
 ### Scope, printed honestly every run
 
 Heaters (twisted runs), the pilot lamp, and the PT / rectifier AC side are **not**
@@ -291,10 +325,15 @@ sets `wiring_claim: verified` is **hard-gated** (a failure fails CI); an amp
 without the claim is **report-only**. This mirrors `meta.yaml`'s
 `verification.status: verified` gate on the netlist itself.
 
-`verify_layout_nets.py --selftest` (wired into CI) plants faults on a copy of
-5F1's layout — two endpoints swapped, a run deleted, a run rerouted to an adjacent
-wrong lug/pin — and asserts the checker fails each. A gate that can't catch planted
-faults is decoration.
+`verify_layout_nets.py --selftest` (wired into CI) plants the adversarial audit's
+exact faults — one per proven hole class — and asserts each is caught: two
+endpoints swapped, a run deleted, a run rerouted to a wrong pin; an aliased-valve
+(ECC83) socket pin moved (H1); a PI→output coupler rerouted to the wrong grid
+(H5); crossed phase-inverter outputs (H6); a signal run relabelled `twisted`
+(H7); plus resolver/island/anchor unit checks for a function-named tube anchoring
+by type (H2), an unanchorable tube failing hard (H3), the island being declared
+(H4), and anchors classified CONSTRAINING vs REDUNDANT (H8). A gate that can't
+catch planted faults is decoration.
 
 ```
 python3 pipeline/render_layouts.py                 # (re)generate SVGs first
