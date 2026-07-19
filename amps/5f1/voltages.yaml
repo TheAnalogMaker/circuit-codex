@@ -1,12 +1,12 @@
 # Published Fender 5F1 chart values, read from the drawing by GM 2026-07-18:
-# rails B+1 340 / B+2 295 / B+3 250 (caps 26/8/8 uF, 450 V); R11 printed value
+# rails B+1 340 / B+2 295 / B+3 250 (caps 16/8/8 uF, 450 V); R11 printed value
 # confirmed 22K; tube pins: 6V6GT pin 8 = +18 V, 12AX7 pin 6 = +150 V,
 # pin 3 = +1.5 V. Rail tolerance 5%; tube-pin tolerance 20% per the chart's own
 # printed convention (values measured on era production tubes, +/-20%).
 source: "Published Fender 5F1 chart (drawing read-off by GM, 2026-07-18); pin-6/pin-3 values applied to both 12AX7 sections (symmetric stages)"
 nodes:
-  BP2: { chart: 295, tol_pct: 5 }
-  BP3: { chart: 250, tol_pct: 5 }
+  BP2: { chart: 295, tol_pct: 5, note: "6V6 screen node, after the 10 kΩ dropper (R10)" }
+  BP3: { chart: 250, tol_pct: 5, note: "preamp node, after the 22 kΩ dropper (R11)" }
   P1A: { chart: 150, tol_pct: 20, note: "12AX7 plate, chart pin value" }
   P1B: { chart: 150, tol_pct: 20, note: "12AX7 plate, chart pin value" }
   K1A: { chart: 1.5, tol_pct: 20, note: "12AX7 cathode, chart pin value" }

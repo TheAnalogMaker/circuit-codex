@@ -9,8 +9,8 @@ ancestor: the 5E1 (lineage edge lands when `amps/5e1` exists).
 ## Circuit walkthrough (short form)
 
 Input jack → 68k grid stopper → **V1A** (12AX7, 100k plate load, 1.5k bypassed
-cathode) → 0.022 µF coupling → 1M audio volume pot → **V1B** (12AX7, 100k plate,
-1.5k cathode) → 0.022 µF coupling → **V2** 6V6GT (cathode-biased, 470 Ω 5 W,
+cathode) → 0.02 µF coupling → 1M audio volume pot → **V1B** (12AX7, 100k plate,
+1.5k cathode) → 0.02 µF coupling → **V2** 6V6GT (cathode-biased, 470 Ω 5 W,
 220k grid leak) → single-ended output transformer (≈5 kΩ : 8 Ω, typical for a single-ended 6V6;
 the drawing doesn't mark it) → speaker.
 Negative feedback: 22k from the speaker jack into V1B's cathode (at DC this

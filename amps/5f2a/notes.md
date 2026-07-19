@@ -51,7 +51,7 @@ capacitor-coupled and idles at nothing), simulation is checked against Rob
 Robinette's published DC measurements for that circuit: B+ 360 / 325 / 250 V,
 a ~19 V drop across the 6V6's 470 Ω cathode resistor, and 12AX7 plates near
 170 V. Driving B+1 at 360 V, every compared node lands within about 8 %: the
-6V6 cathode within 2 % (19.4 V vs ~19 V), the screen and preamp rails within
+6V6 cathode within about 2 % (19.4 V vs ~19 V, 2.1 %), the screen and preamp rails within
 5–8 %, and both 12AX7 plates within 7 %.
 
 The match is well inside Fender's ±20 % convention, but the reference is a sibling

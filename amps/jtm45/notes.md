@@ -45,10 +45,13 @@ HT rail.
 
 ## Verification — against the printed factory chart
 
-Simulation matches 12 of the 13 charted nodes — rails within 5.3 %, every
-triode pin within 8 % (the chart's own convention is ±20 %). The thirteenth
-value is excluded as disputed: the printed 40 V phase-inverter cathode
+Simulation matches 11 of the chart's quantitative nodes — rails within 5.1 %,
+triode pins within 9.5 % worst case (the shared input cathode; the chart's own
+convention is ±20 %) — worst deviation 9.5 %. A twelfth value, the
+phase-inverter cathode (KPI), is excluded as disputed: the printed 40 V
 contradicts the chart's own 250 V plate figures (40 V across the 10 kΩ tail
 implies a current that would pull those plates far lower), and simulation —
 which reproduces the printed plates exactly — settles the cathode near 31 V,
 the same value the identical stage measures in the 5F6-A this circuit copies.
+The tail junction (JPI) carries no printed chart value at all — the drawing
+marks the PI grids only "+" — so it is reported informationally, not compared.

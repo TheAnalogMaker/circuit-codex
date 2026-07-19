@@ -46,8 +46,11 @@ simulation settles on the same 42 mA self-consistently.
 The drawing prints a full voltage chart (Fender's usual "read to ground with an
 electronic voltmeter, ±20%"), and the simulation matches every node on it: the
 6V6 cathode within 0.1 % (+19.0 V vs +19 V), the output rail within 0.1 %
-(+305 V), the preamp rail within 2.4 %, and the two 12AX7 plates and cathodes
-inside the chart's own ±20 % band. The preamp stages simulate a little lean —
+(+305 V), and the preamp rail within 2.4 %. The rails are held to a tighter
+±8 % internal verification target (the choke's DC resistance is estimated
+rather than printed, so the archive holds itself to a stricter bar there),
+while the two 12AX7 plates and cathodes are checked against Fender's printed
+±20 % convention. The preamp stages simulate a little lean —
 plates near +178 V against the chart's +150 V — because the tube models are
 datasheet-typical while Fender measured production tubes of the day; the same
 gap shows up on every tweed circuit here. Planned refinements: the output
