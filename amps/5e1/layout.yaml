@@ -12,7 +12,7 @@ board:
   rows: 2
   cols: 31
   title: "5E1 · eyelet board layout"
-caption: "Redrawn from the published Fender 5E1 layout drawing (H-EE), page 1 — principal board components and point-to-point wiring, in the order and connections the drawing shows. Filter and bypass electrolytics are drawn axially in the house style (the sheet stands them vertically, B+ at the bottom). The choke L1 is a chassis-mounted iron part — the sheet draws only its B+1->B+2 leads, no body — so it is shown here as an off-board choke. The 1 MΩ grid leak R3, mounted at the input jacks on the sheet, is drawn on the board's input end so the grid return is shown and traceable. Transformer-lead colours (5Y3 red/yellow/red-yellow, OT blue/red) are marked as on the drawing; the 6.3 V heater bus and the AC-line/fuse/pilot-lamp wiring are omitted, as they aren't modeled elsewhere in this amp's data. Not a trace or a dimensioned reproduction."
+caption: "Redrawn from the published Fender 5E1 layout drawing (H-EE), page 1 — principal board components and point-to-point wiring, in the order and connections the drawing shows. Filter and bypass electrolytics are drawn axially in the house style (the sheet stands them vertically, B+ at the bottom). The choke L1 is a chassis-mounted iron part — the sheet draws only its B+1->B+2 leads, no body — so it is shown here as an off-board choke. The 1 MΩ grid leak R3, mounted at the input jacks on the sheet, is drawn on the board's input end so the grid return is shown and traceable. Transformer-lead colours (5Y3 red/yellow/red-yellow, OT blue/red) are marked as on the drawing. The 6.3 V heater chain (green twisted pair, PT -> pilot lamp -> 6V6 -> 12AX7) is routed as the published sheet shows it — the 5Y3GT rectifier is directly heated off the 5 V winding and off this chain; the 12AX7's heater centre tap (pin 9) is grounded directly at the socket, matching the sheet's own ground mark there — no CT resistors are shown or in the BOM. The AC-line/fuse/switch wiring remains omitted, as it isn't modeled elsewhere in this amp's data. Not a trace or a dimensioned reproduction."
 source:
   desc: "Fender 'Champ-Amp' Model 5E1 layout drawing (H-EE), page 1"
   url: "https://el34world.com/charts/Schematics/files/Fender/Fender_champ_5e1.pdf"
@@ -50,6 +50,7 @@ parts:
 # the choke above the filter cans, transformers to either side.
 offboard:
   - { id: PT,  kind: xfmr,  edge: left,   at: 0.5, label: "Power trans" }
+  - { id: PL1, kind: part, glyph: lamp, edge: left, at: 1.5, label: "Pilot lamp" }
   - { id: L1,  ref: L1, kind: choke, edge: top,  at: 2.5,  label: "Choke" }
   - { id: V3,  ref: V3, kind: tube,  edge: bottom, at: 2,    label: "V3 · 5Y3GT" }
   - { id: V2,  ref: V2, kind: tube,  edge: bottom, at: 10,   label: "V2 · 6V6GT" }
@@ -69,11 +70,20 @@ bus:
 # page 1). The power-transformer secondary leads carry the colours marked on the
 # drawing (RED HT plates, YELLOW 5 V rectifier filament, RED-YELLOW HT centre
 # tap); the output transformer's plate lead is marked BLUE and its B+ lead RED.
-# The PT primary (black/green), the 6.3 V heater bus, and the AC-line / fuse /
-# pilot-lamp wiring are omitted — none is modeled elsewhere in this amp's data,
-# matching schematic.kicad_sch's own "heaters and PT primary omitted" note.
+# The 6.3 V heater winding is the green pair; it feeds the pilot lamp and then
+# daisy-chains socket to socket (rendered as a green twisted pair, style:
+# twisted) — 6V6 then 12AX7, matching the sheet's daisy order (the 5Y3GT
+# rectifier is directly heated off the 5 V winding, so it is not on this
+# chain). The 12AX7's heater centre tap (pin 9) is grounded directly at the
+# socket, matching the sheet's own ground mark there — no CT resistors are
+# shown or in the BOM. The PT primary (black/black) and the AC-line / fuse /
+# switch wiring remain omitted — neither is modeled elsewhere in this amp's
+# data, matching schematic.kicad_sch's own "heaters and PT primary omitted"
+# note (that note is about the electrical/simulation model; this layout's
+# wiring layer is a physical board diagram and models the heater chain).
 # Endpoints reference board eyelets (REF.a/REF.b), tube socket pins (Vn.pinN,
-# validated against reference/tubes basing), pot lugs, jacks, and transformer /
+# validated against reference/tubes basing — heater pins on the twisted runs),
+# pot lugs, jacks, off-board 2-lead parts (PL1.a/PL1.b), and transformer /
 # choke leads.
 runs:
   # --- power transformer secondary -> 5Y3GT rectifier (marked colours) -------
@@ -137,3 +147,16 @@ runs:
   # --- output transformer secondary -> speaker jack -------------------------
   - { from: T1.sec, to: SPK, via: [[30.6, 2.1], [16, 2.1]] }   # OT secondary -> speaker
   - { from: SPK, to: [1.45, 16] }                        # speaker return -> ground bus
+
+  # --- 6.3 V heater chain (green twisted pair) ------------------------------
+  # PT green pair -> pilot lamp -> V2 6V6 -> V1 12AX7, in the drawing's daisy
+  # order (the 5Y3GT rectifier is directly heated off the 5 V winding, so it
+  # is not on this chain). Twisted runs land only on heater pins (6V6 octal
+  # 2/7, 12AX7 noval 4/5); routed in a deep lane below the output harness.
+  - { from: PT.green, to: PL1.a, style: twisted }                              # 6.3 V -> pilot lamp
+  - { from: PL1.b, to: V2.pin7, style: twisted, via: [[-1.2, 2.6], [10, 2.6]] } # lamp -> 6V6 heater
+  - { from: V2.pin2, to: V1.pin4, style: twisted, via: [[10, 2.62], [24, 2.62]] } # 6V6 -> 12AX7 heater
+
+  # 12AX7 heater centre tap (pin 9), grounded directly at the socket per the
+  # sheet's own ground mark there -- no CT resistors are shown or in the BOM.
+  - { from: V1.pin9, to: [1.45, 25], via: [[25, 2.0]] }
