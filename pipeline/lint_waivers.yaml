@@ -1,0 +1,18 @@
+# Collision-lint waivers — a permanent, documented mechanism (like the disputed
+# nodes on a chart). check_layouts.py runs the wiring collision lint on every
+# amp with a wiring layer; an amp listed here has its lint failures downgraded
+# from blocking to WAIVED, and CI prints the active waivers loudly so a waiver
+# is never silent. An amp with zero lint failures needs no entry.
+#
+# Format:  <amp_id>: "<reason>"
+#
+# The pilot fixed 5f1 and 5e3 to zero lint (lane/via adjustments preserving the
+# published routing and era wire colours). The remaining six carry the same
+# legibility debt and are queued for the same remediation.
+waivers:
+  5e1:   "pending legibility remediation 2026-07-19"
+  5f2a:  "pending legibility remediation 2026-07-19"
+  5f4:   "pending legibility remediation 2026-07-19"
+  5f6a:  "pending legibility remediation 2026-07-19"
+  5f10:  "pending legibility remediation 2026-07-19"
+  jtm45: "pending legibility remediation 2026-07-19"

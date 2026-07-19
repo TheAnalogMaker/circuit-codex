@@ -162,6 +162,20 @@ LAMP_BASE, LAMP_BASE_EDGE = "#9aa2a9", "#5b636a"     # bayonet base
 BUS_CORE, BUS_EDGE = "#e6dcc2", "#6f5836"
 # terminal dot (solder joint) at a run endpoint
 TERM_FILL, TERM_RING = "#e7cd92", "#3a2c18"
+# solder-blob at a run ENDPOINT — a larger filled dot + darker ring, clearly
+# distinct from a via waypoint (undrawn) or a pass-through eyelet, so where a
+# wire LANDS is never in doubt even inside a convergence cluster.
+SOLDER_FILL, SOLDER_RING, SOLDER_HL = "#dcc487", "#241a0e", "#f4ead0"
+
+# ---- hop-over crossings ----------------------------------------------------
+# At every transversal crossing between two plain (non-twisted) runs, the run
+# appearing LATER in the runs list hops the earlier one with a small
+# semicircular bridge — the classic wiring-diagram idiom. The ground bus never
+# hops (runs hop over it); twisted heater pairs are exempt (topmost layer).
+HOP_R = 3.5              # semicircle radius for a run-over-run hop (px)
+HOP_R_BUS = 5.2          # a run hopping the heavier ground bus needs more lift
+HOP_MIN_ANGLE = 18.0     # a crossing flatter than this is a near-parallel graze
+HOP_END_CLEAR = 6.0      # skip hops within ~6 px of either segment's endpoints
 
 # ---- geometry --------------------------------------------------------------
 CW = 36            # eyelet column pitch (px)
@@ -299,6 +313,71 @@ def term_dot(x, y, r=2.7):
             f'stroke="{TERM_RING}" stroke-width="0.9"/>')
 
 
+def solder_blob(x, y):
+    """A run ENDPOINT solder joint: a larger filled dot inside a darker ring,
+    with a small specular highlight so it reads as a soldered blob rather than a
+    bare eyelet or a mid-wire via. Deterministic."""
+    return (f'<circle cx="{fmt(x)}" cy="{fmt(y)}" r="4.4" fill="none" '
+            f'stroke="{SOLDER_RING}" stroke-width="1.8"/>'
+            f'<circle cx="{fmt(x)}" cy="{fmt(y)}" r="3.2" fill="{SOLDER_FILL}" '
+            f'stroke="{SOLDER_RING}" stroke-width="0.7"/>'
+            f'<circle cx="{fmt(x - 1.0)}" cy="{fmt(y - 1.0)}" r="1.0" '
+            f'fill="{SOLDER_HL}" opacity="0.85"/>')
+
+
+# ---- wire-crossing geometry (hop-overs + lint) -----------------------------
+def _seg_len(a, b):
+    return math.hypot(b[0] - a[0], b[1] - a[1])
+
+
+def _seg_unit(a, b):
+    L = _seg_len(a, b) or 1e-9
+    return ((b[0] - a[0]) / L, (b[1] - a[1]) / L)
+
+
+def _seg_angle_deg(a1, a2, b1, b2):
+    """Acute angle (0..90 deg) between two segments' directions."""
+    v1 = (a2[0] - a1[0], a2[1] - a1[1])
+    v2 = (b2[0] - b1[0], b2[1] - b1[1])
+    l1 = math.hypot(*v1)
+    l2 = math.hypot(*v2)
+    if l1 < 1e-9 or l2 < 1e-9:
+        return 0.0
+    cosang = abs((v1[0] * v2[0] + v1[1] * v2[1]) / (l1 * l2))
+    return math.degrees(math.acos(min(1.0, cosang)))
+
+
+def _seg_intersection(a1, a2, b1, b2):
+    """Proper interior crossing of segments a1-a2 and b1-b2. Returns
+    (t, s, (px, py)) with 0<t<1, 0<s<1, or None."""
+    x1, y1 = a1
+    x2, y2 = a2
+    x3, y3 = b1
+    x4, y4 = b2
+    d = (x2 - x1) * (y4 - y3) - (y2 - y1) * (x4 - x3)
+    if abs(d) < 1e-9:
+        return None
+    t = ((x3 - x1) * (y4 - y3) - (y3 - y1) * (x4 - x3)) / d
+    s = ((x3 - x1) * (y2 - y1) - (y3 - y1) * (x2 - x1)) / d
+    if 0.0 < t < 1.0 and 0.0 < s < 1.0:
+        return (t, s, (x1 + t * (x2 - x1), y1 + t * (y2 - y1)))
+    return None
+
+
+def _point_seg_dist(p, a, b):
+    """Shortest distance from point p to segment a-b."""
+    ax, ay = a
+    bx, by = b
+    px, py = p
+    dx, dy = bx - ax, by - ay
+    L2 = dx * dx + dy * dy
+    if L2 < 1e-12:
+        return math.hypot(px - ax, py - ay)
+    t = ((px - ax) * dx + (py - ay) * dy) / L2
+    t = max(0.0, min(1.0, t))
+    return math.hypot(px - (ax + t * dx), py - (ay + t * dy))
+
+
 def rounded_path(points, r=11.0):
     """SVG path string through `points` [(x,y),...] with rounded elbows of
     radius r (clamped to half the shorter adjacent segment). Deterministic."""
@@ -369,6 +448,96 @@ def twisted_strands(points, amp=3.4, wavelen=15.0, step=3.0):
     return d1, d2
 
 
+def hopped_path(points, seg_hops, r=11.0):
+    """SVG path through `points` with rounded elbows (radius r, as rounded_path)
+    AND small semicircular hop-over bridges inserted at the crossings listed in
+    `seg_hops` — a dict {segment_index: [(dist_along_segment, hop_r), ...]}.
+    A hop bows to a deterministic side (up for horizontal-ish runs, right for
+    vertical-ish) and is only drawn when its arc fits inside the segment's
+    straight, un-rounded span, so it never fouls an elbow. Deterministic; with
+    an empty `seg_hops` it reproduces rounded_path's geometry."""
+    pts = [(float(x), float(y)) for x, y in points]
+    n = len(pts)
+    if n < 2:
+        return ""
+    seglen = [_seg_len(pts[i], pts[i + 1]) for i in range(n - 1)]
+    segu = [_seg_unit(pts[i], pts[i + 1]) for i in range(n - 1)]
+    # corner radius at each interior vertex (matches rounded_path's clamp)
+    cr = [0.0] * n
+    for k in range(1, n - 1):
+        cr[k] = min(r, seglen[k - 1] / 2, seglen[k] / 2)
+    d = [f"M {fmt(pts[0][0])} {fmt(pts[0][1])}"]
+    for i in range(n - 1):
+        ux, uy = segu[i]
+        L = seglen[i]
+        cut_start = cr[i] if i >= 1 else 0.0
+        cut_end = cr[i + 1] if (i + 1) <= (n - 2) else 0.0
+        # bulge normal: prefer up (-y); for vertical runs prefer right (+x)
+        p1, p2 = (-uy, ux), (uy, -ux)
+        if p1[1] != p2[1]:
+            nrm = p1 if p1[1] < p2[1] else p2
+        else:
+            nrm = p1 if p1[0] >= p2[0] else p2
+        sweep = 1 if (ux * nrm[1] - uy * nrm[0]) < 0 else 0
+        seg_end = (pts[-1] if i == n - 2
+                   else (pts[i + 1][0] - ux * cr[i + 1], pts[i + 1][1] - uy * cr[i + 1]))
+        for (dist, hop_r) in seg_hops.get(i, []):
+            if dist - hop_r < cut_start + 0.5 or dist + hop_r > L - cut_end - 0.5:
+                continue
+            cx, cy = pts[i][0] + ux * dist, pts[i][1] + uy * dist
+            d.append(f"L {fmt(cx - ux * hop_r)} {fmt(cy - uy * hop_r)}")
+            d.append(f"A {fmt(hop_r)} {fmt(hop_r)} 0 0 {sweep} "
+                     f"{fmt(cx + ux * hop_r)} {fmt(cy + uy * hop_r)}")
+        d.append(f"L {fmt(seg_end[0])} {fmt(seg_end[1])}")
+        if i < n - 2:
+            bx = pts[i + 1][0] + segu[i + 1][0] * cr[i + 1]
+            by = pts[i + 1][1] + segu[i + 1][1] * cr[i + 1]
+            d.append(f"Q {fmt(pts[i + 1][0])} {fmt(pts[i + 1][1])} {fmt(bx)} {fmt(by)}")
+    return " ".join(d)
+
+
+def compute_hops(wires):
+    """Given `wires` — a list of {key, order, points, is_bus} for every plain
+    (non-twisted) run and every ground-bus segment-set — return a hop map
+    {key: {segment_index: [(dist, hop_r), ...]}}. At each transversal crossing
+    the wire with the HIGHER order (later in the runs list) hops; the ground bus
+    (order -1) never hops but is hopped over. Deterministic."""
+    segs = []
+    for w in wires:
+        p = w["points"]
+        for si in range(len(p) - 1):
+            segs.append((w["order"], w["key"], si, p[si], p[si + 1], w["is_bus"]))
+    hops: dict = {}
+    for oa, ka, sia, a1, a2, _busa in segs:
+        for ob, kb, sib, b1, b2, busb in segs:
+            if ka == kb or oa <= ob:      # only the later wire hops; skip self
+                continue
+            inter = _seg_intersection(a1, a2, b1, b2)
+            if inter is None:
+                continue
+            if _seg_angle_deg(a1, a2, b1, b2) < HOP_MIN_ANGLE:
+                continue                   # near-parallel graze — a lint case
+            t, s, _p = inter
+            lenA, lenB = _seg_len(a1, a2), _seg_len(b1, b2)
+            distA, distB = t * lenA, s * lenB
+            if min(distA, lenA - distA) < HOP_END_CLEAR:
+                continue
+            if min(distB, lenB - distB) < HOP_END_CLEAR:
+                continue
+            hop_r = HOP_R_BUS if busb else HOP_R
+            hops.setdefault(ka, {}).setdefault(sia, []).append((distA, hop_r))
+    # sort each segment's hops and drop ones that would overlap a neighbour
+    for key in hops:
+        for si in hops[key]:
+            merged: list = []
+            for dist, hop_r in sorted(hops[key][si]):
+                if merged and dist - merged[-1][0] < merged[-1][1] + hop_r + 1.0:
+                    continue
+                merged.append((dist, hop_r))
+            hops[key][si] = merged
+    return hops
+
+
 class Renderer:
     def __init__(self, layout: dict, bom: dict, amp_id: str):
         self.layout = layout
@@ -419,10 +588,11 @@ class Renderer:
                         except (TypeError, ValueError):
                             pass
             # ey() needs board_y (set above); +14 clears the wire + twist amp,
-            # +74 leaves room for the three stacked legend lines. Floored at 336
-            # so ordinary under-chassis layouts are unchanged.
-            needed = self.ey(deep_row) + 14 + 74 - (self.board_y + self.board_h)
-            self.margin_bot = max(336, int(math.ceil(needed)))
+            # +92 leaves room for the four stacked footer lines (attribution +
+            # wiring + joints + bodies). Floored at 356 so ordinary
+            # under-chassis layouts keep their footer clear.
+            needed = self.ey(deep_row) + 14 + 92 - (self.board_y + self.board_h)
+            self.margin_bot = max(356, int(math.ceil(needed)))
         else:
             self.margin_bot = MARGIN_BOT
         self.height = self.board_y + self.board_h + self.margin_bot
@@ -910,10 +1080,10 @@ class Renderer:
                 f"{ctx}: heater (twisted) run onto tube '{name}' pin {pin} is not a "
                 f"heater/filament pin (heater pins: {sorted(heaters)} per reference/tubes basing)")
 
-    def run_wire(self, spec, i):
-        pts = self._run_points(spec, f"run[{i}]")
+    def run_wire(self, spec, i, pts, seg_hops=None):
         if not pts:
             return "", []
+        seg_hops = seg_hops or {}
         twisted = str(spec.get("style", "")).lower() == "twisted"
         colour = spec.get("color")
         if not colour:
@@ -941,15 +1111,14 @@ class Renderer:
             key = str(colour).lower()
             if key not in self._colours_used:
                 self._colours_used.append(key)
-        d = rounded_path(pts, r=11)
+        d = hopped_path(pts, seg_hops, r=11)
         casing = (f'<path d="{d}" fill="none" stroke="{WIRE_CASING}" stroke-width="4.8" '
                   f'stroke-linecap="round" stroke-linejoin="round" opacity="0.72"/>')
         wire = (f'<path d="{d}" fill="none" stroke="{stroke}" stroke-width="2.3" '
                 f'stroke-linecap="round" stroke-linejoin="round"/>')
         return casing + wire, [pts[0], pts[-1]]
 
-    def bus_wire(self, spec, i):
-        pts = self._run_points(spec, f"bus[{i}]")
+    def bus_wire(self, spec, i, pts):
         if not pts:
             return "", []
         d = rounded_path(pts, r=9)
@@ -958,6 +1127,34 @@ class Renderer:
         core = (f'<path d="{d}" fill="none" stroke="{BUS_CORE}" stroke-width="3.4" '
                 f'stroke-linecap="round" stroke-linejoin="round"/>')
         return edge + core, [pts[0], pts[-1]]
+
+    # ---- resolved wiring geometry (shared by render + lint) -----------------
+    def build_geometry(self):
+        """Resolve every run and bus segment-set to its pixel polyline. Returns
+        (runs, bus) where each run is {i, spec, pts, twisted} and each bus entry
+        is {j, spec, pts}. `pts` is None when an endpoint fails to resolve."""
+        runs = []
+        for i, spec in enumerate(self.runs):
+            pts = self._run_points(spec, f"run[{i}]")
+            runs.append({"i": i, "spec": spec, "pts": pts,
+                         "twisted": str(spec.get("style", "")).lower() == "twisted"})
+        bus = []
+        for j, spec in enumerate(self.bus):
+            bus.append({"j": j, "spec": spec, "pts": self._run_points(spec, f"bus[{j}]")})
+        return runs, bus
+
+    def _hop_map(self, runs, bus):
+        """Build the hop map for the plain runs + bus (twisted runs excluded)."""
+        wires = []
+        for b in bus:
+            if b["pts"]:
+                wires.append({"key": ("bus", b["j"]), "order": -1,
+                              "points": b["pts"], "is_bus": True})
+        for r in runs:
+            if r["pts"] and not r["twisted"]:
+                wires.append({"key": ("run", r["i"]), "order": r["i"],
+                              "points": r["pts"], "is_bus": False})
+        return compute_hops(wires)
 
     # ---- assemble -----------------------------------------------------------
     def render(self) -> str:
@@ -981,23 +1178,31 @@ class Renderer:
         # legacy soft leads (under everything)
         for lead in self.leads:
             els.append(self.lead_run(lead))
+        # resolve wiring geometry once, then work out the hop-over bridges: at
+        # every transversal crossing the later run hops the earlier one; runs
+        # hop the ground bus; twisted heater pairs are exempt (topmost layer).
+        runs, bus = self.build_geometry()
+        hops = self._hop_map(runs, bus)
+        bus_pts: list[tuple[float, float]] = []       # ground-rod ends (small dot)
+        run_pts: list[tuple[float, float]] = []       # run endpoints (solder blob)
         # ground bus (under the coloured runs — it is the reference rail)
-        for i, spec in enumerate(self.bus):
-            svg, tp = self.bus_wire(spec, i)
+        for b in bus:
+            svg, tp = self.bus_wire(b["spec"], b["j"], b["pts"])
             els.append(svg)
-            term_pts += tp
+            bus_pts += tp
         # routed hookup runs (twisted heater pairs are deferred below the part
         # loops — they must draw ABOVE the socket discs so the pin landing on
         # the 9-pin top heater pins stays visible instead of vanishing under
         # the socket)
         twisted_runs = []
-        for i, spec in enumerate(self.runs):
-            if str(spec.get("style", "")).lower() == "twisted":
-                twisted_runs.append((i, spec))
+        for r in runs:
+            if r["twisted"]:
+                twisted_runs.append(r)
                 continue
-            svg, tp = self.run_wire(spec, i)
+            svg, tp = self.run_wire(r["spec"], r["i"], r["pts"],
+                                    hops.get(("run", r["i"]), {}))
             els.append(svg)
-            term_pts += tp
+            run_pts += tp
         # off-board stubs
         for it in self.offboard:
             els.append(self.off_stub(it))
@@ -1005,13 +1210,22 @@ class Renderer:
         for p in self.parts:
             els.append(self.part_body(p))
         # heater twisted pairs, above the sockets
-        for i, spec in twisted_runs:
-            svg, tp = self.run_wire(spec, i)
+        for r in twisted_runs:
+            svg, tp = self.run_wire(r["spec"], r["i"], r["pts"])
             els.append(svg)
-            term_pts += tp
-        # terminal dots on top of the joints they land on
-        for (tx, ty) in term_pts:
+            run_pts += tp
+        # ground-rod ends: a plain terminal dot
+        for (tx, ty) in bus_pts:
             els.append(term_dot(tx, ty))
+        # run endpoints: a solder blob (deduped by rounded position so shared
+        # nodes don't stack) — where a wire LANDS is never in doubt
+        seen: set = set()
+        for (tx, ty) in run_pts:
+            key = (round(tx, 1), round(ty, 1))
+            if key in seen:
+                continue
+            seen.add(key)
+            els.append(solder_blob(tx, ty))
         # title + attribution
         title = (self.layout.get("board", {}) or {}).get("title") or f"{self.amp_id.upper()} board layout"
         els.append(text(bx, 34, title, INK, 17, anchor="start", spacing="0.08em"))
@@ -1021,7 +1235,7 @@ class Renderer:
         else:
             attrib = self.layout.get("caption") or ""
         if attrib:
-            els.append(text(bx, self.height - 58, attrib, FAINT, 10.5, anchor="start",
+            els.append(text(bx, self.height - 74, attrib, FAINT, 10.5, anchor="start",
                             font=FONT_MONO, weight=500))
         # legends
         self._legend(els)
@@ -1037,7 +1251,7 @@ class Renderer:
 
     def _legend(self, els):
         # wiring legend (only when the layout has a wiring layer)
-        y = self.height - 38
+        y = self.height - 56
         x = self.board_x
         if self.runs or self.bus:
             cx = x
@@ -1072,6 +1286,21 @@ class Renderer:
                            f'stroke-linecap="round"/>')
                 els.append(text(cx + 26, y, "6.3 V heaters — twisted pair", MUTED, 10.5,
                                 anchor="start", font=FONT_MONO, weight=500))
+            # joints legend: a solder blob (wire end) + a hop-over (cross-over)
+            jy = self.height - 38
+            els.append(text(x, jy, "Joints:", FAINT, 10.5, anchor="start", font=FONT_MONO,
+                            weight=500))
+            jx = x + 58
+            els.append(solder_blob(jx + 4, jy - 3))
+            els.append(text(jx + 13, jy, "wire end (solder joint)", MUTED, 10.5,
+                            anchor="start", font=FONT_MONO, weight=500))
+            jx += 13 + len("wire end (solder joint)") * 6.4 + 20
+            # a short lead with a hop bump, then the label
+            hd = hopped_path([(jx, jy - 3), (jx + 34, jy - 3)], {0: [(17.0, HOP_R)]}, r=11)
+            els.append(f'<path d="{hd}" fill="none" stroke="{WIRE_NEUTRAL}" stroke-width="2.3" '
+                       f'stroke-linecap="round" stroke-linejoin="round"/>')
+            els.append(text(jx + 40, jy, "cross-over (no connect)", MUTED, 10.5,
+                            anchor="start", font=FONT_MONO, weight=500))
         # bodies legend
         items = [(RES_BODY, "resistor"), (FILM_BODY, "film / coupling cap"),
                  (ELEC_BODY, "electrolytic"), (MICA_BODY, "mica")]
@@ -1090,6 +1319,103 @@ def render_layout(amp_dir: Path) -> str:
     layout = yaml.safe_load((amp_dir / "layout.yaml").read_text())
     bom = load_bom(amp_dir)
     return Renderer(layout, bom, amp_dir.name).render()
+
+
+# ---- collision lint (CI gate, see pipeline/check_layouts.py) ----------------
+LINT_ANGLE = 10.0      # (a) near-parallel: acute angle below this counts
+LINT_SEP = 2.4         # (a) two runs closer than this read as one wire
+LINT_OVERLAP = 8.0     # (a) shared near-parallel length that trips the lint
+LINT_TERM = 5.0        # (b) a run end this close to another run's interior…
+LINT_VERTEX_CLEAR = 4.0  # …unless it sits on one of that run's own nodes
+
+
+def _parallel_overlap(a1, a2, b1, b2, sep):
+    """Longest contiguous stretch of segment a1-a2 that runs within `sep` of
+    segment b1-b2, sampled at 1 px. Returns (length, midpoint) or None."""
+    L = _seg_len(a1, a2)
+    if L < 1e-6:
+        return None
+    ux, uy = _seg_unit(a1, a2)
+    hits = []
+    k = 0
+    while True:
+        d = min(k * 1.0, L)
+        p = (a1[0] + ux * d, a1[1] + uy * d)
+        hits.append((d, _point_seg_dist(p, b1, b2) < sep))
+        if d >= L:
+            break
+        k += 1
+    best_len, best_mid = 0.0, None
+    i = 0
+    while i < len(hits):
+        if hits[i][1]:
+            j = i
+            while j < len(hits) and hits[j][1]:
+                j += 1
+            span = hits[j - 1][0] - hits[i][0]
+            if span > best_len:
+                best_len = span
+                md = (hits[i][0] + hits[j - 1][0]) / 2
+                best_mid = (a1[0] + ux * md, a1[1] + uy * md)
+            i = j
+        else:
+            i += 1
+    return (best_len, best_mid) if best_mid is not None else None
+
+
+def lint_layout(amp_dir: Path) -> list[str]:
+    """Collision lint for the wiring layer — the checks CI runs so the drawing
+    is never ambiguous about crossings or terminations. Both run over the plain
+    (non-twisted) runs; twisted heater pairs and the ground bus are exempt:
+
+      (a) near-parallel overlap — segments from two different runs at an acute
+          angle < 10 deg with separation < 2.4 px over > 8 px of shared length
+          (they read as a single wire);
+      (b) terminal ambiguity — a run endpoint within 5 px of ANOTHER run's
+          polyline interior while not sitting on any of that run's own nodes
+          (it's unclear whether the wire lands there or merely passes by).
+
+    Returns a sorted list of failure strings with coordinates + run indices.
+    """
+    layout = yaml.safe_load((amp_dir / "layout.yaml").read_text())
+    bom = load_bom(amp_dir)
+    runs, _bus = Renderer(layout, bom, amp_dir.name).build_geometry()
+    plain = [r for r in runs if r["pts"] and not r["twisted"]]
+    fails: list[str] = []
+    # (a) near-parallel overlap
+    for ai in range(len(plain)):
+        for bi in range(ai + 1, len(plain)):
+            A, B = plain[ai], plain[bi]
+            pa, pb = A["pts"], B["pts"]
+            for sa in range(len(pa) - 1):
+                for sb in range(len(pb) - 1):
+                    a1, a2, b1, b2 = pa[sa], pa[sa + 1], pb[sb], pb[sb + 1]
+                    if _seg_angle_deg(a1, a2, b1, b2) >= LINT_ANGLE:
+                        continue
+                    ov = _parallel_overlap(a1, a2, b1, b2, LINT_SEP)
+                    if ov and ov[0] > LINT_OVERLAP:
+                        length, mid = ov
+                        fails.append(
+                            f"{amp_dir.name}: near-parallel overlap run[{A['i']}] & "
+                            f"run[{B['i']}] ~{length:.1f}px within {LINT_SEP}px near "
+                            f"({mid[0]:.0f},{mid[1]:.0f})")
+    # (b) terminal ambiguity
+    for A in plain:
+        for E in (A["pts"][0], A["pts"][-1]):
+            for B in plain:
+                if B["i"] == A["i"]:
+                    continue
+                pb = B["pts"]
+                if any(math.hypot(E[0] - v[0], E[1] - v[1]) < LINT_VERTEX_CLEAR for v in pb):
+                    continue
+                for sb in range(len(pb) - 1):
+                    if _point_seg_dist(E, pb[sb], pb[sb + 1]) < LINT_TERM:
+                        fails.append(
+                            f"{amp_dir.name}: terminal ambiguity run[{A['i']}] endpoint "
+                            f"({E[0]:.0f},{E[1]:.0f}) within {LINT_TERM}px of run[{B['i']}] "
+                            f"interior")
+                        break
+    return sorted(fails)
 
 
 def render_all(write: bool = True) -> list[Path]:
