@@ -6,12 +6,13 @@
 #
 # Format:  <amp_id>: "<reason>"
 #
-# As of 2026-07-19 the list is EMPTY: all eight pilot amps pass the collision
-# lint with zero failures. The final three (5f4, 5f6a, jtm45) were brought to
-# zero the same way as the rest — via/lane re-routing that preserved every
-# endpoint, with the wiring re-verified electrically equivalent to the netlist
-# (wiring_claim: verified). jtm45 was routed on its monochrome board with
-# deep-lane separation and far-side pin approaches — no invented wire colours.
+# As of 2026-07-19 the list is EMPTY: every amp with a wiring layer passes the
+# collision lint with zero failures. ab763 (the largest board in the corpus —
+# blackface Deluxe Reverb, 9 tubes on a 62-column board) was brought 72→0 the
+# same way as the rest: ≥18° bearing fan-out at every shared node, deep-lane
+# separation, far-side pin approaches and off-column ground drops — every
+# endpoint preserved, the wiring re-verified electrically equivalent to the
+# netlist (wiring_claim: verified). No board was routed by inventing a wire.
 # Keep this mechanism in place: any future amp that lands with lint debt gets a
 # documented entry here rather than a silent downgrade.
 waivers: {}
