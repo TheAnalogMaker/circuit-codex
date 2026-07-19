@@ -1,0 +1,296 @@
+---
+import Base from '../../layouts/Base.astro';
+import { loadCorpus, displayId, GITHUB } from '../../lib/corpus.js';
+
+// ---------------------------------------------------------------------------
+// Lineage — a build-time family tree of the corpus. Every circuit is placed on a
+// horizontal era axis inside its family lane; the ONLY arrows drawn are documented
+// derivation edges declared in the amps' own meta.yaml (lineage.derived_from /
+// lineage.influenced). Family lanes group circuits without asserting derivation —
+// see the footnote. Nothing here is invented: positions come from era.start, edges
+// from the metadata, and edge captions from the endpoints' own tube/rectifier data.
+// ---------------------------------------------------------------------------
+const amps = loadCorpus();
+const byId = new Map(amps.map((a) => [a.id, a]));
+
+// --- documented derivation edges (parent -> child), unioned from both directions
+//     and de-duplicated. derived_from gives child<-parent; influenced gives
+//     parent->child. Only edges whose BOTH endpoints exist in the corpus are drawn.
+const edgeSet = new Map();
+function addEdge(parent, child) {
+  if (!byId.has(parent) || !byId.has(child) || parent === child) return;
+  edgeSet.set(`${parent}->${child}`, { parent, child });
+}
+for (const a of amps) {
+  for (const p of a.meta.lineage?.derived_from || []) addEdge(p, a.id);
+  for (const c of a.meta.lineage?.influenced || []) addEdge(a.id, c);
+}
+const edges = [...edgeSet.values()];
+
+// adjacency (undirected) for the hover-highlight tag sets
+const adj = new Map(amps.map((a) => [a.id, new Set()]));
+for (const e of edges) { adj.get(e.parent).add(e.child); adj.get(e.child).add(e.parent); }
+
+// --- edge caption, built ONLY from the endpoints' structured metadata. Preamp
+//     triodes and the rectifier valve are filtered out to leave the power tubes;
+//     a caption is emitted only where a real difference exists (so near-identical
+//     revisions carry no caption rather than a fake one).
+const PREAMP = /^(12A|ECC8|6AT6|6AV6|7025|5751|6SL7|6SC7|6SN7|EF86)/i;
+function rectLabel(m) {
+  const r = m.topology?.rectifier || {};
+  if (r.kind === 'solid-state') return 'silicon';
+  return r.type || r.kind || 'rect';
+}
+function powerTubes(m) {
+  const rect = m.topology?.rectifier?.type;
+  const out = [];
+  for (const t of m.tubes || []) {
+    if (PREAMP.test(t)) continue;
+    if (rect && t === rect) continue;
+    if (!out.includes(t)) out.push(t);
+  }
+  return out;
+}
+function edgeCaption(parent, child) {
+  const mp = byId.get(parent).meta, mc = byId.get(child).meta;
+  const pp = powerTubes(mp).join('+'), cp = powerTubes(child && mc).join('+');
+  const parts = [];
+  if (pp && cp && pp !== cp) parts.push(`${pp}→${cp}`);
+  const pr = rectLabel(mp), cr = rectLabel(mc);
+  if (pr !== cr) parts.push(`${pr}→${cr}`);
+  return parts.join(' · ');
+}
+
+// --- geometry --------------------------------------------------------------
+const YEAR_MIN = 1955, YEAR_MAX = 1981;
+const W = 1280, PAD_L = 96, PAD_R = 30;
+const X0 = PAD_L, X1 = W - PAD_R, PLOTW = X1 - X0;
+const CW = 112, CH = 40, ROWH = 56, BAND_GAP = 16, BANDS_TOP = 34;
+const xScale = (yr) => X0 + ((yr - YEAR_MIN) / (YEAR_MAX - YEAR_MIN)) * PLOTW;
+
+// family lanes in a fixed reading order (adjacency chosen so the documented
+// 5F6-A -> JTM45 edge crosses into the neighbouring British lane)
+const FAM_ORDER = ['tweed', 'british', 'blackface', 'brownface', 'vox', 'boutique', 'other'];
+const famsPresent = FAM_ORDER.filter((f) => amps.some((a) => a.meta.family === f))
+  .concat([...new Set(amps.map((a) => a.meta.family))].filter((f) => !FAM_ORDER.includes(f)));
+
+// greedy interval-pack a family's nodes into sub-rows so chips never overlap,
+// preserving chronological order (left to right)
+function packBand(nodes) {
+  const sorted = [...nodes].sort((a, b) =>
+    (a.meta.era.start - b.meta.era.start) || a.id.localeCompare(b.id));
+  const rowEnds = []; // x-end of the last chip placed in each sub-row
+  const placed = [];
+  for (const a of sorted) {
+    let nx = xScale(a.meta.era.start);
+    if (nx + CW > X1) nx = X1 - CW;            // keep the chip inside the plot
+    let row = rowEnds.findIndex((end) => nx >= end + 12);
+    if (row === -1) { row = rowEnds.length; rowEnds.push(0); }
+    rowEnds[row] = nx + CW;
+    placed.push({ amp: a, nx, row });
+  }
+  return { placed, rows: rowEnds.length };
+}
+
+// lay the bands out top-to-bottom and resolve every node's box
+const nodePos = new Map();
+const bands = [];
+let y = BANDS_TOP;
+for (const fam of famsPresent) {
+  const nodes = amps.filter((a) => a.meta.family === fam);
+  if (!nodes.length) continue;
+  const { placed, rows } = packBand(nodes);
+  const top = y, height = rows * ROWH;
+  for (const p of placed) {
+    const cy = top + p.row * ROWH + ROWH / 2;
+    nodePos.set(p.amp.id, { x: p.nx, y: cy - CH / 2, cx: p.nx + CW / 2, cy, w: CW, h: CH });
+  }
+  bands.push({ fam, top, height, mid: top + height / 2 });
+  y = top + height + BAND_GAP;
+}
+const AXIS_Y = y - BAND_GAP + 18;
+const GRID_TOP = 22;
+const H = AXIS_Y + 40;
+const ticks = [];
+for (let yr = 1955; yr <= 1980; yr += 5) ticks.push(yr);
+
+// build the SVG edges (S-curve, left-to-right) with a right-pointing arrowhead
+function edgeGeom(e) {
+  const s = nodePos.get(e.parent), t = nodePos.get(e.child);
+  const sx = s.x + s.w, sy = s.cy;      // source right-middle
+  const tx = t.x, ty = t.cy;            // target left-middle
+  const mx = sx + (tx - sx) * 0.5;
+  const d = `M ${sx.toFixed(1)} ${sy.toFixed(1)} C ${mx.toFixed(1)} ${sy.toFixed(1)}, ${mx.toFixed(1)} ${ty.toFixed(1)}, ${(tx - 7).toFixed(1)} ${ty.toFixed(1)}`;
+  const head = `${tx.toFixed(1)},${ty.toFixed(1)} ${(tx - 9).toFixed(1)},${(ty - 4.5).toFixed(1)} ${(tx - 9).toFixed(1)},${(ty + 4.5).toFixed(1)}`;
+  const caption = edgeCaption(e.parent, e.child);
+  const capLines = caption ? caption.split(' · ') : [];
+  const capW = capLines.reduce((mx2, l) => Math.max(mx2, l.length), 0) * 6.0 + 10;
+  const capH = capLines.length * 12 + 6;
+  return { d, head, capLines, capW, capH, lx: (sx + tx) / 2, ly: (sy + ty) / 2, tags: `${e.parent} ${e.child}` };
+}
+const drawn = edges.map((e) => ({ ...e, ...edgeGeom(e) }));
+
+function shortStyle(m) {
+  return m.name_style.replace(/-style$/, '')
+    .replace(/^(Tweed|Blackface|Brownface|British|Vox|Boutique)\s+/i, '');
+}
+function tags(id) { return [id, ...adj.get(id)].join(' '); }
+
+// per-node hover-highlight CSS (pure CSS via :has + attribute matching, no JS)
+const hoverCss = amps.map((a) => {
+  const id = a.id;
+  return `.tree:has([data-node="${id}"]:hover) [data-tags~="${id}"]{opacity:1}` +
+    `.tree:has([data-node="${id}"]:hover) .edge[data-tags~="${id}"] .lead{stroke:var(--amber);stroke-width:2.4}` +
+    `.tree:has([data-node="${id}"]:hover) .edge[data-tags~="${id}"] .head{fill:var(--amber)}` +
+    `.tree:has([data-node="${id}"]:hover) .edge[data-tags~="${id}"] .cap{opacity:1}` +
+    `.tree:has([data-node="${id}"]:hover) .node[data-tags~="${id}"] .chip{stroke:var(--amber);stroke-width:1.6}`;
+}).join('');
+
+const nVerified = amps.filter((a) => a.meta.verification?.status === 'verified').length;
+const title = 'Lineage — the family tree of classic guitar amp circuits · Circuit Codex';
+const description =
+  'An interactive family tree of vintage guitar tube-amp circuits: every circuit placed on an era axis by family, with documented derivation arrows drawn only where the metadata records them — the tweed Champ to the Bassman, the Bassman to the Marshall JTM45, the JTM45 to the plexi.';
+const canonical = new URL('lineage/', Astro.site).href;
+const jsonld = {
+  '@context': 'https://schema.org',
+  '@type': 'TechArticle',
+  headline: 'The lineage of classic guitar amplifier circuits',
+  name: title,
+  description,
+  url: canonical,
+  inLanguage: 'en',
+  about: 'Guitar tube amplifier circuit lineage and derivation',
+  publisher: { '@type': 'Organization', name: 'Circuit Codex' },
+};
+---
+<Base title={title} description={description} jsonld={jsonld}>
+<style is:inline set:html={hoverCss}></style>
+<div class="wrap wrap-wide">
+  <header class="page-head">
+    <div class="eyebrow">Explore the corpus</div>
+    <h1>Lineage</h1>
+    <p class="lede">The circuits that made electric guitar did not appear in isolation — they
+      descend from one another. This is the corpus as a family tree: every circuit placed on
+      an era axis within its family, and an arrow drawn wherever one circuit's redrawn schematic
+      is a <strong>documented derivation</strong> of another. {amps.length} circuits, {nVerified}
+      verified. Hover any circuit to trace its connections; click to open its page.</p>
+  </header>
+
+  <figure class="fig">
+    <div class="scroll">
+      <svg class="tree" viewBox={`0 0 ${W} ${H}`} role="img"
+           aria-label="Family tree of the circuits in the corpus, arranged by family lane and era, with documented derivation arrows.">
+        <!-- year gridlines + axis -->
+        <g class="grid">
+          {ticks.map((yr) => (
+            <g>
+              <line x1={xScale(yr)} y1={GRID_TOP} x2={xScale(yr)} y2={AXIS_Y} />
+              <text class="yr" x={xScale(yr)} y={AXIS_Y + 20}>{yr}</text>
+            </g>
+          ))}
+          <line class="axis" x1={X0} y1={AXIS_Y} x2={X1} y2={AXIS_Y} />
+          <text class="axis-cap" x={X1} y={AXIS_Y - 9} text-anchor="end">◂ era introduced · bar spans production years ▸</text>
+        </g>
+
+        <!-- family lanes -->
+        {bands.map((b, i) => (
+          <g class="band">
+            <rect class={i % 2 ? 'band-bg alt' : 'band-bg'} x={X0 - 8} y={b.top - 4}
+                  width={PLOTW + 16} height={b.height - 8} rx="7" />
+            <text class="lane" x={10} y={b.mid} dominant-baseline="middle">{b.fam}</text>
+          </g>
+        ))}
+
+        <!-- documented derivation edges (arrows) -->
+        {drawn.map((e) => (
+          <g class="el edge" data-tags={e.tags}>
+            <path class="lead" d={e.d} fill="none" />
+            <polygon class="head" points={e.head} />
+            {e.capLines.length > 0 && (
+              <g class="cap" transform={`translate(${e.lx.toFixed(1)} ${e.ly.toFixed(1)})`}>
+                <rect x={-e.capW / 2} y={-e.capH / 2} width={e.capW} height={e.capH} rx="4" />
+                {e.capLines.map((l, i) => (
+                  <text x="0" y={-e.capH / 2 + 6 + i * 12 + 5} text-anchor="middle">{l}</text>
+                ))}
+              </g>
+            )}
+          </g>
+        ))}
+
+        <!-- circuit node chips -->
+        {amps.map((a) => {
+          const p = nodePos.get(a.id);
+          const m = a.meta;
+          const ver = m.verification?.status === 'verified';
+          const spanX2 = Math.max(xScale(m.era.end), p.x + p.w + 6);
+          return (
+            <a class="el node" data-node={a.id} data-tags={tags(a.id)} href={`/amps/${a.id}/`}>
+              <line class="span" x1={p.x + p.w - 2} y1={p.cy} x2={spanX2} y2={p.cy} />
+              <circle class="span-end" cx={spanX2} cy={p.cy} r="2.4" />
+              <rect class="chip" x={p.x} y={p.y} width={p.w} height={p.h} rx="7" />
+              <text class="cid" x={p.cx} y={p.y + 16} text-anchor="middle">{displayId(a.id)}{ver && <tspan class="tick"> ✓</tspan>}</text>
+              <text class="cstyle" x={p.cx} y={p.y + 31} text-anchor="middle">{shortStyle(m)} · {m.wattage} W</text>
+            </a>
+          );
+        })}
+      </svg>
+    </div>
+    <figcaption>
+      <strong>Arrows are documented derivations only.</strong> An arrow is drawn between two
+      circuits only where this corpus's metadata records the relationship in the circuits' own
+      files. A family lane groups circuits by construction era and lineage of style — it does
+      <em>not</em> by itself assert that one circuit derives from another. The absence of an arrow
+      means the derivation is <em>not documented here</em>, not that the circuits are unrelated:
+      many ancestors (the 5D-series tweeds, the 5F6 that precedes the 5F6-A, the brown 6G3 behind
+      the blackface Deluxe) are simply not in the corpus yet, so those edges will appear when the
+      circuits do. Isolated nodes are honest. Edge captions read the change in power tubes and
+      rectifier straight from each circuit's data.
+    </figcaption>
+  </figure>
+</div>
+</Base>
+
+<style>
+  .page-head{padding:60px 0 8px}
+  .eyebrow{font-family:var(--disp);text-transform:uppercase;letter-spacing:.26em;font-size:12.5px;color:var(--amber)}
+  h1{font-size:clamp(30px,5vw,50px);line-height:1.05;margin:12px 0 16px;letter-spacing:.05em}
+  .lede{max-width:66ch;color:var(--muted);font-size:16.5px}
+  .lede strong{color:var(--ink)}
+  .fig{margin:26px 0 0}
+  .scroll{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--well);padding:8px 8px 4px}
+  .tree{display:block;width:100%;min-width:940px;height:auto}
+  figcaption{color:var(--faint);font-size:12.5px;line-height:1.6;margin:14px 2px 0;max-width:96ch}
+  figcaption strong{color:var(--muted)}
+  figcaption em{color:var(--muted);font-style:italic}
+
+  /* --- SVG element styling (global so it applies to build-time markup) --- */
+  .tree .el{transition:opacity .12s ease}
+  .tree:has(.node:hover) .el{opacity:.2}
+
+  .tree .grid line{stroke:var(--line-soft);stroke-width:1}
+  .tree .grid line.axis{stroke:var(--line);stroke-width:1.5}
+  .tree .yr{fill:var(--faint);font-family:var(--mono);font-size:11px;text-anchor:middle}
+  .tree .axis-cap{fill:var(--faint);font-family:var(--disp);text-transform:uppercase;letter-spacing:.16em;font-size:10px}
+
+  .tree .band-bg{fill:var(--panel);opacity:.35}
+  .tree .band-bg.alt{fill:var(--panel);opacity:.16}
+  .tree .lane{fill:var(--faint);font-family:var(--disp);text-transform:uppercase;letter-spacing:.14em;font-size:12px;font-weight:600}
+
+  .tree .edge .lead{stroke:var(--amber-dim);stroke-width:1.7}
+  .tree .edge .head{fill:var(--amber-dim)}
+  .tree .edge .cap{opacity:.9}
+  .tree .edge .cap rect{fill:var(--well);stroke:var(--line);stroke-width:1}
+  .tree .edge .cap text{fill:var(--muted);font-family:var(--mono);font-size:10px}
+
+  .tree .node{cursor:pointer}
+  .tree .node .span{stroke:var(--line);stroke-width:2;stroke-linecap:round}
+  .tree .node .span-end{fill:var(--faint)}
+  .tree .node:hover .span,.tree .node:focus-visible .span{stroke:var(--amber-dim)}
+  .tree .node:hover .span-end,.tree .node:focus-visible .span-end{fill:var(--amber-dim)}
+  .tree .node .chip{fill:var(--panel);stroke:var(--line);stroke-width:1.2}
+  .tree .node:hover .chip,.tree .node:focus-visible .chip{stroke:var(--amber);stroke-width:1.6}
+  .tree .node .cid{fill:var(--ink);font-family:var(--disp);text-transform:uppercase;letter-spacing:.04em;font-size:15px;font-weight:600}
+  .tree .node .cid .tick{fill:var(--ok);font-size:12px}
+  .tree .node .cstyle{fill:var(--muted);font-family:var(--body);font-size:9.5px}
+  .tree .node:hover .cid,.tree .node:focus-visible .cid{fill:var(--amber)}
+</style>

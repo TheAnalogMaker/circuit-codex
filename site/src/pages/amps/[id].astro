@@ -12,6 +12,13 @@ const vDate = v.date ? new Date(v.date).toISOString().slice(0, 10) : null;
 const ghDir = `${GITHUB}/tree/main/amps/${amp.id}`;
 const wiringVerified = amp.layout?.wiring_claim === 'verified';
 const isVerified = v.status === 'verified';
+// --- lineage (explore) — related circuits documented in this amp's meta.yaml,
+//     limited to those present in the corpus so links never 404. Rendered as one
+//     row in the metadata panel below. Delimited for hand-merge.
+const _corpusIds = new Set(loadCorpus().map((a) => a.id));
+const lineageRelated = [
+  ...new Set([...(m.lineage?.derived_from || []), ...(m.lineage?.influenced || [])]),
+].filter((rid) => _corpusIds.has(rid) && rid !== amp.id);
 // True when the circuit carries no published voltage chart at all — every node is
 // simulation-only (chart: null). Such pages must not promise chart comparison.
 const allChartNull = !!amp.voltages && Object.values(amp.voltages.nodes)
@@ -174,6 +181,16 @@ const jsonld = {
           ? <a href={topologyHref('phase_inverter', m)}>{m.topology.phase_inverter}</a> : m.topology.phase_inverter}</dd>
         <dt>Tone stack</dt><dd>{topologyHref('tone_stack', m)
           ? <a href={topologyHref('tone_stack', m)}>{m.topology.tone_stack}</a> : m.topology.tone_stack}</dd>
+        {/* --- lineage row (explore surface); remove this block to revert --- */}
+        {lineageRelated.length > 0 && (
+          <>
+            <dt>Lineage</dt>
+            <dd>{lineageRelated.map((rid, i) => (
+              <>{i > 0 ? ', ' : ''}<a href={`/amps/${rid}/`}>{displayId(rid)}</a></>
+            ))} · <a href="/lineage/">tree ↗</a></dd>
+          </>
+        )}
+        {/* --- end lineage row --- */}
       </dl>
       <div class="files">
         <h3>Data</h3>
