@@ -72,6 +72,17 @@ that makes it impossible, not patched at the symptom:
   H8  anchors      each net_map anchor is re-solved with it removed and labelled
       CONSTRAINING or REDUNDANT, so an inert anchor can't masquerade as support.
 
+ROUND-2 RE-AUDIT CLOSURE (2026-07-19) — three further escapes:
+  PP  phantom-pin  pin anchors/checks thread BOTTLE->SOCKET (_solve): a function-
+      named bottle (PI) now anchors its real socket terminal (V3.pin6), not a
+      phantom 'PI.pin6' that exists on no board net. Full-path selftest.
+  EN  enumeration  EVERY terminal of EVERY non-modelled two-lead part and EVERY
+      pot lug is enumerated (_enumerate_unchecked) with its net, tagged 'placement
+      not DC-checked', REGARDLESS of net — so a mis-lugged pot ground or a bias
+      resistor on a live rail can't hide by landing on a netlist-carrying net.
+  SH  shrink       every DC-open cap with both leads on named DC nodes is now in
+      netlist.cir (couplers + cathode-bypass, all 8 amps); op point unmoved.
+
 ------------------------------------------------------------------------------
 VERDICT + GATE
 ------------------------------------------------------------------------------
@@ -99,6 +110,7 @@ import yaml
 
 from render_layouts import (
     Renderer,
+    category,
     load_bom,
     load_tube_heater_pins,
     primary_value,
@@ -623,16 +635,20 @@ def _run_terminal_names(R: Renderer, spec) -> list[str]:
     return out
 
 
-def _check_layout(amp_id: str, layout: dict, bom: dict, net_map=None) -> Result:
+def _check_layout(amp_id: str, layout: dict, bom: dict, net_map=None,
+                  netlist_path: "Path | None" = None) -> Result:
     """Solve one layout (in-memory) against its netlist and return the best
     Result. Shared by check_amp, the mutation self-test, and the H8 anchor
     classifier. `net_map` overrides layout['net_map'] when given (the classifier
-    passes a copy with one anchor removed). A fresh Renderer/LayoutGraph/UF is
-    built each call so union-find state never leaks between trials."""
+    passes a copy with one anchor removed); `netlist_path` overrides the amp's
+    netlist.cir (the phantom-pin self-test feeds a function-named-bottle variant
+    to prove anchoring binds to the SOCKET, not the bottle label). A fresh
+    Renderer/LayoutGraph/UF is built each call so union-find state never leaks
+    between trials."""
     R = Renderer(copy.deepcopy(layout), bom, amp_id)
     LG = LayoutGraph(R)
     uf = LG.uf
-    comps, nodes = parse_netlist(ROOT / "amps" / amp_id / "netlist.cir")
+    comps, nodes = parse_netlist(netlist_path or ROOT / "amps" / amp_id / "netlist.cir")
     if net_map is None:
         net_map = layout.get("net_map") or {}
     unplaced = net_map.get("netlist_unplaced") or {}
@@ -720,6 +736,13 @@ def _solve(amp_id, layout, R, LG, uf, comps, nodes, net_map, part_terms,
     res = Result(amp_id)
     res.claim = str(layout.get("wiring_claim", "")).lower() == "verified"
     anchors = net_map.get("anchors") or {}
+    # PHANTOM-PIN FIX: a netlist bottle carries a FUNCTION name (XPIA -> bottle
+    # 'PI') that need not match its physical socket id; _resolve_bottles cross-
+    # references it to the real socket (PI -> V3). The board's terminal identity
+    # is the SOCKET pin ('V3.pin6'), never the bottle ('PI.pin6'), so every pin
+    # anchor/check below must resolve bottle -> socket before forming the term,
+    # or it silently anchors a phantom that doesn't exist on the board.
+    bottle_socket = (anchoring or {}).get("bottle_socket", {})
 
     M: dict = {}                 # net root -> netlist node (first binding)
     cause: dict = {}             # net root -> readable cause of M[root]
@@ -742,13 +765,14 @@ def _solve(amp_id, layout, R, LG, uf, comps, nodes, net_map, part_terms,
         if c.kind != "X" or c.bottle not in basing_inv:
             continue
         unit = assignment.get(id(c))
+        sid = bottle_socket.get(c.bottle, c.bottle)   # bottle -> physical socket
         for role, node in c.roles.items():
             pin = basing_inv[c.bottle].get((role, unit))
             if pin is None:
                 pin = basing_inv[c.bottle].get((role, None))
             if pin is None:
                 continue
-            assign(f"{c.bottle}.pin{pin}", node, f"{c.bottle}.pin{pin} ({role})")
+            assign(f"{sid}.pin{pin}", node, f"{sid}.pin{pin} ({role})")
 
     # constraint propagation across 2-terminal components present on the board
     two_term = [c for c in comps if c.kind in ("R", "C", "L") and c.ref in part_terms]
@@ -810,15 +834,16 @@ def _solve(amp_id, layout, R, LG, uf, comps, nodes, net_map, part_terms,
         if c.kind != "X" or c.bottle not in basing_inv:
             continue
         unit = assignment.get(id(c))
+        sid = bottle_socket.get(c.bottle, c.bottle)   # bottle -> physical socket
         for role, node in c.roles.items():
             pin = basing_inv[c.bottle].get((role, unit)) or basing_inv[c.bottle].get((role, None))
             if pin is None:
                 continue
-            r = uf.find(f"{c.bottle}.pin{pin}")
+            r = uf.find(f"{sid}.pin{pin}")
             got = M.get(r)
             if got is not None and got != node:
                 res.errors.append(
-                    f"WRONG TERMINAL: {c.bottle}.pin{pin} ({c.inst} {role}) is on "
+                    f"WRONG TERMINAL: {sid}.pin{pin} ({c.inst} {role}) is on "
                     f"{node_name(got)} but the netlist puts it on {node_name(node)}")
 
     # ---- (4) missing connection: a node split across >1 layout net ----------
@@ -869,6 +894,10 @@ def _solve(amp_id, layout, R, LG, uf, comps, nodes, net_map, part_terms,
                   anchoring)
     # ---- (7) declare the unverified control-network island (H4) ------------
     _declare_island(res, R, LG, uf, M, anchoring)
+    # ---- (8) enumerate EVERY unchecked terminal — the completeness backstop
+    #      that closes the two round-2 HIGH escapes (a non-modelled lead / pot
+    #      lug landing on a netlist-carrying net was silently accepted). ------
+    _enumerate_unchecked(res, R, uf, M, comps, part_terms, anchoring, node_name)
     return res
 
 
@@ -946,6 +975,133 @@ def _declare_island(res, R, LG, uf, M, anchoring=None):
             f"pot/mixer/tone-stack wiring the DC netlist abstracts, NOT machine-checked:")
         for g in sorted(islands, key=lambda g: (-len(g), g)):
             res.scope.append(f"    island net: {{{', '.join(g)}}}")
+
+
+_BOM_ROLE_CACHE: dict = {}
+
+
+def _bom_roles(amp_id: str) -> dict:
+    """ref -> role string, straight from bom.yaml (the role render's load_bom
+    drops). Cached — used to classify a non-modelled part into an enumeration
+    heading (a 'bias' role is the abstracted negative-supply front end)."""
+    if amp_id not in _BOM_ROLE_CACHE:
+        raw = yaml.safe_load((ROOT / "amps" / amp_id / "bom.yaml").read_text()) or {}
+        _BOM_ROLE_CACHE[amp_id] = {
+            it["ref"]: str(it.get("role", ""))
+            for it in (raw.get("items") or [])
+            if it.get("ref") and it["ref"] != "—"}
+    return _BOM_ROLE_CACHE[amp_id]
+
+
+# enumeration headings — every non-DC-checked terminal lands in exactly one
+_UC_CTRL = "control networks (pots / mixers / tone-stack resistors)"
+_UC_DCOPEN = "DC-open parts (coupling / bypass / tone / filter caps)"
+_UC_BIAS = "abstracted bias supply (negative-grid front end: RB*/C15/D1 class)"
+_UC_PTAC = "PT-AC / rectifier / pilot (annotation layer, abstracted to the rail)"
+_UC_HEAT = "heaters (twisted 6.3 V pairs, annotation layer)"
+
+
+def _enumerate_unchecked(res, R, uf, M, comps, part_terms, anchoring, node_name):
+    """Close the two round-2 HIGH escapes. The unverified-island declaration only
+    lists nets carrying NO netlist node, so a non-modelled part's lead — or a pot
+    lug — landing on a net that ALREADY carries one (a rail, a cathode, ground)
+    vanished into silence: a mis-lugged pot ground or a bias resistor dropped on a
+    live rail simply did not appear. This enumerates EVERY terminal of EVERY non-
+    modelled two-lead part and EVERY pot lug, tagged 'placement not DC-checked',
+    with the net each sits on — REGARDLESS of that net — grouped under explicit
+    headings. The DC netlist verifies only the modelled parts (whose placement IS
+    checked terminal-for-terminal); everything here is drawn from the sources but
+    not machine-checked, and is named so silence can never read as coverage."""
+    anchoring = anchoring or {}
+    modelled = {c.ref for c in comps if c.kind in ("R", "C", "L")}
+    roles = _bom_roles(R.amp_id)
+    members = uf.members()
+
+    def netdesc(t):
+        root = uf.find(t)
+        node = M.get(root)
+        if node is not None:
+            return f"on the '{node_name(node)}' net [carries a netlist node]"
+        mem = sorted(m for m in members.get(root, [])
+                     if not m.startswith("@") and m != t and m != GND)
+        if not mem:
+            return "on an isolated net"
+        head = ", ".join(mem[:3]) + ("…" if len(mem) > 3 else "")
+        return f"on an unchecked island net {{{head}}}"
+
+    def bucket(cat, role):
+        if "bias" in (role or "").lower():
+            return _UC_BIAS
+        if cat in ("electro", "film", "mica"):
+            return _UC_DCOPEN
+        return _UC_CTRL                       # resistors / diodes / misc controls
+
+    groups: dict = {h: [] for h in (_UC_CTRL, _UC_DCOPEN, _UC_BIAS, _UC_PTAC, _UC_HEAT)}
+    n_terms = 0
+    seen: set = set()
+
+    def add_two_lead(ref, off_board):
+        nonlocal n_terms
+        if ref in modelled or ref in seen:
+            return
+        seen.add(ref)
+        it = R.off_by_id.get(ref) if off_board else None
+        role = roles.get(ref, "")
+        cat = category((R.bom.get(ref) or {}).get("part", ""))   # no error pollution
+        ta, tb = part_terms.get(ref, (f"{ref}.a", f"{ref}.b"))
+        if it is not None and it.get("glyph") == "lamp":
+            groups[_UC_PTAC].append(f"{ref} (pilot lamp): a {netdesc(ta)}; b {netdesc(tb)}")
+            n_terms += 2
+            return
+        tag = f"{ref} ({role or cat}{', off-board' if off_board else ''})"
+        groups[bucket(cat, role)].append(f"{tag}: a {netdesc(ta)}; b {netdesc(tb)}")
+        n_terms += 2
+
+    for p in R.parts:
+        if p.get("ref"):
+            add_two_lead(p["ref"], off_board=False)
+    for it in R.offboard:
+        if it.get("kind") == "part":
+            add_two_lead(it["id"], off_board=True)
+
+    # every pot lug — pots are NEVER discrete netlist devices, so all three lugs
+    # are unchecked regardless of what each lands on (this is where the mis-lugged
+    # ground used to hide).
+    for it in R.offboard:
+        if it.get("kind") != "pot":
+            continue
+        pid = it["id"]
+        lugs = "; ".join(f"lug{n} {netdesc(f'{pid}.lug{n}')}" for n in (1, 2, 3))
+        groups[_UC_CTRL].append(f"{pid} ({it.get('label', pid)} pot): {lugs}")
+        n_terms += 3
+
+    # annotation-layer runs, counted (their nets are the excluded run tally): the
+    # PT/rectifier AC+HT side and the twisted heater pairs.
+    n_twist = sum(1 for s in R.runs if str(s.get("style", "")).lower() == "twisted")
+    if n_twist:
+        groups[_UC_HEAT].append(
+            f"{n_twist} twisted heater run(s) — validated onto heater/filament "
+            f"pins (H7), excluded from DC equivalence")
+    pt_ids = sorted(it["id"] for it in R.offboard if it.get("kind") in ("xfmr", "choke"))
+    rect_ids = sorted(sid for sid, _why in anchoring.get("excluded_sockets", []))
+    if pt_ids or rect_ids:
+        bits = []
+        if pt_ids:
+            bits.append("transformer/choke " + ", ".join(pt_ids))
+        if rect_ids:
+            bits.append("rectifier socket " + ", ".join(rect_ids))
+        groups[_UC_PTAC].append("; ".join(bits) + " — AC/HT side abstracted to the ideal rail")
+
+    res.scope.append(
+        f"unchecked terminals — placement NOT DC-checked, enumerated so silence "
+        f"never reads as coverage ({n_terms} terminal(s); the netlist verifies "
+        f"only the modelled parts, terminal-for-terminal):")
+    for head in (_UC_CTRL, _UC_DCOPEN, _UC_BIAS, _UC_PTAC, _UC_HEAT):
+        if not groups[head]:
+            continue
+        res.scope.append(f"    {head}:")
+        for line in sorted(groups[head]):
+            res.scope.append(f"        {line}")
 
 
 def _node_labeler(nodes):
@@ -1221,6 +1377,42 @@ def selftest() -> int:
     h3b_ok = any(b == "socket:V2" for b, _ in unres3b)
     print(f"  [H3] unmodelled signal socket V2 -> UNRESOLVED: {'OK' if h3b_ok else 'FAIL'}")
 
+    # ---- PHANTOM-PIN full path: a FUNCTION-named bottle must anchor to the
+    #      physical SOCKET, not to a 'bottle.pin' terminal that isn't on the
+    #      board. Rename 5f1's XV1A/XV1B to XPREA/XPREB — bottle 'PRE' matches no
+    #      socket id, so it resolves to the unique 12AX7 socket V1 by type x-ref
+    #      (H2). The board's terminals are 'V1.pinN'. Before the fix the solver
+    #      anchored 'PRE.pinN' (a phantom that exists on no net), which (a) split
+    #      every V1 node between the phantom and the real pin — so the CORRECT
+    #      wiring failed spuriously — and (b) left V1's real pins unchecked, so a
+    #      broken V1 wire escaped. The fix threads bottle->socket, so correct
+    #      wiring PASSES and a broken V1 pin is caught ON THE REAL SOCKET. ------
+    print("=== phantom-pin: function-named bottle anchors to the real socket ===")
+    import os
+    import tempfile
+    fn_src = ((ROOT / "amps" / "5f1" / "netlist.cir").read_text()
+              .replace("XV1A", "XPREA").replace("XV1B", "XPREB"))
+    _fh = tempfile.NamedTemporaryFile("w", suffix=".cir", delete=False)
+    _fh.write(fn_src)
+    _fh.close()
+    fn_path = Path(_fh.name)
+    try:
+        r_fn_ok = _check_layout("5f1", l5f1, b5f1, netlist_path=fn_path)
+        # break V1B plate (pin 1): reroute its plate-load feed onto the cathode
+        r_fn_break = _check_layout("5f1", _reroute(l5f1, "V1.pin1", "R7.a",
+                                                   new_to="R6.a"),
+                                   b5f1, netlist_path=fn_path)
+    finally:
+        os.unlink(fn_path)
+    pp_base_ok = r_fn_ok.ok
+    pp_break_caught = (not r_fn_break.ok) and any("V1.pin" in e for e in r_fn_break.errors)
+    print(f"  [PP] function-named 'PRE' anchors socket V1; correct wiring PASSES: "
+          f"{'OK' if pp_base_ok else 'FAIL ' + str(r_fn_ok.errors[:2])}")
+    print(f"  [PP] broken V1 pin on the function-named bottle is CAUGHT on the "
+          f"real socket: {'OK' if pp_break_caught else 'FAIL'}")
+    if pp_break_caught:
+        print(f"          -> {next(e for e in r_fn_break.errors if 'V1.pin' in e)}")
+
     # ---- H4 the unverified control-network island is declared (not silent) --
     print("=== H4 unverified-island declaration ===")
     r6a = _check_layout("5f6a", l6a, b6a)
@@ -1246,7 +1438,40 @@ def selftest() -> int:
     print(f"  [H8] OT-plate anchor T3.blue:=BP1 -> {cls.get('T3.blue')} "
           f"({'OK' if h8_con_ok else 'FAIL'})")
 
-    unit_ok = all([h2_ok, h2b_ok, h3_ok, h3b_ok, h4_ok, h8_red_ok, h8_con_ok])
+    # ---- enumeration backstop: silent mis-placements must SURFACE ----------
+    #      A mis-lugged pot ground and a bias resistor dropped on a live rail are
+    #      NON-modelled placements: they split no netlist node, so the equivalence
+    #      check cannot (and should not) raise a DIFF. They must instead appear in
+    #      the enumerated unchecked-terminal report — the fix for the two round-2
+    #      HIGHs, where such leads landing on a netlist-carrying net were silent.
+    print("=== enumeration surfaces silent mis-placements (pot ground / bias rail) ===")
+    # (1) mis-lug the Middle-pot ground (VR5.lug1) off the ground bus onto the B+1
+    #     rail (C11.a). No netlist node is split -> no DIFF -> must show as VR5 on 'BP1'.
+    l_poterr = copy.deepcopy(l6a)
+    for run in l_poterr["runs"]:
+        if run.get("from") == "VR5.lug1" and isinstance(run.get("to"), list):
+            run["to"] = "C11.a"
+            break
+    r_poterr = _check_layout("5f6a", l_poterr, b6a)
+    pot_surfaced = any("VR5" in s and "BP1" in s for s in r_poterr.scope)
+    print(f"  [ENUM] mis-lugged Middle-pot ground -> report shows VR5 on 'BP1': "
+          f"{'OK' if pot_surfaced else 'FAIL'}"
+          + ("" if r_poterr.ok else "  (+ raised a DIFF)"))
+    # (2) drop the bias series resistor RB1's input lead from the PT bias tap onto
+    #     the B+1 rail (C11.a). RB1 is unmodelled -> no DIFF -> must show as RB1 on 'BP1'.
+    l_biaserr = copy.deepcopy(l6a)
+    for run in l_biaserr["runs"]:
+        if run.get("from") == "PT.red-blue" and run.get("to") == "RB1.a":
+            run["from"] = "C11.a"
+            break
+    r_biaserr = _check_layout("5f6a", l_biaserr, b6a)
+    bias_surfaced = any("RB1" in s and "BP1" in s for s in r_biaserr.scope)
+    print(f"  [ENUM] bias resistor RB1 dropped on the B+1 rail -> report shows "
+          f"RB1 on 'BP1': {'OK' if bias_surfaced else 'FAIL'}"
+          + ("" if r_biaserr.ok else "  (+ raised a DIFF)"))
+
+    unit_ok = all([h2_ok, h2b_ok, h3_ok, h3b_ok, h4_ok, h8_red_ok, h8_con_ok,
+                   pp_base_ok, pp_break_caught, pot_surfaced, bias_surfaced])
     all_ok = ok_mut and unit_ok
     print(f"\nselftest: {passed}/{n_mut} planted-fault mutations caught; "
           f"resolver/island/anchor unit checks {'all OK' if unit_ok else 'FAILED'}"

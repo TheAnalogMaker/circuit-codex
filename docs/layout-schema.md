@@ -42,8 +42,11 @@ film/coupling, resistor, mica) and picks the body shape and label from there.
 `a` / `b` are `[row, col]` eyelet coordinates. Endpoints in the same row draw an
 axial (horizontal) body; endpoints sharing a column draw a vertical leg (a
 cathode resistor to ground, a bypass can). Optional `nudge: [dx, dy]` shifts the
-part's ref/value label pair (in px) to keep it clear of the wiring layer. A
-referenced designator that is absent from `bom.yaml` fails the render — and CI.
+part's ref/value label pair (in px) to keep it clear of the wiring layer;
+`value_nudge: [dx, dy]` shifts the **value alone** — to slide a value out from
+under a supply lead while the ref stays put (used where a dense power-supply
+corner crosses a filter-cap or bias-resistor value). A referenced designator
+that is absent from `bom.yaml` fails the render — and CI.
 
 ## `offboard[]` — labelled stubs around the board
 
@@ -62,6 +65,7 @@ referenced designator that is absent from `bom.yaml` fails the render — and CI
 | `at` | Position along that edge: a column coordinate for top/bottom, a row coordinate for left/right (fractions allowed) |
 | `label` | Text drawn under the stub |
 | `glyph` | Only for `kind: part` — `lamp` draws the pilot-lamp glyph; otherwise a small axial body |
+| `label_nudge` / `value_nudge` | Only for `kind: pot` — `[dx, dy]` px shifts for the name+value pair / the value alone, keeping the label's opaque halo. The escape hatch for a pot value still sitting under a lug-lead run when the halo alone isn't enough |
 
 Tubes draw their real pin ring with pin numbers; the pin count is read from the
 tube's `reference/tubes/<tube>.yaml` basing data (via the `ref`'s BOM value), so
@@ -237,11 +241,17 @@ eyelet); **a component's own two leads are never joined**.
 
 ### Why a netlist can't be matched 1:1 — and how the gate bridges it honestly
 
-`netlist.cir` is a **DC-operating-point** model. It deliberately omits DC-open and
-DC-transparent parts (coupling / bypass / tone / filter caps, grid stoppers), the
-power-supply front end (PT + rectifier + reservoir, replaced by an ideal source at
-B+1), and transformer winding DCR (plate node = B+). So the gate does not demand a
-naive net-for-net match; it **solves** a globally consistent mapping —
+`netlist.cir` is a **DC-operating-point** model. It models every DC-open cap whose
+**both** leads land on a named DC node — the inter-stage coupling caps (plate →
+next grid), the cathodyne output couplers (tapping the balanced junction, not the
+cathode pin), and the cathode-bypass caps — so their board placement is machine-
+checked (they are open at DC and move no operating point, verified against
+`voltages.yaml`). It still omits the parts with a lead **inside an abstracted
+network** — caps into the volume / tone / mixer control networks, the negative-bias
+front end (PT + rectifier + reservoir + selenium bias supply, replaced by ideal
+sources), tone-stack internals, and transformer winding DCR (plate node = B+). So
+the gate does not demand a naive net-for-net match; it **solves** a globally
+consistent mapping —
 
 - **tube pins anchor nodes** via `reference/tubes/<tube>.yaml` basing
   (plate / grid / cathode / screen → the subckt's pin order), with the
@@ -306,15 +316,45 @@ case for every one:
   island"), so what is *not* machine-checked is stated out loud rather than
   trusted in silence.
 
+#### Round-2 re-audit closure (2026-07-19)
+
+A second, adversarial re-audit found three more escapes; each is now closed:
+
+- **Phantom-pin bug.** A netlist bottle carries a *function* name (`XPIA` →
+  bottle `PI`) that need not equal its socket id (`V3`); the resolver
+  cross-references it, but the solver was anchoring the terminal `PI.pin6` — a
+  string that exists on **no** board net — instead of the physical `V3.pin6`. On a
+  function-named bottle this silently checked terminals that weren't there. The
+  fix threads **bottle → socket** into every pin-terminal formation, and a
+  full-path self-test renames an amp's preamp bottles to prove correct wiring
+  passes *and* a broken pin on the real socket is caught.
+- **Unchecked-terminal enumeration.** The island declaration only listed nets
+  carrying **no** netlist node, so a non-modelled lead — or a pot lug — landing on
+  a net that *already* carries one (a rail, a cathode, ground) simply vanished: a
+  mis-lugged pot ground or a bias resistor dropped on a live rail read as coverage
+  by silence. The checker now enumerates **every** terminal of **every**
+  non-modelled two-lead part and **every** pot lug, tagged *placement not
+  DC-checked*, with the net each sits on **regardless of that net**, grouped under
+  explicit headings (*control networks* / *DC-open parts* / *abstracted bias
+  supply* / *PT-AC* / *heaters*). Silence can no longer read as coverage.
+- **Shrinking the unchecked set.** Every DC-open cap the netlist can *honestly*
+  absorb — both leads on nameable DC nodes — was added to `netlist.cir` across all
+  eight amps (inter-stage couplers + cathode-bypass caps), moving them from the
+  enumerated-but-unchecked set into the machine-checked set with zero operating-
+  point drift (`verify_amps` stays 8/0/0). Genuinely-abstracted networks stay
+  excluded — but are now enumerated, not silent.
+
 ### Scope, printed honestly every run
 
 Heaters (twisted runs), the pilot lamp, and the PT / rectifier AC side are **not**
 in `netlist.cir`; they are an annotation layer excluded by **explicit rules** —
 never by widening an exclusion to bury a failure. The checker prints how many runs
 it checked and how many it excluded and why, and which netlist elements have no
-board part. It also **echoes every `net_map` reconciliation it applied** — each
-anchor (`T2.blue := BP1`) and each series-bridge (`R3`) — so a reviewer reading
-the run sees exactly what the gate was handed, not a bare PASS.
+board part. It **enumerates every non-DC-checked terminal** — each non-modelled
+part lead and pot lug, with the net it sits on, grouped by heading — so nothing is
+trusted by silence. It also **echoes every `net_map` reconciliation it applied** —
+each anchor (`T2.blue := BP1`) and each series-bridge (`R3`) — so a reviewer
+reading the run sees exactly what the gate was handed, not a bare PASS.
 
 ### Verdict, gate, and self-test
 
@@ -332,8 +372,12 @@ endpoints swapped, a run deleted, a run rerouted to a wrong pin; an aliased-valv
 (H5); crossed phase-inverter outputs (H6); a signal run relabelled `twisted`
 (H7); plus resolver/island/anchor unit checks for a function-named tube anchoring
 by type (H2), an unanchorable tube failing hard (H3), the island being declared
-(H4), and anchors classified CONSTRAINING vs REDUNDANT (H8). A gate that can't
-catch planted faults is decoration.
+(H4), and anchors classified CONSTRAINING vs REDUNDANT (H8). The round-2 closure
+adds a **full-path phantom-pin** case (a function-named bottle's correct wiring
+must pass *and* a broken pin on its real socket must be caught) and two
+**enumeration** cases (a mis-lugged pot ground and a bias resistor dropped on a
+live rail must surface in the unchecked-terminal report even though neither is a
+DC short). A gate that can't catch planted faults is decoration.
 
 ```
 python3 pipeline/render_layouts.py                 # (re)generate SVGs first
