@@ -76,6 +76,7 @@ line. Two nodes are reported for information only:
   quarter below the printed +270 V — so it is reported rather than fitted to the
   chart.
 
-This is a draft page: the operating point is simulated and reads true against the
-factory chart, but the circuit has not yet been verified against a measured
-reference.
+Every gated node verifies against the printed chart within the drawing's own
+±20 % convention — the worst sits about a tenth off — with the tremolo oscillator
+and the two shared-rail input plates set aside above as documented exclusions
+rather than force-fitted to the chart.

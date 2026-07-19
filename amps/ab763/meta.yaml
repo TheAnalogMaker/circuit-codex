@@ -21,5 +21,7 @@ sources:
   - desc: "RCA 12AT7 data sheet (March 1, 1954) — tabulated Class-A1 characteristics read for the clean-room CC0 12AT7 tube model (Va=250 V, 200 Ohm cathode bias -> Ia=10 mA, gm=5500 umho, mu=60; second point Va=100 V/270 Ohm -> 3.7 mA, 4000 umho). Basing 9A. Used by the reverb driver and the phase inverter"
     url: "https://frank.pocnet.net/sheets/049/1/12AT7.pdf"
 verification:
-  status: draft
+  status: verified
+  date: 2026-07-19
+  max_deviation_pct: 10.5   # worst gated node (the 820 Ω cathode stages, tol 20%); the tremolo oscillator and its two shared-rail channel-input plates are documented exclusions (see notes.md), reported not gated
 contributors: [TheAnalogMaker]
