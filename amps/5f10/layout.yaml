@@ -155,10 +155,15 @@ runs:
   - { from: V2.pin1, to: C6.a, via: [[40.8, 2.35], [37.8, 2.35], [37.8, 0.55]] }     # cathodyne plate → plate-side coupler
   - { from: C6.b, to: V3.pin5, via: [[38, 3.12], [24.7, 3.12], [24.7, 1.9]] }   # coupler → upper 6V6 grid (rise right of the V3 label, into pin 5)
   - { from: RG1.a, to: C6.b, via: [[34, 0.93], [37.7, 0.93]] }   # bias grid leak → same grid node
-  - { from: V2.pin3, to: RKA.a, via: [[41.5, 0.58], [20.3, 0.58]] }    # cathodyne cathode → 1.5k
+  # These four leads all cross behind the RKA/RK2/RNFB/RGPI resistor row on
+  # their way to a row-0 eyelet; each is fanned onto its own distinct row
+  # (0.50 / 0.66 / 0.78 / 0.90) so it traces end to end instead of the two
+  # near-parallel horizontal runs (was 0.58/0.65, only ~8px apart) reading as
+  # one doubled wire in the gaps between resistor bodies.
+  - { from: V2.pin3, to: RKA.a, via: [[41.5, 0.50], [20.3, 0.50]] }    # cathodyne cathode → 1.5k
   - { from: RKA.b, to: RKB.a }                          # junction → 56k cathode load
   - { from: RKB.b, to: [1.45, 24] }                     # 56k → ground bus
-  - { from: RKA.b, to: C7.a, via: [[20.6, 0.65], [31.7, 0.65]] }   # junction → cathode-side coupler
+  - { from: RKA.b, to: C7.a, via: [[20.6, 0.66], [31.7, 0.66]] }   # junction → cathode-side coupler
   - { from: C7.b, to: V4.pin5, via: [[31.6, 3.35], [30, 3.35], [30, 1.95]] }   # coupler → lower 6V6 grid (rise right of the V4 label, into pin 5)
   - { from: RG2.a, to: C7.b, via: [[36, 0.37], [32.3, 0.37]] }   # bias grid leak → same grid node
   - { from: RGPI.a, to: RKA.b }                         # PI grid leak → junction
@@ -169,8 +174,8 @@ runs:
   - { from: RL2.b, to: C10.a, via: [[42, 0.53], [18.9, 0.53]] }   # plate load → B+3
   - { from: V2.pin6, to: C5.a, via: [[42.4, 1.6]] }     # driver plate → coupler
   - { from: C5.b, to: V2.pin2, via: [[44, 1.7], [41.3, 1.65]] }  # coupler → PI grid (same node as RGPI)
-  - { from: V2.pin8, to: RK2.a, via: [[41.8, 2.45], [26.3, 2.45], [26.3, 0.72]] }    # driver cathode → 1.5k (unbypassed)
-  - { from: V2.pin8, to: RNFB.a, via: [[42.4, 2.62], [28.9, 2.62], [28.9, 0.79]] }    # driver cathode → NFB resistor
+  - { from: V2.pin8, to: RK2.a, via: [[41.8, 2.45], [26.3, 2.45], [26.3, 0.78]] }    # driver cathode → 1.5k (unbypassed)
+  - { from: V2.pin8, to: RNFB.a, via: [[42.4, 2.62], [28.9, 2.62], [28.9, 0.90]] }    # driver cathode → NFB resistor
   - { from: RK2.b, to: [1.45, 26] }                      # 1.5k → ground bus
   - { from: RNFB.b, to: SPK.tip, via: [[27.7, 3.45], [34.3, 3.45], [34.3, 1.9]] }   # NFB → speaker line (rise left of the Spkr-jack label, into the tip)
   - { from: VR1.lug2, to: V2.pin7, via: [[32, -0.7], [42.2, -0.7], [43.4, 1.5]] }  # volume wiper → driver grid

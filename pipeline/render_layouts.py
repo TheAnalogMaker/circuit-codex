@@ -385,10 +385,19 @@ def load_tube_heater_pins(slug: str) -> set[int] | None:
 
 # ---- small SVG element builders --------------------------------------------
 def text(x, y, s, fill, size, *, anchor="middle", font=FONT_DISP, weight=600,
-         spacing=None, upper=False):
+         spacing=None, upper=False, halo=None, halo_width=3.0):
+    """A single <text> element. `halo` (an opaque colour) draws a thin stroked
+    outline BEHIND the glyph fill (paint-order="stroke") so the label stays
+    legible where a wire lead crosses behind it — a dense-board label sitting
+    over converging leads (pot lug fans, tube-socket ID text under a crossing
+    heater pair) reads clearly instead of merging with the wire. Deterministic:
+    a fixed stroke, no shadow/blur."""
     ls = f' letter-spacing="{spacing}"' if spacing else ""
+    halo_attr = (f' stroke="{halo}" stroke-width="{fmt(halo_width)}" '
+                 f'stroke-linejoin="round" paint-order="stroke"') if halo else ""
     return (f'<text x="{fmt(x)}" y="{fmt(y)}" fill="{fill}" font-size="{size}" '
-            f'font-family="{font}" font-weight="{weight}" text-anchor="{anchor}"{ls}>'
+            f'font-family="{font}" font-weight="{weight}" text-anchor="{anchor}"{ls}'
+            f'{halo_attr}>'
             f'{esc(s)}</text>')
 
 
@@ -658,6 +667,12 @@ class Renderer:
         self._assign_xfmr_leads()
         self._colours_used: list[str] = []
         self._has_twisted = False
+        # known ahead of the geometry pass (needed for the footer-height math
+        # below): does this layout's raw wiring carry a twisted heater run at
+        # all? If so the legend earns an extra note line (see _legend), which
+        # needs its own reserved row in the footer band.
+        self._layout_has_twisted = any(
+            str(r.get("style", "")).lower() == "twisted" for r in self.runs)
         # board pixel box
         self.board_x = MARGIN_L
         self.board_y = MARGIN_TOP
@@ -679,10 +694,14 @@ class Renderer:
                             pass
             # ey() needs board_y (set above); +14 clears the wire + twist amp,
             # +92 leaves room for the four stacked footer lines (attribution +
-            # wiring + joints + bodies). Floored at 356 so ordinary
-            # under-chassis layouts keep their footer clear.
-            needed = self.ey(deep_row) + 14 + 92 - (self.board_y + self.board_h)
-            self.margin_bot = max(356, int(math.ceil(needed)))
+            # wiring + joints + bodies) — bumped to +110 when a twisted-pair
+            # note line joins the stack (see _legend). Floored at 356 (374
+            # with the note) so ordinary under-chassis layouts keep their
+            # footer clear.
+            footer_reserve = 110 if self._layout_has_twisted else 92
+            footer_floor = 374 if self._layout_has_twisted else 356
+            needed = self.ey(deep_row) + 14 + footer_reserve - (self.board_y + self.board_h)
+            self.margin_bot = max(footer_floor, int(math.ceil(needed)))
         else:
             self.margin_bot = MARGIN_BOT
         self.height = self.board_y + self.board_h + self.margin_bot
@@ -991,7 +1010,11 @@ class Renderer:
                 nx = x + (r - 8.5) * math.sin(theta)
                 ny = y - (r - 8.5) * math.cos(theta)
                 els.append(text(nx, ny + 3, str(pin), FAINT, 7.5, font=FONT_MONO, weight=600))
-            els.append(text(x, y + r + 15, label, INK, 12, spacing="0.05em"))
+            # tube-socket ID label gets the same opaque halo: a heater twisted
+            # pair (or any other lead) routed close under the socket reads
+            # behind the text instead of cutting through it illegibly.
+            els.append(text(x, y + r + 15, label, INK, 12, spacing="0.05em",
+                            halo=WELL, halo_width=3.2))
         elif kind == "pot":
             r = 18
             els.append(f'<circle cx="{fmt(x)}" cy="{fmt(y)}" r="{fmt(r)}" fill="{PANEL}" '
@@ -1003,9 +1026,15 @@ class Renderer:
             for lug in (1, 2, 3):
                 lx, ly = self.pot_lug_pos(item, lug)
                 els.append(f'<circle cx="{fmt(lx)}" cy="{fmt(ly)}" r="1.9" fill="{MUTED}"/>')
-            els.append(text(x, y + r + 14, label, INK, 11.5, spacing="0.04em"))
+            # ref/value labels get an opaque halo (matching the canvas well):
+            # on a dense board the lug fan's converging leads pass right
+            # through this band, and the halo keeps the text reading clearly
+            # over a crossing lead instead of merging with it.
+            els.append(text(x, y + r + 14, label, INK, 11.5, spacing="0.04em",
+                            halo=WELL, halo_width=3.2))
             if val:
-                els.append(text(x, y + r + 27, val, MUTED, 10.5, font=FONT_MONO, weight=500))
+                els.append(text(x, y + r + 27, val, MUTED, 10.5, font=FONT_MONO,
+                                weight=500, halo=WELL, halo_width=3.0))
         elif kind == "jack":
             r = 9
             els.append(f'<circle cx="{fmt(x)}" cy="{fmt(y)}" r="{fmt(r)}" fill="{WELL}" '
@@ -1325,7 +1354,11 @@ class Renderer:
         else:
             attrib = self.layout.get("caption") or ""
         if attrib:
-            els.append(text(bx, self.height - 74, attrib, FAINT, 10.5, anchor="start",
+            # anchored 74px from the bottom normally; a twisted-heater note
+            # row inserted into the footer (see _legend) pushes this — and
+            # the wiring row below it — up by one more row (18px).
+            attrib_off = 92 if self._has_twisted else 74
+            els.append(text(bx, self.height - attrib_off, attrib, FAINT, 10.5, anchor="start",
                             font=FONT_MONO, weight=500))
         # legends
         self._legend(els)
@@ -1340,8 +1373,12 @@ class Renderer:
         return svg
 
     def _legend(self, els):
-        # wiring legend (only when the layout has a wiring layer)
-        y = self.height - 56
+        # wiring legend (only when the layout has a wiring layer). A twisted
+        # heater run earns an extra note line below the swatch row, so the
+        # wiring row (and the attribution line above it, set in render())
+        # shift up by one 18px row to make room — joints/bodies stay put,
+        # anchored to the bottom edge as always.
+        y = self.height - (74 if self._has_twisted else 56)
         x = self.board_x
         if self.runs or self.bus:
             cx = x
@@ -1375,6 +1412,16 @@ class Renderer:
                 els.append(f'<path d="{d2}" fill="none" stroke="{HEATER}" stroke-width="1.5" '
                            f'stroke-linecap="round"/>')
                 els.append(text(cx + 26, y, "6.3 V heaters — twisted pair", MUTED, 10.5,
+                                anchor="start", font=FONT_MONO, weight=500))
+                # convention note: the twisted heater pair is drawn as its own
+                # topmost layer and is exempt from the hop-over crossing idiom
+                # below — it never joins another run, so a vision review
+                # shouldn't read its uninterrupted overlap of another lead as
+                # a missed hop-over.
+                note_y = self.height - 56
+                els.append(text(x, note_y, "Note: the 6.3 V heater twisted pair always "
+                                "routes on the top layer and never joins another run — "
+                                "its crossings are not hop-overs.", FAINT, 9.5,
                                 anchor="start", font=FONT_MONO, weight=500))
             # joints legend: a solder blob (wire end) + a hop-over (cross-over)
             jy = self.height - 38
