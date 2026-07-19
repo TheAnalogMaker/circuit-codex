@@ -21,6 +21,8 @@ sources:
     url: "https://el34world.com/charts/Schematics/files/Fender/Fender_princeton_5f2a.pdf"
   - desc: "Rob Robinette, 'How Amps Work' (tweed 5F1/6V6 single-ended walkthrough) — published DC measurements used as the verification reference in lieu of a factory chart: B+ 360/325/250, 6V6 ~19 V cathode drop across 470R, 12AX7 plates ~170 V, cathodes ~1.5 V. The 5F2-A shares this circuit's DC signal path exactly (the tone control is capacitor-coupled)"
     url: "https://robrobinette.com/How_Amps_Work.htm"
+  - desc: "Fender 'Princeton' Model 5F2-A layout drawing (K-EG), page 1 — the source for the order the board-layout diagram (amps/5f2a/layout.svg) places parts on the eyelet board and for the socket/pot/jack wiring (5Y3GT and 6V6GT pin numbers read directly off the sheet; the 12AX7 socket is drawn with plain dots, so its pins follow the standard Fender A=6/7/8, B=1/2/3 convention). R3/R7/R12 mount standing at a jack/socket lug rather than on the strip, and the tone pot's C3/C4 mount at the pots — all wired but not drawn as board bodies, matching the sheet; the output transformer isn't drawn as its own symbol on this sheet either. Redrawn from the published facts, never traced"
+    url: "https://el34world.com/charts/Schematics/files/Fender/Fender_princeton_5f2a.pdf"
 verification:
   status: draft   # drawing carries no chart, and no 5F2-A-specific measured chart
                   # was obtainable; simulation is checked against the DC-identical
