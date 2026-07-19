@@ -34,9 +34,9 @@ board:
   rows: 2
   cols: 32
   title: "5F2-A · eyelet board layout"
-caption: "Redrawn from the published Fender 5F2-A layout drawing (K-EG) — principal board components, in the order the drawing shows them. R3, R7, R12 (standing resistors at a jack/socket lug) and the tone pot's C3/C4 are wired but not drawn as bodies, matching the sheet. Not a trace or a dimensioned reproduction."
+caption: "Redrawn from the published Fender 5F2-A layout drawing (K-EG) — principal board components, in the order the drawing shows them. R3, R7, R12 (standing resistors at a jack/socket lug) and the tone pot's C3/C4 are wired but not drawn as bodies, matching the sheet. Draft circuit: no 5F2-A voltage chart exists, so the operating point is checked against the DC-identical 5F1 Champ rather than a factory 5F2-A chart. Not a trace or a dimensioned reproduction."
 source:
-  desc: "Fender 'Princeton' Model 5F2-A layout drawing (K-EG), page 1"
+  desc: "Fender 'Princeton' Model 5F2-A layout drawing (K-EG), page 1 (draft circuit — no 5F2-A voltage chart; operating point checked against the DC-identical 5F1 Champ)"
   url: "https://el34world.com/charts/Schematics/files/Fender/Fender_princeton_5f2a.pdf"
 
 parts:
@@ -52,7 +52,7 @@ parts:
   # 6V6GT output stage grid leak + cathode bias
   - { ref: R8,  a: [1, 12], b: [1, 13] }   # 220k 6V6 grid leak
   - { ref: R9,  a: [0, 14], b: [1, 14] }   # 470 Ω 1W 6V6 cathode (vertical)
-  - { ref: C6,  a: [0, 15], b: [0, 16], nudge: [0, 26] }   # 25 µF 6V6 cathode bypass
+  - { ref: C6,  a: [0, 15], b: [0, 16], nudge: [40, 44] }  # 25 µF 6V6 cathode bypass (label nudged right/down, clear of R9)
   # coupling caps: V1B→6V6 grid, V1A→tone/volume network
   - { ref: C5,  a: [0, 17], b: [0, 18] }   # 0.02 µF V1B → 6V6 grid
   - { ref: C2,  a: [0, 19], b: [0, 20] }   # 0.02 µF V1A → tone/volume network
@@ -64,7 +64,7 @@ parts:
   - { ref: R2,  a: [1, 27], b: [1, 28] }   # 68k grid stopper, jack 2 (low)
   # V1A cathode bias (bypassed) — far right, nearest the 12AX7 socket
   - { ref: R5,  a: [0, 29], b: [1, 29] }   # 1.5k V1A cathode (vertical)
-  - { ref: C1,  a: [0, 30], b: [0, 31], nudge: [0, 26] }   # 25 µF V1A cathode bypass
+  - { ref: C1,  a: [0, 30], b: [0, 31], nudge: [24, 26] }  # 25 µF V1A cathode bypass (label nudged right, clear of R5)
 
 offboard:
   - { id: PT,  kind: xfmr, edge: left,   at: 0.5, label: "Power trans" }
