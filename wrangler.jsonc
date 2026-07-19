@@ -5,12 +5,15 @@
   // (which is also what Workers Builds runs on every push to main).
   // Local: cd site && npm run dev   ·   Deploy: npx wrangler deploy
   "name": "circuit-codex",
+  "main": "worker/index.js",
   "compatibility_date": "2026-07-18",
   "build": {
     "command": "cd site && npm ci && npm run build",
     "watch_dir": "site/src"
   },
   "assets": {
-    "directory": "./site/dist"
+    "directory": "./site/dist",
+    "binding": "ASSETS",
+    "run_worker_first": true
   }
 }
