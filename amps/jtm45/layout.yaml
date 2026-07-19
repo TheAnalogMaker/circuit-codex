@@ -19,7 +19,7 @@ board:
   rows: 2
   cols: 64
   title: "JTM45 · turret board layout (derived)"
-caption: "Layout derived from the schematic — no factory layout sheet located. The Marshall JTM45 was a turret-board amp with no Fender-style published layout drawing; Dr. Tube (the schematic source) and a web/browser probe were checked on 2026-07-18 and served none. Board order and point-to-point wiring are reconstructed from schematic.kicad_sch / netlist.cir and follow the Fender 5F6-A layout this circuit copies. All hookup and transformer leads are drawn in the neutral tone: with no layout sheet, no lead colours are asserted (Marshall/Drake colour codes cannot be sourced here). The TMB tone-stack caps (C4/C5/C6) mount at the tone pots; the input grid stoppers (R1s/R2s 68k) and grid leaks (RG1/RG2 1M) sit at the input jacks; the 27k negative-feedback resistor and 5k presence control (with its 0.01µF cap) join the phase-inverter tail foot off-board. Not a trace or a dimensioned reproduction."
+caption: "Layout derived from the schematic — no factory layout sheet located. The Marshall JTM45 was a turret-board amp with no Fender-style published layout drawing; Dr. Tube (the schematic source) and a web/browser probe were checked on 2026-07-18 and served none. Board order and point-to-point wiring are reconstructed from schematic.kicad_sch / netlist.cir and follow the Fender 5F6-A layout this circuit copies. All hookup and transformer leads are drawn in the neutral tone: with no layout sheet, no lead colours are asserted (Marshall/Drake colour codes cannot be sourced here). The TMB tone-stack caps (C4/C5/C6) mount at the tone pots; the input grid stoppers (R1s/R2s 68k) and grid leaks (RG1/RG2 1M) sit at the input jacks; the 27k negative-feedback resistor and 5k presence control (with its 0.01µF cap) join the phase-inverter tail foot off-board. The 6.3 V heater chain (green twisted pair, PT → pilot lamp → the two KT66 outputs → the ECC83 phase inverter → the ECC83 driver → the ECC83 input, skipping the directly-heated GZ34) is likewise derived: with no layout sheet its daisy order is the physical socket order and the twisted-pair green is the house heater idiom, not a sourced wire colour (no winding centre-tap arrangement is asserted). Not a trace or a dimensioned reproduction."
 source:
   desc: "Marshall JTM45 factory schematic ('Basic schematic for Marshall trem amps, types 1961, 1962, 1987/T') — layout derived from this schematic; no factory layout sheet located"
   url: "https://www.drtube.com/schematics/marshall/jtm45tr.gif"
@@ -79,6 +79,7 @@ parts:
 offboard:
   - { id: PT,  kind: xfmr,  edge: left,   at: 0.3, label: "Power trans" }
   - { id: L1,  ref: L1, kind: choke, edge: left, at: 1.5, label: "Choke" }
+  - { id: PL1, kind: part, glyph: lamp, edge: left, at: 2.6, label: "Pilot lamp" }
   - { id: V7,  ref: V7, kind: tube, edge: bottom, at: 3,    label: "V7 · GZ34" }
   - { id: V5,  ref: V5, kind: tube, edge: bottom, at: 20,   label: "V5 · KT66" }
   - { id: V6,  ref: V6, kind: tube, edge: bottom, at: 27,   label: "V6 · KT66" }
@@ -104,9 +105,13 @@ bus:
 
 # Wiring — reconstructed lead-by-lead from schematic.kicad_sch / netlist.cir
 # (the electrical authority). No factory layout sheet was located, so every lead
-# is drawn in the neutral hookup tone: no wire colours are asserted. `via`
+# is drawn in the neutral hookup tone: no wire colours are asserted. The one
+# exception is the 6.3 V heater chain, drawn as the house green twisted-pair idiom
+# (style: twisted) with its daisy order taken from the physical socket order — a
+# standard-practice reconstruction, not a sourced routing or wire colour. `via`
 # waypoints are [col, row]; row<0 routes above the board, row>1 below it. Tube
-# socket pins (Vn.pinN) are validated against reference/tubes basing.
+# socket pins (Vn.pinN) are validated against reference/tubes basing (heater pins
+# on the twisted runs).
 runs:
   # --- power-transformer secondary -> GZ34 rectifier --------------------------
   - { from: PT.ht1,  to: V7.pin4 }                 # HT plate 1 (360 V)
@@ -226,3 +231,18 @@ runs:
   # --- presence control (5k, off-board) at the phase-inverter tail foot -------
   - { from: VRP.lug3, to: RT2.a, via: [[40, -0.78], [42.5, -0.78]] } # presence -> tail junction
   - { from: VRP.lug1, to: [1.45, 40] }             # presence ground
+
+  # --- 6.3 V heater chain (green twisted pair, standard-practice / derived) ---
+  # No factory layout sheet exists, so the daisy order is the physical socket
+  # order: PT heater winding -> pilot lamp -> the two KT66 outputs -> the ECC83
+  # phase inverter -> the ECC83 driver -> the ECC83 input, skipping the directly-
+  # heated GZ34 (5 V winding). The twisted-pair green is the house heater idiom,
+  # not a sourced wire colour, and no centre-tap arrangement is asserted. Twisted
+  # runs land only on heater pins (KT66 octal 2/7, ECC83 noval 4/5), routed in a
+  # deep lane below the output harness.
+  - { from: PT.heat, to: PL1.a, style: twisted }                                    # 6.3 V -> pilot lamp
+  - { from: PL1.b, to: V5.pin7, style: twisted, via: [[-1.4, 3.7], [20, 3.7]] }     # lamp -> V5 KT66 heater
+  - { from: V5.pin2, to: V6.pin7, style: twisted, via: [[20, 3.72], [27, 3.72]] }   # V5 -> V6 KT66 heater
+  - { from: V6.pin2, to: V4.pin4, style: twisted, via: [[27, 3.74], [37, 3.74]] }   # V6 -> V4 ECC83 heater
+  - { from: V4.pin5, to: V3.pin4, style: twisted, via: [[37, 3.7], [50, 3.7]] }     # V4 -> V3 ECC83 heater
+  - { from: V3.pin5, to: V1.pin4, style: twisted, via: [[50, 3.7], [59, 3.7]] }     # V3 -> V1 ECC83 heater
