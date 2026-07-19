@@ -1,8 +1,10 @@
 # Board layout — redrawn from the published Fender 'Champ-Amp' 5F1 layout
-# drawing (K-EE). Part refs are the shared key into bom.yaml; the renderer reads
-# each value and part type from there. This is a legible, schematic-style redraw
-# of the board's principal components in the order the drawing shows them — never
-# a trace or a dimensioned reproduction.
+# drawing (K-EE), page 2 of the same PDF as the schematic (no separate
+# "_layout.pdf" exists on the archive; probed and confirmed 2026-07-18 — see
+# meta.yaml sources). Part refs are the shared key into bom.yaml; the renderer
+# reads each value and part type from there. This is a legible, schematic-style
+# redraw of the board's principal components in the order the drawing shows
+# them — never a trace or a dimensioned reproduction.
 #
 # Board reads left→right: rectifier/filter end at the left, input stage at the
 # right (the tube row on the drawing runs 5Y3GT · 6V6GT · 12AX7 the same way).
@@ -10,7 +12,7 @@ board:
   rows: 2
   cols: 20
   title: "5F1 · eyelet board layout"
-caption: "Redrawn from the published Fender 5F1 layout drawing (K-EE) — principal board components, in the order the drawing shows them. Not a trace or a dimensioned reproduction."
+caption: "Redrawn from the published Fender 5F1 layout drawing (K-EE), page 2 — principal board components and point-to-point wiring, in the order and connections the drawing shows. The drawing's two-jack \"linked input\" pad (two 68k resistors + jack-normalling contacts converging on one node) is represented through the single 68k (R3) already modeled in bom.yaml/schematic.kicad_sch, matching that simplification. Not a trace or a dimensioned reproduction."
 source:
   desc: "Fender 'Champ-Amp' Model 5F1 layout drawing (K-EE), page 2"
   url: "https://el34world.com/charts/Schematics/files/Fender/Fender_champ_5f1_schem.pdf"
@@ -33,7 +35,7 @@ parts:
   # preamp: two 12AX7 gain stages
   - { ref: R7,  a: [1, 13], b: [1, 14] }   # 100k V1B plate load
   - { ref: R6,  a: [0, 12], b: [1, 12] }   # 1.5k V1B cathode (vertical leg)
-  - { ref: R5,  a: [1, 15], b: [1, 16] }   # 100k V1A plate load
+  - { ref: R5,  a: [1, 15], b: [1, 17] }   # 100k V1A plate load (b nudged off R4's column — see notes)
   - { ref: R4,  a: [0, 16], b: [1, 16] }   # 1.5k V1A cathode (vertical leg)
   - { ref: C1,  a: [0, 17], b: [0, 19] }   # 0.02 µF coupler, V1A → volume
   - { ref: R3,  a: [1, 18], b: [1, 19] }   # 68k input grid stopper
@@ -51,3 +53,80 @@ offboard:
   - { id: J1,  kind: jack, edge: top, at: 16,   label: "In 1" }
   - { id: J2,  kind: jack, edge: top, at: 18,   label: "In 2" }
   - { id: T2,  ref: T2, kind: xfmr, edge: right, at: 0.5, label: "Output trans" }
+
+# Ground bus — the bare-wire rail running the length of the board just below
+# the bottom eyelet row; cathode, filter, grid-leak, and pot grounds all tie
+# to it.
+bus:
+  - { from: [1.45, -0.4], to: [1.45, 19.4] }
+
+# Wiring — read lead-by-lead from the published 5F1 layout drawing (K-EE,
+# page 2). The power-transformer secondary leads carry the colours marked on
+# that drawing (black/green primary + 6.3 V filament leads omitted — fuse,
+# pilot lamp, and heater wiring aren't modeled anywhere else in this amp's
+# data, matching schematic.kicad_sch's own "heaters and PT primary omitted"
+# note). The output transformer's plate lead is legibly marked "BLUE" on the
+# drawing; its other primary lead and both secondary leads aren't legibly
+# coloured on this scan, so they stay in the neutral hookup tone rather than
+# guessing. Endpoints reference board eyelets (REF.a/REF.b), tube socket pins
+# (Vn.pinN, validated against reference/tubes basing), pot lugs, jacks, and
+# transformer leads.
+#
+# Known gap: R1 (1 MΩ grid leak, already in bom.yaml/schematic.kicad_sch) is
+# chassis-mounted near the input jacks per the drawing, but has no position
+# in this layout's parts/offboard yet — and the renderer's offboard endpoint
+# addressing only resolves a single point for a generic (non tube/pot/jack/
+# xfmr) item, so a real 2-lead resistor can't be wired cleanly without a
+# board position. Left unwired here rather than fudging it; flagged for a
+# follow-up placement fix.
+runs:
+  # --- power transformer secondary → 5Y3GT rectifier (marked colours) -------
+  - { from: PT.red1, to: V3.pin4 }                # HT plate 1
+  - { from: PT.red2, to: V3.pin6 }                # HT plate 2
+  - { from: PT.red-yellow, to: [1.45, 0.5] }      # HT centre tap → ground bus
+  - { from: PT.yellow1, to: V3.pin2 }             # 5 V rectifier filament
+  - { from: PT.yellow2, to: V3.pin8 }             # 5 V rectifier filament / B+
+  - { from: V3.pin8, to: C5.a, color: red, via: [[2, 1.55]] }   # B+ out → first filter
+
+  # --- filtered B+ rail (16 µF / 8 µF / 8 µF, 10k then 22k droppers) --------
+  - { from: C5.a, to: R10.a }                     # B+1 → 10k dropper
+  - { from: R10.b, to: C7.a }                     # → B+2
+  - { from: C7.a, to: R11.a }                     # B+2 → 22k dropper
+  - { from: R11.b, to: C8.a }                     # → B+3
+  - { from: C5.b, to: [1.45, 1] }                 # filter negatives → ground bus
+  - { from: C7.b, to: [1.45, 4] }
+  - { from: C8.b, to: [1.45, 7] }
+
+  # --- 6V6GT output stage (cathode-biased, single-ended) --------------------
+  - { from: V2.pin8, to: R8.a, via: [[9, 1.6]] }        # 6V6 cathode → 470 Ω
+  - { from: R8.b, to: [1.45, 9] }                        # 470 Ω → ground bus
+  - { from: C6.a, to: R8.a }                             # cathode bypass across 470 Ω
+  - { from: C6.b, to: [1.45, 10.3] }
+  - { from: V2.pin4, to: C7.a, via: [[8, 1.7], [4.5, 1.7]] }   # screen → B+2
+  - { from: V2.pin3, to: T2.blue, via: [[8, 1.85], [19.5, 1.85]] }      # plate → OT primary (blue)
+  - { from: T2.bplus, to: C5.a, via: [[19.5, 1.95], [10, 1.95], [2.5, 1.95]] }  # OT primary → B+1
+  - { from: R9.a, to: V2.pin5, via: [[10.5, 1.5]] }      # grid leak → 6V6 grid
+  - { from: R9.b, to: [1.45, 11] }                       # grid leak → ground bus
+
+  # --- V1B driver stage (12AX7, second half) --------------------------------
+  - { from: V1.pin1, to: R7.a, via: [[17, 1.7]] }        # V1B plate → 100k load
+  - { from: R7.a, to: C3.a }                             # plate node → coupler
+  - { from: R7.b, to: C8.a, via: [[14, 1.6], [7, 1.6]] } # plate load → B+3
+  - { from: C3.b, to: R9.a, via: [[15, -0.4], [11, -0.4]] }  # coupler → grid-leak node
+  - { from: V1.pin3, to: R6.a, via: [[17, 1.65]] }       # V1B cathode → 1.5k
+  - { from: R6.b, to: [1.45, 12] }                       # 1.5k → ground bus
+  - { from: SPK, to: R13.a, via: [[12.5, 1.85], [1, 1.85]] }   # speaker → NFB resistor
+  - { from: R13.b, to: R6.a, via: [[1, 1.75], [12, 1.75]] }    # NFB resistor → V1B cathode
+  - { from: VR1.lug2, to: V1.pin2, via: [[10, -0.45], [17.4, -0.35]] }  # volume wiper → V1B grid
+  - { from: VR1.lug1, to: [1.45, 10] }                   # volume ground
+
+  # --- V1A input stage (12AX7, first half) ----------------------------------
+  - { from: J1, to: R3.a, via: [[16, -0.4], [19.7, -0.35], [19.7, 1.5]] }   # In 1 → grid stopper
+  - { from: J2, to: R3.a, via: [[19.5, -0.4], [19.5, 1.55]] }               # In 2 → grid stopper
+  - { from: R3.b, to: V1.pin7, via: [[19, 1.7], [17, 1.7]] } # grid stopper → V1A grid
+  - { from: V1.pin6, to: R5.a, via: [[17, 1.5]] }        # V1A plate → 100k load
+  - { from: R5.b, to: C8.a, via: [[17, 1.55], [7, 1.55]] }   # plate load → B+3
+  - { from: V1.pin6, to: C1.a, via: [[17, 1.4]] }        # V1A plate → volume coupler
+  - { from: C1.b, to: VR1.lug3 }                          # coupler → volume input
+  - { from: V1.pin8, to: R4.a, via: [[17, 1.75]] }       # V1A cathode → 1.5k
+  - { from: R4.b, to: [1.45, 16] }                        # 1.5k → ground bus
