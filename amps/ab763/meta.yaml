@@ -11,7 +11,7 @@ topology:
   rectifier: { kind: tube, type: "GZ34" }
   bias: fixed
   phase_inverter: long-tailed-pair
-  tone_stack: fmv
+  tone_stack: tb
 lineage:
   derived_from: []   # the brown 6G3 Deluxe is the documented ancestor — edge lands when amps/6g3 does
   influenced: []

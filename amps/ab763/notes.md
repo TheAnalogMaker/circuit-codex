@@ -57,24 +57,25 @@ lineage graph when the 6G3 does.
 
 ## Reading against the printed chart
 
-The drawing prints a full voltage chart (its notice sets every value at ±20 %,
-read to ground with an electronic voltmeter). Simulation of the DC operating
-point tracks it across the modeled stages: the reverb-driver plate lands at
-+414 V against a printed +410 V, the phase-inverter plates and +77 V/+75.5 V tail
-fall within a tenth of the chart, the 6V6 screens sit at +415 V and their grids at
-the −35 V bias line. Two nodes are left off the gated comparison and stated for
-information only, for an honest reason each:
+The drawing prints a full voltage chart, every value set at ±20 %, read to ground
+with an electronic voltmeter. The simulated DC operating point tracks it across
+the modelled stages: the reverb-driver plate lands at +414 V against a printed
++410 V, the phase-inverter plates and the +77 V / +75.5 V tail fall within a tenth
+of the chart, and the 6V6 screens sit at +415 V with their grids on the −35 V bias
+line. Two nodes are reported for information only:
 
 - **The two channel-input plates.** Their supply rail is shared with the tremolo
-  oscillator. That oscillator is not part of the DC model (below), so the modeled
-  rail runs above the loaded factory value and the two input plates read high.
+  oscillator, a phase-shift oscillator that has no static operating point and so is
+  left out of the DC solution. With that load absent, the rail runs above its
+  loaded factory value and the two input plates read high — so the printed
+  +180 V / +170 V are shown for reference rather than compared.
 
-- **The tremolo oscillator itself is excluded.** A phase-shift oscillator has no
-  static operating point: its printed pins (+270 V plate, +2.1 V cathode) are the
-  running average a meter reads while it swings, biased by grid-leak detection. A
-  static solve of the printed 220 kΩ / 2.7 kΩ stage lands near +200 V — about a
-  quarter off the printed +270 V — so modeling it as a quiescent stage would
-  misrepresent it. It is documented here rather than force-fitted.
+- **The tremolo oscillator.** Its printed pins (+270 V plate, +2.1 V cathode) are
+  the running average a meter reads while it swings, set by grid-leak detection.
+  Solved as a quiescent stage, the 220 kΩ / 2.7 kΩ node sits near +200 V — about a
+  quarter below the printed +270 V — so it is reported rather than fitted to the
+  chart.
 
-This page is a draft: its operating point is simulated and reads true against the
-factory chart, but the circuit has not yet cleared the full verification pass.
+This is a draft page: the operating point is simulated and reads true against the
+factory chart, but the circuit has not yet been verified against a measured
+reference.
