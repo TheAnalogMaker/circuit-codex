@@ -9,17 +9,26 @@
 # (5Y3GT · 6V6GT · Spkr jack · 12AX7).
 #
 # Honesty notes on a few items the K-EG sheet does not draw as terminal-strip
-# bodies (kept as direct wiring runs instead, per the drawing itself):
+# bodies:
 #   - R3 (1 MΩ grid leak) is drawn standing across jack 1's own lugs, not on
-#     the strip. Modelled here as J1's ground return.
+#     the strip — modelled here as a standing off-board part (kind: part,
+#     two addressable terminals) wired J1 -> R3.a, R3.b -> ground, matching
+#     where the sheet actually shows it. A grid stopper carries no DC grid
+#     current, so R1 (jack 1's 68k stopper) is declared a net_map
+#     series_bridge — the netlist's own abstraction — reconciling R3's
+#     jack-side placement with the grid node the netlist ties it to.
 #   - R7 (1.5 kΩ, V1B's deliberately-unbypassed cathode) and R12 (22 kΩ
-#     speaker feedback) are not drawn as separate bodies — the sheet shows
-#     their resulting hookup wires arriving together at V1 pin 3 by way of
-#     the speaker-jack lug. The SPK→V1.pin3 and V1.pin3→ground runs below
-#     carry R12 and R7 in-line; there is no drawn body for either.
+#     speaker feedback) are likewise not drawn as strip bodies — the sheet
+#     shows their resulting hookup wires arriving together at V1 pin 3 by way
+#     of the speaker-jack lug. Both carry real DC bias current (R7 sets V1B's
+#     cathode voltage; R12 is the NFB path from the speaker), so — unlike a
+#     grid stopper — neither can be represented as a bare wire without turning
+#     it into a dead short. Both are modelled as standing off-board parts
+#     (kind: part): SPK -> R12.a -> R12.b -> V1.pin3 -> R7.a -> R7.b -> ground.
 #   - C3 (.005 µF) and C4 (500 pF) are drawn mounted at/between the tone and
 #     volume pot bodies, not on the strip — modelled as pot-lug runs with no
-#     board body, matching the sheet.
+#     board body, matching the sheet (both are DC-open at the netlist's
+#     operating point, so no in-line resistor honesty concern applies to them).
 # The output transformer is not drawn as its own symbol on this sheet (only
 # the power transformer gets one) — T2's position here (opposite the power
 # transformer, at the right edge) is a reasonable placement for legibility;
@@ -30,6 +39,14 @@
 # assignments below follow the standard Fender tweed convention used
 # throughout this era (also standard in the reference literature): V1A =
 # pins 6/7/8 (plate/grid/cathode), V1B = pins 1/2/3.
+
+# Machine-checked equivalence: the point-to-point wiring drawn below has been
+# verified electrically equivalent to the simulated netlist (netlist.cir) by
+# pipeline/verify_layout_nets.py — see the net_map block at the foot of this file
+# and docs/layout-schema.md. Heaters, the pilot lamp, and the PT/rectifier AC
+# side are an excluded annotation layer (not modelled in netlist.cir).
+wiring_claim: verified
+
 board:
   rows: 2
   cols: 32
@@ -75,9 +92,15 @@ offboard:
   - { id: V1,  ref: V1, kind: tube, edge: bottom, at: 27, label: "V1 · 12AX7" }
   - { id: VR2, ref: VR2, kind: pot, edge: top, at: 21, label: "Tone" }
   - { id: VR1, ref: VR1, kind: pot, edge: top, at: 24, label: "Volume" }
-  - { id: J1,  kind: jack, edge: top, at: 26, label: "In 1 · hi" }
+  - { id: J1,  kind: jack, edge: top, at: 26.8, label: "In 1 · hi" }
   - { id: J2,  kind: jack, edge: top, at: 28, label: "In 2 · lo" }
   - { id: T2,  ref: T2, kind: xfmr, edge: right, at: 0.5, label: "Output trans" }
+  # Standing (not strip-mounted) resistors — see the honesty notes at the top
+  # of this file. Each is a generic 2-lead off-board part so its two ends are
+  # distinct, addressable terminals rather than a bare pass-through wire.
+  - { id: R3,  ref: R3,  kind: part, edge: top,    at: 25.3, label: "R3" }   # 1M grid leak, standing at jack 1's lugs
+  - { id: R12, ref: R12, kind: part, edge: bottom, at: 22.5, label: "R12" }  # 22k NFB, speaker → V1B cathode
+  - { id: R7,  ref: R7,  kind: part, edge: bottom, at: 25.3, label: "R7" }   # 1.5k V1B cathode (unbypassed), standing at the socket lug
 
 # Ground bus — the bare-wire rail the drawing shows joining the filter-cap
 # grounds and R8's ground end; extended the length of the board (as the
@@ -105,72 +128,82 @@ bus:
 # 2-lead parts (PL1.a/PL1.b), and transformer leads.
 runs:
   # --- power transformer secondary → 5Y3GT rectifier (marked colours) ------
-  - { from: PT.red1,    to: V3.pin4 }                # HT plate 1
-  - { from: PT.red2,    to: V3.pin6 }                # HT plate 2
-  - { from: PT.yellow1, to: V3.pin2 }                # 5V rectifier filament
-  - { from: PT.yellow2, to: V3.pin8 }                # 5V rectifier filament / B+ out
-  - { from: V3.pin8, to: C7.a, via: [[2.5, 1.55]] }  # B+ out → first filter (B+1)
+  # The four secondary leads are fanned into distinct lanes as they leave the
+  # PT so no two read as one wire before they reach the rectifier pins.
+  - { from: PT.red1,    to: V3.pin4, via: [[1.4, 0.3]] }        # HT plate 1
+  - { from: PT.red2,    to: V3.pin6, via: [[2.3, 0.62]] }       # HT plate 2
+  - { from: PT.yellow1, to: V3.pin2, via: [[0.7, 1.25]] }       # 5V rectifier filament
+  - { from: PT.yellow2, to: V3.pin8, via: [[1.4, 1.75]] }       # 5V rectifier filament / B+ out
+  - { from: V3.pin8, to: C7.a, via: [[2.9, 1.9]] }  # B+ out → first filter (B+1, dips clear of the pin ring)
 
   # --- filtered B+ rail (32µF, 10k dropper, 8µF, 22k dropper, 8µF) ---------
-  - { from: C7.a,  to: C8.a }                        # both 16µF caps paralleled, B+1
+  - { from: C7.a,  to: C8.a, via: [[1, 0.15]] }      # both 16µF caps paralleled, B+1 (dipped clear of C7.b's eyelet)
   - { from: C8.a,  to: R10.a }                       # B+1 → 10k dropper
   - { from: R10.b, to: C9.a }                        # → B+2
   - { from: C9.a,  to: R11.a }                       # B+2 → 22k dropper
   - { from: R11.b, to: C10.a }                       # → B+3
-  - { from: C7.b,  to: [1.45, 0.5] }                 # filter negatives → ground bus
-  - { from: C8.b,  to: [1.45, 2.5] }
-  - { from: C9.b,  to: [1.45, 6.5] }
+  - { from: C7.b,  to: [1.45, -0.6], via: [[-0.6, 0.9]] }  # filter negatives → ground bus (left of the whole rectifier fan-out)
+  - { from: C8.b,  to: [1.45, 4.2], via: [[3.0, 1.0]] }
+  - { from: C9.b,  to: [1.45, 7.5] }
   - { from: C10.b, to: [1.45, 10.5] }
 
   # --- output stage: B+ taps, screen, plate/OT, cathode -------------------
-  - { from: C9.a,  to: V2.pin4, via: [[9, 2.3]] }    # B+2 → 6V6 screen
+  - { from: C9.a,  to: V2.pin4, via: [[7, 2.5]] }    # B+2 → 6V6 screen
   - { from: C10.a, to: R4.b, via: [[11, 1.65], [21.6, 1.65]] }  # B+3 → V1A plate load
-  - { from: R4.b,  to: R6.b }                        # both 100k plate loads share B+3
-  - { from: C7.a,  to: T2.pri_b, via: [[0.5, 2.6], [31.6, 2.6]] }   # B+1 → OT primary
-  - { from: T2.pri_p, to: V2.pin3, via: [[31.8, 2.75], [15, 2.75]] }  # OT primary → 6V6 plate
-  - { from: T2.sec_h, to: SPK }                      # OT secondary → speaker (+ feedback tap)
-  - { from: T2.sec_c, to: [1.45, 31] }                # OT secondary common → ground bus
-  - { from: SPK, to: V1.pin3, via: [[20, 2.9], [26.6, 2.9]] }  # feedback tap (R12, in-line)
-  - { from: V1.pin3, to: [1.45, 26.5], via: [[26.6, 2.0]] }    # V1B cathode → ground (R7, in-line)
+  - { from: R4.b,  to: R6.b, via: [[23, 1.15]] }     # both 100k plate loads share B+3 (dipped clear of R6.a's eyelet)
+  # Each of T2's four stacked leads gets its own short jog to a distinct
+  # column right at the transformer edge, then its own vertical drop at that
+  # column, before joining its own deep lane — so no two stacked leads' exit
+  # paths read as one wire.
+  - { from: C7.a,  to: T2.pri_b, via: [[0.5, 2.6], [31.9, 2.6], [31.9, 0.32]] }   # B+1 → OT primary
+  - { from: T2.pri_p, to: V2.pin3, via: [[31.3, 0.44], [31.3, 2.85], [15, 2.85]] }  # OT primary → 6V6 plate
+  - { from: T2.sec_h, to: SPK, via: [[29.9, 0.56], [29.9, 3.05]] }    # OT secondary → speaker (+ feedback tap)
+  - { from: T2.sec_c, to: [1.45, 31], via: [[29.7, 0.68], [29.7, 3.25]] }  # OT secondary common → ground bus
+  - { from: SPK, to: R12.a, via: [[20, 2.9], [22.5, 2.9]] }    # feedback tap → NFB resistor R12 (standing)
+  - { from: R12.b, to: V1.pin3, via: [[22.5, 2.8], [28, 2.8]] }  # R12 → V1B cathode
+  - { from: V1.pin3, to: R7.a, via: [[26.6, 2.0]] }            # V1B cathode → 1.5k R7 (standing, unbypassed)
+  - { from: R7.b, to: [1.45, 26.5] }                           # R7 → ground bus
 
   # --- 6V6 grid + cathode ---------------------------------------------------
-  - { from: R8.a, to: V2.pin5, via: [[12.5, 1.5]] }  # grid leak → 6V6 grid
+  - { from: R8.a, to: V2.pin5, via: [[13.5, 1.5]] }  # grid leak → 6V6 grid
   - { from: C5.b, to: R8.a }                          # coupler output shares the grid node
   - { from: R8.b, to: [1.45, 12.5] }                  # grid leak → ground bus
-  - { from: C5.a, to: V1.pin1, via: [[17.5, 1.6]] }   # coupler input ← V1B plate
+  - { from: C5.a, to: V1.pin1, via: [[17.5, 1.85]] }   # coupler input ← V1B plate
   - { from: V1.pin1, to: R6.a, via: [[27.3, 1.7]] }   # V1B plate → its 100k plate load
-  - { from: V2.pin8, to: R9.a, via: [[15, 1.65]] }    # 6V6 cathode → 470Ω
+  - { from: V2.pin8, to: R9.a, via: [[15, 1.9]] }    # 6V6 cathode → 470Ω (dips clear of the pin ring)
   - { from: R9.b, to: [1.45, 14] }                    # 470Ω → ground bus
   - { from: C6.a, to: R9.a }                          # cathode bypass across 470Ω
   - { from: C6.b, to: [1.45, 15.5] }
 
   # --- V1A stage → coupler → tone/volume network ---------------------------
-  - { from: V1.pin6, to: C2.a, via: [[27, 1.6]] }     # V1A plate → coupler
-  - { from: V1.pin6, to: R4.a, via: [[27, 1.65]] }    # V1A plate → 100k load
+  - { from: V1.pin6, to: C2.a, via: [[27.3, 1.5]] }   # V1A plate → coupler
+  - { from: V1.pin6, to: R4.a, via: [[26.7, 1.85]] }  # V1A plate → 100k load
   - { from: C2.b, to: VR1.lug1, via: [[20, -0.45], [24, -0.5]] }   # coupler → node X
 
   # tone network: VR2 wired as a variable resistor (wiper shorted to lug1),
   # C3 (.005µF, mounted at the pot per the drawing) in series from node X —
   # no board body for C3; this run stands in for it.
-  - { from: VR1.lug1, to: VR2.lug1, via: [[24, -0.6], [21, -0.6]] }  # node X → tone (C3 in-line)
+  - { from: VR1.lug1, to: VR2.lug1, via: [[22, -0.6], [21, -0.6]] }  # node X → tone (C3 in-line)
   - { from: VR2.lug1, to: VR2.lug2 }                  # wiper shorted to lug1 (rheostat)
-  - { from: VR2.lug3, to: [1.45, 21], via: [[21, -0.3]] }   # tone ground
+  - { from: VR2.lug3, to: [1.45, 20.3], via: [[21, -0.3]] }   # tone ground
 
   # C4 (500pF, mounted between the pots per the drawing) bypasses the volume
   # pot, node X → node Y — no board body for C4; this run stands in for it.
-  - { from: VR1.lug1, to: V1.pin2, via: [[24, -0.7], [27, -0.5]] }
-  - { from: VR1.lug2, to: V1.pin2, color: red, via: [[24, -0.4]] }  # wiper → V1B grid (marked RED)
-  - { from: VR1.lug3, to: [1.45, 24.5], via: [[24, -0.3]] }  # volume ground
+  - { from: VR1.lug1, to: V1.pin2, via: [[25, -0.55], [27, -0.5], [28, 2.15]] }
+  - { from: VR1.lug2, to: V1.pin2, color: red, via: [[24, -0.4], [26, 1.9]] }  # wiper → V1B grid (marked RED)
+  # (lug1 hooks in via col25.8, lug2 via col25 — distinct final approach lanes into pin2, clear of the adjacent V1.pin3 below it)
+  - { from: VR1.lug3, to: [1.45, 24.5], via: [[21, -0.3]] }  # volume ground
 
   # --- input stage: two jacks, shared 1MEG leak (standing at jack 1) -------
   - { from: J1, to: R1.a, via: [[26, -0.45]] }
   - { from: R1.b, to: V1.pin7, via: [[25.6, 1.6]] }   # stopper → V1A grid
   - { from: J2, to: R2.a, via: [[28, -0.45]] }
   - { from: R2.b, to: V1.pin7, via: [[27.6, 1.55]] }  # stopper → V1A grid
-  - { from: J1, to: [1.45, 25.5], via: [[26, -0.3]] }  # 1MEG grid leak (R3, in-line) → ground
+  - { from: J1, to: R3.a, via: [[24, -0.3]] }        # 1M grid leak R3, standing at jack 1's lugs
+  - { from: R3.b, to: [1.45, 20.5] }                   # R3 → ground bus
 
   # --- V1A cathode bias (bypassed) ------------------------------------------
-  - { from: V1.pin8, to: R5.a, via: [[29, 1.6]] }
+  - { from: V1.pin8, to: R5.a, via: [[29.5, 1.6]] }
   - { from: R5.b, to: [1.45, 29] }
   - { from: C1.a, to: R5.a }
   - { from: C1.b, to: [1.45, 30.5] }
@@ -187,4 +220,26 @@ runs:
 
   # 12AX7 heater centre tap (pin 9), grounded directly at the socket per the
   # sheet's own ground mark there -- no CT resistors are shown or in the BOM.
-  - { from: V1.pin9, to: [1.45, 27.5], via: [[27.5, 2.0]] }
+  - { from: V1.pin9, to: [1.45, 27.5], via: [[28.5, 2.0]] }
+
+# net_map — the reviewable data layer that reconciles the drawn wiring with the
+# DC-operating-point netlist (netlist.cir) for pipeline/verify_layout_nets.py.
+# Every entry records a documented abstraction the netlist makes, so the
+# equivalence check never has to guess in code. See docs/layout-schema.md.
+net_map:
+  # Terminals the netlist gives no discrete node to reach on their own —
+  # anchored to the netlist node they belong to. Two leads anchored to the
+  # SAME node declare a DC bridge the netlist collapses.
+  anchors:
+    T2.pri_p: BP1   # OT primary, plate lead — netlist omits OT primary DCR (6V6 plate node = BP1)
+    T2.pri_b: BP1   # OT primary, B+ lead — already on the board's B+1 net; anchor makes the bridge explicit
+    SPK: "0"        # speaker jack — the netlist folds the OT-secondary DCR (~0 Ω) into ground,
+                    #   so R12's feedback return reads as ground at DC
+  # DC-transparent series parts the netlist omits (no DC grid current -> zero
+  # drop): their two leads are shorted so the netlist node runs through them.
+  series_bridge:
+    R1: "68 kΩ grid stopper, jack 1 — omitted from netlist (no DC grid current); bridges R3's jack-lug placement to the grid node G1A"
+  # Netlist elements with no discrete board part — reported in coverage, never a
+  # failure (their nodes still have to check out).
+  netlist_unplaced:
+    RVOL: "1 M volume pot VR1 — netlist models the pot as a grid-leak (G1B -> 0); its wiper->grid tie is verified at the grid net"
