@@ -13,6 +13,6 @@
 # already electrically verified (wiring_claim: verified) — only the collision
 # lint is outstanding.
 waivers:
-  5f4:   "pending legibility remediation 2026-07-19 (wiring verified; lint ~50% remediated)"
-  5f6a:  "pending legibility remediation 2026-07-19 (wiring verified)"
-  jtm45: "pending legibility remediation 2026-07-19 (wiring verified)"
+  5f4:   "pending legibility remediation 2026-07-19 (wiring verified under hardened gate; lint ~50% remediated)"
+  5f6a:  "pending legibility remediation 2026-07-19 (wiring verified under hardened gate)"
+  jtm45: "pending legibility remediation 2026-07-19 (wiring verified under hardened gate; ECC83 sockets corrected 8->9 pin, via re-tuning outstanding)"

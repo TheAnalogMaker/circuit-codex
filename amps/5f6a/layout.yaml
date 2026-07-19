@@ -20,6 +20,11 @@ source:
 
 # Wiring proven electrically equivalent to the verified netlist by
 # pipeline/verify_layout_nets.py (see the net_map block at the foot of this file).
+# Re-earned 2026-07-19 under the HARDENED gate: all six preamp/PI sections and
+# both 5881 outputs anchor by basing (0 UNANCHORED), the PI-plate→output-grid
+# couplers (C8/C9) are checked as real parts (so a crossed-output or
+# coupler-to-wrong-grid fault fails), and the twisted heater runs are validated.
+wiring_claim: verified
 
 parts:
   # bias supply + main filter cans + rail droppers (power end, left)

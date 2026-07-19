@@ -18,6 +18,11 @@
 # side, the bias-supply selenium network, and the OT-secondary / NFB / presence
 # network (all ~0 V DC) are an excluded annotation layer (not modelled in
 # netlist.cir).
+# Re-earned 2026-07-19 under the HARDENED equivalence gate: all six 12AY7/12AX7
+# preamp+PI sections and both 6L6G outputs anchor by basing (0 UNANCHORED), the
+# PI-plate→output-grid couplers (C9/C10) and grid stoppers (R5s/R6s) are checked
+# as real parts, and the twisted heater runs are validated onto heater pins.
+wiring_claim: verified
 
 board:
   rows: 2

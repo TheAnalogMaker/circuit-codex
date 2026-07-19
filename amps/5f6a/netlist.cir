@@ -41,10 +41,10 @@ RKCF KCF 0 100k
 * Long-tailed-pair phase inverter (82k/100k 5% plates, 470R + 10k tail,
 * both 1M grid leaks to the tail junction; NFB 27k + presence 5k at the foot)
 RLA BP3 PPIA 82k
-XPIA PPIA GPIA KPI 12AX7
+XV3A PPIA GPIA KPI 12AX7
 RGA GPIA JPI 1meg
 RLB BP3 PPIB 100k
-XPIB PPIB GPIB KPI 12AX7
+XV3B PPIB GPIB KPI 12AX7
 RGB GPIB JPI 1meg
 RTAIL KPI JPI 470
 RT2 JPI 0 10k
@@ -64,3 +64,10 @@ RS1 BP2 S51 470
 RGL2 NBIAS G52 220k
 XV5 BP1 S52 G52 0 5881
 RS2 BP2 S52 470
+* PI-plate -> output-grid coupling caps (0.1u, DC-open). Modelled so the layout-
+* equivalence gate checks the inter-stage routing and push-pull phase natively:
+* C8 carries V3A (82k plate) to the V4 grid, C9 carries V3B (100k plate) to the
+* V5 grid. At DC each grid still sits at the -48 V bias node through its 220k
+* leak (no grid current), so these add no DC loading and the op point is unmoved.
+C8 PPIA G51 0.1u
+C9 PPIB G52 0.1u

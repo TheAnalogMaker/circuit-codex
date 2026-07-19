@@ -47,10 +47,10 @@ RKCF KCF 0 100k
 * (the drawing's elevated +55 V cathodes / +53.3 V junction). Input coupled
 * from the tone stack (cap open at DC); NFB 56k + 5k presence sit at ~0 V DC.
 RLA BP3 PPIA 56k
-XPIA PPIA GPIA KPI 12AX7
+XV3A PPIA GPIA KPI 12AX7
 RGA GPIA JPI 1meg
 RLB BP3 PPIB 100k
-XPIB PPIB GPIB KPI 12AX7
+XV3B PPIB GPIB KPI 12AX7
 RGB GPIB JPI 1meg
 RTAIL KPI JPI 1.5k
 RT2 JPI 0 56k
@@ -61,3 +61,12 @@ RGL1 NBIAS G51 220k
 XV4 BP1 BP2 G51 0 5881
 RGL2 NBIAS G52 220k
 XV5 BP1 BP2 G52 0 5881
+* PI-plate -> output-grid drive: 0.1u coupling caps (C9/C10, DC-open) + 1.5k grid
+* stoppers (R5s/R6s). Modelled so the layout-equivalence gate checks the inter-
+* stage routing and push-pull phase natively (C9 carries V3A/56k plate to the V4
+* grid, C10 carries V3B/100k plate to the V5 grid). Grid current is ~0, so each
+* grid still sits at the -40 V bias node through its 220k leak; op point unmoved.
+C9 PPIA NG51 0.1u
+R5s NG51 G51 1.5k
+C10 PPIB NG52 0.1u
+R6s NG52 G52 1.5k

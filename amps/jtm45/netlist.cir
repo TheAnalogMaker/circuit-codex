@@ -55,14 +55,29 @@ RGA GPIA JPI 1meg
 RLB BP3 PPIB 100k
 XV4B PPIB GPIB KPI 12AX7
 RGB GPIB JPI 1meg
+* C8: V4B grid AC-grounded to the tail junction (0.1u, DC-open). Both ends are
+* real netlist nodes (GPIB == JPI at DC through RGB), so modelling it lets the
+* gate check the cap actually lands on the tail junction, not elsewhere.
+C8 GPIB JPI 0.1u
 RTAIL KPI JPI 470
 RT2 JPI 0 10k
 * 27k negative-feedback resistor and 5k presence pot join the tail foot at
 * ~0 V DC (speaker/pot returns) — DC-neutral, omitted here.
 
-* KT66 pair — fixed bias from the -50 V line, 1k 2W screen resistors, cathodes
-* grounded. Plates sit at B+1 (OT primary DCR omitted).
-XV5 BP1 S5 NBIAS 0 KT66
+* KT66 pair — fixed bias via 220k grid leaks (RGL1/RGL2) from the -50 V line,
+* 1k 2W screen resistors, cathodes grounded. Plates sit at B+1 (OT primary DCR
+* omitted). The PI plates couple to the grids through 0.1u caps (C9/C10) + 33k
+* grid stoppers (R5s/R6s): modelled so the layout-equivalence gate checks the
+* inter-stage routing and push-pull phase natively (each output grid is its own
+* node G5/G6, not the shared bias rail). Grid current is ~0, so each grid still
+* sits at the -50 V bias node through its leak and the DC op point is unmoved.
+C9 PPIA NG5 0.1u
+R5s NG5 G5 33k
+RGL1 G5 NBIAS 220k
+XV5 BP1 S5 G5 0 KT66
 RS1 BP2 S5 1k
-XV6 BP1 S6 NBIAS 0 KT66
+C10 PPIB NG6 0.1u
+R6s NG6 G6 33k
+RGL2 G6 NBIAS 220k
+XV6 BP1 S6 G6 0 KT66
 RS2 BP2 S6 1k

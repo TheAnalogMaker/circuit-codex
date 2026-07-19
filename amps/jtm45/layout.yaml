@@ -26,6 +26,13 @@ source:
 
 # Wiring proven electrically equivalent to the verified netlist by
 # pipeline/verify_layout_nets.py (see the net_map block at the foot of this file).
+# Re-earned 2026-07-19 under the HARDENED gate: the ECC83 valve-alias now
+# resolves, so all three ECC83 dual-triodes (input, driver+CF, phase inverter)
+# anchor by basing alongside the two KT66 outputs (0 UNANCHORED — the whole
+# preamp+PI is checked, not silently skipped). The output grids are un-collapsed
+# to distinct nodes and their PI-plate couplers (C9/C10), grid stoppers (R5s/R6s)
+# and 220k grid leaks (RGL1/RGL2) are checked as real parts.
+wiring_claim: verified
 
 # Board-mounted parts. a / b are eyelet endpoints [row, col]; the body is drawn
 # between them (same row = axial part; shared column across rows = vertical leg).
@@ -268,13 +275,12 @@ net_map:
     T3.pb: BP1       # V6 KT66 plate → OT primary
     T3.ct: BP1       # OT primary centre tap → B+1
     SPK: "0"         # speaker jack — OT-secondary DCR folded into ground (the NFB return reads as ground at DC)
-  # DC-transparent parts the netlist omits: their leads are shorted so the
-  # netlist node runs through them. The KT66 grid leaks carry no DC (grid current
-  # ≈ 0), so each output grid sits at the −50 V bias node the netlist wires it to
-  # directly (XV5/XV6 grid == NBIAS).
-  series_bridge:
-    RGL1: "220k V5 KT66 grid leak — no DC grid current, grid sits at the −50 V bias node (NBIAS)"
-    RGL2: "220k V6 KT66 grid leak — no DC grid current, grid sits at the −50 V bias node (NBIAS)"
+  # (The 220k KT66 grid leaks RGL1/RGL2 are now MODELLED resistors in netlist.cir
+  # — G5/G6 → NBIAS — together with the 0.1u PI-plate coupling caps C9/C10 and the
+  # 33k grid stoppers R5s/R6s, so the whole push-pull output-grid drive is checked
+  # natively. They are no longer series-bridged: bridging them would short both
+  # grids onto the bias rail and hide a crossed-output or coupler-to-wrong-grid
+  # fault, which is exactly the escape the hardened gate closes.)
   # Netlist elements with no discrete same-named board part — reported in
   # coverage, never a failure (their nodes still have to check out).
   netlist_unplaced:
