@@ -998,6 +998,18 @@ class Renderer:
             y = self.ey(0) + at * ROWGAP
         return x, y
 
+    def _edge_safe(self, cx, s, size, mono, pad=12):
+        """Placement for a label centred at cx that must stay inside the canvas.
+        Keeps it centred when it fits; otherwise right- or left-aligns it to the
+        near border so a long sublabel (e.g. an off-board transformer on the
+        right edge) is never clipped. Returns (x, anchor)."""
+        halfw = len(str(s)) * size * (0.6 if mono else 0.55) / 2
+        if cx + halfw > self.width - pad:
+            return self.width - pad, "end"
+        if cx - halfw < pad:
+            return pad, "start"
+        return cx, "middle"
+
     def off_stub(self, item):
         kind = item.get("kind", "tube")
         label = item.get("label", item.get("id", ""))
@@ -1074,9 +1086,22 @@ class Renderer:
                            f'y2="{fmt(ey_)}" stroke="{wc}" stroke-width="2.6" '
                            f'stroke-linecap="round"/>')
                 els.append(term_dot(ex_, ey_, 2.4))
-            els.append(text(x, y + h / 2 + 14, label, INK, 11.5, spacing="0.04em"))
+            # Edge-safe placement: an off-board transformer near a side border can
+            # carry a sublabel wider than the gap to the canvas edge (the OT on the
+            # right edge). Keep the pair centred under the body where it fits; when
+            # the value would overflow, align the whole pair to the near border so
+            # nothing is clipped.
+            lab_x, lab_anchor = x, "middle"
+            val_x, val_anchor = x, "middle"
             if val:
-                els.append(text(x, y + h / 2 + 27, val, MUTED, 10.5, font=FONT_MONO, weight=500))
+                val_x, val_anchor = self._edge_safe(x, val, 10.5, True)
+                if val_anchor != "middle":
+                    lab_x, lab_anchor = val_x, val_anchor
+            els.append(text(lab_x, y + h / 2 + 14, label, INK, 11.5, spacing="0.04em",
+                            anchor=lab_anchor))
+            if val:
+                els.append(text(val_x, y + h / 2 + 27, val, MUTED, 10.5, font=FONT_MONO,
+                                weight=500, anchor=val_anchor))
         elif kind == "part":
             els += self._part_glyph(item, x, y, label, val)
         else:  # switch / fuse / misc
