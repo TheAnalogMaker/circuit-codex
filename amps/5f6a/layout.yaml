@@ -13,7 +13,7 @@ board:
   rows: 2
   cols: 43
   title: "5F6-A · eyelet board layout"
-caption: "Redrawn from the published Fender 5F6-A layout drawing (I-EG) — principal board components and their hookup, in the order the drawing shows them. The four-jack input network's 68 kΩ grid stoppers and 1 MΩ leaks, the cathode-follower load, and the tone-stack capacitors (which mount at the pots) are drawn schematically or omitted for legibility; the power-transformer primary and 6.3 V heater leads are chassis wiring, off the board. Not a trace or a dimensioned reproduction."
+caption: "Redrawn from the published Fender 5F6-A layout drawing (I-EG) — principal board components and their hookup, in the order the drawing shows them. The four-jack input network's 68 kΩ grid stoppers, the cathode-follower load, and the tone-stack capacitors (which mount at the pots) are drawn schematically or omitted for legibility; the 1 MΩ input grid leaks (RG1 bright, RG2 normal) are placed at their input jacks. The 6.3 V heater chain (green twisted pair, PT → pilot lamp → the two 5881 outputs → the two 12AX7s → 12AY7 input) is routed as the published sheet shows it, with the green-yellow winding centre tap grounded at the chassis; the GZ34 rectifier is directly heated from the 5 V winding and off the 6.3 V chain. The power-transformer primary leads land on chassis switches, off the board. Not a trace or a dimensioned reproduction."
 source:
   desc: "Fender 'Bassman' Model 5F6-A layout drawing (I-EG), page 1"
   url: "https://el34world.com/charts/Schematics/files/Fender/Fender_bassman_5f6a.pdf"
@@ -64,6 +64,7 @@ parts:
 offboard:
   - { id: PT,   kind: xfmr, edge: left,  at: 0.2, label: "Power trans" }
   - { id: L1,   ref: L1, kind: choke, edge: left, at: 1.4, label: "Choke" }
+  - { id: PL1,  kind: part, glyph: lamp, edge: left, at: 2.5, label: "Pilot lamp" }
   - { id: V6,   ref: V6, kind: tube, edge: bottom, at: 2.5,  label: "V6 · GZ34" }
   - { id: V4,   ref: V4, kind: tube, edge: bottom, at: 6.5,  label: "V4 · 5881" }
   - { id: V5,   ref: V5, kind: tube, edge: bottom, at: 10.5, label: "V5 · 5881" }
@@ -79,6 +80,10 @@ offboard:
   - { id: VR2,  ref: VR2, kind: pot, edge: top, at: 28, label: "Vol · normal" }
   - { id: JB,   kind: jack, edge: top, at: 34, label: "Bright in" }
   - { id: JN,   kind: jack, edge: top, at: 40, label: "Normal in" }
+  # 1 MΩ input grid leaks (RG1 bright, RG2 normal) are chassis-mounted at the
+  # input jacks per the drawing — generic 2-lead off-board parts wired grid → gnd.
+  - { id: RG1,  ref: RG1, kind: part, edge: top, at: 35.6, label: "RG1" }
+  - { id: RG2,  ref: RG2, kind: part, edge: top, at: 41.0, label: "RG2" }
   - { id: T3,   ref: T3, kind: xfmr, edge: right, at: 0.5, label: "Output trans" }
 
 # Ground bus — the bare tinned rail running the length of the board just below
@@ -88,13 +93,16 @@ bus:
   - { from: [1.45, -0.4], to: [1.45, 42.4] }
 
 # Wiring — read lead-by-lead from the published 5F6-A layout drawing (I-EG). The
-# transformer leads carry the colours marked on that drawing; the PT primary
-# (black) and 6.3 V heater (green / green-yellow) leads land on chassis switches
-# and the tube heaters, not the board, so they are not drawn. Endpoints
-# reference board eyelets (REF.a/REF.b), tube socket pins (Vn.pinN, validated
-# against reference/tubes basing), pot lugs (VRn.lugN), jacks, choke/transformer
-# leads (by colour). `via` waypoints are [col, row]; row<0 routes above the
-# board, row>1 below it.
+# transformer leads carry the colours marked on that drawing. The 6.3 V heater
+# winding is the green pair; it feeds the pilot lamp and daisy-chains socket to
+# socket (rendered as a green twisted pair, style: twisted), with the green-yellow
+# winding centre tap grounded at the chassis as the sheet marks it. The PT primary
+# (black) leads land on chassis switches, not the board, so they are not drawn.
+# Endpoints reference board eyelets (REF.a/REF.b), tube socket pins (Vn.pinN,
+# validated against reference/tubes basing — heater pins on the twisted runs),
+# pot lugs (VRn.lugN), jacks, off-board 2-lead parts (RG1.a/RG1.b, PL1.a/PL1.b),
+# choke/transformer leads (by colour). `via` waypoints are [col, row]; row<0
+# routes above the board, row>1 below it.
 runs:
   # --- power transformer secondary → GZ34 rectifier (marked colours) ----------
   - { from: PT.red1, to: V6.pin4 }                 # HT plate 1 (325 V AC)
@@ -208,3 +216,28 @@ runs:
   # --- presence control (5k), at the phase-inverter tail foot -----------------
   - { from: VRP.lug3, to: RT2.a, via: [[4, -0.8], [25.5, -0.8]] } # presence → tail junction
   - { from: VRP.lug1, to: [1.45, 4] }              # presence ground
+
+  # --- input grid leaks (RG1 bright, RG2 normal), at the input jacks ----------
+  # 1 MΩ grid-to-ground leaks; RGn.a taps the jack (grid) node, RGn.b returns to
+  # the ground bus. They run above the board and drop to the bus at a clear col.
+  - { from: RG1.a, to: JB, via: [[35.6, -1.05], [34, -1.05]] }    # bright leak → input node
+  - { from: RG1.b, to: [1.45, 35.6], via: [[35.6, -1.2]] }        # bright leak → ground bus
+  - { from: RG2.a, to: JN, via: [[41.0, -1.05], [40, -1.05]] }    # normal leak → input node
+  - { from: RG2.b, to: [1.45, 42.2], via: [[41.0, -1.2], [42.2, -1.2]] }  # normal leak → ground bus
+
+  # --- 6.3 V heater chain (green twisted pair) -------------------------------
+  # Read from the published 5F6-A sheet (I-EG): the PT green pair feeds the pilot
+  # lamp and then daisy-chains socket to socket in the drawing's physical order —
+  # the two 5881 outputs, the two 12AX7s, the 12AY7 input. The GZ34 rectifier is
+  # directly heated off the 5 V winding, so it is not on this chain. The winding's
+  # green-yellow centre tap is grounded at the chassis, as the sheet marks it (no
+  # balancing resistors are drawn or in the BOM). Twisted runs land only on heater
+  # pins (5881 octal 2/7, noval 4/5), routed in a deep lane below the output
+  # harness.
+  - { from: PT.green, to: PL1.a, style: twisted }                                    # 6.3 V → pilot lamp
+  - { from: PL1.b, to: V4.pin7, style: twisted, via: [[-1.4, 3.6], [6.5, 3.6]] }     # lamp → V4 5881 heater
+  - { from: V4.pin2, to: V5.pin7, style: twisted, via: [[6.5, 3.62], [10.5, 3.62]] } # V4 → V5 5881 heater
+  - { from: V5.pin2, to: V3.pin4, style: twisted, via: [[10.5, 3.64], [20, 3.64]] }  # V5 → V3 12AX7 heater
+  - { from: V3.pin5, to: V2.pin4, style: twisted, via: [[20, 3.6], [31, 3.6]] }      # V3 → V2 12AX7 heater
+  - { from: V2.pin5, to: V1.pin4, style: twisted, via: [[31, 3.6], [38, 3.6]] }      # V2 → V1 12AY7 heater
+  - { from: PT.green-yellow, to: [1.45, 0.3] }                                       # heater winding centre tap → ground (chassis)
