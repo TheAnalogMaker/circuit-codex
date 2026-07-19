@@ -1,0 +1,48 @@
+tube: 6l6g
+name: 6L6G
+also_known_as: [6L6, 6L6GA, 6L6GB, "6L6-family"]
+role: >-
+  Beam-power output tube — the original coke-bottle 6L6/6L6G, lettered on the
+  Fender 5F4 Super "C-EG" drawing. Fender equipped the tweed Super with the
+  ruggedized 5881 of the same family, so simulation borrows the 5881 model; the
+  basing below is the shared 6L6-family octal arrangement.
+model:
+  file: models/5881.inc
+  anchor: "shares the 5881/6L6GC family model (see reference/tubes/5881.yaml)"
+  anchor_source: "RCA Receiving Tube Manual RC-19, 1959, average characteristics (6L6 family)"
+  note: >-
+    No separate 6L6G SPICE model is carried; the 5F4 netlist instantiates the
+    5881 model for the output pair (see amps/5f4/notes.md). This entry exists so
+    the published-layout socket pins validate against the real 6L6G basing.
+basing:
+  code: 7AC
+  base: octal
+  view: bottom
+  source: >-
+    RCA 6L6G / 6L6GC data sheets ("Basing Designation for Bottom View ... 7AC");
+    the whole 6L6 family (6L6, 6L6G, 6L6GA/GB/GC, 5881, 7027) shares the JEDEC
+    7AC octal arrangement, cross-checked against the Tung-Sol 5881 bottom-view
+    diagram already carried in reference/tubes/5881.yaml.
+  pins:
+    1: { element: nc }
+    2: { element: heater }
+    3: { element: plate, hv: true }
+    4: { element: screen-grid, hv: true }
+    5: { element: grid }
+    6: { element: nc }
+    7: { element: heater }
+    8: { element: cathode, note: "internally tied to the beam-forming plates" }
+used_in: [5f4]
+datasheets:
+  - publisher: RCA
+    designation: 6L6G
+    url: https://frank.pocnet.net/sheets/049/6/6L6G.pdf
+    confidence: high
+  - publisher: RCA
+    designation: 6L6GC
+    url: https://frank.pocnet.net/sheets/049/6/6L6GC.pdf
+    confidence: high
+  - publisher: Tung-Sol
+    designation: "5881"
+    url: https://frank.pocnet.net/sheets/127/5/5881.pdf
+    confidence: high
