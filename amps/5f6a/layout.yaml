@@ -130,19 +130,19 @@ runs:
   - { from: RS1.a, to: C12.a, via: [[10, 0.55], [6, 0.55]] }  # screen resistor → B+2
   - { from: RS1.b, to: V4.pin4, via: [[11, 2.4], [6.5, 2.4]] }   # → V4 screen
   - { from: RS2.a, to: C12.a, via: [[14, 0.45], [6.3, 0.45]] } # screen resistor → B+2
-  - { from: RS2.b, to: V5.pin4, via: [[15, 2.4], [10.5, 2.4]] } # → V5 screen
+  - { from: RS2.b, to: V5.pin4, via: [[13.5, 2.4], [10.5, 2.4]] } # → V5 screen (drop pulled left, clear of the Spkr-jack label at col 15)
   - { from: C8.b, to: V4.pin5, via: [[18, 2.3], [6.5, 2.3]] }    # coupler → V4 grid
   - { from: RGL1.a, to: V4.pin5, via: [[8, 2.2], [6.5, 2.2]] }   # grid leak → V4 grid
   - { from: C9.b, to: V5.pin5, via: [[21, 2.5], [10.5, 2.5]] }   # coupler → V5 grid
   - { from: RGL2.a, to: V5.pin5, via: [[12, 2.2], [10.5, 2.2]] } # grid leak → V5 grid
-  - { from: V4.pin3, to: T3.blue, via: [[6.5, 2.7], [42, 2.7]] }   # V4 plate → OT primary
-  - { from: V5.pin3, to: T3.brown, via: [[10.5, 2.85], [42, 2.85]] } # V5 plate → OT primary
+  - { from: V4.pin3, to: T3.blue, via: [[4.3, 2.7], [42, 2.7]] }   # V4 plate → OT primary (drop left of the V4 label)
+  - { from: V5.pin3, to: T3.brown, via: [[7.7, 2.85], [42, 2.85]] } # V5 plate → OT primary (drop left of the V5 label)
   - { from: T3.red, to: C11.a, color: red, via: [[42, 2.6], [3.2, 2.6]] } # OT centre tap → B+1
   - { from: V4.pin8, to: [1.45, 6.5] }             # V4 cathode → ground (fixed bias)
   - { from: V5.pin8, to: [1.45, 10.5] }            # V5 cathode → ground
-  - { from: T3.black, to: SPK, via: [[42, 3.05], [15, 3.05]] }    # OT secondary → speaker
-  - { from: T3.green, to: SPK, via: [[42, 3.2], [15, 3.2]] }      # OT secondary → speaker
-  - { from: SPK, to: RT2.a, via: [[15, 3.35], [25, 3.35]] }       # 27k NFB (off-board) → tail junction
+  - { from: T3.black, to: SPK, via: [[42, 3.05], [16.5, 3.05], [16.5, 1.86]] }  # OT secondary → speaker (up the right of the Spkr label)
+  - { from: T3.green, to: SPK, via: [[42, 3.2], [17.0, 3.2], [17.0, 1.78]] }    # OT secondary → speaker (staggered right of label)
+  - { from: SPK, to: RT2.a, via: [[17.5, 1.94], [17.5, 3.35], [25, 3.35]] }     # 27k NFB (off-board) → tail junction (exits jack upper-right, clear of label)
 
   # --- long-tailed-pair phase inverter (V3) ---------------------------------
   - { from: RLA.a, to: C13.a, via: [[16, 0.62], [9, 0.62]] }  # 82k plate load → B+3
