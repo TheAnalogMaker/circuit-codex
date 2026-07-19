@@ -15,7 +15,7 @@ board:
   rows: 2
   cols: 49
   title: "5F4 · eyelet board layout"
-caption: "Redrawn from the published Fender 5F4 'Super-Amp' layout drawing (C-EG), page 1 — principal board components and their hookup, in the order the drawing shows them. The chassis has four input jacks (two per channel); the drawing's four 68 kΩ grid stoppers collapse to the two the schematic/BOM model (R1s, R2s) and the 1 MΩ input leaks mount at the jacks and are omitted for legibility. The treble/bass tone-stack capacitors (C5 250 pF, C6 0.01 µF, C7 0.005 µF) mount at the pots; the presence pot, the 56 kΩ negative-feedback resistor, the 100 pF bright cap, and the two AC-line caps are chassis wiring drawn schematically or off the board. The power-transformer primary and 6.3 V heater leads are chassis wiring, off the board. Not a trace or a dimensioned reproduction."
+caption: "Redrawn from the published Fender 5F4 'Super-Amp' layout drawing (C-EG), page 1 — principal board components and their hookup, in the order the drawing shows them. The chassis has four input jacks (two per channel); the drawing's four 68 kΩ grid stoppers collapse to the two the schematic/BOM model (R1s, R2s), and the two 1 MΩ input grid leaks (RG1, RG2) mount at the channel jacks as the sheet shows. The treble/bass tone-stack capacitors (C5 250 pF, C6 0.01 µF, C7 0.005 µF) mount at the pots; the presence pot, the 56 kΩ negative-feedback resistor, the 100 pF bright cap, and the two AC-line caps are chassis wiring drawn schematically or off the board. The power-transformer primary (black) lands on chassis switches, off the board; the 6.3 V heater chain (green twisted pair, PT → pilot lamp → the two 6L6G output tubes → 12AX7 phase inverter → 12AX7 → 12AY7) is routed as the published sheet shows it, and the directly-heated 5U4G rectifier runs off the 5 V winding, not the 6.3 V chain. Not a trace or a dimensioned reproduction."
 source:
   desc: "Fender 'Super-Amp' Model 5F4 layout drawing (C-EG), page 1"
   url: "https://el34world.com/charts/Schematics/files/Fender/Fender_super_5f4.pdf"
@@ -76,6 +76,7 @@ parts:
 offboard:
   - { id: PT,  kind: xfmr,  edge: left,   at: 0.2, label: "Power trans" }
   - { id: L1,  ref: L1, kind: choke, edge: left, at: 1.5, label: "Choke" }
+  - { id: PL1, kind: part, glyph: lamp, edge: left, at: 2.7, label: "Pilot lamp" }
   - { id: V6,  ref: V6, kind: tube, edge: bottom, at: 2.5,  label: "V6 · 5U4G" }
   - { id: V4,  ref: V4, kind: tube, edge: bottom, at: 6.5,  label: "V4 · 6L6G" }
   - { id: V5,  ref: V5, kind: tube, edge: bottom, at: 10.5, label: "V5 · 6L6G" }
@@ -90,6 +91,11 @@ offboard:
   - { id: VR2, ref: VR2, kind: pot, edge: top, at: 43, label: "Volume · 2" }
   - { id: JI,  kind: jack, edge: top, at: 46, label: "Ch 1 in" }
   - { id: JM,  kind: jack, edge: top, at: 48, label: "Ch 2 in" }
+  # RG1 / RG2 (1 MΩ input grid leaks) mount at the channel jacks per the drawing —
+  # generic 2-lead off-board parts (kind: part): RGn.a → the channel input node,
+  # RGn.b → ground, using the renderer's 2-terminal support.
+  - { id: RG1, ref: RG1, kind: part, edge: top, at: 45.2, label: "RG1" }
+  - { id: RG2, ref: RG2, kind: part, edge: top, at: 48.9, label: "RG2" }
   - { id: T3,  ref: T3, kind: xfmr, edge: right, at: 0.5, label: "Output trans" }
 
 # Ground bus — the bare tinned rail running the length of the board just below
@@ -102,13 +108,19 @@ bus:
 # transformer leads carry the colours marked on that drawing: the PT secondary
 # (RED/RED HT plates, YELLOW/YELLOW 5 V filament, RED-YELLOW HT centre tap) to
 # the 5U4G, and the output-transformer primary (V4 plate BROWN, V5 plate BLUE,
-# centre tap RED to B+1). The PT primary (BLACK) and 6.3 V heater (GREEN /
-# GREEN-YELLOW) leads land on chassis switches and the tube heaters, not the
-# board, so they are not drawn. The bias-supply selenium rectifier is a chassis
-# part feeding RB1 off the board. Endpoints reference board eyelets (REF.a/REF.b),
-# tube socket pins (Vn.pinN, validated against reference/tubes basing), pot lugs
-# (VRn.lugN), jacks, choke/transformer leads (by colour). `via` waypoints are
-# [col, row]; row<0 routes above the board, row>1 below it.
+# centre tap RED to B+1). The PT primary (BLACK) lands on the chassis switches,
+# off the board, so it is not drawn. The 6.3 V heater winding is the GREEN pair
+# (the sheet shows plain green/green — no centre tap on this transformer); it
+# feeds the pilot lamp and then daisy-chains socket to socket in physical order
+# (rendered as a green twisted pair, style: twisted). The directly-heated 5U4G
+# runs off the 5 V winding and is not on the 6.3 V chain. The two 1 MΩ input
+# grid leaks (RG1, RG2) mount at the channel jacks as generic 2-lead off-board
+# parts (kind: part). The bias-supply selenium rectifier is a chassis part
+# feeding RB1 off the board. Endpoints reference board eyelets (REF.a/REF.b),
+# tube socket pins (Vn.pinN, validated against reference/tubes basing — heater
+# pins on the twisted runs), pot lugs (VRn.lugN), jacks, off-board 2-lead parts
+# (RG1.a/RG1.b, PL1.a/PL1.b), choke/transformer leads (by colour). `via`
+# waypoints are [col, row]; row<0 routes above the board, row>1 below it.
 runs:
   # --- power transformer secondary -> 5U4G rectifier (marked colours) --------
   - { from: PT.red1, to: V6.pin4 }                 # HT plate 1
@@ -206,14 +218,18 @@ runs:
   - { from: VR2.lug1, to: [1.45, 43] }             # ch2 volume ground
 
   # --- 12AY7 input pair (V1): channel 1 + channel 2 --------------------------
-  # (four chassis jacks per the drawing; the 1 MΩ leaks mount at the jacks)
+  # (four chassis jacks per the drawing; the 1 MΩ leaks RG1/RG2 mount at the jacks)
   - { from: JI, to: R1s.b, via: [[46, -0.45], [45, -0.4]] }     # ch1 jack -> 68k stopper
+  - { from: RG1.a, to: R1s.b, via: [[45.2, -0.2]] }            # ch1 1 MΩ grid leak -> input node
+  - { from: RG1.b, to: [1.45, 45] }                            # grid leak -> ground bus
   - { from: R1s.a, to: V1.pin7, via: [[44, 1.6], [44, 1.6]] }   # stopper -> V1A grid
   - { from: V1.pin6, to: RL1.b, via: [[44, 1.7], [40, 1.7]] }   # V1A plate -> 100k load
   - { from: RL1.a, to: C14.a, via: [[39, 0.45], [37, 0.45]] }   # B+4 rail -> V1A plate load
   - { from: V1.pin6, to: C1.a, via: [[44, 1.8], [38, 1.8]] }    # V1A plate -> coupler
   - { from: C1.b, to: VR1.lug3, via: [[40, -0.4], [39, -0.4]] } # coupler -> ch1 volume
   - { from: JM, to: R2s.b, via: [[48, -0.45], [48, 1.5]] }      # ch2 jack -> 68k stopper
+  - { from: RG2.a, to: R2s.b, via: [[48.9, -0.2], [48.2, 0.6]] }  # ch2 1 MΩ grid leak -> input node
+  - { from: RG2.b, to: [1.45, 47] }                            # grid leak -> ground bus
   - { from: R2s.a, to: V1.pin2, via: [[47, 1.7], [44, 1.7]] }   # stopper -> V1B grid
   - { from: V1.pin1, to: RL2.b, via: [[44, 1.85], [42, 1.85]] } # V1B plate -> 100k load
   - { from: RL2.a, to: C14.a, via: [[41, 0.4], [37, 0.4]] }     # B+4 rail -> V1B plate load
@@ -228,3 +244,16 @@ runs:
   # --- presence control (5k), at the phase-inverter tail foot -----------------
   - { from: VRP.lug3, to: RT2.a, via: [[4, -0.8], [25.5, -0.8]] } # presence -> tail junction
   - { from: VRP.lug1, to: [1.45, 4] }              # presence ground
+
+  # --- 6.3 V heater chain (green twisted pair) ------------------------------
+  # PT green pair -> pilot lamp -> V4 6L6 -> V5 6L6 -> V3 12AX7 (PI) -> V2 12AX7
+  # -> V1 12AY7, in the drawing's physical daisy order. The 5U4G rectifier is
+  # directly heated off the 5 V winding, so it is not on this chain. Twisted
+  # runs land only on heater pins (6L6 octal 2/7, noval 4/5); routed in a deep
+  # lane below the output harness.
+  - { from: PT.green, to: PL1.a, style: twisted }                                    # 6.3 V -> pilot lamp
+  - { from: PL1.b, to: V4.pin7, style: twisted, via: [[-1.2, 3.7], [6.5, 3.7]] }     # lamp -> V4 6L6 heater
+  - { from: V4.pin2, to: V5.pin7, style: twisted, via: [[6.5, 3.72], [10.5, 3.72]] } # V4 -> V5 heater
+  - { from: V5.pin2, to: V3.pin4, style: twisted, via: [[10.5, 3.74], [20, 3.74]] }  # V5 -> V3 (PI) heater
+  - { from: V3.pin5, to: V2.pin4, style: twisted, via: [[20, 3.72], [33, 3.72]] }    # V3 -> V2 heater
+  - { from: V2.pin5, to: V1.pin4, style: twisted, via: [[33, 3.7], [44, 3.7]] }      # V2 -> V1 heater
