@@ -42,7 +42,7 @@ const ghDir = `${GITHUB}/tree/main/amps/${amp.id}`;
 
       {amp.hasLayout && (
         <div class="viewer layout">
-          <div class="viewer-head">Board layout — redrawn from the published layout drawing</div>
+          <div class="viewer-head">Board layout — redrawn reference diagram · source noted on the drawing</div>
           <div class="layout-canvas">
             <img src={`/layouts/${amp.id}.svg`} loading="lazy" decoding="async"
               alt={`${displayId(amp.id)} eyelet board layout — an original, redrawn board diagram showing the principal parts in the order the published layout drawing places them on the board.`} />
