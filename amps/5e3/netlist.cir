@@ -4,7 +4,10 @@
 *
 * DC conventions: B+1 driven at Robinette's published 370 V measurement
 * (the F-EE drawing carries no voltage chart); downstream nodes DERIVED.
-* OT primary DCR omitted. Coupling/tone caps omitted (DC open).
+* OT primary DCR omitted. DC-open caps (coupling / cathode-bypass) are modelled
+* where both leads land on a named DC node (placement then layout-checked; open
+* at DC, they move no operating point); caps into the abstracted volume/tone
+* network stay omitted.
 * Cathodyne PI per the drawing: cathode -> 1.5k -> junction -> 56k -> gnd,
 * with the 1M grid leak returned to the junction (tone caps AC-couple the grid).
 .include models/12ay7.inc
@@ -45,3 +48,13 @@ RG6A G6A 0 220k
 XV4 BP1 BP2 G6B K66 6V6GT
 RG6B G6B 0 220k
 RK66 K66 0 250
+
+* DC-open caps (both leads on a named DC node — placement layout-checked):
+* cathode-bypass caps + the cathodyne's two output couplers. The cathode-side
+* coupler taps the 1.5k/56k junction (JPI) — the balanced point matching the
+* plate's 56k load — as the drawing shows, not the cathode pin.
+C10 KAY 0 25u
+C4  K2A 0 25u
+C9  K66 0 25u
+C7  PPI G6A 0.1u
+C8  JPI G6B 0.1u

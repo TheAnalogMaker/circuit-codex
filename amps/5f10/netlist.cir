@@ -8,9 +8,11 @@
 * sit at B+1). Fixed-bias supply replaced by an ideal -21 V source (its selenium
 * rectifier, 6.8 k, 56 k and 25 uF network is AC/ripple filtering). The 56 k
 * negative-feedback resistor returns from the speaker (~0 V DC) to the driver
-* cathode, so at DC it parallels that 1.5 k. Coupling and tone caps omitted
-* (DC open); cathode-bypass caps omitted (DC no-ops). The 6AT6 grid returns to
-* ground through a switched input jack (its 68 k stopper), modeled as 68 k.
+* cathode, so at DC it parallels that 1.5 k. DC-open caps (coupling / cathode-
+* bypass) are MODELLED where both leads land on a named DC node (placement then
+* layout-checked; open at DC, they move no operating point); caps into the
+* abstracted volume/tone network stay omitted. The 6AT6 grid returns to ground
+* through a switched input jack (its 68 k stopper), modeled as 68 k.
 .include models/6at6.inc
 .include models/12ax7.inc
 .include models/6v6gt.inc
@@ -49,3 +51,11 @@ XV3 BP1 BP2 G6A 0 6V6GT
 RG1 NBIAS G6A 220k
 XV4 BP1 BP2 G6B 0 6V6GT
 RG2 NBIAS G6B 220k
+
+* DC-open caps (both leads on a named DC node — placement layout-checked):
+* 6AT6 cathode bypass, driver->PI coupler, and the cathodyne's two output
+* couplers (plate PPI to the upper grid, cathode junction JPI to the lower).
+C1  KAT 0 25u
+C5  P2A GPI 0.02u
+C6  PPI G6A 0.1u
+C7  JPI G6B 0.1u

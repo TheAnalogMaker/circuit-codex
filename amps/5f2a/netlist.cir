@@ -9,9 +9,12 @@
 *  - Downstream nodes are DERIVED by simulation, never asserted.
 *  - Output-transformer primary DCR omitted (6V6 plate node = B+1, as voltage
 *    charts conventionally annotate).
-*  - Coupling and tone caps omitted (DC open); cathode-bypass caps omitted
-*    (DC no-ops). The whole tone/volume network is capacitor-coupled, so V1B's
-*    grid returns to ground only through the 1 M volume pot at DC.
+*  - DC-open caps (coupling / cathode-bypass) are MODELLED where both leads
+*    land on a named DC node, so their board placement is machine-checked by
+*    verify_layout_nets; open at DC, they move no operating point. The whole
+*    tone/volume network is capacitor-coupled, so caps with a lead inside it
+*    (C2 into the tone/volume net, the tone caps) stay omitted; V1B's grid
+*    returns to ground only through the 1 M volume pot at DC.
 *  - Input 68k grid stoppers omitted (carry no DC grid current).
 *  - Feedback resistor R12 (22k) included: it parallels V1B's UNbypassed 1.5k
 *    cathode at DC through the speaker secondary's ~0 ohm DCR.
@@ -41,3 +44,8 @@ R12 K1B 0 22k
 XV2 BP1 BP2 G2 K2 6V6GT
 R8  G2 0 220k
 R9  K2 0 470
+
+* DC-open caps (both leads on a named DC node — placement layout-checked)
+C1  K1A 0 25u
+C6  K2  0 25u
+C5  P1B G2 0.02u

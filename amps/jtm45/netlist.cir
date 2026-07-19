@@ -7,9 +7,13 @@
 * downstream rails DERIVED through the real dropper values. The 20H choke is
 * modeled as a DCR estimate; the output-transformer primary DCR is omitted, so
 * the KT66 plate node sits at B+1 (chart prints 430 at the plate pin, 20 V of
-* omitted OT/reservoir drop — within the 20% tube-pin tolerance). Coupling and
-* tone-stack caps are DC-open and omitted; the tone stack is fully capacitor-
-* coupled at DC. The fixed-bias network (HT-tap diode, 150k, filter caps and
+* omitted OT/reservoir drop — within the 20% tube-pin tolerance). DC-open caps
+* are MODELLED where both leads land on a named DC node (the PI->output couplers
+* C9/C10, the tail-bootstrap C8, and the shared-input cathode-bypass C3) so their
+* board placement is layout-checked; open at DC, they move no operating point.
+* Tone-stack caps (a lead inside the abstracted tone network) stay omitted; the
+* tone stack is fully capacitor-coupled at DC. The fixed-bias network (HT-tap
+* diode, 150k, filter caps and
 * grid-leaks) is replaced by an ideal -50 V source: the drawing prints no bias
 * figure or idle current, so this is a representative estimate. Grid-stopper and
 * grid-leak resistors carry no DC and are omitted (grids sit at their leak
@@ -81,3 +85,6 @@ R6s NG6 G6 33k
 RGL2 G6 NBIAS 220k
 XV6 BP1 S6 G6 0 KT66
 RS2 BP2 S6 1k
+
+* cathode-bypass cap (both leads on a named DC node — placement layout-checked)
+C3 KA 0 250u

@@ -5,8 +5,11 @@
 * DC conventions: B+1 driven at the printed +432 V; downstream nodes DERIVED.
 * Choke (14684) modeled as 130R DCR estimate (drawing prints 432 -> 430 across
 * it). OT primary DCR omitted. Bias supply replaced by an ideal -48 V source
-* (its 15k/56k/8uF network is AC/ripple filtering). Coupling and tone caps
-* omitted (DC open); tone stack is fully capacitor-coupled at DC.
+* (its 15k/56k/8uF network is AC/ripple filtering). DC-open caps are MODELLED
+* where both leads land on a named DC node (the PI->output couplers C8/C9 below,
+* plus the shared 12AY7 cathode-bypass C3) so their board placement is layout-
+* checked; open at DC, they move no operating point. Caps into the abstracted
+* volume/tone network stay omitted.
 .include models/12ay7.inc
 .include models/12ax7.inc
 .include models/5881.inc
@@ -71,3 +74,6 @@ RS2 BP2 S52 470
 * leak (no grid current), so these add no DC loading and the op point is unmoved.
 C8 PPIA G51 0.1u
 C9 PPIB G52 0.1u
+
+* cathode-bypass cap (both leads on a named DC node — placement layout-checked)
+C3 KAY 0 250u

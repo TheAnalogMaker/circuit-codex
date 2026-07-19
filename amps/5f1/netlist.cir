@@ -7,7 +7,10 @@
 *  - Downstream nodes are DERIVED by simulation, never asserted.
 *  - Output transformer primary DCR omitted (plate node = B+1, as voltage
 *    charts conventionally annotate).
-*  - Coupling caps omitted (DC open); bypass caps omitted (DC no-ops).
+*  - DC-open caps (coupling / cathode-bypass) are MODELLED where both leads
+*    land on a named DC node, so their board placement is machine-checked by
+*    verify_layout_nets; they are open at DC and move no operating point.
+*    Caps with a lead inside an abstracted network (the volume pot) stay out.
 *  - NFB resistor R13 (22k) included: it parallels V1B's cathode at DC
 *    through the speaker secondary's ~0 ohm DCR.
 .include models/12ax7.inc
@@ -36,3 +39,7 @@ R13 K1B 0 22k
 XV2 BP1 BP2 G2 K2 6V6GT
 R9  G2 0 220k
 R8  K2 0 470
+
+* DC-open caps (both leads on a named DC node — placement layout-checked)
+C6  K2  0 25u
+C3  P1B G2 0.02u

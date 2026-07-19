@@ -11,7 +11,11 @@
 *    ~350 ohm. Rails carry 8% tolerance because that DCR is an estimate.
 *  - Output transformer primary DCR omitted, so the 6V6 plate sits at its
 *    B+ node (B+2); the screen ties to the same node on this circuit.
-*  - Coupling caps omitted (DC open); cathode-bypass caps omitted (DC no-ops).
+*  - DC-open caps (coupling / cathode-bypass) are MODELLED where both leads
+*    land on a named DC node, so their board placement is machine-checked by
+*    verify_layout_nets; they are open at DC and move no operating point
+*    (confirmed against voltages.yaml). Caps with a lead inside an abstracted
+*    network (the volume pot, the AC line) stay omitted.
 *  - NFB resistor R11 (22k) included: it parallels V1B's cathode at DC through
 *    the speaker secondary's ~0 ohm DCR.
 .include models/12ax7.inc
@@ -41,3 +45,8 @@ R11 K1B 0 22k
 XV2 BP2 BP2 G2 K2 6V6GT
 R9  G2 0 220k
 R8  K2 0 470
+
+* DC-open caps (both leads on a named DC node — placement layout-checked)
+C1  K1A 0 25u
+C4  K2  0 25u
+C3  P1B G2 0.02u
