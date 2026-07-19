@@ -13,6 +13,8 @@ on the rendered output.
 | Tube-model anchors | `pipeline/fit_models.py` + `test_models.py` | Model drift; models not matching datasheet anchors in ngspice |
 | Operating-point verification | `pipeline/verify_amps.py` | Simulated DC vs published chart outside tolerance (blocking for `verified`) |
 | Schematic grammar | `pipeline/check_schematics.py` | kiutils round-trip failures |
+| Layout render + determinism | `pipeline/check_layouts.py` | A `layout.yaml` that fails to render, or a stale/committed `layout.svg` out of sync with a fresh render |
+| Wiring collision lint | `pipeline/check_layouts.py` | Wiring-layer ambiguity — near-parallel overlap (two runs reading as one wire) or terminal ambiguity (an endpoint reading as landing on another run). Blocking unless the amp carries a waiver in `pipeline/lint_waivers.yaml`; active waivers are printed loudly |
 
 ## Layer 2 — judge pass (every new/changed amp page, post-deploy)
 
@@ -60,5 +62,19 @@ python pipeline/render_layouts.py --png <id>   # → /tmp/<id>.png (installs lib
 
 Check, at minimum: labels legible and clear of wires; no body/wire overlaps that
 hide a value; every wiring run traceable end to end; wire colours match the
-published drawing; off-board components clearly placed. Iterate until it reads
-like a reference diagram a builder could follow.
+published drawing; off-board components clearly placed. Two wiring-specific
+things the pilot added eyes for (2026-07-19), on GM's note that "some wires
+overlap and/or it is sometimes a bit unclear where a wire terminates":
+
+- **Crossings show as hops.** Where two plain runs cross, the later one bows
+  over the earlier with a small semicircular bridge — confirm a crossing never
+  looks like a joint. (The deterministic `check_layouts.py` collision lint
+  already proves no two wires read as one; the eyes confirm the hop *renders*.)
+- **Terminations read as solder points.** Every run endpoint is a filled
+  solder blob distinct from a via or pass-through — confirm where each wire
+  lands is unambiguous, especially in convergence clusters.
+
+Iterate until it reads like a reference diagram a builder could follow. Layouts
+that still carry overlap/termination debt are held behind a
+`pipeline/lint_waivers.yaml` waiver, not shipped clean — remove the waiver only
+once the layout passes the lint on its own.

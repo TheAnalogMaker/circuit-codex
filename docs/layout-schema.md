@@ -142,6 +142,61 @@ Same endpoint grammar and `via` waypoints as `runs`, drawn as a single heavier
 bare-wire line (no colour) so it reads as the ground rod it is. Cathode, filter,
 and pot grounds tie to it by ending a `run` on a point along the rod.
 
+### Crossing & termination legibility (automatic)
+
+The renderer keeps the wiring layer unambiguous about **crossings** and
+**terminations** — the two things a builder must never misread — with no extra
+markup in the YAML:
+
+- **Hop-over arcs.** At every transversal crossing between two plain
+  (non-twisted) runs, the run appearing **later** in the `runs` list hops the
+  earlier one with a small semicircular bridge (~3.5 px) — the classic
+  wiring-diagram idiom, so a crossing never looks like a joint. The ground bus
+  never hops (runs hop over it, with a slightly larger arc to clear the heavier
+  rod); twisted heater pairs are exempt because they draw as the topmost,
+  visually unmistakable layer. Hops are skipped within ~6 px of a segment's
+  endpoints and never intrude on a rounded elbow. Output stays deterministic.
+- **Solder blobs at run endpoints.** Every run/bus endpoint lands as a larger
+  filled dot inside a darker ring with a small highlight — a soldered joint,
+  clearly distinct from a bare via waypoint (undrawn) or a pass-through eyelet —
+  so where a wire *terminates* is never in doubt, even inside a convergence
+  cluster. Shared nodes are de-duplicated so coincident endpoints don't stack.
+
+Both idioms are keyed in the drawing's **Joints** legend row.
+
+### Collision lint (CI, `check_layouts.py`)
+
+`pipeline/check_layouts.py` runs a **collision lint** over each layout's plain
+runs — the checks that catch the two ways a wiring layer turns ambiguous
+(twisted heater pairs and the ground bus are exempt):
+
+| Check | Trips when |
+|---|---|
+| **near-parallel overlap** | two different runs' segments run at an acute angle < 10° with separation < 2.4 px over > 8 px of shared length (they read as one wire) |
+| **terminal ambiguity** | a run endpoint sits within 5 px of *another* run's polyline interior while not landing on any of that run's own nodes (unclear whether it connects or merely passes by) |
+
+Fix a failure by **lane/via adjustment** — nudge a shared lane to a distinct
+row, fan converging feeds so each approaches its shared node at a wider bearing
+(≳ 18° apart), or route a long harness lead in the deep band below the sockets —
+preserving the published routing intent and the era wire colours. Failures print
+with coordinates and run indices.
+
+#### Waivers — `pipeline/lint_waivers.yaml`
+
+A permanent, documented escape hatch (like a chart's disputed-node note). An amp
+listed in `lint_waivers.yaml` (`{amp_id: reason}`) has its lint failures
+**downgraded from blocking to WAIVED**, and CI prints the active waivers loudly
+so a waiver is never silent:
+
+```yaml
+waivers:
+  5f10:  "pending legibility remediation 2026-07-19"
+```
+
+An amp with zero lint failures needs no entry. Remove the waiver once the layout
+is remediated. The pilot fixed **5f1** and **5e3** to zero lint; the remaining
+six carry the same legibility debt behind a waiver until they are worked.
+
 ### Self-review (mandatory)
 
 A wiring diagram must be **looked at**, not just generated — see `docs/REVIEW.md`.
@@ -152,7 +207,10 @@ python pipeline/render_layouts.py --png 5e3   # → /tmp/5e3.png (installs librs
 ```
 
 Iterate until labels are legible, nothing overlaps, every run is traceable, and
-the off-board parts are clearly placed.
+the off-board parts are clearly placed. The collision lint (above) is the
+deterministic half of this — a clean `check_layouts.py` run means no two wires
+read as one and no endpoint reads as ambiguous; the PNG read is still required
+to confirm the crossings show as hops and the terminations read as solder points.
 
 ## `leads[]` — legacy soft leads (deprecated)
 
