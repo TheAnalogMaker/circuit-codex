@@ -27,7 +27,7 @@ const guides = [
   { href: '/reference/guides/reading-schematics/', title: 'How to read a tube amp schematic',
     desc: 'The symbols this archive draws with, signal flow and B+ rails, and a walked-through gain stage — schematics made legible to a first-timer.' },
   { href: '/reference/guides/tube-pinouts/', title: 'Tube pinout diagrams',
-    desc: 'Interactive bottom-view basing for all nine tubes — noval, 7-pin, and octal.' },
+    desc: 'Interactive bottom-view basing for all ten tubes — noval, 7-pin, and octal.' },
   { href: '/reference/guides/calculators/', title: 'Amp builder calculators',
     desc: "Ohm's law, cathode bias, coupling-cap corners, and transformer ratios." },
   { href: '/reference/guides/tube-substitution/', title: 'Tube substitution & the gain ladder',
@@ -98,8 +98,9 @@ const guides = [
 
   <section>
     <h2>Datasheets by tube</h2>
-    <p class="sub">The nine tubes this corpus models, each with the manufacturer
-      datasheets its model is fitted and cross-checked against.
+    <p class="sub">The ten tubes this corpus documents — nine SPICE models; the 6L6G
+      shares the 5881 family model — each with the manufacturer datasheets its model is
+      fitted and cross-checked against.
       <a href={`${GITHUB}/blob/main/models/METHODOLOGY.md`}>How the models are derived →</a></p>
     <div class="grid">
       {tubes.map((t) => (

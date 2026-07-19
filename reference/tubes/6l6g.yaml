@@ -14,6 +14,10 @@ model:
     No separate 6L6G SPICE model is carried; the 5F4 netlist instantiates the
     5881 model for the output pair (see amps/5f4/notes.md). This entry exists so
     the published-layout socket pins validate against the real 6L6G basing.
+    Caveat: because the simulation borrows the 5881/6L6GC-anchored model, any
+    headroom or maximum-rating figure it produces reflects the 6L6GC family, not the
+    real 6L6G — the original coke-bottle 6L6/6L6-G carries markedly lower
+    plate-dissipation and voltage ratings, and those conclusions do not transfer to it.
 basing:
   code: 7AC
   base: octal
@@ -35,8 +39,8 @@ basing:
 used_in: [5f4]
 datasheets:
   - publisher: RCA
-    designation: 6L6G
-    url: https://frank.pocnet.net/sheets/049/6/6L6G.pdf
+    designation: 6L6 / 6L6-G
+    url: https://frank.pocnet.net/sheets/049/6/6L6.pdf
     confidence: high
   - publisher: RCA
     designation: 6L6GC

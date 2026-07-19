@@ -13,6 +13,20 @@ model:
   note: >-
     5881/6L6WGB is treated as 6L6GC-class at these ratings. µ is the
     grid-No.1-to-grid-No.2 amplification factor (8, RC-19).
+max_ratings:
+  note: >-
+    Design-center maximums for the 5881 as printed by Tung-Sol. The 5881's rugged
+    construction trades the 6L6GC's higher ceiling for durability: it is rated below the
+    6L6GC on both plate dissipation and voltage (23 W / 400 V against 30 W / 500 V),
+    which is why a 6L6GC drops into a 5881 socket with margin to spare while a 5881 run
+    at 6L6GC voltages sits near its limit.
+  items:
+    - { label: "Plate dissipation", value: "23 W" }
+    - { label: "Plate voltage", value: "400 V" }
+    - { label: "Screen (grid No.2) voltage", value: "400 V" }
+    - { label: "Screen dissipation", value: "3 W" }
+  source: "Tung-Sol 5881 datasheet (design-center system)"
+  source_url: https://frank.pocnet.net/sheets/127/5/5881.pdf
 basing:
   code: 7AC
   base: octal

@@ -70,6 +70,21 @@ const study = t.study ? loadStudy(t.study) : null;
         </dl>
       </section>
 
+      {t.max_ratings && (
+        <section>
+          <h2>Maximum ratings</h2>
+          <p class="sub">{t.max_ratings.note}</p>
+          <dl class="model">
+            {t.max_ratings.items.map((r) => (<><dt>{r.label}</dt><dd>{r.value}</dd></>))}
+            <dt>Source</dt><dd>
+              {t.max_ratings.source_url
+                ? <a href={t.max_ratings.source_url} rel="external nofollow">{t.max_ratings.source} ↗</a>
+                : t.max_ratings.source}
+            </dd>
+          </dl>
+        </section>
+      )}
+
       {study && (
         <section>
           <h2>Related study</h2>

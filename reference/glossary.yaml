@@ -168,6 +168,19 @@ terms:
       - { label: "Amp builder calculators", href: "/reference/guides/calculators/" }
       - { label: "5E1 — Tweed Champ-style", href: "/amps/5e1/" }
 
+  - term: Death cap
+    slug: death-cap
+    sort_key: death cap
+    definition: >-
+      A small capacitor — typically 0.05 µF at 600 V — wired from one leg of the AC
+      line to the chassis on amps built for two-wire, ungrounded mains, giving the
+      chassis a high-impedance path toward the supposed neutral to shunt hum. With a
+      reversed plug, a ground switch on the hot leg, or the cap failed shorted, it puts
+      full line voltage on the chassis — the fault that earned the name — so modern
+      practice removes it and fits a three-wire grounded cord.
+    appears:
+      - { label: "High-voltage safety — the death cap", href: "/reference/safety/#dc-h" }
+
   - term: FMV
     slug: fmv
     sort_key: fmv

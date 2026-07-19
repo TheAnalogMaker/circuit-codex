@@ -47,7 +47,7 @@ const STEPS = [
     readout: 'Meter on DC volts, ranged above B+ — the instrument that tells you whether a cap is safe.' },
   { parts: 'part-meter cap1',
     short: 'Measure the first cap',
-    detail: 'Probe across the reservoir (first filter) capacitor. Expect a reading near full B+ — 300 to 450 V is normal, even long after power-off.',
+    detail: 'Probe across the reservoir (first filter) capacitor. Expect a reading near full B+ — 300 to 450 V is typical, even long after power-off, and higher-voltage designs read more: a 360-0-360 supply (as in the JTM45) can idle near 500 V unloaded, and any amp read cold and unloaded sits above its rated operating B+. Whatever the first reading, the node is not safe until the verify step confirms it near zero.',
     readout: 'Reservoir cap, still near B+ — a filter capacitor holds its charge for minutes to hours.' },
   { parts: 'part-resistor cap1',
     short: 'Discharge through a resistor',
@@ -76,17 +76,18 @@ const RULES = [
     b: 'A meter you trust — rated CAT II 600 V or better, with sound probes — is the only thing that tells you a node is dead. Prove the reading before you reach in.' },
 ];
 ---
-<Base title="High-voltage safety — discharging filter capacitors & the death cap · Circuit Codex"
-      description="The bench-safety primer for working on vintage tube amplifiers: why a chassis stays lethal after power-off (B+ of 300–450 V stored in the filter capacitors), the standard capacitor-discharge procedure amp technicians use, the one-hand rule, meter practice, and never working alone. Plus the tweed-era 0.05 µF · 600 V 'death cap' — what it was for, why it is unsafe on modern mains, and the universal fix: remove it and fit a three-wire grounded cord.">
+<Base title="High-voltage amp safety · Circuit Codex"
+      description="Discharge filter caps safely and neutralize the tweed-era death cap — the bench primer for working on lethal 300–450 V tube-amp circuits.">
 <div class="wrap">
   <header class="ghead">
     <a class="back" href="/reference/">← Reference</a>
     <div class="eyebrow">Bench safety</div>
     <h1>High-voltage safety</h1>
     <p class="lede">A tube amplifier is a high-voltage device. Its plate supply runs at
-      300 to 450 volts, and its filter capacitors hold that charge for a long time after
-      the amp is switched off and unplugged. This is the standard safety practice every
-      amp manual and repair text sets out — read it before a chassis is ever opened.</p>
+      300 to 450 volts — higher in some designs, and higher still cold and unloaded — and
+      its filter capacitors hold that charge for a long time after the amp is switched off
+      and unplugged. This is the standard safety practice every amp manual and repair text
+      sets out — read it before a chassis is ever opened.</p>
   </header>
 
   <div class="alert" role="note">
@@ -106,9 +107,12 @@ const RULES = [
       <p><strong>B+ is a lethal voltage.</strong> A guitar amp rectifies the power
         transformer's high-voltage winding up to its plate supply — its <em>B+</em> — and
         runs the output tubes from it. In the circuits documented here that rail sits
-        between about 300 V and 450 V. Mains-frequency current at those potentials, across
-        the body, is far more than enough to stop a heart; it is the current that kills,
-        and a few tens of milliamps is enough.</p>
+        roughly between 300 V and 450 V in normal operation — and some run higher: a
+        360-0-360 transformer (the JTM45's) can push its reservoir near 500 V idling
+        unloaded, and any supply reads highest when the amp is cold and drawing no
+        current. Mains-frequency current at those potentials, across the body, is far
+        more than enough to stop a heart; it is the current that kills, and a few tens of
+        milliamps is enough.</p>
       <p><strong>Filter capacitors store the charge — and hold it.</strong> To smooth the
         rectified supply into steady DC, the amp charges a bank of electrolytic filter
         capacitors to the full B+. Switch off and the tubes stop drawing, but the capacitors

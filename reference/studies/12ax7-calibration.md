@@ -226,19 +226,28 @@ chased with model parameters.
 
 ## Status
 
-The recalibrated 12AX7 model is **not adopted as the shipping standard on the strength
-of the 5F4 alone.** The adoption bar for this change was that the 5F4's worst 12AX7
-stage improve materially with no regressions; the 5F4's worst nodes are its
-phase-inverter, whose printed chart is internally inconsistent, so they cannot improve
-and in fact drift slightly. The bar is not met, and the honest conclusion is that the
-5F4 page needs its disputed nodes marked, not a model tuned to hit impossible targets.
+**Adopted corpus-wide on 2026-07-18.** The recalibrated two-point 12AX7 fit is now the
+shipping model — [`models/12ax7.inc`](https://github.com/TheAnalogMaker/circuit-codex/blob/main/models/12ax7.inc)
+carries the two-point parameters (KP 679.8, KG1 658.0, KVB 25 690.8) — and every amp in
+the archive has been re-simulated and re-verified against it, with **0 failures**: no
+circuit that passed under the single-anchor model falls outside its chart tolerance
+under the two-point one. The low-plate gain stages improve, the already-accurate stages
+drift only slightly, exactly as the corpus table above lays out.
 
-The recipe and data themselves are sound, and the two-point fit is the correct
-calibration of the tube. Whether to adopt it corpus-wide is a separate decision, to be
-judged on overall accuracy across every circuit rather than on the 5F4 — a decision
-this study hands over with the evidence laid out. Until then the single-anchor models
-remain the standard, with the documented caveat that they under-read plate current
-below ~200 V.
+The record of how that decision was reached is worth keeping, because it was *not*
+adopted on the strength of the 5F4 alone. The bar first proposed for the change was
+that the 5F4's worst 12AX7 stage improve materially with no regressions; the 5F4's
+worst nodes are its phase-inverter, whose printed chart is internally inconsistent, so
+they cannot improve and in fact drift slightly. That bar was never met — and the honest
+conclusion there was that the 5F4 page needs its disputed nodes marked, not a model
+tuned to hit impossible targets. Those disputed phase-inverter nodes stay marked as
+disputed; the adoption did not touch them, because they were never a model problem.
+
+What carried the adoption was the separate, corpus-wide question the study handed over:
+judged on overall accuracy across *every* circuit rather than on the 5F4, the two-point
+fit is the better description of the tube — the recipe and data are sound, and it is the
+correct calibration. That is the basis on which it now ships, replacing the single-anchor
+models and their documented caveat that they under-read plate current below ~200 V.
 
 ---
 
