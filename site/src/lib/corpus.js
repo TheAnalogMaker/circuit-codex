@@ -101,6 +101,131 @@ export function ampMetaDescription(m) {
 
 export const GITHUB = 'https://github.com/TheAnalogMaker/circuit-codex';
 
+// ---------------------------------------------------------------- topology lib
+// Cross-cut "every X amp in one place" pages are generated from the same
+// meta.topology fields the amp panel shows. Each dimension names how to read its
+// value off an amp, the display label used in the amp's own metadata panel (so a
+// panel <dd> can link straight to the matching page), an index blurb, and a fixed
+// display order for the values that actually occur in the corpus. Values are
+// grouped by what is *present* — a dimension a circuit doesn't record is skipped,
+// never invented.
+
+export const TOPOLOGY_DIMENSIONS = [
+  {
+    key: 'phase_inverter',
+    dt: 'Phase inv.',
+    label: 'Phase inverter',
+    blurb: 'How a push-pull amp splits one signal into the two opposite-phase drives its output tubes need — or why a single-ended amp needs none.',
+    read: (m) => m.topology?.phase_inverter ?? null,
+    order: ['long-tailed-pair', 'cathodyne', 'none'],
+    values: {
+      'long-tailed-pair': { slug: 'phase-inverter-ltp', label: 'Long-tailed pair' },
+      'cathodyne': { slug: 'phase-inverter-cathodyne', label: 'Cathodyne' },
+      'none': { slug: 'phase-inverter-none', label: 'Single-ended (no inverter)' },
+    },
+  },
+  {
+    key: 'bias',
+    dt: 'Bias',
+    label: 'Output-stage bias',
+    blurb: 'How the output tubes are held at their idle operating point — a self-setting cathode resistor, or a separate negative supply.',
+    read: (m) => m.topology?.bias ?? null,
+    order: ['fixed', 'cathode'],
+    values: {
+      'fixed': { slug: 'bias-fixed', label: 'Fixed bias' },
+      'cathode': { slug: 'bias-cathode', label: 'Cathode bias' },
+    },
+  },
+  {
+    key: 'rectifier',
+    dt: 'Rectifier',
+    label: 'Rectifier',
+    blurb: 'What turns the power transformer\'s high-voltage AC into the DC B+ rail — a vacuum diode that sags under load, or stiff silicon.',
+    read: (m) => m.topology?.rectifier?.kind ?? null,
+    order: ['tube', 'solid-state'],
+    values: {
+      'tube': { slug: 'rectifier-tube', label: 'Tube rectifier' },
+      'solid-state': { slug: 'rectifier-solid-state', label: 'Solid-state rectifier' },
+    },
+  },
+  {
+    key: 'tone_stack',
+    dt: 'Tone stack',
+    label: 'Tone stack',
+    blurb: 'The passive control network that shapes the amp\'s response — from no tone control at all to the three-knob stack that defined lead tone.',
+    read: (m) => m.topology?.tone_stack ?? null,
+    order: ['cathode-follower-fmv', 'cathode-follower-tb', 'tb', 'single-knob', 'none'],
+    values: {
+      'cathode-follower-fmv': { slug: 'tone-stack-cf-fmv', label: 'Cathode-follower FMV stack' },
+      'cathode-follower-tb': { slug: 'tone-stack-cf-tb', label: 'Cathode-follower treble/bass' },
+      'tb': { slug: 'tone-stack-tb', label: 'Treble/bass stack' },
+      'single-knob': { slug: 'tone-stack-single-knob', label: 'Single tone control' },
+      'none': { slug: 'tone-stack-none', label: 'No tone stack' },
+    },
+  },
+];
+
+// The href for the cross-cut page matching an amp's value on one dimension, or
+// null when the amp doesn't record that dimension (so a panel link degrades to
+// plain text rather than pointing nowhere).
+export function topologyHref(dimKey, m) {
+  const dim = TOPOLOGY_DIMENSIONS.find((d) => d.key === dimKey);
+  if (!dim) return null;
+  const val = dim.read(m);
+  const cfg = val != null ? dim.values[val] : null;
+  return cfg ? `/topology/${cfg.slug}/` : null;
+}
+
+// One record per (dimension, value) actually present in the corpus, each with the
+// matching amps attached — the source of both the /topology/ index groups and the
+// per-page getStaticPaths.
+export function topologyCrossCuts() {
+  const amps = loadCorpus();
+  const dims = TOPOLOGY_DIMENSIONS.map((dim) => {
+    const byVal = new Map();
+    for (const amp of amps) {
+      const val = dim.read(amp.meta);
+      if (val === null || val === undefined) continue;
+      if (!byVal.has(val)) byVal.set(val, []);
+      byVal.get(val).push(amp);
+    }
+    const order = dim.order.filter((v) => byVal.has(v))
+      .concat([...byVal.keys()].filter((v) => !dim.order.includes(v)));
+    const pages = order.map((val) => ({
+      dimKey: dim.key,
+      dimLabel: dim.label,
+      dt: dim.dt,
+      value: val,
+      slug: dim.values[val]?.slug || `${dim.key}-${val}`.replace(/[^a-z0-9]+/gi, '-'),
+      label: dim.values[val]?.label || val,
+      amps: byVal.get(val),
+    }));
+    return { key: dim.key, label: dim.label, blurb: dim.blurb, dt: dim.dt, pages };
+  });
+  return dims;
+}
+
+// Flat list of every cross-cut page (for getStaticPaths). Each carries its sibling
+// dimensions so a page can show, per amp, the neighbouring topology choices.
+export function topologyPages() {
+  const dims = topologyCrossCuts();
+  const flat = [];
+  for (const dim of dims) {
+    for (const page of dim.pages) {
+      flat.push({ ...page, siblings: TOPOLOGY_DIMENSIONS.filter((d) => d.key !== page.dimKey) });
+    }
+  }
+  return flat;
+}
+
+// Human-readable value for one topology dimension of an amp (used in the
+// comparison tables' neighbour columns): rectifier shows the specific tube/type,
+// everything else shows the recorded token.
+export function topologyValueDisplay(dimKey, m) {
+  if (dimKey === 'rectifier') return m.topology?.rectifier?.type || m.topology?.rectifier?.kind || '—';
+  return m.topology?.[dimKey] ?? '—';
+}
+
 // ---------------------------------------------------------------- reference lib
 // The /reference/ section renders from reference/sources.yaml, reference/tubes/
 // *.yaml, and reference/studies/*.md — the same build-time data pattern the amp

@@ -1,6 +1,6 @@
 ---
 import Base from '../../layouts/Base.astro';
-import { loadCorpus, displayId, ampMetaDescription, layoutAlt, GITHUB } from '../../lib/corpus.js';
+import { loadCorpus, displayId, ampMetaDescription, layoutAlt, topologyHref, GITHUB } from '../../lib/corpus.js';
 
 export async function getStaticPaths() {
   return loadCorpus().map((amp) => ({ params: { id: amp.id }, props: { amp } }));
@@ -165,10 +165,15 @@ const jsonld = {
         <dt>Family</dt><dd>{m.family}</dd>
         <dt>Output</dt><dd>{m.wattage} W</dd>
         <dt>Tubes</dt><dd>{m.tubes.join(', ')}</dd>
-        <dt>Rectifier</dt><dd>{m.topology.rectifier.type || m.topology.rectifier.kind}</dd>
-        <dt>Bias</dt><dd>{m.topology.bias}</dd>
-        <dt>Phase inv.</dt><dd>{m.topology.phase_inverter}</dd>
-        <dt>Tone stack</dt><dd>{m.topology.tone_stack}</dd>
+        <dt>Rectifier</dt><dd>{topologyHref('rectifier', m)
+          ? <a href={topologyHref('rectifier', m)}>{m.topology.rectifier.type || m.topology.rectifier.kind}</a>
+          : (m.topology.rectifier.type || m.topology.rectifier.kind)}</dd>
+        <dt>Bias</dt><dd>{topologyHref('bias', m)
+          ? <a href={topologyHref('bias', m)}>{m.topology.bias}</a> : m.topology.bias}</dd>
+        <dt>Phase inv.</dt><dd>{topologyHref('phase_inverter', m)
+          ? <a href={topologyHref('phase_inverter', m)}>{m.topology.phase_inverter}</a> : m.topology.phase_inverter}</dd>
+        <dt>Tone stack</dt><dd>{topologyHref('tone_stack', m)
+          ? <a href={topologyHref('tone_stack', m)}>{m.topology.tone_stack}</a> : m.topology.tone_stack}</dd>
       </dl>
       <div class="files">
         <h3>Data</h3>

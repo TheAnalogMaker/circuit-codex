@@ -1,0 +1,239 @@
+---
+import Base from '../../layouts/Base.astro';
+import { topologyPages, displayId, topologyValueDisplay } from '../../lib/corpus.js';
+
+export async function getStaticPaths() {
+  return topologyPages().map((page) => ({ params: { slug: page.slug }, props: { page } }));
+}
+const { page } = Astro.props;
+const { amps, siblings } = page;
+
+// Editorial copy per cross-cut page. metaTitle stays short (search-landing titles);
+// prose is visitor-voice concept documentation that links the glossary and guides
+// rather than re-explaining them. G = glossary anchor helper.
+const G = (slug, text) => `<a href="/reference/glossary/#${slug}">${text}</a>`;
+const COPY = {
+  'phase-inverter-ltp': {
+    metaTitle: 'Long-tailed-pair phase inverter amps',
+    metaDescription: 'Every long-tailed-pair (differential) phase-inverter amp in the archive, side by side — the standard splitter of the higher-power blackface and British circuits, with era, wattage, tube lineup, and bias for contrast.',
+    lede: 'The differential splitter that drives nearly every higher-power push-pull amp.',
+    prose: [
+      `A push-pull output stage needs two copies of the signal ${G('phase-inverter', 'exactly out of phase')} with each other — one to push each side of the ${G('push-pull', 'push-pull pair')}. The ${G('long-tailed-pair', 'long-tailed pair')} produces them with two triodes that share a single large "tail" resistor at their joined cathodes. Signal drives one grid; the shared tail forces the second triode to mirror it in antiphase, so the two plates swing equal and opposite. It is a differential amplifier borrowed from instrumentation, and it splits phase while also adding gain.`,
+      `Designers reached for it whenever an amp had to drive a real output stage hard. Unlike the single-tube alternatives it delivers voltage gain as well as a phase split, its two sides stay closely balanced as the amp is pushed, and it presents a low, symmetric drive to both output tubes — exactly what a 26 W to 50 W stage wants. It is also the natural place to close the ${G('nfb', 'negative-feedback')} loop, injected into the second grid. Once Fender and Marshall standardised on it in the late tweed and blackface eras, it became the default for everything bigger than a student amp.`,
+      `Sonically that shows up as clean headroom and a firm, symmetric breakup: the sound of a big amp holding together where a simpler splitter would already be folding. For the contrast, the archive keeps both simpler splitters — the ${G('cathodyne', 'cathodyne')}, which splits phase with no gain, and the ${G('single-ended', 'single-ended')} small amps that need no splitter at all.`,
+    ],
+  },
+  'phase-inverter-cathodyne': {
+    metaTitle: 'Cathodyne (split-load) phase inverter amps',
+    metaDescription: 'The cathodyne, or split-load, phase inverter gathered across the archive — one triode, equal plate and cathode loads, the medium-power tweed splitter — with era, wattage, and tube lineup for contrast.',
+    lede: 'One triode, split load — the economical tweed splitter.',
+    prose: [
+      `The ${G('cathodyne', 'cathodyne')} — also called the split-load or concertina inverter — makes its two opposite-phase signals from a single triode with equal resistors above the plate and below the cathode. The plate output is inverted, the cathode output is not, and because the loads are equal the two swings are equal. It costs half a dual-triode and a handful of resistors, and it needs no ${G('nfb', 'feedback loop')} to stay balanced.`,
+      `That economy is why the medium-power tweeds used it. A ${G('single-ended', 'single-ended')} amp needs no splitter, and a big amp wants the gain and balance of a ${G('long-tailed-pair', 'long-tailed pair')}; the cathodyne sits between, giving a push-pull amp its phase split for the price of one triode. The trade is real: it provides no voltage gain, so the driving stage has to supply the full swing, and its two output impedances differ, so balance drifts as the amp is driven hard.`,
+      `Pushed, that imbalance is part of the character — the give and bloom of a cranked tweed comes partly from a splitter that stops behaving perfectly right when the output tubes do. See how these stages sit in the signal path in the guide to <a href="/reference/guides/reading-schematics/#stage-h">reading a schematic</a>.`,
+    ],
+  },
+  'phase-inverter-none': {
+    metaTitle: 'Single-ended amps — no phase inverter',
+    metaDescription: 'The single-ended amps of the archive, gathered — one output tube, no phase inverter, the class-A student and studio circuits — with era, wattage, tube lineup, and bias for contrast.',
+    lede: 'One output tube, no splitter — the class-A small amps.',
+    prose: [
+      `A ${G('single-ended', 'single-ended')} amp has a single output tube that amplifies the whole waveform on its own, so there is nothing to split and ${G('phase-inverter', 'no phase inverter')} in the circuit at all. Everything a ${G('push-pull', 'push-pull')} amp spends on a splitter and a matched pair of output tubes, these circuits simply do without — one preamp triode, one output tube, one rectifier.`,
+      `That is the recipe for the smallest amps: the tweed Champ and Princeton, built to be cheap student and practice amps of a few watts. Running the output tube in class A, a single-ended stage draws steady current and clips asymmetrically, so it favours even-order harmonics and starts to break up early and gently. There is no output-stage balancing to get wrong, which is part of why these amps became studio staples far out of proportion to their 5 W.`,
+      `The cost is power and efficiency — a single small-bottle tube only makes so much clean volume — which is exactly why every larger amp in the archive splits phase and runs push-pull. Compare the splitters those amps use: the ${G('cathodyne', 'cathodyne')} and the ${G('long-tailed-pair', 'long-tailed pair')}.`,
+    ],
+  },
+  'bias-fixed': {
+    metaTitle: 'Fixed-bias tube amps',
+    metaDescription: 'Every fixed-bias amp in the archive together — a separate negative supply sets the output-tube grids, the efficient higher-power choice — with era, wattage, tube lineup, and rectifier for contrast.',
+    lede: 'A negative supply sets the grids — the efficient, higher-power choice.',
+    prose: [
+      `In a ${G('bias', 'fixed-bias')} output stage a separate negative supply holds the output tubes' grids below their near-grounded cathodes, setting the idle current directly. "Fixed" means the bias voltage doesn't move with the signal — not that it can't be adjusted; many of these amps carry a bias-set trimmer. It is the counterpart to ${G('bias', 'cathode bias')}, where the tube sets its own operating point.`,
+      `Designers chose it to get more out of a given pair of tubes. Because the cathodes sit near ground rather than lifted by a resistor, the tubes see more of the ${G('b-plus', 'B+ rail')} and can be run closer to class B, so a fixed-bias stage makes more power, holds a firmer low end, and stays clean further up than the same tubes cathode-biased. The price is the extra bias supply and the need to set — and occasionally reset — the idle current when tubes are changed.`,
+      `That is the sound of the bigger amps in the archive: tighter, louder, and clean until pushed genuinely hard, where the earlier softness of a cathode-biased tweed is gone. Every higher-power circuit here — the tweed Super and Bassman, the blackface and British lead amps — is fixed-bias.`,
+    ],
+  },
+  'bias-cathode': {
+    metaTitle: 'Cathode-biased tube amps',
+    metaDescription: 'The cathode-biased (self-biased) amps of the archive, gathered — the output tube sets its own operating point, the tweed voice — with era, wattage, tube lineup, and rectifier for contrast.',
+    lede: 'The output tube sets its own operating point — the tweed voice.',
+    prose: [
+      `${G('bias', 'Cathode bias')} — self-bias — develops the output tube's operating point from its own current: a resistor in the cathode lifts it above ground, and a ${G('bypass-cap', 'bypass cap')} across it keeps that voltage steady for signal. There is no separate bias supply and nothing to set; the tube self-corrects as it warms and ages. It is the simplest way to bias an output stage.`,
+      `It was the tweed-era default for small and medium amps, and it runs the tubes richer — closer to class A — than ${G('bias', 'fixed bias')} does. That costs efficiency: a few watts are dropped across the cathode resistor and the stage makes less clean power. In return the rail and the bias move together under a hard transient, so the amp compresses and "browns out" musically as it is driven.`,
+      `The result is the softer, spongier, earlier breakup that people mean by the tweed voice — sag and compression built into how the output stage biases itself. The Champ, Deluxe, and Princeton here are all cathode-biased; the larger circuits switch to fixed bias for headroom.`,
+    ],
+  },
+  'rectifier-tube': {
+    metaTitle: 'Tube-rectifier amps',
+    metaDescription: 'Every tube-rectifier amp in the archive together — the vacuum diode that sags under load and gives the amp its bloom — with the specific rectifier, era, wattage, and tube lineup for each.',
+    lede: 'A vacuum diode feeds the rail — and sags, musically, under load.',
+    prose: [
+      `A ${G('rectifier', 'tube rectifier')} converts the power transformer's high-voltage AC into the DC that feeds the ${G('b-plus', 'B+ rail')} using a vacuum diode — a 5Y3, a 5U4, a GZ34. Unlike silicon, a hot vacuum diode has real internal resistance, so when the amp draws a heavy current transient the rail voltage briefly drops. That drop is ${G('sag', 'sag')}.`,
+      `The corpus keeps tube rectification because that sag is musical, not a defect. The rail gives a little under a hard-picked chord and springs back, so the amp compresses and blooms in a way players feel as touch response. Different bottles sag by different amounts — a 5Y3 is soft, a GZ34 comparatively firm — which is why the specific rectifier is worth reading off each circuit; the table below names it for every amp.`,
+      `The costs are a voltage drop you design around, a warm-up delay, and a tube that eventually wears — which is exactly why the stiffer, later amps moved to ${'<a href=\"/topology/rectifier-solid-state/\">solid-state rectification</a>'}. For how the rectifier sits in the supply, see the power section in <a href="/reference/guides/reading-schematics/#power-h">reading a schematic</a>.`,
+    ],
+  },
+  'rectifier-solid-state': {
+    metaTitle: 'Solid-state-rectifier amps',
+    metaDescription: 'The solid-state-rectifier amps of the archive — silicon diodes hold the B+ rail firm under load, no sag, more headroom and attack — with era, wattage, and tube lineup for contrast.',
+    lede: 'Silicon holds the rail firm — no sag, more headroom.',
+    prose: [
+      `A solid-state ${G('rectifier', 'rectifier')} feeds the ${G('b-plus', 'B+ rail')} through silicon diodes, whose forward resistance is near zero. The rail barely moves under load, so there is essentially no ${G('sag', 'sag')} — the opposite of a ${'<a href=\"/topology/rectifier-tube/\">tube rectifier</a>'}, whose voltage gives under a hard transient.`,
+      `Builders went solid-state for headroom, stiffness, and reliability. With the rail held firm the output stage delivers its full voltage on every transient, so the amp hits harder and stays tight where a tube rectifier would compress; the diodes are also cheaper, cooler, and don't wear out. On the British lead amps that firmness — fast attack, no give — is a defining part of the voice.`,
+      `The trade is exactly the feel a tube rectifier is kept for: the dynamic compression and bloom of a sagging rail are gone, replaced by immediacy. That contrast is why the archive documents both.`,
+    ],
+  },
+  'tone-stack-cf-fmv': {
+    metaTitle: 'Cathode-follower FMV tone-stack amps',
+    metaDescription: 'Every cathode-follower FMV (Fender / Marshall / Vox) tone-stack amp in the archive — the three-knob stack driven by a cathode follower that defined lead tone — with era, wattage, and tube lineup.',
+    lede: 'The three-knob stack, cathode-follower-driven — the template for lead tone.',
+    prose: [
+      `The ${G('fmv', 'FMV')} stack — bass, middle, and treble in a passive RC network — is the ${G('tone-stack', 'tone stack')} that defined both American and British lead tone. It is lossy by nature, so it is fed from a ${G('cathode-follower', 'cathode follower')}: a triode wired for a low output impedance that drives the network cleanly without the preceding gain stage having to.`,
+      `Fender introduced the arrangement on the tweed Bassman, and Marshall carried it straight into the first British lead amps — which is why the same three interacting controls, with their characteristic scooped midrange, sit at the heart of amps that otherwise sound very different. The cathode follower is what makes it practical: without that low-impedance drive the passive stack would load the signal down and the interaction between the controls would collapse.`,
+      `That scooped, aggressive voice is the through-line of this group, and it is a direct circuit ancestry — see how the ${'<a href=\"/lineage/\">lineage</a>'} runs from the Bassman into the British amps. The archive also keeps the simpler relatives: the two-knob ${'<a href=\"/topology/tone-stack-cf-tb/\">cathode-follower treble/bass stack</a>'} and the ${'<a href=\"/topology/tone-stack-tb/\">plain treble/bass stack</a>'}.`,
+    ],
+  },
+  'tone-stack-cf-tb': {
+    metaTitle: 'Cathode-follower treble/bass tone-stack amps',
+    metaDescription: 'The cathode-follower treble/bass tone stack in the archive — a two-knob stack driven by a cathode follower, the step between the single tweed tone knob and the full three-knob FMV.',
+    lede: 'A two-knob stack, cathode-follower-driven — the step toward FMV.',
+    prose: [
+      `This is a two-control treble-and-bass ${G('tone-stack', 'tone stack')} fed, like its three-knob sibling, from a ${G('cathode-follower', 'cathode follower')}. The follower's low output impedance drives the passive network, and two interacting controls set treble and bass independently — one knob short of the full ${'<a href=\"/topology/tone-stack-cf-fmv/\">FMV stack</a>'}, one knob past the single tweed tone control.`,
+      `It marks the point where Fender's larger tweeds outgrew a single tone knob but hadn't yet reached the three-band stack. Keeping the cathode follower means the tone network can be as lossy as good control range requires without loading down the gain stage ahead of it — the same reasoning that makes the FMV arrangement work.`,
+      `For where a stage like this falls in the signal path, the guide to <a href="/reference/guides/reading-schematics/#couple-h">reading a schematic</a> walks the coupling between stages. The plainer relatives — a ${'<a href=\"/topology/tone-stack-single-knob/\">single tone control</a>'} and ${'<a href=\"/topology/tone-stack-none/\">no tone stack at all</a>'} — are documented alongside.`,
+    ],
+  },
+  'tone-stack-tb': {
+    metaTitle: 'Treble/bass tone-stack amps',
+    metaDescription: 'The treble/bass (blackface) tone-stack amps of the archive — a two-knob passive stack in the signal path without a cathode follower, the clean scooped Fender voice — with era, wattage, and tubes.',
+    lede: 'Two knobs, in the signal path — the clean blackface voice.',
+    prose: [
+      `A treble-and-bass ${G('tone-stack', 'tone stack')} placed directly in the signal path, without a dedicated ${G('cathode-follower', 'cathode follower')} ahead of it, is the blackface arrangement. Two interacting controls scoop the midrange in the familiar Fender way; the stage feeding it simply absorbs the network's insertion loss rather than buffering it.`,
+      `Dropping the cathode follower keeps the circuit simpler and the voice cleaner and more open than the ${'<a href=\"/topology/tone-stack-cf-fmv/\">follower-driven FMV stack</a>'} used on the lead amps — one reason the blackface amps read as chimey and articulate where the British circuits read as thick and aggressive. It is the classic clean-platform tone.`,
+      `The corpus places it between the buffered stacks above and the plainer ${'<a href=\"/topology/tone-stack-single-knob/\">single tone control</a>'} of the small tweeds, so the whole ladder of tone-shaping choices is visible in one place.`,
+    ],
+  },
+  'tone-stack-single-knob': {
+    metaTitle: 'Single tone-control amps',
+    metaDescription: 'The single tone-control amps of the archive — one Tone knob, the minimal usable tone shaping of the small and medium tweeds — with era, wattage, and tube lineup for contrast.',
+    lede: 'One Tone knob — the minimal tweed tone shaping.',
+    prose: [
+      `The simplest usable ${G('tone-stack', 'tone stack')} is a single Tone control: one variable network that rolls treble off the signal. There is no separate bass or middle control and no ${G('cathode-follower', 'cathode follower')} to drive — just one knob between a dark setting and a bright one.`,
+      `This is the small- and medium-tweed answer — the Deluxe, Harvard, and Princeton — where one control was enough and every part counted. It shapes the amp's inherent midrange voice rather than carving three bands out of it, which is much of why these circuits sound the way they do: forward and vocal, with tone set by feel rather than by a full stack.`,
+      `It sits one step up from the ${'<a href=\"/topology/tone-stack-none/\">amps with no tone control at all</a>'} and well short of the two- and three-knob stacks the larger amps carry — the middle rung of the archive's tone-shaping ladder.`,
+    ],
+  },
+  'tone-stack-none': {
+    metaTitle: 'Amps with no tone stack',
+    metaDescription: 'The amps of the archive with no tone control at all — the Champ-class circuits whose voice is set entirely by fixed component values and the speaker — with era, wattage, and tube lineup.',
+    lede: 'No tone control — voice set by the parts and the speaker.',
+    prose: [
+      `Some amps carry no ${G('tone-stack', 'tone stack')} whatsoever: there is no Tone knob, and the frequency response is fixed entirely by the circuit's component values and the speaker. The only controls are volume and, on the guitar, whatever the player brings.`,
+      `That is the Champ-class recipe — the smallest, cheapest circuits, ${G('single-ended', 'single-ended')} and stripped to essentials. Having nothing to set became a virtue in the studio: there is no tone control to get wrong, so the amp always sounds like itself, and engineers shape it at the guitar and in the mix instead.`,
+      `It is the bottom rung of the archive's tone ladder — from here the circuits add a ${'<a href=\"/topology/tone-stack-single-knob/\">single tone control</a>'}, then two- and three-knob stacks. The absence is itself the design.`,
+    ],
+  },
+};
+
+const copy = COPY[page.slug] || {
+  metaTitle: page.label,
+  metaDescription: `Every ${page.label.toLowerCase()} amp in the Circuit Codex archive, gathered in one place.`,
+  lede: '',
+  prose: [],
+};
+
+const count = amps.length;
+const canonical = new URL(`topology/${page.slug}/`, Astro.site).href;
+const title = `${copy.metaTitle} · Circuit Codex`;
+const jsonld = {
+  '@context': 'https://schema.org',
+  '@type': 'TechArticle',
+  headline: copy.metaTitle,
+  name: copy.metaTitle,
+  description: copy.metaDescription,
+  url: canonical,
+  inLanguage: 'en',
+  about: `${page.dimLabel}: ${page.label}`,
+  publisher: { '@type': 'Organization', name: 'Circuit Codex' },
+};
+---
+<Base title={title} description={copy.metaDescription} jsonld={jsonld}>
+<div class="wrap wrap-wide">
+  <header class="thead">
+    <a class="back" href="/topology/">← Topology</a>
+    <div class="eyebrow">{page.dimLabel}</div>
+    <h1>{page.label}</h1>
+    {copy.lede && <p class="lede">{copy.lede}</p>}
+    <p class="count">{count} amp{count === 1 ? '' : 's'} in the archive</p>
+  </header>
+
+  <article class="prose">
+    {copy.prose.map((p) => <p set:html={p} />)}
+  </article>
+
+  <section>
+    <h2>Every {page.label.toLowerCase()} amp</h2>
+    <p class="sub">The matching circuits, with the neighbouring topology choices shown
+      for contrast.</p>
+    <div class="tbl"><table>
+      <thead><tr>
+        <th>Circuit</th><th>Era</th><th>Output</th><th>Tubes</th>
+        {siblings.map((s) => <th>{s.label}</th>)}
+      </tr></thead>
+      <tbody>
+        {amps.map((a) => (
+          <tr>
+            <td><a href={`/amps/${a.id}/`}>{displayId(a.id)}</a></td>
+            <td>{a.meta.era.start}–{a.meta.era.end}</td>
+            <td>{a.meta.wattage} W</td>
+            <td style="font-family:var(--body);color:var(--muted)">{a.meta.tubes.join(', ')}</td>
+            {siblings.map((s) => <td>{topologyValueDisplay(s.key, a.meta)}</td>)}
+          </tr>
+        ))}
+      </tbody>
+    </table></div>
+  </section>
+
+  <section>
+    <h2>Circuits</h2>
+    <div class="grid">
+      {amps.map((a) => (
+        <a class="card" href={`/amps/${a.id}/`}>
+          <div class="id">{displayId(a.id)}</div>
+          <div class="style">{a.meta.name_style} · {a.meta.wattage} W</div>
+          <div class="tubes">{a.meta.tubes.join(' · ')}</div>
+          <div class="chips">
+            <span class="chip">{a.meta.era.start}–{a.meta.era.end}</span>
+            {a.meta.verification?.status === 'verified'
+              ? <span class="chip v">verified</span>
+              : <span class="chip">draft</span>}
+          </div>
+        </a>
+      ))}
+    </div>
+  </section>
+</div>
+</Base>
+
+<style>
+  .wrap-wide{max-width:1140px}
+  .thead{padding:44px 0 8px}
+  .back{font-family:var(--disp);text-transform:uppercase;letter-spacing:.14em;font-size:11.5px;color:var(--muted)}
+  .eyebrow{font-family:var(--disp);text-transform:uppercase;letter-spacing:.26em;font-size:12px;color:var(--amber);margin-top:14px}
+  h1{font-size:clamp(28px,4.5vw,42px);line-height:1.12;margin:8px 0 10px;max-width:24ch}
+  .lede{color:var(--muted);font-size:16px;font-style:italic;margin:0 0 6px;max-width:66ch}
+  .count{font-family:var(--disp);text-transform:uppercase;letter-spacing:.14em;font-size:11.5px;color:var(--faint);margin:0}
+  .prose{max-width:74ch;margin-top:8px}
+  .prose :global(p){color:var(--muted);font-size:15.5px;line-height:1.7;margin:0 0 16px}
+  .prose :global(a){overflow-wrap:anywhere}
+  section{margin-top:36px}
+  h2{font-size:17px;letter-spacing:.14em;margin:24px 0 4px}
+  .sub{color:var(--muted);font-size:13.5px;margin:0 0 14px;max-width:70ch}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px;margin-top:14px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:16px 18px;display:flex;flex-direction:column;gap:6px;color:inherit}
+  .card:hover{border-color:var(--amber-dim);text-decoration:none}
+  .card .id{font-family:var(--disp);font-size:24px;letter-spacing:.04em;text-transform:uppercase;color:var(--ink)}
+  .card .style{color:var(--muted);font-size:13px}
+  .card .tubes{color:var(--faint);font-family:var(--mono);font-size:11.5px;line-height:1.5}
+  .chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
+</style>
