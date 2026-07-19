@@ -7,11 +7,19 @@ ngspice netlist against published voltage charts, tagged with structured metadat
 connected to its ancestors and descendants in a navigable lineage graph
 (5F6-A → JTM45 → 1959 → 2204 …).
 
-An [Analog Maker](https://theanalogmaker.com) project. Guitar-pedal circuits are on the
+An [Analog Maker](https://theanalogmaker.com) project, live at
+**[circuitcodex.com](https://circuitcodex.com)**. Guitar-pedal circuits are on the
 roadmap once the amp corpus is established.
 
-**Status: Phase 0 — pipeline pilot.** First three circuits (5F1, 5E3, 5F6-A) are being
-run end-to-end to prove the ingest pipeline. Nothing here is `verified` yet.
+**Status: live — [circuitcodex.com](https://circuitcodex.com).** The corpus holds
+**8 circuits** — 7 CI-verified against their published voltage charts, 1 draft — plus
+9 open-licensed tube SPICE models. Every amp carries a redrawn KiCad schematic, an
+ngspice netlist checked node-by-node against the factory voltage chart, a redrawn
+board-layout diagram, structured metadata, and a circuit walkthrough. The current
+tweed-and-early-Marshall set is **5E1, 5E3, 5F1, 5F2-A, 5F4, 5F6-A, 5F10, and the
+JTM45** (5F2-A is the lone draft — its factory drawing prints no voltage chart to
+verify against). Browse it all at
+[circuitcodex.com](https://circuitcodex.com).
 
 ## Principles
 

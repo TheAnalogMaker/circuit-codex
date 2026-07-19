@@ -16,9 +16,30 @@ for (const t of terms) {
   if (!g) { g = { letter, items: [] }; groups.push(g); }
   g.items.push(t);
 }
+
+// Structured data: the whole glossary as a schema.org DefinedTermSet, one
+// DefinedTerm per entry with a stable #slug @id so other pages can reference it.
+const canonical = new URL('reference/glossary/', Astro.site).href;
+const jsonld = {
+  '@context': 'https://schema.org',
+  '@type': 'DefinedTermSet',
+  name: 'Circuit Codex Glossary',
+  description: 'Tube-amp and tube-electronics terms used across the Circuit Codex archive.',
+  url: canonical,
+  inLanguage: 'en',
+  hasDefinedTerm: terms.map((t) => ({
+    '@type': 'DefinedTerm',
+    '@id': `${canonical}#${t.slug}`,
+    name: String(t.term),
+    termCode: t.slug,
+    description: String(t.definition || '').replace(/\s+/g, ' ').trim(),
+    inDefinedTermSet: canonical,
+  })),
+};
 ---
 <Base title="Glossary — Circuit Codex"
-      description="Plain-language definitions for the amp-building and tube-electronics terms used across this archive — cathodyne, long-tailed pair, B+, tone stack, NFB, and more — each linked back to a circuit or reference page that uses it.">
+      description="Plain-language definitions for the amp-building and tube-electronics terms used across this archive — cathodyne, long-tailed pair, B+, tone stack, NFB, and more — each linked back to a circuit or reference page that uses it."
+      jsonld={jsonld}>
 <div class="wrap">
   <header class="ghead">
     <a class="back" href="/reference/">← Reference</a>

@@ -1,0 +1,12 @@
+# Circuit Codex — open, machine-readable tube-amp circuit archive.
+# Crawling and indexing are welcome; the corpus is meant to be found.
+User-agent: *
+Allow: /
+
+# Content signals (per the emerging content-usage / TDM signalling convention).
+# The circuit data is CC-BY-SA, the tube models CC0, the pipeline/site code MIT.
+# Attribution is required for the CC-BY-SA data; see /reference/ and LICENSE files.
+Content-Usage: ai-train=y, ai-input=y, attribution=required
+Content-Signal: search=yes, ai-train=yes
+
+Sitemap: https://circuitcodex.com/sitemap-index.xml

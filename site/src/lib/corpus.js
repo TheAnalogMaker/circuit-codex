@@ -23,12 +23,16 @@ export function loadCorpus() {
       const voltagesRaw = readIfExists(path.join(dir, 'voltages.yaml'));
       const bomRaw = readIfExists(path.join(dir, 'bom.yaml'));
       const notesRaw = readIfExists(path.join(dir, 'notes.md'));
+      const layoutRaw = readIfExists(path.join(dir, 'layout.yaml'));
+      const layout = layoutRaw ? yaml.load(layoutRaw) : null;
       return {
         id: meta.id,
         meta,
         voltages: voltagesRaw ? yaml.load(voltagesRaw) : null,
         bom: bomRaw ? yaml.load(bomRaw) : null,
         notesHtml: notesRaw ? marked.parse(notesRaw.replace(/^# .*\n/, '')) : null,
+        layout,
+        layoutBoard: boardType(layout),
         hasNetlist: fs.existsSync(path.join(dir, 'netlist.cir')),
         hasSchematic: fs.existsSync(path.join(dir, 'schematic.kicad_sch')),
         hasLayout: fs.existsSync(path.join(dir, 'layout.svg')),
@@ -51,6 +55,48 @@ export function corpusStats() {
 export function displayId(id) {
   // Fender's own drawings hyphenate A-suffix models: 5F6-A, 5F2-A
   return String(id).toUpperCase().replace(/^(\d[A-Z]\d+)A$/, '$1-A');
+}
+
+// Board construction, read from the amp's own layout.yaml (board.title) — so the
+// layout image's alt text is data-driven and honest. Fender-style circuits are
+// eyelet boards redrawn from a published factory layout sheet; the JTM45 is a
+// turret board reconstructed from the schematic (no factory layout drawing exists).
+export function boardType(layout) {
+  const title = String(layout?.board?.title || '').toLowerCase();
+  const kind = title.includes('turret') ? 'turret'
+    : title.includes('eyelet') ? 'eyelet'
+    : 'circuit';
+  // "(derived)" in the title, or a "derived" note on the source, means the board
+  // diagram was reconstructed from the schematic rather than a published layout sheet.
+  const derived = /derived/i.test(title) || /derived/i.test(String(layout?.source?.desc || ''));
+  return { kind, derived };
+}
+
+// Data-driven alt text for the redrawn board-layout image. Neutral about the
+// source: "redrawn reference diagram" for boards taken from a published layout
+// sheet, "reconstructed from the schematic" for boards with no factory layout.
+export function layoutAlt(amp) {
+  const name = displayId(amp.id);
+  const { kind, derived } = amp.layoutBoard || boardType(amp.layout);
+  const board = kind === 'circuit' ? 'board' : `${kind} board`;
+  return derived
+    ? `${name} ${board} layout — an original diagram reconstructed from the redrawn schematic (no factory layout sheet exists), showing the principal parts in board order.`
+    : `${name} ${board} layout — an original diagram redrawn from the published layout drawing, showing the principal parts in the order that drawing places them on the board.`;
+}
+
+// A per-amp meta description built from the circuit's own metadata (era, output,
+// tube lineup, topology) so every amp page reads distinctly — 5E1 vs 5F1, etc.
+export function ampMetaDescription(m) {
+  const tubes = (m.tubes || []).join(', ');
+  const rect = m.topology?.rectifier?.type || m.topology?.rectifier?.kind || 'tube';
+  const bias = m.topology?.bias ? `${m.topology.bias}-bias` : null;
+  const pi = m.topology?.phase_inverter && m.topology.phase_inverter !== 'none'
+    ? `${m.topology.phase_inverter} phase inverter` : null;
+  const topo = [bias, pi].filter(Boolean).join(', ');
+  const era = m.era ? `${m.era.start}–${m.era.end}` : '';
+  return `${m.name_style} (${era}), ${m.wattage} W on ${tubes}` +
+    (topo ? `, ${topo}` : '') + `, ${rect} rectifier. ` +
+    `Redrawn KiCad schematic, ngspice-verified netlist, published-chart operating points, and structured metadata.`;
 }
 
 export const GITHUB = 'https://github.com/TheAnalogMaker/circuit-codex';

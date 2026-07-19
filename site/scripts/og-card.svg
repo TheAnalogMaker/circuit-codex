@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1b1610"/>
+      <stop offset="1" stop-color="#120f0c"/>
+    </linearGradient>
+    <linearGradient id="glow" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#e89b3f" stop-opacity="0.14"/>
+      <stop offset="0.6" stop-color="#e89b3f" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+
+  <!-- ground -->
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <rect width="1200" height="630" fill="url(#glow)"/>
+
+  <!-- faint signal-flow baseline motif (schematic rail) -->
+  <g stroke="#3a3025" stroke-width="2" fill="none" opacity="0.55">
+    <path d="M120 470 H430 l24 -22 24 44 24 -44 24 44 24 -22 H720"/>
+    <circle cx="120" cy="470" r="5" fill="#3a3025" stroke="none"/>
+    <circle cx="720" cy="470" r="5" fill="#3a3025" stroke="none"/>
+    <path d="M760 470 h60"/>
+    <rect x="820" y="452" width="80" height="36" rx="4"/>
+    <path d="M900 470 h180"/>
+    <circle cx="1080" cy="470" r="5" fill="#3a3025" stroke="none"/>
+  </g>
+
+  <!-- brand mark: tube glass + amber pin, echoing the site favicon -->
+  <g transform="translate(122,150)">
+    <circle cx="34" cy="42" r="30" fill="none" stroke="#e89b3f" stroke-width="7"/>
+    <rect x="28" y="0" width="12" height="27" rx="4" fill="#e89b3f"/>
+  </g>
+
+  <!-- eyebrow -->
+  <text x="205" y="190" font-family="Avenir Next Condensed, sans-serif" font-weight="600"
+        font-size="27" letter-spacing="7" fill="#a3927b">THE ANALOG MAKER</text>
+
+  <!-- wordmark -->
+  <text x="120" y="322" font-family="Avenir Next Condensed, sans-serif" font-weight="700"
+        font-size="132" letter-spacing="6" fill="#eee2c8">CIRCUIT <tspan fill="#e89b3f">CODEX</tspan></text>
+
+  <!-- subtitle -->
+  <text x="122" y="392" font-family="Avenir Next Condensed, sans-serif" font-weight="500"
+        font-size="40" letter-spacing="3" fill="#a3927b">Verified tube-amp circuit archive</text>
+
+  <!-- footer strip -->
+  <text x="120" y="560" font-family="Avenir Next Condensed, sans-serif" font-weight="600"
+        font-size="23" letter-spacing="4" fill="#7a6a54">REDRAWN SCHEMATICS · NGSPICE-VERIFIED NETLISTS · OPEN DATA</text>
+
+  <!-- amber accent rule -->
+  <rect x="120" y="426" width="132" height="4" rx="2" fill="#e89b3f"/>
+</svg>

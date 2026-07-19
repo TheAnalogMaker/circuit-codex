@@ -1,6 +1,28 @@
 ---
-const { title, description } = Astro.props;
+const { title, description, jsonld, ogType = 'website' } = Astro.props;
 import { GITHUB } from '../lib/corpus.js';
+
+// Absolute URLs for canonical + social cards (Astro.site = https://circuitcodex.com).
+const canonical = new URL(Astro.url.pathname, Astro.site).href;
+const ogImage = new URL('og.png', Astro.site).href;
+
+// Structured data: use whatever the page passed; otherwise, guide/safety pages
+// get a default TechArticle so the reference section is machine-readable.
+const path = Astro.url.pathname;
+const isGuide = path.startsWith('/reference/guides/') || path.startsWith('/reference/safety');
+let ld = jsonld;
+if (!ld && isGuide) {
+  ld = {
+    '@context': 'https://schema.org',
+    '@type': 'TechArticle',
+    headline: title,
+    name: title,
+    description,
+    url: canonical,
+    inLanguage: 'en',
+    publisher: { '@type': 'Organization', name: 'Circuit Codex' },
+  };
+}
 ---
 <!doctype html>
 <html lang="en">
@@ -9,6 +31,22 @@ import { GITHUB } from '../lib/corpus.js';
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>{title}</title>
 <meta name="description" content={description} />
+<link rel="canonical" href={canonical} />
+<link rel="sitemap" href="/sitemap-index.xml" />
+<meta property="og:site_name" content="Circuit Codex" />
+<meta property="og:type" content={ogType} />
+<meta property="og:title" content={title} />
+<meta property="og:description" content={description} />
+<meta property="og:url" content={canonical} />
+<meta property="og:image" content={ogImage} />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:alt" content="Circuit Codex — verified tube-amp circuit archive" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content={title} />
+<meta name="twitter:description" content={description} />
+<meta name="twitter:image" content={ogImage} />
+{ld && <script type="application/ld+json" set:html={JSON.stringify(ld)} />}
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='55' r='30' fill='none' stroke='%23e89b3f' stroke-width='8'/><rect x='44' y='10' width='12' height='28' rx='4' fill='%23e89b3f'/></svg>" />
 <style is:global>
   :root{

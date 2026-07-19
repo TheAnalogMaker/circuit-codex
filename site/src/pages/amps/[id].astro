@@ -1,6 +1,6 @@
 ---
 import Base from '../../layouts/Base.astro';
-import { loadCorpus, displayId, GITHUB } from '../../lib/corpus.js';
+import { loadCorpus, displayId, ampMetaDescription, layoutAlt, GITHUB } from '../../lib/corpus.js';
 
 export async function getStaticPaths() {
   return loadCorpus().map((amp) => ({ params: { id: amp.id }, props: { amp } }));
@@ -10,13 +10,26 @@ const m = amp.meta;
 const v = m.verification || {};
 const vDate = v.date ? new Date(v.date).toISOString().slice(0, 10) : null;
 const ghDir = `${GITHUB}/tree/main/amps/${amp.id}`;
+const metaDescription = ampMetaDescription(m);
+const canonical = new URL(`amps/${amp.id}/`, Astro.site).href;
+const jsonld = {
+  '@context': 'https://schema.org',
+  '@type': 'TechArticle',
+  headline: `${displayId(amp.id)} — ${m.name_style}`,
+  name: `${displayId(amp.id)} — ${m.name_style}`,
+  description: metaDescription,
+  url: canonical,
+  inLanguage: 'en',
+  about: `${m.name_style} guitar amplifier circuit`,
+  ...(vDate ? { datePublished: vDate } : {}),
+  publisher: { '@type': 'Organization', name: 'Circuit Codex' },
+};
 ---
 <Base title={`${displayId(amp.id)} — ${m.name_style} · Circuit Codex`}
-      description={`${m.name_style} (${m.era.start}–${m.era.end}): structured metadata, simulation-checked netlist, and circuit walkthrough.`}>
+      description={metaDescription} ogType="article" jsonld={jsonld}>
 <div class="wrap wrap-wide">
   <header class="amp-head">
-    <h1>{displayId(amp.id)}</h1>
-    <span class="style">{m.name_style} · {m.era.start}–{m.era.end} · {m.wattage} W</span>
+    <h1>{displayId(amp.id)} <span class="style">{m.name_style} · {m.era.start}–{m.era.end} · {m.wattage} W</span></h1>
     {v.status === 'verified'
       ? <span class="chip ok">✓ verified {vDate}</span>
       : <span class="chip">draft</span>}
@@ -29,7 +42,11 @@ const ghDir = `${GITHUB}/tree/main/amps/${amp.id}`;
         {amp.hasSchematic ? (
           <div class="viewer-canvas">
             <script type="module" src="/vendor/kicanvas.js" is:inline></script>
-            <kicanvas-embed src={`/schematics/${amp.id}.kicad_sch`} controls="basic"></kicanvas-embed>
+            <kicanvas-embed src={`/schematics/${amp.id}.kicad_sch`} controls="basic"
+              aria-label={`Interactive schematic: ${m.name_style} ${displayId(amp.id)}, redrawn in KiCad`}></kicanvas-embed>
+            <noscript><p class="viewer-fallback">Interactive schematic requires JavaScript.
+              Download the redrawn KiCad schematic for {displayId(amp.id)}:
+              <a href={`${ghDir}/schematic.kicad_sch`}>schematic.kicad_sch</a>.</p></noscript>
           </div>
         ) : (
           <div class="viewer-body">
@@ -45,7 +62,7 @@ const ghDir = `${GITHUB}/tree/main/amps/${amp.id}`;
           <div class="viewer-head">Board layout — redrawn reference diagram · source noted on the drawing</div>
           <div class="layout-canvas">
             <img src={`/layouts/${amp.id}.svg`} loading="lazy" decoding="async"
-              alt={`${displayId(amp.id)} eyelet board layout — an original, redrawn board diagram showing the principal parts in the order the published layout drawing places them on the board.`} />
+              alt={layoutAlt(amp)} />
           </div>
         </div>
       )}
@@ -70,6 +87,8 @@ const ghDir = `${GITHUB}/tree/main/amps/${amp.id}`;
               ))}
             </tbody>
           </table></div>
+          <p class="footnote">Tube-pin nodes are checked against the chart's own printed
+            ±20% convention; power-rail nodes are held to tighter internal verification targets.</p>
         </section>
       )}
 
@@ -138,7 +157,9 @@ const ghDir = `${GITHUB}/tree/main/amps/${amp.id}`;
 <style>
   .amp-head{display:flex;align-items:baseline;gap:16px;flex-wrap:wrap;padding:56px 0 8px}
   h1{font-size:38px;letter-spacing:.05em;margin:0}
-  .style{color:var(--muted)}
+  /* The subtitle now lives inside the h1 (one heading for SEO/a11y) but keeps its
+     original look: body font, sentence case, muted, lighter than the display title. */
+  h1 .style{font-family:var(--body);text-transform:none;font-weight:400;letter-spacing:normal;font-size:16px;color:var(--muted);white-space:normal}
   .wrap-wide{max-width:1140px}
   .cols{display:grid;grid-template-columns:1fr minmax(280px,340px);gap:24px;align-items:start;margin-top:16px}
   @media(max-width:820px){.cols{grid-template-columns:1fr}}
@@ -152,6 +173,8 @@ const ghDir = `${GITHUB}/tree/main/amps/${amp.id}`;
   .layout-canvas img{display:block;width:100%;height:auto;border-radius:4px}
   h2{font-size:17px;letter-spacing:.14em;margin:28px 0 4px}
   .sub{color:var(--muted);font-size:13.5px;margin:0 0 14px;max-width:70ch}
+  .footnote{color:var(--faint);font-size:12px;margin:10px 0 0;max-width:70ch}
+  .viewer-fallback{padding:22px 18px;color:var(--muted);font-size:14.5px;margin:0}
   .meta{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:18px;position:sticky;top:72px}
   .meta dl{margin:0;display:grid;grid-template-columns:max-content 1fr;gap:9px 14px;font-size:14px}
   .meta dt{color:var(--faint);text-transform:uppercase;font-family:var(--disp);letter-spacing:.1em;font-size:11px;padding-top:2px}
