@@ -7,12 +7,12 @@
 # Format:  <amp_id>: "<reason>"
 #
 # The pilot fixed 5f1 and 5e3 to zero lint (lane/via adjustments preserving the
-# published routing and era wire colours). The remaining six carry the same
-# legibility debt and are queued for the same remediation.
+# published routing and era wire colours). 5e1, 5f2a and 5f10 have since been
+# brought to zero lint the same way. The three below carry the remaining
+# legibility debt and are queued for the same remediation; their wiring is
+# already electrically verified (wiring_claim: verified) — only the collision
+# lint is outstanding.
 waivers:
-  5e1:   "pending legibility remediation 2026-07-19"
-  5f2a:  "pending legibility remediation 2026-07-19"
-  5f4:   "pending legibility remediation 2026-07-19"
-  5f6a:  "pending legibility remediation 2026-07-19"
-  5f10:  "pending legibility remediation 2026-07-19"
-  jtm45: "pending legibility remediation 2026-07-19"
+  5f4:   "pending legibility remediation 2026-07-19 (wiring verified; lint ~50% remediated)"
+  5f6a:  "pending legibility remediation 2026-07-19 (wiring verified)"
+  jtm45: "pending legibility remediation 2026-07-19 (wiring verified)"
