@@ -1,0 +1,181 @@
+# Board layout — redrawn from the published Fender "Harvard" 5F10 layout
+# drawing (F-EF, page 1 of the same sheet as the schematic). Part refs are the
+# shared key into bom.yaml; the renderer reads each value and part type from
+# there. A legible, schematic-style redraw of the board's principal components
+# in the order the drawing shows them — never a trace or a dimensioned
+# reproduction.
+#
+# Board reads left→right: bias supply / B+ filters / output-stage grid
+# networks at the left-and-centre, cathodyne + driver stages interleaved
+# through the middle (matching the drawing's own component order, which does
+# not mirror signal flow), input (6AT6) stage at the right — matching the
+# tube row on the drawing (5Y3GT · 6V6GT · 6V6GT · 12AX7 · 6AT6).
+#
+# One part of the drawing is NOT reproduced here: the output transformer is
+# never drawn as a discrete symbol on the F-EF layout sheet (only the speaker
+# jack is shown). Its presence and its two board-side connections (plate pair
+# + B+1 centre tap) are derived honestly from the schematic/netlist, and its
+# leads are left in the neutral hookup tone since the sheet gives them no
+# colour. Grid stoppers mounted directly at a tube socket (the 6V6 pair's
+# 1.5 kΩ stoppers) are likewise omitted for legibility, as are the tone/bright
+# caps that mount right at the pot lugs rather than on the board.
+board:
+  rows: 2
+  cols: 60
+  title: "5F10 · eyelet board layout"
+caption: "Redrawn from the published Fender Harvard 5F10 layout drawing (F-EF) — principal board components, in the order the drawing shows them. The output transformer is not drawn on the source sheet as a discrete symbol; its connections are derived from the schematic and left uncoloured. Grid stoppers mounted at the 6V6 sockets and the tone/bright caps at the pot lugs are omitted for legibility. Not a trace or a dimensioned reproduction."
+source:
+  desc: "Fender 'Harvard' Model 5F10 drawing (F-EF), page 1 of 2 (layout; page 2 is the schematic reproduced in this amp's schematic.kicad_sch)"
+  url: "https://el34world.com/charts/Schematics/files/Fender/Fender_harvard_5f10.pdf"
+
+parts:
+  # bias supply (selenium rectifier network, far left)
+  - { ref: RB2, a: [0, 0],  b: [1, 0] }    # 56k bias bleeder
+  - { ref: RB1, a: [0, 2],  b: [1, 2] }    # 6.8k bias series resistor
+  - { ref: C11, a: [0, 4],  b: [1, 4] }    # 25 µF bias filter (drawing shows one legible can; BOM notes a second, unmarked)
+  # B+ filter chain (three 16 µF cans, 470 Ω then 22 k droppers)
+  - { ref: C8,  a: [0, 6],  b: [1, 6] }    # 16 µF · 450 V, B+1
+  - { ref: RD1, a: [1, 8],  b: [1, 10] }   # 470 Ω dropper, B+1 → B+2
+  - { ref: C9,  a: [0, 12], b: [1, 12] }   # 16 µF · 450 V, B+2 (6V6 screens)
+  - { ref: RD2, a: [1, 14], b: [1, 16] }   # 22k dropper, B+2 → B+3
+  - { ref: C10, a: [0, 18], b: [1, 18] }   # 16 µF · 450 V, B+3 (preamp/PI/plate loads)
+  # cathodyne phase inverter self-bias stack (its signature, like the 5E3's)
+  - { ref: RKA,  a: [0, 20], b: [1, 20], nudge: [2, -26] }   # 1.5k cathode → junction
+  - { ref: RKB,  a: [1, 22], b: [1, 24] }   # 56k junction → ground
+  # driver stage cathode + speaker negative-feedback (board interleaves this
+  # between the cathodyne parts, as the drawing itself does)
+  - { ref: RK2,  a: [0, 26], b: [1, 26], nudge: [2, -26] }   # 1.5k driver cathode (unbypassed)
+  - { ref: RNFB, a: [0, 28], b: [1, 28] }   # 56k NFB, driver cathode → speaker line
+  # back to the cathodyne: grid leak, cathode coupler, and the two 6V6
+  # fixed-bias grid leaks that live on the board next to the coupling caps
+  - { ref: RGPI, a: [0, 30], b: [1, 30] }   # 1M grid leak, returned to the junction
+  - { ref: C7,   a: [0, 32], b: [1, 32] }   # 0.1 µF · 200 V, PI cathode → lower 6V6 grid
+  - { ref: RG1,  a: [0, 34], b: [1, 34] }   # 220k, fixed-bias line → upper 6V6 grid
+  - { ref: RG2,  a: [0, 36], b: [1, 36] }   # 220k, fixed-bias line → lower 6V6 grid
+  - { ref: C6,   a: [0, 38], b: [1, 38] }   # 0.1 µF · 400 V, PI plate → upper 6V6 grid
+  - { ref: RL3,  a: [0, 40], b: [1, 40] }   # 56k cathodyne plate load
+  # driver plate + coupler to the PI grid
+  - { ref: RL2,  a: [0, 42], b: [1, 42] }   # 100k driver plate load
+  - { ref: C5,   a: [0, 44], b: [1, 44] }   # 0.02 µF · 400 V, driver plate → PI grid
+  # 6AT6 plate load + coupler to the volume control
+  - { ref: RL1,  a: [0, 46], b: [1, 46] }   # 100k 6AT6 plate load
+  - { ref: C2,   a: [0, 48], b: [1, 48] }   # 0.02 µF · 400 V, 6AT6 plate → volume
+  # three input grid stoppers, converging on the 6AT6 grid (right end)
+  - { ref: R1s, a: [0, 50], b: [1, 50] }   # 68k, input 1
+  - { ref: R2s, a: [0, 52], b: [1, 52] }   # 68k, input 2
+  - { ref: R3s, a: [0, 54], b: [1, 54] }   # 68k, input 3
+  # 6AT6 cathode bias (far right end)
+  - { ref: RK1, a: [0, 56], b: [1, 56] }   # 1.5k 6AT6 cathode
+  - { ref: C1,  a: [0, 58], b: [1, 58] }   # 25 µF 6AT6 cathode bypass
+
+offboard:
+  - { id: PT,   kind: xfmr,   edge: left,   at: 0.5,  label: "Power trans" }
+  - { id: SELRECT, ref: D1, kind: rect, edge: top, at: 2, label: "Selenium rect." }
+  - { id: V5,   ref: V5,  kind: tube, edge: bottom, at: 3,   label: "V5 · 5Y3GT" }
+  - { id: V3,   ref: V3,  kind: tube, edge: bottom, at: 22,  label: "V3 · 6V6GT" }
+  - { id: V4,   ref: V4,  kind: tube, edge: bottom, at: 28,  label: "V4 · 6V6GT" }
+  - { id: SPK,  kind: jack,  edge: bottom, at: 35,  label: "Spkr jack" }
+  - { id: T1,   kind: xfmr,  edge: right,  at: 0.3, label: "Output trans" }
+  - { id: V2,   ref: V2,  kind: tube, edge: bottom, at: 41,  label: "V2 · 12AX7" }
+  - { id: V1,   ref: V1,  kind: tube, edge: bottom, at: 53,  label: "V1 · 6AT6" }
+  - { id: VR2,  ref: VR2, kind: pot,  edge: top, at: 24,  label: "Tone" }
+  - { id: VR1,  ref: VR1, kind: pot,  edge: top, at: 32,  label: "Volume" }
+  - { id: JI1,  kind: jack,  edge: top, at: 48,  label: "Input 1" }
+  - { id: JI2,  kind: jack,  edge: top, at: 51,  label: "Input 2" }
+  - { id: JI3,  kind: jack,  edge: top, at: 54,  label: "Input 3" }
+
+# Ground bus — the bare-wire rail just below the bottom eyelet row; cathode,
+# filter, and pot grounds all tie to it.
+bus:
+  - { from: [1.45, -0.4], to: [1.45, 58.4] }
+
+# Wiring — read lead-by-lead from the published 5F10 layout drawing (F-EF).
+# The power-transformer leads carry the colours marked on that drawing;
+# every other lead is bare hookup wire in the neutral tone. Endpoints
+# reference board eyelets (REF.a/REF.b), tube socket pins (Vn.pinN, validated
+# against the reference basing data), pot lugs (VRn.lugN), jacks, and
+# transformer leads.
+runs:
+  # --- power transformer secondary → 5Y3GT rectifier (marked colours) -------
+  - { from: PT.red1, to: V5.pin4 }                    # HT plate 1
+  - { from: PT.red2, to: V5.pin6 }                    # HT plate 2
+  - { from: PT.red-yellow, to: [1.45, 2] }             # HT centre tap → ground bus (drawing labels this lead "yellow-red")
+  - { from: PT.yellow1, to: V5.pin2 }                  # 5 V rectifier filament
+  - { from: PT.yellow2, to: V5.pin8 }                  # 5 V rectifier filament / B+ output
+  - { from: V5.pin8, to: C8.a, color: red, via: [[6, 1.55]] }   # B+ out → first filter
+
+  # --- B+ filter chain (three 16 µF cans, 470 Ω then 22k droppers) ----------
+  - { from: C8.a, to: RD1.a }
+  - { from: RD1.b, to: C9.a }
+  - { from: C9.a, to: RD2.a }
+  - { from: RD2.b, to: C10.a }
+  - { from: C8.b, to: [1.45, 6] }
+  - { from: C9.b, to: [1.45, 12] }
+  - { from: C10.b, to: [1.45, 18] }
+
+  # --- bias supply: selenium rectifier, 6.8k/56k, filter can, -21V feed ----
+  - { from: PT.white, to: SELRECT, via: [[1.6, -0.15]] }     # bias AC tap
+  - { from: PT.green1, to: SELRECT, via: [[0.9, 0.15]] }     # bias AC tap, return
+  - { from: SELRECT, to: RB1.a }
+  - { from: RB1.b, to: RB2.a }                              # junction: the -21 V node
+  - { from: RB2.b, to: [1.45, 0] }
+  - { from: RB1.b, to: C11.a }
+  - { from: C11.b, to: [1.45, 4] }
+  - { from: RB1.b, to: RG1.b, via: [[2, 1.85], [34, 1.85]] }    # -21 V line → upper 6V6 grid leak (routed under the board)
+  - { from: RB1.b, to: RG2.b, via: [[2, 2.0], [36, 2.0]] }      # -21 V line → lower 6V6 grid leak (routed under the board)
+
+  # --- output stage: OT (derived), screens, grids ---------------------------
+  - { from: C8.a, to: T1.ct, via: [[6, 2.6], [60.3, 2.6]] }        # B+1 → OT primary centre tap
+  - { from: V3.pin3, to: T1.plateA, via: [[22, 2.72], [60.5, 2.72]] }  # upper 6V6 plate → OT primary
+  - { from: V4.pin3, to: T1.plateB, via: [[28, 2.84], [60.7, 2.84]] }  # lower 6V6 plate → OT primary
+  - { from: T1.sec1, to: SPK.tip }
+  - { from: T1.sec2, to: SPK.sleeve }
+  - { from: V3.pin4, to: C9.a, via: [[22, 2.4], [12, 2.4]] }       # upper 6V6 screen → B+2
+  - { from: V4.pin4, to: C9.a, via: [[28, 2.5], [12, 2.5]] }       # lower 6V6 screen → B+2
+  - { from: V3.pin8, to: [1.45, 22] }                              # upper 6V6 cathode → ground bus
+  - { from: V4.pin8, to: [1.45, 28] }                              # lower 6V6 cathode → ground bus
+
+  # --- cathodyne phase inverter (V2, unit 2 = pins 1/2/3) -------------------
+  - { from: V2.pin1, to: RL3.a, via: [[41, 1.6]] }      # cathodyne plate → 56k plate load
+  - { from: RL3.b, to: C10.a, via: [[40, 0.7], [18.3, 0.7]] }   # plate load → B+3
+  - { from: V2.pin1, to: C6.a, via: [[41.3, 1.5]] }     # cathodyne plate → plate-side coupler
+  - { from: C6.b, to: V3.pin5, via: [[38, 3.2], [22, 3.2]] }   # coupler → upper 6V6 grid
+  - { from: RG1.a, to: C6.b, via: [[34, 0.72], [37.7, 0.72]] }   # bias grid leak → same grid node
+  - { from: V2.pin3, to: RKA.a, via: [[40.6, 0.74], [20.3, 0.74]] }    # cathodyne cathode → 1.5k
+  - { from: RKA.b, to: RKB.a }                          # junction → 56k cathode load
+  - { from: RKB.b, to: [1.45, 24] }                     # 56k → ground bus
+  - { from: RKA.b, to: C7.a, via: [[20.6, 0.76], [31.7, 0.76]] }   # junction → cathode-side coupler
+  - { from: C7.b, to: V4.pin5, via: [[32, 3.32], [28, 3.32]] }   # coupler → lower 6V6 grid
+  - { from: RG2.a, to: C7.b, via: [[36, 0.78], [32.3, 0.78]] }   # bias grid leak → same grid node
+  - { from: RGPI.a, to: RKA.b }                         # PI grid leak → junction
+  - { from: RGPI.b, to: V2.pin2, via: [[30, 1.6]] }     # PI grid leak → cathodyne grid
+
+  # --- driver stage (V2, unit 1 = pins 6/7/8) + NFB -------------------------
+  - { from: V2.pin6, to: RL2.a, via: [[41, 1.55]] }     # driver plate → 100k plate load
+  - { from: RL2.b, to: C10.a, via: [[42, 0.72], [18.3, 0.72]] }   # plate load → B+3
+  - { from: V2.pin6, to: C5.a, via: [[41.2, 1.45]] }     # driver plate → coupler
+  - { from: C5.b, to: V2.pin2, via: [[44, 1.7], [41.3, 1.65]] }  # coupler → PI grid (same node as RGPI)
+  - { from: V2.pin8, to: RK2.a, via: [[40.8, 0.75], [26.3, 0.75]] }    # driver cathode → 1.5k (unbypassed)
+  - { from: V2.pin8, to: RNFB.a, via: [[40.4, 0.78], [28.3, 0.78]] }    # driver cathode → NFB resistor
+  - { from: RK2.b, to: [1.45, 26] }                      # 1.5k → ground bus
+  - { from: RNFB.b, to: SPK.tip, via: [[28.3, 3.4], [35, 2.2]] }   # NFB → speaker line
+  - { from: VR1.lug2, to: V2.pin7, via: [[32, -0.45], [32.3, 0.76], [41.2, 1.55]] }  # volume wiper → driver grid
+
+  # --- 6AT6 input stage: three jacks, volume/tone, plate, cathode ----------
+  - { from: JI1, to: R1s.a, via: [[48, -0.45]] }
+  - { from: JI2, to: R2s.a, via: [[51, -0.45]] }
+  - { from: JI3, to: R3s.a, via: [[54, -0.45]] }
+  - { from: R1s.b, to: V1.pin1, via: [[50, 1.6]] }       # grid-stopper junction → 6AT6 grid
+  - { from: R2s.b, to: R1s.b }
+  - { from: R3s.b, to: R1s.b }
+  - { from: V1.pin7, to: RL1.a, via: [[53, 1.6]] }       # 6AT6 plate → 100k load
+  - { from: RL1.b, to: C10.a, via: [[46, 0.74], [18.3, 0.74]] }   # plate load → B+3
+  - { from: V1.pin7, to: C2.a, via: [[53.2, 1.65]] }     # 6AT6 plate → coupler
+  - { from: C2.b, to: VR2.lug3, via: [[48, -0.45], [24, -0.5]] }   # coupler → tone (first pot after 6AT6)
+  - { from: VR2.lug2, to: VR1.lug3, via: [[24, -0.85], [32, -0.85]] }  # tone wiper → volume input
+  - { from: VR2.lug1, to: [1.45, 24] }                    # tone ground
+  - { from: VR1.lug1, to: [1.45, 32] }                    # volume ground
+  - { from: V1.pin2, to: RK1.a, via: [[53.4, 1.7]] }     # 6AT6 cathode → 1.5k
+  - { from: RK1.b, to: [1.45, 56] }                       # 1.5k → ground bus
+  - { from: C1.a, to: RK1.a }                             # cathode bypass
+  - { from: C1.b, to: [1.45, 58] }
