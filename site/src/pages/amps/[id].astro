@@ -11,6 +11,11 @@ const v = m.verification || {};
 const vDate = v.date ? new Date(v.date).toISOString().slice(0, 10) : null;
 const ghDir = `${GITHUB}/tree/main/amps/${amp.id}`;
 const wiringVerified = amp.layout?.wiring_claim === 'verified';
+const isVerified = v.status === 'verified';
+// True when the circuit carries no published voltage chart at all — every node is
+// simulation-only (chart: null). Such pages must not promise chart comparison.
+const allChartNull = !!amp.voltages && Object.values(amp.voltages.nodes)
+  .every((e) => e.chart === null || e.chart === undefined);
 const metaDescription = ampMetaDescription(m);
 const canonical = new URL(`amps/${amp.id}/`, Astro.site).href;
 const jsonld = {
@@ -71,8 +76,9 @@ const jsonld = {
               netlist places on this board — the tube sockets, the plate, cathode and grid-leak
               resistors, the power-rail droppers, and the coupling and bypass capacitors whose two
               leads are both named DC nodes — has been verified in CI, terminal for terminal, to be
-              electrically equivalent to the simulated netlist this circuit is verified
-              against: the same net structure, no missing or extra connections. Parts outside
+              electrically equivalent to {isVerified
+                ? 'the simulated netlist this circuit is verified against'
+                : "the circuit's simulated netlist"}: the same net structure, no missing or extra connections. Parts outside
               that DC model — the volume / tone / mixer control-network internals, the
               negative-bias front end, and the heater chain, pilot lamp and power-transformer /
               rectifier AC side — are drawn from the cited sources but are <em>not</em>
@@ -91,11 +97,17 @@ const jsonld = {
 
       {amp.voltages && (
         <section>
-          <h2>Operating point vs. published chart</h2>
-          <p class="sub">Chart values read from the published drawing — or, where the drawing carries no voltage chart, from the cited published measurements (never reproduced).
-            Tolerances are this project's verification targets — tighter on power rails
-            than the ±20% measurement convention Fender printed on its charts.
-            {v.status === 'verified' && ` Simulation matches every node within target — worst deviation ${v.max_deviation_pct}%.`}</p>
+          <h2>{allChartNull ? 'Simulated operating point' : 'Operating point vs. published chart'}</h2>
+          {allChartNull
+            ? <p class="sub">No published voltage chart exists for this circuit — the factory
+                drawing prints component values only. The voltages below are informational
+                results simulated from the redrawn netlist, not read from or checked against any
+                chart. Because there is no measured reference to verify against, this circuit is
+                published as a draft.</p>
+            : <p class="sub">Chart values read from the published drawing — or, where the drawing carries no voltage chart, from the cited published measurements (never reproduced).
+                Tolerances are this project's verification targets — tighter on power rails
+                than the ±20% measurement convention Fender printed on its charts.
+                {isVerified && ` Simulation matches every node within target — worst deviation ${v.max_deviation_pct}%.`}</p>}
           <div class="tbl"><table>
             <thead><tr><th>Node</th><th>Chart</th><th>Tolerance</th><th>Note</th></tr></thead>
             <tbody>
@@ -109,15 +121,20 @@ const jsonld = {
               ))}
             </tbody>
           </table></div>
-          <p class="footnote">Tube-pin nodes are checked against the chart's own printed
-            ±20% convention; power-rail nodes are held to tighter internal verification targets.</p>
+          {allChartNull
+            ? <p class="footnote">Every node here is simulation-only — there is no published
+                chart to check against — so no chart column or tolerance is shown.</p>
+            : <p class="footnote">Tube-pin nodes are checked against the chart's own printed
+                ±20% convention; power-rail nodes are held to tighter internal verification targets.</p>}
         </section>
       )}
 
       {amp.bom && (
         <section>
           <h2>Parts list</h2>
-          <p class="sub">Reference designators match the schematic above. {amp.bom.notes}</p>
+          <p class="sub">{amp.hasSchematic
+            ? 'Reference designators match the schematic above.'
+            : 'Reference designators follow the corpus convention; the redrawn schematic is in progress.'} {amp.bom.notes}</p>
           <div class="tbl"><table>
             <thead><tr><th>Ref</th><th>Part</th><th>Value / rating</th><th>Role</th></tr></thead>
             <tbody>
