@@ -36,22 +36,55 @@ SCOPE (printed every run, honestly)
 Heaters (twisted runs), the pilot lamp, the power-transformer HT/AC secondary,
 and the rectifier are NOT in netlist.cir; they are an annotation layer, excluded
 by EXPLICIT rules — never by widening an exclusion to bury a failure. The
-checker prints how many runs it checked and how many it excluded and why, and
+checker prints how many runs it checked and how many it excluded and why; the
+full tube accounting (every bottle anchored / rectifier excluded / UNANCHORED);
 which netlist elements have no discrete board part (pots modelled as grid-leak
-resistors, input grid leaks mounted at the jacks).
+resistors, input grid leaks mounted at the jacks); and — loudly — the board
+terminals inside the UNVERIFIED control-network island the netlist abstracts.
+
+------------------------------------------------------------------------------
+GATE HARDENING (2026-07-19) — closing the adversarial-audit escapes
+------------------------------------------------------------------------------
+An audit planted 26 faults; 12 escaped. Each escape is now closed at the level
+that makes it impossible, not patched at the symptom:
+
+  H1  valve-alias  a valve printed under its EU name ('ECC83 (12AX7)') resolves
+      to its basing slug ('12ax7') via resolve_tube_slug (data-driven from every
+      reference/tubes YAML's `also_known_as`). Basing-not-found for a tube on a
+      claimed amp is a HARD FAILURE, never a silent skip.
+  H2  anchoring    netlist bottles bind to sockets by id, else by unique tube
+      TYPE (_resolve_bottles) — a function-named instance (XPIA) still anchors,
+      so a naming convention can't defeat the check.
+  H3  accounting   EVERY netlist tube is anchored / declared-excluded (rectifier)
+      / UNANCHORED, and the tally prints regardless; UNANCHORED on a claimed amp
+      fails CI.
+  H4  island       the pot/mixer/tone control networks the netlist abstracts are
+      declared terminal-by-terminal ("unverified island"), so a mis-lugged pot
+      ground can't hide in silence.
+  H5/H6  the DATA fix: netlist.cir now carries the signal-path parts it used to
+      omit — PI-plate→output-grid coupling caps, output-tube grid leaks, grid
+      stoppers — so the isomorphism check covers inter-stage routing and push-
+      pull phase NATIVELY (a coupler on the wrong grid, or crossed PI outputs,
+      is now a WRONG TERMINAL). DC-open caps / no-grid-current leaks don't move
+      the op point (verified against voltages.yaml, not assumed).
+  H7  twisted      a style:twisted (heater) run is validated to land on heater
+      pins; a signal run relabelled 'twisted' to duck the check is a HARD FAILURE.
+  H8  anchors      each net_map anchor is re-solved with it removed and labelled
+      CONSTRAINING or REDUNDANT, so an inert anchor can't masquerade as support.
 
 ------------------------------------------------------------------------------
 VERDICT + GATE
 ------------------------------------------------------------------------------
 Per amp: PASS/FAIL with per-net diffs in builder language (extra connection /
-missing connection / wrong terminal). An amp whose layout.yaml carries
-`wiring_claim: verified` is HARD-GATED (a failure fails CI); an amp without the
-claim is report-only. Mirrors the `verification.status: verified` netlist gate.
+missing connection / wrong terminal / unanchored tube / twisted-on-signal-pin).
+An amp whose layout.yaml carries `wiring_claim: verified` is HARD-GATED (a
+failure fails CI); an amp without the claim is report-only. Mirrors the
+`verification.status: verified` netlist gate.
 
 Run it (imports render_layouts, so pipeline/ must be on sys.path):
     python3 pipeline/render_layouts.py            # (re)generate SVGs first
     cd pipeline && python3 verify_layout_nets.py  # check all amps
-    python3 verify_layout_nets.py --analyze 5e3   # dump graphs for one amp
+    python3 verify_layout_nets.py --analyze 5e3   # dump graphs + tube anchoring
     python3 verify_layout_nets.py --selftest      # planted-fault mutation test
 """
 from __future__ import annotations
@@ -67,8 +100,9 @@ import yaml
 from render_layouts import (
     Renderer,
     load_bom,
+    load_tube_heater_pins,
     primary_value,
-    tube_slug,
+    resolve_tube_slug,
 )
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -286,8 +320,20 @@ def _subckt_roles(name: str) -> list[str] | None:
 
 
 def _split_inst(label: str):
-    """XV1A -> bottle 'V1', section 'A'; XV2 -> 'V2', None; XV3 -> 'V3', None."""
-    if label and label[-1] in ("A", "B", "C", "D") and label[:-1] and label[:-1][-1].isdigit():
+    """Split a netlist X-instance label into (bottle, section).
+
+      XV1A -> ('V1', 'A');  XV2 -> ('V2', None);  XPIA -> ('PI', 'A')
+
+    A trailing A/B/C/D is a triode-half SECTION only when it follows a
+    multi-character stem (so a lone 'A'/'B' bottle isn't mangled). The stem no
+    longer has to end in a digit — 'PIA'/'PIB' (a phase-inverter labelled by
+    function, not socket number) must split to bottle 'PI' so the robust
+    bottle->socket resolver can still anchor it (H2). Anchoring never relies on
+    the bottle string alone: _resolve_bottles() cross-references by socket id and
+    tube type, and an unresolved bottle on a claimed amp is a hard failure (H3),
+    so a misleading label can neither defeat anchoring nor pass silently."""
+    if (label and label[-1] in ("A", "B", "C", "D") and len(label) >= 3
+            and not label[:-1].isdigit()):
         return label[:-1], label[-1]
     return label, None
 
@@ -396,8 +442,18 @@ def analyze(amp_id: str) -> int:
     print(f"\n=== {amp_id}: TUBE BASING (signal pins) ===")
     for it in R.offboard:
         if it.get("kind") == "tube" and it.get("ref"):
-            slug = tube_slug(primary_value(R.bom_for(it["ref"])["value"]))
+            slug = resolve_tube_slug(primary_value(R.bom_for(it["ref"])["value"]))
             print(f"  {it['id']} ({slug}): {load_basing(slug)}")
+
+    print(f"\n=== {amp_id}: TUBE ANCHORING (netlist bottle -> socket) ===")
+    basing_inv, bottle_socket, unresolved, excluded_sockets, _sk = \
+        _tube_anchoring(comps, R)
+    for bottle, sid in sorted(bottle_socket.items()):
+        print(f"  {bottle} -> socket {sid}  (anchored: {sorted(basing_inv.get(bottle, {}).values())} pins)")
+    for sid, why in excluded_sockets:
+        print(f"  socket {sid}: EXCLUDED — {why}")
+    for bottle, why in unresolved:
+        print(f"  {bottle}: UNRESOLVED — {why}")
     return 0
 
 
@@ -412,6 +468,7 @@ class Result:
         self.errors: list[str] = []       # per-net diffs (builder language)
         self.scope: list[str] = []        # honest coverage lines
         self.info: list[str] = []         # declared reconciliations
+        self.anchor_class: dict = {}      # net_map anchor -> CONSTRAINING|REDUNDANT (H8)
 
 
 def _invert_basing(basing: dict) -> dict:
@@ -434,14 +491,105 @@ def _part_terms(R: Renderer) -> dict:
     return terms
 
 
-def _bottle_of(R: Renderer) -> dict:
-    """netlist bottle id (V1/V2/...) -> reference/tubes slug, from the offboard
-    tube of the same id."""
+def _sockets(R: Renderer) -> dict:
+    """socket id -> {slug, part, ref, value, heater_pins} for every off-board
+    tube, using the EU/US-aware slug resolver (H1) so a valve printed under its
+    European name ('ECC83 (12AX7)') still resolves to its basing ('12ax7')."""
     out = {}
     for it in R.offboard:
         if it.get("kind") == "tube" and it.get("ref"):
-            out[it["id"]] = tube_slug(primary_value(R.bom_for(it["ref"])["value"]))
+            rec = R.bom_for(it["ref"])
+            val = primary_value(rec["value"])
+            slug = resolve_tube_slug(val)
+            out[it["id"]] = {
+                "slug": slug,
+                "part": str(rec.get("part", "")),
+                "ref": it["ref"],
+                "value": val,
+                "heater_pins": load_tube_heater_pins(slug),
+            }
     return out
+
+
+def _resolve_bottles(comps, sockets: dict) -> tuple[dict, list, list]:
+    """Map every netlist tube BOTTLE to a physical socket, robustly (H2/H3).
+
+    Returns (bottle_socket, unresolved, excluded_sockets):
+      bottle_socket    netlist-bottle -> socket-id
+      unresolved       [(bottle, reason)] bottles that anchor to no socket
+      excluded_sockets [(socket_id, reason)] tube sockets with NO netlist device
+                       (rectifiers / PS front-end tubes abstracted to the rail)
+
+    A netlist bottle binds to a socket by (1) exact id match — the socket basing
+    is authoritative even when the SPICE model differs (a 6L6G socket runs the
+    5881 model); (2) failing that, a unique unbound socket of the same tube TYPE,
+    so a function-named instance (XPIA) still lands on its socket without relying
+    on the label. Anything left over is UNRESOLVED — a hard failure on a claimed
+    amp (never a silent skip). A non-rectifier socket with no netlist device is
+    also unresolved coverage (a whole signal tube left unmodelled)."""
+    xbottles: dict = {}
+    for c in comps:
+        if c.kind != "X":
+            continue
+        info = xbottles.setdefault(c.bottle, {"sections": set(), "slug": None})
+        info["sections"].add(c.section)
+        if info["slug"] is None:
+            info["slug"] = resolve_tube_slug(c.subckt)
+    bound_sockets: set = set()
+    bottle_socket: dict = {}
+    unresolved: list = []
+    for bottle in xbottles:                       # pass 1: exact socket-id match
+        if bottle in sockets:
+            bottle_socket[bottle] = bottle
+            bound_sockets.add(bottle)
+    for bottle, info in xbottles.items():         # pass 2: unique type match
+        if bottle in bottle_socket:
+            continue
+        cands = [sid for sid, meta in sockets.items()
+                 if sid not in bound_sockets and meta["slug"] == info["slug"]]
+        if len(cands) == 1:
+            bottle_socket[bottle] = cands[0]
+            bound_sockets.add(cands[0])
+        elif not cands:
+            unresolved.append((bottle,
+                f"no socket id '{bottle}' and no unbound '{info['slug']}' socket "
+                f"to cross-reference"))
+        else:
+            unresolved.append((bottle,
+                f"ambiguous — {len(cands)} unbound '{info['slug']}' sockets "
+                f"({', '.join(sorted(cands))}); label the instance with its socket id"))
+    excluded_sockets: list = []
+    for sid, meta in sockets.items():
+        if sid in bound_sockets:
+            continue
+        if "rectifier" in meta["part"].lower():
+            excluded_sockets.append((sid,
+                f"{meta['value']} rectifier — not in the DC netlist "
+                f"(PT+rectifier+reservoir abstracted to the ideal rail)"))
+        else:
+            unresolved.append((f"socket:{sid}",
+                f"socket {sid} ({meta['value']}) carries no netlist device — a "
+                f"signal tube left unmodelled"))
+    return bottle_socket, unresolved, excluded_sockets
+
+
+def _tube_anchoring(comps, R: Renderer):
+    """Resolve every netlist tube to a socket + basing (H1/H2/H3). Returns
+    (basing_inv, bottle_socket, unresolved, excluded_sockets, sockets), with
+    basing_inv keyed by NETLIST BOTTLE: bottle -> (role,unit)->pin."""
+    sockets = _sockets(R)
+    bottle_socket, unresolved, excluded_sockets = _resolve_bottles(comps, sockets)
+    basing_inv: dict = {}
+    for bottle, sid in list(bottle_socket.items()):
+        b = load_basing(sockets[sid]["slug"])
+        if b:
+            basing_inv[bottle] = _invert_basing(b)
+        else:
+            unresolved.append((bottle,
+                f"socket {sid} tube '{sockets[sid]['slug']}' has no basing in "
+                f"reference/tubes — cannot anchor"))
+            del bottle_socket[bottle]
+    return basing_inv, bottle_socket, unresolved, excluded_sockets, sockets
 
 
 def _apply_netmap_unions(LG: "LayoutGraph", uf: UF, net_map: dict, part_terms: dict):
@@ -475,31 +623,30 @@ def _run_terminal_names(R: Renderer, spec) -> list[str]:
     return out
 
 
-def check_amp(amp_id: str, verbose: bool = True) -> Result:
-    amp_dir = ROOT / "amps" / amp_id
-    layout = yaml.safe_load((amp_dir / "layout.yaml").read_text())
-    bom = load_bom(amp_dir)
-    R = Renderer(layout, bom, amp_id)
+def _check_layout(amp_id: str, layout: dict, bom: dict, net_map=None) -> Result:
+    """Solve one layout (in-memory) against its netlist and return the best
+    Result. Shared by check_amp, the mutation self-test, and the H8 anchor
+    classifier. `net_map` overrides layout['net_map'] when given (the classifier
+    passes a copy with one anchor removed). A fresh Renderer/LayoutGraph/UF is
+    built each call so union-find state never leaks between trials."""
+    R = Renderer(copy.deepcopy(layout), bom, amp_id)
     LG = LayoutGraph(R)
     uf = LG.uf
-    comps, nodes = parse_netlist(amp_dir / "netlist.cir")
-    res = Result(amp_id)
-    res.claim = str(layout.get("wiring_claim", "")).lower() == "verified"
-
-    net_map = layout.get("net_map") or {}
+    comps, nodes = parse_netlist(ROOT / "amps" / amp_id / "netlist.cir")
+    if net_map is None:
+        net_map = layout.get("net_map") or {}
     unplaced = net_map.get("netlist_unplaced") or {}
     part_terms = _part_terms(R)
-    bottle_slug = _bottle_of(R)
 
     # -- contractions declared in net_map (honest, reviewable) --------------
     _apply_netmap_unions(LG, uf, net_map, part_terms)
 
-    # -- tube basing --------------------------------------------------------
-    basing_inv = {}   # bottle -> (role,unit)->pin
-    for bottle, slug in bottle_slug.items():
-        b = load_basing(slug)
-        if b:
-            basing_inv[bottle] = _invert_basing(b)
+    # -- tube anchoring: EU/US alias (H1) + robust bottle->socket (H2/H3) ----
+    basing_inv, bottle_socket, unresolved, excluded_sockets, sockets = \
+        _tube_anchoring(comps, R)
+    anchoring = {"bottle_socket": bottle_socket, "unresolved": unresolved,
+                 "excluded_sockets": excluded_sockets, "sockets": sockets,
+                 "basing_inv": basing_inv}
 
     # section<->triode-half assignment is unknown; enumerate the small space.
     xcomps = [c for c in comps if c.kind == "X"]
@@ -509,7 +656,7 @@ def check_amp(amp_id: str, verbose: bool = True) -> Result:
     choices = []   # list of (bottle, [(section_comp, unit), ...]) option-lists
     for bottle, secs in by_bottle.items():
         if bottle not in basing_inv:
-            continue  # rectifier / PS front-end tube, not modelled — skip
+            continue  # unresolved tube — accounted as a hard failure in _solve
         units = sorted({u for (_r, u) in basing_inv[bottle] if u is not None})
         if len(secs) > 1 and units:
             secs_sorted = sorted(secs, key=lambda c: c.section or "")
@@ -529,7 +676,7 @@ def check_amp(amp_id: str, verbose: bool = True) -> Result:
             for (sec, unit) in per_bottle:
                 assignment[id(sec)] = unit
         trial = _solve(amp_id, layout, R, LG, uf, comps, nodes, net_map,
-                       part_terms, basing_inv, assignment, unplaced)
+                       part_terms, basing_inv, assignment, unplaced, anchoring)
         score = len(trial.errors)
         if best is None or score < best[0]:
             best = (score, trial)
@@ -537,13 +684,39 @@ def check_amp(amp_id: str, verbose: bool = True) -> Result:
             break
     res = best[1]
     res.ok = not res.errors
+    return res
+
+
+def check_amp(amp_id: str, verbose: bool = True) -> Result:
+    amp_dir = ROOT / "amps" / amp_id
+    layout = yaml.safe_load((amp_dir / "layout.yaml").read_text())
+    bom = load_bom(amp_dir)
+    res = _check_layout(amp_id, layout, bom)
+    # H8: classify each net_map anchor CONSTRAINING vs REDUNDANT by re-solving
+    # with it removed and asking whether the verdict changed.
+    res.anchor_class = _classify_anchors(amp_id, layout, bom, res)
     if verbose:
         _print_result(res)
     return res
 
 
+def _classify_anchors(amp_id: str, layout: dict, bom: dict, baseline: Result) -> dict:
+    """For each net_map anchor: re-solve with it removed; CONSTRAINING if the
+    error set changes, REDUNDANT if the verdict is identical without it (H8)."""
+    net_map = layout.get("net_map") or {}
+    anchors = net_map.get("anchors") or {}
+    out: dict = {}
+    base_errs = sorted(baseline.errors)
+    for term in anchors:
+        nm = copy.deepcopy(net_map)
+        nm["anchors"] = {t: v for t, v in anchors.items() if t != term}
+        trial = _check_layout(amp_id, layout, bom, net_map=nm)
+        out[term] = "REDUNDANT" if sorted(trial.errors) == base_errs else "CONSTRAINING"
+    return out
+
+
 def _solve(amp_id, layout, R, LG, uf, comps, nodes, net_map, part_terms,
-           basing_inv, assignment, unplaced) -> Result:
+           basing_inv, assignment, unplaced, anchoring=None) -> Result:
     res = Result(amp_id)
     res.claim = str(layout.get("wiring_claim", "")).lower() == "verified"
     anchors = net_map.get("anchors") or {}
@@ -681,9 +854,98 @@ def _solve(amp_id, layout, R, LG, uf, comps, nodes, net_map, part_terms,
                     f"({node_name(c.nodes[0])}<->{node_name(c.nodes[1])}) has no board part "
                     f"and is not declared in net_map.netlist_unplaced")
 
+    # ---- (5b) EVERY netlist tube must anchor (H3) — never a silent skip -----
+    anchoring = anchoring or {}
+    for bottle, why in anchoring.get("unresolved", []):
+        res.errors.append(
+            f"UNANCHORED TUBE: {bottle} — {why}. A tube the netlist models must "
+            f"anchor to a socket by basing, or the amp's wiring past it is unchecked.")
+
+    # ---- (5c) twisted (heater) runs must land on heater pins (H7) -----------
+    _check_twisted_heaters(res, R, anchoring.get("sockets", {}))
+
     # ---- (6) honest scope report -------------------------------------------
-    _scope_report(res, R, LG, uf, M, comps, basing_inv, part_terms, modelled_refs)
+    _scope_report(res, R, LG, uf, M, comps, basing_inv, part_terms, modelled_refs,
+                  anchoring)
+    # ---- (7) declare the unverified control-network island (H4) ------------
+    _declare_island(res, R, LG, uf, M, anchoring)
     return res
+
+
+def _check_twisted_heaters(res, R, sockets: dict):
+    """A style:twisted run is EXCLUDED from equivalence checking as a heater run;
+    validate that self-declaration (H7) — every tube endpoint of a twisted run
+    must be a heater/filament pin. A signal pin on a twisted run is a hard error
+    (a signal run cannot be hidden from the gate by relabelling it 'twisted')."""
+    for i, spec in enumerate(R.runs):
+        if str(spec.get("style", "")).lower() != "twisted":
+            continue
+        for key in ("from", "to"):
+            ep = spec.get(key)
+            if not (isinstance(ep, str) and "." in ep):
+                continue
+            name, suffix = ep.split(".", 1)
+            meta = sockets.get(name)
+            if meta is None:
+                continue                    # not a modelled tube socket
+            digits = "".join(ch for ch in suffix if ch.isdigit())
+            if not digits:
+                continue
+            pin = int(digits)
+            heaters = meta.get("heater_pins")
+            if heaters is not None and pin not in heaters:
+                res.errors.append(
+                    f"TWISTED RUN ON A SIGNAL PIN: run[{i}] is styled 'twisted' "
+                    f"(excluded as a heater run) but lands on {name}.pin{pin}, "
+                    f"which is not a heater pin ({sorted(heaters)} per basing). "
+                    f"Relabelling a signal run 'twisted' cannot hide it from the gate.")
+
+
+def _declare_island(res, R, LG, uf, M, anchoring=None):
+    """H4 — name the board terminals electrically inside the UNVERIFIED control
+    network (the pot / mixer / tone island the DC netlist abstracts). These are
+    the nets carrying named terminals that anchor to NO netlist node and are not
+    part of the heater / PT / rectifier / speaker annotation layer (already
+    declared in the excluded-runs tally). Declared loudly, terminal-by-terminal,
+    so the scope says exactly what is not machine-checked rather than staying
+    silent — the silence is precisely what let a mis-lugged pot ground hide."""
+    anchoring = anchoring or {}
+    # annotation-layer base ids whose nets are declared elsewhere, not islands
+    annot_ids = {it["id"] for it in R.offboard if it.get("kind") in ("xfmr", "choke")}
+    annot_ids |= {it["id"] for it in R.offboard
+                  if it.get("kind") == "part" and it.get("glyph") == "lamp"}
+    annot_ids |= {it["id"] for it in R.offboard if it.get("kind") == "jack"
+                  and it["id"].upper().startswith(("SPK", "SPEAK", "OUT"))}
+    annot_ids |= {sid for sid, _why in anchoring.get("excluded_sockets", [])}
+    twisted_roots: set = set()
+    for spec in R.runs:
+        if str(spec.get("style", "")).lower() == "twisted":
+            for key in ("from", "to"):
+                t = LG.term(spec.get(key), "")
+                if t is not None:
+                    twisted_roots.add(uf.find(t))
+    # gather every net's members once, then classify per-net
+    members = uf.members()
+    islands: list = []
+    for root, mem in members.items():
+        if M.get(root) is not None:            # anchored to a netlist node
+            continue
+        if root in twisted_roots:              # heater annotation layer
+            continue
+        named = sorted(m for m in mem if not m.startswith("@") and m != GND)
+        if not named:
+            continue
+        if any(m.split(".")[0] in annot_ids for m in named):   # PT/rect/speaker
+            continue
+        islands.append(named)
+    if islands:
+        n_terms = sum(len(g) for g in islands)
+        res.scope.append(
+            f"unverified island: {len(islands)} control-network net(s) "
+            f"({n_terms} board terminals) carry no netlist node — the "
+            f"pot/mixer/tone-stack wiring the DC netlist abstracts, NOT machine-checked:")
+        for g in sorted(islands, key=lambda g: (-len(g), g)):
+            res.scope.append(f"    island net: {{{', '.join(g)}}}")
 
 
 def _node_labeler(nodes):
@@ -700,12 +962,17 @@ def _describe_merge(LG, uf, root) -> str:
     return ""
 
 
-def _scope_report(res, R, LG, uf, M, comps, basing_inv, part_terms, modelled_refs):
-    # runs: checked vs excluded (and why)
-    rect_tubes = set()
-    for it in R.offboard:
-        if it.get("kind") == "tube" and it["id"] not in {c.bottle for c in comps if c.kind == "X" and c.bottle in basing_inv}:
-            rect_tubes.add(it["id"])
+def _scope_report(res, R, LG, uf, M, comps, basing_inv, part_terms, modelled_refs,
+                  anchoring=None):
+    anchoring = anchoring or {}
+    bottle_socket = anchoring.get("bottle_socket", {})
+    excluded_sockets = anchoring.get("excluded_sockets", [])
+    unresolved = anchoring.get("unresolved", [])
+    # runs: checked vs excluded (and why). A "rect tube" for run-exclusion is any
+    # off-board tube socket NOT bound to a netlist device (rectifier / abstracted).
+    bound_socket_ids = set(bottle_socket.values())
+    rect_tubes = {it["id"] for it in R.offboard
+                  if it.get("kind") == "tube" and it["id"] not in bound_socket_ids}
     pilot_ids = {it["id"] for it in R.offboard if it.get("kind") == "part" and it.get("glyph") == "lamp"}
     pt_ids = {it["id"] for it in R.offboard if it.get("kind") in ("xfmr", "choke")}
 
@@ -748,6 +1015,20 @@ def _scope_report(res, R, LG, uf, M, comps, basing_inv, part_terms, modelled_ref
     n_tubes = len([c for c in comps if c.kind == "X" and c.bottle in basing_inv])
     res.scope.append(f"netlist: {n_matched}/{n_mod} R/C/L matched to board parts, "
                      f"{n_tubes} tube section(s) anchored by basing")
+    # tube accounting (H3): every netlist device is anchored, and every socket is
+    # anchored / declared-excluded (rectifier) / UNANCHORED — printed regardless.
+    n_bottles = len(bottle_socket)
+    n_excl = len(excluded_sockets)
+    n_unres = len(unresolved)
+    res.scope.append(f"tubes: {n_bottles} netlist bottle(s) anchored to sockets, "
+                     f"{n_excl} socket(s) declared-excluded, {n_unres} UNANCHORED")
+    for bottle, sid in sorted(bottle_socket.items()):
+        via = "id" if bottle == sid else "type x-ref"
+        res.scope.append(f"    anchored  {bottle} -> socket {sid} (by {via})")
+    for sid, why in excluded_sockets:
+        res.scope.append(f"    excluded  socket {sid}: {why}")
+    for bottle, why in unresolved:
+        res.scope.append(f"    UNANCHORED {bottle}: {why}")
     # net_map reconciliations — the load-bearing, human-reviewable declarations
     # the gate was handed. Echo them at check-time so a reviewer reading CI logs
     # sees exactly what was anchored/bridged, never just a bare PASS.
@@ -783,7 +1064,15 @@ def _print_result(res: Result):
     head = "PASS" if res.ok else "FAIL"
     print(f"\n=== {res.amp_id}: {head} — {tag} ===")
     for s in res.scope:
-        print(f"  scope | {s}")
+        extra = ""
+        # H8: annotate each net_map anchor CONSTRAINING vs REDUNDANT (does the
+        # verdict change with it removed?) so a reviewer sees which anchors
+        # actually hold the verdict up and which are echoed but inert.
+        if s.lstrip().startswith("anchor  ") and res.anchor_class:
+            term = s.split("anchor  ", 1)[1].split(" :=", 1)[0].strip()
+            if term in res.anchor_class:
+                extra = f"  [{res.anchor_class[term]}]"
+        print(f"  scope | {s}{extra}")
     for s in res.info:
         print(f"  note  | {s}")
     if res.errors:
@@ -797,121 +1086,172 @@ def _print_result(res: Result):
 # ============================================================================
 # mutation self-test — a gate that can't catch planted faults is decoration
 # ============================================================================
-def selftest() -> int:
-    """On a copy of 5f1's layout, assert the checker FAILS each planted fault:
-    two endpoints swapped, a run deleted, a run rerouted to a wrong lug/pin."""
-    base_dir = ROOT / "amps" / "5f1"
-    layout0 = yaml.safe_load((base_dir / "layout.yaml").read_text())
-    bom = load_bom(base_dir)
+def _load_layout(amp_id: str):
+    d = ROOT / "amps" / amp_id
+    return yaml.safe_load((d / "layout.yaml").read_text()), load_bom(d)
 
-    baseline = _check_in_memory(layout0, bom)
-    print("selftest baseline (unmutated 5f1):",
-          "PASS" if baseline.ok else "FAIL " + str(baseline.errors))
-    if not baseline.ok:
-        print("  !! baseline must pass before mutations are meaningful")
+
+def _reroute(layout: dict, frm, to, new_from=None, new_to=None):
+    """Deep-copy `layout` and rewrite the first run matching (frm -> to)."""
+    m = copy.deepcopy(layout)
+    for run in m.get("runs", []):
+        if run.get("from") == frm and run.get("to") == to:
+            if new_from is not None:
+                run["from"] = new_from
+            if new_to is not None:
+                run["to"] = new_to
+            break
+    return m
+
+
+def selftest() -> int:
+    """A gate that can't catch planted faults is decoration. This plants the
+    adversarial audit's EXACT faults — one per proven hole class (H1..H8) — and
+    asserts each is caught (or, for the naming/anchoring holes, that the robust
+    resolver anchors what a misleading label used to hide). CI runs it."""
+    fails: list[str] = []
+    print("=== baselines (must PASS before mutations mean anything) ===")
+    for amp in ("5f1", "5f6a", "jtm45", "5f4"):
+        layout, bom = _load_layout(amp)
+        r = _check_layout(amp, layout, bom)
+        print(f"  {amp}: {'PASS' if r.ok else 'FAIL ' + str(r.errors[:2])}")
+        if not r.ok:
+            fails.append(f"baseline {amp} must pass")
+    if fails:
+        for f in fails:
+            print(f"  !! {f}")
         return 1
 
-    cases = []
+    l5f1, b5f1 = _load_layout("5f1")
+    l6a, b6a = _load_layout("5f6a")
+    ljtm, bjtm = _load_layout("jtm45")
 
-    # (a) two endpoints swapped: swap a real signal run's target to a sibling
-    #     pin — V1B plate feed R7.a rerouted so plate load lands on the cathode.
-    m1 = copy.deepcopy(layout0)
-    for run in m1["runs"]:
-        if run.get("from") == "V1.pin1" and run.get("to") == "R7.a":
-            run["to"] = "R6.a"   # V1B plate -> cathode node instead of plate load
-            break
-    cases.append(("run rerouted to a wrong lug/pin (V1B plate -> cathode node)", m1))
+    caught_cases: list[tuple[str, str, Result]] = []   # (hole, label, result)
 
-    # (b) a run deleted: drop the 6V6 grid-leak-to-grid run.
-    m2 = copy.deepcopy(layout0)
-    m2["runs"] = [r for r in m2["runs"]
-                  if not (r.get("from") == "R9.a" and r.get("to") == "V2.pin5")]
-    cases.append(("a run deleted (6V6 grid leak R9 -> grid)", m2))
+    def case(hole, label, amp, layout, bom):
+        r = _check_layout(amp, layout, bom)
+        caught_cases.append((hole, label, r))
 
-    # (c) two endpoints swapped: exchange the two 12AX7 triode-halves' cathode
-    #     feeds (V1A<->V1B), so each cathode lands on the other's bias resistor.
-    #     No triode-half relabelling can reconcile it (the plates/grids pin the
-    #     halves), so it must be caught — unlike flipping a symmetric part's own
-    #     two leads, which is a true electrical no-op.
-    m3 = copy.deepcopy(layout0)
-    for run in m3["runs"]:
+    # ---- original topological faults (kept) -------------------------------
+    case("core", "run rerouted to a wrong pin (V1B plate -> cathode node)", "5f1",
+         _reroute(l5f1, "V1.pin1", "R7.a", new_to="R6.a"), b5f1)
+    m = copy.deepcopy(l5f1)
+    m["runs"] = [r for r in m["runs"]
+                 if not (r.get("from") == "R9.a" and r.get("to") == "V2.pin5")]
+    case("core", "a run deleted (6V6 grid leak R9 -> grid)", "5f1", m, b5f1)
+    m = copy.deepcopy(l5f1)
+    for run in m["runs"]:
         if run.get("from") == "V1.pin8" and run.get("to") == "R4.a":
             run["from"] = "V1.pin3"
         elif run.get("from") == "V1.pin3" and run.get("to") == "R6.a":
             run["from"] = "V1.pin8"
-    cases.append(("two endpoints swapped (V1A/V1B cathode feeds exchanged)", m3))
+    case("core", "two endpoints swapped (V1A/V1B cathode feeds exchanged)", "5f1", m, b5f1)
 
-    # (d) a run rerouted to an adjacent wrong pin: 6V6 cathode feed to pin7
-    #     (a heater pin) instead of pin8 — lands the cathode on the wrong node.
-    m4 = copy.deepcopy(layout0)
-    for run in m4["runs"]:
-        if run.get("from") == "V2.pin8" and run.get("to") == "R8.a":
-            run["from"] = "V2.pin3"   # cathode feed moved to the plate pin
+    # ---- H1 valve-alias: an ECC83 socket now anchors, so a wrong-pin on it is
+    #      caught (before the alias fix, jtm45's whole ECC83 preamp/PI was
+    #      silently skipped and this landed nowhere). --------------------------
+    case("H1", "ECC83 (aliased) plate load moved plate->cathode pin", "jtm45",
+         _reroute(ljtm, "V1.pin6", "RL1.b", new_from="V1.pin8"), bjtm)
+
+    # ---- H5 coupler to the WRONG output grid (now modelled as C8/C9) --------
+    case("H5", "PI->output coupler C8 rerouted to the V5 grid", "5f6a",
+         _reroute(l6a, "C8.b", "V4.pin5", new_to="V5.pin5"), b6a)
+
+    # ---- H6 crossed PI outputs (swap the two PI-plate coupler feeds) --------
+    m = copy.deepcopy(l6a)
+    for run in m["runs"]:
+        if run.get("from") == "V3.pin1" and run.get("to") == "C8.a":
+            run["to"] = "C9.a"
+        elif run.get("from") == "V3.pin6" and run.get("to") == "C9.a":
+            run["to"] = "C8.a"
+    case("H6", "crossed PI outputs (C8/C9 plate feeds swapped)", "5f6a", m, b6a)
+
+    # ---- H7 a signal run relabelled style:twisted (would remove it from the
+    #      equivalence check as a 'heater' run) — must land on heater pins ----
+    m = copy.deepcopy(l5f1)
+    for run in m["runs"]:
+        if run.get("from") == "R9.a" and run.get("to") == "V2.pin5":
+            run["style"] = "twisted"      # V2.pin5 is a 6V6 grid, not a heater pin
             break
-    cases.append(("run rerouted to an adjacent wrong pin (6V6 cathode -> plate pin 3)", m4))
+    case("H7", "signal run relabelled 'twisted' (6V6 grid, not a heater pin)", "5f1", m, b5f1)
 
     passed = 0
-    for label, mutant in cases:
-        r = _check_in_memory(mutant, bom)
+    for hole, label, r in caught_cases:
         caught = not r.ok
-        print(f"  {'CAUGHT' if caught else 'MISSED'}: {label}")
+        print(f"  [{hole}] {'CAUGHT' if caught else 'MISSED'}: {label}")
         if caught and r.errors:
-            print(f"           -> {r.errors[0]}")
+            print(f"          -> {r.errors[0]}")
         passed += 1 if caught else 0
-    ok = passed == len(cases)
-    print(f"\nselftest: {passed}/{len(cases)} planted faults caught"
-          + ("" if ok else "  !! GATE IS LEAKY"))
-    return 0 if ok else 1
+    n_mut = len(caught_cases)
+    ok_mut = passed == n_mut
 
+    # ---- H2/H3 robust anchoring: exercise the resolver directly ------------
+    print("=== H2/H3 bottle->socket resolver ===")
+    def _fakecomp(bottle, section, subckt):
+        c = Comp(f"X{bottle}{section or ''}", "X", [], subckt=subckt)
+        c.bottle, c.section = bottle, section
+        return c
+    def _fakesock(slug, part="Preamp tube", value=None):
+        return {"slug": slug, "part": part, "ref": "?", "value": value or slug,
+                "heater_pins": load_tube_heater_pins(slug)}
+    # a function-named PI ('PI' from XPIA/XPIB) must still anchor to socket V3 by
+    # type cross-reference, though its label matches no socket id (H2).
+    comps_h2 = [_fakecomp("V1", "A", "12AY7"), _fakecomp("V1", "B", "12AY7"),
+                _fakecomp("V2", "A", "12AX7"), _fakecomp("V2", "B", "12AX7"),
+                _fakecomp("PI", "A", "12AX7"), _fakecomp("PI", "B", "12AX7")]
+    socks_h2 = {"V1": _fakesock("12ay7"), "V2": _fakesock("12ax7"),
+                "V3": _fakesock("12ax7"), "V6": _fakesock("gz34", "Rectifier tube")}
+    bs, unres, excl = _resolve_bottles(comps_h2, socks_h2)
+    h2_ok = bs.get("PI") == "V3" and not unres
+    print(f"  [H2] function-named 'PI' -> socket {bs.get('PI')} "
+          f"(cross-referenced by type): {'OK' if h2_ok else 'FAIL'}")
+    h2b_ok = any(sid == "V6" for sid, _ in excl)
+    print(f"  [H2] rectifier socket V6 declared-excluded: {'OK' if h2b_ok else 'FAIL'}")
+    # an unanchorable bottle (no socket id, no type match) must be UNRESOLVED,
+    # never silently skipped (H3).
+    comps_h3 = [_fakecomp("VX", None, "EL34")]
+    socks_h3 = {"V1": _fakesock("12ax7")}
+    _bs3, unres3, _e3 = _resolve_bottles(comps_h3, socks_h3)
+    h3_ok = any(b == "VX" for b, _ in unres3)
+    print(f"  [H3] unanchorable EL34 bottle 'VX' -> UNRESOLVED: {'OK' if h3_ok else 'FAIL'}")
+    # and a non-rectifier socket with no netlist device is a hard coverage hole
+    _bs3b, unres3b, _e3b = _resolve_bottles([_fakecomp("V1", None, "12AX7")],
+                                            {"V1": _fakesock("12ax7"),
+                                             "V2": _fakesock("6v6gt", "Power tube")})
+    h3b_ok = any(b == "socket:V2" for b, _ in unres3b)
+    print(f"  [H3] unmodelled signal socket V2 -> UNRESOLVED: {'OK' if h3b_ok else 'FAIL'}")
 
-def _check_in_memory(layout, bom) -> Result:
-    """check_amp() equivalent that takes an in-memory layout (for the selftest);
-    mirrors check_amp but skips disk reads and printing."""
-    amp_id = "5f1"
-    R = Renderer(copy.deepcopy(layout), bom, amp_id)
-    LG = LayoutGraph(R)
-    uf = LG.uf
-    comps, nodes = parse_netlist((ROOT / "amps" / amp_id / "netlist.cir"))
-    net_map = layout.get("net_map") or {}
-    part_terms = _part_terms(R)
-    bottle_slug = _bottle_of(R)
-    _apply_netmap_unions(LG, uf, net_map, part_terms)
-    basing_inv = {}
-    for bottle, slug in bottle_slug.items():
-        b = load_basing(slug)
-        if b:
-            basing_inv[bottle] = _invert_basing(b)
-    xcomps = [c for c in comps if c.kind == "X"]
-    by_bottle: dict = {}
-    for c in xcomps:
-        by_bottle.setdefault(c.bottle, []).append(c)
-    from itertools import permutations
-    option_lists = []
-    for bottle, secs in by_bottle.items():
-        if bottle not in basing_inv:
-            continue
-        units = sorted({u for (_r, u) in basing_inv[bottle] if u is not None})
-        if len(secs) > 1 and units:
-            secs_sorted = sorted(secs, key=lambda c: c.section or "")
-            option_lists.append([list(zip(secs_sorted, p)) for p in permutations(units, len(secs_sorted))])
-        else:
-            option_lists.append([[(s, None) for s in secs]])
-    best = None
-    for combo in (product(*option_lists) if option_lists else [()]):
-        assignment = {}
-        for pb in combo:
-            for (sec, unit) in pb:
-                assignment[id(sec)] = unit
-        trial = _solve(amp_id, layout, R, LG, uf, comps, nodes, net_map,
-                       part_terms, basing_inv, assignment,
-                       net_map.get("netlist_unplaced") or {})
-        # NOTE: uf is mutated by _solve only via reads; safe across trials
-        if best is None or len(trial.errors) < len(best.errors):
-            best = trial
-        if not trial.errors:
-            break
-    best.ok = not best.errors
-    return best
+    # ---- H4 the unverified control-network island is declared (not silent) --
+    print("=== H4 unverified-island declaration ===")
+    r6a = _check_layout("5f6a", l6a, b6a)
+    island_lines = [s for s in r6a.scope if "island net:" in s]
+    island_blob = " ".join(island_lines)
+    h4_ok = bool(island_lines) and ("VR" in island_blob or "RM" in island_blob)
+    print(f"  [H4] 5f6a island declares {len(island_lines)} control net(s) "
+          f"incl. pot/mixer terminals: {'OK' if h4_ok else 'FAIL'}")
+
+    # ---- H8 anchors classified CONSTRAINING vs REDUNDANT -------------------
+    print("=== H8 anchor CONSTRAINING/REDUNDANT classification ===")
+    cls = _classify_anchors("5f6a", l6a, b6a, r6a)
+    # a deliberately redundant anchor (a filter-cap lead to the node it already
+    # sits on) must read REDUNDANT; a real OT-plate anchor must read CONSTRAINING.
+    l6a_red = copy.deepcopy(l6a)
+    l6a_red.setdefault("net_map", {}).setdefault("anchors", {})["C11.a"] = "BP1"
+    r6a_red = _check_layout("5f6a", l6a_red, b6a)
+    cls_red = _classify_anchors("5f6a", l6a_red, b6a, r6a_red)
+    h8_red_ok = cls_red.get("C11.a") == "REDUNDANT"
+    h8_con_ok = cls.get("T3.blue") == "CONSTRAINING"
+    print(f"  [H8] injected redundant anchor C11.a:=BP1 -> {cls_red.get('C11.a')} "
+          f"({'OK' if h8_red_ok else 'FAIL'})")
+    print(f"  [H8] OT-plate anchor T3.blue:=BP1 -> {cls.get('T3.blue')} "
+          f"({'OK' if h8_con_ok else 'FAIL'})")
+
+    unit_ok = all([h2_ok, h2b_ok, h3_ok, h3b_ok, h4_ok, h8_red_ok, h8_con_ok])
+    all_ok = ok_mut and unit_ok
+    print(f"\nselftest: {passed}/{n_mut} planted-fault mutations caught; "
+          f"resolver/island/anchor unit checks {'all OK' if unit_ok else 'FAILED'}"
+          + ("" if all_ok else "  !! GATE IS LEAKY"))
+    return 0 if all_ok else 1
 
 
 # ============================================================================

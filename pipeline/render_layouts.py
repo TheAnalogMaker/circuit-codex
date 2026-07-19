@@ -251,8 +251,98 @@ def colour_hex(name: str | None) -> str:
 
 
 def tube_slug(value: str) -> str:
-    """'12AY7' / '6V6GT' -> reference/tubes filename stem ('12ay7', '6v6gt')."""
+    """'12AY7' / '6V6GT' -> reference/tubes filename stem ('12ay7', '6v6gt').
+
+    NOTE: this is the *raw* slug of a single token. For a real BOM value that may
+    carry an EU/US equivalent name ('ECC83 (12AX7)'), use resolve_tube_slug(),
+    which aliases to the canonical basing/model slug this corpus carries — a raw
+    slug of 'ECC83 (12AX7)' is 'ecc8312ax7', which matches no basing file."""
     return "".join(ch for ch in str(value).lower() if ch.isalnum())
+
+
+# ---- valve equivalents (EU/US) ---------------------------------------------
+# Common cross-labellings that share a basing/model with a tube this corpus
+# carries but may be printed under the other name on a drawing/BOM. This is a
+# SUPPLEMENT; the primary alias source is each reference/tubes/<slug>.yaml
+# `also_known_as` list (data-driven, self-maintaining — see _valve_alias_map()).
+_VALVE_ALIAS_SUPPLEMENT = {
+    "ecc83": "12ax7", "7025": "12ax7", "12ax7a": "12ax7", "6681": "12ax7",
+    "ecc82": "12au7", "12au7a": "12au7", "5814a": "12au7", "5963": "12au7",
+    "ecc81": "12at7", "12at7a": "12at7", "6201": "12at7",
+    "ecc88": "6dj8", "6922": "6dj8", "e88cc": "6dj8",
+    "ecc85": "6aq8",
+    "6ca7": "el34", "6ca7": "el34",
+    "7027a": "6l6g", "5932": "6l6g", "6l6": "6l6g", "6l6gc": "6l6g",
+    "6p1": "6v6gt", "6v6": "6v6gt", "6v6g": "6v6gt",
+    "cv1988": "kt66", "u77": "gz34", "cv1377": "gz34", "5ar4": "gz34",
+    "5z4": "5y3gt", "5y3": "5y3gt", "5u4": "5u4g", "5u4gb": "5u4g",
+}
+
+_ALIAS_CACHE: dict | None = None
+
+
+def _valve_alias_map() -> dict:
+    """alias-slug -> canonical tube slug, built from every reference/tubes YAML's
+    own name + `also_known_as` (self-maintaining), then the hardcoded supplement.
+    A canonical tube always maps to itself. Cached."""
+    global _ALIAS_CACHE
+    if _ALIAS_CACHE is not None:
+        return _ALIAS_CACHE
+    amap: dict = {}
+    tubes_dir = ROOT / "reference" / "tubes"
+    if tubes_dir.exists():
+        for path in sorted(tubes_dir.glob("*.yaml")):
+            try:
+                data = yaml.safe_load(path.read_text()) or {}
+            except Exception:  # noqa: BLE001 — a malformed YAML shouldn't crash aliasing
+                continue
+            canon = str(data.get("tube") or path.stem).strip()
+            canon_slug = tube_slug(canon) or path.stem
+            amap[canon_slug] = canon_slug
+            amap.setdefault(tube_slug(str(data.get("name", ""))), canon_slug)
+            for aka in (data.get("also_known_as") or []):
+                s = tube_slug(str(aka))
+                if s:
+                    amap.setdefault(s, canon_slug)
+    for alias, canon in _VALVE_ALIAS_SUPPLEMENT.items():
+        # only trust the supplement when its target basing actually exists
+        if (tubes_dir / f"{canon}.yaml").exists():
+            amap.setdefault(alias, canon)
+    amap.pop("", None)
+    _ALIAS_CACHE = amap
+    return amap
+
+
+def resolve_tube_slug(value: str) -> str:
+    """Resolve a BOM tube value to the reference/tubes basing slug, honouring
+    EU/US equivalents. '12AX7' -> '12ax7'; 'ECC83 (12AX7)' -> '12ax7';
+    'ECC83' -> '12ax7'. Resolution order:
+      1. the raw slug of the whole value, if it names a basing file or alias;
+      2. else each alphanumeric token of the value, first that resolves wins;
+      3. else the raw whole-value slug (which will fail-hard downstream on a
+         claimed amp rather than silently skipping the tube).
+    This is the H1 fix: a valve printed under its EU name still anchors."""
+    amap = _valve_alias_map()
+    tubes_dir = ROOT / "reference" / "tubes"
+
+    def _resolve(slug: str) -> str | None:
+        if not slug:
+            return None
+        if slug in amap:
+            return amap[slug]
+        if (tubes_dir / f"{slug}.yaml").exists():
+            return slug
+        return None
+
+    whole = tube_slug(value)
+    hit = _resolve(whole)
+    if hit:
+        return hit
+    for tok in str(value).replace("(", " ").replace(")", " ").split():
+        hit = _resolve(tube_slug(tok))
+        if hit:
+            return hit
+    return whole
 
 
 def load_tube_pins(slug: str) -> set[int] | None:
@@ -558,7 +648,7 @@ class Renderer:
         # resolve tube basing for every off-board tube
         for it in self.offboard:
             if it.get("kind") == "tube":
-                slug = tube_slug(primary_value(self.bom_for(it["ref"])["value"])) \
+                slug = resolve_tube_slug(primary_value(self.bom_for(it["ref"])["value"])) \
                     if it.get("ref") else ""
                 pins = load_tube_pins(slug) if slug else None
                 it["_pins"] = pins
