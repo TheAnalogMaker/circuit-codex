@@ -15,6 +15,7 @@ on the rendered output.
 | Schematic grammar | `pipeline/check_schematics.py` | kiutils round-trip failures |
 | Layout render + determinism | `pipeline/check_layouts.py` | A `layout.yaml` that fails to render, or a stale/committed `layout.svg` out of sync with a fresh render |
 | Wiring collision lint | `pipeline/check_layouts.py` | Wiring-layer ambiguity — near-parallel overlap (two runs reading as one wire) or terminal ambiguity (an endpoint reading as landing on another run). Blocking unless the amp carries a waiver in `pipeline/lint_waivers.yaml`; active waivers are printed loudly |
+| Layout ↔ netlist equivalence | `pipeline/verify_layout_nets.py` | The drawn point-to-point wiring not being electrically equivalent to the verified netlist — an extra connection (short), a missing connection (split node), or a lead on the wrong node. Builds both net graphs and proves isomorphism within the DC scope (heaters/pilot/PT-AC excluded, declared in `net_map`). **Hard-blocking** for any amp whose `layout.yaml` sets `wiring_claim: verified`; report-only otherwise. A `--selftest` step first proves the gate catches planted faults |
 
 ## Layer 2 — judge pass (every new/changed amp page, post-deploy)
 

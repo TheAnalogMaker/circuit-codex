@@ -23,6 +23,8 @@ layout and the parts list can never disagree.
 | `offboard` | list | — | Tubes, pots, jacks, transformers, switches drawn as labelled stubs |
 | `runs` | list | — | **v2 wiring layer** — routed hookup leads (below) |
 | `bus` | list | — | **v2 wiring layer** — ground-bus segments (below) |
+| `net_map` | map | — | **v3** — reviewable data reconciling the drawn wiring with the DC netlist for the equivalence gate (below) |
+| `wiring_claim` | string | — | **v3** — set to `verified` to hard-gate the equivalence check in CI (below) |
 | `leads` | list | — | Legacy soft visual leads (superseded by `runs`; kept for back-compat) |
 
 ## `parts[]` — board-mounted components
@@ -211,6 +213,103 @@ the off-board parts are clearly placed. The collision lint (above) is the
 deterministic half of this — a clean `check_layouts.py` run means no two wires
 read as one and no endpoint reads as ambiguous; the PNG read is still required
 to confirm the crossings show as hops and the terminations read as solder points.
+
+## Wiring-equivalence gate (schema v3) — `net_map` + `wiring_claim`
+
+`pipeline/verify_layout_nets.py` proves the drawn wiring is **electrically
+equivalent** to the amp's verified netlist (`netlist.cir`) — the claim that
+upgrades a layout from a careful drawing to *provably correct connectivity*. No
+existing layout tool (DIYLC included) does this: a layout editor knows nothing of
+the amp's netlist. The check builds a net graph from the drawing and a net graph
+from the netlist and proves the drawing, restricted to what the netlist models,
+is isomorphic to it — every modelled component's terminals on the same node, no
+accidental shorts, no missing joins.
+
+### How the layout net graph is built
+
+Terminals: run/bus endpoints and part leads — board eyelets (`REF.a`/`REF.b`),
+tube pins (`Vn.pinN`), pot lugs (`VRn.lugN`), jack terminals, transformer leads
+(`T2.blue`), and 2-lead off-board parts. Joins: **each run joins its two
+endpoints** (vias are the same wire); **the ground bus is one net**; **two leads
+in the same board eyelet are joined** (an eyelet is one solder point — this is
+load-bearing: a cathode-bypass cap can tie to its resistor purely by sharing an
+eyelet); **a component's own two leads are never joined**.
+
+### Why a netlist can't be matched 1:1 — and how the gate bridges it honestly
+
+`netlist.cir` is a **DC-operating-point** model. It deliberately omits DC-open and
+DC-transparent parts (coupling / bypass / tone / filter caps, grid stoppers), the
+power-supply front end (PT + rectifier + reservoir, replaced by an ideal source at
+B+1), and transformer winding DCR (plate node = B+). So the gate does not demand a
+naive net-for-net match; it **solves** a globally consistent mapping —
+
+- **tube pins anchor nodes** via `reference/tubes/<tube>.yaml` basing
+  (plate / grid / cathode / screen → the subckt's pin order), with the
+  section↔triode-half assignment solved;
+- **two-terminal parts** have unknown `a`/`b`↔node orientation, resolved by
+  constraint propagation from the anchors to one consistent whole;
+
+— and reconciles the netlist's documented abstractions through an explicit,
+reviewable `net_map` block (data, never a guess in code):
+
+```yaml
+net_map:
+  anchors:            # terminal -> netlist node. Two terminals anchored to the
+                      # SAME node declare a DC bridge the netlist collapses.
+    T2.blue:  BP1     #   OT primary DCR omitted -> 6V6 plate node == B+1
+    T2.bplus: BP1
+    SPK: "0"          #   OT-secondary DCR folded into ground (the NFB return)
+  series_bridge:      # DC-transparent parts the netlist omits (grid stoppers):
+    R3: "68k input grid stopper — no DC grid current, grid == input node"
+  netlist_unplaced:   # netlist elements with no discrete board part — reported
+    RVOL: "volume pot VR1, modelled as a grid-leak (G1B -> 0)"
+```
+
+`anchors` handle the terminals the netlist gives no node to reach on their own
+(transformer leads, the speaker jack); co-anchoring to one node declares the DC
+bridge the netlist collapses. `series_bridge` shorts a DC-transparent part so the
+netlist node runs through it. `netlist_unplaced` names netlist elements realised
+off the board or by a control (input grid leaks at the jacks; pots the netlist
+models as grid-leak resistors) — reported in coverage, never a failure.
+
+### Scope, printed honestly every run
+
+Heaters (twisted runs), the pilot lamp, and the PT / rectifier AC side are **not**
+in `netlist.cir`; they are an annotation layer excluded by **explicit rules** —
+never by widening an exclusion to bury a failure. The checker prints how many runs
+it checked and how many it excluded and why, and which netlist elements have no
+board part. It also **echoes every `net_map` reconciliation it applied** — each
+anchor (`T2.blue := BP1`) and each series-bridge (`R3`) — so a reviewer reading
+the run sees exactly what the gate was handed, not a bare PASS.
+
+### Verdict, gate, and self-test
+
+Per amp: **PASS/FAIL with per-net diffs in builder language** — *extra connection*
+(a short the netlist doesn't have), *missing connection* (a node the drawing
+splits), *wrong terminal* (a lead on the wrong node). An amp whose `layout.yaml`
+sets `wiring_claim: verified` is **hard-gated** (a failure fails CI); an amp
+without the claim is **report-only**. This mirrors `meta.yaml`'s
+`verification.status: verified` gate on the netlist itself.
+
+`verify_layout_nets.py --selftest` (wired into CI) plants faults on a copy of
+5F1's layout — two endpoints swapped, a run deleted, a run rerouted to an adjacent
+wrong lug/pin — and asserts the checker fails each. A gate that can't catch planted
+faults is decoration.
+
+```
+python3 pipeline/render_layouts.py                 # (re)generate SVGs first
+cd pipeline && python3 verify_layout_nets.py       # check all amps
+python3 verify_layout_nets.py --analyze 5e3        # dump both net graphs for one amp
+python3 verify_layout_nets.py --selftest           # planted-fault mutation test
+```
+
+The pilot verified **5F1** and **5E3** (`wiring_claim: verified`). Bringing 5E3 to
+green caught six real drawing errors the equivalence gate existed to find: three
+shared-eyelet shorts (the B+2 rail, the phase-inverter junction, and a mic-channel
+grid each shorted to the ground bus where a vertical resistor's lower eyelet
+collided with a horizontal part), and three B+ tap errors (the 6V6 screens drawn
+to B+1 instead of B+2, and the V2A and cathodyne plate loads to B+2 instead of
+B+3) — each confirmed against the schematic, then fixed in the wiring and re-drawn.
 
 ## `leads[]` — legacy soft leads (deprecated)
 

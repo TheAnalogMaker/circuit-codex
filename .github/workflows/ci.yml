@@ -21,6 +21,12 @@ jobs:
       - run: python pipeline/verify_amps.py
       - run: python pipeline/check_schematics.py
       - run: python pipeline/check_layouts.py
+      # Layout <-> netlist electrical-equivalence gate. The self-test proves the
+      # gate catches planted wiring faults (a gate that can't is decoration); the
+      # main run hard-fails any amp whose layout.yaml claims wiring_claim: verified
+      # but whose drawn wiring is not equivalent to netlist.cir.
+      - run: python pipeline/verify_layout_nets.py --selftest
+      - run: python pipeline/verify_layout_nets.py
       # Phase-0 roadmap for this workflow:
       # - kiutils round-trip of amps/*/schematic.kicad_sch
       # - schematic SVG rendering via kicad-cli
