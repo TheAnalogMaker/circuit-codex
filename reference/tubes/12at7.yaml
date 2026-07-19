@@ -1,0 +1,49 @@
+tube: 12at7
+name: 12AT7
+also_known_as: [ECC81, "6201", "6679", "B152"]
+role: >-
+  High-mu (µ=60) twin triode with low plate resistance and high transconductance —
+  a strong current driver. In this archive it does the two jobs a plain 12AX7 does
+  poorly: the low-impedance reverb driver that swings the tank transformer, and the
+  long-tailed-pair phase inverter feeding the output tubes.
+model:
+  file: models/12at7.inc
+  anchor: "Va=250 V, Vg=-2.0 V (200 Ω cathode bias) → Ia=10 mA, gm=5500 µmho, µ=60"
+  anchor_source: "RCA 12AT7 data sheet, March 1, 1954, tabulated Class-A1 characteristics"
+  note: >-
+    Single-anchor Koren fit at the 250 V tabulated point (KP, KG1 solved to reproduce
+    the plate current and transconductance; MU=60 and EX=1.5 fixed). The sheet's
+    second tabulated point — Va=100 V, 270 Ω cathode bias → 3.7 mA, 4000 µmho —
+    corroborates µ=60 and is not separately fitted.
+basing:
+  code: 9A
+  base: noval-b9a
+  view: bottom
+  source: >-
+    RCA 12AT7 data sheet — "Base ... Small-Button Noval 9 Pin (JETEC No. E9-1),
+    Basing Designation for BOTTOM VIEW ... 9A". Same dual-triode 9A base as the
+    12AX7 / 12AY7 / ECC83.
+  pins:
+    1: { element: plate, unit: 2, hv: true }
+    2: { element: grid, unit: 2 }
+    3: { element: cathode, unit: 2 }
+    4: { element: heater }
+    5: { element: heater }
+    6: { element: plate, unit: 1, hv: true }
+    7: { element: grid, unit: 1 }
+    8: { element: cathode, unit: 1 }
+    9: { element: heater-ct }
+used_in: ["ab763"]
+datasheets:
+  - publisher: RCA
+    designation: 12AT7
+    url: https://frank.pocnet.net/sheets/049/1/12AT7.pdf
+    confidence: high
+  - publisher: General Electric
+    designation: 12AT7
+    url: https://frank.pocnet.net/sheets/093/1/12AT7.pdf
+    confidence: medium
+  - publisher: Mullard
+    designation: ECC81
+    url: https://frank.pocnet.net/sheets/010/e/ECC81.pdf
+    confidence: medium

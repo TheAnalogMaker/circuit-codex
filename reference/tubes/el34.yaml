@@ -1,0 +1,44 @@
+tube: el34
+name: EL34
+also_known_as: [6CA7, "6CA7 (US beam-tetrode equivalent)"]
+role: >-
+  Mullard/Philips A.F. output pentode — the output valve of the Marshall model
+  1987 "Plexi" 50 W lead head, and of the wider JMP Super Lead / Super Bass
+  family. Higher transconductance and a sharper overdrive than the KT66 it
+  replaced when Marshall moved off the JTM45's British beam-tetrode pair; the
+  EL34's screen behaviour is much of what gives the Plexi its aggressive top end.
+model:
+  file: models/el34.inc
+  anchor: "Va=250 V, Vg2=250 V, Vg1=-13.5 V → Ia=100 mA, Ig2=14.9 mA, gm=12500 µmho"
+  anchor_source: "Mullard/Philips EL34 data sheet, January 1969 (A.F. Output Pentode)"
+  anchor_source_url: https://frank.pocnet.net/sheets/010/e/EL34.pdf
+  note: >-
+    µ is the grid-No.1-to-grid-No.2 amplification factor (11), the tabulated
+    amplification factor on the same Class-A data row as Ia/gm. Unlike the KT66,
+    the datasheet tabulates Ig2 (14.9 mA) at the very same plate/gm operating
+    point, so KG2 is anchored there directly — no separate screen point is
+    needed. EX=1.5 and KVB=30 (pentode) are project defaults per METHODOLOGY.md.
+basing:
+  code: K8A
+  base: octal
+  view: bottom
+  source: >-
+    Mullard/Philips EL34 data sheet, January 1969 — "DIMENSIONS AND CONNECTIONS",
+    Base: Octal, Socket 5903/13, bottom-view base diagram (figure 7Z06221). A true
+    pentode: the suppressor grid (g3) is brought out to pin 1, tied to the cathode
+    in normal use. Pin 6 is not connected.
+  pins:
+    1: { element: suppressor-grid, note: "g3 — tied to cathode (pin 8) in use" }
+    2: { element: heater }
+    3: { element: plate, hv: true }
+    4: { element: screen-grid, hv: true }
+    5: { element: grid }
+    6: { element: nc }
+    7: { element: heater }
+    8: { element: cathode }
+used_in: [m1987]
+datasheets:
+  - publisher: Mullard / Philips
+    designation: EL34
+    url: https://frank.pocnet.net/sheets/010/e/EL34.pdf
+    confidence: high

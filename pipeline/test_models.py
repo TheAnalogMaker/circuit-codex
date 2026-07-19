@@ -127,6 +127,12 @@ def main() -> int:
     failures += check("12AY7", "Ia", r["ia0"], 3.0e-3, TOL_I)
     failures += check("12AY7", "gm", (r["ia_hi"] - r["ia_lo"]) / 0.1, 1750e-6, TOL_GM)
 
+    print("12AT7 @ Va=250, Vg=-2:")
+    r = run_bench(TRIODE_BENCH.format(name="12AT7", inc=MODELS / "12at7.inc",
+                                      vp=250, vg=-2, vg_hi=-1.95, vg_lo=-2.05))
+    failures += check("12AT7", "Ia", r["ia0"], 10e-3, TOL_I)
+    failures += check("12AT7", "gm", (r["ia_hi"] - r["ia_lo"]) / 0.1, 5500e-6, TOL_GM)
+
     print("6AT6 @ Va=250, Vg=-3 (triode unit):")
     r = run_bench(TRIODE_BENCH.format(name="6AT6", inc=MODELS / "6at6.inc",
                                       vp=250, vg=-3, vg_hi=-2.95, vg_lo=-3.05))
@@ -161,6 +167,14 @@ def main() -> int:
                                        vp=415, vg2=300, vg1=-27,
                                        vg_hi=-26.95, vg_lo=-27.05))
     failures += check("KT66", "Ig2", r["ig2"], 2.5e-3, TOL_I)
+
+    print("EL34 @ Va=250, Vg2=250, Vg1=-13.5:")
+    r = run_bench(PENTODE_BENCH.format(name="EL34", inc=MODELS / "el34.inc",
+                                       vp=250, vg2=250, vg1=-13.5,
+                                       vg_hi=-13.45, vg_lo=-13.55))
+    failures += check("EL34", "Ia", r["ia0"], 100e-3, TOL_I)
+    failures += check("EL34", "Ig2", r["ig2"], 14.9e-3, TOL_I)
+    failures += check("EL34", "gm", (r["ia_hi"] - r["ia_lo"]) / 0.1, 12500e-6, TOL_GM)
 
     print("GZ34 @ Va=17 (per plate):")
     r = run_bench(RECT_BENCH.format(name="GZ34", inc=MODELS / "gz34.inc", va=17))

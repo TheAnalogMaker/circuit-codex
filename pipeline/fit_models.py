@@ -289,6 +289,21 @@ def main() -> None:
         emit_triode(at6, {"cgk": 2.2, "cgp": 2.0, "cpk": 0.8}, "") + "\n"
     (MODELS_DIR / "6at6.inc").write_text(txt)
 
+    # ---- 12AT7: high-mu twin triode (mu=60). RCA 12AT7 data sheet (March 1954)
+    #      tabulated Class-A1 characteristics, Va=250 V point: cathode-bias 200 ohm,
+    #      Ia=10 mA -> Vg=-2.0 V, gm=5500 umho, rp=10900 ohm, mu=60. (The sheet's
+    #      second point Va=100 V/270 ohm -> 3.7 mA, 4000 umho corroborates mu=60.)
+    #      Single-anchor fit at the 250 V point (KP, KG1 solved to Ia+gm), matching
+    #      the 12AY7/6AT6 treatment; MU=60, EX=1.5 fixed.
+    at7 = fit_triode("12AT7", mu=60.0, vp=250.0, vg=-2.0, ia=10.0e-3, gm=5500e-6)
+    txt = common_header("12AT7 high-mu twin triode (one section)",
+                        "Va=250 V, Vg=-2.0 V (200 ohm cathode bias) -> Ia=10 mA, gm=5500 umho, mu=60",
+                        ["Second tabulated point Va=100 V/270 ohm -> 3.7 mA, 4000 umho (mu=60).",
+                         "Node order: P G K. Basing 9A (reference/tubes/12at7.yaml)."],
+                        source="RCA 12AT7 data sheet, March 1, 1954, tabulated characteristics") + "\n" + \
+        emit_triode(at7, {"cgk": 2.2, "cgp": 1.5, "cpk": 0.5}, "") + "\n"
+    (MODELS_DIR / "12at7.inc").write_text(txt)
+
     # ---- 6V6GT: Va=250, Vg2=250, Vg1=-12.5 -> Ia=45 mA, Ig2=4.5 mA, gm=4100 umho
     v6 = fit_pentode("6V6GT", mu=9.6, vp=250.0, vg2=250.0, vg1=-12.5,
                      ia=45e-3, ig2=4.5e-3, gm=4100e-6)
@@ -350,6 +365,28 @@ Cak A K 4p
         emit_pentode(kt66, {"cin": 14.5, "cgp": 1.1, "cout": 10.0}) + "\n"
     (MODELS_DIR / "kt66.inc").write_text(txt)
 
+    # ---- EL34 (Mullard/Philips A.F. output pentode, Marshall 1987 output): the
+    #      datasheet's Class-A quick-reference point tabulates Ia, Ig2 AND gm at the
+    #      SAME operating point (Va=250, Vg2=250, Vg1=-13.5 -> Ia=100 mA, Ig2=14.9 mA,
+    #      gm=12.5 mA/V), so KG2 anchors at the plate/gm point directly (no separate
+    #      screen point needed, unlike the KT66). mu(g1-g2)=11 is the tabulated
+    #      amplification factor. Source URL in the header below.
+    el34 = fit_pentode("EL34", mu=11.0, vp=250.0, vg2=250.0, vg1=-13.5,
+                       ia=100e-3, ig2=14.9e-3, gm=12500e-6)
+    el34_src = ("Mullard/Philips EL34 data sheet, January 1969; "
+                "https://frank.pocnet.net/sheets/010/e/EL34.pdf")
+    txt = common_header("EL34 A.F. output pentode",
+                        "Va=250 V, Vg2=250 V, Vg1=-13.5 V -> Ia=100 mA, Ig2=14.9 mA, gm=12500 umho",
+                        ["mu is grid-No.1-to-grid-No.2 amplification factor (11), the",
+                         "tabulated amplification factor on the same Class-A data row.",
+                         "Ig2 is tabulated at the plate/gm point, so KG2 anchors there.",
+                         "Capacitances from the sheet: Cg1(in)=15.2 pF, Ca-g1=1.1 pF, Ca(out)=8.4 pF.",
+                         "True pentode (suppressor g3 to pin 1, tied to cathode in use).",
+                         "Node order: P G2 G1 K"],
+                        source=el34_src) + "\n" + \
+        emit_pentode(el34, {"cin": 15.2, "cgp": 1.1, "cout": 8.4}) + "\n"
+    (MODELS_DIR / "el34.inc").write_text(txt)
+
     # ---- GZ34: tube drop ~17 V at 250 mA per plate (Mullard datasheet average)
     perv_gz = fit_rectifier_perveance(v_drop=17.0, i_at_drop=250e-3)
     txt = common_header("GZ34 full-wave rectifier (ONE plate unit — instantiate twice)",
@@ -382,14 +419,16 @@ Cak A K 4p
     print("fitted parameters:")
     print(f"  12AX7: MU={ax7.mu:g} KP={ax7.kp:.6g} KG1={ax7.kg1:.6g} EX={ax7.ex:g} KVB={ax7.kvb:.6g} (v1 multi-point)")
     print(f"  12AY7: MU={ay7.mu:g} KP={ay7.kp:.6g} KG1={ay7.kg1:.6g} EX={ay7.ex:g} KVB={ay7.kvb:g}")
+    print(f"  12AT7: MU={at7.mu:g} KP={at7.kp:.6g} KG1={at7.kg1:.6g} EX={at7.ex:g} KVB={at7.kvb:g}")
     print(f"  6AT6:  MU={at6.mu:g} KP={at6.kp:.6g} KG1={at6.kg1:.6g} EX={at6.ex:g} KVB={at6.kvb:g}")
     print(f"  6V6GT: MU={v6.mu:g} KP={v6.kp:.6g} KG1={v6.kg1:.6g} KG2={v6.kg2:.6g} KVB={v6.kvb:g}")
     print(f"  5Y3GT: PERV={perv:.6g}")
     print(f"  5881:  MU={p5881.mu:g} KP={p5881.kp:.6g} KG1={p5881.kg1:.6g} KG2={p5881.kg2:.6g}")
     print(f"  KT66:  MU={kt66.mu:g} KP={kt66.kp:.6g} KG1={kt66.kg1:.6g} KG2={kt66.kg2:.6g}")
+    print(f"  EL34:  MU={el34.mu:g} KP={el34.kp:.6g} KG1={el34.kg1:.6g} KG2={el34.kg2:.6g}")
     print(f"  GZ34:  PERV={perv_gz:.6g}")
     print(f"  5U4G:  PERV={perv_5u4:.6g}")
-    print(f"wrote 9 models to {MODELS_DIR}")
+    print(f"wrote 11 models to {MODELS_DIR}")
 
 
 if __name__ == "__main__":
