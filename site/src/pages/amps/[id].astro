@@ -64,6 +64,14 @@ const jsonld = {
             <img src={`/layouts/${amp.id}.svg`} loading="lazy" decoding="async"
               alt={layoutAlt(amp)} />
           </div>
+          <p class="layout-note">
+            This diagram documents connectivity and part arrangement — it is not a
+            dimensioned 1:1 build template. Board and part positions are drawn at
+            diagram scale, and lead dress, grounding paths, and physical spacing all
+            matter in a high-voltage chassis. If you build from it, verify every
+            connection against the schematic above and the operating-point table
+            below as you go.
+          </p>
         </div>
       )}
 
@@ -170,6 +178,7 @@ const jsonld = {
   .viewer-canvas{height:580px}
   .viewer-canvas kicanvas-embed{display:block;width:100%;height:100%}
   .layout-canvas{padding:10px}
+  .layout-note{color:var(--muted);font-size:12.5px;line-height:1.55;margin:0;padding:10px 16px 14px;border-top:1px solid var(--line-soft);max-width:90ch}
   .layout-canvas img{display:block;width:100%;height:auto;border-radius:4px}
   h2{font-size:17px;letter-spacing:.14em;margin:28px 0 4px}
   .sub{color:var(--muted);font-size:13.5px;margin:0 0 14px;max-width:70ch}
