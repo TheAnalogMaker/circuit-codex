@@ -183,6 +183,7 @@ runs:
   - { from: PT.green, to: PL1.a, style: twisted }                                 # 6.3 V -> pilot lamp
   - { from: PL1.b, to: V2.pin7, style: twisted, via: [[-1.2, 3.1], [15, 3.1]] }   # lamp -> 6V6 heater
   - { from: V2.pin2, to: V1.pin4, style: twisted, via: [[15, 3.12], [27, 3.12]] } # 6V6 -> 12AX7 heater
+  - { from: V1.pin4, to: V1.pin5, style: twisted } # close the pair at the last socket
 
   # 12AX7 heater centre tap (pin 9), grounded directly at the socket per the
   # sheet's own ground mark there -- no CT resistors are shown or in the BOM.

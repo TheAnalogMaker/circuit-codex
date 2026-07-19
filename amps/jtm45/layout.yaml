@@ -246,3 +246,4 @@ runs:
   - { from: V6.pin2, to: V4.pin4, style: twisted, via: [[27, 3.74], [37, 3.74]] }   # V6 -> V4 ECC83 heater
   - { from: V4.pin5, to: V3.pin4, style: twisted, via: [[37, 3.7], [50, 3.7]] }     # V4 -> V3 ECC83 heater
   - { from: V3.pin5, to: V1.pin4, style: twisted, via: [[50, 3.7], [59, 3.7]] }     # V3 -> V1 ECC83 heater
+  - { from: V1.pin4, to: V1.pin5, style: twisted } # close the pair at the last socket

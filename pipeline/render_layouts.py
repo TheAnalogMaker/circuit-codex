@@ -986,8 +986,15 @@ class Renderer:
             svg, tp = self.bus_wire(spec, i)
             els.append(svg)
             term_pts += tp
-        # routed hookup runs
+        # routed hookup runs (twisted heater pairs are deferred below the part
+        # loops — they must draw ABOVE the socket discs so the pin landing on
+        # the 9-pin top heater pins stays visible instead of vanishing under
+        # the socket)
+        twisted_runs = []
         for i, spec in enumerate(self.runs):
+            if str(spec.get("style", "")).lower() == "twisted":
+                twisted_runs.append((i, spec))
+                continue
             svg, tp = self.run_wire(spec, i)
             els.append(svg)
             term_pts += tp
@@ -997,6 +1004,11 @@ class Renderer:
         # board parts
         for p in self.parts:
             els.append(self.part_body(p))
+        # heater twisted pairs, above the sockets
+        for i, spec in twisted_runs:
+            svg, tp = self.run_wire(spec, i)
+            els.append(svg)
+            term_pts += tp
         # terminal dots on top of the joints they land on
         for (tx, ty) in term_pts:
             els.append(term_dot(tx, ty))

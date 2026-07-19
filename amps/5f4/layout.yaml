@@ -257,3 +257,4 @@ runs:
   - { from: V5.pin2, to: V3.pin4, style: twisted, via: [[10.5, 3.74], [20, 3.74]] }  # V5 -> V3 (PI) heater
   - { from: V3.pin5, to: V2.pin4, style: twisted, via: [[20, 3.72], [33, 3.72]] }    # V3 -> V2 heater
   - { from: V2.pin5, to: V1.pin4, style: twisted, via: [[33, 3.7], [44, 3.7]] }      # V2 -> V1 heater
+  - { from: V1.pin4, to: V1.pin5, style: twisted } # close the pair at the last socket
