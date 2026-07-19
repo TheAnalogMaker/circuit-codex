@@ -126,12 +126,12 @@ runs:
 
   # --- output stage: OT (derived), screens, grids ---------------------------
   - { from: C8.a, to: T1.ct, via: [[6, 2.6], [60.3, 2.6]] }        # B+1 → OT primary centre tap
-  - { from: V3.pin3, to: T1.plateA, via: [[22, 2.72], [60.5, 2.72]] }  # upper 6V6 plate → OT primary
-  - { from: V4.pin3, to: T1.plateB, via: [[28, 2.84], [60.7, 2.84]] }  # lower 6V6 plate → OT primary
+  - { from: V3.pin3, to: T1.plateA, via: [[19, 2.72], [60.5, 2.72]] }  # upper 6V6 plate → OT primary (drop left of the V3 label)
+  - { from: V4.pin3, to: T1.plateB, via: [[25, 2.84], [60.7, 2.84]] }  # lower 6V6 plate → OT primary (drop left of the V4 label)
   - { from: T1.sec1, to: SPK.tip }
   - { from: T1.sec2, to: SPK.sleeve }
-  - { from: V3.pin4, to: C9.a, via: [[22, 2.4], [12, 2.4]] }       # upper 6V6 screen → B+2
-  - { from: V4.pin4, to: C9.a, via: [[28, 2.5], [12, 2.5]] }       # lower 6V6 screen → B+2
+  - { from: V3.pin4, to: C9.a, via: [[19, 2.4], [12, 2.4]] }       # upper 6V6 screen → B+2 (drop left of the V3 label)
+  - { from: V4.pin4, to: C9.a, via: [[25, 2.5], [12, 2.5]] }       # lower 6V6 screen → B+2 (drop left of the V4 label)
   - { from: V3.pin8, to: [1.45, 22] }                              # upper 6V6 cathode → ground bus
   - { from: V4.pin8, to: [1.45, 28] }                              # lower 6V6 cathode → ground bus
 
@@ -139,13 +139,13 @@ runs:
   - { from: V2.pin1, to: RL3.a, via: [[41, 1.6]] }      # cathodyne plate → 56k plate load
   - { from: RL3.b, to: C10.a, via: [[40, 0.7], [18.3, 0.7]] }   # plate load → B+3
   - { from: V2.pin1, to: C6.a, via: [[41.3, 1.5]] }     # cathodyne plate → plate-side coupler
-  - { from: C6.b, to: V3.pin5, via: [[38, 3.2], [22, 3.2]] }   # coupler → upper 6V6 grid
+  - { from: C6.b, to: V3.pin5, via: [[38, 3.2], [24, 3.2], [24, 1.95]] }   # coupler → upper 6V6 grid (rise right of the V3 label, into pin 5)
   - { from: RG1.a, to: C6.b, via: [[34, 0.72], [37.7, 0.72]] }   # bias grid leak → same grid node
   - { from: V2.pin3, to: RKA.a, via: [[40.6, 0.74], [20.3, 0.74]] }    # cathodyne cathode → 1.5k
   - { from: RKA.b, to: RKB.a }                          # junction → 56k cathode load
   - { from: RKB.b, to: [1.45, 24] }                     # 56k → ground bus
   - { from: RKA.b, to: C7.a, via: [[20.6, 0.76], [31.7, 0.76]] }   # junction → cathode-side coupler
-  - { from: C7.b, to: V4.pin5, via: [[32, 3.32], [28, 3.32]] }   # coupler → lower 6V6 grid
+  - { from: C7.b, to: V4.pin5, via: [[32, 3.32], [30, 3.32], [30, 1.95]] }   # coupler → lower 6V6 grid (rise right of the V4 label, into pin 5)
   - { from: RG2.a, to: C7.b, via: [[36, 0.78], [32.3, 0.78]] }   # bias grid leak → same grid node
   - { from: RGPI.a, to: RKA.b }                         # PI grid leak → junction
   - { from: RGPI.b, to: V2.pin2, via: [[30, 1.6]] }     # PI grid leak → cathodyne grid
@@ -158,7 +158,7 @@ runs:
   - { from: V2.pin8, to: RK2.a, via: [[40.8, 0.75], [26.3, 0.75]] }    # driver cathode → 1.5k (unbypassed)
   - { from: V2.pin8, to: RNFB.a, via: [[40.4, 0.78], [28.3, 0.78]] }    # driver cathode → NFB resistor
   - { from: RK2.b, to: [1.45, 26] }                      # 1.5k → ground bus
-  - { from: RNFB.b, to: SPK.tip, via: [[28.3, 3.4], [35, 2.2]] }   # NFB → speaker line
+  - { from: RNFB.b, to: SPK.tip, via: [[28.3, 3.4], [33, 3.4], [33, 1.9]] }   # NFB → speaker line (rise left of the Spkr-jack label, into the tip)
   - { from: VR1.lug2, to: V2.pin7, via: [[32, -0.45], [32.3, 0.76], [41.2, 1.55]] }  # volume wiper → driver grid
 
   # --- 6AT6 input stage: three jacks, volume/tone, plate, cathode ----------
