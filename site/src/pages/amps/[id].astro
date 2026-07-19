@@ -10,6 +10,7 @@ const m = amp.meta;
 const v = m.verification || {};
 const vDate = v.date ? new Date(v.date).toISOString().slice(0, 10) : null;
 const ghDir = `${GITHUB}/tree/main/amps/${amp.id}`;
+const wiringVerified = amp.layout?.wiring_claim === 'verified';
 const metaDescription = ampMetaDescription(m);
 const canonical = new URL(`amps/${amp.id}/`, Astro.site).href;
 const jsonld = {
@@ -65,6 +66,15 @@ const jsonld = {
               alt={layoutAlt(amp)} />
           </div>
           <p class="layout-note">
+            {wiringVerified && (
+              <><strong>Machine-checked wiring.</strong> Every point-to-point connection
+              drawn here has been verified — by an automated netlist-equivalence check in
+              CI — to be electrically equivalent to the simulated netlist this circuit is
+              verified against: the same net structure, terminal for terminal, with no
+              missing or extra connections. The 6.3&nbsp;V heater chain, pilot lamp, and
+              power-transformer / rectifier AC side are an excluded annotation layer (they
+              are not part of the operating-point netlist). </>
+            )}
             This diagram documents connectivity and part arrangement — it is not a
             dimensioned 1:1 build template. Board and part positions are drawn at
             diagram scale, and lead dress, grounding paths, and physical spacing all
