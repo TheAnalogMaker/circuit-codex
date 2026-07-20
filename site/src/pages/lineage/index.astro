@@ -83,8 +83,8 @@ const fams = [...history].sort(
 // greedy interval-pack a family's models into sub-rows so chips never overlap,
 // preserving chronological order (left to right)
 function packBand(models) {
-  const sorted = [...models].sort((a, b) =>
-    (a.years.start - b.years.start) || String(a.designation).localeCompare(String(b.designation)));
+  // Stable sort: same-year models keep their authored (chronological) YAML order.
+  const sorted = [...models].sort((a, b) => a.years.start - b.years.start);
   const rowEnds = [];
   const placed = [];
   for (const m of sorted) {

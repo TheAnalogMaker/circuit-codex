@@ -106,7 +106,7 @@ models:
     key_change: >
       The definitive tweed Princeton and the last single-ended one: a 12AX7 into
       a cathode-biased single-ended 6V6, with a capacitor-coupled single-knob
-      tone control and 22k feedback around the output triode's driver. This is
+      tone control and 22 k negative feedback from the speaker to the unbypassed cathode of the driver stage (V1B). This is
       the DC signal path the corpus documents at circuit_ref 5f2a; everything
       after it in the family is push-pull.
     circuit_ref: 5f2a
