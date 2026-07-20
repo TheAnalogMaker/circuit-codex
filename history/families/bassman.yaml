@@ -1,0 +1,177 @@
+family: bassman
+title: "The Bassman line"
+maker_style: "Fender-style"
+summary: >-
+  The Bassman began in 1952 as a companion for the new Precision Bass — a
+  single-15" tweed combo meant to amplify a bass guitar cleanly. Over the
+  1950s it was reworked circuit by circuit until, in the 5F6-A of 1958, it had
+  become one of the most admired guitar amplifiers ever built: four 10"
+  speakers, a three-knob tone stack with presence, a long-tailed-pair phase
+  inverter, and a loud, harmonically rich overdrive that guitarists — not
+  bassists — prized. That tweed circuit became the template Jim Marshall's
+  team copied for the first JTM45, seeding the British high-gain lineage. When
+  Fender needed a real bass amp again in the 1960s, the name was moved onto an
+  entirely different blackface piggyback head (AA864, then AB165), leaving the
+  4x10 tweed as a guitar classic in its own right.
+models:
+  - designation: "5B6"
+    name: "Bassman (TV-front, then wide-panel tweed)"
+    years: { start: 1952, end: 1954 }
+    wattage: 26
+    output: "push-pull 2x6L6"
+    tubes: [6SC7, 6SL7, 6L6, 6L6, 5U4]
+    key_change: >-
+      The origin of the line. Fender's first bass amplifier, designed to
+      partner the 1951 Precision Bass: a cathode-biased tweed combo with a
+      single 15" speaker and a two-control (volume, tone) front. The earliest
+      TV-front examples used octal preamp tubes (6SC7 phase-splitter, 6SL7);
+      the later wide-panel version switched to the nine-pin miniature tubes
+      (12AY7/12AX7) that the rest of the line would keep.
+    circuit_ref: null
+    sources:
+      - desc: "Wikipedia, 'Fender Bassman' — 5B6 origins: 1952 TV-front single-15 combo for the Precision Bass; octal 6SC7/6SL7/6L6/5U4 tube set; 1953-54 wide-panel revision adopting 12AY7/12AX7"
+        url: "https://en.wikipedia.org/wiki/Fender_Bassman"
+  - designation: "5D6"
+    name: "Bassman (dual-rectifier tweed, 4x10)"
+    years: { start: 1954, end: 1955 }
+    wattage: 40
+    output: "push-pull 2x6L6"
+    tubes: [12AX7, 12AX7, 6L6, 6L6]
+    key_change: >-
+      The two big structural moves happened here: the single 15" speaker gave
+      way to four 10" speakers, and the power section changed to fixed bias
+      (raising output) fed by a pair of rectifier tubes — the "dual rectifier"
+      Bassman — with a cathodyne (split-load) phase inverter. Very short-lived
+      and quickly superseded; sources disagree on exactly how long it ran, with
+      the 5D6/5E6 transition variously dated across 1954-1955, so the range
+      here is the defensible one.
+    circuit_ref: null
+    sources:
+      - desc: "Wikipedia, 'Fender Bassman' — 5D6 'Dual Rectifier Bassman': move to four 10-inch Jensen P10R speakers, fixed bias for more power, two rectifier tubes, cathodyne phase inverter, 12AX7 preamps"
+        url: "https://en.wikipedia.org/wiki/Fender_Bassman"
+  - designation: "5E6 / 5E6-A"
+    name: "Bassman (narrow-panel tweed, 4x10)"
+    years: { start: 1955, end: 1957 }
+    wattage: 40
+    output: "push-pull 2x6L6"
+    tubes: [12AY7, 12AX7, 12AX7, 6L6, 6L6]
+    key_change: >-
+      Evolutionary refinement of the 4x10 dual-rectifier circuit rather than a
+      redesign, carried in the narrow-panel tweed cabinet. The 5E6-A tidied the
+      preamp and tone circuit further. This is the mature dual-rectifier era
+      that immediately precedes the milestone 5F6.
+    circuit_ref: null
+    sources:
+      - desc: "El34World schematic archive, Fender Bassman 5E6 drawing (designation-indexed; the drawing prints model + values)"
+        url: "https://el34world.com/charts/Schematics/files/Fender/Fender_bassman_5e6.pdf"
+      - desc: "El34World schematic archive, Fender Bassman 5E6-A drawing"
+        url: "https://el34world.com/charts/Schematics/files/Fender/Fender_bassman_5e6a.pdf"
+      - desc: "Wikipedia, 'Fender Bassman' — 5E6/5E6-A dated 1955-1957 as evolutionary improvements over the 5D6"
+        url: "https://en.wikipedia.org/wiki/Fender_Bassman"
+  - designation: "5F6"
+    name: "Bassman (narrow-panel tweed, presence + 3-knob tone stack)"
+    years: { start: 1957, end: 1958 }
+    wattage: 45
+    output: "push-pull 2x5881"
+    tubes: [12AY7, 12AX7, 12AX7, 5881, 5881, 83]
+    key_change: >-
+      The circuit that made the amp famous. It replaced the earlier tone
+      circuit with a three-knob stack — separate Treble, Middle and Bass — plus
+      a Presence control, and swapped the cathodyne splitter for a
+      long-tailed-pair phase inverter that gave more drive and headroom. The
+      drawing shows a single 83 mercury-vapor rectifier feeding a pair of 5881
+      output tubes into the 4x10 cab. This layout (Bright/Normal channels,
+      Presence/Middle/Bass/Treble) is the direct predecessor of the 5F6-A.
+    circuit_ref: null
+    sources:
+      - desc: "El34World schematic archive, Fender Bassman 5F6 layout drawing — read directly: tubes 83 rectifier + 5881/5881 output + 12AX7/12AX7/12AY7 preamp; Presence, Middle, Bass, Treble controls; Bright and Normal channels; single 83 rectifier"
+        url: "https://el34world.com/charts/Schematics/files/Fender/Fender_bassman_5f6.pdf"
+      - desc: "Wikipedia, 'Fender Bassman' — 5F6 (July 1957): three-knob treble/middle/bass tone stack, long-tailed-pair phase inverter, single-rectifier design, four 10-inch P10R speakers"
+        url: "https://en.wikipedia.org/wiki/Fender_Bassman"
+  - designation: "5F6-A"
+    name: "Bassman (narrow-panel tweed, definitive)"
+    years: { start: 1958, end: 1960 }
+    wattage: 40
+    output: "push-pull 2x5881"
+    tubes: [12AY7, 12AX7, 12AX7, 5881, 5881, GZ34]
+    key_change: >-
+      The definitive tweed Bassman and the corpus's fully documented reference
+      circuit. It refined the 5F6 mainly in the power supply and presence
+      circuit, adopting the GZ34 rectifier in place of the 83. Its combination
+      of the 4x10 cab, cathode-follower tone stack, long-tailed-pair inverter
+      and fixed-bias 5881 pair became a reference point for guitar tone — and
+      the circuit Jim Marshall's team studied when building the first JTM45,
+      making this the seed of the British high-gain lineage.
+    circuit_ref: 5f6a
+    sources:
+      - desc: "Circuit Codex amp 5f6a (fully documented: every value and the printed voltage chart read from the I-EG factory drawing; GZ34 rectifier, 82k/100k long-tailed-pair PI, -48 V fixed bias)"
+        url: "https://el34world.com/charts/Schematics/files/Fender/Fender_bassman_5f6a.pdf"
+      - desc: "Wikipedia, 'Fender Bassman' — 5F6-A (1958-1960): GZ34 rectifier, presence-circuit modification; widely cited as one of the greatest guitar amps"
+        url: "https://en.wikipedia.org/wiki/Fender_Bassman"
+  - designation: "6G6 / 6G6-A / 6G6-B"
+    name: "Bassman (brown/blonde piggyback)"
+    years: { start: 1960, end: 1963 }
+    wattage: 50
+    output: "push-pull 2x5881/6L6GC"
+    tubes: [12AX7, 12AX7, 12AX7, 12AX7, 5881, 5881, GZ34]
+    key_change: >-
+      A complete break from the tweed combo: the Bassman became a piggyback rig
+      — a separate head atop its own speaker cabinet — in brown then blonde
+      Tolex, rated around 50 watts. The 6G6 kept a GZ34 rectifier; the 6G6-A
+      moved to a solid-state rectifier and a two-12" cabinet. This
+      brown/blonde era is the bridge between the tweed 4x10 guitar classic and
+      the blackface bass head that followed.
+    circuit_ref: null
+    sources:
+      - desc: "El34World schematic archive, Fender Bassman 6G6-A drawing (designation-indexed piggyback circuit)"
+        url: "https://el34world.com/charts/Schematics/files/Fender/Fender_bassman_6g6a.pdf"
+      - desc: "Wikipedia, 'Fender Bassman' — 6G6 (late 1960) 50 W blonde/brown piggyback, GZ34 rectifier, 6G6-A solid-state rectifier and 2x12 cab, 6G6-B circuit changes through 1963"
+        url: "https://en.wikipedia.org/wiki/Fender_Bassman"
+  - designation: "AA864"
+    name: "Bassman (blackface piggyback head)"
+    years: { start: 1964, end: 1965 }
+    wattage: 50
+    output: "push-pull 2x6L6GC"
+    tubes: null
+    key_change: >-
+      The first blackface Bassman: black Tolex, black control panel, a 50-watt
+      head over a separate cabinet, and a redesigned two-channel (Bass and
+      Normal) circuit built for bass duty again rather than the tweed guitar
+      voicing. Solid-state rectification replaced the rectifier tube. This is a
+      wholly different amplifier that inherited the name, not the tweed circuit.
+    circuit_ref: null
+    sources:
+      - desc: "El34World schematic archive, Fender Bassman AA864 drawing (designation-indexed blackface circuit)"
+        url: "https://el34world.com/charts/Schematics/files/Fender/Fender_bassman_aa864.pdf"
+      - desc: "Wikipedia, 'Fender Bassman' — AA864 blackface circuit, 1964, black Tolex and control panel"
+        url: "https://en.wikipedia.org/wiki/Fender_Bassman"
+  - designation: "AB165"
+    name: "Bassman (blackface piggyback head, definitive)"
+    years: { start: 1965, end: 1967 }
+    wattage: 50
+    output: "push-pull 2x6L6GC"
+    tubes: [7025, 7025, 7025, 12AT7, 6L6GC, 6L6GC]
+    key_change: >-
+      The best-known blackface Bassman circuit, running from the mid-1960s into
+      the early silverface period. The drawing shows Bass and Normal channels
+      on 7025 (12AX7-family) preamp tubes, a 12AT7 long-tailed-pair phase
+      inverter, a pair of 6L6GC output tubes and a solid-state rectifier, with
+      the distinctive blend/feedback network on the Bass channel. It shares
+      only the name with the tweed 4x10 amps.
+    circuit_ref: null
+    sources:
+      - desc: "El34World schematic archive, Fender Bassman AB165 drawing — read directly: 'Bassman-Amp AB165', Bass and Normal channels, 7025 preamps, 12AT7 phase inverter, 6L6GC (2) output, solid-state rectifier, +425/+390/+320/+260 V rails"
+        url: "https://el34world.com/charts/Schematics/files/Fender/Fender_bassman_ab165.pdf"
+      - desc: "Wikipedia, 'Fender Bassman' — AB165 introduced c. 1965, carried into the early silverface (drip-edge) period, trend toward cleaner sound and more headroom"
+        url: "https://en.wikipedia.org/wiki/Fender_Bassman"
+notes: >-
+  Tweed-era dating is fuzzy and sources disagree, especially across the
+  5D6/5E6/5E6-A transition (variously placed in 1954-1957); the ranges given
+  are the defensible ones rather than hard boundaries. The tweed line (5B6
+  through 5F6-A) and the 1960s piggyback heads (6G6 brown/blonde, then blackface
+  AA864/AB165) are essentially two different amplifiers that share the Bassman
+  name: the former became a guitar classic and the template for Marshall's
+  JTM45; the latter was Fender's return to a purpose-built bass head. Cross-family
+  influence on the JTM45 is documented in this corpus (amps/5f6a lineage
+  'influenced: jtm45') and lives in the marshall-lead family file; it is noted
+  here only as the well-attested succession point, not claimed as a Bassman model.

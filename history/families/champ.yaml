@@ -1,0 +1,133 @@
+family: champ
+title: "The Champ line"
+maker_style: "Fender-style"
+summary: >
+  Fender's smallest student amplifier and its longest-lived circuit idea: a
+  single-ended power tube, no phase inverter, no tone stack. The line begins
+  with the late-1940s Champion student amps, passes through the tweed 5-series
+  revisions that swapped an octal pentode preamp for a 12AX7, reaches its most
+  copied form as the 5F1, and continues under blackface (AA764) and silverface
+  cosmetics into the early 1980s. Throughout, the output stage stays a single
+  cathode-biased 6V6 — the defining constant of the family.
+models:
+  - designation: "800"
+    name: "Champion 800 (TV-front)"
+    years: { start: 1948, end: 1949 }
+    wattage: 3
+    output: "single-ended 6V6"
+    tubes: [6SJ7, 6V6, 5Y3]
+    key_change: >
+      The first entry in the line and Fender's earliest student amp: a single
+      octal pentode preamp driving one single-ended 6V6, in a TV-front cabinet
+      with an 8-inch speaker (the "800"). Output rating is approximate — these
+      were never formally catalogued with a wattage figure.
+    circuit_ref: null
+    sources:
+      - desc: "Wikipedia, Fender Champ — Champion 800 era, cabinet, speaker and single-ended 6V6 output"
+        url: "https://en.wikipedia.org/wiki/Fender_Champ"
+  - designation: "5B1"
+    name: "Champion 600 (two-tone)"
+    years: { start: 1949, end: 1953 }
+    wattage: 3
+    output: "single-ended 6V6"
+    tubes: [6SJ7, 6V6GT, 5Y3GT]
+    key_change: >
+      Same single-ended 6V6 recipe stepped down to a 6-inch speaker (hence
+      "600") in a two-tone cabinet, carrying a 6SJ7 pentode preamp, 6V6 output
+      and 5Y3 rectifier. Dating is soft: the Champion 600 name spans roughly
+      1949 into the mid-1950s and overlaps the wide-panel tweed 5C1 revision.
+    circuit_ref: null
+    sources:
+      - desc: "Wikipedia, Fender Champ — Champion 600, 5B1 designation, 6SJ7/6V6/5Y3 complement and 6-inch speaker"
+        url: "https://en.wikipedia.org/wiki/Fender_Champ"
+  - designation: "5C1"
+    name: "Champ (wide-panel tweed)"
+    years: { start: 1953, end: 1955 }
+    wattage: 4
+    output: "single-ended 6V6"
+    tubes: [6SJ7, 6V6GT, 5Y3GT]
+    key_change: >
+      The Champion 600 circuit carried into a wide-panel tweed cabinet as the
+      model name shifted toward "Champ." Topology is essentially unchanged from
+      the 5B1 — still a 6SJ7 pentode front end into a single-ended 6V6. Tweed-era
+      dates are approximate.
+    circuit_ref: null
+    sources:
+      - desc: "EL34World schematic archive, Fender Champ 5C1 sheet (indexed by designation; drawing prints the circuit number)"
+        url: "https://el34world.com/charts/Schematics/files/Fender/Fender_champ_5c1_schem.pdf"
+      - desc: "Wikipedia, Fender Champ — Champion 600 tweed / 5C1 wide-panel transition"
+        url: "https://en.wikipedia.org/wiki/Fender_Champ"
+  - designation: "5D1"
+    name: "Champ (wide-panel tweed)"
+    years: { start: 1954, end: 1955 }
+    wattage: 4
+    output: "single-ended 6V6"
+    tubes: [6SJ7, 6V6GT, 5Y3GT]
+    key_change: >
+      A short-lived component revision within the wide-panel tweed era, still
+      built around the 6SJ7 pentode preamp and single-ended 6V6. It sits between
+      the 5C1 and the 12AX7-based 5E1; exact start/end dates overlap its
+      neighbours and are not firmly documented.
+    circuit_ref: null
+    sources:
+      - desc: "Wikipedia, Fender Champ — tweed 5-series revision sequence preceding the 5E1"
+        url: "https://en.wikipedia.org/wiki/Fender_Champ"
+  - designation: "5E1"
+    name: "Champ (narrow-panel tweed)"
+    years: { start: 1955, end: 1957 }
+    wattage: 5
+    output: "single-ended 6V6"
+    tubes: [12AX7, 6V6GT, 5Y3GT]
+    key_change: >
+      The pivotal revision: the octal 6SJ7 pentode preamp is replaced by a 12AX7
+      twin triode used as two cascaded gain stages, in a narrow-panel tweed
+      cabinet. This is the two-triode, single-ended 6V6 architecture the rest of
+      the line keeps.
+    circuit_ref: "5e1"
+    sources:
+      - desc: "AmpBooks classic-circuit analysis, Fender Champ 5E1 — stage values and 6V6 operating point"
+        url: "https://www.ampbooks.com/mobile/classic-circuits/fender-champ-5e1/"
+      - desc: "EL34World schematic archive, Fender Champ 5E1 sheet (indexed by designation)"
+        url: "https://el34world.com/charts/Schematics/files/Fender/Fender_champ_5e1_schem.pdf"
+  - designation: "5F1"
+    name: "Champ (narrow-panel tweed)"
+    years: { start: 1958, end: 1964 }
+    wattage: 5
+    output: "single-ended 6V6"
+    tubes: [12AX7, 6V6GT, 5Y3GT]
+    key_change: >
+      The definitive tweed Champ and the most reproduced circuit in the line:
+      the 5E1's two-stage 12AX7 into a single-ended 6V6, with an 8-inch speaker
+      and revised power-supply filtering. Topology is a light refinement of the
+      5E1 rather than a redesign.
+    circuit_ref: 5f1
+    sources:
+      - desc: "Fender 5F1 published drawing, read directly for values and node structure (archived at EL34World, indexed by designation)"
+        url: "https://el34world.com/charts/Schematics/files/Fender/Fender_champ_5f1_schem.pdf"
+      - desc: "Rob Robinette, 'How Amps Work' — 5F1 component roles and B+ structure"
+        url: "https://robrobinette.com/How_Amps_Work.htm"
+  - designation: "AA764"
+    name: "Champ / Vibro Champ (blackface)"
+    years: { start: 1964, end: 1968 }
+    wattage: 5
+    output: "single-ended 6V6"
+    tubes: [12AX7, 6V6GT, 5Y3GT]
+    key_change: >
+      Blackface cosmetics and a new circuit number, but the output stage stays a
+      single-ended 6V6. The AA764 renumbering coincides with the tremolo-equipped
+      Vibro Champ sibling, which adds a tube tremolo oscillator ahead of the same
+      power stage; the plain Champ omits it.
+    circuit_ref: null
+    sources:
+      - desc: "EL34World schematic archive, Fender Champ AA764 sheet (indexed by designation)"
+        url: "https://el34world.com/charts/Schematics/files/Fender/Fender_champ_AA764_schem.pdf"
+      - desc: "Wikipedia, Fender Champ — blackface AA764 / Vibro Champ tremolo introduction"
+        url: "https://en.wikipedia.org/wiki/Fender_Champ"
+notes: >
+  Tweed-era production dates (5B1 through 5D1) are fuzzy and overlap between
+  revisions; the ranges given are the defensible spans, not firm year-by-year
+  boundaries. Wattage figures for the pre-5E1 Champions were never formally
+  catalogued and are approximate. After the AA764, the Champ and Vibro Champ
+  continued under silverface cosmetics from 1968 into the early 1980s (with a
+  brief blackface reissue near the end) — the single-ended 6V6 output stage
+  unchanged throughout. Marketing names are used descriptively.

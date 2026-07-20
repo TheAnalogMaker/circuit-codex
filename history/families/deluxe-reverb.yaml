@@ -1,0 +1,56 @@
+family: deluxe-reverb
+title: "The Deluxe Reverb line"
+maker_style: "Fender-style"
+summary: >-
+  The Deluxe Reverb is the blackface spin-off that eclipsed the amp it grew from. When
+  the Deluxe went blackface in 1963, Fender added an outboard-style spring reverb and a
+  tube-driven vibrato to the 6V6 platform, producing a 22 W combo that became one of
+  the most recorded amps ever made. This short family file covers the blackface reverb
+  circuits (AA763 then the definitive AB763) and notes the later AB868 revision; it
+  owns the corpus's amps/ab763 entry, while the plain non-reverb Deluxe and the moment
+  of the split are documented in the deluxe family file.
+models:
+  - designation: "AA763"
+    name: "Deluxe Reverb AA763 (blackface)"
+    years: { start: 1963, end: 1964 }
+    wattage: 22
+    output: "push-pull 2x6V6"
+    tubes: [12AX7, 12AX7, 12AX7, 12AT7, 12AX7, 12AT7, 6V6GT, 6V6GT, GZ34]
+    key_change: >-
+      The first Deluxe Reverb: the blackface Deluxe platform with an added Vibrato
+      channel carrying its own spring-reverb circuit and a tube tremolo, alongside the
+      unchanged Normal channel. Fixed bias, a long-tailed-pair inverter, and the GZ34
+      rectifier are shared with the non-reverb blackface Deluxe; the reverb tank and
+      its driver/recovery tubes are what set the model apart. Early blackface examples
+      carry the AA763 designation before the AB763 revision.
+    circuit_ref: null
+    sources:
+      - desc: "Wikipedia, 'Fender Deluxe Amplifier' — the 1963 blackface transition and the Deluxe Reverb spin-off with integrated spring reverb; blackface circuit 22 W, adjustable fixed bias, 12AT7 phase inverter"
+        url: "https://en.wikipedia.org/wiki/Fender_Deluxe_Amp"
+  - designation: "AB763"
+    name: "Deluxe Reverb AB763 (blackface)"
+    years: { start: 1964, end: 1967 }
+    wattage: 22
+    output: "push-pull 2x6V6"
+    tubes: [12AX7, 12AX7, 12AX7, 12AT7, 12AX7, 12AT7, 6V6GT, 6V6GT, GZ34]
+    key_change: >-
+      The definitive blackface Deluxe Reverb and the reference circuit for the model.
+      A GZ34 rectifier and fixed bias (with an adjustable trim) feed a 6V6GT pair rated
+      at 22 W; the preamp runs Normal and Vibrato channels, each with volume, treble,
+      and bass, plus reverb and speed/intensity controls. A 12AT7 drives the reverb
+      tank and a second 12AT7 forms the long-tailed-pair phase inverter. This is the
+      circuit documented in the corpus at amps/ab763, where the printed AB763 voltage
+      chart is DC-verified.
+    circuit_ref: "ab763"
+    sources:
+      - desc: "Mojotone/Ampwares Fender field guide, 'Blackface Deluxe Reverb' — AB763 schematic, 1963-1967, 22 W, two 6V6GT, GZ34, fixed bias with adjustable pot, Normal/Vibrato channels with reverb and tremolo; AB868 noted as an alternative revision"
+        url: "https://mojotone.com/blogs/fender-field-guide/fender-blackface-deluxe-reverb"
+      - desc: "Fender 'Deluxe Reverb-Amp AB763' schematic/layout archived at EL34World (designation-indexed anchor; component values and printed voltage chart read from the drawing, not reproduced)"
+        url: "https://el34world.com/charts/Schematics/files/Fender/Fender_deluxe_reverb_ab763.pdf"
+notes: >-
+  This family is deliberately short: it documents only the blackface AA763/AB763
+  reverb circuits, with the AB868 revision noted on the AB763 entry rather than split
+  out. The reverb line continued into the silverface era (out of scope here). The
+  moment the Deluxe forked into reverb and non-reverb branches, and the plain
+  blackface Deluxe, live in history/families/deluxe.yaml to avoid duplicating the
+  shared amps/ab763 circuit_ref, which belongs to this file.

@@ -1,0 +1,142 @@
+family: super
+title: "The Super line"
+maker_style: "Fender-style"
+summary: >-
+  The Super is Fender's two-10-inch, 6L6-powered step above the Deluxe. It begins in
+  1947 as the twin-speaker "Dual Professional" — Fender's first two-speaker amp and an
+  early finger-jointed cabinet — soon renamed Super, and runs through the tweed
+  sequence gaining inputs, jacks, a standby switch, and finally the narrow-panel 5F4
+  with its cathode-follower treble/bass tone stack and long-tailed-pair inverter. The
+  1960 brown redesign moves to fixed bias, a GZ34 rectifier, and vibrato before the
+  name passes to the blackface Super Reverb. As with all tweed circuits the early
+  production dates are approximate, and factory power ratings across this family are
+  notably inconsistent.
+models:
+  - designation: "Dual Professional"
+    name: "Dual Professional / early Super (V-front tweed)"
+    years: { start: 1947, end: 1953 }
+    wattage: null
+    output: "push-pull 2x6L6"
+    tubes: [6SC7, 6L6, 6L6, 5U4G]
+    key_change: >-
+      The origin of the line: introduced in 1947 as the Dual Professional, Fender's
+      first amp with two speakers (a pair of 10-inch Jensens in a "V-front" baffle)
+      and an early finger-jointed cabinet, then renamed Super. A cathode-biased 6L6
+      pair on a 5U4G rectifier sets the family's power template. Running changes in
+      this era feed straight into the numbered circuits — a fourth input appears at the
+      5B4 and under-chassis speaker jacks at the 5C4.
+    circuit_ref: null
+    sources:
+      - desc: "Mojotone/Ampwares Fender field guide, 'V Front Super' — Dual Professional origin, 1947 onward, two 10-inch Jensen P10R, two 6L6/6L6G, 5U4G, cathode bias; fourth input added at 5B4, speaker jacks at 5C4"
+        url: "https://mojotone.com/blogs/fender-field-guide/fender-v-front-super"
+      - desc: "Fender 'Dual Professional' schematic archived at EL34World (designation-indexed anchor; drawing not reproduced)"
+        url: "https://el34world.com/charts/Schematics/files/Fender/Fender_dual_professional.pdf"
+  - designation: "5B4"
+    name: "Super 5B4 (wide-panel tweed)"
+    years: { start: 1953, end: 1954 }
+    wattage: null
+    output: "push-pull 2x6L6"
+    tubes: [12AY7, 6L6G, 6L6G, 5U4G]
+    key_change: >-
+      The first wide-panel-cabinet Super circuit. Relative to the V-front era it adds a
+      fourth input, keeping the cathode-biased 6L6G pair, 5U4G rectifier, and twin
+      10-inch speakers.
+    circuit_ref: null
+    sources:
+      - desc: "Mojotone/Ampwares Fender field guide, 'Wide Panel Tweed Super' and 'V Front Super' — wide-panel window 1953-1955; fourth input added as of 5B4; two 6L6G, 5U4G, cathode bias, 12AY7"
+        url: "https://mojotone.com/blogs/fender-field-guide/fender-wide-panel-tweed-super"
+  - designation: "5C4"
+    name: "Super 5C4 (wide-panel tweed)"
+    years: { start: 1953, end: 1954 }
+    wattage: null
+    output: "push-pull 2x6L6"
+    tubes: [12AY7, 6L6G, 6L6G, 5U4G]
+    key_change: >-
+      Adds a speaker jack and external-speaker jack under the chassis over the 5B4;
+      output stage and tube complement otherwise unchanged.
+    circuit_ref: null
+    sources:
+      - desc: "Mojotone/Ampwares Fender field guide, 'V Front Super' — speaker and external-speaker jacks added at 5C4"
+        url: "https://mojotone.com/blogs/fender-field-guide/fender-v-front-super"
+      - desc: "Fender 'Super' 5C4 schematic archived at EL34World (designation-indexed anchor; drawing not reproduced)"
+        url: "https://el34world.com/charts/Schematics/files/Fender/Fender_super_5c4.pdf"
+  - designation: "5D4"
+    name: "Super 5D4 (wide-panel tweed)"
+    years: { start: 1954, end: 1955 }
+    wattage: null
+    output: "push-pull 2x6L6"
+    tubes: [12AY7, 6L6G, 6L6G, 5U4G]
+    key_change: >-
+      The last wide-panel Super, adding a standby switch (seen on 1954-1955 examples).
+      Still cathode-biased 6L6G into two 10-inch speakers on a 5U4G rectifier, just
+      ahead of the narrow-panel redesign.
+    circuit_ref: null
+    sources:
+      - desc: "Mojotone/Ampwares Fender field guide, 'Wide Panel Tweed Super' — standby switch on 1954-55 examples; two 6L6G, 5U4G, cathode bias; schematic references the Super 5D4"
+        url: "https://mojotone.com/blogs/fender-field-guide/fender-wide-panel-tweed-super"
+      - desc: "Fender 'Super' 5D4 schematic archived at EL34World (designation-indexed anchor; drawing not reproduced)"
+        url: "https://el34world.com/charts/Schematics/files/Fender/Fender_super_5d4.pdf"
+  - designation: "5E4"
+    name: "Super 5E4 (narrow-panel tweed)"
+    years: { start: 1955, end: 1956 }
+    wattage: null
+    output: "push-pull 2x6L6"
+    tubes: [12AY7, 12AX7, 6L6G, 6L6G, 5U4G]
+    key_change: >-
+      The narrow-panel redesign. The 5E4 moves to the tighter cabinet and a fuller
+      preamp (12AY7 plus 12AX7). A short-lived 5E4-A variant substituted a 6V6GT output
+      pair and used a selenium rectifier in the bias supply — a bridge toward the 5F4
+      rather than the mainline circuit.
+    circuit_ref: null
+    sources:
+      - desc: "Mojotone/Ampwares Fender field guide, 'Narrow Panel Tweed Super' — 5E4 (1955) and 5E4-A variant; 5E4 two 6L6G with 5U4G, 5E4-A two 6V6GT; selenium bias rectifier on 5E4-A"
+        url: "https://mojotone.com/blogs/fender-field-guide/fender-narrow-panel-tweed-super"
+  - designation: "5F4"
+    name: "Super 5F4 (narrow-panel tweed)"
+    years: { start: 1957, end: 1960 }
+    wattage: 26
+    output: "push-pull 2x6L6"
+    tubes: [12AY7, 12AX7, 12AX7, 6L6G, 6L6G, 5U4G]
+    key_change: >-
+      The definitive tweed Super and a sibling to the 5F6-A Bassman preamp
+      architecture: a 12AY7 two-channel front end into a 12AX7 gain stage and a
+      DC-coupled cathode follower feeding a treble/bass tone stack, then a 12AX7
+      long-tailed-pair phase inverter driving a fixed-biased 6L6G pair on a 5U4G. A
+      selenium rectifier sits in the bias circuit. Published output is inconsistent —
+      the corpus's own DC-verified circuit is documented at 26 W, while the field guide
+      lists the narrow-panel Super at 30 W.
+    circuit_ref: "5f4"
+    sources:
+      - desc: "Mojotone/Ampwares Fender field guide, 'Narrow Panel Tweed Super' — 5F4 (1956-1960), two 6L6G, 5U4G, 12AY7/12AX7 preamp, selenium bias rectifier; field guide rates the narrow-panel Super at 30 W"
+        url: "https://mojotone.com/blogs/fender-field-guide/fender-narrow-panel-tweed-super"
+      - desc: "Fender 'Super-Amp' 5F4 schematic archived at EL34World (designation-indexed anchor; cathode-follower tone stack + LTP inverter + fixed-bias 6L6 pair read from the drawing, not reproduced)"
+        url: "https://el34world.com/charts/Schematics/files/Fender/Fender_super_5f4.pdf"
+  - designation: "6G4 / 6G4-A"
+    name: "Super 6G4 (brown Tolex)"
+    years: { start: 1960, end: 1963 }
+    wattage: 40
+    output: "push-pull 2x6L6"
+    tubes: [7025, 7025, 12AX7, 6L6GC, 6L6GC, GZ34]
+    key_change: >-
+      The brown-Tolex redesign, the last amp to carry the plain Super name before it
+      passed to the blackface Super Reverb. Fixed non-adjustable bias and a GZ34
+      rectifier replace the tweed cathode-bias/5U4G scheme, and the amp gains vibrato
+      plus a Normal/Bright two-channel panel with presence. The 6G4 ran 6L6GC output
+      tubes; the later 6G4-A moved to 5881s. Twin 10-inch speakers continue; the field
+      guide's 40 W rating is a factory figure and higher than the tweed Super's.
+    circuit_ref: null
+    sources:
+      - desc: "Mojotone/Ampwares Fender field guide, 'Brownface Super' — 6G4 (2x6L6GC) and 6G4-A (2x5881), 1960-1963, 40 W, GZ34, fixed non-adjustable bias, vibrato, Normal/Bright channels, two 10-inch speakers"
+        url: "https://mojotone.com/blogs/fender-field-guide/fender-brownface-super"
+      - desc: "Fender 'Super-Amp' 6G4-A schematic archived at EL34World (designation-indexed anchor; drawing not reproduced)"
+        url: "https://el34world.com/charts/Schematics/files/Fender/Fender_super_6g4a.pdf"
+notes: >-
+  Power ratings across this family are inconsistent between sources and eras: the
+  field guide lists the wide-panel tweed Super at figures that look like a Deluxe
+  template carry-over (~15 W) despite its 6L6 output stage, the narrow-panel Super at
+  30 W, and the brown 6G4 at 40 W, while the corpus's DC-verified 5F4 is documented at
+  26 W. Wattage is left null where only a doubtful factory figure exists (the
+  wide-panel and 5E4 circuits) and carried with a source note where a specific
+  rating is defensible. Tweed sub-circuit dates are approximate; the "Dual
+  Professional" entry uses the pre-5-series name because the numbered designations
+  had not yet begun, mirroring how the Deluxe line's "Model 26" woodie is handled.

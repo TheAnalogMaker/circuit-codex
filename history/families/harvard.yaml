@@ -1,0 +1,57 @@
+family: harvard
+title: "The Harvard line"
+maker_style: "Fender-style"
+summary: >
+  A short and unusual line. The tweed 5F10 Harvard is the only true member: a
+  compact single-channel amp that, unlike its Champ and Princeton stablemates,
+  ran a fixed-bias push-pull pair of 6V6s driven by a cathodyne phase inverter —
+  more power stage than a student amp but with a deliberately spare front end.
+  The later 6G10 shares the Harvard name in cosmetics only; it was a
+  leftover-parts oddity built on single-ended tweed Princeton chassis, not a
+  continuation of the 5F10's push-pull design.
+models:
+  - designation: "5F10"
+    name: "Harvard (narrow-panel tweed)"
+    years: { start: 1955, end: 1961 }
+    wattage: 10
+    output: "push-pull 2x6V6GT"
+    tubes: [6AT6, 12AX7, 6V6GT, 6V6GT, 5Y3GT]
+    key_change: >
+      The Harvard proper: a two-stage single channel with only a volume and a
+      treble-cut control, feeding a 12AX7 cathodyne phase inverter and a
+      fixed-bias push-pull pair of 6V6GTs (a selenium rectifier supplies the
+      negative bias). Rated at 10 watts, it is the push-pull middle ground
+      between the single-ended Champ/Princeton and the larger Deluxe. The preamp
+      valve was a 6AV6 at launch, changed to a 6AT6 from 1956.
+    circuit_ref: 5f10
+    sources:
+      - desc: "Fender Harvard 5F10 published drawing, read directly for values and the printed voltage chart (archived at EL34World, indexed by designation)"
+        url: "https://el34world.com/charts/Schematics/files/Fender/Fender_harvard_5f10_schem.pdf"
+      - desc: "Wikipedia, Fender Harvard — 5F10 dates, 10 W push-pull 6V6 output, cathodyne PI, fixed bias, 6AV6→6AT6 preamp change"
+        url: "https://en.wikipedia.org/wiki/Fender_Harvard"
+  - designation: "6G10"
+    name: "Harvard (brownface-era, single-ended)"
+    years: { start: 1962, end: 1963 }
+    wattage: 5
+    output: "single-ended 6V6"
+    tubes: [12AX7, 6V6GT, 5Y3GT]
+    key_change: >
+      Not a push-pull Harvard at all. This rare model reused leftover tweed 5F2-A
+      Princeton chassis and cabinets after the brown Princeton launched, so it is
+      a single-ended 6V6 circuit — essentially a rebadged tweed Princeton wearing
+      the Harvard name (some shipped with 5F2-A tube charts, the Princeton name
+      struck out). It breaks the 5F10's push-pull identity rather than continuing
+      it; no derivation from the 5F10 is claimed here.
+    circuit_ref: null
+    sources:
+      - desc: "Wikipedia, Fender Harvard — 6G10 built from leftover 5F2-A Princeton chassis, single 6V6GT / 12AX7 / 5Y3GT, 1962-1963"
+        url: "https://en.wikipedia.org/wiki/Fender_Harvard"
+      - desc: "EL34World schematic archive, Fender Harvard 6G10 sheet (indexed by designation)"
+        url: "https://el34world.com/charts/Schematics/files/Fender/Fender_harvard_6g10.pdf"
+notes: >
+  The Harvard is effectively a one-model family: the 5F10 is the only amp built
+  as a Harvard from the ground up. The 6G10 is a name-only continuation on
+  single-ended Princeton chassis and is included for completeness, flagged as
+  such — the two do not share a power-stage topology. 6G10 wattage follows the
+  single-ended 6V6 5F2-A chassis it was assembled from and is approximate.
+  Marketing names are used descriptively.

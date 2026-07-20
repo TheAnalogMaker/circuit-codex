@@ -1,0 +1,163 @@
+family: deluxe
+title: "The Deluxe line"
+maker_style: "Fender-style"
+summary: >-
+  The Deluxe is Fender's mid-power workhorse: a pair of 6V6 output tubes that begins
+  in the post-war wood-cabinet "woodie" and runs through the whole tweed sequence,
+  gaining an on/off standby, negative feedback, and finally the interactive
+  dual-volume narrow-panel circuit that made the 5E3 famous. At the 1961 brown
+  redesign it swaps cathode bias for fixed bias and adds tremolo, and in 1963 the
+  blackface generation both continues as a bare Deluxe and spins off a reverb-equipped
+  sibling that becomes the far better-known amp. Tweed-era production dates are
+  approximate — Fender did not date-stamp early circuits — so sub-circuit ranges are
+  the defensible spans, not hard boundaries.
+models:
+  - designation: "Model 26"
+    name: "Deluxe Model 26 (woodie)"
+    years: { start: 1946, end: 1948 }
+    wattage: null
+    output: "push-pull 2x6V6"
+    tubes: [6SN7, 6V6, 6V6, 5Y3]
+    key_change: >-
+      The line's wood-cabinet ancestor, sold in a natural maple/walnut/mahogany
+      enclosure before tweed existed. A single 6SN7 preamp feeds a cathode-biased
+      6V6 pair; published power is cited loosely at roughly 10-14 W. The one
+      documented running change is speaker-driven: early field-coil speakers carried
+      the output transformer on the chassis, and when Fender moved to fixed-magnet
+      Jensens around 1947 the transformer moved onto the speaker basket.
+    circuit_ref: null
+    sources:
+      - desc: "Mojotone/Ampwares Fender field guide, 'Woody Deluxe (Model 26)' — 1946-1948, ~10-14 W, two 6V6 with metal-envelope 5Y3, single 6SN7 preamp, cathode bias; field-coil-to-fixed-magnet speaker/OT-mount change c.1947"
+        url: "https://mojotone.com/blogs/fender-field-guide/fender-woody-deluxe-model-26"
+  - designation: "5A3"
+    name: "Deluxe 5A3 (TV-front tweed)"
+    years: { start: 1948, end: 1953 }
+    wattage: null
+    output: "push-pull 2x6V6"
+    tubes: [6V6, 6V6, 5Y3]
+    key_change: >-
+      The first tweed Deluxe: the woodie circuit re-housed in a tweed-covered cabinet
+      with the narrower upper/lower "TV-front" panels around the grille. Still a
+      cathode-biased 6V6 pair on a 5Y3 rectifier, rated loosely around 10-14 W, with
+      dual inputs and separate volume controls carried over from the wood era.
+    circuit_ref: null
+    sources:
+      - desc: "Mojotone/Ampwares Fender field guide, 'TV Front Deluxe' — circuit 5A3, 1948-1953, ~10-14 W, two 6V6, metal 5Y3, cathode bias, tweed TV-front cabinet"
+        url: "https://mojotone.com/blogs/fender-field-guide/fender-tv-front-deluxe"
+      - desc: "Wikipedia, 'Fender Deluxe Amplifier' — 5A3 as the early tweed TV-front Deluxe, two 6V6-GT / 5Y3-GT, cathode biased"
+        url: "https://en.wikipedia.org/wiki/Fender_Deluxe_Amp"
+  - designation: "5B3"
+    name: "Deluxe 5B3 (wide-panel tweed)"
+    years: { start: 1953, end: 1954 }
+    wattage: null
+    output: "push-pull 2x6V6"
+    tubes: [6SC7, 6V6, 6V6, 5Y3]
+    key_change: >-
+      Essentially the 5A3 circuit moved into the new wide-panel tweed cabinet — the
+      change here is cosmetic/mechanical rather than a topology revision. Cathode bias
+      and the 6V6/5Y3 complement carry straight over.
+    circuit_ref: null
+    sources:
+      - desc: "Mojotone/Ampwares Fender field guide, 'Wide Panel Tweed Deluxe' — 5B3 described as a TV-front 5A3 rehoused in the wider cabinet; 1953-1955 window for the wide-panel trio"
+        url: "https://mojotone.com/blogs/fender-field-guide/fender-wide-panel-tweed-deluxe"
+  - designation: "5C3"
+    name: "Deluxe 5C3 (wide-panel tweed)"
+    years: { start: 1953, end: 1954 }
+    wattage: null
+    output: "push-pull 2x6V6"
+    tubes: [6SC7, 6V6, 6V6, 5Y3]
+    key_change: >-
+      The first real circuit revision in the wide-panel run: it adds a dedicated
+      on/off toggle, an external speaker jack, and a negative-feedback loop around the
+      output stage — the loop tightening the amp versus the feedback-free earlier
+      circuits.
+    circuit_ref: null
+    sources:
+      - desc: "Mojotone/Ampwares Fender field guide, 'Wide Panel Tweed Deluxe' — 5C3 adds on/off toggle, external speaker jack, and negative feedback"
+        url: "https://mojotone.com/blogs/fender-field-guide/fender-wide-panel-tweed-deluxe"
+      - desc: "Fender 'Deluxe' 5C3 schematic archived at EL34World (designation-indexed anchor; drawing not reproduced)"
+        url: "https://el34world.com/charts/Schematics/files/Fender/Fender_deluxe_5c3.pdf"
+  - designation: "5D3"
+    name: "Deluxe 5D3 (wide-panel tweed)"
+    years: { start: 1954, end: 1955 }
+    wattage: null
+    output: "push-pull 2x6V6"
+    tubes: [12AY7, 6V6, 6V6, 5Y3]
+    key_change: >-
+      Matches the 5C3 but drops the negative-feedback loop again, returning to the
+      more open, feedback-free voicing that the following narrow-panel circuit keeps.
+      This is the last wide-panel Deluxe before the narrow-panel redesign.
+    circuit_ref: null
+    sources:
+      - desc: "Mojotone/Ampwares Fender field guide, 'Wide Panel Tweed Deluxe' — 5D3 matches 5C3 but omits negative feedback"
+        url: "https://mojotone.com/blogs/fender-field-guide/fender-wide-panel-tweed-deluxe"
+      - desc: "Fender 'Deluxe' 5D3 schematic archived at EL34World (designation-indexed anchor; drawing not reproduced)"
+        url: "https://el34world.com/charts/Schematics/files/Fender/Fender_deluxe_5d3.pdf"
+  - designation: "5E3"
+    name: "Deluxe 5E3 (narrow-panel tweed)"
+    years: { start: 1955, end: 1960 }
+    wattage: 15
+    output: "push-pull 2x6V6"
+    tubes: [12AY7, 12AX7, 6V6GT, 6V6GT, 5Y3GT]
+    key_change: >-
+      The definitive tweed Deluxe and the most copied of the line. The narrow-panel
+      cabinet arrives, and the circuit adopts a 12AY7 front end into a 12AX7 driving a
+      cathodyne (split-load) phase inverter, cathode-biased 6V6GT pair, and no negative
+      feedback. Its hallmark is the interaction between the two volume controls, which
+      share a plate load so that turning one up shifts the other's voicing — a quirk,
+      not an accident, that defines the amp's overdrive.
+    circuit_ref: "5e3"
+    sources:
+      - desc: "Mojotone/Ampwares Fender field guide, 'Narrow Panel Tweed Deluxe' — 5E3, 1955-1960, 15 W, 12AY7 preamp, two 6V6GT, 5Y3GT, cathode bias"
+        url: "https://mojotone.com/blogs/fender-field-guide/fender-narrow-panel-tweed-deluxe"
+      - desc: "Fender 'Deluxe' 5E3 schematic/layout archived at EL34World (designation-indexed anchor; cathodyne PI + single-knob tone read from the drawing, not reproduced)"
+        url: "https://el34world.com/charts/Schematics/files/Fender/Fender_deluxe_5e3.pdf"
+  - designation: "6G3"
+    name: "Deluxe 6G3 (brown Tolex)"
+    years: { start: 1961, end: 1963 }
+    wattage: 15
+    output: "push-pull 2x6V6"
+    tubes: [7025, 12AX7, 6V6GT, 6V6GT, GZ34]
+    key_change: >-
+      The brown-Tolex redesign is a clean break from the tweed circuit: fixed
+      (non-adjustable) bias replaces cathode bias, a GZ34 replaces the 5Y3, and the
+      amp gains a tremolo and a two-channel (Normal/Bright) front panel with separate
+      controls. The single-knob tweed tone stack and cathodyne inverter give way to
+      the brownface-era topology on the road to the blackface circuit.
+    circuit_ref: null
+    sources:
+      - desc: "Mojotone/Ampwares Fender field guide, 'Brownface Deluxe' — 6G3, 1961-1963, 15 W, two 6V6GT, GZ34, fixed non-adjustable bias, tremolo, dual channel, 7025 + 12AX7"
+        url: "https://mojotone.com/blogs/fender-field-guide/fender-brownface-deluxe"
+      - desc: "Fender 'Deluxe' 6G3 schematic archived at EL34World (designation-indexed anchor; drawing not reproduced)"
+        url: "https://el34world.com/charts/Schematics/files/Fender/Fender_deluxe_6g3.pdf"
+  - designation: "AA763 / AB763"
+    name: "Blackface Deluxe (non-reverb) and the Deluxe Reverb split"
+    years: { start: 1963, end: 1966 }
+    wattage: 22
+    output: "push-pull 2x6V6"
+    tubes: [12AX7, 12AX7, 12AT7, 6V6GT, 6V6GT, GZ34]
+    key_change: >-
+      The blackface generation both continues the plain Deluxe and forks the family.
+      The non-reverb blackface Deluxe (AA763, then AB763) rises to a 22 W rating on a
+      long-tailed-pair inverter, fixed bias with an adjustable trim, GZ34 rectifier,
+      and a Normal channel plus a vibrato channel with treble/bass. Alongside it Fender
+      launched a reverb-equipped sibling on the AB763 platform — the Deluxe Reverb —
+      which outlived and out-sold the bare Deluxe. The reverb branch is documented in
+      the deluxe-reverb family file, which owns the corpus's amps/ab763 circuit entry
+      (that entry is specifically the Deluxe Reverb). The plain non-reverb blackface
+      Deluxe described here is not yet a documented circuit, so this is a history-tier
+      entry only.
+    circuit_ref: null
+    sources:
+      - desc: "Mojotone/Ampwares Fender field guide, 'Blackface Deluxe' (non-reverb) — AB763, 1963-1966, 22 W, two 6V6GT, GZ34, fixed bias with adjustable pot, Normal + vibrato channels"
+        url: "https://mojotone.com/blogs/fender-field-guide/fender-blackface-deluxe"
+      - desc: "Wikipedia, 'Fender Deluxe Amplifier' — blackface Deluxe (AA763) 22 W, 12AT7 phase inverter, adjustable fixed bias; and the 1963 Deluxe Reverb spin-off with integrated spring reverb"
+        url: "https://en.wikipedia.org/wiki/Fender_Deluxe_Amp"
+notes: >-
+  Tweed sub-circuit dating (5A3/5B3/5C3/5D3) is approximate; the field guide brackets
+  the wide-panel trio to 1953-1955 without firm per-circuit boundaries, so the ranges
+  above are defensible spans. Early published power figures (~10-14 W) are loose
+  factory-era ratings, not measured output; wattage is left null where only such
+  figures exist. The AA763/AB763 entry deliberately covers only the non-reverb Deluxe
+  and the moment of the reverb split — see history/families/deluxe-reverb.yaml for the
+  reverb line, which owns the amps/ab763 circuit_ref.

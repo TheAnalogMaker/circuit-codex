@@ -1,0 +1,124 @@
+family: marshall-lead
+title: "The Marshall lead-amp line"
+maker_style: "British-style"
+summary: >
+  Marshall's first amplifier adapted a Fender tweed circuit for a British market
+  wanting more volume, then diverged from it fast: within a few years the line
+  had scaled from 45 to 100 watts, swapped its output valve and rectifier for
+  louder, more available parts, and traded its glass front panel for metal.
+  By the mid-1970s the founding hand-wired designs had been re-labelled and
+  moved to circuit boards, closing out the era this family file documents.
+models:
+  - designation: "JTM45"
+    name: "JTM45 (offset/script-panel head)"
+    years: { start: 1962, end: 1966 }
+    wattage: 45
+    output: "push-pull 2xKT66"
+    tubes: [ECC83, ECC83, ECC83, KT66, KT66, GZ34]
+    key_change: >
+      Marshall's first amplifier, built under Jim Marshall's direction and adapted
+      from the circuit of a Fender tweed 5F6-A Bassman with higher-gain ECC83
+      preamp valves and added output filtering; a tube-rectified GZ34 supply. The
+      corpus's own jtm45 entry documents the KT66-loaded variant of the model —
+      other valve complements (5881, later 6L6GC) are reported for the same
+      badge across its production run but are not the circuit modeled here.
+    circuit_ref: jtm45
+    sources:
+      - desc: "Wikipedia, \"Marshall Amplification\" — JTM45 introduction date, naming origin (Jim and Terry Marshall + max wattage), original valve choice, and the Fender Bassman derivation"
+        url: "https://en.wikipedia.org/wiki/Marshall_Amplification"
+      - desc: "Marshall factory drawing 'Basic schematic for Marshall trem amps, types 1961, 1962, 1987/T' — same schematic already read for the corpus's jtm45 circuit entry; confirms the 3xECC83/2xKT66/GZ34 complement dated to this era"
+        url: "https://www.drtube.com/schematics/marshall/jtm45tr.gif"
+
+  - designation: "JTM100"
+    name: "100-watt Super Lead prototype head"
+    years: { start: 1965, end: 1966 }
+    wattage: 100
+    output: "push-pull 4xKT66"
+    tubes: null
+    key_change: >
+      Built at the request of The Who's Pete Townshend and John Entwistle, who
+      wanted more clean headroom than the 45-watt head could give; Marshall
+      doubled the output section to four KT66s. Schematic-archive era charts
+      index this circuit separately from the later cataloged "1959" model
+      number, though sources do not agree on whether the two names describe
+      one continuous circuit or successive revisions — treated here as the
+      immediate predecessor to the 1959-numbered Super Lead.
+    circuit_ref: null
+    sources:
+      - desc: "Dr. Tube schematic-archive Marshall index — lists a distinct \"JTM100\" entry dated 1965-1967, ahead of the 1959-catalog-number Super Lead"
+        url: "https://www.drtube.com/schematics/marshall.htm"
+      - desc: "Wikipedia, \"Marshall Amplification\" — Townshend/Entwistle origin story for the first 100-watt heads"
+        url: "https://en.wikipedia.org/wiki/Marshall_Amplification"
+
+  - designation: "1959"
+    name: "Super Lead 100 (plexi, later metal-panel)"
+    years: { start: 1965, end: 1981 }
+    wattage: 100
+    output: "push-pull 4xKT66, later 4xEL34"
+    tubes: null
+    key_change: >
+      Marshall's catalog number for the 100-watt Super Lead head. Its power
+      valves moved from KT66 to Mullard EL34 as KT66 costs rose, in the same
+      window (mid-to-late 1960s) the corpus's own circuit entries bracket for
+      the family: the jtm45 entry documents a GZ34 tube-rectified supply as
+      late as 1966, while the m1987 entry documents a fully solid-state supply
+      by 1970 — the exact year the 100-watt head's rectifier crossed over is
+      not pinned down by the sources used here. The acrylic ("plexi") front
+      panel was replaced by brushed metal in 1969, and the model picked up a
+      "mkII" suffix and "JMP" branding after Marshall moved to printed-circuit
+      construction in the mid-1970s.
+    circuit_ref: null
+    sources:
+      - desc: "Wikipedia, \"Marshall Amplification\" — 1965 release of the 1959 Super Lead, the KT66-to-EL34 valve change (cost-driven), and the 1969 plexi-to-metal panel change"
+        url: "https://en.wikipedia.org/wiki/Marshall_Amplification"
+      - desc: "Same page — 1973/1974 handwiring-to-PCB transition and the 'mkII'/'JMP' labeling added to the 1959 and 1987 amplifiers"
+        url: "https://en.wikipedia.org/wiki/Marshall_Amplification"
+
+  - designation: "JTM50"
+    name: "50-watt lead head (KT66, pre-1987 numbering)"
+    years: { start: 1966, end: 1967 }
+    wattage: 50
+    output: "push-pull 2xKT66"
+    tubes: null
+    key_change: >
+      A 50-watt scaled-down sibling of the 100-watt Super Lead, indexed under
+      this name in schematic-archive era charts just ahead of the "1987"
+      catalog number being applied to the same wattage class in 1967.
+    circuit_ref: null
+    sources:
+      - desc: "Dr. Tube schematic-archive Marshall index — lists \"JTM50\" dated 1966-1967, immediately preceding the JMP-era catalog numbering"
+        url: "https://www.drtube.com/schematics/marshall.htm"
+
+  - designation: "1987"
+    name: "Lead 50 (plexi, later metal-panel JMP)"
+    years: { start: 1967, end: 1981 }
+    wattage: 50
+    output: "push-pull 2xEL34"
+    tubes: [ECC83, ECC83, ECC83, EL34, EL34]
+    key_change: >
+      Marshall's 50-watt counterpart to the 1959 Super Lead, released in 1967
+      already on EL34 output valves. The corpus's own m1987 circuit entry
+      documents a July-1970 factory drawing with a fully solid-state
+      full-wave rectifier — no rectifier valve — continuing the same
+      cost/reliability-driven shift away from tube rectification seen on the
+      100-watt head. Like its 100-watt sibling it went from acrylic to metal
+      front panel in 1969 and picked up "mkII"/"JMP" branding once Marshall
+      moved to printed-circuit construction in the mid-1970s.
+    circuit_ref: m1987
+    sources:
+      - desc: "Wikipedia, \"Marshall Amplification\" — 1967 release of the 1987 model as the 50-watt version of the Super Lead, and the shared 1969 panel / mid-1970s PCB-and-branding changes"
+        url: "https://en.wikipedia.org/wiki/Marshall_Amplification"
+      - desc: "Marshall model 1987 factory drawing, Unicord drawing 70-19-11, dated July 1970 — same schematic already read for the corpus's m1987 circuit entry; confirms 3xECC83/2xEL34 with a silicon full-wave rectifier and no rectifier valve"
+        url: "https://www.drtube.com/schematics/marshall/1987u.gif"
+
+notes: >
+  This line's dating is better documented than the tweed families, but two
+  gaps remain honest gaps rather than resolved facts: (1) sources used here
+  do not pin an exact year for the 100-watt head's tube-to-silicon rectifier
+  crossover, only a bracket (GZ34 documented 1966, silicon documented 1970);
+  (2) the relationship between the "JTM100"/"JTM50" schematic-archive names
+  and the "1959"/"1987" catalog numbers — same circuits under two naming
+  schemes, or successive revisions — is not settled by the sources consulted.
+  Only jtm45 and m1987 have documented circuit entries in this corpus at
+  present; the JTM100, 1959, and JTM50 rows above are history-tier only
+  (circuit_ref: null) until a circuit entry is built for them.

@@ -1,0 +1,175 @@
+family: princeton
+title: "The Princeton line"
+maker_style: "Fender-style"
+summary: >
+  For its first fifteen years the Princeton was, in Fender's own framing, a Champ
+  with a tone control and a slightly larger output transformer: a single-ended
+  6V6 student amp that tracked the Champ's revisions from the 1940s Woodie
+  through the tweed 5-series to the 5F2-A. The brownface 6G2 broke that lineage
+  entirely, replacing the single-ended stage with a fixed-bias push-pull pair of
+  6V6s and adding tremolo. Blackface refined that push-pull platform into the
+  AA964 and, with reverb, the AA1164 Princeton Reverb — the version that made the
+  name famous.
+models:
+  - designation: "woodie"
+    name: "Princeton (Woodie / early)"
+    years: { start: 1946, end: 1948 }
+    wattage: null
+    output: "single-ended 6V6"
+    tubes: [6SC7, 6V6, 5Y3]
+    key_change: >
+      The earliest Princeton: a single-ended 6V6 combo in the uncovered/early
+      cabinet style of Fender's first amps, with an octal preamp. Specifications
+      varied across these transitional units and no firm catalogued wattage is
+      documented; sources place output in the low-single-digit-watt range.
+    circuit_ref: null
+    sources:
+      - desc: "Wikipedia, Fender Princeton — Woody-era origin and single-ended construction"
+        url: "https://en.wikipedia.org/wiki/Fender_Princeton"
+  - designation: "5B2"
+    name: "Princeton (TV-front / early tweed)"
+    years: { start: 1948, end: 1953 }
+    wattage: 5
+    output: "single-ended 6V6"
+    tubes: [6SC7, 6V6GT, 5Y3GT]
+    key_change: >
+      The single-ended 6V6 circuit in a TV-front tweed cabinet, still using an
+      octal dual-triode preamp. Two preamp stages plus a simple treble-cut tone
+      control distinguish it from the tone-less Champ; the larger output
+      transformer is the other difference. Early-tweed dating is approximate.
+    circuit_ref: null
+    sources:
+      - desc: "EL34World schematic archive, Fender Princeton 5B2 sheet (indexed by designation)"
+        url: "https://el34world.com/charts/Schematics/files/Fender/Fender_princeton_5b2_schem.pdf"
+      - desc: "Wikipedia, Fender Princeton — 5B2/5C2 single-ended output and octal preamp"
+        url: "https://en.wikipedia.org/wiki/Fender_Princeton"
+  - designation: "5C2"
+    name: "Princeton (wide-panel tweed)"
+    years: { start: 1953, end: 1955 }
+    wattage: 5
+    output: "single-ended 6V6"
+    tubes: [6SC7, 6V6GT, 5Y3GT]
+    key_change: >
+      Wide-panel tweed cabinet; the single-ended 6V6 circuit and octal preamp
+      carry over from the 5B2 with detail component changes. Still pre-12AX7.
+    circuit_ref: null
+    sources:
+      - desc: "EL34World schematic archive, Fender Princeton 5C2 sheet (indexed by designation)"
+        url: "https://el34world.com/charts/Schematics/files/Fender/Fender_princeton_5c2_schem.pdf"
+  - designation: "5D2"
+    name: "Princeton (tweed)"
+    years: { start: 1954, end: 1955 }
+    wattage: 5
+    output: "single-ended 6V6"
+    tubes: [12AX7, 6V6GT, 5Y3GT]
+    key_change: >
+      The preamp switches from the octal dual triode to a 12AX7, mirroring the
+      Champ's 5E1 move to the 9-pin front end. Output stays single-ended 6V6.
+    circuit_ref: null
+    sources:
+      - desc: "EL34World schematic archive, Fender Princeton 5D2 sheet (indexed by designation)"
+        url: "https://el34world.com/charts/Schematics/files/Fender/Fender_princeton_5d2_schem.pdf"
+      - desc: "Wikipedia, Fender Princeton — 12AX7 preamp adopted from the 5D2 through 5F2-A"
+        url: "https://en.wikipedia.org/wiki/Fender_Princeton"
+  - designation: "5E2"
+    name: "Princeton (narrow-panel tweed)"
+    years: { start: 1955, end: 1956 }
+    wattage: 5
+    output: "single-ended 6V6"
+    tubes: [12AX7, 6V6GT, 5Y3GT]
+    key_change: >
+      Narrow-panel tweed cabinet; the 12AX7 / single-ended 6V6 circuit continues
+      with revised values. Still the Champ-plus-tone-control architecture.
+    circuit_ref: null
+    sources:
+      - desc: "EL34World schematic archive, Fender Princeton 5E2 sheet (indexed by designation)"
+        url: "https://el34world.com/charts/Schematics/files/Fender/Fender_princeton_5e2_schem.pdf"
+  - designation: "5F2"
+    name: "Princeton (narrow-panel tweed)"
+    years: { start: 1956, end: 1957 }
+    wattage: 5
+    output: "single-ended 6V6"
+    tubes: [12AX7, 6V6GT, 5Y3GT]
+    key_change: >
+      Refinement of the narrow-panel single-ended Princeton with a single tone/
+      volume network, directly preceding the widely reproduced 5F2-A.
+    circuit_ref: null
+    sources:
+      - desc: "EL34World schematic archive, Fender Princeton 5F2 sheet (indexed by designation)"
+        url: "https://el34world.com/charts/Schematics/files/Fender/Fender_princeton_5f2_schem.pdf"
+  - designation: "5F2-A"
+    name: "Princeton (narrow-panel tweed)"
+    years: { start: 1957, end: 1961 }
+    wattage: 5
+    output: "single-ended 6V6"
+    tubes: [12AX7, 6V6GT, 5Y3GT]
+    key_change: >
+      The definitive tweed Princeton and the last single-ended one: a 12AX7 into
+      a cathode-biased single-ended 6V6, with a capacitor-coupled single-knob
+      tone control and 22k feedback around the output triode's driver. This is
+      the DC signal path the corpus documents at circuit_ref 5f2a; everything
+      after it in the family is push-pull.
+    circuit_ref: 5f2a
+    sources:
+      - desc: "Fender Princeton 5F2-A published drawing, read directly for values (archived at EL34World, indexed by designation)"
+        url: "https://el34world.com/charts/Schematics/files/Fender/Fender_princeton_5f2a.pdf"
+  - designation: "6G2"
+    name: "Princeton (brownface)"
+    years: { start: 1961, end: 1963 }
+    wattage: 12
+    output: "push-pull 2x6V6GT"
+    tubes: [7025, 12AX7, 6V6GT, 6V6GT, 5Y3GT]
+    key_change: >
+      The break in the line. The single-ended cathode-biased 6V6 of the 5F2-A is
+      abandoned for a fixed-bias push-pull pair of 6V6GTs — a fundamentally
+      different, more powerful power stage — plus a 7025 preamp, a 12AX7 whose
+      half runs a tremolo oscillator, and brownface cosmetics. This is the
+      push-pull turn the corpus's 5f2a page warns about: do not read 5F2-A
+      single-ended values onto anything from the 6G2 forward.
+    circuit_ref: null
+    sources:
+      - desc: "EL34World schematic archive, Fender Princeton 6G2 sheet (indexed by designation)"
+        url: "https://el34world.com/charts/Schematics/files/Fender/Fender_princeton_6g2_schem.pdf"
+      - desc: "Wikipedia, Fender Princeton — 6G2 fixed-bias push-pull 6V6 output, 7025 preamp, 12AX7 tremolo"
+        url: "https://en.wikipedia.org/wiki/Fender_Princeton"
+  - designation: "AA964"
+    name: "Princeton (blackface)"
+    years: { start: 1964, end: 1968 }
+    wattage: 12
+    output: "push-pull 2x6V6GT"
+    tubes: [7025, 12AX7, 6V6GT, 6V6GT, 5Y3GT]
+    key_change: >
+      The push-pull Princeton in blackface trim, without reverb. Refines the 6G2
+      platform — same fixed-bias 6V6 pair and tremolo — under the mid-1960s
+      cosmetic and circuit-numbering scheme.
+    circuit_ref: null
+    sources:
+      - desc: "EL34World schematic archive, Fender Princeton AA964 sheet (indexed by designation)"
+        url: "https://el34world.com/charts/Schematics/files/Fender/Fender_princeton_AA964_schem.pdf"
+  - designation: "AA1164"
+    name: "Princeton Reverb (blackface)"
+    years: { start: 1964, end: 1968 }
+    wattage: 12
+    output: "push-pull 2x6V6GT"
+    tubes: [7025, 12AX7, 12AX7, 12AT7, 6V6GT, 6V6GT, 5AR4]
+    key_change: >
+      The Princeton with a tube reverb tank added ahead of the tremolo, on the
+      same fixed-bias push-pull 6V6 output — the configuration that made the name
+      famous. A 12AT7 drives the reverb and a GZ34/5AR4 replaces the earlier 5Y3.
+      The blackface AA1164 later continued under silverface cosmetics; the modern
+      reissue rates the same 2x6V6GT stage at 15 W.
+    circuit_ref: null
+    sources:
+      - desc: "EL34World schematic archive, Fender Princeton Reverb AA1164 sheet (indexed by designation)"
+        url: "https://el34world.com/charts/Schematics/files/Fender/Fender_princeton_reverb_aa1164_schem.pdf"
+      - desc: "Mojotone Fender Field Guide, '65 Princeton Reverb reissue — push-pull 2x6V6GT stage and 5AR4 rectifier"
+        url: "https://mojotone.com/blogs/fender-field-guide/fender-65-princeton-reverb"
+notes: >
+  Two eras with a hard boundary. Everything through the 5F2-A (1946-1961) is a
+  single-ended 6V6 "Champ with a tone control"; everything from the 6G2 forward
+  (1961+) is fixed-bias push-pull 2x6V6 — a different power stage, not a revision
+  of the earlier one. Tweed sub-revision dates (5B2-5F2) are approximate and
+  overlap. Push-pull power ratings are commonly cited around 12 W for the
+  original blackface amps; the current Princeton Reverb reissue is rated 15 W.
+  Preamp tube type 7025 is a low-noise 12AX7 variant. Marketing names are used
+  descriptively.
