@@ -9,6 +9,7 @@ const REPO_ROOT = path.resolve(process.cwd(), '..');
 const AMPS_DIR = path.join(REPO_ROOT, 'amps');
 const MODELS_DIR = path.join(REPO_ROOT, 'models');
 const REFERENCE_DIR = path.join(REPO_ROOT, 'reference');
+const HISTORY_DIR = path.join(REPO_ROOT, 'history', 'families');
 
 function readIfExists(p) {
   return fs.existsSync(p) ? fs.readFileSync(p, 'utf8') : null;
@@ -282,6 +283,76 @@ export function loadGlossary() {
   const raw = fs.readFileSync(path.join(REFERENCE_DIR, 'glossary.yaml'), 'utf8');
   const terms = yaml.load(raw).terms || [];
   return [...terms].sort((a, b) => a.sort_key.localeCompare(b.sort_key, 'en'));
+}
+
+// ------------------------------------------------------------------ history lib
+// The history tier (history/families/*.yaml) documents each amp *line* as a
+// chronological chain of models — most of them not yet fully documented circuits.
+// It renders the /history/ pages and feeds the lineage graph's ghost nodes. A model
+// carries a documented circuit only where its circuit_ref names a real amps/ entry;
+// everything else is a history-tier entry (an outline chip / "not yet documented"
+// badge). Nothing is invented: eras, tubes, and prose come straight from the YAML.
+
+// Compact designation for a chip label: the first token of a multi-designation
+// string ("6G6 / 6G6-A" → "6G6", "5E6 / 5E6-A" → "5E6") so timeline chips stay tight.
+export function shortDesignation(desig) {
+  return String(desig).split(/\s*\/\s*/)[0].trim();
+}
+
+// Load every family file, tag each model documented/ghost against the live corpus,
+// and attach a slug + era span. Sorted by the first model's start year (oldest lines
+// first) so the /history/ index and lineage lanes read chronologically.
+export function loadHistory() {
+  if (!fs.existsSync(HISTORY_DIR)) return [];
+  const corpusIds = new Set(loadCorpus().map((a) => a.id));
+  const fams = fs.readdirSync(HISTORY_DIR)
+    .filter((f) => f.endsWith('.yaml'))
+    .map((f) => {
+      const fam = yaml.load(fs.readFileSync(path.join(HISTORY_DIR, f), 'utf8'));
+      const slug = f.replace(/\.ya?ml$/, '');
+      const models = (fam.models || []).map((m) => {
+        const ref = m.circuit_ref ?? null;
+        const documented = !!(ref && corpusIds.has(ref));
+        return {
+          ...m,
+          circuit_ref: ref,
+          documented,
+          ampId: documented ? ref : null,
+          shortDesig: shortDesignation(m.designation),
+        };
+      });
+      const starts = models.map((m) => m.years?.start).filter((y) => y != null);
+      const ends = models.map((m) => m.years?.end).filter((y) => y != null);
+      return {
+        slug,
+        family: fam.family,
+        title: fam.title,
+        maker_style: fam.maker_style,
+        summary: (fam.summary || '').trim(),
+        notes: (fam.notes || '').trim(),
+        models,
+        documentedCount: models.filter((m) => m.documented).length,
+        eraStart: starts.length ? Math.min(...starts) : null,
+        eraEnd: ends.length ? Math.max(...ends) : null,
+      };
+    });
+  return fams.sort((a, b) =>
+    (a.eraStart ?? 9999) - (b.eraStart ?? 9999) || a.slug.localeCompare(b.slug));
+}
+
+// Reverse lookup: circuit id → the history family that documents it (title + slug),
+// for the amp page's "Family line" link. Built once from loadHistory(); a documented
+// circuit belongs to exactly one family (validate.py enforces uniqueness).
+export function circuitFamilyMap() {
+  const map = new Map();
+  for (const fam of loadHistory()) {
+    for (const m of fam.models) {
+      if (m.documented && !map.has(m.ampId)) {
+        map.set(m.ampId, { slug: fam.slug, title: fam.title, family: fam.family });
+      }
+    }
+  }
+  return map;
 }
 
 // Split a pd_basis string ("pd-outright (published 1920)") into its leading

@@ -1,6 +1,6 @@
 ---
 import Base from '../../layouts/Base.astro';
-import { loadCorpus, displayId, ampMetaDescription, layoutAlt, topologyHref, GITHUB } from '../../lib/corpus.js';
+import { loadCorpus, displayId, ampMetaDescription, layoutAlt, topologyHref, circuitFamilyMap, GITHUB } from '../../lib/corpus.js';
 
 export async function getStaticPaths() {
   return loadCorpus().map((amp) => ({ params: { id: amp.id }, props: { amp } }));
@@ -16,6 +16,9 @@ const isVerified = v.status === 'verified';
 //     limited to those present in the corpus so links never 404. Rendered as one
 //     row in the metadata panel below. Delimited for hand-merge.
 const _corpusIds = new Set(loadCorpus().map((a) => a.id));
+// The amp's history family (model line), reverse-mapped from circuit_ref in the
+// history tier — a link to its era timeline on the /history/ page.
+const historyFamily = circuitFamilyMap().get(amp.id) || null;
 const lineageRelated = [
   ...new Set([...(m.lineage?.derived_from || []), ...(m.lineage?.influenced || [])]),
 ].filter((rid) => _corpusIds.has(rid) && rid !== amp.id);
@@ -170,6 +173,12 @@ const jsonld = {
       <dl>
         <dt>Circuit</dt><dd>{displayId(amp.id)}</dd>
         <dt>Family</dt><dd>{m.family}</dd>
+        {historyFamily && (
+          <>
+            <dt>Family line</dt>
+            <dd><a href={`/history/${historyFamily.slug}/`}>{historyFamily.title} ↗</a></dd>
+          </>
+        )}
         <dt>Output</dt><dd>{m.wattage} W</dd>
         <dt>Tubes</dt><dd>{m.tubes.join(', ')}</dd>
         <dt>Rectifier</dt><dd>{topologyHref('rectifier', m)

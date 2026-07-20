@@ -1,0 +1,102 @@
+---
+import Base from '../../layouts/Base.astro';
+import { loadHistory, GITHUB } from '../../lib/corpus.js';
+
+// ---------------------------------------------------------------------------
+// History index — one card per amp *line* (Champ, Deluxe, Bassman, Marshall lead
+// …). Each line is a chronological chain of models drawn from history/families/*.yaml;
+// most models are history-tier entries (not yet documented circuits), a few link to a
+// full circuit page. Nothing here is invented — eras, counts and prose come from the
+// family files, tagged documented/undocumented against the live corpus.
+// ---------------------------------------------------------------------------
+const families = loadHistory();
+const totalModels = families.reduce((n, f) => n + f.models.length, 0);
+const totalDocumented = families.reduce((n, f) => n + f.documentedCount, 0);
+
+// A short lede pulled from the family summary — first sentence, so the card stays tight.
+function firstSentence(text) {
+  const s = String(text).replace(/\s+/g, ' ').trim();
+  const m = s.match(/^(.+?[.:])\s/);
+  return m ? m[1] : s;
+}
+
+const title = 'History — the family lines of classic guitar amp circuits · Circuit Codex';
+const description =
+  'The vintage guitar amplifier lines behind the corpus, model by model: the Champ, Princeton, Harvard, Deluxe, Super, Bassman and Marshall lead families as chronological era timelines — every revision dated and sourced, with links into the fully documented circuits.';
+const canonical = new URL('history/', Astro.site).href;
+const jsonld = {
+  '@context': 'https://schema.org',
+  '@type': 'CollectionPage',
+  name: title,
+  headline: 'The family lines of classic guitar amplifier circuits',
+  description,
+  url: canonical,
+  inLanguage: 'en',
+  about: 'Vintage guitar tube amplifier model lineage and history',
+  hasPart: families.map((f) => ({
+    '@type': 'TechArticle',
+    name: f.title,
+    url: new URL(`history/${f.slug}/`, Astro.site).href,
+  })),
+  publisher: { '@type': 'Organization', name: 'Circuit Codex' },
+};
+---
+<Base title={title} description={description} jsonld={jsonld}>
+<div class="wrap">
+  <header class="hero">
+    <div class="eyebrow">The lines behind the circuits</div>
+    <h1>History</h1>
+    <p class="lede">A documented circuit is one moment in a line that ran for decades. This
+      section places each amp in its family — the chain of revisions it came from and the
+      ones that followed — as a dated, sourced era timeline. Most entries are
+      <strong>history-tier</strong>: the model is placed and cited but its circuit isn't
+      drawn yet. A few link straight to the fully documented circuit page. {families.length}
+      lines, {totalModels} models, {totalDocumented} with a documented circuit.</p>
+  </header>
+
+  <section>
+    <div class="grid">
+      {families.map((f) => (
+        <a class="card" href={`/history/${f.slug}/`}>
+          <div class="ct">{f.maker_style}</div>
+          <div class="cid">{f.title}</div>
+          <div class="cera">
+            {f.eraStart}–{f.eraEnd} · {f.models.length} model{f.models.length === 1 ? '' : 's'}
+          </div>
+          <p class="cdesc">{firstSentence(f.summary)}</p>
+          <div class="chips">
+            <span class="chip v">{f.documentedCount} documented</span>
+            {f.models.length - f.documentedCount > 0 && (
+              <span class="chip">{f.models.length - f.documentedCount} history-tier</span>
+            )}
+          </div>
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <p class="foot-note">History-tier entries record a model's place, era, tube complement
+    and the change that defined it, with sources — but no redrawn schematic, verified
+    operating point, or parts list yet. Those are the documented circuits, earned one at a
+    time. Want to move an entry from history-tier to documented?
+    <a href="/about/#contribute">Here's how to contribute a circuit.</a></p>
+</div>
+</Base>
+
+<style>
+  .hero{padding:64px 0 20px}
+  .eyebrow{font-family:var(--disp);text-transform:uppercase;letter-spacing:.26em;font-size:12.5px;color:var(--amber)}
+  h1{font-size:clamp(30px,5vw,50px);line-height:1.05;margin:12px 0 16px;letter-spacing:.05em}
+  .lede{max-width:66ch;color:var(--muted);font-size:16.5px}
+  .lede strong{color:var(--ink)}
+  section{margin-top:30px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:16px 18px 14px;display:flex;flex-direction:column;gap:6px;color:inherit}
+  .card:hover{border-color:var(--amber-dim);text-decoration:none}
+  .card .ct{font-family:var(--disp);text-transform:uppercase;letter-spacing:.16em;font-size:10.5px;color:var(--amber)}
+  .card .cid{font-family:var(--disp);font-size:21px;letter-spacing:.03em;text-transform:uppercase;line-height:1.1}
+  .card .cera{font-family:var(--mono);font-size:12px;color:var(--faint)}
+  .card .cdesc{color:var(--muted);font-size:13px;line-height:1.45;margin:2px 0 0}
+  .chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:auto;padding-top:8px}
+  .foot-note{margin-top:36px;padding-top:16px;border-top:1px dashed var(--line);color:var(--faint);font-size:12.5px;max-width:80ch}
+</style>
