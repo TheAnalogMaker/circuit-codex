@@ -46,6 +46,8 @@ if (!ld && isGuide) {
 <meta name="twitter:title" content={title} />
 <meta name="twitter:description" content={description} />
 <meta name="twitter:image" content={ogImage} />
+<!-- Cloudflare Web Analytics — cookieless; disclosed on /about/ and in the footer -->
+<script type="module" is:inline src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "99bac2012cc545cc9ed94952c8cb36dd"}'></script>
 {ld && <script type="application/ld+json" set:html={JSON.stringify(ld)} />}
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='55' r='30' fill='none' stroke='%23e89b3f' stroke-width='8'/><rect x='44' y='10' width='12' height='28' rx='4' fill='%23e89b3f'/></svg>" />
 <style is:global>
@@ -110,7 +112,8 @@ if (!ld && isGuide) {
   <p style="max-width:78ch">Every schematic here is independently redrawn from the underlying circuit —
     values, topology, published voltage charts — never scanned or traced from original factory drawings.
     Maker names identify circuits descriptively; this project is not affiliated with or endorsed by any
-    amplifier manufacturer. Circuit data CC-BY-SA · code MIT · tube models CC0.</p>
+    amplifier manufacturer. Circuit data CC-BY-SA · code MIT · tube models CC0.
+    Traffic is measured with Cloudflare Web Analytics — cookieless, no personal tracking.</p>
   <p style="color:var(--oxblood)">⚡ Tube amplifiers carry lethal voltages, and filter capacitors hold
     charge long after power-off. Study freely; open a chassis only with <a href="/reference/safety/">high-voltage safety training</a>.</p>
 </div></footer>
