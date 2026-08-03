@@ -80,7 +80,7 @@ models:
   - designation: "5D3"
     name: "Deluxe 5D3 (wide-panel tweed)"
     years: { start: 1954, end: 1955 }
-    wattage: null
+    wattage: 12
     output: "push-pull 2x6V6"
     tubes: [12AY7, 12AX7, 6V6, 6V6, 5Y3]
     key_change: >-
@@ -91,7 +91,7 @@ models:
       the narrow-panel redesign.
     circuit_ref: "5d3"
     sources:
-      - desc: "Mojotone/Ampwares Fender field guide, 'Wide Panel Tweed Deluxe' — 5D3 matches 5C3 but omits negative feedback"
+      - desc: "Mojotone/Ampwares Fender field guide, 'Wide Panel Tweed Deluxe' — 5D3 matches 5C3 but omits negative feedback; the field guide gives the wide-panel Deluxe's output as 10-14 W, the band the 12 W recorded here sits in (the figure this archive's own 5D3 entry carries)"
         url: "https://mojotone.com/blogs/fender-field-guide/fender-wide-panel-tweed-deluxe"
       - desc: "Fender 'Deluxe' 5D3 schematic archived at EL34World (designation-indexed anchor; drawing not reproduced)"
         url: "https://el34world.com/charts/Schematics/files/Fender/Fender_deluxe_5d3.pdf"
