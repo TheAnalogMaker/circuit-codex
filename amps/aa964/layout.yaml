@@ -34,41 +34,41 @@ parts:
   - { ref: RD2, a: [0, 4], b: [0, 6] }     # 18k-1W +415 (BA) → +370 filter node (BINT)
   # --- output stage: inverter couplers + 6V6 grid leaks onto the -34 V line ---
   - { ref: C1,   a: [0, 17], b: [0, 18] }  # 0.1µF inverter plate → V3 grid (PPI→G61)
-  - { ref: RGL1, a: [0, 18], b: [1, 18], nudge: [4, 22] }  # 220k 5% V3 grid leak (G61→ -34V), shares G61
+  - { ref: RGL1, a: [0, 18], b: [1, 18] }  # 220k 5% V3 grid leak (G61→ -34V), shares G61
   - { ref: C2,   a: [0, 21], b: [0, 22] }  # 0.1µF inverter cathode → V4 grid (KPI→G62)
-  - { ref: RGL2, a: [0, 22], b: [1, 22], nudge: [4, 22] }  # 220k 5% V4 grid leak (G62→ -34V), shares G62
+  - { ref: RGL2, a: [0, 22], b: [1, 22] }  # 220k 5% V4 grid leak (G62→ -34V), shares G62
   # --- cathodyne phase inverter (V2B half) ---
   - { ref: RLPI,  a: [0, 25], b: [0, 26] } # 56k plate load (BB→PPI)
-  - { ref: RGPI,  a: [0, 28], b: [0, 29], value_nudge: [-10, 0] } # 1M grid leak returned to the tail junction
+  - { ref: RGPI,  a: [0, 28], b: [0, 29] } # 1M grid leak returned to the tail junction
   - { ref: RTAIL, a: [0, 29], b: [1, 29] } # 56k tail (JPI→0), shares JPI
-  - { ref: RKPI,  a: [0, 29], b: [0, 30], value_nudge: [10, 0] } # 1k cathode resistor (JPI→KPI), shares JPI
+  - { ref: RKPI,  a: [0, 29], b: [0, 30] } # 1k cathode resistor (JPI→KPI), shares JPI
   # --- tremolo oscillator network (V2A half) — annotation layer ---
   - { ref: RTO,    a: [0, 33], b: [1, 33] } # 220k oscillator plate load off the screen rail
-  - { ref: RTOUT,  a: [1, 33], b: [1, 34], nudge: [-20, 0] } # 1M output series resistor
-  - { ref: CTOUT1, a: [1, 34], b: [1, 35], nudge: [18, 0] } # 0.02µF output shunt to ground
+  - { ref: RTOUT,  a: [1, 33], b: [1, 34] } # 1M output series resistor
+  - { ref: CTOUT1, a: [1, 34], b: [1, 35] } # 0.02µF output shunt to ground
   - { ref: CTOUT2, a: [0, 34], b: [0, 35] } # 0.1µF into the Intensity control
-  - { ref: CTO1,   a: [0, 37], b: [0, 38], value_nudge: [-20, 24] } # 0.02µF plate → first phase-shift node
-  - { ref: CTO2,   a: [0, 38], b: [0, 39], value_nudge: [-4, 0] } # 0.01µF second section
-  - { ref: CTO3,   a: [0, 39], b: [0, 40], value_nudge: [18, 0] } # 0.01µF third section, to the grid
-  - { ref: RTO1,   a: [0, 39], b: [1, 39], nudge: [-40, 6] } # 1M returned to the oscillator cathode
-  - { ref: RTO2,   a: [0, 40], b: [1, 40], nudge: [4, 4] } # 1M grid to ground
-  - { ref: RKTO,   a: [1, 39], b: [1, 38], value_nudge: [-8, 0] } # 3.3k oscillator cathode bias
-  - { ref: CKTO,   a: [1, 41], b: [1, 42], nudge: [18, 22] } # 25µF oscillator cathode bypass
+  - { ref: CTO1,   a: [0, 37], b: [0, 38] } # 0.02µF plate → first phase-shift node
+  - { ref: CTO2,   a: [0, 38], b: [0, 39] } # 0.01µF second section
+  - { ref: CTO3,   a: [0, 39], b: [0, 40] } # 0.01µF third section, to the grid
+  - { ref: RTO1,   a: [0, 39], b: [1, 39] } # 1M returned to the oscillator cathode
+  - { ref: RTO2,   a: [0, 40], b: [1, 40] } # 1M grid to ground
+  - { ref: RKTO,   a: [1, 39], b: [1, 38] } # 3.3k oscillator cathode bias
+  - { ref: CKTO,   a: [1, 41], b: [1, 42] } # 25µF oscillator cathode bypass
   # --- feedback tail and the second stage's cathode (V1B half) ---
   - { ref: RNFB, a: [1, 45], b: [1, 46] }  # 2.7k negative feedback, speaker → tail (J1B)
   - { ref: CK1B, a: [0, 46], b: [1, 46] }  # 25µF cathode bypass (K1B→J1B)
   - { ref: RK1B, a: [0, 48], b: [1, 48] }  # 1.5k cathode resistor (K1B→J1B)
   - { ref: R47,  a: [1, 48], b: [1, 49] }  # 47Ω feedback tail (J1B→0), shares J1B
   # --- second-stage coupler and the two plate loads off the shared +290 eyelet ---
-  - { ref: CC1,  a: [0, 52], b: [0, 53], value_nudge: [-14, 0] }  # 0.022µF V1B plate → inverter grid (P1B→GPI)
-  - { ref: RL1B, a: [0, 54], b: [0, 53], value_nudge: [-6, 24] }  # 100k V1B plate load (BB→P1B), shares P1B
+  - { ref: CC1,  a: [0, 52], b: [0, 53] }  # 0.022µF V1B plate → inverter grid (P1B→GPI)
+  - { ref: RL1B, a: [0, 54], b: [0, 53] }  # 100k V1B plate load (BB→P1B), shares P1B
   - { ref: RL1A, a: [0, 54], b: [0, 55] }  # 100k V1A plate load (BB→P1A), shares the BB eyelet
   # --- treble / bass tone stack ---
-  - { ref: CT,  a: [0, 55], b: [0, 56], value_nudge: [8, 24] }   # 250pF treble cap off the V1A plate
+  - { ref: CT,  a: [0, 55], b: [0, 56] }   # 250pF treble cap off the V1A plate
   - { ref: RS,  a: [1, 55], b: [1, 56] }   # 100k slope resistor
-  - { ref: CB1, a: [1, 56], b: [1, 57], value_nudge: [8, 22] }   # 0.1µF to the treble/bass junction
+  - { ref: CB1, a: [1, 56], b: [1, 57] }   # 0.1µF to the treble/bass junction
   - { ref: CB2, a: [0, 58], b: [0, 59] }   # 0.047µF to the bass pot's lower end
-  - { ref: RBL, a: [0, 59], b: [1, 59], nudge: [-6, 18] }   # 6.8k bleed to ground
+  - { ref: RBL, a: [0, 59], b: [1, 59] }   # 6.8k bleed to ground
   # --- first stage cathode (V1A half) ---
   - { ref: RK1A, a: [0, 62], b: [1, 62] }  # 1.5k cathode resistor (K1A→0)
   - { ref: CK1A, a: [0, 64], b: [1, 64] }  # 25µF cathode bypass (K1A→0)

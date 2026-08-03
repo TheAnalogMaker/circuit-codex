@@ -96,13 +96,13 @@ offboard:
   - { id: R12, ref: R12, kind: part, edge: top, at: 24.0, label: "R12" }
   # --- front-panel controls and jacks --------------------------------------
   - { id: C20, ref: C20, kind: part, edge: top, at: 26.6, label: "C20" }
-  - { id: VR6, ref: VR6, kind: pot, edge: top, at: 30, label: "Intensity", label_nudge: [58, 0] }
-  - { id: VR5, ref: VR5, kind: pot, edge: top, at: 41, label: "Speed", label_nudge: [-58, 0] }
+  - { id: VR6, ref: VR6, kind: pot, edge: top, at: 30, label: "Intensity" }
+  - { id: VR5, ref: VR5, kind: pot, edge: top, at: 41, label: "Speed" }
   - { id: R9, ref: R9, kind: part, edge: top, at: 44.6, label: "R9" }
-  - { id: VR4, ref: VR4, kind: pot, edge: top, at: 58, label: "Bright tone", label_nudge: [45, 0] }
+  - { id: VR4, ref: VR4, kind: pot, edge: top, at: 58, label: "Bright tone" }
   - { id: VR3, ref: VR3, kind: pot, edge: top, at: 62, label: "Bright volume" }
   - { id: JB, kind: jack, edge: top, at: 65.5, label: "Bright in" }
-  - { id: VR2, ref: VR2, kind: pot, edge: top, at: 69, label: "Normal tone", label_nudge: [45, 0] }
+  - { id: VR2, ref: VR2, kind: pot, edge: top, at: 69, label: "Normal tone" }
   - { id: VR1, ref: VR1, kind: pot, edge: top, at: 72.6, label: "Normal volume" }
   - { id: JN, kind: jack, edge: top, at: 75.4, label: "Normal in" }
 

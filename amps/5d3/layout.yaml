@@ -21,38 +21,38 @@ board:
   title: "5D3 · eyelet board layout"
 caption: "Redrawn from the published Fender 5D3 layout drawing — principal board components, in the order the drawing shows them. The input grid leaks mount at the jacks and the tone capacitors at the tone control, as the drawing places them. Transformer leads carry the colours that drawing marks; unmarked leads are drawn in the neutral hookup tone. The 6.3 V heater chain (green twisted pair, PT → pilot lamp → the two 6V6 output tubes → 12AX7 → 12AY7) follows the sheet's daisy order; the 5Y3GT rectifier is directly heated from the 5 V winding and off the 6.3 V chain. Not a trace or a dimensioned reproduction."
 source:
-  desc: "Fender 'Deluxe' Model 5D3 layout drawing, page 1"
+  desc: "Fender 'Deluxe' Model 5D3 drawing, page 1 of 2 (layout; page 2 is the schematic) — the sheet prints no Fender locating code"
   url: "https://el34world.com/charts/Schematics/files/Fender/Fender_deluxe_5d3.pdf"
 
 parts:
   # --- power supply: three 16 µF cans split by two 10 kΩ droppers -----------
   - { ref: C11,  a: [0, 1],  b: [0, 3] }     # 16 µF filter, B+1
-  - { ref: RD1,  a: [1, 2],  b: [1, 3], nudge: [-20, 0] }    # 10 kΩ dropper B+1→B+2
+  - { ref: RD1,  a: [1, 2],  b: [1, 3] }    # 10 kΩ dropper B+1→B+2
   - { ref: C12,  a: [0, 4],  b: [0, 6] }     # 16 µF filter, B+2
   - { ref: RD2,  a: [1, 5],  b: [1, 6] }     # 10 kΩ dropper B+2→B+3
   - { ref: C13,  a: [0, 7],  b: [0, 9] }     # 16 µF filter, B+3
   # --- push-pull output cathode --------------------------------------------
   - { ref: C9,   a: [0, 10], b: [0, 12] }    # 25 µF 6V6 cathode bypass
-  - { ref: RK66, a: [1, 10], b: [1, 11], nudge: [-12, 0] }   # 250 Ω 5 W shared 6V6 cathode
+  - { ref: RK66, a: [1, 10], b: [1, 11] }   # 250 Ω 5 W shared 6V6 cathode
   # --- self-balancing paraphase: couplers, grid leaks, 12AX7 plate loads ----
   - { ref: RL4,  a: [1, 13], b: [1, 15] }    # 100 kΩ V2B plate load
   - { ref: C8,   a: [0, 14], b: [0, 16] }    # 0.05 µF coupler → V4 grid
   - { ref: RPB,  a: [1, 16], b: [1, 18] }    # 270 kΩ V4 grid leak → junction
-  - { ref: RPT,  a: [1, 18], b: [1, 19], nudge: [-14, 0] }   # 56 kΩ junction → ground
+  - { ref: RPT,  a: [1, 18], b: [1, 19] }   # 56 kΩ junction → ground
   - { ref: C14,  a: [0, 19], b: [0, 21] }    # 100 pF across the inverter plates
   - { ref: RPA,  a: [1, 21], b: [1, 23] }    # 220 kΩ V3 grid leak → junction
   - { ref: C7,   a: [0, 26], b: [0, 24] }    # 0.05 µF coupler → V3 grid
   - { ref: RL3,  a: [1, 25], b: [1, 27] }    # 100 kΩ V2A plate load
   # --- 12AX7 cathodes -------------------------------------------------------
   - { ref: RK3,  a: [0, 28], b: [1, 28] }    # 1.5 kΩ inverter cathode (unbypassed)
-  - { ref: RK2,  a: [0, 31], b: [1, 31], nudge: [-10, 0] }   # 1.5 kΩ driver cathode
-  - { ref: C4,   a: [0, 32.6], b: [0, 31], nudge: [-34, 0] }  # 25 µF driver cathode bypass
+  - { ref: RK2,  a: [0, 31], b: [1, 31] }   # 1.5 kΩ driver cathode
+  - { ref: C4,   a: [0, 32.6], b: [0, 31] }  # 25 µF driver cathode bypass
   # --- 12AY7 input stage ----------------------------------------------------
   - { ref: RL2,  a: [1, 33.5], b: [1, 35.5] }  # 100 kΩ V1B plate load
   - { ref: C3,   a: [0, 34], b: [0, 36] }    # 0.05 µF V1B → channel-2 volume
   - { ref: R2S,  a: [1, 39], b: [1, 37] }    # 68 kΩ channel-2 stopper, upper jack
   - { ref: R3S,  a: [1, 39], b: [1, 41] }    # 68 kΩ channel-2 stopper, lower jack
-  - { ref: C2,   a: [0, 40], b: [0, 42], value_nudge: [16, 0] }  # 0.05 µF V1A → channel-1 volume
+  - { ref: C2,   a: [0, 40], b: [0, 42] }  # 0.05 µF V1A → channel-1 volume
   - { ref: RL1,  a: [1, 42], b: [1, 44] }    # 100 kΩ V1A plate load
   - { ref: C1,   a: [0, 46], b: [0, 44] }    # 25 µF 12AY7 cathode bypass
   - { ref: RK1,  a: [0, 47], b: [1, 47] }    # 820 Ω shared 12AY7 cathode
@@ -70,10 +70,15 @@ offboard:
   - { id: C6,  ref: C6, kind: part, edge: top, at: 22, label: "C6" }
   - { id: VR3, ref: VR3, kind: pot, edge: top, at: 24.5, label: "Tone" }
   - { id: C5,  ref: C5, kind: part, edge: top, at: 27, label: "C5" }
-  - { id: VR2, ref: VR2, kind: pot, edge: top, at: 31, label: "Volume" }
-  - { id: VR1, ref: VR1, kind: pot, edge: top, at: 35.5, label: "Volume" }
-  - { id: J2,  kind: jack, edge: top, at: 38.5, label: "Ch 2 in" }
-  - { id: J3,  kind: jack, edge: top, at: 41.5, label: "Ch 2 in" }
+  # Two identical "Volume" labels gave a reader no way to attribute a control;
+  # bom.yaml already names the roles (VR1 channel-1, VR2 channel-2).
+  - { id: VR2, ref: VR2, kind: pot, edge: top, at: 31, label: "Volume · ch 2" }
+  - { id: VR1, ref: VR1, kind: pot, edge: top, at: 35.5, label: "Volume · ch 1" }
+  # Channel 2 has two input jacks; each has its own 68 kΩ stopper (R2S upper,
+  # R3S lower) and its own 1 MΩ grid leak (RG2 upper, RG3 lower), so the labels
+  # carry the distinction the wiring already makes.
+  - { id: J2,  kind: jack, edge: top, at: 38.5, label: "Ch 2 in · upper" }
+  - { id: J3,  kind: jack, edge: top, at: 41.5, label: "Ch 2 in · lower" }
   - { id: J1,  kind: jack, edge: top, at: 45,   label: "Ch 1 in" }
 
 # Ground bus — the bare-wire rail that runs the length of the board just below

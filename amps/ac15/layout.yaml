@@ -30,7 +30,7 @@ source:
 
 parts:
   # --- power supply: reservoir, post-choke can, two of the three 22 kΩ droppers
-  - { ref: CR1,  a: [0, 1],  b: [1, 1], nudge: [0, -40] }    # 16 µF reservoir (+325 V, ahead of the choke)
+  - { ref: CR1,  a: [0, 1],  b: [1, 1] }    # 16 µF reservoir (+325 V, ahead of the choke)
   - { ref: CR2,  a: [0, 2],  b: [1, 2] }    # 16 µF after the choke — the +315 V rail (BP1)
   - { ref: RD1,  a: [0, 4],  b: [0, 5] }    # 22 kΩ dropper, BP1 → Normal-channel rail
   - { ref: CF1,  a: [0, 5],  b: [1, 5] }    # 8 µF Normal-channel smoothing (shares the BPN eyelet)
@@ -45,23 +45,23 @@ parts:
   - { ref: CC2,  a: [0, 21], b: [0, 23] }   # 0.01 µF inverter → V4 grid (PPIB → NG4)
   - { ref: RGL2, a: [0, 23], b: [1, 23] }   # 220 kΩ V4 grid leak (shares the NG4 eyelet)
   - { ref: RST2, a: [0, 23], b: [0, 24] }   # 1.5 kΩ V4 grid stopper (NG4 → G4)
-  - { ref: R22,  a: [0, 26], b: [1, 26], nudge: [0, -40] }   # 130 Ω · 5 W — the pair's ENTIRE bias arrangement
+  - { ref: R22,  a: [0, 26], b: [1, 26] }   # 130 Ω · 5 W — the pair's ENTIRE bias arrangement
   - { ref: CKO,  a: [0, 27], b: [1, 27] }   # 50 µF cathode bypass across it
   # --- phase inverter: matched anode loads, both grid leaks to the tail junction
   - { ref: RLA,  a: [0, 30], b: [0, 31] }   # 100 kΩ anode load, Normal side
   - { ref: RLB,  a: [0, 32], b: [0, 33] }   # 100 kΩ anode load, Vibrato/Tremolo side
-  - { ref: RGA,  a: [0, 35], b: [1, 35], nudge: [0, -40] }   # 1 MΩ grid leak → tail junction
-  - { ref: RGB,  a: [0, 36], b: [1, 36], nudge: [0, 34] }   # 1 MΩ grid leak → tail junction
-  - { ref: RTAIL, a: [0, 37], b: [1, 37], nudge: [0, -40] }  # 1.2 kΩ shared cathode resistor
-  - { ref: RT2,  a: [0, 38], b: [1, 38], nudge: [0, 34] }   # 47 kΩ tail, junction → ground
+  - { ref: RGA,  a: [0, 35], b: [1, 35] }   # 1 MΩ grid leak → tail junction
+  - { ref: RGB,  a: [0, 36], b: [1, 36] }   # 1 MΩ grid leak → tail junction
+  - { ref: RTAIL, a: [0, 37], b: [1, 37] }  # 1.2 kΩ shared cathode resistor
+  - { ref: RT2,  a: [0, 38], b: [1, 38] }   # 47 kΩ tail, junction → ground
   # --- the two channels' couplers into the inverter's two grids
   - { ref: CIN2, a: [0, 40], b: [0, 42] }   # 0.01 µF Vibrato/Tremolo volume → grid B
   - { ref: CIN1, a: [0, 43], b: [0, 45] }   # 0.01 µF Normal volume → grid A
   # --- Normal channel: the EF86 on Philips' own published application network
   - { ref: RL1,  a: [0, 47], b: [0, 48] }   # 220 kΩ anode load (BPN → PEF)
   - { ref: RS1,  a: [0, 49], b: [0, 50] }   # 1 MΩ screen feed (BPN → SEF)
-  - { ref: CS1,  a: [0, 50], b: [1, 50], nudge: [-52, 0] }   # 0.1 µF screen bypass (shares the SEF eyelet)
-  - { ref: RK1,  a: [0, 53], b: [1, 53], nudge: [0, -40] }   # 2.2 kΩ cathode bias
+  - { ref: CS1,  a: [0, 50], b: [1, 50] }   # 0.1 µF screen bypass (shares the SEF eyelet)
+  - { ref: RK1,  a: [0, 53], b: [1, 53] }   # 2.2 kΩ cathode bias
   - { ref: CK1,  a: [0, 54], b: [1, 54] }   # 25 µF cathode bypass
   - { ref: CO1,  a: [0, 56], b: [0, 57] }   # 0.01 µF anode → Brilliance switch → volume
 

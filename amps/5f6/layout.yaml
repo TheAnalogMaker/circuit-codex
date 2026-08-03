@@ -31,8 +31,8 @@ wiring_claim: verified
 parts:
   # --- bias supply (selenium rectifier, 15k/56k, two 8 µF/150 V) -----------
   - { ref: C19,  a: [0, 0],  b: [0, 2] }    # 8 µF reservoir, rectifier side
-  - { ref: RB1,  a: [1, 0],  b: [1, 1], value_nudge: [-12, 12] }   # 15k bias series
-  - { ref: RB2,  a: [1, 2],  b: [1, 3], value_nudge: [-12, 12] }   # 56k bias bleeder
+  - { ref: RB1,  a: [1, 0],  b: [1, 1] }   # 15k bias series
+  - { ref: RB2,  a: [1, 2],  b: [1, 3] }   # 56k bias bleeder
   - { ref: C20,  a: [0, 3],  b: [0, 5] }    # 8 µF filter on the −48 V line
   # --- B+ rail: droppers and the preamp filter ----------------------------
   - { ref: RD1,  a: [1, 9],  b: [1, 10] }   # 4.7k 1 W, B+2 → B+3
@@ -60,18 +60,18 @@ parts:
   - { ref: RSL,  a: [1, 34], b: [1, 35] }   # 56k tone-stack slope
   - { ref: C7,   a: [0, 36], b: [0, 38] }   # 0.02 µF, slope → middle wiper
   - { ref: RKCF, a: [1, 36], b: [1, 37] }   # 100k cathode-follower load
-  - { ref: C5,   a: [0, 39], b: [0, 41], nudge: [-22, 0] }   # 250 pF mica, CF output → treble
+  - { ref: C5,   a: [0, 39], b: [0, 41] }   # 250 pF mica, CF output → treble
   # --- channel mixers into the V2A grid ------------------------------------
   - { ref: RM1,  a: [1, 38], b: [1, 39] }   # 270k bright-channel mixer
   - { ref: RM2,  a: [1, 40], b: [1, 41] }   # 270k normal-channel mixer
   # --- V2A cathode ---------------------------------------------------------
-  - { ref: RK2,  a: [0, 42], b: [1, 42], value_nudge: [0, 15] }    # 820 Ω V2A cathode (vertical)
+  - { ref: RK2,  a: [0, 42], b: [1, 42] }    # 820 Ω V2A cathode (vertical)
   - { ref: C4,   a: [0, 43], b: [0, 44] }   # 25 µF V2A cathode bypass
   # --- 12AY7 input pair (right end) ----------------------------------------
   - { ref: R1s,  a: [1, 43], b: [1, 44] }   # 68k bright-channel grid stopper
   - { ref: C1,   a: [0, 45], b: [0, 47] }   # 0.02 µF, V1A → bright volume
-  - { ref: RL1,  a: [1, 45], b: [1, 46], value_nudge: [-14, 12] }  # 100k V1A plate load
-  - { ref: R2s,  a: [1, 47], b: [1, 48], value_nudge: [-26, 16] }  # 68k normal-channel grid stopper
+  - { ref: RL1,  a: [1, 45], b: [1, 46] }  # 100k V1A plate load
+  - { ref: R2s,  a: [1, 47], b: [1, 48] }  # 68k normal-channel grid stopper
   - { ref: C2,   a: [0, 48], b: [0, 50] }   # 0.02 µF, V1B → normal volume
   - { ref: RL2,  a: [1, 49], b: [1, 50] }   # 100k V1B plate load
   - { ref: RK1,  a: [0, 51], b: [1, 51] }   # 820 Ω shared 12AY7 cathode (vertical)

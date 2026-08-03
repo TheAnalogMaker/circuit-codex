@@ -52,22 +52,22 @@ parts:
   - { ref: RLR1, a: [0, 27], b: [0, 28] }  # 100k plate load (BD→PR1)
   - { ref: RGR1, a: [0, 29], b: [1, 29] }  # 220k tank-return grid resistor (GR1→0)
   # --- dry / reverb mixer into the driver grid ---
-  - { ref: RMIX, a: [0, 32], b: [0, 33], nudge: [-16, 0] }  # 3.3M dry mixing resistor (→GD1)
-  - { ref: RMR,  a: [0, 33], b: [0, 34], nudge: [16, 0] }  # 470k reverb mixing resistor (Reverb wiper→GD1)
+  - { ref: RMIX, a: [0, 32], b: [0, 33] }  # 3.3M dry mixing resistor (→GD1)
+  - { ref: RMR,  a: [0, 33], b: [0, 34] }  # 470k reverb mixing resistor (Reverb wiper→GD1)
   # --- driver / mixer stage (V3, right half) with the feedback loop ---
   - { ref: RLD1, a: [0, 35], b: [0, 36] }  # 100k plate load (BD→PD1)
   - { ref: RNFB, a: [1, 36], b: [1, 37] }  # 2.7k speaker feedback onto the 47 Ω junction
-  - { ref: CKD1, a: [0, 37], b: [1, 37], nudge: [-64, 0] }  # 25 µF cathode bypass (KD1→KD1B)
+  - { ref: CKD1, a: [0, 37], b: [1, 37] }  # 25 µF cathode bypass (KD1→KD1B)
   - { ref: RKD1, a: [0, 38], b: [1, 38] }  # 1.5k cathode (KD1→KD1B)
-  - { ref: RKD2, a: [1, 38], b: [1, 39], nudge: [-24, 0] }  # 47 Ω unbypassed cathode resistor (KD1B→0)
+  - { ref: RKD2, a: [1, 38], b: [1, 39] }  # 47 Ω unbypassed cathode resistor (KD1B→0)
   # --- reverb send + driver (V2, 12AT7 both sections paralleled) ---
   - { ref: CRS,  a: [0, 39], b: [0, 40] }  # 500 pF reverb send coupling (shares GRD)
-  - { ref: RGRD, a: [0, 40], b: [1, 40], nudge: [-56, 30] }  # 1M reverb-driver grid leak (GRD→0)
+  - { ref: RGRD, a: [0, 40], b: [1, 40] }  # 1M reverb-driver grid leak (GRD→0)
   - { ref: CKRD, a: [0, 45], b: [0, 46] }  # 25 µF cathode bypass (shares KRD)
   - { ref: RKRD, a: [0, 46], b: [1, 46] }  # 2.2k shared cathode (KRD→0)
   # --- preamp second stage (V1, right half) ---
-  - { ref: CC1,  a: [0, 48], b: [0, 47], nudge: [-16, 0] }  # 0.02 µF output coupling (shares PN2)
-  - { ref: RLN2, a: [0, 49], b: [0, 48], nudge: [16, 0] }  # 100k plate load (BD→PN2)
+  - { ref: CC1,  a: [0, 48], b: [0, 47] }  # 0.02 µF output coupling (shares PN2)
+  - { ref: RLN2, a: [0, 49], b: [0, 48] }  # 100k plate load (BD→PN2)
   - { ref: CKN2, a: [0, 51], b: [0, 52] }  # 25 µF cathode bypass (shares KN2)
   - { ref: RKN2, a: [0, 52], b: [1, 52] }  # 1.5k cathode (KN2→0)
   # --- preamp input stage (V1, left half) ---

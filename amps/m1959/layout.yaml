@@ -49,16 +49,16 @@ parts:
   - { ref: C18,  a: [0, 6],  b: [0, 8] }    # 8 µF bias filter (divider node)
   - { ref: RBC,  a: [1, 9],  b: [1, 10] }   # 47k bias-divider upper leg
   # --- silicon HT bridge + series-pair reservoir bank (B+1) -------------------
-  - { ref: D2,   a: [1, 12], b: [1, 13], value_nudge: [-14, 0] }   # bridge arm, HT_A -> B+1
-  - { ref: D3,   a: [1, 14], b: [1, 15], value_nudge: [14, 0] }    # bridge arm, HT_B -> B+1
-  - { ref: D4,   a: [1, 16], b: [1, 17], value_nudge: [-14, 0] }   # bridge arm, ground -> HT_A
-  - { ref: D5,   a: [1, 18], b: [1, 19], value_nudge: [14, 0] }    # bridge arm, ground -> HT_B
+  - { ref: D2,   a: [1, 12], b: [1, 13] }   # bridge arm, HT_A -> B+1
+  - { ref: D3,   a: [1, 14], b: [1, 15] }    # bridge arm, HT_B -> B+1
+  - { ref: D4,   a: [1, 16], b: [1, 17] }   # bridge arm, ground -> HT_A
+  - { ref: D5,   a: [1, 18], b: [1, 19] }    # bridge arm, ground -> HT_B
   - { ref: C19,  a: [0, 12], b: [0, 14] }   # 100 µF reservoir, upper half
   - { ref: C20,  a: [0, 14], b: [0, 16] }   # 100 µF reservoir, lower half
   - { ref: C21,  a: [0, 18], b: [0, 20] }   # 100 µF reservoir, upper half (2nd bank)
   - { ref: C22,  a: [0, 20], b: [0, 22] }   # 100 µF reservoir, lower half (2nd bank)
-  - { ref: RB1,  a: [1, 22], b: [1, 23], value_nudge: [-18, 0] }   # 56k sharing resistor, upper half
-  - { ref: RB2,  a: [1, 23], b: [1, 24], value_nudge: [18, 0] }    # 56k sharing resistor, lower half
+  - { ref: RB1,  a: [1, 22], b: [1, 23] }   # 56k sharing resistor, upper half
+  - { ref: RB2,  a: [1, 23], b: [1, 24] }    # 56k sharing resistor, lower half
   # --- rail droppers + filter pairs (PI, 2nd stage, input) -------------------
   - { ref: RD1,  a: [1, 27], b: [1, 28] }   # 20k dropper B+1 -> B+2
   - { ref: C23,  a: [0, 27], b: [0, 29] }   # 50 µF filter, B+2
@@ -85,13 +85,13 @@ parts:
   - { ref: RS7,  a: [1, 62], b: [1, 63] }   # 5.6k V7 grid stopper
   # --- long-tailed-pair phase inverter (V3) ----------------------------------
   - { ref: C11,  a: [0, 74], b: [0, 76] }   # 0.022 µF tone stack -> PI(A) grid
-  - { ref: RLA,  a: [1, 75], b: [1, 76], value_nudge: [-22, 0] }   # 82k PI(A) plate load
+  - { ref: RLA,  a: [1, 75], b: [1, 76] }   # 82k PI(A) plate load
   - { ref: RLB,  a: [1, 77], b: [1, 78] }   # 100k PI(B) plate load
   - { ref: C12,  a: [0, 78], b: [0, 80] }   # 47 pF plate-to-plate compensation
-  - { ref: RGA,  a: [1, 80], b: [1, 81], value_nudge: [-20, 0] }   # 1M PI(A) grid leak -> tail junction
+  - { ref: RGA,  a: [1, 80], b: [1, 81] }   # 1M PI(A) grid leak -> tail junction
   - { ref: C14,  a: [0, 81], b: [0, 83] }   # 0.1 µF feedback node -> PI(B) grid
   - { ref: RGB,  a: [1, 82], b: [1, 83] }   # 1M PI(B) grid leak -> tail junction
-  - { ref: RTAIL, a: [0, 85], b: [1, 85], nudge: [10, 24] }  # 470 PI tail (vertical)
+  - { ref: RTAIL, a: [0, 85], b: [1, 85] }  # 470 PI tail (vertical)
   - { ref: RT2,  a: [1, 86], b: [1, 87] }   # 10k tail junction -> ground
   # --- cathode-follower TMB tone stack (slope + CF load; caps at the pots) ----
   - { ref: RSL,  a: [1, 88], b: [1, 89] }   # 33k tone-stack slope
@@ -119,7 +119,7 @@ parts:
 offboard:
   - { id: PT,  kind: xfmr, edge: left, at: 0.3, label: "Power trans" }
   - { id: PL1, kind: part, glyph: lamp, edge: left, at: 2.9, label: "Pilot lamp" }
-  - { id: VR7, ref: VR7, kind: pot, edge: top, at: 5, label: "Bias adj", value_nudge: [26, 0] }
+  - { id: VR7, ref: VR7, kind: pot, edge: top, at: 5, label: "Bias adj" }
   - { id: V4,  ref: V4, kind: tube, edge: bottom, at: 51,   label: "V4 · EL34" }
   - { id: V5,  ref: V5, kind: tube, edge: bottom, at: 54.5, label: "V5 · EL34" }
   - { id: V6,  ref: V6, kind: tube, edge: bottom, at: 61,   label: "V6 · EL34" }
@@ -133,14 +133,14 @@ offboard:
   - { id: V3,  ref: V3, kind: tube, edge: bottom, at: 79,   label: "V3 · ECC83 (PI)" }
   - { id: V2,  ref: V2, kind: tube, edge: bottom, at: 93,   label: "V2 · ECC83" }
   - { id: V1,  ref: V1, kind: tube, edge: bottom, at: 105,  label: "V1 · ECC83" }
-  - { id: VR6, ref: VR6, kind: pot, edge: top, at: 83.5, label: "Presence", value_nudge: [26, 0] }
-  - { id: VR3, ref: VR3, kind: pot, edge: top, at: 85,   label: "Treble", value_nudge: [30, 14] }
-  - { id: VR4, ref: VR4, kind: pot, edge: top, at: 87,   label: "Bass", value_nudge: [26, 0] }
-  - { id: VR5, ref: VR5, kind: pot, edge: top, at: 89.5, label: "Middle", value_nudge: [26, 2] }
+  - { id: VR6, ref: VR6, kind: pot, edge: top, at: 83.5, label: "Presence" }
+  - { id: VR3, ref: VR3, kind: pot, edge: top, at: 85,   label: "Treble" }
+  - { id: VR4, ref: VR4, kind: pot, edge: top, at: 87,   label: "Bass" }
+  - { id: VR5, ref: VR5, kind: pot, edge: top, at: 89.5, label: "Middle" }
   - { id: JI,  kind: jack, edge: top, at: 97, label: "Ch I in" }
-  - { id: VR1, ref: VR1, kind: pot, edge: top, at: 100, label: "Vol · ch I", value_nudge: [24, 0] }
+  - { id: VR1, ref: VR1, kind: pot, edge: top, at: 100, label: "Vol · ch I" }
   - { id: JII, kind: jack, edge: top, at: 103, label: "Ch II in" }
-  - { id: VR2, ref: VR2, kind: pot, edge: top, at: 105, label: "Vol · ch II", value_nudge: [24, -2] }
+  - { id: VR2, ref: VR2, kind: pot, edge: top, at: 105, label: "Vol · ch II" }
 
 # Ground bus — the bare tinned rail running the length of the board just below the
 # bottom eyelet row; filter, cathode, bias, grid-leak and pot grounds tie to it.

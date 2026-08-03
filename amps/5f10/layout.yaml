@@ -47,11 +47,11 @@ parts:
   - { ref: RD2, a: [1, 14], b: [1, 16] }   # 22k dropper, B+2 → B+3
   - { ref: C10, a: [0, 18], b: [1, 18] }   # 16 µF · 450 V, B+3 (preamp/PI/plate loads)
   # cathodyne phase inverter self-bias stack (its signature, like the 5E3's)
-  - { ref: RKA,  a: [0, 20], b: [1, 20], nudge: [2, -26] }   # 1.5k cathode → junction
+  - { ref: RKA,  a: [0, 20], b: [1, 20] }   # 1.5k cathode → junction
   - { ref: RKB,  a: [1, 22], b: [1, 24] }   # 56k junction → ground
   # driver stage cathode + speaker negative-feedback (board interleaves this
   # between the cathodyne parts, as the drawing itself does)
-  - { ref: RK2,  a: [0, 26], b: [1, 26], nudge: [2, -26] }   # 1.5k driver cathode (unbypassed)
+  - { ref: RK2,  a: [0, 26], b: [1, 26] }   # 1.5k driver cathode (unbypassed)
   - { ref: RNFB, a: [0, 28], b: [1, 28] }   # 56k NFB, driver cathode → speaker line
   # back to the cathodyne: grid leak, cathode coupler, and the two 6V6
   # fixed-bias grid leaks that live on the board next to the coupling caps

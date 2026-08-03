@@ -25,6 +25,7 @@ layout and the parts list can never disagree.
 | `bus` | list | — | **v2 wiring layer** — ground-bus segments (below) |
 | `net_map` | map | — | **v3** — reviewable data reconciling the drawn wiring with the DC netlist for the equivalence gate (below) |
 | `wiring_claim` | string | — | **v3** — set to `verified` to hard-gate the equivalence check in CI (below) |
+| `wire_legend` | map | — | Overrides a colour's swatch label in the drawing's wiring legend (below) |
 | `leads` | list | — | Legacy soft visual leads (superseded by `runs`; kept for back-compat) |
 
 ## `parts[]` — board-mounted components
@@ -45,8 +46,11 @@ cathode resistor to ground, a bypass can). Optional `nudge: [dx, dy]` shifts the
 part's ref/value label pair (in px) to keep it clear of the wiring layer;
 `value_nudge: [dx, dy]` shifts the **value alone** — to slide a value out from
 under a supply lead while the ref stays put (used where a dense power-supply
-corner crosses a filter-cap or bias-resistor value). A referenced designator
-that is absent from `bom.yaml` fails the render — and CI.
+corner crosses a filter-cap or bias-resistor value). Both are now the *starting
+point* for the automatic placement pass (below), not the mechanism: as of
+2026-08-02 no layout in the corpus needs one, and a new one should only be
+authored where the placer's result is measurably clean but editorially wrong.
+A referenced designator that is absent from `bom.yaml` fails the render — and CI.
 
 ## `offboard[]` — labelled stubs around the board
 
@@ -65,7 +69,7 @@ that is absent from `bom.yaml` fails the render — and CI.
 | `at` | Position along that edge: a column coordinate for top/bottom, a row coordinate for left/right (fractions allowed) |
 | `label` | Text drawn under the stub |
 | `glyph` | Only for `kind: part` — `lamp` draws the pilot-lamp glyph; otherwise a small axial body |
-| `label_nudge` / `value_nudge` | Only for `kind: pot` — `[dx, dy]` px shifts for the name+value pair / the value alone, keeping the label's opaque halo. The escape hatch for a pot value still sitting under a lug-lead run when the halo alone isn't enough |
+| `label_nudge` / `value_nudge` | Only for `kind: pot` — `[dx, dy]` px shifts for the name+value pair / the value alone, keeping the label's opaque halo. Same status as `parts[]`'s nudges: an authored starting point for the automatic placement pass, not the mechanism |
 
 Tubes draw their real pin ring with pin numbers; the pin count is read from the
 tube's `reference/tubes/<tube>.yaml` basing data (via the `ref`'s BOM value), so
@@ -180,8 +184,26 @@ runs — the checks that catch the two ways a wiring layer turns ambiguous
 |---|---|
 | **near-parallel overlap** | two different runs' segments run at an acute angle < 10° with separation < 2.4 px over > 8 px of shared length (they read as one wire) |
 | **terminal ambiguity** | a run endpoint sits within 5 px of *another* run's polyline interior while not landing on any of that run's own nodes (unclear whether it connects or merely passes by) |
+| **label struck by wire** | a run, twisted heater pair or bus segment passes through more than half a label's own width (min 12 px) inside its box — a wire running *along* the type, not across it |
+| **label over glyph** | a label's box overlaps a part body, socket, pot, jack, transformer, terminal dot, lug pip or eyelet by more than 2.5 px in both axes |
+| **labels collide** | two labels' boxes come within ~2.2 px of each other (abutting with no gap reads as one string — `100 kΩ` + `250 pF` printed edge to edge reads as `100 kΩ250 pF`) |
+| **ambiguous label** | two off-board items of the same kind carry the same label (two `Volume` pots, two `Ch 2 in` jacks) — the drawing then has controls a reader cannot tell apart even where `bom.yaml` roles or the wiring do distinguish them |
 
-Fix a failure by **lane/via adjustment** — nudge a shared lane to a distinct
+The last four are the **label lint** (added 2026-08-02). Until it existed the
+gate certified the *wiring* half of the reference-drawing bar and was blind to
+the labelling half — which is the half that degrades first as boards get denser,
+and the only thing keeping it honest was hand-authored `nudge` / `label_nudge` /
+`value_nudge`, unmeasured. Label boxes are estimated from the house text metrics
+(`text_box()` in `render_layouts.py`) and inset ~1.6 px before testing, because
+every label carries an opaque halo and a wire that merely grazes a box is not a
+legibility defect. A transversal crossing is likewise *not* a failure — the halo
+handles it; a wire lying **along** the type is.
+
+Because the lint must measure what actually ships, it renders the layout and
+reads the renderer's own label and obstacle registries — the same geometry the
+committed SVG carries.
+
+Fix a wiring failure by **lane/via adjustment** — nudge a shared lane to a distinct
 row, fan converging feeds so each approaches its shared node at a wider bearing
 (≳ 18° apart), or route a long harness lead in the deep band below the sockets —
 preserving the published routing intent and the era wire colours. Failures print
@@ -200,8 +222,57 @@ waivers:
 ```
 
 An amp with zero lint failures needs no entry. Remove the waiver once the layout
-is remediated. The pilot fixed **5f1** and **5e3** to zero lint; the remaining
-six carry the same legibility debt behind a waiver until they are worked.
+is remediated. The list is currently **empty**: all 18 layouts pass every check,
+wiring and label alike.
+
+### Label placement (automatic)
+
+Labels are **queued, not drawn**, while the geometry is built, and resolved in a
+single final pass once every wire, body and terminal dot exists. Two properties
+follow:
+
+- **Labels are the topmost layer.** The twisted heater pair draws above the
+  sockets by design (it must show its pin landings), so a socket ID emitted with
+  its glyph was painted over by the heaters however good its halo — a halo can
+  only protect against what is drawn *before* the text. Labels now come after
+  every wire and keep their halos for the crossings that remain.
+- **Placement is measured.** Each label group (a ref and its value move
+  together) is tried at its authored position first, then along a short
+  deterministic ladder of small offsets, scored with the *same* tests and
+  thresholds the lint uses; the first clear placement wins. A label still struck
+  after its group is placed may slide on its own — the measured form of the old
+  `value_nudge`, deliberately short so a value never travels far enough from its
+  ref to be mis-attributed. The YAML nudges remain as the authored starting
+  point.
+
+Two placement rules are structural rather than searched:
+
+- **Off-board labels sit away from the board.** A top-edge pot, jack or
+  transformer carries its lugs, tip/sleeve or pigtails on its board-facing side,
+  and every lead it carries fans down through that band — so a label printed
+  there is struck by the item's own wiring *by construction*. Top-edge items
+  label upward; every other edge already labels away from the board.
+- **Board labels carry a board-toned halo.** Invisible on the board (it is the
+  board's own tone), it cuts a clean gap where a hookup lead passes behind the
+  type, and where a label overhangs the board edge — a tall filter can's ref has
+  nowhere else to go — it keeps dark board ink legible against the dark well.
+
+### `wire_legend` — colour-swatch overrides
+
+```yaml
+wire_legend:
+  green: "green — 6.3 V heaters (single-ended; one leg grounded)"
+```
+
+Replaces a colour's bare swatch label in the drawing's wiring legend. Use it
+where a colour carries a documented **function** in that drawing which the
+automatic legend cannot infer. The case it was built for: the AA764's 6.3 V
+heater supply is single-ended (one green PT lead grounded, the other feeding the
+pilot lamp and both heaters), so it renders as plain green runs and earns no
+"6.3 V heaters — twisted pair" entry — leaving the only drawing in the corpus
+whose heater run was unidentified in its own legend. The SVGs are served
+standalone (`/layouts/<id>.svg`), so each must say what its colours mean without
+the surrounding page.
 
 ### Self-review (mandatory)
 

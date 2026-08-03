@@ -92,6 +92,17 @@ runs:
           below it. Fractions allowed. Runs bend through these with rounded
           elbows, so a couple of waypoints keep a lead off its neighbours.
 
+--- wire_legend: colour-swatch overrides ---------------------------------------
+wire_legend:  { <colour name>: "<legend entry>" }
+
+  Replaces a colour's bare swatch label in the drawing's wiring legend. Use it
+  where a colour carries a documented FUNCTION in that drawing which the
+  automatic legend cannot infer — e.g. the AA764's 6.3 V heater supply is
+  single-ended (one green PT lead grounded, the other feeding pilot lamp and
+  both heaters) and so renders as plain green runs, earning no "6.3 V heaters —
+  twisted pair" entry. The SVG is served standalone, so it must say what green
+  means on its own.
+
 --- bus: ground-bus segments --------------------------------------------------
 bus:
   - { from: <endpoint>, to: <endpoint>, via?: [[x,y], ...] }
@@ -189,6 +200,11 @@ CW = 36            # eyelet column pitch (px)
 PAD_X = 30         # board interior x padding
 ROW0 = 0.0         # row centre offsets are computed from BOARD_TOP
 ROWGAP = 116       # px between the two eyelet rows
+# Board margin above the top eyelet row. A tall filter can (42 px) hangs above
+# its row and prints its ref above that again, so the board needs enough tan
+# above row 0 for the ref to sit ON the board rather than overhanging into the
+# dark well, where dark board ink has nothing to read against.
+BOARD_TOP_PAD = 56
 MARGIN_L, MARGIN_R = 128, 128
 MARGIN_TOP, MARGIN_BOT = 150, 236
 BODY_TOP_INSET = 0
@@ -408,6 +424,40 @@ def text(x, y, s, fill, size, *, anchor="middle", font=FONT_DISP, weight=600,
             f'{esc(s)}</text>')
 
 
+# ---- text metrics (label boxes feed the label-collision lint) --------------
+# Average advance width per em for the two house faces: the display face is a
+# CONDENSED sans (Avenir Next Condensed / Arial Narrow), the value face a
+# monospace. These are estimates — deliberately a shade generous, so a box is
+# never narrower than the glyphs it stands for.
+ADV_DISP, ADV_MONO = 0.53, 0.61
+CAP_RISE, DESCEND = 0.74, 0.22      # cap height / descender, as a fraction of em
+
+
+def text_width(s, size, font=FONT_DISP, spacing=None):
+    """Estimated advance width of a text() run, letter-spacing included."""
+    extra = 0.0
+    if spacing:
+        try:
+            extra = float(str(spacing).replace("em", "")) * size
+        except ValueError:
+            extra = 0.0
+    adv = ADV_MONO if font == FONT_MONO else ADV_DISP
+    return len(str(s)) * (size * adv + extra)
+
+
+def text_box(x, y, s, size, *, anchor="middle", font=FONT_DISP, spacing=None):
+    """Axis-aligned bounding box (x0, y0, x1, y1) of a text() element, from its
+    anchor point and estimated metrics. Used by the label-collision lint."""
+    w = text_width(s, size, font, spacing)
+    if anchor == "start":
+        x0 = x
+    elif anchor == "end":
+        x0 = x - w
+    else:
+        x0 = x - w / 2
+    return (x0, y - CAP_RISE * size, x0 + w, y + DESCEND * size)
+
+
 def eyelet(x, y, r=4.0):
     return (f'<circle cx="{fmt(x)}" cy="{fmt(y)}" r="{fmt(r)}" fill="{EYELET}" '
             f'stroke="{BOARD_EDGE}" stroke-width="0.8"/>'
@@ -482,6 +532,72 @@ def _point_seg_dist(p, a, b):
     t = ((px - ax) * dx + (py - ay) * dy) / L2
     t = max(0.0, min(1.0, t))
     return math.hypot(px - (ax + t * dx), py - (ay + t * dy))
+
+
+def _shrink(box, inset):
+    """Box shrunk by `inset` on every side (never inverted)."""
+    x0, y0, x1, y1 = box
+    cx, cy = (x0 + x1) / 2, (y0 + y1) / 2
+    return (min(x0 + inset, cx), min(y0 + inset, cy),
+            max(x1 - inset, cx), max(y1 - inset, cy))
+
+
+def _box_overlap(a, b):
+    """(width, height) of the intersection of two boxes; (0, 0) when disjoint."""
+    w = min(a[2], b[2]) - max(a[0], b[0])
+    h = min(a[3], b[3]) - max(a[1], b[1])
+    return (max(0.0, w), max(0.0, h))
+
+
+def _seg_hits_box(p, q, box):
+    """True when segment p-q intersects the axis-aligned `box` (interior or
+    edge). Liang–Barsky clip — exact, no sampling."""
+    x0, y0, x1, y1 = box
+    px, py = p
+    dx, dy = q[0] - px, q[1] - py
+    t0, t1 = 0.0, 1.0
+    for pv, qv in ((-dx, px - x0), (dx, x1 - px), (-dy, py - y0), (dy, y1 - py)):
+        if abs(pv) < 1e-12:
+            if qv < 0:
+                return False
+            continue
+        r = qv / pv
+        if pv < 0:
+            if r > t1:
+                return False
+            t0 = max(t0, r)
+        else:
+            if r < t0:
+                return False
+            t1 = min(t1, r)
+    return t0 <= t1
+
+
+def _seg_box_span(p, q, box):
+    """Length of the part of segment p-q that lies inside `box` (0 when it
+    misses). The lint uses this so a wire merely clipping a box corner is not
+    treated the same as one driven straight through the type."""
+    x0, y0, x1, y1 = box
+    px, py = p
+    dx, dy = q[0] - px, q[1] - py
+    t0, t1 = 0.0, 1.0
+    for pv, qv in ((-dx, px - x0), (dx, x1 - px), (-dy, py - y0), (dy, y1 - py)):
+        if abs(pv) < 1e-12:
+            if qv < 0:
+                return 0.0
+            continue
+        r = qv / pv
+        if pv < 0:
+            if r > t1:
+                return 0.0
+            t0 = max(t0, r)
+        else:
+            if r < t0:
+                return 0.0
+            t1 = min(t1, r)
+    if t1 <= t0:
+        return 0.0
+    return (t1 - t0) * math.hypot(dx, dy)
 
 
 def rounded_path(points, r=11.0):
@@ -656,8 +772,22 @@ class Renderer:
         self.offboard = layout.get("offboard", []) or []
         self.leads = layout.get("leads", []) or []           # legacy soft leads
         self.runs = layout.get("runs", []) or []             # v2 wiring
+        # Optional per-layout wiring-legend overrides, {colour_name: "entry"}.
+        # A colour that carries a documented FUNCTION in a given drawing (the
+        # AA764's single-ended 6.3 V heater feed, which is a plain green run and
+        # so earns no twisted-pair legend line) says so in the swatch row, so
+        # the SVG is self-describing when read on its own.
+        self.wire_legend = {str(k).lower(): str(v)
+                            for k, v in (layout.get("wire_legend") or {}).items()}
         self.bus = layout.get("bus", []) or []               # v2 ground bus
         self.errors: list[str] = []
+        # label / obstacle registries — every piece of drawing-content type goes
+        # through self.lab(), every glyph body through obst_*(). The
+        # label-collision lint (lint_layout, checks c/d/e) reads them back after
+        # a render, so the gate measures the same geometry the SVG ships.
+        self.labels: list[dict] = []
+        self.obstacles: list[dict] = []
+        self._pending: list[dict] = []
         # indexes
         self.part_by_ref = {p["ref"]: p for p in self.parts if "ref" in p}
         self.off_by_id = {it["id"]: it for it in self.offboard if "id" in it}
@@ -682,9 +812,16 @@ class Renderer:
             str(r.get("style", "")).lower() == "twisted" for r in self.runs)
         # board pixel box
         self.board_x = MARGIN_L
-        self.board_y = MARGIN_TOP
+        # Top-edge off-board items label AWAY from the board (upward) so the
+        # label band never lands in the item's own terminal row and lead fan —
+        # see _label_side(). That needs headroom above them: the canvas top
+        # margin grows so the highest label's cap-top clears the drawing title
+        # (baseline 34, descender ~40).
+        rise = max([self._top_label_rise(it) for it in self.offboard
+                    if it.get("edge") == "top"] or [0.0])
+        self.board_y = max(MARGIN_TOP, int(math.ceil(52 + rise + 84)))
         self.board_w = PAD_X * 2 + (self.cols - 1) * CW
-        self.board_h = 40 + ROWGAP + 40
+        self.board_h = BOARD_TOP_PAD + ROWGAP + 40
         self.width = self.board_x + self.board_w + MARGIN_R
         # a wired layout needs an under-chassis band below the sockets for the
         # long left-right harness leads; a placement-only layout stays compact.
@@ -718,8 +855,168 @@ class Renderer:
         return self.board_x + PAD_X + col * CW
 
     def ey(self, row):
-        top = self.board_y + 44
+        top = self.board_y + BOARD_TOP_PAD
         return top + row * ROWGAP
+
+    # ---- labels + obstacles (drawing content the lint measures) ------------
+    def lab(self, x, y, s, fill, size, *, anchor="middle", font=FONT_DISP,
+            weight=600, spacing=None, halo=None, halo_width=3.0, tag="",
+            group=None, keep_in=None):
+        """QUEUE a content label. Nothing is emitted here: labels are resolved
+        and drawn in one final pass (_emit_labels) once every wire, body and
+        terminal is known, so placement can be collision-aware instead of a
+        fixed offset plus hand-authored nudges. `group` ties labels that must
+        move together (a ref and its value); `keep_in` is a box the label may
+        not leave (the board rect for a board part, the canvas for the rest).
+        Title, attribution and the footer legends are chrome, not board
+        content — they call text() directly and are neither placed nor
+        measured."""
+        if not str(s).strip():
+            return ""
+        self._pending.append({
+            "x": x, "y": y, "text": str(s), "fill": fill, "size": size,
+            "anchor": anchor, "font": font, "weight": weight, "spacing": spacing,
+            "halo": halo, "halo_width": halo_width, "tag": tag,
+            "group": group if group is not None else f"_{len(self._pending)}",
+            "keep_in": keep_in,
+        })
+        return ""
+
+    # Candidate placements, tried in order: the authored position first, then a
+    # short deterministic ladder of small moves. Kept short and local on
+    # purpose — a label that has to travel far to find air is a drawing problem
+    # for a human to solve, and the lint will say so.
+    LABEL_LADDER = [(0, 0), (0, -12), (0, 12), (0, -22), (0, 22),
+                    (-18, 0), (18, 0), (-18, -12), (18, -12), (-18, 12), (18, 12),
+                    (0, -32), (0, 32), (-30, -12), (30, -12), (-30, 12), (30, 12),
+                    (0, -42), (0, 42)]
+    # Second phase: a label still struck after its whole group has been placed
+    # may slide on its own — the measured form of the old hand-authored
+    # `value_nudge`. Deliberately short so a value never travels far enough from
+    # its ref to be mis-attributed (that was its own review finding).
+    LABEL_SOLO_LADDER = [(0, -9), (0, 9), (-14, 0), (14, 0), (0, -14), (0, 14),
+                         (-20, -9), (20, -9), (-20, 9), (20, 9),
+                         (0, -21), (0, 21), (-24, -21), (24, -21), (-24, 21), (24, 21)]
+
+    def _label_cost(self, boxes, placed, wires):
+        """How many legibility violations a candidate placement of one label
+        group costs — same tests, same thresholds as the lint's checks c/d/e,
+        so a placement the placer accepts is a placement the gate accepts."""
+        cost = 0
+        for box in boxes:
+            width = box[2] - box[0]
+            tbox = _shrink(box, LINT_LABEL_INSET)
+            for _name, pts in wires:
+                span = 0.0
+                for k in range(len(pts) - 1):
+                    span = max(span, _seg_box_span(pts[k], pts[k + 1], tbox))
+                if span > max(LINT_WIRE_SPAN, LINT_WIRE_FRAC * width):
+                    cost += 1
+                    break
+            for ob in self.obstacles:
+                w, h = _box_overlap(tbox, ob["box"])
+                if w > LINT_GLYPH_W and h > LINT_GLYPH_H:
+                    cost += 1
+                    break
+            grown = _shrink(box, -LINT_LABEL_GAP)
+            for pb in placed:
+                w, h = _box_overlap(grown, pb)
+                if w > LINT_LABEL_W and h > LINT_LABEL_H:
+                    cost += 1
+                    break
+        return cost
+
+    def _emit_labels(self, wires):
+        """Resolve every queued label against the finished geometry, then draw.
+        Groups are placed in queue order — off-board identifications first, then
+        the board's ref/value pairs — each one treating the already-placed
+        labels as fixed. Deterministic: a fixed ladder, first-best wins,
+        ties broken by ladder order."""
+        groups: dict = {}
+        for spec in self._pending:
+            groups.setdefault(spec["group"], []).append(spec)
+        placed: list[tuple] = []
+        out: list[str] = []
+        for gid, specs in groups.items():
+            best, best_cost = (0, 0), None
+            for (dx, dy) in self.LABEL_LADDER:
+                boxes = [text_box(sp["x"] + dx, sp["y"] + dy, sp["text"], sp["size"],
+                                  anchor=sp["anchor"], font=sp["font"],
+                                  spacing=sp["spacing"]) for sp in specs]
+                keep = specs[0].get("keep_in")
+                if keep and any(b[0] < keep[0] or b[1] < keep[1] or b[2] > keep[2]
+                                or b[3] > keep[3] for b in boxes):
+                    continue
+                cost = self._label_cost(boxes, placed, wires)
+                if best_cost is None or cost < best_cost:
+                    best, best_cost = (dx, dy), cost
+                if cost == 0:
+                    break
+            dx, dy = best
+            for sp in specs:
+                sx, sy = sp["x"] + dx, sp["y"] + dy
+                box = text_box(sx, sy, sp["text"], sp["size"], anchor=sp["anchor"],
+                               font=sp["font"], spacing=sp["spacing"])
+                if len(specs) > 1 and self._label_cost([box], placed, wires):
+                    keep = sp.get("keep_in")
+                    for (ex, ey_) in self.LABEL_SOLO_LADDER:
+                        cand = text_box(sx + ex, sy + ey_, sp["text"], sp["size"],
+                                        anchor=sp["anchor"], font=sp["font"],
+                                        spacing=sp["spacing"])
+                        if keep and (cand[0] < keep[0] or cand[1] < keep[1]
+                                     or cand[2] > keep[2] or cand[3] > keep[3]):
+                            continue
+                        if not self._label_cost([cand], placed, wires):
+                            sx, sy, box = sx + ex, sy + ey_, cand
+                            break
+                placed.append(box)
+                self.labels.append({"text": sp["text"], "tag": sp["tag"], "box": box})
+                out.append(text(sx, sy, sp["text"], sp["fill"], sp["size"],
+                                anchor=sp["anchor"], font=sp["font"],
+                                weight=sp["weight"], spacing=sp["spacing"],
+                                halo=sp["halo"], halo_width=sp["halo_width"]))
+        return "".join(out)
+
+    def canvas_box(self, pad=8.0):
+        """The box a label may not leave — the drawing canvas, minus a margin."""
+        return (pad, pad, self.width - pad, self.height - pad)
+
+    def obst_rect(self, x0, y0, x1, y1, tag):
+        self.obstacles.append({"tag": tag, "box": (min(x0, x1), min(y0, y1),
+                                                   max(x0, x1), max(y0, y1))})
+
+    def obst_circle(self, cx, cy, r, tag):
+        self.obstacles.append({"tag": tag, "box": (cx - r, cy - r, cx + r, cy + r)})
+
+    # ---- off-board label placement -----------------------------------------
+    def _label_side(self, item):
+        """Which way an off-board item's label band faces: -1 (above the glyph)
+        for a TOP-edge item, +1 (below) otherwise. The rule is 'away from the
+        board': a top-edge pot, jack or transformer has its lugs, tip/sleeve or
+        pigtails on its board-facing (lower) side, and every lead it carries
+        fans down through that band — so a label placed there is guaranteed to
+        be struck by its own wiring. Bottom/left/right items already label away
+        from the board with the house 'below the glyph' band."""
+        return -1 if item.get("edge") == "top" else 1
+
+    def _top_label_rise(self, item):
+        """How far above a TOP-edge item's centre its label band's cap-top
+        reaches — the headroom the canvas must reserve above it."""
+        kind = item.get("kind", "tube")
+        if kind == "pot":
+            return 18 + 21 + CAP_RISE * 11.5
+        if kind == "tube":
+            return TUBE_R + 8 + CAP_RISE * 12
+        if kind in ("xfmr", "choke"):
+            h = 56 if kind == "xfmr" else 34
+            return h / 2 + 27 + CAP_RISE * 11.5
+        if kind == "jack":
+            return 9 + 8 + CAP_RISE * 10.5
+        if kind == "part":
+            # lamp glyph labels sit above the bulb; a generic axial body labels
+            # just above its own (board-facing) terminals.
+            return 30 + CAP_RISE * 11.5 if item.get("glyph") == "lamp" else 10 + CAP_RISE * 11.5
+        return 9 + 8 + CAP_RISE * 10.5      # switch / fuse / misc
 
     def bom_for(self, ref):
         rec = self.bom.get(ref)
@@ -895,28 +1192,42 @@ class Renderer:
         if vertical:
             cx = x1
             cy = (y1 + y2) / 2
-            els += self._body_vertical(cat, cx, cy, val, ref, ndx, ndy, vndx, vndy)
+            geom, labs = self._body_vertical(cat, cx, cy, val, ref, ndx, ndy, vndx, vndy)
         else:
             cx = (x1 + x2) / 2
             cy = y1
             span = abs(c2 - c1)
-            els += self._body_horizontal(cat, cx, cy, span, val, ref, ndx, ndy, vndx, vndy)
+            geom, labs = self._body_horizontal(cat, cx, cy, span, val, ref,
+                                               ndx, ndy, vndx, vndy)
+        els += geom
         # eyelets on top of leads
         els.append(eyelet(x1, y1))
         els.append(eyelet(x2, y2))
-        return "".join(els)
+        self.obst_circle(x1, y1, 4.0, f"eyelet {ref}.a")
+        self.obst_circle(x2, y2, 4.0, f"eyelet {ref}.b")
+        return "".join(els), "".join(labs)
 
     def _label_pair(self, cx, top_y, bot_y, ref, val, ndx=0, ndy=0, vndx=0, vndy=0):
         # `nudge` (ndx/ndy) shifts the ref+value pair; `value_nudge` (vndx/vndy)
         # shifts the VALUE alone — so a value sitting under a supply lead can be
         # moved to clear space while its ref stays put.
-        return (text(cx + ndx, top_y + ndy, ref, BOARD_REF, 11.5, weight=700, spacing="0.02em")
-                + text(cx + ndx + vndx, bot_y + ndy + vndy, val, BOARD_VAL, 11,
-                       font=FONT_MONO, weight=600))
+        # Board labels carry a BOARD-coloured halo. On the board it is invisible
+        # (it is the board's own tone) and simply cuts a clean gap where a
+        # hookup lead passes behind the type; where a label overhangs the board
+        # edge — a tall filter can's ref has nowhere else to go — the same halo
+        # keeps dark ink legible against the dark well instead of vanishing.
+        return (self.lab(cx + ndx, top_y + ndy, ref, BOARD_REF, 11.5, weight=700,
+                         spacing="0.02em", tag=f"{ref} ref", group=f"part:{ref}",
+                         keep_in=self.canvas_box(), halo=BOARD, halo_width=3.0)
+                + self.lab(cx + ndx + vndx, bot_y + ndy + vndy, val, BOARD_VAL, 11,
+                           font=FONT_MONO, weight=600, tag=f"{ref} value",
+                           group=f"part:{ref}", keep_in=self.canvas_box(),
+                           halo=BOARD, halo_width=2.8))
 
     def _body_horizontal(self, cat, cx, cy, span, val, ref, ndx=0, ndy=0, vndx=0, vndy=0):
         w = max(26.0, span * CW - 16)
-        els = []
+        els: list[str] = []
+        labs: list[str] = []
         if cat == "electro":
             h = 42
             x, y = cx - w / 2, cy - h + 8
@@ -930,13 +1241,15 @@ class Renderer:
                        f'stroke="{WELL}" stroke-width="1.6"/>')  # + stem
             els.append(f'<line x1="{fmt(x)}" y1="{fmt(cy+8-2)}" x2="{fmt(x+w)}" y2="{fmt(cy+8-2)}" '
                        f'stroke="{ELEC_EDGE}" stroke-width="1"/>')
-            els.append(self._label_pair(cx, y - 6, cy + 24, ref, val, ndx, ndy, vndx, vndy))
+            self.obst_rect(x, y - 4.5, x + w, y + h, f"{ref} body")
+            labs.append(self._label_pair(cx, y - 6, cy + 24, ref, val, ndx, ndy, vndx, vndy))
         elif cat == "mica":
             h = 16
             x, y = cx - w / 2, cy - h / 2
             els.append(f'<rect x="{fmt(x)}" y="{fmt(y)}" width="{fmt(w)}" height="{fmt(h)}" '
                        f'rx="4" fill="{MICA_BODY}" stroke="{MICA_EDGE}" stroke-width="1.2"/>')
-            els.append(self._label_pair(cx, y - 6, cy + 20, ref, val, ndx, ndy, vndx, vndy))
+            self.obst_rect(x, y, x + w, y + h, f"{ref} body")
+            labs.append(self._label_pair(cx, y - 6, cy + 20, ref, val, ndx, ndy, vndx, vndy))
         elif cat == "film":
             h = 22
             x, y = cx - w / 2, cy - h / 2
@@ -944,7 +1257,8 @@ class Renderer:
                        f'rx="10" fill="{FILM_BODY}" stroke="{FILM_EDGE}" stroke-width="1.2"/>')
             els.append(f'<line x1="{fmt(cx)}" y1="{fmt(y+2)}" x2="{fmt(cx)}" y2="{fmt(y+h-2)}" '
                        f'stroke="{FILM_EDGE}" stroke-width="0.8" opacity="0.7"/>')
-            els.append(self._label_pair(cx, y - 6, cy + 22, ref, val, ndx, ndy, vndx, vndy))
+            self.obst_rect(x, y, x + w, y + h, f"{ref} body")
+            labs.append(self._label_pair(cx, y - 6, cy + 22, ref, val, ndx, ndy, vndx, vndy))
         else:  # resistor / other
             h = 16
             x, y = cx - w / 2, cy - h / 2
@@ -953,8 +1267,9 @@ class Renderer:
             for ex_ in (x + 5, x + w - 5):
                 els.append(f'<line x1="{fmt(ex_)}" y1="{fmt(y+1)}" x2="{fmt(ex_)}" y2="{fmt(y+h-1)}" '
                            f'stroke="{RES_END}" stroke-width="2"/>')
-            els.append(self._label_pair(cx, y - 6, cy + 21, ref, val, ndx, ndy, vndx, vndy))
-        return els
+            self.obst_rect(x, y, x + w, y + h, f"{ref} body")
+            labs.append(self._label_pair(cx, y - 6, cy + 21, ref, val, ndx, ndy, vndx, vndy))
+        return els, labs
 
     def _body_vertical(self, cat, cx, cy, val, ref, ndx=0, ndy=0, vndx=0, vndy=0):
         # vertical carbon/wirewound resistor bridging the two rows (cathode legs)
@@ -977,11 +1292,16 @@ class Renderer:
             lx, anchor = cx - w / 2 - 6, "end"
         else:
             lx, anchor = cx + w / 2 + 6, "start"
-        els.append(text(lx + ndx, cy - 3 + ndy, ref, BOARD_REF, 11.5, weight=700,
-                        anchor=anchor, spacing="0.02em"))
-        els.append(text(lx + ndx + vndx, cy + 11 + ndy + vndy, val, BOARD_VAL, 11,
-                        anchor=anchor, font=FONT_MONO, weight=600))
-        return els
+        self.obst_rect(x, y, x + w, y + h, f"{ref} body")
+        labs = [self.lab(lx + ndx, cy - 3 + ndy, ref, BOARD_REF, 11.5, weight=700,
+                         anchor=anchor, spacing="0.02em", tag=f"{ref} ref",
+                         group=f"part:{ref}", keep_in=self.canvas_box(),
+                         halo=BOARD, halo_width=3.0),
+                self.lab(lx + ndx + vndx, cy + 11 + ndy + vndy, val, BOARD_VAL, 11,
+                         anchor=anchor, font=FONT_MONO, weight=600, tag=f"{ref} value",
+                         group=f"part:{ref}", keep_in=self.canvas_box(),
+                         halo=BOARD, halo_width=2.8)]
+        return els, labs
 
     # ---- off-board stubs ----------------------------------------------------
     def off_pos(self, item):
@@ -989,7 +1309,11 @@ class Renderer:
         at = float(item.get("at", 0))
         if edge in ("top", "bottom"):
             x = self.ex(at)
-            y = (self.board_y - 84) if edge == "top" else (self.board_y + self.board_h + 80)
+            # Both off-board rows are anchored to their nearest EYELET ROW, not
+            # to the board rect: the board's top padding is a legibility
+            # parameter (BOARD_TOP_PAD) and must not move a pot or jack
+            # relative to the eyelets its leads land on.
+            y = (self.ey(0) - 128) if edge == "top" else (self.ey(self.rows - 1) + 116)
         elif edge == "left":
             x = self.board_x - 78
             y = self.ey(0) + at * ROWGAP
@@ -1011,12 +1335,19 @@ class Renderer:
         return cx, "middle"
 
     def off_stub(self, item):
+        """An off-board item. Returns (glyph_svg, label_svg): the glyph is drawn
+        with the rest of the board geometry, the label in the FINAL text pass so
+        nothing — including the top-layer heater twisted pairs — can paint over
+        it. Label bands sit AWAY from the board (see _label_side), clear of the
+        item's own terminal row and lead fan."""
         kind = item.get("kind", "tube")
         label = item.get("label", item.get("id", ""))
         ref = item.get("ref")
         x, y = self.off_pos(item)
         val = primary_value(self.bom_for(ref)["value"]) if ref else None
-        els = []
+        sgn = self._label_side(item)
+        els: list[str] = []
+        labs: list[str] = []
         if kind == "tube":
             r = TUBE_R
             n = int(item.get("_pincount") or 8)
@@ -1030,15 +1361,21 @@ class Renderer:
                 px = x + r * math.sin(theta)
                 py = y - r * math.cos(theta)
                 els.append(f'<circle cx="{fmt(px)}" cy="{fmt(py)}" r="2.1" fill="{MUTED}"/>')
-                # pin number, just inside the ring
+                # pin number, just inside the ring (socket chrome, not a board
+                # label — deliberately not measured by the label lint)
                 nx = x + (r - 8.5) * math.sin(theta)
                 ny = y - (r - 8.5) * math.cos(theta)
                 els.append(text(nx, ny + 3, str(pin), FAINT, 7.5, font=FONT_MONO, weight=600))
-            # tube-socket ID label gets the same opaque halo: a heater twisted
-            # pair (or any other lead) routed close under the socket reads
-            # behind the text instead of cutting through it illegibly.
-            els.append(text(x, y + r + 15, label, INK, 12, spacing="0.05em",
-                            halo=WELL, halo_width=3.2))
+            self.obst_circle(x, y, r, f"socket {item.get('id', '')}")
+            # tube-socket ID label: opaque halo AND the final text pass, so a
+            # heater twisted pair routed close under the socket reads behind
+            # the text instead of cutting through it.
+            lab_y = (y - r - 8) if sgn < 0 else (y + r + 15)
+            labs.append(self.lab(x, lab_y, label, INK, 12, spacing="0.05em",
+                                 halo=WELL, halo_width=3.2,
+                                 tag=f"socket {item.get('id', '')}",
+                                 group=f"tube:{item.get('id', '')}",
+                                 keep_in=self.canvas_box()))
         elif kind == "pot":
             r = 18
             els.append(f'<circle cx="{fmt(x)}" cy="{fmt(y)}" r="{fmt(r)}" fill="{PANEL}" '
@@ -1050,27 +1387,44 @@ class Renderer:
             for lug in (1, 2, 3):
                 lx, ly = self.pot_lug_pos(item, lug)
                 els.append(f'<circle cx="{fmt(lx)}" cy="{fmt(ly)}" r="1.9" fill="{MUTED}"/>')
-            # ref/value labels get an opaque halo (matching the canvas well):
-            # on a dense board the lug fan's converging leads pass right
-            # through this band, and the halo keeps the text reading clearly
-            # over a crossing lead instead of merging with it. Optional nudges
-            # move the pair (label_nudge) or the value alone (value_nudge, px)
-            # into clear space when the halo isn't enough — the drawing-review
-            # escape hatch for a value that still sits under a lead run.
+                self.obst_circle(lx, ly, 1.9, f"lug {item.get('id', '')}.{lug}")
+            self.obst_circle(x, y, r, f"pot {item.get('id', '')}")
+            # Name + value sit on the side of the pot AWAY from the board. A
+            # top-edge pot's three lugs are on its lower face and every lead it
+            # carries fans down from them, so the old below-the-glyph band was
+            # struck by the pot's own wiring by construction; above the glyph it
+            # is clear. Halo kept (an opaque well-coloured outline) for the
+            # crossings that remain, and the nudges stay as the escape hatch.
             lnx, lny = (item.get("label_nudge") or [0, 0])[:2]
             vnx, vny = (item.get("value_nudge") or [0, 0])[:2]
-            els.append(text(x + lnx, y + r + 14 + lny, label, INK, 11.5,
-                            spacing="0.04em", halo=WELL, halo_width=3.2))
+            if sgn < 0:
+                lab_y, val_y = y - r - 21, y - r - 8
+            else:
+                lab_y, val_y = y + r + 14, y + r + 27
+            labs.append(self.lab(x + lnx, lab_y + lny, label, INK, 11.5,
+                                 spacing="0.04em", halo=WELL, halo_width=3.2,
+                                 tag=f"pot {item.get('id', '')} name",
+                                 group=f"pot:{item.get('id', '')}",
+                                 keep_in=self.canvas_box()))
             if val:
-                els.append(text(x + lnx + vnx, y + r + 27 + lny + vny, val, MUTED,
-                                10.5, font=FONT_MONO, weight=500, halo=WELL,
-                                halo_width=3.0))
+                labs.append(self.lab(x + lnx + vnx, val_y + lny + vny, val, MUTED,
+                                     10.5, font=FONT_MONO, weight=500, halo=WELL,
+                                     halo_width=3.0,
+                                     tag=f"pot {item.get('id', '')} value",
+                                     group=f"pot:{item.get('id', '')}",
+                                     keep_in=self.canvas_box()))
         elif kind == "jack":
             r = 9
             els.append(f'<circle cx="{fmt(x)}" cy="{fmt(y)}" r="{fmt(r)}" fill="{WELL}" '
                        f'stroke="{MUTED}" stroke-width="1.6"/>')
             els.append(f'<circle cx="{fmt(x)}" cy="{fmt(y)}" r="3" fill="{MUTED}"/>')
-            els.append(text(x, y + r + 13, label, MUTED, 10.5, spacing="0.03em"))
+            self.obst_circle(x, y, r, f"jack {item.get('id', '')}")
+            lab_y = (y - r - 8) if sgn < 0 else (y + r + 13)
+            labs.append(self.lab(x, lab_y, label, MUTED, 10.5, spacing="0.03em",
+                                 halo=WELL, halo_width=3.0,
+                                 tag=f"jack {item.get('id', '')}",
+                                 group=f"jack:{item.get('id', '')}",
+                                 keep_in=self.canvas_box()))
         elif kind in ("xfmr", "choke"):
             w, h = (46, 56) if kind == "xfmr" else (40, 34)
             els.append(f'<rect x="{fmt(x-w/2)}" y="{fmt(y-h/2)}" width="{w}" height="{h}" rx="4" '
@@ -1078,6 +1432,8 @@ class Renderer:
             for dx in (-6, 0, 6):
                 els.append(f'<line x1="{fmt(x+dx)}" y1="{fmt(y-h/2+5)}" x2="{fmt(x+dx)}" '
                            f'y2="{fmt(y+h/2-5)}" stroke="{FAINT}" stroke-width="1.4"/>')
+            self.obst_rect(x - w / 2, y - h / 2, x + w / 2, y + h / 2,
+                           f"{kind} {item.get('id', '')}")
             # coloured pigtails for each lead colour wired to this transformer
             for colour in self.xfmr_leads.get(item.get("id"), []):
                 ex_, ey_, base = self.xfmr_lead_pos(item, colour)
@@ -1086,6 +1442,7 @@ class Renderer:
                            f'y2="{fmt(ey_)}" stroke="{wc}" stroke-width="2.6" '
                            f'stroke-linecap="round"/>')
                 els.append(term_dot(ex_, ey_, 2.4))
+                self.obst_circle(ex_, ey_, 2.4, f"pigtail {item.get('id', '')}.{colour}")
             # Edge-safe placement: an off-board transformer near a side border can
             # carry a sublabel wider than the gap to the canvas edge (the OT on the
             # right edge). Keep the pair centred under the body where it fits; when
@@ -1097,30 +1454,56 @@ class Renderer:
                 val_x, val_anchor = self._edge_safe(x, val, 10.5, True)
                 if val_anchor != "middle":
                     lab_x, lab_anchor = val_x, val_anchor
-            els.append(text(lab_x, y + h / 2 + 14, label, INK, 11.5, spacing="0.04em",
-                            anchor=lab_anchor))
+            # Same halo treatment as the pot and socket labels, and the same
+            # away-from-the-board band: a top-edge transformer stacks its
+            # coloured pigtails and their terminal dots on its lower face, which
+            # is exactly where the label used to be printed.
+            if sgn < 0:
+                lab_y, val_y = y - h / 2 - 27, y - h / 2 - 14
+            else:
+                lab_y, val_y = y + h / 2 + 14, y + h / 2 + 27
+            labs.append(self.lab(lab_x, lab_y, label, INK, 11.5, spacing="0.04em",
+                                 anchor=lab_anchor, halo=WELL, halo_width=3.2,
+                                 tag=f"{kind} {item.get('id', '')} name",
+                                 group=f"{kind}:{item.get('id', '')}",
+                                 keep_in=self.canvas_box()))
             if val:
-                els.append(text(val_x, y + h / 2 + 27, val, MUTED, 10.5, font=FONT_MONO,
-                                weight=500, anchor=val_anchor))
+                labs.append(self.lab(val_x, val_y, val, MUTED, 10.5, font=FONT_MONO,
+                                     weight=500, anchor=val_anchor, halo=WELL,
+                                     halo_width=3.0,
+                                     tag=f"{kind} {item.get('id', '')} value",
+                                     group=f"{kind}:{item.get('id', '')}",
+                                     keep_in=self.canvas_box()))
         elif kind == "part":
-            els += self._part_glyph(item, x, y, label, val)
+            g, l = self._part_glyph(item, x, y, label, val)
+            els += g
+            labs += l
         else:  # switch / fuse / misc
             w, h = 34, 18
             els.append(f'<rect x="{fmt(x-w/2)}" y="{fmt(y-h/2)}" width="{w}" height="{h}" rx="4" '
                        f'fill="{PANEL}" stroke="{LINE}" stroke-width="1.4"/>')
-            els.append(text(x, y + h / 2 + 13, label, MUTED, 10.5, spacing="0.03em"))
-        return "".join(els)
+            self.obst_rect(x - w / 2, y - h / 2, x + w / 2, y + h / 2,
+                           f"{kind} {item.get('id', '')}")
+            lab_y = (y - h / 2 - 8) if sgn < 0 else (y + h / 2 + 13)
+            labs.append(self.lab(x, lab_y, label, MUTED, 10.5, spacing="0.03em",
+                                 halo=WELL, halo_width=3.0,
+                                 tag=f"{kind} {item.get('id', '')}",
+                                 group=f"{kind}:{item.get('id', '')}",
+                                 keep_in=self.canvas_box()))
+        return "".join(els), "".join(labs)
 
     def _part_glyph(self, item, x, y, label, val):
         """Generic off-board 2-lead part (kind: part): a pilot lamp (glyph:
         lamp) or a small axial body, with two board-facing terminals wired as
-        REF.a / REF.b."""
+        REF.a / REF.b. Returns (glyph_els, label_els)."""
         edge = item.get("edge", "top")
         away = {"top": (0, -1), "bottom": (0, 1),
                 "left": (-1, 0), "right": (1, 0)}.get(edge, (0, -1))
         ta = self.part_terminal_pos(item, "a")
         tb = self.part_terminal_pos(item, "b")
-        els = []
+        els: list[str] = []
+        labs: list[str] = []
+        pid = item.get("id", "")
         if item.get("glyph") == "lamp":
             # base sits just off the terminals; bulb (jewel) sits further away
             cbx, cby = x + away[0] * 2, y + away[1] * 2       # bayonet base centre
@@ -1140,11 +1523,16 @@ class Renderer:
             # filament squiggle inside the jewel
             els.append(f'<path d="M {fmt(bx-3.5)} {fmt(by+1.5)} q 1.8 -5 3.5 0 q 1.8 5 3.5 0" '
                        f'fill="none" stroke="{LAMP_GLASS_EDGE}" stroke-width="0.9"/>')
+            self.obst_circle(bx, by, 9.5, f"lamp {pid}")
+            self.obst_rect(cbx - 9.7, cby - 6, cbx + 9.7, cby + 6, f"lamp base {pid}")
             laby = by - 15 if away[1] < 0 else by + 24
-            els.append(text(bx, laby, label, INK, 11.5, spacing="0.04em"))
+            labs.append(self.lab(bx, laby, label, INK, 11.5, spacing="0.04em",
+                                 halo=WELL, halo_width=3.2, tag=f"part {pid}",
+                                 group=f"off:{pid}", keep_in=self.canvas_box()))
             for (tx, ty) in (ta, tb):
                 els.append(term_dot(tx, ty, 2.2))
-            return els
+                self.obst_circle(tx, ty, 2.2, f"terminal {pid}")
+            return els, labs
         # generic axial 2-lead body drawn between the terminals
         horiz = edge in ("top", "bottom")
         midx, midy = (ta[0] + tb[0]) / 2, (ta[1] + tb[1]) / 2
@@ -1159,27 +1547,43 @@ class Renderer:
             for ex_ in (rx + 5, rx + bw - 5):
                 els.append(f'<line x1="{fmt(ex_)}" y1="{fmt(ry+1)}" x2="{fmt(ex_)}" '
                            f'y2="{fmt(ry+bh-1)}" stroke="{RES_END}" stroke-width="2"/>')
+            self.obst_rect(rx, ry, rx + bw, ry + bh, f"part {pid} body")
+            # ref above value in BOTH directions — a bottom-edge part used to
+            # print its value above its designator, the only place in the corpus
+            # where the pair read upside down.
             top = away[1] < 0
-            ref_y = (ry - 18) if top else (ry + bh + 24)
-            val_y = (ry - 5) if top else (ry + bh + 11)
-            els.append(text(midx, ref_y, label, INK, 11.5, weight=700, spacing="0.02em"))
+            ref_y = (ry - 18) if top else (ry + bh + 11)
+            val_y = (ry - 5) if top else (ry + bh + 24)
+            labs.append(self.lab(midx, ref_y, label, INK, 11.5, weight=700,
+                                 spacing="0.02em", halo=WELL, halo_width=3.2,
+                                 tag=f"part {pid} ref", group=f"off:{pid}",
+                                 keep_in=self.canvas_box()))
             if val:
-                els.append(text(midx, val_y, val, MUTED, 10.5, font=FONT_MONO, weight=500))
+                labs.append(self.lab(midx, val_y, val, MUTED, 10.5, font=FONT_MONO,
+                                     weight=500, halo=WELL, halo_width=3.0,
+                                     tag=f"part {pid} value", group=f"off:{pid}",
+                                     keep_in=self.canvas_box()))
         else:
             bw, bh = 15.0, max(22.0, abs(tb[1] - ta[1]) - 8)
             rx, ry = midx - bw / 2, midy - bh / 2
             els.append(f'<rect x="{fmt(rx)}" y="{fmt(ry)}" width="{fmt(bw)}" height="{fmt(bh)}" '
                        f'rx="6" fill="{RES_BODY}" stroke="{RES_END}" stroke-width="1"/>')
+            self.obst_rect(rx, ry, rx + bw, ry + bh, f"part {pid} body")
             lx = midx + away[0] * 16
             anchor = "end" if away[0] < 0 else "start"
-            els.append(text(lx, midy - 3, label, INK, 11.5, weight=700, anchor=anchor,
-                            spacing="0.02em"))
+            labs.append(self.lab(lx, midy - 3, label, INK, 11.5, weight=700, anchor=anchor,
+                                 spacing="0.02em", halo=WELL, halo_width=3.2,
+                                 tag=f"part {pid} ref", group=f"off:{pid}",
+                                 keep_in=self.canvas_box()))
             if val:
-                els.append(text(lx, midy + 11, val, MUTED, 10.5, anchor=anchor,
-                                font=FONT_MONO, weight=500))
+                labs.append(self.lab(lx, midy + 11, val, MUTED, 10.5, anchor=anchor,
+                                     font=FONT_MONO, weight=500, halo=WELL,
+                                     halo_width=3.0, tag=f"part {pid} value",
+                                     group=f"off:{pid}", keep_in=self.canvas_box()))
         for (tx, ty) in (ta, tb):
             els.append(term_dot(tx, ty, 2.2))
-        return els
+            self.obst_circle(tx, ty, 2.2, f"terminal {pid}")
+        return els, labs
 
     # ---- legacy soft leads (kept for back-compat) --------------------------
     def lead_run(self, lead):
@@ -1365,12 +1769,15 @@ class Renderer:
                                     hops.get(("run", r["i"]), {}))
             els.append(svg)
             run_pts += tp
-        # off-board stubs
+        # off-board stubs and board parts, GEOMETRY only: every label they own
+        # is QUEUED (see lab()) and resolved in the final text pass below, once
+        # every wire, body and terminal dot is known.
         for it in self.offboard:
-            els.append(self.off_stub(it))
-        # board parts
+            geom, _ = self.off_stub(it)
+            els.append(geom)
         for p in self.parts:
-            els.append(self.part_body(p))
+            geom, _ = self.part_body(p)
+            els.append(geom)
         # heater twisted pairs, above the sockets
         for r in twisted_runs:
             svg, tp = self.run_wire(r["spec"], r["i"], r["pts"])
@@ -1388,6 +1795,19 @@ class Renderer:
                 continue
             seen.add(key)
             els.append(solder_blob(tx, ty))
+            self.obst_circle(tx, ty, 4.4, "solder joint")
+        # FINAL TEXT PASS — every board and off-board label, drawn last so
+        # nothing can paint over it. The twisted heater pair is the top wiring
+        # layer by design (it must show its pin landings), so a label emitted
+        # with the glyph it belongs to was painted over by the heaters however
+        # good its halo: a halo can only protect against what is drawn BEFORE
+        # the text. Labels now come after every wire, and keep their halos for
+        # the crossings that remain. Placement is resolved here too, against the
+        # finished geometry, so a label lands in air by measurement rather than
+        # by hand-authored nudge.
+        wires = [(f"run[{r['i']}]", r["pts"]) for r in runs if r["pts"]]
+        wires += [(f"bus[{b['j']}]", b["pts"]) for b in bus if b["pts"]]
+        els.append(self._emit_labels(wires))
         # title + attribution
         title = (self.layout.get("board", {}) or {}).get("title") or f"{self.amp_id.upper()} board layout"
         els.append(text(bx, 34, title, INK, 17, anchor="start", spacing="0.08em"))
@@ -1436,11 +1856,12 @@ class Renderer:
             cx += 24 + 4 * 6.4 + 16
             for key in self._colours_used:
                 col = WIRE.get(key, WIRE_NEUTRAL)
+                entry = self.wire_legend.get(key, key)
                 els.append(f'<line x1="{fmt(cx)}" y1="{fmt(y-3)}" x2="{fmt(cx+18)}" y2="{fmt(y-3)}" '
                            f'stroke="{col}" stroke-width="2.4" stroke-linecap="round"/>')
-                els.append(text(cx + 24, y, key, MUTED, 10.5, anchor="start", font=FONT_MONO,
+                els.append(text(cx + 24, y, entry, MUTED, 10.5, anchor="start", font=FONT_MONO,
                                 weight=500))
-                cx += 24 + len(key) * 6.4 + 16
+                cx += 24 + len(entry) * 6.4 + 16
             if self.bus:
                 els.append(f'<line x1="{fmt(cx)}" y1="{fmt(y-3)}" x2="{fmt(cx+18)}" y2="{fmt(y-3)}" '
                            f'stroke="{BUS_CORE}" stroke-width="3.4" stroke-linecap="round"/>')
@@ -1508,6 +1929,32 @@ LINT_OVERLAP = 8.0     # (a) shared near-parallel length that trips the lint
 LINT_TERM = 5.0        # (b) a run end this close to another run's interior…
 LINT_VERTEX_CLEAR = 4.0  # …unless it sits on one of that run's own nodes
 
+# --- label-collision lint (checks c/d/e) ------------------------------------
+# Every label's bounding box is estimated from house text metrics (text_box).
+# The box is INSET before testing: a glyph does not fill its em box, and each
+# label carries an opaque halo, so a wire or body that only grazes the box is
+# not a legibility defect. The thresholds below are deliberately conservative —
+# they are set so a drawing whose type is actually readable reports nothing,
+# and every reported failure is a strike a reader would see.
+LINT_LABEL_INSET = 1.6    # shrink a text box on all sides before testing (px)
+# (c) A wire CROSSING a label transversally is the ordinary case on a wired
+# board and is handled by the halo every label carries — it is not a defect.
+# What destroys a label is a wire running ALONG it: the in-box span then
+# approaches the label's own width and the wire lies in the text, not across it.
+# So the strike threshold is relative to the label's width, with an absolute
+# floor for very short labels.
+LINT_WIRE_FRAC = 0.5      # (c) in-box span as a fraction of the label's width
+LINT_WIRE_SPAN = 12.0     # (c) absolute floor for the same test (px)
+LINT_GLYPH_W = 2.5        # (d) label∩body overlap that reads as a collision (px)
+LINT_GLYPH_H = 2.5
+# (e) Two labels do not have to overlap to read as one string — abutting with no
+# gap is enough ("100 kΩ" + "250 pF" printed edge to edge on a dense board reads
+# as "100 kΩ250 pF"). So the pairwise test grows each box by LINT_LABEL_GAP and
+# fails on any intersection: labels must be separated, not merely disjoint.
+LINT_LABEL_GAP = 2.2      # (e) clear space every label demands around itself (px)
+LINT_LABEL_W = 0.5        # (e) intersection of the grown boxes that trips it (px)
+LINT_LABEL_H = 0.5
+
 
 def _parallel_overlap(a1, a2, b1, b2, sep):
     """Longest contiguous stretch of segment a1-a2 that runs within `sep` of
@@ -1555,11 +2002,30 @@ def lint_layout(amp_dir: Path) -> list[str]:
           polyline interior while not sitting on any of that run's own nodes
           (it's unclear whether the wire lands there or merely passes by).
 
+    Three more run over the LABELS — the half of the reference-drawing bar the
+    wiring checks above cannot see. A dense board degrades in its labelling
+    long before its routing, and until these existed the only thing keeping a
+    drawing legible was hand-authored `label_nudge` / `value_nudge`, unmeasured:
+
+      (c) label struck by a wire — a run, twisted heater pair or ground-bus
+          segment passing through more than 3 px of a label's (inset) box;
+      (d) label over a glyph — a label's box overlapping a part body, socket,
+          pot, jack, transformer, terminal dot, lug pip or eyelet by more than
+          2.5 px in both axes;
+      (e) label over a label — two labels' boxes overlapping by more than 2 px
+          in both axes (they read as one string, and neither can be attributed
+          to a part).
+
+    Label boxes are estimated from house text metrics and inset (see
+    LINT_LABEL_INSET) — a halo'd glyph that merely grazes a wire is fine; a wire
+    driven through the type is not.
+
     Returns a sorted list of failure strings with coordinates + run indices.
     """
     layout = yaml.safe_load((amp_dir / "layout.yaml").read_text())
     bom = load_bom(amp_dir)
-    runs, _bus = Renderer(layout, bom, amp_dir.name).build_geometry()
+    rend = Renderer(layout, bom, amp_dir.name)
+    runs, bus = rend.build_geometry()
     plain = [r for r in runs if r["pts"] and not r["twisted"]]
     fails: list[str] = []
     # (a) near-parallel overlap
@@ -1595,7 +2061,81 @@ def lint_layout(amp_dir: Path) -> list[str]:
                             f"({E[0]:.0f},{E[1]:.0f}) within {LINT_TERM}px of run[{B['i']}] "
                             f"interior")
                         break
+    fails += _lint_labels(rend, runs, bus, amp_dir.name)
+    # (f) two off-board items of the SAME kind carrying the SAME label: the
+    # drawing then has two controls, jacks or transformers a reader cannot tell
+    # apart, even where the data (bom.yaml roles, the wiring itself) does
+    # distinguish them. Cheap, and it guards a defect that shipped once.
+    seen: dict = {}
+    for it in (layout.get("offboard") or []):
+        kind, label = it.get("kind"), str(it.get("label", "")).strip()
+        if not label or kind not in ("pot", "jack", "xfmr", "choke", "switch", "part"):
+            continue
+        key = (kind, label.lower())
+        if key in seen:
+            fails.append(
+                f"{amp_dir.name}: ambiguous label — {kind}s '{seen[key]}' and "
+                f"'{it.get('id')}' both read '{label}'")
+        else:
+            seen[key] = it.get("id")
     return sorted(fails)
+
+
+def _lint_labels(rend: "Renderer", runs, bus, amp_id: str) -> list[str]:
+    """Checks (c) label-vs-wire, (d) label-vs-glyph, (e) label-vs-label.
+
+    `rend` must have been rendered (that is what populates its label and
+    obstacle registries), so the gate measures exactly the geometry the
+    committed SVG ships."""
+    rend.render()
+    labels = rend.labels
+    # (full box, inset box): the inset box is what is tested for contact, but the
+    # wire-strike fraction is of the label's OWN width — the same measure the
+    # placer uses, so a placement the placer accepts is one the gate accepts.
+    boxes = [(lb, _shrink(lb["box"], LINT_LABEL_INSET), lb["box"][2] - lb["box"][0])
+             for lb in labels]
+    fails: list[str] = []
+    # (c) label struck by a wire
+    wires = []
+    for r in runs:
+        if r["pts"]:
+            wires.append((f"run[{r['i']}]", r["pts"]))
+    for b in bus:
+        if b["pts"]:
+            wires.append((f"bus[{b['j']}]", b["pts"]))
+    for lb, box, width in boxes:
+        for name, pts in wires:
+            span = 0.0
+            for k in range(len(pts) - 1):
+                span = max(span, _seg_box_span(pts[k], pts[k + 1], box))
+            if span > max(LINT_WIRE_SPAN, LINT_WIRE_FRAC * width):
+                fails.append(
+                    f"{amp_id}: label struck by wire — '{lb['text']}' ({lb['tag']}) "
+                    f"crossed by {name} over ~{span:.1f}px at "
+                    f"({(box[0]+box[2])/2:.0f},{(box[1]+box[3])/2:.0f})")
+                break
+    # (d) label over a glyph
+    for lb, box, _w in boxes:
+        for ob in rend.obstacles:
+            w, h = _box_overlap(box, ob["box"])
+            if w > LINT_GLYPH_W and h > LINT_GLYPH_H:
+                fails.append(
+                    f"{amp_id}: label over glyph — '{lb['text']}' ({lb['tag']}) "
+                    f"overlaps {ob['tag']} by {w:.1f}x{h:.1f}px at "
+                    f"({(box[0]+box[2])/2:.0f},{(box[1]+box[3])/2:.0f})")
+                break
+    # (e) label over a label
+    for i in range(len(boxes)):
+        for j in range(i + 1, len(boxes)):
+            (la, _ia, _wa), (lbb, _ib, _wb) = boxes[i], boxes[j]
+            ba, bb = la["box"], lbb["box"]
+            w, h = _box_overlap(_shrink(ba, -LINT_LABEL_GAP), bb)
+            if w > LINT_LABEL_W and h > LINT_LABEL_H:
+                fails.append(
+                    f"{amp_id}: labels collide — '{la['text']}' ({la['tag']}) and "
+                    f"'{lbb['text']}' ({lbb['tag']}) overlap {w:.1f}x{h:.1f}px at "
+                    f"({(ba[0]+ba[2])/2:.0f},{(ba[1]+ba[3])/2:.0f})")
+    return fails
 
 
 def render_all(write: bool = True) -> list[Path]:
