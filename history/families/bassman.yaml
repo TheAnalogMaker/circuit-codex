@@ -71,7 +71,7 @@ models:
   - designation: "5F6"
     name: "Bassman (narrow-panel tweed, presence + 3-knob tone stack)"
     years: { start: 1957, end: 1958 }
-    wattage: 45
+    wattage: 40
     output: "push-pull 2x5881"
     tubes: [12AY7, 12AX7, 12AX7, 5881, 5881, 83]
     key_change: >-
@@ -82,10 +82,12 @@ models:
       drawing shows a single 83 mercury-vapor rectifier feeding a pair of 5881
       output tubes into the 4x10 cab. This layout (Bright/Normal channels,
       Presence/Middle/Bass/Treble) is the direct predecessor of the 5F6-A.
-    circuit_ref: null
+    circuit_ref: "5f6"
     sources:
-      - desc: "El34World schematic archive, Fender Bassman 5F6 layout drawing — read directly: tubes 83 rectifier + 5881/5881 output + 12AX7/12AX7/12AY7 preamp; Presence, Middle, Bass, Treble controls; Bright and Normal channels; single 83 rectifier"
+      - desc: "Circuit Codex amp 5f6 (every value and the printed voltage chart read from the F-EG factory drawing; 83 mercury-vapour rectifier, 82k/100k long-tailed-pair PI, -48 V fixed bias, presence control in the tone-stack ground leg)"
         url: "https://el34world.com/charts/Schematics/files/Fender/Fender_bassman_5f6.pdf"
+      - desc: "Neither the 5F6 nor the 5F6-A drawing prints a power rating; the 40 W figure is carried across from the 5F6-A because the two circuits share the power transformer (8087), choke (14684), output transformer (45249), 5881 pair, printed rails and printed bias voltage"
+        url: "https://el34world.com/charts/Schematics/files/Fender/Fender_bassman_5f6a.pdf"
       - desc: "Wikipedia, 'Fender Bassman' — 5F6 (July 1957): three-knob treble/middle/bass tone stack, long-tailed-pair phase inverter, single-rectifier design, four 10-inch P10R speakers"
         url: "https://en.wikipedia.org/wiki/Fender_Bassman"
   - designation: "5F6-A"

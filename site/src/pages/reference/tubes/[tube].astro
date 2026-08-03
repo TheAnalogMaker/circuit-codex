@@ -55,7 +55,7 @@ const study = t.study ? loadStudy(t.study) : null;
 
       <section>
         <h2>Circuit Codex model</h2>
-        <p class="sub">A CC0 ngspice model in the Koren form, fitted here to the
+        <p class="sub">A CC0 ngspice model {t.model.form || 'in the Koren form'}, fitted here to the
           published anchor — no parameters copied from other model collections.
           <a href={`${GITHUB}/blob/main/models/METHODOLOGY.md`}>Methodology →</a></p>
         <dl class="model">

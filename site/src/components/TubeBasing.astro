@@ -18,6 +18,11 @@ const GEO = {
     angles: { 1: 225, 2: 270, 3: 315, 4: 0, 5: 45, 6: 90, 7: 135 } },
   'octal':          { ring: 90, r: 15, spigot: true,
     angles: { 1: 202.5, 2: 247.5, 3: 292.5, 4: 337.5, 5: 22.5, 6: 67.5, 7: 112.5, 8: 157.5 } },
+  // Medium 4-pin (RMA 4C): four pins on a square, numbered clockwise from the
+  // lower left in bottom view. There is no centre spigot and no index gap — the
+  // base is keyed by its two larger filament pins — so neither marker is drawn.
+  'medium-4pin':    { ring: 76, r: 21, spigot: false, gap: false,
+    angles: { 1: 225, 2: 315, 3: 45, 4: 135 } },
 };
 const geo = GEO[basing.base] || GEO['octal'];
 const pos = (deg, rad) => {
@@ -87,6 +92,7 @@ const BASE_LABEL = {
   'noval-b9a': 'noval 9-pin (B9A)',
   'miniature-7pin': 'miniature 7-pin (B7G)',
   'octal': 'octal',
+  'medium-4pin': 'medium 4-pin',
 };
 const baseLabel = BASE_LABEL[basing.base] || basing.base;
 const titleText = `${name ? name + ' ' : ''}socket, bottom view — ${baseLabel}, basing ${basing.code}`;
@@ -105,7 +111,7 @@ const defaultReadout = 'Hover, tap, or focus a pin to name it.';
           <circle cx={CX} cy={CY} r="24" class="tb-spigot" />
           <rect x={CX - 6} y={CY + 14} width="12" height="20" rx="3" class="tb-keyway" />
         </g>
-      ) : (
+      ) : geo.gap === false ? null : (
         <g class="tb-gap" aria-hidden="true">
           <line x1={key.x} y1={key.y - 12} x2={key.x} y2={key.y + 12} class="tb-gap-tick" />
         </g>

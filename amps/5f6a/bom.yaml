@@ -58,6 +58,6 @@ items:
   - { ref: T3,  part: "Output transformer",   value: "Fender 45249 · 2 Ω secondary", role: "Push-pull output into four 8 Ω speakers" }
   - { ref: "—", part: "Power transformer",    value: "Fender 8087 · 325-0-325 V",    role: "HT + heaters + rectifier filament" }
   - { ref: "—", part: "Mica capacitor",       value: "100 pF",         role: "Bright cap across VR1 (annotation only on schematic)" }
-  - { ref: "—", part: "Mica capacitor",       value: "47 pF",          role: "PI balance cap, V3A grid–plate (annotation only)" }
+  - { ref: "—", part: "Mica capacitor",       value: "47 pF",          role: "Across the two PI plates (annotation only)" }
   - { ref: "—", part: "Carbon comp resistor", value: "27 kΩ · ½ W",   role: "Negative feedback, speaker → tail foot (annotation only)" }
   - { ref: "—", part: "Linear potentiometer", value: "5 kΩ",           role: "Presence (annotation only)" }

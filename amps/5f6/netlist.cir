@@ -1,0 +1,89 @@
+* 5F6 (Tweed Bassman-style) — DC operating-point netlist
+* Circuit Codex — CC-BY-SA 4.0. Independently drawn from the published 5F6
+* (F-EG) drawing's component values (see meta.yaml); no drawing reproduced.
+*
+* DC conventions: B+1 driven at the printed +432 V; downstream nodes DERIVED.
+* The 83 mercury-vapour rectifier and the standby switch ahead of B+1 are
+* therefore not in this deck (models/83.inc exists and is anchor-tested on its
+* own bench). Choke (14684) modeled as a 130R DCR estimate — the drawing prints
+* 432 -> 430 across it. OT primary DCR omitted. The bias supply is replaced by
+* an ideal -48 V source (its selenium rectifier, 15k/56k and two 8uF/150V caps
+* are rectification and ripple filtering). DC-open caps are MODELLED where both
+* leads land on a named DC node (the PI->output couplers C8/C9, the shared 12AY7
+* cathode bypass C3 and the V2A cathode bypass C4) so their board placement is
+* layout-checkable; open at DC, they move no operating point. Caps into the
+* abstracted volume/tone/presence network stay omitted.
+.include models/12ay7.inc
+.include models/12ax7.inc
+.include models/5881.inc
+
+VBP1 BP1 0 DC 432
+VBIAS NBIAS 0 DC -48
+
+* rail: choke -> screens node, 4700R -> PI node, 10k -> preamp node
+RCHOKE BP1 BP2 130
+RD1 BP2 BP3 4.7k
+RD2 BP3 BP4 10k
+
+* V1 12AY7 — bright + normal channels, shared 820R cathode (250uF bypass)
+RL1 BP4 PAY1 100k
+XV1A PAY1 GAY1 KAY 12AY7
+RG1 GAY1 0 1meg
+RL2 BP4 PAY2 100k
+XV1B PAY2 GAY2 KAY 12AY7
+RG2 GAY2 0 1meg
+RK1 KAY 0 820
+
+* V2A 12AX7 second stage (grid returns through vol pots + 270k mixers at DC),
+* 820R cathode with a 25uF bypass
+RL3 BP4 P2A 100k
+XV2A P2A G2A K2A 12AX7
+RG3 G2A 0 1meg
+RK2 K2A 0 820
+
+* V2B cathode follower — grid DC-coupled to V2A plate, 100k cathode load
+XV2B BP4 P2A KCF 12AX7
+RKCF KCF 0 100k
+
+* Long-tailed-pair phase inverter (82k/100k 5% plates, 470R + 10k tail, both 1M
+* grid leaks to the tail junction, 47 pF across the two plates). Unlike the
+* later 5F6-A, the tail's 10k returns straight to ground: on this revision the
+* 27k feedback resistor and the 5k presence pot sit in the TONE STACK's ground
+* leg, not at the tail foot. Both are AC-only paths into the abstracted control
+* network, so neither appears here.
+RLA BP3 PPIA 82k
+XV3A PPIA GPIA KPI 12AX7
+RGA GPIA JPI 1meg
+RLB BP3 PPIB 100k
+XV3B PPIB GPIB KPI 12AX7
+RGB GPIB JPI 1meg
+RTAIL KPI JPI 470
+RT2 JPI 0 10k
+
+* 5881 pair — two separate output bottles V4 and V5 (each a full 5881 on its own
+* octal socket), fixed bias via 220k leaks from -48 V, then a 1500R grid stopper
+* into each grid, and 100R screen resistors off the +430 V screens node.
+* NOTE: these MUST be two distinct bottle instances (XV4 / XV5). Naming them
+* XV5A / XV5B would collapse them into one dual-section bottle "V5" (the netlist
+* parser reads the trailing A/B as triode-half sections), which is wrong for two
+* single-ended power pentodes and mis-anchors the layout-equivalence check.
+RGL1 NBIAS N51 220k
+RGS1 N51 G51 1.5k
+XV4 BP1 S51 G51 0 5881
+RS1 BP2 S51 100
+RGL2 NBIAS N52 220k
+RGS2 N52 G52 1.5k
+XV5 BP1 S52 G52 0 5881
+RS2 BP2 S52 100
+* PI-plate -> output-grid coupling caps (0.1u, DC-open). Modelled so the layout-
+* equivalence gate checks the inter-stage routing and push-pull phase natively:
+* C8 carries V3A (82k plate) to the V4 grid-leak node, C9 carries V3B (100k
+* plate) to the V5 grid-leak node. At DC each grid still sits at the -48 V bias
+* node through its 220k leak and 1.5k stopper (no grid current), so these add no
+* DC loading and the op point is unmoved.
+C8 PPIA N51 0.1u
+C9 PPIB N52 0.1u
+
+* cathode-bypass caps (both leads on named DC nodes — placement layout-checked)
+C3 KAY 0 250u
+C4 K2A 0 25u

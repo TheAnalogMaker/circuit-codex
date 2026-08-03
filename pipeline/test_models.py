@@ -26,6 +26,10 @@ MODELS = ROOT / "models"
 
 TOL_I = 0.02
 TOL_GM = 0.05
+# Arc rectifiers: the datasheet prints one *approximate* drop for the whole rated
+# range, so the off-anchor points are held to +/-1 V of it (7% of 15 V) rather than
+# to the 2% an exactly-solved anchor gets.
+TOL_ARC = 0.07
 
 TRIODE_BENCH = """* {name} anchor-point verification
 .include {inc}
@@ -80,6 +84,33 @@ X1 A 0 {name}
 op
 let ia = abs(i(Va))
 echo M ia0=$&ia
+.endc
+.end
+"""
+
+# Mercury-vapour rectifiers are anchored the way their datasheets state them: a
+# tube *drop* that is near-constant over the rated current range, not a current at
+# a stated voltage. So this bench drives the rated current and reads the drop back,
+# then repeats at a tenth of rated current and at the peak-plate rating — which is
+# what makes the check meaningful (a space-charge diode would swing the drop by
+# more than 10x across that span, an arc barely moves). Rsh conditions the matrix:
+# an arc has almost no conductance below its striking voltage, so the anode node is
+# otherwise floating at the initial guess. At 1 G it draws 15 nA against 225 mA.
+ARC_RECT_BENCH = """* {name} arc-drop verification
+.include {inc}
+Ia 0 A DC {i_rated}
+Rsh A 0 1g
+X1 A 0 {name}
+.nodeset v(A)={v_guess}
+.control
+op
+echo M v_rated=$&v(A)
+alter Ia = {i_low}
+op
+echo M v_low=$&v(A)
+alter Ia = {i_peak}
+op
+echo M v_peak=$&v(A)
 .endc
 .end
 """
@@ -187,6 +218,14 @@ def main() -> int:
     print("5U4G @ Va=50 (per plate):")
     r = run_bench(RECT_BENCH.format(name="5U4G", inc=MODELS / "5u4g.inc", va=50))
     failures += check("5U4G", "Ia", r["ia0"], 200e-3, TOL_I)
+
+    print("83 mercury-vapour arc drop (datasheet: approx 15 V, essentially constant):")
+    r = run_bench(ARC_RECT_BENCH.format(name="83", inc=MODELS / "83.inc",
+                                        i_rated="225m", i_low="22.5m", i_peak="1",
+                                        v_guess=15))
+    failures += check("83", "Vdrop @ 225 mA rated", r["v_rated"], 15.0, TOL_I)
+    failures += check("83", "Vdrop @ 22.5 mA", r["v_low"], 15.0, TOL_ARC)
+    failures += check("83", "Vdrop @ 1 A peak", r["v_peak"], 15.0, TOL_ARC)
 
     if failures:
         print(f"\n{len(failures)} anchor check(s) FAILED: {', '.join(failures)}")

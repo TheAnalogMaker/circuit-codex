@@ -43,6 +43,44 @@ exactly against the datasheet anchor:
 Every model is then verified in actual ngspice by `pipeline/test_models.py`
 (CI gate): anchored currents within 2 %, gm within 5 %.
 
+## Mercury-vapour rectifiers (type 83)
+
+One tube in the corpus is not a vacuum device at all. The type 83 is a
+**mercury-vapour** rectifier: once its arc strikes, the drop is set by the
+ionisation potential of the mercury and stays there, so Child's law — the
+space-charge law the 5Y3GT/5U4G/GZ34 models are fitted to — does not describe
+it. The datasheets say so directly. RCA prints exactly one characteristic,
+"Tube Voltage Drop (Approx.) . . . 15 volts", with no companion current;
+General Electric explains why: the tube "is designed to supply d-c current at
+essentially constant voltage in spite of rather wide variations in output
+current."
+
+The model follows the data rather than the family:
+
+```
+I = IREF · exp( (Va − VARC) / VSOFT )
+```
+
+- `VARC = 15 V` — the datasheet drop.
+- `IREF = 225 mA` — the rated d-c output current, so the model sits *exactly*
+  on the datasheet drop at rated current.
+- `VSOFT = 0.35 V` — a shaping choice, not a fit. It is the only free number,
+  and it is set so the drop stays inside ±1 V of 15 V across the tube's whole
+  rated conduction range (14.2 V at a tenth of rated current, 15.5 V at the
+  1 A per-plate peak rating). That is the entire claim the datasheet makes; the
+  model asserts nothing beyond it.
+
+Because the datasheet quantity is a *drop*, the CI check is inverted for this
+class: `test_models.py` drives the rated current, a tenth of it, and the peak
+rating, and reads the drop back (2 % at the anchor, ±1 V off-anchor). A
+space-charge diode would swing the drop more than tenfold across that span, so
+the test genuinely distinguishes the arc from the family it sits beside.
+
+Not modelled: mercury-temperature dependence (the sheets rate 20–60 °C
+condensed-mercury), ionisation/deionisation time, and the switching transients
+that make these tubes noisy neighbours in practice. This is a d-c
+operating-point model, like the rest of `models/`.
+
 ## Known limitations (v0)
 
 - **Anchor-point fits, not full curve fits.** The models are accurate in the

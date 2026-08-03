@@ -4,8 +4,10 @@ The most influential guitar amplifier circuit ever drawn: four inputs, a
 12AY7 front end, a direct-coupled cathode follower driving the
 treble-mid-bass tone stack, a long-tailed-pair phase inverter, and a
 fixed-bias 5881 pair — the template Marshall copied for the JTM45 and half
-the industry copied after that. Produced 1958–1960. Lineage edges to 5F6
-(ancestor) and JTM45 (descendant) land when those circuits do.
+the industry copied after that. Produced 1958–1960, revising the 5F6 —
+mainly by swapping its 83 mercury-vapour rectifier for a GZ34 and moving the
+presence control out of the tone stack's ground leg to the phase-inverter
+tail foot.
 
 ## Circuit walkthrough (short form)
 
@@ -15,7 +17,8 @@ volume pots (100 pF bright cap) → 270k mixers → **V2A** 12AX7 (100k plate,
 820 Ω cathode) → **V2B cathode follower, DC-coupled** (100k cathode load) →
 TMB tone stack (56k slope, 250 pF treble, 0.02 µF caps; 250k/1M/25k pots) →
 0.02 µF → **long-tailed-pair PI**: 82k (5%) and 100k (5%) plates, 470 Ω + 10k
-tail, both 1M grid leaks returned to the tail junction, 47 pF balance cap →
+tail, both 1M grid leaks returned to the tail junction, 47 pF across the
+plates →
 0.1 µF couplers → **5881 pair**, fixed-biased at −48 V through 220k leaks,
 **470 Ω 1W screen resistors** → 2Ω output (four 8Ω speakers), 27k NFB into
 the tail foot with the 5k presence control.

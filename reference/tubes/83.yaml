@@ -1,0 +1,64 @@
+tube: "83"
+name: "83"
+also_known_as: []
+role: >-
+  Full-wave mercury-vapour rectifier — the odd tube of the corpus. Where every
+  other rectifier here is a vacuum diode whose drop climbs with current, the 83
+  strikes an arc in mercury vapour and then holds a nearly constant ~15 V drop
+  from idle to its full 225 mA rating. That is why the tweed 5F6 Bassman runs a
+  stiff, barely-sagging supply — and why the datasheets specify vertical
+  base-down mounting, a condensed-mercury temperature window, and filament
+  warm-up before high voltage.
+model:
+  file: models/83.inc
+  form: "in an arc form"
+  anchor: "Tube Voltage Drop (Approx.) = 15 V at the rated 225 mA d-c output; peak plate current 1 A per plate"
+  anchor_source: "RCA type 83 data sheet, 7-63; corroborated by General Electric ET-T464, 2-47"
+  note: >-
+    Exponential arc model (I = IREF·exp((Va−VARC)/VSOFT)), not the Child's-law
+    diode used for the vacuum rectifiers — a struck arc is not space-charge
+    limited. One plate unit; instantiate twice for the full-wave pair. Verified
+    by driving current and reading the drop back: 15.0 V at 225 mA, 14.2 V at
+    22.5 mA, 15.5 V at the 1 A peak rating.
+max_ratings:
+  note: >-
+    Capacitor-input design-centre maximums. Two of these constrain how the tube may
+    be used rather than how hard it may be run: a minimum total plate-supply
+    impedance of 50 Ω per plate limits the peak charging current into the first
+    filter capacitor (RCA adds that a first capacitor larger than 40 µF may need
+    more), and the condensed-mercury temperature must sit between 20 °C and 60 °C —
+    which is why the tube is specified to be mounted vertically, base down, and
+    given its filament warm-up time before high voltage is applied.
+  items:
+    - { label: "Peak inverse plate voltage", value: "1550 V" }
+    - { label: "Peak plate current per plate", value: "1.0 A" }
+    - { label: "A-C plate voltage per plate (capacitor input)", value: "450 V RMS" }
+    - { label: "D-C output current", value: "225 mA" }
+    - { label: "Total effective plate-supply impedance per plate", value: "50 Ω minimum" }
+    - { label: "Condensed-mercury temperature", value: "20–60 °C" }
+  source: "RCA type 83 data sheet, 7-63 (design-centre system); General Electric ET-T464 tabulates the same design-centre column"
+  source_url: https://frank.pocnet.net/sheets/049/8/83.pdf
+basing:
+  code: 4C
+  base: medium-4pin
+  view: bottom
+  source: >-
+    RCA and General Electric type 83 data sheets ("Basing Designation for BOTTOM
+    VIEW . . . 4C"; GE prints the same RMA 4C diagram). Medium 4-pin phenolic
+    base, ST-16 glass envelope. Directly heated: the 5.0 V / 3.0 A filament is
+    the cathode, so both filament pins sit at B+.
+  pins:
+    1: { element: filament, hv: true, note: "directly heated — the filament is the cathode and sits at B+" }
+    2: { element: diode-plate, unit: 2, hv: true }
+    3: { element: diode-plate, unit: 1, hv: true }
+    4: { element: filament, hv: true, note: "directly heated — the filament is the cathode and sits at B+" }
+used_in: ["5f6"]
+datasheets:
+  - publisher: RCA
+    designation: "83"
+    url: https://frank.pocnet.net/sheets/049/8/83.pdf
+    confidence: high
+  - publisher: General Electric
+    designation: "83"
+    url: https://frank.pocnet.net/sheets/093/8/83.pdf
+    confidence: high

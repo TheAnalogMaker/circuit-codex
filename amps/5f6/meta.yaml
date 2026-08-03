@@ -1,0 +1,35 @@
+# Circuit Codex metadata — schema: docs/schema.md (v1)
+id: "5f6"
+name_style: "Tweed Bassman-style"
+family: tweed
+era:
+  start: 1957
+  end: 1958
+wattage: 40
+tubes: [12AY7, 12AX7, 12AX7, 5881, 5881, "83"]
+topology:
+  rectifier: { kind: tube, type: "83" }
+  bias: fixed
+  phase_inverter: long-tailed-pair
+  tone_stack: cathode-follower-fmv
+lineage:
+  derived_from: []          # the 5E6-series Bassman is the direct ancestor — edge added when that circuit lands
+  influenced: ["5f6a"]      # the 5F6-A is this circuit's direct revision
+sources:
+  - desc: "Fender 'Bassman' Model 5F6 drawing (F-EG): every component value AND the printed voltage chart read directly from the published schematic (2026-08-02) — 12AY7 two-channel front end (68k stoppers, 1M leaks, 100k plates, shared 820Ω/250µF cathode), 12AX7 gain stage (100k plate, 820Ω/25µF cathode) direct-coupled to a cathode follower (100k load) feeding the treble/middle/bass stack (56k slope, 250 pF, 2×0.02 µF; 250k/1M/25k pots) whose ground leg runs through the 5 kΩ presence control, 12AX7 long-tailed-pair PI (82k/100k 5% plates, 470Ω + 10k tail to ground, 1M leaks to the tail junction, 47 pF across the plates), 5881 pair fixed-biased at −48 V through 220k leaks with 1500Ω grid stoppers and 100Ω screen resistors, and an 83 mercury-vapour rectifier; rails +432/+430/+385/+325, PT 8087, choke 14684, OT 45249. Not reproduced here; archived at EL34World"
+    url: "https://el34world.com/charts/Schematics/files/Fender/Fender_bassman_5f6.pdf"
+  - desc: "Fender 'Bassman' Model 5F6-A drawing (I-EG) — read side by side to establish exactly what the later revision changed: GZ34 in place of the 83, 470Ω 1W screen resistors in place of 100Ω, no output grid stoppers, and the presence control moved out of the tone-stack ground leg to the phase-inverter tail foot. Both drawings print the same rails, transformers and preamp values"
+    url: "https://el34world.com/charts/Schematics/files/Fender/Fender_bassman_5f6a.pdf"
+  - desc: "Fender 'Bassman' Model 5F6 layout drawing (F-EG), page 1 — the source for the board-layout diagram (amps/5f6/layout.svg): the order in which parts sit on the eyelet board AND the wiring layer (which eyelet each lead leaves, where it lands on the sockets, pots, jacks and transformers, and the marked lead colours — PT red/red-yellow HT, yellow 5 V rectifier filament, red-blue bias tap, green + green-yellow heaters; OT blue/brown plate + red centre tap + black/green secondary). The same sheet notes 1 W on both rail droppers and mounts the 1.5 kΩ output grid stoppers, the 100 Ω screen resistors and the 100 kΩ V2A plate load on the tube sockets rather than the board. Redrawn from the published facts, never traced"
+    url: "https://el34world.com/charts/Schematics/files/Fender/Fender_bassman_5f6.pdf"
+  - desc: "RCA type 83 data sheet, 7-63 — the mercury-vapour rectifier's characteristics and ratings, used for models/83.inc: tube voltage drop approximately 15 V, rated 225 mA d-c output, 1 A peak per plate, 1550 V peak inverse, condensed-mercury temperature 20–60 °C, 5.0 V / 3.0 A filament"
+    url: "https://frank.pocnet.net/sheets/049/8/83.pdf"
+  - desc: "General Electric type 83 data sheet, ET-T464, 2-47 — corroborates the RCA figures and states the design intent behind them: the tube supplies d-c current at essentially constant voltage in spite of rather wide variations in output current"
+    url: "https://frank.pocnet.net/sheets/093/8/83.pdf"
+  - desc: "Wikipedia, 'Fender Bassman' — dates the 5F6 to July 1957 and describes it as the revision built around a single 83 mercury-vapour rectifier with a new three-knob tone stack, superseded during 1958 by the 5F6-A, which changed the rectifier to a GZ34 and modified the presence circuit. Neither drawing prints a power rating; the 40 W figure here is the 5F6-A's, carried across because the two circuits share the power transformer (8087), choke (14684), output transformer (45249), 5881 pair, printed rails and printed bias voltage"
+    url: "https://en.wikipedia.org/wiki/Fender_Bassman"
+verification:
+  status: verified
+  date: 2026-08-02
+  max_deviation_pct: 9.6   # worst gated node (the 12AY7 plates, tol 20%); the two phase-inverter grid figures are disputed and excluded from gating, arithmetic given in notes.md — same treatment as 5f4 and jtm45
+contributors: [TheAnalogMaker]
