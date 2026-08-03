@@ -1,0 +1,604 @@
+---
+import Base from '../../../layouts/Base.astro';
+import { toneStackPresets, TONE_STACK_KINDS, displayId } from '../../../lib/corpus.js';
+import {
+  PLOT, plotX, plotY, curvePath, gridFrequencies, dbGridLines, hzLabel,
+  sweepFrequencies, summarise, midPositions, maxPositions, labelPlacement,
+} from '../../../lib/tonestack.js';
+
+// Every stack the corpus documents completely enough to plot — component values
+// read from each circuit's own bom.yaml at build time.
+const presets = toneStackPresets();
+const opening = presets[0];
+
+// The page ships a real curve in the HTML, drawn by the same code the browser
+// uses, so the figure is there before (and without) any script.
+const freqs = sweepFrequencies();
+const openPos = midPositions();
+const openRefPos = opening.kind === 'single-knob' ? { tone: 0 } : maxPositions();
+const openPath = curvePath(opening, openPos, freqs);
+const openRefPath = curvePath(opening, openRefPos, freqs);
+const openSummary = summarise(opening, openPos);
+
+const grid = gridFrequencies();
+const dbLines = dbGridLines();
+const PW = PLOT.w - PLOT.pad.l - PLOT.pad.r;
+const PH = PLOT.h - PLOT.pad.t - PLOT.pad.b;
+
+// Direct labels, placed by the shared helper the script also uses, so nothing
+// shifts when the page comes alive.
+const openLabels = labelPlacement(opening, openPos, openRefPos);
+
+const CONTROL_LABEL = { treble: 'Treble', mid: 'Middle', bass: 'Bass', tone: 'Tone' };
+
+// Human-readable resistance, in the archive's units style.
+function ohms(r) {
+  if (r >= 1e6) return `${round(r / 1e6)} MΩ`;
+  if (r >= 1e3) return `${round(r / 1e3)} kΩ`;
+  return `${round(r)} Ω`;
+}
+function round(x) {
+  return Math.abs(x - Math.round(x)) < 0.05 ? String(Math.round(x)) : x.toFixed(1);
+}
+
+const clientPresets = presets.map((p) => ({
+  id: p.id, kind: p.kind, label: p.label, style: p.style, blurb: p.blurb,
+  controls: p.controls, parts: p.parts,
+}));
+
+// Level shown with a true minus sign, matching the readout the script writes.
+const fmtDb = (db) => (db <= PLOT.dbBottom ? 'below −48' : (db < 0 ? '−' : '+') + Math.abs(db).toFixed(1));
+const openReadout = `${opening.label} · treble 5.0 · middle 5.0 · bass 5.0 — deepest cut `
+  + `${fmtDb(openSummary.minDb)} dB at ${Math.round(openSummary.minHz)} Hz.`
+  + ` 100 Hz ${fmtDb(openSummary.at100)} dB · 1 kHz ${fmtDb(openSummary.at1k)} dB`
+  + ` · 5 kHz ${fmtDb(openSummary.at5k)} dB.`;
+
+const description = 'An interactive frequency-response lab for the passive tone stacks of the tube-amp era — the three-knob FMV network, the two-knob treble/bass stack, and the single tweed tone control — plotted live from the analytic transfer function, with presets built from the real component values of every circuit in the archive.';
+---
+<Base title="Tone-stack lab: plot what the knobs do — Circuit Codex"
+      description={description}>
+<div class="wrap">
+  <header class="ghead">
+    <a class="back" href="/reference/">← Reference</a>
+    <div class="eyebrow">Interactive guide</div>
+    <h1>Tone-stack lab</h1>
+    <p class="lede">A guitar amp's tone controls are not an equaliser. They are a
+      single passive network sitting between two gain stages, throwing away part of
+      the signal on the way past — and the three knobs on the front panel are three
+      resistances inside one circuit, each of which changes what the other two do.
+      Move them here and watch the frequency response change.</p>
+  </header>
+
+  <section class="tool" id="lab" aria-labelledby="lab-h">
+    <h2 id="lab-h" class="tool-h">Frequency response</h2>
+
+    <nav class="presets" aria-label="Tone-stack presets">
+      {presets.map((p) => (
+        <a class="preset" href={`?preset=${p.id}#lab`} data-preset={p.id}
+           aria-current={p.id === opening.id ? 'true' : undefined}>
+          <span class="p-id">{p.label}</span>
+          <span class="p-kind">{TONE_STACK_KINDS[p.kind].label}</span>
+        </a>
+      ))}
+    </nav>
+
+    <p class="p-blurb" id="ts-blurb">{opening.blurb}</p>
+
+    <div class="controls" id="ts-controls">
+      {['treble', 'mid', 'bass', 'tone'].map((c) => (
+        <label class="ctl" data-ctl={c} hidden={!opening.controls.includes(c)}>
+          <span class="ctl-name">{CONTROL_LABEL[c]}</span>
+          <input type="range" id={`ts-${c}`} min="0" max="10" step="0.1" value="5"
+                 aria-label={CONTROL_LABEL[c]} aria-describedby="ts-readout" />
+          <output class="ctl-val" for={`ts-${c}`} id={`ts-${c}-val`}>5.0</output>
+        </label>
+      ))}
+    </div>
+
+    <ul class="legend" aria-hidden="true">
+      <li><span class="sw live"></span>This setting</li>
+      <li><span class="sw ref"></span><span id="ts-ref-name">Every control at 10</span></li>
+    </ul>
+
+    <div class="fig">
+      <svg class="chart" id="ts-chart" viewBox={`0 0 ${PLOT.w} ${PLOT.h}`}
+           role="img" aria-labelledby="ts-chart-title ts-chart-desc">
+        <title id="ts-chart-title">Frequency response of the {opening.label} tone stack,
+          10 Hz to 100 kHz</title>
+        <desc id="ts-chart-desc">A logarithmic frequency axis from 10 Hz to 100 kHz
+          against level in decibels. The numbers for the current setting are given in
+          the readout under the chart.</desc>
+
+        {grid.minor.map((f) => (
+          <line class="grid minor" x1={plotX(f)} x2={plotX(f)} y1={PLOT.pad.t} y2={PLOT.pad.t + PH} />
+        ))}
+        {grid.major.map((f) => (
+          <line class="grid" x1={plotX(f)} x2={plotX(f)} y1={PLOT.pad.t} y2={PLOT.pad.t + PH} />
+        ))}
+        {dbLines.map((db) => (
+          <line class="grid" x1={PLOT.pad.l} x2={PLOT.pad.l + PW} y1={plotY(db)} y2={plotY(db)} />
+        ))}
+        <line class="axis unity" x1={PLOT.pad.l} x2={PLOT.pad.l + PW} y1={plotY(0)} y2={plotY(0)} />
+        <line class="axis" x1={PLOT.pad.l} x2={PLOT.pad.l} y1={PLOT.pad.t} y2={PLOT.pad.t + PH} />
+        <line class="axis" x1={PLOT.pad.l} x2={PLOT.pad.l + PW} y1={PLOT.pad.t + PH} y2={PLOT.pad.t + PH} />
+
+        {grid.major.map((f) => (
+          <text class="tick" x={plotX(f)} y={PLOT.pad.t + PH + 20} text-anchor="middle">{hzLabel(f)}</text>
+        ))}
+        {dbLines.map((db) => (
+          <text class="tick" x={PLOT.pad.l - 10} y={plotY(db)} text-anchor="end"
+                dominant-baseline="central">{db > 0 ? `+${db}` : db}</text>
+        ))}
+        <text class="axis-label" x={PLOT.pad.l + PW / 2} y={PLOT.h - 8} text-anchor="middle">Frequency, Hz</text>
+        <text class="axis-label" x={-(PLOT.pad.t + PH / 2)} y="14" text-anchor="middle"
+              transform="rotate(-90)">Level, dB</text>
+
+        <path class="curve ref" id="ts-ref-curve" d={openRefPath} />
+        <path class="curve live" id="ts-live-curve" d={openPath} />
+
+        <text class="curve-label ref" id="ts-ref-label" x={openLabels.x} y={openLabels.yRef}
+              text-anchor={openLabels.anchor}>Every control at 10</text>
+        <text class="curve-label live" id="ts-live-label" x={openLabels.x} y={openLabels.yLive}
+              text-anchor={openLabels.anchor}>This setting</text>
+
+        <line id="ts-cross" class="cross is-off" x1="0" x2="0" y1={PLOT.pad.t} y2={PLOT.pad.t + PH} />
+        <circle id="ts-dot" class="hit-dot is-off" r="4.5" cx="0" cy="0" />
+        <rect id="ts-capture" class="capture" x={PLOT.pad.l} y={PLOT.pad.t} width={PW} height={PH} />
+      </svg>
+    </div>
+
+    <script type="application/json" id="ts-data" is:inline set:html={JSON.stringify(clientPresets)}></script>
+
+    <p class="readout" id="ts-readout" aria-live="polite">{openReadout}</p>
+    <p class="hover-readout" id="ts-hover" aria-hidden="true">Point at the chart to read a frequency.</p>
+    <noscript><p class="hover-readout">The chart above is the {opening.label} stack with
+      every control at 5, against the same stack with everything at 10. Moving the
+      controls needs JavaScript; the component values behind every preset are tabulated
+      further down this page.</p></noscript>
+  </section>
+
+  <section aria-labelledby="read-h">
+    <h2 id="read-h">Reading the curve</h2>
+    <div class="era">
+      <p>The vertical axis is level in decibels, referred to the signal arriving at the
+        network's input. Nothing here is an amplifier: a passive tone stack has no gain
+        of its own, so every curve on this page sits at or below the 0 dB line. What the
+        controls choose is <em>which</em> frequencies get thrown away and how much of
+        them — the stage after the stack then makes the level back up.</p>
+      <p><strong>The scoop is the point.</strong> Set a three-knob preset to five all
+        round and the curve sags in the middle, a broad dip several hundred hertz wide
+        with the bass climbing away below it and the treble climbing away above. That
+        dip is what people mean by a scooped midrange, and it is not a side-effect: it
+        is what happens when a bass path and a treble path are summed at one node with
+        nothing filling the gap between them. Pull the Middle control down and the dip
+        deepens into a proper notch; push it up and the notch fills, but never quite to
+        flat.</p>
+      <p><strong>Everything on 10 is not flat.</strong> Turn all three controls fully up
+        and the curve does not become a straight line — the dip is still there, only
+        shallower, and the whole response stays below 0 dB across the midrange. The
+        controls set where the network's three paths hand over to each other; they cannot
+        remove the hand-over. That is the reference curve drawn faintly behind every
+        setting, and it is the single most useful thing to know about these circuits: the
+        stack has a voice of its own that no knob position turns off.</p>
+      <p><strong>Insertion loss is real, and it is large.</strong> Look at where the
+        midrange sits on a three-knob preset — ten to twenty decibels down. The circuit
+        pays for the tone controls in level, which is exactly why these stacks are fed
+        from a <a href="/topology/tone-stack-cf-fmv/">cathode follower</a> and followed by
+        another gain stage. A designer who wanted a milder tone control could have one;
+        what these amps wanted was <em>range</em>, and range costs signal.</p>
+      <p><strong>The controls interact — and at the ends they collide.</strong> Take a
+        three-knob preset and set Bass and Middle both to zero. The curve drops off the
+        bottom of the chart. That is not a rounding error in the plot: with those two
+        controls at their stops the output node is wired straight to ground through the
+        remains of the network, and the amp goes nearly silent no matter where Treble
+        sits. Every player who has ever turned all three knobs down on a Bassman-derived
+        amp and got nothing has met this network's arithmetic first-hand.</p>
+    </div>
+  </section>
+
+  <section aria-labelledby="how-h">
+    <h2 id="how-h">How the network does it</h2>
+    <div class="era">
+      <p>Ignore the knobs for a moment and follow the signal. It arrives at one node and
+        leaves from another, and between them it can take three routes to the output.</p>
+      <p><strong>The treble route</strong> starts at a very small capacitor — 250 pF on
+        the tweed circuits, 270 pF and 500 pF on the British ones. A capacitor that small is close to
+        an open circuit at bass frequencies and close to a wire at treble, so this path
+        carries only the top end. It lands on the treble pot; the wiper decides how much
+        of that top end reaches the output and how much is bled away into the rest of the
+        network.</p>
+      <p><strong>The bass and mid routes</strong> both start behind the slope resistor —
+        the resistor between the input and the network's lower half, 33 kΩ to 100 kΩ
+        depending on the circuit. From there two much larger capacitors, in the tens of
+        nanofarads, feed the bass pot and the mid leg. Large capacitors pass low
+        frequencies happily, so this half of the network carries the body of the sound.
+        The slope resistor's job is to hold this whole lower half back relative to the
+        treble route: it sets the tilt of the curve, which is why changing it, as Marshall
+        did in going from 56 kΩ to 33 kΩ, changes the amp's whole character without moving
+        a single knob.</p>
+      <p><strong>The output is a junction, not a tap.</strong> The treble pot's wiper and
+        the bass pot's wiper meet at the same point, and that point is the stack's output.
+        This is the source of every interaction the controls have with one another: what
+        the Bass control does to that node changes the load the Treble control is working
+        into, and vice versa. There is no way to separate them, because electrically they
+        are the same node.</p>
+      <p><strong>The mid leg is the network's foot.</strong> Below the bass pot the
+        network runs to ground through whatever the circuit puts there. A three-knob stack
+        puts a small pot there — 25 kΩ, tiny beside the 1 MΩ bass pot — and that pot is
+        the Middle control. Fender's two-knob blackface circuit replaces it with a fixed
+        6.8 kΩ resistor; the tweed two-knob stack takes the foot straight to ground. The
+        two-knob circuits also do without the capacitor that feeds that leg. Those are the
+        only differences between the two families in this archive, which is why the lab
+        plots both from the same equations — and, as the next section shows, why the two
+        curves nonetheless part company so decisively.</p>
+    </div>
+  </section>
+
+  <section aria-labelledby="two-h">
+    <h2 id="two-h">Two knobs against three</h2>
+    <div class="era">
+      <p>Switch between a three-knob preset and a two-knob one and the difference in the
+        curve is larger than one missing control. The three-knob circuits carry a
+        capacitor on the mid leg as well as on the bass leg — two low-end paths down from
+        the slope resistor, arriving at the output node from different places. That second
+        path is what carves the notch: take it away and the same network tilts smoothly
+        from bass to treble instead of dipping in between. The two-knob circuits here
+        carry only the bass capacitor, and their curves show it.</p>
+      <p>The foot of the network is worth trying at the extremes, because the three
+        families end differently. Set a three-knob preset's Bass and Middle both to zero
+        and the output falls off the bottom of the chart — around 100 dB down, whatever
+        Treble is doing — because the output node is then tied to ground through what is
+        left of the network. The tweed two-knob stack does the same thing with Bass alone
+        at zero, since its mid leg is simply a wire to ground. The blackface two-knob
+        stack cannot: its 6.8 kΩ fixed leg holds the foot up, so both controls at zero
+        costs about 27 dB rather than everything. The resistor that sets that circuit's
+        fixed midrange is also the reason it never goes quiet.</p>
+      <p>The Middle control's authority is worth a moment too. On a three-knob preset with
+        Treble and Bass at five, moving Middle from 0 to 10 lifts the bottom of the notch
+        from about 27 dB down to about 10 dB down and walks it from roughly 950 Hz to
+        650 Hz. It is a real control — but it fills the dip rather than removing it, which
+        is why a three-knob amp still sounds like a three-knob amp with the Middle
+        buried.</p>
+    </div>
+  </section>
+
+  <section aria-labelledby="math-h">
+    <h2 id="math-h">Where the curve comes from</h2>
+    <div class="era">
+      <p>The curve is not sampled from a table or traced from a published plot. At each
+        of {freqs.length} frequencies across the sweep the network is solved from scratch
+        by nodal analysis: one Kirchhoff current-law equation per node, capacitors entered
+        as an admittance of <span class="m">jωC</span> and resistors as
+        <span class="m">1/R</span>, the driving stage entered as an ideal source behind
+        its own output resistance, and the resulting complex system solved for the voltage
+        at the output node. The wiper positions enter as two resistances per pot — the
+        track above the wiper and the track below it — which is why a control at either
+        stop behaves so differently from the same control near the middle.</p>
+      <p>Five assumptions are worth naming, because they are the difference between this
+        curve and a measurement at the back of a real amplifier:</p>
+      <ul class="assume">
+        <li><strong>The driving stage is a resistance.</strong> A cathode follower is
+          entered at roughly 1/g<sub>m</sub> of the driving triode; a plate is entered at
+          its plate resistance in parallel with its plate-load resistor. Both figures come
+          from the driving tube's published small-signal data and the circuit's own parts
+          list — for a 12AX7 that is about 625 Ω from a follower and 38 kΩ from a plate.
+          The difference matters: a stack fed from a plate is loaded by its own source in
+          a way a follower-fed stack is not.</li>
+        <li><strong>The output is loaded by one resistor</strong> — the grid leak or
+          volume pot the stack actually drives, again read from the parts list. The
+          following stage's input capacitance, and the Miller capacitance of the tube
+          behind it, are not modelled; both push the very top of the treble down a little
+          further than the plot shows.</li>
+        <li><strong>The slider is track, not dial.</strong> A control at 5 here means half
+          of the pot's resistance is in circuit. On a real amp with an audio-taper pot,
+          half the track arrives at around 7 on the printed dial — see the guide to
+          <a href="/reference/guides/pot-tapers/">potentiometer taper</a>, which classifies
+          every pot in the corpus from its own parts list.</li>
+        <li><strong>The parts are their marked values.</strong> Carbon-composition
+          resistors of the era were ±10% or ±20% parts, and the paper and mica capacitors
+          were no better; two amps off the same production line did not share this curve
+          exactly. Read the shape, not the third decimal place.</li>
+        <li><strong>This is the network alone.</strong> The speaker, the output
+          transformer, and every coupling capacitor elsewhere in the amp shape the sound
+          at least as much as the tone stack does, and none of them is in this plot.</li>
+      </ul>
+      <p class="cite">The solver behind the page was checked against an independent
+        ngspice AC sweep of the same network — the same simulator the archive uses to
+        verify every operating point — and agrees with it to within
+        5 × 10⁻⁵ dB across the sweep. For what a decibel is, see
+        <a href="/reference/guides/units-conventions/">units and notation</a>.</p>
+    </div>
+  </section>
+
+  <section aria-labelledby="corpus-h">
+    <h2 id="corpus-h">Every stack in the archive</h2>
+    <p class="sub">Each preset is built at deploy time from its circuit's own parts list —
+      the values below are the ones the plot uses, read straight from the archive. Load
+      one into the lab and the address bar keeps it, so a setting can be linked to
+      directly.</p>
+
+    {presets.map((p) => (
+      <div class="pcard">
+        <div class="pcard-head">
+          <a class="pcard-id" href={`?preset=${p.id}#lab`}>{p.label}</a>
+          <span class="pcard-style">{p.style} · {p.era.start}–{p.era.end}</span>
+          <span class="chip">{TONE_STACK_KINDS[p.kind].label}</span>
+          {p.topologyHref && <a class="chip" href={p.topologyHref}>topology ↗</a>}
+          <a class="chip" href={`/amps/${p.id}/`}>circuit ↗</a>
+        </div>
+        <p class="pcard-blurb">{p.blurb}</p>
+        <div class="tbl"><table>
+          <thead><tr><th>Ref</th><th>Part</th><th>Value</th><th>Position in the network</th></tr></thead>
+          <tbody>
+            {p.bill.map((b) => (
+              <tr>
+                <td style="color:var(--amber)">{b.ref}</td>
+                <td style="font-family:var(--body)">{b.part}</td>
+                <td>{b.value}</td>
+                <td style="font-family:var(--body);color:var(--faint)">{b.role}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table></div>
+        <p class="pcard-foot">
+          Driven from {p.drive.kind === 'cathode-follower' ? 'a cathode follower' : 'a plate'},
+          entered at {ohms(p.drive.ohms)}; loaded by {ohms(p.loadOhms)} ({p.loadRef}).
+          {p.midLeg === 'ground' && ' The mid leg runs straight to ground.'}
+          {p.midLeg === 'fixed' && ' The mid leg is a fixed resistor rather than a control.'}
+          {p.note && ` ${p.note}`}
+          {p.omits.length > 0 && ` Not modelled: ${p.omits.map((o) => `${o.ref} (${o.value}, ${o.role})`).join('; ')}.`}
+        </p>
+      </div>
+    ))}
+  </section>
+
+  <section aria-labelledby="one-h">
+    <h2 id="one-h">The one-knob tweed tone control</h2>
+    <div class="era">
+      <p>The small tweed amps carry a single Tone knob, and it is not a cut-down version
+        of the stacks above — it is a different circuit doing a different job. The pot is
+        wired as a rheostat, two terminals instead of three, in series with one small
+        capacitor from the signal line straight to ground. That branch is a variable
+        drain: at one end of the shaft the capacitor is bled to ground through the whole
+        million ohms of the track and almost nothing escapes; at the other the capacitor
+        sits directly across the signal and takes the treble with it.</p>
+      <p>Load the {displayId('5f2a')} preset and sweep the knob, and the network's real
+        character shows up immediately: almost the entire audible change is crowded into
+        the bottom of the travel. Above about 2 on the slider the bleed branch is a much
+        higher impedance than the stage driving it, so it does essentially nothing; below
+        that it takes over quickly. This is a genuine property of a 1 MΩ pot working
+        against a 0.005 µF capacitor and a plate of a few tens of kilohms, not a quirk of
+        the plot — and it is why a tweed tone control is so often described as doing
+        nothing until it is nearly off.</p>
+      <p>It is also why the driving impedance is not a detail here. The three-knob stacks
+        are fed from a follower stiff enough that the network barely loads it; this one is
+        fed from a plate, and the bleed works <em>against</em> that plate resistance. Take
+        the source impedance away and the control would do nothing at all.</p>
+      <p>Where each circuit sits on that ladder — no tone control, one knob, two, three —
+        is gathered on the <a href="/topology/">topology pages</a>.</p>
+    </div>
+  </section>
+</div>
+</Base>
+
+<script>
+  import {
+    PLOT, plotY, plotF, curvePath, sweepFrequencies, summarise, responseDb,
+    labelPlacement,
+  } from '../../../lib/tonestack.js';
+
+  const el = (id) => document.getElementById(id);
+  const dataNode = el('ts-data');
+  if (dataNode) {
+    const PRESETS = JSON.parse(dataNode.textContent);
+    const byId = new Map(PRESETS.map((p) => [p.id, p]));
+    const CONTROL_LABEL = { treble: 'Treble', mid: 'Middle', bass: 'Bass', tone: 'Tone' };
+    const FREQS = sweepFrequencies();
+
+    const chart = el('ts-chart');
+    const liveCurve = el('ts-live-curve');
+    const refCurve = el('ts-ref-curve');
+    const liveLabel = el('ts-live-label');
+    const refLabel = el('ts-ref-label');
+    const refName = el('ts-ref-name');
+    const readout = el('ts-readout');
+    const hover = el('ts-hover');
+    const blurb = el('ts-blurb');
+    const title = el('ts-chart-title');
+    const cross = el('ts-cross');
+    const dot = el('ts-dot');
+    const capture = el('ts-capture');
+
+    let preset = byId.get(new URLSearchParams(location.search).get('preset')) || PRESETS[0];
+    let pos = { treble: 0.5, mid: 0.5, bass: 0.5, tone: 0.5 };
+
+    const sliders = {};
+    for (const c of ['treble', 'mid', 'bass', 'tone']) {
+      const input = el('ts-' + c);
+      if (!input) continue;
+      sliders[c] = { input, out: el('ts-' + c + '-val'), row: input.closest('.ctl') };
+      input.addEventListener('input', () => {
+        pos[c] = Number(input.value) / 10;
+        render();
+      });
+    }
+
+    function refPositions() {
+      return preset.kind === 'single-knob'
+        ? { tone: 0 }
+        : { treble: 1, mid: 1, bass: 1, tone: 1 };
+    }
+    const refTitle = () => (preset.kind === 'single-knob' ? 'Tone at 0' : 'Every control at 10');
+
+    function fmt(db) {
+      return db <= -48 ? 'below −48' : (db < 0 ? '−' : '+') + Math.abs(db).toFixed(1);
+    }
+
+    function render() {
+      const refPos = refPositions();
+      liveCurve.setAttribute('d', curvePath(preset, pos, FREQS));
+      refCurve.setAttribute('d', curvePath(preset, refPos, FREQS));
+
+      // Direct labels, named where the two curves are furthest apart.
+      const lab = labelPlacement(preset, pos, refPos);
+      for (const [node, y] of [[liveLabel, lab.yLive], [refLabel, lab.yRef]]) {
+        node.setAttribute('x', lab.x.toFixed(1));
+        node.setAttribute('y', y.toFixed(1));
+        node.setAttribute('text-anchor', lab.anchor);
+      }
+      refLabel.textContent = refTitle();
+      refName.textContent = refTitle();
+
+      for (const c of Object.keys(sliders)) {
+        const on = preset.controls.includes(c);
+        sliders[c].row.hidden = !on;
+        sliders[c].input.disabled = !on;
+        sliders[c].out.textContent = (pos[c] * 10).toFixed(1);
+      }
+
+      const s = summarise(preset, pos);
+      const set = preset.controls
+        .map((c) => CONTROL_LABEL[c].toLowerCase() + ' ' + (pos[c] * 10).toFixed(1))
+        .join(' · ');
+      const deepest = s.interior
+        ? 'deepest cut ' + fmt(s.minDb) + ' dB at ' + Math.round(s.minHz) + ' Hz.'
+        : 'lowest point ' + fmt(s.minDb) + ' dB, at the '
+          + (s.minHz > 1000 ? 'top' : 'bottom') + ' of the sweep — no dip in between.';
+      readout.textContent = preset.label + ' · ' + set + ' — ' + deepest
+        + ' 100 Hz ' + fmt(s.at100) + ' dB · 1 kHz ' + fmt(s.at1k)
+        + ' dB · 5 kHz ' + fmt(s.at5k) + ' dB.';
+      blurb.textContent = preset.blurb || blurb.textContent;
+      title.textContent = 'Frequency response of the ' + preset.label
+        + ' tone stack, 10 Hz to 100 kHz';
+
+      for (const a of document.querySelectorAll('.preset')) {
+        if (a.dataset.preset === preset.id) a.setAttribute('aria-current', 'true');
+        else a.removeAttribute('aria-current');
+      }
+    }
+
+    for (const a of document.querySelectorAll('.preset')) {
+      a.addEventListener('click', (e) => {
+        const next = byId.get(a.dataset.preset);
+        if (!next) return;
+        e.preventDefault();
+        preset = next;
+        pos = { treble: 0.5, mid: 0.5, bass: 0.5, tone: 0.5 };
+        for (const c of Object.keys(sliders)) sliders[c].input.value = '5';
+        history.replaceState(null, '', '?preset=' + preset.id + '#lab');
+        render();
+      });
+    }
+
+    // Pointer read-off across the plot.
+    function readAt(clientX) {
+      const rect = chart.getBoundingClientRect();
+      const x = PLOT.pad.l + Math.min(
+        PLOT.w - PLOT.pad.l - PLOT.pad.r,
+        Math.max(0, ((clientX - rect.left) * (PLOT.w / rect.width)) - PLOT.pad.l),
+      );
+      const f = plotF(x);
+      const db = responseDb(preset, pos, f);
+      cross.setAttribute('x1', x.toFixed(1));
+      cross.setAttribute('x2', x.toFixed(1));
+      dot.setAttribute('cx', x.toFixed(1));
+      dot.setAttribute('cy', plotY(db).toFixed(1));
+      cross.classList.remove('is-off');
+      dot.classList.remove('is-off');
+      const hz = f >= 1000 ? (f / 1000).toFixed(2) + ' kHz' : Math.round(f) + ' Hz';
+      hover.textContent = 'At ' + hz + ': ' + fmt(db) + ' dB.';
+    }
+    capture.addEventListener('pointermove', (e) => readAt(e.clientX));
+    capture.addEventListener('pointerdown', (e) => readAt(e.clientX));
+    capture.addEventListener('pointerleave', () => {
+      cross.classList.add('is-off');
+      dot.classList.add('is-off');
+      hover.textContent = 'Point at the chart to read a frequency.';
+    });
+
+    render();
+  }
+</script>
+
+<style>
+  .ghead { padding: 44px 0 8px; }
+  .back { font-family: var(--disp); text-transform: uppercase; letter-spacing: .14em; font-size: 11.5px; color: var(--muted); }
+  .eyebrow { font-family: var(--disp); text-transform: uppercase; letter-spacing: .26em; font-size: 12px; color: var(--amber); margin-top: 14px; }
+  h1 { font-size: clamp(28px, 4.5vw, 42px); line-height: 1.12; margin: 8px 0 12px; }
+  .lede { max-width: 64ch; color: var(--muted); font-size: 16.5px; margin: 0; }
+  section { margin-top: 44px; }
+  h2 { font-size: 18px; letter-spacing: .14em; margin: 24px 0 4px; }
+  .sub { color: var(--muted); font-size: 14px; margin: 0 0 18px; max-width: 78ch; line-height: 1.6; }
+
+  /* ---- lab ---- */
+  .tool { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 18px 20px 20px; scroll-margin-top: 72px; }
+  .tool-h { margin: 0 0 12px; font-size: 12.5px; letter-spacing: .2em; color: var(--faint); }
+
+  .presets { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+  .preset { display: flex; flex-direction: column; gap: 1px; border: 1px solid var(--line); border-radius: 7px; padding: 6px 12px 7px; color: var(--muted); background: var(--well); }
+  .preset:hover { border-color: var(--amber-dim); text-decoration: none; }
+  .preset[aria-current] { border-color: var(--amber); background: #251c13; }
+  .preset .p-id { font-family: var(--disp); text-transform: uppercase; letter-spacing: .08em; font-size: 14px; color: var(--ink); }
+  .preset[aria-current] .p-id { color: var(--amber); }
+  .preset .p-kind { font-size: 10.5px; color: var(--faint); letter-spacing: .04em; }
+
+  .p-blurb { color: var(--muted); font-size: 13.5px; margin: 0 0 14px; max-width: 72ch; line-height: 1.55; }
+
+  .controls { display: flex; flex-wrap: wrap; gap: 10px 26px; margin-bottom: 10px; }
+  .ctl { display: flex; align-items: center; gap: 10px; }
+  .ctl[hidden] { display: none; }
+  .ctl-name { font-family: var(--disp); text-transform: uppercase; letter-spacing: .12em; font-size: 11px; color: var(--faint); min-width: 5.2em; }
+  .ctl input[type="range"] { width: 156px; accent-color: var(--amber); }
+  .ctl-val { font-family: var(--mono); font-variant-numeric: tabular-nums; font-size: 14px; color: var(--ink); min-width: 2.6em; text-align: right; }
+
+  .legend { list-style: none; display: flex; gap: 18px; margin: 6px 2px 10px; padding: 0; flex-wrap: wrap; }
+  .legend li { display: flex; align-items: center; gap: 8px; font-family: var(--disp); text-transform: uppercase; letter-spacing: .08em; font-size: 11px; color: var(--muted); }
+  .legend .sw { display: inline-block; width: 20px; height: 0; border-top-width: 2.5px; border-top-style: solid; }
+  .legend .sw.live { border-color: var(--amber); }
+  .legend .sw.ref { border-top-style: dashed; border-color: var(--muted); }
+
+  .fig { background: var(--well); border: 1px solid var(--line-soft); border-radius: 8px; padding: 8px 10px; }
+  .chart { display: block; width: 100%; height: auto; }
+
+  .grid { stroke: var(--line-soft); stroke-width: 1; }
+  .grid.minor { stroke: #221b15; }
+  .axis { stroke: var(--line); stroke-width: 1.3; }
+  .axis.unity { stroke: var(--faint); stroke-width: 1.2; }
+  .tick { font-family: var(--mono); font-variant-numeric: tabular-nums; font-size: 10.5px; fill: var(--faint); }
+  .axis-label { font-family: var(--disp); text-transform: uppercase; letter-spacing: .1em; font-size: 10.5px; fill: var(--faint); }
+
+  .curve { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+  .curve.live { stroke: var(--amber); stroke-width: 2.5; }
+  .curve.ref { stroke: var(--muted); stroke-width: 1.6; stroke-dasharray: 6 5; opacity: .8; }
+  .curve-label { font-family: var(--disp); text-transform: uppercase; letter-spacing: .08em; font-size: 11.5px; }
+  .curve-label.live { fill: var(--amber); }
+  .curve-label.ref { fill: var(--muted); }
+
+  .is-off { display: none; }
+  .cross { stroke: var(--ink); stroke-width: 1; stroke-dasharray: 2 3; opacity: .5; pointer-events: none; }
+  .hit-dot { fill: var(--amber); stroke: #171310; stroke-width: 1.5; pointer-events: none; }
+  .capture { fill: transparent; cursor: crosshair; touch-action: pan-y; }
+
+  .readout { min-height: 1.4em; margin: 14px 2px 2px; font-family: var(--mono); font-variant-numeric: tabular-nums; font-size: 13px; color: var(--ink); line-height: 1.6; }
+  .hover-readout { margin: 4px 2px 0; font-family: var(--mono); font-variant-numeric: tabular-nums; font-size: 12.5px; color: var(--faint); }
+
+  /* ---- prose ---- */
+  .era p { color: var(--muted); font-size: 15px; line-height: 1.7; max-width: 76ch; margin: 0 0 14px; }
+  .era p:last-child { margin-bottom: 0; }
+  .era strong { color: var(--ink); }
+  .era em { font-style: italic; color: var(--ink); }
+  .era .cite { font-size: 12.5px; color: var(--faint); max-width: 82ch; }
+  .m { font-family: var(--mono); color: var(--ink); font-size: 13px; }
+  .assume { max-width: 76ch; margin: 0 0 14px; padding-left: 18px; }
+  .assume li { color: var(--muted); font-size: 14.5px; line-height: 1.65; margin-bottom: 9px; }
+  .assume strong { color: var(--ink); }
+
+  /* ---- preset cards ---- */
+  .pcard { border: 1px solid var(--line); border-radius: 9px; padding: 14px 16px 16px; margin-bottom: 16px; background: var(--panel); }
+  .pcard-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin-bottom: 4px; }
+  .pcard-id { font-family: var(--disp); text-transform: uppercase; letter-spacing: .06em; font-size: 20px; color: var(--amber); }
+  .pcard-style { color: var(--muted); font-size: 13px; margin-right: auto; }
+  .pcard-blurb { color: var(--muted); font-size: 13.5px; margin: 0 0 12px; max-width: 74ch; }
+  .pcard-foot { color: var(--faint); font-size: 12.5px; margin: 10px 0 0; max-width: 84ch; line-height: 1.6; }
+  a.chip:hover { border-color: var(--amber-dim); color: var(--amber); text-decoration: none; }
+</style>
