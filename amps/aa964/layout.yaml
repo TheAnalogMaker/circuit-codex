@@ -1,0 +1,240 @@
+# Board layout — redrawn from the published Fender AA964 Princeton-Amp layout
+# drawing. Part refs are the shared key into bom.yaml; the renderer reads each
+# value and part type from there. A legible, schematic-style redraw of the
+# board's principal components in the order the drawing shows them — never a
+# trace or a dimensioned reproduction.
+#
+# The board reads left→right: the dropper chain at the left end beside the
+# multi-section filter can, then the output-tube couplers and grid leaks, the
+# cathodyne inverter, the tremolo oscillator's phase-shift network, the feedback
+# tail and second-stage cathode, the two plate loads, the treble/bass tone stack
+# and finally the first stage's cathode pair — matching the tube row on the
+# drawing (GZ34 · 6V6GT · 6V6GT · 12AX7 · 7025).
+#
+# Machine-checked equivalence: the point-to-point wiring drawn below has been
+# verified electrically equivalent to the simulated netlist (netlist.cir) by
+# pipeline/verify_layout_nets.py — see the net_map block at the foot of this
+# file and docs/layout-schema.md. Heaters, the pilot lamp, the tremolo
+# oscillator's own network and the PT/rectifier AC side are an excluded
+# annotation layer (not in netlist.cir).
+wiring_claim: verified
+
+board:
+  rows: 2
+  cols: 66
+  title: "AA964 · eyelet board layout"
+caption: "Redrawn from the published Fender AA964 Princeton-Amp layout drawing — principal board components, in the order the drawing shows them. The four 20 µF · 450 V filter sections and the third 18 kΩ dropper are chassis-mounted at the multi-section can and are drawn as off-board parts; the tone, volume, Speed and Intensity networks mount at their pots; the negative-bias supply sits on its own terminal strip (drawn on the schematic, not here); the 68 kΩ input stoppers and the 1 MΩ grid leak mount at the input jacks. The 6.3 V heater chain (green twisted pair, PT → pilot lamp → the two 6V6GT output tubes → the 12AX7 → the 7025) is drawn in the standard socket order — the sheet marks the pair only as \"to all 6.3 volt heaters\" and does not draw the daisy chain. The GZ34 rectifier is indirectly heated from the 5 V winding and off the 6.3 V chain. The output transformer is not drawn as its own symbol on this sheet (only the power transformer is), so its position here is a placement for legibility; its wiring follows the schematic. Not a trace or a dimensioned reproduction."
+source:
+  desc: "Fender 'Princeton-Amp AA964' layout drawing (L-FD)"
+  url: "https://el34world.com/charts/Schematics/files/Fender/Fender_princeton_AA964_layout.pdf"
+
+parts:
+  # --- dropper chain at the left end, beside the chassis-mounted filter can ---
+  - { ref: RD1, a: [0, 2], b: [0, 4] }     # 1k-1W  +420 (BP1) → +415 screen rail (BA)
+  - { ref: RD2, a: [0, 4], b: [0, 6] }     # 18k-1W +415 (BA) → +370 filter node (BINT)
+  # --- output stage: inverter couplers + 6V6 grid leaks onto the -34 V line ---
+  - { ref: C1,   a: [0, 17], b: [0, 18] }  # 0.1µF inverter plate → V3 grid (PPI→G61)
+  - { ref: RGL1, a: [0, 18], b: [1, 18], nudge: [4, 22] }  # 220k 5% V3 grid leak (G61→ -34V), shares G61
+  - { ref: C2,   a: [0, 21], b: [0, 22] }  # 0.1µF inverter cathode → V4 grid (KPI→G62)
+  - { ref: RGL2, a: [0, 22], b: [1, 22], nudge: [4, 22] }  # 220k 5% V4 grid leak (G62→ -34V), shares G62
+  # --- cathodyne phase inverter (V2B half) ---
+  - { ref: RLPI,  a: [0, 25], b: [0, 26] } # 56k plate load (BB→PPI)
+  - { ref: RGPI,  a: [0, 28], b: [0, 29], value_nudge: [-10, 0] } # 1M grid leak returned to the tail junction
+  - { ref: RTAIL, a: [0, 29], b: [1, 29] } # 56k tail (JPI→0), shares JPI
+  - { ref: RKPI,  a: [0, 29], b: [0, 30], value_nudge: [10, 0] } # 1k cathode resistor (JPI→KPI), shares JPI
+  # --- tremolo oscillator network (V2A half) — annotation layer ---
+  - { ref: RTO,    a: [0, 33], b: [1, 33] } # 220k oscillator plate load off the screen rail
+  - { ref: RTOUT,  a: [1, 33], b: [1, 34], nudge: [-20, 0] } # 1M output series resistor
+  - { ref: CTOUT1, a: [1, 34], b: [1, 35], nudge: [18, 0] } # 0.02µF output shunt to ground
+  - { ref: CTOUT2, a: [0, 34], b: [0, 35] } # 0.1µF into the Intensity control
+  - { ref: CTO1,   a: [0, 37], b: [0, 38], value_nudge: [-20, 24] } # 0.02µF plate → first phase-shift node
+  - { ref: CTO2,   a: [0, 38], b: [0, 39], value_nudge: [-4, 0] } # 0.01µF second section
+  - { ref: CTO3,   a: [0, 39], b: [0, 40], value_nudge: [18, 0] } # 0.01µF third section, to the grid
+  - { ref: RTO1,   a: [0, 39], b: [1, 39], nudge: [-40, 6] } # 1M returned to the oscillator cathode
+  - { ref: RTO2,   a: [0, 40], b: [1, 40], nudge: [4, 4] } # 1M grid to ground
+  - { ref: RKTO,   a: [1, 39], b: [1, 38], value_nudge: [-8, 0] } # 3.3k oscillator cathode bias
+  - { ref: CKTO,   a: [1, 41], b: [1, 42], nudge: [18, 22] } # 25µF oscillator cathode bypass
+  # --- feedback tail and the second stage's cathode (V1B half) ---
+  - { ref: RNFB, a: [1, 45], b: [1, 46] }  # 2.7k negative feedback, speaker → tail (J1B)
+  - { ref: CK1B, a: [0, 46], b: [1, 46] }  # 25µF cathode bypass (K1B→J1B)
+  - { ref: RK1B, a: [0, 48], b: [1, 48] }  # 1.5k cathode resistor (K1B→J1B)
+  - { ref: R47,  a: [1, 48], b: [1, 49] }  # 47Ω feedback tail (J1B→0), shares J1B
+  # --- second-stage coupler and the two plate loads off the shared +290 eyelet ---
+  - { ref: CC1,  a: [0, 52], b: [0, 53], value_nudge: [-14, 0] }  # 0.022µF V1B plate → inverter grid (P1B→GPI)
+  - { ref: RL1B, a: [0, 54], b: [0, 53], value_nudge: [-6, 24] }  # 100k V1B plate load (BB→P1B), shares P1B
+  - { ref: RL1A, a: [0, 54], b: [0, 55] }  # 100k V1A plate load (BB→P1A), shares the BB eyelet
+  # --- treble / bass tone stack ---
+  - { ref: CT,  a: [0, 55], b: [0, 56], value_nudge: [8, 24] }   # 250pF treble cap off the V1A plate
+  - { ref: RS,  a: [1, 55], b: [1, 56] }   # 100k slope resistor
+  - { ref: CB1, a: [1, 56], b: [1, 57], value_nudge: [8, 22] }   # 0.1µF to the treble/bass junction
+  - { ref: CB2, a: [0, 58], b: [0, 59] }   # 0.047µF to the bass pot's lower end
+  - { ref: RBL, a: [0, 59], b: [1, 59], nudge: [-6, 18] }   # 6.8k bleed to ground
+  # --- first stage cathode (V1A half) ---
+  - { ref: RK1A, a: [0, 62], b: [1, 62] }  # 1.5k cathode resistor (K1A→0)
+  - { ref: CK1A, a: [0, 64], b: [1, 64] }  # 25µF cathode bypass (K1A→0)
+
+offboard:
+  - { id: TR1, ref: TR1, kind: xfmr, edge: left,   at: 0.45, label: "Power trans" }
+  - { id: PL1, kind: part, glyph: lamp, edge: left, at: 1.5, label: "Pilot lamp" }
+  # the four filter sections + the third dropper live at the chassis-mounted can
+  - { id: CA,  ref: CA,  kind: part, edge: bottom, at: 1.0, label: "Can +420" }
+  - { id: CB,  ref: CB,  kind: part, edge: bottom, at: 3.0, label: "Can +415" }
+  - { id: CC,  ref: CC,  kind: part, edge: bottom, at: 5.0, label: "Can +370" }
+  - { id: RD3, ref: RD3, kind: part, edge: bottom, at: 7.0, label: "Dropper" }
+  - { id: CD,  ref: CD,  kind: part, edge: bottom, at: 9.0, label: "Can +290" }
+  - { id: V5,  ref: V5,  kind: tube, edge: bottom, at: 12,   label: "V5 · GZ34" }
+  - { id: V3,  ref: V3,  kind: tube, edge: bottom, at: 17,   label: "V3 · 6V6GT" }
+  - { id: TR2, ref: TR2, kind: xfmr, edge: top,    at: 19.5, label: "Output trans" }
+  - { id: V4,  ref: V4,  kind: tube, edge: bottom, at: 21.5, label: "V4 · 6V6GT" }
+  - { id: V2,  ref: V2,  kind: tube, edge: bottom, at: 31.5, label: "V2 · 12AX7" }
+  - { id: VRINT, ref: VRINT, kind: pot, edge: top, at: 35,   label: "Intensity" }
+  - { id: VRSPD, ref: VRSPD, kind: pot, edge: top, at: 38,   label: "Speed" }
+  - { id: RSPD,  ref: RSPD,  kind: part, edge: top, at: 41.5, label: "Speed series R" }
+  - { id: JVIB, kind: jack, edge: bottom, at: 36.9, label: "Vibrato pedal" }
+  - { id: SPK,  ref: JSPK, kind: jack, edge: bottom, at: 45, label: "Spkr" }
+  - { id: VRV, ref: VRV, kind: pot, edge: top, at: 51,   label: "Volume" }
+  - { id: VRT, ref: VRT, kind: pot, edge: top, at: 56.5, label: "Treble" }
+  - { id: VRB, ref: VRB, kind: pot, edge: top, at: 60.5, label: "Bass" }
+  - { id: V1,  ref: V1,  kind: tube, edge: bottom, at: 60,  label: "V1 · 7025" }
+  - { id: JIN, kind: jack, edge: top, at: 65, label: "Instr in" }
+
+# Ground bus — the bare rail just below the bottom eyelet row; cathode, filter,
+# grid-leak, bleed and pot grounds tie to it.
+bus:
+  - { from: [1.45, -0.5], to: [1.45, 65.5] }
+
+runs:
+  # === PT → GZ34 rectifier → reservoir (annotation layer) =====================
+  # Each of the seven stacked PT pigtails leaves horizontally on its own row and
+  # dives in its own column into its own deep lane, so no two read as one wire.
+  - { from: TR1.red1, to: V5.pin4, via: [[-0.85, 0.26], [-0.85, 2.3], [10.0, 2.3], [10.0, 1.666], [11.563, 1.666]] }
+  - { from: TR1.red2, to: V5.pin6, via: [[-0.45, 0.32], [-0.45, 3.2], [14.4, 3.2], [14.4, 1.84], [13.106, 1.84]] }
+  - { from: TR1.red-yellow, to: [1.45, 0.6], via: [[-0.65, 0.386]] }        # HT centre tap → ground
+  - { from: TR1.yellow1, to: V5.pin2, via: [[-1.25, 0.45], [-1.25, 3.45], [9.4, 3.45], [10.742, 2.107]] }
+  - { from: TR1.yellow2, to: V5.pin8, via: [[-1.6, 0.513], [-1.6, 3.7], [11.95, 3.7], [11.9, 2.5]] }
+  - { from: V5.pin8, to: CA.a, color: red, via: [[13.3, 2.45], [13.3, 2.95], [0.7, 2.95]] }
+
+  # === filter can + the dropper chain =========================================
+  - { from: CA.a, to: RD1.a }                                             # reservoir → +420 eyelet
+  - { from: CB.a, to: RD1.b }                                             # screen-rail section
+  - { from: CC.a, to: RD2.b }                                             # +370 section
+  - { from: RD3.a, to: CC.a, via: [[6.7, 2.55], [5.1, 2.55]] }            # third dropper, at the can
+  - { from: RD3.b, to: CD.a, via: [[7.5, 2.75], [8.9, 2.75]] }
+  - { from: CD.a, to: [0, 8], color: red, via: [[9.0, 1.5]] }            # +290 onto the board
+  - { from: CA.b, to: [1.45, 1.4] }
+  - { from: CB.b, to: [1.45, 3.4] }
+  - { from: CC.b, to: [1.45, 5.4] }
+  - { from: CD.b, to: [1.45, 9.4] }
+
+  # === +290 (BB) backbone: board lead-in → inverter plate load → plate loads ===
+  - { from: [0, 8], to: RLPI.a, color: red, via: [[9.2, 0.35], [10.6, 0.35], [10.6, 3.1], [24.2, 3.1], [25.2, 0.5]] }
+  - { from: RLPI.a, to: RL1B.a, color: red, via: [[25.8, 0.55], [26.6, 3.15], [53.2, 3.15], [54.2, 0.55]] }
+
+  # === +415 (BA) rail: 6V6 screens and the oscillator plate load ===============
+  - { from: RD1.b, to: V3.pin4, color: red, via: [[4.3, 0.5], [3.4, 2.85], [15.2, 2.85], [15.2, 1.666], [16.563, 1.666]] }
+  - { from: V3.pin4, to: V4.pin4, color: red, via: [[17.4, 1.3], [21.063, 1.666]] }
+  - { from: RD1.b, to: RTO.a, color: red, via: [[4.8, 0.35], [4.9, -0.45], [32.8, -0.45]] }
+
+  # === output transformer + speaker ===========================================
+  - { from: TR2.red, to: RD1.a, color: red, via: [[19.1, -0.72], [2.4, -0.72]] }   # primary centre tap
+  - { from: TR2.brown, to: V3.pin3, via: [[19.2, 0.4], [15.894, 1.84]] }
+  - { from: TR2.blue, to: V4.pin3, via: [[19.7, 0.7], [20.394, 1.84]] }
+  - { from: TR2.green, to: SPK.sleeve, via: [[21.2, -0.2], [22.9, -0.2], [22.9, 3.55], [44.2, 3.55]] }
+  - { from: TR2.black, to: SPK.tip, via: [[21.6, -0.62], [23.5, -0.62], [23.5, 3.78], [45.8, 3.78]] }
+  - { from: SPK.sleeve, to: [1.45, 43.8] }
+  - { from: RNFB.a, to: SPK.tip, via: [[45.9, 1.6]] }                     # 2.7k → speaker
+
+  # === output tubes: grids, cathodes ==========================================
+  - { from: C1.b, to: V3.pin5, via: [[18.7, 0.75], [18.5, 1.666], [17.437, 1.666]] }
+  - { from: C2.b, to: V4.pin5, via: [[21.4, 0.6], [21.937, 1.666]] }
+  - { from: V3.pin8, to: [1.45, 15.2], via: [[17.82, 2.341], [15.9, 2.24]] }
+  - { from: V4.pin8, to: [1.45, 19.7], via: [[22.32, 2.341], [20.4, 2.24]] }
+  - { from: RGL1.b, to: RGL2.b, via: [[18.6, 1.25], [21.4, 1.25]] }       # -34 V line across
+
+  # === cathodyne phase inverter (V2B) =========================================
+  - { from: RLPI.b, to: V2.pin6, via: [[26.4, 0.6], [26.9, 2.72], [33.2, 2.72], [33.2, 1.716], [32.25, 1.716]] }
+  - { from: RLPI.b, to: C1.a, via: [[26.0, -0.3], [17.0, -0.3]] }         # PPI → hot coupler
+  - { from: RGPI.a, to: V2.pin7, via: [[28.4, 0.9], [28.2, 2.52], [33.9, 2.52], [33.9, 1.916], [32.717, 1.916]] }
+  - { from: RKPI.b, to: V2.pin8, via: [[30.4, 1.15], [34.4, 2.16], [32.717, 2.16]] }
+  - { from: RKPI.b, to: C2.a, via: [[29.8, -0.5], [21.0, -0.5]] }         # KPI → cold coupler
+  - { from: RTAIL.b, to: [1.45, 29] }
+
+  # === tremolo oscillator (annotation layer) ==================================
+  - { from: RTO.b, to: V2.pin1, via: [[33.1, 1.45], [30.75, 2.36]] }      # plate → V2 pin 1
+  - { from: RTO.b, to: CTO1.a, via: [[33.5, 1.28], [36.3, 1.28], [36.8, 0.4]] }  # plate → ladder
+  - { from: CTOUT1.a, to: CTOUT2.a }                                      # output node (same column)
+  - { from: CTOUT1.b, to: [1.45, 35] }
+  - { from: CTOUT2.b, to: VRINT.lug1, via: [[35.0, -0.35], [34.45, -0.62]] }
+  - { from: CTO3.b, to: V2.pin2, via: [[40.3, 0.6], [40.9, 2.95], [29.2, 2.95], [30.283, 2.16]] }
+  - { from: RTO1.b, to: V2.pin3, via: [[38.6, 2.28], [29.6, 2.28], [29.6, 1.916], [30.283, 1.916]] }
+  - { from: RTO1.b, to: CKTO.a, via: [[39.4, 1.62], [40.6, 1.62]] }
+  - { from: RKTO.b, to: [1.45, 38] }
+  - { from: RTO2.b, to: [1.45, 40.3] }
+  - { from: CKTO.b, to: [1.45, 42] }
+  - { from: CTO1.b, to: VRSPD.lug1, via: [[38.0, -0.35], [37.45, -0.62]] }   # first node → Speed
+  - { from: VRSPD.lug2, to: VRSPD.lug1, via: [[38.0, -0.66], [37.0, -0.66], [37.2, -0.72]] }  # rheostat tie
+  - { from: VRSPD.lug3, to: RSPD.a, via: [[38.85, -0.62], [40.6, -0.62]] }
+  - { from: RSPD.b, to: [1.45, 43.2], via: [[42.4, -0.55], [43.2, 0.0]] }
+  - { from: CTO2.b, to: JVIB.tip, via: [[39.0, -0.4], [36.6, -0.4], [36.6, 1.75]] }  # footswitch shorts the ladder
+  - { from: JVIB.sleeve, to: [1.45, 37.6] }
+  # the Intensity wiper IS the -34 V bias line; it runs the length of the chassis
+  # in its own deep lane and rises to the grid-leak eyelet clear of both sockets.
+  - { from: VRINT.lug2, to: RGL1.b, via: [[35.4, -0.55], [35.6, 3.4], [18.7, 3.4], [18.7, 1.1]] }
+
+  # === second stage (V1B): cathode pair, feedback tail, coupler ===============
+  - { from: CK1B.a, to: RK1B.a, via: [[46.6, -0.35], [47.4, -0.35]] }     # K1B
+  - { from: CK1B.b, to: RK1B.b, via: [[46.6, 1.25], [47.4, 1.25]] }       # J1B
+  - { from: CK1B.a, to: V1.pin8, via: [[46.2, 0.55], [46.8, 3.55], [62.6, 3.55], [62.6, 2.16], [61.217, 2.16]] }
+  - { from: R47.b, to: [1.45, 49] }
+  - { from: CC1.a, to: RGPI.a, via: [[52.0, -0.78], [28.2, -0.78]] }      # coupler → inverter grid
+  - { from: RL1B.b, to: V1.pin6, via: [[53.2, 0.6], [54.0, 2.7], [62.0, 2.7], [62.0, 1.716], [60.75, 1.716]] }
+
+  # === tone stack + volume ====================================================
+  - { from: RL1A.b, to: RS.a }                                            # V1A plate onto the slope R
+  - { from: RL1A.b, to: V1.pin1, via: [[54.6, 0.5], [54.6, 2.45], [58.6, 2.45], [59.25, 2.36]] }
+  - { from: CT.b, to: VRT.lug1, via: [[55.95, -0.62]] }
+  - { from: CB1.b, to: VRT.lug3, via: [[57.4, 0.7], [57.4, -0.55], [57.06, -0.62]] }
+  - { from: CB1.b, to: VRB.lug1, via: [[57.9, 0.95], [59.9, 0.95], [59.94, -0.62]] }
+  - { from: CB2.a, to: CB1.a, via: [[58.4, 0.5], [57.7, 1.25], [56.35, 1.25]] }
+  - { from: CB2.b, to: VRB.lug3, via: [[59.5, -0.45], [60.5, -0.45], [60.55, -0.62]] }
+  - { from: VRB.lug2, to: VRB.lug3, via: [[60.5, -0.66], [61.25, -0.66], [61.1, -0.72]] }  # rheostat tie
+  - { from: RBL.b, to: [1.45, 58.6] }
+  - { from: VRT.lug2, to: VRV.lug1, via: [[56.5, -0.5], [51.0, -0.5], [50.65, -0.62]] }
+  - { from: VRV.lug3, to: [1.45, 50.6], via: [[51.35, -0.62], [51.6, 0.5]] }
+  - { from: VRV.lug2, to: V1.pin7, via: [[51.0, -0.35], [52.4, 0.9], [62.9, 0.9], [62.9, 1.916], [61.217, 1.916]] }
+
+  # === first stage (V1A): input jack, cathode pair ============================
+  - { from: JIN.tip, to: V1.pin2, via: [[64.4, -0.4], [64.4, 2.9], [57.0, 2.9], [58.783, 2.16]] }
+  - { from: JIN.sleeve, to: [1.45, 65.2] }
+  - { from: RK1A.a, to: CK1A.a, via: [[62.4, -0.35], [63.6, -0.35]] }     # K1A
+  - { from: RK1A.a, to: V1.pin3, via: [[62.2, 0.45], [57.7, 0.45], [57.7, 1.916], [58.783, 1.916]] }
+  - { from: RK1A.b, to: [1.45, 62] }
+  - { from: CK1A.b, to: [1.45, 64] }
+
+  # === 6.3 V heater chain (green twisted pair) ================================
+  # PT green pair → pilot lamp → V3 → V4 → V2 → V1, in the standard socket order
+  # (the GZ34 is indirectly heated from the 5 V winding and off this chain).
+  # Twisted runs land only on heater pins (6V6/octal 2 and 7; noval 4 and 5).
+  - { from: TR1.green, to: PL1.a, style: twisted }
+  - { from: PL1.b, to: V3.pin7, style: twisted, via: [[-1.2, 4.2], [18.26, 4.2]] }
+  - { from: V3.pin2, to: V4.pin7, style: twisted, via: [[15.74, 4.2], [22.76, 4.2]] }
+  - { from: V4.pin2, to: V2.pin4, style: twisted, via: [[20.24, 4.22], [30.75, 4.22]] }
+  - { from: V2.pin5, to: V1.pin4, style: twisted, via: [[31.5, 4.22], [59.25, 4.22]] }
+  - { from: V1.pin4, to: V1.pin5, style: twisted }
+  - { from: TR1.green-yellow, to: [1.45, -0.2], via: [[-0.15, 0.64]] }    # heater centre tap → ground
+
+# net_map — reviewable reconciliation of the drawn wiring with the DC netlist
+# (netlist.cir) for pipeline/verify_layout_nets.py. See docs/layout-schema.md.
+net_map:
+  anchors:
+    # The push-pull output transformer: the netlist omits winding DCR, so both
+    # plate leads and the centre tap collapse onto the +420 V reservoir node.
+    TR2.red:   BP1
+    TR2.brown: BP1
+    TR2.blue:  BP1
+    # Speaker jack — the OT secondary's DCR is folded into ground, which is the
+    # node the netlist gives the feedback resistor's speaker end.
+    SPK.tip: "0"
+  netlist_unplaced:
+    RG1A: "1 MΩ input grid leak — mounted at the input jacks, not on the eyelet board"
+    RG1B: "second-stage grid return — realised through the 1 MΩ volume control, not a discrete board resistor (G1B→0)"

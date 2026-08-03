@@ -1,0 +1,92 @@
+* AA964 (Blackface Princeton-style) — DC operating-point netlist
+* Circuit Codex — CC-BY-SA 4.0. Independently drawn from the published
+* "Princeton-Amp AA964" drawing's component values (see meta.yaml); no drawing
+* reproduced. The drawing labels the preamp bottle 7025 — an alias for the
+* 12AX7 (reference/tubes/12ax7.yaml also_known_as); both preamp stages and the
+* cathodyne phase inverter use the clean-room 12AX7 model.
+*
+* DC conventions. ONE rail is driven: BP1 = +420 V, the reservoir node feeding
+* the output-transformer centre tap and both 6V6 plates (OT primary DCR
+* omitted). Everything below it is DERIVED through the drawing's own dropper
+* chain — 1 k to the screen rail BA, then 18 k + 18 k to the preamp/inverter
+* rail BB — so the screen and preamp currents the model computes are what set
+* those two rails, and the printed +415 V / +290 V are a real check rather than
+* an input. BINT is the node between the two 18 k droppers; the drawing hangs
+* only a filter can there, so it carries no printed value.
+*
+* The fixed-bias supply (100 k feed, rectifier, 27 k, 25 uF-50 V can, and the
+* 250 k intensity control the tremolo injects through) is replaced by an ideal
+* -34 V source at its printed value. No DC flows in the intensity pot — the
+* oscillator reaches it through a DC-blocking 0.1 uF — so the control's setting
+* does not move the bias line, and the ideal source is exact in that role.
+*
+* The global negative-feedback resistor (2.7 k from the speaker, ~0 V DC) lands
+* on the junction of V1B's 1.5 k and its 47 ohm tail, so at DC it parallels that
+* 47 ohm; both are modelled. DC-open caps are MODELLED where BOTH leads land on
+* a named DC node (the two cathode bypasses, the V1B->inverter coupler, and the
+* inverter's two output couplers) so an eventual layout is placement-checked;
+* open at DC they move no operating point. Caps into the abstracted tone /
+* volume network stay omitted.
+*
+* EXCLUDED — the tremolo (vibrato) oscillator, the other half of the 12AX7
+* bottle. It is a running three-section phase-shift oscillator: its printed pins
+* (+260 V plate, +2.4 V cathode) are dynamic averages set by grid-leak
+* detection, not a static quiescent point, so it is documented in notes.md
+* rather than modelled. Its 220 k plate load returns to the driven screen rail
+* BA, and its output reaches the bias line only through a DC-blocking cap, so
+* the exclusion costs the solve nothing but the ~0.7 mA that load would draw
+* through the 1 k — under a volt on BA, well inside the rail target.
+.include models/12ax7.inc
+.include models/6v6gt.inc
+
+VBP1 BP1 0 DC 420
+VBIAS NBIAS 0 DC -34
+
+* --- supply chain: reservoir -> screens -> filtered preamp rail
+RD1 BP1 BA 1k
+RD2 BA BINT 18k
+RD3 BINT BB 18k
+
+* --- First stage V1A (12AX7): 100k plate load off BB, 1.5k cathode (25uF
+*     bypass), grid returned to ground through the input jacks' 1M leak.
+RL1A BB P1A 100k
+XV1A P1A G1A K1A 12AX7
+RG1A G1A 0 1meg
+RK1A K1A 0 1500
+CK1A K1A 0 25u
+
+* --- Second stage V1B (12AX7): 100k plate load off BB; cathode over 1.5k
+*     (25uF bypass) to the tail junction J1B, 47 ohm from there to ground, and
+*     the 2.7k negative-feedback resistor from the speaker returning to the same
+*     junction (~0 V DC, so it parallels the 47 ohm). Grid returns through the
+*     1M volume pot (~0 V DC).
+RL1B BB P1B 100k
+XV1B P1B G1B K1B 12AX7
+RG1B G1B 0 1meg
+RK1B K1B J1B 1500
+CK1B K1B J1B 25u
+R47 J1B 0 47
+RNFB J1B 0 2700
+
+* --- Cathodyne phase inverter V2B (12AX7): 56k plate load off BB; cathode
+*     through 1k to the junction JPI, 56k from JPI to ground, 1M grid leak
+*     returned to JPI. Equal-ish loads above the plate and below the cathode
+*     give the two opposite-phase drives.
+RLPI BB PPI 56k
+XV2B PPI GPI KPI 12AX7
+RKPI KPI JPI 1k
+RTAIL JPI 0 56k
+RGPI GPI JPI 1meg
+
+* --- Output pair 6V6GT (fixed bias): grids to -34 V through 220k 5% leaks,
+*     screens on BA with no stopper resistors, cathodes grounded, plates at BP1.
+RGL1 NBIAS G61 220k
+XV3 BP1 BA G61 0 6V6GT
+RGL2 NBIAS G62 220k
+XV4 BP1 BA G62 0 6V6GT
+
+* DC-open caps whose leads both land on named DC nodes (modelled so an eventual
+* layout's routing and push-pull phase are machine-checked; each is open at DC).
+CC1 P1B GPI 0.022u
+C1 PPI G61 0.1u
+C2 KPI G62 0.1u

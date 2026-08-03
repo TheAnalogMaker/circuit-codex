@@ -1,0 +1,26 @@
+# Printed voltage chart read directly from the published Princeton-Amp AA964
+# schematic (drawing 045419). The drawing's notice: "Voltages read to ground with
+# electronic voltmeter. Values shown + or - 20%."  Tube pins therefore get 20%;
+# the supply rails are held to a tighter internal target.
+#
+# One rail is DRIVEN — BP1 = +420 V at the reservoir, the output-transformer
+# centre tap and both 6V6 plates. The screen rail and the preamp/inverter rail
+# are DERIVED through the drawing's own 1 k and 18 k + 18 k droppers, so the
+# printed +415 V and +290 V are compared against a solved result rather than
+# supplied to it. The tremolo oscillator is excluded from the DC solution (see
+# notes.md); its plate load returns to the driven screen rail, so the exclusion
+# moves no gated node by more than a fraction of a volt.
+source: "Fender Princeton-Amp AA964 schematic, printed voltages: +420 (reservoir, OT centre tap, 6V6 plates), +415 (6V6 screens), +290 (preamp and phase-inverter rail), +190 (both 7025 plates), +1.5 (both 7025 cathodes), +220/+65/+63.8 (cathodyne plate, cathode, junction), +260/+2.4 (tremolo oscillator, excluded), -34 (6V6 fixed bias). The layout sheet adds +370 at the intermediate filter node."
+nodes:
+  BA:   { chart: 415, tol_pct: 8,  note: "6V6 screen rail, derived from +420 through the 1 kOhm-1W dropper" }
+  BB:   { chart: 290, tol_pct: 8,  note: "preamp and phase-inverter rail, derived through both 18 kOhm-1W droppers" }
+  P1A:  { chart: 190, tol_pct: 20, note: "first-stage plate, 100 kOhm from the +290 rail" }
+  K1A:  { chart: 1.5, tol_pct: 20, note: "first-stage cathode over 1.5 kOhm (25 uF bypass)" }
+  P1B:  { chart: 190, tol_pct: 20, note: "second-stage plate, 100 kOhm from the +290 rail" }
+  K1B:  { chart: 1.5, tol_pct: 20, note: "second-stage cathode pin, above the 1.5 kOhm; the 47 Ohm feedback tail and the 2.7 kOhm loop resistor sit below it" }
+  PPI:  { chart: 220, tol_pct: 20, note: "cathodyne plate, 56 kOhm load from the +290 rail" }
+  KPI:  { chart: 65,  tol_pct: 20, note: "cathodyne cathode pin, top of the 1 kOhm" }
+  JPI:  { chart: 63.8, tol_pct: 20, note: "cathodyne junction (1 kOhm / 56 kOhm), the grid-leak return" }
+  G61:  { chart: -34, tol_pct: 8,  note: "6V6 grids, fixed bias through the 220 kOhm leaks from the -34 V line" }
+  J1B:  { chart: null, note: "second-stage feedback tail (47 Ohm in parallel with the 2.7 kOhm loop resistor) — the drawing prints no value at this node" }
+  BINT: { chart: 370, tol_pct: 8, note: "node between the two 18 kOhm droppers. The schematic prints no value here, but the LAYOUT sheet labels this filter-can section +370 V — so this rail is compared, not merely reported" }

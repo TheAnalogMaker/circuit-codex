@@ -687,16 +687,34 @@ def _check_layout(amp_id: str, layout: dict, bom: dict, net_map=None,
     for bottle, secs in by_bottle.items():
         if bottle not in basing_inv:
             continue  # unresolved tube — accounted as a hard failure in _solve
-        units = sorted({u for (_r, u) in basing_inv[bottle] if u is not None})
-        if len(secs) > 1 and units:
-            secs_sorted = sorted(secs, key=lambda c: c.section or "")
-            perms = []
+        # HALF-BOTTLE / H9 (closed 2026-08-02, found while claiming the AA964):
+        # enumerate the half-assignment for EVERY multi-section bottle, including
+        # one whose netlist models only ONE of its two triode halves — the AA964's
+        # cathodyne, which shares a 12AX7 with an unmodelled tremolo oscillator;
+        # the AB763's normal-channel input stage. Gating this on len(secs) > 1
+        # left unit=None on those
+        # bottles, every (role, unit) basing lookup missed, no pin was anchored,
+        # and the socket's whole signal wiring went silently unchecked — a lead
+        # moved to a wrong pin passed, as did a stage wired ACROSS the two halves.
+        # The netlist does not say which half, so enumerate both and let the
+        # solver pick: whichever it is, all of a section's pins land on the SAME
+        # one. A candidate unit must carry EVERY role the netlist instance uses,
+        # so a numbered detector-diode plate (6AT6 pins 5/6, unit 1/2) is never
+        # mistaken for a triode half whose plate is the unnumbered pin 7.
+        needed = {r for c in secs for r in c.roles}
+        units = sorted({u for (_r, u) in basing_inv[bottle] if u is not None
+                        and all((role, u) in basing_inv[bottle] for role in needed)})
+        secs_sorted = sorted(secs, key=lambda c: c.section or "")
+        perms = []
+        if units:
             from itertools import permutations
             for perm in permutations(units, len(secs_sorted)):
                 perms.append(list(zip(secs_sorted, perm)))
-            choices.append((bottle, perms))
-        else:
-            choices.append((bottle, [[(s, None) for s in secs]]))
+        # No candidate half carries every role this bottle's sections need (or
+        # there are more sections than qualifying halves): fall back to the
+        # un-anchored assignment rather than leaving an EMPTY option list, which
+        # would silently collapse the product and leave the amp unsolved.
+        choices.append((bottle, perms or [[(s, None) for s in secs_sorted]]))
 
     option_lists = [opts for (_b, opts) in choices]
     best = None
@@ -1336,6 +1354,14 @@ def selftest() -> int:
             run["to"] = "C8.a"
     case("H6", "crossed PI outputs (C8/C9 plate feeds swapped)", "5f6a", m, b6a)
 
+    # ---- H9 a bottle whose netlist models only ONE of its two triode halves
+    #      (aa964's V2: the cathodyne is modelled, its tremolo-oscillator half is
+    #      not). Its half-assignment must still be enumerated, or no pin is
+    #      anchored and the whole socket's signal wiring goes unchecked. --------
+    laa, baa = _load_layout("aa964")
+    case("H9", "single-section bottle (aa964 V2B) plate moved to a wrong socket pin",
+         "aa964", _reroute(laa, "RLPI.b", "V2.pin6", new_to="V2.pin9"), baa)
+
     # ---- H7 a signal run relabelled style:twisted (would remove it from the
     #      equivalence check as a 'heater' run) — must land on heater pins ----
     m = copy.deepcopy(l5f1)
@@ -1504,9 +1530,22 @@ def selftest() -> int:
           f"RB1 on 'BP1': {'OK' if bias_surfaced else 'FAIL'}"
           + ("" if r_biaserr.ok else "  (+ raised a DIFF)"))
 
+    # ---- H9 false-positive guard: the half-enumeration must not mistake a
+    #      NUMBERED detector-diode plate for a triode half. The 6AT6 (5f10) keys
+    #      its two diode plates unit 1/2 while the triode plate is unnumbered, so
+    #      a naive unit list would anchor the plate to pin 6 and split the node.
+    #      A candidate unit must carry every role the netlist instance uses.
+    print("=== H9 single-section half-enumeration (no diode-plate false positive) ===")
+    l10, b10 = _load_layout("5f10")
+    r10 = _check_layout("5f10", l10, b10)
+    h9_fp_ok = r10.ok
+    print(f"  [H9] 6AT6 diode-plate units not mistaken for a triode half — "
+          f"5f10's correct wiring still PASSES: "
+          f"{'OK' if h9_fp_ok else 'FAIL ' + str(r10.errors[:2])}")
+
     unit_ok = all([h2_ok, h2b_ok, h3_ok, h3b_ok, h3c_ok, h3d_ok, h4_ok,
                    h8_red_ok, h8_con_ok, pp_base_ok, pp_break_caught,
-                   pot_surfaced, bias_surfaced])
+                   pot_surfaced, bias_surfaced, h9_fp_ok])
     all_ok = ok_mut and unit_ok
     print(f"\nselftest: {passed}/{n_mut} planted-fault mutations caught; "
           f"resolver/island/anchor unit checks {'all OK' if unit_ok else 'FAILED'}"

@@ -137,14 +137,18 @@ models:
     years: { start: 1964, end: 1968 }
     wattage: 12
     output: "push-pull 2x6V6GT"
-    tubes: [7025, 12AX7, 6V6GT, 6V6GT, 5Y3GT]
+    tubes: [7025, 12AX7, 6V6GT, 6V6GT, GZ34]
     key_change: >
       The push-pull Princeton in blackface trim, without reverb. Refines the 6G2
       platform — same fixed-bias 6V6 pair and tremolo — under the mid-1960s
-      cosmetic and circuit-numbering scheme.
-    circuit_ref: null
+      cosmetic and circuit-numbering scheme, with a GZ34 rectifier and a
+      cathodyne phase inverter sharing one 12AX7 with the tremolo oscillator.
+      The tremolo modulates the output tubes' bias line directly rather than
+      through the optocoupler the larger blackface amps use. This is the DC
+      signal path the corpus documents at circuit_ref aa964.
+    circuit_ref: "aa964"
     sources:
-      - desc: "EL34World schematic archive, Fender Princeton AA964 sheet (indexed by designation)"
+      - desc: "Fender Princeton-Amp AA964 published drawing (045419), read directly for values, tube complement and the printed voltage chart (archived at EL34World, indexed by designation)"
         url: "https://el34world.com/charts/Schematics/files/Fender/Fender_princeton_AA964_schem.pdf"
   - designation: "AA1164"
     name: "Princeton Reverb (blackface)"

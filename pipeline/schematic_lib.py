@@ -152,6 +152,36 @@ LIB = f"""  (lib_symbols
         {_pin("passive", 8.89, 5.08, 180, 2.54, "HT_A", "3")}
         {_pin("passive", 8.89, 0, 180, 2.54, "HT_CT", "4")}
         {_pin("passive", 8.89, -5.08, 180, 2.54, "HT_B", "5")}))
+    (symbol "cx:JACK" (pin_numbers hide) (pin_names hide) (in_bom yes) (on_board yes)
+      (property "Reference" "J" (at 3.81 5.08 0) {FONT})
+      (property "Value" "jack" (at 3.81 2.54 0) {FONT})
+      (symbol "JACK_0_1"
+        (circle (center 3.175 0) (radius 2.54) {_STROKE})
+        {_poly("(xy -2.54 2.54) (xy 0.635 2.54)")}
+        {_poly("(xy -2.54 -2.54) (xy 1.905 -2.54)")}
+        {_poly("(xy 1.905 -2.54) (xy 1.905 -1.016)")})
+      (symbol "JACK_1_1"
+        {_pin("passive", -5.08, 2.54, 0, 2.54, "T", "1")}
+        {_pin("passive", -5.08, -2.54, 0, 2.54, "S", "2")}))
+    (symbol "cx:SWITCH" (pin_numbers hide) (pin_names hide) (in_bom yes) (on_board yes)
+      (property "Reference" "SW" (at 0 4.445 0) {FONT})
+      (property "Value" "SW" (at 0 -4.445 0) {FONT})
+      (symbol "SWITCH_0_1"
+        (circle (center -2.54 0) (radius 0.635) {_STROKE})
+        (circle (center 2.54 0) (radius 0.635) {_STROKE})
+        {_poly("(xy -2.032 0.381) (xy 2.286 2.286)")})
+      (symbol "SWITCH_1_1"
+        {_pin("passive", -5.08, 0, 0, 1.905, "1", "1")}
+        {_pin("passive", 5.08, 0, 180, 1.905, "2", "2")}))
+    (symbol "cx:FUSE" (pin_numbers hide) (pin_names hide) (in_bom yes) (on_board yes)
+      (property "Reference" "F" (at 0 3.81 0) {FONT})
+      (property "Value" "fuse" (at 0 -3.81 0) {FONT})
+      (symbol "FUSE_0_1"
+        (rectangle (start -2.54 -1.016) (end 2.54 1.016) {_STROKE})
+        {_poly("(xy -2.54 0) (xy 2.54 0)")})
+      (symbol "FUSE_1_1"
+        {_pin("passive", -5.08, 0, 0, 2.54, "1", "1")}
+        {_pin("passive", 5.08, 0, 180, 2.54, "2", "2")}))
     (symbol "cx:OPTO" (pin_numbers hide) (pin_names hide) (in_bom yes) (on_board yes)
       (property "Reference" "U" (at 5.08 5.08 0) {FONT})
       (property "Value" "opto" (at 5.08 -5.08 0) {FONT})
@@ -261,6 +291,12 @@ class Sch:
         return {"pri1": (x - 8.89, y - 5.08), "pri2": (x - 8.89, y + 5.08),
                 "ht_a": (x + 8.89, y - 5.08), "ht_ct": (x + 8.89, y),
                 "ht_b": (x + 8.89, y + 5.08)}
+
+    def jack(self, ref: str, val: str, x: float, y: float,
+             lx: float = 3.0, ly: float = -6.6) -> dict:
+        """Quarter-inch jack: tip and sleeve contacts face left, body to the right."""
+        self.sym("JACK", ref, val, x, y, lx=lx, ly=ly)
+        return {"tip": (x - 5.08, y - 2.54), "sleeve": (x - 5.08, y + 2.54)}
 
     def opto(self, ref: str, val: str, x: float, y: float,
              lx: float = 4.4, ly: float = -8.0) -> dict:

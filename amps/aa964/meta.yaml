@@ -1,0 +1,29 @@
+# Circuit Codex metadata — schema: docs/schema.md (v1)
+id: "aa964"
+name_style: "Blackface Princeton-style"
+family: blackface
+era:
+  start: 1964
+  end: 1968
+wattage: 12
+tubes: [12AX7, 12AX7, 6V6GT, 6V6GT, GZ34]
+topology:
+  rectifier: { kind: tube, type: "GZ34" }
+  bias: fixed
+  phase_inverter: cathodyne
+  tone_stack: tb
+lineage:
+  derived_from: []   # the brownface 6G2 is the documented ancestor — edge lands when amps/6g2 does
+  influenced: []
+sources:
+  - desc: "Fender 'Princeton-Amp AA964' schematic (drawing 045419): every component value AND the printed voltage chart read directly from the published sheet (+420 V reservoir/OT centre tap and 6V6 plates, +415 V screens, +290 V preamp/inverter rail, +190 V both 7025 plates with +1.5 V cathodes, cathodyne +220 V plate / +65 V cathode / +63.8 V junction, tremolo oscillator +260 V plate and +2.4 V cathode, -34 V fixed bias; dropper chain 1 k-1 W then 18 k-1 W + 18 k-1 W with four 20 uF-450 V cans; cathodyne = 56 k plate load, 1 k cathode resistor to a 56 k tail, 1 M grid leak returned to that junction; 6V6 220 k 5% grid leaks and no screen stoppers; 2.7 k negative feedback from the speaker to the 47 ohm tail under V1B's 1.5 k cathode resistor; TR1 125P1B 340-0-340 V, TR2 125A10B). Notice: values +/-20%, read to ground with an electronic voltmeter, resistors 1/2 W 10% and capacitors 400 V unless marked. The preamp bottle is labelled 7025 (a 12AX7 alias). Not reproduced here; archived at EL34World"
+    url: "https://el34world.com/charts/Schematics/files/Fender/Fender_princeton_AA964_schem.pdf"
+  - desc: "Fender 'Princeton-Amp AA964' layout drawing (L-FD): the physical order of the board parts, the chassis-mounted multi-section filter can (four 20 uF-450 V sections at +420 / +415 / +370 / +290 V, with one 18 k-1 W dropper mounted at the can), the wire colours (PT red/red-yellow HT, yellow 5 V rectifier filament, green/green-yellow 6.3 V heaters; output transformer brown and blue to the 6V6 plates, red centre tap, green and black to the speaker jacks; blue to the vibrato-pedal jack), and the socket pin numbering read off the sheet. It prints +370 V at the filter node the schematic leaves unlabelled. Not reproduced here; archived at EL34World"
+    url: "https://el34world.com/charts/Schematics/files/Fender/Fender_princeton_AA964_layout.pdf"
+  - desc: "Wikipedia, Fender Princeton — the push-pull 6V6 Princeton's commonly cited 12 W rating (the drawing prints no output power)"
+    url: "https://en.wikipedia.org/wiki/Fender_Princeton"
+verification:
+  status: verified
+  date: 2026-08-02
+  max_deviation_pct: 5.5   # worst gated node (PPI, the cathodyne plate, tol 20%); rails inside 2.4%. The tremolo oscillator sharing V2 is a documented exclusion (see notes.md), reported not gated
+contributors: [TheAnalogMaker]

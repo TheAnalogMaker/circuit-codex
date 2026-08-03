@@ -362,6 +362,24 @@ A second, adversarial re-audit found three more escapes; each is now closed:
   point drift (`verify_amps` stays 8/0/0). Genuinely-abstracted networks stay
   excluded — but are now enumerated, not silent.
 
+#### Half-assignment hardening (2026-08-02) — H9
+
+Bringing **AA964** to green found one more escape. The section↔triode-half solver
+only enumerated the half-assignment for a bottle whose netlist models **both**
+sections; a bottle modelling only **one** half was left at `unit=None`, no pin
+resolved, and *none* of that socket's signal pins were anchored — so a lead moved
+to a wrong pin on it passed. The AA964's V2 is exactly that shape (the cathodyne
+half is modelled; its tremolo-oscillator half is the excluded one), and so is any
+single-triode channel input.
+
+The solver now enumerates the half for every multi-section bottle, one section or
+two. A candidate unit must carry **every role the netlist instance uses**, so a
+numbered detector-diode plate is never mistaken for a triode half — the 6AT6 in
+`amps/5f10` keys its two diode plates unit 1/2 while the triode plate is the
+unnumbered pin 7, and a naive unit list anchored the plate to pin 6 and split the
+node. `--selftest` carries both cases: the planted wrong-pin fault on AA964's V2
+must be CAUGHT, and 5f10's correct wiring must still PASS.
+
 ### Scope, printed honestly every run
 
 Heaters (twisted runs), the pilot lamp, and the PT / rectifier AC side are **not**
