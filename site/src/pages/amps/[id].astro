@@ -215,7 +215,7 @@ const jsonld = {
     <aside class="meta">
       <dl>
         <dt>Circuit</dt><dd>{displayId(amp.id)}</dd>
-        <dt>Family</dt><dd>{m.family}</dd>
+        {m.family !== 'other' && <><dt>Family</dt><dd>{m.family}</dd></>}
         {historyFamily && (
           <>
             <dt>Family line</dt>
