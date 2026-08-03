@@ -1,0 +1,23 @@
+# The published 5D3 schematic and layout sheets carry NO voltage chart — only
+# Fender's standard ±20 % measurement notice. The immediately preceding
+# wide-panel Deluxe, the 5C3, does print one, and the two circuits share the
+# power transformer class, 5Y3GT rectifier, 16/16/16 µF filter, both 10 kΩ
+# droppers and the 6V6GT output pair on its shared 250 Ω 5 W cathode. Only the
+# output-stage cathode transfers cleanly on that basis and is gated here; the
+# rails cannot, because the 5C3's preamp is a pair of 6SC7s drawing roughly two
+# thirds of what this circuit's 12AY7 + 12AX7 draw through the same droppers.
+# Every preamp node is therefore reported, never asserted, and the circuit is
+# published as a draft pending a chart measured on a 5D3 — see notes.md.
+source: "Fender 5C3 layout drawing's printed chart (+360 V reservoir, +308 V screens, +280 V preamp, +18 V across the 6V6 cathode resistor), used for the shared output stage only. B+1 driven at 360 V; every downstream node derived."
+nodes:
+  K66:  { chart: 18, tol_pct: 20, note: "shared 6V6GT cathode across 250 Ω 5 W — the one node the sibling 5C3 chart transfers to, the output stage being identical" }
+  BP2:  { chart: null, note: "informational — screen node after the first 10 kΩ dropper; the 5C3 chart prints +308 V here, but its lighter preamp draw makes that a loose comparison, not a target" }
+  BP3:  { chart: null, note: "informational — preamp node after the second 10 kΩ dropper; the 5C3 chart prints +280 V here, feeding two 6SC7s through 250 kΩ loads instead of this circuit's four 100 kΩ loads" }
+  PAY1: { chart: null, note: "informational — 12AY7 plate, channel 1" }
+  PAY2: { chart: null, note: "informational — 12AY7 plate, channel 2" }
+  KAY:  { chart: null, note: "informational — shared 12AY7 cathode, 820 Ω" }
+  P2A:  { chart: null, note: "informational — 12AX7 driver plate" }
+  K2A:  { chart: null, note: "informational — driver cathode, 1.5 kΩ bypassed" }
+  P2B:  { chart: null, note: "informational — paraphase inverter plate" }
+  K2B:  { chart: null, note: "informational — inverter cathode, 1.5 kΩ unbypassed" }
+  GPI:  { chart: null, note: "informational — paraphase junction (220 kΩ/270 kΩ meeting the 56 kΩ return); idles at 0 V with no grid-current model" }

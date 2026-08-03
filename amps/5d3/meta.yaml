@@ -1,0 +1,31 @@
+# Circuit Codex metadata — schema: docs/schema.md (v1)
+id: "5d3"
+name_style: "Wide-panel Tweed Deluxe-style"
+family: tweed
+era:
+  start: 1954
+  end: 1955
+wattage: 12
+tubes: [12AY7, 12AX7, 6V6GT, 6V6GT, 5Y3GT]
+topology:
+  rectifier: { kind: tube, type: "5Y3GT" }
+  bias: cathode
+  phase_inverter: paraphase
+  tone_stack: single-knob
+lineage:
+  derived_from: []   # 5C3 is the direct ancestor — edge added when amps/5c3 lands
+  influenced: []     # the 5E3 derives from this circuit — that edge lives on 5e3.derived_from
+sources:
+  - desc: "Fender 'Deluxe' Model 5D3 drawing, schematic + layout sheets: every component value read directly from the published drawing (2026-08-02) — three input jacks (channel 1 a bare 1 MΩ leak, channel 2 two jacks each through a 68 kΩ stopper onto its own 1 MΩ leak), V1 12AY7 with 100 kΩ plate loads on a shared 820 Ω / 25 µF cathode, two 1 MΩ volume pots and the 1 MΩ tone control with its 0.005 µF and 500 pF caps, V2 12AX7 with 100 kΩ plate loads and separate 1.5 kΩ cathodes (V2A bypassed by 25 µF, V2B not), the self-balancing paraphase network (220 kΩ / 270 kΩ grid leaks meeting at V2B's grid and returning to ground through 56 kΩ) with 100 pF across the inverter plates, 0.05 µF / 600 V couplers throughout, a 6V6GT pair on a shared 250 Ω 5 W / 25 µF cathode with no grid stoppers, and a 5Y3GT into three 16 µF / 450 V filter nodes split by two 10 kΩ droppers. No negative-feedback loop. The drawing prints no voltage chart, only Fender's ±20 % measurement notice. Not reproduced here; archived at EL34World"
+    url: "https://el34world.com/charts/Schematics/files/Fender/Fender_deluxe_5d3.pdf"
+  - desc: "Fender 'Deluxe' Model 5C3 drawing — the immediately preceding wide-panel Deluxe, whose layout sheet DOES print a voltage chart (+360 V reservoir, +308 V screens, +280 V preamp, +18 V across the 6V6 cathode resistor). Used only as the supply-rail reference the 5D3 sheet lacks: the two circuits share the power transformer class, 5Y3GT rectifier, 16/16/16 µF filter, both 10 kΩ droppers and the 6V6GT output pair on its 250 Ω 5 W cathode, while the preamp differs entirely (6SC7 pair vs 12AY7 + 12AX7). Not reproduced here; archived at EL34World"
+    url: "https://el34world.com/charts/Schematics/files/Fender/Fender_deluxe_5c3.pdf"
+  - desc: "Fender 'Deluxe' Model 5D3 layout drawing, page 1 — the source for the order the board-layout diagram (amps/5d3/layout.svg) places parts on the eyelet board, and for the lead-by-lead wiring it draws. Redrawn from the published facts, never traced"
+    url: "https://el34world.com/charts/Schematics/files/Fender/Fender_deluxe_5d3.pdf"
+  - desc: "Mojotone/Ampwares Fender field guide, 'Wide Panel Tweed Deluxe' — production window for the wide-panel Deluxe trio and the 5D3's one circuit change from the 5C3: the negative-feedback loop is dropped"
+    url: "https://mojotone.com/blogs/fender-field-guide/fender-wide-panel-tweed-deluxe"
+verification:
+  status: draft   # the 5D3 sheets print no chart, and no 5D3-specific measured
+                  # chart was obtainable; only the output-stage cathode transfers
+                  # from the sibling 5C3 chart (see voltages.yaml and notes.md)
+contributors: [TheAnalogMaker]

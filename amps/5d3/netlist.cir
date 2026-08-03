@@ -1,0 +1,74 @@
+* 5D3 (Wide-panel Tweed Deluxe-style) — DC operating-point netlist
+* Circuit Codex — CC-BY-SA 4.0. Independently drawn from the published 5D3
+* drawing's component values (see meta.yaml sources); no drawing reproduced.
+*
+* DC conventions (per the exemplars):
+*  - B+1 driven at 360 V. The 5D3 sheets print no voltage chart; 360 V is the
+*    reservoir figure printed on the immediately preceding wide-panel Deluxe
+*    (5C3) drawing, which carries the same power transformer class, 5Y3GT
+*    rectifier, 16/16/16 µF filter, two 10 kΩ droppers and 6V6GT output pair.
+*    It is an input assumption, not a claim about this circuit.
+*  - Downstream nodes are DERIVED by simulation, never asserted.
+*  - Output-transformer primary DCR omitted (6V6 plate node = B+1, as voltage
+*    charts conventionally annotate).
+*  - DC-open caps (coupling / cathode-bypass / the 100 pF across the inverter
+*    plates) are MODELLED where both leads land on a named DC node; open at DC,
+*    they move no operating point. Caps with a lead inside the abstracted
+*    volume/tone network stay omitted.
+*  - Input grid stoppers ARE modelled (68 kΩ, channel 2) because they sit in the
+*    grid-leak return path; they carry no DC grid current, so they drop nothing.
+*  - No grid-current model (models/METHODOLOGY.md v0), so the paraphase junction
+*    GPI and both output grids idle at exactly 0 V.
+.include models/12ay7.inc
+.include models/12ax7.inc
+.include models/6v6gt.inc
+
+VBP1 BP1 0 DC 360
+
+* rail droppers — 10 kΩ then 10 kΩ, three 16 µF/450 V nodes
+RD1 BP1 BP2 10k
+RD2 BP2 BP3 10k
+
+* V1 12AY7 — two channels, shared 820 Ω cathode (25 µF bypass is DC-open)
+* Channel 1: one jack, 1 MΩ leak straight to the grid (no stopper on the sheet)
+RL1 BP3 PAY1 100k
+XV1A PAY1 GAY1 KAY 12AY7
+RG1 GAY1 0 1meg
+* Channel 2: two jacks, each a 68 kΩ stopper onto its own 1 MΩ leak
+RL2 BP3 PAY2 100k
+XV1B PAY2 GAY2 KAY 12AY7
+R2S GAY2 J2A 68k
+RG2 J2A 0 1meg
+R3S GAY2 J2B 68k
+RG3 J2B 0 1meg
+RK1 KAY 0 820
+
+* V2A 12AX7 driver — grid returns to ground through both 1 MΩ volume pots
+RL3 BP3 P2A 100k
+XV2A P2A G2A K2A 12AX7
+RV1 G2A 0 1meg
+RV2 G2A 0 1meg
+RK2 K2A 0 1.5k
+
+* V2B 12AX7 self-balancing paraphase inverter. Its grid sits on the junction of
+* the two output grid leaks (220 kΩ / 270 kΩ), which returns to ground through
+* 56 kΩ — the "floating" tap that balances the two output signals.
+RL4 BP3 P2B 100k
+XV2B P2B GPI K2B 12AX7
+RK3 K2B 0 1.5k
+RPA G6A GPI 220k
+RPB G6B GPI 270k
+RPT GPI 0 56k
+
+* 6V6GT pair — plates at B+1, screens at B+2, shared 250 Ω 5 W cathode
+XV3 BP1 BP2 G6A K66 6V6GT
+XV4 BP1 BP2 G6B K66 6V6GT
+RK66 K66 0 250
+
+* DC-open caps (both leads on a named DC node)
+C1  KAY 0 25u
+C4  K2A 0 25u
+C9  K66 0 25u
+C7  P2A G6A 0.05u
+C8  P2B G6B 0.05u
+C14 P2A P2B 100p

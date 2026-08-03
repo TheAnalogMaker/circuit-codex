@@ -177,8 +177,10 @@ class Sch:
 
     # ---- primitives -----------------------------------------------------
     def sym(self, lib: str, ref: str, val: str, x: float, y: float, rot: int = 0,
-            lx: float = 2.2, ly: float = -3.2) -> None:
-        pa = (360 - rot) % 360
+            lx: float = 2.2, ly: float = -3.2, label_rot: int | None = None) -> None:
+        # Property text follows the symbol's rotation unless `label_rot` pins it —
+        # a body placed at 180° still wants its ref/value read left-to-right.
+        pa = (360 - rot) % 360 if label_rot is None else label_rot % 360
         self.body.append(f"""  (symbol (lib_id "cx:{lib}") (at {x:g} {y:g} {rot}) (unit 1)
     (in_bom yes) (on_board yes) (uuid "{_u()}")
     (property "Reference" "{ref}" (at {x + lx:g} {y + ly:g} {pa}) {FONT_L})

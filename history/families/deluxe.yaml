@@ -82,12 +82,14 @@ models:
     years: { start: 1954, end: 1955 }
     wattage: null
     output: "push-pull 2x6V6"
-    tubes: [12AY7, 6V6, 6V6, 5Y3]
+    tubes: [12AY7, 12AX7, 6V6, 6V6, 5Y3]
     key_change: >-
       Matches the 5C3 but drops the negative-feedback loop again, returning to the
       more open, feedback-free voicing that the following narrow-panel circuit keeps.
-      This is the last wide-panel Deluxe before the narrow-panel redesign.
-    circuit_ref: null
+      It also retires the octal 6SC7 preamp for a 12AY7 and a 12AX7 wired as a
+      self-balancing paraphase inverter. This is the last wide-panel Deluxe before
+      the narrow-panel redesign.
+    circuit_ref: "5d3"
     sources:
       - desc: "Mojotone/Ampwares Fender field guide, 'Wide Panel Tweed Deluxe' — 5D3 matches 5C3 but omits negative feedback"
         url: "https://mojotone.com/blogs/fender-field-guide/fender-wide-panel-tweed-deluxe"

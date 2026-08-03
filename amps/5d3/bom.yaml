@@ -1,0 +1,44 @@
+# Parts list — reference designators match netlist.cir element names.
+notes: "The 5D3 has three input jacks: one on channel 1 and two on channel 2. The drawing marks no resistor wattages except the 250 Ω 5 W cathode resistor, and prints no transformer impedances or part numbers."
+items:
+  - { ref: RG1,  part: "Carbon comp resistor",      value: "1 MΩ · ½ W",        role: "Channel-1 input grid leak (no stopper on this jack)" }
+  - { ref: R2S,  part: "Carbon comp resistor",      value: "68 kΩ · ½ W",       role: "Channel-2 grid stopper, upper jack" }
+  - { ref: RG2,  part: "Carbon comp resistor",      value: "1 MΩ · ½ W",        role: "Channel-2 input grid leak, upper jack" }
+  - { ref: R3S,  part: "Carbon comp resistor",      value: "68 kΩ · ½ W",       role: "Channel-2 grid stopper, lower jack" }
+  - { ref: RG3,  part: "Carbon comp resistor",      value: "1 MΩ · ½ W",        role: "Channel-2 input grid leak, lower jack" }
+  - { ref: RL1,  part: "Carbon comp resistor",      value: "100 kΩ · ½ W",      role: "V1A plate load" }
+  - { ref: RL2,  part: "Carbon comp resistor",      value: "100 kΩ · ½ W",      role: "V1B plate load" }
+  - { ref: RK1,  part: "Carbon comp resistor",      value: "820 Ω · ½ W",       role: "Shared 12AY7 cathode bias" }
+  - { ref: C1,   part: "Electrolytic capacitor",    value: "25 µF · 25 V",      role: "Shared 12AY7 cathode bypass" }
+  - { ref: C2,   part: "Coupling capacitor",        value: "0.05 µF · 600 V",   role: "V1A → channel-1 volume" }
+  - { ref: C3,   part: "Coupling capacitor",        value: "0.05 µF · 600 V",   role: "V1B → channel-2 volume" }
+  - { ref: VR1,  part: "Potentiometer",             value: "1 MΩ",              role: "Channel-1 volume" }
+  - { ref: VR2,  part: "Potentiometer",             value: "1 MΩ",              role: "Channel-2 volume" }
+  - { ref: VR3,  part: "Potentiometer",             value: "1 MΩ",              role: "Tone" }
+  - { ref: C5,   part: "Mica capacitor",            value: "500 pF",            role: "Tone — treble path" }
+  - { ref: C6,   part: "Film capacitor",            value: "0.005 µF · 600 V",  role: "Tone — cut path to ground" }
+  - { ref: RL3,  part: "Carbon comp resistor",      value: "100 kΩ · ½ W",      role: "V2A driver plate load" }
+  - { ref: RK2,  part: "Carbon comp resistor",      value: "1.5 kΩ · ½ W",      role: "V2A cathode bias" }
+  - { ref: C4,   part: "Electrolytic capacitor",    value: "25 µF · 25 V",      role: "V2A cathode bypass" }
+  - { ref: RL4,  part: "Carbon comp resistor",      value: "100 kΩ · ½ W",      role: "V2B inverter plate load" }
+  - { ref: RK3,  part: "Carbon comp resistor",      value: "1.5 kΩ · ½ W",      role: "V2B cathode bias (unbypassed)" }
+  - { ref: C14,  part: "Mica capacitor",            value: "100 pF",            role: "Across the two inverter plates" }
+  - { ref: RPA,  part: "Carbon comp resistor",      value: "220 kΩ · ½ W",      role: "V3 grid leak, returned to the paraphase junction" }
+  - { ref: RPB,  part: "Carbon comp resistor",      value: "270 kΩ · ½ W",      role: "V4 grid leak, returned to the paraphase junction" }
+  - { ref: RPT,  part: "Carbon comp resistor",      value: "56 kΩ · ½ W",       role: "Paraphase junction → ground" }
+  - { ref: C7,   part: "Coupling capacitor",        value: "0.05 µF · 600 V",   role: "V2A plate → V3 grid" }
+  - { ref: C8,   part: "Coupling capacitor",        value: "0.05 µF · 600 V",   role: "V2B plate → V4 grid" }
+  - { ref: RK66, part: "Wirewound resistor",        value: "250 Ω · 5 W",       role: "Shared 6V6 cathode bias" }
+  - { ref: C9,   part: "Electrolytic capacitor",    value: "25 µF · 25 V",      role: "Shared 6V6 cathode bypass" }
+  - { ref: RD1,  part: "Power resistor",            value: "10 kΩ",             role: "Rail dropper B+1 → B+2" }
+  - { ref: RD2,  part: "Power resistor",            value: "10 kΩ",             role: "Rail dropper B+2 → B+3" }
+  - { ref: C11,  part: "Electrolytic capacitor",    value: "16 µF · 450 V",     role: "Filter, B+1" }
+  - { ref: C12,  part: "Electrolytic capacitor",    value: "16 µF · 450 V",     role: "Filter, B+2" }
+  - { ref: C13,  part: "Electrolytic capacitor",    value: "16 µF · 450 V",     role: "Filter, B+3" }
+  - { ref: V1,   part: "Preamp tube",               value: "12AY7",             role: "Both input stages (V1A/V1B)" }
+  - { ref: V2,   part: "Preamp tube",               value: "12AX7",             role: "Driver + paraphase inverter (V2A/V2B)" }
+  - { ref: V3,   part: "Power tube",                value: "6V6GT",             role: "Push-pull output (upper)" }
+  - { ref: V4,   part: "Power tube",                value: "6V6GT",             role: "Push-pull output (lower)" }
+  - { ref: V5,   part: "Rectifier tube",            value: "5Y3GT",             role: "Full-wave rectifier (V5A/V5B)" }
+  - { ref: T2,   part: "Output transformer",        value: "push-pull : 8 Ω",   role: "Push-pull output, with a second 8 Ω jack for an extra speaker; the drawing marks no impedances" }
+  - { ref: "—",  part: "Power transformer",         value: "centre-tapped HT · 6.3 V · 5 V (voltages not marked)",      role: "HT + heaters + rectifier filament" }

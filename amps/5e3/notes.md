@@ -4,7 +4,8 @@ The most-built amp circuit in DIY history: two channels into a 12AY7, a 12AX7
 second stage feeding the famous interactive volume/tone network, a cathodyne
 phase inverter, and a cathode-biased 6V6GT push-pull pair with no negative
 feedback — the recipe for tweed compression and breakup. Produced 1955–1960.
-Its direct ancestor, the 5D3, is not yet documented in this archive.
+Its direct ancestor is the wide-panel 5D3, which shares this tube complement and
+output stage but inverts phase with a self-balancing paraphase instead.
 
 ## Circuit walkthrough (short form)
 

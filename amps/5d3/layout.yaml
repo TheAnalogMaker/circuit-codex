@@ -1,0 +1,201 @@
+# Board layout — redrawn from the published Fender 'Deluxe' Model 5D3 layout
+# drawing. Part refs are the shared key into bom.yaml; the renderer reads each
+# value and part type from there. A legible, schematic-style redraw of the
+# board's principal components in the order the drawing shows them — never a
+# trace or a dimensioned reproduction.
+#
+# Board reads left→right in the drawing's own order: rectifier / filter /
+# output end at the left, then the paraphase network with the 12AX7's plate
+# loads, then the 12AY7 input stage at the right — matching the tube row
+# (5Y3GT · 6V6GT · 6V6GT · 12AX7 · 12AY7).
+# Machine-checked equivalence: the point-to-point wiring drawn below has been
+# verified electrically equivalent to the simulated netlist (netlist.cir) by
+# pipeline/verify_layout_nets.py — see the net_map block at the foot of this
+# file and docs/layout-schema.md. Heaters, the pilot lamp, and the PT/rectifier
+# AC side are an excluded annotation layer (not modelled in netlist.cir).
+wiring_claim: verified
+
+board:
+  rows: 2
+  cols: 49
+  title: "5D3 · eyelet board layout"
+caption: "Redrawn from the published Fender 5D3 layout drawing — principal board components, in the order the drawing shows them. The input grid leaks mount at the jacks and the tone capacitors at the tone control, as the drawing places them. Transformer leads carry the colours that drawing marks; unmarked leads are drawn in the neutral hookup tone. The 6.3 V heater chain (green twisted pair, PT → pilot lamp → the two 6V6 output tubes → 12AX7 → 12AY7) follows the sheet's daisy order; the 5Y3GT rectifier is directly heated from the 5 V winding and off the 6.3 V chain. Not a trace or a dimensioned reproduction."
+source:
+  desc: "Fender 'Deluxe' Model 5D3 layout drawing, page 1"
+  url: "https://el34world.com/charts/Schematics/files/Fender/Fender_deluxe_5d3.pdf"
+
+parts:
+  # --- power supply: three 16 µF cans split by two 10 kΩ droppers -----------
+  - { ref: C11,  a: [0, 1],  b: [0, 3] }     # 16 µF filter, B+1
+  - { ref: RD1,  a: [1, 2],  b: [1, 3], nudge: [-20, 0] }    # 10 kΩ dropper B+1→B+2
+  - { ref: C12,  a: [0, 4],  b: [0, 6] }     # 16 µF filter, B+2
+  - { ref: RD2,  a: [1, 5],  b: [1, 6] }     # 10 kΩ dropper B+2→B+3
+  - { ref: C13,  a: [0, 7],  b: [0, 9] }     # 16 µF filter, B+3
+  # --- push-pull output cathode --------------------------------------------
+  - { ref: C9,   a: [0, 10], b: [0, 12] }    # 25 µF 6V6 cathode bypass
+  - { ref: RK66, a: [1, 10], b: [1, 11], nudge: [-12, 0] }   # 250 Ω 5 W shared 6V6 cathode
+  # --- self-balancing paraphase: couplers, grid leaks, 12AX7 plate loads ----
+  - { ref: RL4,  a: [1, 13], b: [1, 15] }    # 100 kΩ V2B plate load
+  - { ref: C8,   a: [0, 14], b: [0, 16] }    # 0.05 µF coupler → V4 grid
+  - { ref: RPB,  a: [1, 16], b: [1, 18] }    # 270 kΩ V4 grid leak → junction
+  - { ref: RPT,  a: [1, 18], b: [1, 19], nudge: [-14, 0] }   # 56 kΩ junction → ground
+  - { ref: C14,  a: [0, 19], b: [0, 21] }    # 100 pF across the inverter plates
+  - { ref: RPA,  a: [1, 21], b: [1, 23] }    # 220 kΩ V3 grid leak → junction
+  - { ref: C7,   a: [0, 26], b: [0, 24] }    # 0.05 µF coupler → V3 grid
+  - { ref: RL3,  a: [1, 25], b: [1, 27] }    # 100 kΩ V2A plate load
+  # --- 12AX7 cathodes -------------------------------------------------------
+  - { ref: RK3,  a: [0, 28], b: [1, 28] }    # 1.5 kΩ inverter cathode (unbypassed)
+  - { ref: RK2,  a: [0, 31], b: [1, 31], nudge: [-10, 0] }   # 1.5 kΩ driver cathode
+  - { ref: C4,   a: [0, 32.6], b: [0, 31], nudge: [-34, 0] }  # 25 µF driver cathode bypass
+  # --- 12AY7 input stage ----------------------------------------------------
+  - { ref: RL2,  a: [1, 33.5], b: [1, 35.5] }  # 100 kΩ V1B plate load
+  - { ref: C3,   a: [0, 34], b: [0, 36] }    # 0.05 µF V1B → channel-2 volume
+  - { ref: R2S,  a: [1, 39], b: [1, 37] }    # 68 kΩ channel-2 stopper, upper jack
+  - { ref: R3S,  a: [1, 39], b: [1, 41] }    # 68 kΩ channel-2 stopper, lower jack
+  - { ref: C2,   a: [0, 40], b: [0, 42], value_nudge: [16, 0] }  # 0.05 µF V1A → channel-1 volume
+  - { ref: RL1,  a: [1, 42], b: [1, 44] }    # 100 kΩ V1A plate load
+  - { ref: C1,   a: [0, 46], b: [0, 44] }    # 25 µF 12AY7 cathode bypass
+  - { ref: RK1,  a: [0, 47], b: [1, 47] }    # 820 Ω shared 12AY7 cathode
+
+offboard:
+  - { id: PT,  kind: xfmr, edge: left, at: 0.45, label: "Power trans" }
+  - { id: PL1, kind: part, glyph: lamp, edge: left, at: 1.6, label: "Pilot lamp" }
+  - { id: T2,  ref: T2, kind: xfmr, edge: left, at: 2.75, label: "Output trans" }
+  - { id: V5,  ref: V5, kind: tube, edge: bottom, at: 1.5,  label: "V5 · 5Y3GT" }
+  - { id: V3,  ref: V3, kind: tube, edge: bottom, at: 4.5,  label: "V3 · 6V6GT" }
+  - { id: V4,  ref: V4, kind: tube, edge: bottom, at: 8,    label: "V4 · 6V6GT" }
+  - { id: SPK, kind: jack, edge: bottom, at: 12, label: "Spkr jacks" }
+  - { id: V2,  ref: V2, kind: tube, edge: bottom, at: 30,   label: "V2 · 12AX7" }
+  - { id: V1,  ref: V1, kind: tube, edge: bottom, at: 43,   label: "V1 · 12AY7" }
+  - { id: C6,  ref: C6, kind: part, edge: top, at: 22, label: "C6" }
+  - { id: VR3, ref: VR3, kind: pot, edge: top, at: 24.5, label: "Tone" }
+  - { id: C5,  ref: C5, kind: part, edge: top, at: 27, label: "C5" }
+  - { id: VR2, ref: VR2, kind: pot, edge: top, at: 31, label: "Volume" }
+  - { id: VR1, ref: VR1, kind: pot, edge: top, at: 35.5, label: "Volume" }
+  - { id: J2,  kind: jack, edge: top, at: 38.5, label: "Ch 2 in" }
+  - { id: J3,  kind: jack, edge: top, at: 41.5, label: "Ch 2 in" }
+  - { id: J1,  kind: jack, edge: top, at: 45,   label: "Ch 1 in" }
+
+# Ground bus — the bare-wire rail that runs the length of the board just below
+# the bottom eyelet row; the cathode, filter, pot and tone-cap grounds tie to it.
+bus:
+  - { from: [1.45, -0.4], to: [1.45, 48.4] }
+
+runs:
+  # --- power transformer secondary → 5Y3GT rectifier (marked colours) -------
+  - { from: PT.red1, to: V5.pin4, via: [[1.4, 0.3]] }             # HT plate 1
+  - { from: PT.red2, to: V5.pin6, via: [[2.3, 0.62]] }            # HT plate 2
+  - { from: PT.red-yellow, to: [1.45, -0.35], via: [[-1.5, 0.42], [-1.0, 1.25]] }  # HT centre tap → bus
+  - { from: PT.yellow1, to: V5.pin2, via: [[0.7, 1.25]] }         # 5 V filament
+  - { from: PT.yellow2, to: V5.pin8, via: [[1.4, 1.75]] }         # 5 V filament / B+
+  - { from: V5.pin8, to: C11.a, color: red, via: [[2.9, 2.1], [2.9, 1.05]] }   # B+ out → first filter
+
+  # --- filtered B+ rail (three 16 µF cans, two 10 kΩ droppers) --------------
+  - { from: C11.a, to: RD1.a, via: [[0.5, 0.55]] }  # B+1 → first dropper (from the left)
+  - { from: RD1.b, to: C12.a }                     # → B+2 (from lower-right)
+  - { from: C12.a, to: RD2.a }                     # B+2 → second dropper
+  - { from: RD2.b, to: C13.a }                     # → B+3 (from lower-right)
+  - { from: C11.b, to: [1.45, 3.4] }               # filter negatives → ground bus
+  - { from: C12.b, to: [1.45, 6.4] }
+  - { from: C13.b, to: [1.45, 9.4] }
+
+  # --- push-pull output: OT primary, screens, cathodes ----------------------
+  - { from: C11.a, to: T2.red, color: red, via: [[-0.6, 0.55], [-0.6, 2.5]] }  # B+1 → OT centre tap
+  - { from: T2.green, to: V4.pin3, via: [[-0.2, 2.45], [7.3, 2.45]] }   # OT primary → V4 plate
+  - { from: T2.plate, to: V3.pin3, via: [[-0.1, 2.6], [3.7, 2.6]] }     # OT primary → V3 plate
+  - { from: RD1.b, to: V3.pin4, via: [[3.4, 1.75]] }               # B+2 rail → V3 screen
+  - { from: RD2.a, to: V4.pin4, via: [[5.6, 1.68], [8.4, 1.68]] }  # B+2 rail → V4 screen
+  - { from: V3.pin8, to: RK66.a, via: [[4.6, 2.68], [9.3, 2.68], [9.3, 1.7]] }  # V3 cathode → 250 Ω (from below)
+  - { from: V4.pin8, to: RK66.a, via: [[10.7, 2.2]] }              # V4 cathode → 250 Ω (from the right)
+  - { from: C9.a, to: RK66.a }                     # cathode bypass across the 250 Ω
+  - { from: RK66.b, to: [1.45, 11] }
+  - { from: C9.b, to: [1.45, 12.4] }
+  - { from: T2.sec1, to: SPK.tip, via: [[0.5, 2.78], [10.2, 2.78], [10.2, 2.0]] }    # voice coil
+  - { from: T2.sec2, to: SPK.sleeve, via: [[0.85, 2.95], [14.0, 2.95], [14.0, 2.0]] }
+
+  # --- self-balancing paraphase inverter ------------------------------------
+  - { from: C8.a, to: RPB.a }                      # coupler → V4 grid leak (G6B)
+  - { from: RPB.a, to: V4.pin5, via: [[14.6, 1.58], [8.0, 1.58]] }  # → V4 grid
+  - { from: C8.b, to: RL4.b }                      # coupler → V2B plate load (P2B)
+  - { from: C8.b, to: C14.a }                      # → 100 pF, upper lane
+  - { from: C14.a, to: V2.pin1, via: [[19.6, 1.62], [27.4, 1.62], [27.4, 2.3]] }  # → V2B plate
+  - { from: RPA.a, to: RPT.a, via: [[19.6, 0.4]] }    # 220 kΩ leak → the junction
+  - { from: RPA.a, to: V2.pin2, via: [[22.2, 1.78], [28.6, 1.78]] }  # junction → V2B grid
+  - { from: RPT.b, to: [1.45, 19] }                # junction → ground through 56 kΩ
+  - { from: C7.b, to: RPA.b }                      # coupler → V3 grid leak (G6A)
+  - { from: RPA.b, to: V3.pin5, via: [[22.6, 1.52], [4.5, 1.52]] }   # → V3 grid
+  - { from: C7.a, to: C14.b, via: [[25.6, -0.26], [21.4, -0.26]] }   # 100 pF ← V2A plate
+  - { from: C7.a, to: RL3.a }                      # coupler → V2A plate load (P2A)
+  - { from: RL3.a, to: V2.pin6, via: [[25.4, 1.55], [31.9, 1.55]] }  # → V2A plate
+
+  # --- B+3 rail feeds (four 100 kΩ plate loads, over the top) ---------------
+  - { from: C13.a, to: RL4.a, via: [[7.3, -0.50], [12.2, -0.50]] }
+  - { from: RL4.a, to: RL3.b, via: [[13.9, -0.34], [26.6, -0.34]] }
+  - { from: RL3.b, to: RL2.a, via: [[27.6, -0.42], [33.9, -0.42]] }
+  - { from: RL1.b, to: C13.a, via: [[43.4, -0.58], [9.0, -0.58]] }
+
+  # --- 12AX7 driver + inverter cathodes -------------------------------------
+  - { from: V2.pin8, to: RK2.a, via: [[31.3, 2.12], [30.4, 1.6], [30.4, 0.55]] }   # V2A cathode → 1.5 kΩ
+  - { from: RK2.b, to: [1.45, 31] }
+  - { from: C4.a, to: [1.45, 31.8] }               # cathode bypass ground
+  - { from: V2.pin3, to: RK3.a, via: [[27.4, 1.6], [27.4, 0.55]] }   # V2B cathode → 1.5 kΩ
+  - { from: RK3.b, to: [1.45, 28] }
+
+  # --- volume + tone controls onto the V2A grid -----------------------------
+  - { from: VR1.lug3, to: VR2.lug3, via: [[35.95, -0.52], [31.75, -0.52]] }
+  - { from: VR2.lug3, to: V2.pin7, via: [[31.3, -0.34], [33.0, -0.34], [33.0, 1.5]] }
+  - { from: VR3.lug2, to: VR2.lug3, via: [[24.9, -0.46], [30.85, -0.46]] }
+  - { from: VR1.lug1, to: VR2.lug1, via: [[33.2, -0.16]] }   # pot grounds chained
+  - { from: VR2.lug1, to: [1.45, 28.6] }
+  - { from: VR3.lug1, to: C6.b }                   # tone: 0.005 µF to ground
+  - { from: C6.a, to: [1.45, 24.4] }
+  - { from: VR3.lug3, to: C5.a }                   # tone: 500 pF onto channel 2
+  - { from: C5.b, to: C3.b, via: [[28.4, -0.62], [36.4, -0.62]] }
+
+  # --- 12AY7 input stage: channel 2 (two jacks) -----------------------------
+  - { from: RL2.b, to: C3.a }                      # plate load → coupler (PAY2)
+  - { from: V1.pin1, to: RL2.b, via: [[42.6, 2.5], [35.7, 2.5]] }   # V1B plate
+  - { from: C3.b, to: VR2.lug2, via: [[35.6, -0.28], [31.4, -0.28]] }
+  - { from: J2, to: R2S.b, via: [[37.5, -1.05], [36.6, -0.40]] }
+  - { from: J3, to: R3S.b, via: [[43.0, -1.05], [43.0, -0.52]] }
+  - { from: R2S.a, to: V1.pin2, via: [[39.4, 1.75]] }   # stoppers meet at V1B grid
+  # --- 12AY7 input stage: channel 1 (one jack, leak at the jack) ------------
+  - { from: J1, to: V1.pin7, via: [[46.3, -1.06], [48.3, -0.34], [48.3, 1.85]] }
+  - { from: V1.pin6, to: C2.a, via: [[43.4, 1.55], [40.4, 1.55]] }  # V1A plate → coupler
+  - { from: C2.a, to: RL1.a }                      # plate load (PAY1)
+  - { from: C2.b, to: VR1.lug2, via: [[41.6, -0.46], [35.9, -0.46]] }
+  # --- 12AY7 cathode --------------------------------------------------------
+  - { from: V1.pin3, to: C1.a, via: [[42.4, 1.62], [45.6, 1.62]] }
+  - { from: C1.a, to: RK1.a }
+  - { from: V1.pin8, to: RK1.a, via: [[46.4, 2.05], [46.4, 0.35]] }
+  - { from: RK1.b, to: [1.45, 47] }
+  - { from: C1.b, to: [1.45, 44.6] }
+
+  # --- 6.3 V heater chain (green twisted pair) ------------------------------
+  # PT green pair → pilot lamp → V3 → V4 → V2 → V1, in the drawing's daisy
+  # order; the directly-heated 5Y3GT sits on the 5 V winding, not this chain.
+  - { from: PT.green, to: PL1.a, style: twisted }
+  - { from: PL1.b, to: V3.pin7, style: twisted, via: [[-0.6, 3.6], [4.5, 3.6]] }
+  - { from: V3.pin2, to: V4.pin7, style: twisted, via: [[4.5, 3.62], [8, 3.62]] }
+  - { from: V4.pin2, to: V2.pin4, style: twisted, via: [[8, 3.64], [30, 3.64]] }
+  - { from: V2.pin5, to: V1.pin4, style: twisted, via: [[30, 3.6], [43, 3.6]] }
+  - { from: V1.pin4, to: V1.pin5, style: twisted }
+
+# net_map — reviewable reconciliation of the drawn wiring with the DC netlist
+# (netlist.cir) for pipeline/verify_layout_nets.py. See docs/layout-schema.md.
+net_map:
+  # The push-pull OT primary: both 6V6 plate leads and the B+ centre tap sit at
+  # B+1 at DC (the netlist omits the primary DCR and models both plates == B+1),
+  # so all three primary leads are one node.
+  anchors:
+    T2.red:   BP1    # OT primary centre tap (B+ feed)
+    T2.green: BP1    # OT primary, V4 plate lead
+    T2.plate: BP1    # OT primary, V3 plate lead (unmarked on the drawing)
+  # Netlist elements realised off the board or by a control, not a discrete
+  # board part — reported in coverage, never a failure:
+  netlist_unplaced:
+    RG1: "1 MΩ channel-1 input grid leak — mounted at its jack, not on the eyelet board"
+    RG2: "1 MΩ channel-2 input grid leak, upper jack — mounted at the jack"
+    RG3: "1 MΩ channel-2 input grid leak, lower jack — mounted at the jack"
+    RV1: "channel-1 volume pot VR1 — the netlist models its DC return as a grid-leak (G2A -> 0)"
+    RV2: "channel-2 volume pot VR2 — the netlist models its DC return as a grid-leak (G2A -> 0)"

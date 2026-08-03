@@ -137,7 +137,7 @@ terms:
       amplitude and opposite phase — also called a split-load or concertina
       inverter. It is the phase inverter this archive's smaller push-pull circuit
       uses in place of a second gain tube.
-    related: [phase-inverter, long-tailed-pair, grid-leak]
+    related: [phase-inverter, paraphase, long-tailed-pair, grid-leak]
     appears:
       - { label: "5F10 — Tweed Harvard-style", href: "/amps/5f10/" }
 
@@ -261,7 +261,7 @@ terms:
       signal into one grid appears inverted and amplified equally at both plates.
       It is the phase inverter behind every push-pull circuit in this archive larger
       than the smallest amps.
-    related: [cathodyne, phase-inverter, push-pull, nfb]
+    related: [cathodyne, paraphase, phase-inverter, push-pull, nfb]
     appears:
       - { label: "5F6-A — Tweed Bassman-style", href: "/amps/5f6a/" }
       - { label: "JTM45 — British lead-style", href: "/amps/jtm45/" }
@@ -322,15 +322,29 @@ terms:
       - { label: "5F6-A — Tweed Bassman-style", href: "/amps/5f6a/" }
       - { label: "Amp builder calculators", href: "/reference/guides/calculators/" }
 
+  - term: Paraphase
+    slug: paraphase
+    sort_key: paraphase
+    definition: >-
+      A two-triode phase-inverter topology in which the second triode is driven from
+      a tap of the signal already standing on the output grids, so it supplies
+      whatever inverted share is missing. In the self-balancing form this archive
+      documents, the two output grid leaks meet at a junction that both returns to
+      ground through a smaller resistor and feeds the second grid, and the leaks are
+      deliberately unequal so the extra stage of gain does not overshoot.
+    related: [phase-inverter, cathodyne, long-tailed-pair, grid-leak, push-pull]
+    appears:
+      - { label: "5D3 — Wide-panel Tweed Deluxe-style", href: "/amps/5d3/" }
+
   - term: Phase inverter
     slug: phase-inverter
     sort_key: phase inverter
     definition: >-
       A stage that turns one signal into two copies of equal amplitude and opposite
-      phase to drive a push-pull output pair. This archive models two families of
-      it — the single-tube cathodyne and the two-tube long-tailed pair — and a
-      single-ended amp needs neither.
-    related: [cathodyne, long-tailed-pair, push-pull, single-ended]
+      phase to drive a push-pull output pair. This archive models three families of
+      it — the single-tube cathodyne, the two-tube paraphase, and the two-tube
+      long-tailed pair — and a single-ended amp needs none of them.
+    related: [cathodyne, paraphase, long-tailed-pair, push-pull, single-ended]
     appears:
       - { label: "5F10 — Tweed Harvard-style", href: "/amps/5f10/" }
       - { label: "5F6-A — Tweed Bassman-style", href: "/amps/5f6a/" }
