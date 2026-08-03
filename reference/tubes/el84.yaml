@@ -22,6 +22,34 @@ model:
     METHODOLOGY.md. Known limitation: this is a single-anchor fit at 250 V, used
     in the AC15 at a 315 V rail — the extrapolation is the usual v0 caveat, and
     it lands the AC15 output stage at a physically sensible 11 V of cathode bias.
+max_ratings:
+  note: >-
+    Limiting values under the design-centre rating system. Two anode figures are
+    printed: 550 V standing with no current drawn, and 300 V in operation. The AC15
+    sits right on that second number — the factory drawing annotates +310 V on the
+    EL84 anodes off a +315 V rail — and with the pair sharing one 130 Ω cathode
+    resistor the simulated idle point lands within a couple of percent of the 12 W
+    anode ceiling. That is the whole character of the circuit: a cathode-biased pair
+    run essentially flat out, with no bias supply to back them off.
+  items:
+    - { label: "Anode voltage, no current", value: "550 V" }
+    - { label: "Anode voltage", value: "300 V" }
+    - { label: "Anode dissipation", value: "12 W" }
+    - { label: "Grid No.2 voltage, no current", value: "550 V" }
+    - { label: "Grid No.2 voltage", value: "300 V" }
+    - { label: "Grid No.2 dissipation", value: "2 W · 4 W peak" }
+    - { label: "Negative grid-No.1 voltage", value: "100 V" }
+    - { label: "Cathode current", value: "65 mA" }
+    - { label: "Grid-No.1 resistor", value: "1 MΩ automatic bias · 0.3 MΩ fixed bias" }
+    - { label: "Cathode-to-heater voltage", value: "100 V" }
+  limits:
+    plate_dissipation_w: 12
+    screen_dissipation_w: 2
+    plate_voltage_v: 300
+    screen_voltage_v: 300
+    cathode_current_ma: 65
+  source: "Philips/Mullard EL84 data sheet, January 1969 — limiting values (design-centre rating system)"
+  source_url: https://frank.pocnet.net/sheets/010/e/EL84.pdf
 basing:
   code: 9CV
   base: noval-b9a

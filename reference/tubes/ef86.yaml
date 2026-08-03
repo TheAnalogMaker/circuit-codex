@@ -30,6 +30,31 @@ model:
     voltage, which is why the ac15 entry is a draft. A two-point fit against the
     sheet's second published operating region is the obvious v1 improvement, on
     the pattern of the 12AX7 calibration study.
+max_ratings:
+  note: >-
+    Limiting values under the design-centre rating system. One watt of anode
+    dissipation and a 6 mA cathode ceiling put this valve firmly in small-signal
+    service — it is a pentode, but it is not an output pentode, and the AC15 works
+    it at a couple of milliamps. The unusually generous grid-No.1 circuit
+    resistance is the tell of a valve designed for a high-impedance input stage.
+  items:
+    - { label: "Anode voltage, no current", value: "550 V" }
+    - { label: "Anode voltage", value: "300 V" }
+    - { label: "Anode dissipation", value: "1 W" }
+    - { label: "Grid No.2 voltage, no current", value: "550 V" }
+    - { label: "Grid No.2 voltage", value: "200 V" }
+    - { label: "Grid No.2 dissipation", value: "0.2 W" }
+    - { label: "Cathode current", value: "6 mA" }
+    - { label: "Grid-No.1 circuit resistor", value: "10 MΩ if Wa < 0.2 W · 3 MΩ if Wa > 0.2 W · 22 MΩ with grid-current biasing" }
+    - { label: "Cathode-to-heater voltage", value: "100 V cathode positive · 50 V cathode negative" }
+  limits:
+    plate_dissipation_w: 1.0
+    screen_dissipation_w: 0.2
+    plate_voltage_v: 300
+    screen_voltage_v: 200
+    cathode_current_ma: 6
+  source: "Philips EF86 data sheet, January 1970 — limiting values (design-centre rating system)"
+  source_url: https://frank.pocnet.net/sheets/010/e/EF86.pdf
 basing:
   code: "—"
   base: noval-b9a

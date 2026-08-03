@@ -24,6 +24,28 @@ model:
     pipeline/test_models.py but is not yet exercised by an amp simulation. A
     second published operating point (Va=100 V, Vg=-5 V → 3.7 mA) is available for
     the two-point v1 treatment if a circuit ever puts this valve on a gated node.
+max_ratings:
+  note: >-
+    RCA prints these as design-MAXIMUM values, each unit — not the design-centre
+    system the European sheets in this corpus use, so they are not directly
+    comparable with the EL84 and EF86 entries: a design-maximum figure is the line
+    an individual valve must never cross, where a design-centre figure already
+    carries an allowance for spread. The 2.75 W per plate is nearly three times the
+    12AX7's budget, which is the point of the valve — it is built to pass current,
+    not to make gain.
+  items:
+    - { label: "Plate voltage", value: "330 V" }
+    - { label: "Plate dissipation, either plate", value: "2.75 W" }
+    - { label: "Plate dissipation, both plates (both units operating)", value: "5.5 W" }
+    - { label: "Cathode current", value: "22 mA" }
+    - { label: "Peak heater-cathode voltage", value: "200 V either polarity" }
+    - { label: "Grid-circuit resistance, fixed bias", value: "1 MΩ" }
+  limits:
+    plate_dissipation_w: 2.75
+    plate_voltage_v: 330
+    cathode_current_ma: 22
+  source: "RCA 12AU7A data sheet, DATA 1, 7-61 — Class A1 amplifier maximum ratings (design-maximum values, each unit)"
+  source_url: https://frank.pocnet.net/sheets/049/1/12AU7A.pdf
 basing:
   code: 9A
   base: noval-b9a

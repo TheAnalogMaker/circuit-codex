@@ -46,6 +46,13 @@ const DATA = {
 const pentodes = models.filter((m) => m.kind === 'pentode');
 const triodes = models.filter((m) => m.kind === 'triode');
 const withRatings = models.filter((m) => m.limits?.plate_dissipation_w);
+// Rating systems are not interchangeable: a design-centre figure already carries an
+// allowance for manufacturing spread, while a design-maximum figure is the line no
+// individual valve may cross. Which system a sheet uses is read off that sheet's own
+// citation rather than assumed from its publisher — RCA printed both, depending on
+// the year — so this note cannot drift as tubes are added.
+const designMax = withRatings.filter((m) => /design-max/i.test(m.ratingsSource || ''));
+const nameList = (ms) => ms.map((m) => m.name).join(', ').replace(/, ([^,]*)$/, ms.length > 1 ? ' and $1' : '$1');
 const title = 'Load line explorer — plate curves from the corpus tube models · Circuit Codex';
 const description =
   'Draw a load line on any tube in the archive. Plate-curve families come from the corpus\'s own CC0 Koren models, the operating point is solved against the cathode-bias constraint, and the maximum-dissipation limit is overlaid from the datasheet ratings. Presets for every documented amplifier\'s output stage.';
@@ -281,8 +288,14 @@ const description =
         ))}
       </tbody>
     </table></div>
-    <p class="footnote">Maximum ratings are the design-centre values printed on each
-      tube's own datasheet, with the sheet and its date cited on that tube's page.
+    <p class="footnote">Maximum ratings are the limiting values printed on each tube's
+      own datasheet, with the sheet, its date and its rating system cited on that tube's
+      page.
+      {designMax.length > 0 && ` Most are design-centre figures, which already carry an
+        allowance for manufacturing spread; the ${nameList(designMax)} sheet${designMax.length > 1 ? 's' : ''}
+        quote${designMax.length > 1 ? '' : 's'} design-maximum values instead — the stricter
+        line an individual valve may never cross. Judge a tube against its own sheet, not
+        against another tube's.`}
       {withRatings.length === models.length
         ? 'All of the modelled amplifying tubes carry a rated plate dissipation, so the limit curve is available on every one.'
         : `${withRatings.length} of the ${models.length} modelled amplifying tubes carry a rated plate dissipation; the limit curve only appears for those.`}
