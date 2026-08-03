@@ -50,8 +50,11 @@ const withRatings = models.filter((m) => m.limits?.plate_dissipation_w);
 // allowance for manufacturing spread, while a design-maximum figure is the line no
 // individual valve may cross. Which system a sheet uses is read off that sheet's own
 // citation rather than assumed from its publisher — RCA printed both, depending on
-// the year — so this note cannot drift as tubes are added.
-const designMax = withRatings.filter((m) => /design-max/i.test(m.ratingsSource || ''));
+// the year — and recorded as `max_ratings.rating_system` on the tube, so this note
+// cannot drift as tubes are added. A tube whose sheet has not been classified is
+// left out of the sentence rather than silently counted as design-centre.
+const designMax = withRatings.filter((m) => m.ratingSystem === 'design-maximum');
+const unclassified = withRatings.filter((m) => !m.ratingSystem);
 const nameList = (ms) => ms.map((m) => m.name).join(', ').replace(/, ([^,]*)$/, ms.length > 1 ? ' and $1' : '$1');
 const title = 'Load line explorer — plate curves from the corpus tube models · Circuit Codex';
 const description =
@@ -92,10 +95,10 @@ const description =
       <fieldset class="grp">
         <legend>Supply</legend>
         <label class="f"><span>B+ at the plate</span>
-          <span class="io"><input id="c-bplus" type="number" min="10" max="900" step="1" value="340" /><i>V</i></span>
+          <span class="io"><input id="c-bplus" type="number" min="10" max="900" step="any" value="340" /><i>V</i></span>
         </label>
         <label class="f" id="c-vg2-wrap"><span>Screen supply</span>
-          <span class="io"><input id="c-vg2" type="number" min="10" max="900" step="1" value="292" /><i>V</i></span>
+          <span class="io"><input id="c-vg2" type="number" min="10" max="900" step="any" value="292" /><i>V</i></span>
         </label>
       </fieldset>
 
@@ -291,7 +294,8 @@ const description =
     <p class="footnote">Maximum ratings are the limiting values printed on each tube's
       own datasheet, with the sheet, its date and its rating system cited on that tube's
       page.
-      {designMax.length > 0 && ` Most are design-centre figures, which already carry an
+      {designMax.length > 0 && ` ${withRatings.length - designMax.length - unclassified.length}
+        of the ${withRatings.length} are design-centre figures, which already carry an
         allowance for manufacturing spread; the ${nameList(designMax)} sheet${designMax.length > 1 ? 's' : ''}
         quote${designMax.length > 1 ? '' : 's'} design-maximum values instead — the stricter
         line an individual valve may never cross. Judge a tube against its own sheet, not
@@ -695,8 +699,12 @@ function applyPreset(id) {
   const st = STAGES.get(id);
   if (!st) return false;
   $('c-tube').value = st.tube;
-  $('c-bplus').value = String(Math.round(st.plateV * 10) / 10);
-  $('c-vg2').value = String(Math.round(st.screenV * 10) / 10);
+  // The simulator's own node voltages, to full precision. Rounding them here
+  // would be solved as given: pentode plate current follows the screen voltage
+  // steeply, so even a hundredth of a volt of truncation shows up in the parity
+  // figure the panel prints below.
+  $('c-bplus').value = String(st.plateV);
+  $('c-vg2').value = String(st.screenV);
   setRadio('load', 'ot');
   setRadio('cfg', st.config === 'push-pull' ? 'pp' : 'se');
   $('c-dcr').value = '0';

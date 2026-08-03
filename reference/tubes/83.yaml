@@ -36,6 +36,7 @@ max_ratings:
     - { label: "D-C output current", value: "225 mA" }
     - { label: "Total effective plate-supply impedance per plate", value: "50 Ω minimum" }
     - { label: "Condensed-mercury temperature", value: "20–60 °C" }
+  rating_system: design-centre
   source: "RCA type 83 data sheet, 7-63 (design-centre system); General Electric ET-T464 tabulates the same design-centre column"
   source_url: https://frank.pocnet.net/sheets/049/8/83.pdf
 basing:

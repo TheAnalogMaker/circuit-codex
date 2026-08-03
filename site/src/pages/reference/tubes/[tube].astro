@@ -90,6 +90,11 @@ const study = t.study ? loadStudy(t.study) : null;
           <p class="sub">{t.max_ratings.note}</p>
           <dl class="model">
             {t.max_ratings.items.map((r) => (<><dt>{r.label}</dt><dd>{r.value}</dd></>))}
+            {t.max_ratings.rating_system && (<><dt>Rating system</dt><dd>
+              {t.max_ratings.rating_system === 'design-maximum'
+                ? 'Design maximum — the line no individual valve may cross'
+                : 'Design centre — carries an allowance for manufacturing spread'}
+            </dd></>)}
             <dt>Source</dt><dd>
               {t.max_ratings.source_url
                 ? <a href={t.max_ratings.source_url} rel="external nofollow">{t.max_ratings.source} ↗</a>

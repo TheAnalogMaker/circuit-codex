@@ -354,6 +354,11 @@ export function loadTubeModels() {
         anchor: ref?.model?.anchor ?? m.anchor,
         role: ref?.role ?? null,
         limits: ref?.max_ratings?.limits ?? null,
+        // Which rating system the sheet uses is recorded as a field on the tube
+        // rather than inferred from the wording of its citation: GEC's KT66 sheet
+        // heads its design-maximum column "design", and no phrase-match survives
+        // that kind of variation.
+        ratingSystem: ref?.max_ratings?.rating_system ?? null,
         ratingsSource: ref?.max_ratings?.source ?? null,
         ratingsSourceUrl: ref?.max_ratings?.source_url ?? null,
         usedIn: ref?.used_in ?? [],
