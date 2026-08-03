@@ -380,6 +380,15 @@ unnumbered pin 7, and a naive unit list anchored the plate to pin 6 and split th
 node. `--selftest` carries both cases: the planted wrong-pin fault on AA964's V2
 must be CAUGHT, and 5f10's correct wiring must still PASS.
 
+The **AA1164** landed on the same hole from the other side and is now the third
+case, **HB**. Its cathodyne shares a 12AX7 with the (unmodelled) tremolo
+oscillator too, and with no half assigned, a stage wired *across* the two halves
+— plate on one, grid and cathode on the other, a real and buildable mistake —
+passed silently. Because the solver now enumerates both halves and takes whichever
+yields a consistent solve, all of a section's pins must land on the **same** one.
+`aa1164` also joins the `--selftest` baseline set, so the mutation means
+something.
+
 ### Scope, printed honestly every run
 
 Heaters (twisted runs), the pilot lamp, and the PT / rectifier AC side are **not**

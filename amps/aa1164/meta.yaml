@@ -1,0 +1,45 @@
+# Circuit Codex metadata — schema: docs/schema.md (v1)
+id: "aa1164"
+name_style: "Blackface Princeton Reverb-style"
+family: blackface
+era:
+  start: 1964
+  end: 1967
+wattage: 12
+tubes: [12AX7, 12AT7, 12AX7, 12AX7, 6V6GT, 6V6GT, 5U4GB]
+topology:
+  rectifier: { kind: tube, type: "5U4GB" }
+  bias: fixed
+  phase_inverter: cathodyne
+  tone_stack: tb
+lineage:
+  derived_from: []   # the blackface AA964 (reverbless Princeton) is the documented ancestor — edge lands when amps/aa964 does
+  influenced: []
+sources:
+  - desc: >-
+      Fender "Princeton Reverb-Amp AA1164" drawing (drawing no. D 045427 rev A, sheet 1 of 2
+      schematic + sheet 2 of 2 layout): every component value AND the printed voltage chart read
+      directly from the published sheets. Supply chain +420 (rectifier reservoir / output-transformer
+      centre tap) - 1k-1W - +400 (6V6 screens, reverb-driver transformer, tremolo plate load) - 18k-1W -
+      +320 - 18k-1W - +240 (preamp and phase-inverter rail); 6V6 plates +410 with grids on a -34 V
+      fixed-bias line through 220k 5% leaks and no screen stoppers; preamp plates +160 over 100k with
+      1500 Ohm cathodes at +1.3/+1.2; reverb driver 12AT7 both sections paralleled, 2200 Ohm shared
+      cathode at +8.0 into TR3; reverb recovery 220k grid resistor, 100k plate; driver stage cathode
+      1500 Ohm bypassed in series with an unbypassed 47 Ohm carrying the 2700 Ohm speaker feedback;
+      split-load phase inverter 56k plate / 1k + 56k cathode reading +200/+50/+49 with a 1M grid leak
+      returned to the 1k-56k junction; tremolo oscillator 220k plate load and 3300 Ohm cathode at
+      +260/+2.4 injecting into the bias line through a 250k-L Intensity control. Transformers
+      TR1-125P1B (340-0-340 V), TR2-125A10B, TR3-125A20B. Notice: "Voltages read to ground with
+      electronic voltmeter. Values shown + or - 20%. All resistors 1/2 watt 10% tolerance if not
+      specified. All capacitors at least 400 volt rating if not specified." The preamp bottle is
+      labelled 7025 (a 12AX7 alias). Not reproduced here; archived at EL34World
+    url: "https://el34world.com/charts/Schematics/files/Fender/Fender_princeton_reverb_aa1164.pdf"
+  - desc: >-
+      Fender AA1164 schematic sheet, archived separately from the two-sheet drawing — a second
+      print of the same supply-chain values and the same voltage chart
+    url: "https://el34world.com/charts/Schematics/files/Fender/Fender_princeton_reverb_aa1164_schem.pdf"
+verification:
+  status: verified
+  date: 2026-08-02
+  max_deviation_pct: 11.5   # worst gated node (JPI, the cathodyne tail junction, tol 20%); all three rails inside 3.2%, and all seventeen charted nodes land. The tremolo oscillator sharing V4 is a documented exclusion, reported not gated
+contributors: [TheAnalogMaker]

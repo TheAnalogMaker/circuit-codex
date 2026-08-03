@@ -1,0 +1,114 @@
+# Parts list — read from the published AA1164 Princeton Reverb-Amp drawing.
+# Reference designators follow the DC netlist where a part is modeled and are
+# descriptive otherwise; every one of them is cross-checked against the redrawn
+# schematic (schematic.kicad_sch) by pipeline/validate.py, in both directions.
+# Values are the drawing's; the notice sets ½ W / 10% resistors and 400 V
+# capacitors unless noted. Transformer types are the drawing's own TR1/TR2/TR3
+# labels.
+notes: "The drawing shows one jack symbol for the instrument input pair; the chassis carries two. Tube reference designators run from the input end of the chassis (V1 nearest the jacks) — the drawing labels socket types, not V-numbers, and the section split shown here is read off the layout sheet's per-pin voltages. Tremolo-oscillator and reverb-tank interconnect parts are listed, but the oscillator's DC point is excluded from the netlist (see notes.md)."
+items:
+  # --- Instrument input + preamp first stage (V1a) ---
+  - { ref: R1a, part: "Carbon comp resistor", value: "68 kΩ · ½ W", role: "Input grid stopper (jack 1)" }
+  - { ref: R1b, part: "Carbon comp resistor", value: "68 kΩ · ½ W", role: "Input grid stopper (jack 2)" }
+  - { ref: RGN1, part: "Carbon comp resistor", value: "1 MΩ · ½ W", role: "Input grid leak" }
+  - { ref: RLN1, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "V1a plate load" }
+  - { ref: RKN1, part: "Carbon comp resistor", value: "1.5 kΩ · ½ W", role: "V1a cathode bias" }
+  - { ref: CKN1, part: "Electrolytic capacitor", value: "25 µF · 25 V", role: "V1a cathode bypass" }
+  # --- Tone stack + volume ---
+  - { ref: CT, part: "Mica capacitor", value: "250 pF", role: "Treble cap" }
+  - { ref: VRT, part: "Audio-taper potentiometer", value: "250 kΩ-A", role: "Treble" }
+  - { ref: RS, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "Tone-stack slope resistor" }
+  - { ref: CB1, part: "Coupling capacitor", value: "0.1 µF", role: "Tone-stack coupling" }
+  - { ref: VRB, part: "Audio-taper potentiometer", value: "250 kΩ-A", role: "Bass" }
+  - { ref: CB2, part: "Coupling capacitor", value: "0.047 µF", role: "Bass cap" }
+  - { ref: RSL, part: "Carbon comp resistor", value: "6.8 kΩ · ½ W", role: "Tone-stack bleed resistor" }
+  - { ref: VRVOL, part: "Audio-taper potentiometer", value: "1 MΩ-A", role: "Volume" }
+  # --- Preamp second stage (V1b) ---
+  - { ref: RLN2, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "V1b plate load" }
+  - { ref: RKN2, part: "Carbon comp resistor", value: "1.5 kΩ · ½ W", role: "V1b cathode bias" }
+  - { ref: CKN2, part: "Electrolytic capacitor", value: "25 µF · 25 V", role: "V1b cathode bypass" }
+  - { ref: CC1, part: "Coupling capacitor", value: "0.02 µF", role: "V1b output coupling" }
+  # --- Dry / reverb mixing network ---
+  - { ref: RMIX, part: "Carbon comp resistor", value: "3.3 MΩ · ½ W", role: "Dry-signal mixing resistor into the driver grid" }
+  - { ref: CMIX, part: "Mica capacitor", value: "10 pF", role: "Bright cap across the dry mixing resistor" }
+  - { ref: RMR, part: "Carbon comp resistor", value: "470 kΩ · ½ W", role: "Reverb mixing resistor (Reverb wiper → driver grid)" }
+  # --- Reverb send / driver (V2, 12AT7) ---
+  - { ref: CRS, part: "Coupling capacitor", value: "500 pF", role: "Reverb send coupling to the driver grid" }
+  - { ref: RGRD, part: "Carbon comp resistor", value: "1 MΩ · ½ W", role: "Reverb-driver grid leak" }
+  - { ref: RKRD, part: "Carbon comp resistor", value: "2.2 kΩ · ½ W", role: "Reverb-driver shared cathode bias" }
+  - { ref: CKRD, part: "Electrolytic capacitor", value: "25 µF · 25 V", role: "Reverb-driver cathode bypass" }
+  - { ref: TR3, part: "Reverb transformer", value: "Fender 125A20B", role: "Reverb driver → tank input" }
+  - { ref: TANK, part: "Reverb tank", value: "spring reverb unit", role: "Reverb delay line (input and output jacks)" }
+  # --- Reverb recovery (V3a) + Reverb control ---
+  - { ref: RGR1, part: "Carbon comp resistor", value: "220 kΩ · ½ W", role: "Reverb-recovery grid resistor (tank output)" }
+  - { ref: RLR1, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "V3a plate load" }
+  - { ref: RKR1, part: "Carbon comp resistor", value: "1.5 kΩ · ½ W", role: "V3a cathode bias" }
+  - { ref: CKR1, part: "Electrolytic capacitor", value: "25 µF · 25 V", role: "V3a cathode bypass" }
+  - { ref: CCR1, part: "Coupling capacitor", value: "0.003 µF", role: "Reverb-recovery output coupling" }
+  - { ref: VRREV, part: "Linear potentiometer", value: "100 kΩ-L", role: "Reverb" }
+  # --- Driver / mixer stage (V3b) with the feedback loop ---
+  - { ref: RLD1, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "V3b plate load" }
+  - { ref: RKD1, part: "Carbon comp resistor", value: "1.5 kΩ · ½ W", role: "V3b cathode bias (bypassed)" }
+  - { ref: CKD1, part: "Electrolytic capacitor", value: "25 µF · 25 V", role: "V3b cathode bypass" }
+  - { ref: RKD2, part: "Carbon comp resistor", value: "47 Ω · ½ W", role: "V3b unbypassed cathode resistor / feedback injection point" }
+  - { ref: RNFB, part: "Carbon comp resistor", value: "2.7 kΩ · ½ W", role: "Negative feedback, speaker → driver cathode" }
+  - { ref: CC2, part: "Coupling capacitor", value: "0.02 µF", role: "Driver → phase-inverter coupling" }
+  # --- Split-load phase inverter (V4b) ---
+  - { ref: RLPI, part: "Carbon comp resistor", value: "56 kΩ · ½ W", role: "Phase-inverter plate load" }
+  - { ref: RKPI, part: "Carbon comp resistor", value: "1 kΩ · ½ W", role: "Phase-inverter cathode bias resistor" }
+  - { ref: RTAIL, part: "Carbon comp resistor", value: "56 kΩ · ½ W", role: "Phase-inverter cathode load" }
+  - { ref: RGPI, part: "Carbon comp resistor", value: "1 MΩ · ½ W", role: "Phase-inverter grid leak, returned to the 1 kΩ / 56 kΩ junction" }
+  - { ref: C1, part: "Coupling capacitor", value: "0.1 µF · 400 V", role: "Inverter plate → V5 grid" }
+  - { ref: C2, part: "Coupling capacitor", value: "0.1 µF · 400 V", role: "Inverter cathode → V6 grid" }
+  # --- Tremolo oscillator (V4a) — DC point excluded (see notes.md) ---
+  - { ref: RTOP, part: "Carbon comp resistor", value: "220 kΩ · ½ W", role: "Tremolo oscillator plate load" }
+  - { ref: RKTO, part: "Carbon comp resistor", value: "3.3 kΩ · ½ W", role: "Tremolo oscillator cathode bias" }
+  - { ref: CKTO, part: "Electrolytic capacitor", value: "25 µF · 25 V", role: "Tremolo oscillator cathode bypass" }
+  - { ref: CTO1, part: "Film capacitor", value: "0.02 µF", role: "Tremolo oscillator plate coupling" }
+  - { ref: CTO2, part: "Film capacitor", value: "0.05 µF", role: "Tremolo phase-shift cap" }
+  - { ref: CTO3, part: "Film capacitor", value: "0.01 µF", role: "Tremolo phase-shift cap (Speed network)" }
+  - { ref: RTO1, part: "Carbon comp resistor", value: "1 MΩ · ½ W", role: "Tremolo phase-shift resistor to ground" }
+  - { ref: RTO2, part: "Carbon comp resistor", value: "1 MΩ · ½ W", role: "Tremolo phase-shift resistor to the oscillator cathode" }
+  - { ref: RSPD, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "Speed-network series resistor" }
+  - { ref: VRSPD, part: "Reverse-audio potentiometer", value: "3 MΩ-RA", role: "Speed" }
+  - { ref: RTOUT, part: "Carbon comp resistor", value: "1 MΩ · ½ W", role: "Tremolo oscillator output series resistor" }
+  - { ref: CTO4, part: "Film capacitor", value: "0.02 µF", role: "Tremolo output shunt to ground" }
+  - { ref: CINT, part: "Coupling capacitor", value: "0.1 µF", role: "Tremolo output coupling into the Intensity control" }
+  - { ref: VRINT, part: "Linear potentiometer", value: "250 kΩ-L", role: "Intensity — sets how far the oscillator swings the bias line" }
+  # --- Output stage (6V6GT pair) ---
+  - { ref: RGL1, part: "Carbon comp resistor", value: "220 kΩ · ½ W · 5%", role: "V5 grid leak, from the −34 V bias line" }
+  - { ref: RGL2, part: "Carbon comp resistor", value: "220 kΩ · ½ W · 5%", role: "V6 grid leak, from the −34 V bias line" }
+  - { ref: TR2, part: "Output transformer", value: "Fender 125A10B", role: "Push-pull 6V6 output" }
+  - { ref: JEXT, part: "Jack", value: "external speaker", role: "Parallel speaker output" }
+  # --- Bias supply ---
+  - { ref: RB1, part: "Carbon comp resistor", value: "100 kΩ · ½ W · 5%", role: "Bias-supply feed from the HT winding" }
+  - { ref: DB1, part: "Rectifier (bias)", value: "silicon diode", role: "Bias-supply rectifier" }
+  - { ref: CB3, part: "Electrolytic capacitor", value: "25 µF · 50 V", role: "Bias-supply filter" }
+  - { ref: RB2, part: "Carbon comp resistor", value: "22 kΩ · ½ W", role: "Bias-supply bleeder" }
+  # --- Power supply ---
+  - { ref: TR1, part: "Power transformer", value: "Fender 125P1B · 340-0-340 V", role: "HT + heaters + rectifier filament" }
+  - { ref: CF1, part: "Electrolytic capacitor", value: "20 µF · 450 V", role: "Reservoir filter (+420 V, OT centre tap)" }
+  - { ref: R1K, part: "Wirewound resistor", value: "1 kΩ · 1 W", role: "Dropper, reservoir → screen rail" }
+  - { ref: CF2, part: "Electrolytic capacitor", value: "20 µF · 450 V", role: "Filter, screen rail (+400 V)" }
+  - { ref: RD1, part: "Wirewound resistor", value: "18 kΩ · 1 W", role: "Dropper, screen rail → +320 V node" }
+  - { ref: CF3, part: "Electrolytic capacitor", value: "20 µF · 450 V", role: "Filter, +320 V node" }
+  - { ref: RD2, part: "Wirewound resistor", value: "18 kΩ · 1 W", role: "Dropper, +320 V → preamp rail" }
+  - { ref: CF4, part: "Electrolytic capacitor", value: "20 µF · 450 V", role: "Filter, preamp / phase-inverter rail (+240 V)" }
+  - { ref: RH1, part: "Carbon comp resistor", value: "100 Ω · ½ W", role: "Heater hum-balance resistor" }
+  - { ref: RH2, part: "Carbon comp resistor", value: "100 Ω · ½ W", role: "Heater hum-balance resistor" }
+  # --- Mains (period parts) ---
+  - { ref: F1, part: "Fuse", value: "1 A slo-blo", role: "Mains fuse" }
+  - { ref: SW1, part: "Switch", value: "SPST", role: "AC switch" }
+  - { ref: SW2, part: "Switch", value: "SPDT", role: "Ground switch (period; not in modern builds)" }
+  - { ref: CDEATH, part: "Ceramic capacitor", value: "0.047 µF · 600 V", role: "Ground-switch cap (period; not in modern builds)" }
+  # --- Footswitch jacks ---
+  - { ref: JVIB, part: "Jack", value: "vibrato footswitch", role: "Grounds the oscillator to switch the tremolo off" }
+  - { ref: JREV, part: "Jack", value: "reverb footswitch", role: "Reverb footswitch" }
+  # --- Tubes ---
+  - { ref: V1, part: "Preamp tube", value: "12AX7 (7025)", role: "Preamp input stage + second stage (V1a/V1b)" }
+  - { ref: V2, part: "Preamp/driver tube", value: "12AT7", role: "Reverb driver (both sections paralleled)" }
+  - { ref: V3, part: "Preamp tube", value: "12AX7", role: "Reverb recovery + driver/mixer stage (V3a/V3b)" }
+  - { ref: V4, part: "Preamp tube", value: "12AX7", role: "Tremolo oscillator (DC point excluded) + split-load phase inverter (V4a/V4b)" }
+  - { ref: V5, part: "Power tube", value: "6V6GT", role: "Push-pull output (inverter-plate side)" }
+  - { ref: V6, part: "Power tube", value: "6V6GT", role: "Push-pull output (inverter-cathode side)" }
+  - { ref: V7, part: "Rectifier tube", value: "5U4GB", role: "Full-wave rectifier" }

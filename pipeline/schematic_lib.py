@@ -182,6 +182,20 @@ LIB = f"""  (lib_symbols
       (symbol "FUSE_1_1"
         {_pin("passive", -5.08, 0, 0, 2.54, "1", "1")}
         {_pin("passive", 5.08, 0, 180, 2.54, "2", "2")}))
+    (symbol "cx:TANK" (pin_numbers hide) (pin_names hide) (in_bom yes) (on_board yes)
+      (property "Reference" "RT" (at -7.62 8.89 0) {FONT})
+      (property "Value" "tank" (at 0 0 0) {FONT})
+      (symbol "TANK_0_1"
+        (rectangle (start -7.62 -5.08) (end 7.62 5.08) {_STROKE})
+        {_poly("(xy -5.08 2.54) (xy -3.81 3.556) (xy -2.54 1.524) (xy -1.27 3.556) "
+               "(xy 0 1.524) (xy 1.27 3.556) (xy 2.54 1.524) (xy 3.81 3.556) (xy 5.08 2.54)")}
+        {_poly("(xy -5.08 -2.54) (xy -3.81 -1.524) (xy -2.54 -3.556) (xy -1.27 -1.524) "
+               "(xy 0 -3.556) (xy 1.27 -1.524) (xy 2.54 -3.556) (xy 3.81 -1.524) (xy 5.08 -2.54)")})
+      (symbol "TANK_1_1"
+        {_pin("passive", -10.16, 2.54, 0, 2.54, "IN_H", "1")}
+        {_pin("passive", -10.16, -2.54, 0, 2.54, "IN_C", "2")}
+        {_pin("passive", 10.16, 2.54, 180, 2.54, "OUT_H", "3")}
+        {_pin("passive", 10.16, -2.54, 180, 2.54, "OUT_C", "4")}))
     (symbol "cx:OPTO" (pin_numbers hide) (pin_names hide) (in_bom yes) (on_board yes)
       (property "Reference" "U" (at 5.08 5.08 0) {FONT})
       (property "Value" "opto" (at 5.08 -5.08 0) {FONT})
@@ -297,6 +311,13 @@ class Sch:
         """Quarter-inch jack: tip and sleeve contacts face left, body to the right."""
         self.sym("JACK", ref, val, x, y, lx=lx, ly=ly)
         return {"tip": (x - 5.08, y - 2.54), "sleeve": (x - 5.08, y + 2.54)}
+
+    def tank(self, ref: str, val: str, x: float, y: float,
+             lx: float = -7.0, ly: float = -9.4) -> dict:
+        """Spring reverb tank: input transducer left, output transducer right."""
+        self.sym("TANK", ref, val, x, y, lx=lx, ly=ly)
+        return {"in_h": (x - 10.16, y - 2.54), "in_c": (x - 10.16, y + 2.54),
+                "out_h": (x + 10.16, y - 2.54), "out_c": (x + 10.16, y + 2.54)}
 
     def opto(self, ref: str, val: str, x: float, y: float,
              lx: float = 4.4, ly: float = -8.0) -> dict:

@@ -1,0 +1,256 @@
+# Board layout — redrawn from the published Fender AA1164 Princeton Reverb-Amp
+# layout sheet. Part refs are the shared key into bom.yaml; the renderer reads
+# each value and part type from there. A legible, schematic-style redraw of the
+# board's principal components in the order the drawing shows them — never a
+# trace or a dimensioned reproduction.
+#
+# The board reads left→right: the power supply, rectifier and output stage at the
+# left end, the split-load phase inverter and the reverb/mixer tube in the middle,
+# the reverb driver and the preamp at the right — matching the tube row on the
+# drawing (5U4GB · 6V6 · 6V6 · 12AX7 tremolo+inverter · 12AX7 reverb+mixer ·
+# 12AT7 reverb driver · 7025 preamp).
+#
+# Machine-checked equivalence: the point-to-point wiring drawn below has been
+# verified electrically equivalent to the simulated netlist (netlist.cir) by
+# pipeline/verify_layout_nets.py — see the net_map block at the foot of this file
+# and docs/layout-schema.md. Heaters, the pilot lamp, the tremolo oscillator's
+# phase-shift network and the negative-bias supply are an excluded annotation
+# layer (not in netlist.cir).
+wiring_claim: verified
+
+board:
+  rows: 2
+  cols: 63
+  title: "AA1164 · eyelet board layout"
+caption: "Redrawn from the published Fender AA1164 Princeton Reverb-Amp layout sheet — principal board components, in the order the drawing shows them. The tone stack, the tremolo oscillator's phase-shift network and the negative-bias supply mount largely at the pots and the rectifier corner, and are drawn minimally for legibility; small grid stoppers are omitted. The supply chain is drawn the way the board carries it: each filter can shares an eyelet with the dropper it feeds, so +420 → 1 kΩ → +400 → 18 kΩ → +320 → 18 kΩ → +240 reads straight across the left end. The 6.3 V heater chain (green twisted pair, PT → pilot lamp → the two 6V6 output tubes → 12AX7 tremolo/inverter → 12AX7 reverb/mixer → 12AT7 reverb driver → 7025 preamp) is routed as the published sheet shows it; the 5U4GB is directly heated from the separate 5 V winding and off the 6.3 V chain. Not a trace or a dimensioned reproduction."
+source:
+  desc: "Fender 'Princeton Reverb-Amp AA1164' drawing no. D 045427 rev A, sheet 2 of 2 (layout)"
+  url: "https://el34world.com/charts/Schematics/files/Fender/Fender_princeton_reverb_aa1164.pdf"
+
+parts:
+  # --- power supply (left end): each can shares an eyelet with its dropper ---
+  - { ref: CF1, a: [0, 0], b: [1, 0] }     # 20 µF reservoir (+420, OT centre tap)
+  - { ref: R1K, a: [0, 0], b: [0, 2] }     # 1 kΩ-1W dropper +420 → +400
+  - { ref: CF2, a: [0, 2], b: [1, 2] }     # 20 µF screen / reverb-driver rail (+400)
+  - { ref: RD1, a: [0, 2], b: [0, 4] }     # 18 kΩ-1W dropper +400 → +320
+  - { ref: CF3, a: [0, 4], b: [1, 4] }     # 20 µF +320 node (nothing else taps it)
+  - { ref: RD2, a: [0, 4], b: [0, 6] }     # 18 kΩ-1W dropper +320 → +240
+  - { ref: CF4, a: [0, 6], b: [1, 6] }     # 20 µF preamp / phase-inverter rail (+240)
+  # --- output stage (6V6 pair V5/V6): couplers + grid leaks, no screen stoppers ---
+  - { ref: C1,   a: [0, 12], b: [0, 13] }  # 0.1 µF inverter plate → V5 grid (PPI→G61)
+  - { ref: RGL1, a: [0, 13], b: [1, 13] }  # 220k 5% V5 grid leak (G61 → −34 V)
+  - { ref: C2,   a: [0, 16], b: [0, 17] }  # 0.1 µF inverter cathode → V6 grid (KPI→G62)
+  - { ref: RGL2, a: [0, 17], b: [1, 17] }  # 220k 5% V6 grid leak (G62 → −34 V)
+  # --- split-load (cathodyne) phase inverter, V4 ---
+  - { ref: RLPI,  a: [0, 18], b: [0, 19] } # 56k plate load (BD→PPI)
+  - { ref: RKPI,  a: [0, 22], b: [0, 23] } # 1k cathode resistor (KPI→JPI)
+  - { ref: RGPI,  a: [0, 23], b: [0, 24] } # 1M grid leak returned to the junction (JPI→GPI)
+  - { ref: RTAIL, a: [0, 23], b: [1, 23] } # 56k cathode load (JPI→0)
+  # --- reverb recovery (V3, left half) ---
+  - { ref: CKR1, a: [0, 25], b: [0, 26] }  # 25 µF cathode bypass (shares KR1)
+  - { ref: RKR1, a: [0, 26], b: [1, 26] }  # 1.5k cathode (KR1→0)
+  - { ref: RLR1, a: [0, 27], b: [0, 28] }  # 100k plate load (BD→PR1)
+  - { ref: RGR1, a: [0, 29], b: [1, 29] }  # 220k tank-return grid resistor (GR1→0)
+  # --- dry / reverb mixer into the driver grid ---
+  - { ref: RMIX, a: [0, 32], b: [0, 33], nudge: [-16, 0] }  # 3.3M dry mixing resistor (→GD1)
+  - { ref: RMR,  a: [0, 33], b: [0, 34], nudge: [16, 0] }  # 470k reverb mixing resistor (Reverb wiper→GD1)
+  # --- driver / mixer stage (V3, right half) with the feedback loop ---
+  - { ref: RLD1, a: [0, 35], b: [0, 36] }  # 100k plate load (BD→PD1)
+  - { ref: RNFB, a: [1, 36], b: [1, 37] }  # 2.7k speaker feedback onto the 47 Ω junction
+  - { ref: CKD1, a: [0, 37], b: [1, 37], nudge: [-64, 0] }  # 25 µF cathode bypass (KD1→KD1B)
+  - { ref: RKD1, a: [0, 38], b: [1, 38] }  # 1.5k cathode (KD1→KD1B)
+  - { ref: RKD2, a: [1, 38], b: [1, 39], nudge: [-24, 0] }  # 47 Ω unbypassed cathode resistor (KD1B→0)
+  # --- reverb send + driver (V2, 12AT7 both sections paralleled) ---
+  - { ref: CRS,  a: [0, 39], b: [0, 40] }  # 500 pF reverb send coupling (shares GRD)
+  - { ref: RGRD, a: [0, 40], b: [1, 40], nudge: [-56, 30] }  # 1M reverb-driver grid leak (GRD→0)
+  - { ref: CKRD, a: [0, 45], b: [0, 46] }  # 25 µF cathode bypass (shares KRD)
+  - { ref: RKRD, a: [0, 46], b: [1, 46] }  # 2.2k shared cathode (KRD→0)
+  # --- preamp second stage (V1, right half) ---
+  - { ref: CC1,  a: [0, 48], b: [0, 47], nudge: [-16, 0] }  # 0.02 µF output coupling (shares PN2)
+  - { ref: RLN2, a: [0, 49], b: [0, 48], nudge: [16, 0] }  # 100k plate load (BD→PN2)
+  - { ref: CKN2, a: [0, 51], b: [0, 52] }  # 25 µF cathode bypass (shares KN2)
+  - { ref: RKN2, a: [0, 52], b: [1, 52] }  # 1.5k cathode (KN2→0)
+  # --- preamp input stage (V1, left half) ---
+  - { ref: RLN1, a: [0, 57], b: [0, 58] }  # 100k plate load (BD→PN1)
+  - { ref: CKN1, a: [0, 60], b: [0, 61] }  # 25 µF cathode bypass (shares KN1)
+  - { ref: RKN1, a: [0, 61], b: [1, 61] }  # 1.5k cathode (KN1→0)
+
+offboard:
+  - { id: TR1, ref: TR1, kind: xfmr, edge: left,   at: 0.5,  label: "Power trans" }
+  - { id: PL1, kind: part, glyph: lamp, edge: left, at: 1.6, label: "Pilot lamp" }
+  - { id: V7,  ref: V7,  kind: tube, edge: bottom, at: 2,    label: "V7 · 5U4GB" }
+  - { id: V5,  ref: V5,  kind: tube, edge: bottom, at: 11,   label: "V5 · 6V6GT" }
+  - { id: TR2, ref: TR2, kind: xfmr, edge: top,    at: 13,   label: "Output trans" }
+  - { id: V6,  ref: V6,  kind: tube, edge: bottom, at: 15,   label: "V6 · 6V6GT" }
+  - { id: SPK, kind: jack, edge: bottom, at: 17.5, label: "Spkr" }
+  - { id: VRSPD, ref: VRSPD, kind: pot, edge: top, at: 20,   label: "Speed" }
+  - { id: V4,  ref: V4,  kind: tube, edge: bottom, at: 21,   label: "V4 · 12AX7 trem / inv" }
+  - { id: VRINT, ref: VRINT, kind: pot, edge: top, at: 24,   label: "Intensity" }
+  - { id: V3,  ref: V3,  kind: tube, edge: bottom, at: 31,   label: "V3 · 12AX7 rev / mix" }
+  - { id: VRREV, ref: VRREV, kind: pot, edge: top, at: 33,   label: "Reverb" }
+  - { id: TR3, ref: TR3, kind: xfmr, edge: top,    at: 41,   label: "Reverb trans" }
+  - { id: V2,  ref: V2,  kind: tube, edge: bottom, at: 43,   label: "V2 · 12AT7 rev drv" }
+  - { id: JTKI, kind: jack, edge: top, at: 43.6,   label: "Tank in" }
+  - { id: JTKO, kind: jack, edge: top, at: 46.6,   label: "Tank out" }
+  - { id: VRVOL, ref: VRVOL, kind: pot, edge: top, at: 50,   label: "Volume" }
+  - { id: V1,  ref: V1,  kind: tube, edge: bottom, at: 55,   label: "V1 · 7025 preamp" }
+  - { id: RGN1, ref: RGN1, kind: part, edge: top,  at: 59,   label: "RGN1" }
+  - { id: JIN, kind: jack, edge: top, at: 61,      label: "Input" }
+
+# Ground bus — the bare rail just below the bottom eyelet row; cathode, filter,
+# grid-leak and pot grounds tie to it.
+bus:
+  - { from: [1.45, -0.5], to: [1.45, 62.5] }
+
+# Wiring — read lead-by-lead from the published AA1164 layout sheet. Transformer
+# leads carry the drawing's colours. The 6.3 V heater winding is the green pair;
+# it feeds the pilot lamp then daisy-chains socket to socket (style: twisted),
+# skipping the directly-heated 5U4GB (its filament is on the separate 5 V winding).
+runs:
+  # === power transformer HT → 5U4GB → reservoir (annotation layer) =============
+  - { from: TR1.red1, to: V7.pin4, via: [[1.5, 0.32]] }
+  - { from: TR1.red2, to: V7.pin6, via: [[2.7, 0.58]] }
+  - { from: TR1.red-yellow, to: [1.45, 1.4], via: [[0.5, 1.25]] }   # HT centre tap → ground
+  - { from: V7.pin8, to: CF1.a, color: red, via: [[1.6, 1.2]] }     # B+ out → reservoir
+
+  # === filter-can negatives → ground bus ======================================
+  - { from: CF1.b, to: [1.45, 0] }
+  - { from: CF2.b, to: [1.45, 2] }
+  - { from: CF3.b, to: [1.45, 4] }
+  - { from: CF4.b, to: [1.45, 6] }
+
+  # === +400 screen rail: both 6V6 screens tie together (no screen stoppers in
+  # this circuit) and one lead runs back to the +400 eyelet at the left end. ====
+  - { from: V6.pin4, to: V5.pin4, color: red, via: [[15.4, 2.45], [10.9, 2.45]] }
+  - { from: V5.pin4, to: CF2.a, color: red, via: [[10.2, 1.45], [9.0, 1.2], [9.0, -0.5], [1.2, -0.5]] }
+  - { from: TR3.red, to: CF2.a, color: red, via: [[40.6, 2.86], [3.0, 2.86], [3.0, 1.0]] }  # reverb-trans primary → +400
+
+  # === output transformer: centre tap on the reservoir, plates on the 6V6s =====
+  - { from: TR2.red, to: CF1.a, color: red, via: [[11.4, 0.4], [9.4, 2.55], [-0.4, 2.55]] }
+  - { from: TR2.blue, to: V5.pin3, via: [[12.8, 3.0], [10.5, 3.0]] }
+  - { from: TR2.brown, to: V6.pin3, via: [[13.4, 3.08], [15, 3.08]] }
+  - { from: TR2.green, to: SPK.tip, via: [[13.4, 1.05]] }
+  - { from: SPK.sleeve, to: [1.45, 17.4] }
+
+  # === +240 preamp / inverter rail: backbone along the board ===================
+  - { from: CF4.a, to: RLR1.a, via: [[6.5, 1.2], [8.0, 2.38], [26.6, 2.38]] }
+  - { from: RLR1.a, to: RLPI.a, via: [[28.0, -0.5], [18.6, -0.5]] }
+  - { from: RLR1.a, to: RLD1.a, via: [[27.5, 0.5], [27.5, 2.28], [34.5, 2.28]] }
+  - { from: RLD1.a, to: RLN2.a, via: [[35.5, 0.5], [35.5, 2.32], [48.5, 2.32]] }
+  - { from: RLN2.a, to: RLN1.a, via: [[49.5, 0.5], [49.5, 2.36], [56.5, 2.36]] }
+
+  # === output stage: grids, cathodes, and the −34 V bias line ==================
+  - { from: C1.b, to: V5.pin5, via: [[11.9, 1.5]] }
+  - { from: C2.b, to: V6.pin5, via: [[16.7, 1.55]] }
+  - { from: V5.pin8, to: [1.45, 11.5], via: [[11.4, 1.7]] }
+  - { from: V6.pin8, to: [1.45, 14.5], via: [[14.7, 1.5]] }
+  - { from: RGL1.b, to: RGL2.b, via: [[13.4, 1.15], [16.6, 1.15]] }   # the two grid leaks meet on the bias line
+
+  # === split-load phase inverter (V4, socket half nearest the board) ===========
+  - { from: RLPI.b, to: V4.pin6, via: [[19.7, 1.5]] }
+  - { from: V4.pin6, to: C1.a, via: [[21.4, 2.55], [12.4, 2.55]] }
+  - { from: V4.pin7, to: RGPI.b, via: [[22.6, 1.85], [24.4, 1.3], [24.4, 0.5]] }
+  - { from: V4.pin8, to: RKPI.a, via: [[22.2, 1.9], [22.0, 0.55]] }
+  - { from: V4.pin8, to: C2.a, via: [[21.8, 2.65], [18.6, 2.65], [18.6, 1.3]] }
+  - { from: RTAIL.b, to: [1.45, 23] }
+
+  # === reverb recovery (V3, left half): plate, grid, cathode ===================
+  - { from: RLR1.b, to: V3.pin1, via: [[28.4, 1.6], [30.0, 2.35]] }
+  - { from: V3.pin2, to: RGR1.a, via: [[29.6, 1.4]] }
+  - { from: V3.pin3, to: RKR1.a, via: [[29.6, 1.75], [26.6, 1.35]] }
+  - { from: CKR1.a, to: [1.45, 24.6] }
+  - { from: RKR1.b, to: [1.45, 26.4], via: [[26.3, 1.5]] }
+  - { from: RGR1.b, to: [1.45, 29.3] }
+
+  # === driver / mixer (V3, right half): plate, mixed grid, split cathode =======
+  - { from: RLD1.b, to: V3.pin6, via: [[35.6, 1.5], [32.2, 1.72]] }
+  - { from: V3.pin7, to: RMR.a, via: [[32.6, 1.4], [33.4, 0.55]] }
+  - { from: V3.pin8, to: RKD1.a, via: [[32.6, 1.9], [37.4, 1.4]] }
+  - { from: CKD1.a, to: RKD1.a }                       # the two cathode-node eyelets
+  - { from: CKD1.b, to: RKD1.b }                       # the 47 Ω junction (KD1B)
+  - { from: RKD2.b, to: [1.45, 39.4] }
+  - { from: RNFB.a, to: SPK.tip, via: [[35.6, 3.2], [16.2, 3.2], [16.2, 2.02]] }   # speaker → feedback resistor
+  - { from: RMR.b, to: VRREV.lug2, via: [[34.0, -0.6]] }
+  - { from: VRREV.lug1, to: [1.45, 30.6], via: [[32.2, 0.2]] }
+
+  # === reverb driver V2 (both sections paralleled) =============================
+  - { from: V2.pin6, to: V2.pin1, via: [[42.3, 2.7]] }               # tie the two plates (PRD)
+  - { from: V2.pin1, to: TR3.blue, via: [[41.8, 2.36], [41.0, 2.36]] }
+  - { from: V2.pin7, to: V2.pin2, via: [[42.8, 2.5], [42.5, 3.2]] }  # tie the two grids (GRD)
+  - { from: V2.pin7, to: RGRD.a, via: [[44.6, 2.0], [44.6, 2.55], [41.6, 2.55], [41.6, 0.5]] }
+  - { from: RGRD.b, to: [1.45, 40.2] }
+  - { from: V2.pin8, to: RKRD.a, via: [[45.4, 1.9]] }
+  - { from: V2.pin3, to: RKRD.a, via: [[43.4, 1.1], [44.6, 0.3]] }
+  - { from: CKRD.a, to: [1.45, 44.6] }
+  - { from: RKRD.b, to: [1.45, 46.4], via: [[46.2, 1.5]] }
+  # reverb tank interconnect (annotation layer)
+  - { from: TR3.green, to: JTKI.tip }
+  - { from: JTKI.sleeve, to: [1.45, 42.6], via: [[43.9, -0.55], [42.6, -0.3]] }
+  - { from: JTKO.tip, to: RGR1.a, via: [[46.2, -0.2], [29.4, -0.2]] }
+  - { from: JTKO.sleeve, to: [1.45, 47.4], via: [[47.4, -0.95]] }
+
+  # === dry signal: V1B plate coupler feeds the reverb send AND the mixer =======
+  - { from: CC1.b, to: CRS.a, via: [[46.6, -0.52], [39.4, -0.52]] }
+  - { from: CRS.a, to: RMIX.a, via: [[38.6, -0.38], [32.4, -0.38]] }
+
+  # === preamp second stage (V1, right half) ===================================
+  - { from: RLN2.b, to: V1.pin1, via: [[48.4, 1.8], [52.8, 2.45]] }
+  - { from: VRVOL.lug2, to: V1.pin2, via: [[50.3, -0.5], [50.3, 1.5], [52.6, 1.9]] }
+  - { from: VRVOL.lug1, to: [1.45, 53.4], via: [[50.4, -0.75], [53.4, 0.5]] }
+  - { from: V1.pin3, to: RKN2.a, via: [[52.6, 1.55]] }
+  - { from: CKN2.a, to: [1.45, 50.6] }
+  - { from: RKN2.b, to: [1.45, 52.4] }
+
+  # === preamp input stage (V1, left half) =====================================
+  - { from: RLN1.b, to: V1.pin6, via: [[58, 1.62]] }
+  - { from: JIN.tip, to: RGN1.a, via: [[60.0, -1.1]] }
+  - { from: JIN.sleeve, to: [1.45, 62.2], via: [[62.2, -0.6]] }
+  - { from: RGN1.a, to: V1.pin7, via: [[58.6, -0.4], [58.6, 1.4]] }
+  - { from: RGN1.b, to: [1.45, 59.4], via: [[59.4, -0.35]] }
+  - { from: V1.pin8, to: RKN1.a, via: [[57.0, 2.35], [60.6, 1.7]] }
+  - { from: CKN1.a, to: [1.45, 59.9], via: [[59.9, 0.7]] }
+  - { from: RKN1.b, to: [1.45, 61.6], via: [[61.5, 1.35]] }
+
+  # === 6.3 V heater chain (green twisted pair) =================================
+  # PT green pair → pilot lamp → V5 → V6 → V4 → V3 → V2 → V1, in the drawing's
+  # daisy order. Twisted runs land only on heater pins (6V6 octal 2/7; noval 4/5).
+  - { from: TR1.green, to: PL1.a, style: twisted }
+  - { from: PL1.b, to: V5.pin7, style: twisted, via: [[-1.2, 3.6], [11, 3.6]] }
+  - { from: V5.pin2, to: V6.pin7, style: twisted, via: [[11, 3.6], [15, 3.6]] }
+  - { from: V6.pin2, to: V4.pin4, style: twisted, via: [[15, 3.62], [21, 3.62]] }
+  - { from: V4.pin5, to: V3.pin4, style: twisted, via: [[21, 3.62], [31, 3.62]] }
+  - { from: V3.pin5, to: V2.pin4, style: twisted, via: [[31, 3.64], [43, 3.64]] }
+  - { from: V2.pin5, to: V1.pin4, style: twisted, via: [[43, 3.64], [55, 3.64]] }
+  - { from: V1.pin4, to: V1.pin5, style: twisted }
+
+# net_map — reviewable reconciliation of the drawn wiring with the DC netlist
+# (netlist.cir) for pipeline/verify_layout_nets.py. See docs/layout-schema.md.
+net_map:
+  # The netlist omits transformer winding DCR, so each transformer's B+ side sits
+  # at its rail node: the push-pull OT primary (both 6V6 plate leads + the centre
+  # tap) collapses onto the +420 reservoir node BA, and the reverb-driver plates
+  # reach the +400 rail BB through the reverb transformer's RTR3 primary DCR
+  # (declared unplaced below), so TR3's B+ lead is anchored to BB. The speaker
+  # jack's tip is the OT secondary's hot end, whose DCR the netlist folds into
+  # ground — that is where the 2.7 kΩ feedback resistor starts.
+  #
+  # No excluded_tubes block: unlike ab763, this circuit's tremolo oscillator is
+  # not a socket of its own — it is the OTHER half of V4, whose phase-inverter
+  # half IS modelled, so V4 anchors normally. The oscillator half carries no
+  # board wiring here (its phase-shift network mounts at the Speed/Intensity
+  # controls) and no netlist device, and it is documented in notes.md.
+  anchors:
+    TR2.red:   BA    # OT primary centre tap → +420 reservoir
+    TR2.blue:  BA    # OT primary, V5 plate lead → +420 (winding DCR omitted)
+    TR2.brown: BA    # OT primary, V6 plate lead → +420 (winding DCR omitted)
+    TR3.red:   BB    # reverb-transformer primary, B+ side → +400
+    SPK.tip: "0"     # OT-secondary hot — winding DCR folded into ground (the feedback return)
+    VRREV.lug2: "0"  # Reverb wiper — no DC flows in the pot, so the 470 kΩ mixer's far lead sits at the wiper's DC ground (the netlist collapses the control to RMR: GD1→0)
+  # DC-transparent parts the netlist omits (no DC grid current): the two 68 kΩ
+  # input grid stoppers mount at the jacks, off the eyelet board, so none is
+  # placed here.
+  # Netlist elements with no discrete same-named board part — reported in
+  # coverage, never a failure (their nodes still have to check out):
+  netlist_unplaced:
+    RTR3: "reverb transformer TR3 primary DCR (~200 Ω) — the winding, not a discrete board resistor; its B+ lead anchors to BB and its plate lead lands on the paralleled V2 plates (PRD)"
+    RGN2: "Volume control VRVOL — the netlist models the second preamp stage's DC grid return as one grid-leak (GN2→0)"

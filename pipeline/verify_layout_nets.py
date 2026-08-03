@@ -687,12 +687,12 @@ def _check_layout(amp_id: str, layout: dict, bom: dict, net_map=None,
     for bottle, secs in by_bottle.items():
         if bottle not in basing_inv:
             continue  # unresolved tube — accounted as a hard failure in _solve
-        # HALF-BOTTLE / H9 (closed 2026-08-02, found while claiming the AA964):
-        # enumerate the half-assignment for EVERY multi-section bottle, including
-        # one whose netlist models only ONE of its two triode halves — the AA964's
-        # cathodyne, which shares a 12AX7 with an unmodelled tremolo oscillator;
-        # the AB763's normal-channel input stage. Gating this on len(secs) > 1
-        # left unit=None on those
+        # HALF-BOTTLE / H9 (closed 2026-08-02, found while claiming the AA964 and
+        # hit again immediately by the AA1164): enumerate the half-assignment for
+        # EVERY multi-section bottle, including one whose netlist models only ONE
+        # of its two triode halves — both Princetons' cathodynes, each sharing a
+        # 12AX7 with an unmodelled tremolo oscillator; the AB763's normal-channel
+        # input stage. Gating this on len(secs) > 1 left unit=None on those
         # bottles, every (role, unit) basing lookup missed, no pin was anchored,
         # and the socket's whole signal wiring went silently unchecked — a lead
         # moved to a wrong pin passed, as did a stage wired ACROSS the two halves.
@@ -1299,7 +1299,7 @@ def selftest() -> int:
     resolver anchors what a misleading label used to hide). CI runs it."""
     fails: list[str] = []
     print("=== baselines (must PASS before mutations mean anything) ===")
-    for amp in ("5f1", "5f6a", "jtm45", "5f4"):
+    for amp in ("5f1", "5f6a", "jtm45", "5f4", "aa1164"):
         layout, bom = _load_layout(amp)
         r = _check_layout(amp, layout, bom)
         print(f"  {amp}: {'PASS' if r.ok else 'FAIL ' + str(r.errors[:2])}")
@@ -1361,6 +1361,18 @@ def selftest() -> int:
     laa, baa = _load_layout("aa964")
     case("H9", "single-section bottle (aa964 V2B) plate moved to a wrong socket pin",
          "aa964", _reroute(laa, "RLPI.b", "V2.pin6", new_to="V2.pin9"), baa)
+
+    # ---- HB the same hole from the other side: a stage the netlist models as ONE
+    #      section of a dual triode must land entirely on ONE half. Before H9 an
+    #      inverter wired plate-on-one-half / grid+cathode-on-the-other passed. --
+    l64, b64 = _load_layout("aa1164")
+    m = copy.deepcopy(l64)
+    for run in m["runs"]:
+        if run.get("from") == "V4.pin8" and run.get("to") in ("RKPI.a", "C2.a"):
+            run["from"] = "V4.pin3"
+        elif run.get("from") == "V4.pin7" and run.get("to") == "RGPI.b":
+            run["from"] = "V4.pin2"
+    case("HB", "half-bottle inverter split across both triode halves", "aa1164", m, b64)
 
     # ---- H7 a signal run relabelled style:twisted (would remove it from the
     #      equivalence check as a 'heater' run) — must land on heater pins ----

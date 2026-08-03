@@ -1,0 +1,28 @@
+# Printed voltage chart read directly from the published AA1164 Princeton
+# Reverb-Amp drawing (schematic and layout sheets carry the same values). The
+# drawing's notice: "Voltages read to ground with electronic voltmeter. Values
+# shown + or - 20%." Tube pins therefore get 20%; the supply rails, which the
+# solve derives through the drawing's own droppers, get tighter internal targets.
+#
+# One rail is DRIVEN at its printed value (BA = +420 V, the rectifier reservoir
+# and output-transformer centre tap); the 1 kΩ and two 18 kΩ droppers below it
+# are solved, so BB / BC / BD are genuine results, not inputs. See netlist.cir.
+source: "Fender AA1164 Princeton Reverb-Amp drawing, printed voltages: +420 (reservoir / OT centre tap), +410 (6V6 plates), +400 (6V6 screens, reverb-driver plate), +320 (middle supply node), +260/+2.4 (tremolo oscillator, excluded), +240 (preamp / phase-inverter rail), +200/+50/+49 (phase inverter), +160 (preamp, reverb-recovery and driver plates), +8.0 (reverb-driver cathode), +1.3 and +1.2 (preamp cathodes), -34 (6V6 fixed bias)"
+nodes:
+  BB:   { chart: 400, tol_pct: 8,  note: "screen / reverb-driver rail, solved through the 1 kΩ-1 W dropper from the +420 reservoir" }
+  BC:   { chart: 320, tol_pct: 8,  note: "middle supply node between the two 18 kΩ-1 W droppers; nothing else taps it, so the chart's two 80 V drops must match" }
+  BD:   { chart: 240, tol_pct: 8,  note: "preamp and phase-inverter rail, after the second 18 kΩ-1 W dropper" }
+  PN1:  { chart: 160, tol_pct: 20, note: "preamp input-stage plate, 100 kΩ from +240" }
+  KN1:  { chart: 1.3, tol_pct: 20, note: "preamp input-stage cathode over 1.5 kΩ" }
+  PN2:  { chart: 160, tol_pct: 20, note: "preamp second-stage plate, 100 kΩ from +240" }
+  KN2:  { chart: 1.3, tol_pct: 20, note: "preamp second-stage cathode over 1.5 kΩ" }
+  PRD:  { chart: 400, tol_pct: 20, note: "reverb-driver 12AT7 plate (paralleled sections), off the screen rail through the TR3 primary DCR" }
+  KRD:  { chart: 8.0, tol_pct: 20, note: "reverb-driver 12AT7 shared cathode over 2.2 kΩ" }
+  PR1:  { chart: 160, tol_pct: 20, note: "reverb-recovery plate, 100 kΩ from +240" }
+  KR1:  { chart: 1.2, tol_pct: 20, note: "reverb-recovery cathode over 1.5 kΩ" }
+  PD1:  { chart: 160, tol_pct: 20, note: "driver / mixer plate, 100 kΩ from +240" }
+  KD1:  { chart: 1.2, tol_pct: 20, note: "driver / mixer cathode, 1.5 kΩ above the 47 Ω feedback resistor" }
+  PPI:  { chart: 200, tol_pct: 20, note: "split-load phase-inverter plate, 56 kΩ from +240" }
+  KPI:  { chart: 50,  tol_pct: 20, note: "split-load phase-inverter cathode, above the 1 kΩ" }
+  JPI:  { chart: 49,  tol_pct: 20, note: "phase-inverter 1 kΩ / 56 kΩ junction — the grid-leak return that biases the stage" }
+  G61:  { chart: -34, tol_pct: 8,  note: "6V6 (V5) grid, fixed bias through the 220 kΩ-5% leak from the −34 V supply" }

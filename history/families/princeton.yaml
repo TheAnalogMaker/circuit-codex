@@ -152,21 +152,26 @@ models:
         url: "https://el34world.com/charts/Schematics/files/Fender/Fender_princeton_AA964_schem.pdf"
   - designation: "AA1164"
     name: "Princeton Reverb (blackface)"
-    years: { start: 1964, end: 1968 }
+    years: { start: 1964, end: 1967 }
     wattage: 12
     output: "push-pull 2x6V6GT"
-    tubes: [7025, 12AX7, 12AX7, 12AT7, 6V6GT, 6V6GT, 5AR4]
+    tubes: [7025, 12AT7, 12AX7, 12AX7, 6V6GT, 6V6GT, 5U4GB]
     key_change: >
       The Princeton with a tube reverb tank added ahead of the tremolo, on the
       same fixed-bias push-pull 6V6 output — the configuration that made the name
-      famous. A 12AT7 drives the reverb and a GZ34/5AR4 replaces the earlier 5Y3.
-      The blackface AA1164 later continued under silverface cosmetics; the modern
-      reissue rates the same 2x6V6GT stage at 15 W.
-    circuit_ref: null
+      famous. A 12AT7 drives the reverb, and the AA1164 drawing specifies a
+      5U4GB rectifier rather than the GZ34 used by the larger blackface amps.
+      Unlike them it keeps a split-load phase inverter and modulates the output
+      stage's bias for tremolo instead of shunting a preamp grid. The circuit
+      continued under silverface cosmetics from 1968; the modern reissue rates
+      the same 2x6V6GT stage at 15 W.
+    circuit_ref: "aa1164"
     sources:
+      - desc: "Fender Princeton Reverb AA1164 published drawing (D 045427 rev A, schematic + layout sheets), read directly for values, tube complement and the printed voltage chart — archived at EL34World"
+        url: "https://el34world.com/charts/Schematics/files/Fender/Fender_princeton_reverb_aa1164.pdf"
       - desc: "EL34World schematic archive, Fender Princeton Reverb AA1164 sheet (indexed by designation)"
         url: "https://el34world.com/charts/Schematics/files/Fender/Fender_princeton_reverb_aa1164_schem.pdf"
-      - desc: "Mojotone Fender Field Guide, '65 Princeton Reverb reissue — push-pull 2x6V6GT stage and 5AR4 rectifier"
+      - desc: "Mojotone Fender Field Guide, '65 Princeton Reverb reissue — push-pull 2x6V6GT stage, rated 15 W"
         url: "https://mojotone.com/blogs/fender-field-guide/fender-65-princeton-reverb"
 notes: >
   Two eras with a hard boundary. Everything through the 5F2-A (1946-1961) is a

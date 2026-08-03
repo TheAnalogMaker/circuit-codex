@@ -1,0 +1,120 @@
+* AA1164 (Blackface Princeton Reverb-style) — DC operating-point netlist
+* Circuit Codex — CC-BY-SA 4.0. Independently drawn from the published AA1164
+* Princeton Reverb-Amp drawing's component values (see meta.yaml); no drawing
+* reproduced. The drawing labels the preamp bottle 7025 — an alias for the
+* 12AX7 (reference/tubes/12ax7.yaml also_known_as). The reverb driver is a
+* 12AT7; both 12AX7 and 12AT7 models already exist in the corpus.
+*
+* DC conventions. ONE printed rail is driven — BA = +420 V, the rectifier
+* reservoir that also feeds the output-transformer centre tap — and the whole
+* supply chain below it is SOLVED through the drawing's own droppers:
+*   BA -1k-1W-> BB (+400, 6V6 screens + reverb driver) -18k-1W-> BC (+320)
+*   -18k-1W-> BD (+240, every preamp plate load and the phase inverter).
+* Nothing else taps BC, which is why the chart's two 18k droppers show equal
+* 80 V drops; the simulation reproduces that split.
+*
+* The 6V6 plates sit on BA (output-transformer primary DCR omitted, which is
+* the whole of the chart's +420 centre tap vs +410 plate difference). Screens
+* tie straight to BB — this circuit has no screen stoppers. The fixed-bias
+* supply (100k-5% feed, rectifier, 25 uF can, 22k bleeder, 250k-L Intensity
+* control) is replaced by an ideal -34 V source at the grid-leak junction,
+* exactly as its AC/ripple role warrants: no DC flows in the Intensity pot, so
+* its wiper sits at the supply's own -34 V.
+*
+* Reverb-driver plates hang off BB through the reverb transformer (TR3,
+* 125A20B) primary DCR, modeled at 200 Ohm. DC-open caps are MODELLED where
+* BOTH leads land on a named DC node (the two phase-inverter output coupling
+* caps and every cathode-bypass can) so an eventual layout is placement-
+* checked; open at DC they move no operating point. Caps into the abstracted
+* tone / volume / reverb-mix / tremolo networks stay omitted.
+*
+* EXCLUDED — the tremolo (vibrato) oscillator, the front half of the bottle it
+* shares with the phase inverter. It is a running phase-shift oscillator whose
+* printed pins (+260 V plate, +2.4 V cathode) are dynamic averages shifted by
+* grid-leak detection, not a static quiescent point, so it is documented in
+* notes.md rather than modeled. Its 220k plate load taps BB; leaving it out
+* removes about 0.6 mA from the 1k dropper, so BB — and BC/BD below it — read
+* roughly half a volt high. That is inside the reported deviations.
+.include models/12ax7.inc
+.include models/12at7.inc
+.include models/6v6gt.inc
+
+VBA   BA    0 DC 420
+VBIAS NBIAS 0 DC -34
+
+* --- Supply chain: reservoir -> screens -> +320 -> preamp rail
+R1K BA BB 1k
+RD1 BB BC 18k
+RD2 BC BD 18k
+
+* --- Preamp input stage V1a (12AX7 / 7025): 100k plate load from BD, 1.5k
+*     cathode with a 25 uF can, grid returned to ground through the input
+*     jacks' 1M leak.
+RLN1 BD PN1 100k
+XV1A PN1 GN1 KN1 12AX7
+RGN1 GN1 0 1meg
+RKN1 KN1 0 1500
+CKN1 KN1 0 25u
+
+* --- Preamp second stage V1b (12AX7 / 7025): identical loading; its grid
+*     returns through the 1M Volume control (~0 V DC), modeled as RGN2.
+RLN2 BD PN2 100k
+XV1B PN2 GN2 KN2 12AX7
+RGN2 GN2 0 1meg
+RKN2 KN2 0 1500
+CKN2 KN2 0 25u
+
+* --- Reverb driver V2 (12AT7, BOTH sections in parallel): shared 2.2k cathode
+*     (25 uF), grids tied through a 1M leak, plates tied and fed from BB
+*     through the reverb transformer TR3 (125A20B) primary DCR (200 Ohm).
+RTR3 BB PRD 200
+XV2A PRD GRD KRD 12AT7
+XV2B PRD GRD KRD 12AT7
+RGRD GRD 0 1meg
+RKRD KRD 0 2.2k
+CKRD KRD 0 25u
+
+* --- Reverb recovery V3a (12AX7): 100k plate load from BD, 1.5k cathode
+*     (25 uF), grid to ground through the 220k tank-return resistor.
+RLR1 BD PR1 100k
+XV3A PR1 GR1 KR1 12AX7
+RGR1 GR1 0 220k
+RKR1 KR1 0 1500
+CKR1 KR1 0 25u
+
+* --- Driver / mixer stage V3b (12AX7): 100k plate load from BD. Its cathode
+*     runs 1.5k bypassed by 25 uF in series with an unbypassed 47 Ohm, and the
+*     2.7k speaker feedback lands on that 47 Ohm junction (the transformer
+*     secondary is at ground potential in DC). Grid DC return is the 470k
+*     reverb mix resistor; the 100k-L Reverb control below it sits at ~0 V DC.
+RLD1 BD PD1 100k
+XV3B PD1 GD1 KD1 12AX7
+RMR  GD1 0 470k
+RKD1 KD1 KD1B 1500
+CKD1 KD1 KD1B 25u
+RKD2 KD1B 0 47
+RNFB KD1B 0 2.7k
+
+* --- Split-load (cathodyne) phase inverter V4b (12AX7): 56k plate load from
+*     BD, cathode over 1k to the junction JPI and 56k from JPI to ground; the
+*     1M grid leak returns to JPI, which is what biases the stage.
+RLPI BD PPI 56k
+XV4B PPI GPI KPI 12AX7
+RGPI GPI JPI 1meg
+RKPI KPI JPI 1k
+RTAIL JPI 0 56k
+
+* --- Output pair 6V6GT (fixed bias): grids to -34 V through 220k-5% leaks,
+*     screens straight onto BB (no stoppers in this circuit), cathodes
+*     grounded, plates on BA. Two distinct bottles V5 / V6.
+RGL1 NBIAS G61 220k
+RGL2 NBIAS G62 220k
+XV5 BA BB G61 0 6V6GT
+XV6 BA BB G62 0 6V6GT
+
+* Phase-inverter outputs -> 6V6 grids (0.1 uF, DC-open). Modeled so an eventual
+* layout's inter-stage routing and push-pull phase are machine-checked: the hot
+* side leaves the inverter plate, the cold side its cathode. Each 6V6 grid still
+* sits at -34 V through its 220k leak, so the operating point is unmoved.
+C1 PPI G61 0.1u
+C2 KPI G62 0.1u
