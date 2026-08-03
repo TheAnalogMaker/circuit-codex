@@ -7,6 +7,15 @@ const nCircuits = amps.length;
 const nVerified = amps.filter((a) => a.meta.verification?.status === 'verified').length;
 const nDraft = nCircuits - nVerified;
 
+// Circuits carrying at least one disputed chart node, counted from the voltage files
+// rather than written into the prose — the number was hardcoded and would go stale the
+// next time a chart contradicts itself.
+const nDisputed = amps.filter(
+  (a) => Object.values(a.voltages?.nodes || {}).some((n) => n?.disputed)).length;
+const disputedPhrase = nDisputed === 0 ? 'no circuit here currently documents a case'
+  : nDisputed === 1 ? 'one circuit here documents a case'
+  : `${nDisputed} circuits here document cases`;
+
 const title = 'About & how to contribute · Circuit Codex';
 const description =
   'What Circuit Codex is, what its verification does and does not prove, how the archive is built with AI under human review, and how to contribute.';
@@ -64,9 +73,10 @@ const description =
         between them.</dd>
       <dt><a href="/reference/">Reference</a></dt>
       <dd>Data pages for every tube the corpus models — basing diagrams, linked period
-        datasheets, and the SPICE model each simulation uses — plus practical guides
-        (reading schematics, resistor and capacitor codes, tube pinouts, transformers,
-        calculators), a <a href="/reference/glossary/">glossary</a>, the
+        datasheets, and the SPICE model each simulation uses — plus interactive labs
+        (tone stack, load lines, and the builder's calculators), practical guides
+        (reading schematics, resistor and capacitor codes, tube pinouts, transformers),
+        a <a href="/reference/glossary/">glossary</a>, the
         <a href="/reference/safety/">high-voltage safety primer</a>, and published
         calibration studies that show the reasoning behind model choices.</dd>
       <dt><a href={GITHUB}>The repository</a></dt>
@@ -97,8 +107,8 @@ const description =
       <li><strong>Human sign-off.</strong> A maintainer reviews before any badge is
         granted. CI can block a claim; it can never grant one.</li>
     </ol>
-    <p>Where a printed factory chart is internally impossible — it happens; two circuits
-      here document cases — the affected node is excluded as
+    <p>Where a printed factory chart is internally impossible — it happens; {disputedPhrase}
+      — the affected node is excluded as
       <span class="chip">chart disputed</span> with the arithmetic shown, never silently
       forced to fit. Circuits that haven't completed the chain carry a
       <span class="chip">draft</span> badge.</p>
