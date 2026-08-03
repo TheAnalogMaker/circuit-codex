@@ -134,8 +134,9 @@ const jsonld = {
                 chart. Because there is no measured reference to verify against, this circuit is
                 published as a draft.</p>
             : <p class="sub">Chart values read from the published drawing — or, where the drawing carries no voltage chart, from the cited published measurements (never reproduced).
-                Tolerances are this project's verification targets — tighter on power rails
-                than the ±20% measurement convention Fender printed on its charts.
+                Tolerances are this project's verification targets: tube-pin nodes carry the
+                tolerance the cited source states, or ±20% — the era's printed convention —
+                where it states none, and power rails are held to tighter internal targets.
                 {isVerified && ` Simulation matches every node within target — worst deviation ${v.max_deviation_pct}%.`}</p>}
           <div class="tbl"><table>
             <thead><tr><th>Node</th><th>Chart</th><th>Tolerance</th><th>Note</th></tr></thead>
@@ -153,18 +154,20 @@ const jsonld = {
           {allChartNull
             ? <p class="footnote">Every node here is simulation-only — there is no published
                 chart to check against — so no chart column or tolerance is shown.</p>
-            : <p class="footnote">Tube-pin nodes are checked against the chart's own printed
-                ±20% convention; power-rail nodes are held to tighter internal verification targets.</p>}
+            : <p class="footnote">Tube-pin nodes are checked at the tolerance the cited source
+                states, or at the era's ±20% convention where it states none; power-rail nodes are
+                held to tighter internal verification targets.</p>}
           {/* LOADLINE-LINK — delimited for hand-merge. Only for circuits whose output
               stage pipeline/export_loadlines.py could read out of the netlist. */}
           {loadline && (
             <p class="footnote">The output stage behind these numbers can be drawn:
               the <a href={`/reference/guides/load-lines/?preset=${amp.id}`}>load line
-              explorer</a> plots this circuit's {outputGroup(loadline.tube, loadline.output_tubes)} on
-              {' '}{Math.round(loadline.plate_v)} V with its {loadline.bias === 'cathode'
-                ? `${loadline.rk_total} Ω cathode resistor`
-                : `${String(loadline.grid_v).replace('-', '−')} V grid bias`}, and marks where the load line
-              crosses.</p>
+              explorer</a> plots this circuit's {outputGroup(loadline.tube, loadline.output_tubes)} at
+              the DC operating point its netlist carries — {Math.round(loadline.plate_v)} V on the
+              plates with {loadline.bias === 'cathode'
+                ? `a ${loadline.rk_total} Ω cathode resistor`
+                : `a ${String(loadline.grid_v).replace('-', '−')} V grid bias`} — and marks where the load line
+              crosses.{!isVerified && ' This circuit is published as a draft, so that operating point is not verified against a published chart: the table and notes above say what each figure rests on.'}</p>
           )}
           {/* /LOADLINE-LINK */}
         </section>
