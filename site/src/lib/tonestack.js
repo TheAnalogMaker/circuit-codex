@@ -18,9 +18,10 @@
 // what makes a plate-fed stack read about a decibel lower than a follower-fed one
 // on otherwise identical parts.
 //
-// The solver was cross-checked against an independent ngspice AC sweep of the
-// same 5F6-A network (10 Hz–100 kHz, 40 points/decade): worst-case disagreement
-// 5 × 10⁻⁵ dB.
+// The solver was cross-checked against independent ngspice AC sweeps of the
+// same element lists (10 Hz–100 kHz, 40 points/decade): the joined 5F6-A
+// network, and the ladder 5F6 and AA964 networks, each agree to within
+// 5 × 10⁻⁵ dB worst-case.
 
 export const GND = -1; // reference node
 export const SRC = -2; // the ideal 1 V source behind the driving stage
@@ -105,10 +106,26 @@ export function solveAt(elements, n, out, f) {
 }
 
 // ---------------------------------------------------------------------------
-// The three networks.
+// The networks.
 //
-// (1) The three-knob stack — Fender's tweed Bassman network, which Marshall
-//     carried over intact. Node numbering, following the signal:
+// The three-knob and two-knob stacks exist in TWO wirings, and each preset
+// declares which one its schematic draws (`wiring` in TONE_STACK_SPECS):
+//
+//   'ladder' — what the published Fender 5F6 and 5F6-A, Marshall JTM45/1987/
+//     1959 and blackface AA964 sheets actually draw. The treble pot's lower
+//     lug sits on the FAR side of the bass capacitor; the bass pot is a
+//     rheostat (wiper strapped to an end lug) in series down the ladder; the
+//     stack's output is the treble wiper ALONE; and on the three-knob
+//     circuits the mid capacitor feeds the MIDDLE POT'S WIPER, so the mid
+//     control slides the injection point along a fixed 25 kΩ leg instead of
+//     shrinking the leg itself.
+//
+//   'joined' — the textbook idealisation of the same parts (Duncan-style
+//     "FMV"): treble lower lug on the slope foot, treble and bass wipers
+//     joined at one output node, mid capacitor on the top of a rheostat-wired
+//     mid leg. Kept for the circuits whose schematics draw it.
+//
+// (1) The 'joined' three-knob stack. Node numbering, following the signal:
 //
 //        IN   0   stack input (cathode-follower cathode, or a plate)
 //        N2   1   slope-resistor foot · treble-pot CCW lug · bass and mid caps
@@ -145,6 +162,62 @@ export function solveAt(elements, n, out, f) {
 // (3) The single-knob tweed tone control is a different animal entirely — see
 //     trebleCutElements below.
 export function stackElements(p, pos) {
+  if (p.wiring === 'ladder') return ladderStackElements(p, pos);
+  return joinedStackElements(p, pos);
+}
+
+// The 'ladder' wiring — the network the published sheets draw. Nodes:
+//
+//    IN   0   stack input (cathode-follower cathode, or a plate)
+//    N2   1   slope-resistor foot · bass cap · mid cap
+//    N3   2   treble-cap output · treble-pot CW lug
+//    OUT  3   treble-pot WIPER — the stack's output, alone
+//    N4   4   bass-cap output · treble-pot CCW lug · bass-rheostat hot end
+//    N5   5   bass-rheostat foot · top of the mid leg
+//    M    6   the mid pot's wiper, where the mid cap lands (three-knob only)
+//
+//   IN :  Ysrc(V0−1) + Ys(V0−V2... as stamped)                      per KCL
+//   N2 :  slope + bass cap + mid cap
+//   N3 :  treble cap + upper treble track
+//   OUT:  upper treble track + lower treble track + load
+//   N4 :  lower treble track + bass cap + bass rheostat
+//   N5 :  bass rheostat + upper mid track
+//   M  :  upper mid track + lower mid track + mid cap
+//
+// The bass control is the fraction of the 1 MΩ track left in series between
+// N4 and N5 (bass 10 = the whole track). The mid control slides the wiper —
+// and with it the mid cap's injection point — along the fixed mid leg
+// (mid 10 = wiper at the top, the full leg below the injection). On the
+// two-knob blackface wiring the mid cap lands on N5 itself and the leg is the
+// fixed bleed resistor. On the 5F6 the leg returns to ground through the 5 kΩ
+// presence pot; the preset plots Presence at the end of its travel that leaves
+// no resistance in the leg, and says so.
+function ladderStackElements(p, pos) {
+  const t = clamp01(pos.treble);
+  const b = clamp01(pos.bass);
+  const m = clamp01(pos.mid);
+  const els = [
+    R(SRC, 0, p.rSource),
+    R(0, 1, p.slope),
+    C(0, 2, p.trebleCap),
+    R(2, 3, p.treblePot * (1 - t)),
+    R(3, 4, p.treblePot * t),
+    C(1, 4, p.bassCap),
+    R(4, 5, p.bassPot * b),
+  ];
+  if (p.midPot) {
+    els.push(R(5, 6, p.midPot * (1 - m)));
+    els.push(R(6, GND, p.midPot * m));
+    if (p.midCap) els.push(C(1, 6, p.midCap));
+  } else {
+    els.push(R(5, GND, p.midFixed || 0));
+    if (p.midCap) els.push(C(1, 5, p.midCap));
+  }
+  if (p.rLoad) els.push(R(3, GND, p.rLoad));
+  return els;
+}
+
+function joinedStackElements(p, pos) {
   const t = clamp01(pos.treble);
   const b = clamp01(pos.bass);
   const m = clamp01(pos.mid);
@@ -196,7 +269,9 @@ export function networkFor(preset, pos) {
   if (preset.kind === 'single-knob') {
     return { els: trebleCutElements(preset.parts, pos), n: 2, out: 0 };
   }
-  return { els: stackElements(preset.parts, pos), n: 6, out: 3 };
+  // The ladder wiring's mid wiper is a seventh node when the leg is a pot.
+  const n = preset.parts.wiring === 'ladder' && preset.parts.midPot ? 7 : 6;
+  return { els: stackElements(preset.parts, pos), n, out: 3 };
 }
 
 // Magnitude response in dB at one frequency.

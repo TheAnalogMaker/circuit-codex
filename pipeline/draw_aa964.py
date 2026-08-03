@@ -67,18 +67,21 @@ s.junction(64, TEE)
 sl, sr = s.series_h("R", "RS", "100k", 74, TEE + 6)
 s.wire(64, TEE + 6, sl, TEE + 6)
 s.wire(sr, TEE + 6, 84, TEE + 6)                          # node B
-# node B -> the treble pot's lower lug
-s.wire(96, TEE - 0.38, 84, TEE - 0.38)
-s.wire(84, TEE - 0.38, 84, TEE + 6)
-# node B -> CB1 0.1 -> bass pot top
+# node B -> CB1 0.1 -> the treble-bottom/bass node (as the published AA964
+# schematic draws it: the treble pot's lower lug sits on the far side of the
+# bass capacitor, not on the slope foot)
 cl, cr = s.series_h("C", "CB1", ".1u", 90, TEE + 6)
 s.wire(84, TEE + 6, cl, TEE + 6)
 s.wire(cr, TEE + 6, 96, TEE + 6)
+s.wire(96, TEE - 0.38, 96, TEE + 6)                       # treble bottom lug -> bass node
 s.sym("POT", "VRB", "250k bass", 96, TEE + 6 + 3.81)      # pins TEE+6 / TEE+13.62
-# bass wiper joins the treble wiper at the stack's output
+# bass pot wired as a rheostat: wiper strapped to its hot lug (the drawing's
+# arrow-through-body variable resistor); the stack's output is the treble
+# wiper alone
 s.wire(101.08, TEE + 9.81, 108, TEE + 9.81)
-s.wire(108, TEE + 9.81, 108, TEE - 4.19)
-s.junction(108, TEE - 4.19)
+s.wire(108, TEE + 9.81, 108, TEE + 6)
+s.wire(108, TEE + 6, 96, TEE + 6)
+s.junction(96, TEE + 6)
 # node B -> CB2 0.047 -> node D -> RBL 6.8k -> ground
 s.wire(84, TEE + 6, 84, TEE + 13.62)
 s.junction(84, TEE + 6)

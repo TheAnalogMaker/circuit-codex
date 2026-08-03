@@ -13,7 +13,10 @@ The reference designators are read out of the site's own TONE_STACK_SPECS table
 rather than restated here, so the two cannot drift apart: rename a part in
 corpus.js and this gate follows it.
 
-Network asserted (node names as tonestack.js writes them):
+Each preset declares which of the two stack wirings its schematic draws
+(`wiring` in TONE_STACK_SPECS), and the gate asserts the matching network.
+
+'joined' — the textbook wiring (node names as tonestack.js writes them):
 
     IN   stack input        slope resistor · treble cap
     N2   slope foot         slope resistor · treble-pot end lug · bass cap
@@ -23,10 +26,21 @@ Network asserted (node names as tonestack.js writes them):
     N4   bass-cap output    bass cap · bass-pot end lug
     N5   mid-leg top        bass-pot other end lug · mid cap · mid leg
 
-The mid leg is a pot wired as a rheostat (three-knob stacks), a fixed resistor
-(blackface two-knob), or a direct ground (tweed two-knob). Which end lug of a
-pot is the "10" end is a taper fact a drawing cannot carry, so the gate accepts
-either orientation and only checks what the wires say.
+'ladder' — the wiring the published 5F6/JTM45/1987/1959/AA964 sheets draw:
+
+    IN   stack input        slope resistor · treble cap
+    N2   slope foot         slope resistor · bass cap · mid cap
+    N3   treble-cap output  treble cap · treble-pot end lug
+    OUT  stack output       treble-pot WIPER, alone
+    N4   bass-cap output    bass cap · treble-pot other end lug ·
+                            bass-rheostat hot lug (wiper strapped to an end)
+    N5   bass-rheostat foot mid-leg top (mid pot's end lug, or the fixed leg)
+    M    mid pot's wiper    the mid cap lands here (three-knob only)
+
+The mid leg below N5 is a pot (three-knob), a fixed resistor (blackface
+two-knob), or a direct ground (tweed two-knob). Which end lug of a pot is the
+"10" end is a taper fact a drawing cannot carry, so the gate accepts either
+orientation and only checks what the wires say.
 
 Run from pipeline/:  python3 check_tonestack_wiring.py
 """
@@ -65,7 +79,10 @@ def load_specs() -> list:
         mm = re.search(r"midLeg: \{ kind: '([^']+)'(?:, ref: '([^']+)')? \}", body)
         if mm:
             mid = (mm.group(1), mm.group(2))
-        specs.append({"id": amp, "kind": kind, "refs": refs, "midLeg": mid})
+        wm = re.search(r"wiring: '([^']+)'", body)
+        wiring = wm.group(1) if wm else "joined"
+        specs.append({"id": amp, "kind": kind, "refs": refs, "midLeg": mid,
+                      "wiring": wiring})
     if not specs:
         raise SystemExit("check_tonestack_wiring: parsed no presets out of TONE_STACK_SPECS")
     return specs
@@ -96,7 +113,95 @@ def _pot(nets, ref, want_ends, wiper_net, label):
         raise Fail(f"{label}: {ref} wiper is not on the stack output net")
 
 
+def check_ladder(amp: str, spec: dict) -> list:
+    """The published-sheet wiring: treble-wiper-only output, bass rheostat,
+    mid cap into the mid pot's wiper (or onto the fixed leg's top)."""
+    path = ROOT / "amps" / amp / "schematic.kicad_sch"
+    if not path.exists():
+        return [f"{amp}: no schematic.kicad_sch"]
+    nets = Nets(path)
+    r = spec["refs"]
+    problems = []
+    try:
+        gnd = nets.at(*nets.labels["GND"][0])
+
+        # IN / N2 / N3 from the slope resistor and the treble cap.
+        node_in, n2, n3 = _pairing(nets, r["slope"], r["trebleCap"], amp)
+        # N4 hangs off the bass cap, which must be fed from N2.
+        bc = [nets.pin(r["bassCap"], "1"), nets.pin(r["bassCap"], "2")]
+        if n2 not in bc:
+            raise Fail(f"{amp}: bass cap {r['bassCap']} is not fed from the slope foot")
+        n4 = next(x for x in bc if x != n2)
+
+        # Treble pot: end lugs on N3 and N4, wiper = the output, alone.
+        out = nets.pin(r["treblePot"], POT_WIPER)
+        _pot(nets, r["treblePot"], (n3, n4), out, amp)
+
+        # Bass pot: a rheostat from N4 down to N5, wiper strapped to an end lug.
+        bends = {nets.pin(r["bassPot"], p) for p in POT_ENDS}
+        if n4 not in bends:
+            raise Fail(f"{amp}: bass pot {r['bassPot']} does not sit on the bass-cap node")
+        n5 = next(x for x in bends if x != n4)
+        bwiper = nets.pin(r["bassPot"], POT_WIPER)
+        if bwiper not in (n4, n5):
+            raise Fail(f"{amp}: bass pot {r['bassPot']} wiper is not strapped — the "
+                       "sheet draws a rheostat, so the wiper ties to one end of its track")
+        if bwiper == out:
+            raise Fail(f"{amp}: bass pot {r['bassPot']} wiper reaches the output — "
+                       "that is the joined wiring, not the ladder the preset claims")
+
+        if "midPot" in r:
+            pins = {p: nets.pin(r["midPot"], p) for p in ("1", "2", "3")}
+            ends = {pins["1"], pins["3"]}
+            if n5 not in ends:
+                raise Fail(f"{amp}: mid pot {r['midPot']} end lug is not on the bass-rheostat foot")
+            cold_end = next(x for x in ends if x != n5)
+            if "midCap" in r:
+                mc = [nets.pin(r["midCap"], "1"), nets.pin(r["midCap"], "2")]
+                if n2 not in mc:
+                    raise Fail(f"{amp}: mid cap {r['midCap']} is not fed from the slope foot")
+                mnode = next(x for x in mc if x != n2)
+                if pins[POT_WIPER] != mnode:
+                    raise Fail(f"{amp}: mid cap {r['midCap']} does not land on the mid pot's "
+                               "wiper — the sheet feeds the wiper, not an end lug")
+            # The cold end returns to ground, directly or (5F6) through the
+            # presence pot in the stack's ground leg.
+            if (spec["midLeg"] or ("", ""))[0] == "series":
+                ref = spec["midLeg"][1]
+                if cold_end not in {nets.pin(ref, p) for p in ("1", "2", "3")}:
+                    raise Fail(f"{amp}: mid pot {r['midPot']} does not reach {ref}")
+                if gnd not in {nets.pin(ref, p) for p in ("1", "2", "3")}:
+                    raise Fail(f"{amp}: {ref} does not reach ground")
+            elif cold_end != gnd:
+                raise Fail(f"{amp}: mid pot {r['midPot']} cold end is not grounded")
+        elif spec["midLeg"]:
+            kind, ref = spec["midLeg"]
+            if "midCap" in r:
+                mc = [nets.pin(r["midCap"], "1"), nets.pin(r["midCap"], "2")]
+                if {n2, n5} != set(mc):
+                    raise Fail(f"{amp}: mid cap {r['midCap']} does not run from the slope "
+                               "foot to the bass-rheostat foot")
+            if kind == "fixed":
+                legs = {nets.pin(ref, "1"), nets.pin(ref, "2")}
+                if legs != {n5, gnd}:
+                    raise Fail(f"{amp}: mid-leg resistor {ref} does not run from the "
+                               "bass-rheostat foot to ground")
+            elif kind == "ground" and n5 != gnd:
+                raise Fail(f"{amp}: the bass-rheostat foot is not grounded")
+
+        distinct = [node_in, n2, n3, out, n4, n5]
+        if len(set(distinct)) != len(distinct):
+            raise Fail(f"{amp}: two tone-stack nodes are shorted together")
+    except Fail as exc:
+        problems.append(str(exc))
+    except KeyError as exc:
+        problems.append(f"{amp}: reference {exc} is not in the drawing")
+    return problems
+
+
 def check(amp: str, spec: dict) -> list:
+    if spec.get("wiring") == "ladder":
+        return check_ladder(amp, spec)
     path = ROOT / "amps" / amp / "schematic.kicad_sch"
     if not path.exists():
         return [f"{amp}: no schematic.kicad_sch"]
@@ -181,7 +286,8 @@ def main() -> int:
             for p in problems:
                 print(f"FAIL {p}")
         else:
-            print(f"ok   {spec['id']}: drawing matches the plotted {spec['kind']} network")
+            print(f"ok   {spec['id']}: drawing matches the plotted {spec['kind']} "
+                  f"network ({spec['wiring']} wiring)")
     print(f"checked {len(specs)} tone stack(s), {len(failures)} failure(s)")
     return 1 if failures else 0
 

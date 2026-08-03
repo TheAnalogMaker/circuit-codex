@@ -117,45 +117,49 @@ s.gnd(126, V2_Y + 18.12)
 # ======================= TMB tone stack (cathode-follower fed) ===============
 # 33k slope; 500p treble / 250k; 0.022 bass / 1M; 0.022 mid / 25k.
 CF = V2_Y + 10.5                           # cathode-follower output node
-# node A = cathode-follower output: 500 pF to the treble pot, and the 33k slope.
-# node B = the slope's foot: the treble pot's lower lug, and the bass and mid
-# caps. The treble and bass wipers meet at the stack's output.
+# Wired as the published model 1959 drawing (Unicord 70-6-11) draws it — the
+# same network as the model 1987, JTM45 and 5F6-A sheets before it:
+#   node A = cathode-follower output: 500 pF to the treble pot AND the 33k slope;
+#   node B = the slope's foot: 0.022 uF to the treble-bottom/bass node, 0.022 uF
+#            to the MIDDLE POT'S WIPER;
+#   the bass pot is a rheostat (the drawing's arrow-through-body variable
+#   resistor) in series down the ladder, and the stack's output is the TREBLE
+#   WIPER ALONE.
 s.wire(126, CF, 133, CF)
 sl, sr = s.series_h("R", "RSL", "33k", 137, CF)
 s.wire(133, CF, sl, CF)
 s.junction(133, CF)
 s.wire(133, CF, 133, 126)                  # node A up to the 500 pF branch
 s.wire(sr, CF, 145, CF)
-s.wire(145, CF, 145, 133.62)               # node B riser
-s.wire(145, 133.62, 156, 133.62)           # node B -> treble pot lower lug
-s.junction(145, 138)
-s.junction(145, 148)
+s.junction(145, CF)
+s.wire(145, CF, 145, 138)                  # node B riser, up to the bass cap
+s.wire(145, CF, 145, 160)                  # node B riser, down to the mid cap
 # treble branch: 500p -> 250k treble pot
 tl, tr = s.series_h("C", "C8", "500p", 149, 126)
 s.wire(133, 126, tl, 126)
 s.wire(tr, 126, 156, 126)
 s.sym("POT", "VR3", "250k treb", 156, 129.81)
-# bass branch: 0.022 -> 1M bass pot
+# bass branch: node B -> 0.022 -> treble-bottom/bass node
 bl, br = s.series_h("C", "C9", ".022u", 149, 138)
 s.wire(145, 138, bl, 138)
 s.wire(br, 138, 156, 138)
+s.wire(156, 133.62, 156, 138)              # treble bottom lug -> bass node
+s.junction(156, 138)
 s.sym("POT", "VR4", "1M bass", 156, 141.81)
-# mid branch: 0.022 -> 25k middle pot
-ml, mr = s.series_h("C", "C10", ".022u", 149, 148)
-s.wire(145, 148, ml, 148)
-s.wire(mr, 148, 156, 148)
-s.wire(156, 145.62, 156, 148)
+s.wire(161.08, 141.81, 165, 141.81)        # bass wiper strapped to its hot lug (rheostat)
+s.wire(165, 141.81, 165, 138)
+s.wire(165, 138, 156, 138)
+# mid branch: node B -> 0.022 -> the middle pot's wiper
+ml, mr = s.series_h("C", "C10", ".022u", 149, 160)
+s.wire(145, 160, ml, 160)
+s.wire(mr, 160, 163.6, 160)
+s.wire(163.6, 160, 163.6, 151.81)
+s.wire(163.6, 151.81, 161.08, 151.81)      # -> middle wiper
+s.wire(156, 145.62, 156, 148)              # bass foot -> middle top
 s.sym("POT", "VR5", "25k mid", 156, 151.81)
 s.gnd(156, 155.62)
-s.wire(161.08, 151.81, 163.6, 151.81)      # mid wiper tied to its top
-s.wire(163.6, 151.81, 163.6, 148)
-s.wire(163.6, 148, 156, 148)
-s.junction(156, 148)
-# treble and bass wipers = stack output
+# treble wiper = stack output
 s.wire(161.08, 129.81, 165, 129.81)
-s.wire(161.08, 141.81, 165, 141.81)
-s.wire(165, 141.81, 165, 129.81)
-s.junction(165, 129.81)
 s.wire(165, 129.81, 165, 122)
 
 # ===================== V3 long-tailed-pair phase inverter ===================

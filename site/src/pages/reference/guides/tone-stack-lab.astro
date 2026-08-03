@@ -20,7 +20,7 @@ const withToneControl = loadCorpus()
 const absent = withToneControl.filter((a) => !presets.some((p) => p.id === a.id));
 // Named in prose, so the two lists must agree: the single-knob circuits are the
 // ones absent purely because that network is not modelled yet; the rest are absent
-// because the circuit draws a network none of the three solved here describes.
+// because the circuit's own reading is not done or its network is not solved here.
 const singleKnob = absent.filter((a) => a.meta.topology.tone_stack === 'single-knob');
 const otherNetwork = absent.filter((a) => a.meta.topology.tone_stack !== 'single-knob');
 const countWord = (n) => ['none', 'One', 'Two', 'Three', 'Four', 'Five'][n] ?? String(n);
@@ -188,7 +188,7 @@ const description = 'An interactive frequency-response lab for the passive tone 
         round and the curve sags in the middle, a broad dip several hundred hertz wide
         with the bass climbing away below it and the treble climbing away above. That
         dip is what people mean by a scooped midrange, and it is not a side-effect: it
-        is what happens when a bass path and a treble path are summed at one node with
+        is what happens when a bass path and a treble path are recombined with
         nothing filling the gap between them. Pull the Middle control down and the dip
         deepens into a proper notch; push it up and the notch fills, but never quite to
         flat.</p>
@@ -200,18 +200,21 @@ const description = 'An interactive frequency-response lab for the passive tone 
         setting, and it is the single most useful thing to know about these circuits: the
         stack has a voice of its own that no knob position turns off.</p>
       <p><strong>Insertion loss is real, and it is large.</strong> Look at where the
-        midrange sits on a three-knob preset — ten to twenty decibels down. The circuit
-        pays for the tone controls in level, which is exactly why these stacks are fed
-        from a <a href="/topology/tone-stack-cf-fmv/">cathode follower</a> and followed by
+        midrange sits on a three-knob preset — nine to fifteen decibels down at five all
+        round, and deeper as the Middle comes down. The circuit pays for the tone
+        controls in level, which is exactly why these stacks are fed from a
+        <a href="/topology/tone-stack-cf-fmv/">cathode follower</a> and followed by
         another gain stage. A designer who wanted a milder tone control could have one;
         what these amps wanted was <em>range</em>, and range costs signal.</p>
-      <p><strong>The controls interact — and at the ends they collide.</strong> Take a
-        three-knob preset and set Bass and Middle both to zero. The curve drops off the
-        bottom of the chart. That is not a rounding error in the plot: with those two
-        controls at their stops the output node is wired straight to ground through the
+      <p><strong>The controls interact — and at the stops the two wirings sound
+        different.</strong> Set Bass and Middle both to zero on the 5F6-A preset and the
+        curve drops off the bottom of the chart: with its output node joined to both
+        wipers and a rheostat mid leg, the output is then tied to ground through the
         remains of the network, and the amp goes nearly silent no matter where Treble
-        sits. Every player who has ever turned all three knobs down on a Bassman-derived
-        amp and got nothing has met this network's arithmetic first-hand.</p>
+        sits. Do the same on the 5F6 or any of the Marshall presets and the curve stops
+        around thirty decibels down instead: in the wiring those drawings print, the
+        middle pot's full 25 kΩ track always stands between the network's foot and
+        ground, and it props the output up at every knob setting.</p>
     </div>
   </section>
 
@@ -235,22 +238,31 @@ const description = 'An interactive frequency-response lab for the passive tone 
         treble route: it sets the tilt of the curve, which is why changing it, as Marshall
         did in going from 56 kΩ to 33 kΩ, changes the amp's whole character without moving
         a single knob.</p>
-      <p><strong>The output is a junction, not a tap.</strong> The treble pot's wiper and
-        the bass pot's wiper meet at the same point, and that point is the stack's output.
-        This is the source of every interaction the controls have with one another: what
-        the Bass control does to that node changes the load the Treble control is working
-        into, and vice versa. There is no way to separate them, because electrically they
-        are the same node.</p>
+      <p><strong>The output is where the two wirings part company.</strong> These stacks
+        exist in two drawn forms, and every preset here is solved with the one its own
+        schematic draws. In the <em>ladder</em> wiring — the form the Fender 5F6 and
+        AA964 sheets and the Marshall JTM45, 1987 and 1959 drawings print — the stack's
+        output is the treble pot's wiper alone: the bass pot is a rheostat in series down
+        the network's lower half, and the Bass control works by varying how hard that
+        lower half loads the treble pot. In the <em>joined</em> wiring — the textbook
+        redrawing of the same parts, and the network the 5F6-A, 5F4, AB763 and AA1164
+        presets are solved with — the treble and bass wipers meet at a single output
+        node, and the two controls share a terminal outright. Either way the controls
+        cannot be separated; they differ in <em>where</em> the collision happens, and,
+        as the sections below show, in what happens at the stops.</p>
       <p><strong>The mid leg is the network's foot.</strong> Below the bass pot the
         network runs to ground through whatever the circuit puts there. A three-knob stack
         puts a small pot there — 25 kΩ, tiny beside the 1 MΩ bass pot — and that pot is
-        the Middle control. Fender's two-knob blackface circuits replace it with a fixed
-        resistor — 6.8 kΩ on the Deluxe Reverb and both Princetons, 15 kΩ on the blackface
-        Champ — but keep the capacitor that feeds the leg; the tweed two-knob stack takes
-        the foot straight to ground and drops that capacitor with it. Those are the only
-        differences between the three families in this archive, which is why the lab plots
-        them all from the same equations — and, as the next section shows, why their
-        curves nonetheless part company so decisively.</p>
+        the Middle control. In the ladder wiring the pot's full track always stands in
+        the leg and the mid capacitor lands on its <em>wiper</em>, so the control slides
+        the capacitor's injection point along a fixed resistance; in the joined wiring
+        the pot is a rheostat with the capacitor on its top, and the control shrinks the
+        leg itself. Fender's two-knob blackface circuits replace the pot with a fixed
+        resistor — 6.8 kΩ on the Deluxe Reverb and both Princetons, 15 kΩ on the
+        blackface Champ — but keep the capacitor that feeds the leg; the tweed two-knob
+        stack takes the foot straight to ground and drops that capacitor with it. One
+        solver holds all of these networks; each preset is solved with the wiring its
+        own circuit's schematic draws.</p>
     </div>
   </section>
 
@@ -266,20 +278,22 @@ const description = 'An interactive frequency-response lab for the passive tone 
         even though it has no Middle control to blame. The tweed two-knob stack is the one
         that drops that capacitor, and its curve says so: no dip at all, just a smooth
         tilt from bass to treble.</p>
-      <p>The foot of the network is worth trying at the extremes, because the three
-        families end differently. Set a three-knob preset's Bass and Middle both to zero
+      <p>The foot of the network is worth trying at the extremes, because the wirings and
+        the families end differently. Set the 5F6-A preset's Bass and Middle both to zero
         and the output falls off the bottom of the chart — around 100 dB down, whatever
-        Treble is doing — because the output node is then tied to ground through what is
-        left of the network. The tweed two-knob stack does the same thing with Bass alone
-        at zero, since its mid leg is simply a wire to ground. The blackface two-knob
-        presets here cannot: their 6.8 kΩ fixed leg holds the foot up, so on those three
-        circuits both controls at zero costs about 27 dB rather than everything. The
-        resistor that sets a circuit's fixed midrange is also the reason it never goes
-        quiet.</p>
-      <p>The Middle control's authority is worth a moment too. On a three-knob preset with
+        Treble is doing — because its joined output node is then tied to ground through
+        what is left of the network. The tweed two-knob 5F4 does the same thing with Bass
+        alone at zero, since its mid leg is simply a wire to ground. The ladder-wired
+        three-knob presets — the 5F6 and all three Marshalls — never collapse: their
+        25 kΩ middle track stands permanently in the ground leg, and both controls at
+        zero bottoms out around 30 dB down. The blackface two-knob presets hold up for
+        the same reason in fixed form: the 6.8 kΩ leg keeps them near 27 dB down rather
+        than silent. The resistance that sets a circuit's floor is also the reason it
+        never goes quiet.</p>
+      <p>The Middle control's authority is worth a moment too. On the 5F6 preset with
         Treble and Bass at five, moving Middle from 0 to 10 lifts the bottom of the notch
-        from about 27 dB down to about 10 dB down and walks it from roughly 950 Hz to
-        650 Hz. It is a real control — but it fills the dip rather than removing it, which
+        from about 23 dB down to about 10 dB down and walks it from roughly 860 Hz to
+        640 Hz. It is a real control — but it fills the dip rather than removing it, which
         is why a three-knob amp still sounds like a three-knob amp with the Middle
         buried.</p>
     </div>
@@ -325,9 +339,10 @@ const description = 'An interactive frequency-response lab for the passive tone 
           transformer, and every coupling capacitor elsewhere in the amp shape the sound
           at least as much as the tone stack does, and none of them is in this plot.</li>
       </ul>
-      <p class="cite">The solver behind the page was checked against an independent
-        ngspice AC sweep of the same network — the same simulator the archive uses to
-        verify every operating point — and agrees with it to within
+      <p class="cite">The solver behind the page was checked against independent
+        ngspice AC sweeps of the same element lists — both wirings, the joined 5F6-A
+        network and the ladder 5F6 and AA964 networks, using the same simulator the
+        archive uses to verify every operating point — and agrees with each to within
         5 × 10⁻⁵ dB across the sweep. For what a decibel is, see
         <a href="/reference/guides/units-conventions/">units and notation</a>.</p>
     </div>
@@ -340,13 +355,13 @@ const description = 'An interactive frequency-response lab for the passive tone 
       one into the lab and the address bar keeps it, so a setting can be linked to
       directly.</p>
     <p class="sub">{withToneControl.length} circuits in the archive carry a tone control and
-      {' '}{presets.length} of them are presets here. {countWord(otherNetwork.length)} of the
-      {' '}{absent.length} that are absent are absent because the circuit draws a different
-      network, not because the work is undone: the AC15's Top Cut sits after the phase
-      inverter, bridged across both of its outputs, and the AA764 takes its output from the
-      treble wiper alone with the bass pot hung below it as a rheostat, where every two-knob
-      stack plotted here joins both wipers at one node. The other {singleKnob.length} — the
-      single tone controls of
+      {' '}{presets.length} of them are presets here. Of the {absent.length} that are absent,
+      the AC15 is the one whose network the solver genuinely lacks: its Top Cut sits after
+      the phase inverter, bridged across both of its outputs — a differential cut with no
+      counterpart in these stacks. The AA764 draws the same two-knob ladder the AA964
+      preset is solved with, but its own part roles have not yet been read into a preset,
+      so it waits on that reading rather than on a new model. The other {singleKnob.length}
+      {' '}— the single tone controls of
       {' '}{singleKnob.map((a) => displayId(a.id)).join(', ').replace(/, ([^,]*)$/, ' and $1')} —
       are simply not built as presets yet. A curve for a network that is not the circuit's
       own would not be recoverable, so each of these waits until its own is drawn.</p>

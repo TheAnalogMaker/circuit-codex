@@ -79,42 +79,48 @@ s.sym("R", "RKCF", "100k", 116.84, 123.31)
 s.gnd(116.84, 127.12)
 
 # ---- TMB tone stack (cathode-follower fed) -------------------------------
-# node A = cathode-follower output: 270 pF to the treble pot, and the 56k slope.
-# node B = the slope's foot: the treble pot's lower lug, and the bass and mid
-# caps. The treble and bass wipers meet at the stack's output.
+# Wired as the published JTM45 drawing ('Basic schematic for Marshall trem
+# amps') draws it — the same network as the Fender 5F6-A sheet it copies:
+#   node A = cathode-follower output: 270 pF to the treble pot AND the 56k slope;
+#   node B = the slope's foot: 0.02 uF to the treble-bottom/bass node, 0.01 uF
+#            to the MIDDLE POT'S WIPER;
+#   the bass pot is a rheostat (wiper strapped) in series down the ladder, and
+#   the stack's output is the TREBLE WIPER ALONE.
 s.wire(116.84, 119.5, 124.46, 119.5)
 s.junction(124.46, 119.5)
 s.wire(124.46, 119.5, 124.46, 96)       # node A up to the 270 pF branch
 s.wire(124.46, 96, 135.89, 96)
 sl, sr = s.series_h("R", "RSL", "56k", 128.27, 119.5)
 s.wire(sr, 119.5, 135.89, 119.5)
-s.wire(135.89, 119.5, 135.89, 103.62)   # node B riser
-s.wire(135.89, 103.62, 147.32, 103.62)  # node B -> treble pot lower lug
-s.junction(135.89, 108)
-s.junction(135.89, 118)
+s.junction(135.89, 119.5)
+s.wire(135.89, 119.5, 135.89, 108)      # node B riser, up to the bass cap
+s.wire(135.89, 119.5, 135.89, 130)      # node B riser, down to the mid cap
 # treble branch
 tl, tr = s.series_h("C", "C4", "270p", 139.7, 96)
 s.wire(tr, 96, 147.32, 96)
 s.sym("POT", "VR3", "250k treb", 147.32, 99.81)
-# bass branch
+# bass branch: node B -> 0.02 uF -> treble-bottom/bass node
 bl, br = s.series_h("C", "C5", ".02u", 139.7, 108)
+s.wire(135.89, 108, bl, 108)
 s.wire(br, 108, 147.32, 108)
+s.wire(147.32, 103.62, 147.32, 108)     # treble bottom lug -> bass node
+s.junction(147.32, 108)
 s.sym("POT", "VR4", "1M bass", 147.32, 111.81)
-# mid branch
-ml, mr = s.series_h("C", "C6", ".01u", 139.7, 118)
-s.wire(mr, 118, 147.32, 118)
-s.wire(147.32, 115.62, 147.32, 118)
+s.wire(152.4, 111.81, 156.21, 111.81)   # bass wiper strapped to its foot lug, as
+s.wire(156.21, 111.81, 156.21, 118)     # the published drawing loops it (rheostat)
+s.wire(156.21, 118, 147.32, 118)
+s.junction(147.32, 118)
+# mid branch: node B -> 0.01 uF -> the middle pot's wiper
+ml, mr = s.series_h("C", "C6", ".01u", 139.7, 130)
+s.wire(135.89, 130, ml, 130)
+s.wire(mr, 130, 154.94, 130)
+s.wire(154.94, 130, 154.94, 121.81)
+s.wire(154.94, 121.81, 152.4, 121.81)   # -> middle wiper
+s.wire(147.32, 115.62, 147.32, 118)     # bass foot -> middle top
 s.sym("POT", "VR5", "25k mid", 147.32, 121.81)
 s.gnd(147.32, 125.62)
-s.wire(152.4, 121.81, 154.94, 121.81)   # mid wiper tied to its top
-s.wire(154.94, 121.81, 154.94, 118)
-s.wire(154.94, 118, 147.32, 118)
-s.junction(147.32, 118)
-# treble and bass wipers = stack output
+# treble wiper = stack output
 s.wire(152.4, 99.81, 156.21, 99.81)
-s.wire(152.4, 111.81, 156.21, 111.81)
-s.wire(156.21, 111.81, 156.21, 99.81)
-s.junction(156.21, 99.81)
 s.wire(156.21, 99.81, 156.21, 92)
 
 # ---- V4 long-tailed-pair phase inverter ---------------------------------

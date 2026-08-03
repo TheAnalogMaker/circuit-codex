@@ -79,8 +79,15 @@ s.sym("R", "RKCF", "100k", 116.84, 123.31)
 s.gnd(116.84, 127.12)
 
 # ---- TMB tone stack, presence in the ground leg -------------------------
-# node A = cathode-follower output (250 pF to the treble pot + 56k slope);
-# node B = slope junction (both 0.02 uF into the stack).
+# Wired as the published 5F6 (F-EG) schematic draws it — NOT the later
+# "canonical FMV" idealisation:
+#   node A = cathode-follower output: 250 pF to the treble pot AND the 56k slope;
+#   node B = the slope's foot: one 0.02 uF to the treble-bottom/bass node, the
+#            other 0.02 uF to the MIDDLE POT'S WIPER;
+#   the bass pot is a rheostat (wiper strapped to its hot lug) in series down
+#   the ladder, and the stack's output is the TREBLE WIPER ALONE.
+# The factory 5F6 layout sheet wires the pots the same way (bass wiper strapped,
+# middle wiper fed by the second 0.02 uF, treble wiper out).
 s.wire(116.84, 119.5, 124.46, 119.5)
 s.junction(124.46, 119.5)
 s.wire(124.46, 119.5, 124.46, 94)      # node A up to the 250 pF branch
@@ -90,30 +97,27 @@ s.wire(sr, 119.5, 137, 119.5)
 tl, tr = s.series_h("C", "C5", "250p", 144, 94)
 s.wire(tr, 94, 152.4, 94)
 s.sym("POT", "VR3", "250k treb", 152.4, 97.81)
-# node B -> the treble pot's lower lug, and both 0.02 uF caps
-s.wire(137, 119.5, 137, 101.62)
-s.wire(137, 101.62, 152.4, 101.62)
-s.junction(137, 106)
-s.junction(137, 118)
+# node B -> 0.02 uF to the treble-bottom/bass node, 0.02 uF to the mid wiper
+s.junction(137, 119.5)
+s.wire(137, 119.5, 137, 106)
 bl, br = s.series_h("C", "C6", ".02u", 144, 106)
 s.wire(137, 106, bl, 106)
 s.wire(br, 106, 152.4, 106)
-b2l, b2r = s.series_h("C", "C7", ".02u", 144, 118)
-s.wire(137, 118, b2l, 118)
-s.wire(b2r, 118, 152.4, 118)
+s.wire(137, 119.5, 137, 143)
+b2l, b2r = s.series_h("C", "C7", ".02u", 144, 143)
+s.wire(137, 143, b2l, 143)
+s.wire(b2r, 143, 161, 143)
+s.wire(161, 143, 161, 121.81)
+s.wire(161, 121.81, 157.48, 121.81)    # -> middle wiper
 # the stack column: treble -> bass -> middle -> presence -> ground
+s.wire(152.4, 101.62, 152.4, 106)      # treble bottom lug -> bass node
 s.sym("POT", "VR4", "1M bass", 152.4, 109.81)
+s.wire(157.48, 109.81, 166, 109.81)    # bass wiper strapped to its hot lug (rheostat)
+s.wire(166, 109.81, 166, 106)
+s.wire(166, 106, 152.4, 106)
+s.junction(152.4, 106)
 s.wire(152.4, 113.62, 152.4, 118)
-s.junction(152.4, 118)
 s.sym("POT", "VR5", "25k mid", 152.4, 121.81)
-s.wire(157.48, 121.81, 161, 121.81)    # mid wiper tied to its top (rheostat)
-s.wire(161, 121.81, 161, 118)
-s.wire(161, 118, 152.4, 118)
-# treble and bass wipers = stack output
-s.wire(157.48, 109.81, 161, 109.81)
-s.wire(161, 109.81, 161, 97.81)
-s.wire(161, 97.81, 157.48, 97.81)
-s.junction(157.48, 97.81)
 s.wire(152.4, 125.62, 152.4, 130)
 s.junction(152.4, 128)
 s.sym("POT", "VR6", "5k pres", 152.4, 133.81)

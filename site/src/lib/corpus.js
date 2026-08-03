@@ -607,14 +607,18 @@ function tubeSmallSignal(tubeId) {
 // One entry per tone stack the corpus documents completely enough to plot.
 // `refs` are reference designators in that amp's bom.yaml; `drive` and `load`
 // name the stage feeding the network and the resistance hanging off its output.
-// The stack's own wiring — which is common to every circuit in each group — is
-// documented in site/src/lib/tonestack.js.
+// `wiring` names which of the two stack wirings the amp's own schematic draws —
+// 'ladder' (the published-sheet form: treble-wiper-only output, bass rheostat,
+// mid cap into the mid wiper) or 'joined' (the textbook form: wipers joined at
+// one output node). Both are documented in site/src/lib/tonestack.js, and
+// pipeline/check_tonestack_wiring.py asserts each drawing against the wiring
+// its preset claims.
 //
 // This table is deliberately not generated. Every entry is a claim about how one
 // circuit is wired — which part is the slope resistor, whether the middle leg is a
 // pot or a fixed bleed, what drives the network — and those claims are read off the
 // amp's own parts list and its recorded topology.tone_stack, not inferred. A circuit
-// is listed only where its stack is one of the three networks tonestack.js actually
+// is listed only where its stack is one of the networks tonestack.js actually
 // solves. Six of the sixteen documented circuits that carry a tone control are
 // therefore absent, and the guide page names all six — it counts them out of the
 // corpus rather than repeating a number, so the two cannot drift apart:
@@ -628,18 +632,18 @@ function tubeSmallSignal(tubeId) {
 //          interactive volume network rather than being fed from one stage, so the
 //          single-resistance drive model this solver assumes does not describe it.
 //   5f10   single-knob; not yet built as a preset.
-//   aa764  a two-knob stack, but not the blackface network. Its drawing takes the
-//          output from the treble wiper alone and hangs the bass pot below it as a
-//          rheostat (wiper strapped to one end lug), where every stack solved here
-//          joins the two wipers at a single output node. Same parts, different
-//          topology — it needs its own model, not a preset.
+//   aa764  a two-knob stack drawn as the same ladder the AA964 preset now solves
+//          (treble-wiper output, bass rheostat), but with its own part roles
+//          (0.047 µF, 15 kΩ leg) that have not yet been read into a preset entry
+//          and gate-checked. Absent until that reading is done, not because the
+//          solver lacks its network.
 //
 // Adding one is cheap once the wiring is known; publishing a curve for a network
 // that is not the circuit's own is not recoverable.
 const TONE_STACK_SPECS = [
   {
-    id: '5f6', kind: 'fmv',
-    blurb: 'The 5F6 Bassman stack — the same network as the 5F6-A, but its parts list separates the bass and middle capacitors instead of printing one value for both.',
+    id: '5f6', kind: 'fmv', wiring: 'ladder',
+    blurb: 'The first Fender three-knob stack, plotted as the 5F6 sheet draws it: the output is the treble wiper alone, the bass pot is a rheostat in the ladder, and the middle capacitor feeds the middle pot\'s wiper.',
     drive: { kind: 'cathode-follower', tube: '12ax7' },
     load: 'RGA',
     refs: { slope: 'RSL', trebleCap: 'C5', treblePot: 'VR3', bassCap: 'C6', bassPot: 'VR4', midCap: 'C7', midPot: 'VR5' },
@@ -655,22 +659,22 @@ const TONE_STACK_SPECS = [
     note: 'The parts list records one 0.02 µF value covering both the bass and the mid position; both are plotted at it.',
   },
   {
-    id: 'jtm45', kind: 'fmv',
-    blurb: 'The same network as the Bassman with a slightly smaller treble cap and a 0.01 µF mid cap.',
+    id: 'jtm45', kind: 'fmv', wiring: 'ladder',
+    blurb: 'The Bassman ladder with a slightly smaller treble cap and a 0.01 µF mid cap, plotted as the Marshall drawing wires it: treble-wiper output, bass rheostat, mid cap into the middle pot\'s wiper.',
     drive: { kind: 'cathode-follower', tube: '12ax7' },
     load: 'RGA',
     refs: { slope: 'RSL', trebleCap: 'C4', treblePot: 'VR3', bassCap: 'C5', bassPot: 'VR4', midCap: 'C6', midPot: 'VR5' },
   },
   {
-    id: 'm1987', kind: 'fmv',
-    blurb: 'The British lead variant: a 33 kΩ slope resistor and a 500 pF treble cap move the whole curve.',
+    id: 'm1987', kind: 'fmv', wiring: 'ladder',
+    blurb: 'The British lead variant: a 33 kΩ slope resistor and a 500 pF treble cap move the whole curve. Plotted as the Unicord drawing wires it — the same ladder as the JTM45.',
     drive: { kind: 'cathode-follower', tube: '12ax7' },
     load: 'RGA',
     refs: { slope: 'RSL', trebleCap: 'C8', treblePot: 'VR3', bassCap: 'C9', bassPot: 'VR4', midCap: 'C10', midPot: 'VR5' },
   },
   {
-    id: 'm1959', kind: 'fmv',
-    blurb: 'The 100 W Super Lead carries the same stack as the 50 W head, component for component — the difference between the two amplifiers is downstream of this network, not in it.',
+    id: 'm1959', kind: 'fmv', wiring: 'ladder',
+    blurb: 'The 100 W Super Lead carries the same stack as the 50 W head, component for component and wire for wire — the difference between the two amplifiers is downstream of this network, not in it.',
     drive: { kind: 'cathode-follower', tube: '12ax7' },
     load: 'RGA',
     refs: { slope: 'RSL', trebleCap: 'C8', treblePot: 'VR3', bassCap: 'C9', bassPot: 'VR4', midCap: 'C10', midPot: 'VR5' },
@@ -693,8 +697,8 @@ const TONE_STACK_SPECS = [
     midLeg: { kind: 'fixed', ref: 'RSLN' },
   },
   {
-    id: 'aa964', kind: 'tb',
-    blurb: 'The blackface Princeton runs the Deluxe Reverb\'s stack unchanged — 100 kΩ slope, 250 pF treble, 6.8 kΩ bleed — on the same 6V6 pair at roughly half the power.',
+    id: 'aa964', kind: 'tb', wiring: 'ladder',
+    blurb: 'The blackface Princeton\'s two-knob stack — 100 kΩ slope, 250 pF treble, 6.8 kΩ bleed — plotted as the AA964 sheet wires it: the output is the treble wiper alone and the bass pot is a rheostat above the fixed leg.',
     drive: { kind: 'plate', tube: '12ax7', plateLoad: 'RL1A' },
     load: 'VRV',
     refs: { slope: 'RS', trebleCap: 'CT', treblePot: 'VRT', bassCap: 'CB1', bassPot: 'VRB', midCap: 'CB2' },
@@ -744,7 +748,7 @@ export function toneStackPresets() {
       : (() => { const rp = mu / gm, rl = val(spec.drive.plateLoad); return (rp * rl) / (rp + rl); })();
     const rLoad = val(spec.load);
 
-    const parts = { rSource, rLoad };
+    const parts = { rSource, rLoad, wiring: spec.wiring || 'joined' };
     const bill = [];
     const push = (ref, role) => {
       const it = item(ref);
@@ -778,6 +782,7 @@ export function toneStackPresets() {
     return {
       id: spec.id,
       kind: spec.kind,
+      wiring: spec.wiring || 'joined',
       label: displayId(spec.id),
       style: amp.meta.name_style,
       era: amp.meta.era,
