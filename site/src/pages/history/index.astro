@@ -63,12 +63,17 @@ const jsonld = {
           <div class="cera">
             {f.eraStart}–{f.eraEnd} · {f.models.length} model{f.models.length === 1 ? '' : 's'}
           </div>
+          {/* One-line documentation pointer: how far this line has been drawn.
+              Counts come from the family file tagged against the live corpus, so a
+              newly documented circuit moves the number on its own. */}
+          {f.documentedCount > 0 && (
+            <div class="cdoc">{f.documentedCount} of {f.models.length} models documented</div>
+          )}
           <p class="cdesc">{firstSentence(f.summary)}</p>
           <div class="chips">
-            <span class="chip v">{f.documentedCount} documented</span>
-            {f.models.length - f.documentedCount > 0 && (
-              <span class="chip">{f.models.length - f.documentedCount} history-tier</span>
-            )}
+            {f.models.length - f.documentedCount > 0
+              ? <span class="chip">{f.models.length - f.documentedCount} history-tier</span>
+              : <span class="chip v">line fully documented</span>}
           </div>
         </a>
       ))}
@@ -96,6 +101,7 @@ const jsonld = {
   .card .ct{font-family:var(--disp);text-transform:uppercase;letter-spacing:.16em;font-size:10.5px;color:var(--amber)}
   .card .cid{font-family:var(--disp);font-size:21px;letter-spacing:.03em;text-transform:uppercase;line-height:1.1}
   .card .cera{font-family:var(--mono);font-size:12px;color:var(--faint)}
+  .card .cdoc{font-family:var(--mono);font-size:12px;color:var(--amber)}
   .card .cdesc{color:var(--muted);font-size:13px;line-height:1.45;margin:2px 0 0}
   .chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:auto;padding-top:8px}
   .foot-note{margin-top:36px;padding-top:16px;border-top:1px dashed var(--line);color:var(--faint);font-size:12.5px;max-width:80ch}
