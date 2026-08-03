@@ -651,12 +651,12 @@ const TONE_STACK_SPECS = [
     note: 'The 5F6 returns the middle control\'s foot to ground through the 5 kΩ presence pot instead of straight to ground — the arrangement the 5F6-A moved to the phase-inverter tail. The curve is plotted with Presence at the end of its travel that leaves no resistance in the leg; winding it up adds up to 5 kΩ under the middle control and lifts the notch a little.',
   },
   {
-    id: '5f6a', kind: 'fmv',
-    blurb: 'The tweed Bassman network — the three-knob stack every later lead amp is measured against.',
+    id: '5f6a', kind: 'fmv', wiring: 'ladder',
+    blurb: 'The tweed Bassman network — the three-knob stack every later lead amp is measured against, plotted as the 5F6-A sheet draws it: treble-wiper output, bass rheostat in the ladder, middle capacitor into the middle pot\'s wiper.',
     drive: { kind: 'cathode-follower', tube: '12ax7' },
     load: 'RGA',
     refs: { slope: 'RSL', trebleCap: 'C4', treblePot: 'VR3', bassCap: 'C5', bassPot: 'VR4', midCap: 'C5b', midPot: 'VR5' },
-    note: 'The parts list records one 0.02 µF value covering both the bass and the mid position; both are plotted at it.',
+    note: 'The parts list records one 0.02 µF value covering both the bass and the mid position; both are plotted at it. Unlike the 5F6, the middle pot\'s foot runs straight to ground — the presence control moved to the phase-inverter tail.',
   },
   {
     id: 'jtm45', kind: 'fmv', wiring: 'ladder',
@@ -689,8 +689,8 @@ const TONE_STACK_SPECS = [
     omits: ['C6'],
   },
   {
-    id: 'ab763', kind: 'tb',
-    blurb: 'The blackface two-knob stack, fed from a plate rather than a follower — the normal channel.',
+    id: 'ab763', kind: 'tb', wiring: 'ladder',
+    blurb: 'The blackface two-knob stack, fed from a plate rather than a follower — the normal channel, plotted as the AB763 sheet wires it: treble-wiper output and a bass rheostat above the fixed 6.8 kΩ leg. The vibrato channel draws the identical network.',
     drive: { kind: 'plate', tube: '12ax7', plateLoad: 'RLN1' },
     load: 'VRVN',
     refs: { slope: 'RSN', trebleCap: 'CTN', treblePot: 'VRTN', bassCap: 'CBN', bassPot: 'VRBN', midCap: 'CBN2' },
@@ -705,8 +705,8 @@ const TONE_STACK_SPECS = [
     midLeg: { kind: 'fixed', ref: 'RBL' },
   },
   {
-    id: 'aa1164', kind: 'tb',
-    blurb: 'The Princeton Reverb keeps the same two-knob network its non-reverb sibling uses; adding the tank changed what feeds the stack, not the stack.',
+    id: 'aa1164', kind: 'tb', wiring: 'ladder',
+    blurb: 'The Princeton Reverb keeps the same two-knob network its non-reverb sibling uses, wire for wire — the AA1164 sheet draws the same ladder as the AA964: treble-wiper output, bass rheostat, 6.8 kΩ fixed leg. Adding the tank changed what feeds the stack, not the stack.',
     drive: { kind: 'plate', tube: '12ax7', plateLoad: 'RLN1' },
     load: 'VRVOL',
     refs: { slope: 'RS', trebleCap: 'CT', treblePot: 'VRT', bassCap: 'CB1', bassPot: 'VRB', midCap: 'CB2' },

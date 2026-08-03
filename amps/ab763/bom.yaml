@@ -30,9 +30,12 @@ items:
   - { ref: RKV1, part: "Carbon comp resistor", value: "1.5 kΩ · ½ W", role: "V2a cathode bias" }
   - { ref: CKV1, part: "Electrolytic capacitor", value: "25 µF · 25 V", role: "V2a cathode bypass" }
   - { ref: CTV, part: "Mica capacitor",       value: "250 pF",         role: "Vibrato treble cap" }
-  - { ref: CBRV, part: "Mica capacitor",      value: "47 pF",          role: "Vibrato bright cap" }
+  - { ref: CBRV, part: "Mica capacitor",      value: "47 pF",          role: "Vibrato bright cap, across the volume pot (top lug to wiper)" }
   - { ref: VRTV, part: "Potentiometer",       value: "250 kΩ-A",       role: "Vibrato treble" }
+  - { ref: RSV, part: "Carbon comp resistor", value: "100 kΩ · ½ W",   role: "Vibrato tone-stack slope resistor" }
+  - { ref: CBV, part: "Coupling capacitor",   value: "0.1 µF",         role: "Vibrato tone-stack bass cap, slope node to the bass pot" }
   - { ref: VRBV, part: "Potentiometer",       value: "250 kΩ-A",       role: "Vibrato bass" }
+  - { ref: CBV2, part: "Coupling capacitor",  value: "0.047 µF",       role: "Vibrato tone-stack middle-leg cap, slope node to the bleed resistor" }
   - { ref: RSLV, part: "Carbon comp resistor", value: "6.8 kΩ · ½ W",  role: "Vibrato tone-stack bleed resistor" }
   - { ref: VRVV, part: "Audio-taper potentiometer", value: "1 MΩ-A",   role: "Vibrato volume" }
   - { ref: RLV2, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "V2b (vibrato 2nd stage) plate load" }

@@ -57,57 +57,59 @@ s.text("Normal channel", 12, 48, 1.6)
 t1 = input_stage(YN, "NORM 1", "NORM 2", "R1n", "R2n", "RGN1", "V1", "12AX7",
                  "RLN1", "RKN1", "CKN1", "25u", "B+4")
 
-# normal two-knob tone stack + volume. The plate feeds the network directly:
-# nothing blocks DC ahead of it, so the slope resistor's foot and the treble
-# pot's lower lug sit at plate potential and the three capacitors do all the
-# blocking. Both wipers meet at the stack's output, into the volume control.
+# normal two-knob tone stack + volume, wired as the C-FD sheet draws it — the
+# same ladder the blackface AA964 prints. The plate feeds the network directly:
+# nothing blocks DC ahead of it, so the slope resistor's foot sits at plate
+# potential and the three capacitors do all the blocking.
+#   node A: plate -> CTN 250 pF AND RSN 100k;
+#   node B (slope foot): CBN 0.1 and CBN2 0.047 both leave it;
+#   the treble pot's LOWER lug sits on the far side of CBN, sharing a node
+#   with the bass pot; the bass pot is a rheostat (wiper strapped to its hot
+#   lug) above the 6.8k fixed leg; the output is the TREBLE WIPER ALONE.
 tee = YN - 7.62 - 3.48
 s.wire(52, tee, 78, tee)                      # node A (stack input)
 s.junction(52, tee)
-# treble: A -> CTN 250p -> VRTN 250k
+# treble: A -> CTN 250p -> VRTN 250k, wiper = the stack's output
 tl, tr = s.series_h("C", "CTN", "250p", 84, tee - 6)
 s.wire(78, tee, 78, tee - 6)
 s.wire(78, tee - 6, tl, tee - 6)
-s.wire(tr, tee - 6, 92, tee - 6)
-s.sym("POT", "VRTN", "250k treb", 92, tee - 6 + 3.81)
+s.wire(tr, tee - 6, 96, tee - 6)
+s.sym("POT", "VRTN", "250k treb", 96, tee - 6 + 3.81)
 # slope: A -> RSN 100k -> node B
-sl, sr = s.series_h("R", "RSN", "100k", 84, tee + 4)
-s.wire(78, tee, 78, tee + 4)
+sl, sr = s.series_h("R", "RSN", "100k", 83, tee + 6)
+s.wire(78, tee, 78, tee + 6)
 s.junction(78, tee)
-s.wire(78, tee + 4, sl, tee + 4)
-s.wire(sr, tee + 4, 94, tee + 4)
-s.junction(94, tee + 4)
-# node B -> the treble pot's lower lug
-s.wire(94, tee + 4, 94, tee + 1.62)
-s.wire(94, tee + 1.62, 92, tee + 1.62)
-# node B -> CBN 0.1u -> VRBN 250k bass pot
-s.wire(94, tee + 4, 94, tee + 10)
-bl, br = s.series_h("C", "CBN", ".1u", 98, tee + 10)
-s.wire(94, tee + 10, bl, tee + 10)
-s.wire(br, tee + 10, 104, tee + 10)
-s.sym("POT", "VRBN", "250k bass", 104, tee + 13.81)
-s.junction(94, tee + 10)
-# node B -> CBN2 0.047u -> the mid node -> RSLN 6.8k bleed -> ground
-s.wire(94, tee + 10, 94, tee + 20)
-ml, mr = s.series_h("C", "CBN2", ".047u", 98, tee + 20)
-s.wire(94, tee + 20, ml, tee + 20)
-s.wire(mr, tee + 20, 104, tee + 20)
-s.wire(104, tee + 17.62, 104, tee + 20)
-s.junction(104, tee + 20)
-s.sym("R", "RSLN", "6.8k", 104, tee + 23.81)
-s.gnd(104, tee + 27.62)
-# treble wiper + bass wiper -> volume top
-s.wire(97.08, tee - 2.19, 116, tee - 2.19)    # treble wiper
-s.wire(109.08, tee + 13.81, 116, tee + 13.81)  # bass wiper
-s.wire(116, tee + 13.81, 116, tee - 2.19)
-s.junction(108, tee - 2.19)
-s.wire(108, tee - 2.19, 108, tee)
-s.sym("POT", "VRVN", "1M vol", 108, tee + 3.81)
-s.gnd(108, tee + 11.43)
+s.wire(78, tee + 6, sl, tee + 6)
+s.wire(sr, tee + 6, 87, tee + 6)
+s.junction(87, tee + 6)                       # node B
+# node B -> CBN 0.1u -> the treble-bottom/bass node
+bl, br = s.series_h("C", "CBN", ".1u", 92, tee + 6)
+s.wire(87, tee + 6, bl, tee + 6)
+s.wire(br, tee + 6, 96, tee + 6)
+s.wire(96, tee + 1.62, 96, tee + 6)           # treble bottom lug -> bass node
+s.sym("POT", "VRBN", "250k bass", 96, tee + 6 + 3.81)
+# bass wired as a rheostat: wiper strapped to its hot lug
+s.wire(101.08, tee + 9.81, 108, tee + 9.81)
+s.wire(108, tee + 9.81, 108, tee + 6)
+s.wire(108, tee + 6, 96, tee + 6)
+s.junction(96, tee + 6)
+# node B -> CBN2 0.047u -> the bass-rheostat foot -> RSLN 6.8k bleed -> ground
+s.wire(87, tee + 6, 87, tee + 13.62)
+ml, mr = s.series_h("C", "CBN2", ".047u", 92, tee + 13.62)
+s.wire(87, tee + 13.62, ml, tee + 13.62)
+s.wire(mr, tee + 13.62, 96, tee + 13.62)
+s.junction(96, tee + 13.62)
+s.sym("R", "RSLN", "6.8k", 96, tee + 17.43)
+s.gnd(96, tee + 21.24)
+# treble wiper -> volume top
+s.wire(101.08, tee - 2.19, 114, tee - 2.19)
+s.wire(114, tee - 2.19, 114, tee)
+s.sym("POT", "VRVN", "1M vol", 114, tee + 3.81)
+s.gnd(114, tee + 7.62)
 # volume wiper -> mixer resistor -> PI grid bus (to the right, at PI grid line)
-s.wire(113.08, tee + 3.81, 118, tee + 3.81)
-ml, mr = s.series_h("R", "RMD1", "220k", 122, tee + 3.81)  # PI-grid mixer resistor shared
-s.wire(118, tee + 3.81, ml, tee + 3.81)
+s.wire(119.08, tee + 3.81, 122, tee + 3.81)
+ml, mr = s.series_h("R", "RMD1", "220k", 126, tee + 3.81)  # PI-grid mixer resistor shared
+s.wire(122, tee + 3.81, ml, tee + 3.81)
 s.wire(mr, tee + 3.81, 230, tee + 3.81)       # long run to PI hot grid
 s.glabel("PIG", 230, tee + 3.81, 0)
 
@@ -117,41 +119,62 @@ s.text("Vibrato channel (reverb + tremolo)", 12, 86, 1.6)
 t2 = input_stage(YV, "VIB 1", "VIB 2", "R1v", "R2v", "RGV1", "V2A", "12AX7",
                  "RLV1", "RKV1", "CKV1", "25u", "B+4")
 
-# vibrato tone stack: plate -> CTV 250p treble w/ CBRV 47p bright; VRTV/VRBV; RSLV
+# vibrato tone stack — the C-FD sheet draws the SAME two-knob ladder as the
+# normal channel, part for part (100k slope, 250p treble, 0.1 and 0.047 caps,
+# 6.8k leg), and puts the 47 pF bright cap across the VOLUME pot (top lug to
+# wiper), not across the treble pot.
 teev = YV - 7.62 - 3.48
-s.wire(52, teev, 64, teev)
+s.wire(52, teev, 72, teev)                    # node A (stack input)
 s.junction(52, teev)
-tl, tr = s.series_h("C", "CTV", "250p", 70, teev - 6)
-s.wire(64, teev, 64, teev - 6)
-s.wire(64, teev - 6, tl, teev - 6)
-s.wire(tr, teev - 6, 80, teev - 6)
-s.sym("POT", "VRTV", "250k treb", 80, teev - 6 + 3.81)
-# bright cap across treble pot (top->wiper)
-s.wire(80, teev - 6, 80, teev - 11)
-bl, br = s.series_h("C", "CBRV", "47p", 86, teev - 11)
-s.wire(80, teev - 11, bl, teev - 11)
-s.wire(br, teev - 11, 92, teev - 11)
-s.wire(92, teev - 11, 92, teev - 6 + 3.81)
-s.wire(85.08, teev - 6 + 3.81, 92, teev - 6 + 3.81)
-s.junction(85.08, teev - 6 + 3.81)
-# bass + bleed
-sl, sr = s.series_h("R", "RSLV", "6.8k", 70, teev + 5)
-s.wire(64, teev, 64, teev + 5)
-s.junction(64, teev)
-s.wire(64, teev + 5, sl, teev + 5)
-s.wire(sr, teev + 5, 80, teev + 5)
-s.sym("POT", "VRBV", "250k bass", 80, teev + 5 + 3.81)
-s.gnd(80, teev + 5 + 11.43)
-# vibrato volume
-s.wire(85.08, teev - 6 + 3.81, 96, teev - 6 + 3.81)   # treble wiper -> vol top
-s.wire(96, teev - 6 + 3.81, 96, teev)
-s.sym("POT", "VRVV", "1M vol", 96, teev + 3.81)
-s.gnd(96, teev + 11.43)
+# treble: A -> CTV 250p -> VRTV 250k, wiper = the stack's output
+tl, tr = s.series_h("C", "CTV", "250p", 78, teev - 6)
+s.wire(72, teev, 72, teev - 6)
+s.wire(72, teev - 6, tl, teev - 6)
+s.wire(tr, teev - 6, 90, teev - 6)
+s.sym("POT", "VRTV", "250k treb", 90, teev - 6 + 3.81)
+# slope: A -> RSV 100k -> node B
+sl, sr = s.series_h("R", "RSV", "100k", 77, teev + 6)
+s.wire(72, teev, 72, teev + 6)
+s.junction(72, teev)
+s.wire(72, teev + 6, sl, teev + 6)
+s.wire(sr, teev + 6, 81, teev + 6)
+s.junction(81, teev + 6)                      # node B
+# node B -> CBV 0.1u -> the treble-bottom/bass node
+bl, br = s.series_h("C", "CBV", ".1u", 86, teev + 6)
+s.wire(81, teev + 6, bl, teev + 6)
+s.wire(br, teev + 6, 90, teev + 6)
+s.wire(90, teev + 1.62, 90, teev + 6)         # treble bottom lug -> bass node
+s.sym("POT", "VRBV", "250k bass", 90, teev + 6 + 3.81)
+# bass wired as a rheostat: wiper strapped to its hot lug
+s.wire(95.08, teev + 9.81, 100, teev + 9.81)
+s.wire(100, teev + 9.81, 100, teev + 6)
+s.wire(100, teev + 6, 90, teev + 6)
+s.junction(90, teev + 6)
+# node B -> CBV2 0.047u -> the bass-rheostat foot -> RSLV 6.8k bleed -> ground
+s.wire(81, teev + 6, 81, teev + 13.62)
+ml, mr = s.series_h("C", "CBV2", ".047u", 86, teev + 13.62)
+s.wire(81, teev + 13.62, ml, teev + 13.62)
+s.wire(mr, teev + 13.62, 90, teev + 13.62)
+s.junction(90, teev + 13.62)
+s.sym("R", "RSLV", "6.8k", 90, teev + 17.43)
+s.gnd(90, teev + 21.24)
+# treble wiper -> vibrato volume top, with the 47p bright cap to the wiper
+s.wire(95.08, teev - 2.19, 104, teev - 2.19)
+s.wire(104, teev - 2.19, 104, teev)
+s.sym("POT", "VRVV", "1M vol", 104, teev + 3.81)
+s.gnd(104, teev + 7.62)
+s.junction(104, teev - 2.19)
+s.wire(104, teev - 2.19, 104, teev - 6.9)     # bright cap: vol top -> vol wiper
+cbl, cbr = s.series_h("C", "CBRV", "47p", 108, teev - 6.9)
+s.wire(104, teev - 6.9, cbl, teev - 6.9)
+s.wire(cbr, teev - 6.9, 112, teev - 6.9)
+s.wire(112, teev - 6.9, 112, teev + 3.81)
+s.wire(109.08, teev + 3.81, 112, teev + 3.81)
+s.junction(112, teev + 3.81)
 # vol wiper -> V2B second-stage grid
-s.wire(101.08, teev + 3.81, 108, teev + 3.81)
-s.wire(108, teev + 3.81, 108, YV)
+s.wire(112, teev + 3.81, 112, YV)
 t2b = s.triode("V2B", "12AX7", 118, YV)
-s.wire(108, YV, t2b["g"][0], YV)
+s.wire(112, YV, t2b["g"][0], YV)
 s.plate_load("RLV2", "100k", t2b["p"], "B+3")
 s.wire(118, YV + 7.62, 118, YV + 9)
 s.shunt_rc("RKV2", "820", "CKV2", "25u", 118, YV + 9)

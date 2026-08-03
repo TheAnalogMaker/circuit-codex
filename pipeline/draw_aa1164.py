@@ -62,9 +62,12 @@ tee = YN - 7.62 - 3.48                     # 44.9 — plate stub tee
 TRB = tee - 6                              # 38.9 — treble leg
 SLP = tee + 6.1                            # 51.0 — slope / bass leg
 MID = tee + 17.1                           # 62.0 — the stack's "mid" node rail
-# The plate feeds the network directly — nothing blocks DC ahead of the stack,
-# so the slope resistor's foot and the treble pot's lower lug sit at plate
-# potential and the three capacitors do all the blocking.
+# Wired as the published AA1164 sheet draws it — the same two-knob ladder as
+# the AA964: the plate feeds the network directly (the three capacitors do all
+# the blocking); the treble pot's LOWER lug sits on the far side of CB1,
+# sharing a node with the bass pot; the bass pot is a rheostat (wiper strapped
+# to its hot lug) above the fixed 6.8k leg; the stack's output is the TREBLE
+# WIPER ALONE, into the Volume control.
 s.junction(52, tee)
 s.wire(52, tee, 76, tee)                   # node A (stack input)
 # treble leg: A -> CT 250p -> VRT 250k
@@ -80,14 +83,20 @@ sl, sr = s.series_h("R", "RS", "100k", 84, SLP)
 s.wire(76, SLP, sl, SLP)
 s.wire(sr, SLP, 92, SLP)
 s.junction(92, SLP)
-# node B -> the treble pot's lower lug
-s.wire(92, SLP, 92, TRB + 7.62)
-s.wire(92, TRB + 7.62, 116, TRB + 7.62)
-# node B -> CB1 0.1u -> VRB 250k bass pot
+# node B -> CB1 0.1u -> the treble-bottom/bass node
 bl, br = s.series_h("C", "CB1", ".1u", 98, SLP)
 s.wire(92, SLP, bl, SLP)
 s.wire(br, SLP, 104, SLP)
 s.sym("POT", "VRB", "250k bass", 104, SLP + 3.81)
+# the treble pot's lower lug -> the bass node (the far side of CB1)
+s.wire(116, TRB + 7.62, 116, TRB + 9.9)
+s.wire(116, TRB + 9.9, 104, TRB + 9.9)
+s.wire(104, TRB + 9.9, 104, SLP)
+s.junction(104, SLP)
+# bass wired as a rheostat: wiper strapped to its hot lug
+s.wire(109.08, SLP + 3.81, 112, SLP + 3.81)
+s.wire(112, SLP + 3.81, 112, SLP)
+s.wire(112, SLP, 104, SLP)
 # node B -> CB2 0.047u -> the mid node: bass cold lug -> RSL 6.8k -> ground
 s.wire(92, SLP, 92, MID)
 ml, mr = s.series_h("C", "CB2", ".047u", 98, MID)
@@ -99,11 +108,8 @@ s.wire(104, MID, 116, MID)
 s.junction(116, MID)
 s.sym("R", "RSL", "6.8k", 116, MID + 3.81)
 s.gnd(116, MID + 7.62)
-# treble and bass wipers = the stack's output, into the Volume control
+# treble wiper = the stack's output, into the Volume control
 s.wire(121.08, TRB + 3.81, 132, TRB + 3.81)
-s.wire(109.08, SLP + 3.81, 126, SLP + 3.81)
-s.wire(126, SLP + 3.81, 126, TRB + 3.81)
-s.junction(126, TRB + 3.81)
 s.sym("POT", "VRVOL", "1M vol", 132, TRB + 7.62)
 s.gnd(132, TRB + 11.43)
 

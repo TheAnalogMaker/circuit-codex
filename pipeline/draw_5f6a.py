@@ -71,46 +71,54 @@ s.sym("R", "RKCF", "100k", 116.84, 123.31)
 s.gnd(116.84, 127.12)
 
 # ---- TMB tone stack -----------------------------------------------------
-# node A = cathode-follower output: 250 pF to the treble pot, and the 56k slope.
-# node B = the slope's foot: the treble pot's lower lug, and both 0.02 uF caps.
-# The treble and bass wipers meet at the stack's output.
+# Wired as the published 5F6-A (I-EG) schematic draws it — the same ladder
+# network as the 5F6, NOT the "canonical FMV" idealisation:
+#   node A = cathode-follower output: 250 pF to the treble pot AND the 56k slope;
+#   node B = the slope's foot: one 0.02 uF to the treble-bottom/bass node, the
+#            other 0.02 uF to the MIDDLE POT'S WIPER;
+#   the bass pot is a rheostat (wiper strapped to its hot lug) in series down
+#   the ladder, and the stack's output is the TREBLE WIPER ALONE.
+# Unlike the 5F6, the middle pot's foot runs straight to ground — the presence
+# control moved to the phase-inverter tail. The factory 5F6-A layout sheet
+# wires the pots the same way (bass wiper strapped into the treble-lug node,
+# middle wiper fed from the second 0.02 uF, treble wiper out).
 s.wire(116.84, 119.5, 124.46, 119.5)
 s.junction(124.46, 119.5)
-s.wire(124.46, 119.5, 124.46, 96)       # node A up to the 250 pF branch
-s.wire(124.46, 96, 135.89, 96)
+s.wire(124.46, 119.5, 124.46, 94)      # node A up to the 250 pF branch
+s.wire(124.46, 94, 140.19, 94)
 sl, sr = s.series_h("R", "RSL", "56k", 128.27, 119.5)
-s.wire(sr, 119.5, 135.89, 119.5)
-s.wire(135.89, 119.5, 135.89, 103.62)   # node B riser
-s.wire(135.89, 103.62, 147.32, 103.62)  # node B -> treble pot lower lug
-s.junction(135.89, 108)
-s.junction(135.89, 118)
-# treble branch
-tl, tr = s.series_h("C", "C4", "250p", 139.7, 96)
-s.wire(tr, 96, 147.32, 96)
-s.sym("POT", "VR3", "250k treb", 147.32, 99.81)
-# bass branch
-bl, br = s.series_h("C", "C5", ".02u", 139.7, 108)
-s.wire(br, 108, 147.32, 108)
-s.sym("POT", "VR4", "1M bass", 147.32, 111.81)
-# mid branch
-ml, mr = s.series_h("C", "C5b", ".02u", 139.7, 118)
-s.wire(mr, 118, 147.32, 118)
-s.wire(147.32, 115.62, 147.32, 118)
-s.sym("POT", "VR5", "25k mid", 147.32, 121.81)
-s.gnd(147.32, 125.62)
-s.wire(152.4, 121.81, 154.94, 121.81)   # mid wiper tied to its top (rheostat)
-s.wire(154.94, 121.81, 154.94, 118)
-s.wire(154.94, 118, 147.32, 118)
-s.junction(147.32, 118)
-# treble and bass wipers = stack output
-s.wire(152.4, 99.81, 156.21, 99.81)
-s.wire(152.4, 111.81, 156.21, 111.81)
-s.wire(156.21, 111.81, 156.21, 99.81)
-s.junction(156.21, 99.81)
-s.wire(156.21, 99.81, 156.21, 92)
+s.wire(sr, 119.5, 137, 119.5)
+tl, tr = s.series_h("C", "C4", "250p", 144, 94)
+s.wire(tr, 94, 152.4, 94)
+s.sym("POT", "VR3", "250k treb", 152.4, 97.81)
+# node B -> 0.02 uF to the treble-bottom/bass node, 0.02 uF to the mid wiper
+s.junction(137, 119.5)
+s.wire(137, 119.5, 137, 106)
+bl, br = s.series_h("C", "C5", ".02u", 144, 106)
+s.wire(137, 106, bl, 106)
+s.wire(br, 106, 152.4, 106)
+s.wire(137, 119.5, 137, 143)
+b2l, b2r = s.series_h("C", "C5b", ".02u", 144, 143)
+s.wire(137, 143, b2l, 143)
+s.wire(b2r, 143, 161, 143)
+s.wire(161, 143, 161, 121.81)
+s.wire(161, 121.81, 157.48, 121.81)    # -> middle wiper
+# the stack column: treble -> bass -> middle -> ground
+s.wire(152.4, 101.62, 152.4, 106)      # treble bottom lug -> bass node
+s.sym("POT", "VR4", "1M bass", 152.4, 109.81)
+s.wire(157.48, 109.81, 166, 109.81)    # bass wiper strapped to its hot lug (rheostat)
+s.wire(166, 109.81, 166, 106)
+s.wire(166, 106, 152.4, 106)
+s.junction(152.4, 106)
+s.wire(152.4, 113.62, 152.4, 118)
+s.sym("POT", "VR5", "25k mid", 152.4, 121.81)
+s.gnd(152.4, 125.62)
+# treble wiper = stack output
+s.wire(157.48, 97.81, 157.48, 92)
 
 # ---- long-tailed-pair phase inverter ------------------------------------
-ol, orr = s.series_h("C", "C6", ".02u", 160.02, 92)
+ol, orr = s.series_h("C", "C6", ".02u", 162, 92)
+s.wire(157.48, 92, ol, 92)
 s.wire(orr, 92, 168.91, 92)
 tp = s.triode("V3A", "12AX7", 176.53, 92)
 s.wire(168.91, 92, tp["g"][0], 92)
@@ -139,12 +147,14 @@ s.wire(168.91, 126, 168.91, 122)        # bottom grid
 s.wire(168.91, 126, bt["g"][0], 126)
 s.junction(168.91, 126)
 s.sym("R", "RGB", "1M", 168.91, 118.19, lx=-9.4)
-bl2, br2 = s.series_h("C", "C7", ".1u", 162.56, 126)
+# label shifted right (lx=0) so it clears the mid pot's value text
+s.sym("C", "C7", ".1u", 162.56, 126, rot=90, lx=0, ly=-6.2)
+bl2, br2 = 158.75, 166.37
 s.wire(br2, 126, 168.91, 126)
 s.wire(bl2, 126, 158.75, 126)
 s.wire(158.75, 126, 158.75, 116.62)
 s.wire(158.75, 116.62, 168.91, 116.62)  # bottom grid AC-grounded to J
-s.text("47 pF balance cap V3A grid-plate omitted (AC only) · NFB 27k + presence 5k join the tail foot at ~0 V DC", 150, 145, 1.1)
+s.text("47 pF balance cap V3A grid-plate omitted (AC only) · NFB 27k + presence 5k join the tail foot at ~0 V DC", 150, 148, 1.1)
 
 # ---- 5881 pair, fixed bias ----------------------------------------------
 for y, pref, cref, glref, sref in [(84, "V4", "C8", "RGL1", "RS1"), (136, "V5", "C9", "RGL2", "RS2")]:
