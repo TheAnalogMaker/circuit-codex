@@ -1,6 +1,6 @@
 ---
 import Base from '../../layouts/Base.astro';
-import { loadCorpus, displayId, ampMetaDescription, layoutAlt, topologyHref, circuitFamilyMap, loadLoadlineStages, GITHUB } from '../../lib/corpus.js';
+import { loadCorpus, displayId, ampMetaDescription, layoutAlt, topologyHref, circuitFamilyMap, loadLoadlineStages, toneStackPresetIds, GITHUB } from '../../lib/corpus.js';
 
 export async function getStaticPaths() {
   const stages = new Map(loadLoadlineStages().map((s) => [s.amp, s]));
@@ -30,6 +30,11 @@ const lineageRelated = [
 // simulation-only (chart: null). Such pages must not promise chart comparison.
 const allChartNull = !!amp.voltages && Object.values(amp.voltages.nodes)
   .every((e) => e.chart === null || e.chart === undefined);
+// --- tone-stack lab link (delimited for hand-merge; remove to revert) ---
+// True where the interactive tone-stack lab carries a preset built from this
+// circuit's own parts list, so the panel row can offer its response curve.
+const hasToneStackLab = toneStackPresetIds().has(amp.id);
+// --- end tone-stack lab link ---
 const metaDescription = ampMetaDescription(m);
 const canonical = new URL(`amps/${amp.id}/`, Astro.site).href;
 const jsonld = {
@@ -206,7 +211,12 @@ const jsonld = {
         <dt>Phase inv.</dt><dd>{topologyHref('phase_inverter', m)
           ? <a href={topologyHref('phase_inverter', m)}>{m.topology.phase_inverter}</a> : m.topology.phase_inverter}</dd>
         <dt>Tone stack</dt><dd>{topologyHref('tone_stack', m)
-          ? <a href={topologyHref('tone_stack', m)}>{m.topology.tone_stack}</a> : m.topology.tone_stack}</dd>
+          ? <a href={topologyHref('tone_stack', m)}>{m.topology.tone_stack}</a> : m.topology.tone_stack}
+          {/* --- tone-stack lab link; remove this fragment to revert --- */}
+          {hasToneStackLab && (
+            <> · <a href={`/reference/guides/tone-stack-lab/?preset=${amp.id}#lab`}>hear the curve ↗</a></>
+          )}
+          {/* --- end tone-stack lab link --- */}</dd>
         {/* --- lineage row (explore surface); remove this block to revert --- */}
         {lineageRelated.length > 0 && (
           <>

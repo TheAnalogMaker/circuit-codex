@@ -135,6 +135,18 @@ const COPY = {
   },
 };
 
+/* --- tone-stack lab cross-link (delimited for hand-merge; remove to revert) ---
+   Tone-stack cross-cuts get a link into the interactive frequency-response lab,
+   opened on the circuit from this group whose stack the lab plots. */
+const TONE_STACK_LAB = {
+  'tone-stack-cf-fmv': { preset: '5f6a', text: 'Hear the curve: plot this stack, knob by knob, in the tone-stack lab' },
+  'tone-stack-cf-tb': { preset: '5f4', text: 'Hear the curve: plot the tweed two-knob stack in the tone-stack lab' },
+  'tone-stack-tb': { preset: 'ab763', text: 'Hear the curve: plot the blackface two-knob stack in the tone-stack lab' },
+  'tone-stack-single-knob': { preset: '5f2a', text: 'Hear the curve: plot the single tweed tone control in the tone-stack lab' },
+};
+const lab = TONE_STACK_LAB[page.slug] || null;
+/* --- end tone-stack lab cross-link --- */
+
 const copy = COPY[page.slug] || {
   metaTitle: page.label,
   metaDescription: `Every ${page.label.toLowerCase()} amp in the Circuit Codex archive, gathered in one place.`,
@@ -169,6 +181,13 @@ const jsonld = {
 
   <article class="prose">
     {copy.prose.map((p) => <p set:html={p} />)}
+    {/* --- tone-stack lab cross-link; remove this block to revert --- */}
+    {lab && (
+      <p class="lab-link">
+        <a href={`/reference/guides/tone-stack-lab/?preset=${lab.preset}#lab`}>{lab.text} →</a>
+      </p>
+    )}
+    {/* --- end tone-stack lab cross-link --- */}
   </article>
 
   <section>
@@ -226,6 +245,10 @@ const jsonld = {
   .prose{max-width:74ch;margin-top:8px}
   .prose :global(p){color:var(--muted);font-size:15.5px;line-height:1.7;margin:0 0 16px}
   .prose :global(a){overflow-wrap:anywhere}
+  /* --- tone-stack lab cross-link --- */
+  .lab-link{margin:0 0 16px;padding:11px 14px;border:1px solid var(--line);border-left:3px solid var(--amber-dim);border-radius:6px;background:var(--panel)}
+  .lab-link :global(a){font-family:var(--disp);text-transform:uppercase;letter-spacing:.1em;font-size:12px}
+  /* --- end tone-stack lab cross-link --- */
   section{margin-top:36px}
   h2{font-size:17px;letter-spacing:.14em;margin:24px 0 4px}
   .sub{color:var(--muted);font-size:13.5px;margin:0 0 14px;max-width:70ch}
