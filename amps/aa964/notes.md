@@ -67,6 +67,19 @@ negative supply is as plain as it gets: 100 kΩ from the high-voltage winding, a
 silicon diode, a 25 µF · 50 V can with a 27 kΩ bleeder, and out through the
 Intensity control at **−34 V**.
 
+## The tone network, as the drawings wire it
+
+The published AA964 schematic and its factory layout sheet agree: the 250 pF
+treble capacitor and the 100 kΩ slope resistor both leave the first triode's
+plate; the 0.1 µF runs from the slope foot to the node shared by the treble
+pot's lower lug and the bass pot; the bass pot is a rheostat (the drawing's
+arrow-through-body variable resistor) in series down to the 6.8 kΩ bleed, whose
+top also takes the 0.047 µF from the slope foot; and the stack's output is the
+treble pot's wiper alone, straight into the volume pot. The textbook redrawing
+of these parts puts the treble pot's cold end on the slope foot and joins the
+treble and bass wipers at one output node; the schematic, the board diagram and
+the tone-stack lab all follow the sheets.
+
 ## Reading against the printed chart
 
 The drawing prints a full voltage chart, every value at ±20 %, read to ground

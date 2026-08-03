@@ -46,6 +46,17 @@ load. The input valve stays an ECC83, and the four-input two-channel layout, the
 DC-coupled cathode follower and the long-tailed-pair inverter all carry straight
 across.
 
+## The tone network, as the drawing wires it
+
+The Unicord drawing wires the stack as every Marshall drawing before it did:
+500 pF and the 33 kΩ slope both leave the cathode-follower output; one 0.022 µF
+runs from the slope foot to the node shared by the treble pot's lower lug and
+the bass pot; the bass pot is a rheostat (the drawing's arrow-through-body
+variable resistor) in series down to the middle pot; the other 0.022 µF feeds
+the middle pot's **wiper**; and the stack's output is the treble pot's wiper
+alone. The schematic, the board diagram and the tone-stack lab all follow the
+drawing rather than the textbook redrawing that joins the two wipers.
+
 ## A note on verification
 
 Marshall drawings of this period print component values only; the model 1987

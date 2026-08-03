@@ -65,6 +65,16 @@ long-tailed-pair inverter all carry straight across from the JTM45.
 The 50-watt model 1987 is this amplifier's sibling rather than its parent: the
 same front end and the same voicing with half the output valves.
 
+## The tone network, as the drawing wires it
+
+The Unicord drawing wires the stack identically to the model 1987's, wire for
+wire: 500 pF and the 33 kΩ slope off the cathode-follower output; 0.022 µF from
+the slope foot to the treble pot's lower lug and the bass pot; the bass pot a
+rheostat in series down the ladder; 0.022 µF into the middle pot's **wiper**;
+output from the treble pot's wiper alone. The schematic, the board diagram and
+the tone-stack lab all follow the drawing rather than the textbook redrawing
+that joins the two wipers.
+
 ## A note on verification
 
 Marshall drawings of this period print component values only, and the 1959

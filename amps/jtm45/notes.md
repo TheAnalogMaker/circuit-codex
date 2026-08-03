@@ -43,6 +43,20 @@ ECC83 rather than a 12AY7 at the input (more front-end gain), KT66 output
 valves, 1 kΩ screen stoppers in place of Fender's 470 Ω, and a stiffer, higher
 HT rail.
 
+## The tone network, as the drawing wires it
+
+The Marshall drawing wires the stack exactly as the Fender 5F6-A sheet it
+copies: the 270 pF treble capacitor and the 56 kΩ slope resistor both leave the
+cathode-follower output; one 0.02 µF runs from the slope foot to the node
+shared by the treble pot's lower lug and the bass pot; the bass pot is a
+rheostat — the drawing loops its wiper to the foot lug — in series down to the
+middle pot's top lug; the 0.01 µF mid capacitor feeds the middle pot's
+**wiper**; and the stack's output is the treble pot's wiper alone, into the
+0.02 µF phase-inverter coupler. The textbook redrawing of these parts joins the
+treble and bass wipers at one output node and hangs the mid capacitor on a
+rheostat-wired middle pot instead; the schematic, the board diagram and the
+tone-stack lab all follow the drawing.
+
 ## Verification — against the printed factory chart
 
 Simulation matches 11 of the chart's quantitative nodes — rails within 5.1 %,

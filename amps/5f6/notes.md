@@ -26,6 +26,33 @@ Power: 325-0-325 (PT 8087) → **83** → standby → **+432 V** plates (two 20 
 **+325 V** preamp (8 µF). Bias supply: selenium rectifier, 15k/56k, two
 8 µF/150 V → **−48 V**.
 
+## The tone network, as the drawings wire it
+
+The published 5F6 schematic and its factory layout sheet agree on a tone-stack
+wiring that differs from the textbook redrawing of these same parts, and the
+schematic and layout here follow the sheets:
+
+- The 250 pF treble capacitor and the 56 kΩ slope resistor both leave the
+  cathode-follower output.
+- One 0.02 µF capacitor runs from the slope resistor's foot to the node shared
+  by the treble pot's **lower lug** and the bass pot — the treble pot's cold end
+  sits on the far side of that capacitor, not on the slope foot.
+- The bass pot is a **rheostat**: the layout sheet straps its wiper, and the pot
+  stands in series between that node and the middle pot's top lug.
+- The other 0.02 µF runs from the slope foot to the middle pot's **wiper**, so
+  the Middle control slides the capacitor's injection point along a 25 kΩ leg
+  that never leaves the circuit.
+- The stack's output is the treble pot's **wiper alone**; the middle pot's foot
+  returns to ground through the 5 kΩ presence pot.
+
+The textbook form of this stack ties the treble pot's cold end to the slope
+foot, joins the treble and bass wipers at one output node, and hangs the mid
+capacitor on top of a rheostat-wired middle pot. The two networks share every
+part value and differ audibly at the stops: as drawn, the fixed 25 kΩ leg keeps
+the stack from ever going fully silent with Bass and Middle at zero, where the
+textbook network's output falls to ground. The tone-stack lab plots this
+circuit with the wiring the sheets draw.
+
 ## The 83, and what a mercury-vapour rectifier does to a supply
 
 The 83 is the only mercury-vapour tube in the corpus, and it behaves nothing
