@@ -20,7 +20,7 @@ items:
   - { ref: RKCF, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "Cathode-follower load" }
   - { ref: RSL, part: "Carbon comp resistor", value: "56 kΩ · ½ W",  role: "Tone-stack slope resistor" }
   - { ref: C4,  part: "Mica capacitor",       value: "250 pF",        role: "Tone stack — treble" }
-  - { ref: VR3, part: "Potentiometer",        value: "250 kΩ",        role: "Treble" }
+  - { ref: VR3, part: "Linear potentiometer", value: "250 kΩ",        role: "Treble (the factory layout page marks it 250K LIN.)" }
   - { ref: C5,  part: "Film capacitor",       value: "0.02 µF · 400 V", role: "Tone stack — bass (the parts list prints one 0.02 µF line covering both this and the middle position)" }
   - { ref: C5b, part: "Film capacitor",       value: "0.02 µF · 400 V", role: "Tone stack — middle (same printed line as C5)" }
   - { ref: VR4, part: "Audio-taper potentiometer", value: "1 MΩ",    role: "Bass" }
