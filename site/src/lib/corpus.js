@@ -587,13 +587,18 @@ function tubeSmallSignal(tubeId) {
 // pot or a fixed bleed, what drives the network — and those claims are read off the
 // amp's own parts list and its recorded topology.tone_stack, not inferred. A circuit
 // is listed only where its stack is one of the three networks tonestack.js actually
-// solves. Four documented circuits are therefore absent on purpose:
+// solves. Six of the sixteen documented circuits that carry a tone control are
+// therefore absent, and the guide page names all six:
 //
 //   ac15   topology.tone_stack: top-cut — a cap and pot across the two phase-inverter
 //          outputs, a differential cut with no counterpart here. Not a variant of the
 //          single-knob network; it would need its own model.
 //   5d3    single-knob, but with a 500 pF treble path alongside the cut capacitor.
 //   6g3    two single-knob controls, each with the same extra treble path.
+//   5e3    single-knob (500 pF / 0.005 µF), but the control sits inside the amp's
+//          interactive volume network rather than being fed from one stage, so the
+//          single-resistance drive model this solver assumes does not describe it.
+//   5f10   single-knob; not yet built as a preset.
 //   aa764  a two-knob stack whose bass leg is a 15 kΩ resistor and a 0.047 µF cap,
 //          and whose parts list labels the 0.1 µF as the bass cap — the opposite of
 //          the ab763 convention. Resolving which capacitor sits where needs the
@@ -657,7 +662,7 @@ const TONE_STACK_SPECS = [
   },
   {
     id: 'aa964', kind: 'tb',
-    blurb: 'The blackface Princeton runs the Deluxe Reverb\'s stack unchanged — 100 kΩ slope, 250 pF treble, 6.8 kΩ bleed — on an amp with half the output stage.',
+    blurb: 'The blackface Princeton runs the Deluxe Reverb\'s stack unchanged — 100 kΩ slope, 250 pF treble, 6.8 kΩ bleed — on the same 6V6 pair at roughly half the power.',
     drive: { kind: 'plate', tube: '12ax7', plateLoad: 'RL1A' },
     load: 'VRV',
     refs: { slope: 'RS', trebleCap: 'CT', treblePot: 'VRT', bassCap: 'CB2', bassPot: 'VRB' },

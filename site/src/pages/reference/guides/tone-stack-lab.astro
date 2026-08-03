@@ -53,7 +53,7 @@ const openReadout = `${opening.label} · treble 5.0 · middle 5.0 · bass 5.0 �
   + ` 100 Hz ${fmtDb(openSummary.at100)} dB · 1 kHz ${fmtDb(openSummary.at1k)} dB`
   + ` · 5 kHz ${fmtDb(openSummary.at5k)} dB.`;
 
-const description = 'An interactive frequency-response lab for the passive tone stacks of the tube-amp era — the three-knob FMV network, the two-knob treble/bass stack, and the single tweed tone control — plotted live from the analytic transfer function, with presets built from the real component values of every circuit in the archive.';
+const description = 'An interactive frequency-response lab for the passive tone stacks of the tube-amp era — the three-knob FMV network, the two-knob treble/bass stack, and the single tweed tone control — plotted live from the analytic transfer function, with presets built from the real component values of the circuits in the archive whose stacks it solves.';
 ---
 <Base title="Tone-stack lab: plot what the knobs do — Circuit Codex"
       description={description}>
@@ -225,8 +225,9 @@ const description = 'An interactive frequency-response lab for the passive tone 
       <p><strong>The mid leg is the network's foot.</strong> Below the bass pot the
         network runs to ground through whatever the circuit puts there. A three-knob stack
         puts a small pot there — 25 kΩ, tiny beside the 1 MΩ bass pot — and that pot is
-        the Middle control. Fender's two-knob blackface circuit replaces it with a fixed
-        6.8 kΩ resistor; the tweed two-knob stack takes the foot straight to ground. The
+        the Middle control. Fender's two-knob blackface circuits replace it with a fixed
+        resistor — 6.8 kΩ on the Deluxe Reverb and both Princetons, 15 kΩ on the blackface
+        Champ; the tweed two-knob stack takes the foot straight to ground. The
         two-knob circuits also do without the capacitor that feeds that leg. Those are the
         only differences between the two families in this archive, which is why the lab
         plots both from the same equations — and, as the next section shows, why the two
@@ -250,9 +251,10 @@ const description = 'An interactive frequency-response lab for the passive tone 
         Treble is doing — because the output node is then tied to ground through what is
         left of the network. The tweed two-knob stack does the same thing with Bass alone
         at zero, since its mid leg is simply a wire to ground. The blackface two-knob
-        stack cannot: its 6.8 kΩ fixed leg holds the foot up, so both controls at zero
-        costs about 27 dB rather than everything. The resistor that sets that circuit's
-        fixed midrange is also the reason it never goes quiet.</p>
+        presets here cannot: their 6.8 kΩ fixed leg holds the foot up, so on those three
+        circuits both controls at zero costs about 27 dB rather than everything. The
+        resistor that sets a circuit's fixed midrange is also the reason it never goes
+        quiet.</p>
       <p>The Middle control's authority is worth a moment too. On a three-knob preset with
         Treble and Bass at five, moving Middle from 0 to 10 lifts the bottom of the notch
         from about 27 dB down to about 10 dB down and walks it from roughly 950 Hz to
@@ -311,11 +313,18 @@ const description = 'An interactive frequency-response lab for the passive tone 
   </section>
 
   <section aria-labelledby="corpus-h">
-    <h2 id="corpus-h">Every stack in the archive</h2>
+    <h2 id="corpus-h">The stacks the lab can plot</h2>
     <p class="sub">Each preset is built at deploy time from its circuit's own parts list —
       the values below are the ones the plot uses, read straight from the archive. Load
       one into the lab and the address bar keeps it, so a setting can be linked to
       directly.</p>
+    <p class="sub">Sixteen circuits in the archive carry a tone control and {presets.length} of
+      them are presets here. The AC15's Top Cut is not one of them: it sits after the phase
+      inverter, bridged across both of its outputs, and is a different network from the three
+      this lab solves. The AA764's two-knob stack and the single tone controls of the 5D3,
+      5E3, 5F10 and 6G3 are simply not built yet — each needs its own drawing read before a
+      curve can honestly be drawn for it, and a curve for a network that is not the circuit's
+      own would not be recoverable.</p>
 
     {presets.map((p) => (
       <div class="pcard">
