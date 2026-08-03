@@ -474,15 +474,28 @@ export function circuitFamilyMap() {
 // back to its own meta.family era string, so a newly added amp always lands
 // under a heading rather than disappearing.
 //
-// Groups run oldest cosmetic era first — tweed, then brown and blackface, then
-// the British circuits — ranked by the earliest era style in the group and, on a
-// tie, by the earliest year. Everything comes from the data; no list of amps or
-// families is written down here.
-const ERA_STYLE_ORDER = ['tweed', 'brown', 'brownface', 'blackface', 'silverface', 'british'];
+// Groups run oldest era first — the tweed lines, then blackface, then the British
+// circuits — ranked by the earliest era style in the group and, on a tie, by the
+// earliest year. Everything comes from the data; no list of amps or families is
+// written down here.
+//
+// The order below IS meta.family's controlled vocabulary (docs/schema.md), in the
+// order that enum declares, which already runs oldest first. It is written out
+// rather than inferred so that a value the schema does not define sorts last and
+// loudly instead of silently landing mid-list; ERA_STYLES must be kept in step with
+// the schema enum. (It previously listed brown, brownface and silverface — none of
+// which the schema defines, so they could never match — while omitting vox, which
+// it does.)
+const ERA_STYLES = ['tweed', 'blackface', 'british', 'vox', 'boutique', 'other'];
+
+// "other" is the enum's catch-all for a circuit whose cosmetic era the vocabulary
+// has no word for — the 6G3 brown Deluxe is the corpus's one case. It is a
+// placeholder, not an era name, so it ranks but never captions a group.
+const ERA_STYLE_PLACEHOLDER = 'other';
 
 function eraRank(style) {
-  const i = ERA_STYLE_ORDER.indexOf(String(style || '').toLowerCase());
-  return i === -1 ? ERA_STYLE_ORDER.length : i;
+  const i = ERA_STYLES.indexOf(String(style || '').toLowerCase());
+  return i === -1 ? ERA_STYLES.length : i;
 }
 
 export function corpusByFamily() {
@@ -511,7 +524,8 @@ export function corpusByFamily() {
         ...g,
         amps: [...g.amps].sort((a, b) =>
           (a.meta.era?.start ?? 0) - (b.meta.era?.start ?? 0) || a.id.localeCompare(b.id)),
-        styles: [...new Set(g.amps.map((a) => a.meta.family).filter(Boolean))],
+        styles: [...new Set(g.amps.map((a) => a.meta.family)
+          .filter((s) => s && s !== ERA_STYLE_PLACEHOLDER))],
         rank: Math.min(...g.amps.map((a) => eraRank(a.meta.family))),
         eraStart: starts.length ? Math.min(...starts) : null,
         eraEnd: ends.length ? Math.max(...ends) : null,
