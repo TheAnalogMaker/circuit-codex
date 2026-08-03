@@ -79,32 +79,42 @@ s.sym("R", "RKCF", "100k", 116.84, 123.31)
 s.gnd(116.84, 127.12)
 
 # ---- TMB tone stack (cathode-follower fed) -------------------------------
+# node A = cathode-follower output: 270 pF to the treble pot, and the 56k slope.
+# node B = the slope's foot: the treble pot's lower lug, and the bass and mid
+# caps. The treble and bass wipers meet at the stack's output.
 s.wire(116.84, 119.5, 124.46, 119.5)
+s.junction(124.46, 119.5)
+s.wire(124.46, 119.5, 124.46, 96)       # node A up to the 270 pF branch
+s.wire(124.46, 96, 135.89, 96)
 sl, sr = s.series_h("R", "RSL", "56k", 128.27, 119.5)
 s.wire(sr, 119.5, 135.89, 119.5)
-s.wire(135.89, 119.5, 135.89, 96)
-# treble branch
+s.wire(135.89, 119.5, 135.89, 103.62)   # node B riser
+s.wire(135.89, 103.62, 147.32, 103.62)  # node B -> treble pot lower lug
 s.junction(135.89, 108)
+s.junction(135.89, 118)
+# treble branch
 tl, tr = s.series_h("C", "C4", "270p", 139.7, 96)
 s.wire(tr, 96, 147.32, 96)
 s.sym("POT", "VR3", "250k treb", 147.32, 99.81)
 # bass branch
 bl, br = s.series_h("C", "C5", ".02u", 139.7, 108)
 s.wire(br, 108, 147.32, 108)
-s.wire(147.32, 103.62, 147.32, 108)     # treble pot bottom joins bass top
 s.sym("POT", "VR4", "1M bass", 147.32, 111.81)
+# mid branch
+ml, mr = s.series_h("C", "C6", ".01u", 139.7, 118)
+s.wire(mr, 118, 147.32, 118)
 s.wire(147.32, 115.62, 147.32, 118)
 s.sym("POT", "VR5", "25k mid", 147.32, 121.81)
-# mid cap in series with the mid pot to ground
-s.wire(147.32, 125.62, 147.32, 128)
-s.sym("C", "C6", ".01u", 147.32, 131.81)
-s.gnd(147.32, 135.62)
+s.gnd(147.32, 125.62)
 s.wire(152.4, 121.81, 154.94, 121.81)   # mid wiper tied to its top
 s.wire(154.94, 121.81, 154.94, 118)
 s.wire(154.94, 118, 147.32, 118)
 s.junction(147.32, 118)
-# treble wiper = stack output
+# treble and bass wipers = stack output
 s.wire(152.4, 99.81, 156.21, 99.81)
+s.wire(152.4, 111.81, 156.21, 111.81)
+s.wire(156.21, 111.81, 156.21, 99.81)
+s.junction(156.21, 99.81)
 s.wire(156.21, 99.81, 156.21, 92)
 
 # ---- V4 long-tailed-pair phase inverter ---------------------------------

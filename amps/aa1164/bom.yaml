@@ -18,9 +18,9 @@ items:
   - { ref: CT, part: "Mica capacitor", value: "250 pF", role: "Treble cap" }
   - { ref: VRT, part: "Audio-taper potentiometer", value: "250 kΩ-A", role: "Treble" }
   - { ref: RS, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "Tone-stack slope resistor" }
-  - { ref: CB1, part: "Coupling capacitor", value: "0.1 µF", role: "Tone-stack coupling" }
+  - { ref: CB1, part: "Coupling capacitor", value: "0.1 µF", role: "Tone-stack bass cap, slope node to the bass pot" }
   - { ref: VRB, part: "Audio-taper potentiometer", value: "250 kΩ-A", role: "Bass" }
-  - { ref: CB2, part: "Coupling capacitor", value: "0.047 µF", role: "Bass cap" }
+  - { ref: CB2, part: "Coupling capacitor", value: "0.047 µF", role: "Tone-stack middle-leg cap, slope node to the bleed resistor" }
   - { ref: RSL, part: "Carbon comp resistor", value: "6.8 kΩ · ½ W", role: "Tone-stack bleed resistor" }
   - { ref: VRVOL, part: "Audio-taper potentiometer", value: "1 MΩ-A", role: "Volume" }
   # --- Preamp second stage (V1b) ---

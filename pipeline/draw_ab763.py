@@ -57,34 +57,51 @@ s.text("Normal channel", 12, 48, 1.6)
 t1 = input_stage(YN, "NORM 1", "NORM 2", "R1n", "R2n", "RGN1", "V1", "12AX7",
                  "RLN1", "RKN1", "CKN1", "25u", "B+4")
 
-# normal FMV tone stack + volume: plate -> CBN 0.1u -> stack -> VRVN 1M -> mixer
+# normal two-knob tone stack + volume. The plate feeds the network directly:
+# nothing blocks DC ahead of it, so the slope resistor's foot and the treble
+# pot's lower lug sit at plate potential and the three capacitors do all the
+# blocking. Both wipers meet at the stack's output, into the volume control.
 tee = YN - 7.62 - 3.48
-s.wire(52, tee, 64, tee)
+s.wire(52, tee, 78, tee)                      # node A (stack input)
 s.junction(52, tee)
-cl, cr = s.series_h("C", "CBN", ".1u", 68, tee)
-s.wire(64, tee, cl, tee)
-s.wire(cr, tee, 78, tee)                      # node A (stack input)
 # treble: A -> CTN 250p -> VRTN 250k
 tl, tr = s.series_h("C", "CTN", "250p", 84, tee - 6)
 s.wire(78, tee, 78, tee - 6)
 s.wire(78, tee - 6, tl, tee - 6)
 s.wire(tr, tee - 6, 92, tee - 6)
 s.sym("POT", "VRTN", "250k treb", 92, tee - 6 + 3.81)
-# slope: A -> RSN 100k -> VRBN bass top
+# slope: A -> RSN 100k -> node B
 sl, sr = s.series_h("R", "RSN", "100k", 84, tee + 4)
 s.wire(78, tee, 78, tee + 4)
 s.junction(78, tee)
 s.wire(78, tee + 4, sl, tee + 4)
-s.wire(sr, tee + 4, 100, tee + 4)
-# bass: node -> CBN2 0.047u -> VRBN 250k -> RSLN 6.8k bleed -> gnd
-bl, br = s.series_h("C", "CBN2", ".047u", 100, tee + 4)  # placed inline visually
-s.sym("POT", "VRBN", "250k bass", 100, tee + 4 + 7.62)
-s.wire(100, tee + 4 + 3.81, 100, tee + 4 + 3.81)
-s.sym("R", "RSLN", "6.8k", 100, tee + 4 + 15.24)
-s.gnd(100, tee + 4 + 19.05)
+s.wire(sr, tee + 4, 94, tee + 4)
+s.junction(94, tee + 4)
+# node B -> the treble pot's lower lug
+s.wire(94, tee + 4, 94, tee + 1.62)
+s.wire(94, tee + 1.62, 92, tee + 1.62)
+# node B -> CBN 0.1u -> VRBN 250k bass pot
+s.wire(94, tee + 4, 94, tee + 10)
+bl, br = s.series_h("C", "CBN", ".1u", 98, tee + 10)
+s.wire(94, tee + 10, bl, tee + 10)
+s.wire(br, tee + 10, 104, tee + 10)
+s.sym("POT", "VRBN", "250k bass", 104, tee + 13.81)
+s.junction(94, tee + 10)
+# node B -> CBN2 0.047u -> the mid node -> RSLN 6.8k bleed -> ground
+s.wire(94, tee + 10, 94, tee + 20)
+ml, mr = s.series_h("C", "CBN2", ".047u", 98, tee + 20)
+s.wire(94, tee + 20, ml, tee + 20)
+s.wire(mr, tee + 20, 104, tee + 20)
+s.wire(104, tee + 17.62, 104, tee + 20)
+s.junction(104, tee + 20)
+s.sym("R", "RSLN", "6.8k", 104, tee + 23.81)
+s.gnd(104, tee + 27.62)
 # treble wiper + bass wiper -> volume top
-s.wire(97.08, tee - 6 + 3.81, 108, tee - 6 + 3.81)   # treble wiper
-s.wire(108, tee - 6 + 3.81, 108, tee)
+s.wire(97.08, tee - 2.19, 116, tee - 2.19)    # treble wiper
+s.wire(109.08, tee + 13.81, 116, tee + 13.81)  # bass wiper
+s.wire(116, tee + 13.81, 116, tee - 2.19)
+s.junction(108, tee - 2.19)
+s.wire(108, tee - 2.19, 108, tee)
 s.sym("POT", "VRVN", "1M vol", 108, tee + 3.81)
 s.gnd(108, tee + 11.43)
 # volume wiper -> mixer resistor -> PI grid bus (to the right, at PI grid line)

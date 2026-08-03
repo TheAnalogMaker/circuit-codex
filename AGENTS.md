@@ -39,6 +39,7 @@ python3 pipeline/fit_models.py && git diff --exit-code models/   # zero model dr
 python3 pipeline/test_models.py         # ngspice datasheet-anchor checks
 python3 pipeline/verify_amps.py         # DC op-point vs chart (draft=warn, verified=FAIL)
 cd pipeline && python3 check_schematics.py   # kiutils round-trip
+cd pipeline && python3 check_tonestack_wiring.py  # drawn tone stack == plotted one
 cd pipeline && python3 check_layouts.py      # layout render + collision lint (+waivers)
 python3 pipeline/verify_layout_nets.py       # layout↔netlist equivalence (+--selftest)
 python3 pipeline/export_loadlines.py --check # reference/loadlines.yaml vs the netlists

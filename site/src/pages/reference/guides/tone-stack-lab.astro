@@ -232,10 +232,10 @@ const description = 'An interactive frequency-response lab for the passive tone 
         puts a small pot there — 25 kΩ, tiny beside the 1 MΩ bass pot — and that pot is
         the Middle control. Fender's two-knob blackface circuits replace it with a fixed
         resistor — 6.8 kΩ on the Deluxe Reverb and both Princetons, 15 kΩ on the blackface
-        Champ; the tweed two-knob stack takes the foot straight to ground. The
-        two-knob circuits also do without the capacitor that feeds that leg. Those are the
-        only differences between the two families in this archive, which is why the lab
-        plots both from the same equations — and, as the next section shows, why the two
+        Champ — but keep the capacitor that feeds the leg; the tweed two-knob stack takes
+        the foot straight to ground and drops that capacitor with it. Those are the only
+        differences between the three families in this archive, which is why the lab plots
+        them all from the same equations — and, as the next section shows, why their
         curves nonetheless part company so decisively.</p>
     </div>
   </section>
@@ -243,13 +243,15 @@ const description = 'An interactive frequency-response lab for the passive tone 
   <section aria-labelledby="two-h">
     <h2 id="two-h">Two knobs against three</h2>
     <div class="era">
-      <p>Switch between a three-knob preset and a two-knob one and the difference in the
-        curve is larger than one missing control. The three-knob circuits carry a
-        capacitor on the mid leg as well as on the bass leg — two low-end paths down from
-        the slope resistor, arriving at the output node from different places. That second
-        path is what carves the notch: take it away and the same network tilts smoothly
-        from bass to treble instead of dipping in between. The two-knob circuits here
-        carry only the bass capacitor, and their curves show it.</p>
+      <p>Switch between the presets and the difference in the curve is larger than one
+        missing control, and it is not the missing control that does it. What carves the
+        notch is the second low-end path: a capacitor on the mid leg as well as on the
+        bass leg, two routes down from the slope resistor arriving at the output node from
+        different places. Every three-knob circuit here has it, and so does the blackface
+        two-knob stack — which is why a blackface amp is scooped with both knobs at five
+        even though it has no Middle control to blame. The tweed two-knob stack is the one
+        that drops that capacitor, and its curve says so: no dip at all, just a smooth
+        tilt from bass to treble.</p>
       <p>The foot of the network is worth trying at the extremes, because the three
         families end differently. Set a three-knob preset's Bass and Middle both to zero
         and the output falls off the bottom of the chart — around 100 dB down, whatever

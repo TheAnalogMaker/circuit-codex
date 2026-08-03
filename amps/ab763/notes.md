@@ -13,8 +13,9 @@ current they can deliver.
 
 **Normal channel.** Two inputs (each a 68 kΩ stopper on a 1 MΩ leak) → first
 12AX7 stage (100 kΩ plate load, 1.5 kΩ cathode with a 25 µF bypass) → a
-treble-bass tone stack (250 kΩ treble and bass, 6.8 kΩ bleed, 250 pF and
-0.047 µF caps) and a 1 MΩ volume → the mixing resistor into the phase inverter.
+treble-bass tone stack (100 kΩ slope, 250 kΩ treble and bass, 6.8 kΩ bleed, and
+250 pF · 0.1 µF · 0.047 µF caps) and a 1 MΩ volume → the mixing resistor into
+the phase inverter.
 No reverb, no tremolo.
 
 **Vibrato channel.** Input stage as above → tone stack (with a 47 pF bright cap

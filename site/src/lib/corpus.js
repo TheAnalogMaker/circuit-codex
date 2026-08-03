@@ -618,13 +618,15 @@ const TONE_STACK_SPECS = [
     drive: { kind: 'cathode-follower', tube: '12ax7' },
     load: 'RGA',
     refs: { slope: 'RSL', trebleCap: 'C5', treblePot: 'VR3', bassCap: 'C6', bassPot: 'VR4', midCap: 'C7', midPot: 'VR5' },
+    midLeg: { kind: 'series', ref: 'VR6' },
+    note: 'The 5F6 returns the middle control\'s foot to ground through the 5 kΩ presence pot instead of straight to ground — the arrangement the 5F6-A moved to the phase-inverter tail. The curve is plotted with Presence at the end of its travel that leaves no resistance in the leg; winding it up adds up to 5 kΩ under the middle control and lifts the notch a little.',
   },
   {
     id: '5f6a', kind: 'fmv',
     blurb: 'The tweed Bassman network — the three-knob stack every later lead amp is measured against.',
     drive: { kind: 'cathode-follower', tube: '12ax7' },
     load: 'RGA',
-    refs: { slope: 'RSL', trebleCap: 'C4', treblePot: 'VR3', bassCap: 'C5', bassPot: 'VR4', midCap: 'C5', midPot: 'VR5' },
+    refs: { slope: 'RSL', trebleCap: 'C4', treblePot: 'VR3', bassCap: 'C5', bassPot: 'VR4', midCap: 'C5b', midPot: 'VR5' },
     note: 'The parts list records one 0.02 µF value covering both the bass and the mid position; both are plotted at it.',
   },
   {
@@ -662,7 +664,7 @@ const TONE_STACK_SPECS = [
     blurb: 'The blackface two-knob stack, fed from a plate rather than a follower — the normal channel.',
     drive: { kind: 'plate', tube: '12ax7', plateLoad: 'RLN1' },
     load: 'VRVN',
-    refs: { slope: 'RSN', trebleCap: 'CTN', treblePot: 'VRTN', bassCap: 'CBN2', bassPot: 'VRBN' },
+    refs: { slope: 'RSN', trebleCap: 'CTN', treblePot: 'VRTN', bassCap: 'CBN', bassPot: 'VRBN', midCap: 'CBN2' },
     midLeg: { kind: 'fixed', ref: 'RSLN' },
   },
   {
@@ -670,7 +672,7 @@ const TONE_STACK_SPECS = [
     blurb: 'The blackface Princeton runs the Deluxe Reverb\'s stack unchanged — 100 kΩ slope, 250 pF treble, 6.8 kΩ bleed — on the same 6V6 pair at roughly half the power.',
     drive: { kind: 'plate', tube: '12ax7', plateLoad: 'RL1A' },
     load: 'VRV',
-    refs: { slope: 'RS', trebleCap: 'CT', treblePot: 'VRT', bassCap: 'CB2', bassPot: 'VRB' },
+    refs: { slope: 'RS', trebleCap: 'CT', treblePot: 'VRT', bassCap: 'CB1', bassPot: 'VRB', midCap: 'CB2' },
     midLeg: { kind: 'fixed', ref: 'RBL' },
   },
   {
@@ -678,7 +680,7 @@ const TONE_STACK_SPECS = [
     blurb: 'The Princeton Reverb keeps the same two-knob network its non-reverb sibling uses; adding the tank changed what feeds the stack, not the stack.',
     drive: { kind: 'plate', tube: '12ax7', plateLoad: 'RLN1' },
     load: 'VRVOL',
-    refs: { slope: 'RS', trebleCap: 'CT', treblePot: 'VRT', bassCap: 'CB2', bassPot: 'VRB' },
+    refs: { slope: 'RS', trebleCap: 'CT', treblePot: 'VRT', bassCap: 'CB1', bassPot: 'VRB', midCap: 'CB2' },
     midLeg: { kind: 'fixed', ref: 'RSL' },
   },
   {

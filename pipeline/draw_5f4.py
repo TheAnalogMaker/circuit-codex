@@ -77,10 +77,18 @@ s.sym("R", "RKCF", "100k", 116.84, 123.31)
 s.gnd(116.84, 127.12)
 
 # ---- treble/bass tone stack (2-knob) ------------------------------------
+# node A = cathode-follower output: 250 pF to the treble pot, and the 100k
+# slope. node B = the slope's foot: the treble pot's lower lug and the bass
+# cap. The treble and bass wipers meet at the stack's output; with no middle
+# control the bass pot's foot goes straight to ground.
 s.wire(116.84, 119.5, 124.46, 119.5)
+s.junction(124.46, 119.5)
+s.wire(124.46, 119.5, 124.46, 96)       # node A up to the 250 pF branch
+s.wire(124.46, 96, 135.89, 96)
 sl, sr = s.series_h("R", "RSL", "100k", 128.27, 119.5)
 s.wire(sr, 119.5, 135.89, 119.5)
-s.wire(135.89, 119.5, 135.89, 96)
+s.wire(135.89, 119.5, 135.89, 103.62)   # node B riser
+s.wire(135.89, 103.62, 147.32, 103.62)  # node B -> treble pot lower lug
 # treble branch (250 pF cap + .01 across the treble pot)
 s.junction(135.89, 108)
 tl, tr = s.series_h("C", "C5", "250p", 139.7, 96)
@@ -94,11 +102,13 @@ s.wire(147.32, 87.19, 147.32, 96)
 # bass branch (.005 cap + 1M bass pot)
 bl, br = s.series_h("C", "C7", ".005u", 139.7, 108)
 s.wire(br, 108, 147.32, 108)
-s.wire(147.32, 103.62, 147.32, 108)     # treble pot bottom joins bass top
 s.sym("POT", "VR4", "1M bass", 147.32, 111.81)
 s.gnd(147.32, 115.62)
-# treble wiper = stack output rail (x=156.21)
+# treble and bass wipers = stack output rail (x=156.21)
 s.wire(152.4, 99.81, 156.21, 99.81)
+s.wire(152.4, 111.81, 156.21, 111.81)
+s.wire(156.21, 111.81, 156.21, 99.81)
+s.junction(156.21, 99.81)
 s.wire(156.21, 99.81, 156.21, 84)
 s.junction(156.21, 92)
 

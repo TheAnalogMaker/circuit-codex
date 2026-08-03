@@ -16,8 +16,8 @@ items:
   # --- Tone stack and volume ---
   - { ref: CT,  part: "Mica capacitor",       value: "250 pF",        role: "Treble cap, plate to treble pot" }
   - { ref: RS,  part: "Carbon comp resistor", value: "100 kΩ · ½ W",  role: "Tone-stack slope resistor" }
-  - { ref: CB1, part: "Coupling capacitor",   value: "0.1 µF",        role: "Tone-stack bass coupling" }
-  - { ref: CB2, part: "Coupling capacitor",   value: "0.047 µF",      role: "Tone-stack bass cap" }
+  - { ref: CB1, part: "Coupling capacitor",   value: "0.1 µF",        role: "Tone-stack bass cap, slope node to the bass pot" }
+  - { ref: CB2, part: "Coupling capacitor",   value: "0.047 µF",      role: "Tone-stack middle-leg cap, slope node to the bleed resistor" }
   - { ref: RBL, part: "Carbon comp resistor", value: "6.8 kΩ · ½ W",  role: "Tone-stack bleed resistor" }
   - { ref: VRT, part: "Audio-taper potentiometer", value: "250 kΩ-A", role: "Treble" }
   - { ref: VRB, part: "Audio-taper potentiometer", value: "250 kΩ-A", role: "Bass" }

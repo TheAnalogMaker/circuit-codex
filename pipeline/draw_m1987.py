@@ -113,35 +113,45 @@ s.gnd(126, 128.12)
 
 # ======================= TMB tone stack (cathode-follower fed) ===============
 # 33k slope; 500p treble / 250k; 0.022 bass / 1M; 0.022 mid / 25k.
+# node A = cathode-follower output: 500 pF to the treble pot, and the 33k slope.
+# node B = the slope's foot: the treble pot's lower lug, and the bass and mid
+# caps. The treble and bass wipers meet at the stack's output.
 s.wire(126, 120.5, 133, 120.5)
 sl, sr = s.series_h("R", "RSL", "33k", 137, 120.5)
 s.wire(133, 120.5, sl, 120.5)
+s.junction(133, 120.5)
+s.wire(133, 120.5, 133, 96)               # node A up to the 500 pF branch
 s.wire(sr, 120.5, 145, 120.5)
-s.wire(145, 120.5, 145, 96)
+s.wire(145, 120.5, 145, 103.62)           # node B riser
+s.wire(145, 103.62, 156, 103.62)          # node B -> treble pot lower lug
 s.junction(145, 108)
+s.junction(145, 118)
 # treble branch: 500p -> 250k treble pot
 tl, tr = s.series_h("C", "C8", "500p", 149, 96)
 s.wire(tr, 96, 156, 96)
-s.wire(145, 96, tl, 96)
+s.wire(133, 96, tl, 96)
 s.sym("POT", "VR3", "250k treb", 156, 99.81)
 # bass branch: 0.022 -> 1M bass pot
 bl, br = s.series_h("C", "C9", ".022u", 149, 108)
 s.wire(145, 108, bl, 108)
 s.wire(br, 108, 156, 108)
-s.wire(156, 103.62, 156, 108)             # treble pot bottom joins bass top
 s.sym("POT", "VR4", "1M bass", 156, 111.81)
+# mid branch: 0.022 -> 25k middle pot
+ml, mr = s.series_h("C", "C10", ".022u", 149, 118)
+s.wire(145, 118, ml, 118)
+s.wire(mr, 118, 156, 118)
 s.wire(156, 115.62, 156, 118)
 s.sym("POT", "VR5", "25k mid", 156, 121.81)
-# mid cap in series with the mid pot to ground
-s.wire(156, 125.62, 156, 128)
-s.sym("C", "C10", ".022u", 156, 131.81)
-s.gnd(156, 135.62)
+s.gnd(156, 125.62)
 s.wire(161.08, 121.81, 163.6, 121.81)     # mid wiper tied to its top
 s.wire(163.6, 121.81, 163.6, 118)
 s.wire(163.6, 118, 156, 118)
 s.junction(156, 118)
-# treble wiper = stack output
+# treble and bass wipers = stack output
 s.wire(161.08, 99.81, 165, 99.81)
+s.wire(161.08, 111.81, 165, 111.81)
+s.wire(165, 111.81, 165, 99.81)
+s.junction(165, 99.81)
 s.wire(165, 99.81, 165, 92)
 
 # ===================== V3 long-tailed-pair phase inverter ===================

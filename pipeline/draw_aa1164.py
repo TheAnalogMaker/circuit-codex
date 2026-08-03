@@ -62,11 +62,11 @@ tee = YN - 7.62 - 3.48                     # 44.9 — plate stub tee
 TRB = tee - 6                              # 38.9 — treble leg
 SLP = tee + 6.1                            # 51.0 — slope / bass leg
 MID = tee + 17.1                           # 62.0 — the stack's "mid" node rail
+# The plate feeds the network directly — nothing blocks DC ahead of the stack,
+# so the slope resistor's foot and the treble pot's lower lug sit at plate
+# potential and the three capacitors do all the blocking.
 s.junction(52, tee)
-s.wire(52, tee, 62, tee)
-cl, cr = s.series_h("C", "CB1", ".1u", 66, tee)
-s.wire(62, tee, cl, tee)
-s.wire(cr, tee, 76, tee)                   # node A (stack input)
+s.wire(52, tee, 76, tee)                   # node A (stack input)
 # treble leg: A -> CT 250p -> VRT 250k
 s.junction(76, tee)
 s.wire(76, tee, 76, TRB)
@@ -74,26 +74,36 @@ tl, tr = s.series_h("C", "CT", "250p", 84, TRB)
 s.wire(76, TRB, tl, TRB)
 s.wire(tr, TRB, 116, TRB)
 s.sym("POT", "VRT", "250k treb", 116, TRB + 3.81)
-# slope leg: A -> RS 100k -> CB2 0.047u -> VRB 250k
+# slope leg: A -> RS 100k -> node B
 s.wire(76, tee, 76, SLP)
 sl, sr = s.series_h("R", "RS", "100k", 84, SLP)
 s.wire(76, SLP, sl, SLP)
 s.wire(sr, SLP, 92, SLP)
-bl, br = s.series_h("C", "CB2", ".047u", 98, SLP)
+s.junction(92, SLP)
+# node B -> the treble pot's lower lug
+s.wire(92, SLP, 92, TRB + 7.62)
+s.wire(92, TRB + 7.62, 116, TRB + 7.62)
+# node B -> CB1 0.1u -> VRB 250k bass pot
+bl, br = s.series_h("C", "CB1", ".1u", 98, SLP)
 s.wire(92, SLP, bl, SLP)
 s.wire(br, SLP, 104, SLP)
 s.sym("POT", "VRB", "250k bass", 104, SLP + 3.81)
-# mid node: treble CCW lug + bass wiper + bass cold lug -> RSL 6.8k -> ground
-s.wire(116, TRB + 7.62, 116, MID)
+# node B -> CB2 0.047u -> the mid node: bass cold lug -> RSL 6.8k -> ground
+s.wire(92, SLP, 92, MID)
+ml, mr = s.series_h("C", "CB2", ".047u", 98, MID)
+s.wire(92, MID, ml, MID)
+s.wire(mr, MID, 104, MID)
 s.wire(104, SLP + 7.62, 104, MID)
+s.junction(104, MID)
 s.wire(104, MID, 116, MID)
-s.wire(109.08, SLP + 3.81, 109.08, MID)
-s.junction(109.08, MID)
 s.junction(116, MID)
 s.sym("R", "RSL", "6.8k", 116, MID + 3.81)
 s.gnd(116, MID + 7.62)
-# treble wiper -> Volume
+# treble and bass wipers = the stack's output, into the Volume control
 s.wire(121.08, TRB + 3.81, 132, TRB + 3.81)
+s.wire(109.08, SLP + 3.81, 126, SLP + 3.81)
+s.wire(126, SLP + 3.81, 126, TRB + 3.81)
+s.junction(126, TRB + 3.81)
 s.sym("POT", "VRVOL", "1M vol", 132, TRB + 7.62)
 s.gnd(132, TRB + 11.43)
 

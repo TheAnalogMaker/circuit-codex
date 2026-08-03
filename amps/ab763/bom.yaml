@@ -17,9 +17,9 @@ items:
   - { ref: CTN, part: "Mica capacitor",       value: "250 pF",         role: "Normal treble cap" }
   - { ref: VRTN, part: "Potentiometer",       value: "250 kΩ-A",       role: "Normal treble" }
   - { ref: RSN, part: "Carbon comp resistor", value: "100 kΩ · ½ W",   role: "Normal tone-stack slope resistor" }
-  - { ref: CBN, part: "Coupling capacitor",   value: "0.1 µF",         role: "Normal tone-stack coupling" }
+  - { ref: CBN, part: "Coupling capacitor",   value: "0.1 µF",         role: "Normal tone-stack bass cap, slope node to the bass pot" }
   - { ref: VRBN, part: "Potentiometer",       value: "250 kΩ-A",       role: "Normal bass" }
-  - { ref: CBN2, part: "Coupling capacitor",  value: "0.047 µF",       role: "Normal bass cap" }
+  - { ref: CBN2, part: "Coupling capacitor",  value: "0.047 µF",       role: "Normal tone-stack middle-leg cap, slope node to the bleed resistor" }
   - { ref: RSLN, part: "Carbon comp resistor", value: "6.8 kΩ · ½ W",  role: "Normal tone-stack bleed resistor" }
   - { ref: VRVN, part: "Audio-taper potentiometer", value: "1 MΩ-A",   role: "Normal volume" }
   # --- Vibrato channel input (V2a) + 2nd stage (V2b) ---

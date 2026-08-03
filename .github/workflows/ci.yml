@@ -20,6 +20,12 @@ jobs:
       - run: python pipeline/test_models.py
       - run: python pipeline/verify_amps.py
       - run: python pipeline/check_schematics.py
+      # The tone-stack lab plots a fixed network and fills its values from each
+      # amp's BOM by reference designator. This rebuilds the nets the schematic
+      # actually draws and fails if a drawing wires those designators into a
+      # different circuit from the one the page plots.
+      - run: python check_tonestack_wiring.py
+        working-directory: pipeline
       - run: python pipeline/check_layouts.py
       # Layout <-> netlist electrical-equivalence gate. The self-test proves the
       # gate catches planted wiring faults (a gate that can't is decoration); the
