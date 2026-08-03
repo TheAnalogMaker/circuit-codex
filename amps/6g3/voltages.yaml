@@ -9,7 +9,7 @@
 # (1 kΩ · 2 W, 10 kΩ · 1 W, 27 kΩ · 1 W); see netlist.cir.
 source: "Fender 'Deluxe' Model 6G3 drawing (I-FA), printed voltages: +375 (reservoir / OT centre tap), +365 (6V6 plates and screens), +325 (phase-inverter plate rail), +270 (preamp rail), +165 (both channel-input plates, and the driver plate), +1.5 (shared input cathode), +1.4 (driver cathode), +230/+225 (phase-inverter plates), +20 (joined inverter cathodes), +18 (inverter tail junction), -26 (6V6 fixed bias), +205/+2.0 (tremolo oscillator, excluded)"
 nodes:
-  BS:   { chart: 365, tol_pct: 8,  note: "6V6 plate and screen node, one 1 kΩ · 2 W dropper below the driven reservoir — internal target, tighter than the drawing's ±20%" }
+  BS:   { chart: 365, tol_pct: 8,  note: "6V6 screen node, one 1 kΩ · 2 W dropper below the driven reservoir. The plates sit on the +375 V centre tap; the chart's +365 V at the plate pin is the output transformer primary's own drop, which this model omits — internal target, tighter than the drawing's ±20%" }
   BC:   { chart: 325, tol_pct: 8,  note: "phase-inverter plate rail, 10 kΩ · 1 W below the screen node — internal target" }
   BD:   { chart: 270, tol_pct: 8,  note: "preamp rail, 27 kΩ · 1 W below the phase-inverter rail — internal target" }
   PN1:  { chart: 165, tol_pct: 20, note: "Normal-channel input plate, 220 kΩ from +270 V" }

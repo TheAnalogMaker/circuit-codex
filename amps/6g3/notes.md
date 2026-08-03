@@ -64,11 +64,16 @@ A 125P2A power transformer with a 333-0-333 V secondary feeds the GZ34, which
 delivers **+375 V** at the reservoir — the same node the output transformer's
 centre tap sits on, and the node the tremolo oscillator draws its plate current
 from. From there the rail steps down through the drawing's own droppers:
-1 kΩ · 2 W to **+365 V** at the 6V6 plates and screens, 10 kΩ · 1 W to **+325 V**
+1 kΩ · 2 W to **+365 V** at the 6V6 screens, 10 kΩ · 1 W to **+325 V**
 at the phase-inverter plates, and 27 kΩ · 1 W to **+270 V** at the preamp, on
 16 µF, 16 µF, 16 µF and 8 µF · 450 V cans. A separate 100 kΩ · 5 % feed off one
 HT leg, a rectifier, a 25 µF · 50 V can and a 22 kΩ · 5 % bleeder make the −26 V
 bias — fixed, with no adjustment trimmer.
+
+Only the screens hang on that first dropper. The 6V6 plates sit on the +375 V
+reservoir, through the output transformer's primary; the **+365 V** the chart
+prints at the plate pin is that winding's own DC drop, a resistance this model
+leaves out.
 
 ## Lineage
 
