@@ -561,7 +561,34 @@ function tubeSmallSignal(tubeId) {
 // name the stage feeding the network and the resistance hanging off its output.
 // The stack's own wiring — which is common to every circuit in each group — is
 // documented in site/src/lib/tonestack.js.
+//
+// This table is deliberately not generated. Every entry is a claim about how one
+// circuit is wired — which part is the slope resistor, whether the middle leg is a
+// pot or a fixed bleed, what drives the network — and those claims are read off the
+// amp's own parts list and its recorded topology.tone_stack, not inferred. A circuit
+// is listed only where its stack is one of the three networks tonestack.js actually
+// solves. Four documented circuits are therefore absent on purpose:
+//
+//   ac15   topology.tone_stack: top-cut — a cap and pot across the two phase-inverter
+//          outputs, a differential cut with no counterpart here. Not a variant of the
+//          single-knob network; it would need its own model.
+//   5d3    single-knob, but with a 500 pF treble path alongside the cut capacitor.
+//   6g3    two single-knob controls, each with the same extra treble path.
+//   aa764  a two-knob stack whose bass leg is a 15 kΩ resistor and a 0.047 µF cap,
+//          and whose parts list labels the 0.1 µF as the bass cap — the opposite of
+//          the ab763 convention. Resolving which capacitor sits where needs the
+//          schematic read, not a guess, so it stays out until someone reads it.
+//
+// Adding one is cheap once the wiring is known; publishing a curve for a network
+// that is not the circuit's own is not recoverable.
 const TONE_STACK_SPECS = [
+  {
+    id: '5f6', kind: 'fmv',
+    blurb: 'The 5F6 Bassman stack — the same network as the 5F6-A, but its parts list separates the bass and middle capacitors instead of printing one value for both.',
+    drive: { kind: 'cathode-follower', tube: '12ax7' },
+    load: 'RGA',
+    refs: { slope: 'RSL', trebleCap: 'C5', treblePot: 'VR3', bassCap: 'C6', bassPot: 'VR4', midCap: 'C7', midPot: 'VR5' },
+  },
   {
     id: '5f6a', kind: 'fmv',
     blurb: 'The tweed Bassman network — the three-knob stack every later lead amp is measured against.',
@@ -585,6 +612,13 @@ const TONE_STACK_SPECS = [
     refs: { slope: 'RSL', trebleCap: 'C8', treblePot: 'VR3', bassCap: 'C9', bassPot: 'VR4', midCap: 'C10', midPot: 'VR5' },
   },
   {
+    id: 'm1959', kind: 'fmv',
+    blurb: 'The 100 W Super Lead carries the same stack as the 50 W head, component for component — the difference between the two amplifiers is downstream of this network, not in it.',
+    drive: { kind: 'cathode-follower', tube: '12ax7' },
+    load: 'RGA',
+    refs: { slope: 'RSL', trebleCap: 'C8', treblePot: 'VR3', bassCap: 'C9', bassPot: 'VR4', midCap: 'C10', midPot: 'VR5' },
+  },
+  {
     id: '5f4', kind: 'tb',
     blurb: 'The tweed two-knob stack — the three-knob network with the mid leg taken straight to ground.',
     drive: { kind: 'cathode-follower', tube: '12ax7' },
@@ -600,6 +634,22 @@ const TONE_STACK_SPECS = [
     load: 'VRVN',
     refs: { slope: 'RSN', trebleCap: 'CTN', treblePot: 'VRTN', bassCap: 'CBN2', bassPot: 'VRBN' },
     midLeg: { kind: 'fixed', ref: 'RSLN' },
+  },
+  {
+    id: 'aa964', kind: 'tb',
+    blurb: 'The blackface Princeton runs the Deluxe Reverb\'s stack unchanged — 100 kΩ slope, 250 pF treble, 6.8 kΩ bleed — on an amp with half the output stage.',
+    drive: { kind: 'plate', tube: '12ax7', plateLoad: 'RL1A' },
+    load: 'VRV',
+    refs: { slope: 'RS', trebleCap: 'CT', treblePot: 'VRT', bassCap: 'CB2', bassPot: 'VRB' },
+    midLeg: { kind: 'fixed', ref: 'RBL' },
+  },
+  {
+    id: 'aa1164', kind: 'tb',
+    blurb: 'The Princeton Reverb keeps the same two-knob network its non-reverb sibling uses; adding the tank changed what feeds the stack, not the stack.',
+    drive: { kind: 'plate', tube: '12ax7', plateLoad: 'RLN1' },
+    load: 'VRVOL',
+    refs: { slope: 'RS', trebleCap: 'CT', treblePot: 'VRT', bassCap: 'CB2', bassPot: 'VRB' },
+    midLeg: { kind: 'fixed', ref: 'RSL' },
   },
   {
     id: '5f2a', kind: 'single-knob',
