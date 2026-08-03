@@ -72,6 +72,20 @@ const YEAR_MIN = 1945, YEAR_MAX = 1982;
 const W = 1300, PAD_L = 108, PAD_R = 30;
 const X0 = PAD_L, X1 = W - PAD_R, PLOTW = X1 - X0;
 const CW = 84, CH = 30, ROWH = 42, BAND_GAP = 14, BANDS_TOP = 34;
+
+// A chip is as wide as the name it carries. CW is the floor, not the width: the
+// designations run from "5E1" to "AC15 circuit No. 2", and a fixed box silently ran
+// the long ones past their own border. The condensed display face sets about 6.9 px
+// per uppercase character at 13 px, plus the ✓ a verified circuit adds and 9 px of
+// padding each side. Widths feed the row packer below, so a wider chip takes the
+// space it needs and its neighbours move down a sub-row rather than collide.
+function chipLabel(m) {
+  return m.documented ? displayId(m.ampId) : m.shortDesig;
+}
+function chipWidth(m) {
+  const ver = m.documented && byId.get(m.ampId)?.meta.verification?.status === 'verified';
+  return Math.max(CW, Math.round((chipLabel(m).length + (ver ? 2 : 0)) * 6.9) + 18);
+}
 const xScale = (yr) => X0 + ((yr - YEAR_MIN) / (YEAR_MAX - YEAR_MIN)) * PLOTW;
 
 // Fixed lane order: the Fender lines, then the British line placed directly under the
@@ -88,12 +102,13 @@ function packBand(models) {
   const rowEnds = [];
   const placed = [];
   for (const m of sorted) {
+    const w = chipWidth(m);
     let nx = xScale(m.years.start);
-    if (nx + CW > X1) nx = X1 - CW;
+    if (nx + w > X1) nx = X1 - w;
     let row = rowEnds.findIndex((end) => nx >= end + 10);
     if (row === -1) { row = rowEnds.length; rowEnds.push(0); }
-    rowEnds[row] = nx + CW;
-    placed.push({ m, nx, row });
+    rowEnds[row] = nx + w;
+    placed.push({ m, nx, row, w });
   }
   return { placed, rows: rowEnds.length };
 }
@@ -108,7 +123,7 @@ for (const fam of fams) {
   const pos = new Map();       // designation -> box (unique within a family)
   for (const p of placed) {
     const cy = top + p.row * ROWH + ROWH / 2;
-    pos.set(p.m.designation, { x: p.nx, y: cy - CH / 2, cx: p.nx + CW / 2, cy, w: CW, h: CH });
+    pos.set(p.m.designation, { x: p.nx, y: cy - CH / 2, cx: p.nx + p.w / 2, cy, w: p.w, h: CH });
   }
   // succession: chip centres joined in chronological order (left→right)
   const chrono = [...fam.models].sort((a, b) => a.years.start - b.years.start);

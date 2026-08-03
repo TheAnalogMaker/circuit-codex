@@ -400,8 +400,14 @@ export function loadGlossary() {
 
 // Compact designation for a chip label: the first token of a multi-designation
 // string ("6G6 / 6G6-A" → "6G6", "5E6 / 5E6-A" → "5E6") so timeline chips stay tight.
+//
+// The separator is a SPACED slash, and only a spaced slash. Fender's files list two
+// designations for one model that way; Vox's do not — "AC30/4", "AC30/6" and "AC1/15"
+// are single model names that happen to contain a slash, and "AC30 (AC/30)" carries
+// one inside a parenthesis. Splitting on any slash turned all three AC30 variants
+// into an identical "AC30" chip and cut the fourth off mid-word as "AC30 (AC".
 export function shortDesignation(desig) {
-  return String(desig).split(/\s*\/\s*/)[0].trim();
+  return String(desig).split(/\s+\/\s+/)[0].trim();
 }
 
 // Load every family file, tag each model documented/ghost against the live corpus,
