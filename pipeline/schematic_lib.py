@@ -182,6 +182,16 @@ LIB = f"""  (lib_symbols
       (symbol "FUSE_1_1"
         {_pin("passive", -5.08, 0, 0, 2.54, "1", "1")}
         {_pin("passive", 5.08, 0, 180, 2.54, "2", "2")}))
+    (symbol "cx:LAMP" (pin_numbers hide) (pin_names hide) (in_bom yes) (on_board yes)
+      (property "Reference" "PL" (at 4.44 2.54 0) {FONT})
+      (property "Value" "lamp" (at 4.44 -2.54 0) {FONT})
+      (symbol "LAMP_0_1"
+        (circle (center 0 0) (radius 2.54) {_STROKE})
+        {_poly("(xy -1.796 -1.796) (xy 1.796 1.796)")}
+        {_poly("(xy -1.796 1.796) (xy 1.796 -1.796)")})
+      (symbol "LAMP_1_1"
+        {_pin("passive", 0, 5.08, 270, 2.54, "1", "1")}
+        {_pin("passive", 0, -5.08, 90, 2.54, "2", "2")}))
     (symbol "cx:TANK" (pin_numbers hide) (pin_names hide) (in_bom yes) (on_board yes)
       (property "Reference" "RT" (at -7.62 8.89 0) {FONT})
       (property "Value" "tank" (at 0 0 0) {FONT})
@@ -221,11 +231,18 @@ class Sch:
 
     # ---- primitives -----------------------------------------------------
     def sym(self, lib: str, ref: str, val: str, x: float, y: float, rot: int = 0,
-            lx: float = 2.2, ly: float = -3.2, label_rot: int | None = None) -> None:
+            lx: float = 2.2, ly: float = -3.2, label_rot: int | None = None,
+            mirror: str = "") -> None:
         # Property text follows the symbol's rotation unless `label_rot` pins it —
         # a body placed at 180° still wants its ref/value read left-to-right.
         pa = (360 - rot) % 360 if label_rot is None else label_rot % 360
-        self.body.append(f"""  (symbol (lib_id "cx:{lib}") (at {x:g} {y:g} {rot}) (unit 1)
+        # `mirror` ("x" or "y") flips the body about that axis, so one library
+        # symbol serves both hands of an asymmetric part: a jack whose contacts
+        # face left becomes one whose contacts face right, with the pins landing
+        # at (x - sx, y - sy) instead of (x + sx, y - sy). Property text is placed
+        # in absolute coordinates and is NOT mirrored — callers pass lx/ly.
+        mir = f" (mirror {mirror})" if mirror else ""
+        self.body.append(f"""  (symbol (lib_id "cx:{lib}") (at {x:g} {y:g} {rot}){mir} (unit 1)
     (in_bom yes) (on_board yes) (uuid "{_u()}")
     (property "Reference" "{ref}" (at {x + lx:g} {y + ly:g} {pa}) {FONT_L})
     (property "Value" "{val}" (at {x + lx:g} {y + ly + 2.4:g} {pa}) {FONT_L}))""")
@@ -307,10 +324,33 @@ class Sch:
                 "ht_b": (x + 8.89, y + 5.08)}
 
     def jack(self, ref: str, val: str, x: float, y: float,
-             lx: float = 3.0, ly: float = -6.6) -> dict:
-        """Quarter-inch jack: tip and sleeve contacts face left, body to the right."""
-        self.sym("JACK", ref, val, x, y, lx=lx, ly=ly)
-        return {"tip": (x - 5.08, y - 2.54), "sleeve": (x - 5.08, y + 2.54)}
+             lx: float | None = None, ly: float = -6.6, mirror: bool = False) -> dict:
+        """Quarter-inch jack. Contacts face left and the body sits to the right;
+        `mirror=True` flips it so the contacts face right (a jack on the drawing's
+        right-hand edge, wired from inside)."""
+        if lx is None:
+            lx = -4.0 if mirror else 3.0
+        self.sym("JACK", ref, val, x, y, lx=lx, ly=ly, mirror="y" if mirror else "")
+        sx = 5.08 if mirror else -5.08
+        return {"tip": (x + sx, y - 2.54), "sleeve": (x + sx, y + 2.54)}
+
+    def switch(self, ref: str, val: str, x: float, y: float,
+               lx: float = -3.4, ly: float = -6.0) -> tuple:
+        """Horizontal switch centred at (x, y); returns its (left, right) pin x."""
+        self.sym("SWITCH", ref, val, x, y, lx=lx, ly=ly)
+        return (x - 5.08, x + 5.08)
+
+    def fuse(self, ref: str, val: str, x: float, y: float,
+             lx: float = -3.4, ly: float = -6.0) -> tuple:
+        """Horizontal fuse centred at (x, y); returns its (left, right) pin x."""
+        self.sym("FUSE", ref, val, x, y, lx=lx, ly=ly)
+        return (x - 5.08, x + 5.08)
+
+    def lamp(self, ref: str, val: str, x: float, y: float,
+             lx: float = 4.4, ly: float = -5.4) -> dict:
+        """Pilot lamp centred at (x, y); pins top and bottom."""
+        self.sym("LAMP", ref, val, x, y, lx=lx, ly=ly)
+        return {"hi": (x, y - 5.08), "lo": (x, y + 5.08)}
 
     def tank(self, ref: str, val: str, x: float, y: float,
              lx: float = -7.0, ly: float = -9.4) -> dict:

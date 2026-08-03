@@ -303,6 +303,23 @@ def main() -> None:
         emit_triode(ay7, {"cgk": 1.3, "cgp": 1.3, "cpk": 0.6}, "") + "\n"
     (MODELS_DIR / "12ay7.inc").write_text(txt)
 
+    # ---- 12AU7 (ECC82): medium-mu twin triode (mu=17), the Vox AC15's vibrato
+    #      modulator valve. RCA 12AU7-A tabulated Class-A1 average characteristics,
+    #      Va=250 V point: Vg=-8.5 V -> Ia=10.5 mA, gm=2200 umho, rp=7700 ohm,
+    #      mu=17. Single-anchor fit at that point (KP, KG1 solved to Ia+gm),
+    #      matching the 12AY7/12AT7 treatment; MU=17, EX=1.5 fixed.
+    au7 = fit_triode("12AU7", mu=17.0, vp=250.0, vg=-8.5, ia=10.5e-3, gm=2200e-6)
+    txt = common_header("12AU7 medium-mu twin triode (one section)",
+                        "Va=250 V, Vg=-8.5 V -> Ia=10.5 mA, gm=2200 umho, mu=17",
+                        ["European designation ECC82. Used in this corpus only as the",
+                         "AC15 vibrato modulator, which the DC netlist does not solve",
+                         "(a running phase-shift network has no static operating point),",
+                         "so this model is anchor-verified but not yet exercised by an",
+                         "amp simulation. Single-anchor v0 fit — see METHODOLOGY.md.",
+                         "Node order: P G K"]) + "\n" + \
+        emit_triode(au7, {"cgk": 1.6, "cgp": 1.5, "cpk": 0.5}, "") + "\n"
+    (MODELS_DIR / "12au7.inc").write_text(txt)
+
     # ---- 6AT6 (triode unit): Va=250 V, Vg=-3 V -> Ia=1.0 mA, gm=1200 umho, mu=70
     at6 = fit_triode("6AT6", mu=70.0, vp=250.0, vg=-3.0, ia=1.0e-3, gm=1200e-6)
     txt = common_header("6AT6 twin-diode / high-mu triode (triode unit only)",
@@ -411,6 +428,80 @@ Cak A K 4p
         emit_pentode(el34, {"cin": 15.2, "cgp": 1.1, "cout": 8.4}) + "\n"
     (MODELS_DIR / "el34.inc").write_text(txt)
 
+    # ---- EL84 (Philips/Mullard A.F. output pentode, Vox AC15 output): the
+    #      sheet's Class-A operating-characteristics block tabulates Ia, Ig2 AND S
+    #      at the SAME point (Va=250, Vg2=250, Vg1=-7.3, Rk=135 -> Ia=48 mA,
+    #      Ig2=5.5 mA, S=11.3 mA/V), so KG2 anchors at the plate/gm point directly
+    #      (as on the EL34, unlike the KT66). mu(g1-g2)=19 is the tabulated
+    #      amplification factor on the same row. Source URL in the header below.
+    el84 = fit_pentode("EL84", mu=19.0, vp=250.0, vg2=250.0, vg1=-7.3,
+                       ia=48e-3, ig2=5.5e-3, gm=11300e-6)
+    el84_src = ("Philips/Mullard EL84 data sheet, January 1969 (A.F. Output Pentode); "
+                "https://frank.pocnet.net/sheets/010/e/EL84.pdf")
+    txt = common_header("EL84 A.F. output pentode",
+                        "Va=250 V, Vg2=250 V, Vg1=-7.3 V -> Ia=48 mA, Ig2=5.5 mA, gm=11300 umho",
+                        ["mu is grid-No.1-to-grid-No.2 amplification factor (19), the",
+                         "tabulated amplification factor on the same Class-A data row.",
+                         "Ig2 is tabulated at the plate/gm point, so KG2 anchors there.",
+                         "Capacitances from the sheet: Cg1(a)=10.8 pF, Ca-g1=max 0.5 pF,",
+                         "Ca(g1)=6.5 pF. Noval base; g3 is joined to the cathode inside",
+                         "the envelope (pin 3), so there is no separate suppressor node.",
+                         "Node order: P G2 G1 K"],
+                        source=el84_src) + "\n" + \
+        emit_pentode(el84, {"cin": 10.8, "cgp": 0.5, "cout": 6.5}) + "\n"
+    (MODELS_DIR / "el84.inc").write_text(txt)
+
+    # ---- EF86 (Philips/Mullard A.F. pentode, Vox AC15 Normal-channel preamp):
+    #      the sheet's "typical characteristics" block tabulates Ia, Ig2 and S at
+    #      one point (Va=250, Vg2=140, Vg3=0, Vg1=-2.2 -> Ia=3.0 mA, Ig2=0.6 mA,
+    #      S=2.2 mA/V), so KG1 and KG2 both anchor there. mu(g1-g2)=38 is the
+    #      tabulated amplification factor. Source URL in the header below.
+    ef86 = fit_pentode("EF86", mu=38.0, vp=250.0, vg2=140.0, vg1=-2.2,
+                       ia=3.0e-3, ig2=0.6e-3, gm=2200e-6)
+    ef86_src = ("Philips/Mullard EF86 data sheet, January 1970 (A.F. Pentode); "
+                "https://frank.pocnet.net/sheets/010/e/EF86.pdf")
+    txt = common_header("EF86 A.F. small-signal pentode",
+                        "Va=250 V, Vg2=140 V, Vg1=-2.2 V -> Ia=3.0 mA, Ig2=0.6 mA, gm=2200 umho",
+                        ["mu is grid-No.1-to-grid-No.2 amplification factor (38), the",
+                         "tabulated amplification factor on the same typical-characteristics",
+                         "row; the sheet also prints Ri=2.5 MOhm there.",
+                         "Capacitances from the sheet: Cg1(a)=3.8 pF, Ca-g1=max 0.05 pF,",
+                         "Ca(g1)=5.1 pF. The suppressor g3 has its own pin (8) and is",
+                         "strapped to the cathode in every corpus circuit, so it is not a",
+                         "separate model node (Vg3=0 at the anchor, as tabulated).",
+                         "Node order: P G2 G1 K"],
+                        source=ef86_src) + "\n" + \
+        emit_pentode(ef86, {"cin": 3.8, "cgp": 0.05, "cout": 5.1}) + "\n"
+    (MODELS_DIR / "ef86.inc").write_text(txt)
+
+    # ---- EZ81: the Philips sheet tabulates NO per-anode tube drop — only whole-
+    #      rectifier system rows (transformer volts in, DC volts out). The only
+    #      per-anode datum published is the Ia-Va anode characteristic, fig.
+    #      7Z00030-5.26.ha; the anchor below is READ from the measured (solid)
+    #      portion of that curve, not from a table, and is recorded as such in
+    #      reference/tubes/ez81.yaml. Residual: a single 3/2-power law fitted here
+    #      runs ~13% high against the same curve's extrapolated (dashed) 30 V end.
+    perv_ez = fit_rectifier_perveance(v_drop=10.0, i_at_drop=60e-3)
+    ez81_src = ("Philips EZ81 data sheet, January 1970 (Double Anode Rectifying Tube), "
+                "anode characteristic fig. 7Z00030-5.26.ha; "
+                "https://frank.pocnet.net/sheets/010/e/EZ81.pdf")
+    txt = common_header("EZ81 full-wave rectifier (ONE anode unit — instantiate twice)",
+                        "Va=10 V -> Ia=60 mA per anode (read from the Ia-Va anode characteristic)",
+                        ["Child's-law diode: I = PERV * V^1.5; PERV fitted to the curve anchor.",
+                         "GRAPH-READ anchor, not a tabulated point: the sheet publishes no",
+                         "per-anode drop figure, only whole-rectifier system rows. Read from",
+                         "the solid (measured) part of the curve, below the dashed extension.",
+                         "Indirectly heated noval double diode; both anodes share one cathode.",
+                         "Node order: A K (anode, cathode)"],
+                        source=ez81_src) + f"""
+.subckt EZ81 A K
+* fitted: PERV={perv_ez:.6g} EX=1.5
+Bd A K I=pow(uramp(V(A,K)),1.5)*{perv_ez:.6g}
+Cak A K 4p
+.ends EZ81
+"""
+    (MODELS_DIR / "ez81.inc").write_text(txt)
+
     # ---- GZ34: tube drop ~17 V at 250 mA per plate (Mullard datasheet average)
     perv_gz = fit_rectifier_perveance(v_drop=17.0, i_at_drop=250e-3)
     txt = common_header("GZ34 full-wave rectifier (ONE plate unit — instantiate twice)",
@@ -486,6 +577,7 @@ Cak A K 4p
     print("fitted parameters:")
     print(f"  12AX7: MU={ax7.mu:g} KP={ax7.kp:.6g} KG1={ax7.kg1:.6g} EX={ax7.ex:g} KVB={ax7.kvb:.6g} (v1 multi-point)")
     print(f"  12AY7: MU={ay7.mu:g} KP={ay7.kp:.6g} KG1={ay7.kg1:.6g} EX={ay7.ex:g} KVB={ay7.kvb:g}")
+    print(f"  12AU7: MU={au7.mu:g} KP={au7.kp:.6g} KG1={au7.kg1:.6g} EX={au7.ex:g} KVB={au7.kvb:g}")
     print(f"  12AT7: MU={at7.mu:g} KP={at7.kp:.6g} KG1={at7.kg1:.6g} EX={at7.ex:g} KVB={at7.kvb:g}")
     print(f"  6AT6:  MU={at6.mu:g} KP={at6.kp:.6g} KG1={at6.kg1:.6g} EX={at6.ex:g} KVB={at6.kvb:g}")
     print(f"  6V6GT: MU={v6.mu:g} KP={v6.kp:.6g} KG1={v6.kg1:.6g} KG2={v6.kg2:.6g} KVB={v6.kvb:g}")
@@ -493,10 +585,13 @@ Cak A K 4p
     print(f"  5881:  MU={p5881.mu:g} KP={p5881.kp:.6g} KG1={p5881.kg1:.6g} KG2={p5881.kg2:.6g}")
     print(f"  KT66:  MU={kt66.mu:g} KP={kt66.kp:.6g} KG1={kt66.kg1:.6g} KG2={kt66.kg2:.6g}")
     print(f"  EL34:  MU={el34.mu:g} KP={el34.kp:.6g} KG1={el34.kg1:.6g} KG2={el34.kg2:.6g}")
+    print(f"  EL84:  MU={el84.mu:g} KP={el84.kp:.6g} KG1={el84.kg1:.6g} KG2={el84.kg2:.6g}")
+    print(f"  EF86:  MU={ef86.mu:g} KP={ef86.kp:.6g} KG1={ef86.kg1:.6g} KG2={ef86.kg2:.6g}")
+    print(f"  EZ81:  PERV={perv_ez:.6g}")
     print(f"  GZ34:  PERV={perv_gz:.6g}")
     print(f"  5U4G:  PERV={perv_5u4:.6g}")
     print(f"  83:    VARC={v_arc:g} IREF={i_arc:g} VSOFT={v_soft:g} (mercury-vapour arc)")
-    print(f"wrote 12 models to {MODELS_DIR}")
+    print(f"wrote 16 models to {MODELS_DIR}")
 
 
 if __name__ == "__main__":

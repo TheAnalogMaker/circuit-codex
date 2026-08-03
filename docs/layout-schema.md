@@ -18,7 +18,7 @@ layout and the parts list can never disagree.
 | `board.cols` | int | ✓ | Eyelet columns — the horizontal grid the parts land on |
 | `board.title` | string | — | Heading drawn on the diagram (`"5E3 · eyelet board layout"`) |
 | `caption` | string | ✓ | Provenance line, in public-documentation voice — shown under the diagram on the site and used as the drawing's own credit |
-| `source.desc` / `source.url` | string | ✓ | The published layout drawing this order was read from; also cite it in `meta.yaml` sources |
+| `source.desc` / `source.url` | string | ✓ | The published layout drawing this order was read from; also cite it in `meta.yaml` sources. Where no factory layout sheet exists (`jtm45`, `m1959`, `ac15`), cite the **circuit** drawing the arrangement was derived from and say so in the `desc` — the drawing's own attribution line prints it, and `board.title` carries `(derived)` so the site's alt text stays honest |
 | `parts` | list | ✓ | Board-mounted parts (below) |
 | `offboard` | list | — | Tubes, pots, jacks, transformers, switches drawn as labelled stubs |
 | `runs` | list | — | **v2 wiring layer** — routed hookup leads (below) |

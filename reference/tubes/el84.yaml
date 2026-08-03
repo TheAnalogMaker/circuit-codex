@@ -1,0 +1,58 @@
+tube: el84
+name: EL84
+also_known_as: [6BQ5, "6BQ5 (US equivalent)"]
+role: >-
+  Philips/Mullard A.F. output pentode — the output valve of the Vox AC15 and of
+  the wider Vox line. A noval bottle rated for 6 W from a single valve, it needs
+  far less drive than the octal output tubes it displaced, and its short, sharp
+  overdrive above roughly 300 V is much of the British combo voice. In the AC15 a
+  pair runs cathode-biased from one shared 130 Ω resistor with no bias supply at
+  all.
+model:
+  file: models/el84.inc
+  anchor: "Va=250 V, Vg2=250 V, Vg1=-7.3 V → Ia=48 mA, Ig2=5.5 mA, gm=11300 µmho"
+  anchor_source: "Philips/Mullard EL84 data sheet, January 1969 (A.F. Output Pentode), Class-A operating characteristics"
+  anchor_source_url: https://frank.pocnet.net/sheets/010/e/EL84.pdf
+  note: >-
+    µ is the grid-No.1-to-grid-No.2 amplification factor (19), the tabulated
+    amplification factor on the same Class-A data row as Ia/gm. As on the EL34
+    and unlike the KT66, the sheet tabulates Ig2 (5.5 mA) at the very same
+    plate/gm operating point, so KG2 anchors there directly and no separate
+    screen point is needed. EX=1.5 and KVB=30 (pentode) are project defaults per
+    METHODOLOGY.md. Known limitation: this is a single-anchor fit at 250 V, used
+    in the AC15 at a 315 V rail — the extrapolation is the usual v0 caveat, and
+    it lands the AC15 output stage at a physically sensible 11 V of cathode bias.
+basing:
+  code: 9CV
+  base: noval-b9a
+  view: bottom
+  source: >-
+    Philips/Mullard EL84 data sheet, January 1969 — "DIMENSIONS AND CONNECTIONS",
+    Base: Noval, bottom-view base diagram (figure 7Z05631). The suppressor grid
+    (g3) is joined to the cathode inside the envelope and shares pin 3, so there
+    is no separate suppressor pin; pins 1, 6 and 8 are internal connections and
+    must be left free. The RETMA code 9CV and the same pin-by-pin arrangement are
+    printed on the RCA 6BQ5 sheet ("Base ... Small-Button Noval 9-Pin (JEDEC No.
+    E9-1), Basing Designation for BOTTOM VIEW ... 9CV"), which also reproduces the
+    anchor point above (250 V / 250 V / -7.3 V → 48 mA, 5.5 mA, 11300 µmhos)
+    independently of the Philips sheet.
+  pins:
+    1: { element: internal-connection }
+    2: { element: grid }
+    3: { element: cathode, note: "k and g3 — the suppressor is tied to the cathode internally" }
+    4: { element: heater }
+    5: { element: heater }
+    6: { element: internal-connection }
+    7: { element: plate, hv: true }
+    8: { element: internal-connection }
+    9: { element: screen-grid, hv: true }
+used_in: [ac15]
+datasheets:
+  - publisher: Philips / Mullard
+    designation: EL84
+    url: https://frank.pocnet.net/sheets/010/e/EL84.pdf
+    confidence: high
+  - publisher: RCA
+    designation: 6BQ5
+    url: https://frank.pocnet.net/sheets/049/6/6BQ5.pdf
+    confidence: high

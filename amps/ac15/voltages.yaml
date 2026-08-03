@@ -1,0 +1,39 @@
+# Voltages annotated on the factory drawing. JMI drawing OA/031, "VOX AC.15
+# amplifier circuit No. 3" (29-4-60), prints five working voltages beside the
+# circuit — +325 V at the reservoir, +315 V rail, +90 V EF86 anode, +220 V
+# phase-inverter anode, +310 V EL84 anodes — but no tabulated valve-voltage chart
+# of the kind Fender printed, so there is no per-pin table and no stated
+# measurement convention. The figures are treated here as chart values at the
+# era's ±20% tube-pin convention; every other node is reported informationally
+# (simulated only, never gated).
+#
+# Three of the five printed figures are outside the comparison by construction.
+# The +325 V reservoir sits ahead of the smoothing choke, in the EZ81 supply this
+# netlist does not model. The +315 V rail is DRIVEN at its printed value, so
+# comparing it would prove nothing — only nodes the simulation DERIVES appear
+# below. And the +310 V EL84 anode figure is not a gated node either: the corpus
+# omits output-transformer primary DCR, so both anodes collapse onto the driven
+# rail; the 5 V the drawing shows between rail and anode is that winding's drop.
+#
+# HONEST RESIDUAL: the EF86 anode reads low. Philips' own tabulated application
+# row for this exact network (anode 220 kOhm, screen feed 1 MOhm, cathode 2.2
+# kOhm, Vb 300 V) gives 1.1 mA cathode current, which puts the anode within a few
+# volts of the printed +90 V; the corpus's single-anchor EF86 model draws about
+# 10% more cathode current at this operating point, and a 220 kOhm anode load
+# turns that 10% into roughly a quarter of the anode voltage. It is a v0 tube-fit
+# limitation (models/METHODOLOGY.md), stated rather than tuned away, and it is
+# one of the two reasons this circuit is published as a draft.
+source: "JMI drawing OA/031, 'VOX AC.15 amplifier circuit No. 3', 29-4-60 — working voltages annotated beside the circuit: +325 V reservoir, +315 V rail, +90 V EF86 anode, +220 V phase-inverter anode, +310 V EL84 anodes. No tabulated valve-voltage chart is printed. Cross-checked against the same figures on a published redrawn AC15 schematic (see meta.yaml)."
+nodes:
+  BPN:  { chart: null, note: "Normal-channel supply node, after the 22 kΩ dropper from the +315 V rail (8 µF smoothed)" }
+  BPPI: { chart: null, note: "phase-inverter supply node, after its own 22 kΩ dropper from the +315 V rail (8 µF smoothed)" }
+  PEF:  { chart: 90, tol_pct: 20, note: "EF86 anode — 220 kΩ load. See the residual note above: simulated low against the printed figure" }
+  SEF:  { chart: null, note: "EF86 screen grid, fed through 1 MΩ and bypassed by 0.1 µF — the pentode's gain-setting node" }
+  KEF:  { chart: null, note: "EF86 cathode (2.2 kΩ, 25 µF bypass)" }
+  PPIA: { chart: 220, tol_pct: 20, note: "phase-inverter anode, Normal-channel side (100 kΩ load)" }
+  PPIB: { chart: 220, tol_pct: 20, note: "phase-inverter anode, Vibrato/Tremolo side (100 kΩ load) — the drawing prints one figure for the pair" }
+  KPI:  { chart: null, note: "phase-inverter shared cathode, above the 1.2 kΩ resistor" }
+  JPI:  { chart: null, note: "tail junction over the 47 kΩ tail — the return for both 1 MΩ grid leaks" }
+  S3:   { chart: null, note: "EL84 screen grid, through its 100 Ω stopper from the rail" }
+  S4:   { chart: null, note: "EL84 screen grid, through its 100 Ω stopper from the rail" }
+  KOUT: { chart: null, note: "shared EL84 cathode over the single 130 Ω resistor (50 µF bypass) — the amp's entire bias arrangement" }

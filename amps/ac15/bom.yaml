@@ -1,0 +1,113 @@
+# Parts list for the AC15, JMI circuit No. 3 (drawing OA/031, 29-4-60).
+# Designators are FUNCTIONAL — the corpus's own, not the factory drawing's. The
+# published OA/031 scan does not resolve its reference designators reliably
+# enough to reuse them, and asserting a wrong designator would be worse than
+# using none; the one factory designator carried over is R22, the 130 Ω output
+# cathode resistor, which the Vox history archive names independently in prose.
+#
+# A designator here means the redrawn schematic asserts that part's connections.
+# Parts
+# the published scan resolves as VALUES but not as wiring are listed with
+# ref "—" (annotation only), the same convention the tweed and Marshall entries
+# use for their presence, feedback and mains parts.
+notes: "Where the factory drawing and the published redraw give different values for the same part, the FACTORY value is listed and the redraw's modern equivalent noted alongside. Coupling and cathode-bypass capacitor VALUES are open at DC and do not enter the operating-point netlist; they are listed for completeness. Parts belonging to the Vibrato/Tremolo channel are marked — that channel is outside the DC netlist's scope (see notes.md), so its values are read from the drawing but not simulated; the parts of it whose wiring the published scan does not resolve carry no designator and are drawn on the schematic as annotation, not as asserted connections. Asterisked values on the drawing mark the alternate parts for the AC15 Bass; the Normal-voicing values are the ones listed."
+items:
+  # --- inputs (both channels) ---
+  - { ref: JN1, part: "Jack socket", value: "1/4 in", role: "Normal channel input (dual-jack arrangement)" }
+  - { ref: JN2, part: "Jack socket", value: "1/4 in", role: "Normal channel input (dual-jack arrangement)" }
+  - { ref: RIN1, part: "Carbon comp resistor", value: "68 kΩ · ½ W", role: "Normal channel input grid stopper, dual-jack arrangement" }
+  - { ref: RIN2, part: "Carbon comp resistor", value: "68 kΩ · ½ W", role: "Normal channel input grid stopper, dual-jack arrangement" }
+  - { ref: JN, part: "Jack socket", value: "1/4 in", role: "Normal channel input (single-jack arrangement, drawn as the alternate)" }
+  - { ref: RGS1, part: "Carbon comp resistor", value: "33 kΩ · ½ W", role: "Normal channel grid stopper, single-jack arrangement" }
+  - { ref: RG1, part: "Carbon comp resistor", value: "1 MΩ · ½ W", role: "Normal channel input grid leak" }
+  - { ref: JV1, part: "Jack socket", value: "1/4 in", role: "Vibrato/Tremolo channel input (dual-jack arrangement)" }
+  - { ref: JV2, part: "Jack socket", value: "1/4 in", role: "Vibrato/Tremolo channel input (dual-jack arrangement)" }
+  - { ref: RIN3, part: "Carbon comp resistor", value: "68 kΩ · ½ W", role: "Vibrato/Tremolo input grid stopper" }
+  - { ref: RIN4, part: "Carbon comp resistor", value: "68 kΩ · ½ W", role: "Vibrato/Tremolo input grid stopper" }
+  - { ref: JV, part: "Jack socket", value: "1/4 in", role: "Vibrato/Tremolo channel input (single-jack arrangement)" }
+  - { ref: RGS2, part: "Carbon comp resistor", value: "33 kΩ · ½ W", role: "Vibrato/Tremolo grid stopper, single-jack arrangement" }
+  - { ref: RG2, part: "Carbon comp resistor", value: "1 MΩ · ½ W", role: "Vibrato/Tremolo input grid leak" }
+  # --- Normal channel: EF86 pentode preamp ---
+  - { ref: RD1, part: "Power resistor", value: "22 kΩ · 3 W", role: "Rail dropper, +315 V → Normal-channel supply node" }
+  - { ref: CF1, part: "Electrolytic capacitor", value: "8 µF", role: "Normal-channel supply smoothing" }
+  - { ref: RL1, part: "Carbon comp resistor", value: "220 kΩ · ½ W", role: "EF86 anode load" }
+  - { ref: RS1, part: "Carbon comp resistor", value: "1 MΩ · ½ W", role: "EF86 screen-grid feed" }
+  - { ref: CS1, part: "Film capacitor", value: "0.1 µF", role: "EF86 screen-grid bypass" }
+  - { ref: RK1, part: "Carbon comp resistor", value: "2.2 kΩ · ½ W", role: "EF86 cathode bias" }
+  - { ref: CK1, part: "Electrolytic capacitor", value: "25 µF", role: "EF86 cathode bypass" }
+  - { ref: CO1, part: "Coupling capacitor", value: "0.01 µF", role: "EF86 anode → Brilliance switch → Normal volume" }
+  - { ref: SW-BRIL, part: "Toggle switch", value: "SPST", role: "Brilliance on/off — shorts out the treble-bleed cap (panel-marked for the Normal channel)" }
+  - { ref: CBR, part: "Mica capacitor", value: "250 pF", role: "Brilliance treble-bleed cap across the switch (the published redraw prints 220 pF)" }
+  - { ref: VR1, part: "Log potentiometer", value: "500 kΩ", role: "Normal channel volume" }
+  # --- phase inverter (ECC83 long-tailed pair) ---
+  - { ref: RD2, part: "Power resistor", value: "22 kΩ · 3 W", role: "Rail dropper, +315 V → phase-inverter supply node" }
+  - { ref: CF2, part: "Electrolytic capacitor", value: "8 µF", role: "Phase-inverter supply smoothing" }
+  - { ref: CIN1, part: "Coupling capacitor", value: "0.01 µF", role: "Normal volume → phase-inverter grid (side A)" }
+  - { ref: CIN2, part: "Coupling capacitor", value: "0.01 µF", role: "Vibrato/Tremolo volume → phase-inverter grid (side B)" }
+  - { ref: RLA, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "Phase-inverter anode load (side A)" }
+  - { ref: RLB, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "Phase-inverter anode load (side B)" }
+  - { ref: RGA, part: "Carbon comp resistor", value: "1 MΩ · ½ W", role: "Phase-inverter grid leak (side A), returned to the tail junction" }
+  - { ref: RGB, part: "Carbon comp resistor", value: "1 MΩ · ½ W", role: "Phase-inverter grid leak (side B), returned to the tail junction" }
+  - { ref: RTAIL, part: "Carbon comp resistor", value: "1.2 kΩ · ½ W", role: "Phase-inverter shared cathode resistor" }
+  - { ref: RT2, part: "Carbon comp resistor", value: "47 kΩ · ½ W", role: "Phase-inverter tail (junction → ground)" }
+  # --- Top Cut (the amp's only tone control, shared by both channels) ---
+  - { ref: VR3, part: "Log potentiometer", value: "250 kΩ", role: "Top Cut — in series with a cap across the two phase-inverter outputs" }
+  - { ref: CTC, part: "Film capacitor", value: "0.005 µF", role: "Top Cut capacitor (the published redraw prints 0.0047 µF)" }
+  # --- output stage (EL84 pair, cathode bias) ---
+  - { ref: CC1, part: "Coupling capacitor", value: "0.01 µF", role: "Phase inverter → EL84 grid (upper)" }
+  - { ref: CC2, part: "Coupling capacitor", value: "0.01 µF", role: "Phase inverter → EL84 grid (lower)" }
+  - { ref: RGL1, part: "Carbon comp resistor", value: "220 kΩ · ½ W", role: "EL84 grid leak (upper), returned to ground" }
+  - { ref: RGL2, part: "Carbon comp resistor", value: "220 kΩ · ½ W", role: "EL84 grid leak (lower), returned to ground" }
+  - { ref: RST1, part: "Carbon comp resistor", value: "1.5 kΩ · ½ W", role: "EL84 grid stopper (upper)" }
+  - { ref: RST2, part: "Carbon comp resistor", value: "1.5 kΩ · ½ W", role: "EL84 grid stopper (lower)" }
+  - { ref: RSC1, part: "Power resistor", value: "100 Ω · 3 W", role: "EL84 screen-grid stopper (upper)" }
+  - { ref: RSC2, part: "Power resistor", value: "100 Ω · 3 W", role: "EL84 screen-grid stopper (lower)" }
+  - { ref: R22, part: "Power resistor", value: "130 Ω · 5 W", role: "SHARED EL84 cathode bias resistor — the whole bias arrangement for the pair (factory designator; the published redraw prints a 10 W part)" }
+  - { ref: CKO, part: "Electrolytic capacitor", value: "50 µF · 50 V", role: "EL84 cathode bypass (the published redraw prints 47 µF)" }
+  # --- Vibrato/Tremolo channel — NOT in the DC netlist (see notes.md) ---
+  - { ref: RD3, part: "Power resistor", value: "22 kΩ · 3 W", role: "Vibrato/Tremolo channel rail dropper from +315 V" }
+  - { ref: CF3, part: "Electrolytic capacitor", value: "33 µF", role: "Vibrato/Tremolo supply smoothing" }
+  - { ref: RKV1, part: "Carbon comp resistor", value: "2.2 kΩ · ½ W", role: "Vibrato/Tremolo first-stage cathode bias" }
+  - { ref: CKV1, part: "Electrolytic capacitor", value: "25 µF", role: "Vibrato/Tremolo first-stage cathode bypass" }
+  - { ref: RKV2, part: "Carbon comp resistor", value: "1.5 kΩ · ½ W", role: "Vibrato/Tremolo second-stage cathode bias" }
+  - { ref: RGV, part: "Carbon comp resistor", value: "1 MΩ · ½ W", role: "Vibrato/Tremolo inter-stage grid return" }
+  - { ref: CVC, part: "Coupling capacitor", value: "0.01 µF", role: "Vibrato/Tremolo inter-stage coupler" }
+  - { ref: VR2, part: "Log potentiometer", value: "500 kΩ", role: "Vibrato/Tremolo channel volume" }
+  # Vibrato/Tremolo networks — inventoried, not asserted. The published OA/031
+  # scan resolves these VALUES but not their interconnection, so they carry no
+  # designator and appear on the schematic as annotation beside the valve they
+  # belong to (see notes.md and the drawing note on the sheet).
+  - { ref: "—", part: "Carbon comp resistor", value: "150 kΩ · ½ W", role: "Vibrato/Tremolo supply dropper (annotation only)" }
+  - { ref: "—", part: "Carbon comp resistor", value: "12 kΩ · ½ W", role: "Vibrato/Tremolo supply dropper (annotation only)" }
+  - { ref: "—", part: "Carbon comp resistor", value: "22 kΩ · ½ W", role: "Vibrato/Tremolo supply dropper (annotation only)" }
+  - { ref: "—", part: "Tone network (2 positions)", value: "0.0022 µF / 500 pF · 68 kΩ · 330 kΩ · 500 pF / 100 pF · 22 kΩ", role: "TONE I / TONE II — the switched two-position voicing network of the Vibrato/Tremolo channel (annotation only)" }
+  - { ref: "—", part: "Phase-shift ladder", value: "5 × 0.0047 µF with 4 × 1 MΩ", role: "The vibrato phase-shift chain feeding the Vibrato/Tremolo volume (annotation only)" }
+  - { ref: "—", part: "Modulator network", value: "470 kΩ · 1 MΩ · 180 kΩ · 10 kΩ · 1.5 kΩ · 47 kΩ · 0.1 µF · 220 pF · 0.033 µF", role: "ECC82 modulator around the phase-shift ladder (annotation only)" }
+  - { ref: "—", part: "Oscillator network", value: "3 × 0.01 µF with 1 MΩ returns · 220 kΩ · 270 kΩ · 560 kΩ · 22 kΩ · 1.5 kΩ · 3.9 kΩ · 25 µF · 0.1 µF · 0.022 µF", role: "ECC83 phase-shift oscillator — the vibrato/tremolo generator (annotation only)" }
+  - { ref: "—", part: "Potentiometer", value: "1 MΩ", role: "Depth (annotation only)" }
+  - { ref: "—", part: "Potentiometer", value: "3 MΩ", role: "Speed (annotation only)" }
+  - { ref: "—", part: "Toggle switch", value: "SPST", role: "Vibrato/Tremolo speed fast/slow — on the back of the Depth pot (annotation only)" }
+  - { ref: "—", part: "Footswitch", value: "SPST", role: "Vibrato/Tremolo on/off, remote (annotation only)" }
+  - { ref: "—", part: "Jack socket", value: "1/4 in", role: "Footswitch jack (annotation only)" }
+  # --- valves ---
+  - { ref: V1, part: "Preamp tube", value: "EF86", role: "Normal channel pentode preamp" }
+  - { ref: V2, part: "Preamp tube", value: "ECC83 (12AX7)", role: "Long-tailed-pair phase inverter — both channels mix here" }
+  - { ref: V3, part: "Power tube", value: "EL84", role: "Push-pull output (upper)" }
+  - { ref: V4, part: "Power tube", value: "EL84", role: "Push-pull output (lower)" }
+  - { ref: V5, part: "Preamp tube", value: "ECC83 (12AX7)", role: "Vibrato/Tremolo channel first stage" }
+  - { ref: V6, part: "Preamp tube", value: "ECC82 (12AU7)", role: "Vibrato/Tremolo modulator" }
+  - { ref: V7, part: "Preamp tube", value: "ECC83 (12AX7)", role: "Vibrato/Tremolo phase-shift oscillator" }
+  - { ref: V8, part: "Rectifier tube", value: "EZ81 (6CA4)", role: "Full-wave rectifier" }
+  # --- power supply, transformers, hardware ---
+  - { ref: T1, part: "Power transformer", value: "Haddon OF 031 · HT secondary 300-0-300 V at 130 mA · 6.3 V, 4 A heater winding · primary taps 115/160/205/225/245 V", role: "Mains/HT transformer" }
+  - { ref: T2, part: "Output transformer", value: "Haddon OA 063 · push-pull EL84 primary · 8 Ω / 15 Ω secondary taps", role: "Output transformer" }
+  - { ref: CH1, part: "Filter choke", value: "Radiospares OA 123 · 10–20 H · 100 mA DC", role: "Smoothing choke between reservoir and HT rail" }
+  - { ref: CR1, part: "Electrolytic capacitor", value: "16 µF · 450 V", role: "Reservoir filter, EZ81 cathode side" }
+  - { ref: CR2, part: "Electrolytic capacitor", value: "16 µF · 450 V", role: "Smoothing filter after the choke" }
+  - { ref: SW1, part: "Toggle switch", value: "DPST", role: "Mains on/off" }
+  - { ref: SW2, part: "Rotary switch", value: "5-position", role: "Mains voltage selector — 115/160/205/225/245 V" }
+  - { ref: SW7, part: "Toggle switch", value: "SPST", role: "Standby — breaks the HT rail after the smoothing choke" }
+  - { ref: F1, part: "Fuse", value: "2 A", role: "Mains fuse — value from the published redraw; the factory scan does not resolve this figure" }
+  - { ref: PL1, part: "Pilot lamp", value: "6.3 V", role: "Panel pilot lamp" }
+  - { ref: JSPK1, part: "Jack socket", value: "1/4 in", role: "Speaker output" }
+  - { ref: JSPK2, part: "Jack socket", value: "1/4 in", role: "Speaker output (second)" }

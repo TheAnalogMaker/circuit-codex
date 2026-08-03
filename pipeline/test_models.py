@@ -158,6 +158,12 @@ def main() -> int:
     failures += check("12AY7", "Ia", r["ia0"], 3.0e-3, TOL_I)
     failures += check("12AY7", "gm", (r["ia_hi"] - r["ia_lo"]) / 0.1, 1750e-6, TOL_GM)
 
+    print("12AU7 @ Va=250, Vg=-8.5:")
+    r = run_bench(TRIODE_BENCH.format(name="12AU7", inc=MODELS / "12au7.inc",
+                                      vp=250, vg=-8.5, vg_hi=-8.45, vg_lo=-8.55))
+    failures += check("12AU7", "Ia", r["ia0"], 10.5e-3, TOL_I)
+    failures += check("12AU7", "gm", (r["ia_hi"] - r["ia_lo"]) / 0.1, 2200e-6, TOL_GM)
+
     print("12AT7 @ Va=250, Vg=-2:")
     r = run_bench(TRIODE_BENCH.format(name="12AT7", inc=MODELS / "12at7.inc",
                                       vp=250, vg=-2, vg_hi=-1.95, vg_lo=-2.05))
@@ -206,6 +212,26 @@ def main() -> int:
     failures += check("EL34", "Ia", r["ia0"], 100e-3, TOL_I)
     failures += check("EL34", "Ig2", r["ig2"], 14.9e-3, TOL_I)
     failures += check("EL34", "gm", (r["ia_hi"] - r["ia_lo"]) / 0.1, 12500e-6, TOL_GM)
+
+    print("EL84 @ Va=250, Vg2=250, Vg1=-7.3:")
+    r = run_bench(PENTODE_BENCH.format(name="EL84", inc=MODELS / "el84.inc",
+                                       vp=250, vg2=250, vg1=-7.3,
+                                       vg_hi=-7.25, vg_lo=-7.35))
+    failures += check("EL84", "Ia", r["ia0"], 48e-3, TOL_I)
+    failures += check("EL84", "Ig2", r["ig2"], 5.5e-3, TOL_I)
+    failures += check("EL84", "gm", (r["ia_hi"] - r["ia_lo"]) / 0.1, 11300e-6, TOL_GM)
+
+    print("EF86 @ Va=250, Vg2=140, Vg1=-2.2:")
+    r = run_bench(PENTODE_BENCH.format(name="EF86", inc=MODELS / "ef86.inc",
+                                       vp=250, vg2=140, vg1=-2.2,
+                                       vg_hi=-2.15, vg_lo=-2.25))
+    failures += check("EF86", "Ia", r["ia0"], 3.0e-3, TOL_I)
+    failures += check("EF86", "Ig2", r["ig2"], 0.6e-3, TOL_I)
+    failures += check("EF86", "gm", (r["ia_hi"] - r["ia_lo"]) / 0.1, 2200e-6, TOL_GM)
+
+    print("EZ81 @ Va=10 (per anode):")
+    r = run_bench(RECT_BENCH.format(name="EZ81", inc=MODELS / "ez81.inc", va=10))
+    failures += check("EZ81", "Ia", r["ia0"], 60e-3, TOL_I)
 
     print("GZ34 @ Va=17 (per plate):")
     r = run_bench(RECT_BENCH.format(name="GZ34", inc=MODELS / "gz34.inc", va=17))

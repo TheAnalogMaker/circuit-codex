@@ -1,0 +1,229 @@
+# Board layout — DERIVED, not read from a factory layout drawing.
+#
+# JMI published no board-layout drawing for the AC15, and none is cited here.
+# What follows is an original arrangement of this circuit's own parts, drawn in
+# the house style on the corpus's two-row eyelet grid and ordered along the
+# chassis in signal order — power and rectifier at the left, the EL84 output and
+# output transformer next, the phase inverter and Top Cut in the middle, the
+# Normal channel's EF86 at the right. It is a builder's diagram of THIS circuit,
+# not a record of how Jennings Musical Industries dressed its own chassis (which
+# used tag strips rather than a single eyelet board). The caption says so.
+#
+# Part refs are the shared key into bom.yaml; the renderer reads each value and
+# part type from there, so the layout and the parts list cannot disagree.
+#
+# Machine-checked equivalence: the point-to-point wiring below has been verified
+# electrically equivalent to netlist.cir by pipeline/verify_layout_nets.py — see
+# the net_map block at the foot of this file and docs/layout-schema.md. Heaters,
+# the pilot lamp, the PT/rectifier AC side and the three Vibrato/Tremolo valves
+# are an excluded annotation layer (not in netlist.cir).
+wiring_claim: verified
+
+board:
+  rows: 2
+  cols: 58
+  title: "AC15 · board layout (derived)"
+caption: "A derived layout: JMI published no board-layout drawing for the AC15, so the arrangement below is the Circuit Codex's own — this circuit's parts laid out in signal order along the chassis and drawn on the house eyelet grid, not a record of the factory's tag-strip construction. Every value comes from the parts list, which is read from JMI drawing OA/031. The Vibrato/Tremolo channel is not drawn: its tone, phase-shift, modulator and oscillator networks and their supply dropper mount on that channel's own tag strip at the Depth and Speed controls, so only its three valve sockets and their heaters appear here, with its volume control feeding the phase inverter's second grid. The Brilliance switch and its 250 pF cap, the standby switch and the mains selector are panel-mounted and are not drawn. The 6.3 V heater chain (green twisted pair — mains transformer, pilot lamp, EZ81, the two EL84s, the phase inverter, the three vibrato valves, the EF86) runs in the order a builder would wire it; the EZ81 is indirectly heated and sits on the same 6.3 V winding as the rest. Not a trace or a reproduction of any drawing."
+source:
+  desc: "JMI drawing OA/031, \"VOX AC.15 amplifier circuit No. 3\" (29-4-60) — layout DERIVED from that circuit drawing; JMI published no board-layout sheet for the AC15 and none was located"
+  url: "https://www.voxac30.org.uk/vox_ac15_third_circuit.html"
+
+parts:
+  # --- power supply: reservoir, post-choke can, two of the three 22 kΩ droppers
+  - { ref: CR1,  a: [0, 1],  b: [1, 1], nudge: [0, -40] }    # 16 µF reservoir (+325 V, ahead of the choke)
+  - { ref: CR2,  a: [0, 2],  b: [1, 2] }    # 16 µF after the choke — the +315 V rail (BP1)
+  - { ref: RD1,  a: [0, 4],  b: [0, 5] }    # 22 kΩ dropper, BP1 → Normal-channel rail
+  - { ref: CF1,  a: [0, 5],  b: [1, 5] }    # 8 µF Normal-channel smoothing (shares the BPN eyelet)
+  - { ref: RD2,  a: [0, 7],  b: [0, 8] }    # 22 kΩ dropper, BP1 → phase-inverter rail
+  - { ref: CF2,  a: [0, 8],  b: [1, 8] }    # 8 µF phase-inverter smoothing (shares the BPPI eyelet)
+  # --- output stage: screen stoppers, grid networks, the one shared cathode resistor
+  - { ref: RSC1, a: [0, 11], b: [0, 12] }   # 100 Ω V3 screen stopper (BP1 → S3)
+  - { ref: RSC2, a: [0, 14], b: [0, 15] }   # 100 Ω V4 screen stopper (BP1 → S4)
+  - { ref: CC1,  a: [0, 16], b: [0, 18] }   # 0.01 µF inverter → V3 grid (PPIA → NG3)
+  - { ref: RGL1, a: [0, 18], b: [1, 18] }   # 220 kΩ V3 grid leak (shares the NG3 eyelet)
+  - { ref: RST1, a: [0, 18], b: [0, 19] }   # 1.5 kΩ V3 grid stopper (NG3 → G3)
+  - { ref: CC2,  a: [0, 21], b: [0, 23] }   # 0.01 µF inverter → V4 grid (PPIB → NG4)
+  - { ref: RGL2, a: [0, 23], b: [1, 23] }   # 220 kΩ V4 grid leak (shares the NG4 eyelet)
+  - { ref: RST2, a: [0, 23], b: [0, 24] }   # 1.5 kΩ V4 grid stopper (NG4 → G4)
+  - { ref: R22,  a: [0, 26], b: [1, 26], nudge: [0, -40] }   # 130 Ω · 5 W — the pair's ENTIRE bias arrangement
+  - { ref: CKO,  a: [0, 27], b: [1, 27] }   # 50 µF cathode bypass across it
+  # --- phase inverter: matched anode loads, both grid leaks to the tail junction
+  - { ref: RLA,  a: [0, 30], b: [0, 31] }   # 100 kΩ anode load, Normal side
+  - { ref: RLB,  a: [0, 32], b: [0, 33] }   # 100 kΩ anode load, Vibrato/Tremolo side
+  - { ref: RGA,  a: [0, 35], b: [1, 35], nudge: [0, -40] }   # 1 MΩ grid leak → tail junction
+  - { ref: RGB,  a: [0, 36], b: [1, 36], nudge: [0, 34] }   # 1 MΩ grid leak → tail junction
+  - { ref: RTAIL, a: [0, 37], b: [1, 37], nudge: [0, -40] }  # 1.2 kΩ shared cathode resistor
+  - { ref: RT2,  a: [0, 38], b: [1, 38], nudge: [0, 34] }   # 47 kΩ tail, junction → ground
+  # --- the two channels' couplers into the inverter's two grids
+  - { ref: CIN2, a: [0, 40], b: [0, 42] }   # 0.01 µF Vibrato/Tremolo volume → grid B
+  - { ref: CIN1, a: [0, 43], b: [0, 45] }   # 0.01 µF Normal volume → grid A
+  # --- Normal channel: the EF86 on Philips' own published application network
+  - { ref: RL1,  a: [0, 47], b: [0, 48] }   # 220 kΩ anode load (BPN → PEF)
+  - { ref: RS1,  a: [0, 49], b: [0, 50] }   # 1 MΩ screen feed (BPN → SEF)
+  - { ref: CS1,  a: [0, 50], b: [1, 50], nudge: [-52, 0] }   # 0.1 µF screen bypass (shares the SEF eyelet)
+  - { ref: RK1,  a: [0, 53], b: [1, 53], nudge: [0, -40] }   # 2.2 kΩ cathode bias
+  - { ref: CK1,  a: [0, 54], b: [1, 54] }   # 25 µF cathode bypass
+  - { ref: CO1,  a: [0, 56], b: [0, 57] }   # 0.01 µF anode → Brilliance switch → volume
+
+offboard:
+  - { id: T1,   ref: T1,  kind: xfmr,  edge: left,   at: 0.35, label: "Power trans" }
+  - { id: PL1,  ref: PL1, kind: part,  glyph: lamp,  edge: left, at: 1.7, label: "Pilot lamp" }
+  - { id: CH1,  ref: CH1, kind: choke, edge: top,    at: 6.4,  label: "Choke" }
+  - { id: V8,   ref: V8,  kind: tube,  edge: bottom, at: 2.6,  label: "V8 · EZ81" }
+  - { id: V3,   ref: V3,  kind: tube,  edge: bottom, at: 11.5, label: "V3 · EL84" }
+  - { id: V4,   ref: V4,  kind: tube,  edge: bottom, at: 20,   label: "V4 · EL84" }
+  - { id: T2,   ref: T2,  kind: xfmr,  edge: top,    at: 24,   label: "Output trans" }
+  - { id: JSPK1, ref: JSPK1, kind: jack, edge: bottom, at: 24, label: "Spkr" }
+  - { id: VR3,  ref: VR3, kind: pot,   edge: top,    at: 29.5, label: "Top Cut" }
+  - { id: CTC,  ref: CTC, kind: part,  edge: top,    at: 32,   label: "CTC" }
+  - { id: V2,   ref: V2,  kind: tube,  edge: bottom, at: 34,   label: "V2 · ECC83 (PI)" }
+  - { id: VR2,  ref: VR2, kind: pot,   edge: top,    at: 39,   label: "Vibrato vol" }
+  - { id: V7,   ref: V7,  kind: tube,  edge: bottom, at: 39,   label: "V7 · ECC83 osc" }
+  - { id: V6,   ref: V6,  kind: tube,  edge: bottom, at: 43,   label: "V6 · ECC82 mod" }
+  - { id: VR1,  ref: VR1, kind: pot,   edge: top,    at: 44.5, label: "Normal vol" }
+  - { id: V5,   ref: V5,  kind: tube,  edge: bottom, at: 47,   label: "V5 · ECC83 vib" }
+  - { id: V1,   ref: V1,  kind: tube,  edge: bottom, at: 51.6, label: "V1 · EF86" }
+  - { id: RG1,  ref: RG1, kind: part,  edge: bottom, at: 54.4, label: "RG1" }
+  - { id: RGS1, ref: RGS1, kind: part, edge: top,    at: 54.6, label: "RGS1" }
+  - { id: JN,   ref: JN,  kind: jack,  edge: top,    at: 57.0, label: "Normal in" }
+
+# Ground bus — the bare rail just below the bottom eyelet row; the filter,
+# cathode, grid-leak and pot grounds all tie to it.
+bus:
+  - { from: [1.45, -0.4], to: [1.45, 57.4] }
+
+runs:
+  # === PT secondary → EZ81 → reservoir → choke → the +315 V rail ==============
+  # The four PT pigtails stack ~14 px apart, so each leaves on its own row and
+  # drops in its own column before diving — no two read as one wire.
+  - { from: T1.red1, to: V8.pin1, via: [[-1.70, 0.169], [-1.70, 2.52], [1.70, 2.52]] }
+  - { from: T1.red2, to: V8.pin7, via: [[-1.40, 0.290], [-1.40, 3.05], [3.90, 3.05], [3.90, 2.25]] }
+  - { from: T1.red-yellow, to: [1.45, 0.2], via: [[-1.10, 0.410], [-1.10, 1.20], [0.20, 1.20]] }
+  - { from: V8.pin3, to: CR1.a, color: red, via: [[1.55, 1.62], [0.42, 1.62], [0.42, 0.34]] }
+  - { from: CR1.b, to: [1.45, 1] }
+  - { from: CR1.a, to: CH1.hi, via: [[1.30, -0.42], [5.90, -0.42]] }
+  - { from: CH1.lo, to: CR2.a, color: red, via: [[6.90, -0.52], [2.30, -0.52]] }
+  - { from: CR2.b, to: [1.45, 2] }
+  - { from: CF1.b, to: [1.45, 5] }
+  - { from: CF2.b, to: [1.45, 8] }
+
+  # === +315 V rail (BP1): filter can, OT centre tap, both screen stoppers, and
+  # the two droppers. The backbone rides the top lane at row -0.30; each tap
+  # leaves its shared eyelet on its own bearing. ==============================
+  - { from: T2.red, to: CR2.a, color: red, via: [[23.42, -0.62], [2.00, -0.62]] }
+  - { from: CR2.a, to: RD1.a, color: red, via: [[2.36, -0.30], [3.70, -0.30]] }
+  - { from: RD1.a, to: RD2.a, color: red, via: [[4.30, -0.30], [6.70, -0.30]] }
+  - { from: RD2.a, to: RSC1.a, color: red, via: [[7.35, -0.30], [10.65, -0.30]] }
+  - { from: RSC1.a, to: RSC2.a, color: red, via: [[11.35, 0.28], [13.65, 0.28]] }
+
+  # === channel rails: BPN and BPPI run in the sub-board corridor, each in its
+  # own lane, so they clear the output-transformer pigtails and the pot lugs ===
+  - { from: RD1.b, to: RL1.a, via: [[5.40, 1.18], [46.60, 1.18]] }
+  - { from: RL1.a, to: RS1.a, via: [[47.35, 0.28], [48.65, 0.28]] }
+  - { from: RD2.b, to: RLA.a, via: [[8.40, 1.32], [29.60, 1.32]] }
+  - { from: RLA.a, to: RLB.a, via: [[30.35, 0.28], [31.65, 0.28]] }
+
+  # === output stage: screens, grids, plates, the shared cathode ===============
+  - { from: RSC1.b, to: V3.pin9, via: [[12.60, 0.60], [12.60, 2.60], [12.15, 2.60]] }
+  - { from: RSC2.b, to: V4.pin9, via: [[15.40, 0.60], [15.40, 2.62], [20.90, 2.52]] }
+  - { from: RST1.b, to: V3.pin2, via: [[18.40, 0.60], [18.40, 2.26], [10.60, 2.26]] }
+  - { from: RST2.b, to: V4.pin2, via: [[23.40, 0.55], [23.40, 2.95], [19.00, 2.44]] }
+  - { from: RGL1.b, to: [1.45, 18] }
+  - { from: RGL2.b, to: [1.45, 23] }
+  - { from: V3.pin7, to: T2.blue, via: [[13.10, 1.60], [13.10, -0.44], [23.60, -0.44]] }
+  - { from: V4.pin7, to: T2.brown, via: [[21.60, 1.55], [21.60, -0.90], [23.80, -0.90]] }
+  - { from: V3.pin3, to: R22.a, via: [[10.30, 1.62], [25.05, 1.62], [25.05, 0.40]] }
+  - { from: V4.pin3, to: R22.a, via: [[18.85, 1.70], [18.85, 3.15], [25.40, 3.15], [25.40, 0.45]] }
+  - { from: R22.a, to: CKO.a }
+  - { from: R22.b, to: [1.45, 26] }
+  - { from: CKO.b, to: [1.45, 27] }
+  - { from: T2.green, to: JSPK1.tip, via: [[24.19, -0.52], [26.20, -0.52], [26.20, 1.90], [24.30, 1.90]] }
+  - { from: JSPK1.sleeve, to: [1.45, 22.4], via: [[23.75, 1.90]] }
+
+  # === phase inverter: anodes → couplers, grids, the tail ======================
+  - { from: RLA.b, to: V2.pin6, via: [[31.40, 1.55], [34.20, 1.62]] }
+  - { from: RLB.b, to: V2.pin1, via: [[32.15, 0.60], [32.15, 2.45], [33.00, 2.42]] }
+  - { from: V2.pin6, to: CC1.a, via: [[35.15, 1.55], [35.15, 2.90], [16.30, 2.90]] }
+  - { from: V2.pin1, to: CC2.a, via: [[32.90, 3.45], [21.40, 3.45]] }
+  - { from: RGA.a, to: V2.pin7, via: [[35.40, 0.55], [35.40, 1.75]] }
+  - { from: RGB.a, to: V2.pin2, via: [[36.50, 0.50], [31.60, 0.50], [31.60, 2.07]] }
+  - { from: V2.pin8, to: RTAIL.a, via: [[35.30, 1.62], [36.90, 0.62]] }
+  - { from: V2.pin3, to: RTAIL.a, via: [[32.60, 1.60], [32.60, 0.20], [36.50, 0.20]] }
+  - { from: RTAIL.b, to: RT2.a, via: [[37.40, 1.18], [38.00, 0.62]] }
+  - { from: RGA.b, to: RT2.a, via: [[35.00, 1.32], [37.35, 1.32], [37.55, 0.35]] }
+  - { from: RGB.b, to: RT2.a, via: [[36.00, 1.50], [39.00, 1.50], [39.00, 0.45]] }
+  - { from: RT2.b, to: [1.45, 38] }
+
+  # === Top Cut — 0.005 µF in series with 250 kΩ, bridged across the anodes =====
+  - { from: RLA.b, to: CTC.a, via: [[31.30, -0.48], [31.61, -0.60]] }
+  - { from: CTC.b, to: VR3.lug3, via: [[32.39, -1.26], [29.81, -1.26]] }
+  - { from: VR3.lug1, to: RLB.b, via: [[29.19, -0.66], [32.80, -0.66]] }
+  - { from: VR3.lug2, to: VR3.lug1 }
+
+  # === the two channel volumes into the inverter's two grids ==================
+  - { from: VR1.lug2, to: CIN1.a, via: [[44.50, -0.52], [43.40, -0.52]] }
+  - { from: CIN1.b, to: V2.pin7, via: [[44.60, 0.94], [38.30, 0.94], [38.30, 1.90], [35.40, 1.90]] }
+  - { from: VR1.lug1, to: [1.45, 44.19] }
+  - { from: VR2.lug2, to: CIN2.a, via: [[39.00, -0.52], [40.10, -0.52]] }
+  - { from: CIN2.b, to: V2.pin2, via: [[41.60, 1.12], [40.60, 1.12], [40.60, 2.62], [32.60, 2.62]] }
+  - { from: VR2.lug1, to: [1.45, 38.69] }
+
+  # === Normal channel: EF86 anode, screen, cathode, grid ======================
+  - { from: RL1.b, to: V1.pin6, via: [[48.40, 1.58], [51.50, 1.62]] }
+  - { from: RL1.b, to: CO1.a, via: [[48.40, -0.28], [55.60, -0.28]] }
+  - { from: CO1.b, to: VR1.lug3, via: [[57.45, -0.30], [57.45, -1.58], [44.81, -1.58]] }
+  - { from: RS1.b, to: V1.pin1, via: [[50.60, 0.50], [50.60, 2.60], [50.85, 2.60]] }
+  - { from: CS1.b, to: [1.45, 50] }
+  - { from: V1.pin3, to: RK1.a, via: [[50.30, 1.68], [50.30, 0.42], [52.60, 0.28]] }
+  - { from: V1.pin8, to: RK1.a, via: [[53.60, 2.30], [53.60, 0.35], [53.35, 0.20]] }
+  - { from: RK1.a, to: CK1.a }
+  - { from: RK1.b, to: [1.45, 53] }
+  - { from: CK1.b, to: [1.45, 54] }
+  - { from: V1.pin2, to: [1.45, 49.7], via: [[50.10, 2.35]] }
+  - { from: V1.pin7, to: [1.45, 52.4], via: [[52.70, 1.75]] }
+  - { from: JN.tip, to: RGS1.a, via: [[56.86, -1.40], [54.21, -1.40]] }
+  - { from: RGS1.b, to: V1.pin9, via: [[55.70, -0.72], [55.70, 2.78], [52.60, 2.78]] }
+  - { from: RG1.a, to: V1.pin9, via: [[54.30, 2.45], [51.50, 2.45]] }
+  - { from: RG1.b, to: [1.45, 54.5], via: [[54.50, 1.72]] }
+  - { from: JN.sleeve, to: [1.45, 55.4], via: [[57.70, -1.20], [55.40, -1.20], [55.40, 1.10]] }
+
+  # === 6.3 V heater chain (green twisted pair) ================================
+  # Mains transformer → pilot lamp → EZ81 → the two EL84s → the phase inverter →
+  # the three vibrato valves → the EF86, in the order a builder would wire it.
+  # The EZ81 is indirectly heated and sits on the same 6.3 V winding as the rest
+  # (unlike the directly-heated American rectifiers elsewhere in this corpus).
+  # Twisted runs land only on heater pins (noval 4/5) — validated by the render.
+  - { from: T1.green, to: PL1.a, style: twisted }
+  - { from: PL1.b, to: V8.pin4, style: twisted, via: [[-1.2, 4.0], [2.6, 4.0]] }
+  - { from: V8.pin5, to: V3.pin4, style: twisted, via: [[2.6, 4.02], [11.5, 4.02]] }
+  - { from: V3.pin5, to: V4.pin4, style: twisted, via: [[11.5, 4.04], [20, 4.04]] }
+  - { from: V4.pin5, to: V2.pin4, style: twisted, via: [[20, 4.06], [34, 4.06]] }
+  - { from: V2.pin5, to: V7.pin4, style: twisted, via: [[34, 4.08], [39, 4.08]] }
+  - { from: V7.pin5, to: V6.pin4, style: twisted, via: [[39, 4.1], [43, 4.1]] }
+  - { from: V6.pin5, to: V5.pin4, style: twisted, via: [[43, 4.12], [47, 4.12]] }
+  - { from: V5.pin5, to: V1.pin4, style: twisted, via: [[47, 4.14], [51.6, 4.14]] }
+  - { from: V1.pin4, to: V1.pin5, style: twisted }
+
+# net_map — reviewable reconciliation of the drawn wiring with the DC netlist
+# (netlist.cir) for pipeline/verify_layout_nets.py. See docs/layout-schema.md.
+net_map:
+  # The whole Vibrato/Tremolo channel is outside netlist.cir's scope: its ECC83
+  # first stage, ECC82 modulator and ECC83 phase-shift oscillator share one
+  # derived supply node, and the oscillator has no static DC operating point, so
+  # solving one of the three while the other two are omitted would report a rail
+  # no instrument would ever read (see notes.md). Declared here socket by socket
+  # so each is an annotation-layer exclusion printed loudly, like the rectifier —
+  # an UNdeclared unmodelled signal tube still hard-fails.
+  excluded_tubes:
+    V5: "ECC83 Vibrato/Tremolo first + second stage — excluded from netlist.cir with the rest of that channel (shared derived supply node; see notes.md). Its 6.3 V heater is on the twisted chain; no signal pin is DC-checked."
+    V6: "ECC82 vibrato modulator — excluded from netlist.cir: it works into the phase-shift ladder, which has no static DC operating point. Heater only."
+    V7: "ECC83 phase-shift oscillator — a running oscillator has no quiescent operating point to verify (the same treatment amps/ab763 gives its tremolo oscillator). Heater only."
+  anchors:
+    # The netlist omits output-transformer primary DCR, so both EL84 anode nodes
+    # and the primary centre tap collapse onto the +315 V rail.
+    T2.blue:  BP1    # OT primary, V3 anode lead
+    T2.brown: BP1    # OT primary, V4 anode lead
+    T2.red:   BP1    # OT primary centre tap → the rail
+    JSPK1: "0"       # speaker jack — OT-secondary DCR folded into ground
+  series_bridge:
+    RGS1: "33 kΩ input grid stopper at the jack — no DC grid current flows, so the netlist's grid node runs through it"

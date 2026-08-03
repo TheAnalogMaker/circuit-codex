@@ -1,0 +1,101 @@
+* AC15 (Vox AC15-style, JMI circuit No. 3) — DC operating-point netlist
+* Circuit Codex — CC-BY-SA 4.0. Independently drawn from the published component
+* values of JMI drawing OA/031, "VOX AC.15 amplifier circuit No. 3", 29-4-60
+* (see meta.yaml). No drawing reproduced.
+*
+* Designators are functional (the corpus's own), not the factory drawing's: the
+* available OA/031 scan does not resolve its reference designators reliably
+* enough to reuse them. See bom.yaml.
+*
+* SCOPE — this netlist covers the Normal channel and the power amplifier: the
+* EF86 pentode preamp, the ECC83 long-tailed-pair phase inverter, and the
+* cathode-biased EL84 pair. The whole Vibrato/Tremolo channel is EXCLUDED: its
+* ECC83 first stage, ECC82 modulator and ECC83 phase-shift oscillator share one
+* derived supply node, and the oscillator has no static DC operating point (a
+* running phase-shift oscillator whose modulator grid is grid-leak detected).
+* Solving one of those three statically while the other two are omitted would
+* report a rail no instrument would ever read, so the channel is declared
+* excluded rather than half-modelled — the same treatment the corpus gives the
+* AB763 tremolo oscillator. Its 22 kOhm feed taps the +315 V rail, which is
+* DRIVEN here, so the exclusion moves no node in the modelled scope. See notes.md.
+*
+* DC conventions (as in the sibling amps): the +315 V HT rail is DRIVEN at its
+* printed value, and every node below it is DERIVED. The EZ81 rectifier,
+* reservoir cans and smoothing choke ahead of that node are not modelled (no
+* corpus netlist simulates its supply; the clean-room EZ81 model added with this
+* amp is anchor-verified in pipeline/test_models.py, not used here). Output-
+* transformer primary DCR is omitted, so both EL84 anode nodes sit at the rail —
+* which is why the drawing's printed +310 V anode figure is reported as context
+* in voltages.yaml rather than gate-compared. DC-open caps are MODELLED where
+* BOTH leads land on a named DC node (the supply smoothing cans CF1/CF2, the
+* cathode-bypass cans CK1/CKO and the phase-inverter -> EL84 grid couplers
+* CC1/CC2): open at DC they move no operating point, but modelling them fixes
+* the push-pull phase and the smoothing/bypass placement in the data. Caps with
+* a lead inside an abstracted network (the Brilliance/volume couplers, the Top
+* Cut network) stay out. Grid stoppers and grid leaks carry ~0 DC. Heaters and
+* the pilot lamp are not modelled.
+.include models/ef86.inc
+.include models/12ax7.inc
+.include models/el84.inc
+
+VBP1 BP1 0 DC 315
+
+* Rail: the +315 V node feeds three parallel 22k/3W droppers — one to the Normal
+* channel (8 uF smoothed), one to the phase inverter (8 uF smoothed), and one to
+* the excluded Vibrato/Tremolo channel (not modelled).
+RD1 BP1 BPN  22k
+CF1 BPN 0 8u
+RD2 BP1 BPPI 22k
+CF2 BPPI 0 8u
+
+* --- EF86 Normal-channel preamp ----------------------------------------------
+* The stage is Philips' own published EF86 A.F.-amplifier application, part for
+* part: 220 kOhm anode load, 1 MOhm screen feed with a 0.1 uF screen bypass, and
+* a 2.2 kOhm cathode resistor. The 33 kOhm grid stopper at the input jack carries
+* no DC and is omitted; the grid returns to ground through its 1 MOhm leak.
+* g3 (pin 8) is strapped to the cathode, so the model's four nodes suffice.
+RL1 BPN PEF 220k
+RS1 BPN SEF 1meg
+CS1 SEF 0 0.1u
+XV1 PEF SEF GEF KEF EF86
+RG1 GEF 0 1meg
+RK1 KEF 0 2.2k
+CK1 KEF 0 25u
+
+* --- ECC83 long-tailed-pair phase inverter ------------------------------------
+* Both channels mix INTO the inverter rather than ahead of it: the Normal volume
+* drives one grid and the Vibrato/Tremolo volume drives the other, so the two
+* channels enter opposite sides of the pair. Matched 100 kOhm anode loads, a
+* 1.2 kOhm shared cathode resistor over a 47 kOhm tail, both 1 MOhm grid leaks
+* returned to the tail junction. Both grid couplers have a lead inside a volume
+* pot, so they stay out; each grid's DC return is its leak to the junction.
+RLA BPPI PPIA 100k
+XV2A PPIA GPIA KPI 12AX7
+RGA GPIA JPI 1meg
+RLB BPPI PPIB 100k
+XV2B PPIB GPIB KPI 12AX7
+RGB GPIB JPI 1meg
+RTAIL KPI JPI 1.2k
+RT2 JPI 0 47k
+
+* --- EL84 cathode-biased push-pull output -------------------------------------
+* Class-A-style cathode bias: ONE shared 130 Ohm resistor for the pair, bypassed
+* by 50 uF — there is no bias supply anywhere in the amp. Screens hang off the
+* same +315 V rail through 100 Ohm stoppers; anodes sit at the rail (OT primary
+* DCR omitted). The 0.01 uF couplers are open at DC but modelled — both leads on
+* named nodes — so the push-pull phase is fixed in the data: a coupler on the
+* wrong grid, or crossed inverter outputs, is a wrong-node error rather than
+* unmodelled wiring. Each 220 kOhm grid leak returns to ground at the junction
+* ahead of the 1.5 kOhm grid stopper, exactly as drawn.
+CC1 PPIA NG3 0.01u
+RGL1 NG3 0 220k
+RST1 NG3 G3 1.5k
+RSC1 BP1 S3 100
+XV3 BP1 S3 G3 KOUT EL84
+CC2 PPIB NG4 0.01u
+RGL2 NG4 0 220k
+RST2 NG4 G4 1.5k
+RSC2 BP1 S4 100
+XV4 BP1 S4 G4 KOUT EL84
+R22 KOUT 0 130
+CKO KOUT 0 50u

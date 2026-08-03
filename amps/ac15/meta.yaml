@@ -1,0 +1,42 @@
+# Circuit Codex metadata — schema: docs/schema.md (v1)
+id: "ac15"
+name_style: "Vox AC15-style"
+family: vox
+era:
+  start: 1960
+  end: 1963
+wattage: 15
+tubes: [EF86, ECC83, ECC83, ECC83, ECC82, EL84, EL84, EZ81]
+topology:
+  rectifier: { kind: tube, type: "EZ81" }
+  bias: cathode
+  phase_inverter: long-tailed-pair
+  tone_stack: top-cut
+lineage:
+  derived_from: []   # no documented derivation from another circuit in this corpus
+  influenced: []
+sources:
+  - desc: "JMI factory drawing OA/031 — title block reads 'JENNINGS MUSICAL INDUSTRIES LTD. / \"VOX AC.15\" AMPLIFIER CIRCUIT No. 3 / DRAWING FOR WORKS USE ONLY / Scale: N/A / DATE 29-4-60', with a modifications box noting 'C42 ADDED 7-2-61' and a deletion. THIS is the revision documented here — the third AC15 circuit, the one that reinstated the phase-shifting vibrato as an integral part of the amplifier. Complement read from the drawing: EF86 (Normal channel), ECC83 phase inverter, ECC83 Vibrato/Tremolo first stage, ECC82 modulator, ECC83 vibrato oscillator, 2x EL84, EZ81 rectifier. Values read directly from the drawing where its published scan resolves them: EL84 pair on one shared 130 ohm / 5 W cathode resistor with a 50 uF / 50 V bypass, 100 ohm screen stoppers, 1.5 kohm grid stoppers, 220 kohm grid leaks; 100 kohm phase-inverter anode loads with a 1.2 kohm shared cathode over a 47 kohm tail; 250 kohm log Top Cut with a 0.005 uF cap; 22 kohm supply droppers; EF86 stage on a 220 kohm anode load, 1 M screen feed, 2.2 kohm / 25 uF cathode; annotated working voltages +315 V rail, +90 V EF86 anode, +220 V phase-inverter anode, +310 V EL84 anodes; Haddon mains and output transformers, Radiospares choke; asterisks mark the alternate values for the AC15 Bass. Not reproduced here; archived at the Vox AC30 history site."
+    url: "https://www.voxac30.org.uk/vox_ac15_third_circuit.html"
+  - desc: "Published redrawn 1960 AC15 schematic hosted by Hoffman Amplifiers — the legibility cross-reference. It is a modern redraw, not a factory document, but it resolves every value the OA/031 scan leaves ambiguous and it agrees with the factory drawing everywhere both can be read, including the shared 130 ohm output cathode resistor, the 100 ohm screens, the 47 kohm phase-inverter tail and the four annotated working voltages. Where the two differ it is only in modern preferred values for the same part — 0.0047 uF against the drawing's 0.005 uF Top Cut cap, 47 uF against the drawing's 50 uF cathode can, 220 pF against the drawing's 250 pF Brilliance cap — and the FACTORY value is the one recorded in this entry."
+    url: "https://el34world.com/Hoffman/files/AC15_schematic.png"
+  - desc: "Vox AC30 history archive, 'The Vox AC/15 - third circuit, mid 1960 on' — the dating and identity evidence for this revision: OA/031 drawn 29 April 1960 and signed off by Dick Denney, alongside the AC30/4 and AC30/6 drawings OA/032 and OA/026 of the same date; production from serial numbers around 4060 into the 5000s; the EL84 cathode resistor named as R22 on the drawing and given as 130 ohms, a value chosen in late 1957; transformers commissioned from Haddon, choke from Radiospares; 'Normal' and 'Bass' voicings marked on the drawing with asterisks."
+    url: "https://www.voxac30.org.uk/vox_ac15_third_circuit.html"
+  - desc: "Independent published circuit analysis of the vintage Vox AC15 — third reading of the same stage values (EF86 220 kohm anode load, 1 M screen feed, 2.2 kohm / 25 uF cathode; long-tailed-pair inverter with 100 kohm anode loads, 1.2 kohm cathode and 47 kohm tail; EL84 pair on 130 ohms shared cathode bias with 100 ohm screen stoppers) and of the working voltages, agreeing with the factory drawing"
+    url: "https://www.ampbooks.com/mobile/classic-circuits/vox-ac15/"
+  - desc: "Philips/Mullard EL84 data sheet, January 1969 (A.F. Output Pentode) — anchor for the CC0 EL84 tube model and its noval basing: Va=250 V, Vg2=250 V, Vg1=-7.3 V -> Ia=48 mA, Ig2=5.5 mA, S=11.3 mA/V, mu(g1-g2)=19"
+    url: "https://frank.pocnet.net/sheets/010/e/EL84.pdf"
+  - desc: "Philips/Mullard EF86 data sheet, January 1970 (A.F. Pentode) — anchor for the CC0 EF86 tube model and its noval basing: Va=250 V, Vg2=140 V, Vg1=-2.2 V -> Ia=3.0 mA, Ig2=0.6 mA, S=2.2 mA/V, mu(g1-g2)=38. Its operating-characteristics table also publishes the exact 220 kohm / 1 M / 2.2 kohm A.F.-amplifier network this amp's Normal channel uses"
+    url: "https://frank.pocnet.net/sheets/010/e/EF86.pdf"
+  - desc: "Philips EZ81 data sheet, January 1970 (Double Anode Rectifying Tube) — basing and the anode characteristic (fig. 7Z00030-5.26.ha) behind the CC0 EZ81 model; the sheet tabulates no per-anode voltage drop, only whole-rectifier system rows, so that model's anchor is read from the published curve and is labelled as such"
+    url: "https://frank.pocnet.net/sheets/010/e/EZ81.pdf"
+verification:
+  status: draft   # Two independent reasons, both stated rather than tuned away.
+                  # (1) The drawing annotates four working voltages but prints no
+                  # tabulated valve-voltage chart, so there is no per-pin reference
+                  # and no stated measurement convention to verify against.
+                  # (2) The EF86 anode simulates about a quarter low against the
+                  # printed +90 V — a v0 single-anchor tube-fit limitation the
+                  # 220 kohm anode load amplifies (see voltages.yaml). The phase
+                  # inverter lands within 2%, but verified is earned whole.
+contributors: [TheAnalogMaker]

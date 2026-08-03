@@ -1,0 +1,160 @@
+family: vox-ac
+title: "The Vox AC line"
+maker_style: "British-style"
+summary: >
+  Jennings Musical Industries built its first guitar amplifier at the end of the
+  1950s: a 15-watt combo on a pair of EL84s, designed by Dick Denney. Within two
+  years the same design office had scaled it to 30 watts for players who needed
+  to be heard over a crowd, and the whole line settled on one set of ideas —
+  cathode-biased output valves with no bias supply and no feedback loop, a single
+  Top Cut control after the phase inverter instead of a tone stack, and phase-
+  shifting vibrato built into the amplifier. The one part that did not survive
+  the scale-up was the EF86 pentode front end, dropped from the louder models
+  because it was too microphonic to live beside a pair of twelve-inch speakers.
+models:
+  - designation: "AC1/15"
+    name: "AC15, first circuit"
+    years: { start: 1958, end: 1959 }
+    wattage: 15
+    output: "push-pull 2×EL84"
+    tubes: null
+    key_change: >
+      JMI's first guitar amplifier, designed by Dick Denney: a 15-watt EL84 combo
+      with two channels and a chassis its own archive calls cramped and
+      inconvenient. It introduced the long-tailed-pair phase inverter that every
+      later Vox in this line uses. Sources disagree on exactly when it appeared —
+      the Vox history archive dates the first circuit from late 1957, while the
+      encyclopaedia account gives an early-1958 release — so it is bracketed here
+      rather than pinned.
+    circuit_ref: null
+    sources:
+      - desc: "Wikipedia, \"Vox AC30\" — \"In early 1958, Jennings Musical Industries (JMI) released its first-ever guitar amplifier, the EL84-powered Vox AC15 combo\", designed by Dick Denney at 15 watts"
+        url: "https://en.wikipedia.org/wiki/Vox_AC30"
+      - desc: "Vox AC30 history archive, AC15 second-circuit page — dates the first circuit (AC1/15) from late 1957 to late 1959 and describes its chassis; notes the long-tailed-pair inverter as first used there"
+        url: "https://www.voxac30.org.uk/vox_ac15_second_circuit.html"
+
+  - designation: "AC15 circuit No. 2"
+    name: "AC15, second circuit (JMI drawing OS/005)"
+    years: { start: 1959, end: 1960 }
+    wattage: 15
+    output: "push-pull 2×EL84"
+    tubes: [EF86, ECF82, ECC83, EL84, EL84, EZ81]
+    key_change: >
+      A short run of perhaps two hundred amplifiers, on drawing OS/005 of 4
+      December 1959. This is where the EF86 pentode arrives as the first valve —
+      much higher gain than the ECC83 it replaced — along with the EZ81
+      rectifier, a lower 300-0-300 V secondary, heavier smoothing and 100 Ω
+      protection resistors in the EL84 anodes. Its tremolo was not in the
+      amplifier: the Vibravox circuitry lived in a separate box on the back
+      panel, and each channel still had its own tone control rather than the
+      single Top Cut that followed.
+    circuit_ref: null
+    sources:
+      - desc: "Vox AC30 history archive, \"Jennings Musical Industries, Vox AC15, the second circuit\" — drawing OS/005 dated 4 December 1959, complement EF86 / ECF82 / ECC83 / EZ81 / 2×EL84, roughly 200 built, 300-0-300 V secondary, 100 Ω EL84 anode resistors, 130 Ω 8 W common cathode resistor, dual tone controls, external tremolo unit"
+        url: "https://www.voxac30.org.uk/vox_ac15_second_circuit.html"
+
+  - designation: "AC30 (AC/30)"
+    name: "AC30, first circuits"
+    years: { start: 1959, end: 1960 }
+    wattage: 30
+    output: "push-pull"
+    tubes: null
+    key_change: >
+      The answer to players who could not be heard over an audience on 15 watts:
+      Vox doubled the output section and released the AC30 as the AC15's
+      follow-up. The archive indexes an AC2/30 ahead of it in 1957-58 and the
+      AC/30 proper across 1959-60; accounts of what the earliest AC30 output
+      stage held do not agree, so no valve complement is claimed for this entry.
+    circuit_ref: null
+    sources:
+      - desc: "Wikipedia, \"Vox AC30\" — \"In 1959, Vox released the AC30 as its follow-up to the AC15\", built because the 15-watt amplifier could not carry larger venues"
+        url: "https://en.wikipedia.org/wiki/Vox_AC30"
+      - desc: "Vox AC30 history archive, front page — the model sequence AC2/30 (1957-1958), AC/30 (1959-1960), TV Front twin (1960-1961), AC30/4 and AC30/6 black panels (mid 1960 to late 1961)"
+        url: "https://www.voxac30.org.uk/"
+
+  - designation: "AC15 circuit No. 3"
+    name: "AC15, third circuit (JMI drawing OA/031)"
+    years: { start: 1960, end: 1963 }
+    wattage: 15
+    output: "push-pull 2×EL84"
+    tubes: [EF86, ECC83, ECC83, ECC83, ECC82, EL84, EL84, EZ81]
+    key_change: >
+      The AC15 as it is remembered, and the circuit this corpus documents.
+      Drawing OA/031 was drawn on 29 April 1960 and signed off by Dick Denney,
+      the same day as the two new AC30 drawings. The phase-shifting vibrato came
+      back inside the amplifier as an integral part of it, the chassis and control
+      panel were laid out afresh, and the per-channel tone controls gave way to
+      one Top Cut serving both. The circuit then ran unchanged into 1963 through
+      split-front and copper-panel cabinets, with a "Bass" voicing offered
+      alongside "Normal" and marked on the drawing with asterisks.
+    circuit_ref: ac15
+    sources:
+      - desc: "Vox AC30 history archive, \"The Vox AC/15 - third circuit, mid 1960 on\" — OA/031 drawn 29 April 1960 and signed off by Dick Denney, alongside the AC30/4 and AC30/6 drawings OA/032 and OA/026 of the same date; phase-shifting vibrato reinstated as integral; serial numbers from around 4060 into the 5000s; Normal and Bass voicings; EL84 cathode resistor R22 at 130 Ω"
+        url: "https://www.voxac30.org.uk/vox_ac15_third_circuit.html"
+      - desc: "Vox AC30 history archive, \"The Vox AC15 - 1962-1963\" — the amplifier continued on the OA/031 circuit with no circuit changes through this period, serial numbers from around 4500 into the 5000s, assembly contracted to Westrex from late 1961"
+        url: "https://www.voxac30.org.uk/vox_ac15_1962_1963.html"
+
+  - designation: "AC30/4"
+    name: "AC30/4 twin (JMI drawing OA/032)"
+    years: { start: 1960, end: 1961 }
+    wattage: 30
+    output: "push-pull 4×EL84"
+    tubes: null
+    key_change: >
+      The four-input 2×12 twin, drawn 29 April 1960 alongside the new AC15 and
+      the AC30/6. It keeps the EF86 in the Normal channel and runs four EL84s in
+      the output stage — the AC15's ideas at twice the power. Production ran to
+      late 1961.
+    circuit_ref: null
+    sources:
+      - desc: "Wikipedia, \"Vox AC30\" — the AC30/4 and AC30/6 2×12 models, \"both schematics originally dated April 29, 1960\", reverting to four EL84 valves"
+        url: "https://en.wikipedia.org/wiki/Vox_AC30"
+      - desc: "Vox AC30 history archive, \"The Vox AC30/4 amplifier\" — produced from winter 1960 to late 1961 with the EF86 preamp valve, black control panels and split-front cabinets"
+        url: "https://www.voxac30.org.uk/vox_ac30_4_black_panels.html"
+
+  - designation: "AC30/6"
+    name: "AC30/6 twin (JMI drawing OA/026)"
+    years: { start: 1960, end: 1965 }
+    wattage: 30
+    output: "push-pull 4×EL84"
+    tubes: null
+    key_change: >
+      The six-input three-channel twin, and the point where the family's front
+      end changed: the Normal channel's EF86 was swapped for the commoner ECC83
+      because the pentode was too microphonic at AC30 volume. That single
+      substitution is the clearest line between the AC15 documented here and the
+      amplifier the AC30 became.
+    circuit_ref: null
+    sources:
+      - desc: "Wikipedia, \"Vox AC30\" — the AC30/6's three channels, and Vox swapping \"the Normal channel's EF86 preamp valve for the more common ECC83 (12AX7)\" over microphony at higher volume"
+        url: "https://en.wikipedia.org/wiki/Vox_AC30"
+
+  - designation: "AC30/6 Top Boost"
+    name: "AC30/6 with Top Boost (Brilliant channel treble and bass)"
+    years: { start: 1961, end: 1965 }
+    wattage: 30
+    output: "push-pull 4×EL84"
+    tubes: null
+    key_change: >
+      Top Boost began in 1961 as a factory retrofit — an extra valve stage with
+      its own treble and bass controls, added to amplifiers already sold — and
+      was folded into the standard AC30/6 by 1963, its two knobs joining the top
+      control panel. It is the first time the line carried a real tone stack
+      rather than the single Top Cut the AC15 uses.
+    circuit_ref: null
+    sources:
+      - desc: "Wikipedia, \"Vox AC30\" — \"The Top Boost circuit started out in 1961 as a retrofit performed at the factory\", integrated as standard on the AC30/6 by 1963 with bass and treble controls added to the top panel"
+        url: "https://en.wikipedia.org/wiki/Vox_AC30"
+
+notes: >
+  This is the corpus's first family outside the Fender and Marshall lines, and
+  its dating rests on a different kind of evidence: JMI's own works drawings are
+  numbered and dated in their title blocks, so the AC15 and AC30 revisions can be
+  pinned to a day where the Fender tweeds can only be bracketed by chart
+  revisions. Two honest gaps remain. The first AC15's introduction is given as
+  late 1957 by the Vox history archive and early 1958 by the general reference
+  used here, and no drawing has been read that settles it. And accounts of the
+  earliest AC30 output stage disagree, so the AC30 rows above claim wattage and
+  years but no valve complement. Only the third AC15 circuit has a documented
+  circuit entry in this corpus at present; every other row is history-tier
+  (circuit_ref: null) until one is built.

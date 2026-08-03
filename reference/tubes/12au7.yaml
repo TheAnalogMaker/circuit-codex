@@ -1,0 +1,60 @@
+tube: 12au7
+name: 12AU7
+also_known_as: [ECC82, 12AU7A, 5814A, "5963", "B329"]
+role: >-
+  Medium-mu (µ=17) dual triode — the low-gain, low-impedance member of the
+  9A-based twin-triode family. Its job is rarely gain: it drives, buffers, or
+  swings something that a high-mu valve could not. In the Vox AC15 it is the
+  vibrato modulator, sitting across the phase-shift ladder and varying it under
+  the oscillator's control, which is why the amp's vibrato bends pitch rather
+  than merely chopping level.
+model:
+  file: models/12au7.inc
+  anchor: "Va=250 V, Vg=-8.5 V → Ia=10.5 mA, gm=2200 µmho, µ=17"
+  anchor_source: "RCA 12AU7-A data sheet / RCA Receiving Tube Manual RC-19, 1959, Class A1 average characteristics (rp=7700 Ω on the same row)"
+  anchor_source_url: https://frank.pocnet.net/sheets/049/1/12AU7A.pdf
+  note: >-
+    Single-anchor fit at the tabulated 250 V point, on the same pattern as the
+    12AY7 and 12AT7 entries: MU=17 and EX=1.5 are fixed, KP and KG1 are solved so
+    the model reproduces the published Ia and gm exactly at the anchor.
+  known_limitation: >-
+    This valve appears in the corpus only as the AC15 vibrato modulator, and that
+    channel has no static operating point for the DC netlist to solve (see
+    amps/ac15/notes.md), so the model is anchor-verified in
+    pipeline/test_models.py but is not yet exercised by an amp simulation. A
+    second published operating point (Va=100 V, Vg=-5 V → 3.7 mA) is available for
+    the two-point v1 treatment if a circuit ever puts this valve on a gated node.
+basing:
+  code: 9A
+  base: noval-b9a
+  view: bottom
+  source: >-
+    RCA 12AU7-A data sheet — "Basing Designation for Bottom View ... 9A";
+    cross-checked against the Philips ECC82 connections diagram (identical). The
+    whole 9A twin-triode family (12AX7, 12AT7, 12AU7, 12AY7) shares this
+    arrangement: unit 1 on pins 6/7/8, unit 2 on pins 1/2/3, heater on 4/5 with
+    the centre tap on 9 (so the valve runs on either 6.3 V or 12.6 V).
+  pins:
+    1: { element: plate, unit: 2, hv: true }
+    2: { element: grid, unit: 2 }
+    3: { element: cathode, unit: 2 }
+    4: { element: heater }
+    5: { element: heater }
+    6: { element: plate, unit: 1, hv: true }
+    7: { element: grid, unit: 1 }
+    8: { element: cathode, unit: 1 }
+    9: { element: heater-ct }
+used_in: [ac15]
+datasheets:
+  - publisher: RCA
+    designation: 12AU7A
+    url: https://frank.pocnet.net/sheets/049/1/12AU7A.pdf
+    confidence: high
+  - publisher: Philips
+    designation: ECC82
+    url: https://frank.pocnet.net/sheets/030/e/ECC82.pdf
+    confidence: high
+  - publisher: General Electric
+    designation: 12AU7A
+    url: https://frank.pocnet.net/sheets/093/1/12AU7A.pdf
+    confidence: high

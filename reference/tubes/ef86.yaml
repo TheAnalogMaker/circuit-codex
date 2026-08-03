@@ -1,0 +1,63 @@
+tube: ef86
+name: EF86
+also_known_as: [6267, "6267 (US equivalent — the designation the published AC15 redraw prints beside the valve)"]
+role: >-
+  Philips/Mullard A.F. small-signal pentode — the Normal-channel input valve of
+  the Vox AC15, and the valve that gives that channel its gain. A pentode
+  amplifier delivers several times the voltage gain of a triode stage in the same
+  place, so the amp is already working hard at modest settings. The trade is
+  fragility: the EF86 is famously microphonic in a combo cabinet, which is why
+  the louder AC30/6 substituted an ECC83 for it in the same position.
+model:
+  file: models/ef86.inc
+  anchor: "Va=250 V, Vg2=140 V, Vg3=0 V, Vg1=-2.2 V → Ia=3.0 mA, Ig2=0.6 mA, gm=2200 µmho"
+  anchor_source: "Philips/Mullard EF86 data sheet, January 1970 (A.F. Pentode), typical characteristics"
+  anchor_source_url: https://frank.pocnet.net/sheets/010/e/EF86.pdf
+  note: >-
+    µ is the grid-No.1-to-grid-No.2 amplification factor (38), the tabulated
+    amplification factor on the same typical-characteristics row as Ia/Ig2/gm;
+    the sheet prints Ri=2.5 MΩ alongside. Ig2 is tabulated at the plate/gm point,
+    so KG1 and KG2 both anchor there. EX=1.5 and KVB=30 (pentode) are project
+    defaults per METHODOLOGY.md. Note that Philips' earlier (1956) issue of the
+    same sheet prints the typical point as Vg1=-2 V, S=2.0 mA/V with identical
+    Ia/Ig2/µ/Ri; the 1970 issue's -2.2 V / 2.2 mA/V figures are the ones fitted.
+  known_limitation: >-
+    A single-anchor fit at Va=250 V. In the AC15 the valve works at roughly 90 V
+    on the anode behind a 220 kΩ load — far from the anchor — and the model draws
+    about 10% more cathode current there than Philips' own tabulated application
+    row for the same 220 kΩ / 1 MΩ / 2.2 kΩ network predicts. Because that load
+    resistor is large, 10% of current becomes about a quarter of the anode
+    voltage, which is why the ac15 entry is a draft. A two-point fit against the
+    sheet's second published operating region is the obvious v1 improvement, on
+    the pattern of the 12AX7 calibration study.
+basing:
+  code: "—"
+  base: noval-b9a
+  view: bottom
+  source: >-
+    Philips/Mullard EF86 data sheet — "DIMENSIONS AND CONNECTIONS", Base: NOVAL,
+    bottom-view base diagram (figure 7Z09896). Unlike the EL84, the suppressor
+    grid (g3) has its own pin and is strapped to the cathode externally; pins 2
+    and 7 are the internal screening can, which is grounded in use. The sheet
+    prints no RETMA basing designation and no US 6267 sheet was consulted, so no
+    basing code is claimed here.
+  pins:
+    1: { element: screen-grid, hv: true, note: "g2" }
+    2: { element: internal-connection, note: "internal screen (shield) — grounded in use" }
+    3: { element: cathode }
+    4: { element: heater }
+    5: { element: heater }
+    6: { element: plate, hv: true }
+    7: { element: internal-connection, note: "internal screen (shield) — grounded in use" }
+    8: { element: suppressor-grid, note: "g3 — strapped to the cathode in this corpus's circuits" }
+    9: { element: grid, note: "g1" }
+used_in: [ac15]
+datasheets:
+  - publisher: Philips / Mullard
+    designation: EF86
+    url: https://frank.pocnet.net/sheets/010/e/EF86.pdf
+    confidence: high
+  - publisher: Philips
+    designation: EF86 (1956 issue)
+    url: https://frank.pocnet.net/sheets/030/e/EF86.pdf
+    confidence: high

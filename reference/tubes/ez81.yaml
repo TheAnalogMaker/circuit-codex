@@ -1,0 +1,60 @@
+tube: ez81
+name: EZ81
+also_known_as: [6CA4, "6CA4 (US equivalent)"]
+role: >-
+  Philips/Mullard indirectly-heated full-wave rectifier in a noval bottle — the
+  rectifier of the Vox AC15 and of the AC30 line beside it. Rated 150 mA DC, it
+  suits the modest current a pair of EL84s draws and, being indirectly heated,
+  it warms up with the rest of the amplifier rather than slamming the rail up
+  ahead of them.
+model:
+  file: models/ez81.inc
+  anchor: "Va=10 V → Ia=60 mA per anode (read from the published Ia–Va anode characteristic)"
+  anchor_source: "Philips EZ81 data sheet, January 1970 (Double Anode Rectifying Tube), anode characteristic fig. 7Z00030-5.26.ha"
+  anchor_source_url: https://frank.pocnet.net/sheets/010/e/EZ81.pdf
+  note: >-
+    Child's-law diode (I = PERV·V^1.5); one anode unit, instantiate twice. The
+    anchor is READ FROM A GRAPH, not from a table — unusually for this corpus,
+    and stated plainly because METHODOLOGY.md treats graph reads as weaker
+    evidence than tabulated points. The sheet publishes no per-anode voltage drop
+    at all, only whole-rectifier system rows (transformer volts in against DC
+    volts out, for stated filter and protecting resistances), so there is no
+    tabulated alternative. The point above is taken from the solid, measured part
+    of the curve, below the dashed extrapolated portion.
+  known_limitation: >-
+    A single 3/2-power law cannot hold the whole published curve: fitted at the
+    10 V / 60 mA point it runs roughly 13% high against the curve's extrapolated
+    30 V end. No corpus amp netlist simulates its own supply — every one drives
+    its printed HT rail — so this model is anchor-verified in test_models.py and
+    is not yet load-bearing for any operating-point check.
+basing:
+  code: 9M
+  base: noval-b9a
+  view: bottom
+  source: >-
+    Philips EZ81 data sheet, January 1970 — "DIMENSIONS AND CONNECTIONS", Base:
+    Noval, bottom-view base diagram (figure 7Z06071): both anodes on pins 1 and 7,
+    one shared cathode on pin 3, heater on 4 and 5, the rest not connected. The
+    RETMA code 9M and the identical pin arrangement are printed on the RCA 6CA4
+    sheet ("Base ... Small-Button Noval 9-Pin (JEDEC No. E9-1), Basing Designation
+    for BOTTOM VIEW ... 9M").
+  pins:
+    1: { element: diode-plate, unit: 1, hv: true }
+    2: { element: nc }
+    3: { element: cathode, hv: true, note: "shared by both anode units; sits at B+" }
+    4: { element: heater }
+    5: { element: heater }
+    6: { element: nc }
+    7: { element: diode-plate, unit: 2, hv: true }
+    8: { element: nc }
+    9: { element: nc }
+used_in: [ac15]
+datasheets:
+  - publisher: Philips / Mullard
+    designation: EZ81
+    url: https://frank.pocnet.net/sheets/010/e/EZ81.pdf
+    confidence: high
+  - publisher: RCA
+    designation: 6CA4
+    url: https://frank.pocnet.net/sheets/049/6/6CA4.pdf
+    confidence: high
