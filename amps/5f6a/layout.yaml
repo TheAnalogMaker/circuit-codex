@@ -13,7 +13,7 @@ board:
   rows: 2
   cols: 43
   title: "5F6-A · eyelet board layout"
-caption: "Redrawn from the published Fender 5F6-A layout drawing (I-EG) — principal board components and their hookup, in the order the drawing shows them. The four-jack input network's 68 kΩ grid stoppers, the cathode-follower load, and the tone-stack capacitors (which mount at the pots) are drawn schematically or omitted for legibility; the 1 MΩ input grid leaks (RG1 bright, RG2 normal) are placed at their input jacks. The 6.3 V heater chain (green twisted pair, PT → pilot lamp → the two 5881 outputs → the two 12AX7s → 12AY7 input) is routed as the published sheet shows it, with the green-yellow winding centre tap grounded at the chassis; the GZ34 rectifier is directly heated from the 5 V winding and off the 6.3 V chain. The power-transformer primary leads land on chassis switches, off the board. Not a trace or a dimensioned reproduction."
+caption: "Redrawn from the published Fender 5F6-A layout drawing (I-EG) — principal board components and their hookup, in the order the drawing shows them. The tone-stack capacitors mount on the board, as the factory sheet places them — the two 0.02 µF caps sharing their node-B eyelet with the 56 kΩ slope's lead and the 250 pF mica beside them — and the pots are wired as the sheet draws: the bass pot a rheostat with its wiper strapped into the treble-lug node, the middle pot's wiper fed from the second 0.02 µF, the treble wiper alone carrying the output. The four-jack input network's 68 kΩ grid stoppers and the cathode-follower's 100 kΩ load are drawn schematically or omitted for legibility; the 1 MΩ input grid leaks (RG1 bright, RG2 normal) are placed at their input jacks. The 6.3 V heater chain (green twisted pair, PT → pilot lamp → the two 5881 outputs → the two 12AX7s → 12AY7 input) is routed as the published sheet shows it, with the green-yellow winding centre tap grounded at the chassis; the GZ34 rectifier is directly heated from the 5 V winding and off the 6.3 V chain. The power-transformer primary leads land on chassis switches, off the board. Not a trace or a dimensioned reproduction."
 source:
   desc: "Fender 'Bassman' Model 5F6-A layout drawing (I-EG), page 1"
   url: "https://el34world.com/charts/Schematics/files/Fender/Fender_bassman_5f6a.pdf"
@@ -52,9 +52,12 @@ parts:
   - { ref: RGB,  a: [1, 22], b: [1, 23] }   # 1M PI grid leak (V3B) → tail junction
   - { ref: RTAIL, a: [0, 24], b: [1, 24] }  # 470 Ω PI tail (vertical)
   - { ref: RT2,  a: [1, 25], b: [1, 26] }   # 10k tail junction → ground
-  # cathode-follower FMV tone stack (slope + PI-grid coupler)
-  - { ref: C6,   a: [0, 25], b: [0, 27] }   # 0.02 µF tone stack → PI grid
+  # cathode-follower FMV tone stack (slope + caps on the board, per the sheet)
+  - { ref: C6,   a: [0, 25], b: [0, 27] }   # 0.02 µF treble wiper → PI grid
   - { ref: RSL,  a: [1, 27], b: [1, 28] }   # 56k tone-stack slope
+  - { ref: C5,   a: [0, 28], b: [0, 29] }   # 0.02 µF node B → treble-bottom/bass node
+  - { ref: C5b,  a: [0, 30], b: [0, 29] }   # 0.02 µF node B → middle wiper (shares the node-B eyelet with C5)
+  - { ref: C4,   a: [0, 31], b: [0, 32] }   # 250 pF mica, node A → treble top
   # channel mixers into V2A grid
   - { ref: RM1,  a: [1, 29], b: [1, 30] }   # 270k bright-channel mixer
   - { ref: RM2,  a: [1, 31], b: [1, 32] }   # 270k normal-channel mixer
@@ -211,22 +214,26 @@ runs:
   - { from: V2.pin8, to: RK2.a, via: [[32.6, 1.60], [32.6, 0.25]] }  # V2A cathode → 820 Ω (col 32.6, clear of the RK2 body)
   - { from: RK2.b, to: [1.45, 33] }                # 820 Ω → ground bus
 
-  # --- cathode-follower FMV tone stack (caps mount at the pots) ---------------
-  - { from: V2.pin3, to: RSL.a, via: [[29.7, 1.6], [27, 1.6]] }      # CF output → 56k slope (up-left)
-  - { from: V2.pin3, to: VR3.lug3, via: [[30.3, 1.4], [29.6, -0.74], [16.31, -0.74]] } # CF output → treble (up, then lane)
-  - { from: RSL.b, to: VR4.lug3, via: [[28, -0.62], [12.31, -0.62]] } # slope → bass
-  - { from: VR3.lug1, to: RSL.b, via: [[15.69, -0.70], [28.4, -0.70], [28.4, 1.15]] } # treble low → slope node (approach RSL.b from lower-right)
-  - { from: VR3.lug2, to: C6.a, via: [[16, -0.54], [24.6, -0.54], [24.6, 0.0]] } # treble wiper → PI-grid coupler (approach C6.a from upper-left)
-  - { from: VR4.lug2, to: C6.a, via: [[12, -0.45], [25, -0.45]] }    # bass wiper → coupler (from directly above)
-  - { from: VR4.lug1, to: VR5.lug3 }               # bass → middle
-  - { from: VR5.lug2, to: VR5.lug1 }               # middle wired as rheostat
+  # --- cathode-follower FMV tone stack — the ladder the I-EG sheet draws ------
+  # (caps on the board; bass wiper strapped into the treble-lug node; middle
+  # wiper fed from the second 0.02 µF; output = the treble wiper alone)
+  - { from: V2.pin3, to: RSL.a, via: [[29.7, 1.6], [27, 1.6]] }      # CF output (node A) → 56k slope (up-left)
+  - { from: RSL.a, to: C4.a, via: [[27.5, 0.62], [30.6, 0.62]] }     # node A → 250 pF
+  - { from: C4.b, to: VR3.lug3, via: [[32.3, -0.74], [16.31, -0.74]] } # 250 pF → treble top (top lane)
+  - { from: RSL.b, to: C5.b, via: [[28.3, 0.5]] }                    # slope foot (node B) → the shared 0.02 µF eyelet
+  - { from: C5.a, to: VR3.lug1, via: [[29.2, -0.6], [29.2, -1.25], [15.69, -1.25]] } # 0.02 µF → treble bottom / bass node (high lane, above the lug row)
+  - { from: VR3.lug1, to: VR4.lug3, via: [[15.5, -1.05], [12.5, -1.05]] } # treble bottom → bass top
+  - { from: VR4.lug2, to: VR4.lug3 }               # bass wired as a rheostat (wiper strapped to its hot lug)
+  - { from: C5b.a, to: VR5.lug2, via: [[30.3, -1.15], [8, -1.15]] }  # node B → 0.02 µF → the middle pot's WIPER
+  - { from: VR4.lug1, to: VR5.lug3, via: [[11.4, -1.05], [8.6, -1.05]] } # bass foot → middle top
+  - { from: VR3.lug2, to: C6.a, via: [[16, -0.54], [24.6, -0.54], [24.6, 0.0]] } # treble wiper (the output, alone) → PI-grid coupler
   - { from: VR5.lug1, to: [1.45, 7.4] }            # middle → ground bus
 
   # --- volume controls + channel mixers → V2A grid ---------------------------
-  - { from: VR1.lug2, to: RM1.a, via: [[23, -0.58], [29, -0.58]] }   # bright wiper → mixer
+  - { from: VR1.lug2, to: RM1.a, via: [[23, -0.58], [27.5, -0.58], [27.5, 0.45], [28.7, 0.45]] }   # bright wiper → mixer (descends the row-0 gap left of C5)
   - { from: RM1.b, to: V2.pin7, via: [[30, 1.40], [31.69, 1.40]] }   # mixer → V2A grid (from directly above, clear of pin6)
   - { from: VR1.lug1, to: [1.45, 22.4] }           # bright volume ground
-  - { from: VR2.lug2, to: RM2.a, via: [[28.5, -0.70], [28.5, -0.46], [31, -0.46]] } # normal wiper → mixer (jog off col 28)
+  - { from: VR2.lug2, to: RM2.a, via: [[28.5, -0.70], [28.5, -0.46], [30.5, -0.46], [30.5, 0.5]] } # normal wiper → mixer (descends the row-0 gap left of C4)
   - { from: RM2.b, to: V2.pin7, via: [[32.4, 1.60], [32.2, 1.60]] }  # mixer → V2A grid (from upper-right)
   - { from: VR2.lug1, to: [1.45, 28.6], via: [[28.6, -0.55]] }      # normal volume ground (vertical drop)
 
@@ -295,4 +302,4 @@ net_map:
   netlist_unplaced:
     RCHOKE: "filter choke L1 sits on the board (B+1 → B+2); the netlist models its ~130 Ω DCR as RCHOKE"
     RG3:  "V2A grid return — realised through the volume pots (VR1/VR2) and 270k channel mixers to ground, not a discrete board resistor"
-    RKCF: "V2B cathode-follower load — realised through the FMV tone-stack network to ground, not a discrete board resistor"
+    RKCF: "V2B cathode-follower 100 kΩ load — the sheet runs it from the +180 V eyelet across the board; omitted from this redraw, whose CF node is carried by the RSL.a feed"

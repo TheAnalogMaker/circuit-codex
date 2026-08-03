@@ -20,7 +20,7 @@ board:
   rows: 2
   cols: 62
   title: "AB763 · eyelet board layout"
-caption: "Redrawn from the published Fender AB763 Deluxe Reverb-Amp layout drawing — principal board components, in the order the drawing shows them. The tone, reverb-mix, tremolo-oscillator and bias-supply networks mount largely at the pots and are drawn minimally for legibility; small grid stoppers are omitted. The 6.3 V heater chain (green twisted pair, PT → pilot lamp → the two 6V6 output tubes → 12AT7 PI → 12AT7 reverb driver → 12AX7 tremolo → the three 12AX7 preamp tubes) is routed as the published sheet shows it; the GZ34 rectifier is indirectly heated from the 5 V winding and off the 6.3 V chain. Not a trace or a dimensioned reproduction."
+caption: "Redrawn from the published Fender AB763 Deluxe Reverb-Amp layout drawing — principal board components, in the order the drawing shows them. Both channels' tone-stack parts (slope resistors, 250 pF, 0.1 µF and 0.047 µF capacitors, 6.8 kΩ legs) mount on the board on the published sheet but are not drawn here — the stack internals are documented schematic-only; the reverb-mix, tremolo-oscillator and bias-supply networks are likewise drawn minimally, and small grid stoppers are omitted. The 6.3 V heater chain (green twisted pair, PT → pilot lamp → the two 6V6 output tubes → 12AT7 PI → 12AT7 reverb driver → 12AX7 tremolo → the three 12AX7 preamp tubes) is routed as the published sheet shows it; the GZ34 rectifier is indirectly heated from the 5 V winding and off the 6.3 V chain. Not a trace or a dimensioned reproduction."
 source:
   desc: "Fender 'Deluxe Reverb-Amp AB763' layout drawing (C-FD), page 1"
   url: "https://el34world.com/charts/Schematics/files/Fender/Fender_deluxe_reverb_ab763.pdf"
