@@ -616,7 +616,8 @@ function tubeSmallSignal(tubeId) {
 // amp's own parts list and its recorded topology.tone_stack, not inferred. A circuit
 // is listed only where its stack is one of the three networks tonestack.js actually
 // solves. Six of the sixteen documented circuits that carry a tone control are
-// therefore absent, and the guide page names all six:
+// therefore absent, and the guide page names all six — it counts them out of the
+// corpus rather than repeating a number, so the two cannot drift apart:
 //
 //   ac15   topology.tone_stack: top-cut — a cap and pot across the two phase-inverter
 //          outputs, a differential cut with no counterpart here. Not a variant of the
@@ -627,10 +628,11 @@ function tubeSmallSignal(tubeId) {
 //          interactive volume network rather than being fed from one stage, so the
 //          single-resistance drive model this solver assumes does not describe it.
 //   5f10   single-knob; not yet built as a preset.
-//   aa764  a two-knob stack whose bass leg is a 15 kΩ resistor and a 0.047 µF cap,
-//          and whose parts list labels the 0.1 µF as the bass cap — the opposite of
-//          the ab763 convention. Resolving which capacitor sits where needs the
-//          schematic read, not a guess, so it stays out until someone reads it.
+//   aa764  a two-knob stack, but not the blackface network. Its drawing takes the
+//          output from the treble wiper alone and hangs the bass pot below it as a
+//          rheostat (wiper strapped to one end lug), where every stack solved here
+//          joins the two wipers at a single output node. Same parts, different
+//          topology — it needs its own model, not a preset.
 //
 // Adding one is cheap once the wiring is known; publishing a curve for a network
 // that is not the circuit's own is not recoverable.

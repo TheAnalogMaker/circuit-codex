@@ -1,6 +1,6 @@
 ---
 import Base from '../../../layouts/Base.astro';
-import { toneStackPresets, TONE_STACK_KINDS, displayId } from '../../../lib/corpus.js';
+import { loadCorpus, toneStackPresets, TONE_STACK_KINDS, displayId } from '../../../lib/corpus.js';
 import {
   PLOT, plotX, plotY, curvePath, gridFrequencies, dbGridLines, hzLabel,
   sweepFrequencies, summarise, midPositions, maxPositions, labelPlacement,
@@ -10,6 +10,20 @@ import {
 // read from each circuit's own bom.yaml at build time.
 const presets = toneStackPresets();
 const opening = presets[0];
+
+// How many documented circuits carry a tone control at all, counted from the
+// corpus rather than typed into the prose below — the sentence that names the
+// absentees has to add up, and it only adds up if the total is the corpus's own.
+// Why each absentee is absent is recorded beside TONE_STACK_SPECS in lib/corpus.js.
+const withToneControl = loadCorpus()
+  .filter((a) => (a.meta?.topology?.tone_stack ?? 'none') !== 'none');
+const absent = withToneControl.filter((a) => !presets.some((p) => p.id === a.id));
+// Named in prose, so the two lists must agree: the single-knob circuits are the
+// ones absent purely because that network is not modelled yet; the rest are absent
+// because the circuit draws a network none of the three solved here describes.
+const singleKnob = absent.filter((a) => a.meta.topology.tone_stack === 'single-knob');
+const otherNetwork = absent.filter((a) => a.meta.topology.tone_stack !== 'single-knob');
+const countWord = (n) => ['none', 'One', 'Two', 'Three', 'Four', 'Five'][n] ?? String(n);
 
 // The page ships a real curve in the HTML, drawn by the same code the browser
 // uses, so the figure is there before (and without) any script.
@@ -325,13 +339,17 @@ const description = 'An interactive frequency-response lab for the passive tone 
       the values below are the ones the plot uses, read straight from the archive. Load
       one into the lab and the address bar keeps it, so a setting can be linked to
       directly.</p>
-    <p class="sub">Sixteen circuits in the archive carry a tone control and {presets.length} of
-      them are presets here. The AC15's Top Cut is not one of them: it sits after the phase
-      inverter, bridged across both of its outputs, and is a different network from the three
-      this lab solves. The AA764's two-knob stack and the single tone controls of the 5D3,
-      5E3, 5F10 and 6G3 are simply not built yet — each needs its own drawing read before a
-      curve can honestly be drawn for it, and a curve for a network that is not the circuit's
-      own would not be recoverable.</p>
+    <p class="sub">{withToneControl.length} circuits in the archive carry a tone control and
+      {' '}{presets.length} of them are presets here. {countWord(otherNetwork.length)} of the
+      {' '}{absent.length} that are absent are absent because the circuit draws a different
+      network, not because the work is undone: the AC15's Top Cut sits after the phase
+      inverter, bridged across both of its outputs, and the AA764 takes its output from the
+      treble wiper alone with the bass pot hung below it as a rheostat, where every two-knob
+      stack plotted here joins both wipers at one node. The other {singleKnob.length} — the
+      single tone controls of
+      {' '}{singleKnob.map((a) => displayId(a.id)).join(', ').replace(/, ([^,]*)$/, ' and $1')} —
+      are simply not built as presets yet. A curve for a network that is not the circuit's
+      own would not be recoverable, so each of these waits until its own is drawn.</p>
 
     {presets.map((p) => (
       <div class="pcard">
