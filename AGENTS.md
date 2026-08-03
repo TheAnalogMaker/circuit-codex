@@ -45,6 +45,7 @@ python3 pipeline/verify_layout_nets.py       # layout↔netlist equivalence (+--
 python3 pipeline/export_loadlines.py --check # reference/loadlines.yaml vs the netlists
 cd site && npm ci && npm run build      # site must build
 cd site && node scripts/check-loadline-parity.mjs   # browser solver vs. ngspice
+cd site && node scripts/check-lineage-caption.mjs   # lineage prose names every drawn arrow
 ```
 
 Use `python3` (no `python` on PATH in the usual environments). ngspice is required
