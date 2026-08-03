@@ -26,6 +26,14 @@ export function loadCorpus() {
       const notesRaw = readIfExists(path.join(dir, 'notes.md'));
       const layoutRaw = readIfExists(path.join(dir, 'layout.yaml'));
       const layout = layoutRaw ? yaml.load(layoutRaw) : null;
+      // Intrinsic width of the redrawn board diagram, in its own viewBox units.
+      // The board drawings span 1000 (5F1) to 4400 (Model 1959) units at one
+      // fixed type size, so the viewer cannot scale them all to one column
+      // width — the biggest would render its 11.5-unit part labels at under
+      // 3 CSS px. The page uses this to give each drawing a floor width and
+      // scroll the overflow. See layoutMinWidth().
+      const layoutSvg = readIfExists(path.join(dir, 'layout.svg'));
+      const vb = layoutSvg ? /viewBox="0 0 ([\d.]+) ([\d.]+)"/.exec(layoutSvg) : null;
       return {
         id: meta.id,
         meta,
@@ -36,7 +44,8 @@ export function loadCorpus() {
         layoutBoard: boardType(layout),
         hasNetlist: fs.existsSync(path.join(dir, 'netlist.cir')),
         hasSchematic: fs.existsSync(path.join(dir, 'schematic.kicad_sch')),
-        hasLayout: fs.existsSync(path.join(dir, 'layout.svg')),
+        hasLayout: !!layoutSvg,
+        layoutWidth: vb ? Number(vb[1]) : null,
       };
     })
     .sort((a, b) => a.id.localeCompare(b.id));
@@ -62,6 +71,20 @@ export function corpusStats() {
 export function displayId(id) {
   // Fender's own drawings hyphenate A-suffix models: 5F6-A, 5F2-A
   return String(id).toUpperCase().replace(/^(\d[A-Z]\d+)A$/, '$1-A');
+}
+
+// Minimum on-screen width (CSS px) for a board drawing of `units` viewBox units.
+// Type in these drawings is set in viewBox units (7.5 for a socket pin number,
+// 11–12 for a part label), so legibility is a question of scale, not of column
+// width: below about 0.62 the 11.5-unit labels fall under 7 CSS px and the
+// drawing reads as a grey smear. Small boards keep fitting the column (the
+// floor is under the column width, so `max()` leaves them alone); big ones
+// overflow their scroll container instead of shrinking.
+export const LAYOUT_MIN_SCALE = 0.62;
+
+export function layoutMinWidth(amp) {
+  const units = amp?.layoutWidth;
+  return units ? Math.round(units * LAYOUT_MIN_SCALE) : null;
 }
 
 // Board construction, read from the amp's own layout.yaml (board.title) — so the

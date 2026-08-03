@@ -1,6 +1,6 @@
 ---
 import Base from '../../layouts/Base.astro';
-import { loadCorpus, displayId, ampMetaDescription, layoutAlt, topologyHref, circuitFamilyMap, loadLoadlineStages, toneStackPresetIds, GITHUB } from '../../lib/corpus.js';
+import { loadCorpus, displayId, ampMetaDescription, layoutAlt, layoutMinWidth, topologyHref, circuitFamilyMap, loadLoadlineStages, toneStackPresetIds, GITHUB } from '../../lib/corpus.js';
 
 export async function getStaticPaths() {
   const stages = new Map(loadLoadlineStages().map((s) => [s.amp, s]));
@@ -15,6 +15,9 @@ const v = m.verification || {};
 const vDate = v.date ? new Date(v.date).toISOString().slice(0, 10) : null;
 const ghDir = `${GITHUB}/tree/main/amps/${amp.id}`;
 const wiringVerified = amp.layout?.wiring_claim === 'verified';
+// Floor width for the board drawing, so a wide board is scrolled rather than
+// scaled down past legibility. See layoutMinWidth() in lib/corpus.js.
+const layoutFloor = layoutMinWidth(amp);
 const isVerified = v.status === 'verified';
 // --- lineage (explore) — related circuits documented in this amp's meta.yaml,
 //     limited to those present in the corpus so links never 404. Rendered as one
@@ -97,8 +100,14 @@ const jsonld = {
           <div class="viewer-head">Board layout — redrawn reference diagram · source noted on the drawing</div>
           <div class="layout-canvas">
             <img src={`/layouts/${amp.id}.svg`} loading="lazy" decoding="async"
-              alt={layoutAlt(amp)} />
+              alt={layoutAlt(amp)}
+              style={layoutFloor ? `min-width:${layoutFloor}px` : undefined} />
           </div>
+          <p class="layout-scroll-note">
+            Scroll the drawing sideways to read the whole board, or
+            <a href={`/layouts/${amp.id}.svg`} target="_blank" rel="noopener"> open the
+            full-size diagram</a> in its own tab.
+          </p>
           <p class="layout-note">
             {wiringVerified && (
               <><strong>Machine-checked wiring.</strong> Every modelled part the operating-point
@@ -278,7 +287,11 @@ const jsonld = {
   .viewer-body p{margin:0}
   .viewer-canvas{height:580px}
   .viewer-canvas kicanvas-embed{display:block;width:100%;height:100%}
-  .layout-canvas{padding:10px}
+  /* The drawings are wider than the column and set their type in viewBox units,
+     so scaling one to fit would make its labels unreadable. Scroll instead —
+     the same treatment the lineage figure already uses. */
+  .layout-canvas{padding:10px;overflow-x:auto;overscroll-behavior-x:contain}
+  .layout-scroll-note{color:var(--faint);font-size:12px;margin:0;padding:0 16px 10px}
   .layout-note{color:var(--muted);font-size:12.5px;line-height:1.55;margin:0;padding:10px 16px 14px;border-top:1px solid var(--line-soft);max-width:90ch}
   .layout-canvas img{display:block;width:100%;height:auto;border-radius:4px}
   h2{font-size:17px;letter-spacing:.14em;margin:28px 0 4px}
