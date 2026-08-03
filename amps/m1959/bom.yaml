@@ -4,7 +4,7 @@
 # drawing's functional labels (V1/V2/V3 preamp, V4-V7 output) and match the redrawn
 # schematic and the board layout; parts drawn only as annotations on the factory
 # sheet are listed here without designators.
-notes: "Cathode-bypass and coupling capacitor VALUES are open at DC and do not enter the operating-point netlist; they are listed for completeness. Where the drawing prints a second value in parentheses, that is a factory-annotated alternate: the primary value is listed and the alternate is named in the part's role. The HT-winding snubbers, the mains-to-chassis capacitor, the fuses, the standby switch and the pilot lamp are annotations on the factory sheet: the capacitors appear on the schematic without connections, and the rest carry no designator."
+notes: "Cathode-bypass and coupling capacitor VALUES are open at DC and do not enter the operating-point netlist; they are listed for completeness. Where the drawing prints a second value in parentheses, that is a factory-annotated alternate: the primary value is listed and the alternate is named in the part's role. The HT-winding snubbers, the mains-to-chassis capacitor, the fuses, the standby switch and the pilot lamp are annotations on the factory sheet: the capacitors appear on the schematic without connections, and the rest carry no designator. The output transformer is the one transformer the list numbers — T1; the mains/HT transformer is drawn as an annotation and is listed without a designator."
 items:
   # --- input stage (V1) ---
   - { ref: R1s, part: "Carbon comp resistor", value: "68 kΩ · ½ W", role: "Channel I high-treble input grid stopper" }

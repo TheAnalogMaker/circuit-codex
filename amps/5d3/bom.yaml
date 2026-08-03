@@ -1,5 +1,5 @@
 # Parts list — reference designators match netlist.cir element names.
-notes: "The 5D3 has three input jacks: one on channel 1 and two on channel 2. The drawing marks no resistor wattages except the 250 Ω 5 W cathode resistor, and prints no transformer impedances or part numbers."
+notes: "The 5D3 has three input jacks: one on channel 1 and two on channel 2. The drawing marks no resistor wattages except the 250 Ω 5 W cathode resistor, and prints no transformer impedances or part numbers. The output transformer is numbered T2 under the archive's convention — T1 the power transformer, T2 the output transformer — and no T1 appears because the sheet gives the power transformer neither a part number nor a designator, so it is listed without one."
 items:
   - { ref: RG1,  part: "Carbon comp resistor",      value: "1 MΩ · ½ W",        role: "Channel-1 input grid leak (no stopper on this jack)" }
   - { ref: R2S,  part: "Carbon comp resistor",      value: "68 kΩ · ½ W",       role: "Channel-2 grid stopper, upper jack" }

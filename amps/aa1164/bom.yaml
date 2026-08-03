@@ -5,7 +5,7 @@
 # Values are the drawing's; the notice sets ½ W / 10% resistors and 400 V
 # capacitors unless noted. Transformer types are the drawing's own TR1/TR2/TR3
 # labels.
-notes: "The drawing shows one jack symbol for the instrument input pair; the chassis carries two. Tube reference designators run from the input end of the chassis (V1 nearest the jacks) — the drawing labels socket types, not V-numbers, and the section split shown here is read off the layout sheet's per-pin voltages. Tremolo-oscillator and reverb-tank interconnect parts are listed, but the oscillator's DC point is excluded from the netlist (see notes.md)."
+notes: "The drawing shows one jack symbol for the instrument input pair; the chassis carries two. Tube reference designators run from the input end of the chassis (V1 nearest the jacks) — the drawing labels socket types, not V-numbers, and the section split shown here is read off the layout sheet's per-pin voltages. Tremolo-oscillator and reverb-tank interconnect parts are listed, but the oscillator's DC point is excluded from the netlist (see notes.md). The 125P1B is the power transformer Fender shared across the Champ, the Princeton and the Princeton Reverb, and the HT winding is not annotated the same way on every sheet: this drawing prints 340-0-340 V, as does the Princeton AA964, while the Champ AA764 sheet prints 320-0-320 V for the same part number. Each entry records the figure its own drawing prints."
 items:
   # --- Instrument input + preamp first stage (V1a) ---
   - { ref: R1a, part: "Carbon comp resistor", value: "68 kΩ · ½ W", role: "Input grid stopper (jack 1)" }

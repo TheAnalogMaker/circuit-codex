@@ -1,8 +1,9 @@
 # Parts list — read from the published AB763 Deluxe Reverb-Amp drawing.
-# This amp ships as a draft data core (no schematic.kicad_sch yet), so reference
-# designators follow the DC netlist where a part is modeled and are descriptive
-# otherwise; they will be reconciled to a schematic when one is drawn. Values are
-# the drawing's; the notice sets 1/2 W / 10% resistors and 400 V caps unless noted.
+# Reference designators follow the DC netlist where a part is modeled and are
+# descriptive otherwise; every one of them is cross-checked against the redrawn
+# schematic (schematic.kicad_sch) by pipeline/validate.py, in both directions.
+# Values are the drawing's; the notice sets 1/2 W / 10% resistors and 400 V caps
+# unless noted.
 notes: "The drawing shows one jack per channel input pair; the chassis carries two per channel. Tremolo-oscillator and reverb-tank interconnect parts are listed but the oscillator's DC point is excluded from the netlist (see notes.md)."
 items:
   # --- Normal channel input (V1a) ---

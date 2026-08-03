@@ -1,10 +1,10 @@
 # Parts list — read from the published Princeton-Amp AA964 schematic (drawing
-# 045419). This circuit ships as a data core (no schematic.kicad_sch yet), so
-# reference designators follow the DC netlist where a part is modelled and are
-# descriptive otherwise; they will be reconciled to a schematic when one is
-# drawn. Values are the drawing's; its notice sets ½ W · 10 % resistors and
+# 045419). Reference designators follow the DC netlist where a part is modelled
+# and are descriptive otherwise; every one of them is cross-checked against the
+# redrawn schematic (schematic.kicad_sch) by pipeline/validate.py, in both
+# directions. Values are the drawing's; its notice sets ½ W · 10 % resistors and
 # 400 V capacitors unless marked otherwise.
-notes: "The drawing shows two input jacks sharing one grid leak. The tremolo oscillator's parts are listed in full, but its DC operating point is excluded from the simulation for the reason given in the circuit notes below. Tube designators V1–V5 are this archive's, not the drawing's — Fender numbered the sockets on the tube chart, not the schematic."
+notes: "The drawing shows two input jacks sharing one grid leak. The tremolo oscillator's parts are listed in full, but its DC operating point is excluded from the simulation for the reason given in the circuit notes below. Tube designators V1–V5 are this archive's, not the drawing's — Fender numbered the sockets on the tube chart, not the schematic; the TR1/TR2 transformer labels are the drawing's own. The 125P1B is the power transformer Fender shared across the Champ, the Princeton and the Princeton Reverb, and the HT winding is not annotated the same way on every sheet: this drawing prints 340-0-340 V, as does the Princeton Reverb AA1164, while the Champ AA764 sheet prints 320-0-320 V for the same part number. Each entry records the figure its own drawing prints."
 items:
   # --- Input and first stage (V1A) ---
   - { ref: R1n, part: "Carbon comp resistor", value: "68 kΩ · ½ W",   role: "Input grid stopper (jack 1)" }

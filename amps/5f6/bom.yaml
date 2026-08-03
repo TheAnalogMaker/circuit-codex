@@ -3,7 +3,7 @@
 # watt, 10% tolerance unless otherwise noted" — so the only parts carrying
 # anything else here are the two phase-inverter plate resistors (both printed
 # 5%) and the two rail droppers (both printed 1 W).
-notes: "Designators follow netlist.cir where a part appears there, and otherwise continue the 5F6-A's scheme so the two revisions read side by side; the same designators key schematic.kicad_sch and layout.yaml. The parts list covers one jack per channel (the chassis carries four, each channel's second jack adding another 68 kΩ stopper). Speaker jacks, the a-c line and ground switch, the pilot lamp and the standby-switch bypass capacitor are on the chassis, not the board, and are not listed."
+notes: "Designators follow netlist.cir where a part appears there, and otherwise continue the 5F6-A's scheme so the two revisions read side by side; the same designators key schematic.kicad_sch and layout.yaml. The parts list covers one jack per channel (the chassis carries four, each channel's second jack adding another 68 kΩ stopper). Speaker jacks, the a-c line and ground switch, the pilot lamp and the standby-switch bypass capacitor are on the chassis, not the board, and are not listed. The output transformer keeps the 5F6-A's T3 for the same reason, which is why no T1 or T2 appears; the power transformer, like the other off-board parts, is listed without a designator."
 items:
   - { ref: R1s, part: "Carbon comp resistor", value: "68 kΩ · ½ W",  role: "Bright-channel grid stopper" }
   - { ref: R2s, part: "Carbon comp resistor", value: "68 kΩ · ½ W",  role: "Normal-channel grid stopper" }

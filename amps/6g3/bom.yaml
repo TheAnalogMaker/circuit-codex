@@ -1,10 +1,10 @@
 # Parts list — read from the published 6G3 Deluxe drawing (schematic + layout).
-# This amp ships as a draft data core (no schematic.kicad_sch yet), so reference
-# designators follow the DC netlist where a part is modeled and are descriptive
-# otherwise; they will be reconciled to a schematic when one is drawn. The
+# Reference designators follow the DC netlist where a part is modeled and are
+# descriptive otherwise; every one of them is cross-checked against the redrawn
+# schematic (schematic.kicad_sch) by pipeline/validate.py, in both directions. The
 # drawing's notice sets ½ W · 10 % resistors and 400 V capacitors unless a part
 # is marked otherwise, and every value below is the drawing's.
-notes: "The drawing shows both input jacks per channel, each with its own 68 kΩ stopper. The tremolo oscillator's parts are listed in full, but its DC operating point is excluded from the netlist (see notes.md). Parts drawn only as annotations — power transformer, mains cap, fuse, switches, pilot lamp — are listed without designators."
+notes: "The drawing shows both input jacks per channel, each with its own 68 kΩ stopper. The tremolo oscillator's parts are listed in full, but its DC operating point is excluded from the netlist (see notes.md). Parts drawn only as annotations — mains cap, fuse, switches, pilot lamp — are listed without designators. The two transformers are numbered T1 (power) and T2 (output) under the archive's convention; the drawing's own labels for the same parts are TR1 and TR2."
 items:
   # --- Normal channel input (V1A) ---
   - { ref: R1n, part: "Carbon comp resistor", value: "68 kΩ · ½ W",   role: "Normal input grid stopper (jack 1)" }
