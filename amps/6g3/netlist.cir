@@ -1,0 +1,107 @@
+* 6G3 (Brown Deluxe-style) — DC operating-point netlist
+* Circuit Codex — CC-BY-SA 4.0. Independently drawn from the published 6G3
+* (I-FA) drawing's component values (see meta.yaml); no drawing reproduced.
+* The drawing labels the first bottle 7025 — an alias for the 12AX7
+* (reference/tubes/12ax7.yaml also_known_as) — so every small-signal stage
+* uses the clean-room 12AX7 model.
+*
+* DC conventions. One rail is driven: BP = +375 V, the reservoir node the GZ34
+* feeds, which is also the output-transformer centre tap and the tremolo
+* oscillator's plate supply. Everything below it is DERIVED through the drawing's
+* own droppers, so the simulated screen / phase-inverter / preamp rails are
+* predictions checked against the printed chart, not inputs: 1000 Ohm-2W to the
+* +365 V screen node (BS), 10k-1W to the +325 V phase-inverter node (BC), and
+* 27k-1W to the +270 V preamp node (BD). The 6V6 plates sit on BP (output
+* transformer primary DCR omitted; the chart prints +365 V at the plates against
+* +375 V at the centre tap).
+*
+* The fixed-bias supply — a 100k-5% feed off one HT leg, a rectifier, a 25 uF/50 V
+* can and a 22k-5% bleeder — is replaced by an ideal -26 V source, exactly as its
+* AC/ripple-filtering role warrants. The tremolo Intensity control (250k-L) sits
+* in that bias line but carries no DC (the output grids draw no grid current), so
+* it moves no operating point either.
+*
+* The 56k negative-feedback resistor returns from the speaker terminal (~0 V DC
+* through the output-transformer secondary), so at DC it parallels the 1500 Ohm at
+* the foot of the phase-inverter tail — modelled, because it changes the tail
+* current. DC-open caps are MODELLED where BOTH leads land on a named DC node
+* (the .003 across the Normal channel's plate load, every cathode-bypass can, the
+* .0001 across the inverter plates, the .1 negative-feedback coupler and the two
+* .1 inverter-to-output couplers, and the .01 driver-to-inverter coupler taken
+* from the 100k/15k junction) so the board layout is placement-checked; open
+* at DC they move no operating point. Caps into the abstracted volume / tone /
+* tremolo networks stay omitted.
+*
+* EXCLUDED — the tremolo oscillator, the second section of the 12AX7 that also
+* carries the driver stage (V2B). It is a running phase-shift oscillator: its
+* chart-printed pins (+205 V plate, +2.0 V cathode) are dynamic averages shifted
+* by grid-leak detection, not a static quiescent point, so it is documented in
+* notes.md rather than modelled. Its 220k plate load taps the DRIVEN node BP, so
+* leaving it out changes nothing downstream — no node in voltages.yaml is
+* degraded by the exclusion.
+.include models/12ax7.inc
+.include models/6v6gt.inc
+
+VBP BP 0 DC 375
+VBIAS NBIAS 0 DC -26
+
+* rail chain: reservoir -> 1000R-2W -> screens -> 10k-1W -> PI -> 27k-1W -> preamp
+RD1 BP BS 1000
+RD2 BS BC 10k
+RD3 BC BD 27k
+
+* --- V1 (7025 = 12AX7), both channel input stages: 220k plate loads off the
+*     +270 preamp rail, shared 1.5k cathode with a 25 uF bypass, grids returned
+*     to ground through the input jacks' 1M leaks. The Normal channel's plate
+*     load carries a .003 shunt (the treble cut that makes the other channel the
+*     "Bright" one); the Bright channel's does not.
+RL1 BD PN1 220k
+XV1A PN1 GN1 KIN 12AX7
+RG1 GN1 0 1meg
+RL2 BD PB1 220k
+XV1B PB1 GB1 KIN 12AX7
+RG2 GB1 0 1meg
+RK1 KIN 0 1500
+C10 KIN 0 25u
+C3 PN1 BD 0.003u
+
+* --- V2A driver (12AX7): 100k plate load returning to the +270 rail through a
+*     15k decoupling resistor; the .01 coupler to the phase inverter is taken
+*     from the junction of the two (node J2). 1.5k cathode with a 25 uF bypass;
+*     the grid sees both channels' 220k mixing resistors and sits at ~0 V DC
+*     through the volume pots.
+RL3 P2A J2 100k
+RD4 J2 BD 15k
+XV2A P2A G2A K2A 12AX7
+RG3 G2A 0 1meg
+RK2 K2A 0 1500
+C4 K2A 0 25u
+C9 J2 GPIA 0.01u
+
+* --- V3 phase inverter (12AX7 long-tailed pair): 82k (hot) and 100k (cold) 5%
+*     plate loads from BC; cathodes joined at KPI, 820 Ohm to the tail junction
+*     JPI, 6.8k from JPI to the feedback node NFB, 1500 Ohm from NFB to ground.
+*     Both 1M grid leaks return to JPI. The 56k feedback resistor from the
+*     speaker terminal sits across the 1500 Ohm at DC.
+RLA BC PPIA 82k
+XV3A PPIA GPIA KPI 12AX7
+RGA GPIA JPI 1meg
+RLB BC PPIB 100k
+XV3B PPIB GPIB KPI 12AX7
+RGB GPIB JPI 1meg
+RTAIL KPI JPI 820
+RT2 JPI NFB 6.8k
+RNF1 NFB 0 1500
+RNFB NFB 0 56k
+C15 PPIA PPIB 100p
+C14 NFB GPIB 0.1u
+
+* --- Output pair 6V6GT (fixed bias): grids to -26 V through 220k-5% leaks,
+*     screens on the +365 V node BS, cathodes grounded, plates on BP. Two
+*     distinct single-ended bottles V4 / V5.
+RG4 NBIAS G61 220k
+XV4 BP BS G61 0 6V6GT
+RG5 NBIAS G62 220k
+XV5 BP BS G62 0 6V6GT
+C12 PPIA G61 0.1u
+C13 PPIB G62 0.1u

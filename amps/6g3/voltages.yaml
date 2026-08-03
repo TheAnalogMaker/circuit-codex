@@ -1,0 +1,26 @@
+# Printed voltage chart read directly from the published 6G3 Deluxe drawing
+# (schematic and layout carry the same values). The drawing's notice: "Voltages
+# read to ground with electronic voltmeter. Values shown + or - 20%."
+# Tube pins therefore get 20%; the supply rails carry tighter internal targets
+# because they are predictions of the drawing's own dropper chain, not readings.
+#
+# ONE rail is driven — BP = +375 V, the GZ34 reservoir / output-transformer
+# centre tap — and every rail below it is solved through the printed droppers
+# (1 kΩ · 2 W, 10 kΩ · 1 W, 27 kΩ · 1 W); see netlist.cir.
+source: "Fender 'Deluxe' Model 6G3 drawing (I-FA), printed voltages: +375 (reservoir / OT centre tap), +365 (6V6 plates and screens), +325 (phase-inverter plate rail), +270 (preamp rail), +165 (both channel-input plates, and the driver plate), +1.5 (shared input cathode), +1.4 (driver cathode), +230/+225 (phase-inverter plates), +20 (joined inverter cathodes), +18 (inverter tail junction), -26 (6V6 fixed bias), +205/+2.0 (tremolo oscillator, excluded)"
+nodes:
+  BS:   { chart: 365, tol_pct: 8,  note: "6V6 plate and screen node, one 1 kΩ · 2 W dropper below the driven reservoir — internal target, tighter than the drawing's ±20%" }
+  BC:   { chart: 325, tol_pct: 8,  note: "phase-inverter plate rail, 10 kΩ · 1 W below the screen node — internal target" }
+  BD:   { chart: 270, tol_pct: 8,  note: "preamp rail, 27 kΩ · 1 W below the phase-inverter rail — internal target" }
+  PN1:  { chart: 165, tol_pct: 20, note: "Normal-channel input plate, 220 kΩ from +270 V" }
+  PB1:  { chart: 165, tol_pct: 20, note: "Bright-channel input plate, 220 kΩ from +270 V" }
+  KIN:  { chart: 1.5, tol_pct: 20, note: "shared input cathode — both 7025 sections over one 1.5 kΩ" }
+  P2A:  { chart: 165, tol_pct: 20, note: "driver plate, 100 kΩ plate load returning through a 15 kΩ to +270 V" }
+  K2A:  { chart: 1.4, tol_pct: 20, note: "driver cathode over 1.5 kΩ" }
+  PPIA: { chart: 230, tol_pct: 20, note: "phase-inverter plate, 82 kΩ (hot) side" }
+  PPIB: { chart: 225, tol_pct: 20, note: "phase-inverter plate, 100 kΩ (cold) side" }
+  KPI:  { chart: 20,  tol_pct: 20, note: "joined inverter cathodes, above the 820 Ω" }
+  JPI:  { chart: 18,  tol_pct: 20, note: "inverter tail junction (820 Ω / 6.8 kΩ), grid-leak return" }
+  G61:  { chart: -26, tol_pct: 8,  note: "6V6 (V4) grid, fixed bias through a 220 kΩ · 5 % leak from the −26 V supply" }
+  J2:   { chart: null, note: "junction of the driver's 100 kΩ plate load and its 15 kΩ decoupling resistor — the point the 0.01 µF coupler to the inverter is taken from. The drawing prints no voltage here" }
+  NFB:  { chart: null, note: "foot of the inverter tail — 1.5 kΩ to ground with the 56 kΩ speaker-feedback resistor across it. The drawing prints no voltage here" }

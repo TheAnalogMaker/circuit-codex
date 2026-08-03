@@ -52,8 +52,8 @@ rail. A separate negative supply — a 470 Ω · 1 W feed, a rectifier, 25 µF a
 
 Where the tweed Deluxe cathode-biased its 6V6s, the blackface Deluxe Reverb runs
 a proper **negative-bias supply** — the recipe it inherited from the brownface
-Deluxe (the 6G3) rather than from any tweed. That ancestry edge lands in the
-lineage graph when the 6G3 does.
+Deluxe (the [6G3](/amps/6g3/)) rather than from any tweed, along with that amp's
+long-tailed-pair inverter, GZ34 rectifier and negative-feedback loop.
 
 ## Reading against the printed chart
 
