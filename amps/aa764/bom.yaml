@@ -1,0 +1,41 @@
+# Parts list — reference designators match schematic.kicad_sch exactly.
+# The drawing assigns no component designators; numbering is Circuit Codex's own,
+# following the schematic left to right. vendor_url fields land with the Phase-1
+# BOM work.
+notes: "One channel across two input jacks (high/low), each with its own 68 kΩ stopper sharing the 1 MΩ leak. V1B's 1.5 kΩ cathode resistor does not go straight to ground: it lands on a 47 Ω leg that carries the 2.7 kΩ negative-feedback return from the speaker jack, and its 25 µF can bypasses only the 1.5 kΩ. Both transformer part numbers are printed on the drawing (TR1 125P1B, TR2 125A35A); the output transformer's impedance ratio is not."
+items:
+  - { ref: R1,  part: "Carbon comp resistor",       value: "68 kΩ · ½ W",      role: "Input grid stopper, jack 1 (high)" }
+  - { ref: R2,  part: "Carbon comp resistor",       value: "68 kΩ · ½ W",      role: "Input grid stopper, jack 2 (low)" }
+  - { ref: R3,  part: "Carbon comp resistor",       value: "1 MΩ · ½ W",       role: "Input grid leak" }
+  - { ref: R4,  part: "Carbon comp resistor",       value: "100 kΩ · ½ W",     role: "V1A plate load" }
+  - { ref: R5,  part: "Carbon comp resistor",       value: "1.5 kΩ · ½ W",     role: "V1A cathode bias" }
+  - { ref: R6,  part: "Carbon comp resistor",       value: "100 kΩ · ½ W",     role: "Tone stack — slope resistor" }
+  - { ref: R7,  part: "Carbon comp resistor",       value: "15 kΩ · ½ W",      role: "Tone stack — bass leg to ground" }
+  - { ref: R8,  part: "Carbon comp resistor",       value: "100 kΩ · ½ W",     role: "V1B plate load" }
+  - { ref: R9,  part: "Carbon comp resistor",       value: "1.5 kΩ · ½ W",     role: "V1B cathode bias" }
+  - { ref: R10, part: "Carbon comp resistor",       value: "47 Ω · ½ W",       role: "V1B cathode return / feedback divider leg" }
+  - { ref: R11, part: "Carbon comp resistor",       value: "2.7 kΩ · ½ W",     role: "Negative feedback, speaker → V1B cathode divider" }
+  - { ref: R12, part: "Carbon comp resistor",       value: "220 kΩ · ½ W",     role: "6V6 grid leak" }
+  - { ref: R13, part: "Wirewound resistor",         value: "470 Ω · 1 W",      role: "6V6 cathode bias" }
+  - { ref: R14, part: "Power resistor",             value: "1 kΩ · 1 W",       role: "Rail dropper B+1→B+2" }
+  - { ref: R15, part: "Power resistor",             value: "10 kΩ · 1 W",      role: "Rail dropper B+2→B+3" }
+  - { ref: VR1, part: "Audio-taper potentiometer",  value: "1 MΩ",             role: "Volume" }
+  - { ref: VR2, part: "Audio-taper potentiometer",  value: "250 kΩ",           role: "Treble" }
+  - { ref: VR3, part: "Audio-taper potentiometer",  value: "250 kΩ",           role: "Bass" }
+  - { ref: C1,  part: "Electrolytic capacitor",     value: "25 µF · 25 V",     role: "V1A cathode bypass" }
+  - { ref: C2,  part: "Mica capacitor",             value: "250 pF",           role: "Tone stack — treble cap" }
+  - { ref: C3,  part: "Film capacitor",             value: "0.1 µF · 400 V",   role: "Tone stack — bass cap" }
+  - { ref: C4,  part: "Film capacitor",             value: "0.047 µF · 400 V", role: "Tone stack — bass leg cap" }
+  - { ref: C5,  part: "Electrolytic capacitor",     value: "25 µF · 25 V",     role: "V1B cathode bypass (across R9 only)" }
+  - { ref: C6,  part: "Coupling capacitor",         value: "0.02 µF · 400 V",  role: "V1B → 6V6 grid" }
+  - { ref: C7,  part: "Electrolytic capacitor",     value: "25 µF · 25 V",     role: "6V6 cathode bypass" }
+  - { ref: C8,  part: "Electrolytic capacitor",     value: "20 µF · 450 V",    role: "Filter, B+1 (reservoir)" }
+  - { ref: C9,  part: "Electrolytic capacitor",     value: "20 µF · 450 V",    role: "Filter, B+2 (screen)" }
+  - { ref: C10, part: "Electrolytic capacitor",     value: "20 µF · 450 V",    role: "Filter, B+3 (preamp)" }
+  - { ref: C11, part: "Film capacitor",             value: "0.047 µF · 600 V", role: "Across the AC line (period part; omitted in modern builds)" }
+  - { ref: V1,  part: "Preamp tube",                value: "12AX7",            role: "Both gain stages (V1A/V1B)" }
+  - { ref: V2,  part: "Power tube",                 value: "6V6GT",            role: "Single-ended output" }
+  - { ref: V3,  part: "Rectifier tube",             value: "5Y3GT",            role: "Full-wave rectifier (V3A/V3B)" }
+  - { ref: T1,  part: "Power transformer",          value: "Fender 125P1B · 320-0-320 V · 6.3 V · 5 V", role: "HT + heaters + rectifier filament" }
+  - { ref: T2,  part: "Output transformer",         value: "Fender 125A35A",   role: "Single-ended output (impedance ratio not marked on the drawing)" }
+  - { ref: "—", part: "Fuse",                       value: "1 A slo-blo",      role: "Mains fuse" }

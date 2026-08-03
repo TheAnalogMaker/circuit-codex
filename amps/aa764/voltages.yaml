@@ -1,0 +1,21 @@
+# Printed voltage chart read directly from the published Fender "Champ Amp
+# AA764" drawing (schematic sheet I-FD; the layout sheet repeats the same tube-pin
+# values). The drawing's notice: "Voltages read to ground with electronic
+# voltmeter. Values shown + or - 20%." Tube pins therefore get 20%; the supply
+# rails get a tighter internal target.
+#
+# The reservoir node BP1 is DRIVEN at its printed +360 V and every node below is
+# solved (see netlist.cir). The 6V6 plate is not listed: with the output
+# transformer primary DCR omitted it is the same node as BP1, so its printed
+# +350 V would compare against the driven value rather than a solved one. The
+# 10 V gap between the printed +360 V reservoir and the printed +350 V plate is
+# the 125A35A primary winding resistance, a figure the drawing does not print.
+source: "Fender 'Champ Amp AA764' drawing (I-FD), printed chart: +360 V (reservoir / OT primary feed), +350 V (6V6 plate pin 3 and screen pin 4), +330 V (preamp rail), +19 V (6V6 cathode pin 8), +200 V / +1.9 V (12AX7 first stage plate and cathode), +205 V / +1.7 V (12AX7 second stage plate and cathode)"
+nodes:
+  BP2: { chart: 350, tol_pct: 5,  note: "6V6 screen node, after the 1 kΩ · 1 W dropper (R14)" }
+  BP3: { chart: 330, tol_pct: 5,  note: "preamp plate rail, after the 10 kΩ · 1 W dropper (R15)" }
+  P1A: { chart: 200, tol_pct: 20, note: "12AX7 first-stage plate, chart pin 1" }
+  K1A: { chart: 1.9, tol_pct: 20, note: "12AX7 first-stage cathode over 1.5 kΩ, chart pin 3" }
+  P1B: { chart: 205, tol_pct: 20, note: "12AX7 second-stage plate, chart pin 6" }
+  K1B: { chart: 1.7, tol_pct: 20, note: "12AX7 second-stage cathode, chart pin 8 — 1.5 kΩ down to the 47 Ω/2.7 kΩ feedback divider" }
+  K2:  { chart: 19,  tol_pct: 20, note: "6V6GT cathode over 470 Ω · 1 W, chart pin 8" }

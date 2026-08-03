@@ -1,0 +1,27 @@
+# Circuit Codex metadata — schema: docs/schema.md (v1)
+id: "aa764"
+name_style: "Blackface Champ-style"
+family: blackface
+era:
+  start: 1964
+  end: 1968
+wattage: 5
+tubes: [12AX7, 6V6GT, 5Y3GT]
+topology:
+  rectifier: { kind: tube, type: "5Y3GT" }
+  bias: cathode
+  phase_inverter: none
+  tone_stack: tb
+lineage:
+  derived_from: ["5f1"]   # the tweed 5F1 Champ is the direct ancestor
+  influenced: []
+sources:
+  - desc: "Fender 'Champ Amp AA764' drawing (I-FD), schematic + layout sheets: every component value AND the printed voltage chart read directly from the published sheet — two 68 kΩ input stoppers on a 1 MΩ leak; 12AX7 stages with 100 kΩ plate loads and 1.5 kΩ/25 µF cathodes; treble-bass tone stack (250 pF, 100 kΩ slope, 0.1 µF and 0.047 µF, 250 kΩ treble and bass pots, 15 kΩ to ground) ahead of a 1 MΩ volume; 47 Ω/2.7 kΩ negative-feedback divider under the second cathode; 0.02 µF coupling into a 6V6GT with a 220 kΩ grid leak and a 470 Ω · 1 W cathode; rails +360/+350/+330 on three 20 µF · 450 V cans split by 1 kΩ · 1 W and 10 kΩ · 1 W; 5Y3GT rectifier off a 320-0-320 V winding; transformers TR1 125P1B and TR2 125A35A. Notice: values ±20%, read to ground with an electronic voltmeter. Not reproduced here; archived at EL34World"
+    url: "https://el34world.com/charts/Schematics/files/Fender/Fender_champ_AA764_schem.pdf"
+  - desc: "Fender 'Champ-Amp AA764' layout drawing (I-FD), companion sheet to the schematic: the order of the board's parts and every point-to-point lead read from it — the three-node dropper stack over its chassis filter can, the 470 Ω/25 µF and 1.5 kΩ/25 µF cathode networks, the 47 Ω/2.7 kΩ feedback divider, the 220 kΩ/0.02 µF pair at the 6V6 grid, the two 100 kΩ plate loads off one +330 V tie point, the 250 pF/0.047 µF/0.1 µF tone caps beside the 100 kΩ slope resistor, the two 68 kΩ stoppers, and the chassis-mounted 1 MΩ leak at input jack 1 and 15 kΩ leg at the Bass control. Also the wire colours: PT reds and red/yellow, the 5 V yellows, the two greens of the 6.3 V winding (one grounded), the output transformer's blue plate lead with black and yellow secondary, and the brown/blue/white control leads. Not reproduced here; archived at EL34World"
+    url: "https://el34world.com/charts/Schematics/files/Fender/Fender_champ_AA764_layout.pdf"
+verification:
+  status: verified
+  date: 2026-08-02
+  max_deviation_pct: 19.0   # the 6V6 cathode — inside the drawing's own ±20% notice but close to its edge, and notes.md says why (the 6V6 model is anchored at 250 V and this amp runs plate and screen near 350 V); every other node lands under 11%
+contributors: [TheAnalogMaker]

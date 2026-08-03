@@ -14,7 +14,7 @@ topology:
   tone_stack: none
 lineage:
   derived_from: ["5e1"]   # 5E1 is the direct ancestor (mid-1950s tweed Champ)
-  influenced: []
+  influenced: ["aa764"]   # the blackface Champ is this circuit restyled and re-rail'd
 sources:
   - desc: "Rob Robinette, 'How Amps Work' (5F1-based walkthrough) — component roles, PT 325-0-325, B+ node structure (its 16uF caps / dual-10k droppers figures were corrected by the drawing read-off: 16/8/8uF, 10k+22k)"
     url: "https://robrobinette.com/How_Amps_Work.htm"

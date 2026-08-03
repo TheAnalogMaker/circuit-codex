@@ -1,0 +1,226 @@
+# Board layout — redrawn from the published Fender "Champ-Amp AA764" layout
+# drawing (I-FD). Part refs are the shared key into bom.yaml; the renderer reads
+# each value and part type from there. A legible, schematic-style redraw of the
+# board's principal components in the order the drawing shows them — never a
+# trace or a dimensioned reproduction.
+#
+# The board reads left→right: the supply droppers and filter sections at the
+# left end, then the 6V6 cathode network, the negative-feedback divider and the
+# 12AX7 driver cathode, the coupling cap and the two 100 kΩ plate loads, the
+# treble/bass tone-stack capacitors, and finally the input stoppers and the
+# first-stage cathode network at the right — matching the tube row on the sheet
+# (5Y3GT · 6V6GT · 12AX7, left to right).
+#
+# Two documented redraw conventions, both stated so nothing is implied that the
+# sheet does not show:
+#  * The published sheet returns the board's grounds to chassis lugs at three
+#    points (open arrows). They are drawn here as the house ground bus running
+#    below the bottom eyelet row — the same net, one rail.
+#  * The three 20 µF · 450 V filter sections are a chassis-mounted can on the
+#    sheet, its three leads landing on the rail nodes drawn here; they are drawn
+#    in the board row, beneath the droppers they filter, for legibility.
+#
+# Machine-checked equivalence: the point-to-point wiring drawn below has been
+# verified electrically equivalent to the simulated netlist (netlist.cir) by
+# pipeline/verify_layout_nets.py — see the net_map block at the foot of this file
+# and docs/layout-schema.md. Heaters, the pilot lamp, and the PT/rectifier AC
+# side are an excluded annotation layer (not modelled in netlist.cir).
+wiring_claim: verified
+
+board:
+  rows: 2
+  cols: 50
+  title: "AA764 · eyelet board layout"
+caption: "Redrawn from the published Fender 'Champ-Amp AA764' layout drawing (I-FD) — principal board components and point-to-point wiring, in the order and connections the drawing shows. The board's chassis-ground returns are drawn as one ground bus, and the three 20 µF filter sections — a chassis can on the sheet — are drawn in the board row beneath the droppers they filter. The 6.3 V heater supply is single-ended: one green transformer lead is grounded and the other feeds the pilot lamp and both heaters, so each socket carries a green feed and a grounded return (12AX7 pins 4+5 strapped, centre tap at pin 9 to ground; 6V6GT pin 2 fed, pin 7 to ground). The 1 MΩ grid leak sits at the input jack and the 15 kΩ bass leg at the Bass control, as the sheet shows them. Not a trace or a dimensioned reproduction."
+source:
+  desc: "Fender 'Champ-Amp AA764' layout drawing (I-FD)"
+  url: "https://el34world.com/charts/Schematics/files/Fender/Fender_champ_AA764_layout.pdf"
+
+# Board-mounted parts. a / b are eyelet endpoints [row, col]; the body is drawn
+# between them (same row = axial part; column shared across rows = vertical leg).
+parts:
+  # --- supply droppers (row 0) over their filter sections (row 1) -----------
+  - { ref: R15, a: [0, 1],  b: [0, 4] }    # 10 kΩ 1 W dropper, B+2 → B+3
+  - { ref: R14, a: [0, 4],  b: [0, 7] }    # 1 kΩ 1 W dropper, B+1 → B+2
+  - { ref: C10, a: [1, 1],  b: [1, 2] }    # 20 µF filter, B+3 (preamp rail)
+  - { ref: C9,  a: [1, 4],  b: [1, 5] }    # 20 µF filter, B+2 (screen rail)
+  - { ref: C8,  a: [1, 7],  b: [1, 8] }    # 20 µF filter, B+1 (reservoir)
+  # --- 6V6GT output stage ---------------------------------------------------
+  - { ref: R13, a: [0, 11], b: [1, 11] }   # 470 Ω 1 W cathode bias
+  - { ref: C7,  a: [0, 13], b: [1, 13] }   # 25 µF cathode bypass
+  # --- negative-feedback divider + 12AX7 driver cathode ---------------------
+  - { ref: R11, a: [0, 18], b: [1, 18] }   # 2.7 kΩ feedback, speaker → KFB
+  - { ref: R9,  a: [0, 20], b: [1, 20] }   # 1.5 kΩ V1B cathode, down to KFB
+  - { ref: C5,  a: [0, 22], b: [1, 22] }   # 25 µF, bypasses the 1.5 kΩ only
+  - { ref: R10, a: [0, 24], b: [1, 24] }   # 47 Ω feedback-divider leg
+  # --- coupling into the 6V6 grid, and the two 100 kΩ plate loads -----------
+  - { ref: R12, a: [0, 27], b: [0, 29] }   # 220 kΩ 6V6 grid leak
+  - { ref: C6,  a: [0, 29], b: [1, 29] }   # 0.02 µF coupler (shares the grid eyelet)
+  - { ref: R8,  a: [1, 29], b: [1, 31] }   # 100 kΩ V1B plate load, up to B+3
+  - { ref: R4,  a: [1, 31], b: [1, 33] }   # 100 kΩ V1A plate load (shares the B+3 eyelet)
+  # --- treble/bass tone stack ----------------------------------------------
+  - { ref: C2,  a: [0, 33], b: [1, 33] }   # 250 pF treble cap (shares the V1A plate eyelet)
+  - { ref: R6,  a: [1, 33], b: [1, 35] }   # 100 kΩ slope resistor
+  - { ref: C4,  a: [0, 35], b: [1, 35] }   # 0.047 µF (shares the slope-node eyelet)
+  - { ref: C3,  a: [0, 37], b: [1, 37] }   # 0.1 µF, its lower lead reaching the slope node
+  # --- input stoppers and first-stage cathode ------------------------------
+  - { ref: R2,  a: [0, 40], b: [1, 40] }   # 68 kΩ stopper, jack 2 (low)
+  - { ref: R1,  a: [0, 42], b: [1, 42] }   # 68 kΩ stopper, jack 1 (high)
+  - { ref: R5,  a: [0, 45], b: [1, 45] }   # 1.5 kΩ V1A cathode bias
+  - { ref: C1,  a: [0, 47], b: [1, 47] }   # 25 µF cathode bypass
+
+# Off-board items drawn as labelled stubs around the board, in the drawing's
+# positions: tubes, output transformer and speaker jack along the bottom, the
+# controls and input jacks up top, the power transformer and pilot lamp at the
+# left. R7 (15 kΩ) mounts at the Bass control and R3 (1 MΩ) at input jack 1, as
+# the sheet shows them — both are generic 2-lead off-board parts here.
+offboard:
+  - { id: T1,  ref: T1, kind: xfmr, edge: left,   at: 0.45, label: "Power trans" }
+  - { id: PL1, kind: part, glyph: lamp, edge: left, at: -0.9, label: "Pilot lamp" }
+  - { id: V3,  ref: V3, kind: tube, edge: bottom, at: 2.5,  label: "V3 · 5Y3GT" }
+  - { id: T2,  ref: T2, kind: xfmr, edge: bottom, at: 8.5,  label: "Output trans" }
+  - { id: SPK, kind: jack, edge: bottom, at: 11.5, label: "Spkr jack" }
+  - { id: V2,  ref: V2, kind: tube, edge: bottom, at: 15,   label: "V2 · 6V6GT" }
+  - { id: VR3, ref: VR3, kind: pot, edge: top,    at: 28,   label: "Bass",   label_nudge: [-46, -30] }
+  - { id: R7,  ref: R7, kind: part, edge: top,    at: 30.4, label: "R7" }
+  - { id: VR2, ref: VR2, kind: pot, edge: top,    at: 32.5, label: "Treble", label_nudge: [46, -30] }
+  - { id: VR1, ref: VR1, kind: pot, edge: top,    at: 37,   label: "Volume", label_nudge: [-46, -30] }
+  - { id: J2,  kind: jack, edge: top, at: 40.5, label: "In 2" }
+  - { id: J1,  kind: jack, edge: top, at: 43,   label: "In 1" }
+  - { id: R3,  ref: R3, kind: part, edge: top,   at: 47.6, label: "R3" }
+  - { id: V1,  ref: V1, kind: tube, edge: bottom, at: 44,  label: "V1 · 12AX7" }
+
+# Ground bus — the bare rail running the length of the board just below the
+# bottom eyelet row; filter, cathode, grid-leak, control and heater-return
+# grounds all tie to it.
+bus:
+  - { from: [1.45, -0.5], to: [1.45, 49.7] }
+
+# Wiring — read lead-by-lead from the published AA764 layout drawing. The
+# transformer leads carry the colours marked on that sheet: the power
+# transformer's two reds (320-0-320 V) with the red/yellow centre tap, the two
+# yellows of the 5 V rectifier winding, and the two greens of the 6.3 V heater
+# winding (one grounded, one feeding the pilot lamp and both heaters). The
+# output transformer's plate lead is marked BLUE and its secondary leads BLACK
+# (ground) and YELLOW (speaker); the control leads to the board are marked
+# BROWN, BLUE and WHITE. Endpoints reference board eyelets (REF.a/REF.b), tube
+# socket pins (Vn.pinN, validated against reference/tubes basing), pot lugs,
+# jacks, off-board 2-lead parts (R3.a/R7.a/PL1.a) and transformer leads.
+runs:
+  # === power transformer secondary → 5Y3GT rectifier (annotation layer) =====
+  # The seven secondary leads leave the transformer straight out, each in its own
+  # lane, before turning — no two read as one wire and no lead passes close to a
+  # neighbour's pigtail.
+  - { from: T1.red1, to: V3.pin4, via: [[-1.35, 0.260], [-0.60, 0.50]] }        # HT plate 1
+  - { from: T1.red2, to: V3.pin6, via: [[-1.25, 0.324], [-0.20, 1.00]] }        # HT plate 2
+  - { from: T1.red-yellow, to: [1.45, 0.15], via: [[-1.45, 0.387], [-1.00, 0.95]] }  # HT centre tap → ground
+  - { from: T1.yellow1, to: V3.pin2, via: [[-1.50, 0.450], [-1.50, 1.62]] }     # 5 V rectifier filament
+  - { from: T1.yellow2, to: V3.pin8, via: [[-1.15, 0.513], [-0.75, 2.35]] }     # 5 V filament / B+ out
+  - { from: V3.pin8, to: C8.a, color: red, via: [[4.60, 2.35], [6.95, 1.72]] }  # +360 V → reservoir
+
+  # === filtered rails: three 20 µF sections split by the 1 kΩ and 10 kΩ =====
+  - { from: C8.a, to: R14.b, via: [[7.42, 0.72]] }       # reservoir → B+1 eyelet
+  - { from: C9.a, to: R14.a, via: [[3.58, 0.72]] }       # screen section → B+2 eyelet
+  - { from: C10.a, to: R15.a, via: [[0.58, 0.72]] }      # preamp section → B+3 eyelet
+  - { from: C8.b, to: [1.45, 8] }                        # filter negatives → ground bus
+  - { from: C9.b, to: [1.45, 5] }
+  - { from: C10.b, to: [1.45, 2] }
+
+  # === output transformer, speaker jack and the 6V6GT ======================
+  - { from: T2.red, to: C8.a, color: red, via: [[6.30, 1.35]] }                 # OT primary → B+1
+  - { from: T2.blue, to: V2.pin3, color: blue, via: [[9.00, 2.90], [12.90, 2.90], [13.30, 1.60]] }  # OT primary → 6V6 plate
+  - { from: T2.black, to: [1.45, 9.6], via: [[9.30, 1.78]] }                    # OT secondary common → ground
+  - { from: T2.yellow, to: SPK, color: yellow, via: [[9.90, 2.35]] }            # OT secondary → speaker
+  - { from: V2.pin4, to: C9.a, via: [[14.20, 1.55], [4.40, 1.55]] }             # screen → B+2
+  - { from: V2.pin8, to: R13.a, via: [[16.30, 2.20], [16.30, 1.72], [12.60, 1.72]] }           # cathode → 470 Ω
+  - { from: R13.b, to: [1.45, 11] }                                             # 470 Ω → ground bus
+  - { from: C7.a, to: R13.a, via: [[12.10, -0.32]] }                            # bypass across the 470 Ω
+  - { from: C7.b, to: [1.45, 13] }
+  - { from: V2.pin5, to: R12.b, via: [[16.60, 1.36], [27.90, 1.36], [28.10, 0.72]] }           # grid → 220 kΩ / coupler eyelet
+  - { from: R12.a, to: [1.45, 26.6], via: [[26.60, 0.55]] }                     # 220 kΩ grid leak → ground
+
+  # === negative-feedback divider and the 12AX7 driver cathode ==============
+  - { from: R11.b, to: SPK, via: [[18.00, 2.52], [12.30, 2.52]] }   # 2.7 kΩ feedback → speaker jack
+  - { from: R11.a, to: R9.a }                                       # KFB tie (the drawing's jumper)
+  - { from: C5.a, to: R9.a, via: [[21.60, -0.30]] }                 # 25 µF across the 1.5 kΩ
+  - { from: C5.b, to: R9.b, via: [[21.60, 1.20]] }
+  - { from: R10.a, to: R9.a, via: [[23.60, -0.80], [20.00, -0.80]] }   # 47 Ω onto the KFB node, from above
+  - { from: R10.b, to: [1.45, 24] }                                 # 47 Ω → ground bus
+  - { from: V1.pin8, to: R9.b, via: [[45.60, 2.62], [20.35, 2.62]] }   # V1B cathode → 1.5 kΩ (deep lane)
+
+  # === 12AX7 driver plate, coupler and the +330 V rail =====================
+  - { from: V1.pin6, to: C6.b, via: [[45.30, 1.58], [29.60, 1.58]] }   # V1B plate → coupler / plate load
+  - { from: R8.b, to: C10.a, via: [[31.60, 1.32], [31.60, 3.20], [1.20, 3.20], [1.20, 1.32]] }  # +330 V rail → the plate loads
+  - { from: V1.pin1, to: R4.b, via: [[42.60, 2.32], [33.40, 2.32]] }   # V1A plate → 100 kΩ / 250 pF / slope
+
+  # === tone stack: the control leads the sheet marks BROWN, BLUE, WHITE ====
+  # Every pot lug is approached square-on so no lead reads as landing on its
+  # neighbour: the lugs sit only 11 px apart. Two things the sheet leaves to the
+  # schematic and that are therefore NOT drawn here: the Bass control's wiper is
+  # strapped to its upper lug (the schematic sheet draws the tie; the layout
+  # sheet shows only the two leads below), and the two lower tone-cap leads reach
+  # the slope-node eyelet as one solder point — the sheet curves the 0.047 µF
+  # lead across to it, this redraw seats that cap on the eyelet and runs the
+  # 0.1 µF lead across instead. Same node either way.
+  - { from: C2.a, to: VR2.lug1, color: white, via: [[33.00, -0.45], [32.19, -0.45]] }  # 250 pF → Treble
+  - { from: C3.a, to: VR3.lug1, color: blue, via: [[38.80, -0.42], [38.80, -1.50], [27.69, -1.50]] }   # 0.1 µF → Bass, upper end
+  - { from: C3.b, to: R6.b }                                                           # 0.1 µF lower lead → slope node
+  - { from: C4.a, to: VR3.lug3, color: brown, via: [[34.80, -0.52], [28.31, -0.52]] }  # 0.047 µF → Bass, lower end
+  - { from: R7.a, to: VR3.lug3, via: [[29.30, -1.10], [28.31, -1.36]] }                # 15 kΩ bass leg, from above
+  - { from: R7.b, to: [1.45, 26.2], via: [[30.79, -0.36], [26.20, -0.36]] }            # 15 kΩ → ground bus
+  - { from: VR3.lug2, to: VR2.lug3, via: [[28.00, -0.70], [32.81, -0.70]] }            # bass wiper → treble lower lug
+  - { from: VR2.lug2, to: VR1.lug1, via: [[32.50, -0.62], [36.69, -0.62]] }            # treble wiper → volume top
+  - { from: VR1.lug3, to: [1.45, 39.3], via: [[37.31, -0.78], [39.30, -0.78]] }        # volume ground
+  - { from: VR1.lug2, to: V1.pin7, via: [[37.00, -1.20], [46.60, -1.20], [46.60, 1.62]] }  # volume wiper → V1B grid
+
+  # === input jacks, stoppers and the 1 MΩ grid leak ========================
+  - { from: J2, to: R2.a, via: [[39.80, -1.02], [40.00, -0.42]] }
+  - { from: J1, to: R1.a, via: [[42.30, -1.02], [42.00, -0.42]] }
+  - { from: R2.b, to: R1.b }                                        # the two stoppers meet
+  - { from: R1.b, to: V1.pin2, via: [[42.60, 1.40]] }               # → V1A grid
+  - { from: R3.a, to: J1, via: [[47.21, -1.44], [43.40, -1.44]] }   # 1 MΩ grid leak at jack 1
+  - { from: R3.b, to: [1.45, 49.30], via: [[49.30, -0.50]] }        # grid leak → ground bus
+
+  # === 12AX7 first-stage cathode ==========================================
+  - { from: V1.pin3, to: R5.a, via: [[42.90, 1.28], [44.60, 0.30]] }  # V1A cathode → 1.5 kΩ
+  - { from: R5.b, to: [1.45, 45] }
+  - { from: C1.a, to: R5.a, via: [[46.40, 0.30]] }                    # bypass across the 1.5 kΩ
+  - { from: C1.b, to: [1.45, 47] }
+
+  # === 6.3 V heaters — single-ended, one leg grounded (annotation layer) ====
+  # The sheet grounds one green transformer lead and runs the other to the pilot
+  # lamp and on to both heaters, so this is not a twisted pair: every socket gets
+  # a green feed and a grounded return.
+  - { from: T1.green1, to: [1.45, -0.35], via: [[-0.85, 0.577], [-0.85, 1.30]] }   # grounded 6.3 V leg
+  - { from: T1.green2, to: PL1.a, color: green, via: [[-1.65, 0.640], [-1.65, -0.55]] }
+  - { from: PL1.b, to: [1.45, -0.45], via: [[-2.05, -0.779], [-2.05, 0.05], [-0.55, 0.05]] }   # pilot lamp return → ground
+  - { from: PL1.a, to: V2.pin2, color: green, via: [[-1.30, -1.10], [10.20, -1.10], [10.20, 3.65], [13.60, 3.65]] }
+  - { from: V2.pin2, to: V1.pin4, color: green, via: [[14.60, 3.42], [42.90, 3.42]] }
+  - { from: V1.pin4, to: V1.pin5, color: green, via: [[43.30, 1.50]] }             # 12AX7 pins 4+5 strapped for 6.3 V
+  - { from: V2.pin7, to: [1.45, 16.85], via: [[16.85, 1.95]] }                      # 6V6 heater return → ground
+  - { from: V1.pin9, to: [1.45, 44.9], via: [[44.90, 2.32]] }                      # 12AX7 heater centre tap → ground
+
+# net_map — the reviewable data layer that reconciles the drawn wiring with the
+# DC-operating-point netlist (netlist.cir) for pipeline/verify_layout_nets.py.
+# Every entry records a documented abstraction the netlist makes, so the
+# equivalence check never has to guess in code. See docs/layout-schema.md.
+net_map:
+  # Terminals the netlist gives no discrete node to reach on their own — anchored
+  # to the netlist node they belong to. Two leads anchored to the SAME node
+  # declare a DC bridge the netlist collapses (here: the output-transformer
+  # primary, whose winding resistance the netlist omits, so the 6V6 plate node
+  # IS B+1 — the 10 V the chart prints between them is that resistance).
+  anchors:
+    T2.blue: BP1     # OT primary, plate lead — netlist omits the primary DCR
+    T2.red:  BP1     # OT primary, B+ lead
+    SPK: "0"         # speaker jack — the netlist folds the OT-secondary DCR (~0 Ω)
+                     #   into ground, so the feedback return (R11) reads as ground at DC
+  # DC-transparent series parts the netlist omits (no DC grid current → zero
+  # drop): their two leads are shorted so the netlist node runs through them.
+  series_bridge:
+    R1: "68 kΩ input grid stopper, jack 1 — omitted from netlist (grid == input node at DC)"
+    R2: "68 kΩ input grid stopper, jack 2 — omitted from netlist (grid == input node at DC)"
+  # Netlist elements with no discrete board part — reported in coverage, never a
+  # failure (their nodes still have to check out).
+  netlist_unplaced:
+    RVOL: "1 MΩ volume pot VR1 — the netlist models the pot as V1B's grid-leak return (G1B → 0); its wiper→grid tie is verified at the grid net"

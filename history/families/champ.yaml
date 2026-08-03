@@ -113,11 +113,14 @@ models:
     output: "single-ended 6V6"
     tubes: [12AX7, 6V6GT, 5Y3GT]
     key_change: >
-      Blackface cosmetics and a new circuit number, but the output stage stays a
+      Blackface cosmetics, and the first Champ with tone controls: a 250 kΩ
+      treble-and-bass stack between the two 12AX7 stages. The supply also stiffens
+      (+360/+350/+330 V against the 5F1's +340/+295/+250) and the feedback loop
+      moves onto a 47 Ω divider leg, but the output stage stays a cathode-biased
       single-ended 6V6. The AA764 renumbering coincides with the tremolo-equipped
       Vibro Champ sibling, which adds a tube tremolo oscillator ahead of the same
       power stage; the plain Champ omits it.
-    circuit_ref: null
+    circuit_ref: "aa764"
     sources:
       - desc: "EL34World schematic archive, Fender Champ AA764 sheet (indexed by designation)"
         url: "https://el34world.com/charts/Schematics/files/Fender/Fender_champ_AA764_schem.pdf"
