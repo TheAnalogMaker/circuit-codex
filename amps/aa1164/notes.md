@@ -17,6 +17,17 @@ stack (250 kΩ treble and bass, a 100 kΩ slope resistor, 6.8 kΩ bleed, 250 pF,
 0.1 µF and 0.047 µF caps) and a 1 MΩ Volume → a second identical 12AX7 stage.
 There is only one channel; everything the amp does happens in this one chain.
 
+**The tone stack, as the sheet wires it.** The AA1164 draws the same two-knob
+ladder as the AA964 it descends from — not the textbook redrawing of the same
+parts — and the schematic here follows the sheet (re-read at lug level
+2026-08-03): the 250 pF and the 100 kΩ slope both leave the plate node; the
+0.1 µF runs from the slope foot to the node shared by the treble pot's
+**lower lug** and the bass pot; the bass pot is a **rheostat** above the
+0.047 µF/6.8 kΩ foot (the factory layout mounts the 6.8 kΩ right on the bass
+pot, its far lead grounded to the case); and the stack's output is the treble
+pot's **wiper alone**, into the Volume control. The tone-stack lab plots this
+circuit with that wiring.
+
 **Reverb.** After the second preamp stage the signal splits. A 500 pF cap taps
 the dry signal off to a **12AT7 with both triodes in parallel** (2.2 kΩ shared
 cathode) that swings the 125A20B transformer and the spring tank. The return

@@ -32,7 +32,11 @@ sources:
       TR1-125P1B (340-0-340 V), TR2-125A10B, TR3-125A20B. Notice: "Voltages read to ground with
       electronic voltmeter. Values shown + or - 20%. All resistors 1/2 watt 10% tolerance if not
       specified. All capacitors at least 400 volt rating if not specified." The preamp bottle is
-      labelled 7025 (a 12AX7 alias). Not reproduced here; archived at EL34World
+      labelled 7025 (a 12AX7 alias). Tone stack re-read at lug level 2026-08-03: the sheet
+      draws the AA964's two-knob ladder (100k slope + 250p off the plate node, 0.1 to the
+      treble-lug/bass node, bass rheostat over the 0.047/6.8k foot, treble-wiper output; the
+      layout sheet mounts the 6.8k on the bass pot, grounded to its case). Not reproduced here;
+      archived at EL34World
     url: "https://el34world.com/charts/Schematics/files/Fender/Fender_princeton_reverb_aa1164.pdf"
   - desc: >-
       Fender AA1164 schematic sheet, archived separately from the two-sheet drawing — a second

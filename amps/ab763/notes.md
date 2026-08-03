@@ -18,9 +18,27 @@ treble-bass tone stack (100 kΩ slope, 250 kΩ treble and bass, 6.8 kΩ bleed, a
 the phase inverter.
 No reverb, no tremolo.
 
-**Vibrato channel.** Input stage as above → tone stack (with a 47 pF bright cap
-across the treble) and volume → a second 12AX7 stage (100 kΩ plate, 820 Ω
-cathode) → the reverb and tremolo section.
+**Vibrato channel.** Input stage as above → the identical tone stack, part for
+part (with a 47 pF bright cap across the volume pot, top lug to wiper) and a
+1 MΩ volume → a second 12AX7 stage (100 kΩ plate, 820 Ω cathode) → the reverb
+and tremolo section.
+
+## The tone stacks, as the sheet wires them
+
+Both channels draw the same two-knob ladder the blackface AA964 prints — not
+the textbook redrawing of these parts — and the schematic here follows the
+sheet (re-read at lug level 2026-08-03):
+
+- The 250 pF treble capacitor and the 100 kΩ slope resistor both leave the
+  plate node; the three capacitors do all the DC blocking.
+- The 0.1 µF runs from the slope foot to the node shared by the treble pot's
+  **lower lug** and the bass pot — the treble pot's cold end sits on the far
+  side of that capacitor, not on the slope foot.
+- The bass pot is a **rheostat** above the fixed leg, and the 0.047 µF runs
+  from the slope foot to the bass pot's foot, where the 6.8 kΩ bleed takes the
+  network to ground.
+- The stack's output is the treble pot's **wiper alone**, into the volume
+  control. The tone-stack lab plots the normal channel with this wiring.
 
 **Reverb.** The dry vibrato signal drives a **12AT7 with both triodes in
 parallel** (2.2 kΩ shared cathode) into the 125A20B transformer and the spring

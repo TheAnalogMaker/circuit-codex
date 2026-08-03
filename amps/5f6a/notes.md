@@ -28,6 +28,37 @@ choke (14684) → **+430 V** screens → 4.7 kΩ → **+385 V** PI (20 µF) → 
 **+325 V** preamp (8 µF). Bias supply: selenium rectifier, 15k/56k, two
 8 µF/150 V → **−48 V**.
 
+## The tone network, as the drawings wire it
+
+The published 5F6-A schematic and its factory layout sheet draw the same
+ladder the 5F6 prints — not the textbook redrawing of these parts — and the
+schematic and layout here follow the sheets (re-read at lug level 2026-08-03):
+
+- The 250 pF treble capacitor and the 56 kΩ slope resistor both leave the
+  cathode-follower output.
+- One 0.02 µF capacitor runs from the slope resistor's foot to the node shared
+  by the treble pot's **lower lug** and the bass pot — the treble pot's cold
+  end sits on the far side of that capacitor, not on the slope foot.
+- The bass pot is a **rheostat** in series down the ladder: the factory layout
+  straps its wiper into the treble-lug node.
+- The other 0.02 µF runs from the slope foot to the middle pot's **wiper**, so
+  the Middle control slides the capacitor's injection point along a 25 kΩ leg
+  that never leaves the circuit.
+- The stack's output is the treble pot's **wiper alone**. Unlike the 5F6, the
+  middle pot's foot runs straight to ground — the presence control moved to
+  the phase-inverter tail.
+- On the factory board the two 0.02 µF capacitors share their node-B eyelet
+  with the slope resistor's lead, and the 250 pF mica sits beside them; the
+  board-layout drawing here places all three as the sheet does.
+
+The textbook form ties the treble pot's cold end to the slope foot, joins the
+treble and bass wipers at one output node, and hangs the mid capacitor on a
+rheostat-wired middle pot. The two networks share every part value and differ
+audibly at the stops: as drawn, the fixed 25 kΩ leg keeps the stack from ever
+going fully silent with Bass and Middle at zero, where the textbook network's
+output falls to ground. The tone-stack lab plots this circuit with the wiring
+its sheets draw.
+
 ## Verification — against the printed factory chart
 
 The I-EG drawing prints a full voltage chart, and simulation matches all 13
