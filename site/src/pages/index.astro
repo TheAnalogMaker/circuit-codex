@@ -1,8 +1,20 @@
 ---
 import Base from '../layouts/Base.astro';
-import { loadCorpus, corpusStats, displayId, GITHUB } from '../lib/corpus.js';
-const amps = loadCorpus();
+import { corpusByFamily, corpusStats, displayId, GITHUB } from '../lib/corpus.js';
+// The corpus grid is grouped by amp line — the family that documents each circuit
+// in the history tier, oldest cosmetic era first. Grouping and order both come from
+// the data (see corpusByFamily), so a new circuit files itself under the right
+// heading and a new family line adds its own section.
+const families = corpusByFamily();
 const stats = corpusStats();
+
+// Section subtitle: the era style(s) the group's circuits record, the years they span,
+// and how many are documented — omitting any part the data doesn't carry.
+const famMeta = (f) => [
+  f.styles.filter((s) => s !== f.title).join(' · ') || null,
+  f.eraStart != null ? `${f.eraStart}–${f.eraEnd}` : null,
+  `${f.amps.length} circuit${f.amps.length === 1 ? '' : 's'}`,
+].filter(Boolean).join(' · ');
 ---
 <Base title="Circuit Codex — the open archive of classic guitar amp circuits"
       description="Every classic tube amp circuit — redrawn KiCad schematics, ngspice-verified netlists, and the lineage that connects them. Open, machine-readable, CC-BY-SA.">
@@ -20,29 +32,39 @@ const stats = corpusStats();
       <div class="stat" role="listitem"><div class="n">{stats.circuits}</div><div class="l">circuit{stats.circuits === 1 ? '' : 's'}</div></div>
       <div class="stat" role="listitem"><div class="n">{stats.verified}</div><div class="l">verified</div></div>
       <div class="stat" role="listitem"><div class="n">{stats.models}</div><div class="l">CC0 tube SPICE models</div></div>
+      <div class="stat" role="listitem"><div class="n">{stats.historyModels}</div><div class="l">model histories</div></div>
     </div>
   </header>
 
   <section id="circuits">
     <h2>The corpus</h2>
-    <p class="sub">The tweed canon and the first British circuits are here — blackface and beyond to follow.
+    <p class="sub">Every documented circuit, grouped by the line it belongs to, oldest era first.
+      <a href="/history/">The history tier</a> places each line's other models;
       <a href={`${GITHUB}/blob/main/CONTRIBUTING.md`}>contributions welcome</a>.</p>
-    <div class="grid">
-      {amps.map((a) => (
-        <a class="card" href={`/amps/${a.id}/`}>
-          <div class="id">{displayId(a.id)}</div>
-          <div class="style">{a.meta.name_style} · {a.meta.wattage} W</div>
-          <div class="tubes">{a.meta.tubes.join(' · ')}</div>
-          <div class="chips">
-            <span class="chip">{a.meta.era.start}–{a.meta.era.end}</span>
-            <span class="chip">{a.meta.topology.phase_inverter === 'none' ? 'single-ended' : a.meta.topology.phase_inverter}</span>
-            {a.meta.verification?.status === 'verified'
-              ? <span class="chip v">verified</span>
-              : <span class="chip">draft</span>}
-          </div>
-        </a>
-      ))}
-    </div>
+    {families.map((f) => (
+      <div class="fam">
+        <div class="fam-head">
+          <h3>{f.href ? <a href={f.href}>{f.title}</a> : f.title}</h3>
+          <div class="fam-meta">{famMeta(f)}</div>
+        </div>
+        <div class="grid">
+          {f.amps.map((a) => (
+            <a class="card" href={`/amps/${a.id}/`}>
+              <div class="id">{displayId(a.id)}</div>
+              <div class="style">{a.meta.name_style} · {a.meta.wattage} W</div>
+              <div class="tubes">{a.meta.tubes.join(' · ')}</div>
+              <div class="chips">
+                <span class="chip">{a.meta.era.start}–{a.meta.era.end}</span>
+                <span class="chip">{a.meta.topology.phase_inverter === 'none' ? 'single-ended' : a.meta.topology.phase_inverter}</span>
+                {a.meta.verification?.status === 'verified'
+                  ? <span class="chip v">verified</span>
+                  : <span class="chip">draft</span>}
+              </div>
+            </a>
+          ))}
+        </div>
+      </div>
+    ))}
   </section>
 </div>
 </Base>
@@ -60,6 +82,14 @@ const stats = corpusStats();
   .stat .l{font-size:12px;text-transform:uppercase;letter-spacing:.12em;color:var(--faint)}
   h2{font-size:20px;letter-spacing:.14em;margin:24px 0 4px}
   .sub{color:var(--muted);font-size:14.5px;margin:0 0 22px}
+  /* --- family sections (grouped corpus grid) --- */
+  .fam{margin:0 0 30px}
+  .fam-head{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;
+    margin:0 0 12px;padding-bottom:7px;border-bottom:1px solid var(--line-soft)}
+  .fam-head h3{font-size:15px;letter-spacing:.16em;margin:0;color:var(--ink)}
+  .fam-head h3 a{color:inherit}
+  .fam-head h3 a:hover{color:var(--amber)}
+  .fam-meta{font-family:var(--mono);font-size:11.5px;color:var(--faint)}
   .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
   .card{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:18px 18px 14px;display:flex;flex-direction:column;gap:8px;color:inherit}
   .card:hover{border-color:var(--amber-dim);text-decoration:none}

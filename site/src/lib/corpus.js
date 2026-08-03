@@ -46,10 +46,16 @@ export function loadCorpus() {
 export function corpusStats() {
   const amps = loadCorpus();
   const models = fs.readdirSync(MODELS_DIR).filter((f) => f.endsWith('.inc'));
+  // --- history tier (added with the family grouping) — every model placed in a
+  // family file, documented circuit or not, so the headline counts show the
+  // corpus's reach as well as its depth.
+  const families = loadHistory();
   return {
     circuits: amps.length,
     verified: amps.filter((a) => a.meta.verification?.status === 'verified').length,
     models: models.length,
+    families: families.length,
+    historyModels: families.reduce((n, f) => n + f.models.length, 0),
   };
 }
 
@@ -452,6 +458,62 @@ export function circuitFamilyMap() {
     }
   }
   return map;
+}
+
+// --------------------------------------------------------- corpus by family
+// The homepage grid is grouped by the amp line each circuit belongs to. The
+// grouping key is the history family that documents the circuit — a reverse
+// lookup through the family files' circuit_refs — so a circuit and its line
+// carry the same name on both pages. A circuit no family file claims yet falls
+// back to its own meta.family era string, so a newly added amp always lands
+// under a heading rather than disappearing.
+//
+// Groups run oldest cosmetic era first — tweed, then brown and blackface, then
+// the British circuits — ranked by the earliest era style in the group and, on a
+// tie, by the earliest year. Everything comes from the data; no list of amps or
+// families is written down here.
+const ERA_STYLE_ORDER = ['tweed', 'brown', 'brownface', 'blackface', 'silverface', 'british'];
+
+function eraRank(style) {
+  const i = ERA_STYLE_ORDER.indexOf(String(style || '').toLowerCase());
+  return i === -1 ? ERA_STYLE_ORDER.length : i;
+}
+
+export function corpusByFamily() {
+  const famOf = circuitFamilyMap();
+  const groups = new Map();
+  for (const amp of loadCorpus()) {
+    const fam = famOf.get(amp.id) || null;
+    const style = amp.meta.family || 'other';
+    const key = fam ? `history:${fam.slug}` : `era:${style}`;
+    if (!groups.has(key)) {
+      groups.set(key, {
+        key,
+        title: fam ? fam.title : style,
+        href: fam ? `/history/${fam.slug}/` : null,
+        inHistory: !!fam,
+        amps: [],
+      });
+    }
+    groups.get(key).amps.push(amp);
+  }
+  return [...groups.values()]
+    .map((g) => {
+      const starts = g.amps.map((a) => a.meta.era?.start).filter((y) => y != null);
+      const ends = g.amps.map((a) => a.meta.era?.end).filter((y) => y != null);
+      return {
+        ...g,
+        amps: [...g.amps].sort((a, b) =>
+          (a.meta.era?.start ?? 0) - (b.meta.era?.start ?? 0) || a.id.localeCompare(b.id)),
+        styles: [...new Set(g.amps.map((a) => a.meta.family).filter(Boolean))],
+        rank: Math.min(...g.amps.map((a) => eraRank(a.meta.family))),
+        eraStart: starts.length ? Math.min(...starts) : null,
+        eraEnd: ends.length ? Math.max(...ends) : null,
+      };
+    })
+    .sort((a, b) => a.rank - b.rank
+      || (a.eraStart ?? 9999) - (b.eraStart ?? 9999)
+      || a.title.localeCompare(b.title));
 }
 
 // Split a pd_basis string ("pd-outright (published 1920)") into its leading
