@@ -9,6 +9,21 @@ model:
   file: models/6at6.inc
   anchor: "Va=250 V, Vg=-3 V → Ia=1.0 mA, gm=1200 µmho, µ=70"
   anchor_source: "RCA Receiving Tube Manual RC-19, 1959, average characteristics"
+max_ratings:
+  note: >-
+    Design-centre values. Only the triode section is modelled here; the two diode
+    plates carry their own 1 mA continuous rating.
+  items:
+    - { label: "Plate voltage", value: "300 V" }
+    - { label: "Positive DC grid voltage", value: "0 V" }
+    - { label: "Plate dissipation", value: "0.5 W" }
+    - { label: "Heater-cathode voltage", value: "90 V either polarity" }
+    - { label: "Diode current, continuous, each diode", value: "1 mA" }
+  limits:
+    plate_dissipation_w: 0.5
+    plate_voltage_v: 300
+  source: "GE 6AT6 data sheet ET-T1447 (February 1957), design-centre values"
+  source_url: https://frank.pocnet.net/sheets/093/6/6AT6.pdf
 basing:
   code: 7BT
   base: miniature-7pin

@@ -15,6 +15,30 @@ model:
     µ is the grid-No.1-to-grid-No.2 amplification factor (9.5), from the
     triode-connection gm·ra on the same sheet. KG2 is anchored on the Class AB1
     push-pull quiescent point (Vg2=300 V, Vg1=-27 V → Ig2=2.5 mA).
+max_ratings:
+  note: >-
+    GEC prints two columns — a design maximum and an absolute maximum. The design
+    figures are the ones a circuit is laid out against; the absolute column is the
+    line beyond which the valve is out of specification. The 25 W design anode
+    dissipation is what lets the KT66 sit where a 6V6 could not.
+  items:
+    - { label: "Anode voltage", value: "500 V design · 550 V absolute" }
+    - { label: "Screen (grid No.2) voltage", value: "500 V design · 550 V absolute" }
+    - { label: "Peak negative grid-No.1 voltage", value: "200 V" }
+    - { label: "Cathode current", value: "200 mA" }
+    - { label: "Anode dissipation", value: "25 W design · 30 W absolute" }
+    - { label: "Screen dissipation", value: "3.5 W design · 4.5 W absolute" }
+    - { label: "Anode + screen dissipation", value: "27 W design · 32 W absolute" }
+    - { label: "Grid-No.1 circuit resistance", value: "1 MΩ cathode bias · 250 kΩ fixed bias (Pa+g2 ≤ 27 W)" }
+  limits:
+    plate_dissipation_w: 25
+    plate_dissipation_absolute_w: 30
+    screen_dissipation_w: 3.5
+    plate_voltage_v: 500
+    screen_voltage_v: 500
+    cathode_current_ma: 200
+  source: "GEC / M-O Valve Co. KT66 data sheet, Issue 4, April 1963 — maximum ratings (design column)"
+  source_url: https://frank.pocnet.net/sheets/084/k/KT66_GEC.pdf
 basing:
   code: 7AC
   base: octal

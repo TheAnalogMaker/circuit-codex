@@ -10,6 +10,27 @@ model:
   anchor: "Va=250 V, Vg2=250 V, Vg1=-12.5 V → Ia=45 mA, Ig2=4.5 mA, gm=4100 µmho"
   anchor_source: "RCA Receiving Tube Manual RC-19, 1959, average characteristics"
   note: "µ is the grid-No.1-to-grid-No.2 amplification factor (9.6, RC-19)."
+max_ratings:
+  note: >-
+    Design-centre maximums for Class A1 amplifier service. The 12 W plate rating is
+    what makes the single-ended tweed circuits sit so close to the edge: a Champ idles
+    its 6V6 at roughly half that figure, and the ratio of idle dissipation to this
+    number is the first thing a load line is drawn to check.
+  items:
+    - { label: "Plate voltage", value: "315 V" }
+    - { label: "Screen-supply voltage", value: "315 V" }
+    - { label: "Screen (grid No.2) voltage", value: "285 V" }
+    - { label: "Peak negative grid-No.1 voltage", value: "250 V" }
+    - { label: "Plate dissipation", value: "12 W" }
+    - { label: "Screen dissipation", value: "2 W" }
+    - { label: "Grid-No.1 circuit resistance", value: "0.1 MΩ fixed bias · 0.5 MΩ cathode bias" }
+  limits:
+    plate_dissipation_w: 12
+    screen_dissipation_w: 2
+    plate_voltage_v: 315
+    screen_voltage_v: 285
+  source: "GE 6V6-GT data sheet ET-T914 (March 1955), design-centre values"
+  source_url: https://frank.pocnet.net/sheets/093/6/6V6GT.pdf
 basing:
   code: 7AC
   base: octal

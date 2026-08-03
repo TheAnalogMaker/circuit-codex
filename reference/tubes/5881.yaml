@@ -25,6 +25,11 @@ max_ratings:
     - { label: "Plate voltage", value: "400 V" }
     - { label: "Screen (grid No.2) voltage", value: "400 V" }
     - { label: "Screen dissipation", value: "3 W" }
+  limits:
+    plate_dissipation_w: 23
+    screen_dissipation_w: 3
+    plate_voltage_v: 400
+    screen_voltage_v: 400
   source: "Tung-Sol 5881 datasheet (design-center system)"
   source_url: https://frank.pocnet.net/sheets/127/5/5881.pdf
 basing:

@@ -19,6 +19,28 @@ model:
     the datasheet tabulates Ig2 (14.9 mA) at the very same plate/gm operating
     point, so KG2 is anchored there directly — no separate screen point is
     needed. EX=1.5 and KVB=30 (pentode) are project defaults per METHODOLOGY.md.
+max_ratings:
+  note: >-
+    Limiting values under the design-centre rating system. Two anode-dissipation
+    figures are printed: 25 W with no drive, rising to 27.5 W once the stage is
+    driven. The idle figure is the one an operating point is judged against.
+  items:
+    - { label: "Anode voltage", value: "800 V" }
+    - { label: "Anode voltage, no current", value: "2 kV" }
+    - { label: "Grid No.2 voltage", value: "500 V" }
+    - { label: "Anode dissipation, no drive", value: "25 W" }
+    - { label: "Anode dissipation, driven", value: "27.5 W" }
+    - { label: "Grid No.2 dissipation", value: "8 W" }
+    - { label: "Cathode current", value: "150 mA" }
+    - { label: "Grid No.1 resistor", value: "0.7 MΩ class A/AB · 0.5 MΩ class B" }
+  limits:
+    plate_dissipation_w: 25
+    screen_dissipation_w: 8
+    plate_voltage_v: 800
+    screen_voltage_v: 500
+    cathode_current_ma: 150
+  source: "Mullard/Philips EL34 data sheet, January 1969 — limiting values (design-centre rating system)"
+  source_url: https://frank.pocnet.net/sheets/010/e/EL34.pdf
 basing:
   code: K8A
   base: octal

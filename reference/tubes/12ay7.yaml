@@ -9,6 +9,23 @@ model:
   file: models/12ay7.inc
   anchor: "Va=250 V, Vg=-4 V → Ia=3.0 mA, gm=1750 µmho, µ=44"
   anchor_source: "RCA Receiving Tube Manual RC-19, 1959, average characteristics"
+max_ratings:
+  note: >-
+    Design-centre values, each unit. The 10 mA cathode-current ceiling is generous
+    next to the 3 mA a tweed input stage actually draws.
+  items:
+    - { label: "Plate voltage", value: "300 V" }
+    - { label: "Negative grid bias", value: "50 V" }
+    - { label: "Positive grid bias", value: "0 V" }
+    - { label: "Plate dissipation", value: "1.5 W" }
+    - { label: "Cathode current", value: "10 mA" }
+    - { label: "Peak heater-cathode voltage", value: "90 V either polarity" }
+  limits:
+    plate_dissipation_w: 1.5
+    plate_voltage_v: 300
+    cathode_current_ma: 10
+  source: "RCA 12AY7 data sheet, 1 April 1953 (tentative data), design-centre values, each unit"
+  source_url: https://frank.pocnet.net/sheets/049/1/12AY7.pdf
 basing:
   code: 9A
   base: noval-b9a

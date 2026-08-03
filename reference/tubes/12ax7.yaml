@@ -13,6 +13,22 @@ model:
     Two-point fit (adopted 2026-07-18 from the calibration study below): the plate-current curve is held at both tabulated operating points — 250 V/−2 V and 100 V/−1 V — which all four manufacturers print identically. The low-plate-voltage behaviour of this tube was the
     subject of the 12AX7 calibration study.
 study: 12ax7-calibration
+max_ratings:
+  note: >-
+    Design-centre values, each section. One watt is a small budget, but a 12AX7 gain
+    stage idles at well under a milliamp — a 100 kΩ plate load and 1.5 kΩ cathode
+    resistor put roughly 0.2 W into the plate, a fifth of the ceiling.
+  items:
+    - { label: "Plate voltage", value: "300 V" }
+    - { label: "Positive DC grid voltage", value: "0 V" }
+    - { label: "Negative DC grid voltage", value: "50 V" }
+    - { label: "Plate dissipation", value: "1 W" }
+    - { label: "Heater-cathode voltage", value: "180 V either polarity" }
+  limits:
+    plate_dissipation_w: 1.0
+    plate_voltage_v: 300
+  source: "GE 12AX7 data sheet ET-T509B (June 1953), design-centre values, each section"
+  source_url: https://frank.pocnet.net/sheets/093/1/12AX7.pdf
 basing:
   code: 9A
   base: noval-b9a

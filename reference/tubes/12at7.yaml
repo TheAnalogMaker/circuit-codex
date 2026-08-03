@@ -15,6 +15,21 @@ model:
     the plate current and transconductance; MU=60 and EX=1.5 fixed). The sheet's
     second tabulated point — Va=100 V, 270 Ω cathode bias → 3.7 mA, 4000 µmho —
     corroborates µ=60 and is not separately fitted.
+max_ratings:
+  note: >-
+    Design-centre values, each section. The 2.5 W plate rating is well above the
+    12AX7's — the 12AT7 is built to pass real current, which is why it turns up as a
+    phase inverter and reverb driver rather than a first gain stage.
+  items:
+    - { label: "Plate voltage", value: "300 V" }
+    - { label: "Negative DC grid voltage", value: "50 V" }
+    - { label: "Plate dissipation", value: "2.5 W" }
+    - { label: "Heater-cathode voltage", value: "90 V either polarity" }
+  limits:
+    plate_dissipation_w: 2.5
+    plate_voltage_v: 300
+  source: "GE 12AT7 data sheet ET-T1440 (February 1957), design-centre values, each section"
+  source_url: https://frank.pocnet.net/sheets/093/1/12AT7.pdf
 basing:
   code: 9A
   base: noval-b9a
