@@ -462,3 +462,177 @@ export function pdBasis(str) {
   const rest = str.slice(token.length).replace(/^[\s—–-]+/, '').trim();
   return { token, rest };
 }
+
+// -------------------------------------------------------------- tone-stack lib
+// The tone-stack lab (/reference/guides/tone-stack-lab/) plots the frequency
+// response of the passive control networks the corpus documents. No component
+// value is written here: each preset names the reference designators, and the
+// values are read out of that circuit's own bom.yaml at build time — so a curve
+// on the page cannot drift away from the parts list it claims to plot.
+//
+// `drive` records how the network is fed, because it changes the answer. A
+// cathode follower presents roughly 1/gm; a plate presents rp ∥ its plate load,
+// with rp = µ/gm. Both figures come from the driving tube's published
+// small-signal data in reference/tubes/*.yaml, never from a guess.
+
+const SI_MULT = { p: 1e-12, n: 1e-9, 'µ': 1e-6, u: 1e-6, k: 1e3, M: 1e6 };
+
+// "56 kΩ · ½ W" → 56000 · "0.02 µF · 400 V" → 2e-8 · "250 kΩ-A" → 250000.
+export function componentValue(str) {
+  const m = String(str).match(/([\d.]+)\s*(p|n|µ|u|k|M)?\s*(F|Ω)/u);
+  if (!m) throw new Error(`tone-stack lab: cannot read a component value from "${str}"`);
+  return parseFloat(m[1]) * (m[2] ? SI_MULT[m[2]] : 1);
+}
+
+// µ and gm as the tube's datasheet-anchor line records them, in SI units.
+function tubeSmallSignal(tubeId) {
+  const tube = loadTubes().find((t) => String(t.tube) === tubeId);
+  const anchor = String(tube?.model?.anchor || '');
+  const gm = /gm=([\d.]+)\s*µmho/.exec(anchor);
+  const mu = /µ=([\d.]+)/.exec(anchor);
+  if (!gm || !mu) throw new Error(`tone-stack lab: no small-signal anchor for ${tubeId}`);
+  return { gm: parseFloat(gm[1]) * 1e-6, mu: parseFloat(mu[1]) };
+}
+
+// One entry per tone stack the corpus documents completely enough to plot.
+// `refs` are reference designators in that amp's bom.yaml; `drive` and `load`
+// name the stage feeding the network and the resistance hanging off its output.
+// The stack's own wiring — which is common to every circuit in each group — is
+// documented in site/src/lib/tonestack.js.
+const TONE_STACK_SPECS = [
+  {
+    id: '5f6a', kind: 'fmv',
+    blurb: 'The tweed Bassman network — the three-knob stack every later lead amp is measured against.',
+    drive: { kind: 'cathode-follower', tube: '12ax7' },
+    load: 'RGA',
+    refs: { slope: 'RSL', trebleCap: 'C4', treblePot: 'VR3', bassCap: 'C5', bassPot: 'VR4', midCap: 'C5', midPot: 'VR5' },
+    note: 'The parts list records one 0.02 µF value covering both the bass and the mid position; both are plotted at it.',
+  },
+  {
+    id: 'jtm45', kind: 'fmv',
+    blurb: 'The same network as the Bassman with a slightly smaller treble cap and a 0.01 µF mid cap.',
+    drive: { kind: 'cathode-follower', tube: '12ax7' },
+    load: 'RGA',
+    refs: { slope: 'RSL', trebleCap: 'C4', treblePot: 'VR3', bassCap: 'C5', bassPot: 'VR4', midCap: 'C6', midPot: 'VR5' },
+  },
+  {
+    id: 'm1987', kind: 'fmv',
+    blurb: 'The British lead variant: a 33 kΩ slope resistor and a 500 pF treble cap move the whole curve.',
+    drive: { kind: 'cathode-follower', tube: '12ax7' },
+    load: 'RGA',
+    refs: { slope: 'RSL', trebleCap: 'C8', treblePot: 'VR3', bassCap: 'C9', bassPot: 'VR4', midCap: 'C10', midPot: 'VR5' },
+  },
+  {
+    id: '5f4', kind: 'tb',
+    blurb: 'The tweed two-knob stack — the three-knob network with the mid leg taken straight to ground.',
+    drive: { kind: 'cathode-follower', tube: '12ax7' },
+    load: 'RGA',
+    refs: { slope: 'RSL', trebleCap: 'C5', treblePot: 'VR3', bassCap: 'C7', bassPot: 'VR4' },
+    midLeg: { kind: 'ground' },
+    omits: ['C6'],
+  },
+  {
+    id: 'ab763', kind: 'tb',
+    blurb: 'The blackface two-knob stack, fed from a plate rather than a follower — the normal channel.',
+    drive: { kind: 'plate', tube: '12ax7', plateLoad: 'RLN1' },
+    load: 'VRVN',
+    refs: { slope: 'RSN', trebleCap: 'CTN', treblePot: 'VRTN', bassCap: 'CBN2', bassPot: 'VRBN' },
+    midLeg: { kind: 'fixed', ref: 'RSLN' },
+  },
+  {
+    id: '5f2a', kind: 'single-knob',
+    blurb: 'One knob: a rheostat and a small capacitor bleeding treble to ground.',
+    drive: { kind: 'plate', tube: '12ax7', plateLoad: 'R4' },
+    load: 'VR1',
+    refs: { tonePot: 'VR2', cutCap: 'C3' },
+  },
+];
+
+export const TONE_STACK_KINDS = {
+  fmv: { label: 'Three-knob stack', controls: ['treble', 'mid', 'bass'] },
+  tb: { label: 'Two-knob stack', controls: ['treble', 'bass'] },
+  'single-knob': { label: 'Single tone control', controls: ['tone'] },
+};
+
+// Build every plottable preset: values resolved from the BOM, source and load
+// resistances derived from published tube data and the circuit's own parts.
+export function toneStackPresets() {
+  const amps = new Map(loadCorpus().map((a) => [a.id, a]));
+  return TONE_STACK_SPECS.map((spec) => {
+    const amp = amps.get(spec.id);
+    if (!amp) throw new Error(`tone-stack lab: no circuit "${spec.id}" in the corpus`);
+    const byRef = new Map((amp.bom?.items || []).map((i) => [String(i.ref), i]));
+    const item = (ref) => {
+      const it = byRef.get(ref);
+      if (!it) throw new Error(`tone-stack lab: ${spec.id} has no BOM entry ${ref}`);
+      return it;
+    };
+    const val = (ref) => componentValue(item(ref).value);
+
+    const { gm, mu } = tubeSmallSignal(spec.drive.tube);
+    const rSource = spec.drive.kind === 'cathode-follower'
+      ? 1 / gm
+      : (() => { const rp = mu / gm, rl = val(spec.drive.plateLoad); return (rp * rl) / (rp + rl); })();
+    const rLoad = val(spec.load);
+
+    const parts = { rSource, rLoad };
+    const bill = [];
+    const push = (ref, role) => {
+      const it = item(ref);
+      if (!bill.some((b) => b.ref === ref)) bill.push({ ref, value: it.value, part: it.part, role });
+    };
+
+    if (spec.kind === 'single-knob') {
+      parts.tonePot = val(spec.refs.tonePot);
+      parts.cutCap = val(spec.refs.cutCap);
+      push(spec.refs.tonePot, 'Tone pot');
+      push(spec.refs.cutCap, 'Cut capacitor');
+    } else {
+      parts.slope = val(spec.refs.slope);
+      parts.trebleCap = val(spec.refs.trebleCap);
+      parts.treblePot = val(spec.refs.treblePot);
+      parts.bassCap = val(spec.refs.bassCap);
+      parts.bassPot = val(spec.refs.bassPot);
+      parts.midCap = spec.refs.midCap ? val(spec.refs.midCap) : 0;
+      parts.midPot = spec.refs.midPot ? val(spec.refs.midPot) : 0;
+      parts.midFixed = spec.midLeg?.kind === 'fixed' ? val(spec.midLeg.ref) : 0;
+      push(spec.refs.slope, 'Slope resistor');
+      push(spec.refs.trebleCap, 'Treble capacitor');
+      push(spec.refs.treblePot, 'Treble pot');
+      push(spec.refs.bassCap, 'Bass capacitor');
+      push(spec.refs.bassPot, 'Bass pot');
+      if (spec.refs.midCap) push(spec.refs.midCap, 'Mid capacitor');
+      if (spec.refs.midPot) push(spec.refs.midPot, 'Mid pot');
+      if (spec.midLeg?.kind === 'fixed') push(spec.midLeg.ref, 'Fixed mid leg');
+    }
+
+    return {
+      id: spec.id,
+      kind: spec.kind,
+      label: displayId(spec.id),
+      style: amp.meta.name_style,
+      era: amp.meta.era,
+      blurb: spec.blurb,
+      note: spec.note || null,
+      controls: TONE_STACK_KINDS[spec.kind].controls,
+      drive: {
+        kind: spec.drive.kind,
+        tube: item(spec.refs.slope ? spec.refs.slope : spec.refs.tonePot) && spec.drive.tube.toUpperCase(),
+        ohms: rSource,
+      },
+      loadRef: spec.load,
+      loadOhms: rLoad,
+      midLeg: spec.midLeg?.kind || (spec.refs.midPot ? 'pot' : null),
+      omits: (spec.omits || []).map((ref) => ({ ref, value: item(ref).value, role: item(ref).role })),
+      bill,
+      parts,
+      topologyHref: topologyHref('tone_stack', amp.meta),
+    };
+  });
+}
+
+// Circuit ids that the lab carries a preset for — the amp pages use this to
+// decide whether to offer the "plot this stack" link.
+export function toneStackPresetIds() {
+  return new Set(TONE_STACK_SPECS.map((s) => s.id));
+}
