@@ -53,7 +53,9 @@ import Base from '../../../layouts/Base.astro';
       <p class="note">Each amp's parts list on this site records the cathode resistor
         that was actually fitted; this is the design target before tube spread and
         real-world tolerance. Browse the <a href="/#circuits">circuits</a> to see the
-        values in context.</p>
+        values in context. To work the other way — start from a resistor and find the
+        current and bias it produces in a real tube — use the
+        <a href="/reference/guides/load-lines/">load line explorer</a>.</p>
     </section>
 
     <section class="calc" aria-label="Coupling-cap corner frequency">
@@ -81,6 +83,10 @@ import Base from '../../../layouts/Base.astro';
         <label class="f"><span>Turns ratio</span><span class="io"><input id="ot-n" inputmode="decimal" autocomplete="off" /><i>: 1</i></span></label>
       </div>
       <div class="rd" aria-live="polite"><b id="ot-out">—</b><span class="rd-sub" id="ot-sub"></span></div>
+      <p class="note">The primary impedance a tube actually wants is a load-line
+        question. Put the number into the
+        <a href="/reference/guides/load-lines/">load line explorer</a> and watch what it
+        does to the swing available at the plate.</p>
     </section>
   </div>
 </div>

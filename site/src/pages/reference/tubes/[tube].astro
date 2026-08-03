@@ -1,12 +1,16 @@
 ---
 import Base from '../../../layouts/Base.astro';
 import TubeBasing from '../../../components/TubeBasing.astro';
-import { loadTubes, loadStudy, displayId, GITHUB } from '../../../lib/corpus.js';
+import { loadTubes, loadStudy, loadTubeModels, displayId, GITHUB } from '../../../lib/corpus.js';
 
 export async function getStaticPaths() {
-  return loadTubes().map((t) => ({ params: { tube: t.tube }, props: { t } }));
+  const drawable = new Set(loadTubeModels().map((m) => String(m.slug)));
+  return loadTubes().map((t) => ({
+    params: { tube: t.tube },
+    props: { t, loadLineable: drawable.has(String(t.tube)) },
+  }));
 }
-const { t } = Astro.props;
+const { t, loadLineable } = Astro.props;
 const modelUrl = `${GITHUB}/blob/main/${t.model.file}`;
 const study = t.study ? loadStudy(t.study) : null;
 ---
@@ -68,6 +72,16 @@ const study = t.study ? loadStudy(t.study) : null;
           {t.model.note && (<><dt>Note</dt><dd class="mnote">{t.model.note}</dd></>)}
           <dt>File</dt><dd><a href={modelUrl} rel="external nofollow">{t.model.file} ↗</a></dd>
         </dl>
+        {/* LOADLINE-LINK — delimited for hand-merge. Present only for tubes with a
+            control grid; rectifier diodes have no plate curves to draw. */}
+        {loadLineable && (
+          <p class="sub" style="margin-top:14px">
+            See these parameters drawn: the
+            <a href={`/reference/guides/load-lines/?tube=${t.tube}`}> load line explorer</a>
+            plots the {t.name}'s plate-curve family from this model and solves an
+            operating point on it.</p>
+        )}
+        {/* /LOADLINE-LINK */}
       </section>
 
       {t.max_ratings && (

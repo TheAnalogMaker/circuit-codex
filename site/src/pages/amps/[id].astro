@@ -1,11 +1,15 @@
 ---
 import Base from '../../layouts/Base.astro';
-import { loadCorpus, displayId, ampMetaDescription, layoutAlt, topologyHref, circuitFamilyMap, GITHUB } from '../../lib/corpus.js';
+import { loadCorpus, displayId, ampMetaDescription, layoutAlt, topologyHref, circuitFamilyMap, loadLoadlineStages, GITHUB } from '../../lib/corpus.js';
 
 export async function getStaticPaths() {
-  return loadCorpus().map((amp) => ({ params: { id: amp.id }, props: { amp } }));
+  const stages = new Map(loadLoadlineStages().map((s) => [s.amp, s]));
+  return loadCorpus().map((amp) => ({
+    params: { id: amp.id },
+    props: { amp, loadline: stages.get(amp.id) ?? null },
+  }));
 }
-const { amp } = Astro.props;
+const { amp, loadline } = Astro.props;
 const m = amp.meta;
 const v = m.verification || {};
 const vDate = v.date ? new Date(v.date).toISOString().slice(0, 10) : null;
@@ -136,6 +140,19 @@ const jsonld = {
                 chart to check against — so no chart column or tolerance is shown.</p>
             : <p class="footnote">Tube-pin nodes are checked against the chart's own printed
                 ±20% convention; power-rail nodes are held to tighter internal verification targets.</p>}
+          {/* LOADLINE-LINK — delimited for hand-merge. Only for circuits whose output
+              stage pipeline/export_loadlines.py could read out of the netlist. */}
+          {loadline && (
+            <p class="footnote">The output stage behind these numbers can be drawn:
+              the <a href={`/reference/guides/load-lines/?preset=${amp.id}`}>load line
+              explorer</a> plots this circuit's {loadline.tube}
+              {loadline.output_tubes > 1 ? ` pair` : ''} on
+              {' '}{Math.round(loadline.plate_v)} V with its {loadline.bias === 'cathode'
+                ? `${loadline.rk_total} Ω cathode resistor`
+                : `${String(loadline.grid_v).replace('-', '−')} V grid bias`}, and marks where the load line
+              crosses.</p>
+          )}
+          {/* /LOADLINE-LINK */}
         </section>
       )}
 
