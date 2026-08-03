@@ -9,10 +9,12 @@ import { loadCorpus, loadHistory, displayId, GITHUB } from '../../lib/corpus.js'
 //   • a light SUCCESSION line links the models within a family in chronological order
 //     (the chain of revisions) — grouping, not a derivation claim;
 //   • a solid ARROW is drawn only for a DOCUMENTED derivation BETWEEN two families
-//     (recorded in an amp's own meta.yaml), e.g. the tweed 5F6-A Bassman → Marshall JTM45.
+//     (recorded in an amp's own meta.yaml).
 // Documented circuits render as solid chips linking their page; history-tier models
 // (not yet a documented circuit) render as outline chips linking their family history.
-// Nothing here is invented: positions come from era years, arrows from the metadata.
+// Nothing here is invented: positions come from era years, arrows from the metadata,
+// and the prose under the figure enumerates the arrows from that same list rather
+// than naming them by hand.
 // ---------------------------------------------------------------------------
 const amps = loadCorpus();
 const byId = new Map(amps.map((a) => [a.id, a]));
@@ -64,27 +66,61 @@ function edgeCaption(parent, child) {
   if (pp && cp && pp !== cp) parts.push(`${pp}→${cp}`);
   const pr = rectLabel(mp), cr = rectLabel(mc);
   if (pr !== cr) parts.push(`${pr}→${cr}`);
+  // Every arrow carries a caption. Where a derivation keeps the same output tubes
+  // and rectifier (the brown 6G3 Deluxe to the blackface AB763 Deluxe Reverb), the
+  // change the data does record is the output rating, so that is what the chip reads.
+  if (!parts.length && mp.wattage != null && mc.wattage != null && mp.wattage !== mc.wattage)
+    parts.push(`${mp.wattage} W→${mc.wattage} W`);
   return parts.join(' · ');
+}
+
+// The family line a chip belongs to, in prose: "The Deluxe Reverb line" → "Deluxe
+// Reverb". Used both to qualify a designation two lines share and to name an
+// arrow's endpoints in the caption below the figure.
+function lineName(fam) {
+  return String(fam.title || fam.family).replace(/^the\s+/i, '').replace(/\s+line$/i, '');
 }
 
 // --- geometry --------------------------------------------------------------
 const YEAR_MIN = 1945, YEAR_MAX = 1982;
 const W = 1300, PAD_L = 108, PAD_R = 30;
 const X0 = PAD_L, X1 = W - PAD_R, PLOTW = X1 - X0;
-const CW = 84, CH = 30, ROWH = 42, BAND_GAP = 14, BANDS_TOP = 34;
+const CW = 84, CH = 30, ROWH = 46, BAND_GAP = 14, BANDS_TOP = 34;
+// Clearance a connector keeps from any chip it passes, and the minimum horizontal
+// gap the row packer leaves between one chip's full extent (chip + production-span
+// bar + its end dot) and the next chip's left edge.
+const COL_PAD = 6, GAP_X = 16;
 
 // A chip is as wide as the name it carries. CW is the floor, not the width: the
-// designations run from "5E1" to "AC15 circuit No. 2", and a fixed box silently ran
+// labels run from "5E1" to "AA763 Deluxe Reverb", and a fixed box silently ran
 // the long ones past their own border. The condensed display face sets about 6.9 px
 // per uppercase character at 13 px, plus the ✓ a verified circuit adds and 9 px of
 // padding each side. Widths feed the row packer below, so a wider chip takes the
 // space it needs and its neighbours move down a sub-row rather than collide.
-function chipLabel(m) {
-  return m.documented ? displayId(m.ampId) : m.shortDesig;
+// A documented circuit's chip carries the designation that circuit is drawn under.
+// Usually that is the id itself (5F6-A, AB763); where the family file qualifies it —
+// JMI numbered its AC15 works drawings, and the one documented here is circuit No. 3 —
+// the qualifier is part of the designation and is carried, so a solid chip is never
+// a bare prefix of the ghost chip beside it.
+function baseLabel(m) {
+  if (!m.documented) return m.shortDesig;
+  const id = displayId(m.ampId), desig = m.shortDesig;
+  return desig.length > id.length && desig.toUpperCase().startsWith(id.toUpperCase()) ? desig : id;
 }
-function chipWidth(m) {
+// One designation can belong to two lines at once: Fender used AA763 for both the
+// blackface Deluxe and the Deluxe Reverb that split off from it. Two chips reading
+// the same text are indistinguishable on the chart, so any label that is not unique
+// across the tree is qualified with its line.
+const labelUses = new Map();
+for (const fam of history)
+  for (const m of fam.models) labelUses.set(baseLabel(m), (labelUses.get(baseLabel(m)) || 0) + 1);
+function chipLabel(m, fam) {
+  const base = baseLabel(m);
+  return labelUses.get(base) > 1 ? `${base} ${lineName(fam)}` : base;
+}
+function chipWidth(m, fam) {
   const ver = m.documented && byId.get(m.ampId)?.meta.verification?.status === 'verified';
-  return Math.max(CW, Math.round((chipLabel(m).length + (ver ? 2 : 0)) * 6.9) + 18);
+  return Math.max(CW, Math.round((chipLabel(m, fam).length + (ver ? 2 : 0)) * 6.9) + 18);
 }
 const xScale = (yr) => X0 + ((yr - YEAR_MIN) / (YEAR_MAX - YEAR_MIN)) * PLOTW;
 
@@ -96,21 +132,92 @@ const fams = [...history].sort(
 
 // greedy interval-pack a family's models into sub-rows so chips never overlap,
 // preserving chronological order (left to right)
-function packBand(models) {
+function packBand(models, fam) {
   // Stable sort: same-year models keep their authored (chronological) YAML order.
   const sorted = [...models].sort((a, b) => a.years.start - b.years.start);
   const rowEnds = [];
   const placed = [];
   for (const m of sorted) {
-    const w = chipWidth(m);
+    const w = chipWidth(m, fam);
     let nx = xScale(m.years.start);
     if (nx + w > X1) nx = X1 - w;
-    let row = rowEnds.findIndex((end) => nx >= end + 10);
+    // A chip owns more than its box: the production-span bar runs to the model's end
+    // year and finishes in a dot. Pack against that full extent, or a later chip in
+    // the same row lands on its neighbour's span-end dot.
+    const ext = Math.max(nx + w + 5, xScale(m.years.end)) + 4;
+    let row = rowEnds.findIndex((end) => nx >= end + GAP_X);
     if (row === -1) { row = rowEnds.length; rowEnds.push(0); }
-    rowEnds[row] = nx + w;
+    rowEnds[row] = ext;
     placed.push({ m, nx, row, w });
   }
   return { placed, rows: rowEnds.length };
+}
+
+// --- connector routing ------------------------------------------------------
+// A connector never crosses a chip: the chip text is the content, and a line through
+// it is a defect. Every route is an orthogonal path — out of one chip's edge, along a
+// clear vertical corridor, into the other's — with rounded corners. The corridor x is
+// chosen from the gaps around the boxes the route would otherwise strike, so both the
+// succession chains inside a dense lane and the derivation arrows that cross lanes go
+// AROUND the chips between their endpoints rather than through them.
+function inflate(b, p) { return { x: b.x - p, y: b.y - p, X: b.x + b.w + p, Y: b.y + b.h + p }; }
+function segHits(x1, y1, x2, y2, r) {
+  // every segment is axis-aligned, so a box-overlap test is exact
+  return Math.min(x1, x2) <= r.X && Math.max(x1, x2) >= r.x &&
+         Math.min(y1, y2) <= r.Y && Math.max(y1, y2) >= r.y;
+}
+// where a route leaves/enters a box, given the corridor it runs in
+function anchorOn(box, other, gx) {
+  if (gx >= box.x + 8 && gx <= box.x + box.w - 8) {
+    const down = other.cy > box.cy;
+    return { x: gx, y: down ? box.y + box.h : box.y, side: down ? 'down' : 'up' };
+  }
+  return gx > box.cx
+    ? { x: box.x + box.w, y: box.cy, side: 'right' }
+    : { x: box.x, y: box.cy, side: 'left' };
+}
+function routeAt(a, b, gx, rects) {
+  const s = anchorOn(a, b, gx), t = anchorOn(b, a, gx);
+  const raw = [[s.x, s.y], [gx, s.y], [gx, t.y], [t.x, t.y]];
+  const pts = raw.filter((p, i) => i === 0 ||
+    Math.abs(p[0] - raw[i - 1][0]) > 0.01 || Math.abs(p[1] - raw[i - 1][1]) > 0.01);
+  let len = 0, clear = true;
+  for (let i = 1; i < pts.length; i++) {
+    len += Math.abs(pts[i][0] - pts[i - 1][0]) + Math.abs(pts[i][1] - pts[i - 1][1]);
+    for (const r of rects)
+      if (segHits(pts[i - 1][0], pts[i - 1][1], pts[i][0], pts[i][1], r)) clear = false;
+  }
+  return { pts, s, t, gx, clear, cost: len + (pts.length - 2) * 26 };
+}
+function routeBetween(a, b, obstacles) {
+  const rects = obstacles.filter((o) => o !== a && o !== b).map((o) => inflate(o, COL_PAD));
+  const cands = new Set([a.cx, b.cx, (a.x + a.w + b.x) / 2, (b.x + b.w + a.x) / 2]);
+  for (const o of [a, b, ...obstacles]) {
+    cands.add(o.x - COL_PAD - 10);
+    cands.add(o.x + o.w + COL_PAD + 10);
+  }
+  let best = null;
+  for (const gx of cands) {
+    if (gx < X0 - 30 || gx > X1 + 20) continue;
+    const r = routeAt(a, b, gx, rects);
+    if (!r.clear) continue;
+    if (!best || r.cost < best.cost) best = r;
+  }
+  return best || routeAt(a, b, (a.cx + b.cx) / 2, []);
+}
+// orthogonal point list → path with rounded corners
+function pathOf(pts, r = 9) {
+  let d = `M ${pts[0][0].toFixed(1)} ${pts[0][1].toFixed(1)}`;
+  for (let i = 1; i < pts.length - 1; i++) {
+    const [px, py] = pts[i - 1], [cx, cy] = pts[i], [nx, ny] = pts[i + 1];
+    const d1 = Math.hypot(cx - px, cy - py), d2 = Math.hypot(nx - cx, ny - cy);
+    if (d1 < 0.01 || d2 < 0.01) { d += ` L ${cx.toFixed(1)} ${cy.toFixed(1)}`; continue; }
+    const rr = Math.max(0, Math.min(r, d1 / 2, d2 / 2));
+    d += ` L ${(cx + ((px - cx) / d1) * rr).toFixed(1)} ${(cy + ((py - cy) / d1) * rr).toFixed(1)}` +
+         ` Q ${cx.toFixed(1)} ${cy.toFixed(1)} ${(cx + ((nx - cx) / d2) * rr).toFixed(1)} ${(cy + ((ny - cy) / d2) * rr).toFixed(1)}`;
+  }
+  const last = pts[pts.length - 1];
+  return `${d} L ${last[0].toFixed(1)} ${last[1].toFixed(1)}`;
 }
 
 // lay bands top-to-bottom; resolve each model's box; build succession chains
@@ -118,21 +225,24 @@ const bands = [];
 let y = BANDS_TOP;
 for (const fam of fams) {
   if (!fam.models.length) continue;
-  const { placed, rows } = packBand(fam.models);
+  const { placed, rows } = packBand(fam.models, fam);
   const top = y, height = rows * ROWH;
   const pos = new Map();       // designation -> box (unique within a family)
   for (const p of placed) {
     const cy = top + p.row * ROWH + ROWH / 2;
     pos.set(p.m.designation, { x: p.nx, y: cy - CH / 2, cx: p.nx + p.w / 2, cy, w: p.w, h: CH });
   }
-  // succession: chip centres joined in chronological order (left→right)
+  // succession: consecutive chips joined edge to edge in chronological order, routed
+  // around every other chip in the lane (a line that started at a chip's centre drew
+  // over its own label, and one drawn centre-to-centre crossed the chips between).
+  const boxes = [...pos.values()];
   const chrono = [...fam.models].sort((a, b) => a.years.start - b.years.start);
   const succ = [];
   for (let i = 0; i < chrono.length - 1; i++) {
     const a = pos.get(chrono[i].designation), b = pos.get(chrono[i + 1].designation);
-    succ.push(`M ${a.cx.toFixed(1)} ${a.cy} C ${((a.cx + b.cx) / 2).toFixed(1)} ${a.cy}, ${((a.cx + b.cx) / 2).toFixed(1)} ${b.cy}, ${b.cx.toFixed(1)} ${b.cy}`);
+    succ.push(pathOf(routeBetween(a, b, boxes).pts));
   }
-  const nodes = placed.map((p) => ({ ...p, box: pos.get(p.m.designation) }));
+  const nodes = placed.map((p) => ({ ...p, label: chipLabel(p.m, fam), box: pos.get(p.m.designation) }));
   bands.push({ fam, top, height, mid: top + height / 2, nodes, succ });
   y = top + height + BAND_GAP;
 }
@@ -141,29 +251,87 @@ const H = AXIS_Y + 38;
 const ticks = [];
 for (let yr = 1945; yr <= 1980; yr += 5) ticks.push(yr);
 
-// documented-circuit boxes, keyed by amp id, for the cross-family derivation arrows
-const docBox = new Map();
-for (const b of bands) for (const n of b.nodes) if (n.m.documented) docBox.set(n.m.ampId, n.box);
+// every chip on the chart — the obstacle set a cross-lane arrow must clear
+const allBoxes = [];
+for (const b of bands) for (const n of b.nodes) allBoxes.push(n.box);
+// documented-circuit chips, keyed by amp id, for the cross-family derivation arrows
+const docNode = new Map();
+for (const b of bands)
+  for (const n of b.nodes)
+    if (n.m.documented) docNode.set(n.m.ampId, { box: n.box, label: n.label, fam: b.fam });
+
+const HEAD_L = 9, HEAD_W = 4.5;
+const ARROW_DIR = { left: 'right', right: 'left', up: 'down', down: 'up' };
+function headPoly(x, y, dir) {
+  if (dir === 'right') return `${x.toFixed(1)},${y.toFixed(1)} ${(x - HEAD_L).toFixed(1)},${(y - HEAD_W).toFixed(1)} ${(x - HEAD_L).toFixed(1)},${(y + HEAD_W).toFixed(1)}`;
+  if (dir === 'left') return `${x.toFixed(1)},${y.toFixed(1)} ${(x + HEAD_L).toFixed(1)},${(y - HEAD_W).toFixed(1)} ${(x + HEAD_L).toFixed(1)},${(y + HEAD_W).toFixed(1)}`;
+  if (dir === 'down') return `${x.toFixed(1)},${y.toFixed(1)} ${(x - HEAD_W).toFixed(1)},${(y - HEAD_L).toFixed(1)} ${(x + HEAD_W).toFixed(1)},${(y - HEAD_L).toFixed(1)}`;
+  return `${x.toFixed(1)},${y.toFixed(1)} ${(x - HEAD_W).toFixed(1)},${(y + HEAD_L).toFixed(1)} ${(x + HEAD_W).toFixed(1)},${(y + HEAD_L).toFixed(1)}`;
+}
 function edgeGeom(e) {
-  const s = docBox.get(e.parent), t = docBox.get(e.child);
+  const s = docNode.get(e.parent)?.box, t = docNode.get(e.child)?.box;
   if (!s || !t) return null;
-  const sx = s.x + s.w, sy = s.cy, tx = t.x, ty = t.cy;
-  const mx = sx + (tx - sx) * 0.5;
-  const d = `M ${sx.toFixed(1)} ${sy.toFixed(1)} C ${mx.toFixed(1)} ${sy.toFixed(1)}, ${mx.toFixed(1)} ${ty.toFixed(1)}, ${(tx - 7).toFixed(1)} ${ty.toFixed(1)}`;
-  const head = `${tx.toFixed(1)},${ty.toFixed(1)} ${(tx - 9).toFixed(1)},${(ty - 4.5).toFixed(1)} ${(tx - 9).toFixed(1)},${(ty + 4.5).toFixed(1)}`;
+  const r = routeBetween(s, t, allBoxes);
+  const pts = r.pts.map((p) => [...p]);
+  const dir = ARROW_DIR[r.t.side];
+  const tip = [...pts[pts.length - 1]];
+  // pull the shaft back to the base of the head
+  const last = pts[pts.length - 1], prev = pts[pts.length - 2];
+  if (prev) {
+    const dx = Math.sign(last[0] - prev[0]), dy = Math.sign(last[1] - prev[1]);
+    last[0] -= dx * HEAD_L; last[1] -= dy * HEAD_L;
+  }
   const caption = edgeCaption(e.parent, e.child);
   const capLines = caption ? caption.split(' · ') : [];
-  const capW = capLines.reduce((mx2, l) => Math.max(mx2, l.length), 0) * 6.0 + 10;
+  const capW = capLines.reduce((w, l) => Math.max(w, l.length), 0) * 6.0 + 10;
   const capH = capLines.length * 12 + 6;
-  return { d, head, capLines, capW, capH, lx: (sx + tx) / 2, ly: (sy + ty) / 2 };
+  // Hang the caption on the longest leg of the route, at the first point along it
+  // where the caption chip does not land on another chip. A 1.5-unit graze against a
+  // chip's border is tolerated, so a caption is not thrown off the middle of its leg
+  // by a box it only just touches.
+  const rects = allBoxes.filter((b) => b !== s && b !== t).map((b) => inflate(b, -1.5));
+  let leg = null, legLen = -1;
+  for (let i = 1; i < pts.length; i++) {
+    const L = Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]);
+    if (L > legLen) { legLen = L; leg = [pts[i - 1], pts[i]]; }
+  }
+  let lx = (leg[0][0] + leg[1][0]) / 2, ly = (leg[0][1] + leg[1][1]) / 2;
+  const clearAt = (px, py) => !rects.some((rr) =>
+    segHits(px - capW / 2, py - capH / 2, px + capW / 2, py + capH / 2, rr));
+  if (!clearAt(lx, ly)) {
+    for (const f of [0.35, 0.65, 0.25, 0.75, 0.15, 0.85]) {
+      const px = leg[0][0] + (leg[1][0] - leg[0][0]) * f;
+      const py = leg[0][1] + (leg[1][1] - leg[0][1]) * f;
+      if (clearAt(px, py)) { lx = px; ly = py; break; }
+    }
+  }
+  return { d: pathOf(pts), head: headPoly(tip[0], tip[1], dir), capLines, capW, capH, lx, ly };
 }
 const drawnArrows = crossEdges.map((e) => ({ ...e, ...edgeGeom(e) })).filter((e) => e.d);
+
+// The prose under the figure names the arrows the chart draws. It is generated from
+// the same list the SVG is generated from, so a new documented cross-family
+// derivation cannot silently make the caption a partial list.
+const NUM = ['no', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine'];
+function edgePhrase(e) {
+  const p = docNode.get(e.parent), c = docNode.get(e.child);
+  return `the ${p.label} in the ${lineName(p.fam)} line to the ${c.label} in the ${lineName(c.fam)} line`;
+}
+function joinList(items) {
+  if (items.length <= 1) return items.join('');
+  if (items.length === 2) return `${items[0]}, and ${items[1]}`;
+  return `${items.slice(0, -1).join(', ')}, and ${items[items.length - 1]}`;
+}
+const arrowCount = drawnArrows.length;
+const arrowList = joinList(drawnArrows.map(edgePhrase));
+const arrowWord = `${NUM[arrowCount] ?? arrowCount} arrow${arrowCount === 1 ? '' : 's'}`;
 
 const nModels = history.reduce((n, f) => n + f.models.length, 0);
 const nDoc = history.reduce((n, f) => n + f.documentedCount, 0);
 const title = 'Lineage — the family tree of classic guitar amp circuits · Circuit Codex';
 const description =
-  'A family tree of vintage guitar tube-amp circuits: every model placed on an era axis by family line, with a light succession line through each family and documented derivation arrows drawn only between families where the metadata records them — the tweed 5F6-A Bassman to the Marshall JTM45. Documented circuits link their page; history-tier models link their family history.';
+  'A family tree of vintage guitar tube-amp circuits: every model placed on an era axis by family line, with a light succession line through each family and documented derivation arrows drawn only between families where the metadata records them — ' +
+  `${arrowWord} in all, ${arrowList}. Documented circuits link their page; history-tier models link their family history.`;
 const canonical = new URL('lineage/', Astro.site).href;
 const jsonld = {
   '@context': 'https://schema.org',
@@ -226,7 +394,7 @@ const jsonld = {
                   <line class="span" x1={box.x + box.w - 2} y1={box.cy} x2={spanX2} y2={box.cy} />
                   <circle class="span-end" cx={spanX2} cy={box.cy} r="2.2" />
                   <rect class="chip" x={box.x} y={box.y} width={box.w} height={box.h} rx="6" />
-                  <text class="cid" x={box.cx} y={box.y + 13} text-anchor="middle">{doc ? displayId(m.ampId) : m.shortDesig}{ver && <tspan class="tick"> ✓</tspan>}</text>
+                  <text class="cid" x={box.cx} y={box.y + 13} text-anchor="middle">{n.label}{ver && <tspan class="tick"> ✓</tspan>}</text>
                   <text class="cstyle" x={box.cx} y={box.y + 24} text-anchor="middle">{m.wattage != null ? `${m.wattage} W` : '—'}</text>
                 </a>
               );
@@ -236,7 +404,7 @@ const jsonld = {
 
         <!-- documented cross-family derivation arrows (drawn last, above the lanes) -->
         {drawnArrows.map((e) => (
-          <g class="edge">
+          <g class="edge" data-edge={`${e.parent}->${e.child}`}>
             <path class="lead" d={e.d} fill="none" />
             <polygon class="head" points={e.head} />
             {e.capLines.length > 0 && (
@@ -261,9 +429,10 @@ const jsonld = {
       <strong>Two connectors, two claims.</strong> A <em>succession line</em> joins the models
       inside one family in date order — it records the chain of revisions that carried the line's
       name, not that each step is a documented derivation of the last. An <em>arrow</em> is drawn
-      only where an amp's own metadata records a derivation across family lines — here, the tweed
-      5F6-A Bassman to the Marshall JTM45 that copied it; its caption reads the change in power
-      tubes and rectifier straight from each circuit's data. Within-family documented derivations
+      only where an amp's own metadata records a derivation across family lines. The chart draws
+      {' '}{arrowWord}: {arrowList}. Each arrow's caption reads the change straight from the two
+      circuits' data — the power tubes and rectifier where those differ, the output rating where
+      they do not. Within-family documented derivations
       (the 5E1 Champ to the 5F1, the JTM45 to the model 1987) are carried by the succession line
       rather than double-drawn as arrows. Outline chips are history-tier models — placed and
       sourced, their circuits not yet drawn — so each family reads as a complete chain even where
