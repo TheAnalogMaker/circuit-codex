@@ -267,14 +267,20 @@ runs:
   - { from: V2.pin3, to: RKCF.a, via: [[90.8, 1.5]] }         # CF cathode (KCF) -> 100k load
   - { from: RKCF.b, to: [1.45, 90] }                          # CF load -> ground
   - { from: V2.pin3, to: RSL.a, via: [[91.2, 1.75], [88.4, 1.6]] } # CF cathode -> 33k slope
-  - { from: RSL.b, to: VR3.lug3, via: [[85.6, 0.4], [85.3, -0.5]] }   # slope -> treble top
-  - { from: RSL.b, to: VR4.lug3, via: [[88.0, 0.35], [87.3, -0.5]] }  # slope -> bass top
-  - { from: VR3.lug1, to: VR4.lug3, via: [[85.0, -0.72], [87.0, -0.72]] } # treble bottom -> bass top
-  - { from: VR3.lug2, to: C11.a, via: [[85.0, -0.55], [74.5, -0.55]] }   # treble wiper -> PI coupler
-  - { from: VR4.lug2, to: C11.a, via: [[87.0, -0.66], [74.0, -0.66]] }   # bass wiper -> PI coupler
-  - { from: VR4.lug1, to: VR5.lug3, via: [[86.9, -0.55], [89.6, -0.55]] } # bass bottom -> middle top
-  - { from: VR5.lug2, to: VR5.lug3 }                                     # middle wired as a rheostat
-  - { from: VR5.lug1, to: [1.45, 89.5], via: [[89.5, -0.4], [89.5, 1.9]] } # middle ground (C10 at the pot)
+  # Tone-network wiring per the published model 1959 drawing (the layout's own
+  # source): the 500 pF hangs off node A (the cathode-follower output), the
+  # treble pot's lower lug sits on the far side of the bass cap, the bass pot
+  # is a rheostat (arrow-through-body on the drawing; wiper strapped here), the
+  # mid cap feeds the MIDDLE POT'S WIPER, and the stack's output is the treble
+  # wiper alone.
+  - { from: RSL.a, to: VR3.lug3, via: [[85.6, 0.4], [85.3, -0.5]] }   # node A (CF output, the slope's input side) -> 500 pF (at the pot) -> treble top
+  - { from: RSL.b, to: VR4.lug3, via: [[88.0, 0.35], [87.3, -0.5]] }  # slope foot -> 0.022 µF (at the pot) -> bass-cap node
+  - { from: VR3.lug1, to: VR4.lug3, via: [[85.0, -0.72], [87.0, -0.72]] } # treble bottom -> bass-cap node
+  - { from: VR3.lug2, to: C11.a, via: [[85.0, -0.55], [74.5, -0.55]] }   # treble wiper (the stack's output, alone) -> PI coupler
+  - { from: VR4.lug2, to: VR4.lug3, via: [[87.15, -0.66], [87.15, -0.95], [87.56, -0.95]] }  # bass wiper strapped to its hot lug (rheostat)
+  - { from: VR4.lug1, to: VR5.lug3, via: [[86.9, -0.55], [89.6, -0.55]] } # bass foot -> middle top
+  - { from: RSL.b, to: VR5.lug2, via: [[88.6, 0.35], [88.6, -0.85], [89.5, -0.85]] }  # slope foot -> 0.022 µF (at the pot) -> the middle pot's WIPER
+  - { from: VR5.lug1, to: [1.45, 89.5], via: [[89.5, -0.4], [89.5, 1.9]] } # middle ground
 
   # --- V2A second stage + V2B cathode follower + channel mixers -------------
   - { from: RL3.a, to: C26.a, via: [[98.3, 2.90], [36.2, 2.90], [36.0, 0.55]] } # V2A plate load -> B+3
