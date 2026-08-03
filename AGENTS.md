@@ -41,7 +41,9 @@ python3 pipeline/verify_amps.py         # DC op-point vs chart (draft=warn, veri
 cd pipeline && python3 check_schematics.py   # kiutils round-trip
 cd pipeline && python3 check_layouts.py      # layout render + collision lint (+waivers)
 python3 pipeline/verify_layout_nets.py       # layout↔netlist equivalence (+--selftest)
+python3 pipeline/export_loadlines.py --check # reference/loadlines.yaml vs the netlists
 cd site && npm ci && npm run build      # site must build
+cd site && node scripts/check-loadline-parity.mjs   # browser solver vs. ngspice
 ```
 
 Use `python3` (no `python` on PATH in the usual environments). ngspice is required
