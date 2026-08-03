@@ -42,9 +42,15 @@ ROOT = Path(__file__).resolve().parent.parent
 AMPS = ROOT / "amps"
 OUT = ROOT / "reference" / "loadlines.yaml"
 
-# Power tubes the explorer can draw: every non-rectifier model whose .inc carries a
-# 4-terminal pentode subckt. Rectifier diodes have no grid and are not load-lined.
-POWER_TUBES = {"6V6GT", "5881", "KT66", "EL34"}
+# Output valves the explorer can draw. Not every 4-terminal pentode qualifies: the
+# AC15's EF86 is a small-signal pentode sitting on a 220 kΩ anode load, and its
+# milliamp of plate current is not an output stage. So this stays an explicit list of
+# the valves the corpus documents in output service — but it is *gated*, not trusted:
+# every circuit must yield exactly one output stage, and build() fails naming the
+# pentodes it saw if one does not. That gate is what caught the EL84 missing here
+# when the Vox AC15 joined the corpus; a frozen list that silently drops a circuit is
+# the failure mode this file is most exposed to.
+POWER_TUBES = {"6V6GT", "5881", "KT66", "EL34", "EL84"}
 
 class QStr(str):
     """A string that must survive both YAML loaders. Circuit ids like 5e1 and tube
@@ -210,8 +216,18 @@ def ot_primary(bom: dict | None) -> tuple[float | None, bool, str | None]:
 
 
 # ----------------------------------------------------------------------- main
+def pentode_models(rows: list[list[str]]) -> list[str]:
+    """Every 4-terminal pentode model instantiated in a deck, for the coverage gate's
+    failure message — so a circuit whose output valve is missing from POWER_TUBES says
+    which valves it actually contains instead of just vanishing from the export."""
+    seen = [t[5].upper() for t in rows
+            if t[0].upper().startswith("X") and len(t) == 6]
+    return sorted(set(seen))
+
+
 def build() -> dict:
     stages = []
+    missing: list[str] = []
     for amp_dir in sorted(d for d in AMPS.iterdir()
                           if d.is_dir() and d.name != "_template"):
         netlist = amp_dir / "netlist.cir"
@@ -220,6 +236,10 @@ def build() -> dict:
         rows = read_deck(netlist)
         stage = find_output_stage(rows)
         if not stage:
+            # Every documented circuit is an amplifier and therefore has an output
+            # stage. Reaching here means POWER_TUBES has fallen behind the corpus.
+            missing.append(f"  amps/{amp_dir.name}: no output stage — "
+                           f"pentodes in its netlist: {', '.join(pentode_models(rows)) or 'none'}")
             continue
         meta = yaml.safe_load((amp_dir / "meta.yaml").read_text())
         bom_path = amp_dir / "bom.yaml"
@@ -277,6 +297,10 @@ def build() -> dict:
             "sim_ig2_ma": round(sim[probes[1]] * 1e3, 4),
         }
         stages.append(entry)
+    if missing:
+        sys.exit("FAIL export_loadlines: every documented circuit must yield one "
+                 "output stage; these did not —\n" + "\n".join(missing) +
+                 "\n  Add the output valve to POWER_TUBES in pipeline/export_loadlines.py.")
     return {"stages": stages}
 
 

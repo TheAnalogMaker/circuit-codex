@@ -10,6 +10,30 @@
 # impedance, ot_primary_z is null and ot_primary_note repeats the parts list's
 # own wording rather than inventing a figure.
 stages:
+- amp: '5d3'
+  name_style: Wide-panel Tweed Deluxe-style
+  tube: '6V6GT'
+  output_tubes: 2
+  config: push-pull
+  bias: cathode
+  plate_node: BP1
+  plate_v: 360.0
+  screen_node: BP2
+  screen_v: 268.793
+  cathode_node: K66
+  cathode_v: 16.757
+  rk_total: 250.0
+  rk_per_tube: 500.0
+  grid_node: G6A
+  grid_v: 0.0
+  grid_supply_node: null
+  grid_supply_v: null
+  ot_primary_z: null
+  ot_primary_approx: false
+  ot_primary_note: 'push-pull : 8 Ω — Push-pull output, with a second 8 Ω jack for an extra speaker; the
+    drawing marks no impedances'
+  sim_ip_ma: 30.8706
+  sim_ig2_ma: 2.6429
 - amp: '5e1'
   name_style: Tweed Champ-style
   tube: '6V6GT'
@@ -152,6 +176,29 @@ stages:
   ot_primary_note: Fender 45216 — Push-pull output into 2 × 10 in speakers
   sim_ip_ma: 50.946
   sim_ig2_ma: 2.7825
+- amp: '5f6'
+  name_style: Tweed Bassman-style
+  tube: '5881'
+  output_tubes: 2
+  config: push-pull
+  bias: fixed
+  plate_node: BP1
+  plate_v: 432.0
+  screen_node: S51
+  screen_v: 430.42
+  cathode_node: '0'
+  cathode_v: 0.0
+  rk_total: null
+  rk_per_tube: null
+  grid_node: G51
+  grid_v: -48.0
+  grid_supply_node: null
+  grid_supply_v: null
+  ot_primary_z: null
+  ot_primary_approx: false
+  ot_primary_note: Fender 45249 — Push-pull output into four speakers
+  sim_ip_ma: 29.6907
+  sim_ig2_ma: 0.9755
 - amp: '5f6a'
   name_style: Tweed Bassman-style
   tube: '5881'
@@ -175,6 +222,98 @@ stages:
   ot_primary_note: Fender 45249 · 2 Ω secondary — Push-pull output into four 8 Ω speakers
   sim_ip_ma: 29.5318
   sim_ig2_ma: 0.9644
+- amp: '6g3'
+  name_style: Brown Deluxe-style
+  tube: '6V6GT'
+  output_tubes: 2
+  config: push-pull
+  bias: fixed
+  plate_node: BP
+  plate_v: 375.0
+  screen_node: BS
+  screen_v: 363.59
+  cathode_node: '0'
+  cathode_v: 0.0
+  rk_total: null
+  rk_per_tube: null
+  grid_node: G61
+  grid_v: -26.0
+  grid_supply_node: NBIAS
+  grid_supply_v: -26.0
+  ot_primary_z: null
+  ot_primary_approx: false
+  ot_primary_note: 125A1A — Push-pull output
+  sim_ip_ma: 46.7088
+  sim_ig2_ma: 3.6949
+- amp: 'aa1164'
+  name_style: Blackface Princeton Reverb-style
+  tube: '6V6GT'
+  output_tubes: 2
+  config: push-pull
+  bias: fixed
+  plate_node: BA
+  plate_v: 420.0
+  screen_node: BB
+  screen_v: 407.492
+  cathode_node: '0'
+  cathode_v: 0.0
+  rk_total: null
+  rk_per_tube: null
+  grid_node: G61
+  grid_v: -34.0
+  grid_supply_node: NBIAS
+  grid_supply_v: -34.0
+  ot_primary_z: null
+  ot_primary_approx: false
+  ot_primary_note: Fender 125A10B — Push-pull 6V6 output
+  sim_ip_ma: 38.6912
+  sim_ig2_ma: 2.217
+- amp: 'aa764'
+  name_style: Blackface Champ-style
+  tube: '6V6GT'
+  output_tubes: 1
+  config: single-ended
+  bias: cathode
+  plate_node: BP1
+  plate_v: 360.0
+  screen_node: BP2
+  screen_v: 354.031
+  cathode_node: K2
+  cathode_v: 22.602
+  rk_total: 470.0
+  rk_per_tube: 470.0
+  grid_node: G2
+  grid_v: 0.0
+  grid_supply_node: null
+  grid_supply_v: null
+  ot_primary_z: null
+  ot_primary_approx: false
+  ot_primary_note: Fender 125A35A — Single-ended output (impedance ratio not marked on the drawing)
+  sim_ip_ma: 44.3715
+  sim_ig2_ma: 3.7174
+- amp: 'aa964'
+  name_style: Blackface Princeton-style
+  tube: '6V6GT'
+  output_tubes: 2
+  config: push-pull
+  bias: fixed
+  plate_node: BP1
+  plate_v: 420.0
+  screen_node: BA
+  screen_v: 411.998
+  cathode_node: '0'
+  cathode_v: 0.0
+  rk_total: null
+  rk_per_tube: null
+  grid_node: G61
+  grid_v: -34.0
+  grid_supply_node: NBIAS
+  grid_supply_v: -34.0
+  ot_primary_z: null
+  ot_primary_approx: false
+  ot_primary_note: Fender 125A10B — Push-pull 6V6 output
+  sim_ip_ma: 40.5142
+  sim_ig2_ma: 2.4043
 - amp: 'ab763'
   name_style: Blackface Deluxe Reverb-style
   tube: '6V6GT'
@@ -198,6 +337,29 @@ stages:
   ot_primary_note: Fender 125A1A — Push-pull 6V6 output
   sim_ip_ma: 38.2022
   sim_ig2_ma: 2.0921
+- amp: 'ac15'
+  name_style: Vox AC15-style
+  tube: 'EL84'
+  output_tubes: 2
+  config: push-pull
+  bias: cathode
+  plate_node: BP1
+  plate_v: 315.0
+  screen_node: S3
+  screen_v: 314.594
+  cathode_node: KOUT
+  cathode_v: 11.184
+  rk_total: 130.0
+  rk_per_tube: 260.0
+  grid_node: G3
+  grid_v: 0.0
+  grid_supply_node: null
+  grid_supply_v: null
+  ot_primary_z: null
+  ot_primary_approx: false
+  ot_primary_note: Haddon OA 063 · push-pull EL84 primary · 8 Ω / 15 Ω secondary taps — Output transformer
+  sim_ip_ma: 38.9545
+  sim_ig2_ma: 4.0605
 - amp: 'jtm45'
   name_style: British lead-style
   tube: 'KT66'
@@ -220,6 +382,30 @@ stages:
   ot_primary_approx: false
   ot_primary_note: Push-pull, KT66 primary — Push-pull output to the speaker
   sim_ip_ma: 59.1388
+  sim_ig2_ma: 0.0
+- amp: 'm1959'
+  name_style: Super Lead 100-style
+  tube: 'EL34'
+  output_tubes: 4
+  config: push-pull
+  bias: fixed
+  plate_node: BP1
+  plate_v: 453.0
+  screen_node: SG4
+  screen_v: 453.0
+  cathode_node: '0'
+  cathode_v: 0.0
+  rk_total: null
+  rk_per_tube: null
+  grid_node: G4
+  grid_v: -46.0
+  grid_supply_node: null
+  grid_supply_v: null
+  ot_primary_z: null
+  ot_primary_approx: false
+  ot_primary_note: 16/8/4 Ω taps — Output transformer — parallel push-pull primary for four EL34s, 16/8/4
+    Ω secondary taps (feedback from the 16 Ω tap)
+  sim_ip_ma: 32.8241
   sim_ig2_ma: 0.0
 - amp: 'm1987'
   name_style: Plexi lead 50-style
