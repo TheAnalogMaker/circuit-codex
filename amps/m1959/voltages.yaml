@@ -1,0 +1,55 @@
+# Valve-voltage chart for the Marshall 1959 preamp and phase inverter, read from
+# the published factory "MARSHALL 100W. VOLT. CHART". That chart is issued with
+# the Unicord sheet carrying the SAME drawing number and date as this circuit's
+# drawing (70-6-11, July 1970) under the title "MARSHALL 1959 MARK II": a
+# component-for-component identical ECC83 front end ahead of a 6550 output
+# quartet instead of the EL34 quartet documented here.
+#
+# What that means for gating:
+#   * The chart's V1 / V2 / V3 rows describe the very circuit modelled here and
+#     are compared at the era's printed tube-pin tolerance of 20%.
+#   * The chart's output rows (453 V plate, 450 V screen, bias approx -51 V) are
+#     6550 figures. They are NOT claimed for the EL34 version — those nodes carry
+#     chart: null. The reservoir is driven at the chart's 453 V because the same
+#     power supply feeds either output quartet, and that is stated in netlist.cir
+#     as a modelling assumption rather than a measurement of an EL34 amp.
+#   * One printed value belongs to a component variant: the chart amp was built
+#     with the 1 kOhm V2A cathode resistor the drawing annotates as "(1K)", while
+#     the netlist uses the drawing's primary 820 Ohm. K2A is flagged accordingly.
+#
+# The chart also settles a modelling question the drawing alone leaves open. Its
+# 18.5 V phase-inverter cathode over the drawn 470 Ohm + 10 kOhm tail implies
+# 1.77 mA, which splits across the 82 kOhm and 100 kOhm plate loads to give
+# exactly the printed 210 V and 195 V plates at a 283 V supply. The tail is
+# therefore returned to DC ground through the 10 kOhm alone: the presence pot and
+# the feedback resistor sit at its cold end without adding series resistance.
+#
+# Rails and the output stage are reported informationally. The simulated supply
+# runs above the chart's implied rails because the v0 12AX7 model draws more
+# current through the 20 kOhm dropper than the chart's stages do; that carries
+# straight through to the phase-inverter tail, which reads high. This is one of
+# the reasons the circuit is published as a draft — see notes.md.
+source: "Marshall factory 'MARSHALL 100W. VOLT. CHART' published with Unicord drawing 70-6-11, July 1970 ('MARSHALL 1959 MARK II'): V1 pins 1/3/6/8 = 135 / 1.0 / 195 / 1.5; V2 pins 1/3/6/7/8 = 153 / 1.1 / 260 / 153 / 153; V3 pins 1/3/6/8 = 210 / 18.5 / 195 / 18.5; V4-V7 (6550) pins 3/4/5 = 453 / 450 / -51; footnote 'Bias approx. -51 vdc; primary current 1.2 - 1.3 amps at 120 vac'."
+nodes:
+  P1A:  { chart: 135, tol_pct: 20, note: "V1A plate — channel I (high-treble) input, 100 kΩ load, 820 Ω cathode (chart V1 pin 1)" }
+  K1A:  { chart: 1.0, tol_pct: 20, note: "V1A cathode (820 Ω, 250 µF bypass) — chart V1 pin 3" }
+  P1B:  { chart: 195, tol_pct: 20, note: "V1B plate — channel II (normal) input, 100 kΩ load (chart V1 pin 6)" }
+  K1B:  { chart: 1.5, tol_pct: 20, note: "V1B cathode (2.7 kΩ, 0.68 µF partial bypass) — the colder channel; chart V1 pin 8" }
+  P2A:  { chart: 153, tol_pct: 20, note: "V2A plate — second gain stage (100 kΩ load), DC-coupled to the cathode follower; chart V2 pin 1" }
+  K2A:
+    chart: 1.1
+    tol_pct: 20
+    note: "V2A cathode — chart V2 pin 3. The chart amp carries the 1 kΩ cathode resistor the drawing annotates as a variant; the netlist uses the drawing's primary 820 Ω, which idles this stage slightly hotter."
+  KCF:  { chart: 153, tol_pct: 20, note: "V2B cathode-follower output over its 100 kΩ load, feeding the TMB tone stack (chart V2 pin 8)" }
+  PPIA: { chart: 210, tol_pct: 20, note: "phase-inverter plate, 82 kΩ side (V3A, driven from the tone stack); chart V3 pin 1" }
+  PPIB: { chart: 195, tol_pct: 20, note: "phase-inverter plate, 100 kΩ side (V3B, the AC-grounded side); chart V3 pin 6" }
+  KPI:
+    chart: 18.5
+    tol_pct: 20
+    note: "phase-inverter shared cathode above the 470 Ω (chart V3 pins 3 and 8). The simulated value runs high: the anchor-point 12AX7 model idles this pair at ~2.5 mA against the chart's 1.8 mA, and the supply it hangs on is itself high for the same reason."
+  BP2:  { chart: null, note: "phase-inverter supply node, after the 20 kΩ/1 W dropper — no chart pin. The chart's own stage currents put it near 300 V" }
+  BP3:  { chart: 260, tol_pct: 20, note: "second-stage / cathode-follower supply node after the first 10 kΩ/1 W dropper — read from the cathode follower's plate, chart V2 pin 6" }
+  BP4:  { chart: null, note: "input-stage supply node after the second 10 kΩ/1 W dropper — no chart pin; the chart's V1 plate and cathode figures put it near 254 V" }
+  JPI:  { chart: null, note: "phase-inverter tail junction between the 470 Ω and the 10 kΩ, where both 1 MΩ grid leaks return" }
+  SG4:  { chart: null, note: "V4 screen grid after its 1 kΩ stopper — the only published figure is the 6550 variant's 450 V. The anchor-point EL34 model draws no screen current at this operating point, so the simulated node sits exactly at B+1" }
+  G4:   { chart: null, note: "V4 control grid, fed from the adjustable bias supply through the 120 kΩ leak and a 5.6 kΩ stopper — the drawing prints no bias figure and the only published one is the 6550 variant's -51 V" }

@@ -3,7 +3,8 @@ name: EL34
 also_known_as: [6CA7, "6CA7 (US beam-tetrode equivalent)"]
 role: >-
   Mullard/Philips A.F. output pentode — the output valve of the Marshall model
-  1987 "Plexi" 50 W lead head, and of the wider JMP Super Lead / Super Bass
+  1959 Super Lead 100, which carries four of them in parallel push-pull, of the
+  model 1987 50 W lead head, and of the wider JMP Super Lead / Super Bass
   family. Higher transconductance and a sharper overdrive than the KT66 it
   replaced when Marshall moved off the JTM45's British beam-tetrode pair; the
   EL34's screen behaviour is much of what gives the Plexi its aggressive top end.
@@ -36,7 +37,7 @@ basing:
     6: { element: nc }
     7: { element: heater }
     8: { element: cathode }
-used_in: [m1987]
+used_in: [m1959, m1987]
 datasheets:
   - publisher: Mullard / Philips
     designation: EL34

@@ -1,0 +1,130 @@
+* Marshall model 1959 "Super Lead" 100 W — DC operating-point netlist
+* Circuit Codex — CC-BY-SA 4.0. Independently drawn from the published Marshall
+* 1959 factory drawing's component values (Unicord drawing 70-6-11 rev B, dated
+* July 1970; title block "MARSHALL 1959"; see meta.yaml). No drawing reproduced.
+*
+* VOLTAGE-CHART BASIS. The 1959 drawing itself prints component values only.
+* A factory "MARSHALL 100W. VOLT. CHART" is published with the sibling Unicord
+* sheet of the same drawing number and date (70-6-11, July 1970, "MARSHALL 1959
+* MARK II"), whose preamp is component-for-component the same circuit but whose
+* output quartet is 6550 rather than EL34. Its ECC83 rows (V1/V2/V3) are
+* therefore read as the chart for this circuit's preamp and phase inverter and
+* are gate-compared at the era's printed +/-20% tube-pin tolerance. Its output
+* rows (453 V plate, 450 V screen, -51 V bias) describe the 6550-fitted variant
+* and are NOT claimed for the EL34 version: those nodes carry chart: null.
+* The reservoir B+1 is DRIVEN at 453 V — the chart's plate figure, used as a
+* modelling assumption for a rail the same power supply feeds either way, NOT as
+* a measurement of an EL34 amp — and every downstream rail is DERIVED through
+* the drawn 20 k / 10 k / 10 k dropper chain.
+*
+* DC conventions (as in the sibling amps): the output-transformer primary DCR is
+* omitted, so each EL34 plate node sits at B+1. DC-open caps whose BOTH leads
+* land on named DC nodes are modelled (they move no operating point but let a
+* later layout net-check verify their placement): the cathode-bypass caps
+* C1/C2/C7, the PI plate-to-plate compensation cap C12, and the PI->output-grid
+* couplers C15/C16. Caps with a lead inside an abstracted network (the volume
+* and tone-stack couplers, tone-stack internals, the 0.1 uF presence cap) stay
+* out. The fixed-bias network (HT-tap diode, 15k/27k/47k + 8uF filters and the
+* 27k bias trimmer) is replaced by an ideal negative source. The negative-
+* feedback resistor and the 5 k presence pot sit at the cold end of the PI tail,
+* which is at DC ground, so the tail is modelled as the drawn 470 R + 10 k to
+* ground. Grid-leak, grid-stopper and screen-stopper resistors carry ~0 DC in
+* the model; grids sit at their leak return. Heaters, the pilot lamp and the
+* PT/rectifier AC side are not modelled.
+.include models/12ax7.inc
+.include models/el34.inc
+
+VBP1 BP1 0 DC 453
+VBIAS NBIAS 0 DC -46
+
+* Rail chain: reservoir/OT centre tap + EL34 screens -> 20k -> phase inverter
+* -> 10k -> second stage / cathode follower -> 10k -> input stage.
+* Dropper values from the drawing (all 1 W).
+RD1 BP1 BP2 20k
+RD2 BP2 BP3 10k
+RD3 BP3 BP4 10k
+
+* --- V1 (ECC83) input valve: two channels ---
+* V1A channel I (high-treble): 100k plate, 820R cathode, 250uF bypass
+RL1 BP4 P1A 100k
+XV1A P1A G1A K1A 12AX7
+RG1 G1A 0 1meg
+RK1 K1A 0 820
+C1 K1A 0 250u
+* V1B channel II (normal): 100k plate, 2.7k cathode, 0.68uF partial bypass
+RL2 BP4 P1B 100k
+XV1B P1B G1B K1B 12AX7
+RG2 G1B 0 1meg
+RK2 K1B 0 2.7k
+C2 K1B 0 0.68u
+
+* --- V2 (ECC83) second stage + cathode follower ---
+* V2A gain stage: grid returns to ground through the volume pots + 470k mixers
+* (represented as a 470k DC return); 100k plate; 820R cathode (0.68uF bypass;
+* the drawing annotates a 1k variant, which the chart amp was built with)
+RL3 BP3 P2A 100k
+XV2A P2A G2A K2A 12AX7
+RGMIX G2A 0 470k
+RK3 K2A 0 820
+C7 K2A 0 0.68u
+* V2B cathode follower: grid DC-coupled to V2A plate, plate to the 2nd-stage
+* rail, 100k cathode load feeding the TMB tone stack
+XV2B BP3 P2A KCF 12AX7
+RKCF KCF 0 100k
+
+* --- V3 (ECC83) long-tailed-pair phase inverter ---
+* 82k (V3A, the tone-stack-driven side) / 100k (V3B) plate loads from the PI
+* rail; 470R shared cathode over a 10k tail; V3A grid from the tone stack
+* (0.022 coupler, DC-open) with a 1M leak; V3B grid AC-coupled to the presence /
+* feedback node, DC-referred to the tail junction through its own 1M leak.
+RLA BP2 PPIA 82k
+XV3A PPIA GPIA KPI 12AX7
+RGA GPIA JPI 1meg
+RLB BP2 PPIB 100k
+XV3B PPIB GPIB KPI 12AX7
+RGB GPIB JPI 1meg
+* C14: the V3B grid is AC-coupled to the presence / feedback node, which is the
+* tail junction. Both ends are real netlist nodes (GPIB == JPI at DC through
+* RGB) and the cap is DC-open, so modelling it moves no operating point but
+* lets the layout net-check prove it lands on the tail junction, not elsewhere.
+C14 GPIB JPI 0.1u
+RTAIL KPI JPI 470
+RT2 JPI 0 10k
+* 47pF plate-to-plate phase-compensation cap (DC-open, both leads on named nodes)
+C12 PPIA PPIB 47p
+
+* --- V4..V7 (EL34) parallel push-pull output, fixed bias ---
+* Cathodes grounded; each screen fed from B+1 through its own 1k stopper; plates
+* at B+1 (OT primary DCR omitted). Two tubes per phase: the PI plates couple in
+* through 0.022uF caps (open at DC) onto a phase node that carries the drawn
+* 120k grid leak to the bias line and a 5.6k stopper into each grid. g3
+* (suppressor) is tied to the cathode in use; the model's node order is P G2 G1 K.
+* The 0.022uF couplers C15/C16 are modelled — both leads on named DC nodes — so a
+* later layout net-check can prove the push-pull phase natively.
+* NOTE on the -46 V modelling bias: it is chosen, not read. The bias supply is
+* adjustable (27k trimmer) and the drawing prints no bias figure; the sibling
+* chart's -51 V belongs to its 6550 quartet, not to EL34s. -46 V lands the v0
+* EL34 model at ~33 mA and ~15 W per valve, inside the range a 100 W Super Lead
+* is actually set to. The model draws NO screen current at this operating point
+* (its screen term is a single Child's-law expression that goes to zero below
+* Vg2/mu + Vg1 = 0), so the 1k screen stoppers show no drop and the screen nodes
+* read exactly B+1 — a v0-model limitation (models/METHODOLOGY.md), and one of
+* the reasons this circuit is DRAFT, not verified.
+* --- phase A (from the 82k PI plate): V4 + V5
+RGL1 NGA NBIAS 120k
+C15 PPIA NGA 0.022u
+RS4 NGA G4 5.6k
+RSC4 BP1 SG4 1k
+XV4 BP1 SG4 G4 0 EL34
+RS5 NGA G5 5.6k
+RSC5 BP1 SG5 1k
+XV5 BP1 SG5 G5 0 EL34
+* --- phase B (from the 100k PI plate): V6 + V7
+RGL2 NGB NBIAS 120k
+C16 PPIB NGB 0.022u
+RS6 NGB G6 5.6k
+RSC6 BP1 SG6 1k
+XV6 BP1 SG6 G6 0 EL34
+RS7 NGB G7 5.6k
+RSC7 BP1 SG7 1k
+XV7 BP1 SG7 G7 0 EL34

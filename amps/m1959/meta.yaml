@@ -1,0 +1,34 @@
+# Circuit Codex metadata — schema: docs/schema.md (v1)
+id: "m1959"
+name_style: "Super Lead 100-style"
+family: british
+era:
+  start: 1965
+  end: 1981
+wattage: 100
+tubes: [ECC83, ECC83, ECC83, EL34, EL34, EL34, EL34]
+topology:
+  rectifier: { kind: solid-state, type: "silicon bridge" }
+  bias: fixed
+  phase_inverter: long-tailed-pair
+  tone_stack: cathode-follower-fmv
+lineage:
+  derived_from: ["jtm45"]   # via the 4xKT66 100-watt head; KT66 -> EL34, GZ34 -> silicon
+  influenced: []
+sources:
+  - desc: "Marshall model 1959 factory drawing — Unicord drawing 70-6-11 rev B, dated July 1970 (Unicord Incorporated, 75 Frost Street, Westbury NY, a Gulf+Western company; Marshall's US importer). Title block reads 'MARSHALL 1959'; complement 3x ECC83 (V1/V2/V3) + 4x EL34 (V4-V7), silicon bridge rectifier (NO rectifier valve). Every component value read directly from the published drawing: four inputs across two channels (68k stoppers, 1M leaks, 100k plates; V1A cathode 820R/250uF, V1B cathode 2.7k/0.68uF; 0.022 and 0.0022 couplers); 470k mixers into 1M volumes with 0.005 and 500pF bright caps; V2A second stage (100k plate, 820R/0.68uF cathode, drawing annotates the 820R as '(1K)'); V2B DC-coupled cathode follower (100k load); FMV tone stack (33k slope, 500pF/250k treble, 0.022/1M bass, 0.022/25k mid); long-tailed-pair PI (82k plate on the tone-stack side, 100k on the other, 470R + 10k tail, both 1M leaks to the junction, 47pF across the plates); 47k (100k annotated) feedback resistor and 5k presence pot with 0.1uF at the tail's cold end; four EL34s in parallel push-pull, 1k screen stoppers, 5.6k grid stoppers, two 120k grid leaks off a diode/15k/27k/47k bias supply with a 27k trimmer and 8uF filters; power 4x A10D10 bridge into 100uF+100uF series pairs with 56k balancing, 20k/1W then two 10k/1W droppers with 50uF+50uF pairs, universal mains taps 110/120/200/225/245. The drawing prints NO valve-voltage chart. Not reproduced here; archived at El34World."
+    url: "https://el34world.com/charts/Schematics/files/Marshall/Marshall_jmp_superlead_100w_1959.pdf"
+  - desc: "Marshall factory 'MARSHALL 100W. VOLT. CHART' — the published valve-voltage chart issued with the Unicord sheet of the same drawing number and date (70-6-11, July 1970) titled 'MARSHALL 1959 MARK II', whose ECC83 front end is component-for-component the circuit documented here ahead of a 6550 output quartet. Its V1/V2/V3 rows are the chart used in voltages.yaml; its output rows (453 V plate, 450 V screen, bias approx -51 V, primary current 1.2-1.3 A at 120 V AC) describe the 6550 variant and are not claimed for the EL34 version."
+    url: "https://el34world.com/charts/Schematics/files/Marshall/Marshall_1959mkii_volt_chrt.pdf"
+  - desc: "Marshall '100 Watt Amplifier, Type #2, c.1967' — an undated hand-drawn schematic archived with the factory sheets, used as a cross-reference. It confirms the same topology at the earlier date (four inputs, 68k stoppers, 100k plates, 820R/2.7k cathodes, cathode-follower TMB stack, long-tailed-pair inverter, four output valves, silicon bridge) and boxes its own rail figures of 375 V at the phase inverter, 305 V at the second stage and 270 V at the input stage. It is an earlier supply: a 20 H choke, an 8.2k dropper down to the phase-inverter rail where the 1970 factory sheet uses 20k, and a 33k feed to the bias supply. The factory sheet is the source used here."
+    url: "https://el34world.com/charts/Schematics/files/Marshall/Marshall_jmp_superlead_100w_1959.pdf"
+  - desc: "Mullard/Philips EL34 data sheet, January 1969 (A.F. Output Pentode) — anchor for the CC0 EL34 tube model and the octal basing (socket 5903/13): Va=250 V, Vg2=250 V, Vg1=-13.5 V -> Ia=100 mA, Ig2=14.9 mA, gm=12.5 mA/V, mu(g1-g2)=11"
+    url: "https://frank.pocnet.net/sheets/010/e/EL34.pdf"
+  - desc: "Wikipedia, 'Marshall Amplification' — the origin of the 100-watt heads as a special order from players wanting more than 45 watts on stage, the 1965 introduction of the 100-watt Super Lead as Marshall's catalog number 1959, its cost-driven move from KT66 to EL34 output valves, the 1969 change from the acrylic ('plexi') front panel to brushed metal, and the mid-1970s move to printed-circuit construction that closed the era this circuit belongs to"
+    url: "https://en.wikipedia.org/wiki/Marshall_Amplification"
+verification:
+  status: draft   # a published chart exists for the preamp, but it is the 6550
+                  # sibling's chart, the EL34 output stage has no published
+                  # figures at all, and the v0 EL34 model is only a rough fit at
+                  # this rail — verified must be earned, so it stays draft
+contributors: [TheAnalogMaker]

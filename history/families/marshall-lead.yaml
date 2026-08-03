@@ -55,24 +55,28 @@ models:
     years: { start: 1965, end: 1981 }
     wattage: 100
     output: "push-pull 4xKT66, later 4xEL34"
-    tubes: null
+    tubes: [ECC83, ECC83, ECC83, EL34, EL34, EL34, EL34]
     key_change: >
       Marshall's catalog number for the 100-watt Super Lead head. Its power
       valves moved from KT66 to Mullard EL34 as KT66 costs rose, in the same
       window (mid-to-late 1960s) the corpus's own circuit entries bracket for
       the family: the jtm45 entry documents a GZ34 tube-rectified supply as
-      late as 1966, while the m1987 entry documents a fully solid-state supply
-      by 1970 — the exact year the 100-watt head's rectifier crossed over is
-      not pinned down by the sources used here. The acrylic ("plexi") front
-      panel was replaced by brushed metal in 1969, and the model picked up a
-      "mkII" suffix and "JMP" branding after Marshall moved to printed-circuit
-      construction in the mid-1970s.
-    circuit_ref: null
+      late as 1966, while the corpus's m1959 circuit entry documents a
+      July-1970 factory drawing with four EL34s over a silicon bridge — the
+      exact year the 100-watt head's rectifier crossed over is not pinned down
+      by the sources used here. The acrylic ("plexi") front panel was replaced
+      by brushed metal in 1969, and the model picked up a "mkII" suffix and
+      "JMP" branding after Marshall moved to printed-circuit construction in
+      the mid-1970s. A US-market Mark II sheet of the same drawing number
+      substitutes a 6550 output quartet for the EL34s.
+    circuit_ref: m1959
     sources:
       - desc: "Wikipedia, \"Marshall Amplification\" — 1965 release of the 1959 Super Lead, the KT66-to-EL34 valve change (cost-driven), and the 1969 plexi-to-metal panel change"
         url: "https://en.wikipedia.org/wiki/Marshall_Amplification"
       - desc: "Same page — 1973/1974 handwiring-to-PCB transition and the 'mkII'/'JMP' labeling added to the 1959 and 1987 amplifiers"
         url: "https://en.wikipedia.org/wiki/Marshall_Amplification"
+      - desc: "Marshall model 1959 factory drawing, Unicord drawing 70-6-11 rev B, dated July 1970 — same schematic already read for the corpus's m1959 circuit entry; confirms 3xECC83 + 4xEL34 with a silicon bridge rectifier and no rectifier valve, and the companion 'MARSHALL 1959 MARK II' sheet of the same number and date confirms the 6550-fitted US variant"
+        url: "https://el34world.com/charts/Schematics/files/Marshall/Marshall_jmp_superlead_100w_1959.pdf"
 
   - designation: "JTM50"
     name: "50-watt lead head (KT66, pre-1987 numbering)"
@@ -119,6 +123,6 @@ notes: >
   (2) the relationship between the "JTM100"/"JTM50" schematic-archive names
   and the "1959"/"1987" catalog numbers — same circuits under two naming
   schemes, or successive revisions — is not settled by the sources consulted.
-  Only jtm45 and m1987 have documented circuit entries in this corpus at
-  present; the JTM100, 1959, and JTM50 rows above are history-tier only
+  Only jtm45, m1959 and m1987 have documented circuit entries in this corpus
+  at present; the JTM100 and JTM50 rows above are history-tier only
   (circuit_ref: null) until a circuit entry is built for them.
