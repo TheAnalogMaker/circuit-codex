@@ -61,12 +61,15 @@ a rectifier, but almost every detail between them moved:
 | 6V6 grid leaks | 220 kΩ / 270 kΩ into a 56 kΩ return | 220 kΩ each, straight to ground |
 | 6V6 grid stoppers | none | 1.5 kΩ each |
 
-The cathodyne swap is the one that matters. It frees the second 12AX7 section to
-become the extra gain stage that gives the 5E3 its bite, and it trades the
-paraphase's self-trimming balance for a topology that is balanced by
-construction. Everything else follows from that: bigger couplers to feed the new
-stage, a different dropper split to hold the preamp rail up under it, and grid
-stoppers to keep the hotter drive from ringing.
+The cathodyne swap is the one that matters. It trades the paraphase's
+self-trimming balance for an inverter balanced by construction — one section's
+plate and cathode giving the two opposite phases — and it gives up drive to get
+there. Both circuits spend both halves of the 12AX7: here V2A drives and V2B
+inverts *and* amplifies, feeding the lower output grid with gain of its own,
+while the 5E3 runs V2A as a plain gain stage into a cathodyne that contributes no
+voltage gain at all. What moves between the two circuits is what each half does,
+not how many stages there are. The rest of the table is smaller change: larger
+couplers, a different dropper split, and grid stoppers this circuit does without.
 
 ## Verification
 
