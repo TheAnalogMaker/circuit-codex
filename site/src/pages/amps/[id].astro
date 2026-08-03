@@ -30,6 +30,16 @@ const lineageRelated = [
 // simulation-only (chart: null). Such pages must not promise chart comparison.
 const allChartNull = !!amp.voltages && Object.values(amp.voltages.nodes)
   .every((e) => e.chart === null || e.chart === undefined);
+// How to name the output bottles in prose. The corpus runs 1, 2 and — since the
+// Model 1959 Super Lead — 4 of them, so "pair" cannot be the answer for every
+// push-pull stage. Anything the words below do not cover falls back to the ×N
+// notation the load-line explorer's own preset chips use.
+const OUTPUT_GROUP_WORD = { 1: '', 2: 'pair', 3: 'trio', 4: 'quartet', 6: 'sextet' };
+function outputGroup(tube, n) {
+  const word = OUTPUT_GROUP_WORD[n];
+  if (word === '') return tube;
+  return word ? `${tube} ${word}` : `${tube} ×${n}`;
+}
 // --- tone-stack lab link (delimited for hand-merge; remove to revert) ---
 // True where the interactive tone-stack lab carries a preset built from this
 // circuit's own parts list, so the panel row can offer its response curve.
@@ -150,8 +160,7 @@ const jsonld = {
           {loadline && (
             <p class="footnote">The output stage behind these numbers can be drawn:
               the <a href={`/reference/guides/load-lines/?preset=${amp.id}`}>load line
-              explorer</a> plots this circuit's {loadline.tube}
-              {loadline.output_tubes > 1 ? ` pair` : ''} on
+              explorer</a> plots this circuit's {outputGroup(loadline.tube, loadline.output_tubes)} on
               {' '}{Math.round(loadline.plate_v)} V with its {loadline.bias === 'cathode'
                 ? `${loadline.rk_total} Ω cathode resistor`
                 : `${String(loadline.grid_v).replace('-', '−')} V grid bias`}, and marks where the load line
