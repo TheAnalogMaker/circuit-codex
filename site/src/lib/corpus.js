@@ -279,6 +279,105 @@ function hostOf(url) {
   try { return new URL(url).hostname.replace(/^www\./, ''); } catch { return url; }
 }
 
+// ----------------------------------------------------------------- load lines
+// The load-line explorer runs the Koren plate-current equations in the browser. Its
+// parameters are not typed into the page — they are parsed out of the corpus's own
+// CC0 model files at build time, so the curves a visitor drags a load line across
+// are drawn from the same numbers ngspice simulates the circuits with.
+//
+// A model .inc carries everything needed on two lines:
+//   .subckt 6V6GT P G2 G1 K            -> node order tells triode from pentode
+//   * fitted: MU=9.6 EX=1.5 KG1=... KG2=... KP=... KVB=30
+// plus an "* Anchor (source): ..." header line naming the datasheet point it was
+// fitted to. Rectifier diodes (.subckt … A K, PERV=…) have no grid and are skipped:
+// there is no load line to draw.
+
+const FITTED = /^\*\s*fitted:\s*(.+)$/m;
+const SUBCKT = /^\.subckt\s+(\S+)\s+(.+)$/m;
+const ANCHOR = /^\*\s*Anchor\s*\(([^)]*)\):\s*(.+)$/m;
+
+function parseModelFile(text, file) {
+  const sub = text.match(SUBCKT);
+  const fit = text.match(FITTED);
+  if (!sub || !fit) return null;
+  const nodes = sub[2].trim().split(/\s+/);
+  const kind = nodes.length === 4 ? 'pentode' : nodes.length === 3 ? 'triode' : 'diode';
+  if (kind === 'diode') return null;
+  const params = {};
+  for (const [, k, v] of fit[1].matchAll(/([A-Z0-9]+)=([-\d.eE+]+)/g)) {
+    params[k.toLowerCase()] = Number(v);
+  }
+  if (!isFinite(params.kg1) || !isFinite(params.mu)) return null;
+  if (kind === 'pentode' && !isFinite(params.kg2)) return null;
+  const anchor = text.match(ANCHOR);
+  return {
+    name: sub[1],
+    kind,
+    nodes,
+    params,
+    file,
+    anchor: anchor ? anchor[2].trim() : null,
+    anchorSource: anchor ? anchor[1].trim() : null,
+  };
+}
+
+// Every amplifying tube model in models/, keyed for the explorer. Each is joined to
+// its reference/tubes/<id>.yaml entry so the page can show the tube's role, its
+// datasheet-sourced maximum ratings, and a link to its own page.
+export function loadTubeModels() {
+  const tubes = loadTubes();
+  const byName = new Map(tubes.map((t) => [String(t.name).toUpperCase(), t]));
+  return fs.readdirSync(MODELS_DIR)
+    .filter((f) => f.endsWith('.inc'))
+    .map((f) => parseModelFile(fs.readFileSync(path.join(MODELS_DIR, f), 'utf8'), `models/${f}`))
+    .filter(Boolean)
+    .map((m) => {
+      const ref = byName.get(m.name.toUpperCase()) || null;
+      // reference/tubes/5881.yaml carries `tube: 5881`, which js-yaml reads as a
+      // number — force the slug back to text so the /reference/tubes/ link works.
+      const slug = ref?.tube != null ? String(ref.tube) : m.name.toLowerCase();
+      // Model headers append the datasheet URL to the anchor source; the page links
+      // the sheet separately, so keep the citation prose on its own.
+      const anchorSource = m.anchorSource ? m.anchorSource.split(/;\s*https?:/)[0].trim() : null;
+      return {
+        ...m,
+        slug,
+        anchorSource,
+        // The tube's own reference entry writes the anchor in house notation
+        // (→, µmho); the .inc header is plain ASCII for SPICE. Prefer the former.
+        anchor: ref?.model?.anchor ?? m.anchor,
+        role: ref?.role ?? null,
+        limits: ref?.max_ratings?.limits ?? null,
+        ratingsSource: ref?.max_ratings?.source ?? null,
+        ratingsSourceUrl: ref?.max_ratings?.source_url ?? null,
+        usedIn: ref?.used_in ?? [],
+      };
+    })
+    .sort((a, b) => (a.kind === b.kind
+      ? a.name.localeCompare(b.name, 'en', { numeric: true })
+      : a.kind.localeCompare(b.kind)));
+}
+
+// Output-stage presets, straight from reference/loadlines.yaml — the file
+// pipeline/export_loadlines.py generates by reading each amp's netlist.cir and
+// simulating it. Amp title and verification status are joined in from the corpus so
+// a preset never claims more than the circuit itself does.
+export function loadLoadlineStages() {
+  const p = path.join(REFERENCE_DIR, 'loadlines.yaml');
+  if (!fs.existsSync(p)) return [];
+  const stages = yaml.load(fs.readFileSync(p, 'utf8')).stages || [];
+  const amps = new Map(loadCorpus().map((a) => [a.id, a]));
+  return stages.map((s) => {
+    const amp = amps.get(s.amp) || null;
+    return {
+      ...s,
+      display: displayId(s.amp),
+      verified: amp?.meta?.verification?.status === 'verified',
+      wattage: amp?.meta?.wattage ?? null,
+    };
+  });
+}
+
 export function loadGlossary() {
   const raw = fs.readFileSync(path.join(REFERENCE_DIR, 'glossary.yaml'), 'utf8');
   const terms = yaml.load(raw).terms || [];

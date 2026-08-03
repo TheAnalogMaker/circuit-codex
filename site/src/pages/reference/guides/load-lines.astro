@@ -1,0 +1,932 @@
+---
+import Base from '../../../layouts/Base.astro';
+import { loadTubeModels, loadLoadlineStages, displayId, GITHUB } from '../../../lib/corpus.js';
+
+// Every number the explorer runs on is read out of the corpus at build time: the
+// Koren parameters come from models/*.inc, the maximum ratings from
+// reference/tubes/*.yaml, and the amp presets from reference/loadlines.yaml —
+// which pipeline/export_loadlines.py generates by simulating each amp's own netlist.
+const models = loadTubeModels();
+const stages = loadLoadlineStages();
+
+const DATA = {
+  models: models.map((m) => ({
+    name: m.name,
+    kind: m.kind,
+    slug: m.slug,
+    params: m.params,
+    limits: m.limits,
+    anchor: m.anchor,
+    anchorSource: m.anchorSource,
+    file: m.file,
+  })),
+  stages: stages.map((s) => ({
+    amp: s.amp,
+    display: s.display,
+    nameStyle: s.name_style,
+    tube: s.tube,
+    tubes: s.output_tubes,
+    config: s.config,
+    bias: s.bias,
+    plateV: s.plate_v,
+    screenV: s.screen_v,
+    cathodeV: s.cathode_v,
+    gridV: s.grid_v,
+    rk: s.rk_per_tube,
+    rkTotal: s.rk_total,
+    otZ: s.ot_primary_z,
+    otApprox: s.ot_primary_approx,
+    otNote: s.ot_primary_note,
+    simIp: s.sim_ip_ma,
+    simIg2: s.sim_ig2_ma,
+    verified: s.verified,
+  })),
+};
+
+const pentodes = models.filter((m) => m.kind === 'pentode');
+const triodes = models.filter((m) => m.kind === 'triode');
+const withRatings = models.filter((m) => m.limits?.plate_dissipation_w);
+const title = 'Load line explorer — plate curves from the corpus tube models · Circuit Codex';
+const description =
+  'Draw a load line on any tube in the archive. Plate-curve families come from the corpus\'s own CC0 Koren models, the operating point is solved against the cathode-bias constraint, and the maximum-dissipation limit is overlaid from the datasheet ratings. Presets for every documented amplifier\'s output stage.';
+---
+<Base title={title} description={description}>
+<div class="wrap">
+  <header class="ghead">
+    <a class="back" href="/reference/">← Reference</a>
+    <div class="eyebrow">Practical guide</div>
+    <h1>The load line explorer</h1>
+    <p class="lede">A tube on its own does nothing. Give it a supply voltage, something
+      to drive, and a way to set its bias, and it settles at exactly one operating
+      point — one plate voltage, one plate current. The load line is the drawing that
+      finds that point, and it is the single most useful picture in amplifier design.
+      This one is live: pick a tube, set the circuit around it, and watch the point move.</p>
+  </header>
+
+  <script type="application/json" id="ll-data" is:inline set:html={JSON.stringify(DATA)}></script>
+
+  <section class="explorer" aria-label="Interactive load line explorer">
+    <form class="ll-controls" id="ll-form" autocomplete="off">
+      <fieldset class="grp">
+        <legend>Tube</legend>
+        <label class="f"><span>Tube type</span>
+          <span class="io"><select id="c-tube">
+            <optgroup label="Output tubes (pentode / beam power)">
+              {pentodes.map((m) => <option value={m.name}>{m.name}</option>)}
+            </optgroup>
+            <optgroup label="Preamp tubes (triode)">
+              {triodes.map((m) => <option value={m.name}>{m.name}</option>)}
+            </optgroup>
+          </select></span>
+        </label>
+        <p class="hint" id="c-tube-note"></p>
+      </fieldset>
+
+      <fieldset class="grp">
+        <legend>Supply</legend>
+        <label class="f"><span>B+ at the plate</span>
+          <span class="io"><input id="c-bplus" type="number" min="10" max="900" step="1" value="340" /><i>V</i></span>
+        </label>
+        <label class="f" id="c-vg2-wrap"><span>Screen supply</span>
+          <span class="io"><input id="c-vg2" type="number" min="10" max="900" step="1" value="292" /><i>V</i></span>
+        </label>
+      </fieldset>
+
+      <fieldset class="grp">
+        <legend>Anode load</legend>
+        <div class="seg" role="radiogroup" aria-label="Load type">
+          <label><input type="radio" name="load" value="ot" checked /><span>Transformer</span></label>
+          <label><input type="radio" name="load" value="res" /><span>Resistor</span></label>
+        </div>
+        <div id="c-ot-fields">
+          <label class="f"><span id="c-zp-label">Primary impedance</span>
+            <span class="io"><input id="c-zp" type="number" min="100" max="100000" step="100" value="5000" /><i>Ω</i></span>
+          </label>
+          <div class="seg" role="radiogroup" aria-label="Output stage configuration">
+            <label><input type="radio" name="cfg" value="se" checked /><span>Single-ended</span></label>
+            <label><input type="radio" name="cfg" value="pp" /><span>Push-pull</span></label>
+          </div>
+          <label class="f"><span>Primary winding DCR</span>
+            <span class="io"><input id="c-dcr" type="number" min="0" max="2000" step="10" value="0" /><i>Ω</i></span>
+          </label>
+        </div>
+        <div id="c-res-fields" hidden>
+          <label class="f"><span>Plate load resistor</span>
+            <span class="io"><input id="c-ra" type="number" min="100" max="1000000" step="1000" value="100000" /><i>Ω</i></span>
+          </label>
+          <label class="chk"><input type="checkbox" id="c-bypass" checked />
+            <span>Cathode resistor bypassed</span></label>
+        </div>
+      </fieldset>
+
+      <fieldset class="grp">
+        <legend>Bias</legend>
+        <div class="seg" role="radiogroup" aria-label="Bias method">
+          <label><input type="radio" name="bias" value="cathode" checked /><span>Cathode</span></label>
+          <label><input type="radio" name="bias" value="fixed" /><span>Fixed</span></label>
+        </div>
+        <label class="f" id="c-rk-wrap"><span>Cathode resistor, per tube</span>
+          <span class="io"><input id="c-rk" type="number" min="1" max="100000" step="10" value="470" /><i>Ω</i></span>
+        </label>
+        <label class="f" id="c-vg1-wrap" hidden><span>Grid bias supply</span>
+          <span class="io"><input id="c-vg1" type="number" min="-200" max="0" step="0.5" value="-35" /><i>V</i></span>
+        </label>
+        <p class="hint" id="c-rk-note">A resistor shared by both output tubes is
+          entered here at twice its marked value — each bottle sees the whole resistor
+          against its own share of the current.</p>
+      </fieldset>
+
+      <fieldset class="grp">
+        <legend>Chart</legend>
+        <label class="chk"><input type="checkbox" id="c-full" />
+          <span>Show the full curve family</span></label>
+        <label class="chk"><input type="checkbox" id="c-diss" checked />
+          <span>Overlay the dissipation limit</span></label>
+        <button type="button" class="btn" id="c-copy">Copy link to this setup</button>
+      </fieldset>
+    </form>
+
+    <div class="ll-panel">
+      <figure class="ll-figure">
+        <svg id="ll-chart" viewBox="0 0 760 470" role="img" aria-labelledby="ll-chart-title"
+             preserveAspectRatio="xMidYMid meet"><title id="ll-chart-title">Plate characteristic chart</title></svg>
+        <figcaption id="ll-cap"></figcaption>
+      </figure>
+
+      <div class="ll-out" id="ll-out" aria-live="polite" aria-atomic="true"></div>
+      <p class="parity" id="ll-parity" hidden></p>
+      <details class="ll-tbl">
+        <summary>The chart as a table</summary>
+        <div class="tbl"><table id="ll-family">
+          <thead><tr><th>Grid bias</th><th>Plate current at the operating voltage</th><th>Plate dissipation there</th></tr></thead>
+          <tbody></tbody>
+        </table></div>
+        <p class="footnote" id="ll-family-note"></p>
+      </details>
+    </div>
+  </section>
+
+  <section class="presets">
+    <h2>Start from a circuit in the archive</h2>
+    <p class="sub">Every documented amplifier's output stage, with the supply
+      voltages, cathode resistor and transformer primary its own netlist and parts list
+      record. Each link loads that stage into the explorer above.</p>
+    <div class="chips" id="ll-presets">
+      {stages.map((s) => (
+        <a class="pchip" href={`?preset=${s.amp}`} data-preset={s.amp}>
+          <b>{s.display}</b>
+          <span>{s.tube}{s.output_tubes > 1 ? ` ×${s.output_tubes}` : ''} · {Math.round(s.plate_v)} V · {s.bias} bias</span>
+        </a>
+      ))}
+    </div>
+    <p class="footnote">Supply voltages here are simulated from each circuit's redrawn
+      netlist, not measured on a chassis. Where a drawing prints no transformer primary
+      impedance, the parts list says so and the field is left for you to fill —
+      see each circuit's own page for what the drawing does and does not state.</p>
+  </section>
+
+  <section class="prose">
+    <h2>How to read a load line</h2>
+
+    <h3>The curves are what the tube can do</h3>
+    <p>The fan of curves behind the chart is the tube's plate characteristic. Each curve
+      answers one question: <em>if I hold the grid this far below the cathode, how much
+      plate current flows at each plate voltage?</em> The top curve is zero bias — grid
+      and cathode at the same potential, the tube passing as much current as it can. Each
+      curve below it is a step more negative on the grid, and each passes less current.
+      Far enough down and the tube stops conducting altogether: cut-off.</p>
+    <p>Notice the shape. On a triode the curves rise steadily with plate voltage — plate
+      voltage and grid voltage both have a say in how much current flows. On a pentode or
+      beam power tube they flatten out almost immediately: past the knee, the screen grid
+      has taken over, and plate voltage barely matters. That single difference is why
+      triodes and pentodes sound and behave so differently in an amplifier.</p>
+
+    <h3>The load line is what the circuit allows</h3>
+    <p>The tube does not get to choose its own operating point, because it is not alone.
+      Current drawn through the plate load drops voltage across it, so the more current
+      the tube passes, the less voltage is left across the tube itself. Draw that
+      relationship on the same axes and you get a straight line, sloping down from the
+      supply voltage on the right to the short-circuit current on the left. Its steepness
+      <em>is</em> the load: a small plate resistor gives a steep line, a large one a
+      shallow one.</p>
+    <p>An output transformer behaves differently at DC than it does at signal
+      frequencies, which is why two lines are drawn. Its primary winding is close to a
+      short circuit for direct current, so the <b>DC load line</b> stands almost upright:
+      the plate sits near the full supply voltage no matter how much current it draws. To
+      the audio signal, though, the transformer reflects the speaker back as several
+      thousand ohms, so the <b>AC load line</b> tilts across the operating point at that
+      much shallower slope. The amplifier idles on the first line and swings along the
+      second.</p>
+
+    <h3>Where they cross is the answer</h3>
+    <p>Only one point satisfies both the tube and the circuit at once: the point where the
+      load line crosses the grid curve the bias is actually holding. That is the operating
+      point, marked here with a ring.</p>
+    <p>With a fixed-bias stage the grid voltage is set by a supply and you can read the
+      answer straight off. With cathode bias it is circular — the bias comes from the
+      cathode resistor, and the voltage across that resistor depends on the very current
+      you are trying to find. There is no closed-form answer, so this page does what the
+      circuit does: guesses a cathode voltage, works out the current it would allow,
+      compares that against the voltage the resistor would actually develop, and closes
+      the gap until the two agree. That is the same convergence the amplifier performs
+      in the first few milliseconds after the tube warms up.</p>
+
+    <h3>The curve you must not cross</h3>
+    <p>The sweeping line falling away to the right is the maximum plate dissipation, taken
+      from the tube's own datasheet. Everything the plate passes that does not become
+      signal becomes heat, and the heat is simply plate voltage times plate current — so
+      the limit is a hyperbola, not a straight line. An operating point <em>on</em> that
+      curve is at the rated limit with the amplifier idling and no signal at all. Sitting
+      above it is how plates go red.</p>
+    <p>Load the 5F1 preset and watch where it lands: around eleven and a half watts
+      against a twelve-watt plate rating, with the operating point sitting almost on the
+      limit curve. That is not a mistake in the drawing — the small tweed circuits idle
+      their output tubes hard, and it is part of why they compress the way they do.
+      Several circuits in this archive compute higher still, past the printed rating.</p>
+    <p class="footnote">Read those figures as what the model says, not as a measurement.
+      The tube models here are fitted to a datasheet point at 250 V and extrapolated to
+      whatever rail a circuit runs; on the highest-voltage circuits that extrapolation is
+      known to run rich, which is one reason some of them are published as drafts rather
+      than verified. Each circuit's own page records where its simulation and its
+      published chart part company.</p>
+
+    <h3>The things a load line will not tell you</h3>
+    <p>This is a DC picture. It shows where a stage idles and how far it can swing before
+      it runs out of voltage or current, and that is genuinely most of what matters when
+      choosing a plate load or a bias resistor. It says nothing about frequency response,
+      nothing about what negative feedback does around the stage, and nothing about how
+      the circuit behaves once the grid is driven positive and starts drawing current —
+      the models here carry no grid-current term. Treat the swing figures as the
+      graphical estimate they are.</p>
+  </section>
+
+  <section class="prose">
+    <h2>Where these numbers come from</h2>
+    <p>The curves are not traced from a datasheet plot. They are computed, in your
+      browser, from the Koren plate-current equations using the parameters in this
+      archive's own tube models — the same CC0 files
+      <a href={`${GITHUB}/blob/main/models/METHODOLOGY.md`}>fitted to published datasheet
+      anchor points</a> and handed to ngspice when a circuit's operating point is verified.
+      Each model's anchor is listed below.</p>
+    <div class="tbl"><table>
+      <thead><tr><th>Tube</th><th>Form</th><th>Fitted to</th><th>Max plate dissipation</th></tr></thead>
+      <tbody>
+        {models.map((m) => (
+          <tr>
+            <td><a href={`/reference/tubes/${m.slug}/`}>{m.name}</a></td>
+            <td>{m.kind}</td>
+            <td style="font-family:var(--body);color:var(--muted)">{m.anchor}</td>
+            <td>{m.limits?.plate_dissipation_w ? `${m.limits.plate_dissipation_w} W` : '—'}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table></div>
+    <p class="footnote">Maximum ratings are the design-centre values printed on each
+      tube's own datasheet, with the sheet and its date cited on that tube's page.
+      {withRatings.length === models.length
+        ? 'All of the modelled amplifying tubes carry a rated plate dissipation, so the limit curve is available on every one.'
+        : `${withRatings.length} of the ${models.length} modelled amplifying tubes carry a rated plate dissipation; the limit curve only appears for those.`}
+      Rectifier diodes have no grid and no load line, and are not listed.</p>
+
+    <h3>Checked against the simulator</h3>
+    <p>The same equations solved here are solved by ngspice when each circuit's
+      operating point is gated, so the two have to agree — and the archive checks that
+      they do rather than assuming it. Load a preset and the panel prints both answers
+      side by side: this page's solution for the output tube, and the value the
+      simulator settles on inside the whole amplifier. Across all
+      {stages.length} documented output stages the two agree to better than a hundredth
+      of one percent.</p>
+    <p class="footnote">A preset holds the screen at the voltage the simulator settled
+      on rather than re-solving the dropper network and the preamp behind it. Fixing an
+      already-converged voltage does not move the rest of the solution, which is why the
+      residual is numerical rather than physical.</p>
+  </section>
+
+  <nav class="more" aria-label="Related guides">
+    <h2>Keep going</h2>
+    <ul>
+      <li><a href="/reference/guides/calculators/">Amp builder calculators</a> — the cathode-bias
+        resistor sum this page solves graphically, plus Ohm's law, coupling-cap corners
+        and transformer ratios.</li>
+      <li><a href="/reference/guides/transformers/">Transformer reference</a> — where a primary
+        impedance comes from, and every transformer in the corpus.</li>
+      <li><a href="/reference/guides/tube-substitution/">Tube substitution &amp; the gain ladder</a> —
+        what changes when a different bottle goes in the socket.</li>
+      <li><a href="/reference/guides/reading-schematics/">How to read a schematic</a> — the stage
+        this page models, drawn.</li>
+    </ul>
+  </nav>
+</div>
+</Base>
+
+<script>
+import { plateCurrent, solveOperatingPoint, plateCurve, gridSteps, niceStep, seOutputEstimate }
+  from '../../../lib/loadline.js';
+
+const DATA = JSON.parse(document.getElementById('ll-data').textContent);
+const MODELS = new Map(DATA.models.map((m) => [m.name, m]));
+const STAGES = new Map(DATA.stages.map((s) => [s.amp, s]));
+
+const $ = (id) => document.getElementById(id);
+const radio = (name) => document.querySelector(`input[name="${name}"]:checked`)?.value;
+const setRadio = (name, v) => {
+  const el = document.querySelector(`input[name="${name}"][value="${v}"]`);
+  if (el) el.checked = true;
+};
+
+// ---- formatting, house units style ---------------------------------------
+const sig = (x, n = 4) => String(Number(Number(x).toPrecision(n)));
+const fV = (v) => `${sig(v, Math.abs(v) < 10 ? 3 : 4)} V`;
+const fmA = (a) => `${sig(a * 1000, 3)} mA`;
+const fW = (w) => (Math.abs(w) < 1 ? `${sig(w * 1000, 3)} mW` : `${sig(w, 3)} W`);
+const fR = (o) => {
+  if (!isFinite(o)) return '—';
+  if (Math.abs(o) >= 1e6) return `${sig(o / 1e6, 3)} MΩ`;
+  if (Math.abs(o) >= 1e3) return `${sig(o / 1e3, 3)} kΩ`;
+  return `${sig(o, 3)} Ω`;
+};
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+// ---- state ----------------------------------------------------------------
+let activePreset = null;
+
+function readState() {
+  const model = MODELS.get($('c-tube').value) || DATA.models[0];
+  const loadKind = radio('load');
+  const cfg = radio('cfg');
+  const bias = radio('bias');
+  const num = (id, dflt) => {
+    const v = parseFloat($(id).value);
+    return isFinite(v) ? v : dflt;
+  };
+  // A blank primary impedance is meaningful, not a typo: several drawings in the
+  // archive print none, and the explorer must not fill one in on their behalf.
+  const zpRaw = parseFloat($('c-zp').value);
+  const zp = isFinite(zpRaw) && zpRaw > 0 ? zpRaw : null;
+  return {
+    model,
+    bplus: Math.max(1, num('c-bplus', 340)),
+    vg2Supply: Math.max(1, num('c-vg2', 292)),
+    loadKind,
+    cfg,
+    zp,
+    dcr: Math.max(0, num('c-dcr', 0)),
+    ra: Math.max(1, num('c-ra', 100000)),
+    bypass: $('c-bypass').checked,
+    bias,
+    rk: bias === 'cathode' ? Math.max(0, num('c-rk', 470)) : 0,
+    vgSupply: bias === 'fixed' ? Math.min(0, num('c-vg1', -35)) : 0,
+    full: $('c-full').checked,
+    diss: $('c-diss').checked,
+  };
+}
+
+/** DC resistance in the plate circuit, and the per-tube AC load (null when unknown). */
+function loads(s) {
+  const dcPlate = s.loadKind === 'res' ? s.ra : s.dcr;
+  const acPlate = s.loadKind === 'res'
+    ? s.ra
+    : (s.zp == null ? null : (s.cfg === 'pp' ? s.zp / 4 : s.zp));
+  return { dcPlate, acPlate };
+}
+
+// ---- chart ----------------------------------------------------------------
+const W = 760, H = 470, M = { l: 66, r: 20, t: 18, b: 52 };
+const PW = W - M.l - M.r, PH = H - M.t - M.b;
+
+/** Round up to a readable axis maximum — finer than the tick ladder, so a 340 V
+ *  rail lands on a 400 V axis rather than being pushed out to 500 V. */
+function niceCeil(x) {
+  if (!(x > 0)) return 1;
+  const mag = Math.pow(10, Math.floor(Math.log10(x)));
+  const n = x / mag;
+  for (const m of [1, 1.2, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10]) if (n <= m + 1e-9) return m * mag;
+  return 10 * mag;
+}
+
+function axisTicks(max, target = 6) {
+  const step = niceStep(max / target);
+  const out = [];
+  for (let v = 0; v <= max + step * 1e-6; v += step) out.push(v);
+  return out;
+}
+
+function render() {
+  const s = readState();
+  const isPent = s.model.kind === 'pentode';
+  $('c-vg2-wrap').hidden = !isPent;
+
+  const { dcPlate, acPlate } = loads(s);
+  const q = solveOperatingPoint({
+    model: s.model,
+    bplus: s.bplus,
+    ra: dcPlate,
+    rk: s.rk,
+    vgSupply: s.vgSupply,
+    vg2Supply: s.vg2Supply,
+  });
+
+  // --- axes
+  const xMax = niceCeil(Math.max(s.bplus * 1.14, q.vpk * 1.14, 10));
+
+  const { step: vgStep, steps: vgList } = gridSteps(s.model, { bplus: s.bplus, vg2k: q.vg2k });
+  const topCurrent = plateCurrent(s.model, xMax, 0, q.vg2k).ip;
+  let yRaw;
+  if (s.full) {
+    yRaw = topCurrent * 1.05;
+  } else {
+    yRaw = Math.max(q.ip * 3.2, 1e-4);
+    const intercept = dcPlate + q.kRatio * s.rk > 0 ? s.bplus / (dcPlate + q.kRatio * s.rk) : 0;
+    if (intercept > 0 && intercept < q.ip * 8) yRaw = Math.max(yRaw, intercept * 1.12);
+    // Keep the rating curve in frame, but only just — on a small-signal triode the
+    // limit sits so far above the working point that chasing it would flatten the
+    // curves the chart exists to show.
+    if (s.diss && s.model.limits?.plate_dissipation_w) {
+      yRaw = Math.max(yRaw, s.model.limits.plate_dissipation_w / (xMax * 0.75));
+    }
+    yRaw = Math.min(yRaw, topCurrent * 1.05 || yRaw);
+  }
+  const yMax = Math.max(niceCeil(yRaw), 1e-5);
+
+  const X = (v) => M.l + (v / xMax) * PW;
+  const Y = (i) => M.t + PH - (i / yMax) * PH;
+
+  // The accessible description of the figure. It is written first because
+  // replacing the SVG's markup replaces its <title> along with everything else.
+  const desc = `Plate characteristic chart for the ${s.model.name}. `
+    + `Curves are drawn every ${sig(vgStep, 3)} volts of grid bias from zero down to ${sig(vgList[vgList.length - 1], 3)} volts`
+    + (isPent ? ` at ${sig(q.vg2k, 4)} volts screen to cathode` : '')
+    + `. The load line crosses the ${fV(q.vg1k)} grid curve at ${fV(q.vpk)} and ${fmA(q.ip)}`
+    + (s.model.limits?.plate_dissipation_w
+      ? `, which is ${(q.pa / s.model.limits.plate_dissipation_w * 100).toFixed(0)} percent of the ${s.model.limits.plate_dissipation_w} watt plate rating.`
+      : '.');
+
+  const out = [`<title id="ll-chart-title">${esc(desc)}</title>`];
+  out.push(`<defs><clipPath id="ll-clip"><rect x="${M.l}" y="${M.t}" width="${PW}" height="${PH}"/></clipPath></defs>`);
+  out.push(`<rect class="ll-bg" x="${M.l}" y="${M.t}" width="${PW}" height="${PH}"/>`);
+
+  // --- gridlines + ticks
+  for (const v of axisTicks(xMax)) {
+    out.push(`<line class="ll-grid" x1="${X(v).toFixed(1)}" y1="${M.t}" x2="${X(v).toFixed(1)}" y2="${M.t + PH}"/>`);
+    out.push(`<text class="ll-tick" x="${X(v).toFixed(1)}" y="${M.t + PH + 18}" text-anchor="middle">${sig(v, 4)}</text>`);
+  }
+  for (const i of axisTicks(yMax, 5)) {
+    out.push(`<line class="ll-grid" x1="${M.l}" y1="${Y(i).toFixed(1)}" x2="${M.l + PW}" y2="${Y(i).toFixed(1)}"/>`);
+    out.push(`<text class="ll-tick" x="${M.l - 10}" y="${(Y(i) + 4).toFixed(1)}" text-anchor="end">${sig(i * 1000, 3)}</text>`);
+  }
+  out.push(`<text class="ll-axis" x="${M.l + PW / 2}" y="${H - 12}" text-anchor="middle">Plate-to-cathode voltage (V)</text>`);
+  out.push(`<text class="ll-axis" transform="translate(15,${M.t + PH / 2}) rotate(-90)" text-anchor="middle">Plate current (mA)</text>`);
+
+  // --- plate curve family
+  const g = [`<g clip-path="url(#ll-clip)">`];
+  for (const vg of vgList) {
+    const pts = plateCurve(s.model, vg, q.vg2k, xMax);
+    const d = pts.map((p, k) => `${k ? 'L' : 'M'}${X(p.v).toFixed(1)} ${Y(p.i).toFixed(1)}`).join('');
+    g.push(`<path class="ll-curve" d="${d}"/>`);
+  }
+  // The curve the bias is actually holding, drawn over the family.
+  const qCurve = plateCurve(s.model, q.vg1k, q.vg2k, xMax);
+  g.push(`<path class="ll-curve-q" d="${qCurve.map((p, k) => `${k ? 'L' : 'M'}${X(p.v).toFixed(1)} ${Y(p.i).toFixed(1)}`).join('')}"/>`);
+
+  // --- maximum plate dissipation
+  const pmax = s.model.limits?.plate_dissipation_w;
+  let drewDiss = false;
+  if (s.diss && pmax) {
+    const pts = [];
+    for (let k = 0; k <= 160; k++) {
+      const v = (xMax * (k + 1)) / 161;
+      const i = pmax / v;
+      if (i <= yMax * 1.6) pts.push(`${pts.length ? 'L' : 'M'}${X(v).toFixed(1)} ${Y(i).toFixed(1)}`);
+    }
+    if (pts.length > 1) {
+      g.push(`<path class="ll-diss" d="${pts.join('')}"/>`);
+      drewDiss = true;
+    }
+  }
+
+  // --- DC load line: passes through Q by construction (see loadline.js)
+  const rdc = dcPlate + q.kRatio * s.rk;
+  const dcPts = rdc > 0
+    ? clipLine(s.bplus, 0, s.bplus - yMax * rdc, yMax, xMax, yMax)
+    : [{ v: s.bplus, i: 0 }, { v: s.bplus, i: yMax }];
+  if (dcPts.length === 2) {
+    g.push(`<line class="ll-dc" x1="${X(dcPts[0].v).toFixed(1)}" y1="${Y(dcPts[0].i).toFixed(1)}" x2="${X(dcPts[1].v).toFixed(1)}" y2="${Y(dcPts[1].i).toFixed(1)}"/>`);
+  }
+
+  // --- AC load line, when it differs from the DC line
+  const acR = acPlate == null ? null
+    : (s.loadKind === 'res' && !s.bypass ? acPlate + s.rk : acPlate);
+  const showAc = acR != null && acR > 0 && Math.abs(acR - rdc) / Math.max(acR, rdc) > 0.02;
+  if (showAc) {
+    const pts = clipLine(q.vpk + q.ip * acR, 0, q.vpk - (yMax - q.ip) * acR, yMax, xMax, yMax);
+    if (pts.length === 2) {
+      g.push(`<line class="ll-ac" x1="${X(pts[0].v).toFixed(1)}" y1="${Y(pts[0].i).toFixed(1)}" x2="${X(pts[1].v).toFixed(1)}" y2="${Y(pts[1].i).toFixed(1)}"/>`);
+    }
+  }
+
+  // --- operating point
+  const qx = X(q.vpk), qy = Y(q.ip);
+  const inBox = q.vpk <= xMax && q.ip <= yMax;
+  if (inBox) {
+    g.push(`<line class="ll-drop" x1="${qx.toFixed(1)}" y1="${qy.toFixed(1)}" x2="${qx.toFixed(1)}" y2="${M.t + PH}"/>`);
+    g.push(`<line class="ll-drop" x1="${M.l}" y1="${qy.toFixed(1)}" x2="${qx.toFixed(1)}" y2="${qy.toFixed(1)}"/>`);
+    g.push(`<circle class="ll-q-halo" cx="${qx.toFixed(1)}" cy="${qy.toFixed(1)}" r="9"/>`);
+    g.push(`<circle class="ll-q" cx="${qx.toFixed(1)}" cy="${qy.toFixed(1)}" r="4.5"/>`);
+  }
+  g.push('</g>');
+  out.push(g.join(''));
+
+  // --- in-figure legend
+  const legend = [
+    ['ll-k-dc', 'DC load line'],
+    ...(showAc ? [['ll-k-ac', 'AC load line']] : []),
+    ...(drewDiss ? [['ll-k-diss', `${pmax} W plate limit`]] : []),
+    ['ll-k-q', 'Operating point'],
+  ];
+  let lx = M.l + 10;
+  const ly = M.t + 16;
+  const lg = legend.map(([cls, label]) => {
+    const w = label.length * 6.1 + 26;
+    const item = `<g transform="translate(${lx},${ly})"><rect class="ll-k-sw ${cls}" x="0" y="-4" width="14" height="4" rx="2"/><text class="ll-k-t" x="20" y="0">${esc(label)}</text></g>`;
+    lx += w;
+    return item;
+  }).join('');
+  out.push(`<rect class="ll-k-bg" x="${M.l + 4}" y="${ly - 15}" width="${lx - M.l - 4}" height="22" rx="4"/>${lg}`);
+
+  $('ll-chart').innerHTML = out.join('');
+
+  $('ll-cap').textContent = `${s.model.name} plate curves at ${isPent ? `${fV(q.vg2k)} screen-to-cathode, ` : ''}`
+    + `${sig(vgStep, 3)} V grid steps. Computed from the corpus model ${s.model.file}.`;
+
+  renderReadout(s, q, { dcPlate, acPlate, acR, rdc, pmax, isPent });
+  renderFamilyTable(s, q, vgList, vgStep);
+  syncUrl(s);
+}
+
+/** Clip the segment (v1,i1)-(v2,i2) to the plot box; returns 0 or 2 points. */
+function clipLine(v1, i1, v2, i2, xMax, yMax) {
+  let t0 = 0, t1 = 1;
+  const dv = v2 - v1, di = i2 - i1;
+  const test = (p, qv) => {
+    if (p === 0) return qv >= 0;
+    const r = qv / p;
+    if (p < 0) { if (r > t1) return false; if (r > t0) t0 = r; }
+    else { if (r < t0) return false; if (r < t1) t1 = r; }
+    return true;
+  };
+  if (!test(-dv, v1) || !test(dv, xMax - v1) || !test(-di, i1) || !test(di, yMax - i1)) return [];
+  return [{ v: v1 + t0 * dv, i: i1 + t0 * di }, { v: v1 + t1 * dv, i: i1 + t1 * di }];
+}
+
+/**
+ * The figure in numbers: what each drawn grid curve is doing at the operating
+ * plate voltage. A chart nobody can see is worth nothing, and this is the same
+ * information the eye takes off the fan of curves.
+ */
+function renderFamilyTable(s, q, vgList, vgStep) {
+  const rows = vgList.map((vg) => {
+    const { ip } = plateCurrent(s.model, q.vpk, vg, q.vg2k);
+    const here = Math.abs(vg - q.vg1k) < vgStep / 2 ? ' class="ll-row-q"' : '';
+    return `<tr${here}><td>${esc(fV(vg))}</td><td>${esc(fmA(ip))}</td><td>${esc(fW(q.vpk * ip))}</td></tr>`;
+  });
+  // The bias the circuit actually holds rarely lands on a drawn step, so it gets a
+  // row of its own rather than being rounded into the nearest one.
+  rows.push(`<tr class="ll-row-q"><td>${esc(fV(q.vg1k))} — this circuit</td>`
+    + `<td>${esc(fmA(q.ip))}</td><td>${esc(fW(q.pa))}</td></tr>`);
+  document.querySelector('#ll-family tbody').innerHTML = rows.join('');
+  $('ll-family-note').textContent =
+    `Plate current on each drawn curve, read at the operating point's ${fV(q.vpk)} `
+    + `plate-to-cathode${s.model.kind === 'pentode' ? ` and ${fV(q.vg2k)} screen-to-cathode` : ''}. `
+    + `The load line is the straight relation Vpk = ${sig(s.bplus, 4)} V − Ip × ${fR(loads(s).dcPlate + q.kRatio * s.rk)}.`;
+}
+
+// ---- readout --------------------------------------------------------------
+function tile(label, value, sub) {
+  return `<div class="tile"><span class="t-l">${esc(label)}</span><b>${esc(value)}</b>${sub ? `<span class="t-s">${esc(sub)}</span>` : ''}</div>`;
+}
+
+function renderReadout(s, q, ctx) {
+  const t = [];
+  if (s.bias === 'cathode') {
+    t.push(tile('Cathode voltage', fV(q.vk), `across ${fR(s.rk)}`));
+  }
+  t.push(tile('Grid bias', fV(q.vg1k), 'grid to cathode'));
+  t.push(tile('Plate voltage', fV(q.vpk), 'plate to cathode'));
+  t.push(tile('Plate current', fmA(q.ip), null));
+  if (ctx.isPent) {
+    // The Koren screen term is (Vg2/µ + Vg1)^1.5 / KG2, which reaches zero once the
+    // grid sits below −Vg2/µ. A real tube's screen current does not. Say so rather
+    // than printing a bare zero as though it were a result.
+    const cutoff = q.ig2 <= 0;
+    t.push(tile('Screen current', cutoff ? '0 mA' : fmA(q.ig2),
+      cutoff ? 'model term cut off — a real tube still draws some'
+        : `cathode total ${fmA(q.ik)}`));
+  }
+  const pmax = ctx.pmax;
+  t.push(tile('Plate dissipation', fW(q.pa),
+    pmax ? `${(q.pa / pmax * 100).toFixed(0)}% of the ${pmax} W rating` : 'no rated limit on file'));
+  if (ctx.isPent && q.ig2 > 0) {
+    const g2max = s.model.limits?.screen_dissipation_w;
+    t.push(tile('Screen dissipation', fW(q.pg2),
+      g2max ? `${(q.pg2 / g2max * 100).toFixed(0)}% of the ${g2max} W rating` : 'no rated limit on file'));
+  }
+  t.push(tile('Transconductance', `${sig(q.gm * 1000, 3)} mA/V`,
+    `plate resistance ${fR(q.rp)}`));
+  t.push(ctx.acR == null
+    ? tile('AC load, per tube', '—', 'no primary impedance given — enter one to draw the AC load line')
+    : tile('AC load, per tube', fR(ctx.acR),
+      s.loadKind === 'ot' && s.cfg === 'pp' ? 'a quarter of the plate-to-plate primary' : null));
+
+  const est = s.loadKind === 'ot' && s.cfg === 'se' && ctx.acPlate != null
+    ? seOutputEstimate(s.model, q, ctx.acPlate) : null;
+  if (est) {
+    t.push(tile('Class-A output', fW(est.po), `graphical estimate, ±${sig(est.drive, 3)} V grid swing`));
+  }
+
+  const warn = [];
+  if (pmax && q.pa > pmax) warn.push(`Idle plate dissipation is above the ${pmax} W rating.`);
+  const g2max = s.model.limits?.screen_dissipation_w;
+  if (ctx.isPent && g2max && q.pg2 > g2max) warn.push(`Screen dissipation is above the ${g2max} W rating.`);
+  const vmax = s.model.limits?.plate_voltage_v;
+  if (vmax && s.bplus > vmax) warn.push(`B+ is above the ${vmax} V rated plate voltage.`);
+  if (q.ip <= 1e-9) warn.push('The tube is cut off — no plate current flows at this bias.');
+
+  $('ll-out').innerHTML = `<div class="tiles">${t.join('')}</div>`
+    + (warn.length ? `<p class="warn" role="status">${warn.map(esc).join(' ')}</p>` : '');
+
+  // Parity strip: this page's answer against the archive's simulator.
+  const p = $('ll-parity');
+  const st = activePreset ? STAGES.get(activePreset) : null;
+  if (st && matchesPreset(s, st)) {
+    const dIp = Math.abs(q.ip * 1000 - st.simIp) / Math.max(st.simIp, 1e-9) * 100;
+    const vk = st.bias === 'cathode'
+      ? `cathode ${fV(q.vk)} against the simulator's ${fV(st.cathodeV)}; ` : '';
+    p.hidden = false;
+    p.innerHTML = `<b>${esc(st.display)}</b> — ${vk}plate current ${fmA(q.ip)} against `
+      + `${sig(st.simIp, 4)} mA, ${dIp < 0.01 ? 'under 0.01' : dIp.toFixed(2)}% apart. `
+      + `<a href="/amps/${esc(st.amp)}/">See the circuit →</a>`;
+  } else {
+    p.hidden = true;
+  }
+}
+
+function matchesPreset(s, st) {
+  return s.model.name === st.tube
+    && Math.abs(s.bplus - st.plateV) < 0.6
+    && (st.bias !== 'cathode' || Math.abs(s.rk - (st.rk || 0)) < 0.6)
+    && (s.model.kind !== 'pentode' || Math.abs(s.vg2Supply - st.screenV) < 0.6);
+}
+
+// ---- presets & deep links -------------------------------------------------
+function applyPreset(id) {
+  const st = STAGES.get(id);
+  if (!st) return false;
+  $('c-tube').value = st.tube;
+  $('c-bplus').value = String(Math.round(st.plateV * 10) / 10);
+  $('c-vg2').value = String(Math.round(st.screenV * 10) / 10);
+  setRadio('load', 'ot');
+  setRadio('cfg', st.config === 'push-pull' ? 'pp' : 'se');
+  $('c-dcr').value = '0';
+  // Blank, not a guess, when the drawing prints no primary impedance.
+  $('c-zp').value = st.otZ ? String(st.otZ) : '';
+  setRadio('bias', st.bias === 'cathode' ? 'cathode' : 'fixed');
+  if (st.bias === 'cathode') $('c-rk').value = String(st.rk);
+  else $('c-vg1').value = String(st.gridV);
+  activePreset = id;
+  syncFields();
+  document.querySelectorAll('.pchip').forEach((a) =>
+    a.setAttribute('aria-current', a.dataset.preset === id ? 'true' : 'false'));
+  const note = st.otZ
+    ? `${st.display}: ${st.otNote}`
+    : `${st.display}: the drawing prints no primary impedance — ${st.otNote || 'enter one to draw the AC load line'}.`;
+  $('c-tube-note').textContent = note;
+  return true;
+}
+
+const PARAMS = [
+  ['tube', () => $('c-tube').value, (v) => { if (MODELS.has(v)) $('c-tube').value = v; }],
+  ['bplus', () => $('c-bplus').value, (v) => { $('c-bplus').value = v; }],
+  ['vg2', () => $('c-vg2').value, (v) => { $('c-vg2').value = v; }],
+  ['load', () => radio('load'), (v) => setRadio('load', v)],
+  ['cfg', () => radio('cfg'), (v) => setRadio('cfg', v)],
+  ['zp', () => $('c-zp').value, (v) => { $('c-zp').value = v; }],
+  ['dcr', () => $('c-dcr').value, (v) => { $('c-dcr').value = v; }],
+  ['ra', () => $('c-ra').value, (v) => { $('c-ra').value = v; }],
+  ['bias', () => radio('bias'), (v) => setRadio('bias', v)],
+  ['rk', () => $('c-rk').value, (v) => { $('c-rk').value = v; }],
+  ['vg1', () => $('c-vg1').value, (v) => { $('c-vg1').value = v; }],
+];
+
+function syncUrl(s) {
+  const u = new URLSearchParams();
+  if (activePreset) u.set('preset', activePreset);
+  for (const [key, get] of PARAMS) u.set(key, get());
+  const next = `${location.pathname}?${u.toString()}`;
+  history.replaceState(null, '', next);
+}
+
+function readUrl() {
+  const u = new URLSearchParams(location.search);
+  const preset = u.get('preset');
+  if (preset && applyPreset(preset)) {
+    // Explicit parameters still win over the preset's defaults.
+    for (const [key, , set] of PARAMS) if (u.has(key)) set(u.get(key));
+    syncFields();
+    return;
+  }
+  const tube = u.get('tube');
+  if (tube) {
+    // /reference/tubes/<id>/ links in by slug; accept either spelling.
+    const byName = MODELS.get(tube)
+      || DATA.models.find((m) => String(m.slug).toLowerCase() === tube.toLowerCase());
+    if (byName) {
+      $('c-tube').value = byName.name;
+      defaultsForTube(byName);
+    }
+  }
+  for (const [key, , set] of PARAMS) if (u.has(key)) set(u.get(key));
+  syncFields();
+}
+
+/** Sensible starting circuit for a tube arriving with no other parameters. */
+function defaultsForTube(m) {
+  if (m.kind === 'pentode') {
+    setRadio('load', 'ot');
+    setRadio('bias', 'cathode');
+    $('c-bplus').value = '340';
+    $('c-vg2').value = '292';
+    $('c-rk').value = '470';
+    $('c-zp').value = '5000';
+  } else {
+    setRadio('load', 'res');
+    setRadio('bias', 'cathode');
+    $('c-bplus').value = '250';
+    $('c-ra').value = '100000';
+    $('c-rk').value = '1500';
+  }
+}
+
+/** Show only the fields the current mode uses. */
+function syncFields() {
+  const loadKind = radio('load');
+  $('c-ot-fields').hidden = loadKind !== 'ot';
+  $('c-res-fields').hidden = loadKind !== 'res';
+  const bias = radio('bias');
+  $('c-rk-wrap').hidden = bias !== 'cathode';
+  $('c-vg1-wrap').hidden = bias !== 'fixed';
+  $('c-rk-note').hidden = bias !== 'cathode';
+  $('c-zp-label').textContent = radio('cfg') === 'pp'
+    ? 'Primary, plate to plate' : 'Primary impedance';
+  const m = MODELS.get($('c-tube').value);
+  $('c-vg2-wrap').hidden = !m || m.kind !== 'pentode';
+  render();
+}
+
+// ---- wiring ---------------------------------------------------------------
+$('ll-form').addEventListener('input', (e) => {
+  if (e.target.id === 'c-tube') {
+    activePreset = null;
+    defaultsForTube(MODELS.get($('c-tube').value));
+    $('c-tube-note').textContent = MODELS.get($('c-tube').value)?.anchor
+      ? `Model fitted to ${MODELS.get($('c-tube').value).anchor}.` : '';
+    document.querySelectorAll('.pchip').forEach((a) => a.setAttribute('aria-current', 'false'));
+  } else if (e.target.name === 'load' || e.target.name === 'bias' || e.target.name === 'cfg') {
+    activePreset = null;
+  }
+  syncFields();
+});
+$('ll-form').addEventListener('change', syncFields);
+$('ll-form').addEventListener('submit', (e) => e.preventDefault());
+
+document.getElementById('ll-presets').addEventListener('click', (e) => {
+  const a = e.target.closest('.pchip');
+  if (!a) return;
+  e.preventDefault();
+  if (applyPreset(a.dataset.preset)) {
+    document.querySelector('.explorer').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+});
+
+$('c-copy').addEventListener('click', async () => {
+  const btn = $('c-copy');
+  try {
+    await navigator.clipboard.writeText(location.href);
+    btn.textContent = 'Link copied';
+  } catch {
+    btn.textContent = location.href;
+  }
+  setTimeout(() => { btn.textContent = 'Copy link to this setup'; }, 2200);
+});
+
+readUrl();
+</script>
+
+<style is:global>
+  /* SVG built in script: these rules must be global to reach it. */
+  #ll-chart { width: 100%; height: auto; display: block; background: var(--well); border-radius: 8px; }
+  #ll-chart .ll-bg { fill: transparent; }
+  #ll-chart .ll-grid { stroke: var(--line-soft); stroke-width: 1; }
+  #ll-chart .ll-tick { fill: var(--faint); font-family: var(--mono); font-size: 11px; }
+  #ll-chart .ll-axis { fill: var(--muted); font-family: var(--disp); font-size: 11.5px; letter-spacing: .14em; text-transform: uppercase; }
+  #ll-chart .ll-curve { fill: none; stroke: var(--line); stroke-width: 1.4; }
+  #ll-chart .ll-curve-q { fill: none; stroke: var(--muted); stroke-width: 2; }
+  /* Solid = DC load line, dashed = AC load line, dotted red = the rating you must
+     not cross. Three distinct dash patterns, so the chart survives being read in
+     greyscale or by anyone who cannot separate the two warm hues. */
+  #ll-chart .ll-diss { fill: none; stroke: var(--oxblood); stroke-width: 2.6; stroke-dasharray: 1.5 4.5; stroke-linecap: round; }
+  #ll-chart .ll-dc { stroke: var(--amber); stroke-width: 2.4; }
+  #ll-chart .ll-ac { stroke: var(--amber); stroke-width: 1.8; stroke-dasharray: 10 6; }
+  #ll-chart .ll-drop { stroke: var(--amber-dim); stroke-width: 1; stroke-dasharray: 2 4; }
+  #ll-chart .ll-q { fill: var(--ground); stroke: var(--amber); stroke-width: 3; }
+  #ll-chart .ll-q-halo { fill: var(--amber); opacity: .16; }
+  #ll-chart .ll-k-bg { fill: var(--ground); opacity: .82; }
+  #ll-chart .ll-k-t { fill: var(--muted); font-family: var(--body); font-size: 11px; dominant-baseline: middle; }
+  #ll-chart .ll-k-sw { fill: var(--muted); }
+  #ll-chart .ll-k-sw.ll-k-dc { fill: var(--amber); }
+  #ll-chart .ll-k-sw.ll-k-ac { fill: var(--amber-dim); }
+  #ll-chart .ll-k-sw.ll-k-diss { fill: var(--oxblood); }
+  #ll-chart .ll-k-sw.ll-k-q { fill: var(--amber); }
+
+  /* The readout tiles and warnings are built in script too, so their rules have to
+     be global for the same reason the chart's are. */
+  #ll-out .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-top: 16px; }
+  #ll-out .tile { background: var(--panel); border: 1px solid var(--line-soft); border-radius: 8px; padding: 11px 13px; }
+  #ll-out .t-l { display: block; font-family: var(--disp); text-transform: uppercase; letter-spacing: .1em; font-size: 9.5px; color: var(--faint); }
+  #ll-out .tile b { display: block; font-family: var(--disp); font-size: 21px; color: var(--amber); line-height: 1.25; margin-top: 3px; }
+  #ll-out .t-s { display: block; font-family: var(--mono); font-size: 11px; color: var(--muted); margin-top: 3px; line-height: 1.4; }
+  #ll-out .warn { margin: 12px 0 0; padding: 10px 13px; border: 1px solid var(--oxblood); border-radius: 8px; color: var(--oxblood); font-size: 13px; line-height: 1.55; }
+  #ll-parity b { color: var(--ink); }
+  #ll-family .ll-row-q td { color: var(--amber); }
+</style>
+
+<style>
+  .ghead { padding: 44px 0 8px; }
+  .back { font-family: var(--disp); text-transform: uppercase; letter-spacing: .14em; font-size: 11.5px; color: var(--muted); }
+  .eyebrow { font-family: var(--disp); text-transform: uppercase; letter-spacing: .26em; font-size: 12px; color: var(--amber); margin-top: 14px; }
+  h1 { font-size: clamp(28px, 4.5vw, 42px); line-height: 1.12; margin: 8px 0 12px; }
+  .lede { max-width: 64ch; color: var(--muted); font-size: 16.5px; margin: 0; }
+
+  .explorer { display: grid; grid-template-columns: 288px minmax(0, 1fr); gap: 20px; margin-top: 32px; align-items: start; }
+  @media (max-width: 860px) { .explorer { grid-template-columns: minmax(0, 1fr); } }
+
+  /* Fields carry their own display, which would otherwise beat the UA rule for
+     [hidden] and leave the bias field the circuit isn't using on screen. */
+  [hidden] { display: none !important; }
+
+  .ll-controls { display: grid; gap: 14px; }
+  .grp { border: 1px solid var(--line); border-radius: 10px; background: var(--panel); padding: 12px 16px 16px; margin: 0; }
+  .grp legend { font-family: var(--disp); text-transform: uppercase; letter-spacing: .16em; font-size: 10.5px; color: var(--amber); padding: 0 6px; }
+  .f { display: flex; flex-direction: column; gap: 5px; margin-top: 10px; }
+  .f > span:first-child { font-family: var(--disp); text-transform: uppercase; letter-spacing: .1em; font-size: 10px; color: var(--faint); }
+  .io { display: flex; align-items: center; background: var(--well); border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
+  .io:focus-within { border-color: var(--amber-dim); }
+  .io input, .io select { border: 0; background: transparent; color: var(--ink); font-family: var(--mono); font-size: 14px; padding: 9px 3px 9px 10px; width: 100%; min-width: 0; }
+  .io select { padding-right: 10px; cursor: pointer; }
+  .io input:focus-visible, .io select:focus-visible { outline: none; }
+  .io i { font-style: normal; font-family: var(--mono); font-size: 11.5px; color: var(--faint); padding: 0 10px 0 3px; }
+
+  .seg { display: flex; gap: 6px; margin-top: 10px; }
+  .seg label { flex: 1; }
+  .seg input { position: absolute; opacity: 0; width: 0; height: 0; }
+  .seg span { display: block; text-align: center; border: 1px solid var(--line); border-radius: 6px; padding: 7px 4px; font-family: var(--disp); text-transform: uppercase; letter-spacing: .08em; font-size: 10.5px; color: var(--muted); cursor: pointer; background: var(--well); }
+  .seg input:checked + span { border-color: var(--amber-dim); color: var(--amber); background: rgba(232, 155, 63, .09); }
+  .seg input:focus-visible + span { outline: 2px solid var(--amber); outline-offset: 2px; }
+
+  .chk { display: flex; align-items: center; gap: 9px; margin-top: 12px; font-size: 13px; color: var(--muted); cursor: pointer; }
+  .chk input { accent-color: var(--amber); width: 15px; height: 15px; }
+
+  .btn { margin-top: 14px; width: 100%; background: var(--well); border: 1px solid var(--line); border-radius: 6px; color: var(--muted); font-family: var(--disp); text-transform: uppercase; letter-spacing: .12em; font-size: 10.5px; padding: 9px 8px; cursor: pointer; }
+  .btn:hover { border-color: var(--amber-dim); color: var(--amber); }
+
+  .hint { color: var(--faint); font-size: 12px; margin: 12px 0 0; line-height: 1.5; }
+
+  .ll-figure { margin: 0; border: 1px solid var(--line); border-radius: 10px; background: var(--panel); padding: 14px; }
+  #ll-cap { color: var(--faint); font-size: 12px; margin-top: 10px; line-height: 1.5; font-family: var(--mono); }
+
+  .ll-tbl { margin-top: 14px; }
+  .ll-tbl summary { font-family: var(--disp); text-transform: uppercase; letter-spacing: .14em; font-size: 11px; color: var(--muted); cursor: pointer; padding: 6px 0; }
+  .ll-tbl summary:hover { color: var(--amber); }
+  .ll-tbl .tbl { margin-top: 10px; }
+  .parity { margin: 12px 0 0; padding: 10px 13px; border: 1px dashed var(--line); border-radius: 8px; color: var(--muted); font-size: 13px; line-height: 1.6; }
+
+  .presets { margin-top: 48px; }
+  .presets h2, .prose h2, .more h2 { font-size: 17px; letter-spacing: .14em; margin: 0 0 8px; }
+  .sub { color: var(--muted); font-size: 14.5px; max-width: 68ch; margin: 0 0 16px; }
+  .chips { display: grid; grid-template-columns: repeat(auto-fill, minmax(196px, 1fr)); gap: 10px; }
+  .pchip { display: block; border: 1px solid var(--line); border-radius: 8px; background: var(--panel); padding: 10px 13px; text-decoration: none; }
+  .pchip:hover { border-color: var(--amber-dim); text-decoration: none; }
+  .pchip[aria-current="true"] { border-color: var(--amber); background: rgba(232, 155, 63, .07); }
+  .pchip b { display: block; font-family: var(--disp); letter-spacing: .1em; color: var(--amber); font-size: 15px; }
+  .pchip span { display: block; font-family: var(--mono); font-size: 11px; color: var(--muted); margin-top: 3px; }
+
+  .prose { margin-top: 48px; max-width: 72ch; }
+  .prose h3 { font-size: 13.5px; letter-spacing: .16em; color: var(--ink); margin: 28px 0 8px; }
+  .prose p { color: var(--muted); font-size: 15.5px; line-height: 1.72; margin: 0 0 14px; }
+  .prose p b { color: var(--ink); font-weight: 600; }
+  .prose .tbl { margin: 18px 0; max-width: none; }
+  .footnote { color: var(--faint); font-size: 12.5px; line-height: 1.6; margin-top: 12px; }
+
+  .more { margin-top: 48px; border-top: 1px solid var(--line); padding-top: 22px; }
+  .more ul { margin: 0; padding-left: 20px; }
+  .more li { color: var(--muted); font-size: 14.5px; line-height: 1.7; margin-bottom: 8px; }
+</style>
