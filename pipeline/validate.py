@@ -190,6 +190,37 @@ def validate_history(root: Path) -> list[str]:
     return errors
 
 
+def validate_loadlines(root: Path) -> list[str]:
+    """Cross-loader guard for the generated reference/loadlines.yaml.
+
+    The load-line explorer keys its presets on the circuit id and the tube name.
+    Both look numeric for ids like 5e1 and tubes like 5881, so both must be quoted
+    or js-yaml (the site's loader) reads 5e1 as 50 and silently drops the preset —
+    the same trap the history tier is guarded against above. Every id must also
+    name a real amps/ directory.
+    """
+    path = root / "reference" / "loadlines.yaml"
+    if not path.exists():
+        return []  # optional derived file; regenerate with pipeline/export_loadlines.py
+    errors: list[str] = []
+    rel = path.relative_to(root)
+    raw = path.read_text()
+    for ln, line in enumerate(raw.splitlines(), 1):
+        m = re.match(r"^\s*-?\s*(amp|tube):\s*([^\s#].*?)\s*$", line)
+        if m and _JS_NUMERIC.match(m.group(2)):
+            errors.append(
+                f"{rel}:{ln}: {m.group(1)} '{m.group(2)}' must be quoted — it parses "
+                f"as a number in the site's YAML loader (e.g. 5e1 → 50)")
+    amp_dirs = {p.name for p in (root / "amps").iterdir()
+                if p.is_dir() and p.name != "_template"}
+    stages = (yaml.safe_load(raw) or {}).get("stages") or []
+    for i, s in enumerate(stages):
+        if s.get("amp") not in amp_dirs:
+            errors.append(f"{rel}: stages[{i}].amp '{s.get('amp')}' has no amps/ directory")
+    print(f"checked {rel} — {len(stages)} output stage(s)")
+    return errors
+
+
 def main() -> int:
     root = Path(__file__).resolve().parent.parent
     metas = sorted(p for p in (root / "amps").glob("*/meta.yaml")
@@ -198,6 +229,7 @@ def main() -> int:
     for meta_path in metas:
         all_errors += validate(meta_path)
     all_errors += validate_history(root)
+    all_errors += validate_loadlines(root)
     for err in all_errors:
         print(f"FAIL {err}")
     print(f"checked {len(metas)} circuit(s), {len(all_errors)} error(s)")

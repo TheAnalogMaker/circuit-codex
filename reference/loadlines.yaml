@@ -1,0 +1,246 @@
+# Output-stage DC context for every documented circuit — GENERATED FILE.
+#
+# Written by pipeline/export_loadlines.py from each amp's own netlist.cir, its
+# ngspice operating point, and its bom.yaml. Do not edit by hand; re-run the
+# script (`python3 pipeline/export_loadlines.py`) and commit the result.
+#
+# Every voltage and current below is simulated, not measured. The published
+# chart values live in amps/<id>/voltages.yaml and are gated separately by
+# pipeline/verify_amps.py. Where a drawing prints no output-transformer primary
+# impedance, ot_primary_z is null and ot_primary_note repeats the parts list's
+# own wording rather than inventing a figure.
+stages:
+- amp: '5e1'
+  name_style: Tweed Champ-style
+  tube: '6V6GT'
+  output_tubes: 1
+  config: single-ended
+  bias: cathode
+  plate_node: BP2
+  plate_v: 305.218
+  screen_node: BP2
+  screen_v: 305.218
+  cathode_node: K2
+  cathode_v: 18.972
+  rk_total: 470.0
+  rk_per_tube: 470.0
+  grid_node: G2
+  grid_v: 0.0
+  grid_supply_node: null
+  grid_supply_v: null
+  ot_primary_z: 5000.0
+  ot_primary_approx: true
+  ot_primary_note: '≈5 kΩ : 8 Ω — Single-ended output (impedance not marked on the drawing; typical SE
+    6V6 load)'
+  sim_ip_ma: 37.1399
+  sim_ig2_ma: 3.2254
+- amp: '5e3'
+  name_style: Tweed Deluxe-style
+  tube: '6V6GT'
+  output_tubes: 2
+  config: push-pull
+  bias: cathode
+  plate_node: BP1
+  plate_v: 370.0
+  screen_node: BP2
+  screen_v: 319.216
+  cathode_node: K66
+  cathode_v: 20.456
+  rk_total: 250.0
+  rk_per_tube: 500.0
+  grid_node: G6A
+  grid_v: 0.0
+  grid_supply_node: null
+  grid_supply_v: null
+  ot_primary_z: 8000.0
+  ot_primary_approx: false
+  ot_primary_note: '8 kΩ : 8 Ω — Push-pull output'
+  sim_ip_ma: 37.766
+  sim_ig2_ma: 3.1453
+- amp: '5f1'
+  name_style: Tweed Champ-style
+  tube: '6V6GT'
+  output_tubes: 1
+  config: single-ended
+  bias: cathode
+  plate_node: BP1
+  plate_v: 340.0
+  screen_node: BP2
+  screen_v: 291.53
+  cathode_node: K2
+  cathode_v: 18.028
+  rk_total: 470.0
+  rk_per_tube: 470.0
+  grid_node: G2
+  grid_v: 0.0
+  grid_supply_node: null
+  grid_supply_v: null
+  ot_primary_z: 5000.0
+  ot_primary_approx: true
+  ot_primary_note: '≈5 kΩ : 8 Ω — Single-ended output (impedance not marked on the drawing; typical SE
+    6V6 load)'
+  sim_ip_ma: 35.3028
+  sim_ig2_ma: 3.0555
+- amp: '5f10'
+  name_style: Tweed Harvard-style
+  tube: '6V6GT'
+  output_tubes: 2
+  config: push-pull
+  bias: fixed
+  plate_node: BP1
+  plate_v: 305.0
+  screen_node: BP2
+  screen_v: 300.943
+  cathode_node: '0'
+  cathode_v: 0.0
+  rk_total: null
+  rk_per_tube: null
+  grid_node: G6A
+  grid_v: -21.0
+  grid_supply_node: NBIAS
+  grid_supply_v: -21.0
+  ot_primary_z: null
+  ot_primary_approx: false
+  ot_primary_note: Push-pull (impedance ratio not printed on the drawing) — Push-pull output into the
+    speaker
+  sim_ip_ma: 36.495
+  sim_ig2_ma: 3.0061
+- amp: '5f2a'
+  name_style: Tweed Princeton-style
+  tube: '6V6GT'
+  output_tubes: 1
+  config: single-ended
+  bias: cathode
+  plate_node: BP1
+  plate_v: 360.0
+  screen_node: BP2
+  screen_v: 308.791
+  cathode_node: K2
+  cathode_v: 19.294
+  rk_total: 470.0
+  rk_per_tube: 470.0
+  grid_node: G2
+  grid_v: 0.0
+  grid_supply_node: null
+  grid_supply_v: null
+  ot_primary_z: 5000.0
+  ot_primary_approx: true
+  ot_primary_note: '≈ 5 kΩ : 8 Ω — Single-ended output (part 265; impedance not marked on the drawing;
+    typical SE 6V6 load)'
+  sim_ip_ma: 37.819
+  sim_ig2_ma: 3.2326
+- amp: '5f4'
+  name_style: Tweed Super-style
+  tube: '5881'
+  output_tubes: 2
+  config: push-pull
+  bias: fixed
+  plate_node: BP1
+  plate_v: 415.0
+  screen_node: BP2
+  screen_v: 413.366
+  cathode_node: '0'
+  cathode_v: 0.0
+  rk_total: null
+  rk_per_tube: null
+  grid_node: G51
+  grid_v: -40.0
+  grid_supply_node: NBIAS
+  grid_supply_v: -40.0
+  ot_primary_z: null
+  ot_primary_approx: false
+  ot_primary_note: Fender 45216 — Push-pull output into 2 × 10 in speakers
+  sim_ip_ma: 50.946
+  sim_ig2_ma: 2.7825
+- amp: '5f6a'
+  name_style: Tweed Bassman-style
+  tube: '5881'
+  output_tubes: 2
+  config: push-pull
+  bias: fixed
+  plate_node: BP1
+  plate_v: 432.0
+  screen_node: S51
+  screen_v: 430.067
+  cathode_node: '0'
+  cathode_v: 0.0
+  rk_total: null
+  rk_per_tube: null
+  grid_node: G51
+  grid_v: -48.0
+  grid_supply_node: NBIAS
+  grid_supply_v: -48.0
+  ot_primary_z: null
+  ot_primary_approx: false
+  ot_primary_note: Fender 45249 · 2 Ω secondary — Push-pull output into four 8 Ω speakers
+  sim_ip_ma: 29.5318
+  sim_ig2_ma: 0.9644
+- amp: 'ab763'
+  name_style: Blackface Deluxe Reverb-style
+  tube: '6V6GT'
+  output_tubes: 2
+  config: push-pull
+  bias: fixed
+  plate_node: BP1
+  plate_v: 415.0
+  screen_node: S61
+  screen_v: 414.017
+  cathode_node: '0'
+  cathode_v: 0.0
+  rk_total: null
+  rk_per_tube: null
+  grid_node: G61
+  grid_v: -35.0
+  grid_supply_node: NBIAS
+  grid_supply_v: -35.0
+  ot_primary_z: null
+  ot_primary_approx: false
+  ot_primary_note: Fender 125A1A — Push-pull 6V6 output
+  sim_ip_ma: 38.2022
+  sim_ig2_ma: 2.0921
+- amp: 'jtm45'
+  name_style: British lead-style
+  tube: 'KT66'
+  output_tubes: 2
+  config: push-pull
+  bias: fixed
+  plate_node: BP1
+  plate_v: 450.0
+  screen_node: S5
+  screen_v: 448.737
+  cathode_node: '0'
+  cathode_v: 0.0
+  rk_total: null
+  rk_per_tube: null
+  grid_node: G5
+  grid_v: -50.0
+  grid_supply_node: NBIAS
+  grid_supply_v: -50.0
+  ot_primary_z: null
+  ot_primary_approx: false
+  ot_primary_note: Push-pull, KT66 primary — Push-pull output to the speaker
+  sim_ip_ma: 59.1388
+  sim_ig2_ma: 0.0
+- amp: 'm1987'
+  name_style: Plexi lead 50-style
+  tube: 'EL34'
+  output_tubes: 2
+  config: push-pull
+  bias: fixed
+  plate_node: BP1
+  plate_v: 490.0
+  screen_node: BP2
+  screen_v: 489.639
+  cathode_node: '0'
+  cathode_v: 0.0
+  rk_total: null
+  rk_per_tube: null
+  grid_node: G4
+  grid_v: -48.0
+  grid_supply_node: NBIAS
+  grid_supply_v: -48.0
+  ot_primary_z: null
+  ot_primary_approx: false
+  ot_primary_note: Push-pull EL34 primary, 16/8/4 Ω secondary — Output transformer
+  sim_ip_ma: 44.746
+  sim_ig2_ma: 0.0
