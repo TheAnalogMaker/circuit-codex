@@ -8,6 +8,15 @@ const studies = loadStudies();
 const manuals = sources.filter((s) => s.category === 'tube-manual');
 const era = sources.filter((s) => s.category === 'era-component');
 
+// Tube-model arithmetic read off the tube files rather than counted by hand, so the
+// section subtitle stays true as tubes are added: a tube carries its own SPICE model
+// when the model file is named for it, and borrows a family model when it is not.
+const borrowed = tubes.filter((t) => t.model?.file && !t.model.file.endsWith(`/${t.tube}.inc`));
+const nTubeModels = new Set(tubes.map((t) => t.model?.file).filter(Boolean)).size;
+const borrowedModels = borrowed.length
+  ? `the ${borrowed.map((t) => t.name).join(', ')} ${borrowed.length === 1 ? 'borrows' : 'borrow'} a family model`
+  : '';
+
 // pd_basis token → chip class (colour). Anything unknown falls back to neutral.
 const pdClass = {
   'pd-outright': 'ok',
@@ -17,31 +26,42 @@ const pdClass = {
   'in-copyright': 'warn',
 };
 
-const guides = [
-  { href: '/reference/safety/', title: 'High-voltage safety',
-    desc: 'Why a chassis stays lethal after power-off, the capacitor-discharge procedure, meter and one-hand practice, and the tweed-era death cap.' },
+// ---------------------------------------------------------------------------
+// Interactive labs — the pages you *work* in: type a value, drag a control, read
+// the answer off a live figure. Split out from the reading guides below so a
+// visitor at the bench finds the tool without scanning the whole shelf.
+//
+// The first two are the tone-stack lab and the load line explorer; each title and
+// href matches the route and <h1> that page actually ships.
+// ---------------------------------------------------------------------------
+const labs = [
+  { href: '/reference/guides/tone-stack-lab/', title: 'Tone-stack lab',
+    desc: 'Move the treble, middle, and bass controls and watch the frequency response redraw — the three-knob FMV network, the two-knob stack, and the single tweed tone control, each built from the real component values of that circuit’s own parts list.' },
+  { href: '/reference/guides/load-lines/', title: 'Load line explorer',
+    desc: 'Draw a load line across a tube’s plate curves, computed live from the corpus SPICE models: pick the supply, the load, and the bias, read the solved operating point against the datasheet dissipation limit, and start from any documented amplifier’s output stage.' },
+  { href: '/reference/guides/calculators/', title: 'Amp builder calculators',
+    desc: "Ohm's law, cathode bias, coupling-cap corners, and transformer ratios." },
   { href: '/reference/guides/resistor-color-code/', title: 'Resistor color code calculator',
     desc: 'Read the bands or type a value — four-band and five-band, with tolerance.' },
   { href: '/reference/guides/capacitor-codes/', title: 'Capacitor code chart & decoder',
     desc: 'Decode three-digit codes and tolerance letters; convert µF, nF, and pF.' },
+  { href: '/reference/guides/speaker-wiring/', title: 'Speaker wiring & impedance calculator',
+    desc: 'Wire 1, 2, or 4 speakers in series, parallel, or series-parallel — live diagram, total impedance, and per-speaker power share.' },
+];
+
+const guides = [
+  { href: '/reference/safety/', title: 'High-voltage safety',
+    desc: 'Why a chassis stays lethal after power-off, the capacitor-discharge procedure, meter and one-hand practice, and the tweed-era death cap.' },
   { href: '/reference/guides/reading-schematics/', title: 'How to read a tube amp schematic',
     desc: 'The symbols this archive draws with, signal flow and B+ rails, and a walked-through gain stage — schematics made legible to a first-timer.' },
   { href: '/reference/guides/tube-pinouts/', title: 'Tube pinout diagrams',
-    desc: 'Interactive bottom-view basing for all ten tubes — noval, 7-pin, and octal.' },
-  { href: '/reference/guides/calculators/', title: 'Amp builder calculators',
-    desc: "Ohm's law, cathode bias, coupling-cap corners, and transformer ratios." },
-  { href: '/reference/guides/load-lines/', title: 'Load line explorer',
-    desc: 'Plate-curve families computed live from the corpus tube models, a solved operating point for any supply, load and bias, the datasheet dissipation limit overlaid, and a preset for every documented amplifier\'s output stage.' },
+    desc: 'Interactive bottom-view basing for every tube the corpus documents — noval, 7-pin, and octal.' },
   { href: '/reference/guides/tube-substitution/', title: 'Tube substitution & the gain ladder',
     desc: 'Interactive 9A dual-triode gain ladder, plus power-tube and rectifier interchange.' },
-  { href: '/reference/guides/tone-stack-lab/', title: 'Tone-stack lab',
-    desc: 'Move the treble, middle, and bass controls and watch the frequency response redraw — the three-knob FMV network, the two-knob stack, and the single tweed tone control, with presets built from the real component values of every stack in the corpus.' },
   { href: '/reference/guides/pot-tapers/', title: 'Potentiometer taper: audio vs. linear',
     desc: 'Interactive rotation-vs-resistance chart for audio vs. linear taper, every potentiometer in the corpus classified by taper straight from its BOM, and the old/new A-B-C taper letter-code mixup.' },
   { href: '/reference/guides/transformers/', title: 'Transformer reference',
     desc: 'Power-transformer lead colours, every transformer and choke in the corpus, and the impedance-ratio sum.' },
-  { href: '/reference/guides/speaker-wiring/', title: 'Speaker wiring & impedance calculator',
-    desc: 'Wire 1, 2, or 4 speakers in series, parallel, or series-parallel — live diagram, total impedance, and per-speaker power share.' },
   { href: '/reference/guides/wire-gauge/', title: 'Wire gauge reference',
     desc: 'AWG diameter and chassis-wiring ampacity, where each gauge belongs in an amp (18–20 AWG heaters, 22–24 AWG signal), plus the tube era\'s cloth-covered push-back wire.' },
   { href: '/reference/guides/units-conventions/', title: 'Units & notation',
@@ -86,11 +106,28 @@ const guides = [
     </section>
   )}
 
+  <!-- Interactive labs — the work-in-them tools, ahead of the reading guides. -->
+  <section>
+    <h2>Interactive labs</h2>
+    <p class="sub">Tools you work in rather than read: move a control and the figure
+      answers. Each one runs entirely in your browser, on the corpus's own part
+      values — nothing is sent anywhere.</p>
+    <div class="grid">
+      {labs.map((l) => (
+        <a class="card lab" href={l.href}>
+          <div class="ct">Lab</div>
+          <div class="cid">{l.title}</div>
+          <div class="cdesc">{l.desc}</div>
+        </a>
+      ))}
+    </div>
+  </section>
+
   <section>
     <h2>Practical guides</h2>
-    <p class="sub">Interactive bench tools and quick references built from the same
-      corpus — decode a part, run the small sums that come up while working on these
-      circuits, or look up a term.</p>
+    <p class="sub">Quick references built from the same corpus — how to read what this
+      archive draws, what a part or a term means, and where each choice belongs in an
+      amplifier.</p>
     <div class="grid">
       {guides.map((g) => (
         <a class="card guide" href={g.href}>
@@ -104,9 +141,9 @@ const guides = [
 
   <section>
     <h2>Datasheets by tube</h2>
-    <p class="sub">The ten tubes this corpus documents — nine SPICE models; the 6L6G
-      shares the 5881 family model — each with the manufacturer datasheets its model is
-      fitted and cross-checked against.
+    <p class="sub">The {tubes.length} tubes this corpus documents — {nTubeModels} SPICE
+      models{borrowedModels ? `; ${borrowedModels}` : ''} — each with
+      the manufacturer datasheets its model is fitted and cross-checked against.
       <a href={`${GITHUB}/blob/main/models/METHODOLOGY.md`}>How the models are derived →</a></p>
     <div class="grid">
       {tubes.map((t) => (
@@ -196,7 +233,7 @@ const guides = [
   .card:hover{border-color:var(--amber-dim);text-decoration:none}
   .card .cid{font-family:var(--disp);font-size:22px;letter-spacing:.04em;text-transform:uppercase}
   .card .ct{font-family:var(--disp);text-transform:uppercase;letter-spacing:.16em;font-size:10.5px;color:var(--amber)}
-  .card.study .cid,.card.guide .cid{font-size:17px;line-height:1.25;text-transform:none;letter-spacing:.01em}
+  .card.study .cid,.card.guide .cid,.card.lab .cid{font-size:17px;line-height:1.25;text-transform:none;letter-spacing:.01em}
   .card .cdesc{color:var(--muted);font-size:13px;line-height:1.4}
   .card .cdesc.aka{font-family:var(--mono);font-size:11.5px;color:var(--faint);margin-top:-2px}
   .chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:auto;padding-top:8px}
