@@ -11,7 +11,12 @@
 // Y·v = i and solved by Gauss–Jordan elimination with partial pivoting at every
 // frequency of the sweep. A resistor of R Ω contributes admittance 1/R; a
 // capacitor of C F contributes jωC. The driving stage is an ideal 1 V source
-// behind its own output resistance, so |v(out)| is the network's voltage gain.
+// behind its own output resistance, so |v(out)| is the level at the stack's
+// output referred to that source — the driving stage's open-circuit signal, not
+// the voltage that survives at the stack's own input node. The divider formed by
+// the source resistance and the network is therefore inside every curve, which is
+// what makes a plate-fed stack read about a decibel lower than a follower-fed one
+// on otherwise identical parts.
 //
 // The solver was cross-checked against an independent ngspice AC sweep of the
 // same 5F6-A network (10 Hz–100 kHz, 40 points/decade): worst-case disagreement
@@ -112,15 +117,22 @@ export function solveAt(elements, n, out, f) {
 //        N4   4   bass-cap output · bass-pot CW lug
 //        N5   5   bass-pot CCW lug · top of the mid leg
 //
-//     Kirchhoff's current law at each unknown node, with Vin held at 1 V,
-//     Ys = 1/Rslope, Yt1 = 1/(Rt(1−t)), Yt2 = 1/(Rt·t), Yb1 = 1/(Rb(1−b)),
-//     Yb2 = 1/(Rb·b), Ym = 1/(Rm·m + Rfixed) and Y = jωC for each capacitor:
+//     Kirchhoff's current law at each unknown node. The stack input is an unknown
+//     of its own: the 1 V source sits behind Rsource, so V0 is what the driving
+//     stage actually delivers into the network, not the source's 1 V. With
+//     Ysrc = 1/Rsource, Ys = 1/Rslope, Yt1 = 1/(Rt(1−t)), Yt2 = 1/(Rt·t),
+//     Yb1 = 1/(Rb(1−b)), Yb2 = 1/(Rb·b), Ym = 1/(Rm·m + Rfixed) and Y = jωC for
+//     each capacitor:
 //
-//       N2 :  Ys(V2−Vin) + Yt2(V2−Vo) + Yc2(V2−V4) + Yc3(V2−V5)          = 0
-//       N3 :  Yc1(V3−Vin) + Yt1(V3−Vo)                                    = 0
+//       IN :  Ysrc(V0−1) + Ys(V0−V2) + Yc1(V0−V3)                         = 0
+//       N2 :  Ys(V2−V0) + Yt2(V2−Vo) + Yc2(V2−V4) + Yc3(V2−V5)            = 0
+//       N3 :  Yc1(V3−V0) + Yt1(V3−Vo)                                     = 0
 //       OUT:  Yt1(Vo−V3) + Yt2(Vo−V2) + Yb1(Vo−V4) + Yb2(Vo−V5) + Yl·Vo   = 0
 //       N4 :  Yc2(V4−V2) + Yb1(V4−Vo)                                     = 0
 //       N5 :  Yc3(V5−V2) + Yb2(V5−Vo) + Ym·V5                             = 0
+//
+//     Setting Rsource to zero collapses the first equation to V0 = 1 and recovers
+//     the textbook five-node form.
 //
 //     A control at 10 puts its wiper at the "more of this" end: treble 10 ties
 //     the output straight to the treble cap, bass 10 ties it straight to the
@@ -274,7 +286,7 @@ export function curvePath(preset, pos, freqs = sweepFrequencies()) {
   return d;
 }
 
-// Decade gridlines, plus the 2× and 5× minor lines inside each decade.
+// Decade gridlines, plus the 2×, 3× and 5× minor lines inside each decade.
 export function gridFrequencies() {
   const major = [], minor = [];
   for (let d = 1; d <= 5; d++) {

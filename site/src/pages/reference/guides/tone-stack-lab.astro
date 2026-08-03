@@ -160,11 +160,16 @@ const description = 'An interactive frequency-response lab for the passive tone 
   <section aria-labelledby="read-h">
     <h2 id="read-h">Reading the curve</h2>
     <div class="era">
-      <p>The vertical axis is level in decibels, referred to the signal arriving at the
-        network's input. Nothing here is an amplifier: a passive tone stack has no gain
-        of its own, so every curve on this page sits at or below the 0 dB line. What the
-        controls choose is <em>which</em> frequencies get thrown away and how much of
-        them — the stage after the stack then makes the level back up.</p>
+      <p>The vertical axis is level in decibels, referred to the open-circuit signal of
+        the stage driving the network — what that stage would deliver into no load at
+        all, before its own output resistance is charged for. That is the useful
+        reference, because the loss the driving stage's output resistance suffers into
+        the stack is part of what the stack costs: on a plate-fed circuit it is more
+        than a decibel of the reading, on a follower-fed one a rounding error. Nothing
+        here is an amplifier: a passive tone stack has no gain of its own, so every curve
+        on this page sits at or below the 0 dB line. What the controls choose is
+        <em>which</em> frequencies get thrown away and how much of them — the stage after
+        the stack then makes the level back up.</p>
       <p><strong>The scoop is the point.</strong> Set a three-knob preset to five all
         round and the curve sags in the middle, a broad dip several hundred hertz wide
         with the bass climbing away below it and the treble climbing away above. That
