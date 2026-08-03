@@ -20,9 +20,11 @@ resistor with a 25 µF bypass. This is not a Vox invention: it is Philips' own
 published application circuit for the valve, reproduced part for part — the
 datasheet tabulates a voltage gain near 200 for exactly this network, several
 times what a triode stage delivers in the same place. The anode couples out
-through 0.01 µF into the **Brilliance** switch — a 250 pF cap the switch shorts
-out, so "on" means the coupling is treble-only — and then to a 500 kΩ volume
-control.
+through 0.01 µF into the **Brilliance** switch, and from there to a 500 kΩ volume
+control. The switch works on a 250 pF capacitor sitting in series with that
+signal path: leave the switch open and everything has to cross the small cap, so
+only the top end gets through; close it and the cap is shorted out, restoring the
+full-range coupling.
 
 **Vibrato/Tremolo channel.** Its own input valve (ECC83) and a two-position tone
 network feed a phase-shift ladder of five 0.0047 µF capacitors and four 1 MΩ
@@ -69,8 +71,11 @@ rather than muffled.
 
 The EF86 is also the amp's fragile part. It is a high-gain small-signal pentode
 in a combo cabinet with a 12-inch speaker, and it is famously microphonic in that
-job; when Vox scaled the design up to the louder AC30/6 the Normal channel's EF86
-was replaced by an ECC83 for exactly that reason.
+job. It survived the scale-up: the first AC30/6, drawn on the same day as this
+amp's own sheet, kept the EF86 on its Normal channel. It was the revision of
+May 1961 that dropped it, replacing it with an ECC83 for exactly that reason —
+in a louder cabinet the valve's sensitivity to vibration had become the
+amplifier's weak point.
 
 ## A note on verification
 

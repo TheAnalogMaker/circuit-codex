@@ -36,8 +36,8 @@ items:
   - { ref: RK1, part: "Carbon comp resistor", value: "2.2 kΩ · ½ W", role: "EF86 cathode bias" }
   - { ref: CK1, part: "Electrolytic capacitor", value: "25 µF", role: "EF86 cathode bypass" }
   - { ref: CO1, part: "Coupling capacitor", value: "0.01 µF", role: "EF86 anode → Brilliance switch → Normal volume" }
-  - { ref: SW-BRIL, part: "Toggle switch", value: "SPST", role: "Brilliance on/off — shorts out the treble-bleed cap (panel-marked for the Normal channel)" }
-  - { ref: CBR, part: "Mica capacitor", value: "250 pF", role: "Brilliance treble-bleed cap across the switch (the published redraw prints 220 pF)" }
+  - { ref: SW-BRIL, part: "Toggle switch", value: "SPST", role: "Brilliance switch — closed it shorts CBR out for full-range coupling, open it leaves CBR in circuit (panel-marked for the Normal channel)" }
+  - { ref: CBR, part: "Mica capacitor", value: "250 pF", role: "Series treble-only coupling cap, bridged by the Brilliance switch (the published redraw prints 220 pF)" }
   - { ref: VR1, part: "Log potentiometer", value: "500 kΩ", role: "Normal channel volume" }
   # --- phase inverter (ECC83 long-tailed pair) ---
   - { ref: RD2, part: "Power resistor", value: "22 kΩ · 3 W", role: "Rail dropper, +315 V → phase-inverter supply node" }

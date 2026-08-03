@@ -27,7 +27,7 @@ source: "JMI drawing OA/031, 'VOX AC.15 amplifier circuit No. 3', 29-4-60 — wo
 nodes:
   BPN:  { chart: null, note: "Normal-channel supply node, after the 22 kΩ dropper from the +315 V rail (8 µF smoothed)" }
   BPPI: { chart: null, note: "phase-inverter supply node, after its own 22 kΩ dropper from the +315 V rail (8 µF smoothed)" }
-  PEF:  { chart: 90, tol_pct: 20, note: "EF86 anode — 220 kΩ load. See the residual note above: simulated low against the printed figure" }
+  PEF:  { chart: 90, tol_pct: 20, note: "EF86 anode — 220 kΩ load. Simulation runs about a quarter low against the printed +90 V; the verification note below explains why the gap sits in the tube model rather than the circuit" }
   SEF:  { chart: null, note: "EF86 screen grid, fed through 1 MΩ and bypassed by 0.1 µF — the pentode's gain-setting node" }
   KEF:  { chart: null, note: "EF86 cathode (2.2 kΩ, 25 µF bypass)" }
   PPIA: { chart: 220, tol_pct: 20, note: "phase-inverter anode, Normal-channel side (100 kΩ load)" }
