@@ -105,10 +105,11 @@ Intensity control. The 68 kΩ input stoppers and the 1 MΩ grid leak mount at th
 input jacks, and the tone, volume, Speed and Intensity networks mount at their
 pots. The board layout draws each of these where it actually lives.
 
-This circuit is published as **verified**. The data core — values, netlist, chart
-comparison, parts list — is complete and reads clean against the factory chart
-(worst gated node 5.5 %, rails inside 2.4 %), and both drawings are here: a
-redrawn schematic, and a board layout whose point-to-point wiring is
+This circuit is published as **verified**. Everything the entry claims is on the
+page — the component values, the netlist they came from, the comparison against
+the factory chart and the parts list — and the comparison reads clean: the worst
+gated node is 5.5 % out and the rails sit inside 2.4 %. Both drawings are here
+too: a redrawn schematic, and a board layout whose point-to-point wiring is
 machine-checked electrically equivalent to the netlist. What that badge does
 *not* claim is spelled out on the About page: it means simulation agrees with
 the published chart, not that anyone measured this amplifier.
