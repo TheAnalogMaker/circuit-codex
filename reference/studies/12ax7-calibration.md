@@ -217,9 +217,12 @@ The self-consistent operating point for that stage — 100 kΩ plate load from ~
 1.5 kΩ cathode bias — sits near **190 V**, which is what both the old and new models
 produce, and which the Philips resistance-coupled data independently supports (at
 Vp ≈ 189 V the tube passes ~1.1 mA; the single-anchor model is only −4 % off there).
-The 5F4's phase-inverter nodes are inconsistent in the same way, as its
-[circuit notes](/amps/5f4/) already record. No physically valid 12AX7
-model can reproduce those printed numbers, because the printed numbers do not describe
+(The 5F4's phase-inverter figures, which an earlier revision of this study also
+called inconsistent, turned out to be a different matter: the sheet draws a
+driver + split-load cathodyne rather than a long-tailed pair, and read as that
+circuit — the 2026-08-03 re-reading — all five printed values gate cleanly. The
+V2A pair stands disputed on its own arithmetic.) No physically valid 12AX7
+model can reproduce the V2A numbers, because the printed numbers do not describe
 a physically valid operating point. Those chart values should be treated as
 **disputed**, the way the JTM45's phase-inverter cathode reading already is — not
 chased with model parameters.

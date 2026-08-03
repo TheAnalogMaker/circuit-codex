@@ -19,8 +19,9 @@
 // on otherwise identical parts.
 //
 // The solver was cross-checked against independent ngspice AC sweeps of the
-// same element lists (10 Hz–100 kHz, 40 points/decade): the joined 5F6-A
-// network, and the ladder 5F6 and AA964 networks, each agree to within
+// same element lists (10 Hz–100 kHz, 40 points/decade): the joined reference
+// form, the ladder networks in both mid-leg forms (5F6/5F6-A three-knob,
+// AA964/AB763 fixed-leg), and the 5F4's split network, each agree to within
 // 5 × 10⁻⁵ dB worst-case.
 
 export const GND = -1; // reference node
@@ -123,7 +124,13 @@ export function solveAt(elements, n, out, f) {
 //   'joined' — the textbook idealisation of the same parts (Duncan-style
 //     "FMV"): treble lower lug on the slope foot, treble and bass wipers
 //     joined at one output node, mid capacitor on the top of a rheostat-wired
-//     mid leg. Kept for the circuits whose schematics draw it.
+//     mid leg. Kept as the textbook reference form; as of the 2026-08-03
+//     re-reading of the published drawings, no preset's own sheet draws it.
+//
+//   'split' — a different network again: the tweed 5F4's tone circuit
+//     (splitStackElements below), in which treble and bass ride two separate
+//     branches recombined at the output. It shares no slope resistor and no
+//     cap ladder with the stacks above.
 //
 // (1) The 'joined' three-knob stack. Node numbering, following the signal:
 //
@@ -163,7 +170,48 @@ export function solveAt(elements, n, out, f) {
 //     trebleCutElements below.
 export function stackElements(p, pos) {
   if (p.wiring === 'ladder') return ladderStackElements(p, pos);
+  if (p.wiring === 'split') return splitStackElements(p, pos);
   return joinedStackElements(p, pos);
+}
+
+// The 'split' network — the tweed 5F4's tone circuit as its C-EG sheet draws
+// it. Treble and bass are two separate branches off the cathode follower,
+// recombined at the output node:
+//
+//    IN   0   stack input (the cathode follower's cathode)
+//    N2   1   bass branch behind its 0.1 µF coupler: a 220 kΩ leak to ground
+//             and a 100 kΩ series resistor onward (the amp's 4.7 MΩ feedback
+//             resistor also returns to this node — outside this network)
+//    N3   2   treble-cap output · treble-pot hot end
+//    OUT  3   treble-pot wiper · the bass branch's 220 kΩ series resistor ·
+//             the next stage's grid
+//    W    4   the bass pot's WIPER — the branch injects here, not at an end
+//    N5   5   treble-pot cold end · 0.01 µF to ground
+//    N6   6   bass-pot end lug · 0.005 µF to ground (the opposite end lug is
+//             grounded outright)
+//
+// Treble 10 puts the wiper on the capacitor end of its track; bass 10 puts
+// the wiper on the 0.005 µF end, leaving the whole track in series with the
+// grounded lug so the branch is loaded least.
+function splitStackElements(p, pos) {
+  const t = clamp01(pos.treble);
+  const b = clamp01(pos.bass);
+  const els = [
+    R(SRC, 0, p.rSource),
+    C(0, 2, p.trebleCap),
+    R(2, 3, p.treblePot * (1 - t)),
+    R(3, 5, p.treblePot * t),
+    C(5, GND, p.trebleShuntCap),
+    C(0, 1, p.bassCoupler),
+    R(1, GND, p.bassShunt),
+    R(1, 4, p.bassSeries),
+    R(4, 6, p.bassPot * (1 - b)),
+    C(6, GND, p.bassLegCap),
+    R(4, GND, p.bassPot * b),
+    R(4, 3, p.outSeries),
+  ];
+  if (p.rLoad) els.push(R(3, GND, p.rLoad));
+  return els;
 }
 
 // The 'ladder' wiring — the network the published sheets draw. Nodes:
@@ -269,8 +317,10 @@ export function networkFor(preset, pos) {
   if (preset.kind === 'single-knob') {
     return { els: trebleCutElements(preset.parts, pos), n: 2, out: 0 };
   }
-  // The ladder wiring's mid wiper is a seventh node when the leg is a pot.
-  const n = preset.parts.wiring === 'ladder' && preset.parts.midPot ? 7 : 6;
+  // The ladder wiring's mid wiper — and the split network's second treble
+  // node — are a seventh node beyond the joined form's six.
+  const n = preset.parts.wiring === 'split'
+    || (preset.parts.wiring === 'ladder' && preset.parts.midPot) ? 7 : 6;
   return { els: stackElements(preset.parts, pos), n, out: 3 };
 }
 

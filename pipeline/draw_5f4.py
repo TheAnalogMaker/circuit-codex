@@ -56,12 +56,15 @@ s.wire(91.44, 109, t2a["g"][0], 109)
 s.wire(101.6, 116.62, 101.6, 118)
 s.shunt_rc("RK2", "1.5k", "C4", "25u", 101.6, 118)
 s.plate_load("RL3", "100k", t2a["p"], "B+4")
-# 4.7M feedback from the tone-stack output back to the V2A grid (≈0 V DC)
+# 4.7M feedback to the V2A grid (≈0 V DC) — the C-EG sheet returns it from
+# the tone network's bass-branch node (the far side of the 0.1 µF coupler),
+# NOT from the stack output
 s.junction(91.44, 109)
 s.wire(91.44, 109, 91.44, 84)
 fl, fr = s.series_h("R", "RF1", "4.7M", 100, 84)
 s.wire(91.44, 84, fl, 84)
-s.wire(fr, 84, 156.21, 84)              # to the tone-stack output rail
+s.wire(fr, 84, 137, 84)
+s.wire(137, 84, 137, 119.5)             # down to node B (crossing = no join)
 # direct-coupled CF: grid from the plate stub tee
 tee = 109 - 7.62 - 3.48
 s.wire(101.6, tee, 108.9, tee)
@@ -76,78 +79,95 @@ s.junction(116.84, 119.5)
 s.sym("R", "RKCF", "100k", 116.84, 123.31)
 s.gnd(116.84, 127.12)
 
-# ---- treble/bass tone stack (2-knob) ------------------------------------
-# node A = cathode-follower output: 250 pF to the treble pot, and the 100k
-# slope. node B = the slope's foot: the treble pot's lower lug and the bass
-# cap. The treble and bass wipers meet at the stack's output; with no middle
-# control the bass pot's foot goes straight to ground.
+# ---- tone network (treble/bass, split) ----------------------------------
+# Wired as the published 5F4 (C-EG) schematic draws it — NOT a two-knob cut
+# of the Bassman ladder. Two branches leave the cathode follower and
+# recombine at the phase inverter's grid:
+#   treble: A -> 250 pF -> treble pot; its far end -> .01 -> ground; the
+#           wiper is the output;
+#   bass:   A -> .1-200 -> node B (220k to ground, 4.7M feedback return)
+#           -> 100k -> the BASS POT'S WIPER (one end lug -> .005 -> ground,
+#           the other grounded outright) -> 220k -> the output node.
+# No coupling capacitor follows: the output node IS the PI grid.
 s.wire(116.84, 119.5, 124.46, 119.5)
 s.junction(124.46, 119.5)
-s.wire(124.46, 119.5, 124.46, 96)       # node A up to the 250 pF branch
-s.wire(124.46, 96, 135.89, 96)
-sl, sr = s.series_h("R", "RSL", "100k", 128.27, 119.5)
-s.wire(sr, 119.5, 135.89, 119.5)
-s.wire(135.89, 119.5, 135.89, 103.62)   # node B riser
-s.wire(135.89, 103.62, 147.32, 103.62)  # node B -> treble pot lower lug
-# treble branch (250 pF cap + .01 across the treble pot)
-s.junction(135.89, 108)
-tl, tr = s.series_h("C", "C5", "250p", 139.7, 96)
-s.wire(tr, 96, 147.32, 96)
-s.sym("POT", "VR3", "1M treb", 147.32, 99.81)
-s.sym("C", "C6", ".01u", 143.0, 91, lx=-4.0)
-s.wire(143.0, 94.81, 143.0, 96)
-s.junction(143.0, 96)
-s.wire(143.0, 87.19, 147.32, 87.19)
-s.wire(147.32, 87.19, 147.32, 96)
-# bass branch (.005 cap + 1M bass pot)
-bl, br = s.series_h("C", "C7", ".005u", 139.7, 108)
-s.wire(br, 108, 147.32, 108)
-s.sym("POT", "VR4", "1M bass", 147.32, 111.81)
-s.gnd(147.32, 115.62)
-# treble and bass wipers = stack output rail (x=156.21)
-s.wire(152.4, 99.81, 156.21, 99.81)
-s.wire(152.4, 111.81, 156.21, 111.81)
-s.wire(156.21, 111.81, 156.21, 99.81)
-s.junction(156.21, 99.81)
-s.wire(156.21, 99.81, 156.21, 84)
-s.junction(156.21, 92)
+s.wire(124.46, 119.5, 124.46, 94)       # node A up to the 250 pF branch
+s.wire(124.46, 94, 126.19, 94)
+tl, tr = s.series_h("C", "C5", "250p", 130, 94)
+s.wire(tr, 94, 140, 94)
+s.sym("POT", "VR3", "1M treb", 140, 97.81)
+s.sym("C", "C6", ".01u", 140, 105.43)   # treble pot cold end -> .01 -> ground
+s.gnd(140, 109.24)
+# treble wiper -> the output node (the PI grid), down the right side
+s.wire(145.08, 97.81, 163, 97.81)
+s.wire(163, 97.81, 163, 126)
+# bass branch: A -> C16 .1 -> node B
+c16l, c16r = s.series_h("C", "C16", ".1u", 130, 119.5)
+s.wire(124.46, 119.5, c16l, 119.5)
+s.wire(c16r, 119.5, 137, 119.5)
+s.junction(137, 119.5)                  # node B: 220k leak + 4.7M feedback
+s.sym("R", "RSH", "220k", 137, 123.31)
+s.gnd(137, 127.12)
+sl, sr = s.series_h("R", "RSL", "100k", 143, 119.5)
+s.wire(137, 119.5, sl, 119.5)
+s.wire(sr, 119.5, 149, 119.5)
+s.junction(149, 119.5)                  # node W: injected at the bass wiper
+s.wire(149, 119.5, 149, 130)
+s.sym("POT", "VR4", "1M bass", 143.92, 130)
+s.wire(143.92, 126.19, 140, 126.19)     # one end lug grounded outright
+s.wire(140, 126.19, 140, 128)
+s.gnd(140, 128)
+s.sym("C", "C7", ".005u", 143.92, 137.62)  # the other end lug -> .005 -> gnd
+s.gnd(143.92, 141.43)
+# W -> 220k -> the output node
+rsl2, rsr2 = s.series_h("R", "RSR", "220k", 156, 119.5)
+s.wire(149, 119.5, rsl2, 119.5)
+s.wire(rsr2, 119.5, 163, 119.5)
+s.junction(163, 119.5)
 
-# ---- long-tailed-pair phase inverter ------------------------------------
-ol, orr = s.series_h("C", "C8", ".02u", 160.02, 92)
-s.wire(orr, 92, 168.91, 92)
-tp = s.triode("V3A", "12AX7", 176.53, 92)
-s.wire(168.91, 92, tp["g"][0], 92)
-bt = s.triode("V3B", "12AX7", 176.53, 126)
-s.plate_load("RLA", "56k", tp["p"], "B+3")
-s.plate_load("RLB", "100k", bt["p"], "B+3")
-# shared tail: cathodes -> 1.5k -> J -> 56k -> gnd (elevated +55 V / +53 V)
+# ---- phase inverter: driver (V3A) + split-load cathodyne (V3B) ----------
+# The C-EG sheet draws no long-tailed pair: V3A is a plain cathode-biased
+# gain stage (100k plate, 1.5k cathode at +1.7 V) fed DC-direct from the
+# tone network; its plate couples through C8 0.02 µF into the cathodyne
+# V3B, whose 1M grid leak returns to the 1.5k/56k cathode junction and
+# whose plate and cathode each drive an output grid through 0.1 µF.
+bt = s.triode("V3A", "12AX7", 176.53, 126, lx=8.8)   # driver (drawn below)
+s.wire(163, 126, bt["g"][0], 126)
+tp = s.triode("V3B", "12AX7", 176.53, 92)    # cathodyne (drawn above)
+s.plate_load("RLA", "100k", bt["p"], "B+3")
+s.plate_load("RLB", "56k", tp["p"], "B+3")
+# driver cathode: 1.5k to ground; the 56k NFB + presence land here
+s.sym("R", "RK3", "1.5k", 176.53, 137.43)
+s.gnd(176.53, 141.24)
+# driver plate tee -> C8 0.02 -> cathodyne grid (left side, up to y=92)
+s.junction(176.53, 114.9)
+c8l, c8r = s.series_h("C", "C8", ".02u", 168, 114.9)
+s.wire(c8r, 114.9, 176.53, 114.9)
+s.wire(c8l, 114.9, 160, 114.9)
+s.wire(160, 114.9, 160, 92)
+s.wire(160, 92, tp["g"][0], 92)
+# cathodyne grid leak RGB 1M -> the 1.5k/56k junction
+s.junction(160, 105)
+gbl, gbr = s.series_h("R", "RGB", "1M", 167.5, 105)
+s.wire(160, 105, gbl, 105)
+s.wire(gbr, 105, 172.5, 105)
+s.wire(172.5, 105, 172.5, 109.62)
+s.wire(172.5, 109.62, 184.5, 109.62)
+# cathodyne cathode chain: 1.5k -> J -> 56k -> gnd (beside the tube)
 s.wire(176.53, 99.62, 176.53, 102)
-s.wire(176.53, 102, 182.88, 102)
-s.wire(176.53, 133.62, 176.53, 136)
-s.wire(176.53, 136, 182.88, 136)
-s.wire(182.88, 102, 182.88, 136)
-s.junction(182.88, 109)
-s.sym("R", "RTAIL", "1.5k", 187.96, 109 + 3.81, lx=2.0)
-s.wire(182.88, 109, 187.96, 109)
-s.junction(187.96, 116.62)
-s.sym("R", "RT2", "56k", 187.96, 120.43)
-s.gnd(187.96, 124.24)
-# both grid leaks to the junction
-s.wire(168.91, 92, 168.91, 99)
-s.junction(168.91, 92)
-s.sym("R", "RGA", "1M", 168.91, 102.81, lx=-9.4)
-s.wire(168.91, 106.62, 168.91, 116.62)
-s.wire(168.91, 116.62, 187.96, 116.62)
-s.wire(168.91, 126, 168.91, 122)        # bottom grid
-s.wire(168.91, 126, bt["g"][0], 126)
-s.junction(168.91, 126)
-s.sym("R", "RGB", "1M", 168.91, 118.19, lx=-9.4)
-s.text("56k NFB + 5k presence join the tail at ~0 V DC (annotation)", 150, 145, 1.1)
+s.wire(176.53, 102, 184.5, 102)
+s.sym("R", "RTAIL", "1.5k", 184.5, 105.81, lx=2.0)
+s.junction(184.5, 109.62)
+s.sym("R", "RT2", "56k", 184.5, 113.43, lx=2.0)
+s.gnd(184.5, 117.24)
+s.text("56k NFB from the speaker + 5k presence (0.1 µF on its wiper) land on V3A's cathode (annotation)", 150, 149, 1.1)
 
 # ---- 6L6G pair, fixed bias ----------------------------------------------
+# V4 is driven from the cathodyne's PLATE (C9, 0.1-400), V5 from its
+# CATHODE (C10, 0.1-200) — the split-load pair of outputs the sheet draws.
 for y, pref, cref, glref in [(84, "V4", "C9", "RGL1"), (136, "V5", "C10", "RGL2")]:
     if y == 84:
-        s.wire(176.53, 80.9, 194.31, 80.9)
+        s.wire(176.53, 80.9, 194.31, 80.9)     # cathodyne plate tee
         s.junction(176.53, 80.9)
         cl, crr = s.series_h("C", cref, ".1u", 198.12, 80.9)
         s.wire(crr, 80.9, 205.74, 80.9)
@@ -155,11 +175,12 @@ for y, pref, cref, glref in [(84, "V4", "C9", "RGL1"), (136, "V5", "C10", "RGL2"
         gy = 84
         gstop = "R5s"
     else:
-        s.wire(176.53, 114.9, 191.77, 114.9)   # lower PI plate tee
-        s.junction(176.53, 114.9)
-        cl, crr = s.series_h("C", cref, ".1u", 195.58, 114.9)
-        s.wire(crr, 114.9, 205.74, 114.9)
-        s.wire(205.74, 114.9, 205.74, 136)
+        s.junction(184.5, 102)                # cathodyne cathode node
+        cl, crr = s.series_h("C", cref, ".1u", 191, 102)
+        s.wire(184.5, 102, cl, 102)
+        s.wire(crr, 102, 196, 102)
+        s.wire(196, 102, 196, 136)
+        s.wire(196, 136, 205.74, 136)
         gy = 136
         gstop = "R6s"
     # grid stopper 1.5k in series, then 220k grid leak to -40V

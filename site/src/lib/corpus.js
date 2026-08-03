@@ -680,13 +680,11 @@ const TONE_STACK_SPECS = [
     refs: { slope: 'RSL', trebleCap: 'C8', treblePot: 'VR3', bassCap: 'C9', bassPot: 'VR4', midCap: 'C10', midPot: 'VR5' },
   },
   {
-    id: '5f4', kind: 'tb',
-    blurb: 'The tweed two-knob stack — the three-knob network with the mid leg taken straight to ground.',
+    id: '5f4', kind: 'split', wiring: 'split',
+    blurb: 'The tweed Super\'s tone circuit as the 5F4 sheet draws it — not a two-knob cut of the Bassman ladder but a different network: treble on a 250 pF divider with its cold end bled to ground through 0.01 µF, bass on a 0.1 µF-coupled chain injected into the bass pot\'s wiper, the two recombined through 220 kΩ at the phase inverter\'s grid.',
     drive: { kind: 'cathode-follower', tube: '12ax7' },
-    load: 'RGA',
-    refs: { slope: 'RSL', trebleCap: 'C5', treblePot: 'VR3', bassCap: 'C7', bassPot: 'VR4' },
-    midLeg: { kind: 'ground' },
-    omits: ['C6'],
+    refs: { trebleCap: 'C5', treblePot: 'VR3', trebleShuntCap: 'C6', bassCoupler: 'C16', bassShunt: 'RSH', bassSeries: 'RSL', bassPot: 'VR4', bassLegCap: 'C7', outSeries: 'RSR' },
+    note: 'The stack output runs straight into the phase inverter\'s grid — no coupling capacitor and no grid-leak resistor load it, so no load resistor is entered here. The 4.7 MΩ feedback resistor returning to the bass branch is not modelled; it is large beside every impedance in the network.',
   },
   {
     id: 'ab763', kind: 'tb', wiring: 'ladder',
@@ -724,6 +722,7 @@ const TONE_STACK_SPECS = [
 export const TONE_STACK_KINDS = {
   fmv: { label: 'Three-knob stack', controls: ['treble', 'mid', 'bass'] },
   tb: { label: 'Two-knob stack', controls: ['treble', 'bass'] },
+  split: { label: 'Split treble/bass', controls: ['treble', 'bass'] },
   'single-knob': { label: 'Single tone control', controls: ['tone'] },
 };
 
@@ -746,7 +745,10 @@ export function toneStackPresets() {
     const rSource = spec.drive.kind === 'cathode-follower'
       ? 1 / gm
       : (() => { const rp = mu / gm, rl = val(spec.drive.plateLoad); return (rp * rl) / (rp + rl); })();
-    const rLoad = val(spec.load);
+    // A spec without a load names none because its stack output really drives
+    // nothing but the next grid (the 5F4's runs straight into the phase
+    // inverter with no coupling network) — solved unloaded, and said so.
+    const rLoad = spec.load ? val(spec.load) : 0;
 
     const parts = { rSource, rLoad, wiring: spec.wiring || 'joined' };
     const bill = [];
@@ -760,6 +762,25 @@ export function toneStackPresets() {
       parts.cutCap = val(spec.refs.cutCap);
       push(spec.refs.tonePot, 'Tone pot');
       push(spec.refs.cutCap, 'Cut capacitor');
+    } else if (spec.kind === 'split') {
+      parts.trebleCap = val(spec.refs.trebleCap);
+      parts.treblePot = val(spec.refs.treblePot);
+      parts.trebleShuntCap = val(spec.refs.trebleShuntCap);
+      parts.bassCoupler = val(spec.refs.bassCoupler);
+      parts.bassShunt = val(spec.refs.bassShunt);
+      parts.bassSeries = val(spec.refs.bassSeries);
+      parts.bassPot = val(spec.refs.bassPot);
+      parts.bassLegCap = val(spec.refs.bassLegCap);
+      parts.outSeries = val(spec.refs.outSeries);
+      push(spec.refs.trebleCap, 'Treble capacitor');
+      push(spec.refs.treblePot, 'Treble pot');
+      push(spec.refs.trebleShuntCap, 'Treble-pot cold-end capacitor to ground');
+      push(spec.refs.bassCoupler, 'Bass-branch coupling capacitor');
+      push(spec.refs.bassShunt, 'Bass-branch leak to ground');
+      push(spec.refs.bassSeries, 'Bass-branch series resistor');
+      push(spec.refs.bassPot, 'Bass pot (branch injected at its wiper)');
+      push(spec.refs.bassLegCap, 'Bass-pot leg capacitor to ground');
+      push(spec.refs.outSeries, 'Series resistor into the output node');
     } else {
       parts.slope = val(spec.refs.slope);
       parts.trebleCap = val(spec.refs.trebleCap);
@@ -791,10 +812,10 @@ export function toneStackPresets() {
       controls: TONE_STACK_KINDS[spec.kind].controls,
       drive: {
         kind: spec.drive.kind,
-        tube: item(spec.refs.slope ? spec.refs.slope : spec.refs.tonePot) && spec.drive.tube.toUpperCase(),
+        tube: spec.drive.tube.toUpperCase(),
         ohms: rSource,
       },
-      loadRef: spec.load,
+      loadRef: spec.load || null,
       loadOhms: rLoad,
       midLeg: spec.midLeg?.kind || (spec.refs.midPot ? 'pot' : null),
       omits: (spec.omits || []).map((ref) => ({ ref, value: item(ref).value, role: item(ref).role })),

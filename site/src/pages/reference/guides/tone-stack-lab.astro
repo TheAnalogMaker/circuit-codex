@@ -67,7 +67,7 @@ const openReadout = `${opening.label} · treble 5.0 · middle 5.0 · bass 5.0 �
   + ` 100 Hz ${fmtDb(openSummary.at100)} dB · 1 kHz ${fmtDb(openSummary.at1k)} dB`
   + ` · 5 kHz ${fmtDb(openSummary.at5k)} dB.`;
 
-const description = 'An interactive frequency-response lab for the passive tone stacks of the tube-amp era — the three-knob FMV network, the two-knob treble/bass stack, and the single tweed tone control — plotted live from the analytic transfer function, with presets built from the real component values of the circuits in the archive whose stacks it solves.';
+const description = 'An interactive frequency-response lab for the passive tone stacks of the tube-amp era — the three-knob FMV network, the two-knob treble/bass stack, the tweed Super\'s split tone circuit, and the single tweed tone control — plotted live from the analytic transfer function, with presets built from the real component values of the circuits in the archive whose stacks it solves.';
 ---
 <Base title="Tone-stack lab: plot what the knobs do — Circuit Codex"
       description={description}>
@@ -206,15 +206,16 @@ const description = 'An interactive frequency-response lab for the passive tone 
         <a href="/topology/tone-stack-cf-fmv/">cathode follower</a> and followed by
         another gain stage. A designer who wanted a milder tone control could have one;
         what these amps wanted was <em>range</em>, and range costs signal.</p>
-      <p><strong>The controls interact — and at the stops the two wirings sound
-        different.</strong> Set Bass and Middle both to zero on the 5F6-A preset and the
-        curve drops off the bottom of the chart: with its output node joined to both
-        wipers and a rheostat mid leg, the output is then tied to ground through the
-        remains of the network, and the amp goes nearly silent no matter where Treble
-        sits. Do the same on the 5F6 or any of the Marshall presets and the curve stops
-        around thirty decibels down instead: in the wiring those drawings print, the
+      <p><strong>The controls interact — and the wiring sets what happens at the
+        stops.</strong> Set Bass and Middle both to zero on any of the three-knob
+        presets and the curve stops around thirty decibels down rather than falling
+        off the chart: in the ladder wiring every one of these drawings prints, the
         middle pot's full 25 kΩ track always stands between the network's foot and
-        ground, and it props the output up at every knob setting.</p>
+        ground, and it props the output up at every knob setting. The textbook
+        redrawing of the same parts — output node joined to both wipers, rheostat mid
+        leg — would instead tie the output to ground through the remains of the
+        network and go nearly silent; the solver holds that form too, but no preset
+        uses it, because no published sheet the archive has read draws it.</p>
     </div>
   </section>
 
@@ -238,31 +239,31 @@ const description = 'An interactive frequency-response lab for the passive tone 
         treble route: it sets the tilt of the curve, which is why changing it, as Marshall
         did in going from 56 kΩ to 33 kΩ, changes the amp's whole character without moving
         a single knob.</p>
-      <p><strong>The output is where the two wirings part company.</strong> These stacks
-        exist in two drawn forms, and every preset here is solved with the one its own
-        schematic draws. In the <em>ladder</em> wiring — the form the Fender 5F6 and
-        AA964 sheets and the Marshall JTM45, 1987 and 1959 drawings print — the stack's
-        output is the treble pot's wiper alone: the bass pot is a rheostat in series down
-        the network's lower half, and the Bass control works by varying how hard that
-        lower half loads the treble pot. In the <em>joined</em> wiring — the textbook
-        redrawing of the same parts, and the network the 5F6-A, 5F4, AB763 and AA1164
-        presets are solved with — the treble and bass wipers meet at a single output
-        node, and the two controls share a terminal outright. Either way the controls
-        cannot be separated; they differ in <em>where</em> the collision happens, and,
-        as the sections below show, in what happens at the stops.</p>
+      <p><strong>The output is the treble pot's wiper, alone.</strong> That is the
+        <em>ladder</em> wiring, and it is the form every published drawing behind these
+        presets prints — the Fender 5F6, 5F6-A, AA964, AB763 and AA1164 sheets and the
+        Marshall JTM45, 1987 and 1959 drawings alike: the bass pot is a rheostat in
+        series down the network's lower half, and the Bass control works by varying how
+        hard that lower half loads the treble pot. The <em>joined</em> wiring — the
+        textbook redrawing of the same parts, with the treble and bass wipers meeting
+        at a single output node — is kept in the solver as the reference form, but no
+        preset uses it: none of the sheets the archive has read draws it. Either way
+        the controls cannot be separated; the wirings differ in <em>where</em> the
+        collision happens, and, as the sections below show, in what happens at the
+        stops.</p>
       <p><strong>The mid leg is the network's foot.</strong> Below the bass pot the
         network runs to ground through whatever the circuit puts there. A three-knob stack
         puts a small pot there — 25 kΩ, tiny beside the 1 MΩ bass pot — and that pot is
-        the Middle control. In the ladder wiring the pot's full track always stands in
-        the leg and the mid capacitor lands on its <em>wiper</em>, so the control slides
-        the capacitor's injection point along a fixed resistance; in the joined wiring
-        the pot is a rheostat with the capacitor on its top, and the control shrinks the
-        leg itself. Fender's two-knob blackface circuits replace the pot with a fixed
-        resistor — 6.8 kΩ on the Deluxe Reverb and both Princetons, 15 kΩ on the
-        blackface Champ — but keep the capacitor that feeds the leg; the tweed two-knob
-        stack takes the foot straight to ground and drops that capacitor with it. One
-        solver holds all of these networks; each preset is solved with the wiring its
-        own circuit's schematic draws.</p>
+        the Middle control: the pot's full track always stands in the leg, the mid
+        capacitor lands on its <em>wiper</em>, and the control slides the capacitor's
+        injection point along a fixed resistance. Fender's two-knob blackface circuits
+        replace the pot with a fixed resistor — 6.8 kΩ on the Deluxe Reverb and both
+        Princetons, 15 kΩ on the blackface Champ — but keep the capacitor that feeds
+        the leg. The tweed Super's two knobs are no member of this family at all: its
+        sheet draws a different network — treble and bass on two separate branches,
+        recombined at the output — and its preset below is solved as that network. One
+        solver holds all of these forms; each preset is solved with the wiring its own
+        circuit's schematic draws.</p>
     </div>
   </section>
 
@@ -275,21 +276,22 @@ const description = 'An interactive frequency-response lab for the passive tone 
         bass leg, two routes down from the slope resistor arriving at the output node from
         different places. Every three-knob circuit here has it, and so does the blackface
         two-knob stack — which is why a blackface amp is scooped with both knobs at five
-        even though it has no Middle control to blame. The tweed two-knob stack is the one
-        that drops that capacitor, and its curve says so: no dip at all, just a smooth
-        tilt from bass to treble.</p>
-      <p>The foot of the network is worth trying at the extremes, because the wirings and
-        the families end differently. Set the 5F6-A preset's Bass and Middle both to zero
-        and the output falls off the bottom of the chart — around 100 dB down, whatever
-        Treble is doing — because its joined output node is then tied to ground through
-        what is left of the network. The tweed two-knob 5F4 does the same thing with Bass
-        alone at zero, since its mid leg is simply a wire to ground. The ladder-wired
-        three-knob presets — the 5F6 and all three Marshalls — never collapse: their
-        25 kΩ middle track stands permanently in the ground leg, and both controls at
-        zero bottoms out around 30 dB down. The blackface two-knob presets hold up for
-        the same reason in fixed form: the 6.8 kΩ leg keeps them near 27 dB down rather
-        than silent. The resistance that sets a circuit's floor is also the reason it
-        never goes quiet.</p>
+        even though it has no Middle control to blame. The tweed Super's preset is the
+        odd one out because its circuit is: with treble and bass on separate branches
+        and no shared cap ladder, five-and-five leaves only a shallow saddle — about
+        7 dB at its deepest, near 190 Hz — though pushing both controls to ten deepens
+        the crossover valley between the two branches to around 18 dB at 1 kHz.</p>
+      <p>The foot of the network is worth trying at the extremes, because the families
+        end differently. On the three-knob presets — the 5F6, the 5F6-A and all three
+        Marshalls — Bass and Middle both at zero bottoms out around 30 dB down: the
+        25 kΩ middle track stands permanently in the ground leg, and the stack never
+        collapses. The blackface two-knob presets hold up for the same reason in fixed
+        form: the 6.8 kΩ leg keeps them around 29 dB down rather than silent. The
+        split-network 5F4 behaves differently again — Bass at zero grounds its bass
+        branch's injection point, and the low end falls some fifty decibels while the
+        treble branch keeps playing, only about 13 dB down at 5 kHz: one branch can go
+        quiet while the other carries on. The resistance that sets a circuit's floor is
+        also the reason it never goes entirely quiet.</p>
       <p>The Middle control's authority is worth a moment too. On the 5F6 preset with
         Treble and Bass at five, moving Middle from 0 to 10 lifts the bottom of the notch
         from about 23 dB down to about 10 dB down and walks it from roughly 860 Hz to
@@ -340,10 +342,11 @@ const description = 'An interactive frequency-response lab for the passive tone 
           at least as much as the tone stack does, and none of them is in this plot.</li>
       </ul>
       <p class="cite">The solver behind the page was checked against independent
-        ngspice AC sweeps of the same element lists — both wirings, the joined 5F6-A
-        network and the ladder 5F6 and AA964 networks, using the same simulator the
-        archive uses to verify every operating point — and agrees with each to within
-        5 × 10⁻⁵ dB across the sweep. For what a decibel is, see
+        ngspice AC sweeps of the same element lists — the joined reference form, the
+        ladder network in both its mid-leg forms (the three-knob 5F6 and 5F6-A, the
+        fixed-leg AA964 and AB763), and the 5F4's split network, using the same
+        simulator the archive uses to verify every operating point — and agrees with
+        each to within 5 × 10⁻⁵ dB across the sweep. For what a decibel is, see
         <a href="/reference/guides/units-conventions/">units and notation</a>.</p>
     </div>
   </section>
@@ -391,7 +394,8 @@ const description = 'An interactive frequency-response lab for the passive tone 
         </table></div>
         <p class="pcard-foot">
           Driven from {p.drive.kind === 'cathode-follower' ? 'a cathode follower' : 'a plate'},
-          entered at {ohms(p.drive.ohms)}; loaded by {ohms(p.loadOhms)} ({p.loadRef}).
+          entered at {ohms(p.drive.ohms)};
+          {p.loadRef ? ` loaded by ${ohms(p.loadOhms)} (${p.loadRef}).` : ' solved unloaded — the output drives the next grid directly.'}
           {p.midLeg === 'ground' && ' The mid leg runs straight to ground.'}
           {p.midLeg === 'fixed' && ' The mid leg is a fixed resistor rather than a control.'}
           {p.note && ` ${p.note}`}

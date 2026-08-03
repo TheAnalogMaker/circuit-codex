@@ -26,7 +26,8 @@ Each preset declares which of the two stack wirings its schematic draws
     N4   bass-cap output    bass cap · bass-pot end lug
     N5   mid-leg top        bass-pot other end lug · mid cap · mid leg
 
-'ladder' — the wiring the published 5F6/JTM45/1987/1959/AA964 sheets draw:
+'ladder' — the wiring the published 5F6, 5F6-A, JTM45, 1987, 1959, AA964,
+AB763 and AA1164 sheets draw:
 
     IN   stack input        slope resistor · treble cap
     N2   slope foot         slope resistor · bass cap · mid cap
@@ -37,10 +38,24 @@ Each preset declares which of the two stack wirings its schematic draws
     N5   bass-rheostat foot mid-leg top (mid pot's end lug, or the fixed leg)
     M    mid pot's wiper    the mid cap lands here (three-knob only)
 
-The mid leg below N5 is a pot (three-knob), a fixed resistor (blackface
-two-knob), or a direct ground (tweed two-knob). Which end lug of a pot is the
-"10" end is a taper fact a drawing cannot carry, so the gate accepts either
-orientation and only checks what the wires say.
+The mid leg below N5 is a pot (three-knob) or a fixed resistor (blackface
+two-knob). Which end lug of a pot is the "10" end is a taper fact a drawing
+cannot carry, so the gate accepts either orientation and only checks what the
+wires say.
+
+'split' — the tweed 5F4's tone circuit (kind 'split'): not a wiring of the
+stack above but a different network. Treble and bass ride two branches off the
+cathode follower and recombine at the output:
+
+    IN   stack input       treble cap · bass-branch coupler
+    N3   treble-cap output treble-pot end lug
+    N5   treble cold end   treble-pot other end lug · shunt cap to ground
+    OUT  stack output      treble-pot WIPER · 220k from the bass branch
+    N2   bass branch       coupler · 220k leak to ground · 100k series
+                           (the 4.7M feedback resistor also returns here)
+    W    bass injection    100k series · the bass pot's WIPER · 220k to OUT
+    N6   bass leg          bass-pot end lug · 0.005 µF to ground; the pot's
+                           other end lug is grounded outright
 
 Run from pipeline/:  python3 check_tonestack_wiring.py
 """
@@ -199,7 +214,72 @@ def check_ladder(amp: str, spec: dict) -> list:
     return problems
 
 
+def check_split(amp: str, spec: dict) -> list:
+    """The 5F4's split network: two branches off the follower, recombined."""
+    path = ROOT / "amps" / amp / "schematic.kicad_sch"
+    if not path.exists():
+        return [f"{amp}: no schematic.kicad_sch"]
+    nets = Nets(path)
+    r = spec["refs"]
+    problems = []
+    try:
+        gnd = nets.at(*nets.labels["GND"][0])
+
+        # IN from the treble cap and the bass-branch coupler, which share it.
+        node_in, n3, n2 = _pairing(nets, r["trebleCap"], r["bassCoupler"], amp)
+
+        # Treble branch: pot from N3 down to the shunt-cap node, wiper = OUT.
+        sc = [nets.pin(r["trebleShuntCap"], "1"), nets.pin(r["trebleShuntCap"], "2")]
+        if gnd not in sc:
+            raise Fail(f"{amp}: treble shunt cap {r['trebleShuntCap']} does not reach ground")
+        n5 = next(x for x in sc if x != gnd)
+        out = nets.pin(r["treblePot"], POT_WIPER)
+        _pot(nets, r["treblePot"], (n3, n5), out, amp)
+
+        # Bass branch: N2 carries the leak to ground and the series resistor.
+        sh = [nets.pin(r["bassShunt"], "1"), nets.pin(r["bassShunt"], "2")]
+        if set(sh) != {n2, gnd}:
+            raise Fail(f"{amp}: bass-branch leak {r['bassShunt']} does not run from the "
+                       "coupler node to ground")
+        se = [nets.pin(r["bassSeries"], "1"), nets.pin(r["bassSeries"], "2")]
+        if n2 not in se:
+            raise Fail(f"{amp}: bass-branch series resistor {r['bassSeries']} is not fed "
+                       "from the coupler node")
+        w = next(x for x in se if x != n2)
+
+        # The branch injects at the bass pot's WIPER; one end lug is grounded,
+        # the other carries the 0.005 µF leg.
+        if nets.pin(r["bassPot"], POT_WIPER) != w:
+            raise Fail(f"{amp}: the bass branch does not land on {r['bassPot']}'s wiper — "
+                       "the sheet injects at the wiper, not an end lug")
+        bends = {nets.pin(r["bassPot"], p) for p in POT_ENDS}
+        if gnd not in bends:
+            raise Fail(f"{amp}: neither end lug of {r['bassPot']} is grounded")
+        n6 = next(x for x in bends if x != gnd)
+        lc = [nets.pin(r["bassLegCap"], "1"), nets.pin(r["bassLegCap"], "2")]
+        if set(lc) != {n6, gnd}:
+            raise Fail(f"{amp}: bass leg cap {r['bassLegCap']} does not run from "
+                       f"{r['bassPot']}'s far end lug to ground")
+
+        # Recombination: 220k from the injection node to the treble wiper.
+        os_ = [nets.pin(r["outSeries"], "1"), nets.pin(r["outSeries"], "2")]
+        if set(os_) != {w, out}:
+            raise Fail(f"{amp}: series resistor {r['outSeries']} does not run from the "
+                       "bass injection node to the stack output")
+
+        distinct = [node_in, n2, n3, out, w, n5, n6]
+        if len(set(distinct)) != len(distinct):
+            raise Fail(f"{amp}: two tone-network nodes are shorted together")
+    except Fail as exc:
+        problems.append(str(exc))
+    except KeyError as exc:
+        problems.append(f"{amp}: reference {exc} is not in the drawing")
+    return problems
+
+
 def check(amp: str, spec: dict) -> list:
+    if spec["kind"] == "split":
+        return check_split(amp, spec)
     if spec.get("wiring") == "ladder":
         return check_ladder(amp, spec)
     path = ROOT / "amps" / amp / "schematic.kicad_sch"
@@ -277,7 +357,7 @@ def check(amp: str, spec: dict) -> list:
 
 
 def main() -> int:
-    specs = [s for s in load_specs() if s["kind"] in ("fmv", "tb")]
+    specs = [s for s in load_specs() if s["kind"] in ("fmv", "tb", "split")]
     failures = []
     for spec in specs:
         problems = check(spec["id"], spec)

@@ -95,11 +95,11 @@ const COPY = {
   },
   'tone-stack-cf-tb': {
     metaTitle: 'Cathode-follower treble/bass tone-stack amps',
-    metaDescription: 'The cathode-follower treble/bass tone stack in the archive — a two-knob stack driven by a cathode follower, the step between the single tweed tone knob and the full three-knob FMV.',
-    lede: 'A two-knob stack, cathode-follower-driven — the step toward FMV.',
+    metaDescription: 'The cathode-follower treble/bass tone circuit in the archive — the tweed Super\'s split network: treble and bass on two separate branches off a cathode follower, recombined at the phase inverter\'s grid.',
+    lede: 'Two knobs off a cathode follower — on two separate branches.',
     prose: [
-      `This is a two-control treble-and-bass ${G('tone-stack', 'tone stack')} fed, like its three-knob sibling, from a ${G('cathode-follower', 'cathode follower')}. The follower's low output impedance drives the passive network, and two interacting controls set treble and bass independently — one knob short of the full ${'<a href=\"/topology/tone-stack-cf-fmv/\">FMV stack</a>'}, one knob past the single tweed tone control.`,
-      `It marks the point where Fender's larger tweeds outgrew a single tone knob but hadn't yet reached the three-band stack. Keeping the cathode follower means the tone network can be as lossy as good control range requires without loading down the gain stage ahead of it — the same reasoning that makes the FMV arrangement work.`,
+      `This is a two-control treble-and-bass ${G('tone-stack', 'tone circuit')} fed from a ${G('cathode-follower', 'cathode follower')} — but it is not a two-knob cut of the ${'<a href=\"/topology/tone-stack-cf-fmv/\">FMV stack</a>'}. The published drawing splits the signal into two branches: a small capacitor into the treble pot, whose far end bleeds to ground and whose wiper is the output, and a separately coupled bass chain injected into the bass pot's wiper, rejoined through a series resistor at the next stage's grid.`,
+      `Because the branches share no slope resistor and no capacitor ladder, the two controls interact far less than the FMV family's do, and no deep midrange scoop is carved between them. The cathode follower still earns its keep: it drives both branches from a low impedance, so the network can be as lossy as good control range requires without loading down the gain stage ahead of it.`,
       `For where a stage like this falls in the signal path, the guide to <a href="/reference/guides/reading-schematics/#couple-h">reading a schematic</a> walks the coupling between stages. The plainer relatives — a ${'<a href=\"/topology/tone-stack-single-knob/\">single tone control</a>'} and ${'<a href=\"/topology/tone-stack-none/\">no tone stack at all</a>'} — are documented alongside.`,
     ],
   },
@@ -140,7 +140,7 @@ const COPY = {
    opened on the circuit from this group whose stack the lab plots. */
 const TONE_STACK_LAB = {
   'tone-stack-cf-fmv': { preset: '5f6a', text: 'Hear the curve: plot this stack, knob by knob, in the tone-stack lab' },
-  'tone-stack-cf-tb': { preset: '5f4', text: 'Hear the curve: plot the tweed two-knob stack in the tone-stack lab' },
+  'tone-stack-cf-tb': { preset: '5f4', text: 'Hear the curve: plot the tweed Super\'s split network in the tone-stack lab' },
   'tone-stack-tb': { preset: 'ab763', text: 'Hear the curve: plot the blackface two-knob stack in the tone-stack lab' },
   'tone-stack-single-knob': { preset: '5f2a', text: 'Hear the curve: plot the single tweed tone control in the tone-stack lab' },
 };
