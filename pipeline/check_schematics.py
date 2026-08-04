@@ -25,6 +25,14 @@ def strict_tokenize_errors(text: str) -> list[str]:
     while i < n:
         c = text[i]
         if c == '"':
+            # A quote may only OPEN a string after whitespace or a paren —
+            # a quote mid-atom is exactly where KiCanvas throws. (Two strings
+            # back to back, '"Reference" "R"', are separated by a space and
+            # are legal.)
+            if i > 0 and text[i - 1] not in " \t\r\n(":
+                errors.append(
+                    f"quote opens mid-atom at index {i}: "
+                    f"{text[max(0, i - 30):i + 12]!r}")
             j = i + 1
             while j < n:
                 if text[j] == "\\":
@@ -33,14 +41,8 @@ def strict_tokenize_errors(text: str) -> list[str]:
                 if text[j] == '"':
                     break
                 j += 1
-            rest = text[j + 1:j + 2]
-            k = j + 1
-            while k < n and text[k] in " \t\r\n":
-                k += 1
-            if k < n and text[k] not in "()":
-                errors.append(
-                    f"string ending at index {j} is followed by {text[k]!r} — "
-                    f"likely a raw inner quote: {text[i:j + 20]!r}")
+            if j >= n:
+                errors.append(f"unterminated string opened at index {i}")
             i = j + 1
         else:
             i += 1
