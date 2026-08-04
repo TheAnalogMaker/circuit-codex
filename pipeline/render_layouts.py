@@ -2678,21 +2678,30 @@ class SheetRenderer(Renderer):
             self.obst_rect(x, y, x + w, y + h, f"{ref} body")
             gut = PLUS_GUTTER                 # clear space the '+' owns
             vcx, vw = x + gut + (w - gut) / 2, w - gut
-            if self._fits(v1, 10.5, vw - 6):
-                self._fixed_text(vcx, y + 22.5, v1, 10.5, weight=700)
-                if v2 and self._fits(v2, 9, w - 8):
-                    self._fixed_text(cx, y + 34, v2, 9, fill=SH_INK2)
-            elif self._fits(v1, 9, vw - 4):
-                self._fixed_text(vcx, y + 22, v1, 9, weight=700)
-                if v2 and self._fits(v2, 8.5, w - 8):
-                    self._fixed_text(cx, y + 33, v2, 8.5, fill=SH_INK2)
-            elif self._fits(v1, 10.5, w - 8):
-                # too narrow for a side-by-side gutter: drop the value below the
-                # '+' band instead of letting the two share a line.
-                self._fixed_text(cx, y + 26, v1, 10.5, weight=700)
-                if v2 and self._fits(v2, 8.5, w - 8):
-                    self._fixed_text(cx, y + 36, v2, 8.5, fill=SH_INK2)
-            elif not self._val_inside(cx, y + 24, v1, w):
+            placed = False
+            for size in (10.5, 9.5, 9.0):     # beside the '+', sharing its line
+                if self._fits(v1, size, vw - 5):
+                    self._fixed_text(vcx, y + 22.5, v1, size, weight=700)
+                    vs = min(size - 1.5, 9.0)
+                    if v2 and self._fits(v2, vs, w - 8):
+                        self._fixed_text(cx, y + 34, v2, vs, fill=SH_INK2)
+                    placed = True
+                    break
+            if not placed:
+                # too narrow for a side-by-side gutter: the value drops BELOW
+                # the '+' band and keeps the full can width — and keeps its
+                # voltage line, which the old ladder silently dropped (the
+                # JTM45's C16 read '25MFD' while every neighbour on its row
+                # carried a working voltage).
+                for size in (10.5, 9.5, 8.5, 8.0):
+                    if self._fits(v1, size, w - 6):
+                        self._fixed_text(cx, y + 26, v1, size, weight=700)
+                        vs = min(size - 1.0, 8.5)
+                        if v2 and self._fits(v2, vs, w - 6):
+                            self._fixed_text(cx, y + 36.5, v2, vs, fill=SH_INK2)
+                        placed = True
+                        break
+            if not placed:
                 self._below_value(cx, cy + 22, ref, v1)
             self._ref_label(cx, y - 6, ref)
         elif cat == "diode":
