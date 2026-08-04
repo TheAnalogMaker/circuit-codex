@@ -27,6 +27,17 @@ The idiom is the era sheets' general drafting style — never any specific
 drawing's artwork. Hard rule 1 (redraw from facts, never reproduce) governs
 style exactly as it governs values.
 
+**Page chrome scales with the sheet.** A board's pixel geometry is a fixed grid
+(`CW` × `ROWGAP`), so sheet width tracks column count — 1000 px for the 5F1,
+2440 px for the 5F10 — at a near-constant height. Every one of these is read
+scaled to a common page width, so chrome type set at a fixed pixel size renders
+at wildly different ink heights across the corpus: the 5F10's title and legend
+came out roughly half the 5F1's. Title, attribution and legend sizes (and the
+footer band that holds them) are therefore multiplied by `width / CHROME_REF_W`,
+clamped. Board **content** type — refs, values, socket captions — is
+deliberately *not* scaled: it is measured against the fixed pixel grid by the
+placer and the lint, and it must stay legible relative to the parts it names.
+
 **Era value lettering.** In sheet style only, a part's value is compacted into
 the shorthand the period drawings used and this archive documents for readers on
 `/reference/guides/units-conventions/` (`era_pair()` in `render_layouts.py`):
@@ -93,6 +104,27 @@ point* for the automatic placement pass (below), not the mechanism: as of
 authored where the placer's result is measurably clean but editorially wrong.
 A referenced designator that is absent from `bom.yaml` fails the render — and CI.
 
+**Body vocabulary.** The renderer picks a body outline from the part type in
+`bom.yaml`, and the same vocabulary holds whichever way the part is turned: a
+film/mica cap is a square-cornered rectangle, a resistor a dogbone (rounded
+ends, waisted), an electrolytic a crimped can with a `+` mark, a diode or
+rectifier a square body with a cathode band. A part standing between the two
+rows gets its own outline rotated, not a generic pill — before 2026-08-04 every
+vertical body was the same rounded pill, so on a board of standing parts a
+builder could not tell R from C by shape at all. Each form is keyed in the
+drawing's **Bodies** legend.
+
+**`cathode: a | b`** (diodes only) names the eyelet the *schematic* puts the
+cathode on, so the drawn body can carry its band the right way round. The
+drawing never infers polarity: an undeclared diode is drawn unbanded rather
+than guessed at, and the field's comment must cite where in
+`schematic.kicad_sch` the orientation was read.
+
+**Polarity gutter.** An electrolytic's `+` is a placed mark with reserved clear
+space inside the body, and the value reflows into what is left. Set inline (as
+it was until 2026-08-04) the mark's bar struck the first digit and `+25MFD`
+read as `±25MFD` on every narrow can in the corpus.
+
 ## `offboard[]` — labelled stubs around the board
 
 ```yaml
@@ -109,7 +141,9 @@ A referenced designator that is absent from `bom.yaml` fails the render — and 
 | `edge` | `top` · `bottom` · `left` · `right` — which side of the board it sits on |
 | `at` | Position along that edge: a column coordinate for top/bottom, a row coordinate for left/right (fractions allowed) |
 | `label` | Text drawn under the stub |
-| `glyph` | Only for `kind: part` — `lamp` draws the pilot-lamp glyph; otherwise a small axial body |
+| `glyph` | Only for `kind: part` — `lamp` draws the pilot-lamp glyph; otherwise the body its BOM part type calls for (see body vocabulary above), at the same size a board part gets, with its value lettered on it |
+| `value` | Only meaningful on a **ref-less** item, and only for `kind: part`. Values live in `bom.yaml`, keyed by ref, so a layout and the parts list can never disagree — and that stays true for every part the BOM knows. But the annotation layer draws parts the electrical model does not carry (a negative-feedback resistor stated only as a schematic *text note*, so it has no symbol and therefore no BOM ref), and those had no way to state a value at all: they shipped as blank bodies. A ref'd item ignores this field, so the two can never diverge. The value must be sourced in a comment; the lint fails a ref-less `kind: part` that has neither |
+| `cathode` | Only for a `kind: part` whose BOM type is a diode/rectifier — `a` \| `b`, same meaning as on `parts[]` |
 | `label_nudge` / `value_nudge` | Only for `kind: pot` — `[dx, dy]` px shifts for the name+value pair / the value alone, keeping the label's opaque halo. Same status as `parts[]`'s nudges: an authored starting point for the automatic placement pass, not the mechanism |
 
 Tubes draw their real pin ring with pin numbers; the pin count is read from the
@@ -199,6 +233,25 @@ The renderer keeps the wiring layer unambiguous about **crossings** and
 **terminations** — the two things a builder must never misread — with no extra
 markup in the YAML:
 
+- **Socket keep-out on the heater pair.** The 6.3 V twisted pair is the topmost
+  layer by design — it has to show its pin landings — so anything it crosses it
+  also knocks out. Routed straight from lug to lug it therefore cut through the
+  socket's own interior on every 9-pin valve in the corpus, wiping out pin
+  numerals and the caption below. The router now treats each socket's pin ring
+  (plus its numerals) as a keep-out and deflects the pair around the flank,
+  leaving the lug radially and then turning along the ring — which is what a
+  real harness does. Which pins the pair lands on is unchanged, so the
+  equivalence gate sees exactly the same net, and no other run is touched.
+- **Degenerate spurs are collapsed.** A waypoint list that doubles back on
+  itself rendered as a hairpin with no terminus — a line that goes somewhere,
+  comes to a point and returns says nothing about the circuit. Coincident
+  points and out-and-back excursions are dropped before the polyline is drawn.
+- **Transformer lead callouts.** A pigtail whose suffix is an era wire colour
+  needs no callout — the ink and the legend say it. Where the source drawing
+  shows uncoloured wire and the layout addresses the terminals by function
+  (`T2.pri_p`, `T2.sec_h`), the terminal name is lettered beside the pigtail,
+  so four identical black leads into four identical terminals are no longer
+  four anonymous leads. Nothing is invented: the callout is the data's own key.
 - **Hop-over arcs.** At every transversal crossing between two plain
   (non-twisted) runs, the run appearing **later** in the `runs` list hops the
   earlier one with a small semicircular bridge (~3.5 px) — the classic
@@ -229,6 +282,7 @@ runs — the checks that catch the two ways a wiring layer turns ambiguous
 | **label over glyph** | a label's box overlaps a part body, socket, pot, jack, transformer, terminal dot, lug pip or eyelet by more than 2.5 px in both axes |
 | **labels collide** | two labels' boxes come within ~2.2 px of each other (abutting with no gap reads as one string — `100 kΩ` + `250 pF` printed edge to edge reads as `100 kΩ250 pF`) |
 | **ambiguous label** | two off-board items of the same kind carry the same label (two `Volume` pots, two `Ch 2 in` jacks) — the drawing then has controls a reader cannot tell apart even where `bom.yaml` roles or the wiring do distinguish them |
+| **no value** | an off-board `kind: part` carries neither a `bom.yaml` ref nor a `value:` — it renders as a blank body, telling a builder a component goes there and nothing else. (Board parts are already covered: an absent ref fails the render.) |
 
 The last four are the **label lint** (added 2026-08-02). Until it existed the
 gate certified the *wiring* half of the reference-drawing bar and was blind to
@@ -299,6 +353,20 @@ follow:
   `value_nudge`, deliberately short so a value never travels far enough from its
   ref to be mis-attributed. The YAML nudges remain as the authored starting
   point.
+- **Near misses break the ties (2026-08-04).** A conductor merely *crossing* a
+  label transversally is not a lint failure — the halo handles it, and
+  demanding otherwise on a dense board would be unsatisfiable. But it is still
+  the second-best placement, and the placer could not tell it apart from clear
+  air: it stopped at the first rung with no *failures*, so a designator landed
+  on a lead whenever that rung came first, even with untouched board a rung
+  further along. Nearly every "label struck by a lead" finding in the
+  2026-08-03 vision review was this. Placements are now scored as a
+  **`(hard, soft)`** pair — `hard` is exactly the gate's verdict and still
+  dominates, `soft` counts near misses (any conductor in the box at all, any
+  glyph contact, any crowding of an already-placed label) and breaks ties among
+  placements the gate would accept equally. The gate is unchanged; the drawing
+  simply stops settling. The ladder gained a second tier of reaches to give it
+  somewhere clean to go.
 
 Two placement rules are structural rather than searched:
 

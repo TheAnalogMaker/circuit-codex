@@ -140,6 +140,8 @@ RES_BODY, RES_END = "#e2d4b0", "#8a6f4e"      # carbon-composition resistor body
 FILM_BODY, FILM_EDGE = "#caa23e", "#8a6d28"   # mustard coupling / film cap
 ELEC_BODY, ELEC_EDGE, ELEC_TOP = "#93a0a9", "#586066", "#aab5bd"  # electrolytic can
 MICA_BODY, MICA_EDGE = "#8a5f45", "#5f4130"   # mica cap
+DIODE_BODY, DIODE_EDGE = "#3f4a52", "#1d2429"  # bias rectifier / silicon diode
+DIODE_BAND = "#e7dcc2"                         # cathode band
 # ink-on-board labels: dark, high-contrast against the tan board (as the
 # original hand-lettered layout drawings read), amber-family for the ref
 BOARD_REF, BOARD_VAL = "#5e3d15", "#26190c"
@@ -209,6 +211,15 @@ ROWGAP = 116       # px between the two eyelet rows
 BOARD_TOP_PAD = 56
 MARGIN_L, MARGIN_R = 128, 128
 MARGIN_TOP, MARGIN_BOT = 150, 236
+# Page-chrome type scale. A board's px geometry is fixed (CW/ROWGAP), so sheet
+# width tracks column count — 1000 px for the 5F1, 2440 px for the 5F10 — at a
+# near-constant height. Every one of these is read scaled to a common page
+# width, so chrome type set at a fixed px size renders at wildly different ink
+# heights across the corpus. Chrome sizes are therefore multiplied by
+# width/CHROME_REF_W (clamped), which holds their rendered height constant.
+CHROME_REF_W = 1450.0
+FOOTER_BASE = 20.0       # baseline of the bottom footer row, above the edge
+FOOTER_PITCH = 18.0      # footer row pitch (both scaled by self.cs)
 BODY_TOP_INSET = 0
 TUBE_R = 26        # tube socket radius (px)
 
@@ -232,6 +243,13 @@ def category(part: str) -> str:
         return "mica"
     if "capacitor" in p or "cap" in p:
         return "film"
+    # A bias-supply rectifier is a POLARISED two-lead part, not a resistor. It
+    # had been falling through to the generic body, which drew it as a dogbone
+    # — a builder could not tell it from the resistor beside it, and nothing on
+    # the drawing said which way round it goes. "Rectifier tube" is a valve and
+    # is excluded here (it matches the tube branch below).
+    if "diode" in p or ("rectifier" in p and "tube" not in p):
+        return "diode"
     if "resistor" in p:
         return "res"
     if "transformer" in p:
@@ -241,6 +259,21 @@ def category(part: str) -> str:
     if "tube" in p:
         return "tube"
     return "other"
+
+
+def annotation_value(item: dict) -> str | None:
+    """Value for an off-board item that carries NO bom.yaml ref.
+
+    Values normally live only in bom.yaml, keyed by ref, so a layout and the
+    parts list can never disagree — and that stays true for every part the BOM
+    knows. But the annotation layer draws parts the electrical model does not
+    carry (a negative-feedback resistor whose schematic states it only as a
+    text note, so it has no schematic symbol and therefore no BOM ref). Those
+    had no way to state a value at all and rendered as an unnamed blank body.
+    An `value:` on a REF-LESS offboard item is the only place such a figure can
+    live; a ref'd item ignores it, so the two can never diverge."""
+    v = item.get("value")
+    return str(v).strip() if v not in (None, "") else None
 
 
 def primary_value(value: str) -> str:
@@ -602,6 +635,94 @@ def _seg_box_span(p, q, box):
     return (t1 - t0) * math.hypot(dx, dy)
 
 
+def _clean_polyline(pts, eps=1.5):
+    """Drop coincident points and collapse degenerate out-and-back spurs.
+
+    A run whose waypoint list doubles back on itself renders as a hairpin with
+    no terminus — the reviewer's word for it was 'a drafting artefact', and it
+    is: a line that goes somewhere, comes to a point and returns says nothing
+    about the circuit. Collapsing them here means no drawing can carry one."""
+    out = []
+    for p in pts:
+        if not out or math.hypot(p[0] - out[-1][0], p[1] - out[-1][1]) > eps:
+            out.append(p)
+    changed = True
+    while changed and len(out) >= 3:
+        changed = False
+        for i in range(1, len(out) - 1):
+            a, b, c = out[i - 1], out[i], out[i + 1]
+            if math.hypot(c[0] - a[0], c[1] - a[1]) <= max(eps, 3.0):
+                # a -> b -> (back to a): the excursion carries no information
+                del out[i]
+                changed = True
+                break
+    return out if len(out) >= 2 else pts
+
+
+def _deflect_around(p, q, sockets):
+    """Waypoints that take segment p->q around any socket keep-out it violates,
+    tangentially. Returns [] when the segment is already clear.
+
+    Two cases. If neither end sits on the socket the segment is simply pushed
+    out to the keep-out radius at its closest approach. If one end IS a pin on
+    that socket — which every heater landing is — the wire instead leaves
+    radially to the keep-out ring and then turns along it, so it departs the
+    lug the way a real harness does rather than cutting back over the pins."""
+    best = None
+    for (cx, cy, r) in sockets:
+        d = _point_seg_dist((cx, cy), p, q)
+        if d >= r - 0.5:
+            continue
+        if best is None or d < best[0]:
+            best = (d, cx, cy, r)
+    if best is None:
+        return []
+    _d, cx, cy, r = best
+    C = (cx, cy)
+    dp = math.hypot(p[0] - cx, p[1] - cy)
+    dq = math.hypot(q[0] - cx, q[1] - cy)
+    anchored = None
+    if dp < r - 0.5:
+        anchored = (p, q)
+    elif dq < r - 0.5:
+        anchored = (q, p)
+    if anchored is None:
+        # a pass-by: push the closest approach out to the keep-out ring
+        f = _closest_point_on_seg(C, p, q)
+        vx, vy = f[0] - cx, f[1] - cy
+        L = math.hypot(vx, vy)
+        if L < 1e-6:
+            ux, uy = _seg_unit(p, q)
+            vx, vy, L = -uy, ux, 1.0
+        return [(cx + vx / L * r, cy + vy / L * r)]
+    inner, outer = anchored
+    ux, uy = inner[0] - cx, inner[1] - cy
+    L = math.hypot(ux, uy) or 1e-9
+    ux, uy = ux / L, uy / L
+    escape = (cx + ux * r, cy + uy * r)
+    # which way round the ring is the far end?
+    cross = ux * (outer[1] - cy) - uy * (outer[0] - cx)
+    s = 1.0 if cross >= 0 else -1.0
+    th = math.radians(62.0) * s
+    tx = ux * math.cos(th) - uy * math.sin(th)
+    ty = ux * math.sin(th) + uy * math.cos(th)
+    tangent = (cx + tx * r, cy + ty * r)
+    if _point_seg_dist(C, escape, outer) >= r - 0.5:
+        return [escape] if inner is p else [escape]
+    return ([escape, tangent] if inner is p else [tangent, escape])
+
+
+def _closest_point_on_seg(pt, a, b):
+    ax, ay = a
+    bx, by = b
+    dx, dy = bx - ax, by - ay
+    L2 = dx * dx + dy * dy
+    if L2 < 1e-12:
+        return a
+    t = max(0.0, min(1.0, ((pt[0] - ax) * dx + (pt[1] - ay) * dy) / L2))
+    return (ax + t * dx, ay + t * dy)
+
+
 def rounded_path(points, r=11.0):
     """SVG path string through `points` [(x,y),...] with rounded elbows of
     radius r (clamped to half the shorter adjacent segment). Deterministic."""
@@ -802,6 +923,13 @@ class Renderer:
                 it["_pins"] = pins
                 it["_pincount"] = (max(pins) if pins else 8)
                 it["_heater_pins"] = load_tube_heater_pins(slug) if slug else None
+        # Does this board carry a polarised rectifier/diode body? (drives the
+        # extra Bodies-legend entry — the legend must name every form drawn.)
+        self._has_diode = any(
+            category(self.bom.get(p.get("ref"), {}).get("part", "")) == "diode"
+            for p in self.parts if p.get("ref")) or any(
+            category(self.bom.get(it.get("ref"), {}).get("part", "")) == "diode"
+            for it in self.offboard if it.get("ref"))
         # transformer lead colour slots (assigned from run/bus endpoints)
         self._assign_xfmr_leads()
         self._colours_used: list[str] = []
@@ -825,6 +953,19 @@ class Renderer:
         self.board_w = PAD_X * 2 + (self.cols - 1) * CW
         self.board_h = BOARD_TOP_PAD + ROWGAP + 40
         self.width = self.board_x + self.board_w + MARGIN_R
+        # ---- page-chrome type scale -------------------------------------
+        # Board geometry is a fixed px grid (CW/ROWGAP), so a 50-column board
+        # renders 2.4x wider than a 20-column one at a near-constant height.
+        # Rendered to a common page width — which is how every one of these is
+        # actually read — fixed-size chrome type shrinks in proportion: the
+        # title and the legend on the widest sheet came out roughly half the
+        # ink height of the narrowest. So the *chrome* (title, attribution,
+        # legend) is set relative to the sheet's own viewBox width, which keeps
+        # its rendered ink height constant across the corpus. Board CONTENT
+        # type (refs, values, socket captions) is deliberately NOT scaled: it
+        # is measured against a fixed-px grid by the placer and the lint, and
+        # it must stay legible relative to the parts it names.
+        self.cs = min(1.62, max(0.92, self.width / CHROME_REF_W))
         # a wired layout needs an under-chassis band below the sockets for the
         # long left-right harness leads; a placement-only layout stays compact.
         # A deep routing lane (e.g. the twisted heater bus laid below the output
@@ -844,12 +985,14 @@ class Renderer:
             # note line joins the stack (see _legend). Floored at 356 (374
             # with the note) so ordinary under-chassis layouts keep their
             # footer clear.
-            footer_reserve = 110 if self._layout_has_twisted else 92
-            footer_floor = 374 if self._layout_has_twisted else 356
+            base_reserve = 110 if self._layout_has_twisted else 92
+            footer_reserve = base_reserve * self.cs
+            footer_floor = (374 if self._layout_has_twisted else 356) \
+                + (footer_reserve - base_reserve)
             needed = self.ey(deep_row) + 14 + footer_reserve - (self.board_y + self.board_h)
-            self.margin_bot = max(footer_floor, int(math.ceil(needed)))
+            self.margin_bot = max(int(math.ceil(footer_floor)), int(math.ceil(needed)))
         else:
-            self.margin_bot = MARGIN_BOT
+            self.margin_bot = int(math.ceil(MARGIN_BOT + (MARGIN_BOT * (self.cs - 1)) * 0.4))
         self.height = self.board_y + self.board_h + self.margin_bot
 
     # ---- coordinates --------------------------------------------------------
@@ -859,6 +1002,23 @@ class Renderer:
     def ey(self, row):
         top = self.board_y + BOARD_TOP_PAD
         return top + row * ROWGAP
+
+    # ---- page chrome (title / attribution / legend) -------------------------
+    def cz(self, size):
+        """A chrome type size, scaled to this sheet's own width (see self.cs)."""
+        return round(size * self.cs, 2)
+
+    def _footer_y(self, row):
+        """Baseline of footer row `row`, counted up from the bottom edge:
+        0 = bodies legend, 1 = joints, then the wiring row, the twisted-pair
+        note and the attribution — see _footer_rows()."""
+        return self.height - (FOOTER_BASE + row * FOOTER_PITCH) * self.cs
+
+    def _footer_rows(self):
+        """(wiring_row, note_row, attrib_row) for this layout's footer stack.
+        A twisted-heater note line inserts an extra row, pushing the wiring
+        swatch row and the attribution line up by one."""
+        return (3, 2, 4) if self._has_twisted else (2, None, 3)
 
     # ---- labels + obstacles (drawing content the lint measures) ------------
     def lab(self, x, y, s, fill, size, *, anchor="middle", font=FONT_DISP,
@@ -891,7 +1051,14 @@ class Renderer:
     LABEL_LADDER = [(0, 0), (0, -12), (0, 12), (0, -22), (0, 22),
                     (-18, 0), (18, 0), (-18, -12), (18, -12), (-18, 12), (18, 12),
                     (0, -32), (0, 32), (-30, -12), (30, -12), (-30, 12), (30, 12),
-                    (0, -42), (0, 42)]
+                    (0, -42), (0, 42),
+                    # Second tier, added with the (hard, soft) scoring: the
+                    # placer no longer stops at the first merely-legal rung, so
+                    # a few more reaches give it somewhere clean to land on a
+                    # dense board instead of settling on a conductor.
+                    (-26, -22), (26, -22), (-26, 22), (26, 22),
+                    (-12, -32), (12, -32), (-12, 32), (12, 32),
+                    (-40, 0), (40, 0), (-40, -22), (40, -22), (-40, 22), (40, 22)]
     # Second phase: a label still struck after its whole group has been placed
     # may slide on its own — the measured form of the old hand-authored
     # `value_nudge`. Deliberately short so a value never travels far enough from
@@ -904,29 +1071,65 @@ class Renderer:
         """How many legibility violations a candidate placement of one label
         group costs — same tests, same thresholds as the lint's checks c/d/e,
         so a placement the placer accepts is a placement the gate accepts."""
-        cost = 0
+        return self._label_cost2(boxes, placed, wires)[0]
+
+    # A conductor merely CROSSING a label transversally is not a lint failure —
+    # the halo handles it, and demanding otherwise on a dense board would be
+    # unsatisfiable. But it is still the second-best placement, and until
+    # 2026-08-04 the placer could not tell it apart from clear air: it broke on
+    # the first zero-HARD-cost rung, so a designator landed on a lead whenever
+    # that rung came first, even with untouched board a rung further along.
+    # Every "label struck by a lead" finding in the 2026-08-03 review was this.
+    # So placements are now scored on a (hard, soft) pair: `hard` is exactly the
+    # gate's verdict and still dominates; `soft` counts near misses — any
+    # conductor in the box at all, any glyph contact, any crowding of an
+    # already-placed label — and breaks ties among placements the gate would
+    # accept equally. The gate is unchanged; the drawing simply stops settling.
+    SOFT_WIRE_SPAN = 2.0      # any conductor this far into a label box at all
+    SOFT_GLYPH = 0.8          # any body/socket/solder-dot contact
+    SOFT_GAP = 5.5            # clear space a label PREFERS around itself
+
+    def _label_cost2(self, boxes, placed, wires):
+        hard = soft = 0
         for box in boxes:
             width = box[2] - box[0]
             tbox = _shrink(box, LINT_LABEL_INSET)
+            hard_wire = soft_wire = False
             for _name, pts in wires:
                 span = 0.0
                 for k in range(len(pts) - 1):
                     span = max(span, _seg_box_span(pts[k], pts[k + 1], tbox))
                 if span > max(LINT_WIRE_SPAN, LINT_WIRE_FRAC * width):
-                    cost += 1
+                    hard_wire = True
                     break
+                if span > self.SOFT_WIRE_SPAN:
+                    soft_wire = True
+            hard += hard_wire
+            soft += soft_wire
+            hard_ob = soft_ob = False
             for ob in self.obstacles:
                 w, h = _box_overlap(tbox, ob["box"])
                 if w > LINT_GLYPH_W and h > LINT_GLYPH_H:
-                    cost += 1
+                    hard_ob = True
                     break
+                if w > self.SOFT_GLYPH and h > self.SOFT_GLYPH:
+                    soft_ob = True
+            hard += hard_ob
+            soft += soft_ob
             grown = _shrink(box, -LINT_LABEL_GAP)
+            roomy = _shrink(box, -self.SOFT_GAP)
+            hard_lb = soft_lb = False
             for pb in placed:
                 w, h = _box_overlap(grown, pb)
                 if w > LINT_LABEL_W and h > LINT_LABEL_H:
-                    cost += 1
+                    hard_lb = True
                     break
-        return cost
+                w2, h2 = _box_overlap(roomy, pb)
+                if w2 > LINT_LABEL_W and h2 > LINT_LABEL_H:
+                    soft_lb = True
+            hard += hard_lb
+            soft += soft_lb
+        return hard, soft
 
     def _emit_labels(self, wires):
         """Resolve every queued label against the finished geometry, then draw.
@@ -949,17 +1152,18 @@ class Renderer:
                 if keep and any(b[0] < keep[0] or b[1] < keep[1] or b[2] > keep[2]
                                 or b[3] > keep[3] for b in boxes):
                     continue
-                cost = self._label_cost(boxes, placed, wires)
+                cost = self._label_cost2(boxes, placed, wires)
                 if best_cost is None or cost < best_cost:
                     best, best_cost = (dx, dy), cost
-                if cost == 0:
+                if cost == (0, 0):
                     break
             dx, dy = best
             for sp in specs:
                 sx, sy = sp["x"] + dx, sp["y"] + dy
                 box = text_box(sx, sy, sp["text"], sp["size"], anchor=sp["anchor"],
                                font=sp["font"], spacing=sp["spacing"])
-                if len(specs) > 1 and self._label_cost([box], placed, wires):
+                cur = self._label_cost2([box], placed, wires)
+                if len(specs) > 1 and cur != (0, 0):
                     keep = sp.get("keep_in")
                     for (ex, ey_) in self.LABEL_SOLO_LADDER:
                         cand = text_box(sx + ex, sy + ey_, sp["text"], sp["size"],
@@ -968,9 +1172,11 @@ class Renderer:
                         if keep and (cand[0] < keep[0] or cand[1] < keep[1]
                                      or cand[2] > keep[2] or cand[3] > keep[3]):
                             continue
-                        if not self._label_cost([cand], placed, wires):
-                            sx, sy, box = sx + ex, sy + ey_, cand
-                            break
+                        cand_cost = self._label_cost2([cand], placed, wires)
+                        if cand_cost < cur:
+                            sx, sy, box, cur = sx + ex, sy + ey_, cand, cand_cost
+                            if cur == (0, 0):
+                                break
                 placed.append(box)
                 self.labels.append({"text": sp["text"], "tag": sp["tag"], "box": box})
                 out.append(text(sx, sy, sp["text"], sp["fill"], sp["size"],
@@ -1019,6 +1225,24 @@ class Renderer:
             # just above its own (board-facing) terminals.
             return 30 + CAP_RISE * 11.5 if item.get("glyph") == "lamp" else 10 + CAP_RISE * 11.5
         return 9 + 8 + CAP_RISE * 10.5      # switch / fuse / misc
+
+    def cathode_side(self, part):
+        """Which end of a drawn body carries the cathode band: -1 = the left
+        (horizontal) or top (vertical) end, +1 = the right/bottom end, 0 = not
+        declared. Read from the part's optional `cathode: a|b` field, which
+        names the eyelet the SCHEMATIC puts the cathode on — the drawing never
+        infers a polarity, and an undeclared diode is drawn unbanded rather
+        than guessed at."""
+        end = str(part.get("cathode", "")).strip().lower()
+        if end not in ("a", "b"):
+            return 0
+        (r1, c1), (r2, c2) = part["a"], part["b"]
+        if c1 == c2 and r1 != r2:            # vertical: -1 = upper eyelet
+            first_is_low = r1 < r2
+        else:
+            first_is_low = c1 <= c2
+        a_low = first_is_low
+        return (-1 if a_low else 1) if end == "a" else (1 if a_low else -1)
 
     def bom_for(self, ref):
         rec = self.bom.get(ref)
@@ -1078,6 +1302,32 @@ class Renderer:
         if edge == "left":      # board right -> terminals to the right
             return cx + 16, cy + s * 14
         return cx - 16, cy + s * 14        # right: board left -> terminals left
+
+    def _lead_callout(self, item, colour, ex_, ey_, base, ink, halo):
+        """Name a transformer pigtail the drawing cannot name by colour.
+
+        A lead whose suffix IS an era wire colour needs no callout — the ink and
+        the legend say it. But where the source drawing shows uncoloured wire
+        the layout addresses the terminals by FUNCTION (`T2.pri_p`,
+        `T2.sec_h`), and those four identical black leads into four identical
+        terminals told a builder nothing about which was which. The callout
+        letters the terminal name the data already carries, so nothing is
+        invented and nothing is left to guess."""
+        if lead_base(colour) is not None:
+            return
+        txt = str(colour).replace("_", " ").replace("-", " ").upper()
+        edge = item.get("edge", "left")
+        dx, dy = base[0] - ex_, base[1] - ey_       # points back at the body
+        if abs(dx) >= abs(dy):
+            lx, anchor = ex_ - math.copysign(7.5, dx), ("end" if dx > 0 else "start")
+            ly = ey_ + 3.0
+        else:
+            lx, anchor, ly = ex_, "middle", ey_ - math.copysign(8.0, dy)
+        self.lab(lx, ly, txt, ink, 7.5, anchor=anchor, weight=600, spacing="0.03em",
+                 halo=halo, halo_width=2.4,
+                 tag=f"lead {item.get('id', '')}.{colour}",
+                 group=f"lead:{item.get('id', '')}.{colour}",
+                 keep_in=self.canvas_box())
 
     def xfmr_lead_pos(self, item, colour):
         cx, cy = self.off_pos(item)
@@ -1191,16 +1441,18 @@ class Renderer:
         # leads (short wires) drawn under the body
         els.append(f'<line x1="{fmt(x1)}" y1="{fmt(y1)}" x2="{fmt(x2)}" y2="{fmt(y2)}" '
                    f'stroke="{LEAD}" stroke-width="2"/>')
+        band = self.cathode_side(part) if cat == "diode" else 0
         if vertical:
             cx = x1
             cy = (y1 + y2) / 2
-            geom, labs = self._body_vertical(cat, cx, cy, val, ref, ndx, ndy, vndx, vndy)
+            geom, labs = self._body_vertical(cat, cx, cy, val, ref, ndx, ndy, vndx, vndy,
+                                             band=band)
         else:
             cx = (x1 + x2) / 2
             cy = y1
             span = abs(c2 - c1)
             geom, labs = self._body_horizontal(cat, cx, cy, span, val, ref,
-                                               ndx, ndy, vndx, vndy)
+                                               ndx, ndy, vndx, vndy, band=band)
         els += geom
         # eyelets on top of leads
         els.append(eyelet(x1, y1))
@@ -1226,10 +1478,23 @@ class Renderer:
                            group=f"part:{ref}", keep_in=self.canvas_box(),
                            halo=BOARD, halo_width=2.8))
 
-    def _body_horizontal(self, cat, cx, cy, span, val, ref, ndx=0, ndy=0, vndx=0, vndy=0):
+    def _body_horizontal(self, cat, cx, cy, span, val, ref, ndx=0, ndy=0, vndx=0, vndy=0,
+                         band=0):
         w = max(26.0, span * CW - 16)
         els: list[str] = []
         labs: list[str] = []
+        if cat == "diode":
+            h = 16
+            x, y = cx - w / 2, cy - h / 2
+            els.append(f'<rect x="{fmt(x)}" y="{fmt(y)}" width="{fmt(w)}" height="{fmt(h)}" '
+                       f'rx="2.5" fill="{DIODE_BODY}" stroke="{DIODE_EDGE}" stroke-width="1"/>')
+            if band:
+                bxx = (x + 4.5) if band < 0 else (x + w - 8.5)
+                els.append(f'<rect x="{fmt(bxx)}" y="{fmt(y + 1.5)}" width="4" '
+                           f'height="{fmt(h - 3)}" fill="{DIODE_BAND}"/>')
+            self.obst_rect(x, y, x + w, y + h, f"{ref} body")
+            labs.append(self._label_pair(cx, y - 6, cy + 21, ref, val, ndx, ndy, vndx, vndy))
+            return els, labs
         if cat == "electro":
             h = 42
             x, y = cx - w / 2, cy - h + 8
@@ -1273,18 +1538,44 @@ class Renderer:
             labs.append(self._label_pair(cx, y - 6, cy + 21, ref, val, ndx, ndy, vndx, vndy))
         return els, labs
 
-    def _body_vertical(self, cat, cx, cy, val, ref, ndx=0, ndy=0, vndx=0, vndy=0):
-        # vertical carbon/wirewound resistor bridging the two rows (cathode legs)
+    def _body_vertical(self, cat, cx, cy, val, ref, ndx=0, ndy=0, vndx=0, vndy=0, band=0):
+        # A standing part bridging the two eyelet rows. Every family keeps the
+        # body vocabulary it uses horizontally — a vertical film cap is a
+        # square-cornered rectangle, a vertical resistor an end-banded rounded
+        # body — so a builder can still tell R from C by shape when the part is
+        # turned through 90 degrees.
         h = 40
         w = 15
         x, y = cx - w / 2, cy - h / 2
         els = []
-        fill = RES_BODY
+        fill, edge, rx = RES_BODY, RES_END, 6.0
         if cat == "electro":
-            fill = ELEC_BODY
+            fill, edge = ELEC_BODY, ELEC_EDGE
+        elif cat == "film":
+            fill, edge, rx = FILM_BODY, FILM_EDGE, 1.5
+            w = 17
+            x = cx - w / 2
+        elif cat == "mica":
+            fill, edge, rx = MICA_BODY, MICA_EDGE, 1.5
+            w = 17
+            x = cx - w / 2
+        elif cat == "diode":
+            fill, edge, rx = DIODE_BODY, DIODE_EDGE, 2.5
         els.append(f'<rect x="{fmt(x)}" y="{fmt(y)}" width="{fmt(w)}" height="{fmt(h)}" '
-                   f'rx="6" fill="{fill}" stroke="{RES_END}" stroke-width="1"/>')
-        if cat != "electro":
+                   f'rx="{fmt(rx)}" fill="{fill}" stroke="{edge}" stroke-width="1"/>')
+        if cat == "electro":
+            els.append(f'<line x1="{fmt(x)}" y1="{fmt(y + 7)}" x2="{fmt(x + w)}" '
+                       f'y2="{fmt(y + 7)}" stroke="{ELEC_EDGE}" stroke-width="1"/>')
+        elif cat == "film":
+            els.append(f'<line x1="{fmt(x + 2)}" y1="{fmt(cy)}" x2="{fmt(x + w - 2)}" '
+                       f'y2="{fmt(cy)}" stroke="{FILM_EDGE}" stroke-width="0.8" '
+                       f'opacity="0.7"/>')
+        elif cat == "diode":
+            if band:
+                byy = (y + 2.5) if band < 0 else (y + h - 6.5)
+                els.append(f'<rect x="{fmt(x + 1.5)}" y="{fmt(byy)}" '
+                           f'width="{fmt(w - 3)}" height="4" fill="{DIODE_BAND}"/>')
+        elif cat != "mica":
             for ey_ in (y + 5, y + h - 5):
                 els.append(f'<line x1="{fmt(x+1)}" y1="{fmt(ey_)}" x2="{fmt(x+w-1)}" y2="{fmt(ey_)}" '
                            f'stroke="{RES_END}" stroke-width="2"/>')
@@ -1346,7 +1637,7 @@ class Renderer:
         label = item.get("label", item.get("id", ""))
         ref = item.get("ref")
         x, y = self.off_pos(item)
-        val = primary_value(self.bom_for(ref)["value"]) if ref else None
+        val = primary_value(self.bom_for(ref)["value"]) if ref else annotation_value(item)
         sgn = self._label_side(item)
         els: list[str] = []
         labs: list[str] = []
@@ -1445,6 +1736,7 @@ class Renderer:
                            f'stroke-linecap="round"/>')
                 els.append(term_dot(ex_, ey_, 2.4))
                 self.obst_circle(ex_, ey_, 2.4, f"pigtail {item.get('id', '')}.{colour}")
+                self._lead_callout(item, colour, ex_, ey_, base, MUTED, BOARD)
             # Edge-safe placement: an off-board transformer near a side border can
             # carry a sublabel wider than the gap to the canvas edge (the OT on the
             # right edge). Keep the pair centred under the body where it fits; when
@@ -1618,6 +1910,50 @@ class Renderer:
             else:
                 self.errors.append(f"{ctx}: bad via point {v!r}")
         pts.append(b)
+        pts = _clean_polyline(pts)
+        if str(spec.get("style", "")).lower() == "twisted":
+            pts = self._socket_keepout(pts)
+        return pts
+
+    # ---- socket keep-out (heater routing) -----------------------------------
+    # The 6.3 V pair is the topmost layer by design — it has to show its pin
+    # landings — so anything it crosses it also knocks out. Routed straight
+    # from pin to pin it therefore crossed the socket's own interior on every
+    # 9-pin valve in the corpus, wiping out pin numerals and the caption under
+    # the socket. A real harness never does that: it leaves the lug and turns
+    # away, running around the socket's flank. This pass makes the drawing do
+    # the same — the pin ring, its numerals and its caption band are a keep-out
+    # the heater router deflects around, tangentially, with no change to which
+    # pins the pair lands on (so the equivalence gate sees exactly the same
+    # net) and none to any other run.
+    SOCKET_KEEPOUT = 12.0     # clear ring outside the socket's outer circle
+
+    def _sockets(self):
+        out = []
+        for it in self.offboard:
+            if it.get("kind") != "tube":
+                continue
+            cx, cy = self.off_pos(it)
+            out.append((cx, cy, TUBE_R + 5 + self.SOCKET_KEEPOUT))
+        return out
+
+    def _socket_keepout(self, pts):
+        sockets = self._sockets()
+        if not sockets or len(pts) < 2:
+            return pts
+        for _ in range(4):                     # bounded, deterministic
+            new = [pts[0]]
+            changed = False
+            for k in range(len(pts) - 1):
+                p, q = pts[k], pts[k + 1]
+                det = _deflect_around(p, q, sockets)
+                if det:
+                    new.extend(det)
+                    changed = True
+                new.append(q)
+            pts = _clean_polyline(new)
+            if not changed:
+                break
         return pts
 
     def _endpoint_colour(self, ep):
@@ -1812,19 +2148,20 @@ class Renderer:
         els.append(self._emit_labels(wires))
         # title + attribution
         title = (self.layout.get("board", {}) or {}).get("title") or f"{self.amp_id.upper()} board layout"
-        els.append(text(bx, 34, title, INK, 17, anchor="start", spacing="0.08em"))
+        ts = self.cz(17)
+        els.append(text(bx, 20 + ts, title, INK, ts, anchor="start", spacing="0.08em"))
         src = self.layout.get("source", {}) or {}
         if src.get("desc"):
             attrib = f"Redrawn from {src['desc']} — not a trace"
         else:
             attrib = self.layout.get("caption") or ""
         if attrib:
-            # anchored 74px from the bottom normally; a twisted-heater note
-            # row inserted into the footer (see _legend) pushes this — and
-            # the wiring row below it — up by one more row (18px).
-            attrib_off = 92 if self._has_twisted else 74
-            els.append(text(bx, self.height - attrib_off, attrib, FAINT, 10.5, anchor="start",
-                            font=FONT_MONO, weight=500))
+            # top row of the footer stack; a twisted-heater note row inserted
+            # into it (see _legend) pushes this — and the wiring row below it —
+            # up by one more row.
+            _wrow, _nrow, arow = self._footer_rows()
+            els.append(text(bx, self._footer_y(arow), attrib, FAINT, self.cz(10.5),
+                            anchor="start", font=FONT_MONO, weight=500))
         # legends
         self._legend(els)
         body = "\n".join(els)
@@ -1843,79 +2180,95 @@ class Renderer:
         # wiring row (and the attribution line above it, set in render())
         # shift up by one 18px row to make room — joints/bodies stay put,
         # anchored to the bottom edge as always.
-        y = self.height - (74 if self._has_twisted else 56)
+        s = self.cs
+        fs = self.cz(10.5)
+        wrow, nrow, _arow = self._footer_rows()
+        y = self._footer_y(wrow)
         x = self.board_x
+
+        def adv(txt, size=None):
+            return text_width(txt, size or fs, FONT_MONO)
+
         if self.runs or self.bus:
             cx = x
-            els.append(text(cx, y, "Wiring:", FAINT, 10.5, anchor="start", font=FONT_MONO,
+            els.append(text(cx, y, "Wiring:", FAINT, fs, anchor="start", font=FONT_MONO,
                             weight=500))
-            cx += 58
+            cx += 58 * s
             # neutral lead sample
-            els.append(f'<line x1="{fmt(cx)}" y1="{fmt(y-3)}" x2="{fmt(cx+18)}" y2="{fmt(y-3)}" '
-                       f'stroke="{WIRE_NEUTRAL}" stroke-width="2.4" stroke-linecap="round"/>')
-            els.append(text(cx + 24, y, "lead", MUTED, 10.5, anchor="start", font=FONT_MONO,
-                            weight=500))
-            cx += 24 + 4 * 6.4 + 16
+            els.append(f'<line x1="{fmt(cx)}" y1="{fmt(y-3*s)}" x2="{fmt(cx+18*s)}" '
+                       f'y2="{fmt(y-3*s)}" stroke="{WIRE_NEUTRAL}" '
+                       f'stroke-width="{fmt(2.4*s)}" stroke-linecap="round"/>')
+            els.append(text(cx + 24 * s, y, "lead (uncoloured)", MUTED, fs, anchor="start",
+                            font=FONT_MONO, weight=500))
+            cx += 24 * s + adv("lead (uncoloured)") + 16 * s
             for key in self._colours_used:
                 col = WIRE.get(key, WIRE_NEUTRAL)
                 entry = self.wire_legend.get(key, key)
-                els.append(f'<line x1="{fmt(cx)}" y1="{fmt(y-3)}" x2="{fmt(cx+18)}" y2="{fmt(y-3)}" '
-                           f'stroke="{col}" stroke-width="2.4" stroke-linecap="round"/>')
-                els.append(text(cx + 24, y, entry, MUTED, 10.5, anchor="start", font=FONT_MONO,
-                                weight=500))
-                cx += 24 + len(entry) * 6.4 + 16
-            if self.bus:
-                els.append(f'<line x1="{fmt(cx)}" y1="{fmt(y-3)}" x2="{fmt(cx+18)}" y2="{fmt(y-3)}" '
-                           f'stroke="{BUS_CORE}" stroke-width="3.4" stroke-linecap="round"/>')
-                els.append(text(cx + 24, y, "ground bus", MUTED, 10.5, anchor="start",
+                els.append(f'<line x1="{fmt(cx)}" y1="{fmt(y-3*s)}" x2="{fmt(cx+18*s)}" '
+                           f'y2="{fmt(y-3*s)}" stroke="{col}" stroke-width="{fmt(2.4*s)}" '
+                           f'stroke-linecap="round"/>')
+                els.append(text(cx + 24 * s, y, entry, MUTED, fs, anchor="start",
                                 font=FONT_MONO, weight=500))
-                cx += 24 + len("ground bus") * 6.4 + 16
+                cx += 24 * s + adv(entry) + 16 * s
+            if self.bus:
+                els.append(f'<line x1="{fmt(cx)}" y1="{fmt(y-3*s)}" x2="{fmt(cx+18*s)}" '
+                           f'y2="{fmt(y-3*s)}" stroke="{BUS_CORE}" stroke-width="{fmt(3.4*s)}" '
+                           f'stroke-linecap="round"/>')
+                els.append(text(cx + 24 * s, y, "ground bus", MUTED, fs, anchor="start",
+                                font=FONT_MONO, weight=500))
+                cx += 24 * s + adv("ground bus") + 16 * s
             if self._has_twisted:
                 # a small twisted-pair swatch, then the heater label
-                d1, d2 = twisted_strands([(cx, y - 3), (cx + 20, y - 3)], amp=2.6, wavelen=8.0)
-                els.append(f'<path d="{d1}" fill="none" stroke="{HEATER}" stroke-width="1.5" '
-                           f'stroke-linecap="round"/>')
-                els.append(f'<path d="{d2}" fill="none" stroke="{HEATER}" stroke-width="1.5" '
-                           f'stroke-linecap="round"/>')
-                els.append(text(cx + 26, y, "6.3 V heaters — twisted pair", MUTED, 10.5,
+                d1, d2 = twisted_strands([(cx, y - 3 * s), (cx + 20 * s, y - 3 * s)],
+                                         amp=2.6 * s, wavelen=8.0 * s)
+                els.append(f'<path d="{d1}" fill="none" stroke="{HEATER}" '
+                           f'stroke-width="{fmt(1.5*s)}" stroke-linecap="round"/>')
+                els.append(f'<path d="{d2}" fill="none" stroke="{HEATER}" '
+                           f'stroke-width="{fmt(1.5*s)}" stroke-linecap="round"/>')
+                els.append(text(cx + 26 * s, y, "6.3 V heaters — twisted pair", MUTED, fs,
                                 anchor="start", font=FONT_MONO, weight=500))
                 # convention note: the twisted heater pair is drawn as its own
                 # topmost layer and is exempt from the hop-over crossing idiom
                 # below — it never joins another run, so a vision review
                 # shouldn't read its uninterrupted overlap of another lead as
                 # a missed hop-over.
-                note_y = self.height - 56
-                els.append(text(x, note_y, "Note: the 6.3 V heater twisted pair always "
+                els.append(text(x, self._footer_y(nrow),
+                                "Note: the 6.3 V heater twisted pair always "
                                 "routes on the top layer and never joins another run — "
-                                "its crossings are not hop-overs.", FAINT, 9.5,
+                                "its crossings are not hop-overs.", FAINT, self.cz(9.5),
                                 anchor="start", font=FONT_MONO, weight=500))
             # joints legend: a solder blob (wire end) + a hop-over (cross-over)
-            jy = self.height - 38
-            els.append(text(x, jy, "Joints:", FAINT, 10.5, anchor="start", font=FONT_MONO,
+            jy = self._footer_y(1)
+            els.append(text(x, jy, "Joints:", FAINT, fs, anchor="start", font=FONT_MONO,
                             weight=500))
-            jx = x + 58
-            els.append(solder_blob(jx + 4, jy - 3))
-            els.append(text(jx + 13, jy, "wire end (solder joint)", MUTED, 10.5,
+            jx = x + 58 * s
+            els.append(solder_blob(jx + 4 * s, jy - 3 * s))
+            els.append(text(jx + 13 * s, jy, "wire end (solder joint)", MUTED, fs,
                             anchor="start", font=FONT_MONO, weight=500))
-            jx += 13 + len("wire end (solder joint)") * 6.4 + 20
+            jx += 13 * s + adv("wire end (solder joint)") + 20 * s
             # a short lead with a hop bump, then the label
-            hd = hopped_path([(jx, jy - 3), (jx + 34, jy - 3)], {0: [(17.0, HOP_R)]}, r=11)
-            els.append(f'<path d="{hd}" fill="none" stroke="{WIRE_NEUTRAL}" stroke-width="2.3" '
-                       f'stroke-linecap="round" stroke-linejoin="round"/>')
-            els.append(text(jx + 40, jy, "cross-over (no connect)", MUTED, 10.5,
+            hd = hopped_path([(jx, jy - 3 * s), (jx + 34 * s, jy - 3 * s)],
+                             {0: [(17.0 * s, HOP_R * s)]}, r=11 * s)
+            els.append(f'<path d="{hd}" fill="none" stroke="{WIRE_NEUTRAL}" '
+                       f'stroke-width="{fmt(2.3*s)}" stroke-linecap="round" '
+                       f'stroke-linejoin="round"/>')
+            els.append(text(jx + 40 * s, jy, "cross-over (no connect)", MUTED, fs,
                             anchor="start", font=FONT_MONO, weight=500))
         # bodies legend
         items = [(RES_BODY, "resistor"), (FILM_BODY, "film / coupling cap"),
                  (ELEC_BODY, "electrolytic"), (MICA_BODY, "mica")]
-        y = self.height - 20
-        els.append(text(x, y, "Bodies:", FAINT, 10.5, anchor="start", font=FONT_MONO, weight=500))
-        cx = x + 58
+        if self._has_diode:
+            items.append((DIODE_BODY, "diode / rectifier"))
+        y = self._footer_y(0)
+        els.append(text(x, y, "Bodies:", FAINT, fs, anchor="start", font=FONT_MONO, weight=500))
+        cx = x + 58 * s
         for fill, lab in items:
-            els.append(f'<rect x="{fmt(cx)}" y="{fmt(y-8)}" width="14" height="9" rx="2.5" '
+            els.append(f'<rect x="{fmt(cx)}" y="{fmt(y-8*s)}" width="{fmt(14*s)}" '
+                       f'height="{fmt(9*s)}" rx="{fmt(2.5*s)}" '
                        f'fill="{fill}" stroke="{BOARD_EDGE}" stroke-width="0.6"/>')
-            els.append(text(cx + 19, y, lab, MUTED, 10.5, anchor="start", font=FONT_MONO,
+            els.append(text(cx + 19 * s, y, lab, MUTED, fs, anchor="start", font=FONT_MONO,
                             weight=500))
-            cx += 26 + len(lab) * 6.4
+            cx += 26 * s + adv(lab)
 
 
 # ==================== sheet style — era drafting idiom (--style sheet) =======
@@ -1949,7 +2302,7 @@ SHEET_WIRE = {
     "red":          "#9c2f23",
     "orange":       "#a85a14",
     "yellow":       "#8a6d10",
-    "green":        "#3c672f",
+    "green":        "#2f6b30",
     "blue":         "#2d5787",
     "violet":       "#634a85",
     "purple":       "#634a85",
@@ -1957,13 +2310,21 @@ SHEET_WIRE = {
     "gray":         "#6e6a5e",
     "white":        "#948b76",
     "red-yellow":   "#9c5a1e",
-    "green-yellow": "#68701f",
+    "green-yellow": "#7d8a1c",
     "blue-white":   "#54779c",
     "red-blue":     "#7e3f63",
 }
-SH_NEUTRAL = "#2b261c"        # uncoloured hookup lead = plain ink
+# An UNCOLOURED hookup lead is a different claim from a lead the drawing marks
+# BLACK, so the two must not be the same ink. They were #2b261c and #262119 —
+# indistinguishable, which made the legend's separate "lead" and "black" rows
+# meaningless. The generic lead is now a warm graphite, clearly lighter than
+# the literal black above.
+SH_NEUTRAL = "#57503f"        # uncoloured hookup lead = warm graphite
 SH_HEATER = "#3c672f"
-SH_HEATER_CT = "#68701f"
+SH_HEATER_CT = "#7d8a1c"      # centre-tap strand: pushed to olive, clear of green
+# Clear space (px) reserved for an electrolytic's '+' mark inside its body, so
+# the polarity mark and the value never share a line. See plus_mark().
+PLUS_GUTTER = 17.0
 
 
 # ---- era value lettering (SHEET STYLE ONLY) --------------------------------
@@ -2130,6 +2491,16 @@ def sheet_solder(x, y):
             f'<circle cx="{fmt(x)}" cy="{fmt(y)}" r="2.9" fill="{SH_INK}"/>')
 
 
+def plus_mark(cx, cy, arm, ink, width=1.5):
+    """The electrolytic polarity '+', drawn as a placed MARK with its own
+    clear space — never inline with the value. Set inline it collided with the
+    first digit on every narrow can in the corpus and the pair read as '±'."""
+    return [f'<line x1="{fmt(cx - arm)}" y1="{fmt(cy)}" x2="{fmt(cx + arm)}" '
+            f'y2="{fmt(cy)}" stroke="{ink}" stroke-width="{fmt(width)}"/>',
+            f'<line x1="{fmt(cx)}" y1="{fmt(cy - arm)}" x2="{fmt(cx)}" '
+            f'y2="{fmt(cy + arm)}" stroke="{ink}" stroke-width="{fmt(width)}"/>']
+
+
 def dogbone_path(cx, cy, w, r_end=8.6, waist=5.6):
     """Closed dogbone outline (two round ends, straight waist) centred at
     (cx, cy), overall width w — the era hand-drafted resistor body. The end
@@ -2180,7 +2551,25 @@ class SheetRenderer(Renderer):
         house units string is what everything outside this style prints; see
         era_pair() for the shorthand and for what it refuses to touch."""
         rec = self.bom_for(ref)
-        return era_pair(rec["value"], category(rec["part"]))
+        v1, v2 = era_pair(rec["value"], category(rec["part"]))
+        return self._body_form(v1), v2
+
+    @staticmethod
+    def _body_form(v1):
+        """Body lettering for a value the era shorthand could not parse.
+
+        era_pair() hands descriptive values back untouched — correctly: it must
+        never invent a quantity. But a parenthetical GLOSS is not part of the
+        value, and lettering it on the body ('1N4007 (silicon diode)',
+        'selenium (silicon diode in modern builds)') overflowed every body that
+        carried one, so the value was pushed off the part and into the wiring.
+        The era sheets lettered the part designation; the gloss lives in
+        bom.yaml and on the amp page, where nothing is cramped."""
+        s = str(v1)
+        if _RE_TRAILING_PAREN.search(s) and not _RE_FARADS.match(
+                _RE_TRAILING_PAREN.sub("", s).strip()):
+            return _RE_TRAILING_PAREN.sub("", s).strip() or s
+        return s
 
     def _fits(self, s, size, avail):
         return text_width(s, size) <= avail
@@ -2226,11 +2615,12 @@ class SheetRenderer(Renderer):
         vertical = c1 == c2 and r1 != r2
         els = [f'<line x1="{fmt(x1)}" y1="{fmt(y1)}" x2="{fmt(x2)}" y2="{fmt(y2)}" '
                f'stroke="{SH_INK}" stroke-width="1.5"/>']
+        band = self.cathode_side(part) if cat == "diode" else 0
         if vertical:
-            els += self._sheet_body_vertical(cat, x1, (y1 + y2) / 2, v1, ref)
+            els += self._sheet_body_vertical(cat, x1, (y1 + y2) / 2, v1, v2, ref, band=band)
         else:
             els += self._sheet_body_horizontal(cat, (x1 + x2) / 2, y1,
-                                               abs(c2 - c1), v1, v2, ref)
+                                               abs(c2 - c1), v1, v2, ref, band=band)
         els.append(sheet_eyelet(x1, y1))
         els.append(sheet_eyelet(x2, y2))
         self.obst_circle(x1, y1, 4.0, f"eyelet {ref}.a")
@@ -2266,7 +2656,7 @@ class SheetRenderer(Renderer):
                 return True
         return False
 
-    def _sheet_body_horizontal(self, cat, cx, cy, span, v1, v2, ref):
+    def _sheet_body_horizontal(self, cat, cx, cy, span, v1, v2, ref, band=0):
         # Bodies may run a shade wider than their eyelet span (a real can sits
         # over its eyelets) so the value fits ON the part, as the idiom wants.
         w = max((34.0 if cat == "electro" else 30.0), span * CW - 16)
@@ -2274,24 +2664,55 @@ class SheetRenderer(Renderer):
         if cat == "electro":
             # filter can: tall outlined body hanging above its row, crimp line,
             # polarity + mark at the positive end, value written on the can.
+            # The '+' owns a RESERVED GUTTER along the can's left edge and the
+            # value reflows into what is left — set inline (as it was until
+            # 2026-08-04) the mark's bar struck the first digit and '+25MFD'
+            # read as '±25MFD' on every narrow can in the corpus.
             h = 42
             x, y = cx - w / 2, cy - h + 8
             els.append(f'<rect x="{fmt(x)}" y="{fmt(y)}" width="{fmt(w)}" height="{fmt(h)}" '
                        f'rx="5" fill="{SH_BODY}" stroke="{SH_INK}" stroke-width="1.8"/>')
             els.append(f'<line x1="{fmt(x)}" y1="{fmt(y + 6.5)}" x2="{fmt(x + w)}" '
                        f'y2="{fmt(y + 6.5)}" stroke="{SH_INK}" stroke-width="0.9"/>')
-            els.append(f'<line x1="{fmt(x + 5)}" y1="{fmt(y + 14)}" x2="{fmt(x + 12)}" '
-                       f'y2="{fmt(y + 14)}" stroke="{SH_INK}" stroke-width="1.5"/>')
-            els.append(f'<line x1="{fmt(x + 8.5)}" y1="{fmt(y + 10.5)}" x2="{fmt(x + 8.5)}" '
-                       f'y2="{fmt(y + 17.5)}" stroke="{SH_INK}" stroke-width="1.5"/>')
+            els += plus_mark(x + 7.5, y + 13.5, 3.4, SH_INK, 1.5)
             self.obst_rect(x, y, x + w, y + h, f"{ref} body")
-            if self._fits(v1, 10.5, w - 8):
-                self._fixed_text(cx, y + 22.5, v1, 10.5, weight=700)
+            gut = PLUS_GUTTER                 # clear space the '+' owns
+            vcx, vw = x + gut + (w - gut) / 2, w - gut
+            if self._fits(v1, 10.5, vw - 6):
+                self._fixed_text(vcx, y + 22.5, v1, 10.5, weight=700)
                 if v2 and self._fits(v2, 9, w - 8):
                     self._fixed_text(cx, y + 34, v2, 9, fill=SH_INK2)
-            elif not self._val_inside(cx, y + 19, v1, w):
+            elif self._fits(v1, 9, vw - 4):
+                self._fixed_text(vcx, y + 22, v1, 9, weight=700)
+                if v2 and self._fits(v2, 8.5, w - 8):
+                    self._fixed_text(cx, y + 33, v2, 8.5, fill=SH_INK2)
+            elif self._fits(v1, 10.5, w - 8):
+                # too narrow for a side-by-side gutter: drop the value below the
+                # '+' band instead of letting the two share a line.
+                self._fixed_text(cx, y + 26, v1, 10.5, weight=700)
+                if v2 and self._fits(v2, 8.5, w - 8):
+                    self._fixed_text(cx, y + 36, v2, 8.5, fill=SH_INK2)
+            elif not self._val_inside(cx, y + 24, v1, w):
                 self._below_value(cx, cy + 22, ref, v1)
             self._ref_label(cx, y - 6, ref)
+        elif cat == "diode":
+            # a rectifier is polarised: square-cornered body with a cathode
+            # band, never the resistor dogbone it used to borrow.
+            h = 20.0
+            x, y = cx - w / 2, cy - h / 2
+            els.append(f'<rect x="{fmt(x)}" y="{fmt(y)}" width="{fmt(w)}" height="{fmt(h)}" '
+                       f'rx="1.5" fill="{SH_BODY}" stroke="{SH_INK}" stroke-width="1.6"/>')
+            bw = 0.0
+            if band:
+                bxx = (x + 2.5) if band < 0 else (x + w - 7.5)
+                els.append(f'<rect x="{fmt(bxx)}" y="{fmt(y + 1.2)}" width="5" '
+                           f'height="{fmt(h - 2.4)}" fill="{SH_INK}"/>')
+                bw = 11.0
+            self.obst_rect(x, y, x + w, y + h, f"{ref} body")
+            vcx = cx + (bw / 2 if band < 0 else -bw / 2)
+            if not self._val_inside(vcx, cy, v1, w - bw):
+                self._below_value(cx, cy + 22, ref, v1)
+            self._ref_label(cx, cy - 17, ref)
         elif cat in ("film", "mica"):
             h = 26.0 if cat == "film" else 18.0
             x, y = cx - w / 2, cy - h / 2
@@ -2320,18 +2741,66 @@ class SheetRenderer(Renderer):
             self._ref_label(cx, cy - 15, ref)
         return els
 
-    def _sheet_body_vertical(self, cat, cx, cy, v1, ref):
-        h, w = 40.0, 16.0
-        x, y = cx - w / 2, cy - h / 2
-        els = [f'<rect x="{fmt(x)}" y="{fmt(y)}" width="{fmt(w)}" height="{fmt(h)}" '
-               f'rx="{fmt(w / 2)}" fill="{SH_BODY}" stroke="{SH_INK}" stroke-width="1.6"/>']
+    def _sheet_body_vertical(self, cat, cx, cy, v1, v2, ref, band=0):
+        """A standing part bridging the two eyelet rows — the era sheets drew
+        these turned through 90 degrees, keeping each family's own outline.
+
+        Until 2026-08-04 every vertical body was the same rounded pill whatever
+        it was, so on a board like the 5F10 — whose mid and right sections are
+        almost all standing parts — a builder could not tell a film cap from a
+        resistor by shape at all. The vocabulary now matches the horizontal
+        bodies: square-cornered rectangle for a film/mica cap, dogbone for a
+        resistor, crimped can with a polarity mark for an electrolytic, banded
+        body for a rectifier."""
+        h = 40.0
+        els: list[str] = []
+        # (body width, lettering centre offset from cy, lettering length budget)
+        if cat in ("film", "mica"):
+            # SAME square-cornered rectangle the horizontal film cap gets, just
+            # standing: the outline is what distinguishes C from R on the sheet.
+            w = 20.0 if cat == "film" else 17.0
+            x, y = cx - w / 2, cy - h / 2
+            els.append(f'<rect x="{fmt(x)}" y="{fmt(y)}" width="{fmt(w)}" height="{fmt(h)}" '
+                       f'rx="1.5" fill="{SH_BODY}" stroke="{SH_INK}" stroke-width="1.6"/>')
+            voff, budget, cols = 0.0, h, 1
+        elif cat == "electro":
+            # a standing can: crimp ring and its own polarity gutter at the top,
+            # the value lettered up the body below them.
+            w = 24.0 if v2 else 19.0
+            x, y = cx - w / 2, cy - h / 2
+            els.append(f'<rect x="{fmt(x)}" y="{fmt(y)}" width="{fmt(w)}" height="{fmt(h)}" '
+                       f'rx="4" fill="{SH_BODY}" stroke="{SH_INK}" stroke-width="1.8"/>')
+            els.append(f'<line x1="{fmt(x)}" y1="{fmt(y + 8.5)}" x2="{fmt(x + w)}" '
+                       f'y2="{fmt(y + 8.5)}" stroke="{SH_INK}" stroke-width="0.9"/>')
+            els += plus_mark(cx, y + 4.2, 2.8, SH_INK, 1.4)
+            voff, budget, cols = 5.0, h - 12.0, (2 if v2 else 1)
+        elif cat == "diode":
+            w = 17.0
+            x, y = cx - w / 2, cy - h / 2
+            els.append(f'<rect x="{fmt(x)}" y="{fmt(y)}" width="{fmt(w)}" height="{fmt(h)}" '
+                       f'rx="1.5" fill="{SH_BODY}" stroke="{SH_INK}" stroke-width="1.6"/>')
+            if band:
+                byy = (y + 3.0) if band < 0 else (y + h - 8.0)
+                els.append(f'<rect x="{fmt(x + 1.2)}" y="{fmt(byy)}" width="{fmt(w - 2.4)}" '
+                           f'height="5" fill="{SH_INK}"/>')
+            voff, budget, cols = 0.0, h - 10.0, 1
+        else:                                    # resistor / other: standing dogbone
+            w = 18.6
+            x, y = cx - w / 2, cy - h / 2
+            els.append(f'<g transform="rotate(-90 {fmt(cx)} {fmt(cy)})">'
+                       f'<path d="{dogbone_path(cx, cy, h)}" fill="{SH_BODY}" '
+                       f'stroke="{SH_INK}" stroke-width="1.6"/></g>')
+            voff, budget, cols = 0.0, h, 1
         self.obst_rect(x, y, x + w, y + h, f"{ref} body")
         # lettered ALONG the body, so the size ladder trades against its height
         # (a standing cap is the narrowest body on the sheet and the one whose
         # value most wants to end up in the wiring if it is let off the part).
+        col1 = cx + (4.0 if cols > 1 else 0.5)
         for size, pad in ((9, 8.0), (8.5, 6.0), (8, 4.0)):
-            if self._fits(v1, size, h - pad):
-                self._fixed_text(cx + 0.5, cy, v1, size, weight=700, rotate=-90)
+            if self._fits(v1, size, budget - pad):
+                self._fixed_text(col1, cy + voff, v1, size, weight=700, rotate=-90)
+                if cols > 1 and self._fits(v2, 8, budget - pad):
+                    self._fixed_text(cx - 6.0, cy + voff, v2, 8, fill=SH_INK2, rotate=-90)
                 break
         else:
             self._below_value(cx, cy + h / 2 + 12, ref, v1)
@@ -2348,7 +2817,7 @@ class SheetRenderer(Renderer):
         label = str(item.get("label", item.get("id", "")))
         ref = item.get("ref")
         x, y = self.off_pos(item)
-        val = primary_value(self.bom_for(ref)["value"]) if ref else None
+        val = primary_value(self.bom_for(ref)["value"]) if ref else annotation_value(item)
         sgn = self._label_side(item)
         els: list[str] = []
         if kind == "tube":
@@ -2455,6 +2924,7 @@ class SheetRenderer(Renderer):
                            f'stroke-linecap="round"/>')
                 els.append(sheet_term(ex_, ey_, 2.2))
                 self.obst_circle(ex_, ey_, 2.4, f"pigtail {item.get('id', '')}.{colour}")
+                self._lead_callout(item, colour, ex_, ey_, base, SH_INK2, SH_PAPER)
             if val:
                 val_x, val_anchor = self._edge_safe(x, val, 9.5, False)
                 val_y = (y - h / 2 - 10) if sgn < 0 else (y + h / 2 + 13)
@@ -2468,8 +2938,7 @@ class SheetRenderer(Renderer):
             # (Pots, transformers and chokes above keep house units: a taper
             # suffix or a factory part number is not a body lettering.)
             if ref:
-                rec = self.bom_for(ref)
-                val = era_pair(rec["value"], category(rec["part"]))[0]
+                val = self._val_tokens(ref)[0]
             g, _ = self._part_glyph(item, x, y, label, val)
             els += g
         else:  # switch / fuse / misc
@@ -2521,37 +2990,101 @@ class SheetRenderer(Renderer):
         midx, midy = (ta[0] + tb[0]) / 2, (ta[1] + tb[1]) / 2
         els.append(f'<line x1="{fmt(ta[0])}" y1="{fmt(ta[1])}" x2="{fmt(tb[0])}" '
                    f'y2="{fmt(tb[1])}" stroke="{SH_INK}" stroke-width="1.5"/>')
+        # An off-board part is the SAME body a board part gets — same dogbone,
+        # same size, same value lettered ON it. It was drawn smaller with the
+        # value floated below as a queued label, which broke the sheet's one
+        # promise ("the value is on the part") and left those values sitting in
+        # the lead fan where their own two leads struck them.
+        ref = item.get("ref")
+        cat = category(self.bom_for(ref)["part"]) if ref else "res"
         if horiz:
-            bw = max(22.0, abs(tb[0] - ta[0]) - 8)
-            els.append(f'<path d="{dogbone_path(midx, midy, bw, r_end=7.2, waist=4.8)}" '
-                       f'fill="{SH_BODY}" stroke="{SH_INK}" stroke-width="1.5"/>')
-            self.obst_rect(midx - bw / 2, midy - 7.2, midx + bw / 2, midy + 7.2,
-                           f"part {pid} body")
+            bw = max(30.0, abs(tb[0] - ta[0]) - 6)
+            if cat == "electro":
+                # a chassis filter can is a CAN, crimp and polarity gutter and
+                # all — off the board it was borrowing the resistor dogbone.
+                bw = max(48.0, bw)        # wide enough for the '+' gutter AND the value
+                bh2 = 26.0
+                x0, y0 = midx - bw / 2, midy - bh2 / 2
+                els.append(f'<rect x="{fmt(x0)}" y="{fmt(y0)}" width="{fmt(bw)}" '
+                           f'height="{fmt(bh2)}" rx="4" fill="{SH_BODY}" '
+                           f'stroke="{SH_INK}" stroke-width="1.8"/>')
+                els.append(f'<line x1="{fmt(x0)}" y1="{fmt(y0 + 5.5)}" '
+                           f'x2="{fmt(x0 + bw)}" y2="{fmt(y0 + 5.5)}" '
+                           f'stroke="{SH_INK}" stroke-width="0.9"/>')
+                els += plus_mark(x0 + 7.0, y0 + 13.5, 3.2, SH_INK, 1.5)
+                self.obst_rect(x0, y0, x0 + bw, y0 + bh2, f"part {pid} body")
+                top = away[1] < 0
+                gut = PLUS_GUTTER
+                on_body = bool(val) and self._val_inside(
+                    x0 + gut + (bw - gut) / 2, midy + 3.5, val, bw - gut)
+                ref_y = (midy - 24) if top else (midy + 26)
+                val_y = (midy - 36) if top else (midy + 38)
+                self.lab(midx, ref_y, label.upper(), SH_INK, 10, weight=700,
+                         spacing="0.04em", halo=SH_PAPER, halo_width=2.8,
+                         tag=f"part {pid} ref", group=f"off:{pid}",
+                         keep_in=self.canvas_box())
+                if val and not on_body:
+                    self.lab(midx, val_y, val, SH_INK2, 9.5, weight=600, halo=SH_PAPER,
+                             halo_width=2.8, tag=f"part {pid} value",
+                             group=f"off:{pid}", keep_in=self.canvas_box())
+                for (tx, ty) in (ta, tb):
+                    els.append(sheet_term(tx, ty, 2.2))
+                    self.obst_circle(tx, ty, 2.2, f"terminal {pid}")
+                return els, []
+            if cat in ("film", "mica", "diode"):
+                # a chassis-mounted cap or rectifier keeps its OWN outline, not
+                # a dogbone: the body form is how the sheet says what a part is.
+                bh2 = {"film": 26.0, "mica": 18.0, "diode": 20.0}[cat]
+                els.append(f'<rect x="{fmt(midx - bw / 2)}" y="{fmt(midy - bh2 / 2)}" '
+                           f'width="{fmt(bw)}" height="{fmt(bh2)}" rx="1.5" '
+                           f'fill="{SH_BODY}" stroke="{SH_INK}" stroke-width="1.6"/>')
+                self.obst_rect(midx - bw / 2, midy - bh2 / 2, midx + bw / 2,
+                               midy + bh2 / 2, f"part {pid} body")
+                end = str(item.get("cathode", "")).strip().lower()
+                if cat == "diode" and end in ("a", "b"):
+                    left = (end == "a") == (ta[0] <= tb[0])
+                    bxx = (midx - bw / 2 + 2.5) if left else (midx + bw / 2 - 7.5)
+                    els.append(f'<rect x="{fmt(bxx)}" y="{fmt(midy - bh2 / 2 + 1.2)}" '
+                               f'width="5" height="{fmt(bh2 - 2.4)}" fill="{SH_INK}"/>')
+            else:
+                els.append(f'<path d="{dogbone_path(midx, midy, bw)}" '
+                           f'fill="{SH_BODY}" stroke="{SH_INK}" stroke-width="1.6"/>')
+                self.obst_rect(midx - bw / 2, midy - 8.6, midx + bw / 2, midy + 8.6,
+                               f"part {pid} body")
             top = away[1] < 0
+            on_body = bool(val) and self._val_inside(midx, midy, val, bw)
             ref_y = (midy - 19) if top else (midy + 21)
             val_y = (midy - 31) if top else (midy + 33)
             self.lab(midx, ref_y, label.upper(), SH_INK, 10, weight=700,
                      spacing="0.04em", halo=SH_PAPER, halo_width=2.8,
                      tag=f"part {pid} ref", group=f"off:{pid}",
                      keep_in=self.canvas_box())
-            if val:
+            if val and not on_body:
                 self.lab(midx, val_y, val, SH_INK2, 9.5, weight=600, halo=SH_PAPER,
                          halo_width=2.8, tag=f"part {pid} value", group=f"off:{pid}",
                          keep_in=self.canvas_box())
         else:
-            bw, bh = 15.0, max(22.0, abs(tb[1] - ta[1]) - 8)
+            bw, bh = 18.6, max(30.0, abs(tb[1] - ta[1]) - 6)
             rx, ry = midx - bw / 2, midy - bh / 2
-            els.append(f'<rect x="{fmt(rx)}" y="{fmt(ry)}" width="{fmt(bw)}" '
-                       f'height="{fmt(bh)}" rx="{fmt(bw / 2)}" fill="{SH_BODY}" '
-                       f'stroke="{SH_INK}" stroke-width="1.5"/>')
+            els.append(f'<g transform="rotate(-90 {fmt(midx)} {fmt(midy)})">'
+                       f'<path d="{dogbone_path(midx, midy, bh)}" fill="{SH_BODY}" '
+                       f'stroke="{SH_INK}" stroke-width="1.6"/></g>')
             self.obst_rect(rx, ry, rx + bw, ry + bh, f"part {pid} body")
-            lx = midx + away[0] * 16
+            on_body = False
+            if val:
+                for size, pad in ((9, 8.0), (8.5, 6.0), (8, 4.0)):
+                    if self._fits(val, size, bh - pad):
+                        self._fixed_text(midx + 0.5, midy, val, size, weight=700,
+                                         rotate=-90)
+                        on_body = True
+                        break
+            lx = midx + away[0] * 18
             anchor = "end" if away[0] < 0 else "start"
             self.lab(lx, midy - 3, label.upper(), SH_INK, 10, weight=700, anchor=anchor,
                      spacing="0.04em", halo=SH_PAPER, halo_width=2.8,
                      tag=f"part {pid} ref", group=f"off:{pid}",
                      keep_in=self.canvas_box())
-            if val:
+            if val and not on_body:
                 self.lab(lx, midy + 11, val, SH_INK2, 9.5, anchor=anchor, weight=600,
                          halo=SH_PAPER, halo_width=2.8, tag=f"part {pid} value",
                          group=f"off:{pid}", keep_in=self.canvas_box())
@@ -2674,19 +3207,21 @@ class SheetRenderer(Renderer):
         title = ((self.layout.get("board", {}) or {}).get("title")
                  or f"{self.amp_id.upper()} board layout")
         title = title.upper()
-        els.append(text(bx, 36, title, SH_INK, 18, anchor="start", weight=700,
+        ts = self.cz(18)
+        ty = 20 + ts
+        els.append(text(bx, ty, title, SH_INK, ts, anchor="start", weight=700,
                         spacing="0.14em"))
-        els.append(f'<line x1="{fmt(bx)}" y1="43.5" '
-                   f'x2="{fmt(bx + 0.88 * text_width(title, 18, spacing="0.14em"))}" '
-                   f'y2="43.5" stroke="{SH_INK}" stroke-width="1.2"/>')
+        els.append(f'<line x1="{fmt(bx)}" y1="{fmt(ty + 7.5)}" '
+                   f'x2="{fmt(bx + 0.88 * text_width(title, ts, spacing="0.14em"))}" '
+                   f'y2="{fmt(ty + 7.5)}" stroke="{SH_INK}" stroke-width="{fmt(1.2 * self.cs)}"/>')
         src = self.layout.get("source", {}) or {}
         if src.get("desc"):
             attrib = f"Redrawn from {src['desc']} — not a trace"
         else:
             attrib = self.layout.get("caption") or ""
         if attrib:
-            attrib_off = 92 if self._has_twisted else 74
-            els.append(text(bx, self.height - attrib_off, attrib, SH_FAINT, 10.5,
+            _w, _n, arow = self._footer_rows()
+            els.append(text(bx, self._footer_y(arow), attrib, SH_FAINT, self.cz(10.5),
                             anchor="start", font=FONT_MONO, weight=500))
         self._legend(els)
         body = "\n".join(els)
@@ -2701,91 +3236,115 @@ class SheetRenderer(Renderer):
         return svg
 
     def _legend(self, els):
-        y = self.height - (74 if self._has_twisted else 56)
+        s = self.cs
+        fs = self.cz(10.5)
+        wrow, nrow, _arow = self._footer_rows()
+        y = self._footer_y(wrow)
         x = self.board_x
+
+        def adv(txt, size=None):
+            return text_width(txt, size or fs, FONT_MONO)
+
         if self.runs or self.bus:
             cx = x
-            els.append(text(cx, y, "Wiring:", SH_FAINT, 10.5, anchor="start",
+            els.append(text(cx, y, "Wiring:", SH_FAINT, fs, anchor="start",
                             font=FONT_MONO, weight=500))
-            cx += 58
-            els.append(f'<line x1="{fmt(cx)}" y1="{fmt(y - 3)}" x2="{fmt(cx + 18)}" '
-                       f'y2="{fmt(y - 3)}" stroke="{SH_NEUTRAL}" stroke-width="2.0" '
-                       f'stroke-linecap="round"/>')
-            els.append(text(cx + 24, y, "lead", SH_INK2, 10.5, anchor="start",
+            cx += 58 * s
+            els.append(f'<line x1="{fmt(cx)}" y1="{fmt(y - 3*s)}" x2="{fmt(cx + 18*s)}" '
+                       f'y2="{fmt(y - 3*s)}" stroke="{SH_NEUTRAL}" '
+                       f'stroke-width="{fmt(2.0*s)}" stroke-linecap="round"/>')
+            els.append(text(cx + 24 * s, y, "lead (uncoloured)", SH_INK2, fs, anchor="start",
                             font=FONT_MONO, weight=500))
-            cx += 24 + 4 * 6.4 + 16
+            cx += 24 * s + adv("lead (uncoloured)") + 16 * s
             for key in self._colours_used:
                 col = SHEET_WIRE.get(key, SH_NEUTRAL)
                 entry = self.wire_legend.get(key, key)
-                els.append(f'<line x1="{fmt(cx)}" y1="{fmt(y - 3)}" x2="{fmt(cx + 18)}" '
-                           f'y2="{fmt(y - 3)}" stroke="{col}" stroke-width="2.0" '
+                els.append(f'<line x1="{fmt(cx)}" y1="{fmt(y - 3*s)}" x2="{fmt(cx + 18*s)}" '
+                           f'y2="{fmt(y - 3*s)}" stroke="{col}" stroke-width="{fmt(2.0*s)}" '
                            f'stroke-linecap="round"/>')
-                els.append(text(cx + 24, y, entry, SH_INK2, 10.5, anchor="start",
+                els.append(text(cx + 24 * s, y, entry, SH_INK2, fs, anchor="start",
                                 font=FONT_MONO, weight=500))
-                cx += 24 + len(entry) * 6.4 + 16
+                cx += 24 * s + adv(entry) + 16 * s
             if self.bus:
-                els.append(f'<line x1="{fmt(cx)}" y1="{fmt(y - 3)}" x2="{fmt(cx + 18)}" '
-                           f'y2="{fmt(y - 3)}" stroke="{SH_INK}" stroke-width="4.0" '
+                els.append(f'<line x1="{fmt(cx)}" y1="{fmt(y - 3*s)}" x2="{fmt(cx + 18*s)}" '
+                           f'y2="{fmt(y - 3*s)}" stroke="{SH_INK}" stroke-width="{fmt(4.0*s)}" '
                            f'stroke-linecap="round"/>')
-                els.append(f'<line x1="{fmt(cx + 1)}" y1="{fmt(y - 3)}" x2="{fmt(cx + 17)}" '
-                           f'y2="{fmt(y - 3)}" stroke="{SH_BUS_CORE}" stroke-width="1.8" '
+                els.append(f'<line x1="{fmt(cx + 1*s)}" y1="{fmt(y - 3*s)}" '
+                           f'x2="{fmt(cx + 17*s)}" y2="{fmt(y - 3*s)}" '
+                           f'stroke="{SH_BUS_CORE}" stroke-width="{fmt(1.8*s)}" '
                            f'stroke-linecap="round"/>')
-                els.append(text(cx + 24, y, "ground bus", SH_INK2, 10.5, anchor="start",
+                els.append(text(cx + 24 * s, y, "ground bus", SH_INK2, fs, anchor="start",
                                 font=FONT_MONO, weight=500))
-                cx += 24 + len("ground bus") * 6.4 + 16
+                cx += 24 * s + adv("ground bus") + 16 * s
             if self._has_twisted:
-                d1, d2 = twisted_strands([(cx, y - 3), (cx + 20, y - 3)],
-                                         amp=2.6, wavelen=8.0)
+                d1, d2 = twisted_strands([(cx, y - 3 * s), (cx + 20 * s, y - 3 * s)],
+                                         amp=2.6 * s, wavelen=8.0 * s)
                 els.append(f'<path d="{d1}" fill="none" stroke="{SH_HEATER}" '
-                           f'stroke-width="1.4" stroke-linecap="round"/>')
+                           f'stroke-width="{fmt(1.4*s)}" stroke-linecap="round"/>')
                 els.append(f'<path d="{d2}" fill="none" stroke="{SH_HEATER}" '
-                           f'stroke-width="1.4" stroke-linecap="round"/>')
-                els.append(text(cx + 26, y, "6.3 V heaters — twisted pair", SH_INK2,
-                                10.5, anchor="start", font=FONT_MONO, weight=500))
-                note_y = self.height - 56
-                els.append(text(x, note_y, "Note: the 6.3 V heater twisted pair always "
+                           f'stroke-width="{fmt(1.4*s)}" stroke-linecap="round"/>')
+                els.append(text(cx + 26 * s, y, "6.3 V heaters — twisted pair", SH_INK2,
+                                fs, anchor="start", font=FONT_MONO, weight=500))
+                els.append(text(x, self._footer_y(nrow),
+                                "Note: the 6.3 V heater twisted pair always "
                                 "routes on the top layer and never joins another run — "
-                                "its crossings are not hop-overs.", SH_FAINT, 9.5,
+                                "its crossings are not hop-overs.", SH_FAINT, self.cz(9.5),
                                 anchor="start", font=FONT_MONO, weight=500))
-            jy = self.height - 38
-            els.append(text(x, jy, "Joints:", SH_FAINT, 10.5, anchor="start",
+            jy = self._footer_y(1)
+            els.append(text(x, jy, "Joints:", SH_FAINT, fs, anchor="start",
                             font=FONT_MONO, weight=500))
-            jx = x + 58
-            els.append(sheet_solder(jx + 4, jy - 3))
-            els.append(text(jx + 13, jy, "wire end (solder joint)", SH_INK2, 10.5,
+            jx = x + 58 * s
+            els.append(sheet_solder(jx + 4 * s, jy - 3 * s))
+            els.append(text(jx + 13 * s, jy, "wire end (solder joint)", SH_INK2, fs,
                             anchor="start", font=FONT_MONO, weight=500))
-            jx += 13 + len("wire end (solder joint)") * 6.4 + 20
-            hd = hopped_path([(jx, jy - 3), (jx + 34, jy - 3)], {0: [(17.0, HOP_R)]}, r=11)
+            jx += 13 * s + adv("wire end (solder joint)") + 20 * s
+            hd = hopped_path([(jx, jy - 3 * s), (jx + 34 * s, jy - 3 * s)],
+                             {0: [(17.0 * s, HOP_R * s)]}, r=11 * s)
             els.append(f'<path d="{hd}" fill="none" stroke="{SH_NEUTRAL}" '
-                       f'stroke-width="2.0" stroke-linecap="round" stroke-linejoin="round"/>')
-            els.append(text(jx + 40, jy, "cross-over (no connect)", SH_INK2, 10.5,
+                       f'stroke-width="{fmt(2.0*s)}" stroke-linecap="round" '
+                       f'stroke-linejoin="round"/>')
+            els.append(text(jx + 40 * s, jy, "cross-over (no connect)", SH_INK2, fs,
                             anchor="start", font=FONT_MONO, weight=500))
-        # bodies legend: the sheet's outline glyphs, miniature
-        y = self.height - 20
-        els.append(text(x, y, "Bodies:", SH_FAINT, 10.5, anchor="start",
+        # bodies legend: the sheet's outline glyphs, miniature. Every body form
+        # the drawing can emit is keyed here — a shape a builder cannot look up
+        # is a shape that says nothing.
+        y = self._footer_y(0)
+        els.append(text(x, y, "Bodies:", SH_FAINT, fs, anchor="start",
                         font=FONT_MONO, weight=500))
-        cx = x + 58
-        els.append(f'<path d="{dogbone_path(cx + 9, y - 3.5, 18, r_end=4.4, waist=2.9)}" '
+        cx = x + 58 * s
+        els.append(f'<path d="{dogbone_path(cx + 9*s, y - 3.5*s, 18*s, r_end=4.4*s, waist=2.9*s)}" '
                    f'fill="{SH_BODY}" stroke="{SH_INK}" stroke-width="1.0"/>')
-        els.append(text(cx + 23, y, "resistor", SH_INK2, 10.5, anchor="start",
+        els.append(text(cx + 23 * s, y, "resistor", SH_INK2, fs, anchor="start",
                         font=FONT_MONO, weight=500))
-        cx += 30 + len("resistor") * 6.4
-        els.append(f'<rect x="{fmt(cx)}" y="{fmt(y - 9)}" width="14" height="10" rx="1" '
+        cx += 30 * s + adv("resistor")
+        els.append(f'<rect x="{fmt(cx)}" y="{fmt(y - 9*s)}" width="{fmt(14*s)}" '
+                   f'height="{fmt(10*s)}" rx="1" '
                    f'fill="{SH_BODY}" stroke="{SH_INK}" stroke-width="1.0"/>')
-        els.append(text(cx + 19, y, "film / coupling cap", SH_INK2, 10.5, anchor="start",
+        els.append(text(cx + 19 * s, y, "film / coupling cap", SH_INK2, fs, anchor="start",
                         font=FONT_MONO, weight=500))
-        cx += 26 + len("film / coupling cap") * 6.4
-        els.append(f'<rect x="{fmt(cx)}" y="{fmt(y - 10)}" width="12" height="11" rx="1.5" '
+        cx += 26 * s + adv("film / coupling cap")
+        els.append(f'<rect x="{fmt(cx)}" y="{fmt(y - 10*s)}" width="{fmt(12*s)}" '
+                   f'height="{fmt(11*s)}" rx="1.5" '
                    f'fill="{SH_BODY}" stroke="{SH_INK}" stroke-width="1.0"/>')
-        els.append(f'<line x1="{fmt(cx)}" y1="{fmt(y - 7.5)}" x2="{fmt(cx + 12)}" '
-                   f'y2="{fmt(y - 7.5)}" stroke="{SH_INK}" stroke-width="0.7"/>')
-        els.append(text(cx + 17, y, "electrolytic", SH_INK2, 10.5, anchor="start",
-                        font=FONT_MONO, weight=500))
-        cx += 24 + len("electrolytic") * 6.4
-        els.append(f'<rect x="{fmt(cx)}" y="{fmt(y - 8)}" width="14" height="8" rx="1" '
+        els.append(f'<line x1="{fmt(cx)}" y1="{fmt(y - 7.5*s)}" x2="{fmt(cx + 12*s)}" '
+                   f'y2="{fmt(y - 7.5*s)}" stroke="{SH_INK}" stroke-width="0.7"/>')
+        els.append(text(cx + 17 * s, y, "electrolytic (+ = positive end)", SH_INK2, fs,
+                        anchor="start", font=FONT_MONO, weight=500))
+        cx += 24 * s + adv("electrolytic (+ = positive end)")
+        els.append(f'<rect x="{fmt(cx)}" y="{fmt(y - 8*s)}" width="{fmt(14*s)}" '
+                   f'height="{fmt(8*s)}" rx="1" '
                    f'fill="{SH_BODY}" stroke="{SH_INK}" stroke-width="1.0"/>')
-        els.append(text(cx + 19, y, "mica", SH_INK2, 10.5, anchor="start",
+        els.append(text(cx + 19 * s, y, "mica", SH_INK2, fs, anchor="start",
                         font=FONT_MONO, weight=500))
+        if self._has_diode:
+            cx += 26 * s + adv("mica")
+            els.append(f'<rect x="{fmt(cx)}" y="{fmt(y - 8.5*s)}" width="{fmt(16*s)}" '
+                       f'height="{fmt(9*s)}" rx="1" '
+                       f'fill="{SH_BODY}" stroke="{SH_INK}" stroke-width="1.0"/>')
+            els.append(f'<rect x="{fmt(cx + 12*s)}" y="{fmt(y - 8*s)}" width="{fmt(3*s)}" '
+                       f'height="{fmt(8*s)}" fill="{SH_INK}"/>')
+            els.append(text(cx + 21 * s, y, "diode / rectifier (band = cathode)", SH_INK2,
+                            fs, anchor="start", font=FONT_MONO, weight=500))
 
 
 def render_layout(amp_dir: Path, style: str = "house") -> str:
@@ -2951,6 +3510,22 @@ def lint_layout(amp_dir: Path, style: str = "house",
     # drawing then has two controls, jacks or transformers a reader cannot tell
     # apart, even where the data (bom.yaml roles, the wiring itself) does
     # distinguish them. Cheap, and it guards a defect that shipped once.
+    # (g) a drawn component body that states no value at all. A part the reader
+    # can neither read off the drawing nor look up by ref is a blank body: it
+    # tells a builder a component goes there and nothing else. Board parts are
+    # covered by the bom.yaml ref (an absent ref already fails the render), so
+    # this guards the annotation layer — off-board `kind: part` glyphs, which
+    # may legitimately have no BOM ref and until now could ship valueless in
+    # silence (the model 1987's NFB resistor did).
+    for it in (layout.get("offboard") or []):
+        if it.get("kind") != "part" or it.get("glyph") == "lamp":
+            continue
+        if it.get("ref") or annotation_value(it):
+            continue
+        fails.append(
+            f"{amp_dir.name}: no value — off-board part '{it.get('id')}' "
+            f"({it.get('label', '')}) has neither a bom.yaml ref nor a `value:`; "
+            f"it renders as a blank body")
     seen: dict = {}
     for it in (layout.get("offboard") or []):
         kind, label = it.get("kind"), str(it.get("label", "")).strip()
