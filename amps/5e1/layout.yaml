@@ -119,7 +119,10 @@ runs:
   - { from: C4.a, to: R8.a }                             # cathode bypass across 470 Ω
   - { from: C4.b, to: [1.45, 10.3] }
   - { from: V2.pin4, to: C6.a, via: [[10, 1.7], [3.3, 1.7]] }        # screen -> B+2 (steep approach)
-  - { from: V2.pin3, to: T1.blue, via: [[7, 1.3], [30.6, 1.3]] }  # plate -> OT primary (blue)
+  # Runs BELOW the board outline, not along it: on row 1.3 the blue lead lay
+  # on the board's own bottom rule for the full width of the drawing, so the
+  # two read as one heavy line and the lead could not be traced.
+  - { from: V2.pin3, to: T1.blue, via: [[7, 2.12], [30.6, 2.12], [30.6, 0.42]] }  # plate -> OT primary (blue)
   - { from: T1.red, to: C6.a, via: [[31.5, 0.5], [31.5, 2.8], [1.8, 2.8]] }     # OT primary -> B+2 (red, drops at the board's far right edge, clear of every socket ring, then runs the deepest lane)
   - { from: R9.a, to: V2.pin5, via: [[11, 1.5]] }        # grid leak -> 6V6 grid
   - { from: R9.b, to: [1.45, 12] }                       # grid leak -> ground bus

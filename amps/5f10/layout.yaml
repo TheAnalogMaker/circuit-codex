@@ -151,19 +151,22 @@ runs:
 
   # --- cathodyne phase inverter (V2, unit 2 = pins 1/2/3) -------------------
   - { from: V2.pin1, to: RL3.a, via: [[41.8, 2.4], [39.4, 2.4], [39.4, 0.5]] }      # cathodyne plate → 56k plate load
-  - { from: RL3.b, to: C10.a, via: [[40, 0.44], [18.2, 0.44]] }   # plate load → B+3
+  - { from: RL3.b, to: C10.a, via: [[40, 0.18], [18.2, 0.18]] }   # plate load → B+3
   - { from: V2.pin1, to: C6.a, via: [[40.8, 2.35], [37.8, 2.35], [37.8, 0.55]] }     # cathodyne plate → plate-side coupler
   - { from: C6.b, to: V3.pin5, via: [[38, 3.12], [24.7, 3.12], [24.7, 1.9]] }   # coupler → upper 6V6 grid (rise right of the V3 label, into pin 5)
   - { from: RG1.a, to: C6.b, via: [[34, 0.93], [37.7, 0.93]] }   # bias grid leak → same grid node
-  # These four leads all cross behind the RKA/RK2/RNFB/RGPI resistor row on
-  # their way to a row-0 eyelet; each is fanned onto its own distinct row
-  # (0.50 / 0.66 / 0.78 / 0.90) so it traces end to end instead of the two
-  # near-parallel horizontal runs (was 0.58/0.65, only ~8px apart) reading as
-  # one doubled wire in the gaps between resistor bodies.
-  - { from: V2.pin3, to: RKA.a, via: [[41.5, 0.50], [20.3, 0.50]] }    # cathodyne cathode → 1.5k
+  # These leads all cross the RKA/RK2/RNFB/RGPI standing-resistor row on their
+  # way to a row-0 eyelet. They used to lie on rows 0.44-0.66 — the band the
+  # standing bodies themselves occupy — so each one ran INTO the left edge of a
+  # body and out of the right, using the bodies as occluders: a builder could
+  # not tell a lead passing behind a resistor from one landing on it. The long
+  # lanes now sit in the two clear gutters the board actually has, above the
+  # standing row (0.18 / 0.28) and below it (0.72 / 0.84), each on its own row
+  # so no two read as one doubled wire.
+  - { from: V2.pin3, to: RKA.a, via: [[41.5, 0.28], [20.3, 0.28]] }    # cathodyne cathode → 1.5k
   - { from: RKA.b, to: RKB.a }                          # junction → 56k cathode load
   - { from: RKB.b, to: [1.45, 24] }                     # 56k → ground bus
-  - { from: RKA.b, to: C7.a, via: [[20.6, 0.66], [31.7, 0.66]] }   # junction → cathode-side coupler
+  - { from: RKA.b, to: C7.a, via: [[20.6, 0.84], [31.7, 0.84]] }   # junction → cathode-side coupler
   - { from: C7.b, to: V4.pin5, via: [[31.6, 3.35], [30, 3.35], [30, 1.95]] }   # coupler → lower 6V6 grid (rise right of the V4 label, into pin 5)
   - { from: RG2.a, to: C7.b, via: [[36, 0.37], [32.3, 0.37]] }   # bias grid leak → same grid node
   - { from: RGPI.a, to: RKA.b }                         # PI grid leak → junction
@@ -171,7 +174,7 @@ runs:
 
   # --- driver stage (V2, unit 1 = pins 6/7/8) + NFB -------------------------
   - { from: V2.pin6, to: RL2.a, via: [[41.4, 1.5]] }     # driver plate → 100k plate load
-  - { from: RL2.b, to: C10.a, via: [[42, 0.53], [18.9, 0.53]] }   # plate load → B+3
+  - { from: RL2.b, to: C10.a, via: [[42, 0.72], [17.35, 0.72]] }   # plate load → B+3
   - { from: V2.pin6, to: C5.a, via: [[42.4, 1.6]] }     # driver plate → coupler
   - { from: C5.b, to: V2.pin2, via: [[44, 1.7], [41.3, 1.65]] }  # coupler → PI grid (same node as RGPI)
   - { from: V2.pin8, to: RK2.a, via: [[41.8, 2.45], [26.3, 2.45], [26.3, 0.78]] }    # driver cathode → 1.5k (unbypassed)

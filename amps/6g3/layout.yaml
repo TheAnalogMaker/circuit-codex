@@ -244,9 +244,16 @@ runs:
   # order is the conventional one. The GZ34 takes the 5 V winding and is off
   # this chain. Twisted runs land only on heater pins (octal 2/7, noval 4/5).
   - { from: T1.green, to: PL1.a, style: twisted }
-  - { from: PL1.b, to: V4.pin7, style: twisted, via: [[-1.2, 3.56], [5.4, 3.56]] }
-  - { from: V4.pin2, to: V5.pin7, style: twisted, via: [[6.6, 3.56], [9.4, 3.56]] }
-  - { from: V5.pin2, to: V3.pin4, style: twisted, via: [[10.6, 3.60], [19.4, 3.60]] }
+  # The chain enters each octal at the lug NEAREST the lead's approach and
+  # leaves by the far one (pin 2 = the socket's left flank, pin 7 = its right),
+  # so it walks the socket row left to right without doubling back. Entered at
+  # pin 7 and left at pin 2 — as it was — the pair crossed itself in a wide
+  # open X under every power socket. The 6.3 V winding has no polarity, so
+  # which of the two heater lugs a leg lands on is a drafting choice, not a
+  # circuit claim; both remain heater pins (validated against the basing data).
+  - { from: PL1.b, to: V4.pin2, style: twisted, via: [[-1.2, 3.56], [5.0, 3.56]] }
+  - { from: V4.pin7, to: V5.pin2, style: twisted, via: [[6.9, 3.56], [9.0, 3.56]] }
+  - { from: V5.pin7, to: V3.pin4, style: twisted, via: [[10.9, 3.60], [19.4, 3.60]] }
   - { from: V3.pin5, to: V2.pin4, style: twisted, via: [[20.6, 3.60], [41.4, 3.60]] }
   - { from: V2.pin5, to: V1.pin4, style: twisted, via: [[42.6, 3.60], [67.4, 3.60]] }
   - { from: V1.pin4, to: V1.pin5, style: twisted }
