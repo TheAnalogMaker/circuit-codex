@@ -13,8 +13,9 @@ on the rendered output.
 | Tube-model anchors | `pipeline/fit_models.py` + `test_models.py` | Model drift; models not matching datasheet anchors in ngspice |
 | Operating-point verification | `pipeline/verify_amps.py` | Simulated DC vs published chart outside tolerance (blocking for `verified`) |
 | Schematic grammar | `pipeline/check_schematics.py` | kiutils round-trip failures |
-| Layout render + determinism | `pipeline/check_layouts.py` | A `layout.yaml` that fails to render, or a stale/committed `layout.svg` out of sync with a fresh render |
-| Wiring collision lint | `pipeline/check_layouts.py` | Wiring-layer ambiguity — near-parallel overlap (two runs reading as one wire) or terminal ambiguity (an endpoint reading as landing on another run). Blocking unless the amp carries a waiver in `pipeline/lint_waivers.yaml`; active waivers are printed loudly |
+| Layout render + determinism | `pipeline/check_layouts.py` | A `layout.yaml` that fails to render, or a stale committed drawing out of sync with a fresh render — checked for **both** published styles (`layout.svg` and the era `layout-sheet.svg`) |
+| Era value lettering | `pipeline/test_era_values.py` | The sheet style's on-body value shorthand (`4.7K`, `.02-400`, `25MFD`, `250PF`) drifting from the documented convention, or mangling a value it cannot parse — swept over every value in every `bom.yaml` |
+| Wiring collision lint | `pipeline/check_layouts.py` | Wiring-layer ambiguity — near-parallel overlap (two runs reading as one wire) or terminal ambiguity (an endpoint reading as landing on another run). The three **label** checks additionally run against the sheet style, which sets its type at its own sizes and letters values on the bodies (findings tagged `[sheet]`). Blocking unless the amp carries a waiver in `pipeline/lint_waivers.yaml`; active waivers are printed loudly |
 | Layout ↔ netlist equivalence | `pipeline/verify_layout_nets.py` | The drawn point-to-point wiring not being electrically equivalent to the verified netlist — an extra connection (short), a missing connection (split node), a lead on the wrong node, an **unanchored tube**, or a signal run relabelled `twisted`. Builds both net graphs and proves isomorphism within the DC scope (heaters/pilot/PT-AC excluded, declared in `net_map`). Hardened 2026-07-19 (see `docs/layout-schema.md`): EU/US valve aliases resolve, every netlist tube must anchor to a socket (by id or type) or fail, PI→output coupling caps + grid leaks are modelled so push-pull phase and inter-stage routing are checked natively, twisted runs are validated onto heater pins, `net_map` anchors are labelled CONSTRAINING/REDUNDANT, and the unverified control-network island is declared terminal-by-terminal. A round-2 re-audit (same day) closed three more escapes: the **phantom-pin bug** (pin anchors now thread bottle→socket, so a function-named tube checks its *real* socket terminals), a complete **unchecked-terminal enumeration** (every non-modelled part lead and pot lug is listed with its net, tagged *placement not DC-checked*, so a mis-lugged pot ground or a bias resistor on a live rail can't hide by landing on a netlist-carrying net), and **shrinking the unchecked set** (every DC-open cap with both leads on named DC nodes added to the netlist across all 8 amps, `verify_amps` still 8/0/0). **Hard-blocking** for any amp whose `layout.yaml` sets `wiring_claim: verified`; report-only otherwise. Hardened again 2026-08-02 (**H9**): the section↔triode-half assignment is now enumerated for *every* multi-section bottle, including one whose netlist models only one of its two halves (a 12AX7 sharing a socket with an excluded tremolo oscillator, or a single-triode channel input) — those sockets previously anchored no pin at all and their whole signal wiring went unchecked; a candidate half must carry every role the netlist instance uses, so a numbered detector-diode plate (6AT6) is never mistaken for a triode half. A `--selftest` step first proves the gate catches a planted fault for every hole class (now incl. phantom-pin full-path, the two enumeration cases, and the H9 wrong-pin + 6AT6 false-positive pair, and HB, the same half-bottle wired ACROSS both triode halves) |
 
 ## Layer 2 — judge pass (every new/changed amp page, post-deploy)
@@ -51,15 +52,21 @@ First judge run: 2026-07-18 (caught internal-notes voice leaking into the
 
 ## Board-layout diagrams — render, then LOOK
 
-The same "figures need eyes" rule governs `amps/<id>/layout.svg`. CI
-(`check_layouts.py`) proves a layout renders to valid, deterministic SVG and
+The same "figures need eyes" rule governs both drawings of every board. CI
+(`check_layouts.py`) proves each layout renders to valid, deterministic SVG and
 that every reference resolves — but it cannot see whether the drawing *reads*.
 Before a new or changed layout (especially one with a `runs`/`bus` wiring layer)
-counts as reviewed, its author converts it to PNG and reads it:
+counts as reviewed, its author converts it to PNG and reads it — **both styles**,
+since each sets its own type:
 
 ```
-python pipeline/render_layouts.py --png <id>   # → /tmp/<id>.png (installs librsvg if absent)
+python pipeline/render_layouts.py --png <id>                # → /tmp/<id>.png (installs librsvg if absent)
+python pipeline/render_layouts.py --style sheet --png <id>  # → /tmp/<id>-sheet.png
 ```
+
+A wide board rasterised whole is too small to read; crop by rewriting the SVG's
+`viewBox` over the region in question and rasterising that, rather than
+declaring a drawing legible from a thumbnail.
 
 Check, at minimum: labels legible and clear of wires; no body/wire overlaps that
 hide a value; every wiring run traceable end to end; wire colours match the

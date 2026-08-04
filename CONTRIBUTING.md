@@ -33,11 +33,13 @@ Pull requests that break these are closed regardless of quality:
    published chart values you verified against, and `bom.yaml` keyed to the
    schematic's reference designators.
 4. Optionally add `layout.yaml` (see `docs/layout-schema.md`) — a board layout with a
-   wiring layer that CI proves electrically equivalent to your netlist.
+   wiring layer that CI proves electrically equivalent to your netlist. It renders in
+   two styles from the one file; commit both (`pipeline/render_layouts.py` and
+   `pipeline/render_layouts.py --style sheet`) and look at both PNGs before you push.
 5. Open a PR. CI validates the metadata schema, cross-checks BOM↔schematic
    designators, round-trips the schematic, simulates the operating point in ngspice
-   against your chart values, renders and lint-checks the layout, and runs the
-   layout↔netlist equivalence gate.
+   against your chart values, renders and lint-checks both layout drawings, and runs
+   the layout↔netlist equivalence gate.
 6. A maintainer reviews. Circuits land as `draft`; the `verified` badge requires the
    simulated operating point within tolerance of the published chart **and**
    maintainer sign-off.

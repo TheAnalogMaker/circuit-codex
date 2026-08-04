@@ -1,14 +1,55 @@
 # layout.yaml schema — board-layout diagrams
 
 One optional `layout.yaml` per circuit directory. `pipeline/render_layouts.py`
-turns it into `amps/<id>/layout.svg` — an original, redrawn board-layout diagram
-in the house drawing style; `pipeline/check_layouts.py` gates it in CI.
+turns it into **two** original, redrawn board-layout diagrams —
+`amps/<id>/layout.svg` in the house drawing style and
+`amps/<id>/layout-sheet.svg` in the era layout-sheet style (below) —
+and `pipeline/check_layouts.py` gates both in CI.
 
 A layout is a **redrawn diagram from published layout facts** — the order in
 which parts sit on the board — never a trace or a dimensioned reproduction of a
 factory drawing. Values and part types are **not** restated here: the renderer
 reads them from `bom.yaml`, keyed by the reference designator (`ref`), so a
 layout and the parts list can never disagree.
+
+## Two drawing styles, one layout
+
+`render_layouts.py --style sheet` renders the same `layout.yaml` in the **era
+layout-sheet drafting idiom** — cream ground, ink outlines, dogbone resistors,
+sockets as double circles, and each part's value hand-lettered *on its body* —
+to `amps/<id>/layout-sheet.svg`. It is a paint-only re-skin: `SheetRenderer`
+inherits every coordinate, endpoint resolution, run polyline, hop-over and
+label-placement path from `Renderer` and overrides nothing but how things are
+drawn. Nothing about the *claims* differs between the two files; the amp page
+shows the sheet by default and offers the house drawing beside it.
+
+The idiom is the era sheets' general drafting style — never any specific
+drawing's artwork. Hard rule 1 (redraw from facts, never reproduce) governs
+style exactly as it governs values.
+
+**Era value lettering.** In sheet style only, a part's value is compacted into
+the shorthand the period drawings used and this archive documents for readers on
+`/reference/guides/units-conventions/` (`era_pair()` in `render_layouts.py`):
+
+| House units | On the sheet | Rule |
+|---|---|---|
+| `820 Ω · ½ W` | `820` | bare ohms; the sheet's footnote implies ½ W |
+| `15 kΩ`, `4,700 Ω` | `15K`, `4.7K` | K suffix, normalised up from ohms |
+| `1 MΩ` | `1MEG` | MEG suffix |
+| `250 Ω · 5 W` | `250-5` | ohms–watts dash, only above the implied ½ W |
+| `0.02 µF · 400 V` | `.02-400` | value–voltage dash, no leading zero |
+| `250 pF`, `0.0005 µF` | `250PF`, `500PF` | under 1000 pF the era wrote pF |
+| `25 µF · 25 V` | `25MFD` + `25V` | MFD on the can, volts on the line under it |
+
+It is **strict**: anything that is not a plain resistance or capacitance comes
+back untouched, so descriptive values (`selenium`, `Fender 125P1B · 320-0-320 V`,
+`presence/NFB network`) keep the house wording. It applies only to values
+lettered on a component body — board parts and the off-board `kind: part`
+glyphs. Free-standing hardware labels keep house units: a pot's value carries a
+taper suffix (`250 kΩ-A`) and a transformer's is a part number, and neither is a
+body lettering. `pipeline/test_era_values.py` gates the table above plus a sweep
+of every value in every `bom.yaml`. **Everything outside the sheet render —
+pages, BOMs, the house drawing — is house units style, unchanged.**
 
 ## Top level
 
@@ -202,6 +243,20 @@ handles it; a wire lying **along** the type is.
 Because the lint must measure what actually ships, it renders the layout and
 reads the renderer's own label and obstacle registries — the same geometry the
 committed SVG carries.
+
+**Both styles are linted.** The wiring checks run once: the sheet is a paint-only
+re-skin, so its run geometry is bit-for-bit the house geometry. The three label
+checks run **twice** — once against `Renderer`, once against `SheetRenderer`
+(`lint_layout(dir, style="sheet", labels_only=True)`) — because the sheet sets
+its type at its own sizes and standoffs and letters values on the bodies, so it
+can collide where the house drawing does not. Sheet findings are tagged
+`[sheet]`. The sheet registers each on-body value as an *obstacle* rather than a
+label: it never moves and it sits on its own body by design, so the placer routes
+queued labels around it and the label-over-glyph check reports any that still
+land on it. Adopting the style corpus-wide surfaced exactly one such collision
+(the Model 1987's `V5` socket label, fenced between the socket ring and a bank of
+parallel runs); it was fixed by giving the sheet placer a few extra ladder rungs,
+not by moving a wire.
 
 Fix a wiring failure by **lane/via adjustment** — nudge a shared lane to a distinct
 row, fan converging feeds so each approaches its shared node at a wider bearing
