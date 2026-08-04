@@ -259,6 +259,11 @@ class Sch:
         self.body.append(f"""  (junction (at {x:g} {y:g}) (diameter 0) (color 0 0 0 0) (uuid "{_u()}"))""")
 
     def text(self, t: str, x: float, y: float, size: float = 1.6) -> None:
+        # KiCad s-expression strings must escape backslash and double quote —
+        # kiutils round-trips a raw inner quote, but KiCanvas's tokenizer dies
+        # on it (the AC15 "Vibravox" incident). Escape here so no draw script
+        # can ship an unrenderable schematic.
+        t = t.replace("\\", "\\\\").replace('"', '\\"')
         self.body.append(f"""  (text "{t}" (at {x:g} {y:g} 0)
     (effects (font (size {size:g} {size:g})) (justify left)) (uuid "{_u()}"))""")
 

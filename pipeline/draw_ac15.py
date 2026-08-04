@@ -117,7 +117,7 @@ s.wire(147.08, TEE_N + 3.81, 156, TEE_N + 3.81)
 s.glabel("NORM VOL", 156, TEE_N + 3.81, 0)
 
 # ================== VIBRATO / TREMOLO CHANNEL (not asserted) ===============
-s.text('Vibrato/Tremolo channel — "Vibravox"', 16, 89.5, 1.6)
+s.text('Vibrato/Tremolo channel — \u2018Vibravox\u2019', 16, 89.5, 1.6)
 input_network(["JV1", "JV2", "JV"], ["RIN3", "RIN4", "RGS2"], ["68k", "68k", "33k"],
               [98, 112, 126], "RG2", 60, 112)
 
