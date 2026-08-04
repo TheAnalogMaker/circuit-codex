@@ -78,10 +78,10 @@ offboard:
   - { id: CTC,  ref: CTC, kind: part,  edge: top,    at: 32,   label: "CTC" }
   - { id: V2,   ref: V2,  kind: tube,  edge: bottom, at: 34,   label: "V2 · ECC83 (PI)" }
   - { id: VR2,  ref: VR2, kind: pot,   edge: top,    at: 39,   label: "Vibrato vol" }
-  - { id: V7,   ref: V7,  kind: tube,  edge: bottom, at: 39,   label: "V7 · ECC83 osc" }
-  - { id: V6,   ref: V6,  kind: tube,  edge: bottom, at: 43,   label: "V6 · ECC82 mod" }
+  - { id: V7,   ref: V7,  kind: tube,  edge: bottom, at: 39,   label: "V7 · ECC83 osc (vibrato strip — not drawn)" }
+  - { id: V6,   ref: V6,  kind: tube,  edge: bottom, at: 43,   label: "V6 · ECC82 mod (vibrato strip — not drawn)" }
   - { id: VR1,  ref: VR1, kind: pot,   edge: top,    at: 44.5, label: "Normal vol" }
-  - { id: V5,   ref: V5,  kind: tube,  edge: bottom, at: 47,   label: "V5 · ECC83 vib" }
+  - { id: V5,   ref: V5,  kind: tube,  edge: bottom, at: 47,   label: "V5 · ECC83 vib (vibrato strip — not drawn)" }
   - { id: V1,   ref: V1,  kind: tube,  edge: bottom, at: 51.6, label: "V1 · EF86" }
   - { id: RG1,  ref: RG1, kind: part,  edge: bottom, at: 54.4, label: "RG1" }
   - { id: RGS1, ref: RGS1, kind: part, edge: top,    at: 54.6, label: "RGS1" }

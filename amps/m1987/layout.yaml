@@ -98,7 +98,13 @@ offboard:
   # OT-secondary node and returns to the phase-inverter tail foot. Drawn as a
   # discrete 2-lead off-board part so the wiring reads true — a bare wire here
   # would falsely short the speaker node to the tail junction.
-  - { id: RNFB, kind: part, edge: bottom, at: 44, label: "NFB" }
+  # The resistance is the one this amp's own schematic states in its annotation
+  # ("Presence + NFB (27k) join the tail foot at ~0 V DC"); it carries no
+  # schematic symbol and so no bom.yaml ref, and a `value:` on a ref-less
+  # off-board item is the only place it can be stated. Without it the part
+  # shipped as a blank body — identified as "NFB" and nothing more — while the
+  # model 1959's counterpart in the same position reads "NFB / 47K".
+  - { id: RNFB, kind: part, edge: bottom, at: 44, label: "NFB", value: "27 kΩ" }
   - { id: V3,  ref: V3, kind: tube, edge: bottom, at: 46,   label: "V3 · ECC83 (PI)" }
   - { id: V2,  ref: V2, kind: tube, edge: bottom, at: 60,   label: "V2 · ECC83" }
   - { id: V1,  ref: V1, kind: tube, edge: bottom, at: 72,   label: "V1 · ECC83" }

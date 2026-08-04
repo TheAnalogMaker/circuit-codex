@@ -39,7 +39,11 @@ wiring_claim: verified
 parts:
   # --- bias supply (silicon HT-tap diode -> 150k -> .05u/25u -> -50V) ----------
   - { ref: RB1,  a: [1, 3],  b: [1, 4] }    # 150k bias series
-  - { ref: D1,   a: [1, 6],  b: [1, 7] }    # 1N4007 bias rectifier (roomy col — long value label)
+  # `cathode` names the eyelet the SCHEMATIC puts the cathode on, so the drawn
+  # body can carry its band the right way round: schematic.kicad_sch wires
+  # HT_B to the DIODE_SS anode pin and the 150 k (RB1) to its cathode pin, and
+  # this run pair lands HT_B on D1.a and RB1 on D1.b — so the band is at b.
+  - { ref: D1,   a: [1, 6],  b: [1, 7], cathode: b }    # 1N4007 bias rectifier
   - { ref: C16,  a: [0, 0],  b: [0, 1] }    # 25 µF bias reservoir
   - { ref: C15,  a: [0, 3],  b: [0, 4] }    # 0.05 µF bias filter
   # --- main filter cans + rail droppers (power end, left) ---------------------
@@ -98,7 +102,7 @@ offboard:
   # taps the speaker/OT-secondary node and returns to the phase-inverter tail
   # foot. Drawn as a discrete 2-lead off-board part so the wiring reads true — a
   # bare wire here would falsely short the speaker node to the tail junction.
-  - { id: RNFB, kind: part, edge: bottom, at: 35, label: "27k NFB" }
+  - { id: RNFB, kind: part, edge: bottom, at: 35, label: "NFB", value: "27 kΩ" }   # value stated in this amp's own schematic annotation; no schematic symbol, so no bom.yaml ref
   - { id: V4,  ref: V4, kind: tube, edge: bottom, at: 37,   label: "V4 · ECC83 (PI)" }
   - { id: V3,  ref: V3, kind: tube, edge: bottom, at: 50,   label: "V3 · ECC83" }
   - { id: V1,  ref: V1, kind: tube, edge: bottom, at: 59,   label: "V1 · ECC83" }
