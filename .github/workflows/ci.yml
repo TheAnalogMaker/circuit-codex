@@ -26,6 +26,14 @@ jobs:
       # different circuit from the one the page plots.
       - run: python check_tonestack_wiring.py
         working-directory: pipeline
+      # The sheet-style render letters each part's value on its body in the era
+      # shorthand. This gates that formatter against the documented cases and
+      # against every value in every BOM: each one is either lettered to the
+      # same physical quantity or left in house units verbatim.
+      - run: python pipeline/test_era_values.py
+      # Renders and lints BOTH published drawings of every board (layout.svg and
+      # layout-sheet.svg): staleness, well-formedness, wiring collisions, and the
+      # label checks against each style's own type.
       - run: python pipeline/check_layouts.py
       # Layout <-> netlist electrical-equivalence gate. The self-test proves the
       # gate catches planted wiring faults (a gate that can't is decoration); the

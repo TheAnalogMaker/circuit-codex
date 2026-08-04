@@ -115,9 +115,11 @@ bus:
 from __future__ import annotations
 
 import math
+import re
 import shutil
 import subprocess
 import sys
+from decimal import Decimal, InvalidOperation
 from pathlib import Path
 
 import yaml
@@ -1964,6 +1966,151 @@ SH_HEATER = "#3c672f"
 SH_HEATER_CT = "#68701f"
 
 
+# ---- era value lettering (SHEET STYLE ONLY) --------------------------------
+# House units style is unchanged everywhere else — pages, BOMs, the default
+# render all keep "0.02 µF · 400 V" and "4.7 kΩ · ½ W". The era layout sheets
+# had no parts-list column at all: a part's value was hand-lettered ON the part,
+# compressed onto one short line. This archive already documents that shorthand
+# for readers, on /reference/guides/units-conventions/ ("Reading the shorthand
+# on the original drawings"), and era_pair() letters exactly what that page
+# describes:
+#
+#   resistors  bare number with a K or MEG suffix — 820 Ω -> "820",
+#              15 kΩ -> "15K", 4,700 Ω -> "4.7K", 1 MΩ -> "1MEG". A wattage
+#              suffix only where the part is bigger than the sheet's implied
+#              ½ W, in the era's ohms–watts dash form: 250 Ω · 5 W -> "250-5".
+#   film /
+#   mica caps  value–voltage joined by a dash, µF written as a bare decimal
+#              with no leading zero: 0.02 µF · 400 V -> ".02-400", 0.005 µF
+#              -> ".005". Sub-nanofarad parts are lettered in picofarads, as
+#              the era wrote them: 250 pF -> "250PF", 0.0005 µF -> "500PF".
+#   electros   microfarads lettered MFD (the µ symbol was awkward on a drafting
+#              pen): 25 µF -> "25MFD", with the working voltage on its own
+#              line under it ("450V") — the can is tall enough for two.
+#
+# It is deliberately STRICT: a token it cannot parse as a resistance or a
+# capacitance comes back untouched, so descriptive values keep the house
+# wording ("selenium", "Fender 125P1B · 320-0-320 V", "presence/NFB network").
+# It is applied ONLY to values lettered on a component body — board parts and
+# the off-board part glyphs, which are the same dogbones and cans drawn beside
+# the board. Free-standing hardware labels keep house units: a pot's value
+# carries a taper suffix ("250 kΩ-A") and a transformer's is a part number, and
+# neither is a body lettering. Nothing outside SheetRenderer calls this.
+
+_ERA_NUM = r"[0-9][0-9,]*(?:\.[0-9]+)?"
+_RE_TRAILING_PAREN = re.compile(r"\s*\([^()]*\)\s*$")
+_RE_OHMS = re.compile(rf"^({_ERA_NUM})\s*([kM])?\s*(?:Ω|ohms?)$")
+_RE_FARADS = re.compile(rf"^({_ERA_NUM})\s*([µμunp])F$")
+_RE_VOLTS = re.compile(rf"^({_ERA_NUM})\s*V\b(.*)$")
+_RE_WATTS = re.compile(r"^(\S+)\s*W$")
+
+_OHM_MULT = {None: Decimal(1), "": Decimal(1),
+             "k": Decimal(1000), "M": Decimal(1000000)}
+_FARAD_MULT = {"µ": Decimal("1E-6"), "μ": Decimal("1E-6"), "u": Decimal("1E-6"),
+               "n": Decimal("1E-9"), "p": Decimal("1E-12")}
+# Vulgar fractions as the BOMs write them ("½ W", "¾ A").
+_FRACTIONS = {"½": Decimal("0.5"), "¼": Decimal("0.25"), "¾": Decimal("0.75"),
+              "⅓": Decimal(1) / Decimal(3), "⅔": Decimal(2) / Decimal(3),
+              "⅛": Decimal("0.125")}
+# The sheets' own footnote states the standard resistor wattage once ("all
+# resistors are one-half watt … unless otherwise noted"), so only a part ABOVE
+# it earns a per-part wattage suffix.
+_IMPLIED_WATTS = Decimal("0.5")
+
+
+def _era_decimal(tok: str) -> Decimal | None:
+    """'4,700' / '0.02' / '½' -> Decimal, or None if it is not a number."""
+    s = str(tok).strip().replace(",", "")
+    if s in _FRACTIONS:
+        return _FRACTIONS[s]
+    try:
+        return Decimal(s)
+    except (InvalidOperation, ValueError):
+        return None
+
+
+def _era_number(d: Decimal) -> str:
+    """Decimal -> shortest exact lettering: 4.7 -> '4.7', 820 -> '820'."""
+    s = format(d, "f")
+    if "." in s:
+        s = s.rstrip("0").rstrip(".")
+    return s or "0"
+
+
+def _parse_ohms(tok: str) -> Decimal | None:
+    m = _RE_OHMS.match(str(tok).strip())
+    if not m:
+        return None
+    n = _era_decimal(m.group(1))
+    return None if n is None else n * _OHM_MULT[m.group(2)]
+
+
+def _parse_farads(tok: str) -> Decimal | None:
+    m = _RE_FARADS.match(str(tok).strip())
+    if not m:
+        return None
+    n = _era_decimal(m.group(1))
+    return None if n is None else n * _FARAD_MULT[m.group(2)]
+
+
+def _era_ohms(ohms: Decimal) -> str:
+    if ohms >= 1000000:
+        return _era_number(ohms / Decimal(1000000)) + "MEG"
+    if ohms >= 1000:
+        return _era_number(ohms / Decimal(1000)) + "K"
+    return _era_number(ohms)
+
+
+def _era_farads(farads: Decimal, cat: str) -> str:
+    if farads < Decimal("1E-9"):          # under 1000 pF: the era wrote pF
+        return _era_number(farads / Decimal("1E-12")) + "PF"
+    micro = farads / Decimal("1E-6")
+    if cat == "electro" or micro >= 1:
+        # MFD spelled out — and a bare "25" on a can would read as a resistor
+        return _era_number(micro) + "MFD"
+    return _era_number(micro).lstrip("0")  # ".02" — the era dropped the zero
+
+
+def era_pair(value: str, cat: str) -> tuple[str, str | None]:
+    """House BOM value string -> (body lettering, second line or None).
+
+    Falls back to the house tokens (first '·' field, second field) for anything
+    that is not a plain resistance or capacitance, so this never invents or
+    mangles a value it does not understand. See the block comment above."""
+    toks = [t.strip() for t in str(value).split("·")]
+    house = (toks[0], toks[1] if len(toks) > 1 else None)
+    prim = _RE_TRAILING_PAREN.sub("", toks[0]).strip()   # '0.0005 µF (500 pF)'
+    rest = toks[1:]
+
+    ohms = _parse_ohms(prim)
+    if ohms is not None:
+        letter = _era_ohms(ohms)
+        for t in rest:
+            mw = _RE_WATTS.match(t)
+            w = _era_decimal(mw.group(1)) if mw else None
+            if w is not None and w > _IMPLIED_WATTS:
+                letter += "-" + _era_number(w)
+                break
+        return letter, None
+
+    farads = _parse_farads(prim)
+    if farads is not None:
+        letter = _era_farads(farads, cat)
+        volts = tail = None
+        for t in rest:
+            mv = _RE_VOLTS.match(t)
+            if mv and _era_decimal(mv.group(1)) is not None:
+                volts, tail = _era_number(_era_decimal(mv.group(1))), mv.group(2)
+                break
+        if cat == "electro":
+            return letter, (f"{volts}V{tail}" if volts else None)
+        if volts and not tail.strip():
+            return f"{letter}-{volts}", None      # ".02-400"
+        return letter, (house[1] if volts else None)
+
+    return house
+
+
 def sheet_eyelet(x, y, r=3.8):
     return (f'<circle cx="{fmt(x)}" cy="{fmt(y)}" r="{fmt(r)}" fill="{SH_BODY}" '
             f'stroke="{SH_INK}" stroke-width="1.1"/>'
@@ -2006,6 +2153,20 @@ class SheetRenderer(Renderer):
     """Era layout-sheet drafting idiom. Same layout.yaml, same geometry —
     only the paint changes. See the block comment above."""
 
+    # The sheet draws a bigger socket (a double circle out to TUBE_R + 5) and
+    # letters values on the bodies, so its label bands start from a slightly
+    # different standoff than the house drawing's. On a board with a bank of
+    # closely spaced parallel runs under the tube row, that shift can put every
+    # rung of the house ladder on a wire while a clear lane sits between two of
+    # them (the Model 1987's V5 was exactly this). The extra rungs are half
+    # steps and longer reaches, appended so the house preferences still win
+    # whenever they are clear — the placer breaks on the first zero-cost rung.
+    LABEL_LADDER = Renderer.LABEL_LADDER + [
+        (0, -6), (0, 6), (0, -17), (0, 17), (0, -27), (0, 27),
+        (0, -37), (0, 37), (-24, -27), (24, -27), (-24, 27), (24, 27),
+        (0, -52), (0, 52),
+    ]
+
     def __init__(self, layout: dict, bom: dict, amp_id: str):
         super().__init__(layout, bom, amp_id)
         # value-on-body texts: emitted AFTER the queued-label pass so nothing
@@ -2014,9 +2175,12 @@ class SheetRenderer(Renderer):
 
     # ---- value helpers ------------------------------------------------------
     def _val_tokens(self, ref):
-        """('16 µF', '450 V') from a house value string; second may be None."""
-        toks = [t.strip() for t in str(self.bom_for(ref)["value"]).split("·")]
-        return toks[0], (toks[1] if len(toks) > 1 else None)
+        """Era body lettering for a part's value — ('.02-400', None) for a film
+        cap, ('16MFD', '450V') for a can, ('100K', None) for a resistor. The
+        house units string is what everything outside this style prints; see
+        era_pair() for the shorthand and for what it refuses to touch."""
+        rec = self.bom_for(ref)
+        return era_pair(rec["value"], category(rec["part"]))
 
     def _fits(self, s, size, avail):
         return text_width(s, size) <= avail
@@ -2024,9 +2188,19 @@ class SheetRenderer(Renderer):
     def _fixed_text(self, x, y, s, size, fill=SH_INK, weight=600, halo=SH_BODY,
                     rotate=None):
         t = text(x, y, s, fill, size, weight=weight, halo=halo, halo_width=2.6)
+        box = text_box(x, y, s, size)
         if rotate is not None:
             t = f'<g transform="rotate({fmt(rotate)} {fmt(x)} {fmt(y)})">{t}</g>'
+            # lettered along the body: the box turns with the glyphs
+            box = (x + (box[1] - y), y - (box[2] - x),
+                   x + (box[3] - y), y - (box[0] - x))
         self._fixed.append(t)
+        # An on-body value is ink on the drawing exactly as the body under it
+        # is, so it is registered as an OBSTACLE: the label placer routes queued
+        # labels around it, and the lint's label-over-glyph check reports any
+        # label that still lands on it. (It is not itself a placed label — it
+        # never moves, and it sits on its own body by design.)
+        self.obst_rect(box[0], box[1], box[2], box[3], f"value '{s}'")
 
     def _ref_label(self, cx, cy, ref):
         self.lab(cx, cy, ref, SH_INK2, 8, weight=700, spacing="0.03em",
@@ -2062,6 +2236,25 @@ class SheetRenderer(Renderer):
         self.obst_circle(x1, y1, 4.0, f"eyelet {ref}.a")
         self.obst_circle(x2, y2, 4.0, f"eyelet {ref}.b")
         return "".join(els), ""
+
+    def _val_stacked(self, cx, cy, v1, avail, unit="V"):
+        """Tight-spot lettering: a two-part value split over two lines inside a
+        body too narrow to letter it across — '.02' over '400V'. The era sheets
+        did exactly this wherever a cap sat between two close eyelets. The
+        second rating regains its unit letter here, because the dash that
+        carried its meaning is what the line break replaced. True when placed."""
+        if "-" in v1:
+            head, tail = v1.split("-", 1)
+            tail = f"{tail}{unit}"
+        elif len(v1.split()) == 2:
+            head, tail = v1.split()          # a house-units value passing through
+        else:
+            return False
+        if not (self._fits(head, 8.5, avail - 5) and self._fits(tail, 8, avail - 5)):
+            return False
+        self._fixed_text(cx, cy - 1.5, head, 8.5, weight=700)
+        self._fixed_text(cx, cy + 8, tail, 8, fill=SH_INK2)
+        return True
 
     def _val_inside(self, cx, cy, v1, avail):
         """Write a value on a body if any size on the ladder fits its interior
@@ -2105,19 +2298,16 @@ class SheetRenderer(Renderer):
             els.append(f'<rect x="{fmt(x)}" y="{fmt(y)}" width="{fmt(w)}" height="{fmt(h)}" '
                        f'rx="2" fill="{SH_BODY}" stroke="{SH_INK}" stroke-width="1.6"/>')
             self.obst_rect(x, y, x + w, y + h, f"{ref} body")
-            num_unit = v1.split()
             if cat == "film" and v2 and self._fits(v1, 9.5, w - 8) \
                     and self._fits(v2, 8.5, w - 8):
                 self._fixed_text(cx, cy - 2, v1, 9.5, weight=700)
                 self._fixed_text(cx, cy + 8.5, v2, 8.5, fill=SH_INK2)
             elif self._val_inside(cx, cy, v1, w):
                 pass
-            elif cat == "film" and len(num_unit) == 2 \
-                    and self._fits(num_unit[0], 8.5, w - 5):
-                # narrow cap: stack number over unit inside the rectangle —
-                # the era tight-spot lettering — rather than spill off the body
-                self._fixed_text(cx, cy - 1.5, num_unit[0], 8.5, weight=700)
-                self._fixed_text(cx, cy + 8, num_unit[1], 8, fill=SH_INK2)
+            elif cat == "film" and self._val_stacked(cx, cy, v1, w):
+                # narrow cap: the value stacks inside the rectangle rather than
+                # spilling off the body — see _val_stacked
+                pass
             else:
                 self._below_value(cx, cy + h / 2 + 12, ref, v1)
             self._ref_label(cx, y - 6, ref)
@@ -2136,8 +2326,13 @@ class SheetRenderer(Renderer):
         els = [f'<rect x="{fmt(x)}" y="{fmt(y)}" width="{fmt(w)}" height="{fmt(h)}" '
                f'rx="{fmt(w / 2)}" fill="{SH_BODY}" stroke="{SH_INK}" stroke-width="1.6"/>']
         self.obst_rect(x, y, x + w, y + h, f"{ref} body")
-        if self._fits(v1, 9, h - 8):
-            self._fixed_text(cx + 0.5, cy, v1, 9, weight=700, rotate=-90)
+        # lettered ALONG the body, so the size ladder trades against its height
+        # (a standing cap is the narrowest body on the sheet and the one whose
+        # value most wants to end up in the wiring if it is let off the part).
+        for size, pad in ((9, 8.0), (8.5, 6.0), (8, 4.0)):
+            if self._fits(v1, size, h - pad):
+                self._fixed_text(cx + 0.5, cy, v1, size, weight=700, rotate=-90)
+                break
         else:
             self._below_value(cx, cy + h / 2 + 12, ref, v1)
         # ref beside the body, flipped near the right board edge (as the house)
@@ -2268,6 +2463,13 @@ class SheetRenderer(Renderer):
                          tag=f"{kind} {item.get('id', '')} value",
                          group=f"{kind}:{item.get('id', '')}", keep_in=self.canvas_box())
         elif kind == "part":
+            # An off-board part is the same dogbone or can as a board part, just
+            # standing beside the board — so its value is lettered the same way.
+            # (Pots, transformers and chokes above keep house units: a taper
+            # suffix or a factory part number is not a body lettering.)
+            if ref:
+                rec = self.bom_for(ref)
+                val = era_pair(rec["value"], category(rec["part"]))[0]
             g, _ = self._part_glyph(item, x, y, label, val)
             els += g
         else:  # switch / fuse / misc
@@ -2661,7 +2863,8 @@ def _parallel_overlap(a1, a2, b1, b2, sep):
     return (best_len, best_mid) if best_mid is not None else None
 
 
-def lint_layout(amp_dir: Path) -> list[str]:
+def lint_layout(amp_dir: Path, style: str = "house",
+                labels_only: bool = False) -> list[str]:
     """Collision lint for the wiring layer — the checks CI runs so the drawing
     is never ambiguous about crossings or terminations. Both run over the plain
     (non-twisted) runs; twisted heater pairs and the ground bus are exempt:
@@ -2691,14 +2894,25 @@ def lint_layout(amp_dir: Path) -> list[str]:
     LINT_LABEL_INSET) — a halo'd glyph that merely grazes a wire is fine; a wire
     driven through the type is not.
 
+    `style` picks which renderer is measured. The sheet style is a paint-only
+    re-skin, so its wiring geometry is bit-for-bit the house geometry and checks
+    (a), (b) and (f) would only repeat themselves — but its LABELS are its own:
+    different type sizes, values lettered on the bodies, and a different set of
+    obstacles for the placer to route around. `labels_only=True` runs just the
+    label checks (c/d/e), which is how check_layouts.py adds the sheet pass
+    without double-reporting the wiring findings.
+
     Returns a sorted list of failure strings with coordinates + run indices.
     """
     layout = yaml.safe_load((amp_dir / "layout.yaml").read_text())
     bom = load_bom(amp_dir)
-    rend = Renderer(layout, bom, amp_dir.name)
+    cls = SheetRenderer if style == "sheet" else Renderer
+    rend = cls(layout, bom, amp_dir.name)
     runs, bus = rend.build_geometry()
     plain = [r for r in runs if r["pts"] and not r["twisted"]]
     fails: list[str] = []
+    if labels_only:
+        return sorted(_lint_labels(rend, runs, bus, amp_dir.name, style=style))
     # (a) near-parallel overlap
     for ai in range(len(plain)):
         for bi in range(ai + 1, len(plain)):
@@ -2732,7 +2946,7 @@ def lint_layout(amp_dir: Path) -> list[str]:
                             f"({E[0]:.0f},{E[1]:.0f}) within {LINT_TERM}px of run[{B['i']}] "
                             f"interior")
                         break
-    fails += _lint_labels(rend, runs, bus, amp_dir.name)
+    fails += _lint_labels(rend, runs, bus, amp_dir.name, style=style)
     # (f) two off-board items of the SAME kind carrying the SAME label: the
     # drawing then has two controls, jacks or transformers a reader cannot tell
     # apart, even where the data (bom.yaml roles, the wiring itself) does
@@ -2752,12 +2966,19 @@ def lint_layout(amp_dir: Path) -> list[str]:
     return sorted(fails)
 
 
-def _lint_labels(rend: "Renderer", runs, bus, amp_id: str) -> list[str]:
+def _lint_labels(rend: "Renderer", runs, bus, amp_id: str,
+                 style: str = "house") -> list[str]:
     """Checks (c) label-vs-wire, (d) label-vs-glyph, (e) label-vs-label.
 
     `rend` must have been rendered (that is what populates its label and
     obstacle registries), so the gate measures exactly the geometry the
-    committed SVG ships."""
+    committed SVG ships. A SheetRenderer populates both registries by the same
+    code paths — its bodies and sockets call obst_rect/obst_circle exactly as
+    the house ones do, and it registers its on-body value lettering as an
+    obstacle too — so the same three checks measure the sheet render. Findings
+    are tagged with the style so a sheet-only collision is never mistaken for a
+    house one."""
+    amp_id = f"{amp_id} [sheet]" if style == "sheet" else amp_id
     rend.render()
     labels = rend.labels
     # (full box, inset box): the inset box is what is tested for contact, but the
@@ -2870,14 +3091,15 @@ if __name__ == "__main__":
         del args[k:k + 2]
         if style not in ("house", "sheet"):
             sys.exit(f"unknown --style '{style}' (house | sheet)")
+    # Both styles are published corpus-wide, and both honour an optional id list
+    # (`render_layouts.py --style sheet ab763`) so a single board can be redrawn
+    # and looked at. With no ids, every amp is rendered — which is what CI's
+    # staleness check expects.
     if "--png" in args:
         args.remove("--png")
-        # ensure SVGs are current before converting. Sheet-style renders honour
-        # an id list (the sheet file is opt-in, per amp); the default house
-        # render always regenerates every amp, exactly as before.
-        render_all(write=True, style=style, ids=(args or None) if style == "sheet" else None)
+        render_all(write=True, style=style, ids=args or None)
         render_png(args, style=style)
     else:
-        render_all(write=True, style=style, ids=(args or None) if style == "sheet" else None)
+        render_all(write=True, style=style, ids=args or None)
         if not list((ROOT / "amps").glob("*/layout.yaml")):
             print("no layout.yaml files found", file=sys.stderr)
