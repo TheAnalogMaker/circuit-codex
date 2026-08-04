@@ -97,16 +97,46 @@ const jsonld = {
 
       {amp.hasLayout && (
         <div class="viewer layout">
-          <div class="viewer-head">Board layout — redrawn reference diagram · source noted on the drawing</div>
+          <div class="viewer-head">
+            <span>Board layout — redrawn reference diagram · source noted on the drawing</span>
+            {amp.hasLayoutSheet && (
+              <span class="layout-tools">
+                {/* The style buttons only do something with JS, so they stay
+                    hidden until the script below reveals them; the print link
+                    is an ordinary link and works either way. */}
+                <span class="layout-styles" role="group" aria-label="Board drawing style" hidden>
+                  <button type="button" class="sbtn" data-style="sheet" aria-pressed="true">Sheet</button>
+                  <button type="button" class="sbtn" data-style="current" aria-pressed="false">Current</button>
+                </span>
+                <a class="sbtn" href={`/layouts/${amp.id}-sheet.svg`} target="_blank"
+                   rel="noopener">Print sheet ↗</a>
+              </span>
+            )}
+          </div>
           <div class="layout-canvas">
+            {amp.hasLayoutSheet && (
+              <img src={`/layouts/${amp.id}-sheet.svg`} loading="lazy" decoding="async"
+                data-layout="sheet" alt={layoutAlt(amp, 'sheet')}
+                style={layoutFloor ? `min-width:${layoutFloor}px` : undefined} />
+            )}
             <img src={`/layouts/${amp.id}.svg`} loading="lazy" decoding="async"
-              alt={layoutAlt(amp)}
+              data-layout="current" alt={layoutAlt(amp, 'current')}
+              hidden={amp.hasLayoutSheet}
               style={layoutFloor ? `min-width:${layoutFloor}px` : undefined} />
           </div>
           <p class="layout-scroll-note">
             Scroll the drawing sideways to read the whole board, or
-            <a href={`/layouts/${amp.id}.svg`} target="_blank" rel="noopener"> open the
+            <a href={amp.hasLayoutSheet ? `/layouts/${amp.id}-sheet.svg` : `/layouts/${amp.id}.svg`}
+               target="_blank" rel="noopener"
+               data-full-current={`/layouts/${amp.id}.svg`}
+               data-full-sheet={`/layouts/${amp.id}-sheet.svg`}> open the
             full-size diagram</a> in its own tab.
+            {amp.hasLayoutSheet && (
+              <span data-style-note="sheet"> Values are lettered on the parts in the
+                period shorthand — <b>.02-400</b>, <b>250-5</b>, <b>1MEG</b>:
+                <a href="/reference/guides/units-conventions/#era-shorthand"> how to
+                read it</a>.</span>
+            )}
           </p>
           <p class="layout-note">
             {wiringVerified && (
@@ -270,6 +300,75 @@ const jsonld = {
     </section>
   )}
 </div>
+
+<script is:inline>
+  // Board-drawing style toggle. Both drawings ship in the page; this swaps which
+  // one is shown, remembers the reader's choice across amp pages, and keeps the
+  // "open the full-size diagram" link pointing at whichever is on screen. It is
+  // inline and runs on parse so the remembered style is applied before paint.
+  (function () {
+    var box = document.querySelector('.viewer.layout');
+    if (!box) return;
+    var group = box.querySelector('.layout-styles');
+    if (!group) return;                       // this board has one drawing only
+    var KEY = 'cc-layout-style';
+    var imgs = box.querySelectorAll('img[data-layout]');
+    var full = box.querySelector('a[data-full-sheet]');
+    var btns = group.querySelectorAll('button[data-style]');
+    var notes = box.querySelectorAll('[data-style-note]');
+    var pending = 0;
+    function apply(style, defer) {
+      var token = ++pending;
+      var next = null;
+      for (var i = 0; i < imgs.length; i++)
+        if (imgs[i].dataset.layout === style) next = imgs[i];
+      function swap() {
+        // A deferred swap that a later choice has superseded must not fire:
+        // its fetch or its timeout can land after the reader has moved on.
+        if (token !== pending) return;
+        for (var i = 0; i < imgs.length; i++) imgs[i].hidden = imgs[i].dataset.layout !== style;
+      }
+      for (var j = 0; j < btns.length; j++)
+        btns[j].setAttribute('aria-pressed', btns[j].dataset.style === style ? 'true' : 'false');
+      for (var n = 0; n < notes.length; n++)
+        notes[n].hidden = notes[n].dataset.styleNote !== style;
+      if (full) full.href = style === 'sheet' ? full.dataset.fullSheet : full.dataset.fullCurrent;
+      if (defer && next && !next.complete) {
+        // The drawing that is not on screen is deferred, so the first switch to
+        // it has to fetch it. Hold the current one in place until it is ready:
+        // otherwise the figure collapses to nothing and the page jumps. The
+        // fetch has to go through a detached image — a lazy <img> that is still
+        // `hidden` has no box to intersect the viewport, so it would never load
+        // while we waited on it, and waiting on it is the whole point.
+        var pre = new Image();
+        pre.onload = pre.onerror = swap;
+        pre.src = next.src;
+        setTimeout(swap, 2500);        // never leave the reader waiting on a stall
+      } else {
+        swap();
+      }
+    }
+    var saved = null;
+    try { saved = localStorage.getItem(KEY); } catch (e) { /* storage blocked */ }
+    apply(saved === 'current' ? 'current' : 'sheet', false);
+    group.hidden = false;
+    for (var k = 0; k < btns.length; k++) {
+      btns[k].addEventListener('click', function () {
+        apply(this.dataset.style, true);
+        try { localStorage.setItem(KEY, this.dataset.style); } catch (e) { /* ignore */ }
+      });
+    }
+    // Left/right move between the two buttons, as a grouped control should.
+    group.addEventListener('keydown', function (ev) {
+      if (ev.key !== 'ArrowLeft' && ev.key !== 'ArrowRight') return;
+      var list = [].slice.call(btns);
+      var i = list.indexOf(document.activeElement);
+      if (i < 0) return;
+      ev.preventDefault();
+      list[(i + (ev.key === 'ArrowRight' ? 1 : list.length - 1)) % list.length].focus();
+    });
+  })();
+</script>
 </Base>
 
 <style>
@@ -288,7 +387,18 @@ const jsonld = {
   .cols>*{min-width:0}
   @media(max-width:820px){.cols{grid-template-columns:1fr}}
   .viewer{background:var(--well);border:1px solid var(--line);border-radius:8px;margin-bottom:24px}
-  .viewer-head{padding:10px 16px;border-bottom:1px solid var(--line-soft);font-family:var(--disp);text-transform:uppercase;letter-spacing:.12em;font-size:11.5px;color:var(--muted)}
+  .viewer-head{padding:10px 16px;border-bottom:1px solid var(--line-soft);font-family:var(--disp);text-transform:uppercase;letter-spacing:.12em;font-size:11.5px;color:var(--muted);display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+  /* Board-drawing style toggle + print link. Same button treatment as the
+     load-line explorer's controls, sized down to sit on the viewer's head rule. */
+  .layout-tools{margin-left:auto;display:flex;align-items:center;gap:8px}
+  .layout-styles{display:flex;gap:0}
+  .sbtn{background:var(--well);border:1px solid var(--line);color:var(--muted);font-family:var(--disp);text-transform:uppercase;letter-spacing:.12em;font-size:10.5px;padding:4px 10px;cursor:pointer;border-radius:5px;line-height:1.5}
+  .layout-styles .sbtn{border-radius:0}
+  .layout-styles .sbtn:first-child{border-radius:5px 0 0 5px}
+  .layout-styles .sbtn:last-child{border-radius:0 5px 5px 0;border-left-width:0}
+  .sbtn:hover{border-color:var(--amber-dim);color:var(--amber);text-decoration:none}
+  .layout-styles .sbtn[aria-pressed="true"]{border-color:var(--amber);color:var(--amber);background:rgba(232,155,63,.09)}
+  a.sbtn{white-space:nowrap}
   .viewer-body{padding:22px 18px;color:var(--muted);font-size:14.5px}
   .viewer-body p{margin:0}
   .viewer-canvas{height:580px}
@@ -298,8 +408,14 @@ const jsonld = {
      the same treatment the lineage figure already uses. */
   .layout-canvas{padding:10px;overflow-x:auto;overscroll-behavior-x:contain}
   .layout-scroll-note{color:var(--faint);font-size:12px;margin:0;padding:0 16px 10px}
+  .layout-scroll-note b{color:var(--muted);font-family:var(--mono);font-weight:400}
+  .layout-scroll-note [hidden]{display:none}
   .layout-note{color:var(--muted);font-size:12.5px;line-height:1.55;margin:0;padding:10px 16px 14px;border-top:1px solid var(--line-soft);max-width:90ch}
   .layout-canvas img{display:block;width:100%;height:auto;border-radius:4px}
+  /* An author `display` rule outranks the UA sheet's [hidden], so both the
+     off-screen drawing and the no-JS toggle need it restated. */
+  .layout-canvas img[hidden]{display:none}
+  .layout-styles[hidden]{display:none}
   h2{font-size:17px;letter-spacing:.14em;margin:28px 0 4px}
   .sub{color:var(--muted);font-size:13.5px;margin:0 0 14px;max-width:70ch}
   .footnote{color:var(--faint);font-size:12px;margin:10px 0 0;max-width:70ch}
@@ -319,4 +435,16 @@ const jsonld = {
   .notes :global(li){color:var(--muted);font-size:14.5px}
   .notes :global(table){font-size:13px;margin:10px 0}
   .notes :global(strong){color:var(--ink)}
+  /* Printing the page: the board drawing is the part worth paper, so it prints
+     whole rather than scrolled, and the on-screen controls drop out. (The
+     "Print sheet" link opens the layout-sheet SVG standalone — that file is
+     already a light-ground drawing sized to its own viewBox, so a browser
+     prints it directly.) */
+  @media print{
+    .layout-tools{display:none}
+    .viewer.layout{border:none;background:none;break-inside:avoid}
+    .layout-canvas{overflow:visible;padding:0}
+    .layout-canvas img{min-width:0 !important;width:100%}
+    .layout-scroll-note{display:none}
+  }
 </style>

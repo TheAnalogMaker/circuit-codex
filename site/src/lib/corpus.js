@@ -34,6 +34,10 @@ export function loadCorpus() {
       // scroll the overflow. See layoutMinWidth().
       const layoutSvg = readIfExists(path.join(dir, 'layout.svg'));
       const vb = layoutSvg ? /viewBox="0 0 ([\d.]+) ([\d.]+)"/.exec(layoutSvg) : null;
+      // The era layout-sheet drawing of the same board: same layout.yaml, same
+      // geometry and the same viewBox, only the drafting style differs. The amp
+      // page shows it by default and offers the house drawing beside it.
+      const hasLayoutSheet = fs.existsSync(path.join(dir, 'layout-sheet.svg'));
       return {
         id: meta.id,
         meta,
@@ -45,6 +49,7 @@ export function loadCorpus() {
         hasNetlist: fs.existsSync(path.join(dir, 'netlist.cir')),
         hasSchematic: fs.existsSync(path.join(dir, 'schematic.kicad_sch')),
         hasLayout: !!layoutSvg,
+        hasLayoutSheet,
         layoutWidth: vb ? Number(vb[1]) : null,
       };
     })
@@ -105,13 +110,21 @@ export function boardType(layout) {
 // Data-driven alt text for the redrawn board-layout image. Neutral about the
 // source: "redrawn reference diagram" for boards taken from a published layout
 // sheet, "reconstructed from the schematic" for boards with no factory layout.
-export function layoutAlt(amp) {
+// `style` names which of the two drawings of that same board is being described
+// — 'current' (the house style) or 'sheet' (the era layout-sheet drafting
+// style, which letters each part's value on its body in period shorthand). The
+// provenance sentence is identical in both: the styles differ in how the board
+// is drawn, never in what is claimed about it.
+export function layoutAlt(amp, style = 'current') {
   const name = displayId(amp.id);
   const { kind, derived } = amp.layoutBoard || boardType(amp.layout);
   const board = kind === 'circuit' ? 'board' : `${kind} board`;
+  const drawn = style === 'sheet'
+    ? ', drawn in the period layout-sheet style with each value lettered on the part'
+    : '';
   return derived
-    ? `${name} ${board} layout — an original diagram reconstructed from the redrawn schematic (no factory layout sheet exists), showing the principal parts in board order.`
-    : `${name} ${board} layout — an original diagram redrawn from the published layout drawing, showing the principal parts in the order that drawing places them on the board.`;
+    ? `${name} ${board} layout — an original diagram reconstructed from the redrawn schematic (no factory layout sheet exists), showing the principal parts in board order${drawn}.`
+    : `${name} ${board} layout — an original diagram redrawn from the published layout drawing, showing the principal parts in the order that drawing places them on the board${drawn}.`;
 }
 
 // A per-amp meta description built from the circuit's own metadata (era, output,
