@@ -1916,10 +1916,681 @@ class Renderer:
             cx += 26 + len(lab) * 6.4
 
 
-def render_layout(amp_dir: Path) -> str:
+# ==================== sheet style — era drafting idiom (--style sheet) =======
+# A STYLE-ONLY re-skin of the same geometry: SheetRenderer inherits every
+# coordinate, endpoint resolution, run polyline, hop-over and label-placement
+# code path from Renderer and overrides nothing but paint. It emits to a
+# PARALLEL file (amps/<id>/layout-sheet.svg); the default house render, the
+# collision lint and the layout↔netlist equivalence gate are untouched.
+#
+# The idiom is the era factory layout sheet's general drafting style (never any
+# specific sheet's artwork — hard rule 1 applies to style exactly as to facts):
+# cream aged-paper ground, near-black ink, component OUTLINES with the value
+# written on the body, dogbone resistors, tube sockets as plain double circles
+# with pin dots + numbers, pots rear-view with three lug tabs, and the board as
+# a strong double-line rectangle dominating the sheet. Era wire colours stay
+# (they are period fact), ink-weighted for the light ground.
+
+SH_PAPER = "#e9dcba"          # aged cream ground
+SH_BOARD = "#e2d2a9"          # board interior, one tone darker than the page
+SH_BODY = "#f0e6c8"           # component fill — lifts the outline off the board
+SH_INK = "#211c13"            # near-black drafting ink
+SH_INK2 = "#4c4132"           # secondary ink (values, pin numbers)
+SH_FAINT = "#8d7f63"          # faint ink (unused eyelets, attribution)
+SH_BUS_CORE = "#d9c99e"       # bare bus rod interior (hollow double-line)
+
+# Era wire colours, ink-weighted for a cream ground: darker and drier than the
+# house palette (which is tuned for a dark well). "black" is literal here.
+SHEET_WIRE = {
+    "black":        "#262119",
+    "brown":        "#5f4126",
+    "red":          "#9c2f23",
+    "orange":       "#a85a14",
+    "yellow":       "#8a6d10",
+    "green":        "#3c672f",
+    "blue":         "#2d5787",
+    "violet":       "#634a85",
+    "purple":       "#634a85",
+    "grey":         "#6e6a5e",
+    "gray":         "#6e6a5e",
+    "white":        "#948b76",
+    "red-yellow":   "#9c5a1e",
+    "green-yellow": "#68701f",
+    "blue-white":   "#54779c",
+    "red-blue":     "#7e3f63",
+}
+SH_NEUTRAL = "#2b261c"        # uncoloured hookup lead = plain ink
+SH_HEATER = "#3c672f"
+SH_HEATER_CT = "#68701f"
+
+
+def sheet_eyelet(x, y, r=3.8):
+    return (f'<circle cx="{fmt(x)}" cy="{fmt(y)}" r="{fmt(r)}" fill="{SH_BODY}" '
+            f'stroke="{SH_INK}" stroke-width="1.1"/>'
+            f'<circle cx="{fmt(x)}" cy="{fmt(y)}" r="1.5" fill="none" '
+            f'stroke="{SH_INK}" stroke-width="0.7"/>')
+
+
+def sheet_term(x, y, r=2.4):
+    return f'<circle cx="{fmt(x)}" cy="{fmt(y)}" r="{fmt(r)}" fill="{SH_INK}"/>'
+
+
+def sheet_solder(x, y):
+    """Run-endpoint solder joint in ink: a solid dot inside a fine ring —
+    unmistakably a termination, never a passing wire."""
+    return (f'<circle cx="{fmt(x)}" cy="{fmt(y)}" r="4.5" fill="none" '
+            f'stroke="{SH_INK}" stroke-width="1.0"/>'
+            f'<circle cx="{fmt(x)}" cy="{fmt(y)}" r="2.9" fill="{SH_INK}"/>')
+
+
+def dogbone_path(cx, cy, w, r_end=8.6, waist=5.6):
+    """Closed dogbone outline (two round ends, straight waist) centred at
+    (cx, cy), overall width w — the era hand-drafted resistor body. The end
+    radius is clamped so the waist never inverts: a body too short for a true
+    dogbone degrades gracefully into a fat oval (also period)."""
+    r_e = max(3.5, min(r_end, w / 2 - 6.6))
+    waist_e = max(2.0, min(waist, r_e - 1.2))
+    half = w / 2
+    lcx, rcx = cx - half + r_e, cx + half - r_e
+    t = math.sqrt(max(r_e * r_e - waist_e * waist_e, 0.0))
+    x0, x1 = lcx + t, rcx - t
+    if x0 > x1:                      # belt and braces: never emit a bowtie
+        x0 = x1 = cx
+    return (f"M {fmt(x0)} {fmt(cy - waist_e)} L {fmt(x1)} {fmt(cy - waist_e)} "
+            f"A {fmt(r_e)} {fmt(r_e)} 0 1 1 {fmt(x1)} {fmt(cy + waist_e)} "
+            f"L {fmt(x0)} {fmt(cy + waist_e)} "
+            f"A {fmt(r_e)} {fmt(r_e)} 0 1 1 {fmt(x0)} {fmt(cy - waist_e)} Z")
+
+
+class SheetRenderer(Renderer):
+    """Era layout-sheet drafting idiom. Same layout.yaml, same geometry —
+    only the paint changes. See the block comment above."""
+
+    def __init__(self, layout: dict, bom: dict, amp_id: str):
+        super().__init__(layout, bom, amp_id)
+        # value-on-body texts: emitted AFTER the queued-label pass so nothing
+        # paints over them; they are fixed (a value never leaves its body).
+        self._fixed: list[str] = []
+
+    # ---- value helpers ------------------------------------------------------
+    def _val_tokens(self, ref):
+        """('16 µF', '450 V') from a house value string; second may be None."""
+        toks = [t.strip() for t in str(self.bom_for(ref)["value"]).split("·")]
+        return toks[0], (toks[1] if len(toks) > 1 else None)
+
+    def _fits(self, s, size, avail):
+        return text_width(s, size) <= avail
+
+    def _fixed_text(self, x, y, s, size, fill=SH_INK, weight=600, halo=SH_BODY,
+                    rotate=None):
+        t = text(x, y, s, fill, size, weight=weight, halo=halo, halo_width=2.6)
+        if rotate is not None:
+            t = f'<g transform="rotate({fmt(rotate)} {fmt(x)} {fmt(y)})">{t}</g>'
+        self._fixed.append(t)
+
+    def _ref_label(self, cx, cy, ref):
+        self.lab(cx, cy, ref, SH_INK2, 8, weight=700, spacing="0.03em",
+                 tag=f"{ref} ref", group=f"ref:{ref}", keep_in=self.canvas_box(),
+                 halo=SH_BOARD, halo_width=2.4)
+
+    def _below_value(self, cx, cy, ref, val):
+        """Fallback for a value that will not fit inside its body: printed just
+        below it, queued so the placer keeps it in air (the house behaviour)."""
+        self.lab(cx, cy, val, SH_INK2, 9.5, weight=600, tag=f"{ref} value",
+                 group=f"ref:{ref}", keep_in=self.canvas_box(),
+                 halo=SH_BOARD, halo_width=2.6)
+
+    # ---- board part bodies --------------------------------------------------
+    def part_body(self, part):
+        ref = part["ref"]
+        rec = self.bom_for(ref)
+        cat = category(rec["part"])
+        v1, v2 = self._val_tokens(ref)
+        (r1, c1), (r2, c2) = part["a"], part["b"]
+        x1, y1 = self.ex(c1), self.ey(r1)
+        x2, y2 = self.ex(c2), self.ey(r2)
+        vertical = c1 == c2 and r1 != r2
+        els = [f'<line x1="{fmt(x1)}" y1="{fmt(y1)}" x2="{fmt(x2)}" y2="{fmt(y2)}" '
+               f'stroke="{SH_INK}" stroke-width="1.5"/>']
+        if vertical:
+            els += self._sheet_body_vertical(cat, x1, (y1 + y2) / 2, v1, ref)
+        else:
+            els += self._sheet_body_horizontal(cat, (x1 + x2) / 2, y1,
+                                               abs(c2 - c1), v1, v2, ref)
+        els.append(sheet_eyelet(x1, y1))
+        els.append(sheet_eyelet(x2, y2))
+        self.obst_circle(x1, y1, 4.0, f"eyelet {ref}.a")
+        self.obst_circle(x2, y2, 4.0, f"eyelet {ref}.b")
+        return "".join(els), ""
+
+    def _val_inside(self, cx, cy, v1, avail):
+        """Write a value on a body if any size on the ladder fits its interior
+        width; True when placed. The era sheets' whole idiom is the value ON
+        the part, so the ladder tries hard (down to 8 px) before giving up."""
+        for size, pad in ((9.5, 10.0), (8.5, 6.0), (8.0, 4.0)):
+            if self._fits(v1, size, avail - pad):
+                self._fixed_text(cx, cy + size * 0.36, v1, size, weight=700)
+                return True
+        return False
+
+    def _sheet_body_horizontal(self, cat, cx, cy, span, v1, v2, ref):
+        # Bodies may run a shade wider than their eyelet span (a real can sits
+        # over its eyelets) so the value fits ON the part, as the idiom wants.
+        w = max((34.0 if cat == "electro" else 30.0), span * CW - 16)
+        els: list[str] = []
+        if cat == "electro":
+            # filter can: tall outlined body hanging above its row, crimp line,
+            # polarity + mark at the positive end, value written on the can.
+            h = 42
+            x, y = cx - w / 2, cy - h + 8
+            els.append(f'<rect x="{fmt(x)}" y="{fmt(y)}" width="{fmt(w)}" height="{fmt(h)}" '
+                       f'rx="5" fill="{SH_BODY}" stroke="{SH_INK}" stroke-width="1.8"/>')
+            els.append(f'<line x1="{fmt(x)}" y1="{fmt(y + 6.5)}" x2="{fmt(x + w)}" '
+                       f'y2="{fmt(y + 6.5)}" stroke="{SH_INK}" stroke-width="0.9"/>')
+            els.append(f'<line x1="{fmt(x + 5)}" y1="{fmt(y + 14)}" x2="{fmt(x + 12)}" '
+                       f'y2="{fmt(y + 14)}" stroke="{SH_INK}" stroke-width="1.5"/>')
+            els.append(f'<line x1="{fmt(x + 8.5)}" y1="{fmt(y + 10.5)}" x2="{fmt(x + 8.5)}" '
+                       f'y2="{fmt(y + 17.5)}" stroke="{SH_INK}" stroke-width="1.5"/>')
+            self.obst_rect(x, y, x + w, y + h, f"{ref} body")
+            if self._fits(v1, 10.5, w - 8):
+                self._fixed_text(cx, y + 22.5, v1, 10.5, weight=700)
+                if v2 and self._fits(v2, 9, w - 8):
+                    self._fixed_text(cx, y + 34, v2, 9, fill=SH_INK2)
+            elif not self._val_inside(cx, y + 19, v1, w):
+                self._below_value(cx, cy + 22, ref, v1)
+            self._ref_label(cx, y - 6, ref)
+        elif cat in ("film", "mica"):
+            h = 26.0 if cat == "film" else 18.0
+            x, y = cx - w / 2, cy - h / 2
+            els.append(f'<rect x="{fmt(x)}" y="{fmt(y)}" width="{fmt(w)}" height="{fmt(h)}" '
+                       f'rx="2" fill="{SH_BODY}" stroke="{SH_INK}" stroke-width="1.6"/>')
+            self.obst_rect(x, y, x + w, y + h, f"{ref} body")
+            num_unit = v1.split()
+            if cat == "film" and v2 and self._fits(v1, 9.5, w - 8) \
+                    and self._fits(v2, 8.5, w - 8):
+                self._fixed_text(cx, cy - 2, v1, 9.5, weight=700)
+                self._fixed_text(cx, cy + 8.5, v2, 8.5, fill=SH_INK2)
+            elif self._val_inside(cx, cy, v1, w):
+                pass
+            elif cat == "film" and len(num_unit) == 2 \
+                    and self._fits(num_unit[0], 8.5, w - 5):
+                # narrow cap: stack number over unit inside the rectangle —
+                # the era tight-spot lettering — rather than spill off the body
+                self._fixed_text(cx, cy - 1.5, num_unit[0], 8.5, weight=700)
+                self._fixed_text(cx, cy + 8, num_unit[1], 8, fill=SH_INK2)
+            else:
+                self._below_value(cx, cy + h / 2 + 12, ref, v1)
+            self._ref_label(cx, y - 6, ref)
+        else:  # resistor / other: the dogbone
+            els.append(f'<path d="{dogbone_path(cx, cy, w)}" fill="{SH_BODY}" '
+                       f'stroke="{SH_INK}" stroke-width="1.6"/>')
+            self.obst_rect(cx - w / 2, cy - 8.6, cx + w / 2, cy + 8.6, f"{ref} body")
+            if not self._val_inside(cx, cy, v1, w):
+                self._below_value(cx, cy + 21, ref, v1)
+            self._ref_label(cx, cy - 15, ref)
+        return els
+
+    def _sheet_body_vertical(self, cat, cx, cy, v1, ref):
+        h, w = 40.0, 16.0
+        x, y = cx - w / 2, cy - h / 2
+        els = [f'<rect x="{fmt(x)}" y="{fmt(y)}" width="{fmt(w)}" height="{fmt(h)}" '
+               f'rx="{fmt(w / 2)}" fill="{SH_BODY}" stroke="{SH_INK}" stroke-width="1.6"/>']
+        self.obst_rect(x, y, x + w, y + h, f"{ref} body")
+        if self._fits(v1, 9, h - 8):
+            self._fixed_text(cx + 0.5, cy, v1, 9, weight=700, rotate=-90)
+        else:
+            self._below_value(cx, cy + h / 2 + 12, ref, v1)
+        # ref beside the body, flipped near the right board edge (as the house)
+        if cx > self.board_x + self.board_w - 64:
+            self._ref_label(cx - w / 2 - 14, cy - 12, ref)
+        else:
+            self._ref_label(cx + w / 2 + 14, cy - 12, ref)
+        return els
+
+    # ---- off-board glyphs ---------------------------------------------------
+    def off_stub(self, item):
+        kind = item.get("kind", "tube")
+        label = str(item.get("label", item.get("id", "")))
+        ref = item.get("ref")
+        x, y = self.off_pos(item)
+        val = primary_value(self.bom_for(ref)["value"]) if ref else None
+        sgn = self._label_side(item)
+        els: list[str] = []
+        if kind == "tube":
+            r = TUBE_R
+            n = int(item.get("_pincount") or 8)
+            els.append(f'<circle cx="{fmt(x)}" cy="{fmt(y)}" r="{fmt(r + 5)}" '
+                       f'fill="{SH_PAPER}" stroke="{SH_INK}" stroke-width="2.0"/>')
+            els.append(f'<circle cx="{fmt(x)}" cy="{fmt(y)}" r="{fmt(r)}" fill="none" '
+                       f'stroke="{SH_INK}" stroke-width="1.1"/>')
+            els.append(f'<circle cx="{fmt(x)}" cy="{fmt(y)}" r="5" fill="none" '
+                       f'stroke="{SH_INK}" stroke-width="1.0"/>')
+            step = 360.0 / (n + 1)
+            for pin in range(1, n + 1):
+                theta = math.radians(180 + step * pin)
+                px = x + r * math.sin(theta)
+                py = y - r * math.cos(theta)
+                els.append(f'<circle cx="{fmt(px)}" cy="{fmt(py)}" r="2.5" fill="{SH_INK}"/>')
+                nx = x + (r - 9) * math.sin(theta)
+                ny = y - (r - 9) * math.cos(theta)
+                els.append(text(nx, ny + 3, str(pin), SH_INK2, 7.5, weight=600,
+                                halo=SH_PAPER, halo_width=2.2))
+            self.obst_circle(x, y, r + 5, f"socket {item.get('id', '')}")
+            lab_y = (y - r - 13) if sgn < 0 else (y + r + 20)
+            self.lab(x, lab_y, label, SH_INK, 12, weight=700, spacing="0.06em",
+                     halo=SH_PAPER, halo_width=3.0,
+                     tag=f"socket {item.get('id', '')}",
+                     group=f"tube:{item.get('id', '')}", keep_in=self.canvas_box())
+        elif kind == "pot":
+            r = 18
+            edge = item.get("edge", "top")
+            els.append(f'<circle cx="{fmt(x)}" cy="{fmt(y)}" r="{fmt(r)}" '
+                       f'fill="{SH_PAPER}" stroke="{SH_INK}" stroke-width="1.8"/>')
+            # rear view: cover-plate ring + shaft bushing, no knob/wiper mark
+            els.append(f'<circle cx="{fmt(x)}" cy="{fmt(y)}" r="{fmt(r - 3.5)}" fill="none" '
+                       f'stroke="{SH_INK}" stroke-width="0.7"/>')
+            els.append(f'<circle cx="{fmt(x)}" cy="{fmt(y)}" r="4.4" fill="none" '
+                       f'stroke="{SH_INK}" stroke-width="1.1"/>')
+            els.append(f'<circle cx="{fmt(x)}" cy="{fmt(y)}" r="1.4" fill="{SH_INK}"/>')
+            for lug in (1, 2, 3):
+                lx, ly = self.pot_lug_pos(item, lug)
+                # lug TAB: a small rounded tab reaching from the body edge out
+                # through the lug hole, oriented toward the board
+                if edge in ("top", "bottom"):
+                    ty0 = ly - (9.6 - 2.6) if edge == "bottom" else ly - 2.6
+                    els.append(f'<rect x="{fmt(lx - 3.4)}" y="{fmt(ty0 - 2.0)}" width="6.8" '
+                               f'height="9.6" rx="1.6" fill="{SH_PAPER}" '
+                               f'stroke="{SH_INK}" stroke-width="1.1"/>')
+                else:
+                    hx = lx - (9.6 - 2.6) if edge == "right" else lx - 2.6
+                    els.append(f'<rect x="{fmt(hx - 2.0)}" y="{fmt(ly - 3.4)}" width="9.6" '
+                               f'height="6.8" rx="1.6" fill="{SH_PAPER}" '
+                               f'stroke="{SH_INK}" stroke-width="1.1"/>')
+                els.append(f'<circle cx="{fmt(lx)}" cy="{fmt(ly)}" r="1.6" fill="none" '
+                           f'stroke="{SH_INK}" stroke-width="0.9"/>')
+                self.obst_circle(lx, ly, 1.9, f"lug {item.get('id', '')}.{lug}")
+            self.obst_circle(x, y, r, f"pot {item.get('id', '')}")
+            lnx, lny = (item.get("label_nudge") or [0, 0])[:2]
+            vnx, vny = (item.get("value_nudge") or [0, 0])[:2]
+            if sgn < 0:
+                lab_y, val_y = y - r - 22, y - r - 9
+            else:
+                lab_y, val_y = y + r + 15, y + r + 28
+            self.lab(x + lnx, lab_y + lny, label.upper(), SH_INK, 11, weight=700,
+                     spacing="0.06em", halo=SH_PAPER, halo_width=3.0,
+                     tag=f"pot {item.get('id', '')} name",
+                     group=f"pot:{item.get('id', '')}", keep_in=self.canvas_box())
+            if val:
+                self.lab(x + lnx + vnx, val_y + lny + vny, val, SH_INK2, 10,
+                         weight=600, halo=SH_PAPER, halo_width=2.8,
+                         tag=f"pot {item.get('id', '')} value",
+                         group=f"pot:{item.get('id', '')}", keep_in=self.canvas_box())
+        elif kind == "jack":
+            r = 9
+            els.append(f'<circle cx="{fmt(x)}" cy="{fmt(y)}" r="{fmt(r)}" '
+                       f'fill="{SH_PAPER}" stroke="{SH_INK}" stroke-width="1.6"/>')
+            els.append(f'<circle cx="{fmt(x)}" cy="{fmt(y)}" r="3.2" fill="none" '
+                       f'stroke="{SH_INK}" stroke-width="1.0"/>')
+            self.obst_circle(x, y, r, f"jack {item.get('id', '')}")
+            lab_y = (y - r - 9) if sgn < 0 else (y + r + 14)
+            self.lab(x, lab_y, label.upper(), SH_INK, 10, weight=700, spacing="0.05em",
+                     halo=SH_PAPER, halo_width=2.8, tag=f"jack {item.get('id', '')}",
+                     group=f"jack:{item.get('id', '')}", keep_in=self.canvas_box())
+        elif kind in ("xfmr", "choke"):
+            w, h = (46, 56) if kind == "xfmr" else (40, 34)
+            els.append(f'<rect x="{fmt(x - w / 2)}" y="{fmt(y - h / 2)}" width="{w}" '
+                       f'height="{h}" rx="2" fill="{SH_PAPER}" stroke="{SH_INK}" '
+                       f'stroke-width="2.0"/>')
+            els.append(f'<rect x="{fmt(x - w / 2 + 4)}" y="{fmt(y - h / 2 + 4)}" '
+                       f'width="{w - 8}" height="{h - 8}" rx="1" fill="none" '
+                       f'stroke="{SH_INK}" stroke-width="0.8"/>')
+            self.obst_rect(x - w / 2, y - h / 2, x + w / 2, y + h / 2,
+                           f"{kind} {item.get('id', '')}")
+            # name lettered INSIDE the double-line body, stacked
+            words = [wd.upper() for wd in label.split()]
+            ty = y - (len(words) - 1) * 5.5
+            for wd in words:
+                self._fixed_text(x, ty + 3, wd, 8.5, weight=700, halo=SH_PAPER)
+                ty += 11
+            for colour in self.xfmr_leads.get(item.get("id"), []):
+                ex_, ey_, base = self.xfmr_lead_pos(item, colour)
+                wc = SHEET_WIRE.get(lead_base(colour) or "", SH_NEUTRAL)
+                els.append(f'<line x1="{fmt(base[0])}" y1="{fmt(base[1])}" x2="{fmt(ex_)}" '
+                           f'y2="{fmt(ey_)}" stroke="{wc}" stroke-width="2.2" '
+                           f'stroke-linecap="round"/>')
+                els.append(sheet_term(ex_, ey_, 2.2))
+                self.obst_circle(ex_, ey_, 2.4, f"pigtail {item.get('id', '')}.{colour}")
+            if val:
+                val_x, val_anchor = self._edge_safe(x, val, 9.5, False)
+                val_y = (y - h / 2 - 10) if sgn < 0 else (y + h / 2 + 13)
+                self.lab(val_x, val_y, val, SH_INK2, 9.5, weight=600, anchor=val_anchor,
+                         halo=SH_PAPER, halo_width=2.8,
+                         tag=f"{kind} {item.get('id', '')} value",
+                         group=f"{kind}:{item.get('id', '')}", keep_in=self.canvas_box())
+        elif kind == "part":
+            g, _ = self._part_glyph(item, x, y, label, val)
+            els += g
+        else:  # switch / fuse / misc
+            w, h = 34, 18
+            els.append(f'<rect x="{fmt(x - w / 2)}" y="{fmt(y - h / 2)}" width="{w}" '
+                       f'height="{h}" rx="2" fill="{SH_PAPER}" stroke="{SH_INK}" '
+                       f'stroke-width="1.6"/>')
+            self.obst_rect(x - w / 2, y - h / 2, x + w / 2, y + h / 2,
+                           f"{kind} {item.get('id', '')}")
+            lab_y = (y - h / 2 - 9) if sgn < 0 else (y + h / 2 + 14)
+            self.lab(x, lab_y, label.upper(), SH_INK, 10, weight=700, spacing="0.05em",
+                     halo=SH_PAPER, halo_width=2.8, tag=f"{kind} {item.get('id', '')}",
+                     group=f"{kind}:{item.get('id', '')}", keep_in=self.canvas_box())
+        return "".join(els), ""
+
+    def _part_glyph(self, item, x, y, label, val):
+        edge = item.get("edge", "top")
+        away = {"top": (0, -1), "bottom": (0, 1),
+                "left": (-1, 0), "right": (1, 0)}.get(edge, (0, -1))
+        ta = self.part_terminal_pos(item, "a")
+        tb = self.part_terminal_pos(item, "b")
+        els: list[str] = []
+        pid = item.get("id", "")
+        if item.get("glyph") == "lamp":
+            cbx, cby = x + away[0] * 2, y + away[1] * 2
+            bx, by = x + away[0] * 15, y + away[1] * 15
+            for (tx, ty) in (ta, tb):
+                els.append(f'<line x1="{fmt(tx)}" y1="{fmt(ty)}" x2="{fmt(cbx)}" '
+                           f'y2="{fmt(cby)}" stroke="{SH_INK}" stroke-width="1.5"/>')
+            els.append(f'<rect x="{fmt(cbx - 8)}" y="{fmt(cby - 6)}" width="16" height="12" '
+                       f'rx="1.5" fill="{SH_PAPER}" stroke="{SH_INK}" stroke-width="1.3"/>')
+            els.append(f'<circle cx="{fmt(cbx - 8)}" cy="{fmt(cby)}" r="1.5" fill="{SH_INK}"/>')
+            els.append(f'<circle cx="{fmt(cbx + 8)}" cy="{fmt(cby)}" r="1.5" fill="{SH_INK}"/>')
+            els.append(f'<circle cx="{fmt(bx)}" cy="{fmt(by)}" r="9.5" fill="{SH_PAPER}" '
+                       f'stroke="{SH_INK}" stroke-width="1.5"/>')
+            els.append(f'<path d="M {fmt(bx - 3.5)} {fmt(by + 1.5)} q 1.8 -5 3.5 0 '
+                       f'q 1.8 5 3.5 0" fill="none" stroke="{SH_INK}" stroke-width="0.9"/>')
+            self.obst_circle(bx, by, 9.5, f"lamp {pid}")
+            self.obst_rect(cbx - 9.7, cby - 6, cbx + 9.7, cby + 6, f"lamp base {pid}")
+            laby = by - 16 if away[1] < 0 else by + 25
+            self.lab(bx, laby, label.upper(), SH_INK, 10, weight=700, spacing="0.05em",
+                     halo=SH_PAPER, halo_width=2.8, tag=f"part {pid}",
+                     group=f"off:{pid}", keep_in=self.canvas_box())
+            for (tx, ty) in (ta, tb):
+                els.append(sheet_term(tx, ty, 2.2))
+                self.obst_circle(tx, ty, 2.2, f"terminal {pid}")
+            return els, []
+        horiz = edge in ("top", "bottom")
+        midx, midy = (ta[0] + tb[0]) / 2, (ta[1] + tb[1]) / 2
+        els.append(f'<line x1="{fmt(ta[0])}" y1="{fmt(ta[1])}" x2="{fmt(tb[0])}" '
+                   f'y2="{fmt(tb[1])}" stroke="{SH_INK}" stroke-width="1.5"/>')
+        if horiz:
+            bw = max(22.0, abs(tb[0] - ta[0]) - 8)
+            els.append(f'<path d="{dogbone_path(midx, midy, bw, r_end=7.2, waist=4.8)}" '
+                       f'fill="{SH_BODY}" stroke="{SH_INK}" stroke-width="1.5"/>')
+            self.obst_rect(midx - bw / 2, midy - 7.2, midx + bw / 2, midy + 7.2,
+                           f"part {pid} body")
+            top = away[1] < 0
+            ref_y = (midy - 19) if top else (midy + 21)
+            val_y = (midy - 31) if top else (midy + 33)
+            self.lab(midx, ref_y, label.upper(), SH_INK, 10, weight=700,
+                     spacing="0.04em", halo=SH_PAPER, halo_width=2.8,
+                     tag=f"part {pid} ref", group=f"off:{pid}",
+                     keep_in=self.canvas_box())
+            if val:
+                self.lab(midx, val_y, val, SH_INK2, 9.5, weight=600, halo=SH_PAPER,
+                         halo_width=2.8, tag=f"part {pid} value", group=f"off:{pid}",
+                         keep_in=self.canvas_box())
+        else:
+            bw, bh = 15.0, max(22.0, abs(tb[1] - ta[1]) - 8)
+            rx, ry = midx - bw / 2, midy - bh / 2
+            els.append(f'<rect x="{fmt(rx)}" y="{fmt(ry)}" width="{fmt(bw)}" '
+                       f'height="{fmt(bh)}" rx="{fmt(bw / 2)}" fill="{SH_BODY}" '
+                       f'stroke="{SH_INK}" stroke-width="1.5"/>')
+            self.obst_rect(rx, ry, rx + bw, ry + bh, f"part {pid} body")
+            lx = midx + away[0] * 16
+            anchor = "end" if away[0] < 0 else "start"
+            self.lab(lx, midy - 3, label.upper(), SH_INK, 10, weight=700, anchor=anchor,
+                     spacing="0.04em", halo=SH_PAPER, halo_width=2.8,
+                     tag=f"part {pid} ref", group=f"off:{pid}",
+                     keep_in=self.canvas_box())
+            if val:
+                self.lab(lx, midy + 11, val, SH_INK2, 9.5, anchor=anchor, weight=600,
+                         halo=SH_PAPER, halo_width=2.8, tag=f"part {pid} value",
+                         group=f"off:{pid}", keep_in=self.canvas_box())
+        for (tx, ty) in (ta, tb):
+            els.append(sheet_term(tx, ty, 2.2))
+            self.obst_circle(tx, ty, 2.2, f"terminal {pid}")
+        return els, []
+
+    # ---- wiring -------------------------------------------------------------
+    def run_wire(self, spec, i, pts, seg_hops=None):
+        if not pts:
+            return "", []
+        seg_hops = seg_hops or {}
+        twisted = str(spec.get("style", "")).lower() == "twisted"
+        colour = spec.get("color")
+        if not colour:
+            colour = self._endpoint_colour(spec.get("from")) or \
+                self._endpoint_colour(spec.get("to"))
+        if twisted:
+            self._check_heater_endpoint(spec.get("from"), f"run[{i}] from")
+            self._check_heater_endpoint(spec.get("to"), f"run[{i}] to")
+            self._has_twisted = True
+            base = lead_base(colour) if colour else None
+            stroke = SH_HEATER_CT if base == "green-yellow" else SH_HEATER
+            d1, d2 = twisted_strands(pts)
+            center = rounded_path(pts, r=11)
+            casing = (f'<path d="{center}" fill="none" stroke="{SH_PAPER}" '
+                      f'stroke-width="5.4" stroke-linecap="round" '
+                      f'stroke-linejoin="round"/>')
+            strands = (f'<path d="{d1}" fill="none" stroke="{stroke}" stroke-width="1.5" '
+                       f'stroke-linecap="round" stroke-linejoin="round"/>'
+                       f'<path d="{d2}" fill="none" stroke="{stroke}" stroke-width="1.5" '
+                       f'stroke-linecap="round" stroke-linejoin="round"/>')
+            return casing + strands, [pts[0], pts[-1]]
+        stroke = SHEET_WIRE.get(str(colour).lower(), SH_NEUTRAL) if colour else SH_NEUTRAL
+        if colour:
+            key = str(colour).lower()
+            if key not in self._colours_used:
+                self._colours_used.append(key)
+        d = hopped_path(pts, seg_hops, r=11)
+        return (f'<path d="{d}" fill="none" stroke="{stroke}" stroke-width="2.0" '
+                f'stroke-linecap="round" stroke-linejoin="round"/>'), [pts[0], pts[-1]]
+
+    def bus_wire(self, spec, i, pts):
+        if not pts:
+            return "", []
+        d = rounded_path(pts, r=9)
+        edge = (f'<path d="{d}" fill="none" stroke="{SH_INK}" stroke-width="4.6" '
+                f'stroke-linecap="round" stroke-linejoin="round"/>')
+        core = (f'<path d="{d}" fill="none" stroke="{SH_BUS_CORE}" stroke-width="2.0" '
+                f'stroke-linecap="round" stroke-linejoin="round"/>')
+        return edge + core, [pts[0], pts[-1]]
+
+    # ---- assemble -----------------------------------------------------------
+    def render(self) -> str:
+        els = []
+        bx, by, bw, bh = self.board_x, self.board_y, self.board_w, self.board_h
+        # drafting-sheet page frame: a double rule around the whole sheet
+        els.append(f'<rect x="6" y="6" width="{fmt(self.width - 12)}" '
+                   f'height="{fmt(self.height - 12)}" fill="none" stroke="{SH_INK}" '
+                   f'stroke-width="1.6"/>')
+        els.append(f'<rect x="11" y="11" width="{fmt(self.width - 22)}" '
+                   f'height="{fmt(self.height - 22)}" fill="none" stroke="{SH_INK}" '
+                   f'stroke-width="0.6"/>')
+        # the board: a strong double-line rectangle dominating the sheet
+        els.append(f'<rect x="{fmt(bx)}" y="{fmt(by)}" width="{fmt(bw)}" height="{fmt(bh)}" '
+                   f'rx="2" fill="{SH_BOARD}" stroke="{SH_INK}" stroke-width="3.0"/>')
+        els.append(f'<rect x="{fmt(bx + 5)}" y="{fmt(by + 5)}" width="{fmt(bw - 10)}" '
+                   f'height="{fmt(bh - 10)}" rx="1" fill="none" stroke="{SH_INK}" '
+                   f'stroke-width="1.0"/>')
+        # unused eyelets: fine open circles
+        for r in range(self.rows):
+            for c in range(self.cols):
+                x, y = self.ex(c), self.ey(r)
+                els.append(f'<circle cx="{fmt(x)}" cy="{fmt(y)}" r="2.1" fill="none" '
+                           f'stroke="{SH_FAINT}" stroke-width="0.8"/>')
+        for lead in self.leads:
+            els.append(self.lead_run(lead))
+        runs, bus = self.build_geometry()
+        hops = self._hop_map(runs, bus)
+        bus_pts: list[tuple[float, float]] = []
+        run_pts: list[tuple[float, float]] = []
+        for b in bus:
+            svg, tp = self.bus_wire(b["spec"], b["j"], b["pts"])
+            els.append(svg)
+            bus_pts += tp
+        twisted_runs = []
+        for r in runs:
+            if r["twisted"]:
+                twisted_runs.append(r)
+                continue
+            svg, tp = self.run_wire(r["spec"], r["i"], r["pts"],
+                                    hops.get(("run", r["i"]), {}))
+            els.append(svg)
+            run_pts += tp
+        for it in self.offboard:
+            geom, _ = self.off_stub(it)
+            els.append(geom)
+        for p in self.parts:
+            geom, _ = self.part_body(p)
+            els.append(geom)
+        for r in twisted_runs:
+            svg, tp = self.run_wire(r["spec"], r["i"], r["pts"])
+            els.append(svg)
+            run_pts += tp
+        for (tx, ty) in bus_pts:
+            els.append(sheet_term(tx, ty))
+        seen: set = set()
+        for (tx, ty) in run_pts:
+            key = (round(tx, 1), round(ty, 1))
+            if key in seen:
+                continue
+            seen.add(key)
+            els.append(sheet_solder(tx, ty))
+            self.obst_circle(tx, ty, 4.5, "solder joint")
+        wires = [(f"run[{r['i']}]", r["pts"]) for r in runs if r["pts"]]
+        wires += [(f"bus[{b['j']}]", b["pts"]) for b in bus if b["pts"]]
+        els.append(self._emit_labels(wires))
+        els += self._fixed
+        title = ((self.layout.get("board", {}) or {}).get("title")
+                 or f"{self.amp_id.upper()} board layout")
+        title = title.upper()
+        els.append(text(bx, 36, title, SH_INK, 18, anchor="start", weight=700,
+                        spacing="0.14em"))
+        els.append(f'<line x1="{fmt(bx)}" y1="43.5" '
+                   f'x2="{fmt(bx + 0.88 * text_width(title, 18, spacing="0.14em"))}" '
+                   f'y2="43.5" stroke="{SH_INK}" stroke-width="1.2"/>')
+        src = self.layout.get("source", {}) or {}
+        if src.get("desc"):
+            attrib = f"Redrawn from {src['desc']} — not a trace"
+        else:
+            attrib = self.layout.get("caption") or ""
+        if attrib:
+            attrib_off = 92 if self._has_twisted else 74
+            els.append(text(bx, self.height - attrib_off, attrib, SH_FAINT, 10.5,
+                            anchor="start", font=FONT_MONO, weight=500))
+        self._legend(els)
+        body = "\n".join(els)
+        svg = (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {fmt(self.width)} '
+               f'{fmt(self.height)}" role="img" aria-label="{esc(title)} — redrawn board '
+               f'layout diagram, layout-sheet drafting style" width="100%" '
+               f'font-family="{FONT_DISP}">\n'
+               f'<rect x="0" y="0" width="{fmt(self.width)}" height="{fmt(self.height)}" '
+               f'fill="{SH_PAPER}"/>\n{body}\n</svg>\n')
+        if self.errors:
+            raise ValueError(f"{self.amp_id}: layout errors: {self.errors}")
+        return svg
+
+    def _legend(self, els):
+        y = self.height - (74 if self._has_twisted else 56)
+        x = self.board_x
+        if self.runs or self.bus:
+            cx = x
+            els.append(text(cx, y, "Wiring:", SH_FAINT, 10.5, anchor="start",
+                            font=FONT_MONO, weight=500))
+            cx += 58
+            els.append(f'<line x1="{fmt(cx)}" y1="{fmt(y - 3)}" x2="{fmt(cx + 18)}" '
+                       f'y2="{fmt(y - 3)}" stroke="{SH_NEUTRAL}" stroke-width="2.0" '
+                       f'stroke-linecap="round"/>')
+            els.append(text(cx + 24, y, "lead", SH_INK2, 10.5, anchor="start",
+                            font=FONT_MONO, weight=500))
+            cx += 24 + 4 * 6.4 + 16
+            for key in self._colours_used:
+                col = SHEET_WIRE.get(key, SH_NEUTRAL)
+                entry = self.wire_legend.get(key, key)
+                els.append(f'<line x1="{fmt(cx)}" y1="{fmt(y - 3)}" x2="{fmt(cx + 18)}" '
+                           f'y2="{fmt(y - 3)}" stroke="{col}" stroke-width="2.0" '
+                           f'stroke-linecap="round"/>')
+                els.append(text(cx + 24, y, entry, SH_INK2, 10.5, anchor="start",
+                                font=FONT_MONO, weight=500))
+                cx += 24 + len(entry) * 6.4 + 16
+            if self.bus:
+                els.append(f'<line x1="{fmt(cx)}" y1="{fmt(y - 3)}" x2="{fmt(cx + 18)}" '
+                           f'y2="{fmt(y - 3)}" stroke="{SH_INK}" stroke-width="4.0" '
+                           f'stroke-linecap="round"/>')
+                els.append(f'<line x1="{fmt(cx + 1)}" y1="{fmt(y - 3)}" x2="{fmt(cx + 17)}" '
+                           f'y2="{fmt(y - 3)}" stroke="{SH_BUS_CORE}" stroke-width="1.8" '
+                           f'stroke-linecap="round"/>')
+                els.append(text(cx + 24, y, "ground bus", SH_INK2, 10.5, anchor="start",
+                                font=FONT_MONO, weight=500))
+                cx += 24 + len("ground bus") * 6.4 + 16
+            if self._has_twisted:
+                d1, d2 = twisted_strands([(cx, y - 3), (cx + 20, y - 3)],
+                                         amp=2.6, wavelen=8.0)
+                els.append(f'<path d="{d1}" fill="none" stroke="{SH_HEATER}" '
+                           f'stroke-width="1.4" stroke-linecap="round"/>')
+                els.append(f'<path d="{d2}" fill="none" stroke="{SH_HEATER}" '
+                           f'stroke-width="1.4" stroke-linecap="round"/>')
+                els.append(text(cx + 26, y, "6.3 V heaters — twisted pair", SH_INK2,
+                                10.5, anchor="start", font=FONT_MONO, weight=500))
+                note_y = self.height - 56
+                els.append(text(x, note_y, "Note: the 6.3 V heater twisted pair always "
+                                "routes on the top layer and never joins another run — "
+                                "its crossings are not hop-overs.", SH_FAINT, 9.5,
+                                anchor="start", font=FONT_MONO, weight=500))
+            jy = self.height - 38
+            els.append(text(x, jy, "Joints:", SH_FAINT, 10.5, anchor="start",
+                            font=FONT_MONO, weight=500))
+            jx = x + 58
+            els.append(sheet_solder(jx + 4, jy - 3))
+            els.append(text(jx + 13, jy, "wire end (solder joint)", SH_INK2, 10.5,
+                            anchor="start", font=FONT_MONO, weight=500))
+            jx += 13 + len("wire end (solder joint)") * 6.4 + 20
+            hd = hopped_path([(jx, jy - 3), (jx + 34, jy - 3)], {0: [(17.0, HOP_R)]}, r=11)
+            els.append(f'<path d="{hd}" fill="none" stroke="{SH_NEUTRAL}" '
+                       f'stroke-width="2.0" stroke-linecap="round" stroke-linejoin="round"/>')
+            els.append(text(jx + 40, jy, "cross-over (no connect)", SH_INK2, 10.5,
+                            anchor="start", font=FONT_MONO, weight=500))
+        # bodies legend: the sheet's outline glyphs, miniature
+        y = self.height - 20
+        els.append(text(x, y, "Bodies:", SH_FAINT, 10.5, anchor="start",
+                        font=FONT_MONO, weight=500))
+        cx = x + 58
+        els.append(f'<path d="{dogbone_path(cx + 9, y - 3.5, 18, r_end=4.4, waist=2.9)}" '
+                   f'fill="{SH_BODY}" stroke="{SH_INK}" stroke-width="1.0"/>')
+        els.append(text(cx + 23, y, "resistor", SH_INK2, 10.5, anchor="start",
+                        font=FONT_MONO, weight=500))
+        cx += 30 + len("resistor") * 6.4
+        els.append(f'<rect x="{fmt(cx)}" y="{fmt(y - 9)}" width="14" height="10" rx="1" '
+                   f'fill="{SH_BODY}" stroke="{SH_INK}" stroke-width="1.0"/>')
+        els.append(text(cx + 19, y, "film / coupling cap", SH_INK2, 10.5, anchor="start",
+                        font=FONT_MONO, weight=500))
+        cx += 26 + len("film / coupling cap") * 6.4
+        els.append(f'<rect x="{fmt(cx)}" y="{fmt(y - 10)}" width="12" height="11" rx="1.5" '
+                   f'fill="{SH_BODY}" stroke="{SH_INK}" stroke-width="1.0"/>')
+        els.append(f'<line x1="{fmt(cx)}" y1="{fmt(y - 7.5)}" x2="{fmt(cx + 12)}" '
+                   f'y2="{fmt(y - 7.5)}" stroke="{SH_INK}" stroke-width="0.7"/>')
+        els.append(text(cx + 17, y, "electrolytic", SH_INK2, 10.5, anchor="start",
+                        font=FONT_MONO, weight=500))
+        cx += 24 + len("electrolytic") * 6.4
+        els.append(f'<rect x="{fmt(cx)}" y="{fmt(y - 8)}" width="14" height="8" rx="1" '
+                   f'fill="{SH_BODY}" stroke="{SH_INK}" stroke-width="1.0"/>')
+        els.append(text(cx + 19, y, "mica", SH_INK2, 10.5, anchor="start",
+                        font=FONT_MONO, weight=500))
+
+
+def render_layout(amp_dir: Path, style: str = "house") -> str:
     layout = yaml.safe_load((amp_dir / "layout.yaml").read_text())
     bom = load_bom(amp_dir)
-    return Renderer(layout, bom, amp_dir.name).render()
+    cls = SheetRenderer if style == "sheet" else Renderer
+    return cls(layout, bom, amp_dir.name).render()
 
 
 # ---- collision lint (CI gate, see pipeline/check_layouts.py) ----------------
@@ -2138,11 +2809,14 @@ def _lint_labels(rend: "Renderer", runs, bus, amp_id: str) -> list[str]:
     return fails
 
 
-def render_all(write: bool = True) -> list[Path]:
+def render_all(write: bool = True, style: str = "house",
+               ids: list[str] | None = None) -> list[Path]:
     written = []
     for yml in sorted((ROOT / "amps").glob("*/layout.yaml")):
-        svg = render_layout(yml.parent)
-        out = yml.parent / "layout.svg"
+        if ids and yml.parent.name not in ids:
+            continue
+        svg = render_layout(yml.parent, style)
+        out = yml.parent / ("layout-sheet.svg" if style == "sheet" else "layout.svg")
         if write:
             out.write_text(svg)
         written.append(out)
@@ -2165,21 +2839,22 @@ def ensure_rsvg() -> str | None:
     return shutil.which("rsvg-convert")
 
 
-def render_png(ids: list[str], width: int = 1600) -> list[Path]:
-    """Convert amps/<id>/layout.svg -> /tmp/<id>.png for a visual self-review.
-    With no ids, converts every amp that has a layout."""
+def render_png(ids: list[str], width: int = 1600, style: str = "house") -> list[Path]:
+    """Convert amps/<id>/layout[-sheet].svg -> /tmp/<id>[-sheet].png for a
+    visual self-review. With no ids, converts every amp that has a layout."""
     exe = ensure_rsvg()
     if not exe:
         return []
     if not ids:
         ids = [p.parent.name for p in sorted((ROOT / "amps").glob("*/layout.yaml"))]
+    suffix = "-sheet" if style == "sheet" else ""
     out_paths = []
     for amp_id in ids:
-        svg = ROOT / "amps" / amp_id / "layout.svg"
+        svg = ROOT / "amps" / amp_id / f"layout{suffix}.svg"
         if not svg.exists():
-            print(f"no layout.svg for {amp_id}", file=sys.stderr)
+            print(f"no layout{suffix}.svg for {amp_id}", file=sys.stderr)
             continue
-        png = Path("/tmp") / f"{amp_id}.png"
+        png = Path("/tmp") / f"{amp_id}{suffix}.png"
         subprocess.run([exe, "-w", str(width), str(svg), "-o", str(png)], check=True)
         print(f"png {png}")
         out_paths.append(png)
@@ -2188,12 +2863,21 @@ def render_png(ids: list[str], width: int = 1600) -> list[Path]:
 
 if __name__ == "__main__":
     args = sys.argv[1:]
+    style = "house"
+    if "--style" in args:
+        k = args.index("--style")
+        style = args[k + 1]
+        del args[k:k + 2]
+        if style not in ("house", "sheet"):
+            sys.exit(f"unknown --style '{style}' (house | sheet)")
     if "--png" in args:
         args.remove("--png")
-        # ensure SVGs are current before converting
-        render_all(write=True)
-        render_png(args)
+        # ensure SVGs are current before converting. Sheet-style renders honour
+        # an id list (the sheet file is opt-in, per amp); the default house
+        # render always regenerates every amp, exactly as before.
+        render_all(write=True, style=style, ids=(args or None) if style == "sheet" else None)
+        render_png(args, style=style)
     else:
-        render_all(write=True)
+        render_all(write=True, style=style, ids=(args or None) if style == "sheet" else None)
         if not list((ROOT / "amps").glob("*/layout.yaml")):
             print("no layout.yaml files found", file=sys.stderr)
