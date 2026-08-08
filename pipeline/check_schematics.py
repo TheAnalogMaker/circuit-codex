@@ -40,9 +40,23 @@ from schematic_lib import (            # noqa: E402
 ROOT = Path(__file__).resolve().parent.parent
 
 # A box pair must share this much in BOTH axes before it counts as a clash.
-# Stroke-font advance is an estimate (see schematic_lib.CHAR_W); asking for a
-# real overlap rather than a touch keeps that estimate from inventing findings.
+# Stroke-font advance here is an estimate (schematic_lib.CHAR_W): re-ruling
+# this gate with the renderer's true advance table was tried 2026-08-08 and
+# red-flagged 28 of 34 sheets over abutments already judged sub-visual, so
+# the gate keeps the coarse ruler while PLACEMENT aims with the true one
+# (schematic_lib's two-rulers note). Asking for a real overlap rather than a
+# touch keeps the estimate from inventing findings.
 OVERLAP_MM = 0.8
+
+# Which side of its anchor a global label's name letters on. KiCanvas (and
+# KiCad) draw the text horizontally at 0/180 and vertically at 90/270, then
+# take the side from the justification, NOT from the rotation: the flag body
+# lies right/below of the anchor at 0/90 and left/above at 180/270. Only
+# these pairings put the name inside the flag outline; any other justification
+# letters the net name over the very wire the flag terminates — which is how
+# 219 rotated labels shipped with their names struck through, because nothing
+# in this gate modelled global-label text at all.
+GLABEL_JUSTIFY = {0: "left", 90: "left", 180: "right", 270: "right"}
 # Fraction of the sheet's DRAWABLE area the drawing must occupy — drawable
 # meaning inside the 10 mm frame and above the title-block strip, the region a
 # drawing is actually allowed to use. Measuring against the raw page instead
@@ -203,6 +217,21 @@ CLASH_PAIRS = {
 
 def lint_sheet(sch: Schematic, boxes) -> list[str]:
     errs: list[str] = []
+
+    # Global-label text geometry: the name must letter INSIDE the flag body,
+    # which happens only when justification compensates rotation (see
+    # GLABEL_JUSTIFY). The flag box itself is already in the collision set;
+    # this clause pins the text to it.
+    for lab in sch.globalLabels:
+        rot = int(lab.position.angle or 0) % 360
+        want = GLABEL_JUSTIFY.get(rot)
+        have = (lab.effects and lab.effects.justify
+                and lab.effects.justify.horizontally) or "left"
+        if want and have != want:
+            errs.append(f"global label {lab.text!r} at {rot} deg carries "
+                        f"(justify {have}) — its name letters outside the flag, "
+                        f"struck through by its own wire; needs (justify {want})")
+
     lettering = [b for b in boxes if b[0] in ("text", "property", "label", "symbol")]
     for i, a in enumerate(lettering):
         for b in lettering[i + 1:]:

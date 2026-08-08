@@ -388,12 +388,58 @@ def _lib_extents(lib_text: str, pins: bool = True) -> dict[str, tuple[float, flo
 SYM_EXTENTS = _lib_extents(LIB)
 SYM_BODY = _lib_extents(LIB, pins=False)
 
-# Stroke-font metrics used for every text box in this module. KiCad's Newstroke
-# advance averages a little under 0.7 em across mixed-case prose; 0.68 tracks
-# the rendered PNGs to within a character over a 90-character line, and the
-# lint below asks for a real overlap rather than a touch, so the residual error
-# cannot manufacture a finding.
+# Renderer-font metrics, measured rather than assumed. KiCanvas ships KiCad's
+# Newstroke font; each glyph's advance is its (right - left) bound over 21,
+# and the visitor's browser draws with exactly these numbers, so text can be
+# widthed with the same table (extracted from site/public/vendor/kicanvas.js).
+# Characters outside the table render as '?' in KiCanvas and are priced as
+# one here.
+#
+# Two rulers, on purpose. PLACEMENT (place_labels / place_captions) measures
+# with this true table: aiming with the old flat 0.68-em average under-read
+# part lettering by a quarter, which is how a label could meter clean and
+# still print through its neighbour on the published render (the 5F6-A RB2
+# incident). The GATE's boxes (text_box / label_box below, which
+# check_schematics shares) deliberately keep the coarse estimate: re-ruling
+# the gate with renderer truth was tried on 2026-08-08 and red-flagged 28 of
+# 34 sheets over millimetre-scale abutments that three visual review passes
+# had already judged sub-visual — a corpus-wide re-lettering campaign, not a
+# lint. The placer aiming true while the gate meters coarse keeps every NEW
+# placement honest without indicting the shipped corpus wholesale.
+_ADV = {
+    "!": 0.476, "\"": 0.762, "#": 1.000, "$": 0.952, "%": 1.143, "&": 1.238,
+    "'": 0.476, "(": 0.667, ")": 0.667, "*": 0.762, "+": 1.238, ",": 0.476,
+    "-": 1.238, ".": 0.476, "/": 1.048, "0": 0.952, "1": 0.952, "2": 0.952,
+    "3": 0.952, "4": 0.952, "5": 0.952, "6": 0.952, "7": 0.952, "8": 0.952,
+    "9": 0.952, ":": 0.476, ";": 0.476, "<": 1.238, "=": 1.238, ">": 1.238,
+    "?": 0.857, "@": 1.286, "A": 0.857, "B": 1.000, "C": 1.000, "D": 1.000,
+    "E": 0.905, "F": 0.857, "G": 1.000, "H": 1.048, "I": 0.476, "J": 0.762,
+    "K": 1.000, "L": 0.810, "M": 1.143, "N": 1.048, "O": 1.048, "P": 1.000,
+    "Q": 1.048, "R": 1.000, "S": 0.952, "T": 0.762, "U": 1.048, "V": 0.857,
+    "W": 1.143, "X": 0.952, "Y": 0.857, "Z": 0.952, "[": 0.667, "\\": 0.667,
+    "]": 0.667, "^": 0.571, "_": 0.762, "`": 0.381, "a": 0.905, "b": 0.905,
+    "c": 0.857, "d": 0.905, "e": 0.857, "f": 0.571, "g": 0.905, "h": 0.905,
+    "i": 0.476, "j": 0.476, "k": 0.810, "l": 0.524, "m": 1.333, "n": 0.905,
+    "o": 0.905, "p": 0.905, "q": 0.905, "r": 0.619, "s": 0.810, "t": 0.571,
+    "u": 0.905, "v": 0.762, "w": 1.048, "x": 0.810, "y": 0.762, "z": 0.810,
+    "{": 0.667, "|": 0.952, "}": 0.667, "~": 0.714, "°": 0.762, "µ": 1.048,
+    "·": 0.762, "×": 1.238, " ": 0.600,
+}
+_ADV_UNKNOWN = 0.857          # KiCanvas substitutes '?' for unknown glyphs
+
+
+def text_w(t: str, size: float) -> float:
+    """Ink width of a string at `size`, per the renderer's own advances."""
+    return sum(_ADV.get(c, _ADV_UNKNOWN) for c in t) * size
+
+
+# Flat averages. CHAR_W is the gate's ruler (see the two-rulers note above):
+# tuned to mixed-case prose, it under-reads part lettering, and the gate's
+# OVERLAP_MM margin absorbs the residual. PROSE_W (prose really does average
+# 0.77 em over this corpus's note lines) budgets the notes-band word wrap,
+# whose per-line width is then measured truly.
 CHAR_W = 0.68
+PROSE_W = 0.77
 LINE_H = 1.4
 
 # Where a part's designator/value pair sits when the caller does not say.
@@ -424,16 +470,25 @@ LABEL_FALLBACK = (2.2, -3.2)
 
 def text_box(t: str, x: float, y: float, size: float,
              justify: str = "left") -> tuple[float, float, float, float]:
+    """Gate-ruler text box (flat CHAR_W estimate — see the two-rulers note)."""
     w = len(t) * CHAR_W * size
     h = LINE_H * size
     x0 = x if justify == "left" else (x - w if justify == "right" else x - w / 2)
     return (x0, y - h / 2, x0 + w, y + h / 2)
 
 
-def label_box(name: str, x: float, y: float, rot: int) -> tuple[float, float, float, float]:
-    """Bounding box of a global label: the flag body grows away from the
-    connection point, opposite the direction the label points."""
-    w = (len(name) + 2) * CHAR_W * 1.27
+def _true_text_box(t: str, x: float, y: float,
+                   size: float) -> tuple[float, float, float, float]:
+    """Placement-ruler text box: the renderer's own ink width."""
+    w = text_w(t, size)
+    h = LINE_H * size
+    return (x, y - h / 2, x + w, y + h / 2)
+
+
+def _flag_box(w: float, x: float, y: float,
+              rot: int) -> tuple[float, float, float, float]:
+    """A `w`-long global-label flag body: it grows away from the connection
+    point, opposite the direction the label points."""
     h = LINE_H * 1.27 + 0.8
     rot %= 360
     if rot == 0:
@@ -443,6 +498,19 @@ def label_box(name: str, x: float, y: float, rot: int) -> tuple[float, float, fl
     if rot == 90:                      # reads bottom-to-top: body is above
         return (x - h / 2, y - w, x + h / 2, y)
     return (x - h / 2, y, x + h / 2, y + w)
+
+
+def label_box(name: str, x: float, y: float, rot: int) -> tuple[float, float, float, float]:
+    """Gate-ruler bounding box of a global label."""
+    return _flag_box((len(name) + 2) * CHAR_W * 1.27, x, y, rot)
+
+
+def _true_label_box(name: str, x: float, y: float,
+                    rot: int) -> tuple[float, float, float, float]:
+    """Placement-ruler flag box: the outline KiCanvas actually draws wraps
+    the name's ink plus its furniture (0.375 x size expansion each side and
+    the input-shape point, ~2.1 mm together)."""
+    return _flag_box(text_w(name, 1.27) + 2.1, x, y, rot)
 
 
 def _rot_local(sx: float, sy: float, rot: int, mirror: str) -> tuple[float, float]:
@@ -784,9 +852,10 @@ class Sch:
         _, pts, extra = self.items[i]
         _, ref, val, _, _, _, spec = extra
         px, py = pts[1]
-        out = [text_box(ref, px, py, 1.27), text_box(val, px, py + 2.4, 1.27)]
+        out = [_true_text_box(ref, px, py, 1.27),
+               _true_text_box(val, px, py + 2.4, 1.27)]
         if spec:
-            out.append(text_box(spec, px, py + 4.8, 1.1))
+            out.append(_true_text_box(spec, px, py + 4.8, 1.1))
         return out
 
     def _candidates(self, i: int) -> list[tuple[float, float]]:
@@ -800,7 +869,8 @@ class Sch:
         lib, ref, val, rot, _, mirror, spec = extra
         (x, y), (px, py) = pts
         bx0, by0, bx1, by1 = sym_box(lib, x, y, rot, mirror, body=True)
-        w = max(len(ref), len(val), len(spec or "")) * CHAR_W * 1.27
+        w = max(text_w(ref, 1.27), text_w(val, 1.27),
+                text_w(spec or "", 1.1))
         h = 2.4 * (2 + (1 if spec else 0))
         out = [(px, py)]
         for pad in (0.9, 4.0, 7.5, 11.0, 15.0):
@@ -824,13 +894,13 @@ class Sch:
                 lib, _, _, rot, _, mirror, _ = extra
                 fixed.append(sym_box(lib, pts[0][0], pts[0][1], rot, mirror, body=True))
             elif kind == "glabel":
-                fixed.append(label_box(extra[0], pts[0][0], pts[0][1], extra[1]))
+                fixed.append(_true_label_box(extra[0], pts[0][0], pts[0][1], extra[1]))
             elif kind == "text":
-                fixed.append(text_box(extra[0], pts[0][0], pts[0][1], extra[1]))
+                fixed.append(_true_text_box(extra[0], pts[0][0], pts[0][1], extra[1]))
 
         caps = [i for i, it in enumerate(self.items) if it[0] == "caption"]
-        boxes = {i: text_box(self.items[i][2][0], *self.items[i][1][0],
-                             self.items[i][2][1]) for i in caps}
+        boxes = {i: _true_text_box(self.items[i][2][0], *self.items[i][1][0],
+                                   self.items[i][2][1]) for i in caps}
         moved = 0
         for i in caps:
             t, size = self.items[i][2]
@@ -838,10 +908,16 @@ class Sch:
             others = [b for j, b in boxes.items() if j != i]
             if not any(_hit(boxes[i], o) for o in fixed + others):
                 continue
-            for cand in ([(x, y - d) for d in (3.5, 7, 10.5, 14)]
-                         + [(x - d, y) for d in (6, 14, 24)]
-                         + [(x, y + d) for d in (3.5, 7)]):
-                b = text_box(t, cand[0], cand[1], size)
+            # The ladder runs further than it used to: a banner caption
+            # measured with the renderer's true advance is half again wider
+            # than the old estimate thought, and a ladder that stopped at
+            # 14 mm up / 24 mm left stranded the two longest captions in the
+            # corpus on top of the circuitry they head.
+            for cand in ([(x, y - d) for d in (3.5, 7, 10.5, 14, 17.5, 21)]
+                         + [(x - d, y) for d in (6, 14, 24, 34)]
+                         + [(x + d, y) for d in (6, 14, 24)]
+                         + [(x, y + d) for d in (3.5, 7, 10.5)]):
+                b = _true_text_box(t, cand[0], cand[1], size)
                 if not any(_hit(b, o) for o in fixed + others):
                     self.items[i][1][0] = cand
                     boxes[i] = b
@@ -862,9 +938,9 @@ class Sch:
                 lib, ref, val, rot, _, mirror, _ = extra
                 static.append(sym_box(lib, pts[0][0], pts[0][1], rot, mirror, body=True))
             elif kind == "glabel":
-                static.append(label_box(extra[0], pts[0][0], pts[0][1], extra[1]))
+                static.append(_true_label_box(extra[0], pts[0][0], pts[0][1], extra[1]))
             elif kind in ("text", "caption"):
-                static.append(text_box(extra[0], pts[0][0], pts[0][1], extra[1]))
+                static.append(_true_text_box(extra[0], pts[0][0], pts[0][1], extra[1]))
 
         idx = [i for i, it in enumerate(self.items) if it[0] == "sym"]
         blocks = {i: self._label_block(i) for i in idx}
@@ -924,8 +1000,18 @@ class Sch:
     (stroke (width 0) (type default)) (uuid "{_u()}"))""")
             elif kind == "glabel":
                 name, rot = extra
+                # Justification must compensate rotation, exactly as `pa` does
+                # for property text above. KiCanvas (and KiCad itself) draw a
+                # label's name horizontally at 0/180 and vertically at 90/270,
+                # then read WHICH SIDE of the anchor it letters on from the
+                # justification: the flag body lies right/below at 0/90
+                # (justify left) but left/above at 180/270, where only
+                # (justify right) letters the name inside the flag. A flat
+                # (justify left) shipped 219 net names outside their own flag
+                # outlines, struck through by the wire they name.
+                just = "right" if rot % 360 in (180, 270) else "left"
                 out.append(f"""  (global_label "{_esc(name)}" (shape input) (at {p[0][0]:g} {p[0][1]:g} {rot})
-    (effects (font (size 1.27 1.27)) (justify left)) (uuid "{_u()}"))""")
+    (effects (font (size 1.27 1.27)) (justify {just})) (uuid "{_u()}"))""")
             elif kind == "junction":
                 out.append(f"""  (junction (at {p[0][0]:g} {p[0][1]:g}) (diameter 0) (color 0 0 0 0) (uuid "{_u()}"))""")
             elif kind in ("text", "caption"):
@@ -953,12 +1039,12 @@ class Sch:
         # Wrap the prose to the drawing's own width (never narrower than a
         # readable measure, never wider than the circuit it annotates).
         wrap_w = max(cw, MIN_W - 2 * MARGIN)
-        chars = max(40, int(wrap_w / (CHAR_W * NOTE_SIZE)))
+        chars = max(40, int(wrap_w / (PROSE_W * NOTE_SIZE)))
         lines: list[str] = []
         for n in queued:
             lines.extend(_wrap(n, chars))
         notes_h = (len(lines) - 1) * NOTE_LEAD + LINE_H * NOTE_SIZE if lines else 0.0
-        notes_w = max((len(l) * CHAR_W * NOTE_SIZE for l in lines), default=0.0)
+        notes_w = max((text_w(l, NOTE_SIZE) for l in lines), default=0.0)
 
         inner_w = max(cw, notes_w, MIN_W - 2 * MARGIN)
         width = inner_w + 2 * MARGIN
