@@ -1,0 +1,195 @@
+family: pro
+title: "The Pro line"
+maker_style: "Fender-style"
+summary: >-
+  Fender's mid-size single-15" workhorse, sitting between the Deluxe/Super
+  class and the piggyback Bassman/Twin/Showman class for its whole run. The
+  tweed circuit went through more revisions than almost anything else in the
+  catalogue — five narrow-designation steps from the TV-front 5A5 to the
+  narrow-panel 5E5-A alone — settling on its best-known form in 1956: a
+  two-channel 12AY7 front end with an unusually deep shared second gain
+  stage, a passive James tone network, and a driver + split-load cathodyne
+  phase inverter feeding a fixed-bias 6L6 pair. The name moved onto an
+  entirely different circuit in 1960, when the brown-panel 6G5 dropped the
+  tube rectifier for solid-state and added an optical tremolo — the amplifier
+  the Pro name carried until the line was discontinued ahead of the blackface
+  era.
+models:
+  - designation: "5A5"
+    name: "Pro (TV-front tweed)"
+    years: { start: 1948, end: 1950 }
+    wattage: 20
+    output: "push-pull 2x6L6"
+    tubes: null
+    key_change: >-
+      The earliest documented Pro in this line: a TV-front cabinet on an
+      octal-preamp circuit, cathode-biased, with a single 15-inch speaker.
+      Fender's TV-front Pro spans 1947-1953 across three close designations
+      (5A5/5B5/5C5) that a published field guide treats as one era rather
+      than three sharply-bounded circuits, and dating individual examples is
+      correspondingly soft — a documented 5A5 example is dated to 1951, inside
+      the range used here. No confident per-model tube list survives for this
+      entry; the era's preamp ran either 6SC7-family octal triodes or, later
+      in the span, noval 12AY7/12AX7 (see 5C5 below for the transition).
+    circuit_ref: null
+    sources:
+      - desc: "Mojotone Fender Field Guide, 'Fender TV Front Pro' — 1947-1953 span, 18-25 W, single 15\" Jensen speaker, cathode-biased, preamp/PI tube options listed as '6SC7 or 12AY7' / '6SC7 or 12AX7' across the era, choke removed and speaker jacks moved under the chassis during the 5C5 revision"
+        url: "https://mojotone.com/blogs/fender-field-guide/fender-tv-front-pro"
+      - desc: "Telecaster Guitar Forum, 'Fender Pro 5A5 TV Panel' — notes a 'true' 5A5 dated to 1951, and that the 5A5 and 5B5 differ only in a coupling-cap value or two"
+        url: "https://www.tdpri.com/threads/fender-pro-5a5-tv-panel.566360/"
+      - desc: "Rainbow Guitars listing, 'Vintage Fender Tweed Pro Amp 1951 5A5 Circuit' — a documented 5A5-circuit example dated 1951, corroborating the TV-front field guide's span"
+        url: "https://www.rainbowguitars.com/guitar/fender/fender-tweed-pro-amp-1951-5a5-circuit/fe2346/us"
+
+  - designation: "5B5"
+    name: "Pro (TV-front tweed)"
+    years: { start: 1950, end: 1951 }
+    wattage: 20
+    output: "push-pull 2x6L6"
+    tubes: null
+    key_change: >-
+      A close revision of the 5A5 within the same TV-front era — the
+      forum-documented difference is a coupling-capacitor value or two, not a
+      topology change. Grouped with 5A5/5C5 under the same 1947-1953
+      field-guide span; the year bracket here is a defensible subdivision,
+      not an independently dated boundary.
+    circuit_ref: null
+    sources:
+      - desc: "Telecaster Guitar Forum, 'Fender Pro 5A5 TV Panel' — '5A5 and 5B5 have very little difference but those differences are discernible — coupling cap values are different in a place or two'"
+        url: "https://www.tdpri.com/threads/fender-pro-5a5-tv-panel.566360/"
+      - desc: "Prowess Amplifiers schematic index, Fender Pro 5B5 — confirms the designation and its place in the TV-front sequence"
+        url: "https://www.prowessamplifiers.com/schematics/fender/Pro_5b5.html"
+
+  - designation: "5C5"
+    name: "Pro (TV-front tweed, noval transition)"
+    years: { start: 1951, end: 1953 }
+    wattage: 20
+    output: "push-pull 2x6L6"
+    tubes: [12AY7, 12AY7, 12AX7, 6L6, 6L6, 5U4]
+    key_change: >-
+      The point where the octal preamp/phase-inverter tubes (6SC7-family)
+      give way to the noval 12AY7/12AX7 the rest of the line keeps into the
+      narrow-panel era — a 6SN7 variant of the 5C5 is also documented,
+      suggesting the transition was not instantaneous across the production
+      run. The filter choke is removed during this revision and the speaker
+      and external-speaker jacks move to the underside of the chassis,
+      closing out the TV-front cabinet era.
+    circuit_ref: null
+    sources:
+      - desc: "Telecaster Guitar Forum thread (search-indexed excerpt) — '5C5's can be exactly the same as a 5B5, or there is a 6SN7 variant of the 5C5. The 5C5 is the circuit that also moved to noval preamp and PI tube with 12A_7's'"
+        url: "https://www.tdpri.com/threads/what-do-the-old-fender-amp-designations-mean.93587/page-2"
+      - desc: "Mojotone Fender Field Guide, 'Fender TV Front Pro' — choke removed and speaker/ext-speaker jacks relocated under the chassis during the 5C5 revision, closing the TV-front span"
+        url: "https://mojotone.com/blogs/fender-field-guide/fender-tv-front-pro"
+      - desc: "Schematic Heaven archive, Fender Pro 5C5 schematic — confirms the designation and its noval tube complement"
+        url: "https://schematicheaven.net/fenderamps/pro_5c5_schem.pdf"
+
+  - designation: "5D5"
+    name: "Pro (wide-panel tweed)"
+    years: { start: 1953, end: 1955 }
+    wattage: 20
+    output: "push-pull 2x6L6G"
+    tubes: [12AY7, 12AY7, 12AX7, 6L6G, 6L6G, 5U4]
+    key_change: >-
+      The wide-panel tweed cabinet revision, still cathode-biased with a
+      single tone control and separate mic/instrument volumes, but the first
+      Pro to add an external-speaker jack and a negative-feedback loop — the
+      loop this line's next revision (5E5) would remove and the one after
+      that (5E5-A) would restore.
+    circuit_ref: null
+    sources:
+      - desc: "Mojotone Fender Field Guide, 'Fender Wide Panel Tweed Pro' — Model 5D5 (1953-1955), 18-25 W, 1x15\" Jensen P15N, cathode-biased, 12AY7 mic/instrument preamp + 12AX7 phase inverter + 2x6L6G + 5U4 rectifier, single tone control, external-speaker jack and negative-feedback loop added on this revision"
+        url: "https://mojotone.com/blogs/fender-field-guide/fender-wide-panel-tweed-pro"
+
+  - designation: "5E5"
+    name: "Pro (narrow-panel tweed)"
+    years: { start: 1955, end: 1956 }
+    wattage: 25
+    output: "push-pull 2x6L6GB"
+    tubes: [12AY7, 12AY7, 12AX7, 6L6GB, 6L6GB, 5U4G]
+    key_change: >-
+      The narrow-panel cabinet revision, one year ahead of the 5E5-A this
+      corpus documents in full (amps/5e5a/). Circuit-wise it is close to a
+      scaled-up 5E3 Deluxe: the phase inverter moves from the 5D5's paraphase
+      arrangement to the split-load (cathodyne) topology the 5E5-A keeps, but
+      the power section stays cathode-biased and the negative-feedback loop
+      the 5D5 had added is removed outright — the two changes the 5E5-A would
+      each partially reverse (fixed bias returns, and NFB comes back paired
+      with a new Presence control). Wattage is an estimate: cathode bias on
+      the same tube set as the fixed-biased 5E5-A typically yields somewhat
+      less clean headroom, not an independently published figure.
+    circuit_ref: null
+    sources:
+      - desc: "Mojotone Fender Field Guide, 'Fender Narrow Panel Tweed Pro' — 5E5 (1955): 12AY7 mic-channel and instrument-channel preamp, half-12AX7 phase inverter (split-load), 2x6L6GB, 5U4GA rectifier, cathode-biased power section, negative feedback loop removed on this revision"
+        url: "https://mojotone.com/blogs/fender-field-guide/fender-narrow-panel-tweed-pro"
+      - desc: "JazzGuitar.be forum (search-indexed excerpt), 'Fender Tweed Pro' — '5E5 moved from the paraphase PI to the cathodyne PI and is still cathode biased in the power section...a big 5E3. Model 5E5 had the negative feedback loop removed'"
+        url: "https://www.jazzguitar.be/forum/guitar-amps-gizmos/63487-fender-tweed-pro.html"
+
+  - designation: "5E5-A"
+    name: "Pro (narrow-panel tweed)"
+    years: { start: 1956, end: 1960 }
+    wattage: 30
+    output: "push-pull 2x6L6GB"
+    tubes: [12AY7, 12AY7, 12AX7, 6L6GB, 6L6GB, 5U4GA]
+    key_change: >-
+      The definitive tweed Pro, documented in full in this corpus
+      (amps/5e5a/). Fixed bias returns, paired with a restored
+      negative-feedback loop and the line's first Presence control, over the
+      same driver + split-load cathodyne phase inverter the 5E5 introduced.
+      The passive James tone network (separate Bass and Treble pots, no
+      single shared tone knob) is unique to this revision within the line —
+      neither the cathode-biased 5D5/5E5 nor the later solid-state-rectified
+      6G5 use it in this exact two-knob form.
+    circuit_ref: "5e5a"
+    sources:
+      - desc: "Fender 'Pro-Amp' Model 5E5-A schematic and layout (J-EE) — see amps/5e5a/meta.yaml for the full component-level citation"
+        url: "https://schematicheaven.net/fenderamps/pro_5e5a_schem.pdf"
+      - desc: "Mojotone Fender Field Guide, 'Fender Narrow Panel Tweed Pro' — 5E5-A (1956-1960), fixed/nonadjustable bias via a selenium bias rectifier, negative-feedback loop restored with the addition of a Presence control"
+        url: "https://mojotone.com/blogs/fender-field-guide/fender-narrow-panel-tweed-pro"
+
+  - designation: "6G5"
+    name: "Pro (brownface)"
+    years: { start: 1960, end: 1961 }
+    wattage: 40
+    output: "push-pull 2x6L6GC"
+    tubes: [7025, 7025, 7025, 7025, 7025, 6L6GC, 6L6GC]
+    key_change: >-
+      The name moves onto a different circuit entirely: a brown-tolex combo
+      that drops the tube rectifier for a solid-state one, replaces the
+      cathodyne with a long-tailed-pair phase inverter (one 7025 bottle doing
+      the whole job, both halves), and adds tremolo — a phase-shift oscillator
+      on a 7025 of its own, driving a lamp and photoresistor that shunt the
+      channel-mixing node to ground. That is the optical tremolo the drawing
+      shows, not the phase-mixed harmonic vibrato a secondary field guide
+      names it; the oscillator and the driver stage ahead of the inverter
+      account for two of the amp's five 7025 bottles, the two channels for
+      two more. No reverb. Still a single 15-inch speaker combo,
+      still carrying a Presence control, and still fixed-bias — the one
+      thread that survives from the 5E5-A across the discontinuity. Revised
+      the following year as the 6G5-A, which swaps in 5881 output tubes; that
+      revision is out of scope here.
+    circuit_ref: "6g5"
+    sources:
+      - desc: "Fender 'Pro-Amp' Model 6G5 drawing (A-FJ), schematic + layout — see amps/6g5/meta.yaml for the full component-level citation. The drawing's own layout page shows five 7025 sockets and the two 6L6GC, and draws a lamp/photoresistor tremolo in the audio path rather than the phase-mixed harmonic vibrato a secondary field guide names"
+        url: "https://schematicheaven.net/fenderamps/pro_6g5_schem.pdf"
+      - desc: "Mojotone Fender Field Guide, 'Fender Brownface Pro' — 6G5/6G5-A (1960-1963), 40 W, 1x15\" combo, Normal/Bright channels each one 7025, long-tailed-pair phase inverter (one 7025), 6G5 tremolo on two 7025s, 6L6GC output (6G5-A: 5881), solid-state rectifier, fixed/nonadjustable bias, Presence control, no reverb"
+        url: "https://mojotone.com/blogs/fender-field-guide/fender-brownface-pro"
+      - desc: "Cream City Music listing, 1960 Fender Pro 6G5 ('center volume', early brownface 'pink' tolex) — 40 W, tube complement '6L6 (2), 12AX7 (5)' (the 7025 is a selected 12AX7), original 15\" Jensen P15N speaker"
+        url: "https://www.creamcitymusic.com/g-e-smiths-vintage-1960-fender-pro-40w-1x15-tube-combo-amp-center-volume-6g5/"
+notes: >-
+  Dating for the three TV-front designations (5A5/5B5/5C5) rests on a single
+  field-guide source that treats 1947-1953 as one span rather than three
+  independently-dated circuits, corroborated only by one dated example
+  (a 1951 5A5) and one forum account of what changed between 5A5 and 5B5; the
+  year brackets given for those three are defensible subdivisions of that
+  span, not firm boundaries, in the same spirit as this corpus's Champ family
+  notes. 5E5's wattage is likewise an estimate (cathode bias vs. the 5E5-A's
+  fixed bias on the same tube set), not an independently published figure.
+  The 6G5-A (1961-1963, 5881 output tubes) is documented by the same field
+  guide as a running change to the 6G5 above and is left out of this file's
+  scope; a future contributor adding it should treat it as a further model
+  row here, not a new family. Two circuits in this line have documented
+  entries in the corpus — the 5E5-A (amps/5e5a/) and the brown 6G5
+  (amps/6g5/), which is where the line's tremolo type is settled: the
+  drawing wires a lamp and photoresistor into the audio path, so this file
+  calls it an optical tremolo rather than following the field guide's
+  "harmonic vibrato" label. Every other row is history-tier
+  (circuit_ref: null) until one is built.

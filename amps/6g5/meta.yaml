@@ -1,0 +1,77 @@
+# Circuit Codex metadata — schema: docs/schema.md (v1)
+id: "6g5"
+name_style: "Brown Pro-style"
+family: other
+era:
+  start: 1960
+  end: 1963
+wattage: 40
+tubes: [7025, 7025, 7025, 7025, 7025, 6L6GC, 6L6GC]
+topology:
+  rectifier: { kind: solid-state, type: "silicon bridge" }
+  bias: fixed
+  phase_inverter: long-tailed-pair
+  tone_stack: tb
+lineage:
+  derived_from: ["5e5a"]  # the narrow-panel tweed Pro, landed alongside this entry:
+                          # this brown circuit is a direct redesign of it (fixed bias
+                          # and the Presence control carry over; the tube rectifier
+                          # gives way to silicon, the cathodyne to a long-tailed pair,
+                          # and tremolo is added), not an independent design.
+                          # Reciprocal of amps/5e5a's influenced: ["6g5"].
+  influenced: []
+sources:
+  - desc: "Fender 'Pro-Amp' Model 6G5 drawing (A-FJ), schematic + layout: component
+      values AND the printed voltage chart read directly from the published sheet.
+      Rails: +460 V reservoir (silicon bridge, 4 diodes off a single HT secondary,
+      no tube rectifier) -> choke -> +456 V (6L6GC plates, OT primary DCR omitted,
+      and screens via a shared 4700 Ohm-1W dropper) -> +430 V screens node -> 56k-1W
+      + 10k droppers -> phase-inverter/driver supply (+320 V driver plate, +315 V /
+      +310 V phase-inverter plates); fixed bias read as -55 V (vertical print beside
+      the two 220k-5% output-grid leaks — a tight, hand-lettered rotated label; the
+      sheet gives no separate bias test point, so this reading carries a wider
+      margin than the horizontally-printed rail values, flagged in notes.md).
+      Preamp: two mirrored channels (Normal, Bright), each two 7025 stages -
+      first stage 100k plate / 820 Ohm cathode (25+25 uF split bypass) reading
+      +170 V / +1.4 V, into a Bass-Treble tone stack and a Volume pot, into a
+      second 100k-plate stage reading +160 V (channel 1) / +120 V (channel 2) as
+      printed - both channels sum at a shared node ahead of the tremolo optocoupler
+      and a driver stage (100k plate, +320 V). Long-tailed-pair inverter: 82k /
+      100k 5% plate loads off the +315/+310 V rail, 820 Ohm shared cathode into a
+      6.8k tail, with a 56k negative-feedback resistor and a 5k-L Presence pot at
+      the tail foot (both AC-only, DC-neutral, omitted from the DC model). Output:
+      two 6L6GC, grounded cathodes, 470 Ohm-1W individual screen stoppers, 220k-5%
+      fixed-bias grid leaks. Tremolo: ONE 7025 phase-shift oscillator (Speed on a
+      4M-RA control, cathode 1500 Ohm/25+25 uF, plate +120 V) driving a lamp/
+      photoresistor pair (Intensity control) that shunts the channel-mixing node to
+      ground - a running oscillator with no static DC operating point, excluded
+      from the netlist exactly as the corpus's other photocell/phase-shift trem
+      circuits are (see amps/ab763). This reading is a photocell (optical) tremolo,
+      NOT harmonic vibrato — the drawing shows a lamp-and-photoresistor pair wired
+      in the audio path, the classic Fender optocoupler circuit, not the phase-
+      mixed dual-triode network 'harmonic vibrato' names; a secondary field guide's
+      'harmonic vibrato' label for this model is not followed here (hard rule 1:
+      read the published drawing, not a secondary description). Notice on the
+      sheet: values +/-20% (chart) or +/-20% read to ground with an electronic
+      voltmeter; layout sheet separately notes resistors 1/2 W - 10% and capacitors
+      >= 400 V unless marked. Not reproduced here; archived at Schematic Heaven.
+      Tube count (2026-08-08 drawing pass): the companion published LAYOUT sheet
+      (same A-FJ, page 2 of the archived PDF) draws the physical chassis socket
+      row directly and shows five 7025 sockets plus the two 6L6GC — not seven
+      7025s as an earlier pass of this entry counted from the more crowded
+      schematic page. Corrected here; each preamp/driver/PI/oscillator function
+      maps to its own socket per netlist.cir's existing bottle grouping (V1
+      Normal both stages, V2 Bright both stages, V3 tremolo oscillator, V5
+      driver, V6 phase inverter), so no netlist ref changed."
+    url: "https://schematicheaven.net/fenderamps/pro_6g5_schem.pdf"
+  - desc: "Mojotone/Ampwares Fender field guide, 'Brownface Pro' — 6G5 production
+      window 1960-1963, 40 W nominal rating, 1x15\" combo, front-panel control
+      layout (Normal In/In/Bass/Treble/Volume, Bright In/In/Bass/Treble/Volume,
+      shared Speed/Intensity/Presence). Used here for the wattage and date range
+      only; its tube-count/tremolo-type summary is superseded by the direct
+      schematic reading above where the two disagree (see note)."
+    url: "https://mojotone.com/blogs/fender-field-guide/fender-brownface-pro"
+verification:
+  status: draft
+added: 2026-08-08
+contributors: [TheAnalogMaker]

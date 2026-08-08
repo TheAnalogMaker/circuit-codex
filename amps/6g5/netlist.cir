@@ -1,0 +1,137 @@
+* 6G5 (Brown Pro-style) — DC operating-point netlist
+* Circuit Codex — CC-BY-SA 4.0. Independently drawn from the published Fender
+* "Pro-Amp" Model 6G5 drawing's component values (see meta.yaml); no drawing
+* reproduced. The drawing labels the preamp bottles 7025 — an alias for the
+* 12AX7 (reference/tubes/12ax7.yaml also_known_as). The output tubes are
+* printed 6L6GC; no dedicated clean-room 6L6GC model exists yet, so — exactly
+* as amps/5f6a and amps/m1959 do for the same family — the 5881 model stands
+* in (reference/tubes/5881.yaml documents 5881/6L6WGB as 6L6GC-class at these
+* ratings; also_known_as carries the alias).
+*
+* DC conventions. B+1 is DRIVEN at the printed +456 V (6L6GC plates, OT primary
+* DCR omitted, and the point the shared screen dropper hangs from) — the
+* silicon-bridge reservoir upstream of the choke is not modelled, exactly as a
+* tube rectifier's own drop is not modelled elsewhere in the corpus. The bias
+* supply (a filtered tap this drawing does not fully resolve — see notes.md) is
+* replaced by an ideal -55 V source, as its AC/ripple-filtering role warrants
+* everywhere else in this corpus.
+*
+* One dropper downstream of B+1 is READ from the drawing (a 4700 Ohm-1W shared
+* screen dropper) and MODELLED as a real resistor, so the screens' loaded
+* operating point is solved, not assumed. Past that point the drawing prints a
+* 56k-1W + 10k pair descending toward the phase-inverter/driver supply, but
+* NOT which stages' currents that pair actually carries — chaining every
+* downstream stage's current (PI + driver + all four preamp triodes) through
+* it the way this corpus derives other amps' rails collapses it to a fraction
+* of its printed value (tried, and wrong by ~4x; see notes.md), so it is not
+* trustworthy as a literal series model here. BP3 (phase-inverter supply),
+* BDRV (driver supply) and BD (the shared preamp rail) are therefore DRIVEN
+* directly, each at its own value chosen to land its stage(s) near their
+* printed plate readings — anchors, not derivations, exactly as amps/ab763
+* drives BC directly rather than deriving it through the dropper between it
+* and BP1. Every node fed from these three anchors is reported informational
+* in voltages.yaml (BP3's own immediate loads at wide tolerance; BDRV's and
+* BD's are chart: null) rather than gated, because the anchor values
+* themselves are chosen to fit, not read.
+*
+* EXCLUDED — the tremolo oscillator (one 7025, not modelled as a bottle). It
+* drives a lamp/photoresistor pair that shunts the channel-mixing node to
+* ground: a running phase-shift oscillator has no static DC operating point,
+* the same reasoning amps/ab763 documents for its own tremolo oscillator. Its
+* printed pins (+120 V plate, +1.5 V cathode) are reported informational only.
+*
+* DC-open caps are not modelled (no board layout exists yet for this entry to
+* placement-check them against); the tone stacks, volume pots, tremolo
+* photocell, and the PI-tail NFB/Presence network are abstracted networks that
+* carry ~0 V DC and are omitted, matching every other amp in the corpus.
+.include models/12ax7.inc
+.include models/5881.inc
+
+VBP1 BP1 0 DC 456
+VBIAS NBIAS 0 DC -55
+
+* --- Rail chain ---
+* B+1 -> shared screen dropper (read) -> BP2 (screens node, printed +430 V)
+RDSCR BP1 BP2 4700
+* BP3 (phase-inverter supply), BDRV (driver supply) and BD (shared preamp
+* rail) are DRIVEN anchors — see header note. The drawing gives no reason to
+* think the PI, driver and preamp stages share one literal node, so each gets
+* its own anchor rather than forcing three different loads onto one value;
+* each figure below is chosen to land its stage near its own printed plate
+* reading, not a read figure itself.
+VBP3 BP3 0 DC 410
+VBDRV BDRV 0 DC 480
+VBD  BD  0 DC 300
+
+* --- Output stage: two 6L6GC, fixed bias, grounded cathodes ---
+* Individual 470 Ohm-1W screen stoppers off the shared BP2 screens node.
+RGL1 NBIAS G71 220k
+RSC1 BP2 S71 470
+XV7 BP1 S71 G71 0 5881
+RGL2 NBIAS G72 220k
+RSC2 BP2 S72 470
+XV8 BP1 S72 G72 0 5881
+
+* --- Long-tailed-pair phase inverter (V6), off BP3 ---
+* 82k (hot, tone-stack/driver-fed side) / 100k (cold) plate loads; 820 Ohm
+* shared cathode into a 6.8k tail to ground; 1M grid leaks to the tail
+* junction (standard corpus value for this topology — the drawing's own grid-
+* leak figure was not legible at this node; flagged in notes.md). The 56k NFB
+* resistor and 5k-L Presence pot at the tail foot are AC-only and DC-neutral,
+* omitted.
+RLA BP3 PPIA 82k
+XV6A PPIA GPIA KPI 12AX7
+RGA GPIA JPI 1meg
+RLB BP3 PPIB 100k
+XV6B PPIB GPIB KPI 12AX7
+RGB GPIB JPI 1meg
+RTAIL KPI JPI 820
+RT2 JPI 0 6.8k
+
+* PI-plate -> output-grid coupling caps (0.05u printed, DC-open). Modelled so
+* a future layout's inter-stage routing and push-pull phase can be checked
+* natively; each 6L6GC grid still sits at -55 V through its 220k leak, so the
+* op point is unmoved.
+C1 PPIA G71 0.05u
+C2 PPIB G72 0.05u
+
+* --- Driver stage (V5), off BDRV — INFORMATIONAL (see header note) ---
+* 100k plate load, 820 Ohm cathode (25 uF bypass); grid returns to ~0 V DC
+* through the tremolo/mixing node's 1M leak. The drawing's local feedback
+* network around this stage (470k/220k/2500pF) is not modelled.
+RL5 BDRV P5 100k
+XV5 P5 G5 K5 12AX7
+RG5 G5 0 1meg
+RK5 K5 0 820
+CK5 K5 0 25u
+
+* --- Channel 1 (Normal), off the shared preamp rail BD — INFORMATIONAL ---
+* Stage 1: 100k plate / 820 Ohm cathode (25+25 uF split bypass), printed
+* +170 V / +1.4 V. Grid returns to ground through the input jacks' 1M leak.
+RL1A BD P1A 100k
+XV1A P1A G1A K1A 12AX7
+RG1A G1A 0 1meg
+RK1A K1A 0 820
+CK1A K1A 0 50u
+* Stage 2: 100k plate, printed +160 V. Grid DC-referred to ~0 V through the
+* volume pot (abstracted). Cathode network not resolved from the scan; 1.5k
+* is a placeholder typical of this era's second gain stages, not a read value.
+RL1B BD P1B 100k
+XV1B P1B G1B K1B 12AX7
+RG1B G1B 0 1meg
+RK1B K1B 0 1.5k
+CK1B K1B 0 25u
+
+* --- Channel 2 (Bright), off the shared preamp rail BD — INFORMATIONAL ---
+* Mirrors channel 1. Stage 2 prints +120 V rather than +160 V; both are
+* informational so the asymmetry is reported, not resolved by force.
+RL2A BD P2A 100k
+XV2A P2A G2A K2A 12AX7
+RG2A G2A 0 1meg
+RK2A K2A 0 820
+CK2A K2A 0 50u
+RL2B BD P2B 100k
+XV2B P2B G2B K2B 12AX7
+RG2B G2B 0 1meg
+RK2B K2B 0 1.5k
+CK2B K2B 0 25u

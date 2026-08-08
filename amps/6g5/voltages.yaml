@@ -1,0 +1,37 @@
+# Printed voltage chart read directly from the published Fender "Pro-Amp"
+# Model 6G5 drawing (A-FJ). The drawing's notice: "Voltages read to ground with
+# electronic voltmeter. Values shown + or -" (the layout sheet separately states
+# the era's usual +/-20% convention). Tube pins therefore get 20%; the driven /
+# derived rails get tighter targets where the reading is confident.
+#
+# This entry is DRAFT (see meta.yaml and notes.md): the drawing's exact preamp
+# and driver-stage supply topology could not be fully resolved from the scan,
+# and one bias-related label (-55 V) is a tight rotated print read with lower
+# confidence than the horizontal rail figures. Every node below that carries a
+# real chart value is still reported, at wider tolerance where the modelling is
+# approximate — draft status means a deviation warns, never fails (see
+# pipeline/verify_amps.py); nothing here is hidden, only unproven.
+source: "Fender Pro-Amp Model 6G5 drawing (A-FJ), printed voltages: +460 (B+
+  reservoir, silicon bridge), +456 (6L6GC plates), +430 (screens), +320 (driver
+  plate), +315/+310 (phase-inverter plates), +170/+1.4 (channel first-stage
+  plate/cathode, both channels), +160 (channel-1 second-stage plate), +120
+  (channel-2 second-stage plate), +120/+1.5 (tremolo oscillator, excluded),
+  -55 (fixed bias, read from a rotated vertical label beside the two 220k-5%
+  output grid leaks)"
+nodes:
+  BP2:  { chart: 430, tol_pct: 10, note: "screens node, after the shared 4700 Ohm-1W dropper off +456 V" }
+  S71:  { chart: null, note: "6L6GC (V7) screen after its own 470 Ohm-1W stopper — informational, printed value shared with BP2" }
+  G71:  { chart: -55, tol_pct: 8, note: "6L6GC (V7) grid, fixed bias via 220k from the -55 V supply" }
+  S72:  { chart: null, note: "6L6GC (V8) screen after its own 470 Ohm-1W stopper — informational, printed value shared with BP2" }
+  G72:  { chart: -55, tol_pct: 8, note: "6L6GC (V8) grid, fixed bias via 220k from the -55 V supply" }
+  PPIA: { chart: 315, tol_pct: 20, note: "PI plate, 82k (hot) side, off the driven BP3 anchor (see netlist.cir header — BP3 is chosen to fit, not read)" }
+  PPIB: { chart: 310, tol_pct: 20, note: "PI plate, 100k (cold) side, off the driven BP3 anchor" }
+  KPI:  { chart: null, note: "PI shared cathode over 820 Ohm — informational; the drawing's exact tail split (820/6.8k) was read but not the cathode figure itself" }
+  JPI:  { chart: null, note: "PI tail junction (820 Ohm / 6.8k) — informational, same reason as KPI" }
+  P5:   { chart: 320, tol_pct: 25, note: "driver-stage plate — the supply feeding it (BDRV, a driven anchor, not read) is chosen to fit, and the drawing's local feedback network around this stage is not modelled; wider tolerance reflects that, not the printed figure itself" }
+  P1A:  { chart: null, note: "channel-1 (Normal) first-stage plate — printed +170 V. Informational: the preamp rail BD is a driven anchor chosen to fit (see netlist.cir header), not derived from a read dropper" }
+  K1A:  { chart: null, note: "channel-1 first-stage cathode over 820 Ohm — printed +1.4 V (informational, same shared-rail reason)" }
+  P1B:  { chart: null, note: "channel-1 second-stage plate — printed +160 V (informational; cathode network not resolved from the scan)" }
+  P2A:  { chart: null, note: "channel-2 (Bright) first-stage plate — printed +170 V (informational, mirrors P1A)" }
+  K2A:  { chart: null, note: "channel-2 first-stage cathode over 820 Ohm — printed +1.4 V (informational, mirrors K1A)" }
+  P2B:  { chart: null, note: "channel-2 second-stage plate — printed +120 V, asymmetric with channel 1's +160 V as printed (informational; not force-resolved)" }

@@ -1,0 +1,101 @@
+* 5E5-A (Tweed Pro-style) — DC operating-point netlist
+* Circuit Codex — CC-BY-SA 4.0. Independently drawn from the published 5E5-A
+* (J-EE) drawing's legible component values (see meta.yaml); no drawing
+* reproduced.
+*
+* DC conventions: BP1 driven at the printed +390 V (power-tube plate node,
+* before the choke); downstream nodes DERIVED. Choke DCR estimated at 110 R
+* (the drawing's own +390 -> +385 V drop implies ~110 R at the combined
+* output-stage screen+plate current below). OT primary DCR omitted. Bias
+* supply replaced by an ideal -32 V source (its selenium/RC network is
+* AC/ripple filtering only). DC-open caps (coupling / cathode-bypass) are
+* modelled where both leads land on a named DC node; caps into the abstracted
+* James tone network (Bass/Treble/Presence, all passive) stay omitted — its
+* own DC path to ground is folded into a single representative 1M leak at the
+* driver's grid (RG4 below), the same treatment this corpus gives other
+* abstracted tone/control networks (5f4, 5f6a).
+*
+* Two 12AY7s: V1 is the shared two-channel front end (mic + instrument, one
+* triode each, shared 820R cathode) — the schematic's two input jacks per
+* channel collapse to one representative grid path each, as 5e3's netlist
+* already does for the same real chassis detail. V2 is the single shared
+* second stage the two channels mix into through their own 1M volume pots and
+* 270k mixing resistors; its second triode is not used in the signal path and
+* carries no netlist element. V3 (12AX7) is a driver stage feeding a
+* split-load (cathodyne) phase inverter — the driver+cathodyne shape this
+* corpus already documents on the 5F4 Super, not a long-tailed pair.
+*
+* Values not confidently legible in this copy of the drawing (the two rail
+* droppers RD1/RD2, and V2's own plate/cathode resistors) are carried at this
+* corpus's standard values for the identical role on 5e3/5f4 rather than
+* guessed digit-by-digit; flagged in notes.md for a maintainer to confirm
+* against a sharper scan.
+.include models/12ay7.inc
+.include models/12ax7.inc
+.include models/5881.inc
+
+VBP1 BP1 0 DC 390
+VBIAS NBIAS 0 DC -32
+
+* rail: choke (DCR estimate) -> screens, then two droppers toward the front
+RCHOKE BP1 BP2 110
+RD1 BP2 BP3 16k
+RD2 BP3 BP4 22k
+
+* V1 12AY7 — mic + instrument channels, shared 820R cathode (dual 25+25 uF
+* bypass can omitted for DC; open at DC, it moves no operating point)
+RL1 BP4 PAY1 100k
+XV1A PAY1 GAY1 KAY 12AY7
+RG1 GAY1 0 1meg
+RL2 BP4 PAY2 100k
+XV1B PAY2 GAY2 KAY 12AY7
+RG2 GAY2 0 1meg
+RK1 KAY 0 820
+
+* V2 12AY7 (second, single triode) — the shared stage both channels' 1M
+* volume pots and 270k mixing resistors reach through at DC as one 1M leak.
+* Two more resistors are visible on the 2026-08-08 sharper-scan re-read
+* between V2's plate/grid and the driver's grid (bom.yaml RFB1, RBLEED) —
+* NOT included here. Modelled as plain DC resistors they collapse this
+* stage's operating point (P2 driven to ~8 V against a chart of 130 V), which
+* contradicts the chart's own printed, self-consistent class-A reading; at
+* least one of the two almost certainly sits behind a coupling cap this scan
+* doesn't resolve. Carried as an annotation-layer finding (bom.yaml) rather
+* than guessed into the DC model — see notes.md.
+RL3 BP4 P2 100k
+XV2 P2 G2 K2 12AY7
+RG3 G2 0 1meg
+RK2 K2 0 1.5k
+
+* V3A 12AX7 driver — the James tone network sits between V2's plate and this
+* grid; abstracted to the single 1M leak below (its own DC path to ground
+* through the Bass pot), per meta.yaml topology.tone_stack: james
+RL4 BP3 P3A 100k
+XV3A P3A G3A K3A 12AX7
+RG4 G3A 0 1meg
+RK3 K3A 0 1.5k
+
+* V3B split-load cathodyne, driven from V3A's plate
+C1 P3A GPI 0.02u
+RL5 BP3 PPI 56k
+XV3B PPI GPI KPI 12AX7
+RKA KPI JPI 1.5k
+RKB JPI 0 56k
+RGPI GPI JPI 1meg
+
+* 6L6GB pair — fixed-biased via 220k leaks from the -32 V supply; screens
+* tied straight to BP2 (no screen resistor legible on the drawing)
+RGL1 NBIAS G61 220k
+XV4 BP1 BP2 G61 0 5881
+RGL2 NBIAS G62 220k
+XV5 BP1 BP2 G62 0 5881
+* cathodyne -> output-grid drive: 0.1u couplers (DC-open) + 1.5k stoppers,
+* one from the PLATE, one from the CATHODE — the split-load pair of outputs
+C2 PPI NG61 0.1u
+R5s NG61 G61 1.5k
+C3 KPI NG62 0.1u
+R6s NG62 G62 1.5k
+
+* DC-open caps (both leads on a named DC node — placement not layout-checked,
+* no layout.yaml is authored in this delivery)
+C4 KAY 0 25u
