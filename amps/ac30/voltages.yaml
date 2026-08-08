@@ -1,0 +1,43 @@
+# Voltages annotated on the factory drawing. JMI drawing OS/065, "VOX A.C.30.36
+# AMPLIFIER CIRCUIT / NORMAL" (title-block date 29-4-60, amended to Issue 4 of
+# 11-9-64), prints its working voltages beside the circuit rather than as a
+# tabulated valve-voltage chart, and states no measurement convention — so there
+# is no per-pin reference of the kind Fender printed. The figures are treated
+# here as chart values at the era's ±20% tube-pin convention; every other node is
+# reported informationally (simulated only, never gated).
+#
+# Seven of the printed figures fall inside this netlist's scope: +320 V at the
+# rail, +290 V at the front-end anode supply, +170 V at each V1 anode, +1.6 V at
+# V1's shared cathode, +230 V at each phase-inverter anode, +55 V at the inverter
+# tail junction, and the output stage's "QUIESCENT 10v" beside the shared 50 Ω
+# cathode resistor (the same note reads "12.5v AT 30 WATTS" at full output — the
+# 30-watt figure the model is named for). The +320 V rail is DRIVEN at its
+# printed value, so comparing it would prove nothing; only DERIVED nodes appear
+# below. The drawing prints no EL84 anode figure, which is just as well: the
+# corpus omits output-transformer primary DCR, so all four anodes collapse onto
+# the driven rail.
+#
+# ONE ANNOTATION HAS A HISTORY. The sheet's modifications box records, at ISS.3
+# of 11-10-63, "230V WAS 285V" — the phase-inverter anode annotation was revised
+# down by 55 V without any change to the resistors around it. The later figure is
+# the one carried here, because it is the one the sheet as amended prints, and it
+# is also the one the simulation lands on (227 V). The earlier 285 V figure is
+# recorded in notes.md rather than silently dropped.
+source: "JMI drawing OS/065, 'VOX A.C.30.36 AMPLIFIER CIRCUIT / NORMAL', title-block date 29-4-60, modifications through ISS.4 of 11-9-64 — working voltages annotated beside the circuit: +320 V rail, +290 V front-end anode supply, +170 V V1 anodes, +1.6 V V1 cathode, +230 V phase-inverter anodes, +55 V inverter tail junction, and 'QUIESCENT 10v / 12.5v AT 30 WATTS' at the shared EL84 cathode resistor. No tabulated valve-voltage chart is printed and no measurement convention is stated."
+nodes:
+  BPN:  { chart: 290, tol_pct: 20, note: "front-end anode supply, after the 22 kΩ dropper R10 from the +320 V rail (8 µF C4). Simulated slightly high by construction: any current the excluded Vibrato/Tremolo chain draws from this side of the supply is not modelled" }
+  PV1A: { chart: 170, tol_pct: 20, note: "V1 Brilliant-channel anode (pin 1), 220 kΩ load R5" }
+  PV1B: { chart: 170, tol_pct: 20, note: "V1 Normal-channel anode (pin 6), 220 kΩ load R6 — the drawing prints the same figure at both anodes" }
+  KV1:  { chart: 1.6, tol_pct: 20, note: "V1's SHARED cathode (pins 3 and 8 tied), 1.5 kΩ R4 with a 25 µF bypass — one bias network for both channels' first stages, which is why neither half can be solved alone" }
+  BPPI: { chart: null, note: "phase-inverter supply node, after its own 22 kΩ dropper R11 from the +320 V rail (8 µF C8) — the drawing annotates the anodes, not this node" }
+  PPIA: { chart: 230, tol_pct: 20, note: "phase-inverter anode, Brilliant/Normal side (100 kΩ load R18). Annotation revised from 285 V at ISS.3, 11-10-63" }
+  PPIB: { chart: 230, tol_pct: 20, note: "phase-inverter anode, Vibrato/Tremolo side (100 kΩ load R19) — the drawing prints one figure for the pair. R19's multiplier glyph is the one value on this copy that does not resolve cleanly; see notes.md" }
+  KPI:  { chart: null, note: "phase-inverter shared cathode, above the 1.2 kΩ R16" }
+  JPI:  { chart: 55, tol_pct: 20, note: "tail junction over the 47 kΩ R15 — the return for both 1 MΩ grid leaks, and the drawing's one annotated figure inside the inverter's cathode circuit" }
+  NGA:  { chart: null, note: "EL84 grid-drive line, side A (V3 + V5), returned to ground through R20 220 kΩ — 0 V by construction" }
+  NGB:  { chart: null, note: "EL84 grid-drive line, side B (V4 + V6), returned to ground through R21 280 kΩ — the drawing's asymmetric partner to R20" }
+  S3:   { chart: null, note: "EL84 screen grid (V3), through its 100 Ω stopper R25 from the rail" }
+  S4:   { chart: null, note: "EL84 screen grid (V4), through its 100 Ω stopper R26" }
+  S5:   { chart: null, note: "EL84 screen grid (V5), through its 100 Ω stopper R29" }
+  S6:   { chart: null, note: "EL84 screen grid (V6), through its 100 Ω stopper R30" }
+  KOUT: { chart: 10, tol_pct: 20, note: "shared EL84 cathode over the single 50 Ω R24 (250 µF bypass) — the amp's entire bias arrangement for four valves. The drawing's 'QUIESCENT 10v' works out at 200 mA of cathode current for the quad, 50 mA a valve" }

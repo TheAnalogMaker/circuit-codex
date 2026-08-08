@@ -1,0 +1,120 @@
+* AC30 (Vox AC30/6-style, JMI drawing OS/065) — DC operating-point netlist
+* Circuit Codex — CC-BY-SA 4.0. Independently drawn from the published component
+* values of JMI drawing OS/065, "VOX A.C.30.36 AMPLIFIER CIRCUIT / NORMAL",
+* title-block date 29-4-60, as amended to Issue 4 of 11-9-64 (see meta.yaml).
+* No drawing reproduced.
+*
+* REVISION — this is the POST-"list of changes" AC30/6: the sheet's modifications
+* box records the 8-5-61 list that replaced the EF86 front end with one ECC83
+* serving both the Brilliant and the Normal channel, then ISS.2 (14-6-63),
+* ISS.3 (11-10-63) and ISS.4 (11-9-64). The values below are the sheet's main
+* body as it stands after ISS.4, which is where those changes were incorporated.
+*
+* Designators ARE the factory drawing's (R1..R30, C1..C11, VR1..VR4, T1, T2,
+* CH.1, V1..V10): unlike the AC15's OA/031, this scan resolves them. See bom.yaml.
+*
+* SCOPE — this netlist covers the two front-end channels, the phase inverter and
+* the power amplifier: the shared ECC83 first stage (V1, one half per channel),
+* the ECC83 long-tailed-pair inverter (V2) and the cathode-biased EL84 quad
+* (V3-V6). The whole Vibrato/Tremolo channel is EXCLUDED: its ECC83 first stage
+* (V7), ECC82 modulator (V8) and ECC83 phase-shift oscillator (V9) hang off a
+* dropper chain the available scan does not resolve back to a named rail, and the
+* oscillator has no static DC operating point (a running phase-shift oscillator
+* whose modulator grid is grid-leak detected). Solving one of those three while
+* the other two are omitted would report a rail no instrument would ever read, so
+* the channel is declared excluded rather than half-modelled — the same treatment
+* the corpus gives the AC15 vibrato and the AB763 tremolo oscillator. See notes.md.
+*
+* DC conventions (as in the sibling amps): the +320 V HT rail is DRIVEN at its
+* printed value, and every node below it is DERIVED. The GZ34 rectifier, its
+* 280-0-280 V secondary, the two 16 uF cans and the 10-20 H choke ahead of that
+* node are not modelled (no corpus netlist simulates its supply). Output-
+* transformer primary DCR is omitted, so all four EL84 anodes sit at the rail;
+* the drawing prints no anode figure for them, only the cathode-resistor voltage,
+* which IS gated. DC-open caps are MODELLED where BOTH leads land on a named DC
+* node (the supply smoothing cans C4/C8, the cathode-bypass cans C1/C11 and the
+* phase-inverter -> EL84 grid couplers C6/C9): open at DC they move no operating
+* point, but modelling them fixes the push-pull phase and the smoothing/bypass
+* placement in the data. Caps with a lead inside an abstracted network (the
+* channel couplers C2/C3 into the volume pots, C5 and C7 into the inverter grids,
+* the Cut capacitor C10) stay out. Grid stoppers and grid leaks carry ~0 DC.
+* Heaters and the pilot lamp are not modelled.
+.include models/12ax7.inc
+.include models/el84.inc
+
+VBP1 BP1 0 DC 320
+
+* --- rail droppers ------------------------------------------------------------
+* Two 22 kOhm droppers hang off the +320 V rail: R10 to the front-end anode
+* supply (printed +290 V, smoothed by C4) and R11 to the phase-inverter supply
+* (smoothed by C8). The excluded Vibrato/Tremolo chain is not modelled.
+R10 BP1 BPN  22k
+C4  BPN 0 8u
+R11 BP1 BPPI 22k
+C8  BPPI 0 8u
+
+* --- V1 ECC83: Brilliant and Normal first stages, ONE bottle -------------------
+* The valve the May-1961 list of changes put where the AC15's EF86 stands: one
+* half per channel, 220 kOhm anode loads, and — the part that matters at DC —
+* ONE shared 1.5 kOhm cathode resistor with a 25 uF bypass serving both sections,
+* so neither half can be solved alone. The 68 kOhm input resistors carry no DC;
+* each grid returns to ground through its 1 MOhm leak.
+R5 BPN PV1A 220k
+XV1A PV1A GV1A KV1 12AX7
+R3 GV1A 0 1meg
+R6 BPN PV1B 220k
+XV1B PV1B GV1B KV1 12AX7
+R14 GV1B 0 1meg
+R4 KV1 0 1.5k
+C1 KV1 0 25u
+
+* --- V2 ECC83 long-tailed-pair phase inverter ---------------------------------
+* Both front-end channels mix into ONE grid here: the Brilliant and Normal volume
+* wipers each feed the V2a grid through a 220 kOhm mixing resistor (R9, R7),
+* while the Vibrato/Tremolo volume drives the V2b grid — so that channel enters
+* in the opposite phase, exactly as in the AC15. Matched 100 kOhm anode loads, a
+* 1.2 kOhm shared cathode resistor over a 47 kOhm tail, both 1 MOhm grid leaks
+* returned to the tail junction. Every grid coupler has a lead inside a volume
+* pot or a mixing network, so they stay out; each grid's DC return is its leak.
+R18 BPPI PPIA 100k
+XV2A PPIA GPIA KPI 12AX7
+R8 GPIA JPI 1meg
+R19 BPPI PPIB 100k
+XV2B PPIB GPIB KPI 12AX7
+R17 GPIB JPI 1meg
+R16 KPI JPI 1.2k
+R15 JPI 0 47k
+
+* --- EL84 quad, cathode-biased push-pull ---------------------------------------
+* Class-A-style cathode bias for FOUR valves on ONE shared 50 Ohm resistor,
+* bypassed by 250 uF — there is no bias supply anywhere in the amp. Two EL84s
+* hang off each inverter anode (V3+V5 on side A, V4+V6 on side B), each through
+* its own 1.5 kOhm grid stopper; the grid-drive lines return to ground through
+* R20 220 kOhm (side A) and R21 280 kOhm (side B), the drawing's asymmetric pair.
+* Screens hang off the same +320 V rail through 100 Ohm stoppers; anodes sit at
+* the rail (OT primary DCR omitted). The 0.15 uF couplers are open at DC but
+* modelled — both leads on named nodes — so the push-pull phase is fixed in the
+* data: a coupler on the wrong drive line is a wrong-node error rather than
+* unmodelled wiring. The Cut control (VR3 250 kOhm log in series with C10
+* 0.0047 uF, bridged across the two drive lines) carries no DC and stays out.
+C6 PPIA NGA 0.15u
+R20 NGA 0 220k
+C9 PPIB NGB 0.15u
+R21 NGB 0 280k
+
+R22 NGA G3 1.5k
+R25 BP1 S3 100
+XV3 BP1 S3 G3 KOUT EL84
+R27 NGA G5 1.5k
+R29 BP1 S5 100
+XV5 BP1 S5 G5 KOUT EL84
+
+R23 NGB G4 1.5k
+R26 BP1 S4 100
+XV4 BP1 S4 G4 KOUT EL84
+R28 NGB G6 1.5k
+R30 BP1 S6 100
+XV6 BP1 S6 G6 KOUT EL84
+
+R24 KOUT 0 50
+C11 KOUT 0 250u

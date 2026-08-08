@@ -1,0 +1,51 @@
+# Circuit Codex metadata — schema: docs/schema.md (v1)
+id: "ac30"
+name_style: "Vox AC30/6-style"
+family: vox
+era:
+  start: 1961
+  end: 1965
+wattage: 30
+tubes: [ECC83, ECC83, EL84, EL84, EL84, EL84, ECC83, ECC82, ECC83, GZ34]
+topology:
+  rectifier: { kind: tube, type: "GZ34" }
+  bias: cathode
+  phase_inverter: long-tailed-pair
+  tone_stack: top-cut
+lineage:
+  derived_from: ["ac15"]   # the AC15's own ideas at twice the power: cathode-biased
+                           # EL84s with no bias supply and no feedback loop, a
+                           # long-tailed-pair inverter, and one Top Cut after it.
+                           # JMI drew the first AC30/6 sheet on the same day as the
+                           # AC15's OA/031; the front end is the one thing that did
+                           # not survive the scale-up (see notes.md).
+  influenced: []
+sources:
+  - desc: "JMI factory drawing OS/065 — title block reads 'DRG. Nº OS/065 / THE JENNINGS MUSICAL INDUSTRIES LTD. / \"VOX\" A.C.30.36 AMPLIFIER CIRCUIT / NORMAL / DRAWING FOR WORKS USE ONLY / SCALE:- N/A. DATE 29-4-60. / DRAWN. R.D. TRACED - D.W.U.', with a MODIFICATIONS box reading 'C41 ADDED 7-2-61', then the main list (R4 was 2.2K, R5 was 100K, R6 was 100Ω, R7 was 270K, R9 was 270K, R38 was 1MΩ, R39 was 150K, R40 was 12K, R68 was 1.5MΩ, R64 was 1MΩ, R74 added, C2/C5/C6/C7/C9 changed, C16 deleted, C41 changed) dated 8-5-61, then 'ISS.2 14.6.63 M.T. NOTE ADDED', 'R74 DELETED / R64 WAS 80Ω / FUSE MOD. / 230V WAS 285V' at 'ISS.3 11.10.63' with 'TITLE CHANGED, NORMAL ADDED', and 'ISS.4 11-9-64'. THIS is the revision documented here — the AC30/6 'Normal' circuit as the sheet stands after Issue 4, i.e. the post-'list of changes' amplifier in which one ECC83 replaced the EF86 across the Brilliant and Normal channels. Values read directly from the drawing where its published scan resolves them: V1 ECC83 on two 220 kΩ anode loads (R5, R6) with ONE shared 1.5 kΩ cathode resistor (R4) and a 25 µF bypass (C1), 68 kΩ input resistors (R1, R2, R12, R13) and 1 MΩ leaks (R3, R14); 500 kΩ log volumes (VR1 Normal, VR2 Brilliant) mixing into the V2a grid through 220 kΩ resistors (R7, R9); V2 ECC83 long-tailed pair on 100 kΩ anode loads (R18, R19) with a 1.2 kΩ shared cathode (R16) over a 47 kΩ tail (R15) and 1 MΩ grid leaks (R8, R17) returned to the tail junction; Cut control VR3 250 kΩ log in series with C10 0.0047 µF bridged across the two inverter outputs, with grid-drive returns R20 220 kΩ and R21 280 kΩ; four EL84s (V3-V6) on 1.5 kΩ grid stoppers (R22, R23, R27, R28) and 100 Ω screen stoppers (R25, R26, R29, R30) off the same rail as the anodes, sharing ONE 50 Ω cathode resistor (R24) bypassed by 250 µF · 25 V (C11); two 22 kΩ rail droppers (R10, R11) each with an 8 µF can (C4, C8); GZ34 rectifier (V10) off a 280-0-280 V 160 mA secondary into a 10-20 H 100 mA choke (CH.1) and two 16 µF · 450 V cans; output transformer T1 at 4 kΩ anode-to-anode with 8 Ω and 15 Ω taps; annotated working voltages +320 V rail, +290 V front-end anode supply, +170 V at each V1 anode, +1.6 V at V1's cathode, +230 V at each inverter anode, +55 V at the inverter tail junction, and 'QUIESCENT 10v / 12.5v AT 30 WATTS' at the EL84 cathode resistor. The blue 'NEG FEED BACK' loop drawn across this copy is a later hand addition by a previous owner, not part of the circuit, and is not modelled. Not reproduced here; archived at the Vox AC30 history site."
+    url: "https://www.voxac30.org.uk/vox_ac30_circuit_diagrams.html"
+  - desc: "Vox AC30 history archive, 'Vox AC30/6 circuit diagrams (schematics) 1960-1974' — the identity and dating evidence for the sheet: the circuit 'was initially drawn on the 29th April 1960 by Dick Denney (RD) and traced ... by Derek Underdown (DWU)'; at least six iterations of the AC30/6 'Normal' diagram exist, one of 1960 with no list of changes, one of late 1961/early 1962, two of mid 1963 (one designated A/026), and two of September 1964 (OS/065 and A/026); 'The latest date generally given on sheets numbered as OS/065 ... is 11th September 1964'; the issue history is given as first change 7 February 1960, main list of changes 8 May 1961, ISSUE 2 14 June 1963, ISSUE 3 11 October 1963, ISSUE 4 11 September 1964, '11th Sept. 1964 is the date on or after which the modifications were incorporated in the main circuit'. The same page notes that this copy's values 'are good and legible, except in one instance, which has been supplied in red' and that 'Someone has added a potential negative feedback loop!'"
+    url: "https://www.voxac30.org.uk/vox_ac30_circuit_diagrams.html"
+  - desc: "Vox AC30 history archive, 'The Vox AC30/6, black control panels' — what separates this circuit from the AC30/4 and from the AC15: the EF86 replaced by an ECC83, 'one half each for the first stage of the Brilliant and Normal channel', a single treble 'cut' control instead of per-channel tone controls, and the addition of the Brilliant channel; changes introduced in the May 1961 list served 'to lift the gain of the amplifier (Brilliant channel in particular) and to enhance its treble response'; transformers by Haddon Transformers Ltd of South Ruislip and the choke by Radiospares, as on the AC15"
+    url: "https://www.voxac30.org.uk/vox_ac30_6_black_panels.html"
+  - desc: "Published Vox factory and service schematics for the later AC30 (el34world's Vox folder, a five-sheet set: AC30 Reverb 1978, AC30 Silver Jubilee, AC30 S.S. Red, AC30 Top Boost Reissue 1994, AC30 Twin Reverb with modifications) — the legibility cross-reference. None of them is a period JMI sheet, so none is used for a value here; they earn their place because the Silver Jubilee sheet carries the SAME inverter and output section, part for part, and resolves the one glyph OS/065 leaves ambiguous. Its long-tailed pair is drawn with 100 kΩ anode loads (R58, R63), a 1 kΩ2 shared cathode, a 47 kΩ tail and 1 MΩ leaks, a 250 kΩ log CUT in series with 47 n across the inverter outputs, four EL84s on 1 kΩ5 grid stoppers and 100 Ω screen stoppers, and a shared cathode resistor bypassed by 250 µF · 25 V — so the AC30/6's R19, whose multiplier glyph on the OS/065 copy reads like an ohm sign, is 100 kΩ. The AC30 Twin Reverb sheet independently shows the 5AR4/GZ34 rectifier and the 4 kΩ anode-to-anode output transformer"
+    url: "https://el34world.com/charts/Schematics/files/Vox/Vox_ac30.pdf"
+  - desc: "Independent published circuit analysis of a later Vox AC30 output stage — a third reading of the arrangement this entry documents: four EL84s in parallel push-pull, cathode-biased on a single shared resistor with no bias supply, a DC grid bias of about -10 V, and a 4 kΩ plate-to-plate output transformer; and of the shared first stage, 220 kΩ anode load with a 1.5 kΩ shared cathode resistor, 25 µF bypass and about -1.6 V of bias. Both figures agree with the annotations on OS/065"
+    url: "https://www.ampbooks.com/mobile/classic-circuits/vox-ac30/"
+  - desc: "Wikipedia, 'Vox AC30' — the AC30/6's three channels, and Vox swapping 'the Normal channel's EF86 preamp valve for the more common ECC83 (12AX7)' over microphony at higher volume; the AC30/4 and AC30/6 schematics 'both originally dated April 29, 1960'"
+    url: "https://en.wikipedia.org/wiki/Vox_AC30"
+  - desc: "Philips/Mullard EL84 data sheet, January 1969 (A.F. Output Pentode) — the datasheet anchor behind the corpus's CC0 EL84 model, which this netlist's four output valves use: Va=250 V, Vg2=250 V, Vg1=-7.3 V -> Ia=48 mA, Ig2=5.5 mA, S=11.3 mA/V, mu(g1-g2)=19"
+    url: "https://frank.pocnet.net/sheets/010/e/EL84.pdf"
+  - desc: "RCA Receiving Tube Manual RC-19 (1959), 12AX7 average characteristics — the datasheet anchor behind the corpus's CC0 12AX7 model, which this netlist's first stage and phase inverter use: Va=250 V / Vg=-2 V -> 1.2 mA at 1600 µmho, second point Va=100 V / Vg=-1 V -> 0.5 mA, mu=100"
+    url: "https://frank.pocnet.net/sheets/049/1/12AX7.pdf"
+verification:
+  status: draft   # The operating point agrees closely — every gated node lands
+                  # within 11% of its printed figure and most within 2% — but the
+                  # sheet annotates working voltages beside the circuit rather
+                  # than printing a tabulated valve-voltage chart, and states no
+                  # measurement convention, so there is no per-pin reference to
+                  # verify against. The same reason the sibling AC15 is a draft.
+                  # See voltages.yaml and notes.md.
+# Day the circuit landed in the corpus (git history, amps/ac30/) — the feed's
+# pubDate for a draft; production builds are shallow clones and cannot ask git.
+added: 2026-08-08
+contributors: [TheAnalogMaker]

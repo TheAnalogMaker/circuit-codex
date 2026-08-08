@@ -112,20 +112,51 @@ models:
       - desc: "Vox AC30 history archive, \"The Vox AC30/4 amplifier\" — produced from winter 1960 to late 1961 with the EF86 preamp valve, black control panels and split-front cabinets"
         url: "https://www.voxac30.org.uk/vox_ac30_4_black_panels.html"
 
-  - designation: "AC30/6"
-    name: "AC30/6 twin (JMI drawing OA/026)"
-    years: { start: 1960, end: 1965 }
+  - designation: "AC30/6, pre-list-of-changes"
+    name: "AC30/6 twin, first circuit (JMI drawing, no sheet number)"
+    years: { start: 1960, end: 1961 }
     wattage: 30
     output: "push-pull 4×EL84"
     tubes: null
     key_change: >
-      The six-input three-channel twin, and the point where the family's front
-      end changed: the Normal channel's EF86 was swapped for the commoner ECC83
-      because the pentode was too microphonic at AC30 volume. That single
-      substitution is the clearest line between the AC15 documented here and the
-      amplifier the AC30 became.
+      The six-input three-channel twin, first drawn on 29 April 1960 by Dick
+      Denney and traced by Derek Underdown — the same day as the new AC15 and the
+      AC30/4. Three channels rather than two, and a single treble "cut" control
+      after the phase inverter instead of per-channel tone controls. This first
+      form still carried the AC15's EF86 on the Normal channel; only one copy of
+      the sheet without a list of changes is known to survive, so no complete
+      valve complement is claimed for it here.
     circuit_ref: null
     sources:
+      - desc: "Vox AC30 history archive, \"Vox AC30/6 circuit diagrams (schematics) 1960-1974\" — at least six iterations of the AC30/6 \"Normal\" diagram were produced; the circuit \"was initially drawn on the 29th April 1960 by Dick Denney (RD) and traced ... by Derek Underdown (DWU)\", and \"A copy of the original form of the diagram - with no list of changes - is known to survive, albeit in a slightly fragmentary form\""
+        url: "https://www.voxac30.org.uk/vox_ac30_circuit_diagrams.html"
+      - desc: "Vox AC30 history archive, \"The Vox AC30/6, black control panels\" — the AC30/6's differences from the AC30/4: the addition of the Brilliant channel and a single treble \"cut\" control in place of dedicated bass and treble controls"
+        url: "https://www.voxac30.org.uk/vox_ac30_6_black_panels.html"
+
+  - designation: "AC30/6 Normal"
+    name: "AC30/6 twin, post-list-of-changes (JMI drawings OS/065 and A/026)"
+    years: { start: 1961, end: 1965 }
+    wattage: 30
+    output: "push-pull 4×EL84"
+    tubes: [ECC83, ECC83, EL84, EL84, EL84, EL84, ECC83, ECC82, ECC83, GZ34]
+    key_change: >
+      The list of changes of 8 May 1961, and the point where the family's front
+      end changed: the Normal channel's EF86 was swapped for the commoner ECC83,
+      one half serving the Brilliant channel and the other the Normal, because
+      the pentode was too microphonic at AC30 volume. The same list lifted the
+      gain of the Brilliant channel and its treble response. That substitution is
+      the clearest line between the AC15 documented in this corpus and the
+      amplifier the AC30 became, and everything the AC30 is remembered for
+      sounding like dates from after it. The sheet ran on with three further
+      issues to 11 September 1964 — an oscillator resistor, a fuse modification
+      and one revised voltage annotation — and it is this post-1961 form that the
+      corpus documents.
+    circuit_ref: ac30
+    sources:
+      - desc: "Vox AC30 history archive, \"Vox AC30/6 circuit diagrams (schematics) 1960-1974\" — the issue history of the AC30/6 \"Normal\" sheet: first change 7 February 1960, main \"List of Changes\" 8 May 1961, ISSUE 2 14 June 1963, ISSUE 3 11 October 1963, ISSUE 4 11 September 1964, \"the date on or after which the modifications were incorporated in the main circuit\"; designations A/026 (mid 1963) and OS/065 (September 1964), the latter \"the sheet included in the Thomas Organ Service Manual of 1966\" in its A/026 form"
+        url: "https://www.voxac30.org.uk/vox_ac30_circuit_diagrams.html"
+      - desc: "Vox AC30 history archive, \"The Vox AC30/6, black control panels\" — the May 1961 changes: \"the EF86 is replaced by an ECC83 - one half each for the first stage of the Brilliant and Normal channels\", alongside changes serving \"to lift the gain of the amplifier (Brilliant channel in particular) and to enhance its treble response\"; transformers by Haddon Transformers Ltd, choke by Radiospares"
+        url: "https://www.voxac30.org.uk/vox_ac30_6_black_panels.html"
       - desc: "Wikipedia, \"Vox AC30\" — the AC30/6's three channels, and Vox swapping \"the Normal channel's EF86 preamp valve for the more common ECC83 (12AX7)\" over microphony at higher volume"
         url: "https://en.wikipedia.org/wiki/Vox_AC30"
 
@@ -151,10 +182,17 @@ notes: >
   its dating rests on a different kind of evidence: JMI's own works drawings are
   numbered and dated in their title blocks, so the AC15 and AC30 revisions can be
   pinned to a day where the Fender tweeds can only be bracketed by chart
-  revisions. Two honest gaps remain. The first AC15's introduction is given as
-  late 1957 by the Vox history archive and early 1958 by the general reference
-  used here, and no drawing has been read that settles it. And accounts of the
-  earliest AC30 output stage disagree, so the AC30 rows above claim wattage and
-  years but no valve complement. Only the third AC15 circuit has a documented
-  circuit entry in this corpus at present; every other row is history-tier
-  (circuit_ref: null) until one is built.
+  revisions. They also carry running modification boxes, which is why the AC30/6
+  appears twice above: one sheet, two circuits, separated by the list of changes
+  of 8 May 1961 that took the EF86 out of the Normal channel. JMI issued the same
+  circuit in three voicings — "Normal" (drawing OS/065), "Treble" (OS/056, dated
+  10 September 1964) and "Bass" (OS/057, 11 September 1964) — differing only in a
+  handful of capacitors and, on the Treble sheet, in V1's cathode circuit; the
+  Normal sheet is the one documented here. Two honest gaps remain. The first
+  AC15's introduction is given as late 1957 by the Vox history archive and early
+  1958 by the general reference used here, and no drawing has been read that
+  settles it. And accounts of the earliest AC30 output stage disagree, so the
+  1959-60 AC30 row above claims wattage and years but no valve complement. Two
+  circuits in this line now have documented entries in the corpus — the third
+  AC15 circuit and the post-1961 AC30/6 "Normal" — and every other row is
+  history-tier (circuit_ref: null) until one is built.
