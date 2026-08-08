@@ -107,17 +107,21 @@ models:
     output: "push-pull 2x6V6GT"
     tubes: [12AY7, 12AY7, 12AX7, 6V6GT, 6V6GT, 5U4GA]
     key_change: >-
-      A running revision of the 5E4 drawing (still Fender code G-EE), not a separate
-      circuit sheet: it swaps the output pair for 6V6GT, adds a selenium rectifier to
-      the bias supply, and revises one bias-supply resistor from 22 kΩ to 18 kΩ — the
-      change the drawing itself footnotes ("(A) WAS 22K OHMS"). The preamp gains a
-      second 12AY7 gain stage ahead of a 12AX7 driver/phase-inverter stage, and the
-      panel carries the same five knobs (Presence, Bass, Treble, Inst. Vol, Mic. Vol)
-      the 5F4 later keeps. A bridge toward the 5F4's selenium-rectified bias supply,
-      though the 5F4 itself reverts to 6L6G output tubes.
-    circuit_ref: null
+      The narrow-panel Super as Fender's own drawing describes it, and the one circuit
+      of the two this archive can document. The title block reads "MODEL 5E4-A*", and
+      the asterisk points at the sheet's own boxed footnote, "(A) WAS 22K OHMS", against
+      the bias-supply series resistor now drawn at 18 kΩ: a running revision annotated
+      in place rather than redrawn, which is why no separate sheet exists. Two 12AY7s
+      carry the whole preamp — a two-channel input pair on one shared 820 Ω cathode,
+      then a gain stage DC-coupled to a cathode follower driving a passive treble/bass
+      network — and a 12AX7 provides a driver and a split-load cathodyne. The output
+      pair is 6V6GT, fixed-biased at -32 V from a selenium cell, screens straight on the
+      +385 V node. The panel carries the five knobs (Presence, Bass, Treble, Inst. Vol,
+      Mic. Vol) the 5F4 keeps. Everything the 5F4 is remembered for is already here;
+      what the 5F4 changed was the output bottles, back to 6L6G, and the rails.
+    circuit_ref: 5e4a
     sources:
-      - desc: "Fender 'Super-Amp' Model 5E4-A drawing (G-EE): title block reads 'SUPER-AMP 5E4-A', printed voltage chart present; tube complement (12AY7 x2, 12AX7, 6V6GT x2, 5U4GA), rail structure (+390/+385/+300/+250, -32V bias via a selenium rectifier), and front-end topology (shared-cathode 12AY7 pair, 100k-loaded second 12AY7 gain stage) read directly (2026-08-08); the phase-inverter and tone-network wiring were legible but not yet transcribed to netlist precision, so this circuit is not landed as a documented amp pending that pass. Not reproduced here; archived at EL34World"
+      - desc: "Fender 'Super-Amp' Model 5E4-A drawing (G-EE), both pages: the schematic sheet's title block reads 'FENDER \"SUPER-AMP\" SCHEMATIC / MODEL 5E4-A*' with the boxed footnote '*NOTE — (A) WAS 22 K OHMS', and page 1 is the matching 'FENDER \"SUPER-AMP\" LAYOUT / MODEL 5E4-A*' sheet, same code, footed '* SEE NOTE ON REVERSE SIDE'. Both carry 'VOLTAGES READ TO GROUND WITH ELECTRONIC VOLTMETER / VALUES SHOWN + OR - 20%'. Tube complement (12AY7 x2, 12AX7, 6V6GT x2, 5U4GA), rail structure (+390/+385/+300/+250, -32 V bias via a selenium cell behind an 18 kΩ series resistor), preamp, tone network, driver + split-load cathodyne and output stage all read directly and transcribed in full — the circuit is landed at amps/5e4a. Not reproduced here; archived at EL34World"
         url: "https://el34world.com/charts/Schematics/files/Fender/Fender_super_5e4a.pdf"
       - desc: "Mojotone/Ampwares Fender field guide, 'Narrow Panel Tweed Super' — 5E4-A tube complement and selenium bias rectifier confirmation"
         url: "https://mojotone.com/blogs/fender-field-guide/fender-narrow-panel-tweed-super"

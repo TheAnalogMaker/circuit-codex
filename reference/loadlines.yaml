@@ -105,6 +105,30 @@ stages:
   ot_primary_note: '8 kΩ : 8 Ω — Push-pull output'
   sim_ip_ma: 37.766
   sim_ig2_ma: 3.1453
+- amp: '5e4a'
+  name_style: Tweed Super-style
+  tube: '6V6GT'
+  output_tubes: 2
+  config: push-pull
+  bias: fixed
+  plate_node: BP1
+  plate_v: 390.0
+  screen_node: BP2
+  screen_v: 389.289
+  cathode_node: '0'
+  cathode_v: 0.0
+  rk_total: null
+  rk_per_tube: null
+  grid_node: G51
+  grid_v: -32.0
+  grid_supply_node: NBIAS
+  grid_supply_v: -32.0
+  ot_primary_z: null
+  ot_primary_approx: false
+  ot_primary_note: push-pull output transformer — Push-pull output into 2 × 10 in speakers, with an external-speaker
+    jack
+  sim_ip_ma: 37.4631
+  sim_ig2_ma: 2.258
 - amp: '5e5a'
   name_style: Tweed Pro-style
   tube: '5881'

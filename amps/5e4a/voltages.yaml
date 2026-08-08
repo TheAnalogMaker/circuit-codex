@@ -1,0 +1,24 @@
+# Printed voltage chart read directly from the published 5E4-A (G-EE) drawing —
+# BOTH pages of it. The schematic sheet prints the rails and the cathode
+# voltages; the layout sheet, which carries the same title block and the same
+# NOTICE, prints the plate voltages beside the eyelets they belong to. Fender's
+# stated convention is on both pages: "VOLTAGES READ TO GROUND WITH ELECTRONIC
+# VOLTMETER / VALUES SHOWN + OR - 20%". Rails are held to 8% here (an internal
+# target, tighter than the sheet's own claim); tube pins to the printed 20%.
+source: "Fender 5E4-A (G-EE) drawing, both pages. Schematic sheet: rails +390 (reservoir), +385 (screens / output-transformer centre tap), +300, +250; cathodes +1.9 (12AY7 shared), +1.9 (V2A), +130 (cathode follower), +1.6 (driver), +58 and +56.5 (cathodyne cathode and its 1.5 k/56 k junction); bias -32. Layout sheet: +125 at each 12AY7 plate, +190 at the driver plate, +245 at the cathodyne plate, +250 at the 8 µF preamp filter, +130 at the cathode follower, +1.9 at both 25 µF cathode cans, -32 at the bias filter, +380 at the output sockets"
+nodes:
+  BP2:  { chart: 385, tol_pct: 8, note: "screens and output-transformer centre tap, after the choke. The printed 390 → 385 drop is taken by the full plate + screen current; this netlist omits output-transformer primary DCR, so the plate current bypasses the choke and only the screen/preamp current crosses it. The choke's own DCR is entered at a 60 Ω estimate and the residual is recorded rather than force-fitted." }
+  BP3:  { chart: 300, tol_pct: 8, note: "12AX7 supply node after the first 10 kΩ dropper" }
+  BP4:  { chart: 250, tol_pct: 8, note: "12AY7 supply node after the second 10 kΩ dropper (the layout sheet prints +250 at the 8 µF can here)" }
+  PAY1: { chart: 125, tol_pct: 20, note: "12AY7 plate, channel 1 — read from the layout sheet beside its 0.02 µF output coupler" }
+  PAY2: { chart: 125, tol_pct: 20, note: "12AY7 plate, channel 2 — same figure, same place on the layout sheet" }
+  KAY:  { chart: 1.9, tol_pct: 20, note: "shared 12AY7 cathode, 820 Ω with a 25 µF can" }
+  K2A:  { chart: 1.9, tol_pct: 20, note: "V2A cathode, 1.5 kΩ with a 25 µF can" }
+  KCF:  { chart: 130, tol_pct: 20, note: "cathode-follower cathode, 100 kΩ load — the tone network's feed" }
+  PPIA: { chart: 190, tol_pct: 20, note: "driver plate (V3A), 100 kΩ load — read from the layout sheet at the 0.02 µF interstage coupler" }
+  KPIA: { chart: 1.6, tol_pct: 20, note: "driver cathode, 1.5 kΩ. The 56 kΩ speaker feedback and the 5 kΩ presence network land here; at DC they parallel the 1.5 kΩ with about 56 kΩ through the output secondary — a ‑2.6% shift, recorded and not modelled" }
+  PPIB: { chart: 245, tol_pct: 20, note: "cathodyne plate (V3B), 56 kΩ load" }
+  KPI:  { chart: 58, tol_pct: 20, note: "cathodyne cathode, 1.5 kΩ above the 56 kΩ leg" }
+  JPI:  { chart: 56.5, tol_pct: 20, note: "1.5 kΩ/56 kΩ junction — the cathodyne grid's DC reference through its 1 MΩ leak. The printed 58 / 56.5 pair implies the same ≈1 mA the plate figure does, so the split-load stage is self-consistent on its own chart" }
+  G51:  { chart: -32, tol_pct: 8, note: "6V6GT fixed bias through the 220 kΩ leak from the selenium supply" }
+  G52:  { chart: -32, tol_pct: 8, note: "6V6GT fixed bias, second valve" }

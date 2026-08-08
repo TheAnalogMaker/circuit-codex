@@ -1,0 +1,37 @@
+# Circuit Codex metadata — schema: docs/schema.md (v1)
+id: "5e4a"
+name_style: "Tweed Super-style"
+family: tweed
+era:
+  start: 1955
+  end: 1956
+wattage: 26
+tubes: [12AY7, 12AY7, 12AX7, 6V6GT, 6V6GT, 5U4GA]
+topology:
+  rectifier: { kind: tube, type: "5U4GA" }
+  bias: fixed
+  phase_inverter: cathodyne
+  tone_stack: cathode-follower-tb
+lineage:
+  derived_from: []   # within-family predecessors (the wide-panel 5B4/5C4/5D4) are
+                     # history-tier rows with no landed circuit to point at
+  influenced: ["5f4"]  # the 5F4 is this circuit's direct successor: same two-channel
+                       # 12AY7 front end, same cathode-follower treble/bass network,
+                       # same driver + split-load cathodyne, same selenium bias
+                       # supply — with 6L6G output tubes and higher rails
+sources:
+  - desc: "Fender 'Super-Amp' Model 5E4-A drawing (G-EE), BOTH pages — every component value and every printed voltage read directly from the published sheets. Title block, verbatim: 'FENDER \"SUPER-AMP\" SCHEMATIC / MODEL 5E4-A* / G-EE', with 'NOTICE / VOLTAGES READ TO GROUND WITH ELECTRONIC VOLTMETER / VALUES SHOWN + OR - 20%' and the boxed footnote the asterisk points at: '*NOTE — (A) WAS 22 K OHMS', the (A) marking the bias-supply series resistor now drawn as 18 kΩ. Page 1 is the matching 'FENDER \"SUPER-AMP\" LAYOUT / MODEL 5E4-A*' sheet, same code G-EE, footed '* SEE NOTE ON REVERSE SIDE'. Read from the drawing: a two-channel 12AY7 front end (68 kΩ stoppers at four jacks, 1 MΩ leaks, ONE shared 820 Ω cathode with a 25 µF can, 100 kΩ plates), 1 MΩ Instrument and Mic volumes with a 100 pF bright cap and 270 kΩ mixers into a SECOND 12AY7 — a gain stage (100 kΩ plate, 1.5 kΩ cathode, 25 µF) DC-coupled to a cathode follower on a 100 kΩ load — feeding the split treble/bass network (250 pF into the 1 MΩ treble pot with 0.01 µF at its cold end; 0.1 µF into a 220 kΩ leak and a 100 kΩ series resistor to the 1 MΩ bass pot's wiper with 0.005 µF on its leg; a second 220 kΩ back to the output node, which is the phase-inverter grid, with no coupler; a 5 MΩ reference returned from the bass branch to the gain stage's grid), then a 12AX7 driver (100 kΩ plate, 1.5 kΩ cathode) coupled into a split-load cathodyne (56 kΩ plate, 1.5 kΩ + 56 kΩ under the cathode, 1 MΩ grid leak to the junction, 0.1 µF plate and cathode couplers into 1.5 kΩ stoppers), a 6V6GT pair fixed-biased at −32 V through 220 kΩ leaks with their screens tied straight to the +385 V node, a 56 kΩ speaker feedback resistor and a 5 kΩ presence pot with 0.1 µF landing on the driver's cathode, and a 5U4GA rectifier into 16/16/16/8 µF filtering with a choke and a standby switch. Printed voltages: rails +390/+385/+300/+250, bias −32; cathodes +1.9, +1.9, +130, +1.6, +58 and +56.5; plates +125 (each 12AY7 channel), +190 (driver) and +245 (cathodyne) from the layout sheet. Not reproduced here; archived at EL34World"
+    url: "https://el34world.com/charts/Schematics/files/Fender/Fender_super_5e4a.pdf"
+  - desc: "The sourcing problem this entry exists to fix, recorded because the archive's brand is verifiability. Documents circulating under a plain '5E4' label — thetubestore's 'Fender-Super-5E4-G-EE-Schematic.pdf' and two independently hosted copies of a 'Super-5E4-Schematic.pdf' (a manufacturer field-guide link and a repair shop's copy) — are on inspection this same G-EE drawing with the '-A' and its '(A) WAS 22 K OHMS' footnote edited out of the title block. They carry the same Fender drawing code, the same 6V6GT output pair, the same selenium bias supply and the same printed voltages. No independent drawing for a plain 5E4 (6L6G output, no selenium bias cell) was located, so this circuit is filed under the designation its own title block prints. See notes.md and history/families/super.yaml"
+    url: "https://el34world.com/charts/Schematics/files/Fender/Fender_super_5e4a.pdf"
+  - desc: "RCA Receiving Tube Manual RC-19 (1959), 6V6GT average characteristics — the datasheet anchor behind the corpus's CC0 6V6GT model, which this netlist's output pair uses: Va=250 V, Vg2=250 V, Vg1=-12.5 V -> Ia=45 mA, Ig2=4.5 mA, gm=4100 µmho"
+    url: "https://frank.pocnet.net/sheets/049/6/6V6GT.pdf"
+  - desc: "RCA 12AY7 data — the datasheet anchor behind the corpus's CC0 12AY7 model, which this netlist's two front-end bottles use"
+    url: "https://frank.pocnet.net/sheets/049/1/12AY7.pdf"
+verification:
+  status: verified
+  date: 2026-08-08
+  max_deviation_pct: 9.2   # worst gated node (PPIA, the driver plate: simulated 207.5 V against the layout sheet's printed 190 V, tol 20%); every rail lands within 6% of its printed value and every cathode within 10%
+# Day the circuit landed in the corpus (git history, amps/5e4a/).
+added: 2026-08-08
+contributors: [TheAnalogMaker]

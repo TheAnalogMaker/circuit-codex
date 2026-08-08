@@ -1,0 +1,98 @@
+* 5E4-A (Tweed Super-style) — DC operating-point netlist
+* Circuit Codex — CC-BY-SA 4.0. Independently drawn from the published 5E4-A
+* (G-EE) drawing's component values (see meta.yaml); no drawing reproduced.
+*
+* THE DESIGNATION IS THE DRAWING'S OWN. Fender's title block reads
+* "FENDER 'SUPER-AMP' SCHEMATIC / MODEL 5E4-A*", with the asterisk pointing at
+* the sheet's own footnote "*NOTE — (A) WAS 22 K OHMS". This entry is filed
+* under 5e4a because that is what the sheet says. See notes.md.
+*
+* DC conventions (as in the sibling 5F4): B+1 is DRIVEN at the printed +390 V
+* and every node below it is DERIVED. The 5U4GA, its HT winding and the
+* reservoir ahead of B+1 are not modelled. The choke between B+1 and B+2 is
+* modelled as a DCR estimate (the drawing prints 390 -> 385 across it). Output-
+* transformer primary DCR is omitted, so both 6V6GT plates sit at B+1. The
+* selenium bias supply (18 kΩ + selenium cell + 100 µF/56 kΩ) is replaced by an
+* ideal -32 V source at its printed value: it is a rectifier/filter network, not
+* an operating point this netlist can solve. DC-open caps are MODELLED where
+* BOTH leads land on a named DC node (the interstage coupler C8, the cathodyne
+* output couplers C9/C10 and the cathode-bypass cans C3/C4): open at DC they
+* move no operating point, but modelling them fixes the inter-stage routing and
+* the push-pull phase in the data. Caps with a lead inside the abstracted
+* volume/tone network stay out. Heaters and the pilot lamp are not modelled.
+.include models/12ay7.inc
+.include models/12ax7.inc
+.include models/6v6gt.inc
+
+VBP1 BP1 0 DC 390
+VBIAS NBIAS 0 DC -32
+
+* rail: choke -> screens/OT node, 10k -> 12AX7 node, 10k -> 12AY7 node
+RCHOKE BP1 BP2 60
+RD1 BP2 BP3 10k
+RD2 BP3 BP4 10k
+
+* --- V1 12AY7 — two channels on ONE shared 820 Ohm cathode ---------------------
+* The 68 kOhm input resistors carry no DC; each grid returns through its 1 MOhm
+* leak at the jacks. Both halves share R K1/C3, so neither solves alone.
+RL1 BP4 PAY1 100k
+XV1A PAY1 GAY1 KAY 12AY7
+RG1 GAY1 0 1meg
+RL2 BP4 PAY2 100k
+XV1B PAY2 GAY2 KAY 12AY7
+RG2 GAY2 0 1meg
+RK1 KAY 0 820
+C3 KAY 0 25u
+
+* --- V2 12AY7 — gain stage + DC-coupled cathode follower ----------------------
+* The 5F4 puts a 12AX7 here; the 5E4-A sheet prints a second 12AY7. V2A's grid
+* reference is the sheet's 5 MOhm resistor returned to the tone network's
+* bass-branch node, which its own 220 kOhm leak holds at about 0 V DC — entered
+* here as a single 5 MOhm leak to ground (the 270 kOhm mixers reach ground
+* through the volume pots, and grid current is ~0 either way).
+RL3 BP4 P2A 100k
+XV2A P2A G2A K2A 12AY7
+RG3 G2A 0 5meg
+RK2 K2A 0 1.5k
+C4 K2A 0 25u
+XV2B BP4 P2A KCF 12AY7
+RKCF KCF 0 100k
+
+* --- V3 12AX7 — driver + SPLIT-LOAD (cathodyne) phase inverter ------------------
+* Exactly the arrangement the 5F4 inherits: V3A is a plain cathode-biased gain
+* stage (100 kOhm plate, 1.5 kOhm cathode) fed DC-direct from the tone network,
+* coupled by C8 into the cathodyne — 56 kOhm plate, 1.5 kOhm + 56 kOhm under the
+* cathode, 1 MOhm grid leak returned to the 1.5k/56k junction. The tone network's
+* own path to ground (220k + 100k + 220k and the bass track) is the driver grid's
+* DC reference; entered as one 470 kOhm leak, since no grid current flows.
+* The 56 kOhm speaker feedback and the 5 kOhm presence network land on V3A's
+* cathode; at DC that parallels RK3 with ~56 kOhm through the output secondary —
+* about -2.6% on a +1.6 V node. Annotation, not modelled.
+RLA BP3 PPIA 100k
+XV3A PPIA GPIA KPIA 12AX7
+RGPI GPIA 0 470k
+RK3 KPIA 0 1.5k
+C8 PPIA GPIB 0.02u
+RLB BP3 PPIB 56k
+XV3B PPIB GPIB KPI 12AX7
+RGB GPIB JPI 1meg
+RTAIL KPI JPI 1.5k
+RT2 JPI 0 56k
+
+* --- 6V6GT pair, fixed bias ----------------------------------------------------
+* The change that separates this revision from the plain 5E4 the family file
+* documents: 6V6GT where the wide-panel Supers ran 6L6G. Grids return to the
+* -32 V selenium supply through 220 kOhm leaks; screens tie straight to B+2 with
+* no screen resistors, exactly as on the sheet; cathodes are grounded.
+RGL1 NBIAS G51 220k
+XV4 BP1 BP2 G51 0 6V6GT
+RGL2 NBIAS G52 220k
+XV5 BP1 BP2 G52 0 6V6GT
+* Cathodyne -> output-grid drive: C9 carries the cathodyne's 56 kOhm PLATE to the
+* V4 grid and C10 its CATHODE to the V5 grid — the split-load pair of outputs the
+* sheet draws — each through a 1.5 kOhm stopper. DC-open, so the operating point
+* is unmoved; modelled so the layout-equivalence gate checks the routing natively.
+C9 PPIB NG51 0.1u
+R5s NG51 G51 1.5k
+C10 KPI NG52 0.1u
+R6s NG52 G52 1.5k
