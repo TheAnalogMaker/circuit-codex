@@ -132,11 +132,17 @@ const breadcrumbs = [
   { name: 'Home', url: '/' },
   { name: displayId(amp.id), url: `/amps/${amp.id}/` },
 ];
+// The per-amp social card is a crop of that amp's own board drawing, so
+// pipeline/render_og.py only builds one for a circuit that has a layout. A
+// circuit that has not been drawn yet falls back to the site card rather than
+// naming an image that was never rendered — see the ogImage prop below.
 ---
 <Base title={`${displayId(amp.id)} — ${m.name_style} · Circuit Codex`}
       description={metaDescription} ogType="article" jsonld={jsonld} breadcrumbs={breadcrumbs}
-      ogImage={`og/${amp.id}.png`}
-      ogImageAlt={`${displayId(amp.id)} — ${m.name_style}, ${m.wattage} W: Circuit Codex card, with a detail of the redrawn board layout drawing`}>
+      ogImage={amp.hasLayout ? `og/${amp.id}.png` : undefined}
+      ogImageAlt={amp.hasLayout
+        ? `${displayId(amp.id)} — ${m.name_style}, ${m.wattage} W: Circuit Codex card, with a detail of the redrawn board layout drawing`
+        : undefined}>
 
 <div class="wrap wrap-wide">
   <header class="amp-head">

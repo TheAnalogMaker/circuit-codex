@@ -1,6 +1,8 @@
 ---
 import Base from '../../../layouts/Base.astro';
-import { loadCorpus, toneStackPresets, TONE_STACK_KINDS, displayId } from '../../../lib/corpus.js';
+import {
+  loadCorpus, toneStackPresets, TONE_STACK_KINDS, TONE_STACK_GATED_IDS, displayId,
+} from '../../../lib/corpus.js';
 import {
   PLOT, plotX, plotY, curvePath, gridFrequencies, dbGridLines, hzLabel,
   sweepFrequencies, summarise, midPositions, maxPositions, labelPlacement,
@@ -18,12 +20,24 @@ const opening = presets[0];
 const withToneControl = loadCorpus()
   .filter((a) => (a.meta?.topology?.tone_stack ?? 'none') !== 'none');
 const absent = withToneControl.filter((a) => !presets.some((p) => p.id === a.id));
-// Named in prose, so the two lists must agree: the single-knob circuits are the
-// ones absent purely because that network is not modelled yet; the rest are absent
-// because the circuit's own reading is not done or its network is not solved here.
-const singleKnob = absent.filter((a) => a.meta.topology.tone_stack === 'single-knob');
-const otherNetwork = absent.filter((a) => a.meta.topology.tone_stack !== 'single-knob');
-const countWord = (n) => ['none', 'One', 'Two', 'Three', 'Four', 'Five'][n] ?? String(n);
+// Every absentee is named in prose below, in one of four groups, and the four
+// partition `absent` — so the paragraph stays true as the corpus grows instead
+// of quietly leaving new circuits out of its own count.
+//   topCut  — a network this solver does not carry at all (the Vox Top Cut sits
+//             after the phase inverter, bridged across both of its outputs).
+//   gated   — drawing read at lug level and held by the same wiring gate as the
+//             presets, but not yet built into one (TONE_STACK_GATE_EXTRAS).
+//   single  — one-knob tone controls, not modelled as presets yet.
+//   other   — multi-knob networks whose own reading or solver is not done.
+const inGroup = (a, ids) => ids.includes(a.id);
+const topCut = absent.filter((a) => a.meta.topology.tone_stack === 'top-cut');
+const gated = absent.filter((a) => !topCut.includes(a) && inGroup(a, TONE_STACK_GATED_IDS));
+const singleKnob = absent.filter((a) => a.meta.topology.tone_stack === 'single-knob'
+  && !gated.includes(a) && !topCut.includes(a));
+const otherNetwork = absent.filter((a) => !topCut.includes(a)
+  && !gated.includes(a) && !singleKnob.includes(a));
+const nameList = (list) => list.map((a) => displayId(a.id)).join(', ')
+  .replace(/, ([^,]*)$/, ' and $1');
 
 // The page ships a real curve in the HTML, drawn by the same code the browser
 // uses, so the figure is there before (and without) any script.
@@ -359,16 +373,18 @@ const description = 'An interactive frequency-response lab for the passive tone 
       directly.</p>
     <p class="sub">{withToneControl.length} circuits in the archive carry a tone control and
       {' '}{presets.length} of them are presets here. Of the {absent.length} that are absent,
-      the AC15 is the one whose network the solver genuinely lacks: its Top Cut sits after
-      the phase inverter, bridged across both of its outputs — a differential cut with no
-      counterpart in these stacks. The AA764 draws the same two-knob ladder the AA964
-      preset is solved with — its drawing is read at lug level and held by the same
-      wiring gate as the presets here — but it has not yet been built into a preset,
-      so it waits on that step rather than on a new model. The other {singleKnob.length}
-      {' '}— the single tone controls of
-      {' '}{singleKnob.map((a) => displayId(a.id)).join(', ').replace(/, ([^,]*)$/, ' and $1')} —
-      are simply not built as presets yet. A curve for a network that is not the circuit's
-      own would not be recoverable, so each of these waits until its own is drawn.</p>
+      {' '}{nameList(topCut)} {topCut.length === 1 ? 'is the one' : 'are the ones'} whose
+      network the solver genuinely lacks: the Vox Top Cut sits after the phase inverter,
+      bridged across both of its outputs — a differential cut with no counterpart in these
+      stacks. {nameList(gated)} {gated.length === 1 ? 'draws' : 'draw'} the same two-knob
+      ladder the blackface presets are solved with, read at lug level and held by the same
+      wiring gate as the presets here, but not yet built into
+      {' '}{gated.length === 1 ? 'a preset' : 'presets'} — {gated.length === 1 ? 'it waits' : 'they wait'}
+      {' '}on that step rather than on a new model. The single tone controls of
+      {' '}{nameList(singleKnob)} are simply not built as presets yet. And the multi-knob
+      networks of {nameList(otherNetwork)} wait on the closer reading their own drawings
+      still owe. A curve for a network that is not the circuit's own would not be
+      recoverable, so each of these waits until its own is drawn.</p>
 
     {presets.map((p) => (
       <div class="pcard">
