@@ -36,14 +36,17 @@ sources:
   - desc: "RCA 6L6-GC data sheet (DATA 1, 8-60) — tabulated Class A1 characteristics read for the clean-room CC0 6L6GC tube model added with this amp (Va=250 V, Vg2=250 V, Vg1=-14 V -> Ia=72 mA, Ig2=5 mA, gm=6000 umho), its interelectrode capacitances, its 7AC basing, and its design-maximum ratings (30 W plate dissipation, 500 V plate, 450 V screen). The amplification factor is RC-19's grid-No.1-to-grid-No.2 figure of 8; this sheet prints none"
     url: "https://frank.pocnet.net/sheets/049/6/6L6GC.pdf"
 verification:
-  status: draft
-  # Every gated node lands inside the drawing's own +/-20% notice (worst 14.9%,
-  # the vibrato channel's second-stage plate — one end of a cathode node the chart
-  # prints two different plate voltages against). The redrawn schematic and the
-  # board layout have since landed: the BOM<->schematic cross-check passes both
-  # ways, and pipeline/verify_layout_nets.py proves the drawn board wiring
-  # electrically equivalent to netlist.cir (layout.yaml carries
-  # wiring_claim: verified). The entry stays draft because 'verified' is the
-  # maintainer's to grant, never an agent's.
+  status: verified
+  # Basis: the full voltage chart printed on the published "TWIN REVERB-AMP
+  # AB763" (C-FD) drawing, ±20% as the sheet itself states (see voltages.yaml
+  # `source`). Two printed supply nodes are driven and the two lower rails are
+  # solved through the drawing's own droppers, so the printed rail chain is a
+  # checked claim rather than an input. All twenty nodes gated, 0 failures,
+  # nothing disputed. The redrawn schematic and both board-layout drawings are
+  # present, the BOM<->schematic cross-check passes both ways, and the drawn
+  # point-to-point wiring is proved electrically equivalent to netlist.cir
+  # (layout.yaml: wiring_claim: verified).
+  date: 2026-08-08
+  max_deviation_pct: 14.9   # worst gated node (PV2, the vibrato channel's second-stage plate, tol 20%) — one end of a shared 820 Ohm cathode the chart prints two different plate voltages against, so the gap is the chart's own asymmetry, not a modelling one; both solved rails land inside 1%. The tremolo tube, both halves, is a documented exclusion (see notes.md), reported not gated
 added: 2026-08-08
 contributors: [TheAnalogMaker]

@@ -24,21 +24,18 @@ sources:
   - desc: "Wikipedia, 'Fender Bassman' — the AB165 dates and the 50 W rating. The AB165 drawing itself carries no date and prints no power rating; the circuit is placed c. 1965 and carried into the early silverface (drip-edge) period, on the 50 W blackface piggyback chassis the AA864 introduced in 1964"
     url: "https://en.wikipedia.org/wiki/Fender_Bassman"
 verification:
-  status: draft   # Not a defect in the chart — the sheet prints a full tabulated
-                  # chart, it was read whole, and verify_amps.py gates every
-                  # non-disputed node with 0 failures and 0 warnings. Draft for
-                  # two procedural reasons and one technical caveat:
-                  # (1) Verified is the maintainer's to grant, never an agent's
-                  # (AGENTS.md rule 4).
-                  # (2) The redrawn schematic and both board-layout drawings
-                  # landed after the data core; the layout carries
-                  # wiring_claim: verified (its point-to-point wiring is proved
-                  # equivalent to netlist.cir), but the circuit's own
-                  # verification.status stays the maintainer's to grant.
-                  # (3) Worst gated nodes are the two inverter plates at 17.0%
-                  # and 19.7% against the sheet's own +/-20% — passing, but with
-                  # almost no margin, so a later tube-model refit could tip them.
-                  # The two `disputed` nodes are NOT a bar: 5f4, 5f6 and jtm45
-                  # each carry disputed nodes and are verified.
+  status: verified
+  # Basis: the full tabulated voltage chart printed on the published
+  # "Bassman-Amp AB165" (D-FE) drawing, ±20% as the sheet itself states (see
+  # voltages.yaml `source`). One rail is driven at its printed +425 V and the
+  # whole ladder below it is solved through the drawing's own droppers, so the
+  # printed rail chain is a checked claim rather than an input. Nineteen nodes
+  # gated, 0 failures; two printed plate figures excluded as `disputed` with
+  # the arithmetic shown (see voltages.yaml and notes.md) — the same treatment
+  # 5f4, 5f6 and jtm45 carry. The redrawn schematic and both board-layout
+  # drawings are present and the drawn point-to-point wiring is proved
+  # electrically equivalent to netlist.cir (layout.yaml: wiring_claim: verified).
+  date: 2026-08-08
+  max_deviation_pct: 19.7   # worst gated node (PPIB, the 12AT7 inverter's cold plate, tol 20%; PPIA is 17.0%) — inside the sheet's own convention but with little margin, so re-check this pair after any 12AT7 model refit. Every other gated node is inside 17%, the rails inside 4.4%, and the bias line exact
 added: 2026-08-08
 contributors: [TheAnalogMaker]

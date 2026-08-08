@@ -124,6 +124,10 @@ the shared-cathode node showing itself, because the chart prints +270 V at the
 other end of the same 820 Ω and two stages on one resistor cannot in fact sit
 30 V apart.
 
+This circuit is published as **verified**: every node the chart prints for a
+modelled stage is compared, none is set aside as disputed, and the worst gap is
+the one described just above.
+
 The **tremolo tube** is left out of the DC solution, both halves. The oscillator
 is a running phase-shift circuit whose printed +2.0 V cathode is a
 grid-leak-detected average rather than a quiescent point, and the lamp driver's

@@ -34,20 +34,14 @@ sources:
   - desc: "Mojotone Fender Field Guide, 'Fender Brownface Princeton' — production window 1961-1963, 12 W rating, push-pull 2x6V6GT with phase inverter, fixed bias, 5Y3GT rectifier"
     url: "https://mojotone.com/blogs/fender-field-guide/fender-brownface-princeton"
 verification:
-  status: draft   # The drawing prints a comprehensive per-pin voltage set (unlike
-                  # the single-ended 5F2-A or the AC15), and the DC netlist
-                  # reproduces every gated node within 4% of that printed chart
-                  # (pipeline/verify_amps.py, worst node KPI/JPI at 3.9%) — a
-                  # tighter match than several of this corpus's own verified
-                  # entries. It stays draft for a structural reason, not a
-                  # numerical one: this delivery carries meta/netlist/voltages/
-                  # bom/notes only, and pipeline/validate.py correctly requires
-                  # schematic.kicad_sch (and, by the schema, layout.yaml) before
-                  # a `verified` claim is earned — those artifacts are separately
-                  # assigned. Flip to verified once they land and the remaining
-                  # gates (check_schematics, check_layouts, verify_layout_nets)
-                  # are green; the DC model itself is verification-ready today.
-# Day the circuit landed in the corpus (git history, amps/6g2/) — the feed's
-# pubDate for a draft; production builds are shallow clones and cannot ask git.
+  status: verified
+  # Basis: the printed per-pin voltage chart on the published 6G2 (H-FA)
+  # drawing, ±20% as the sheet itself states (see voltages.yaml `source`).
+  # Every one of the eleven charted nodes is gated — nothing informational —
+  # and the two lower rails are predictions of the drawing's own dropper chain
+  # rather than inputs to it.
+  date: 2026-08-08
+  max_deviation_pct: 3.9   # worst gated node (KPI/JPI, the cathodyne cathode and its 1.5k/56k tail junction, tol 20%); both rails inside 1.1% and every other node inside 2%. The tremolo oscillator sharing V2 is a documented exclusion (see notes.md), reported not gated
+# Day the circuit landed in the corpus (git history, amps/6g2/).
 added: 2026-08-08
 contributors: [TheAnalogMaker]

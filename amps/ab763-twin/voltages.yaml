@@ -13,6 +13,9 @@
 # either half — see notes.md), so its printed pins are documented there rather
 # than listed here. It hangs off the DRIVEN node BB, not the preamp rail, so its
 # absence shifts nothing below.
+#
+# VERIFIED 2026-08-08 against this printed chart: all twenty nodes gated, worst
+# 14.9% (PV2) against the sheet's own +/-20% convention, nothing disputed.
 source: "Fender AB763 Twin Reverb-Amp drawing, printed voltages: +460 (6L6GC plates, OT centre tap), +458 (screens, post-choke node B, reverb-transformer feed), +450 (phase-inverter plate supply, node C), +440 (reverb-driver plate), +410 (preamp plate supply, node D), +8.6 (reverb-driver cathode), +280/+275 (mix-driver and reverb-recovery plates) and +270/+260/+250/+240 (the four channel preamp plates) all on +2.0 V cathodes, PI +245/+235 plates with +100 V joined cathodes and a +98 V tail junction, -52 (6L6GC fixed bias); tremolo 12AX7 +380/+5.6/+2.0 excluded"
 nodes:
   BC:   { chart: 450, tol_pct: 8,  note: "node [C], the phase-inverter plate supply — solved from BB through the drawing's 1 kOhm-1W dropper" }

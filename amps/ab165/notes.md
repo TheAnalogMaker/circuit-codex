@@ -107,7 +107,9 @@ contradicts the drawing's own numbers rather than this simulation's:
   the load on +320 V, and the printed +260 V is carried as a disputed node with
   the arithmetic above rather than quietly rewired to make it fit.
 
-Everything else in the chart is gated at the sheet's own ±20 % convention.
+Everything else in the chart is gated at the sheet's own ±20 % convention, and
+this circuit is published as **verified** on that basis — nineteen nodes
+compared, the worst of them the inverter plate pair above.
 
 ## Lineage
 

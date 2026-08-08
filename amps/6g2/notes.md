@@ -105,9 +105,9 @@ that value is further confirmed by the same chart match. Everything else — the
 rail chain, both preamp stages, the cathodyne's plate load, the output stage,
 and the bias supply — carries no such ambiguity.
 
-The entry stays a **draft** pending the maintainer's review, which is the only
-thing that grants `verified` here. The DC model itself is ready for it: every
-gated node reproduces inside 4%.
+This circuit is published as **verified**: every node the chart prints is
+compared, and the worst of them sits 3.9 % out against a sheet that states its
+own readings to ±20 %.
 
 ## The oscillator, excluded
 

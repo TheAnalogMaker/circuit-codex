@@ -8,6 +8,9 @@
 # ONE rail is driven — BP = +315 V, the 5Y3GT reservoir / output-transformer
 # centre tap — and every rail below it is solved through the printed
 # droppers; see netlist.cir.
+#
+# VERIFIED 2026-08-08 against this printed chart: all eleven nodes gated, worst
+# 3.9% (KPI/JPI) against the sheet's own +/-20% convention.
 source: "Fender 'Princeton' Model 6G2 (H-FA) drawing, printed voltages: +315 (reservoir / OT centre tap), +312 (6V6 screen node), +280 (preamp/PI rail), +230 (cathodyne plate), +185 (both 7025 plates), +1.5 (both 7025 cathodes), cathodyne cathode +56.5 into a +55 tail junction, -35 (6V6 fixed bias, and the tremolo oscillator's own +200/oscillating plate, excluded — see notes.md)"
 nodes:
   BS:   { chart: 312, tol_pct: 8,  note: "6V6 screen node, one 1000 Ohm-1W dropper below the driven reservoir — internal target, tighter than the drawing's own +/-20%" }

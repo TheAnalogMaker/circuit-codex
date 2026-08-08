@@ -9,6 +9,10 @@
 # disagreement: each contradicts the drawing's OWN printed part values and its
 # OWN printed cathode voltage, so it is reported with the arithmetic rather
 # than force-fitted (AGENTS.md rule 5, and see notes.md).
+#
+# VERIFIED 2026-08-08 against this printed chart: 19 nodes gated, worst 19.7%
+# (PPIB, the inverter's cold plate) against the sheet's own +/-20% convention;
+# the 2 disputed nodes excluded with the arithmetic shown below.
 source: "Fender Bassman-Amp AB165 drawing (D-FE), printed voltages: +425 (6L6GC plates pin 3 and screens pin 4, both bottles), +415 (phase-inverter supply), +390 (second-stage supply), +320 (input-stage supply), -45 (bias line at the 10 kOhm-L balance control); bass channel +220/+1.6 (V1a plate/cathode) and +260/+1.8 (V1b); normal channel +280/+1.9 (V2a) and +260/+1.9 (V2b); mixer-driver +250/+2.0 (V3b); phase inverter +225 and +220 plates over +102 joined cathodes and +100 tail junction"
 nodes:
   # --- supply rails: derived from the driven +425 V node through 1k / 4.7k / 27k
