@@ -1,0 +1,132 @@
+* 6161 (Valco 6161-style) — DC operating-point netlist
+* Circuit Codex — CC-BY-SA 4.0. Independently drawn from the published component
+* values of the Valco factory drawing whose title block reads "Valco Model 6161"
+* (see meta.yaml). No drawing reproduced.
+*
+* Designators are functional (the corpus's own). The drawing numbers its BOTTLES
+* (V1..V6) but carries no reference designators for the passive parts, so there
+* are none to reuse. See bom.yaml.
+*
+* SCOPE — this netlist covers both preamp channels, the paraphase phase
+* inverter, the cathode-biased 6973 pair, and the second half of V3: the
+* tremolo's cathode-follower output stage. That last one is IN scope, not out,
+* because it is DC-coupled: V3B's anode goes straight to the B1 rail with no
+* load resistor and its cathode lands directly on channel 2's cathode node,
+* sharing that channel's 1.5 kOhm cathode resistor. The two tubes' currents add
+* in that one resistor, so channel 2's bias cannot be solved without V3B in the
+* circuit — modelling the channel and omitting the follower would report a
+* cathode voltage no instrument would ever read.
+*
+* EXCLUDED — V3A, the tremolo's phase-shift oscillator. It is a running
+* oscillator whose quiescent point is shifted by grid-leak detection, so it has
+* no static DC operating point worth reporting; the corpus gives the AB763 and
+* 6G3 tremolo oscillators the same treatment. Unlike those two, its 270 kOhm
+* plate load taps a node this netlist DERIVES rather than drives (B1), so the
+* exclusion is not free: roughly half a milliamp of oscillator plate current is
+* missing from the 15 kOhm dropper that feeds B1, which reports B1 and every
+* node below it a few volts high. That is stated in voltages.yaml, where those
+* nodes are informational, never gated.
+*
+* DC conventions (as in the sibling amps): BP1 — the 5Y3-GT reservoir node,
+* which is also the output-transformer centre tap and therefore the 6973 plate
+* node — is DRIVEN at 369 V, and every node below it is DERIVED through the
+* drawing's own droppers. 369 V is not a chart value: this drawing prints no
+* voltages at all, and the figure is the plate voltage from a published
+* measurement set taken on a surviving Supro 1624T, the Supro-badged sibling of
+* this circuit (same 3x12AX7 / 2x6973 / 5Y3-GT complement, same 250 Ohm shared
+* cathode resistor). It is an input assumption, not a claim about this circuit —
+* see voltages.yaml and notes.md.
+*
+* The 5Y3-GT rectifier and the mains transformer ahead of BP1 are not modelled
+* (no corpus netlist simulates its supply). Output-transformer primary DCR is
+* omitted, so both 6973 anode nodes sit on the driven rail. Screens hang off
+* their own node BP2 after the 1 kOhm dropper, exactly as drawn — this circuit
+* does NOT tap its screens on the transformer primary. DC-open caps are MODELLED
+* where BOTH leads land on a named DC node (the three filter cans, the two
+* supply decoupling caps, every cathode-bypass can and the two inverter -> 6973
+* grid couplers): open at DC they move no operating point, but modelling them
+* fixes the push-pull phase and the decoupling placement in the data. Caps with
+* a lead inside an abstracted network (the input couplers, the volume/tone/
+* mixer network, the whole tremolo ladder) stay out. Heaters, the pilot lamp and
+* the footswitch jack are not modelled.
+.include models/12ax7.inc
+.include models/6973.inc
+
+VBP1 BP1 0 DC 369
+
+* --- supply chain: reservoir -> screens -> preamp/inverter rail ---------------
+* 20 uF reservoir on the plates, 1 kOhm-1W to the 10 uF screen node, 15 kOhm to
+* the 10 uF B1 rail that feeds the inverter plates directly and each preamp
+* channel through its own 100 kOhm dropper.
+RD1 BP1 BP2 1k
+CF1 BP1 0 20u
+RD2 BP2 B1 15k
+CF2 BP2 0 10u
+CF3 B1 0 10u
+
+* --- V1A, channel 1 ("Treble"/"Bass" jacks) ----------------------------------
+* 470 kOhm grid leak straight off the input node — channel 1 has no grid
+* stopper, and its 2.2 kOhm cathode resistor is UNBYPASSED. The 0.005 uF input
+* coupler and the 100 kOhm Bass-jack mixing resistor both have a lead at a jack,
+* so neither is modelled.
+RD3 B1 BC1 100k
+CF4 BC1 0 0.05u
+RL1 BC1 P1A 270k
+XV1A P1A G1A K1A 12AX7
+RG1 G1A 0 470k
+RK1 K1A 0 2.2k
+
+* --- V1B, channel 2 — the tremolo-modulated channel --------------------------
+* Same stage, but with a 2.2 kOhm grid stopper and a 1.5 kOhm cathode resistor
+* bypassed by 35 uF. Its cathode node K1B is shared with the tremolo follower
+* below; that is the whole tremolo mechanism (see notes.md).
+RD4 B1 BC2 100k
+CF5 BC2 0 0.05u
+RL2 BC2 P1B 270k
+XV1B P1B G1B K1B 12AX7
+RGS1 G1B N2 2.2k
+RG2 N2 0 470k
+RK2 K1B 0 1.5k
+CK2 K1B 0 35u
+
+* --- V3B, tremolo cathode follower (the oscillator V3A is excluded) ----------
+* Anode straight to B1, no load resistor; cathode onto K1B. Its grid returns to
+* ground through the 2.2 kOhm stopper and the 270 kOhm Intensity-network
+* resistor; everything upstream of that is behind the 0.01 uF oscillator
+* coupler and carries no DC.
+XV3B B1 GTR K1B 12AX7
+RGS2 GTR NTI 2.2k
+RTI NTI 0 270k
+
+* --- V2, paraphase phase inverter --------------------------------------------
+* V2A is the driver: 270 kOhm anode load, 2.2 kOhm cathode bypassed by 0.05 uF,
+* grid returned to ground through the 1 MOhm leak (the 0.0003 uF coupler sits
+* inside the abstracted mixer, so it stays out). Its anode drives V5's grid.
+* V2B is the inverting half: same 270 kOhm load, 3.9 kOhm cathode LEFT
+* UNBYPASSED, and its grid tapped off V5's grid through the 270 kOhm / 12 kOhm
+* divider. Its anode drives V4's grid. The divider is what makes this a
+* paraphase and not a long-tailed pair — see notes.md for the balance
+* arithmetic the two resistors encode.
+RL3 B1 P2A 270k
+XV2A P2A G2A K2A 12AX7
+RG3 G2A 0 1meg
+RK3 K2A 0 2.2k
+CK3 K2A 0 0.05u
+RL4 B1 P2B 270k
+XV2B P2B G2B K2B 12AX7
+RK4 K2B 0 3.9k
+RPA G5 G2B 270k
+RPB G2B 0 12k
+
+* --- 6973 push-pull output, cathode bias -------------------------------------
+* One shared 250 Ohm resistor biases the pair, bypassed by 35 uF — no bias
+* supply anywhere in the amp. G5's DC return is the paraphase divider itself
+* (270 kOhm + 12 kOhm); G4 has its own 470 kOhm leak. Both 0.01 uF couplers are
+* modelled so a coupler on the wrong grid is a wrong-node error in the data.
+CC1 P2A G5 0.01u
+CC2 P2B G4 0.01u
+RGL2 G4 0 470k
+XV5 BP1 BP2 G5 KOUT 6973
+XV4 BP1 BP2 G4 KOUT 6973
+RKO KOUT 0 250
+CKO KOUT 0 35u

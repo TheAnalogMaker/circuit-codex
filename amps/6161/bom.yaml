@@ -1,0 +1,117 @@
+# Parts list for the Valco 6161, read from the factory drawing whose title block
+# reads "Valco Model 6161".
+#
+# Designators are FUNCTIONAL — the corpus's own. The drawing numbers its BOTTLES
+# V1 to V6 and those numbers ARE carried over; it prints no reference designators
+# for any passive part, so there are none to reuse and none are invented.
+#
+# A designator here means the SCHEMATIC draws that part: schematic.kicad_sch and
+# this list are cross-checked both ways by pipeline/validate.py, so neither can
+# carry a part the other does not. What the DC netlist asserts is a narrower set,
+# stated in netlist.cir's own SCOPE block — the tremolo oscillator's operating
+# point and the abstracted control networks are drawn here but not simulated.
+# Parts the drawing resolves as values whose wiring this entry does not draw at
+# all — the mains side beyond the transformer, the jacks, the speakers — carry
+# ref "—" (annotation only), the same convention the tweed, Marshall and Vox
+# entries use.
+notes: "Capacitor values are open at DC and do not enter the operating-point netlist; they are listed for completeness, and the ones whose BOTH leads land on a named DC node are modelled anyway so the push-pull phase and the decoupling placement are fixed in the data. Wattages are the drawing's where it prints them (1000-1W, 250-7W) and the era's implied ½ W elsewhere; the drawing marks no tolerances. The output cathode resistor is the part to get right: a published redraw of the Supro-badged sibling letters it '250K 7W', the factory drawing gives it as 250, and a published measurement reads 24 V across it at idle — 250 Ω is the value, and 250 kΩ would bias the pair off."
+items:
+  # --- bottles ---
+  - { ref: V1, part: "Tube", value: "12AX7", role: "Both preamp channels, one triode each" }
+  - { ref: V2, part: "Tube", value: "12AX7", role: "Paraphase phase inverter, both triodes" }
+  - { ref: V3, part: "Tube", value: "12AX7", role: "Tremolo — phase-shift oscillator (V3A, excluded from the netlist) and cathode-follower output (V3B)" }
+  - { ref: V4, part: "Tube", value: "6973", role: "Output beam power tube" }
+  - { ref: V5, part: "Tube", value: "6973", role: "Output beam power tube" }
+  - { ref: V6, part: "Rectifier tube", value: "5Y3GT", role: "Full-wave rectifier" }
+  # --- iron ---
+  - { ref: T1, part: "Power transformer", value: "Valco E-3693A", role: "Mains transformer — centre-tapped HT winding (grounded), 5 V rectifier winding, 6.3 V heater winding. The drawing prints the part number and no winding voltages" }
+  - { ref: T2, part: "Output transformer", value: "Valco 340-6", role: "Output transformer, centre-tapped primary; the centre tap is the reservoir node" }
+  # --- inputs, both channels ---
+  - { ref: "—", part: "Jack socket", value: "1/4 in", role: "Channel 1 input, panel-marked Treble" }
+  - { ref: "—", part: "Jack socket", value: "1/4 in", role: "Channel 1 input, panel-marked Bass" }
+  - { ref: "—", part: "Jack socket", value: "1/4 in", role: "Channel 2 input, panel-marked Treble" }
+  - { ref: "—", part: "Jack socket", value: "1/4 in", role: "Channel 2 input, panel-marked Bass" }
+  - { ref: CIN1, part: "Coupling capacitor", value: "0.005 µF", role: "Channel 1 Treble-jack input coupler — mounts at the jacks" }
+  - { ref: CIN2, part: "Coupling capacitor", value: "0.005 µF", role: "Channel 2 Treble-jack input coupler — mounts at the jacks" }
+  - { ref: RMX1, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "Channel 1 Bass-jack mixing resistor — mounts at the jacks" }
+  - { ref: RMX2, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "Channel 2 Bass-jack mixing resistor — mounts at the jacks" }
+  # --- V1A, channel 1 ---
+  - { ref: RD3, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "Channel 1 supply dropper, B1 → channel 1 node" }
+  - { ref: CF4, part: "Film capacitor", value: "0.05 µF", role: "Channel 1 supply decoupling" }
+  - { ref: RL1, part: "Carbon comp resistor", value: "270 kΩ · ½ W", role: "Channel 1 plate load" }
+  - { ref: RG1, part: "Carbon comp resistor", value: "470 kΩ · ½ W", role: "Channel 1 grid leak — straight off the input node, no grid stopper on this channel" }
+  - { ref: RK1, part: "Carbon comp resistor", value: "2.2 kΩ · ½ W", role: "Channel 1 cathode bias — UNBYPASSED, no can on this channel" }
+  - { ref: CV1, part: "Coupling capacitor", value: "0.005 µF", role: "Channel 1 plate → volume coupler" }
+  # --- V1B, channel 2 (the tremolo-modulated one) ---
+  - { ref: RD4, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "Channel 2 supply dropper, B1 → channel 2 node" }
+  - { ref: CF5, part: "Film capacitor", value: "0.05 µF", role: "Channel 2 supply decoupling" }
+  - { ref: RL2, part: "Carbon comp resistor", value: "270 kΩ · ½ W", role: "Channel 2 plate load" }
+  - { ref: RGS1, part: "Carbon comp resistor", value: "2.2 kΩ · ½ W", role: "Channel 2 grid stopper" }
+  - { ref: RG2, part: "Carbon comp resistor", value: "470 kΩ · ½ W", role: "Channel 2 grid leak" }
+  - { ref: RK2, part: "Carbon comp resistor", value: "1.5 kΩ · ½ W", role: "Channel 2 cathode bias — SHARED with the tremolo follower V3B, which is the tremolo mechanism" }
+  - { ref: CK2, part: "Electrolytic capacitor", value: "35 µF · 50 V", role: "Channel 2 cathode bypass" }
+  - { ref: CP2, part: "Mica capacitor", value: "0.0005 µF (500 pF)", role: "Channel 2 plate-to-ground treble cut — the cap channel 1 does not have" }
+  - { ref: CI1, part: "Film capacitor", value: "0.005 µF", role: "Channel 2 interstage coupler, first of two in series" }
+  - { ref: RI1, part: "Carbon comp resistor", value: "270 kΩ · ½ W", role: "Channel 2 interstage shunt to ground, between the two 0.005 µF couplers" }
+  - { ref: CI2, part: "Film capacitor", value: "0.005 µF", role: "Channel 2 interstage coupler, second of two in series" }
+  # --- volume / tone / mixer network ---
+  - { ref: VR1, part: "Log potentiometer", value: "500 kΩ-A", role: "Channel 1 volume" }
+  - { ref: CB1, part: "Mica capacitor", value: "0.0005 µF (500 pF)", role: "Bright cap, channel 1 volume top → wiper" }
+  - { ref: RM1, part: "Carbon comp resistor", value: "270 kΩ · ½ W", role: "Channel 1 mixing resistor, volume wiper → mixer node" }
+  - { ref: VR2, part: "Log potentiometer", value: "500 kΩ-A", role: "Channel 2 volume" }
+  - { ref: CB2, part: "Mica capacitor", value: "0.0005 µF (500 pF)", role: "Bright cap, channel 2 volume top → wiper" }
+  - { ref: RM2, part: "Carbon comp resistor", value: "270 kΩ · ½ W", role: "Channel 2 mixing resistor, volume wiper → mixer node" }
+  - { ref: CT1, part: "Mica capacitor", value: "0.0005 µF (500 pF)", role: "Fixed treble shunt, mixer node → ground" }
+  - { ref: CT2, part: "Film capacitor", value: "0.005 µF", role: "Tone capacitor, mixer node → Tone control" }
+  - { ref: VR3, part: "Log potentiometer", value: "500 kΩ-A", role: "Tone — the amp's only tone control, shared by both channels; wired as a rheostat with its wiper grounded" }
+  - { ref: CPI, part: "Mica capacitor", value: "0.0003 µF (300 pF)", role: "Mixer node → inverter driver grid coupler" }
+  # --- V2, paraphase phase inverter ---
+  - { ref: RL3, part: "Carbon comp resistor", value: "270 kΩ · ½ W", role: "Inverter driver plate load (V2A)" }
+  - { ref: RG3, part: "Carbon comp resistor", value: "1 MΩ · ½ W", role: "Inverter driver grid leak" }
+  - { ref: RK3, part: "Carbon comp resistor", value: "2.2 kΩ · ½ W", role: "Inverter driver cathode bias" }
+  - { ref: CK3, part: "Film capacitor", value: "0.05 µF", role: "Inverter driver cathode bypass" }
+  - { ref: RL4, part: "Carbon comp resistor", value: "270 kΩ · ½ W", role: "Inverter inverted-side plate load (V2B)" }
+  - { ref: RK4, part: "Carbon comp resistor", value: "3.9 kΩ · ½ W", role: "Inverter inverted-side cathode bias — left UNBYPASSED, which is what sets that half's gain" }
+  - { ref: RPA, part: "Carbon comp resistor", value: "270 kΩ · ½ W", role: "Paraphase divider, upper leg — V5 grid down to the V2B grid tap; doubles as most of V5's grid leak" }
+  - { ref: RPB, part: "Carbon comp resistor", value: "12 kΩ · ½ W", role: "Paraphase divider, lower leg — the V2B grid tap down to ground" }
+  # --- 6973 output stage ---
+  - { ref: CC1, part: "Coupling capacitor", value: "0.01 µF", role: "Inverter driver plate → V5 grid" }
+  - { ref: CC2, part: "Coupling capacitor", value: "0.01 µF", role: "Inverter inverted-side plate → V4 grid" }
+  - { ref: RGL2, part: "Carbon comp resistor", value: "470 kΩ · ½ W", role: "V4 grid leak" }
+  - { ref: RKO, part: "Power resistor", value: "250 Ω · 7 W", role: "SHARED 6973 cathode bias resistor — the whole bias arrangement for the pair, with no bias supply anywhere in the amp" }
+  - { ref: CKO, part: "Electrolytic capacitor", value: "35 µF · 50 V", role: "6973 cathode bypass" }
+  # --- power supply ---
+  - { ref: CF1, part: "Electrolytic capacitor", value: "20 µF · 450 V", role: "Reservoir can — the 6973 plate node and the output-transformer centre tap" }
+  - { ref: RD1, part: "Power resistor", value: "1 kΩ · 1 W", role: "Reservoir → 6973 screen node" }
+  - { ref: CF2, part: "Electrolytic capacitor", value: "10 µF · 450 V", role: "6973 screen node smoothing" }
+  - { ref: RD2, part: "Carbon comp resistor", value: "15 kΩ · ½ W", role: "Screen node → B1, the preamp and inverter rail" }
+  - { ref: CF3, part: "Electrolytic capacitor", value: "10 µF · 450 V", role: "B1 rail smoothing" }
+  - { ref: "—", part: "Speaker", value: "10 in · 550-3 (×2)", role: "Two 10-inch speakers (annotation only)" }
+  - { ref: "—", part: "Film capacitor", value: "0.01 µF", role: "Mains-side capacitor, drawn as C1 across the primary (annotation only)" }
+  - { ref: "—", part: "Toggle switch", value: "SPST", role: "Mains on/off, ganged with the line-reverse arrangement (annotation only)" }
+  - { ref: "—", part: "Fuse", value: "2 A", role: "Mains fuse (annotation only)" }
+  - { ref: "—", part: "Neon indicator", value: "neon", role: "Pilot lamp — a neon across the mains side, not a 6.3 V bulb (annotation only)" }
+  # --- tremolo: oscillator V3A, its Speed control and the Intensity network ---
+  - { ref: RTO1, part: "Carbon comp resistor", value: "270 kΩ · ½ W", role: "Tremolo oscillator plate load, taps B1 (oscillator excluded from the netlist)" }
+  - { ref: RTOK, part: "Carbon comp resistor", value: "1 kΩ · ½ W", role: "Tremolo oscillator cathode bias" }
+  - { ref: RTOG, part: "Carbon comp resistor", value: "2.2 kΩ · ½ W", role: "Tremolo oscillator grid stopper" }
+  - { ref: CTO1, part: "Film capacitor", value: "0.03 µF", role: "Tremolo phase-shift ladder capacitor, plate end" }
+  - { ref: CTO2, part: "Film capacitor", value: "0.02 µF", role: "Tremolo phase-shift ladder capacitor, middle" }
+  - { ref: CTO3, part: "Film capacitor", value: "0.01 µF", role: "Tremolo phase-shift ladder capacitor, grid end" }
+  - { ref: RTOR1, part: "Carbon comp resistor", value: "1 MΩ · ½ W", role: "Tremolo phase-shift ladder return" }
+  - { ref: RTOR2, part: "Carbon comp resistor", value: "1.5 MΩ · ½ W", role: "Tremolo phase-shift ladder return" }
+  - { ref: RSPD, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "Speed control series resistor" }
+  - { ref: VR4, part: "Log potentiometer", value: "500 kΩ-A", role: "Tremolo Speed — wired as a rheostat off the ladder's first node" }
+  - { ref: CTOUT, part: "Film capacitor", value: "0.01 µF", role: "Tremolo oscillator output coupler" }
+  - { ref: RTOUT, part: "Carbon comp resistor", value: "1 MΩ · ½ W", role: "Tremolo output series resistor ahead of the footswitch" }
+  - { ref: SW1, part: "Toggle switch", value: "SPST", role: "Tremolo on/off, in series with the oscillator output" }
+  - { ref: "—", part: "Jack socket", value: "1/4 in", role: "Footswitch jack (annotation only)" }
+  - { ref: RTI1, part: "Carbon comp resistor", value: "1 MΩ · ½ W", role: "Intensity network, first leg after the footswitch jack" }
+  - { ref: CTI1, part: "Film capacitor", value: "0.05 µF", role: "Intensity network shunt, first node" }
+  - { ref: RTI2, part: "Carbon comp resistor", value: "1.5 MΩ · ½ W", role: "Intensity network, second leg" }
+  - { ref: CTI2, part: "Film capacitor", value: "0.05 µF", role: "Intensity network shunt, second node — parallels the follower's 270 kΩ grid return" }
+  # --- V3B, tremolo cathode follower ---
+  - { ref: RGS2, part: "Carbon comp resistor", value: "2.2 kΩ · ½ W", role: "Tremolo follower grid stopper" }
+  - { ref: RTI, part: "Carbon comp resistor", value: "270 kΩ · ½ W", role: "Tremolo follower grid return — the foot of the Intensity network" }
+  # --- the A markers ---
+  - { ref: "—", part: "Toggle switch", value: "SPST", role: "The A–A pair. The drawing brings BOTH output-tube grid nodes out to markers lettered A and resolves them no further; the published redraw of the Supro-badged sibling draws an SPST switch bridging exactly those two nodes, which shorts the grids together and silences the amplifier. Annotation only, and DC-free either way" }

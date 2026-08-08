@@ -1,0 +1,297 @@
+# Board layout — DERIVED, not read from a factory layout drawing.
+#
+# Valco published no board-layout drawing for this chassis and none was located:
+# what the factory issued is the circuit drawing whose title block reads "Valco
+# Model 6161", cited below and in meta.yaml. The arrangement here is therefore
+# the Circuit Codex's own — this circuit's parts laid out in signal order along
+# the chassis on the house two-row eyelet grid, ordered to match the valve row
+# beneath it (5Y3-GT · 6973 · 6973 · 12AX7 inverter · 12AX7 tremolo · 12AX7
+# preamp). It is a builder's diagram of THIS circuit, not a record of how Valco
+# dressed its own chassis, which was wired on terminal strips. The caption says
+# so and `board.title` carries "(derived)".
+#
+# Part refs are the shared key into bom.yaml; the renderer reads each value and
+# part type from there, so the layout and the parts list cannot disagree.
+#
+# Machine-checked equivalence: the point-to-point wiring below has been verified
+# electrically equivalent to netlist.cir by pipeline/verify_layout_nets.py — see
+# the net_map block at the foot of this file and docs/layout-schema.md. Heaters,
+# the pilot lamp and the PT / rectifier AC side are an excluded annotation layer
+# (not in netlist.cir).
+wiring_claim: verified
+
+board:
+  rows: 2
+  cols: 122
+  title: "6161 · board layout (derived)"
+caption: "A derived layout: Valco published no board-layout drawing for this chassis, so the arrangement below is the Circuit Codex's own — this circuit's parts laid out in signal order along the chassis and drawn on the house eyelet grid, not a record of the factory's terminal-strip construction. Every value comes from the parts list, which is read from the drawing whose title block reads \"Valco Model 6161\". Parts drawn off the board: the two 500 pF bright caps mount across the volume controls, the input couplers and the Bass-jack mixing resistors at the input jacks, and the tremolo on/off switch and the footswitch jack on the chassis. The pilot is a neon on the MAINS side of the power transformer, not a 6.3 V bulb on the heater chain, so it is drawn as the panel item it is and carries no lead here: one side goes to the primary's cold end and the other to the line-reverse switch, and that whole side of the circuit is outside this drawing's scope. The 6.3 V heater chain (twisted pair, transformer → the two 6973s → the inverter → the tremolo valve → the preamp valve) is likewise derived: with no layout sheet its daisy order is the physical socket order and the twisted-pair green is the house heater idiom, not a sourced wire colour — as is every other lead here, which is why all hookup and transformer leads are drawn in the neutral tone and the transformer pigtails are lettered by function. The 5Y3-GT is directly heated and takes the 5 V winding, off that chain. Not a trace or a dimensioned reproduction."
+source:
+  desc: "Valco factory drawing, title block \"Valco Model 6161\" — layout DERIVED from that circuit drawing; Valco published no board-layout sheet for this chassis and none was located"
+  url: "https://el34world.com/charts/Schematics/files/Valco/Valco_6161.pdf"
+
+# Board-mounted parts. a / b are eyelet endpoints [row, col]; the body is drawn
+# between them (same row = axial part; shared column across rows = vertical leg).
+# Two leads in one eyelet are one solder point — used deliberately below, e.g.
+# the supply chain's droppers and cans meeting at their shared rail eyelets.
+parts:
+  # --- power supply: reservoir -> 1 kΩ -> screen node -> 15 kΩ -> B1 --------
+  - { ref: CF1, a: [0, 1],  b: [1, 1] }     # 20 µF reservoir (BP1)
+  - { ref: RD1, a: [0, 1],  b: [0, 4] }     # 1 kΩ · 1 W, BP1 -> screen node
+  - { ref: CF2, a: [0, 4],  b: [1, 4] }     # 10 µF screen-node can (BP2)
+  - { ref: RD2, a: [0, 4],  b: [0, 7] }     # 15 kΩ, BP2 -> B1
+  - { ref: CF3, a: [0, 7],  b: [1, 7] }     # 10 µF B1 can
+  # --- output stage: the shared cathode resistor, grid leaks, couplers ------
+  - { ref: RKO, a: [0, 11], b: [1, 11] }    # 250 Ω · 7 W — the pair's ENTIRE bias
+  - { ref: CKO, a: [0, 13], b: [1, 13] }    # 35 µF across it
+  - { ref: RL4, a: [0, 16], b: [0, 18] }    # 270 kΩ inverted-side plate load (B1 -> PPIB)
+  - { ref: CC2, a: [0, 18], b: [0, 20] }    # 0.01 µF PPIB -> V4 grid
+  - { ref: RGL2, a: [0, 20], b: [1, 20] }   # 470 kΩ V4 grid leak
+  - { ref: RL3, a: [0, 23], b: [0, 25] }    # 270 kΩ driver plate load (B1 -> PPIA)
+  - { ref: CC1, a: [0, 25], b: [0, 27] }    # 0.01 µF PPIA -> V5 grid
+  - { ref: RPA, a: [0, 27], b: [1, 27] }    # 270 kΩ paraphase divider, upper leg
+  - { ref: RPB, a: [1, 27], b: [1, 29] }    # 12 kΩ divider foot -> ground
+  # --- paraphase inverter cathodes and the driver grid leak ----------------
+  - { ref: RK3, a: [0, 31], b: [1, 31] }    # 2.2 kΩ driver cathode
+  - { ref: CK3, a: [0, 33], b: [1, 33] }    # 0.05 µF driver cathode bypass
+  - { ref: RK4, a: [0, 35], b: [1, 35] }    # 3.9 kΩ inverted-side cathode, UNBYPASSED
+  - { ref: RG3, a: [0, 37], b: [1, 37] }    # 1 MΩ driver grid leak
+  # --- tremolo oscillator (V3A) and its Speed control ----------------------
+  - { ref: RTO1, a: [0, 40], b: [0, 42] }   # 270 kΩ oscillator plate load (taps B1)
+  - { ref: CTO1, a: [0, 42], b: [0, 44] }   # 0.03 µF phase-shift, plate end
+  - { ref: RSPD, a: [0, 44], b: [0, 46] }   # 100 kΩ Speed end resistor
+  - { ref: CTO2, a: [0, 48], b: [0, 50] }   # 0.02 µF phase-shift, middle
+  - { ref: RTOR1, a: [0, 50], b: [1, 50] }  # 1 MΩ ladder return
+  - { ref: CTO3, a: [0, 50], b: [0, 52] }   # 0.01 µF phase-shift, grid end
+  - { ref: RTOR2, a: [0, 52], b: [1, 52] }  # 1.5 MΩ ladder return
+  - { ref: RTOG, a: [0, 52], b: [0, 54] }   # 2.2 kΩ oscillator grid stopper
+  - { ref: RTOK, a: [0, 56], b: [1, 56] }   # 1 kΩ oscillator cathode
+  - { ref: CTOUT, a: [0, 58], b: [0, 60] }  # 0.01 µF oscillator output coupler
+  - { ref: RTOUT, a: [0, 60], b: [0, 62] }  # 1 MΩ series ahead of the footswitch
+  # --- Intensity network and the tremolo follower's grid -------------------
+  - { ref: RTI1, a: [0, 65], b: [0, 67] }   # 1 MΩ, first leg after the footswitch
+  - { ref: CTI1, a: [0, 67], b: [1, 67] }   # 0.05 µF shunt
+  - { ref: RTI2, a: [0, 67], b: [0, 69] }   # 1.5 MΩ, second leg
+  - { ref: RTI, a: [0, 69], b: [1, 69] }    # 270 kΩ follower grid return
+  - { ref: CTI2, a: [0, 71], b: [1, 71] }   # 0.05 µF across it
+  - { ref: RGS2, a: [0, 71], b: [0, 73] }   # 2.2 kΩ follower grid stopper
+  # --- summing node and the amplifier's only tone control ------------------
+  - { ref: CPI, a: [0, 76], b: [0, 78] }    # 300 pF mixer -> inverter driver grid
+  - { ref: CT1, a: [0, 78], b: [1, 78] }    # 500 pF fixed treble shunt
+  - { ref: CT2, a: [0, 78], b: [0, 80] }    # 0.005 µF into the Tone control
+  - { ref: RM1, a: [0, 82], b: [0, 84] }    # 270 kΩ channel 1 mixing resistor
+  - { ref: RM2, a: [0, 86], b: [0, 88] }    # 270 kΩ channel 2 mixing resistor
+  # --- channel 1 (V1A — the drawing's pins 1/2/3) --------------------------
+  - { ref: RD3, a: [0, 90], b: [0, 92] }    # 100 kΩ supply dropper, B1 -> BC1
+  - { ref: CF4, a: [0, 92], b: [1, 92] }    # 0.05 µF channel-1 decoupling
+  - { ref: RL1, a: [0, 92], b: [0, 94] }    # 270 kΩ channel 1 plate load
+  - { ref: CV1, a: [0, 94], b: [0, 96] }    # 0.005 µF plate -> volume
+  - { ref: RK1, a: [0, 98], b: [1, 98] }    # 2.2 kΩ cathode, UNBYPASSED
+  - { ref: RG1, a: [0, 100], b: [1, 100] }  # 470 kΩ channel 1 grid leak
+  # --- channel 2 (V1B — the tremolo-modulated channel) ---------------------
+  - { ref: RD4, a: [0, 104], b: [0, 106] }  # 100 kΩ supply dropper, B1 -> BC2
+  - { ref: CF5, a: [0, 106], b: [1, 106] }  # 0.05 µF channel-2 decoupling
+  - { ref: RL2, a: [0, 106], b: [0, 108] }  # 270 kΩ channel 2 plate load
+  - { ref: CP2, a: [0, 108], b: [1, 108] }  # 500 pF plate-to-ground cut
+  - { ref: CI1, a: [0, 108], b: [0, 110] }  # 0.005 µF interstage coupler, first
+  - { ref: RI1, a: [0, 110], b: [1, 110] }  # 270 kΩ interstage shunt
+  - { ref: CI2, a: [0, 110], b: [0, 112] }  # 0.005 µF interstage coupler, second
+  - { ref: RK2, a: [0, 114], b: [1, 114] }  # 1.5 kΩ cathode — SHARED with the follower
+  - { ref: CK2, a: [0, 116], b: [1, 116] }  # 35 µF cathode bypass
+  - { ref: RG2, a: [0, 118], b: [1, 118] }  # 470 kΩ channel 2 grid leak
+  - { ref: RGS1, a: [0, 118], b: [0, 120] } # 2.2 kΩ channel 2 grid stopper
+
+offboard:
+  - { id: T1, ref: T1, kind: xfmr, edge: left, at: 0.4, label: "Power trans" }
+  - { id: PL1, kind: part, glyph: lamp, edge: top, at: 1.2, value: "neon", label: "Pilot (neon)" }
+  #   ^ no run: this pilot is a neon across the mains, ahead of the transformer —
+  #     the side of the circuit this drawing does not carry. Drawing it a guessed
+  #     lead would assert wiring the layout does not document.
+  #   ^ value sourced: bom.yaml lists the pilot as a neon indicator, read from the
+  #     circuit drawing.
+  - { id: V6, ref: V6, kind: tube, edge: bottom, at: 4, label: "V6 · 5Y3-GT" }
+  - { id: V4, ref: V4, kind: tube, edge: bottom, at: 13, label: "V4 · 6973" }
+  - { id: V5, ref: V5, kind: tube, edge: bottom, at: 20, label: "V5 · 6973" }
+  - { id: T2, ref: T2, kind: xfmr, edge: bottom, at: 25.5, label: "Output trans" }
+  - { id: SPK, kind: jack, edge: bottom, at: 30.5, label: "Spkrs" }
+  - { id: V2, ref: V2, kind: tube, edge: bottom, at: 33, label: "V2 · 12AX7 inverter" }
+  - { id: V3, ref: V3, kind: tube, edge: bottom, at: 58, label: "V3 · 12AX7 tremolo" }
+  - { id: V1, ref: V1, kind: tube, edge: bottom, at: 101, label: "V1 · 12AX7 preamp" }
+  - { id: VR4, ref: VR4, kind: pot, edge: top, at: 46, label: "Speed" }
+  - { id: SW1, ref: SW1, kind: part, edge: top, at: 60.5, label: "Tremolo on/off" }
+  - { id: JFT, kind: jack, edge: top, at: 65, label: "Footswitch" }
+  - { id: VR3, ref: VR3, kind: pot, edge: top, at: 80, label: "Tone" }
+  - { id: VR1, ref: VR1, kind: pot, edge: top, at: 84, label: "Volume · ch 1" }
+  - { id: VR2, ref: VR2, kind: pot, edge: top, at: 88.5, label: "Volume · ch 2" }
+  - { id: JC1T, kind: jack, edge: top, at: 97, label: "Ch 1 Treble" }
+  - { id: JC1B, kind: jack, edge: top, at: 101, label: "Ch 1 Bass" }
+  - { id: JC2T, kind: jack, edge: top, at: 113, label: "Ch 2 Treble" }
+  - { id: JC2B, kind: jack, edge: top, at: 117, label: "Ch 2 Bass" }
+
+# Ground bus — the bare rail just below the bottom eyelet row; filter, cathode,
+# grid-leak, pot and jack grounds tie to it.
+bus:
+  - { from: [1.45, -0.5], to: [1.45, 121.5] }
+
+runs:
+  # === power transformer -> 5Y3-GT -> the reservoir ========================
+  # Each pigtail leaves along its own row and drops in its own vertical lane, so
+  # no two transformer leads read as one. Every lead is lettered by function: with
+  # no factory layout sheet this drawing asserts no wire colours.
+  - { from: T1.ha, to: V6.pin4, via: [[-1.55, 0.274], [-1.55, 2.42], [3.0, 2.42]] }
+  - { from: T1.hb, to: V6.pin6, via: [[-1.35, 0.337], [-1.35, 2.95], [5.4, 2.95]] }
+  - { from: T1.ct, to: [1.45, -0.25], via: [[-1.15, 0.400], [-1.15, 1.22], [-0.25, 1.22]] }
+  - { from: T1.ra, to: V6.pin8, via: [[-0.95, 0.463], [-0.95, 3.25], [4.7, 3.25]] }
+  - { from: T1.rb, to: V6.pin2, via: [[-0.75, 0.526], [-0.75, 3.58], [3.3, 3.58]] }
+  - { from: V6.pin8, to: CF1.a, via: [[4.6, 2.12], [1.8, 1.85]] }
+
+  # === BP1: reservoir, output-transformer centre tap =======================
+  - { from: CF1.a, to: T2.ct, via: [[0.35, 1.35], [0.35, 2.80], [24.89, 2.80]] }
+
+  # === BP2: the 6973 screens, on their own supply node =====================
+  - { from: CF2.a, to: V4.pin1, via: [[4.7, -1.25], [10.2, -1.25], [10.2, 2.38]] }
+  - { from: V4.pin1, to: V5.pin1, via: [[12.95, 2.62], [19.5, 2.62]] }
+  # grid No.2 and grid No.1 each come out on TWO pins on a 6973 (1/8 and 3/6);
+  # the drawing wires both lugs, as a builder does at the socket.
+  - { from: V4.pin1, to: V4.pin8, via: [[12.25, 2.38], [13.85, 2.38]] }
+  - { from: V5.pin1, to: V5.pin8, via: [[19.25, 2.38], [20.85, 2.38]] }
+  - { from: V4.pin3, to: V4.pin6, via: [[11.9, 1.50], [13.9, 1.50]] }
+  - { from: V5.pin3, to: V5.pin6, via: [[18.7, 1.50], [20.9, 1.50]] }
+
+  # === B1: the preamp and inverter rail, tapped along the board ============
+  - { from: CF3.a, to: RL4.a, via: [[7.5, -1.42], [15.5, -1.42]] }
+  - { from: RL4.a, to: RL3.a, via: [[16.5, -1.42], [22.5, -1.42]] }
+  - { from: RL3.a, to: RTO1.a, via: [[23.5, -1.42], [39.5, -1.42]] }
+  - { from: RTO1.a, to: RD3.a, via: [[40.5, -1.42], [89.5, -1.42]] }
+  - { from: RD3.a, to: RD4.a, via: [[90.5, -1.42], [103.5, -1.42]] }
+  - { from: RTO1.a, to: V3.pin1, via: [[39.6, 1.35], [39.6, 3.52], [55.0, 3.52], [55.0, 2.72]] }
+
+  # === output stage: grids, cathodes, screens, plates ======================
+  - { from: RGL2.a, to: V4.pin3, via: [[20.8, 1.15], [12.7, 1.15]] }
+  - { from: RPA.a, to: V5.pin3, via: [[26.4, 1.32], [19.2, 1.32]] }
+  - { from: V4.pin7, to: RKO.a, via: [[14.9, 2.28]] }
+  - { from: V5.pin7, to: CKO.a, via: [[23.0, 1.72], [14.6, 1.72]] }
+  - { from: RKO.a, to: CKO.a, via: [[11.5, -0.52], [12.5, -0.52]] }
+  - { from: CF1.b, to: [1.45, 1] }
+  - { from: CF2.b, to: [1.45, 4] }
+  - { from: CF3.b, to: [1.45, 7] }
+  - { from: RKO.b, to: [1.45, 11] }
+  - { from: CKO.b, to: [1.45, 13] }
+  - { from: RGL2.b, to: [1.45, 20] }
+  - { from: RPB.b, to: [1.45, 29] }
+  - { from: V4.pin9, to: T2.pa, via: [[12.4, 3.05], [25.19, 3.05]] }
+  - { from: V5.pin9, to: T2.pb, via: [[19.6, 3.32], [25.5, 3.32]] }
+  - { from: T2.sa, to: SPK.tip, via: [[25.81, 2.05], [30.1, 2.05]] }
+  - { from: T2.sb, to: SPK.sleeve, via: [[26.11, 2.36], [30.9, 2.36]] }
+  - { from: SPK.sleeve, to: [1.45, 32.0], via: [[32.0, 2.15]] }
+
+  # === paraphase inverter =================================================
+  - { from: RL3.b, to: V2.pin1, via: [[25.6, 1.15], [29.4, 2.30]] }
+  - { from: RL4.b, to: V2.pin6, via: [[18.5, -0.90], [34.8, -0.90], [34.8, 1.90]] }
+  - { from: RPB.a, to: V2.pin7, via: [[27.8, 1.32], [33.4, 1.32]] }
+  - { from: RG3.a, to: V2.pin2, via: [[37.8, 1.15], [36.0, 2.20]] }
+  - { from: RK3.a, to: V2.pin3, via: [[29.0, 2.75], [31.0, 2.75]] }
+  - { from: RK3.a, to: CK3.a, via: [[31.5, -0.52], [32.5, -0.52]] }
+  - { from: RK4.a, to: V2.pin8, via: [[36.4, 2.45], [35.0, 2.45]] }
+  - { from: RK3.b, to: [1.45, 31] }
+  - { from: CK3.b, to: [1.45, 33] }
+  - { from: RK4.b, to: [1.45, 35] }
+  - { from: RG3.b, to: [1.45, 37] }
+
+  # === tremolo oscillator (V3A — the drawing's pins 6/7/8) =================
+  - { from: RTO1.b, to: V3.pin6, via: [[42.8, 2.92], [61.6, 2.92], [61.6, 1.82]] }
+  - { from: RSPD.a, to: CTO2.a, via: [[44.5, -0.52], [47.5, -0.52]] }
+  - { from: RSPD.b, to: VR4.lug1, via: [[46.5, -0.32]] }
+  - { from: VR4.lug2, to: [1.45, 47.6], via: [[47.6, -0.55]] }
+  - { from: RTOR1.b, to: [1.45, 50] }
+  - { from: RTOR2.b, to: [1.45, 52] }
+  - { from: RTOG.b, to: V3.pin7, via: [[54.8, 1.15], [62.4, 1.15], [62.4, 2.00]] }
+  - { from: RTOK.a, to: V3.pin8, via: [[56.6, 2.45], [63.2, 2.45]] }
+  - { from: RTOK.b, to: [1.45, 56] }
+  - { from: RTO1.b, to: CTOUT.a, via: [[42.5, -0.72], [57.5, -0.72]] }
+  - { from: RTOUT.b, to: SW1.a, via: [[62.3, -0.52], [60.3, -0.72]] }
+  - { from: SW1.b, to: JFT.tip, via: [[61.3, -1.25], [64.3, -1.25]] }
+  - { from: JFT.tip, to: RTI1.a, via: [[65.6, -0.32]] }
+  - { from: JFT.sleeve, to: [1.45, 64.2], via: [[64.2, -0.55]] }
+
+  # === Intensity network -> the tremolo follower (V3B, pins 1/2/3) =========
+  - { from: CTI1.b, to: [1.45, 67] }
+  - { from: RTI.a, to: CTI2.a, via: [[69.5, -0.52], [70.5, -0.52]] }
+  - { from: RTI.b, to: [1.45, 69] }
+  - { from: CTI2.b, to: [1.45, 71] }
+  - { from: RGS2.b, to: V3.pin2, via: [[73.8, 1.15], [64.0, 1.15], [64.0, 3.20], [55.8, 3.20]] }
+  # the tremolo itself: the follower's cathode lands on channel 2's cathode node
+  - { from: V3.pin3, to: RK2.a, via: [[54.4, 2.98], [54.4, 3.80], [115.4, 3.80], [115.4, 1.92]] }
+
+  # === summing node, tone control, volume controls =========================
+  - { from: CPI.a, to: RG3.a, via: [[75.5, -1.68], [36.5, -1.68]] }
+  - { from: CT1.b, to: [1.45, 78] }
+  - { from: CT2.b, to: VR3.lug1, via: [[80.5, -0.32]] }
+  - { from: VR3.lug2, to: [1.45, 81.4], via: [[81.4, -0.55]] }
+  - { from: RM1.a, to: CT1.a, via: [[81.5, -0.72], [78.5, -0.72]] }
+  - { from: RM2.a, to: CT1.a, via: [[85.5, -1.25], [77.3, -1.25]] }
+  - { from: RM1.b, to: VR1.lug2, via: [[84.4, -0.32]] }
+  - { from: RM2.b, to: VR2.lug2, via: [[88.4, -0.32]] }
+  - { from: VR1.lug1, to: [1.45, 83.0], via: [[83.0, -0.55]] }
+  - { from: VR2.lug1, to: [1.45, 87.4], via: [[87.4, -0.55]] }
+
+  # === channel 1 ===========================================================
+  - { from: CF4.b, to: [1.45, 92] }
+  - { from: CV1.b, to: VR1.lug3, via: [[96.3, -1.68], [84.6, -1.68]] }
+  - { from: RL1.b, to: V1.pin1, via: [[94.6, 1.12], [96.2, 2.62]] }
+  - { from: RK1.a, to: V1.pin3, via: [[97.4, 1.60], [96.0, 1.90]] }
+  - { from: RK1.b, to: [1.45, 98] }
+  - { from: RG1.a, to: V1.pin2, via: [[99.4, 1.20], [98.6, 2.30]] }
+  - { from: RG1.b, to: [1.45, 100] }
+  - { from: JC1T.tip, to: RG1.a, via: [[96.6, -0.32], [99.5, -0.32]] }
+  - { from: JC1B.tip, to: RG1.a, via: [[101.4, -0.72], [100.5, -0.72]] }
+  - { from: JC1T.sleeve, to: [1.45, 96.8], via: [[96.8, -0.55]] }
+  - { from: JC1B.sleeve, to: [1.45, 102.2], via: [[102.2, -0.55]] }
+
+  # === channel 2 ===========================================================
+  - { from: CF5.b, to: [1.45, 106] }
+  - { from: CP2.b, to: [1.45, 108] }
+  - { from: RI1.b, to: [1.45, 110] }
+  - { from: CI2.b, to: VR2.lug3, via: [[112.3, -1.25], [89.6, -1.25]] }
+  - { from: RL2.b, to: V1.pin6, via: [[108.6, 1.12], [104.6, 1.86]] }
+  - { from: RK2.a, to: CK2.a, via: [[114.5, -0.52], [115.5, -0.52]] }
+  - { from: RK2.b, to: [1.45, 114] }
+  - { from: CK2.b, to: [1.45, 116] }
+  - { from: RK2.a, to: V1.pin8, via: [[113.4, 1.62], [105.0, 2.30]] }
+  - { from: RGS1.b, to: V1.pin7, via: [[120.8, 1.15], [105.6, 1.15], [105.6, 1.72]] }
+  - { from: RG2.b, to: [1.45, 118] }
+  - { from: JC2T.tip, to: RG2.a, via: [[112.6, -0.32], [117.5, -0.32]] }
+  - { from: JC2B.tip, to: RG2.a, via: [[116.6, -0.72], [118.5, -0.72]] }
+  - { from: JC2T.sleeve, to: [1.45, 112.4], via: [[112.4, -0.55]] }
+  - { from: JC2B.sleeve, to: [1.45, 118.4], via: [[118.4, -0.55]] }
+
+  # === 6.3 V heater chain (twisted pair) ==================================
+  # Derived, like the rest of this drawing: with no layout sheet the daisy order
+  # is the physical socket order. The 5Y3-GT is directly heated and takes the
+  # 5 V winding (drawn above), so it is off this chain; the pilot is a neon on
+  # the mains side, so it is off it too. Twisted runs land only on heater pins
+  # (noval 4/5), validated against the basing data.
+  - { from: T1.fil, to: V4.pin4, style: twisted, via: [[-1.2, 4.20], [12.4, 4.20]] }
+  - { from: V4.pin5, to: V5.pin4, style: twisted, via: [[14.0, 4.20], [19.4, 4.20]] }
+  - { from: V5.pin5, to: V2.pin4, style: twisted, via: [[21.0, 4.20], [32.4, 4.20]] }
+  - { from: V2.pin5, to: V3.pin4, style: twisted, via: [[34.0, 4.20], [57.4, 4.20]] }
+  - { from: V3.pin5, to: V1.pin4, style: twisted, via: [[59.0, 4.20], [100.4, 4.20]] }
+
+# net_map — reviewable reconciliation of the drawn wiring with the DC netlist
+# (netlist.cir) for pipeline/verify_layout_nets.py. See docs/layout-schema.md.
+net_map:
+  # No excluded_tubes block belongs here, and the reason is worth stating: this
+  # circuit's tremolo oscillator is not a socket of its own. It is the FIRST half
+  # of V3, whose SECOND half — the cathode follower — is modelled in netlist.cir
+  # (it is DC-coupled to channel 2's cathode and cannot be left out), so V3
+  # anchors normally through that half, exactly as the 6G3's V2 and the AA1164's
+  # V4 do. The oscillator half's own network is drawn on the board and is
+  # reported terminal by terminal in the unchecked-terminal enumeration rather
+  # than hidden behind a socket-level exclusion. The only declared-excluded
+  # bottle is V6, the rectifier, which the checker excludes by rule.
+  anchors:
+    # The netlist omits output-transformer primary DCR, so both 6973 plate leads
+    # and the primary centre tap collapse onto the reservoir node BP1 — which is
+    # what makes the centre tap and the plate node one node in netlist.cir.
+    T2.ct: BP1        # OT primary centre tap -> reservoir
+    T2.pa: BP1     # OT primary, V4 plate lead (winding DCR omitted)
+    T2.pb: BP1     # OT primary, V5 plate lead (winding DCR omitted)

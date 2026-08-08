@@ -292,6 +292,30 @@ stages:
   ot_primary_note: Fender 45249 · 2 Ω secondary — Push-pull output into four 8 Ω speakers
   sim_ip_ma: 29.5318
   sim_ig2_ma: 0.9644
+- amp: '6161'
+  name_style: Valco 6161-style
+  tube: '6973'
+  output_tubes: 2
+  config: push-pull
+  bias: cathode
+  plate_node: BP1
+  plate_v: 369.0
+  screen_node: BP2
+  screen_v: 359.813
+  cathode_node: KOUT
+  cathode_v: 25.137
+  rk_total: 250.0
+  rk_per_tube: 500.0
+  grid_node: G5
+  grid_v: 0.0
+  grid_supply_node: null
+  grid_supply_v: null
+  ot_primary_z: null
+  ot_primary_approx: false
+  ot_primary_note: Valco 340-6 — Output transformer, centre-tapped primary; the centre tap is the reservoir
+    node
+  sim_ip_ma: 47.3151
+  sim_ig2_ma: 2.9591
 - amp: '6g2'
   name_style: Brown Princeton-style
   tube: '6V6GT'

@@ -1,0 +1,55 @@
+# Circuit Codex metadata — schema: docs/schema.md (v1)
+id: "6161"
+name_style: "Valco 6161-style"
+family: other
+era:
+  # The drawing is UNDATED — no date, no revision box, no drawing number beyond
+  # the model in the title block. 1960 is the earliest year this entry can cite
+  # for an example carrying THIS complement (3×12AX7 / 2×6973 / 5Y3-GT); 1968 is
+  # the year Valco folded, so it is the latest year the circuit could have been
+  # built. The bracket is an outer bound, not a production record, and the
+  # 6161 model number outlived more than one circuit inside it (see notes.md).
+  start: 1960
+  end: 1968
+wattage: 14
+tubes: [12AX7, 12AX7, 12AX7, 6973, 6973, 5Y3GT]
+topology:
+  rectifier: { kind: tube, type: "5Y3GT" }
+  bias: cathode
+  phase_inverter: paraphase
+  tone_stack: single-knob
+lineage:
+  derived_from: []   # no documented derivation from another circuit in this corpus
+  influenced: []
+sources:
+  - desc: "Valco factory drawing, title block 'Valco Model 6161' set vertically along the left edge of the sheet — THIS is the revision documented here. Complement read from the drawing: V1 12AX7 (both channels, one half each), V2 12AX7 (paraphase phase inverter, both halves), V3 12AX7 (tremolo oscillator and its cathode-follower output, both halves), V4 and V5 6973, V6 5Y3-GT. Values read directly from the drawing: 6973 pair on ONE shared 250 Ω cathode resistor with a 35 µF/50 V bypass and no bias supply; screens taken from their own supply node, not from taps on the output-transformer primary; 270 kΩ inverter anode loads with a 270 kΩ/12 kΩ divider feeding the inverted half's grid, 2.2 kΩ (0.05 µF bypassed) and 3.9 kΩ (unbypassed) inverter cathodes; 0.01 µF inverter-to-grid couplers; 470 kΩ grid leak on one output grid, the divider itself on the other; supply chain 20 µF reservoir → 1 kΩ · 1 W → 10 µF screen node → 15 kΩ → 10 µF B1 rail, with a further 100 kΩ dropper and 0.05 µF decoupling per preamp channel; both channels on 270 kΩ plate loads and 470 kΩ grid leaks, channel 1 on an unbypassed 2.2 kΩ cathode and channel 2 on 1.5 kΩ with a 35 µF bypass; each channel fed by a pair of jacks marked Treble and Bass through a 0.005 µF coupler and a 100 kΩ mixing resistor; 500 kΩ volume per channel with a 0.0005 µF bright cap, the two wipers summed through 270 kΩ each into a single 500 kΩ tone control working on 0.005 µF; power transformer E-3693A, output transformer 340-6, two 10-inch 550-3 speakers. The drawing prints NO voltages of any kind. Not reproduced here; archived at el34world's Valco schematic library."
+    url: "https://el34world.com/charts/Schematics/files/Valco/Valco_6161.pdf"
+  - desc: "Published redrawn schematic of the Supro 1624T, captioned 'Supro 1624T' and signed 'Drawn by Ryan@ClassicTubeAmps.com' — the legibility cross-reference and the corroborating second reading. The 1624T is the Supro-badged sibling of this chassis, and the two published drawings agree part for part on the whole supply chain (20 µF / 1 kΩ · 1 W / 10 µF / 15 kΩ / 10 µF), on the shared 250 Ω output cathode resistor and its 35 µF bypass, on the 270 kΩ/12 kΩ paraphase divider and the 470 kΩ leak on the opposite output grid, and on the 2.2 kΩ-bypassed / 3.9 kΩ-unbypassed inverter cathodes. Where the redraw's lettering is ambiguous the FACTORY drawing is the value recorded: the redraw prints the output cathode resistor as '250K 7W', which the Valco drawing gives plainly as 250, and which a published measurement (below) confirms by reading 24 V across it."
+    url: "https://el34world.com/charts/Schematics/files/Supro/Supro_1624t_schematic_263.pdf"
+  - desc: "Published measurement set taken on a 1965 Supro 1624T and posted to The Amp Garage by Stevem, 17 August 2022 — the only voltage reference this entry has, since the drawing prints none. Reported: HT secondary 336 V AC per leg unloaded and 323 V loaded at idle; '6973 plate=369', '6973 screen=350', '6973 grid resistor =250 ohm, idle voltage 24'; preamp readings by socket, 212 V/2.36 V and 118 V/0.980 V on one bottle, 132 V/1.12 V and 173 V/1.6 V on another, 286 V/2.4 V and 219 V/0.680 V on the third; 16 W RMS into 8 Ω at clipping, 19.6 W peak. Used as measurements, never as a chart — see voltages.yaml."
+    url: "https://ampgarage.com/forum/viewtopic.php?t=35643"
+  - desc: "Dealer documentation of a 1960 Gretsch 6161 Electromatic Twin at Cream City Music — the earliest dated example this entry can cite for the complement on the drawing: '5Y3, 6973 (2), 12AX7 (3)', rated '14 Watts', controls 'Volume, Tremolo, Tone', and a note that ClassicTone was 'the original OEM transformer manufacturer for Valco/Gretsch in the 50s and 60s'. The Gretsch-badged 6161 is this Valco chassis; the 14 W figure is the period rating recorded in this entry's wattage field."
+    url: "https://www.creamcitymusic.com/vintage-gretsch-6161-electromatic-twin-14w-1x12-tube-combo-amp-1960/"
+  - desc: "Steel Guitar Forum service thread on a 1957 Gretsch 6161 — evidence that the 6161 model number covers more than one circuit, and an independent naming of the inverter. That amp is described as '2 6V6's on the output, 2 6SQ7 triodes (preamp and tremolo) and a 12AX7' phase inverter, with 'later versions' carrying 6973 output tubes; the poster names the inverter arrangement 'paraphase', which is what the drawing documented here also shows. Its 6V6 pair sits on a 330 Ω cathode resistor dropping 21 V at idle — the same one-shared-resistor bias arrangement at a different value."
+    url: "https://bb.steelguitarforum.com/viewtopic.php?t=354380"
+  - desc: "Wikipedia, 'Valco' — the maker chronology behind this entry's era bracket and the new history/families/supro-valco.yaml file: Valco was established in 1940 by Victor Smith, Al Frost and Louis Dopyera, formerly of the National Dobro Company, the name coming from their initials plus the abbreviation for company; it built instruments and amplifiers under Supro, Airline, National and Oahu and also 'produced amplifiers under contract for Gretsch, Harmony, and Kay'; in 1967 it merged with the Kay Musical Instrument Company and the merged company folded the following year."
+    url: "https://en.wikipedia.org/wiki/Valco"
+  - desc: "RCA 6973 data sheet, 10-60 (Beam Power Tube, 9-pin miniature) — anchor for the CC0 6973 tube model and the ratings that make this output stage what it is: Va=250 V, Vg2=250 V, Vg1=-15 V → Ia=46 mA, Ig2=3.5 mA, gm=4800 µmho; design-maximum 12 W plate dissipation, 2 W screen, 330 V screen, and a separate 410 V ceiling that applies only when the screens are tapped on the output-transformer primary — which this circuit does not do. See reference/tubes/6973.yaml and models/METHODOLOGY.md."
+    url: "https://frank.pocnet.net/sheets/049/6/6973.pdf"
+verification:
+  status: draft   # Two reasons, both stated rather than tuned away.
+                  # (1) The drawing prints NO voltages — no chart, not even
+                  # annotated working voltages — so there is no factory
+                  # reference to verify against at all. The figures used are
+                  # measurements published on a surviving sibling amplifier,
+                  # cited as such, and only the two nodes that are unambiguous
+                  # in somebody else's socket numbering are compared.
+                  # (2) The tremolo oscillator is excluded and its plate load
+                  # taps a DERIVED node, so the B1 rail and everything under it
+                  # reads a few volts high by construction (see voltages.yaml).
+                  # Both gated nodes land inside ±20 % — but verified is earned
+                  # whole, and against a chart this drawing does not carry.
+# Day the circuit landed in the corpus (git history, amps/6161/) — the feed's
+# pubDate for a draft; production builds are shallow clones and cannot ask git.
+added: 2026-08-08
+contributors: [TheAnalogMaker]

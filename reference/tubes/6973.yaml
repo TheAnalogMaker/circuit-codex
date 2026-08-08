@@ -89,7 +89,7 @@ basing:
     7: { element: cathode, note: "k and g3 — the suppressor is tied to the cathode internally" }
     8: { element: screen-grid, hv: true, note: "g2 — also on pin 1" }
     9: { element: plate, hv: true }
-used_in: []
+used_in: ["6161"]
 datasheets:
   - publisher: RCA
     designation: "6973"

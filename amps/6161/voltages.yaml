@@ -1,0 +1,47 @@
+# The Valco 6161 drawing prints NO voltages. Not a tabulated valve-voltage chart
+# of the kind Fender printed, and not even the handful of working voltages the
+# Vox and the Supro S66xx sheets annotate beside the circuit — the sheet carries
+# component values, bottle numbers, pin numbers, transformer part numbers and
+# nothing else. So there is no factory reference to verify against, and this
+# circuit is published as a draft on that ground alone.
+#
+# What IS available is a published measurement set taken on a surviving 1965
+# Supro 1624T — the Supro-badged sibling of this chassis. The two circuits are
+# not merely similar in the output stage: their published drawings agree part for
+# part on the entire supply chain (20 µF reservoir, 1 kΩ · 1 W dropper, 10 µF
+# screen node, 15 kΩ dropper, 10 µF B1 node), on the shared 250 Ω output cathode
+# resistor with its 35 µF bypass, and on the paraphase inverter's 270 kΩ loads,
+# 270 kΩ/12 kΩ divider and 2.2 kΩ/3.9 kΩ cathodes. That is why figures measured
+# on one are used here as the reference for the other — and why they are called
+# measurements, not a chart, everywhere they appear.
+#
+# TWO nodes are compared, and only two, because only two are unambiguous in
+# somebody else's socket numbering: the screen node BP2 (the amplifier has
+# exactly one) and the shared output cathode KOUT (it has exactly one 250 Ω
+# resistor). Both land inside the era's ±20 % tube-pin convention: BP2 simulates
+# 359.8 V against a measured 350 V, KOUT 25.1 V against a measured 24 V.
+#
+# The preamp and inverter nodes are reported informational, for two reasons that
+# both point the same way. First, the measurement set numbers its bottles by
+# socket position and this entry numbers them by the drawing, so no mapping can
+# be proved — although the correspondence is hard to miss and is written out in
+# notes.md. Second, the excluded tremolo oscillator's 270 kΩ plate load taps B1,
+# a DERIVED node, so B1 and everything under it reads a few volts high by
+# construction: the same measurement set puts about 0.25 mA through that load,
+# which is roughly 4 V across the 15 kΩ dropper that is missing here.
+source: "No voltages are printed on the Valco 6161 drawing. Reference figures are a published measurement set taken on a 1965 Supro 1624T — the same 3×12AX7 / 2×6973 / 5Y3-GT chassis with an identical supply chain and output stage — reporting 369 V at the 6973 plates (driven here), 350 V at the 6973 screens, and 24 V across the 250 Ω shared cathode resistor. See meta.yaml for the link."
+nodes:
+  BP2:  { chart: 350, tol_pct: 20, note: "6973 screen node — the 10 µF can after the 1 kΩ · 1 W dropper. This circuit gives its screens their own supply node; it does NOT tap them on the output-transformer primary, which is the other arrangement the 6973 data sheet rates" }
+  KOUT: { chart: 24, tol_pct: 20, note: "shared 6973 cathode over the single 250 Ω · 7 W resistor (35 µF bypass) — the amp's entire bias arrangement, for both bottles, with no bias supply anywhere" }
+  B1:   { chart: null, note: "informational — preamp and inverter rail after the 15 kΩ dropper. Reads high by construction: the excluded tremolo oscillator's 270 kΩ plate load taps this node (see netlist.cir SCOPE)" }
+  BC1:  { chart: null, note: "informational — channel 1 supply node, after its own 100 kΩ dropper from B1 (0.05 µF decoupling)" }
+  BC2:  { chart: null, note: "informational — channel 2 supply node, after its own 100 kΩ dropper from B1 (0.05 µF decoupling)" }
+  P1A:  { chart: null, note: "informational — channel 1 plate, 270 kΩ load over an UNBYPASSED 2.2 kΩ cathode" }
+  K1A:  { chart: null, note: "informational — channel 1 cathode, 2.2 kΩ with no bypass can" }
+  P1B:  { chart: null, note: "informational — channel 2 plate, 270 kΩ load" }
+  K1B:  { chart: null, note: "informational — channel 2 cathode, 1.5 kΩ with a 35 µF bypass. This node carries TWO tubes' cathode current: the tremolo follower V3B lands on it directly, which is why it idles well above a normal 12AX7 cathode and why the tremolo works at all (notes.md)" }
+  P2A:  { chart: null, note: "informational — paraphase driver plate (270 kΩ load), the half that drives V5's grid" }
+  K2A:  { chart: null, note: "informational — driver cathode, 2.2 kΩ bypassed by 0.05 µF" }
+  P2B:  { chart: null, note: "informational — paraphase inverted-side plate (270 kΩ load), the half that drives V4's grid" }
+  K2B:  { chart: null, note: "informational — inverted-side cathode, 3.9 kΩ left UNBYPASSED; that degeneration is what trims this half's gain down to the 23.5× the 270 kΩ/12 kΩ divider asks for" }
+  G2B:  { chart: null, note: "informational — the paraphase tap itself, where the 270 kΩ from V5's grid meets the 12 kΩ to ground. Idles at exactly 0 V: there is no grid-current model (models/METHODOLOGY.md v0)" }

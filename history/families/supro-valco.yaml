@@ -1,0 +1,95 @@
+family: supro-valco
+title: "The Supro and Valco line"
+maker_style: "American-style"
+summary: >-
+  Valco was a contract shop that happened to own famous brands. It was
+  established in Chicago in 1940 by Victor Smith, Al Frost and Louis Dopyera,
+  all formerly of the National Dobro Company — the name is their three initials
+  plus the abbreviation for company — and it built instruments and amplifiers
+  under Supro, National, Airline and Oahu while also building amplifiers under
+  contract for Gretsch, Harmony and Kay. One chassis therefore left the factory
+  wearing whichever badge had ordered it, which is why the same circuit appears
+  in the catalogues of companies that were nominally competitors, and why these
+  amplifiers are catalogued here by the model number on the drawing rather than
+  by the name on the cabinet. The house style is consistent across the badges
+  and unlike anything from Fullerton: cathode bias on one shared resistor with
+  no bias supply, paraphase phase inverters long after other makers had moved to
+  the long-tailed pair, a single treble-cut tone control shared by both channels
+  instead of a tone stack, tremolo that modulates a preamp cathode rather than
+  gating the signal path, and — in the mid-power amplifiers — the 6973, a
+  nine-pin beam power tube with only 12 W of plate dissipation that almost
+  nobody else adopted. Valco merged with the Kay Musical Instrument Company in
+  1967 and the merged company folded the following year.
+models:
+  - designation: "6161"
+    name: "6161, first circuit (6V6 output)"
+    years: { start: 1957, end: 1959 }
+    wattage: null
+    output: "push-pull 2×6V6"
+    tubes: null
+    key_change: >-
+      The earliest circuit documented here under this model number, and a
+      different amplifier from the one the corpus documents: a pair of 6V6s on
+      the output, two 6SQ7 triodes covering the preamp and the tremolo, and a
+      12AX7 phase inverter. Two house traits are already in place — the inverter
+      is a paraphase, and the output pair is biased on one shared cathode
+      resistor, here 330 Ω dropping 21 V at idle. The changeover to the 6973
+      circuit is not dated by any source cited in this file, so the upper end of
+      this bracket is drawn at the year before the earliest dated 6973 example
+      rather than taken from a record.
+    circuit_ref: null
+    sources:
+      - desc: "Steel Guitar Forum service thread on a Gretsch 6161 built by Valco — the amplifier is dated 1957 and described as '2 6V6's on the output, 2 6SQ7 triodes (preamp and tremolo) and a 12AX7' phase inverter, with 'later versions' carrying 6973 output tubes; the poster names the inverter arrangement 'paraphase' and reports 'a 330 ohm cathode resistor that is dropping 21 volts at idle', two 6×9-inch speakers and a tweeter"
+        url: "https://bb.steelguitarforum.com/viewtopic.php?t=354380"
+
+  - designation: "6161"
+    name: "6161, 6973 circuit (the documented one)"
+    years: { start: 1960, end: 1968 }
+    wattage: 14
+    output: "push-pull 2×6973"
+    tubes: [12AX7, 12AX7, 12AX7, 6973, 6973, 5Y3GT]
+    key_change: >-
+      The 6973 arrives, and with it the circuit this corpus documents: three
+      12AX7s, two 6973s on one shared 250 Ω cathode resistor with a 35 µF
+      bypass, and a 5Y3-GT. The phase inverter stays a paraphase but is now
+      balanced by a 270 kΩ / 12 kΩ divider tapping the first output grid, with
+      3.9 kΩ of unbypassed cathode holding the inverted half's gain down to
+      match. Each channel is fed by a pair of jacks marked Treble and Bass
+      rather than by tone controls, the two volumes are summed through 270 kΩ
+      each into a single shared treble-cut tone control, and the tremolo tube's
+      cathode follower lands directly on channel 2's cathode resistor so that
+      the oscillator swings that channel's bias. The drawing carries no date and
+      no revision box, so this bracket runs from the earliest dated example of
+      the complement to the year Valco folded — an outer bound, not a production
+      record.
+    circuit_ref: "6161"
+    sources:
+      - desc: "Valco factory drawing, title block 'Valco Model 6161' — complement V1/V2/V3 12AX7, V4/V5 6973, V6 5Y3-GT; 250 Ω shared output cathode resistor with 35 µF bypass; 270 kΩ/12 kΩ paraphase divider; supply chain 20 µF reservoir, 1 kΩ · 1 W, 10 µF screen node, 15 kΩ, 10 µF rail; power transformer E-3693A, output transformer 340-6, two 10-inch 550-3 speakers. No voltages printed anywhere on the sheet"
+        url: "https://el34world.com/charts/Schematics/files/Valco/Valco_6161.pdf"
+      - desc: "Dealer documentation of a 1960 Gretsch 6161 Electromatic Twin at Cream City Music — the earliest dated example of this complement cited here: '5Y3, 6973 (2), 12AX7 (3)', rated '14 Watts', controls 'Volume, Tremolo, Tone', with ClassicTone named as 'the original OEM transformer manufacturer for Valco/Gretsch in the 50s and 60s'"
+        url: "https://www.creamcitymusic.com/vintage-gretsch-6161-electromatic-twin-14w-1x12-tube-combo-amp-1960/"
+      - desc: "Wikipedia, 'Valco' — the company chronology behind this bracket's upper end: Valco was established in 1940 by Victor Smith, Al Frost and Louis Dopyera of the National Dobro Company, built under Supro, Airline, National and Oahu and 'produced amplifiers under contract for Gretsch, Harmony, and Kay', merged with the Kay Musical Instrument Company in 1967, and the merged company folded the following year"
+        url: "https://en.wikipedia.org/wiki/Valco"
+
+  - designation: "1624T"
+    name: "Supro Dual Tone"
+    years: { start: 1965, end: 1965 }
+    wattage: null
+    output: "push-pull 2×6973"
+    tubes: [12AX7, 12AX7, 12AX7, 6973, 6973, 5Y3GT]
+    key_change: >-
+      The Supro-badged sibling of the 6973 chassis, and the reason the corpus
+      can report any voltages for it at all. The two published drawings agree
+      part for part on the whole supply chain, on the shared 250 Ω output
+      cathode resistor and its bypass, on the 270 kΩ/12 kΩ paraphase divider and
+      on both inverter cathodes; the front ends differ in their control layout,
+      the Supro carrying conventional volume and tone controls in place of the
+      Treble and Bass jack pairs. Only one dated example is documented by the
+      sources cited here — a 1965 amplifier, measured — so this bracket records
+      what is documented rather than the span the model was actually built over.
+    circuit_ref: null
+    sources:
+      - desc: "Published redrawn Supro 1624T schematic, captioned 'Supro 1624T' and signed 'Drawn by Ryan@ClassicTubeAmps.com' — three 12AX7s, two 6973s, 5Y3 rectifier, 250 Ω shared output cathode resistor with 35 µF bypass, 270 kΩ/12 kΩ paraphase divider, and the 15 kΩ / 1 kΩ · 1 W dropper chain with 10/10/20 µF cans"
+        url: "https://el34world.com/charts/Schematics/files/Supro/Supro_1624t_schematic_263.pdf"
+      - desc: "Measurement set taken on a 1965 Supro 1624T and published by Stevem on The Amp Garage, 17 August 2022: HT secondary 336 V AC per leg unloaded and 323 V loaded at idle, '6973 plate=369', '6973 screen=350', '6973 grid resistor =250 ohm, idle voltage 24', preamp readings by socket, and 16 W RMS into 8 Ω at clipping with 19.6 W peak"
+        url: "https://ampgarage.com/forum/viewtopic.php?t=35643"
