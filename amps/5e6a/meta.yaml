@@ -15,6 +15,8 @@ topology:
 lineage:
   derived_from: []      # 5D6 / plain 5E6 (the "dual-rectifier" 4x10 tweed line this revises) are not yet their own corpus circuits
   influenced: ["5f6"]    # the 5F6 is this circuit's direct revision — see amps/5f6/meta.yaml (reciprocal edge added there)
+conventions:
+  designators: functional   # designators carry a role code (RD1 dropper, RL4 plate load, CK1 cathode bypass)
 sources:
   - desc: >-
       Fender "Bass-Man" Schematic, Model 5E6-A (drawing code A-EE): every

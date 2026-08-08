@@ -9,7 +9,7 @@ items:
   - { ref: C1,  part: "Electrolytic capacitor", value: "25 µF · 25 V", role: "6AT6 cathode bypass" }
   - { ref: C2,  part: "Coupling capacitor",   value: "0.02 µF · 400 V", role: "6AT6 plate → volume" }
   - { ref: VR1, part: "Linear potentiometer", value: "1 MΩ",         role: "Volume" }
-  - { ref: C3,  part: "Mica capacitor",       value: "0.0005 µF (500 pF)", role: "Bright cap across the volume" }
+  - { ref: C3,  part: "Mica capacitor",       value: "500 pF", role: "Bright cap across the volume" }
   - { ref: VR2, part: "Audio-taper potentiometer", value: "1 MΩ",    role: "Tone" }
   - { ref: C4,  part: "Film capacitor",       value: "0.005 µF",      role: "Tone treble-bleed cap" }
   - { ref: RL2, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "12AX7 driver plate load" }

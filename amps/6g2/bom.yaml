@@ -17,7 +17,7 @@ items:
   # --- Tone / Volume (abstracted — AC only, no DC netlist node) ---
   - { ref: C2,  part: "Coupling capacitor",   value: "0.02 µF · 400 V", role: "V1A plate → Tone/Volume network" }
   - { ref: VR1, part: "Linear potentiometer", value: "1 MΩ-A",         role: "Tone (capacitor-coupled cut, single-knob style)" }
-  - { ref: C3,  part: "Mica capacitor",       value: "0.0005 µF",      role: "Tone cut cap" }
+  - { ref: C3,  part: "Mica capacitor",       value: "500 pF",      role: "Tone cut cap" }
   - { ref: VR2, part: "Audio-taper potentiometer", value: "1 MΩ-A",    role: "Volume" }
   - { ref: C4,  part: "Coupling capacitor",   value: "0.02 µF · 400 V", role: "Volume wiper → V1B grid" }
   # --- V1B second stage ---
@@ -47,7 +47,7 @@ items:
   - { ref: RG3, part: "Carbon comp resistor", value: "1.5 kΩ · ½ W",   role: "V3 grid stopper, wired straight to the -35 V bias line" }
   - { ref: RG4, part: "Carbon comp resistor", value: "1.5 kΩ · ½ W",   role: "V4 grid stopper, same bias-line wiring" }
   # --- Power supply ---
-  - { ref: RD1, part: "Power resistor",       value: "1000 Ω · 1 W",  role: "Rail dropper +315 V → +312 V (screens)" }
+  - { ref: RD1, part: "Power resistor",       value: "1 kΩ · 1 W",  role: "Rail dropper +315 V → +312 V (screens)" }
   - { ref: RD2, part: "Power resistor",       value: "10 kΩ · 1 W",   role: "Rail dropper +312 V → +280 V (preamp/PI)" }
   - { ref: C11, part: "Electrolytic capacitor", value: "30 µF · 450 V", role: "Reservoir filter, +315 V" }
   - { ref: C12, part: "Electrolytic capacitor", value: "30 µF · 450 V", role: "Filter, +312 V screen node" }

@@ -50,21 +50,21 @@ items:
   - { ref: RG2, part: "Carbon comp resistor", value: "470 kΩ · ½ W", role: "Channel 2 grid leak" }
   - { ref: RK2, part: "Carbon comp resistor", value: "1.5 kΩ · ½ W", role: "Channel 2 cathode bias — SHARED with the tremolo follower V3B, which is the tremolo mechanism" }
   - { ref: CK2, part: "Electrolytic capacitor", value: "35 µF · 50 V", role: "Channel 2 cathode bypass" }
-  - { ref: CP2, part: "Mica capacitor", value: "0.0005 µF (500 pF)", role: "Channel 2 plate-to-ground treble cut — the cap channel 1 does not have" }
+  - { ref: CP2, part: "Mica capacitor", value: "500 pF", role: "Channel 2 plate-to-ground treble cut — the cap channel 1 does not have" }
   - { ref: CI1, part: "Film capacitor", value: "0.005 µF", role: "Channel 2 interstage coupler, first of two in series" }
   - { ref: RI1, part: "Carbon comp resistor", value: "270 kΩ · ½ W", role: "Channel 2 interstage shunt to ground, between the two 0.005 µF couplers" }
   - { ref: CI2, part: "Film capacitor", value: "0.005 µF", role: "Channel 2 interstage coupler, second of two in series" }
   # --- volume / tone / mixer network ---
   - { ref: VR1, part: "Log potentiometer", value: "500 kΩ-A", role: "Channel 1 volume" }
-  - { ref: CB1, part: "Mica capacitor", value: "0.0005 µF (500 pF)", role: "Bright cap, channel 1 volume top → wiper" }
+  - { ref: CB1, part: "Mica capacitor", value: "500 pF", role: "Bright cap, channel 1 volume top → wiper" }
   - { ref: RM1, part: "Carbon comp resistor", value: "270 kΩ · ½ W", role: "Channel 1 mixing resistor, volume wiper → mixer node" }
   - { ref: VR2, part: "Log potentiometer", value: "500 kΩ-A", role: "Channel 2 volume" }
-  - { ref: CB2, part: "Mica capacitor", value: "0.0005 µF (500 pF)", role: "Bright cap, channel 2 volume top → wiper" }
+  - { ref: CB2, part: "Mica capacitor", value: "500 pF", role: "Bright cap, channel 2 volume top → wiper" }
   - { ref: RM2, part: "Carbon comp resistor", value: "270 kΩ · ½ W", role: "Channel 2 mixing resistor, volume wiper → mixer node" }
-  - { ref: CT1, part: "Mica capacitor", value: "0.0005 µF (500 pF)", role: "Fixed treble shunt, mixer node → ground" }
+  - { ref: CT1, part: "Mica capacitor", value: "500 pF", role: "Fixed treble shunt, mixer node → ground" }
   - { ref: CT2, part: "Film capacitor", value: "0.005 µF", role: "Tone capacitor, mixer node → Tone control" }
   - { ref: VR3, part: "Log potentiometer", value: "500 kΩ-A", role: "Tone — the amp's only tone control, shared by both channels; wired as a rheostat with its wiper grounded" }
-  - { ref: CPI, part: "Mica capacitor", value: "0.0003 µF (300 pF)", role: "Mixer node → inverter driver grid coupler" }
+  - { ref: CPI, part: "Mica capacitor", value: "300 pF", role: "Mixer node → inverter driver grid coupler" }
   # --- V2, paraphase phase inverter ---
   - { ref: RL3, part: "Carbon comp resistor", value: "270 kΩ · ½ W", role: "Inverter driver plate load (V2A)" }
   - { ref: RG3, part: "Carbon comp resistor", value: "1 MΩ · ½ W", role: "Inverter driver grid leak" }

@@ -48,7 +48,7 @@ s.gnd(74, tee + 11.43)
 # bright cap across the volume: node A -> wiper
 s.wire(74, tee, 74, tee - 4)
 s.wire(74, tee - 4, 82, tee - 4)
-bl, br = s.series_h("C", "C3", ".0005u", 86, tee - 4)
+bl, br = s.series_h("C", "C3", "500p", 86, tee - 4)
 s.wire(82, tee - 4, bl, tee - 4)
 s.wire(br, tee - 4, 92, tee - 4)
 s.wire(92, tee - 4, 92, tee + 3.81)

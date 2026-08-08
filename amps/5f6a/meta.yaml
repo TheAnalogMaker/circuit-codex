@@ -15,6 +15,8 @@ topology:
 lineage:
   derived_from: ["5f6"]   # the 5F6 is the direct ancestor; the 5F6-A revised it
   influenced: ["jtm45"]   # Marshall's JTM45 is the KT66 copy of this circuit
+conventions:
+  designators: functional   # designators carry a role code (RD1 dropper, RL4 plate load, CK1 cathode bypass)
 sources:
   - desc: "Fender 'Bassman' Model 5F6-A drawing (I-EG): every component value AND the printed voltage chart read directly from the published schematic (2026-07-18; tone-stack nodes re-read at lug level 2026-08-03 — the sheet draws the 5F6's ladder: 250p and 56k both off the CF node, first 0.02 to the treble-lug/bass node, bass rheostat, second 0.02 into the middle pot's wiper, treble-wiper output, middle foot grounded) (+432/+430/+385/+325 rails, -48 V bias, tube pins; PI = 82k/100k 5% plates, 470R+10k tail, 1M leaks to the junction; 470R-1W screen resistors; PT 8087 325-0-325, choke 14684, OT 45249). Not reproduced here; archived at EL34World"
     url: "https://el34world.com/charts/Schematics/files/Fender/Fender_bassman_5f6a.pdf"

@@ -25,6 +25,9 @@ Schema will stabilize at the end of Phase 0 (pilot: 5f1, 5e3, 5f6a).
 | `verification.max_deviation_pct` | number | when verified | Worst node deviation, simulated vs published chart |
 | `added` | date | when draft | Day the circuit landed in the corpus (its git landing date). The feed dates a draft by it — production builds are shallow clones, so git cannot. Verified circuits are dated by `verification.date` instead |
 | `contributors` | list | — | GitHub handles, in landing order |
+| `conventions.designators` | enum | ✓ | `sequential` (`R1…R13`, class + running number) · `functional` (`RD1`/`RL4`/`CK1`, role coded). Both schemes ship; the page tells the reader which one it is written in. `validate.py` derives the scheme from `bom.yaml` and fails when the declaration disagrees — see [docs/lettering-conventions.md](lettering-conventions.md) |
+| `conventions.notation` | enum | — | Schematic drafting idiom: `us` (default — the unit letter is the SI prefix of the house unit: `.005u`, `500p`, `1.5k`) · `uk` (British practice: RKM infix `2k2`, nanofarad film caps `47n`). Declared, not normalised away: it is the idiom the amp's own source drawing uses |
+| `iron` | map | — | `{designator: rating}` for a transformer or choke whose parts-list value is a bare factory number (`"Fender 45216"`). The layout letters the rating beside the number so the drawing says what to wind or buy. Keys must name real `bom.yaml` designators. Omit the block entirely rather than guess — an amp with no `iron:` letters the part number alone and the gap stays visible |
 
 ## Ids and colliding designations
 

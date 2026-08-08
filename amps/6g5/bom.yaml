@@ -80,7 +80,7 @@ items:
   - { ref: RFB1, part: "Carbon comp resistor", value: "470 kΩ · ½ W", role: "Driver-stage local feedback network (read, not modelled)" }
   - { ref: RFB2, part: "Carbon comp resistor", value: "220 kΩ · ½ W", role: "Driver-stage local feedback network (read, not modelled)" }
   - { ref: RFB3, part: "Carbon comp resistor", value: "220 kΩ · ½ W", role: "Driver-stage local feedback network (read, not modelled)" }
-  - { ref: CFB1, part: "Mica capacitor", value: "2500 pF", role: "Driver-stage local feedback network (read, not modelled)" }
+  - { ref: CFB1, part: "Mica capacitor", value: "0.0025 µF", role: "Driver-stage local feedback network (read, not modelled)" }
   # --- Phase inverter V6 ---
   - { ref: RLA, part: "Carbon comp resistor", value: "82 kΩ · ½ W · 5%", role: "PI plate load (V6A, hot side)" }
   - { ref: RLB, part: "Carbon comp resistor", value: "100 kΩ · ½ W · 5%", role: "PI plate load (V6B, cold side)" }
@@ -89,7 +89,7 @@ items:
   - { ref: RGA, part: "Carbon comp resistor", value: "1 MΩ · ½ W", role: "PI grid leak (hot), returned to the tail junction" }
   - { ref: RGB, part: "Carbon comp resistor", value: "1 MΩ · ½ W", role: "PI grid leak (cold), returned to the tail junction" }
   - { ref: RNFB, part: "Carbon comp resistor", value: "56 kΩ · 1 W", role: "Negative-feedback resistor, speaker to PI tail foot (AC-only, not modelled)" }
-  - { ref: CPID, part: "Mica capacitor", value: "1000 pF", role: "PI plate-adjacent network" }
+  - { ref: CPID, part: "Mica capacitor", value: "0.001 µF", role: "PI plate-adjacent network" }
   - { ref: VRPRES, part: "Potentiometer", value: "5 kΩ-L", role: "Presence — at the phase-inverter tail foot" }
   - { ref: RPRES, part: "Carbon comp resistor", value: "1.6 kΩ · ½ W", role: "Presence-control series resistor" }
   - { ref: C1, part: "Coupling capacitor", value: "0.05 µF · 400 V", role: "PI (hot) → V7 grid" }

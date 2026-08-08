@@ -240,6 +240,9 @@ def esc(s: str) -> str:
     return (str(s).replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;"))
 
 
+_RE_CAT_RES = re.compile(r"\bresistors?\b")
+
+
 def category(part: str) -> str:
     p = (part or "").lower()
     if "electrolytic" in p:
@@ -255,7 +258,12 @@ def category(part: str) -> str:
     # is excluded here (it matches the tube branch below).
     if "diode" in p or ("rectifier" in p and "tube" not in p):
         return "diode"
-    if "resistor" in p:
+    # WORD boundary, not substring: "Lamp + photoresistor pair" is the 6G5's
+    # tremolo optocoupler, and matching "resistor" inside "photoresistor" filed
+    # it as a carbon-comp resistor. The consistency gate then demanded an ohms
+    # value from a part whose value is the words "tremolo optocoupler", and the
+    # drawing gave it a resistor dogbone — a builder cannot buy that part.
+    if _RE_CAT_RES.search(p):
         return "res"
     if "transformer" in p:
         return "xfmr"
@@ -284,6 +292,36 @@ def annotation_value(item: dict) -> str | None:
 def primary_value(value: str) -> str:
     """First '·'-separated token of a BOM value string ('16 µF · 450 V' -> '16 µF')."""
     return str(value).split("·")[0].strip()
+
+
+_IRON_CACHE: dict[str, dict] = {}
+
+
+def load_iron(amp_id: str) -> dict:
+    """meta.yaml `iron:` — {designator: electrical rating}, for the iron whose
+    parts-list value is a bare factory part number.
+
+    "Fender 45216" identifies a transformer to a collector and tells a builder
+    nothing: it does not say what impedance to wind, buy or substitute. Where
+    this corpus has READ the rating from a published source it belongs on the
+    drawing beside the number, and this is where it lives — one place, keyed by
+    designator, so the drawing and the parts list cannot drift apart. An amp
+    with no `iron:` block letters the part number alone: the corpus states what
+    it has read and no more."""
+    if amp_id in _IRON_CACHE:
+        return _IRON_CACHE[amp_id]
+    path = ROOT / "amps" / amp_id / "meta.yaml"
+    out: dict = {}
+    if path.exists():
+        try:
+            data = yaml.safe_load(path.read_text()) or {}
+        except Exception:  # noqa: BLE001 — a malformed meta.yaml is validate.py's finding
+            data = {}
+        for k, v in (data.get("iron") or {}).items():
+            if str(v).strip():
+                out[str(k)] = str(v).strip()
+    _IRON_CACHE[amp_id] = out
+    return out
 
 
 def load_bom(amp_dir: Path) -> dict:
@@ -916,6 +954,20 @@ class Renderer:
         self.labels: list[dict] = []
         self.obstacles: list[dict] = []
         self._pending: list[dict] = []
+        # PAGE CHROME — title, attribution, footnotes, legend rows. Not board
+        # content (it is never placed, and the placer must not route around it),
+        # but it IS ink on the page, and until 2026-08-08 nothing measured it:
+        # the 5E4-A's attribution line ran 1515 px past the right edge of its own
+        # viewBox and simply was not in the picture — no viewport could recover
+        # it, because it was never drawn inside the page. Every chrome string now
+        # goes through chrome_text(), which records its box, and lint check (h)
+        # reads them back with the same "ink must be inside the viewBox" rule it
+        # already applies to glyphs and labels.
+        self.chrome: list[dict] = []
+        # Footnotes raised by the drawing itself (an iron rating the glyph could
+        # not carry — see iron_value()); each is one footer line.
+        self.footnotes: list[str] = []
+        self.iron = load_iron(amp_id)
         # indexes
         self.part_by_ref = {p["ref"]: p for p in self.parts if "ref" in p}
         self.off_by_id = {it["id"]: it for it in self.offboard if "id" in it}
@@ -945,6 +997,11 @@ class Renderer:
         # needs its own reserved row in the footer band.
         self._layout_has_twisted = any(
             str(r.get("style", "")).lower() == "twisted" for r in self.runs)
+        # The wiring legend's swatch row and the drawing's footnotes are page
+        # chrome whose LENGTH is data-dependent, so both are resolved here,
+        # before the page is sized — see _footer_stack().
+        self._prescan_wiring()
+        self._collect_footnotes()
         # board pixel box
         self.board_x = MARGIN_L
         # Top-edge off-board items label AWAY from the board (upward) so the
@@ -993,19 +1050,26 @@ class Renderer:
                         except (TypeError, ValueError):
                             pass
             # ey() needs board_y (set above); +14 clears the wire + twist amp,
-            # +92 leaves room for the four stacked footer lines (attribution +
-            # wiring + joints + bodies) — bumped to +110 when a twisted-pair
-            # note line joins the stack (see _legend). Floored at 356 (374
-            # with the note) so ordinary under-chassis layouts keep their
-            # footer clear.
-            base_reserve = 110 if self._layout_has_twisted else 92
+            # and the rest leaves room for the stacked footer lines. That
+            # reserve used to be the constant 92 (110 with a twisted-pair note),
+            # which held only while the footer was exactly four or five lines.
+            # It is now MEASURED from the stack the page will actually draw
+            # (_footer_stack), so a wrapped attribution, a wrapped swatch row or
+            # a footnote grows the band instead of being drawn under the page
+            # edge or off the side of it. Floored at 356 (374 with the note) so
+            # ordinary under-chassis layouts keep their footer clear.
+            nrows = len(self._footer_stack())
+            base_reserve = FOOTER_BASE + nrows * FOOTER_PITCH
             footer_reserve = base_reserve * self.cs
+            default_rows = 5 if self._layout_has_twisted else 4
             footer_floor = (374 if self._layout_has_twisted else 356) \
-                + (footer_reserve - base_reserve)
+                + (footer_reserve - (FOOTER_BASE + default_rows * FOOTER_PITCH))
             needed = self.ey(deep_row) + 14 + footer_reserve - (self.board_y + self.board_h)
             self.margin_bot = max(int(math.ceil(footer_floor)), int(math.ceil(needed)))
         else:
-            self.margin_bot = int(math.ceil(MARGIN_BOT + (MARGIN_BOT * (self.cs - 1)) * 0.4))
+            extra = (len(self._footer_stack()) - 1) * FOOTER_PITCH * self.cs
+            self.margin_bot = int(math.ceil(
+                MARGIN_BOT + (MARGIN_BOT * (self.cs - 1)) * 0.4 + max(0.0, extra)))
         self.height = self.board_y + self.board_h + self.margin_bot
 
     # ---- coordinates --------------------------------------------------------
@@ -1023,20 +1087,249 @@ class Renderer:
 
     def _footer_y(self, row):
         """Baseline of footer row `row`, counted up from the bottom edge:
-        0 = bodies legend, 1 = joints, then the wiring row, the twisted-pair
-        note and the attribution — see _footer_rows()."""
+        0 = bodies legend, 1 = joints, then the wiring rows, the twisted-pair
+        note, any footnotes and the attribution — see _footer_stack()."""
         return self.height - (FOOTER_BASE + row * FOOTER_PITCH) * self.cs
 
-    def _footer_rows(self):
-        """(wiring_row, note_row, attrib_row) for this layout's footer stack.
-        A twisted-heater note line inserts an extra row, pushing the wiring
-        swatch row and the attribution line up by one."""
-        return (3, 2, 4) if self._has_twisted else (2, None, 3)
+    # ---- page chrome: measured, and inside the page ------------------------
+    # Chrome ink stays this far inside the right page edge. The legend and the
+    # attribution used to run left-to-right with no terminator at all: the
+    # 5E4-A's provenance line was 3559 px wide on a 2044 px page, so two thirds
+    # of the sentence that says WHERE THE DRAWING CAME FROM was never in the
+    # picture. Nothing downstream could recover it — a viewport can only crop
+    # what is inside the viewBox, and this was outside it. Every chrome row is
+    # now wrapped to this width and every chrome string is measured by lint
+    # check (h), so the failure cannot come back silently.
+    CHROME_RIGHT_PAD = 24.0
+    FOOT_INDENT = 58.0        # x of the first entry after a row's caption word
+    FOOT_GUTTER = 16.0        # clear space after an entry, before the next
+    TWISTED_NOTE = ("Note: the 6.3 V heater twisted pair always routes on the "
+                    "top layer and never joins another run — its crossings are "
+                    "not hop-overs.")
+
+    def chrome_width(self):
+        return self.width - self.board_x - self.CHROME_RIGHT_PAD
+
+    def chrome_text(self, els, x, y, s, fill, size, *, anchor="start",
+                    font=FONT_MONO, weight=500, spacing=None, tag="chrome"):
+        """Draw a page-chrome string AND record its box, so the bounds check
+        sees it. Chrome is not board content — it is never placed and the label
+        placer must not route around it — but it is ink on the page."""
+        if not str(s).strip():
+            return
+        els.append(text(x, y, s, fill, size, anchor=anchor, font=font,
+                        weight=weight, spacing=spacing))
+        self.chrome.append({"tag": tag, "text": str(s),
+                            "box": text_box(x, y, str(s), size, anchor=anchor,
+                                            font=font, spacing=spacing)})
+
+    def chrome_mark(self, x0, y0, x1, y1, tag):
+        """Record a non-text chrome mark (a legend swatch or glyph) for (h)."""
+        self.chrome.append({"tag": tag, "box": (min(x0, x1), min(y0, y1),
+                                                max(x0, x1), max(y0, y1))})
+
+    @staticmethod
+    def _wrap(s, size, avail, font=FONT_MONO, spacing=None):
+        """Word-wrap a chrome string to `avail` px using the same metrics the
+        lint measures with. Words are never broken: a single over-long token
+        stays whole and check (h) reports it, rather than the page hiding it."""
+        out, cur = [], ""
+        for w in str(s).split():
+            cand = f"{cur} {w}".strip()
+            if cur and text_width(cand, size, font, spacing) > avail:
+                out.append(cur)
+                cur = w
+            else:
+                cur = cand
+        if cur:
+            out.append(cur)
+        return out or [""]
+
+    def attribution(self):
+        src = self.layout.get("source", {}) or {}
+        if src.get("desc"):
+            return f"Redrawn from {src['desc']} — not a trace"
+        return self.layout.get("caption") or ""
+
+    def _chunk_entries(self, entries, avail):
+        """Split legend entries into rows that fit. The caption word ('Wiring:')
+        indents the first row; continuation rows start at the same indent so the
+        column reads straight."""
+        rows, cur, w = [], [], self.FOOT_INDENT * self.cs
+        for e in entries:
+            if cur and w + e["w"] > avail:
+                rows.append(cur)
+                cur, w = [], self.FOOT_INDENT * self.cs
+            cur.append(e)
+            w += e["w"]
+        if cur:
+            rows.append(cur)
+        return rows or [[]]
+
+    def _footer_stack(self):
+        """Every footer row, BOTTOM row first — the order _footer_y() counts in.
+
+        Built once, from the same data the drawing pass uses, so the height
+        reserved in the geometry pass and the rows actually drawn are the same
+        number by construction. The old fixed indices (bodies=0, joints=1,
+        wiring=2, attrib=3) could not grow, which is how a long provenance line
+        came to be drawn off the page instead of wrapped onto it."""
+        if getattr(self, "_stack_cache", None) is not None:
+            return self._stack_cache
+        avail = self.chrome_width()
+        fs = self.cz(10.5)
+        ns = self.cz(9.5)
+        rows: list[tuple] = []
+        for chunk in reversed(self._chunk_entries(self._bodies_entries(fs), avail)):
+            rows.append(("entries", "Bodies:", chunk, fs))
+        if self.runs or self.bus:
+            for chunk in reversed(self._chunk_entries(self._joints_entries(fs), avail)):
+                rows.append(("entries", "Joints:", chunk, fs))
+            for chunk in reversed(self._chunk_entries(self._wiring_entries(fs), avail)):
+                rows.append(("entries", "Wiring:", chunk, fs))
+        if self._has_twisted:
+            for line in reversed(self._wrap(self.TWISTED_NOTE, ns, avail)):
+                rows.append(("line", line, ns, "faint"))
+        for note in reversed(self.footnotes):
+            for line in reversed(self._wrap(note, ns, avail)):
+                rows.append(("line", line, ns, "faint"))
+        for line in reversed(self._wrap(self.attribution(), fs, avail)):
+            if line:
+                rows.append(("line", line, fs, "faint"))
+        self._stack_cache = rows
+        return rows
+
+    def _draw_footer(self, els):
+        """Draw the planned footer stack. Only the caption word of a row group's
+        FIRST (topmost) chunk is printed; continuation rows are indented under
+        it, so 'Wiring:' names the block rather than repeating down it."""
+        s = self.cs
+        stack = self._footer_stack()
+        seen_caption: set[str] = set()
+        for i in range(len(stack) - 1, -1, -1):
+            row = stack[i]
+            y = self._footer_y(i)
+            if row[0] == "line":
+                _kind, txt, size, tone = row
+                self.chrome_text(els, self.board_x, y, txt,
+                                 self.FOOT_FAINT if tone == "faint" else self.FOOT_MUTED,
+                                 size, tag="chrome caption")
+                continue
+            _kind, caption, chunk, fs = row
+            if caption not in seen_caption:
+                self.chrome_text(els, self.board_x, y, caption, self.FOOT_FAINT, fs,
+                                 tag=f"chrome {caption.rstrip(':').lower()}")
+                seen_caption.add(caption)
+            cx = self.board_x + self.FOOT_INDENT * s
+            for e in chunk:
+                els.append(e["glyph"](cx, y, s))
+                self.chrome_mark(cx, y - 11 * s, cx + e["lead"] * s, y + 3 * s,
+                                 "legend swatch")
+                self.chrome_text(els, cx + e["lead"] * s, y, e["label"],
+                                 self.FOOT_MUTED, fs, tag="chrome legend")
+                cx += e["w"]
+
+    def _entry(self, label, lead, glyph, fs):
+        return {"label": label, "lead": lead, "glyph": glyph,
+                "w": lead * self.cs + text_width(label, fs, FONT_MONO)
+                     + self.FOOT_GUTTER * self.cs}
+
+    # ---- legend entries (house paint; SheetRenderer overrides the drawing) --
+    FOOT_FAINT = FAINT
+    FOOT_MUTED = MUTED
+
+    @staticmethod
+    def _rule(cx, y, s, colour, width, length=18.0):
+        return (f'<line x1="{fmt(cx)}" y1="{fmt(y - 3*s)}" x2="{fmt(cx + length*s)}" '
+                f'y2="{fmt(y - 3*s)}" stroke="{colour}" stroke-width="{fmt(width*s)}" '
+                f'stroke-linecap="round"/>')
+
+    def _wiring_entries(self, fs):
+        out = [self._entry("lead (uncoloured)", 24.0,
+                           lambda cx, y, s: self._rule(cx, y, s, WIRE_NEUTRAL, 2.4), fs)]
+        for key in self._colours_used:
+            col = WIRE.get(key, WIRE_NEUTRAL)
+            out.append(self._entry(
+                self.wire_legend.get(key, key), 24.0,
+                lambda cx, y, s, c=col: self._rule(cx, y, s, c, 2.4), fs))
+        if self.bus:
+            out.append(self._entry("ground bus", 24.0,
+                                   lambda cx, y, s: self._rule(cx, y, s, BUS_CORE, 3.4), fs))
+        if self._has_twisted:
+            out.append(self._entry("6.3 V heaters — twisted pair", 26.0,
+                                   self._twist_swatch, fs))
+        return out
+
+    def _twist_swatch(self, cx, y, s, colour=None):
+        colour = colour or HEATER
+        d1, d2 = twisted_strands([(cx, y - 3 * s), (cx + 20 * s, y - 3 * s)],
+                                 amp=2.6 * s, wavelen=8.0 * s)
+        return (f'<path d="{d1}" fill="none" stroke="{colour}" '
+                f'stroke-width="{fmt(1.5*s)}" stroke-linecap="round"/>'
+                f'<path d="{d2}" fill="none" stroke="{colour}" '
+                f'stroke-width="{fmt(1.5*s)}" stroke-linecap="round"/>')
+
+    def _hop_swatch(self, cx, y, s, colour):
+        hd = hopped_path([(cx, y - 3 * s), (cx + 34 * s, y - 3 * s)],
+                         {0: [(17.0 * s, HOP_R * s)]}, r=11 * s)
+        return (f'<path d="{hd}" fill="none" stroke="{colour}" '
+                f'stroke-width="{fmt(2.3*s)}" stroke-linecap="round" '
+                f'stroke-linejoin="round"/>')
+
+    def _joints_entries(self, fs):
+        return [
+            self._entry("wire end (solder joint)", 13.0,
+                        lambda cx, y, s: solder_blob(cx + 4 * s, y - 3 * s), fs),
+            self._entry("cross-over (no connect)", 40.0,
+                        lambda cx, y, s: self._hop_swatch(cx, y, s, WIRE_NEUTRAL), fs),
+        ]
+
+    def _bodies_entries(self, fs):
+        items = [(RES_BODY, "resistor"), (FILM_BODY, "film / coupling cap"),
+                 (ELEC_BODY, "electrolytic"), (MICA_BODY, "mica")]
+        if self._has_diode:
+            items.append((DIODE_BODY, "diode / rectifier"))
+        return [self._entry(
+            lab, 19.0,
+            lambda cx, y, s, f=fill: (
+                f'<rect x="{fmt(cx)}" y="{fmt(y-8*s)}" width="{fmt(14*s)}" '
+                f'height="{fmt(9*s)}" rx="{fmt(2.5*s)}" fill="{f}" '
+                f'stroke="{BOARD_EDGE}" stroke-width="0.6"/>'), fs)
+            for fill, lab in items]
+
+    # ---- pre-render scans (data the page size depends on) -------------------
+    def _prescan_wiring(self):
+        """Resolve which colour swatches and which twisted-pair note the legend
+        will carry, in the order the drawing pass will emit them. Run in the
+        constructor, because the footer's height depends on it and the page is
+        sized before anything is drawn."""
+        for spec in self.runs:
+            if str(spec.get("style", "")).lower() == "twisted":
+                self._has_twisted = True
+                continue
+            colour = spec.get("color") or self._endpoint_colour(spec.get("from")) \
+                or self._endpoint_colour(spec.get("to"))
+            if colour:
+                key = str(colour).lower()
+                if key not in self._colours_used:
+                    self._colours_used.append(key)
+
+    def _collect_footnotes(self):
+        """Footnote lines the iron glyphs raise — see iron_value(). One line per
+        off-board transformer/choke whose parts-list value says more than the
+        drawing can letter beside it."""
+        for it in self.offboard:
+            if it.get("kind") not in ("xfmr", "choke") or not it.get("ref"):
+                continue
+            ref = it["ref"]
+            _drawn, note = iron_value(self.bom_for(ref)["value"], self.iron.get(ref))
+            if note:
+                self.footnotes.append(f"{ref} — {note}")
 
     # ---- labels + obstacles (drawing content the lint measures) ------------
     def lab(self, x, y, s, fill, size, *, anchor="middle", font=FONT_DISP,
             weight=600, spacing=None, halo=None, halo_width=3.0, tag="",
-            group=None, keep_in=None):
+            group=None, keep_in=None, owner=None):
         """QUEUE a content label. Nothing is emitted here: labels are resolved
         and drawn in one final pass (_emit_labels) once every wire, body and
         terminal is known, so placement can be collision-aware instead of a
@@ -1053,7 +1346,7 @@ class Renderer:
             "anchor": anchor, "font": font, "weight": weight, "spacing": spacing,
             "halo": halo, "halo_width": halo_width, "tag": tag,
             "group": group if group is not None else f"_{len(self._pending)}",
-            "keep_in": keep_in,
+            "keep_in": keep_in, "owner": owner,
         })
         return ""
 
@@ -1192,15 +1485,65 @@ class Renderer:
                                 break
                 placed.append(box)
                 self.labels.append({"text": sp["text"], "tag": sp["tag"], "box": box})
+                lead = self._leader(sp.get("owner"), box)
+                if lead:
+                    out.append(lead)   # before the text: the halo cuts it clean
                 out.append(text(sx, sy, sp["text"], sp["fill"], sp["size"],
                                 anchor=sp["anchor"], font=sp["font"],
                                 weight=sp["weight"], spacing=sp["spacing"],
                                 halo=sp["halo"], halo_width=sp["halo_width"]))
         return "".join(out)
 
+    # A label the placer had to move this far from the body it names gets a
+    # LEADER: a hairline from the type back to the part. Without one, a
+    # designator that has been pushed clear of a crowded row reads as belonging
+    # to whatever it landed nearest (the 5F2-A sheet's R9 sat beside C6 and was
+    # read as C6's; the 5D3's RPT was pushed onto a wire two eyelets away).
+    # Below the threshold nothing is drawn — a label sitting on its own part
+    # needs no pointer, and a leader on every label would be noise.
+    LEADER_INK = BOARD_EDGE
+    LEADER_GAP = 15.0
+    LEADER_MAX = 140.0        # beyond this the placement is a drawing fault,
+                              # and lint check (i) is the right place to say so
+
+    def _leader(self, owner_tag, box):
+        if not owner_tag:
+            return ""
+        boxes = [ob["box"] for ob in self.obstacles if ob["tag"] == owner_tag]
+        if not boxes:
+            return ""
+        target = min(boxes, key=lambda b: _box_gap(box, b))
+        gap = _box_gap(box, target)
+        if not (self.LEADER_GAP < gap < self.LEADER_MAX):
+            return ""
+        (x1, y1), (x2, y2) = _box_link(box, target)
+        return (f'<line x1="{fmt(x1)}" y1="{fmt(y1)}" x2="{fmt(x2)}" y2="{fmt(y2)}" '
+                f'stroke="{self.LEADER_INK}" stroke-width="0.9" opacity="0.75" '
+                f'stroke-linecap="round"/>'
+                f'<circle cx="{fmt(x2)}" cy="{fmt(y2)}" r="1.4" '
+                f'fill="{self.LEADER_INK}" opacity="0.75"/>')
+
     def canvas_box(self, pad=8.0):
         """The box a label may not leave — the drawing canvas, minus a margin."""
         return (pad, pad, self.width - pad, self.height - pad)
+
+    def board_box(self, pad=3.0):
+        """The box a BOARD PART's ref and value may not leave — the board rect.
+
+        A board part's labels used to be bounded only by the canvas, so when the
+        placer could not find air beside a bottom-row part it slid the value down
+        off the board: onto the drawn board edge, onto the ground bus rod, or out
+        onto the bare chassis strip below, where dark board ink has nothing to
+        read against (the 5E1's R9, the 5E3's RL1 and RL4, the 5F6-A's RD1 and
+        RM2, the 5E4-A's RSL). A value printed off its own board is worse than a
+        value printed close to its neighbour: the reader cannot tell which part
+        it belongs to, and on the sheet style cannot see it at all. The ladder is
+        now bounded by the board, and where the board genuinely has no air the
+        placer falls back to the authored position — still on the board, beside
+        the part, which is the drawing telling the truth about how tight it is."""
+        return (self.board_x + pad, self.board_y + pad,
+                self.board_x + self.board_w - pad,
+                self.board_y + self.board_h - pad)
 
     def obst_rect(self, x0, y0, x1, y1, tag):
         self.obstacles.append({"tag": tag, "box": (min(x0, x1), min(y0, y1),
@@ -1407,7 +1750,21 @@ class Renderer:
             slots = slots + [colour]
         idx = slots.index(colour)
         n = len(slots)
-        # stack the pigtails along the board-facing edge, centred
+        # Stack the pigtails along the board-facing edge, centred.
+        #
+        # NOT CHANGED, and the reason is worth recording. A power transformer
+        # carries up to six leads out of a 56 px face; at this pitch they all
+        # end on one line and leave it as a single knot in which no individual
+        # lead can be followed back to its terminal (the 5F1 and 5E3 power
+        # ends). Widening `spread` or fanning `stub` fixes that in isolation —
+        # and moves every lead endpoint, which every authored `via` list in
+        # layout.yaml is tuned against to within a few pixels. Three variants
+        # were measured on 2026-08-08 (spread +6, a 3 px fan, a 9 px alternating
+        # fan); each cleared the knot and each broke between 6 and 57 wiring
+        # lint findings across the corpus, all of them re-routing work in
+        # layout.yaml rather than engine faults. The fan-out is therefore a
+        # per-layout routing change, not an engine parameter, and belongs with
+        # the `via` lists it moves.
         spread = min(h - 12, max(1, n - 1) * 14)
         off = (idx - (n - 1) / 2) * (spread / max(1, n - 1)) if n > 1 else 0
         stub = 16
@@ -1498,7 +1855,14 @@ class Renderer:
         ref = part["ref"]
         rec = self.bom_for(ref)
         cat = category(rec["part"])
-        val = primary_value(rec["value"])
+        # The gloss comes off (see body_value) and the repeat count goes ON: a
+        # "(×2)" buried in the working-voltage field said two cans while the
+        # drawing showed one and the value label said nothing at all (5F6-A C15,
+        # 5F1 C4). The count is a fact about the part, so it is lettered.
+        val = body_value(primary_value(rec["value"]))
+        n = part_count(rec["value"])
+        if n:
+            val = f"{val} ×{n}"
         a, b = part["a"], part["b"]
         (r1, c1), (r2, c2) = a, b
         x1, y1 = self.ex(c1), self.ey(r1)
@@ -1541,11 +1905,12 @@ class Renderer:
         # keeps dark ink legible against the dark well instead of vanishing.
         return (self.lab(cx + ndx, top_y + ndy, ref, BOARD_REF, 11.5, weight=700,
                          spacing="0.02em", tag=f"{ref} ref", group=f"part:{ref}",
-                         keep_in=self.canvas_box(), halo=BOARD, halo_width=3.0)
+                         keep_in=self.board_box(), halo=BOARD, halo_width=3.0,
+                         owner=f"{ref} body")
                 + self.lab(cx + ndx + vndx, bot_y + ndy + vndy, val, BOARD_VAL, 11,
                            font=FONT_MONO, weight=600, tag=f"{ref} value",
-                           group=f"part:{ref}", keep_in=self.canvas_box(),
-                           halo=BOARD, halo_width=2.8))
+                           group=f"part:{ref}", keep_in=self.board_box(),
+                           halo=BOARD, halo_width=2.8, owner=f"{ref} body"))
 
     def _body_horizontal(self, cat, cx, cy, span, val, ref, ndx=0, ndy=0, vndx=0, vndy=0,
                          band=0):
@@ -1657,12 +2022,12 @@ class Renderer:
         self.obst_rect(x, y, x + w, y + h, f"{ref} body")
         labs = [self.lab(lx + ndx, cy - 3 + ndy, ref, BOARD_REF, 11.5, weight=700,
                          anchor=anchor, spacing="0.02em", tag=f"{ref} ref",
-                         group=f"part:{ref}", keep_in=self.canvas_box(),
-                         halo=BOARD, halo_width=3.0),
+                         group=f"part:{ref}", keep_in=self.board_box(),
+                         halo=BOARD, halo_width=3.0, owner=f"{ref} body"),
                 self.lab(lx + ndx + vndx, cy + 11 + ndy + vndy, val, BOARD_VAL, 11,
                          anchor=anchor, font=FONT_MONO, weight=600, tag=f"{ref} value",
-                         group=f"part:{ref}", keep_in=self.canvas_box(),
-                         halo=BOARD, halo_width=2.8)]
+                         group=f"part:{ref}", keep_in=self.board_box(),
+                         halo=BOARD, halo_width=2.8, owner=f"{ref} body")]
         return els, labs
 
     # ---- off-board stubs ----------------------------------------------------
@@ -1706,7 +2071,8 @@ class Renderer:
         label = item.get("label", item.get("id", ""))
         ref = item.get("ref")
         x, y = self.off_pos(item)
-        val = primary_value(self.bom_for(ref)["value"]) if ref else annotation_value(item)
+        val = (body_value(primary_value(self.bom_for(ref)["value"])) if ref
+               else body_value(annotation_value(item) or "") or None)
         sgn = self._label_side(item)
         els: list[str] = []
         labs: list[str] = []
@@ -1788,6 +2154,13 @@ class Renderer:
                                  group=f"jack:{item.get('id', '')}",
                                  keep_in=self.canvas_box()))
         elif kind in ("xfmr", "choke"):
+            # Iron letters its IDENTITY beside the glyph — a factory part number,
+            # an impedance ratio, an inductance — and sends anything the parts
+            # list adds to that (a measured DCR estimate, a provenance note) to a
+            # footnote. See iron_value(): those strings are sentences, and on the
+            # 5E5-A one of them was lettered clean off the left edge of the page.
+            if ref:
+                val = iron_value(self.bom_for(ref)["value"], self.iron.get(ref))[0]
             w, h = (46, 56) if kind == "xfmr" else (40, 34)
             els.append(f'<rect x="{fmt(x-w/2)}" y="{fmt(y-h/2)}" width="{w}" height="{h}" rx="4" '
                        f'fill="{PANEL}" stroke="{LINE}" stroke-width="1.5"/>')
@@ -2218,21 +2591,10 @@ class Renderer:
         # title + attribution
         title = (self.layout.get("board", {}) or {}).get("title") or f"{self.amp_id.upper()} board layout"
         ts = self.cz(17)
-        els.append(text(bx, 20 + ts, title, INK, ts, anchor="start", spacing="0.08em"))
-        src = self.layout.get("source", {}) or {}
-        if src.get("desc"):
-            attrib = f"Redrawn from {src['desc']} — not a trace"
-        else:
-            attrib = self.layout.get("caption") or ""
-        if attrib:
-            # top row of the footer stack; a twisted-heater note row inserted
-            # into it (see _legend) pushes this — and the wiring row below it —
-            # up by one more row.
-            _wrow, _nrow, arow = self._footer_rows()
-            els.append(text(bx, self._footer_y(arow), attrib, FAINT, self.cz(10.5),
-                            anchor="start", font=FONT_MONO, weight=500))
-        # legends
-        self._legend(els)
+        self.chrome_text(els, bx, 20 + ts, title, INK, ts, font=FONT_DISP,
+                         weight=600, spacing="0.08em", tag="chrome title")
+        # attribution, footnotes and the legends, as one measured stack
+        self._draw_footer(els)
         body = "\n".join(els)
         svg = (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {fmt(self.width)} '
                f'{fmt(self.height)}" role="img" aria-label="{esc(title)} — redrawn board '
@@ -2242,102 +2604,6 @@ class Renderer:
         if self.errors:
             raise ValueError(f"{self.amp_id}: layout errors: {self.errors}")
         return svg
-
-    def _legend(self, els):
-        # wiring legend (only when the layout has a wiring layer). A twisted
-        # heater run earns an extra note line below the swatch row, so the
-        # wiring row (and the attribution line above it, set in render())
-        # shift up by one 18px row to make room — joints/bodies stay put,
-        # anchored to the bottom edge as always.
-        s = self.cs
-        fs = self.cz(10.5)
-        wrow, nrow, _arow = self._footer_rows()
-        y = self._footer_y(wrow)
-        x = self.board_x
-
-        def adv(txt, size=None):
-            return text_width(txt, size or fs, FONT_MONO)
-
-        if self.runs or self.bus:
-            cx = x
-            els.append(text(cx, y, "Wiring:", FAINT, fs, anchor="start", font=FONT_MONO,
-                            weight=500))
-            cx += 58 * s
-            # neutral lead sample
-            els.append(f'<line x1="{fmt(cx)}" y1="{fmt(y-3*s)}" x2="{fmt(cx+18*s)}" '
-                       f'y2="{fmt(y-3*s)}" stroke="{WIRE_NEUTRAL}" '
-                       f'stroke-width="{fmt(2.4*s)}" stroke-linecap="round"/>')
-            els.append(text(cx + 24 * s, y, "lead (uncoloured)", MUTED, fs, anchor="start",
-                            font=FONT_MONO, weight=500))
-            cx += 24 * s + adv("lead (uncoloured)") + 16 * s
-            for key in self._colours_used:
-                col = WIRE.get(key, WIRE_NEUTRAL)
-                entry = self.wire_legend.get(key, key)
-                els.append(f'<line x1="{fmt(cx)}" y1="{fmt(y-3*s)}" x2="{fmt(cx+18*s)}" '
-                           f'y2="{fmt(y-3*s)}" stroke="{col}" stroke-width="{fmt(2.4*s)}" '
-                           f'stroke-linecap="round"/>')
-                els.append(text(cx + 24 * s, y, entry, MUTED, fs, anchor="start",
-                                font=FONT_MONO, weight=500))
-                cx += 24 * s + adv(entry) + 16 * s
-            if self.bus:
-                els.append(f'<line x1="{fmt(cx)}" y1="{fmt(y-3*s)}" x2="{fmt(cx+18*s)}" '
-                           f'y2="{fmt(y-3*s)}" stroke="{BUS_CORE}" stroke-width="{fmt(3.4*s)}" '
-                           f'stroke-linecap="round"/>')
-                els.append(text(cx + 24 * s, y, "ground bus", MUTED, fs, anchor="start",
-                                font=FONT_MONO, weight=500))
-                cx += 24 * s + adv("ground bus") + 16 * s
-            if self._has_twisted:
-                # a small twisted-pair swatch, then the heater label
-                d1, d2 = twisted_strands([(cx, y - 3 * s), (cx + 20 * s, y - 3 * s)],
-                                         amp=2.6 * s, wavelen=8.0 * s)
-                els.append(f'<path d="{d1}" fill="none" stroke="{HEATER}" '
-                           f'stroke-width="{fmt(1.5*s)}" stroke-linecap="round"/>')
-                els.append(f'<path d="{d2}" fill="none" stroke="{HEATER}" '
-                           f'stroke-width="{fmt(1.5*s)}" stroke-linecap="round"/>')
-                els.append(text(cx + 26 * s, y, "6.3 V heaters — twisted pair", MUTED, fs,
-                                anchor="start", font=FONT_MONO, weight=500))
-                # convention note: the twisted heater pair is drawn as its own
-                # topmost layer and is exempt from the hop-over crossing idiom
-                # below — it never joins another run, so a vision review
-                # shouldn't read its uninterrupted overlap of another lead as
-                # a missed hop-over.
-                els.append(text(x, self._footer_y(nrow),
-                                "Note: the 6.3 V heater twisted pair always "
-                                "routes on the top layer and never joins another run — "
-                                "its crossings are not hop-overs.", FAINT, self.cz(9.5),
-                                anchor="start", font=FONT_MONO, weight=500))
-            # joints legend: a solder blob (wire end) + a hop-over (cross-over)
-            jy = self._footer_y(1)
-            els.append(text(x, jy, "Joints:", FAINT, fs, anchor="start", font=FONT_MONO,
-                            weight=500))
-            jx = x + 58 * s
-            els.append(solder_blob(jx + 4 * s, jy - 3 * s))
-            els.append(text(jx + 13 * s, jy, "wire end (solder joint)", MUTED, fs,
-                            anchor="start", font=FONT_MONO, weight=500))
-            jx += 13 * s + adv("wire end (solder joint)") + 20 * s
-            # a short lead with a hop bump, then the label
-            hd = hopped_path([(jx, jy - 3 * s), (jx + 34 * s, jy - 3 * s)],
-                             {0: [(17.0 * s, HOP_R * s)]}, r=11 * s)
-            els.append(f'<path d="{hd}" fill="none" stroke="{WIRE_NEUTRAL}" '
-                       f'stroke-width="{fmt(2.3*s)}" stroke-linecap="round" '
-                       f'stroke-linejoin="round"/>')
-            els.append(text(jx + 40 * s, jy, "cross-over (no connect)", MUTED, fs,
-                            anchor="start", font=FONT_MONO, weight=500))
-        # bodies legend
-        items = [(RES_BODY, "resistor"), (FILM_BODY, "film / coupling cap"),
-                 (ELEC_BODY, "electrolytic"), (MICA_BODY, "mica")]
-        if self._has_diode:
-            items.append((DIODE_BODY, "diode / rectifier"))
-        y = self._footer_y(0)
-        els.append(text(x, y, "Bodies:", FAINT, fs, anchor="start", font=FONT_MONO, weight=500))
-        cx = x + 58 * s
-        for fill, lab in items:
-            els.append(f'<rect x="{fmt(cx)}" y="{fmt(y-8*s)}" width="{fmt(14*s)}" '
-                       f'height="{fmt(9*s)}" rx="{fmt(2.5*s)}" '
-                       f'fill="{fill}" stroke="{BOARD_EDGE}" stroke-width="0.6"/>')
-            els.append(text(cx + 19 * s, y, lab, MUTED, fs, anchor="start", font=FONT_MONO,
-                            weight=500))
-            cx += 26 * s + adv(lab)
 
 
 # ==================== sheet style — era drafting idiom (--style sheet) =======
@@ -2418,6 +2684,10 @@ PLUS_GUTTER = 17.0
 #              pen): 25 µF -> "25MFD", with the working voltage on its own
 #              line under it ("450V") — the can is tall enough for two.
 #
+#   dual cans  one part, two capacitances: the sections are joined by a slash
+#              and the unit written once — 25 µF + 25 µF -> "25/25MFD", exactly
+#              as the era sheets lettered a twin can.
+#
 # It is deliberately STRICT: a token it cannot parse as a resistance or a
 # capacitance comes back untouched, so descriptive values keep the house
 # wording ("selenium", "Fender 125P1B · 320-0-320 V", "presence/NFB network").
@@ -2426,6 +2696,17 @@ PLUS_GUTTER = 17.0
 # the board. Free-standing hardware labels keep house units: a pot's value
 # carries a taper suffix ("250 kΩ-A") and a transformer's is a part number, and
 # neither is a body lettering. Nothing outside SheetRenderer calls this.
+#
+# What the strictness must NOT become is a licence to letter a sentence. A value
+# era_pair() refuses comes back as the house string, and a house string can be a
+# whole clause ("selenium (silicon diode in modern builds)"), a repeat count
+# ("8 µF · 150 V (×2)") or a measured estimate ("~110 Ω DCR (est.)"). Lettered
+# verbatim on a 30 px body those ran off the part and, on the 5E4-A, clean off
+# the page. So the callers letter body_value() — the value with its parenthetical
+# gloss removed — and the parts that carry a rating rather than a quantity
+# (transformers, chokes) go through iron_value(), which keeps the identity on the
+# drawing and sends the gloss to a numbered footnote. Nothing is dropped: the
+# full house string is on the amp page and in bom.yaml, where nothing is cramped.
 
 _ERA_NUM = r"[0-9][0-9,]*(?:\.[0-9]+)?"
 _RE_TRAILING_PAREN = re.compile(r"\s*\([^()]*\)\s*$")
@@ -2504,6 +2785,103 @@ def _era_farads(farads: Decimal, cat: str) -> str:
     return _era_number(micro).lstrip("0")  # ".02" — the era dropped the zero
 
 
+# A repeat COUNT — "(×2)", "(x3)" — is not part of a value: it says how many of
+# this identical part the drawing calls for. Lettered into the working-voltage
+# line it produced "150V (×2)" on an 8 µF can, which reads as a second rating.
+# It comes off the value here and is lettered as the era sheets lettered it, in
+# its own line beside the part: "2 REQ'D". See era_count().
+_RE_COUNT_PAREN = re.compile(r"\(\s*[x×]\s*(\d+)\s*\)")
+# A multi-section can: one part, two (or three) capacitances, written in house
+# units as "25 µF + 25 µF". Refusing it lettered the house string verbatim onto
+# a 34 px can; the era sheets wrote "25/25MFD".
+_RE_SECTION_SPLIT = re.compile(r"\s*\+\s*")
+
+
+def part_count(value: str) -> int | None:
+    """How many identical parts a house value calls for — '8 µF · 150 V (×2)'
+    -> 2 — or None when it states no count (which means one)."""
+    m = _RE_COUNT_PAREN.search(str(value))
+    return int(m.group(1)) if m else None
+
+
+def era_count(value: str) -> str | None:
+    """The era's repeat-count lettering: '8 µF · 150 V (×2)' -> "2 REQ'D"."""
+    n = part_count(value)
+    return f"{n} REQ'D" if n else None
+
+
+def _strip_count(text: str) -> str:
+    return _RE_COUNT_PAREN.sub("", str(text)).strip()
+
+
+def _parse_sections(tok: str) -> tuple[Decimal, ...] | None:
+    """('25 µF + 25 µF') -> (25e-6, 25e-6); None when it is not a section vector.
+
+    Every section must carry its own unit in house units — this reads bom.yaml,
+    whose grammar gate (test_era_values.grammar_errors) already requires that —
+    so nothing here has to guess which half an omitted unit belonged to."""
+    parts = [p.strip() for p in _RE_SECTION_SPLIT.split(str(tok).strip()) if p.strip()]
+    if len(parts) < 2:
+        return None
+    out = []
+    for p in parts:
+        q = _parse_farads(p)
+        if q is None:
+            return None
+        out.append(q)
+    return tuple(out)
+
+
+def body_value(value: str) -> str:
+    """The house-units value as it is LETTERED ON A PART, gloss removed.
+
+    A parenthetical in a BOM value is an aside for a reader with a page in front
+    of them — a modern-substitute note ('selenium (silicon diode in modern
+    builds)'), a restatement in the other unit ('0.0005 µF (500 pF)'), a
+    provenance note ('≈4.1 kΩ : 8 Ω (est. for 2×6L6GB into one 15-in speaker)').
+    None of it fits on a component body, and lettered there it pushed the value
+    off the part and, on two boards, off the page. The drawing letters the value;
+    bom.yaml and the amp page keep the whole sentence."""
+    s = _RE_TRAILING_PAREN.sub("", str(value).strip()).strip()
+    return s or str(value).strip()
+
+
+# A choke's or transformer's parts-list value is whatever the drawing printed:
+# a factory part number, an impedance ratio, an inductance — or, where the corpus
+# had to measure rather than read, a DC resistance marked as an estimate. The
+# first three IDENTIFY or RATE the part and belong on the drawing beside it. A
+# DCR estimate does neither: it is a measurement note, it is the one field a
+# builder must not mistake for a winding spec, and lettered under a 40 px choke
+# glyph on the 5E5-A it ran off the left edge of the page. It goes to a footnote.
+_RE_DCR = re.compile(r"^[≈~]?\s*[\d.,]+\s*(?:k|M)?\s*(?:Ω|ohms?)\s*DCR\b", re.I)
+
+
+def iron_value(value: str, extra: str | None = None) -> tuple[str | None, str | None]:
+    """A transformer's or choke's label -> (drawn beside the glyph, footnote).
+
+    `extra` is the amp's meta.yaml `iron:` entry for this designator — the
+    electrical rating for a part whose parts-list value is a bare factory number
+    ("Fender 45216"). A drawing that names only a part number tells a builder
+    nothing about what to wind or buy, so where the corpus HAS read the rating it
+    is lettered with the number. Where it has not, nothing is invented: the
+    number stands alone and the gap is visible."""
+    raw = str(value).strip()
+    if not raw:
+        return (None, None)
+    rating = str(extra).strip() if extra and str(extra).strip() else None
+    ident = body_value(raw.split("·")[0].strip())
+    if _RE_DCR.match(ident):
+        ident = None                    # a measurement note is not an identity
+    if ident and rating:
+        ident = f"{ident} · {rating}"
+    elif rating:
+        ident = rating
+    # The footnote carries the WHOLE house claim whenever the drawing shows less
+    # than all of it, so nothing the parts list states is lost by being drawn.
+    note = None if (ident and raw in ident) else raw
+    return (ident, note)
+
+
 def era_pair(value: str, cat: str) -> tuple[str, str | None]:
     """House BOM value string -> (body lettering, second line or None).
 
@@ -2511,8 +2889,8 @@ def era_pair(value: str, cat: str) -> tuple[str, str | None]:
     that is not a plain resistance or capacitance, so this never invents or
     mangles a value it does not understand. See the block comment above."""
     toks = [t.strip() for t in str(value).split("·")]
-    house = (toks[0], toks[1] if len(toks) > 1 else None)
-    prim = _RE_TRAILING_PAREN.sub("", toks[0]).strip()   # '0.0005 µF (500 pF)'
+    house = (body_value(toks[0]), body_value(toks[1]) if len(toks) > 1 else None)
+    prim = _strip_count(_RE_TRAILING_PAREN.sub("", toks[0]).strip())  # '0.0005 µF (500 pF)'
     rest = toks[1:]
 
     # Refuse a half-parse. The era shorthand packs value and working voltage into
@@ -2536,15 +2914,23 @@ def era_pair(value: str, cat: str) -> tuple[str, str | None]:
         return letter, None
 
     farads = _parse_farads(prim)
-    if farads is not None:
-        letter = _era_farads(farads, cat)
+    sections = None if farads is not None else _parse_sections(prim)
+    if farads is not None or sections is not None:
+        if sections is not None:
+            # A twin can is ONE part with two capacitances: the era sheets
+            # lettered "25/25MFD", unit written once. Sections keep the order
+            # the parts list states them in — that order is the corpus's claim
+            # about which section does which job.
+            letter = "/".join(_era_number(s / Decimal("1E-6")) for s in sections) + "MFD"
+        else:
+            letter = _era_farads(farads, cat)
         volts = tail = None
         for t in rest:
-            mv = _RE_VOLTS.match(t)
+            mv = _RE_VOLTS.match(_strip_count(t))
             if mv and _era_decimal(mv.group(1)) is not None:
                 volts, tail = _era_number(_era_decimal(mv.group(1))), mv.group(2)
                 break
-        if cat == "electro":
+        if cat == "electro" or sections is not None:
             return letter, (f"{volts}V{tail}" if volts else None)
         if volts and not tail.strip():
             return f"{letter}-{volts}", None      # ".02-400"
@@ -2632,25 +3018,7 @@ class SheetRenderer(Renderer):
         house units string is what everything outside this style prints; see
         era_pair() for the shorthand and for what it refuses to touch."""
         rec = self.bom_for(ref)
-        v1, v2 = era_pair(rec["value"], category(rec["part"]))
-        return self._body_form(v1), v2
-
-    @staticmethod
-    def _body_form(v1):
-        """Body lettering for a value the era shorthand could not parse.
-
-        era_pair() hands descriptive values back untouched — correctly: it must
-        never invent a quantity. But a parenthetical GLOSS is not part of the
-        value, and lettering it on the body ('1N4007 (silicon diode)',
-        'selenium (silicon diode in modern builds)') overflowed every body that
-        carried one, so the value was pushed off the part and into the wiring.
-        The era sheets lettered the part designation; the gloss lives in
-        bom.yaml and on the amp page, where nothing is cramped."""
-        s = str(v1)
-        if _RE_TRAILING_PAREN.search(s) and not _RE_FARADS.match(
-                _RE_TRAILING_PAREN.sub("", s).strip()):
-            return _RE_TRAILING_PAREN.sub("", s).strip() or s
-        return s
+        return era_pair(rec["value"], category(rec["part"]))
 
     def _fits(self, s, size, avail):
         return text_width(s, size) <= avail
@@ -2674,15 +3042,15 @@ class SheetRenderer(Renderer):
 
     def _ref_label(self, cx, cy, ref):
         self.lab(cx, cy, ref, SH_INK2, 8, weight=700, spacing="0.03em",
-                 tag=f"{ref} ref", group=f"ref:{ref}", keep_in=self.canvas_box(),
-                 halo=SH_BOARD, halo_width=2.4)
+                 tag=f"{ref} ref", group=f"ref:{ref}", keep_in=self.board_box(),
+                 halo=SH_BOARD, halo_width=2.4, owner=f"{ref} body")
 
     def _below_value(self, cx, cy, ref, val):
         """Fallback for a value that will not fit inside its body: printed just
         below it, queued so the placer keeps it in air (the house behaviour)."""
         self.lab(cx, cy, val, SH_INK2, 9.5, weight=600, tag=f"{ref} value",
-                 group=f"ref:{ref}", keep_in=self.canvas_box(),
-                 halo=SH_BOARD, halo_width=2.6)
+                 group=f"ref:{ref}", keep_in=self.board_box(),
+                 halo=SH_BOARD, halo_width=2.6, owner=f"{ref} body")
 
     # ---- board part bodies --------------------------------------------------
     def part_body(self, part):
@@ -2690,6 +3058,10 @@ class SheetRenderer(Renderer):
         rec = self.bom_for(ref)
         cat = category(rec["part"])
         v1, v2 = self._val_tokens(ref)
+        # A repeat count is lettered as the era sheets lettered it — "2 REQ'D",
+        # under the part — instead of riding inside the working-voltage line,
+        # where "150V (×2)" read as a second rating on one can.
+        cnt = era_count(rec["value"])
         (r1, c1), (r2, c2) = part["a"], part["b"]
         x1, y1 = self.ex(c1), self.ey(r1)
         x2, y2 = self.ex(c2), self.ey(r2)
@@ -2706,6 +3078,12 @@ class SheetRenderer(Renderer):
         els.append(sheet_eyelet(x2, y2))
         self.obst_circle(x1, y1, 4.0, f"eyelet {ref}.a")
         self.obst_circle(x2, y2, 4.0, f"eyelet {ref}.b")
+        if cnt:
+            cy_ = max(y1, y2) + (26.0 if not vertical else 30.0)
+            self.lab((x1 + x2) / 2, cy_, cnt, SH_INK2, 8, weight=600,
+                     spacing="0.04em", tag=f"{ref} value", group=f"ref:{ref}",
+                     keep_in=self.board_box(), halo=SH_BOARD, halo_width=2.4,
+                     owner=f"{ref} body")
         return "".join(els), ""
 
     def _val_stacked(self, cx, cy, v1, avail, unit="V"):
@@ -2907,7 +3285,8 @@ class SheetRenderer(Renderer):
         label = str(item.get("label", item.get("id", "")))
         ref = item.get("ref")
         x, y = self.off_pos(item)
-        val = primary_value(self.bom_for(ref)["value"]) if ref else annotation_value(item)
+        val = (body_value(primary_value(self.bom_for(ref)["value"])) if ref
+               else body_value(annotation_value(item) or "") or None)
         sgn = self._label_side(item)
         els: list[str] = []
         if kind == "tube":
@@ -2991,6 +3370,8 @@ class SheetRenderer(Renderer):
                      halo=SH_PAPER, halo_width=2.8, tag=f"jack {item.get('id', '')}",
                      group=f"jack:{item.get('id', '')}", keep_in=self.canvas_box())
         elif kind in ("xfmr", "choke"):
+            if ref:                     # identity beside the glyph; see iron_value()
+                val = iron_value(self.bom_for(ref)["value"], self.iron.get(ref))[0]
             w, h = (46, 56) if kind == "xfmr" else (40, 34)
             els.append(f'<rect x="{fmt(x - w / 2)}" y="{fmt(y - h / 2)}" width="{w}" '
                        f'height="{h}" rx="2" fill="{SH_PAPER}" stroke="{SH_INK}" '
@@ -3299,21 +3680,12 @@ class SheetRenderer(Renderer):
         title = title.upper()
         ts = self.cz(18)
         ty = 20 + ts
-        els.append(text(bx, ty, title, SH_INK, ts, anchor="start", weight=700,
-                        spacing="0.14em"))
+        self.chrome_text(els, bx, ty, title, SH_INK, ts, font=FONT_DISP,
+                         weight=700, spacing="0.14em", tag="chrome title")
         els.append(f'<line x1="{fmt(bx)}" y1="{fmt(ty + 7.5)}" '
                    f'x2="{fmt(bx + 0.88 * text_width(title, ts, spacing="0.14em"))}" '
                    f'y2="{fmt(ty + 7.5)}" stroke="{SH_INK}" stroke-width="{fmt(1.2 * self.cs)}"/>')
-        src = self.layout.get("source", {}) or {}
-        if src.get("desc"):
-            attrib = f"Redrawn from {src['desc']} — not a trace"
-        else:
-            attrib = self.layout.get("caption") or ""
-        if attrib:
-            _w, _n, arow = self._footer_rows()
-            els.append(text(bx, self._footer_y(arow), attrib, SH_FAINT, self.cz(10.5),
-                            anchor="start", font=FONT_MONO, weight=500))
-        self._legend(els)
+        self._draw_footer(els)
         body = "\n".join(els)
         svg = (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {fmt(self.width)} '
                f'{fmt(self.height)}" role="img" aria-label="{esc(title)} — redrawn board '
@@ -3325,116 +3697,70 @@ class SheetRenderer(Renderer):
             raise ValueError(f"{self.amp_id}: layout errors: {self.errors}")
         return svg
 
-    def _legend(self, els):
-        s = self.cs
-        fs = self.cz(10.5)
-        wrow, nrow, _arow = self._footer_rows()
-        y = self._footer_y(wrow)
-        x = self.board_x
+    # ---- legend entries: the sheet's own paint ------------------------------
+    FOOT_FAINT = SH_FAINT
+    FOOT_MUTED = SH_INK2
+    LEADER_INK = SH_INK2
 
-        def adv(txt, size=None):
-            return text_width(txt, size or fs, FONT_MONO)
+    def _wiring_entries(self, fs):
+        out = [self._entry("lead (uncoloured)", 24.0,
+                           lambda cx, y, s: self._rule(cx, y, s, SH_NEUTRAL, 2.0), fs)]
+        for key in self._colours_used:
+            col = SHEET_WIRE.get(key, SH_NEUTRAL)
+            out.append(self._entry(
+                self.wire_legend.get(key, key), 24.0,
+                lambda cx, y, s, c=col: self._rule(cx, y, s, c, 2.0), fs))
+        if self.bus:
+            out.append(self._entry(
+                "ground bus", 24.0,
+                lambda cx, y, s: (self._rule(cx, y, s, SH_INK, 4.0)
+                                  + self._rule(cx + 1 * s, y, s, SH_BUS_CORE, 1.8, 16.0)),
+                fs))
+        if self._has_twisted:
+            out.append(self._entry(
+                "6.3 V heaters — twisted pair", 26.0,
+                lambda cx, y, s: self._twist_swatch(cx, y, s, SH_HEATER), fs))
+        return out
 
-        if self.runs or self.bus:
-            cx = x
-            els.append(text(cx, y, "Wiring:", SH_FAINT, fs, anchor="start",
-                            font=FONT_MONO, weight=500))
-            cx += 58 * s
-            els.append(f'<line x1="{fmt(cx)}" y1="{fmt(y - 3*s)}" x2="{fmt(cx + 18*s)}" '
-                       f'y2="{fmt(y - 3*s)}" stroke="{SH_NEUTRAL}" '
-                       f'stroke-width="{fmt(2.0*s)}" stroke-linecap="round"/>')
-            els.append(text(cx + 24 * s, y, "lead (uncoloured)", SH_INK2, fs, anchor="start",
-                            font=FONT_MONO, weight=500))
-            cx += 24 * s + adv("lead (uncoloured)") + 16 * s
-            for key in self._colours_used:
-                col = SHEET_WIRE.get(key, SH_NEUTRAL)
-                entry = self.wire_legend.get(key, key)
-                els.append(f'<line x1="{fmt(cx)}" y1="{fmt(y - 3*s)}" x2="{fmt(cx + 18*s)}" '
-                           f'y2="{fmt(y - 3*s)}" stroke="{col}" stroke-width="{fmt(2.0*s)}" '
-                           f'stroke-linecap="round"/>')
-                els.append(text(cx + 24 * s, y, entry, SH_INK2, fs, anchor="start",
-                                font=FONT_MONO, weight=500))
-                cx += 24 * s + adv(entry) + 16 * s
-            if self.bus:
-                els.append(f'<line x1="{fmt(cx)}" y1="{fmt(y - 3*s)}" x2="{fmt(cx + 18*s)}" '
-                           f'y2="{fmt(y - 3*s)}" stroke="{SH_INK}" stroke-width="{fmt(4.0*s)}" '
-                           f'stroke-linecap="round"/>')
-                els.append(f'<line x1="{fmt(cx + 1*s)}" y1="{fmt(y - 3*s)}" '
-                           f'x2="{fmt(cx + 17*s)}" y2="{fmt(y - 3*s)}" '
-                           f'stroke="{SH_BUS_CORE}" stroke-width="{fmt(1.8*s)}" '
-                           f'stroke-linecap="round"/>')
-                els.append(text(cx + 24 * s, y, "ground bus", SH_INK2, fs, anchor="start",
-                                font=FONT_MONO, weight=500))
-                cx += 24 * s + adv("ground bus") + 16 * s
-            if self._has_twisted:
-                d1, d2 = twisted_strands([(cx, y - 3 * s), (cx + 20 * s, y - 3 * s)],
-                                         amp=2.6 * s, wavelen=8.0 * s)
-                els.append(f'<path d="{d1}" fill="none" stroke="{SH_HEATER}" '
-                           f'stroke-width="{fmt(1.4*s)}" stroke-linecap="round"/>')
-                els.append(f'<path d="{d2}" fill="none" stroke="{SH_HEATER}" '
-                           f'stroke-width="{fmt(1.4*s)}" stroke-linecap="round"/>')
-                els.append(text(cx + 26 * s, y, "6.3 V heaters — twisted pair", SH_INK2,
-                                fs, anchor="start", font=FONT_MONO, weight=500))
-                els.append(text(x, self._footer_y(nrow),
-                                "Note: the 6.3 V heater twisted pair always "
-                                "routes on the top layer and never joins another run — "
-                                "its crossings are not hop-overs.", SH_FAINT, self.cz(9.5),
-                                anchor="start", font=FONT_MONO, weight=500))
-            jy = self._footer_y(1)
-            els.append(text(x, jy, "Joints:", SH_FAINT, fs, anchor="start",
-                            font=FONT_MONO, weight=500))
-            jx = x + 58 * s
-            els.append(sheet_solder(jx + 4 * s, jy - 3 * s))
-            els.append(text(jx + 13 * s, jy, "wire end (solder joint)", SH_INK2, fs,
-                            anchor="start", font=FONT_MONO, weight=500))
-            jx += 13 * s + adv("wire end (solder joint)") + 20 * s
-            hd = hopped_path([(jx, jy - 3 * s), (jx + 34 * s, jy - 3 * s)],
-                             {0: [(17.0 * s, HOP_R * s)]}, r=11 * s)
-            els.append(f'<path d="{hd}" fill="none" stroke="{SH_NEUTRAL}" '
-                       f'stroke-width="{fmt(2.0*s)}" stroke-linecap="round" '
-                       f'stroke-linejoin="round"/>')
-            els.append(text(jx + 40 * s, jy, "cross-over (no connect)", SH_INK2, fs,
-                            anchor="start", font=FONT_MONO, weight=500))
-        # bodies legend: the sheet's outline glyphs, miniature. Every body form
-        # the drawing can emit is keyed here — a shape a builder cannot look up
-        # is a shape that says nothing.
-        y = self._footer_y(0)
-        els.append(text(x, y, "Bodies:", SH_FAINT, fs, anchor="start",
-                        font=FONT_MONO, weight=500))
-        cx = x + 58 * s
-        els.append(f'<path d="{dogbone_path(cx + 9*s, y - 3.5*s, 18*s, r_end=4.4*s, waist=2.9*s)}" '
-                   f'fill="{SH_BODY}" stroke="{SH_INK}" stroke-width="1.0"/>')
-        els.append(text(cx + 23 * s, y, "resistor", SH_INK2, fs, anchor="start",
-                        font=FONT_MONO, weight=500))
-        cx += 30 * s + adv("resistor")
-        els.append(f'<rect x="{fmt(cx)}" y="{fmt(y - 9*s)}" width="{fmt(14*s)}" '
-                   f'height="{fmt(10*s)}" rx="1" '
-                   f'fill="{SH_BODY}" stroke="{SH_INK}" stroke-width="1.0"/>')
-        els.append(text(cx + 19 * s, y, "film / coupling cap", SH_INK2, fs, anchor="start",
-                        font=FONT_MONO, weight=500))
-        cx += 26 * s + adv("film / coupling cap")
-        els.append(f'<rect x="{fmt(cx)}" y="{fmt(y - 10*s)}" width="{fmt(12*s)}" '
-                   f'height="{fmt(11*s)}" rx="1.5" '
-                   f'fill="{SH_BODY}" stroke="{SH_INK}" stroke-width="1.0"/>')
-        els.append(f'<line x1="{fmt(cx)}" y1="{fmt(y - 7.5*s)}" x2="{fmt(cx + 12*s)}" '
-                   f'y2="{fmt(y - 7.5*s)}" stroke="{SH_INK}" stroke-width="0.7"/>')
-        els.append(text(cx + 17 * s, y, "electrolytic (+ = positive end)", SH_INK2, fs,
-                        anchor="start", font=FONT_MONO, weight=500))
-        cx += 24 * s + adv("electrolytic (+ = positive end)")
-        els.append(f'<rect x="{fmt(cx)}" y="{fmt(y - 8*s)}" width="{fmt(14*s)}" '
-                   f'height="{fmt(8*s)}" rx="1" '
-                   f'fill="{SH_BODY}" stroke="{SH_INK}" stroke-width="1.0"/>')
-        els.append(text(cx + 19 * s, y, "mica", SH_INK2, fs, anchor="start",
-                        font=FONT_MONO, weight=500))
+    def _joints_entries(self, fs):
+        return [
+            self._entry("wire end (solder joint)", 13.0,
+                        lambda cx, y, s: sheet_solder(cx + 4 * s, y - 3 * s), fs),
+            self._entry("cross-over (no connect)", 40.0,
+                        lambda cx, y, s: self._hop_swatch(cx, y, s, SH_NEUTRAL), fs),
+        ]
+
+    def _bodies_entries(self, fs):
+        """The sheet's outline glyphs, miniature. Every body form the drawing
+        can emit is keyed here — a shape a builder cannot look up says nothing."""
+        def dogbone(cx, y, s):
+            return (f'<path d="{dogbone_path(cx + 9*s, y - 3.5*s, 18*s, r_end=4.4*s, waist=2.9*s)}" '
+                    f'fill="{SH_BODY}" stroke="{SH_INK}" stroke-width="1.0"/>')
+
+        def box(w, h, top, rx=1.0, crimp=False, band=False):
+            def draw(cx, y, s):
+                out = (f'<rect x="{fmt(cx)}" y="{fmt(y - top*s)}" width="{fmt(w*s)}" '
+                       f'height="{fmt(h*s)}" rx="{fmt(rx*s)}" fill="{SH_BODY}" '
+                       f'stroke="{SH_INK}" stroke-width="1.0"/>')
+                if crimp:
+                    out += (f'<line x1="{fmt(cx)}" y1="{fmt(y - (top-2.5)*s)}" '
+                            f'x2="{fmt(cx + w*s)}" y2="{fmt(y - (top-2.5)*s)}" '
+                            f'stroke="{SH_INK}" stroke-width="0.7"/>')
+                if band:
+                    out += (f'<rect x="{fmt(cx + (w-4)*s)}" y="{fmt(y - (top-0.5)*s)}" '
+                            f'width="{fmt(3*s)}" height="{fmt((h-1)*s)}" fill="{SH_INK}"/>')
+                return out
+            return draw
+
+        out = [self._entry("resistor", 23.0, dogbone, fs),
+               self._entry("film / coupling cap", 19.0, box(14, 10, 9), fs),
+               self._entry("electrolytic (+ = positive end)", 17.0,
+                           box(12, 11, 10, rx=1.5, crimp=True), fs),
+               self._entry("mica", 19.0, box(14, 8, 8), fs)]
         if self._has_diode:
-            cx += 26 * s + adv("mica")
-            els.append(f'<rect x="{fmt(cx)}" y="{fmt(y - 8.5*s)}" width="{fmt(16*s)}" '
-                       f'height="{fmt(9*s)}" rx="1" '
-                       f'fill="{SH_BODY}" stroke="{SH_INK}" stroke-width="1.0"/>')
-            els.append(f'<rect x="{fmt(cx + 12*s)}" y="{fmt(y - 8*s)}" width="{fmt(3*s)}" '
-                       f'height="{fmt(8*s)}" fill="{SH_INK}"/>')
-            els.append(text(cx + 21 * s, y, "diode / rectifier (band = cathode)", SH_INK2,
-                            fs, anchor="start", font=FONT_MONO, weight=500))
+            out.append(self._entry("diode / rectifier (band = cathode)", 21.0,
+                                   box(16, 9, 8.5, band=True), fs))
+        return out
 
 
 def render_layout(amp_dir: Path, style: str = "house") -> str:
@@ -3707,9 +4033,14 @@ def _lint_labels(rend: "Renderer", runs, bus, amp_id: str,
                     f"{amp_id}: labels collide — '{la['text']}' ({la['tag']}) and "
                     f"'{lbb['text']}' ({lbb['tag']}) overlap {w:.1f}x{h:.1f}px at "
                     f"({(ba[0]+ba[2])/2:.0f},{(ba[1]+ba[3])/2:.0f})")
-    # (h) ink outside the page. Every glyph and every label must sit inside the
-    # viewBox the drawing publishes; ink beyond it is simply not in the picture.
-    for kind, items in (("glyph", rend.obstacles), ("label", labels)):
+    # (h) ink outside the page. Every glyph, every label and every piece of page
+    # chrome must sit inside the viewBox the drawing publishes; ink beyond it is
+    # simply not in the picture, and no viewport downstream can recover it. The
+    # chrome arm was added 2026-08-08: the 5E4-A's provenance line ran 1515 px
+    # past its own right edge and two thirds of the sentence naming the source
+    # was invisible in every render, on the site and in print.
+    for kind, items in (("glyph", rend.obstacles), ("label", labels),
+                        ("chrome", rend.chrome)):
         for it in items:
             bx = it["box"]
             out_x = max(-bx[0], bx[2] - rend.width)
@@ -3743,6 +4074,21 @@ def _box_gap(a, b) -> float:
     dx = max(a[0] - b[2], b[0] - a[2], 0.0)
     dy = max(a[1] - b[3], b[1] - a[3], 0.0)
     return math.hypot(dx, dy)
+
+
+def _box_link(a, b):
+    """The shortest segment joining two axis-aligned boxes, as ((x1,y1),(x2,y2)).
+    Used to draw a leader from a displaced label back to the part it names."""
+    def axis(a0, a1, b0, b1):
+        if a1 < b0:
+            return a1, b0
+        if b1 < a0:
+            return a0, b1
+        mid = (max(a0, b0) + min(a1, b1)) / 2
+        return mid, mid
+    x1, x2 = axis(a[0], a[2], b[0], b[2])
+    y1, y2 = axis(a[1], a[3], b[1], b[3])
+    return (x1, y1), (x2, y2)
 
 
 def render_all(write: bool = True, style: str = "house",

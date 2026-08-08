@@ -15,6 +15,8 @@ topology:
 lineage:
   derived_from: ["jtm45"]   # the 45-watt head with the output section doubled: 2xKT66 + GZ34 -> 4xKT66 + silicon
   influenced: ["m1959"]     # the cataloged Super Lead that replaced the KT66 quartet with EL34s
+conventions:
+  designators: functional   # designators carry a role code (RD1 dropper, RL4 plate load, CK1 cathode bypass)
 sources:
   - desc: >-
       Marshall factory drawing, title block "BASIC SCHEMATIC FOR MARSHALL 100 WATT

@@ -15,6 +15,8 @@ topology:
 lineage:
   derived_from: []   # 5C3 is the direct ancestor — edge added when amps/5c3 lands
   influenced: ["5e3"]   # the narrow-panel 5E3 replaces this circuit's paraphase with a cathodyne
+conventions:
+  designators: functional   # designators carry a role code (RD1 dropper, RL4 plate load, CK1 cathode bypass)
 sources:
   - desc: "Fender 'Deluxe' Model 5D3 drawing, schematic + layout sheets: every component value read directly from the published drawing (2026-08-02) — three input jacks (channel 1 a bare 1 MΩ leak, channel 2 two jacks each through a 68 kΩ stopper onto its own 1 MΩ leak), V1 12AY7 with 100 kΩ plate loads on a shared 820 Ω / 25 µF cathode, two 1 MΩ volume pots and the 1 MΩ tone control with its 0.005 µF and 500 pF caps, V2 12AX7 with 100 kΩ plate loads and separate 1.5 kΩ cathodes (V2A bypassed by 25 µF, V2B not), the self-balancing paraphase network (220 kΩ / 270 kΩ grid leaks meeting at V2B's grid and returning to ground through 56 kΩ) with 100 pF across the inverter plates, 0.05 µF / 600 V couplers throughout, a 6V6GT pair on a shared 250 Ω 5 W / 25 µF cathode with no grid stoppers, and a 5Y3GT into three 16 µF / 450 V filter nodes split by two 10 kΩ droppers. No negative-feedback loop. The drawing prints no voltage chart, only Fender's ±20 % measurement notice. Not reproduced here; archived at EL34World"
     url: "https://el34world.com/charts/Schematics/files/Fender/Fender_deluxe_5d3.pdf"

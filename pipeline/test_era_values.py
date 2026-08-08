@@ -32,8 +32,11 @@ import yaml
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
+from check_value_consistency import load_sch_values      # noqa: E402
+
 from render_layouts import (          # noqa: E402
-    _parse_farads, _parse_ohms, category, era_pair, primary_value,
+    _era_number, _parse_farads, _parse_ohms, body_value, category, era_count,
+    era_pair, iron_value, part_count, primary_value,
 )
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -83,11 +86,24 @@ CASES = [
     ("16 µF · 450 V", "electro", ("16MFD", "450V")),
     ("8 µF · 150 V", "electro", ("8MFD", "150V")),
     ("250 µF · 6 V", "electro", ("250MFD", "6V")),
-    # a multi-section can keeps the section count the house string carries
-    ("16 µF · 450 V (×2)", "electro", ("16MFD", "450V (×2)")),
+    # a REPEAT COUNT is not a rating: it comes off the working-voltage line and
+    # is lettered separately (era_count), so no can claims two voltages
+    ("16 µF · 450 V (×2)", "electro", ("16MFD", "450V")),
+    ("8 µF · 150 V (×2)", "electro", ("8MFD", "150V")),
+    # --- multi-section cans: one part, two capacitances ---------------------
+    ("25 µF + 25 µF", "electro", ("25/25MFD", None)),
+    ("25 µF + 25 µF · 25 V", "electro", ("25/25MFD", "25V")),
+    ("50 µF + 50 µF · 450 V", "electro", ("50/50MFD", "450V")),
+    ("25 µF + 50 µF · 450 V", "electro", ("25/50MFD", "450V")),
     # --- refusals: house tokens come back untouched -------------------------
     ("selenium · silicon diode in modern builds",
      "other", ("selenium", "silicon diode in modern builds")),
+    # a parenthetical GLOSS is not part of the value and is never lettered on a
+    # body — it is a sentence, and on a 30 px part it ran off the page
+    ("selenium (silicon diode in modern builds)", "diode", ("selenium", None)),
+    # an "(est.)" marker on a RATING is not a gloss to discard — it is the
+    # archive saying the figure is inferred, and rule 5 publishes that
+    ("25 µF · 25 V (est.)", "electro", ("25MFD", "25V (est.)")),
     ("presence/NFB network", "res", ("presence/NFB network", None)),
     ("Fender 125P1B · 320-0-320 V · 6.3 V · 5 V",
      "xfmr", ("Fender 125P1B", "320-0-320 V")),
@@ -243,6 +259,181 @@ GRAMMAR_CASES = [
 ]
 
 
+# ===========================================================================
+# ONE CONVENTION PER SURFACE
+# ===========================================================================
+# The same part states its value on four surfaces, and until 2026-08-08 each
+# surface had drifted into several conventions at once. One capacitor rendered
+# "5n" on the schematic, "0.005 µF · 600 V" in the parts list and "0.005 µF" on
+# the board (5E3 C6, 5D3 C6). One dropper printed "4,700 Ω" beside neighbours
+# printing "15 kΩ" (5F6-A RD1). Three surfaces, three notations, one part — and
+# a reader with no way to tell whether the difference means anything.
+#
+# check_value_consistency.py already proves the surfaces name the same
+# QUANTITY. This proves they name it in the same WAY, which is the half a
+# quantity check cannot see: "4,700 Ω" and "4.7 kΩ" agree perfectly and still
+# make a parts list read as if two people wrote it.
+#
+#   bom.yaml / prose / the house drawing
+#       House units, engineering prefix chosen so the mantissa reads 1…999:
+#       470 Ω, 4.7 kΩ, 1 MΩ. Capacitance in pF below 1000 pF and in µF at and
+#       above it: 250 pF, 0.001 µF, 0.02 µF. Never comma-grouped thousands
+#       ("4,700 Ω"), never a unit that forces a leading run of zeros
+#       ("0.0005 µF"). Secondary ratings follow in '·' fields.
+#
+#   schematic.kicad_sch symbol Value
+#       Drafting shorthand, in the idiom of the tradition the drawing belongs
+#       to (meta.yaml `conventions.notation`, default "us"):
+#         us — the unit letter is the SI prefix of the house unit, so the
+#              schematic and the parts list name the same decade: 0.005 µF is
+#              ".005u", never "5n"; 500 pF is "500p", never ".0005u"; 1.5 kΩ is
+#              "1.5k", never "1500".
+#         uk — British drafting practice, which this corpus's Marshall, Hiwatt
+#              and Vox entries are drawn in: RKM/IEC 60062 infix for resistors
+#              ("2k2", "1M8", "470R") and nanofarads for film caps ("47n",
+#              "1n0"). It is a real convention with its own consistency, not a
+#              drift, so it is DECLARED per amp rather than normalised away.
+#       Secondary ratings are separate space-separated fields carrying their
+#       own unit letter — "470 5W", "20u 600V" — never the era's dashed
+#       shorthand ("100u-25") and never the house middot ("20u·600V"). The dash
+#       form belongs to the sheet lettering and nowhere else; left on a
+#       schematic it reads as one number and means two.
+#
+#   the era layout-sheet render
+#       era_pair(), documented at the top of this file and on
+#       /reference/guides/units-conventions/.
+#
+# Everything below gates those rules against the real corpus.
+_SI = {"Ω": "", "kΩ": "k", "MΩ": "M", "pF": "p", "nF": "n", "µF": "u", "μF": "u"}
+_RE_HOUSE_QTY = re.compile(r"^([\d.,]+)\s*(Ω|kΩ|MΩ|pF|nF|µF|μF)$")
+# Drafting shorthand for a single quantity: a number, an optional unit letter.
+_RE_SCH_HEAD = re.compile(r"^[.\d][\d.,]*([a-zA-ZΩµ]*)$")
+_RE_RKM = re.compile(r"^\d+[kMRunp]\d+$")
+# Forms that state more than one part or more than one section, and are read
+# elsewhere (check_value_consistency) rather than here.
+_RE_SCH_MULTI = re.compile(r"[+/]|^\d+\s*[x×]", re.I)
+_RES_SUFFIX = {"": "", "R": "", "k": "k", "K": "k", "M": "M", "MEG": "M", "meg": "M"}
+NOTATIONS = ("us", "uk")
+
+
+def house_form(cat: str, value: str) -> str | None:
+    """The canonical house string for a value, or None when it already is one
+    (or is not a quantity at all)."""
+    if cat not in QUANTITY_CATS:
+        return None
+    head = _RE_PAREN.sub("", str(value)).strip().split("·")[0].strip()
+    if "+" in head:                     # a twin can: each section is banded
+        parts = [h.strip() for h in head.split("+")]
+        want = [house_form(cat, h) or h for h in parts]
+        return " + ".join(want) if want != parts else None
+    m = _RE_HOUSE_QTY.match(head)
+    if not m:
+        return None
+    if cat == "res":
+        q = _parse_ohms(head)
+        if q is None:
+            return None
+        if q >= 1000000:
+            want = f"{_era_number(q / Decimal(1000000))} MΩ"
+        elif q >= 1000:
+            want = f"{_era_number(q / Decimal(1000))} kΩ"
+        else:
+            want = f"{_era_number(q)} Ω"
+    else:
+        q = _parse_farads(head)
+        if q is None:
+            return None
+        want = (f"{_era_number(q / Decimal('1E-12'))} pF" if q < Decimal("1E-9")
+                else f"{_era_number(q / Decimal('1E-6'))} µF")
+    return None if want == head else want
+
+
+def sch_form_errors(house: str, sch: str, cat: str, notation: str) -> list[str]:
+    """Does a schematic Value follow this amp's drafting idiom? [] when it does.
+
+    Only values whose parts-list form is a plain quantity are checked — a
+    transformer's ratio, a pot's taper and a diode's material are designations
+    and are compared by check_value_consistency, not here."""
+    hm = _RE_HOUSE_QTY.match(_RE_PAREN.sub("", str(house)).strip().split("·")[0].strip())
+    if not hm:
+        return []
+    want = _SI[hm.group(2)]
+    raw = str(sch).strip()
+    if not raw or _RE_SCH_MULTI.search(raw.split()[0]):
+        return []                       # multi-section / repeat count: read elsewhere
+    if "·" in raw:
+        return [f"{raw!r}: a schematic states secondary ratings as separate "
+                f"space-separated fields ('470 5W', '20u 600V'); '·' is the "
+                f"house-units separator and belongs in bom.yaml"]
+    head = raw.split()[0]
+    if _RE_RKM.match(head):
+        if notation == "uk":
+            return []
+        return [f"{raw!r}: RKM infix notation ('2k2') is the British drafting "
+                f"idiom; this amp is drawn in the 'us' idiom, so write '2.2k' "
+                f"— or declare conventions.notation: uk in meta.yaml"]
+    if re.match(r"^[.\d][\d.,]*[a-zA-Zµ]*-\d", head):
+        return [f"{raw!r}: the dashed value-voltage shorthand belongs to the era "
+                f"SHEET lettering, which render_layouts.era_pair() generates; on "
+                f"a schematic it reads as one number and means two"]
+    m = _RE_SCH_HEAD.match(head)
+    if not m:
+        return []                       # not a bare quantity; nothing to compare
+    got = m.group(1)
+    if cat == "res":
+        got = _RES_SUFFIX.get(got, got)
+    else:
+        got = got.rstrip("Ff")
+        if notation == "uk" and got in ("n", "p", "u"):
+            return []                   # nF is idiomatic British for film caps
+    if got != want:
+        return [f"{raw!r}: the parts list states {house!r}, so the schematic "
+                f"names the same decade as {want or 'a bare number'!r} — "
+                f"got {got!r}"]
+    return []
+
+
+def notation_of(amp_dir: Path) -> str:
+    meta = yaml.safe_load((amp_dir / "meta.yaml").read_text()) or {}
+    n = str(((meta.get("conventions") or {}).get("notation") or "us")).lower()
+    return n if n in NOTATIONS else "us"
+
+
+# Worked examples for the two surface conventions, as (house, schematic,
+# category, notation, should_pass).
+SURFACE_CASES = [
+    ("0.005 µF", ".005u", "film", "us", True),
+    ("0.005 µF", "5n", "film", "us", False),        # 5E3 C6 / 5D3 C6, as shipped
+    ("0.005 µF", "5n", "film", "uk", True),         # …and idiomatic on a Hiwatt
+    ("500 pF", "500p", "mica", "us", True),
+    ("500 pF", ".0005u", "mica", "us", False),      # 5F10 C3, as shipped
+    ("1.5 kΩ", "1.5k", "res", "us", True),
+    ("1.5 kΩ", "1500", "res", "us", False),         # 5F6 RGS1/RGS2, as shipped
+    ("2.2 kΩ", "2k2", "res", "uk", True),           # DR103 / 2204 house idiom
+    ("2.2 kΩ", "2k2", "res", "us", False),
+    ("20 µF", "20u 600V", "electro", "us", True),
+    ("20 µF", "20u·600V", "electro", "us", False),  # 6G6-B C10/C11, as shipped
+    ("100 µF", "100u-25", "electro", "us", False),  # 5E6-A C14, as shipped
+    ("50 µF", "2x50u", "electro", "us", True),      # a repeat count, read elsewhere
+    ("25 µF + 25 µF", "25u+25u", "electro", "us", True),
+]
+
+HOUSE_CASES = [
+    ("4.7 kΩ", "res", True),
+    ("4,700 Ω", "res", False),          # 5F6-A RD1, as shipped
+    ("3,300 Ω", "res", False),          # 5E6-A RB1, as shipped
+    ("1000 Ω", "res", False),           # 6G2 RD1, as shipped
+    ("470 Ω", "res", True),
+    ("1 MΩ", "res", True),
+    ("250 pF", "mica", True),
+    ("0.0005 µF", "mica", False),       # 6G2 C3, as shipped
+    ("2500 pF", "mica", False),         # 6G5 CFB1, as shipped
+    ("0.001 µF", "film", True),
+    ("0.02 µF", "film", True),
+    ("25 µF + 25 µF", "electro", True),
+]
+
+
 def check(label: str, got, want) -> list[str]:
     if got == want:
         print(f"  ok   {label:38s} -> {got!r}")
@@ -256,6 +447,17 @@ def round_trips(value: str, cat: str, lettered: str) -> bool:
     # '0.0005 µF (500 pF)' — the parenthetical restates the same value in the
     # other unit, so it is dropped before the quantity is read off.
     prim = re.sub(r"\s*\([^()]*\)\s*$", "", primary_value(value)).strip()
+    prim = re.sub(r"\(\s*[x×]\s*\d+\s*\)", "", prim).strip()
+    # A twin can round-trips SECTION BY SECTION: "25 µF + 25 µF" -> "25/25MFD"
+    # states two capacitances and the check has to read both, or a can lettered
+    # 25/50 would pass against a parts list saying 25 + 25.
+    if "+" in prim:
+        want = [_parse_farads(t.strip()) for t in prim.split("+")]
+        m = re.fullmatch(r"([\d./]+)MFD", lettered)
+        if not m or any(w is None for w in want):
+            return False
+        got = [Decimal(t) * Decimal("1E-6") for t in m.group(1).split("/")]
+        return got == want
     ohms, farads = _parse_ohms(prim), _parse_farads(prim)
     body = lettered.split("-")[0] if "-" in lettered else lettered
     if ohms is not None:
@@ -305,8 +507,8 @@ def main() -> int:
                 failures.append(f"{bom.parent.name}:{item.get('ref')} grammar")
                 print(f"  FAIL {bom.parent.name} {item.get('ref')}: {msg}")
             body, _second = era_pair(value, cat)
-            if body == primary_value(value):
-                n_house += 1                      # refused: house token, verbatim
+            if body == body_value(primary_value(value)):
+                n_house += 1                      # refused: house token, gloss off
                 continue
             n_letter += 1
             if not round_trips(value, cat, body):
@@ -315,6 +517,72 @@ def main() -> int:
                       f"{value!r} -> {body!r} is not the same quantity")
     print(f"  {n_letter} value(s) lettered and round-tripped, "
           f"{n_house} left in house units")
+
+    # --- one convention per surface -----------------------------------------
+    print("\nsurface conventions — documented cases:")
+    for house, sch, cat, notation, want_ok in SURFACE_CASES:
+        got = sch_form_errors(house, sch, cat, notation)
+        if (not got) == want_ok:
+            print(f"  ok   {house!r:16s} vs {sch!r:12s} [{cat}/{notation}] "
+                  f"{'accepted' if not got else 'rejected'}")
+        else:
+            print(f"  FAIL {house!r:16s} vs {sch!r:12s} [{cat}/{notation}] "
+                  f"expected {'accept' if want_ok else 'reject'}, got {got}")
+            failures.append(f"surface {house!r} vs {sch!r}")
+    for value, cat, want_ok in HOUSE_CASES:
+        got = house_form(cat, value)
+        if (got is None) == want_ok:
+            print(f"  ok   house {value!r:16s} [{cat}] "
+                  f"{'canonical' if want_ok else f'-> {got!r}'}")
+        else:
+            print(f"  FAIL house {value!r:16s} [{cat}] expected "
+                  f"{'canonical' if want_ok else 'rewrite'}, got {got!r}")
+            failures.append(f"house {value!r}")
+
+    print("\nsurface conventions — corpus sweep:")
+    n_house_ok = n_sch_ok = 0
+    for amp in sorted(d for d in (ROOT / "amps").iterdir()
+                      if d.is_dir() and not d.name.startswith("_")):
+        bom_path = amp / "bom.yaml"
+        if not bom_path.exists():
+            continue
+        notation = notation_of(amp)
+        bom = {}
+        for it in (yaml.safe_load(bom_path.read_text()) or {}).get("items", []):
+            ref = it.get("ref")
+            if ref and ref != "—":
+                bom[ref] = it
+            value, cat = str(it.get("value", "")), category(it.get("part", ""))
+            want = house_form(cat, value)
+            if want:
+                failures.append(f"{amp.name}:{ref} house units")
+                print(f"  FAIL {amp.name} {ref}: parts-list value {value!r} is not "
+                      f"house units — write {want!r} (mantissa 1…999, no comma "
+                      f"grouping, pF below 1000 pF and µF at and above it)")
+            else:
+                n_house_ok += 1
+        sch = amp / "schematic.kicad_sch"
+        if not sch.exists():
+            continue
+        exact, base = load_sch_values(sch)
+        for ref, vals in sorted(exact.items()):
+            stem = ref[:-1] if (len(ref) > 1 and ref[-1].isalpha()
+                                and ref[-2].isdigit()) else ref
+            rec = bom.get(ref) or bom.get(stem)
+            if not rec:
+                continue
+            cat = category(rec.get("part", ""))
+            if cat not in QUANTITY_CATS:
+                continue
+            house = str(rec.get("value", ""))
+            for v in vals:
+                for msg in sch_form_errors(house, v, cat, notation):
+                    failures.append(f"{amp.name}:{ref} schematic notation")
+                    print(f"  FAIL {amp.name} {ref} [{notation}]: {msg}")
+                else:
+                    n_sch_ok += 1
+    print(f"  {n_house_ok} parts-list value(s) in house units, "
+          f"{n_sch_ok} schematic value(s) in their amp's drafting idiom")
 
     if failures:
         print(f"\n{len(failures)} era-lettering check(s) FAILED: "

@@ -31,7 +31,12 @@ Pull requests that break these are closed regardless of quality:
    current schematic is made).
 3. Write `netlist.cir` referencing models in `models/`; add `voltages.yaml` with the
    published chart values you verified against, and `bom.yaml` keyed to the
-   schematic's reference designators.
+   schematic's reference designators. **Values and designators follow
+   `docs/lettering-conventions.md`** — one convention per surface, and all of them
+   gated: house units in the parts list (`4.7 kΩ`, never `4,700 Ω`), drafting
+   shorthand on the schematic in your amp's declared idiom (`conventions.notation`),
+   and a declared reference-designator scheme (`conventions.designators`) that must
+   match the designators you actually used.
 4. Optionally add `layout.yaml` (see `docs/layout-schema.md`) — a board layout with a
    wiring layer that CI proves electrically equivalent to your netlist. It renders in
    two styles from the one file; commit both (`pipeline/render_layouts.py` and
@@ -41,7 +46,10 @@ Pull requests that break these are closed regardless of quality:
 5. Open a PR. CI validates the metadata schema, cross-checks BOM↔schematic
    designators, round-trips the schematic, simulates the operating point in ngspice
    against your chart values, renders and lint-checks both layout drawings, and runs
-   the layout↔netlist equivalence gate.
+   the layout↔netlist equivalence gate. Run
+   `python3 pipeline/check_value_consistency.py` before you push: it reads every
+   surface your part appears on and reports any two that state different
+   quantities.
 6. A maintainer reviews. Circuits land as `draft`; the `verified` badge requires the
    simulated operating point within tolerance of the published chart **and**
    maintainer sign-off.
