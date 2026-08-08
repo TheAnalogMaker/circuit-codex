@@ -1,6 +1,6 @@
 ---
 import Base from '../../layouts/Base.astro';
-import { loadCorpus, displayId, ampMetaDescription, layoutAlt, layoutMinWidth, topologyHref, circuitFamilyMap, loadLoadlineStages, toneStackPresetIds, GITHUB } from '../../lib/corpus.js';
+import { loadCorpus, displayId, ampMetaDescription, layoutAlt, layoutMinWidth, topologyHref, circuitFamilyMap, loadHistory, TOPOLOGY_DIMENSIONS, loadLoadlineStages, toneStackPresetIds, GITHUB } from '../../lib/corpus.js';
 
 export async function getStaticPaths() {
   const stages = new Map(loadLoadlineStages().map((s) => [s.amp, s]));
@@ -22,7 +22,8 @@ const isVerified = v.status === 'verified';
 // --- lineage (explore) — related circuits documented in this amp's meta.yaml,
 //     limited to those present in the corpus so links never 404. Rendered as one
 //     row in the metadata panel below. Delimited for hand-merge.
-const _corpusIds = new Set(loadCorpus().map((a) => a.id));
+const _corpusAmps = loadCorpus();
+const _corpusIds = new Set(_corpusAmps.map((a) => a.id));
 // The amp's history family (model line), reverse-mapped from circuit_ref in the
 // history tier — a link to its era timeline on the /history/ page.
 const historyFamily = circuitFamilyMap().get(amp.id) || null;
@@ -48,6 +49,67 @@ function outputGroup(tube, n) {
 // circuit's own parts list, so the panel row can offer its response curve.
 const hasToneStackLab = toneStackPresetIds().has(amp.id);
 // --- end tone-stack lab link ---
+// --- related circuits (below Sources; delimited for hand-merge) — real crawl
+// paths for a reader who has just read this circuit: other documented amps in
+// its history family line, plus amps sharing its phase-inverter or tone-stack
+// topology, each group also linking the matching cross-cut page. Budgeted to
+// ~5 links total so the block stays a hand-picked path, not a link dump — when
+// it would run over, sibling-amp links are trimmed from the least-specific
+// groups first, but every present group keeps its one cross-cut link.
+const RELATED_LINK_BUDGET = 5;
+const relatedGroups = [];
+if (historyFamily) {
+  const famSiblingIds = (loadHistory().find((f) => f.slug === historyFamily.slug)?.models || [])
+    .filter((mo) => mo.documented && mo.ampId !== amp.id)
+    .map((mo) => mo.ampId);
+  if (famSiblingIds.length) {
+    relatedGroups.push({
+      label: 'Same family line',
+      ampIds: famSiblingIds,
+      crossCutHref: `/history/${historyFamily.slug}/`,
+      crossCutText: `${historyFamily.title} ↗`,
+    });
+  }
+}
+for (const dimKey of ['phase_inverter', 'tone_stack']) {
+  const value = m.topology?.[dimKey];
+  if (!value || value === 'none') continue;
+  const href = topologyHref(dimKey, m);
+  if (!href) continue;
+  const siblingIds = _corpusAmps
+    .filter((a) => a.id !== amp.id && a.meta.topology?.[dimKey] === value)
+    .map((a) => a.id);
+  if (!siblingIds.length) continue;
+  const dim = TOPOLOGY_DIMENSIONS.find((d) => d.key === dimKey);
+  relatedGroups.push({
+    label: dimKey === 'phase_inverter' ? 'Same phase inverter' : 'Same tone stack',
+    ampIds: siblingIds,
+    crossCutHref: href,
+    crossCutText: `${dim?.values[value]?.label || value} — every amp ↗`,
+  });
+}
+// Every present group keeps its one cross-cut link no matter what (that link
+// never 404s and is always on-topic) — those are spent first. What is left of
+// the budget is handed out as amp-sibling links one at a time, round-robin in
+// group order (family line first, most specific), capped at 2 per group, so
+// three groups at the default budget read as 1 sibling + 1 sibling + cross-cut-
+// only rather than silently dropping a whole group.
+const MAX_AMP_LINKS_PER_GROUP = 2;
+for (const g of relatedGroups) g.ampLinks = [];
+let linkCount = relatedGroups.length;
+let grew = true;
+while (grew && linkCount < RELATED_LINK_BUDGET) {
+  grew = false;
+  for (const g of relatedGroups) {
+    if (linkCount >= RELATED_LINK_BUDGET) break;
+    if (g.ampLinks.length < Math.min(MAX_AMP_LINKS_PER_GROUP, g.ampIds.length)) {
+      g.ampLinks.push(g.ampIds[g.ampLinks.length]);
+      linkCount++;
+      grew = true;
+    }
+  }
+}
+// --- end related circuits ---
 const metaDescription = ampMetaDescription(m);
 const canonical = new URL(`amps/${amp.id}/`, Astro.site).href;
 const jsonld = {
@@ -304,6 +366,24 @@ const breadcrumbs = [
       ))}</ul>
     </section>
   )}
+
+  {/* --- related circuits; remove this block to revert --- */}
+  {relatedGroups.length > 0 && (
+    <section class="related">
+      <h2>Related circuits</h2>
+      <dl class="rel">
+        {relatedGroups.map((g) => (
+          <>
+            <dt>{g.label}</dt>
+            <dd>{g.ampLinks.map((rid, i) => (
+              <>{i > 0 ? ', ' : ''}<a href={`/amps/${rid}/`}>{displayId(rid)}</a></>
+            ))} · <a href={g.crossCutHref}>{g.crossCutText}</a></dd>
+          </>
+        ))}
+      </dl>
+    </section>
+  )}
+  {/* --- end related circuits --- */}
 </div>
 
 <script is:inline>
@@ -435,6 +515,12 @@ const breadcrumbs = [
   .sources{max-width:76ch}
   .src{margin:0;padding-left:16px;font-size:13px;color:var(--faint)}
   .src li{margin-bottom:6px}
+  /* --- related circuits --- */
+  .related{max-width:76ch;margin-top:28px}
+  .rel{margin:0;display:grid;grid-template-columns:max-content 1fr;gap:9px 14px;font-size:13.5px}
+  .rel dt{color:var(--faint);text-transform:uppercase;font-family:var(--disp);letter-spacing:.1em;font-size:11px;padding-top:2px}
+  .rel dd{margin:0;color:var(--muted);line-height:1.5}
+  /* --- end related circuits --- */
   .notes :global(h2){font-size:15px;letter-spacing:.12em;margin:22px 0 6px}
   .notes :global(p){color:var(--muted);font-size:14.5px;max-width:72ch}
   .notes :global(li){color:var(--muted);font-size:14.5px}
