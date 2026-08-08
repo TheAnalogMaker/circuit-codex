@@ -60,13 +60,8 @@ def input_network(jrefs, srefs, svals, ys, leakref, gbx, gy):
 
 
 # ============================== TITLE ======================================
-s.text('AC15 — Vox AC15-style, JMI circuit No. 3 (OA/031, 29-4-60) · Circuit Codex '
-       '· CC-BY-SA 4.0 · redrawn from circuit facts', 16, 14, 2.2)
-s.text('No tone stack · no bias supply · no negative feedback. Both channels mix INSIDE '
-       'the phase inverter, at opposite grids. Rails: B+1 +315 V · B+N Normal · '
-       'B+P inverter · B+V vibrato', 16, 19, 1.3)
-s.text('Heaters, the 6.3 V winding and the pilot-lamp wiring are an annotation layer — '
-       'see netlist.cir, bom.yaml and layout.yaml.', 16, 23, 1.3)
+s.note('No tone stack · no bias supply · no negative feedback. Both channels mix INSIDE the phase inverter, at opposite grids. Rails: B+1 +315 V · B+N Normal · B+P inverter · B+V vibrato')
+s.note('Heaters, the 6.3 V winding and the pilot-lamp wiring are an annotation layer — see netlist.cir, bom.yaml and layout.yaml.')
 
 # ====================== NORMAL CHANNEL — EF86 preamp =======================
 s.text('Normal channel', 16, 27.5, 1.6)
@@ -177,12 +172,12 @@ s.glabel("B+V", 176, 148, 180)
 s.wire(176, 148, 184, 148)
 s.text("→ Vibrato/Tremolo networks", 185, 148.5, 1.1)
 
-s.text("The two-position TONE network, the five-section phase-shift ladder, the ECC82", 16, 172, 1.15)
-s.text("modulator network and the ECC83 oscillator network (with Depth, Speed, the", 16, 175.6, 1.15)
-s.text("fast/slow switch and the footswitch jack) are listed part by part in bom.yaml.", 16, 179.2, 1.15)
-s.text("The published drawing resolves their VALUES but not their interconnection, so", 16, 182.8, 1.15)
-s.text("this sheet names the interfaces and asserts nothing further. The phase-shift", 16, 186.4, 1.15)
-s.text("vibrato bends pitch rather than gating level — see notes.md.", 16, 190, 1.15)
+s.note("The two-position TONE network, the five-section phase-shift ladder, the ECC82 "
+       "modulator network and the ECC83 oscillator network (with Depth, Speed, the "
+       "fast/slow switch and the footswitch jack) are listed part by part in bom.yaml. "
+       "The published drawing resolves their VALUES but not their interconnection, so "
+       "this sheet names the interfaces and asserts nothing further. The phase-shift "
+       "vibrato bends pitch rather than gating level — see notes.md.")
 
 # ================= PHASE INVERTER — ECC83 long-tailed pair =================
 s.text("Phase inverter — long-tailed pair; both channels enter, at opposite grids",
@@ -379,5 +374,5 @@ s.wire(274, 199.92, 288, 199.92)
 s.lamp("PL1", "6.3 V", 288, 205)
 s.gnd(288, 210.08)
 
-s.write(OUT, [], paper="A3")
+s.write(OUT)
 print(f"wrote {OUT}")

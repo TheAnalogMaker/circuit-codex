@@ -42,7 +42,7 @@ for ch, (y, jack, gref, pref, plref, cref, vref, mref) in enumerate([
     s.wire(mr, ty + 3.81, 91.44, ty + 3.81)
     s.wire(91.44, ty + 3.81, 91.44, 109)
 s.junction(91.44, 109)
-s.text("Bright/treble-peak cap across each vol pot omitted (AC only, not on the BOM)", 44, 79, 1.1)
+s.caption('Bright/treble-peak cap across each vol pot omitted (AC only, not on the BOM)', 44, 79, 1.1)
 
 # shared V1 cathode: both triodes' K pins bus together into one 820R/25+25u can
 s.wire(49.53, 99.62, 49.53, 103)
@@ -82,7 +82,7 @@ s.wire(fr, fby, 101.6, fby)
 ty2 = 109 - 7.62 - 3.48
 s.wire(101.6, ty2, 101.6, 84)
 s.wire(101.6, 84, 108, 84)
-tcl, tcr = s.series_h("C", "C_tr1", ".01-400", 112, 84)
+tcl, tcr = s.series_h("C", "C_tr1", ".01u 400V", 112, 84)
 s.wire(tcr, 84, 122, 84)
 s.sym("POT", "VR4", "1M treble", 122, 87.81)          # top pin (122, 84)
 s.sym("C", "C_tr2", ".0005u", 122, 95.43)              # top pin (122, 91.62) == VR4 bottom pin
@@ -93,7 +93,7 @@ s.sym("POT", "VR3", "1M bass", 137, 96)                # top pin (137, 92.19) ==
 s.gnd(137, 99.81)                                      # == VR3 bottom pin
 s.wire(142.08, 96, 150, 96)                            # VR3 wiper -> right
 s.wire(150, 96, 150, 126)                              # down to the driver-grid bus
-s.text("Bass/Treble lug wiring illustrative (James network; not re-verified lug by lug)", 25, 145.5, 1.0)
+s.note('Bass/Treble lug wiring illustrative (James network; not re-verified lug by lug)')
 
 # RBLEED: 5 MEG printed from V2's grid across to the driver's grid, in
 # parallel with the tone/coupling path above (annotation — excluded from
@@ -102,8 +102,8 @@ s.wire(t2["g"][0], fby, t2["g"][0], 68)
 s.wire(t2["g"][0], 68, 180, 68)
 bl, br = s.series_h("R", "RBLEED", "5MEG", 160, 68)
 s.wire(180, 68, 180, 126)
-s.text("RFB1 (100k, V2 plate<->grid) and RBLEED (5MEG, V2 grid -> driver grid) are printed", 25, 149.5, 1.0)
-s.text("on the sheet but excluded from netlist.cir — see notes.md \"2026-08-08 re-read\"", 25, 153.5, 1.0)
+s.note('RFB1 (100k, V2 plate<->grid) and RBLEED (5MEG, V2 grid -> driver grid) are printed')
+s.note('on the sheet but excluded from netlist.cir — see notes.md "2026-08-08 re-read"')
 
 # Presence + negative feedback: speaker/OT-secondary node -> R_NFB 100k ->
 # VR5 (Presence, 5k, other lug grounded) -> wiper -> C_NFB .1-200 -> driver
@@ -116,7 +116,7 @@ s.wire(pnl, 60, 184, 60)
 s.sym("POT", "VR5", "5k pres", 184, 63.81)
 s.gnd(184, 71.43)
 s.wire(189.08, 63.81, 192, 63.81)
-ncl, ncr = s.series_h("C", "C_NFB", ".1-200", 196, 63.81)
+ncl, ncr = s.series_h("C", "C_NFB", ".1u 200V", 196, 63.81)
 s.wire(ncr, 63.81, 200, 63.81)
 s.wire(200, 63.81, 200, 126)
 
@@ -253,7 +253,6 @@ s.gnd(167.88, 168.34)
 s.glabel("-32V", 170.42, 160.72, 0)
 
 s.write(OUT, [
-    ("5E5-A — Tweed Pro-style · Circuit Codex · CC-BY-SA 4.0 · redrawn from circuit facts", 25, 66, 2.0),
-    ("Heaters, PT primary and standby omitted — see netlist.cir and meta.yaml", 25, 70.5, 1.3),
+    "Heaters, PT primary and standby omitted — see netlist.cir and meta.yaml",
 ])
 print(f"wrote {OUT}")

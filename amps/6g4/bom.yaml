@@ -16,7 +16,7 @@ items:
   - { ref: RG1I, part: "Carbon comp resistor", value: "1 MΩ · ½ W", role: "Channel-1 input grid leak" }
   - { ref: RL1I, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "Channel-1 input-stage plate load" }
   - { ref: RK1I, part: "Carbon comp resistor", value: "1.5 kΩ · ½ W", role: "Channel-1 input-stage cathode bias" }
-  - { ref: CK1I, part: "Dual electrolytic capacitor", value: "25 µF + 25 µF", role: "Channel-1 input-stage cathode bypass (one section of a dual can)" }
+  - { ref: CK1I, part: "Dual electrolytic capacitor (25 µF + 25 µF can)", value: "25 µF", role: "Channel-1 input-stage cathode bypass (one section of a dual can)" }
   # --- Channel 1 tone stack + volume ---
   - { ref: CT1, part: "Mica capacitor", value: "250 pF", role: "Channel-1 treble cap (250MM on the drawing)" }
   - { ref: VRT1, part: "Potentiometer", value: "250 kΩ-L", role: "Channel-1 treble" }
@@ -27,7 +27,7 @@ items:
   # --- Channel 1 recovery/2nd stage ---
   - { ref: RL1D, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "Channel-1 recovery-stage plate load" }
   - { ref: RK1D, part: "Carbon comp resistor", value: "820 Ω · ½ W", role: "Channel-1 recovery-stage cathode bias" }
-  - { ref: CK1D, part: "Dual electrolytic capacitor", value: "25 µF + 25 µF", role: "Channel-1 recovery-stage cathode bypass" }
+  - { ref: CK1D, part: "Dual electrolytic capacitor (25 µF + 25 µF can)", value: "25 µF", role: "Channel-1 recovery-stage cathode bypass" }
   - { ref: CC1D, part: "Coupling capacitor", value: "0.05 µF", role: "Channel-1 recovery-stage output coupling into the mixing network" }
   - { ref: RM1, part: "Carbon comp resistor", value: "6.8 kΩ · ½ W", role: "Channel-1 mixing resistor into the phase-inverter grid" }
   # --- Channel 2 input stage (mirrors channel 1) ---
@@ -36,7 +36,7 @@ items:
   - { ref: RG2I, part: "Carbon comp resistor", value: "1 MΩ · ½ W", role: "Channel-2 input grid leak" }
   - { ref: RL2I, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "Channel-2 input-stage plate load" }
   - { ref: RK2I, part: "Carbon comp resistor", value: "1.5 kΩ · ½ W", role: "Channel-2 input-stage cathode bias" }
-  - { ref: CK2I, part: "Dual electrolytic capacitor", value: "25 µF + 25 µF", role: "Channel-2 input-stage cathode bypass" }
+  - { ref: CK2I, part: "Dual electrolytic capacitor (25 µF + 25 µF can)", value: "25 µF", role: "Channel-2 input-stage cathode bypass" }
   # --- Channel 2 tone stack + volume ---
   - { ref: CT2, part: "Mica capacitor", value: "250 pF", role: "Channel-2 treble cap" }
   - { ref: VRT2, part: "Potentiometer", value: "250 kΩ-L", role: "Channel-2 treble" }
@@ -47,7 +47,7 @@ items:
   # --- Channel 2 recovery/2nd stage ---
   - { ref: RL2D, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "Channel-2 recovery-stage plate load" }
   - { ref: RK2D, part: "Carbon comp resistor", value: "820 Ω · ½ W", role: "Channel-2 recovery-stage cathode bias" }
-  - { ref: CK2D, part: "Dual electrolytic capacitor", value: "25 µF + 25 µF", role: "Channel-2 recovery-stage cathode bypass" }
+  - { ref: CK2D, part: "Dual electrolytic capacitor (25 µF + 25 µF can)", value: "25 µF", role: "Channel-2 recovery-stage cathode bypass" }
   - { ref: CC2D, part: "Coupling capacitor", value: "0.05 µF", role: "Channel-2 recovery-stage output coupling into the mixing network" }
   - { ref: RM2, part: "Carbon comp resistor", value: "220 kΩ · ½ W", role: "Channel-2 mixing resistor into the phase-inverter grid" }
   # --- Tremolo oscillator (7025) — DC point excluded (see notes.md) ---

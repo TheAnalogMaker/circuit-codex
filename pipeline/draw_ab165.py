@@ -51,7 +51,7 @@ def input_stage(y, j1, j2, r1, r2, rleak, vref, rload, rk, ck, rail,
     s.junction(gb, y)
     s.sym("R", rleak, "1M", gb, y + 3.81 + 4)
     s.gnd(gb, y + 7.62 + 4)
-    t = s.triode(vref, "12AX7", 52, y)
+    t = s.triode(vref, "12AX7 (7025)", 52, y)
     s.wire(gb, y, t["g"][0], y)
     s.plate_load(rload, "100k", t["p"], rail)
     if shunt_ref:
@@ -131,7 +131,7 @@ def second_stage(y, vref, rload, rk, ck, rail, wiper, mix_ref):
     s.wire(wx, wy, 124, wy)
     s.junction(wx, wy)
     s.wire(124, wy, 124, y)
-    t = s.triode(vref, "12AX7", 136, y)
+    t = s.triode(vref, "12AX7 (7025)", 136, y)
     s.wire(124, y, t["g"][0], y)
     s.plate_load(rload, "100k", t["p"], rail)
     s.wire(136, y + 7.62, 136, y + 9)
@@ -147,10 +147,7 @@ def second_stage(y, vref, rload, rk, ck, rail, wiper, mix_ref):
 
 
 # ============================ TITLE ==================================
-s.text("AB165 — Blackface Bassman-style · Circuit Codex · CC-BY-SA 4.0 · redrawn from circuit facts",
-       26, 18, 2.2)
-s.text("Heaters, pilot lamp and the PT primary beyond the drawn switch/fuse are omitted here — see netlist.cir, meta.yaml, layout.yaml. Rails: B+1 +425 · B+2 +415 · B+3 +390 · B+4 +320 · bias -45 V",
-       26, 23, 1.3)
+s.note('Heaters, pilot lamp and the PT primary beyond the drawn switch/fuse are omitted here — see netlist.cir, meta.yaml, layout.yaml. Rails: B+1 +425 · B+2 +415 · B+3 +390 · B+4 +320 · bias -45 V')
 
 # ============================ BASS INSTRUMENT CHANNEL (top row) =======
 YB = 62
@@ -182,13 +179,13 @@ n2n, wipN = tone_stack(teeN, "CTN", "250p", "RSN", "CBN", ".1u", "CBN2", ".047u"
                        "RSLN", "6.8k", "VRTN", "VRBN", "VRVN")
 # BRIGHT: 120 pF from the volume pot's top lug to its wiper, through a switch
 s.junction(114, teeN - 2.19)
-s.wire(114, teeN - 2.19, 114, teeN - 9)
-cl, cr = s.series_h("C", "CBRN", "120p", 121, teeN - 9)
-s.wire(114, teeN - 9, cl, teeN - 9)
-l, r = s.switch("SWBRT", "BRIGHT", 133, teeN - 9)
-s.wire(cr, teeN - 9, l, teeN - 9)
-s.wire(r, teeN - 9, 142, teeN - 9)
-s.wire(142, teeN - 9, 142, teeN + 3.81)
+s.wire(114, teeN - 2.19, 114, teeN - 17)
+cl, cr = s.series_h("C", "CBRN", "120p", 121, teeN - 17)
+s.wire(114, teeN - 17, cl, teeN - 17)
+l, r = s.switch("SWBRT", "BRIGHT", 133, teeN - 17)
+s.wire(cr, teeN - 17, l, teeN - 17)
+s.wire(r, teeN - 17, 142, teeN - 17)
+s.wire(142, teeN - 17, 142, teeN + 3.81)
 s.wire(142, teeN + 3.81, 124, teeN + 3.81)
 t2b = second_stage(YN, "V2B", "RLN2", "RKN2", "CKN2", "B+3", wipN, "RMXN")
 
@@ -204,7 +201,7 @@ s.wire(cr, YM, 194, YM)
 s.junction(194, YM)
 s.sym("R", "RGM", "470k", 194, YM + 3.81)
 s.gnd(194, YM + 7.62)
-t3 = s.triode("V3B", "12AX7", 202, YM)
+t3 = s.triode("V3B", "12AX7 (7025)", 202, YM)
 s.wire(194, YM, t3["g"][0], YM)
 s.plate_load("RLM", "100k", t3["p"], "B+3")
 s.wire(202, YM + 7.62, 202, YM + 9)
@@ -228,7 +225,7 @@ s.wire(228, teeM, 228, 62)
 s.glabel("PIG", 228, 62, 0)
 
 # ============================ NEGATIVE FEEDBACK ======================
-s.text("Negative feedback — speaker line → inverter hot grid (DC-blocked)", 150, 32, 1.3)
+s.caption('Negative feedback — speaker line → inverter hot grid (DC-blocked)', 150, 32, 1.3)
 s.glabel("SPKR", 150, 38, 180)
 nl, nr = s.series_h("R", "RNFB", "47k", 162, 38)
 s.wire(150, 38, nl, 38)
@@ -426,8 +423,7 @@ s.wire(220, YPW, 226, YPW)
 
 # ============================ BIAS SUPPLY ============================
 YBI = 258
-s.text("Bias supply — one HT leg through 470 Ω · 1 W and a silicon diode; the 10 kΩ-L balance control gives each output tube its own 10 kΩ leg",
-       26, 248, 1.3)
+s.note('Bias supply — one HT leg through 470 Ω · 1 W and a silicon diode; the 10 kΩ-L balance control gives each output tube its own 10 kΩ leg')
 s.junction(65, pt["ht_b"][1])
 s.wire(65, pt["ht_b"][1], 65, YBI)
 bl4, br4 = s.series_h("R", "RBIAS", "470 1W", 75, YBI)
@@ -466,5 +462,5 @@ s.sym("R", "RBB2", "10k", 140, YBI - 1.81, lx=4.4)
 s.wire(140, YBI - 5.62, 140, YBI - 10)
 s.glabel("-45V B", 140, YBI - 10, 90)
 
-s.write(OUT, [], paper="A3")
+s.write(OUT)
 print(f"wrote {OUT}")

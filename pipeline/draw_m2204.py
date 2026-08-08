@@ -53,7 +53,6 @@ s.wire(62, 84, 68, 84)
 s.junction(68, 84)
 s.wire(68, 84, 74, 84)
 s.shunt_rc("R1", "2.7k", "C1", ".68u", 74, 84)
-s.gnd(74, 91.62)
 # C2 100 pF across the triode: plate stub down to the cathode line
 s.wire(62, 58.57, 68, 58.57)
 s.junction(62, 58.57)
@@ -357,9 +356,7 @@ s.gnd(266, 207)
 s.text("D.I.", 254, 210, 1.3)
 
 # ======================= power supply and mains =============================
-s.text("Power — 1202-324 mains transformer with 240 / 220 / 120 V primary "
-       "selection; centre-tapped HT winding through the standby switch into two "
-       "series 1N4007 pairs; 50+50 uF reservoir,", 18, 240, 1.4)
+s.note('Power — 1202-324 mains transformer with 240 / 220 / 120 V primary selection; centre-tapped HT winding through the standby switch into two series 1N4007 pairs; 50+50 uF reservoir,')
 s.text("HT fuse, and the output transformer's centre tap taken AHEAD of the "
        "choke — so only the screens and the preamp are fed through it. R29 and "
        "R8 then step the rail down twice.", 18, 244, 1.4)
@@ -483,20 +480,14 @@ s.gnd(186, BY + 15.24)
 s.wire(186, BY, 206, BY)
 s.glabel("-BIAS", 206, BY, 0)
 
-s.text("S2 is a two-pole standby switch: the drawing breaks both HT legs, and "
-       "one pole is drawn here. T1 also carries the 6.3 V heater winding — black "
-       "and orange leads with an earthed green centre tap — which is not drawn; "
-       "nor is the", 18, 292, 1.25)
-s.text("mains indicator lamp the drawing shows across the primary, which carries "
-       "no reference designator. See netlist.cir and meta.yaml.", 18, 296, 1.25)
+s.note("S2 is a two-pole standby switch: the drawing breaks both HT legs, and one "
+       "pole is drawn here. T1 also carries the 6.3 V heater winding — black and "
+       "orange leads with an earthed green centre tap — which is not drawn; nor is "
+       "the mains indicator lamp the drawing shows across the primary, which carries "
+       "no reference designator. See netlist.cir and meta.yaml.")
 
 s.write(OUT, [
-    ("Model 2204 — Master Volume lead 50-style · Circuit Codex · CC-BY-SA 4.0 · "
-     "redrawn from circuit facts", 18, 22, 2.2),
-    ("The 50 W lead head with the input triodes in series and a master volume "
-     "after the tone stack — the circuit repackaged in 1981 as the JCM800.", 18, 27, 1.4),
-    ("Values from the Marshall 2204 STD factory drawing, both sheets. Heaters, "
-     "the mains indicator and the PT's heater winding are annotations — see "
-     "netlist.cir and meta.yaml.", 18, 31.5, 1.3),
-], paper="A3")
+    "The 50 W lead head with the input triodes in series and a master volume after the tone stack — the circuit repackaged in 1981 as the JCM800.",
+    "Values from the Marshall 2204 STD factory drawing, both sheets. Heaters, the mains indicator and the PT's heater winding are annotations — see netlist.cir and meta.yaml.",
+])
 print(f"wrote {OUT}")

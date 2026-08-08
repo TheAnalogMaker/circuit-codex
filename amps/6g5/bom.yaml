@@ -71,7 +71,7 @@ items:
   - { ref: CTO2, part: "Film capacitor", value: "0.01 µF (schematic-only)", role: "Phase-shift ladder cap — schematic-only, see RTOG1" }
   - { ref: CTO3, part: "Film capacitor", value: "0.02 µF (schematic-only)", role: "Phase-shift ladder cap, oscillator plate to the ladder — schematic-only, see RTOG1" }
   - { ref: VRINT, part: "Potentiometer", value: "250 kΩ-L", role: "Intensity control" }
-  - { ref: OPTO, part: "Lamp + photoresistor pair", value: "tremolo optocoupler", role: "Optocoupler shunting the channel-mixing node to ground — the tremolo element itself" }
+  - { ref: OPTO, part: "Lamp + photocell pair", value: "optocoupler", role: "Optocoupler shunting the channel-mixing node to ground — the tremolo element itself" }
   - { ref: JVIB, part: "Jack", value: "vibrato footswitch", role: "Vibrato (footswitch) pedal jack" }
   # --- Driver stage V5 (modelled simply; local feedback network not modelled) ---
   - { ref: RL5, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "V5 plate load" }

@@ -84,15 +84,8 @@ def plate_load_side(ref, val, plate, rail, out, up=3.48, rise=3.28):
 
 
 # ================================ TITLE ====================================
-s.text('AC30/6 — Vox AC30/6-style, JMI drawing OS/065 (29-4-60, amended to '
-       'Issue 4 of 11-9-64) · Circuit Codex · CC-BY-SA 4.0 · redrawn from '
-       'circuit facts', 16, 12, 2.0)
-s.text('No tone stack · no bias supply · no negative feedback. Brilliant and '
-       'Normal share ONE bottle and ONE cathode resistor, and mix into ONE '
-       'inverter grid.', 16, 16.5, 1.25)
-s.text('Rails: B+1 +320 V · B+N +290 V front end · B+P inverter · B+V '
-       'vibrato. Heaters and the 6.3 V winding are an annotation layer.',
-       16, 20.5, 1.25)
+s.note('No tone stack · no bias supply · no negative feedback. Brilliant and Normal share ONE bottle and ONE cathode resistor, and mix into ONE inverter grid.')
+s.note('Rails: B+1 +320 V · B+N +290 V front end · B+P inverter · B+V vibrato. Heaters and the 6.3 V winding are an annotation layer.')
 
 # ===================== BRILLIANT + NORMAL CHANNELS — V1 ====================
 s.text('Brilliant channel', 16, 32, 1.6)
@@ -444,5 +437,6 @@ for gx, dref, cref, rail, note in [(296, "R10", "C4", "B+N", "+290 V"),
     if note:
         s.text(note, gx + 42, 268, 1.15)
 
-s.write(OUT, [], paper="A3")
+
+s.write(OUT)
 print(f"wrote {OUT}")

@@ -58,7 +58,7 @@ for y, cref, vref, gnd_top in [(88.38, "C2", "VR1", True), (120.38, "C3", "VR2",
     s.wire(r, y, 84.92, y)               # -> wiper (pot drawn rot 180)
     s.sym("POT", vref, "1M vol", 90, y, rot=180, lx=2.6, ly=-6.2, label_rot=0)
     if gnd_top:                          # channel 1: element top grounded
-        s.gnd(90, y - 3.81)
+        s.gnd(90, y - 3.81, 90)
         s.wire(90, y + 3.81, 90, 104)
     else:                                # channel 2: element bottom grounded
         s.gnd(90, y + 3.81)
@@ -73,7 +73,7 @@ s.wire(98.92, 130, 98.92, 104)
 s.junction(98.92, 104)
 s.wire(104, 126.19, 104, 124.5)
 s.sym("C", "C6", "5n", 104, 120.69)
-s.gnd(104, 116.88)
+s.gnd(104, 116.88, 90)
 s.wire(104, 133.81, 104, 136)
 s.sym("C", "C5", "500p", 104, 139.81)
 s.wire(104, 143.62, 104, 150)
@@ -165,8 +165,7 @@ s.wire(223.89, 121.54, 227, 121.54)
 s.glabel("GND", 227, 121.54, 0)
 
 # ---- power supply ---------------------------------------------------------
-s.text("Power supply — centre-tapped HT, 5Y3GT full-wave, two 10 kΩ droppers",
-       30, 178, 1.6)
+s.note('Power supply — centre-tapped HT, 5Y3GT full-wave, two 10 kΩ droppers')
 for x, ref, ht in [(45.72, "V5A", "HT_A"), (58.42, "V5B", "HT_B")]:
     s.glabel(ht, x, 181.5, 90)
     s.wire(x, 181.5, x, 184.16)
@@ -196,8 +195,6 @@ s.sym("C", "C13", "16u", 124.46, 205.61)
 s.gnd(124.46, 209.42)
 
 s.write(OUT, [
-    ("5D3 — Wide-panel Tweed Deluxe-style · Circuit Codex · CC-BY-SA 4.0 · redrawn from circuit facts",
-     26, 70, 2.0),
-    ("Heaters and PT primary omitted — see netlist.cir and meta.yaml", 26, 74.5, 1.3),
-], paper="A3")
+    "Heaters and PT primary omitted — see netlist.cir and meta.yaml",
+])
 print(f"wrote {OUT}")

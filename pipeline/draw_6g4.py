@@ -141,17 +141,12 @@ def channel(y, ch, j1, j2, r1, r2, rleak, v_in, v_rec, rload_in, rload_rec,
     s.wire(cr, teer, ml, teer)
     s.wire(mr, teer, 148, teer)
     s.wire(148, teer, 148, 178)
-    s.glabel("GPIA", 148, 178, 0)
     return t_rec
 
 
 # ============================ TITLE ==================================
-s.text("6G4 — Brown Super-style · Circuit Codex · CC-BY-SA 4.0 · redrawn from circuit facts",
-       26, 18, 2.2)
-s.text("Rails: BP1 +456 (6L6GC plates/screens, OT CT) · BD +261 (calibrated, both input stages) · BE1 +284 (ch.1 recovery, calibrated) · BE2 +215 (ch.2 recovery, calibrated) · BC = BP1 via 10k (PI plates) · bias -55 V",
-       26, 23, 1.3)
-s.text("Heaters, PT primary/mains, pilot lamp and the vibrato-pedal jack's switching are omitted here — see netlist.cir, meta.yaml, layout.yaml. Bottles are 7025, a low-noise 12AX7 (also_known_as).",
-       26, 27, 1.3)
+s.note('Rails: BP1 +456 (6L6GC plates/screens, OT CT) · BD +261 (calibrated, both input stages) · BE1 +284 (ch.1 recovery, calibrated) · BE2 +215 (ch.2 recovery, calibrated) · BC = BP1 via 10k (PI plates) · bias -55 V')
+s.note("Heaters, PT primary/mains, pilot lamp and the vibrato-pedal jack's switching are omitted here — see netlist.cir, meta.yaml, layout.yaml. Bottles are 7025, a low-noise 12AX7 (also_known_as).")
 
 # ============================ CHANNEL 1 ================================
 YN = 62
@@ -168,6 +163,11 @@ channel(YB, 2, "CH2 IN 1", "CH2 IN 2", "R1b", "R2b", "RG2I", "V3", "V4",
         "RL2I", "RL2D", "RK2I", "CK2I", "RK2D", "CK2D",
         "CT2", "VRT2", "RS2T", "VRB2", "RSL2", "VRV2",
         "CC2D", "RM2", "220k", "BD", "BE2", YB_REC)
+
+
+# the two mixers meet on one bus line; the flag names it once
+s.junction(148, 178)
+s.glabel("GPIA", 148, 178, 0)
 
 # ============================ TREMOLO OSCILLATOR (V2B) =================
 # Shares channel 1's recovery-stage bottle (V2A above); its DC point is
@@ -187,10 +187,8 @@ channel(YB, 2, "CH2 IN 1", "CH2 IN 2", "R1b", "R2b", "RG2I", "V3", "V4",
 # RTOFB on grid current at oscillation amplitude, the classic phase-shift-
 # oscillator limiting mechanism.
 YT = 100
-s.text("Tremolo oscillator (V2B, shares V2's bottle with channel 1's recovery stage) — three-stage RC phase-shift ladder",
-       160, 82, 1.4)
-s.text("Excluded from netlist.cir — a running oscillator has no static operating point (notes.md)",
-       160, 87, 1.3)
+s.caption("Tremolo oscillator (V2B, shares V2's bottle with channel 1's recovery stage) — three-stage RC phase-shift ladder", 160, 82, 1.4)
+s.note('Excluded from netlist.cir — a running oscillator has no static operating point (notes.md)')
 t2b = s.triode("V2B", "7025", 176, YT, lx=6.0, ly=8.0)
 s.plate_load("RTO1", "100k", t2b["p"], "BP1")
 s.gnd(176, YT + 7.62)
@@ -211,29 +209,31 @@ s.junction(212, teeo)                              # N2
 cl, cr = s.series_h("C", "CTOFB", ".005u", 220, teeo)
 s.wire(212, teeo, cl, teeo)
 s.wire(cr, teeo, 228, teeo)                         # N3 = grid node
+s.wire(228, teeo, 234, teeo)      # node line extended so the leak has its own foot
+s.junction(228, teeo)
 s.wire(228, teeo, 228, YT)
 s.wire(228, YT, t2b["g"][0], YT)
-s.junction(228, teeo)
-s.sym("R", "RTOFB", "4.7M", 228, teeo + 3.81, lx=3.2)
-s.gnd(228, teeo + 7.62)
+s.sym("R", "RTOFB", "4.7M", 234, teeo + 3.81, lx=3.2)
+s.gnd(234, teeo + 7.62)
 
 # --- Intensity: plate tee -> 220k series -> Intensity pot -> the -55V bias line
-s.wire(176, teeo, 176, teeo - 10)
-s.sym("R", "RINT", "220k", 176, teeo - 13.81)
-s.wire(176, teeo - 17.62, 176, teeo - 21)
-s.sym("POT", "VRINT", "10M-RA intensity", 176, teeo - 24.81)
-s.gnd(176, teeo - 32.43)
-s.wire(181.08, teeo - 24.81, 190, teeo - 24.81)
+s.wire(176, teeo, 164, teeo)
+s.wire(164, teeo, 164, teeo - 10)
+s.sym("R", "RINT", "220k", 164, teeo - 13.81)
+s.wire(164, teeo - 17.62, 164, teeo - 21)
+s.sym("POT", "VRINT", "10M-RA intensity", 164, teeo - 24.81)
+s.gnd(164, teeo - 32.43)
+s.wire(169.08, teeo - 24.81, 190, teeo - 24.81)
 s.glabel("NBIAS", 190, teeo - 24.81, 0)
-s.text("Intensity", 160, teeo - 26, 1.2)
+s.text("Intensity", 132, teeo - 26, 1.2)
 
 # ============================ PHASE INVERTER (V5, LTP) =================
 XPI = 260
 YPH = 100          # hot half (V5A)
 YPB = 150          # cold half (V5B)
 JY = 125           # tail junction
-s.text("Long-tailed-pair phase inverter (V5) — off the BC rail (BP1 via the drawing's own 10k dropper, RD1)",
-       244, 82, 1.4)
+s.caption("Long-tailed-pair phase inverter (V5)", 244, 82, 1.4)
+s.note("The phase inverter runs off the BC rail — BP1 through the drawing's own 10k dropper, RD1.")
 # RD1: the PI's own supply dropper, BP1 -> BC (carries only the PI's own
 # current in the model — see netlist.cir's DC-conventions note).
 s.glabel("BP1", 300, 60, 180)
@@ -346,8 +346,7 @@ s.glabel("GND", 368, 128.54, 0)
 # ============================ POWER SUPPLY ==============================
 YPW = 210
 BY = YPW + 6
-s.text("Power supply — TR1 8087, GZ34 full-wave, CH-125C1A choke; TR2 45216 output transformer",
-       196, 196, 1.4)
+s.note('Power supply — TR1 8087, GZ34 full-wave, CH-125C1A choke; TR2 45216 output transformer')
 pt = s.pt("T1", "8087", 212, YPW, lx=-6.35, ly=-12.5)
 s.wire(pt["pri1"][0], pt["pri1"][1], pt["pri1"][0] - 4, pt["pri1"][1])
 s.glabel("MAINS", pt["pri1"][0] - 4, pt["pri1"][1], 180)
@@ -375,8 +374,7 @@ s.gnd(262, BY + 7.62)
 s.wire(268, BY - 3.5, 268, BY)
 s.glabel("BP1", 268, BY - 3.5, 90)
 s.junction(268, BY)
-s.text("C10 stands for the drawing's several HT filter cans; per-node values were not fully resolved at this scan's resolution (see bom.yaml)",
-       196, 202, 1.0)
+s.note("C10 stands for the drawing's several HT filter cans; per-node values were not fully resolved at this scan's resolution (see bom.yaml)")
 
 # BD/BE1/BE2: labelled rails only — the drawing's own dropping-resistor
 # chain from BP1 into these three preamp rails was not legible at this
@@ -385,8 +383,7 @@ s.text("C10 stands for the drawing's several HT filter cans; per-node values wer
 # feeding BD; BE1/BE2 have no discrete bom.yaml part and are left as plain
 # labels — nothing else is invented here. netlist.cir drives each rail
 # independently.
-s.text("BD/BE1/BE2 (preamp rails) are calibrated ideal sources in netlist.cir — the drawing's own dropper chain into them was not legible (notes.md); only CH1 is a named bom.yaml part.",
-       196, 208, 1.0)
+s.note("BD/BE1/BE2 (preamp rails) are calibrated ideal sources in netlist.cir — the drawing's own dropper chain into them was not legible (notes.md); only CH1 is a named bom.yaml part.")
 s.wire(268, BY, 280, BY)
 s.sym("CHOKE", "CH1", "125C1A", 287.62, BY, lx=-4.0, ly=-6.4)
 s.wire(295.24, BY, 300, BY)
@@ -413,5 +410,5 @@ s.wire(232, YBI, l, YBI)
 s.wire(r, YBI, 248, YBI)
 s.glabel("NBIAS", 248, YBI, 0)
 
-s.write(OUT, [], paper="A3")
+s.write(OUT)
 print(f"wrote {OUT}")

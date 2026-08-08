@@ -65,7 +65,6 @@ for (y, hi, lo, sHi, sLo, gref, pref, plref, kref, kval, cbref, cbval,
     s.wire(54, y + 7.62, 54, y + 10)
     s.wire(54, y + 10, 60, y + 10)
     s.shunt_rc(kref, kval, cbref, cbval, 60, y + 10)
-    s.gnd(60, y + 10)
     # plate stub -> coupler -> volume pot
     ty = y - 7.62 - 3.48
     s.wire(54, ty, 66, ty)
@@ -98,7 +97,6 @@ s.wire(MIXLINE_X, V2_Y, t2a["g"][0], V2_Y)
 s.wire(110, V2_Y + 7.62, 110, V2_Y + 10)
 s.wire(110, V2_Y + 10, 116, V2_Y + 10)
 s.shunt_rc("RK3", "820", "C7", ".68u", 116, V2_Y + 10)
-s.gnd(116, V2_Y + 10)
 s.plate_load("RL3", "100k", t2a["p"], "B+3")
 # DC-coupled cathode follower: grid from the V2A plate stub tee
 tee = V2_Y - 7.62 - 3.48
@@ -406,13 +404,7 @@ s.text("are annotations too, and the 6.3 V heater winding is omitted — see "
        "netlist.cir and meta.yaml.", 20, 286, 1.2)
 
 s.write(OUT, [
-    ("Model 1959 — Super Lead 100-style · Circuit Codex · CC-BY-SA 4.0 · "
-     "redrawn from circuit facts", 20, 26, 2.2),
-    ("Four EL34s in parallel push-pull off a silicon bridge — the 100 W head "
-     "on the model 1987's front end. Heaters, PT primary and pilot lamp "
-     "omitted.", 20, 31, 1.4),
-    ("Channel I is the high-treble channel and channel II the normal channel; "
-     "each has a high- and a low-sensitivity jack, and the two are voiced "
-     "apart at the cathode.", 20, 35.5, 1.3),
-], paper="A3")
+    "Four EL34s in parallel push-pull off a silicon bridge — the 100 W head on the model 1987's front end. Heaters, PT primary and pilot lamp omitted.",
+    "Channel I is the high-treble channel and channel II the normal channel; each has a high- and a low-sensitivity jack, and the two are voiced apart at the cathode.",
+])
 print(f"wrote {OUT}")

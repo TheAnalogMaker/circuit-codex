@@ -78,11 +78,7 @@ def volume(y, ref, val):
 
 
 # ============================ TITLE ==================================
-s.text("AA864 — Blackface Bassman-style · Circuit Codex · CC-BY-SA 4.0 · redrawn from circuit facts",
-       26, 16, 2.2)
-s.text("Heaters, pilot lamp and the PT's 6.3 V winding omitted here — see netlist.cir, meta.yaml, layout.yaml. "
-       "Rails: B+PL +422 (OT centre tap) · B+SCR +420 screens · B+PI +410 · B+PRE +380 preamp · bias −44 V",
-       26, 21, 1.3)
+s.note("Heaters, pilot lamp and the PT's 6.3 V winding omitted here — see netlist.cir, meta.yaml, layout.yaml. Rails: B+PL +422 (OT centre tap) · B+SCR +420 screens · B+PI +410 · B+PRE +380 preamp · bias −44 V")
 
 # ============================ BASS INSTRUMENT CHANNEL (top row) =======
 YB = 62
@@ -461,5 +457,5 @@ s.wire(30.19, 272, cdl, 272)
 s.wire(cdr, 272, 42, 272)
 s.gnd(42, 272)
 
-s.write(OUT, [], paper="A3")
+s.write(OUT)
 print(f"wrote {OUT}")

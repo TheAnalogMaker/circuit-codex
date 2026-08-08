@@ -28,12 +28,12 @@ s.junction(37.1, Y)
 s.shunt_r("R1", "75k", 37.1, Y)
 s.wire(37.1, Y, 45, Y)
 
-s.glabel("IN 2", 26, Y - 8, 180)
-s.wire(26, Y - 8, 37.1, Y - 8)
-s.junction(37.1, Y - 8)
-s.shunt_r("R2", "75k", 37.1, Y - 8)
-s.wire(37.1, Y - 8, 45, Y - 8)
-s.wire(45, Y - 8, 45, Y)
+s.glabel("IN 2", 26, Y - 14, 180)
+s.wire(26, Y - 14, 37.1, Y - 14)
+s.junction(37.1, Y - 14)
+s.shunt_r("R2", "75k", 37.1, Y - 14)
+s.wire(37.1, Y - 14, 45, Y - 14)
+s.wire(45, Y - 14, 45, Y)
 s.junction(45, Y)
 
 # summed node -> C1 coupling cap -> V1 grid node (5 Meg leak, contact bias)
@@ -104,9 +104,7 @@ s.wire(tx + 8.89, 92.54, tx + 11.43, 92.54) # SEC_C -> ground
 s.glabel("GND", tx + 11.43, 92.54, 0)
 
 # ---- power supply: 5Y3GT, reservoir, two resistor droppers (no choke) -----
-s.text("Power supply — center-tapped HT · 5Y3GT full-wave · resistor-dropped, "
-       "no choke on this pre-5E1 circuit · heaters and PT primary omitted",
-       25, 150, 1.5)
+s.note('Power supply — center-tapped HT · 5Y3GT full-wave · resistor-dropped, no choke on this pre-5E1 circuit · heaters and PT primary omitted')
 for x, ref, ht in [(50.8, "V3A", "HT_A"), (63.5, "V3B", "HT_B")]:
     s.glabel(ht, x, 152.5, 90)
     s.wire(x, 152.5, x, 155.16)
@@ -136,7 +134,6 @@ s.gnd(108, 180.42)
 s.glabel("B+3", 108, 169.24, 90)
 
 s.write(OUT, [
-    ("5C1 — Wide-panel Champ-style · Circuit Codex · CC-BY-SA 4.0 · redrawn from circuit facts", 25, 70, 2.0),
-    ("Heaters and PT primary omitted — see netlist.cir and meta.yaml", 25, 74.5, 1.3),
+    "Heaters and PT primary omitted — see netlist.cir and meta.yaml",
 ])
 print(f"wrote {OUT}")

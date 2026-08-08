@@ -43,9 +43,7 @@ for ch, (y, jack, sref, gref, pref, plref, cref, vref, mref) in enumerate([
     s.wire(mr, ty + 3.81, 91.44, ty + 3.81)
     s.wire(91.44, ty + 3.81, 91.44, 109)
 s.junction(91.44, 109)
-s.text("100 pF bright cap across VR1 omitted (AC only) · each channel's second jack adds another 68 kΩ stopper", 40, 76, 1.1)
-
-# shared cathode
+s.note("100 pF bright cap across VR1 omitted (AC only) · each channel's second jack adds another 68 kΩ stopper")# shared cathode
 s.wire(49.53, 99.62, 49.53, 103)
 s.wire(49.53, 103, 56.13, 103)
 s.wire(49.53, 133.62, 49.53, 137)
@@ -288,7 +286,6 @@ s.gnd(189.23, 180.34)
 s.glabel("-48V", 194, 172.72, 0)
 
 s.write(OUT, [
-    ("5F6 — Tweed Bassman-style · Circuit Codex · CC-BY-SA 4.0 · redrawn from circuit facts", 25, 66, 2.0),
-    ("Heaters, PT primary and standby omitted — see netlist.cir and meta.yaml", 25, 70.5, 1.3),
+    "Heaters, PT primary and standby omitted — see netlist.cir and meta.yaml",
 ])
 print(f"wrote {OUT}")
