@@ -1,0 +1,29 @@
+# Parts list — reference designators match schematic.kicad_sch exactly.
+# vendor_url fields land with the Phase-1 affiliate/BOM work.
+# schematic.kicad_sch has not landed with this pass (meta/netlist/voltages/bom/notes
+# only); refs below are assigned to match netlist.cir and are ready for the redraw.
+notes: "Numbering follows the schematic. The AC-line section (power transformer, fuse, line cap) is drawn as annotation only and carries no designator. Values are from the published Champ 5C1 (F-DH) drawing."
+items:
+  - { ref: R1,  part: "Carbon comp resistor", value: "75 kΩ · ½ W",        role: "Input 1 to ground" }
+  - { ref: R2,  part: "Carbon comp resistor", value: "75 kΩ · ½ W",        role: "Input 2 to ground" }
+  - { ref: R3,  part: "Carbon comp resistor", value: "5 MΩ · ½ W",         role: "6SJ7 grid leak (contact bias — no cathode resistor)" }
+  - { ref: R4,  part: "Carbon comp resistor", value: "2 MΩ · ½ W",         role: "6SJ7 screen dropper" }
+  - { ref: R5,  part: "Carbon comp resistor", value: "250 kΩ · ½ W",       role: "6SJ7 plate load" }
+  - { ref: R6,  part: "Wirewound resistor",   value: "500 Ω · 2 W",        role: "6V6 cathode bias" }
+  - { ref: R7,  part: "Power resistor",       value: "500 Ω · 1 W",        role: "Rail dropper B+1→B+2" }
+  - { ref: R8,  part: "Power resistor",       value: "25 kΩ · 1 W",        role: "Rail dropper B+2→B+3" }
+  - { ref: VR1, part: "Audio-taper potentiometer", value: "1 MΩ",          role: "Volume" }
+  - { ref: C1,  part: "Coupling capacitor",   value: "0.02 µF · 600 V",    role: "Input → 6SJ7 grid" }
+  - { ref: C2,  part: "Bypass capacitor",     value: "0.05 µF · 600 V",    role: "6SJ7 screen bypass" }
+  - { ref: C3,  part: "Coupling capacitor",   value: "0.02 µF · 600 V",    role: "6SJ7 plate → volume pot" }
+  - { ref: C4,  part: "Electrolytic capacitor", value: "25 µF · 25 V",     role: "6V6 cathode bypass" }
+  - { ref: C5,  part: "Electrolytic capacitor", value: "8 µF · 450 V",     role: "Filter, B+1 (reservoir)" }
+  - { ref: C6,  part: "Electrolytic capacitor", value: "8 µF · 450 V",     role: "Filter, B+2" }
+  - { ref: C7,  part: "Electrolytic capacitor", value: "8 µF · 450 V",     role: "Filter, B+3" }
+  - { ref: V1,  part: "Preamp tube",          value: "6SJ7",               role: "Single gain stage" }
+  - { ref: V2,  part: "Power tube",           value: "6V6GT",              role: "Single-ended output" }
+  - { ref: V3,  part: "Rectifier tube",       value: "5Y3GT",              role: "Full-wave rectifier (V3A/V3B)" }
+  - { ref: T1,  part: "Output transformer",   value: "≈5 kΩ : 8 Ω",        role: "Single-ended output (impedance not marked on the drawing; typical SE 6V6 load)" }
+  - { ref: "—", part: "Power transformer",    value: "HT · 6.3 V · 5 V",   role: "HT secondary (voltage not marked; +340 V reservoir implies ≈345-0-345) + heater and rectifier windings" }
+  - { ref: "—", part: "Line capacitor",       value: "0.05 µF · 600 V",    role: "Across the AC line at the fuse" }
+  - { ref: "—", part: "Fuse",                 value: "2 A",                role: "AC-line fuse" }

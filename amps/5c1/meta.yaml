@@ -1,0 +1,30 @@
+# Circuit Codex metadata — schema: docs/schema.md (v1)
+id: "5c1"
+name_style: "Wide-panel Champ-style"
+family: tweed
+era:
+  start: 1953
+  end: 1955
+wattage: 4
+tubes: [6SJ7, 6V6GT, 5Y3GT]
+topology:
+  rectifier: { kind: tube, type: "5Y3GT" }
+  bias: cathode
+  phase_inverter: none
+  tone_stack: none
+lineage:
+  derived_from: []   # the Champion 600 (5B1) is the documented ancestor (history/families/champ.yaml) but has no landed circuit page
+  influenced: ["5e1"]   # 5D1 is an undocumented-as-its-own-circuit component revision between this and the 5E1 redesign (12AX7 preamp swap) — see history/families/champ.yaml
+sources:
+  - desc: "Fender 'Champ-Amp' Model 5C1 drawing (F-DH), schematic + layout sheets: every component value read directly from the published sheet — dual 75 kΩ input-jack resistors summed into a single 0.02 µF·600 V coupling cap; 6SJ7 grid-leak (contact) bias, no cathode resistor, 5 MΩ leak to ground; 2 MΩ screen dropper with a 0.05 µF·600 V bypass; 250 kΩ plate load; 0.02 µF·600 V interstage coupling into a 1 MΩ volume control; 6V6 grid off the pot wiper, cathode-biased on a shared 500 Ω/25 µF·25 V network. Power supply a two-resistor RC filter across three 8 µF·450 V cans, no choke: the reservoir feeds the 6V6 plate (via the OT primary) through a 500 Ω dropper, and a second 25 kΩ dropper off THAT node supplies a third rail shared by the 6V6 screen and the whole 6SJ7 plate/screen circuit — the screen is drawn off the far side of the 25 kΩ from its own plate, not off the plate's own node. The layout sheet's printed voltage chart (NOTICE: 'voltages read to ground with electronic volt meter, values shown +or-20%') gives +340 V at the reservoir, +320 V at the 6V6 plate node, +260 V at the shared 6V6-screen/6SJ7 node, +130 V at the 6SJ7 plate, and +14 V at the 6V6 cathode. The drawing prints no transformer or output-transformer part numbers. Not reproduced here; archived at EL34World"
+    url: "https://el34world.com/charts/Schematics/files/Fender/Fender_champ_5c1_schem.pdf"
+  - desc: "Wikipedia, Fender Champ — wide-panel 5C1 dating (1953-1955) and its place in the Champion-to-Champ transition"
+    url: "https://en.wikipedia.org/wiki/Fender_Champ"
+  - desc: "Fender 'Champ-Amp Layout, Model 5C1' drawing (F-DH), page 2 of the same PDF — the source for the board-layout diagram's part order and point-to-point wiring (amps/5c1/layout.yaml). Redrawn from the published facts, never traced"
+    url: "https://el34world.com/charts/Schematics/files/Fender/Fender_champ_5c1_schem.pdf"
+verification:
+  status: verified
+  date: 2026-08-08
+  max_deviation_pct: 9.7   # 6V6 cathode (K2) vs printed chart (±20% convention); the 6SJ7 plate is reported, not gated — see voltages.yaml
+added: 2026-08-08
+contributors: [TheAnalogMaker]

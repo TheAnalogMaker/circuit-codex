@@ -1,0 +1,10 @@
+# Printed voltage chart read directly from the published Champ 5C1 (F-DH)
+# layout sheet (2026-08-08). The drawing's NOTICE prints Fender's convention:
+# "voltages read to ground with electronic volt meter, values shown +or-20%".
+# B+1 (+340 V reservoir) is the simulation reference, per project convention.
+source: "Fender Champ 5C1 (F-DH) layout sheet, printed chart: rails +340/+320/+260, 6SJ7 plate +130, 6V6 cathode +14."
+nodes:
+  BP2: { chart: 320, tol_pct: 20, note: "6V6 plate (via OT primary, DCR omitted) — single 500 Ω resistor dropper off the reservoir, no choke on this pre-5E1 circuit" }
+  BP3: { chart: 260, tol_pct: 20, note: "shared rail after the 25 kΩ dropper off BP2 — feeds the 6V6 screen (drawn off the far side of the 25 kΩ from its own plate, not off BP2) and the whole 6SJ7 plate/screen circuit" }
+  P1:  { chart: null, tol_pct: 20, note: "6SJ7 plate — chart reads +130 V, but this stage's grid-leak (contact) bias has no DC current path in the project's grid-current-free Koren tube models (models/METHODOLOGY.md, v0 limitation): with only a capacitor and a 5 Meg leak at the grid, this deck settles Vg1 at 0 V rather than the real tube's small negative contact bias, so the simulated plate current — and this node — is not comparable to the chart. Reported for reference, not gated." }
+  K2:  { chart: 14, tol_pct: 20, note: "6V6GT cathode, chart pin value (500 Ω, 25 µF bypass)" }

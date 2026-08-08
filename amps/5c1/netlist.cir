@@ -1,0 +1,58 @@
+* 5C1 (Wide-panel Champ-style) — DC operating-point netlist
+* Circuit Codex — CC-BY-SA 4.0. Independently drawn from the published Champ
+* 5C1 (F-DH) drawing's component values and printed chart (see meta.yaml);
+* no factory drawing reproduced.
+*
+* DC conventions (documented in notes.md):
+*  - B+1 = 340 V per the published chart (reservoir, the first filter node).
+*  - Downstream nodes are DERIVED by simulation, never asserted.
+*  - Two resistor droppers, no choke (the choke arrives with the 5E1 revision):
+*    500 ohm B+1->B+2 (6V6 plate only, via the OT primary, DCR omitted),
+*    then 25k B+2->B+3. B+3 feeds BOTH the 6SJ7 plate/screen circuit AND
+*    the 6V6 SCREEN — the drawing routes the 6V6 screen off the far side of
+*    the 25k dropper, not off the plate's own node, so it shares a rail with
+*    the preamp rather than sharing one with its own plate.
+*  - 6SJ7 preamp stage is grid-leak (contact) biased: a 5 Meg leak returns
+*    the grid to ground and the cathode grounds directly — no cathode
+*    resistor is drawn. The project's Koren-form tube models carry no
+*    grid-current path (models/METHODOLOGY.md, "No grid-current model
+*    (v0)"), so with only a capacitor and a to-ground resistor at the grid
+*    this DC deck necessarily settles the grid at 0 V rather than the real
+*    tube's small negative contact bias. The 6SJ7 plate/screen nodes are
+*    therefore reported, not chart-gated (voltages.yaml) — a documented
+*    model limitation, not a claim about the circuit.
+*  - DC-open caps (coupling / cathode-bypass) are MODELLED where both leads
+*    land on a named DC node, per project convention. C3 (V1 plate -> the
+*    volume pot's top lug) does NOT qualify: its far lead lands on the pot
+*    body, not on a named node, exactly like 5F1's C1 and 5E1's C2 (both
+*    coupler-into-volume-pot caps, both likewise omitted here) — so C3 is
+*    left out of this deck and stays in the unverified/unmodelled control-
+*    network island alongside the pot itself (RVOL). The AC-line cap and the
+*    input-jack network stay outside this DC-node deck for the same reason.
+.include models/6sj7.inc
+.include models/6v6gt.inc
+
+VBP1 BP1 0 DC 340
+
+* power rail: two resistor droppers (no choke on this pre-5E1 circuit)
+R7 BP1 BP2 500
+R8 BP2 BP3 25k
+
+* V1 preamp stage — 6SJ7 pentode, grid-leak (contact) bias, cathode grounded
+R5 BP3 P1 250k
+R4 BP3 SG1 2meg
+XV1 P1 SG1 G1 0 6SJ7
+R3 G1 0 5meg
+
+* V2 6V6GT output stage — plate at B+2 (via OT primary, DCR omitted),
+* screen at B+3 (off the far side of the 25k dropper, shared with the
+* 6SJ7 preamp rail — see header). Grid returned to ground through the
+* 1 Meg volume pot at DC (the pot sits downstream of C3's coupling cap,
+* which is open at DC either way and is not itself modelled — see header).
+XV2 BP2 BP3 G2 K2 6V6GT
+RVOL G2 0 1meg
+R6 K2 0 500
+
+* DC-open caps (both leads on a named DC node — placement layout-checked)
+C2 SG1 0 0.05u
+C4 K2  0  25u
