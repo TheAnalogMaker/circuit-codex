@@ -16,20 +16,75 @@ import yaml
 # Circuit ids that look like this MUST be quoted or the two loaders disagree.
 _JS_NUMERIC = re.compile(r"^[-+]?(?:\d+\.?\d*|\.\d+)(?:[eE][-+]?\d+)?$")
 
+# Circuit id grammar (docs/schema.md, "Ids and colliding designations"):
+#   <designation>                lowercase circuit designation — 5e3, ab763, jtm45
+#   <designation>-<model>        the same designation qualified by the amp model it
+#                                belongs to, for designations a maker reused across
+#                                models (ab763-twin). One hyphen, never more: the
+#                                first hyphen is the split, so the model slug is a
+#                                single lowercase token.
+ID_RE = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)?$")
+ID_LINE = re.compile(r"^id:\s*([^\s#].*?)\s*$")
+
 REQUIRED = ["id", "name_style", "family", "era", "wattage", "tubes",
             "topology", "sources", "verification"]
 FAMILIES = {"tweed", "blackface", "british", "vox", "boutique", "other"}
 STATUSES = {"draft", "verified"}
 
 
+def check_id(meta: dict, raw: str, where: str) -> list[str]:
+    """Id grammar, cross-loader quoting, and — for a model-qualified id — that the
+    qualifier names the same model the circuit's own name_style names.
+
+    That last check is what keeps `ab763-twin` from being pinned on a Deluxe
+    Reverb: the site renders the qualifier by taking the tail of name_style from
+    the word the slug matches, so if no word matches, the id and the page would
+    disagree about which amplifier this is."""
+    errors: list[str] = []
+    ident = meta.get("id")
+    if ident is None:
+        return errors  # the missing-required-field check already reported it
+    # Cross-loader guard, same trap as circuit_ref and the load-line presets: an
+    # unquoted id whose text looks numeric parses as a number in the site's YAML
+    # loader (5e1 -> 50) while PyYAML keeps the string, so the two disagree
+    # silently. Checked in the raw text, since PyYAML has already read it as text.
+    for ln, line in enumerate(raw.splitlines(), 1):
+        m = ID_LINE.match(line)
+        if not m:
+            continue
+        if _JS_NUMERIC.match(m.group(1)):
+            errors.append(
+                f"{where}:{ln}: id '{m.group(1)}' must be quoted — it parses as a "
+                f"number in the site's YAML loader (e.g. 5e1 -> 50)")
+        break
+    if not isinstance(ident, str) or not ID_RE.match(ident):
+        errors.append(
+            f"{where}: id '{ident}' must be a lowercase circuit designation, "
+            f"optionally qualified by one model slug ('<designation>-<model>', "
+            f"e.g. 'ab763-twin') — see docs/schema.md")
+        return errors
+    if "-" in ident:
+        slug = ident.split("-", 1)[1]
+        style = str(meta.get("name_style") or "")
+        words = re.findall(r"[A-Za-z0-9]+", style)
+        if not any(w.lower() == slug for w in words):
+            errors.append(
+                f"{where}: id qualifier '{slug}' does not name any word of "
+                f"name_style {style!r} — a model-qualified id must agree with the "
+                f"model the circuit says it is")
+    return errors
+
+
 def validate(meta_path: Path) -> list[str]:
     errors = []
-    meta = yaml.safe_load(meta_path.read_text())
+    raw = meta_path.read_text()
+    meta = yaml.safe_load(raw)
     if not isinstance(meta, dict):
         return [f"{meta_path}: not a mapping"]
     for key in REQUIRED:
         if key not in meta:
             errors.append(f"{meta_path}: missing required field '{key}'")
+    errors += check_id(meta, raw, str(meta_path))
     if meta.get("id") and meta["id"] != meta_path.parent.name:
         errors.append(f"{meta_path}: id '{meta['id']}' != directory '{meta_path.parent.name}'")
     if meta.get("family") and meta["family"] not in FAMILIES:
@@ -42,6 +97,13 @@ def validate(meta_path: Path) -> list[str]:
         for key in ("date", "max_deviation_pct"):
             if key not in v:
                 errors.append(f"{meta_path}: verified circuits require verification.{key}")
+        # A verified claim needs the artifacts that back it. This block used to sit,
+        # by an indentation slip, inside the `added`-is-not-a-date branch below —
+        # which is only ever reached when `added` is malformed, so it had never run.
+        for artifact in ("voltages.yaml", "netlist.cir", "notes.md",
+                         "schematic.kicad_sch", "bom.yaml"):
+            if not (meta_path.parent / artifact).exists():
+                errors.append(f"{meta_path}: verified circuits require {artifact}")
     # Every circuit must carry a provable date for the site feed: verification.date
     # once verified, an explicit `added` (the git landing date) while draft. The
     # production build is a shallow clone, so git history cannot supply it there.
@@ -50,10 +112,6 @@ def validate(meta_path: Path) -> list[str]:
                       "circuit landed in the corpus — the feed's pubDate)")
     if "added" in meta and not isinstance(meta["added"], datetime.date):
         errors.append(f"{meta_path}: 'added' must be an unquoted YYYY-MM-DD date")
-        for artifact in ("voltages.yaml", "netlist.cir", "notes.md",
-                         "schematic.kicad_sch", "bom.yaml"):
-            if not (meta_path.parent / artifact).exists():
-                errors.append(f"{meta_path}: verified circuits require {artifact}")
     errors += check_bom_refs(meta_path.parent)
     for i, src in enumerate(meta.get("sources") or []):
         if not isinstance(src, dict) or not src.get("desc"):

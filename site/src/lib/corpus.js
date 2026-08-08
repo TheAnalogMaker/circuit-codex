@@ -74,9 +74,44 @@ export function corpusStats() {
   };
 }
 
-export function displayId(id) {
+// ------------------------------------------------------------- id → label
+// Most circuit ids are just the designation the factory drawing carries, and they
+// render as themselves. Some designations were reused: AB763 heads the Deluxe
+// Reverb drawing AND the Twin Reverb drawing, AA864 likewise. Those circuits land
+// as `<designation>-<model>` ids (`ab763-twin`) — see docs/schema.md — and the
+// hyphen is the signal to render a qualifier, because a bare "AB763" in a
+// cross-cut table would name two different amplifiers.
+//
+// The qualifier text is never typed twice: it is the tail of the circuit's own
+// name_style starting at the word the slug matches, which validate.py requires to
+// exist. So `ab763-twin` + "Blackface Twin Reverb-style" renders
+// "AB763 (Twin Reverb-style)", and the label cannot drift from the entry it labels.
+const QUALIFIED_ID = /^([a-z0-9]+)-([a-z0-9]+)$/;
+
+let _styleById = null;
+function styleById(id) {
+  if (!_styleById) {
+    _styleById = new Map(loadCorpus().map((a) => [a.id, a.meta?.name_style || '']));
+  }
+  return _styleById.get(id) || '';
+}
+
+function modelQualifier(slug, nameStyle) {
+  const words = String(nameStyle || '').split(/\s+/).filter(Boolean);
+  const at = words.findIndex((w) => w.replace(/[^A-Za-z0-9].*$/, '').toLowerCase() === slug);
+  if (at >= 0) return words.slice(at).join(' ');
+  // No name_style to hand (or none that names the model): say only what the id
+  // itself says rather than inventing a style name for it.
+  return slug.charAt(0).toUpperCase() + slug.slice(1);
+}
+
+export function displayId(id, nameStyle) {
+  const raw = String(id);
+  const m = QUALIFIED_ID.exec(raw);
   // Fender's own drawings hyphenate A-suffix models: 5F6-A, 5F2-A
-  return String(id).toUpperCase().replace(/^(\d[A-Z]\d+)A$/, '$1-A');
+  const desig = (m ? m[1] : raw).toUpperCase().replace(/^(\d[A-Z]\d+)A$/, '$1-A');
+  if (!m) return desig;
+  return `${desig} (${modelQualifier(m[2], nameStyle ?? styleById(raw))})`;
 }
 
 // Minimum on-screen width (CSS px) for a board drawing of `units` viewBox units.

@@ -7,7 +7,7 @@ Schema will stabilize at the end of Phase 0 (pilot: 5f1, 5e3, 5f6a).
 
 | Field | Type | Req | Notes |
 |---|---|---|---|
-| `id` | string | ✓ | Directory name; lowercase circuit designation (`5e3`, `jtm45`) |
+| `id` | string | ✓ | Directory name; lowercase circuit designation (`5e3`, `jtm45`), optionally model-qualified (`ab763-twin`) — see [Ids and colliding designations](#ids-and-colliding-designations) |
 | `name_style` | string | ✓ | Descriptive style name (`"Tweed Deluxe-style"`) — the only place maker vocabulary appears |
 | `family` | enum | ✓ | `tweed` · `blackface` · `british` · `vox` · `boutique` · `other` |
 | `era.start` / `era.end` | int | ✓ | Production years of the circuit revision |
@@ -25,6 +25,53 @@ Schema will stabilize at the end of Phase 0 (pilot: 5f1, 5e3, 5f6a).
 | `verification.max_deviation_pct` | number | when verified | Worst node deviation, simulated vs published chart |
 | `added` | date | when draft | Day the circuit landed in the corpus (its git landing date). The feed dates a draft by it — production builds are shallow clones, so git cannot. Verified circuits are dated by `verification.date` instead |
 | `contributors` | list | — | GitHub handles, in landing order |
+
+## Ids and colliding designations
+
+The corpus is named circuit-number-first (AGENTS.md rule 2), so an id is the
+designation the factory drawing carries, lowercased: `5e3`, `aa764`, `jtm45`.
+
+That works until a maker reuses a designation. Fender did, repeatedly: **AB763
+heads the Deluxe Reverb drawing and the Twin Reverb drawing and others; AA864
+likewise.** Two circuits cannot share one directory, and neither one has a better
+claim to the bare number than the other.
+
+**The rule.** An id is one of two shapes:
+
+```
+<designation>              5e3 · ab763 · jtm45 · aa1164
+<designation>-<model>      ab763-twin · aa864-bassman
+```
+
+- `<designation>` is lowercase letters and digits, no separators.
+- `<model>` is a single lowercase token naming the amplifier model this revision
+  of the circuit belongs to. One hyphen only — the first hyphen is the split.
+- The model slug **must appear as a word in the entry's own `name_style`**.
+  `pipeline/validate.py` enforces this, so `ab763-twin` cannot be filed on a
+  Deluxe Reverb.
+- Ids that look numeric to a YAML 1.1 loader (`5e1` → `50`) must be quoted. Also
+  enforced, the same guard the history tier and the load-line presets carry.
+
+**Existing ids do not change.** URLs are permanent, and that permanence is the
+whole reason this rule exists rather than a rename convention. When a colliding
+circuit lands, it takes a qualified id and the circuit already in the corpus
+keeps its bare one. A qualified id may also land first — qualification is a
+property of the id, not of whether its sibling exists yet.
+
+**How it renders.** `displayId()` in `site/src/lib/corpus.js` splits on the
+hyphen and appends the qualifier in parentheses, taking the text from the tail of
+the circuit's own `name_style` beginning at the matched word:
+
+| id | `name_style` | renders as |
+|---|---|---|
+| `ab763` | Blackface Deluxe Reverb-style | `AB763` |
+| `ab763-twin` | Blackface Twin Reverb-style | `AB763 (Twin Reverb-style)` |
+| `5f6a` | Tweed Bassman-style | `5F6-A` |
+
+The qualifier is therefore never typed twice and cannot drift from the entry it
+labels. Pass the style explicitly — `displayId(id, meta.name_style)` — where you
+already have it; call sites that hold only an id get the same answer from the
+corpus index.
 
 ## Example
 
