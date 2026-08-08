@@ -11,9 +11,11 @@ model:
   anchor: "shares the 5881/6L6GC family model (see reference/tubes/5881.yaml)"
   anchor_source: "RCA Receiving Tube Manual RC-19, 1959, average characteristics (6L6 family)"
   note: >-
-    No separate 6L6G SPICE model is carried; the 5F4 netlist instantiates the
-    5881 model for the output pair (see amps/5f4/notes.md). This entry exists so
-    the published-layout socket pins validate against the real 6L6G basing.
+    No separate 6L6G SPICE model is carried; the 5F4, 5E5-A and 5E6-A netlists
+    all instantiate the 5881 model for their output pairs (see amps/5f4/notes.md,
+    amps/5e5a/notes.md, amps/5e6a/notes.md — the 5E5-A's bottle is lettered
+    6L6GB, one of this entry's aliases). This entry exists so the
+    published-layout socket pins validate against the real 6L6G basing.
     Caveat: because the simulation borrows the 5881/6L6GC-anchored model, any
     headroom or maximum-rating figure it produces reflects the 6L6GC family, not the
     real 6L6G — the original coke-bottle 6L6/6L6-G carries markedly lower
@@ -36,7 +38,7 @@ basing:
     6: { element: nc }
     7: { element: heater }
     8: { element: cathode, note: "internally tied to the beam-forming plates" }
-used_in: [5f4]
+used_in: ["5e5a", "5e6a", "5f4"]
 datasheets:
   - publisher: RCA
     designation: 6L6 / 6L6-G

@@ -75,7 +75,7 @@ basing:
     7: { element: plate, hv: true }
     8: { element: internal-connection }
     9: { element: screen-grid, hv: true }
-used_in: [ac15]
+used_in: ["ac15", "ac30"]
 datasheets:
   - publisher: Philips / Mullard
     designation: EL84
