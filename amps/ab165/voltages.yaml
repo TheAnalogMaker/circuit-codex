@@ -1,0 +1,71 @@
+# Printed voltage chart read directly from the published "Fender Model
+# Bassman-Amp AB165" (D-FE) drawing. The drawing's notice: "Voltages read to
+# ground with electronic voltmeter. Values shown + or - 20 %." Tube pins
+# therefore get 20 %; the supply rails get tighter internal targets, because
+# only ONE of them is driven here (BP1 = +425 V) and the rest are DERIVED
+# through the drawing's own droppers — so the rail ladder is a checked claim.
+#
+# Two printed plate voltages are carried as `disputed`. Neither is a modelling
+# disagreement: each contradicts the drawing's OWN printed part values and its
+# OWN printed cathode voltage, so it is reported with the arithmetic rather
+# than force-fitted (AGENTS.md rule 5, and see notes.md).
+source: "Fender Bassman-Amp AB165 drawing (D-FE), printed voltages: +425 (6L6GC plates pin 3 and screens pin 4, both bottles), +415 (phase-inverter supply), +390 (second-stage supply), +320 (input-stage supply), -45 (bias line at the 10 kOhm-L balance control); bass channel +220/+1.6 (V1a plate/cathode) and +260/+1.8 (V1b); normal channel +280/+1.9 (V2a) and +260/+1.9 (V2b); mixer-driver +250/+2.0 (V3b); phase inverter +225 and +220 plates over +102 joined cathodes and +100 tail junction"
+nodes:
+  # --- supply rails: derived from the driven +425 V node through 1k / 4.7k / 27k
+  BPI:  { chart: 415, tol_pct: 5, note: "phase-inverter supply, +425 through the 1 kOhm-1W dropper" }
+  BD:   { chart: 390, tol_pct: 5, note: "second-stage supply, +415 through the 4.7 kOhm-1W dropper" }
+  BC:   { chart: 320, tol_pct: 8, note: "input-stage supply, +390 through the 27 kOhm-1W dropper — the end of the ladder and the node most sensitive to preamp current" }
+
+  # --- output stage
+  SO1:  { chart: 425, tol_pct: 8, note: "V5 (6L6GC) screen after its 470 Ohm-1W stopper, off the +425 rail" }
+  SO2:  { chart: 425, tol_pct: 8, note: "V6 (6L6GC) screen after its 470 Ohm-1W stopper" }
+  GO1:  { chart: -45, tol_pct: 8, note: "V5 grid leak node, fixed bias via 220k-5% from the -45 V line" }
+  GO2:  { chart: -45, tol_pct: 8, note: "V6 grid leak node" }
+
+  # --- phase inverter (12AT7 long-tailed pair)
+  PPIA: { chart: 225, tol_pct: 20, note: "PI plate, pin 1 — 100k 5% from +415 with the 220k local feedback resistor from the output plate rail" }
+  PPIB: { chart: 220, tol_pct: 20, note: "PI plate, pin 6 — the drawing draws both plate loads at 100k 5%, so the 5 V split it prints between the two plates is meter scatter, not circuit asymmetry" }
+  KPI:  { chart: 102, tol_pct: 20, note: "PI joined cathodes (pins 3 and 8), above the 470 Ohm" }
+  JPI:  { chart: 100, tol_pct: 20, note: "PI tail junction (470 Ohm / 22k), both 1M grid leaks return here" }
+
+  # --- mixer / driver
+  PM:   { chart: 250, tol_pct: 20, note: "V3b plate, 100k from +390" }
+  KM:   { chart: 2.0, tol_pct: 20, note: "V3b cathode over 1.5k" }
+
+  # --- bass channel
+  PB1:  { chart: 220, tol_pct: 20, note: "V1a plate, 100k from +320 with the 0.01 uF treble-cut shunt across it" }
+  KB1:  { chart: 1.6, tol_pct: 20, note: "V1a cathode over 1.5k" }
+  PB2:
+    chart: 260
+    disputed: true
+    dispute_note: >-
+      The sheet draws V1b's 100 kOhm plate load on the +320 V rail (its
+      right-hand corner turns back along that rail; the +390 V line below it is
+      a separate wire the branch to the normal channel leaves from), and prints
+      +1.8 V at V1b's cathode over 1.5 kOhm. Those two printed numbers give
+      1.2 mA, which drops 120 V in the printed 100 kOhm and leaves +200 V at
+      the plate, not the printed +260 V; run backwards, +260 V through the same
+      100 kOhm is 0.6 mA, which over 1.5 kOhm is +0.9 V at the cathode, not the
+      printed +1.8 V. The printed +260 V is the value this stage would carry if
+      it hung on +390 V like the normal channel's identical second stage, which
+      the chart also prints at +260 V. Reported, not gated.
+    note: "V1b plate — printed +260 V; see dispute_note"
+  KB2:  { chart: 1.8, tol_pct: 20, note: "V1b cathode over 1.5k" }
+
+  # --- normal channel
+  PN1:
+    chart: 280
+    disputed: true
+    dispute_note: >-
+      V2a is V1a's twin — 100 kOhm plate load, 1.5 kOhm cathode, both drawn on
+      the same +320 V rail — yet the chart prints +220 V/+1.6 V on the bass
+      channel and +280 V/+1.9 V on the normal one. The pair moves the wrong
+      way against itself: the higher printed cathode voltage means MORE plate
+      current (1.9 V over 1.5 kOhm = 1.27 mA against 1.6 V = 1.07 mA), and more
+      current through the same 100 kOhm must give a LOWER plate, +193 V rather
+      than the +220 V of its twin — never the +280 V printed. Reported, not
+      gated; the cathode pin beside it (KN1) is gated normally.
+    note: "V2a plate — printed +280 V; see dispute_note"
+  KN1:  { chart: 1.9, tol_pct: 20, note: "V2a cathode over 1.5k" }
+  PN2:  { chart: 260, tol_pct: 20, note: "V2b plate, 100k from +390" }
+  KN2:  { chart: 1.9, tol_pct: 20, note: "V2b cathode over 1.5k" }

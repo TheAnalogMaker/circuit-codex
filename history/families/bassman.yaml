@@ -54,13 +54,21 @@ models:
     years: { start: 1955, end: 1957 }
     wattage: 40
     output: "push-pull 2x6L6"
-    tubes: [12AY7, 12AX7, 12AX7, 6L6, 6L6]
+    tubes: [12AY7, 12AY7, 12AX7, 6L6, 6L6, 5U4GA, 5U4GA]
     key_change: >-
       Evolutionary refinement of the 4x10 dual-rectifier circuit rather than a
-      redesign, carried in the narrow-panel tweed cabinet. The 5E6-A tidied the
-      preamp and tone circuit further. This is the mature dual-rectifier era
-      that immediately precedes the milestone 5F6.
-    circuit_ref: null
+      redesign, carried in the narrow-panel tweed cabinet: two 5U4GA rectifier
+      tubes in parallel and no choke, a 12AY7 two-channel front end, a second
+      single-section 12AY7 gain stage, and a self-biased split-load (cathodyne)
+      12AX7 phase inverter feeding the fixed-bias 6L6 pair — one revision short
+      of the 5F6, which replaces the cathodyne with a long-tailed pair and adds
+      the three-knob tone stack. The 5E6-A's only documented change from the
+      plain 5E6 is a bias-supply resistor swap (recorded as a handwritten
+      correction on the 5E6 drawing) that deepens the 6L6 bias to run the
+      plates cooler; see amps/5e6a/notes.md. The tube complement and
+      rectifier count above were corrected from the placeholder (12AY7,
+      12AX7, 12AX7; no rectifier) once amps/5e6a read them off the drawing.
+    circuit_ref: "5e6a"
     sources:
       - desc: "El34World schematic archive, Fender Bassman 5E6 drawing (designation-indexed; the drawing prints model + values)"
         url: "https://el34world.com/charts/Schematics/files/Fender/Fender_bassman_5e6.pdf"
@@ -134,16 +142,29 @@ models:
     years: { start: 1964, end: 1965 }
     wattage: 50
     output: "push-pull 2x6L6GC"
-    tubes: null
+    tubes: [7025, 7025, 7025, 12AT7, 6L6GC, 6L6GC]
     key_change: >-
       The first blackface Bassman: black Tolex, black control panel, a 50-watt
       head over a separate cabinet, and a redesigned two-channel (Bass and
       Normal) circuit built for bass duty again rather than the tweed guitar
-      voicing. Solid-state rectification replaced the rectifier tube. This is a
-      wholly different amplifier that inherited the name, not the tweed circuit.
-    circuit_ref: null
+      voicing. Solid-state rectification replaced the rectifier tube — two
+      strings of three series silicon diodes, a standby switch and a choke. The
+      two channels are not the same amplifier: Normal is the ordinary blackface
+      pair of gain stages either side of a two-knob ladder, while the Bass
+      channel adds a third stage behind a 2:1 divider and swaps the ladder for a
+      two-rung version with a 50k treble pot under a 250k series resistor, a 10k
+      bass pot, and a Deep switch that parallels a second 0.1 uF into the foot.
+      This is a wholly different amplifier that inherited the name, not the
+      tweed circuit.
+    circuit_ref: "aa864-bassman"
     sources:
-      - desc: "El34World schematic archive, Fender Bassman AA864 drawing (designation-indexed blackface circuit)"
+      - desc: >-
+          Circuit Codex amp aa864-bassman (every value and the printed voltage
+          chart read from the H-FD factory drawing, title block 'FENDER MODEL
+          "BASSMAN-AMP AA864" P/B'; three 7025 preamps, 12AT7 long-tailed-pair
+          PI with 82k/100k plates and a 22k tail returned through the 100 ohm
+          feedback foot, -44 V fixed bias, solid-state rectifier, TR1 125P7D /
+          TR2 125C1A choke / TR3 125A13A output)
         url: "https://el34world.com/charts/Schematics/files/Fender/Fender_bassman_aa864.pdf"
       - desc: "Wikipedia, 'Fender Bassman' — AA864 blackface circuit, 1964, black Tolex and control panel"
         url: "https://en.wikipedia.org/wiki/Fender_Bassman"
@@ -160,9 +181,9 @@ models:
       inverter, a pair of 6L6GC output tubes and a solid-state rectifier, with
       the distinctive blend/feedback network on the Bass channel. It shares
       only the name with the tweed 4x10 amps.
-    circuit_ref: null
+    circuit_ref: "ab165"
     sources:
-      - desc: "El34World schematic archive, Fender Bassman AB165 drawing — read directly: 'Bassman-Amp AB165', Bass and Normal channels, 7025 preamps, 12AT7 phase inverter, 6L6GC (2) output, solid-state rectifier, +425/+390/+320/+260 V rails"
+      - desc: "Circuit Codex amp ab165 (every value and the printed voltage chart read from the D-FE factory drawing; three 7025 preamps, 12AT7 long-tailed pair with a 220k local feedback resistor from each output plate, 6L6GC pair fixed-biased at -45 V, solid-state rectification, rails +425/+415/+390/+320)"
         url: "https://el34world.com/charts/Schematics/files/Fender/Fender_bassman_ab165.pdf"
       - desc: "Wikipedia, 'Fender Bassman' — AB165 introduced c. 1965, carried into the early silverface (drip-edge) period, trend toward cleaner sound and more headroom"
         url: "https://en.wikipedia.org/wiki/Fender_Bassman"

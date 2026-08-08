@@ -1,0 +1,42 @@
+# Printed voltage chart read directly from the published "BASSMAN-AMP AA864"
+# drawing (H-FD). The sheet's notice: "Voltages read to ground with electronic
+# voltmeter. Values shown + or - 20%." Tube pins therefore get 20%; the rails
+# derived from a driven node get tighter internal targets.
+#
+# Two rails are DRIVEN at their printed values (BPL = +422 V, the OT centre tap /
+# 6L6GC plate rail, BSC = +420 V screen rail beyond the choke) and everything below is solved
+# through the drawn droppers; see netlist.cir.
+source: "Fender AA864 Bassman-Amp drawing, printed voltages: +422 (reservoir, and again at the OT centre tap / choke input past the standby switch), +420 (6L6GC plates), +420 (screen rail past the TR2 choke, and again at the 6L6GC screens), +410 (phase-inverter plate rail), +380 (preamp rail, from the layout sheet; the circuit sheet prints +340 at the same node — see the BPR note), +250 (Normal channel plates, both stages), +235 (Bass channel plates, both stages), +240 (Bass-channel driver plate), +220/+205 (PI plates, 82k/100k sides), +95 (PI joined cathodes), +93 (PI tail junction), +2.0 (Bass channel cathodes), +1.8 (Normal channel cathodes), +1.9 (driver cathode), -44 (6L6GC fixed bias)"
+nodes:
+  S61:  { chart: 420, tol_pct: 8,  note: "6L6GC (V5) screen after its 470 Ohm-1W stopper, off the +420 screen rail" }
+  G61:  { chart: -44, tol_pct: 8,  note: "6L6GC (V5) grid, fixed bias via 220k from the -44 V supply, through the 1.5k stopper" }
+  BPI:  { chart: 410, tol_pct: 5,  note: "phase-inverter plate rail, derived from the driven +420 screen rail through the drawn 1 kOhm-1W dropper" }
+  BPR:
+    chart: 380
+    tol_pct: 20
+    note: >-
+      Preamp rail, below the 4.7 kOhm-1W dropper. The two published sheets print
+      two different figures at this node and only one of them closes. The LAYOUT
+      sheet marks the eyelet that feeds the preamp plate loads +380 V; the
+      circuit sheet marks the same node +340 V. Take the circuit sheet's figure
+      and the drawn resistor must pass (410-340)/4.7k = 14.9 mA, but the only
+      load is five 100 kOhm-loaded preamp triodes. Take the layout sheet's and
+      the arithmetic closes: (380-235)/100k + (380-235)/100k + (380-250)/100k +
+      (380-250)/100k + (380-240)/100k = 6.90 mA, a 32 V drop, putting the node
+      at +378 V. The entry therefore carries the layout sheet's +380 V and
+      records the circuit sheet's +340 V as the figure that does not close.
+  PB1:  { chart: 235, tol_pct: 20, note: "Bass channel input plate (V1a), 100k from the preamp rail" }
+  KB1:  { chart: 2.0, tol_pct: 20, note: "Bass channel input cathode over 1.5k (25 uF bypass)" }
+  PB2:  { chart: 235, tol_pct: 20, note: "Bass channel 2nd-stage plate (V1b), 100k from the preamp rail" }
+  KB2:  { chart: 2.0, tol_pct: 20, note: "Bass channel 2nd-stage cathode over 1.5k (25 uF bypass)" }
+  PB3:  { chart: 240, tol_pct: 20, note: "Bass channel driver plate (V3b), 100k with 0.005 uF across it" }
+  KB3:  { chart: 1.9, tol_pct: 20, note: "Bass channel driver cathode over 1.5k — the one preamp cathode with no bypass can" }
+  PN1:  { chart: 250, tol_pct: 20, note: "Normal channel input plate (V2a), 100k from the preamp rail" }
+  KN1:  { chart: 1.8, tol_pct: 20, note: "Normal channel input cathode over 1.5k (25 uF bypass)" }
+  PN2:  { chart: 250, tol_pct: 20, note: "Normal channel 2nd-stage plate (V2b), 100k from the preamp rail" }
+  KN2:  { chart: 1.8, tol_pct: 20, note: "Normal channel 2nd-stage cathode over 1.5k (25 uF bypass)" }
+  PPA:  { chart: 220, tol_pct: 20, note: "PI plate, 82k (hot) side" }
+  PPB:  { chart: 205, tol_pct: 20, note: "PI plate, 100k (cold) side" }
+  KPI:  { chart: 95,  tol_pct: 20, note: "PI joined cathodes, above the 470 Ohm" }
+  JPI:  { chart: 93,  tol_pct: 20, note: "PI tail junction (470 Ohm / 22k), grid-leak return" }
+  NFB:  { chart: null, note: "negative-feedback node — the 22k tail's return, working into the 100 Ohm to ground. Not printed on the chart; reported for information" }

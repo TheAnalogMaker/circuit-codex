@@ -799,6 +799,10 @@ const TONE_STACK_SPECS = [
 //     this entry makes the vibrato channel's drawing gated too.
 //   aa764 — read at lug level (treble-wiper output, bass rheostat, 15 kΩ leg)
 //     but not yet built into a preset; see the absence note above.
+//   ab165 — like the AB763 it draws the two-knob ladder once per channel, and
+//     both are read at lug level. The two differ only in their part values
+//     (390 pF / 8.2 kΩ on the bass-instrument channel against 250 pF / 6.8 kΩ
+//     on the normal one), so both are gated here rather than plotted twice.
 // eslint-disable-next-line no-unused-vars -- read by pipeline/check_tonestack_wiring.py
 const TONE_STACK_GATE_EXTRAS = [
   {
@@ -811,7 +815,23 @@ const TONE_STACK_GATE_EXTRAS = [
     refs: { slope: 'R6', trebleCap: 'C2', treblePot: 'VR2', bassCap: 'C3', bassPot: 'VR3', midCap: 'C4' },
     midLeg: { kind: 'fixed', ref: 'R7' },
   },
+  {
+    id: 'ab165', kind: 'tb', wiring: 'ladder', channel: 'normal',
+    refs: { slope: 'RSN', trebleCap: 'CTN', treblePot: 'VRTN', bassCap: 'CBN', bassPot: 'VRBN', midCap: 'CBN2' },
+    midLeg: { kind: 'fixed', ref: 'RSLN' },
+  },
+  {
+    id: 'ab165', kind: 'tb', wiring: 'ladder', channel: 'bass instrument',
+    refs: { slope: 'RSB', trebleCap: 'CTB', treblePot: 'VRTB', bassCap: 'CBB', bassPot: 'VRBB', midCap: 'CBB2' },
+    midLeg: { kind: 'fixed', ref: 'RSLB' },
+  },
 ];
+
+// The gate-extras' own ids. The tone-stack lab's absentee accounting has to
+// separate "read at lug level, held by the wiring gate, simply not built into a
+// preset yet" from "not read that closely yet" — and that distinction is exactly
+// this table's membership, so the page reads it rather than restating it.
+export const TONE_STACK_GATED_IDS = [...new Set(TONE_STACK_GATE_EXTRAS.map((e) => e.id))];
 
 export const TONE_STACK_KINDS = {
   fmv: { label: 'Three-knob stack', controls: ['treble', 'mid', 'bass'] },

@@ -1,0 +1,99 @@
+* 5E6-A (Tweed Bassman-style) — DC operating-point netlist
+* Circuit Codex — CC-BY-SA 4.0. Independently drawn from the published 5E6-A
+* (A-EE) drawing's component values (see meta.yaml); no drawing reproduced.
+*
+* DC conventions: B+1 driven at the printed +420 V. The drawing also reads
+* +410/+405 V at nearby points on what is otherwise the same node — three
+* separate 16uF/450V filter caps sit at slightly different physical points
+* along a low-impedance rail with no choke or dropping resistor between them
+* (6L6G plates, screens, and the OT centre tap all land here directly) — the
+* three readings are treated as one lumped node here, +420 V taken as the
+* first-filter figure. Downstream nodes DERIVED through the two printed 10k
+* droppers. No choke on this drawing at all (unlike 5F6/5F6-A/5F4's 14684).
+*
+* Bias supply replaced by an ideal -42 V source (its selenium/3300R/100uF/56k
+* network is AC/ripple filtering; the printed sign is not clearly legible in
+* the archived scan — read as negative for consistency with every other
+* fixed-bias amp in this family; see notes.md).
+*
+* The two 5U4GA rectifier tubes are NOT instantiated: like every other amp in
+* this corpus, the DC model treats the rectifier + PT as an ideal B+ source
+* (rectifier forward-drop/sag is not a DC-operating-point claim). Output
+* tubes are drawn "6L6G"; the 6L6-family 5881 model stands in for them, the
+* same convention amps/5f4 already established (see reference/tubes/6l6g.yaml).
+*
+* Tone-stack network (Presence/Bass/Treble) is DC-open and abstracted as a
+* single 1 MEG grid leak at each of V2's and V3's grids, the same treatment
+* amps/5f6a gives its own tone ladder — the network's own resistors return
+* every leg to a DC-defined point (pot lugs, ground), so no grid current
+* flows through it regardless of control settings.
+.include models/12ay7.inc
+.include models/12ax7.inc
+.include models/5881.inc
+
+VBP1 BP1 0 DC 420
+VBIAS NBIAS 0 DC -42
+
+* rail: 10k -> V3/PI supply node, 10k -> preamp supply node (no choke here)
+RD1 BP1 BP2 10k
+RD2 BP2 BP3 10k
+
+* V1 12AY7 — two-channel input, shared 820R cathode (250uF/6V bypass).
+* No grid stoppers on this drawing (unlike the 5F6/5F6-A's 68k).
+RL1 BP3 PAY1 100k
+XV1A PAY1 GAY1 KAY 12AY7
+RG1 GAY1 0 1meg
+RL2 BP3 PAY2 100k
+XV1B PAY2 GAY2 KAY 12AY7
+RG2 GAY2 0 1meg
+RK1 KAY 0 820
+C1 KAY 0 250u
+
+* V2 12AY7 — single-section extra gain stage (the second physical 12AY7 on
+* the A-EE drawing; only one triode section is wired). Grid returns to
+* ~ground: the two channels' 1M leaks + 270k mixers reach ground through the
+* volume pots at DC, modeled here as a single 1meg leak (same treatment as
+* 5f6a's V2A).
+RL3 BP3 P2A 100k
+XV2A P2A G2A K2A 12AY7
+RG3 G2A 0 1meg
+RK2 K2A 0 1500
+C2 K2A 0 25u
+
+* V3 12AX7 — self-biased split-load (cathodyne) phase inverter, the same
+* shape as the 5F4's V3B (which this corpus has already verified converges
+* sensibly in ngspice): plate 56k; cathode split into 1.5k, between the
+* cathode pin KPI and the junction JPI, then 56k from JPI to ground — so JPI
+* sits only slightly below KPI (the small 1.5k drop), not near ground; the
+* grid leak (1 MEG) returns to JPI, giving the tube a small, self-consistent
+* negative bias rather than the ~-70 V a naive "JPI near ground" reading
+* would imply (physically impossible for a 12AX7 — an earlier draft of this
+* netlist tried exactly that reading, from a misassigned printed figure, and
+* ngspice drove the tube to near cutoff, which is how the mistake was caught;
+* see voltages.yaml for why PPI/KPI/JPI are left informational this pass
+* rather than asserted against a specific misassigned reading). Only one of
+* the 12AX7's two triode sections is wired on this drawing (the other is not
+* shown connected). The Presence/Bass/Treble ladder ahead of it is DC-open
+* (see header), so the grid's actual DC reference is the JPI junction
+* regardless of pot settings.
+RLA BP2 PPI 56k
+XV3A PPI GPI KPI 12AX7
+RGPI GPI JPI 1meg
+RTAIL KPI JPI 1.5k
+RT2 JPI 0 56k
+
+* Cathodyne -> 6L6G grids: 0.1u coupling caps (DC-open) + 1.5k grid stoppers.
+* PPI (the plate output) drives V4's grid; KPI (the cathode output) drives
+* V5's — the split-load's two anti-phase outputs.
+C5 PPI NG51 0.1u
+R5s NG51 G51 1.5k
+C6 KPI NG52 0.1u
+R6s NG52 G52 1.5k
+
+* 6L6G pair (drawn "6L6G" on the sheet; simulated as 5881 — see header).
+* Fixed bias via 220k leaks from the -42 V supply. No screen resistors and no
+* choke on this drawing: screens tied straight to B+1 alongside the plates.
+RGL1 NBIAS G51 220k
+XV4 BP1 BP1 G51 0 5881
+RGL2 NBIAS G52 220k
+XV5 BP1 BP1 G52 0 5881

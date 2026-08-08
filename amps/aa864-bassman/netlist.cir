@@ -1,0 +1,136 @@
+* AA864 (Blackface Bassman-style) — DC operating-point netlist
+* Circuit Codex — CC-BY-SA 4.0. Independently drawn from the published
+* "BASSMAN-AMP AA864" drawing's component values (see meta.yaml); no drawing
+* reproduced. The sheet labels the preamp bottles 7025 — an alias for the 12AX7
+* (reference/tubes/12ax7.yaml also_known_as) — and the output pair 6L6GC, which
+* instantiates models/5881.inc: that model is anchored on the RC-19 6L6-GC
+* average characteristics, so this is the family's own model, not a substitution
+* (reference/tubes/5881.yaml, models/METHODOLOGY.md).
+*
+* DC conventions. Two printed rail nodes are driven at their charted values and
+* every stage below is solved: BPL = +422 V (OT centre tap / 6L6 plate rail, OT
+* primary DCR omitted) and BSC = +420 V (the screen rail on the far side of the
+* choke, TR2 — the choke's DCR is not modelled because both of its ends are
+* printed). The 6L6 screens hang off BSC through their 470 Ohm-1W stoppers. The
+* two rails below are then DERIVED through the drawn droppers: BPI (PI plates)
+* through the 1 kOhm-1W, and BPR (preamp) through the 4.7 kOhm-1W.
+*
+* THE PREAMP RAIL BPR — two sheets, two figures. The circuit sheet prints +410 V
+* above the 4.7 kOhm dropper and +340 V below it, which would demand 14.9 mA
+* through that resistor; the five 100 kOhm-loaded preamp triodes it feeds cannot
+* draw a third of that. The LAYOUT sheet marks the same eyelet +380 V, and that
+* figure closes: the plates' own printed voltages price the draw at 6.90 mA, a
+* 32 V drop from +410. The drawn resistor is kept and BPR solved (379 V) rather
+* than driven; voltages.yaml gates it against the layout sheet's +380 V and
+* records the circuit sheet's +340 V as the figure that does not close.
+*
+* Fixed-bias supply (305 V AC tap + 470 Ohm-1W + silicon diode + 25 uF/50 V can +
+* 10k-L / 15k divider) is replaced by an ideal -44 V source, exactly as its
+* AC/ripple-filtering role warrants. The 820 Ohm negative-feedback resistor from
+* the OT secondary sits at ~0 V DC and is omitted, as in the corpus's other
+* blackface circuits; the 100 Ohm it works into IS modelled, because the phase
+* inverter's 22k tail returns through it.
+*
+* DC-open caps are MODELLED where BOTH leads land on a named DC node (every
+* cathode-bypass can, the interstage couplers, the 0.005 uF across the driver's
+* plate load, the 0.001 uF across the divider foot, the PI cold-grid 0.1/200) so an
+* eventual layout is placement-checked; open at DC they move no operating point.
+* Caps into the abstracted tone / volume networks stay omitted — no DC path runs
+* through either tone stack (both slope chains reach ground only through 0.1 uF).
+.include models/12ax7.inc
+.include models/12at7.inc
+.include models/5881.inc
+
+VBPL BPL 0 DC 422
+VBSC BSC 0 DC 420
+VBIAS NBIAS 0 DC -44
+
+* rail droppers, both 1 W on the sheet
+RD1 BSC BPI 1k
+RD2 BPI BPR 4.7k
+
+* --- Bass channel input V1a (7025): 100k plate, 1.5k cathode (25uF/25V), grid
+*     returned to ground through the input jacks' 1M leak (68k stoppers carry no
+*     DC). Plate rail BPR.
+RLB1 BPR PB1 100k
+XV1A PB1 GB1 KB1 12AX7
+RGB1 GB1 0 1meg
+RKB1 KB1 0 1500
+CKB1 KB1 0 25u
+
+* --- Bass channel 2nd stage V1b (7025): 100k plate, 1.5k cathode (25uF/25V);
+*     its grid returns through the 250k Bass volume pot (~0 V DC).
+RLB2 BPR PB2 100k
+XV1B PB2 GB2 KB2 12AX7
+RGB2 GB2 0 250k
+RKB2 KB2 0 1500
+CKB2 KB2 0 25u
+
+* --- Bass channel driver V3b (7025), the third gain stage this channel has and
+*     the Normal channel does not. Its grid is fed from V1b through a 0.1 uF
+*     coupler into a 220k/220k divider (0.001 uF across the foot), so the grid sits
+*     at 0 V DC. 100k plate load with 0.005 uF across it; the 1.5k cathode is
+*     UNBYPASSED — the only preamp cathode on the sheet without a can.
+CCB2 PB2 NDIV 0.1u
+RDV1 NDIV GB3 220k
+RDV2 GB3 0 220k
+CDV  GB3 0 0.001u
+RLB3 BPR PB3 100k
+CLB3 PB3 BPR 0.005u
+XV3B PB3 GB3 KB3 12AX7
+RKB3 KB3 0 1500
+
+* --- Normal channel input V2a (7025): identical topology to V1a, plate rail BPR.
+RLN1 BPR PN1 100k
+XV2A PN1 GN1 KN1 12AX7
+RGN1 GN1 0 1meg
+RKN1 KN1 0 1500
+CKN1 KN1 0 25u
+
+* --- Normal channel 2nd stage V2b (7025): grid returns through the 1M Normal
+*     volume pot (~0 V DC).
+RLN2 BPR PN2 100k
+XV2B PN2 GN2 KN2 12AX7
+RGN2 GN2 0 1meg
+RKN2 KN2 0 1500
+CKN2 KN2 0 25u
+
+* --- Channel mix. Both channels meet at NMIX through their own 220k, and the
+*     mixed signal reaches the phase inverter through a 500 pF coupler. No DC
+*     flows: the two plates sit within a volt of each other and the coupler is
+*     open.
+RMXB PB3 NMIX 220k
+RMXN PN2 NMIX 220k
+CPI  NMIX GPA 500p
+
+* --- Phase inverter V4 (12AT7 long-tailed pair): 82k (hot) and 100k (cold) 5%
+*     plate loads from BPI; cathodes joined at KPI, 470 Ohm to the tail junction
+*     JPI, 22k tail from JPI to the feedback node NFB, 100 Ohm from NFB to
+*     ground; both 1M grid leaks return to JPI. The cold grid is AC-coupled to
+*     NFB through the 0.1/200 (DC-open).
+RLPA BPI PPA 82k
+XV4A PPA GPA KPI 12AT7
+RGPA GPA JPI 1meg
+RLPB BPI PPB 100k
+XV4B PPB GPB KPI 12AT7
+RGPB GPB JPI 1meg
+RTAIL KPI JPI 470
+RT2 JPI NFB 22k
+RNF NFB 0 100
+CPIB NFB GPB 0.1u
+
+* --- Output pair 6L6GC (fixed bias): 0.1 uF couplers into 220k-5% grid leaks
+*     returned to the -44 V line, then 1.5k grid stoppers; screens off BSC
+*     through 470 Ohm-1W; cathodes grounded; plates at BPL (OT primary DCR
+*     omitted). Two distinct single-ended bottles V5 / V6 — naming them XV5A /
+*     XV5B would collapse them into one dual-section bottle.
+C1 PPA GG1 0.1u
+RGL1 NBIAS GG1 220k
+RGS1 GG1 G61 1500
+XV5 BPL S61 G61 0 5881
+RS1 BSC S61 470
+C2 PPB GG2 0.1u
+RGL2 NBIAS GG2 220k
+RGS2 GG2 G62 1500
+XV6 BPL S62 G62 0 5881
+RS2 BSC S62 470

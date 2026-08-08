@@ -1,0 +1,120 @@
+# Parts list — read from the published "BASSMAN-AMP AA864" drawing (H-FD).
+# Reference designators follow the DC netlist where a part is modeled and are
+# descriptive otherwise; every one of them is cross-checked against the redrawn
+# schematic (schematic.kicad_sch) by pipeline/validate.py, in both directions.
+# Values are the drawing's; the notice sets ½ W / 10% resistors and 400 V caps
+# unless noted.
+notes: "The drawing shows one jack pair per channel; the chassis carries two jacks per channel. Three 7025 bottles supply six triode sections and the circuit uses five — the Bass channel takes three stages and the Normal channel two — so one section is unused; the sheet does not say which bottle carries it. The tone stacks differ between channels: the Normal channel draws the blackface two-knob ladder (100 kΩ slope + 250 pF off the plate, 0.1 µF to the treble-lug/bass node, bass rheostat over the 0.047 µF / 6.8 kΩ foot), while the Bass channel draws the same ladder with a 250 kΩ resistor above a 50 kΩ treble pot, a 10 kΩ bass pot, three 0.1 µF caps off the slope node instead of the Normal channel's 0.1 / 0.047 pair, and a Deep switch that parallels the third of them into the grounded foot."
+items:
+  # --- Bass channel input (V1a) ---
+  - { ref: R1b, part: "Carbon comp resistor", value: "68 kΩ · ½ W",  role: "Bass input grid stopper (jack 1)" }
+  - { ref: R2b, part: "Carbon comp resistor", value: "68 kΩ · ½ W",  role: "Bass input grid stopper (jack 2)" }
+  - { ref: RGB1, part: "Carbon comp resistor", value: "1 MΩ · ½ W",  role: "Bass input grid leak" }
+  - { ref: RLB1, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "V1a plate load" }
+  - { ref: RKB1, part: "Carbon comp resistor", value: "1.5 kΩ · ½ W", role: "V1a cathode bias" }
+  - { ref: CKB1, part: "Electrolytic capacitor", value: "25 µF · 25 V", role: "V1a cathode bypass" }
+  # --- Bass channel tone stack (Treble / Bass / Deep) ---
+  - { ref: CTB, part: "Mica capacitor",       value: "250 pF",         role: "Bass-channel treble cap, off the V1a plate" }
+  - { ref: RTB, part: "Carbon comp resistor", value: "250 kΩ · ½ W",   role: "Bass-channel treble series resistor, above the treble pot" }
+  - { ref: VRTB, part: "Potentiometer",       value: "50 kΩ-A",        role: "Bass-channel treble" }
+  - { ref: RSB1, part: "Carbon comp resistor", value: "100 kΩ · ½ W",  role: "Bass-channel slope resistor, plate to the ladder node" }
+  - { ref: CBB1, part: "Coupling capacitor",  value: "0.1 µF",         role: "Bass-channel ladder cap, slope node to the treble-lug/bass-top junction" }
+  - { ref: CBB2, part: "Coupling capacitor",  value: "0.1 µF",         role: "Bass-channel ladder cap, slope node to the bass-pot foot" }
+  - { ref: CBB3, part: "Coupling capacitor",  value: "0.1 µF",         role: "Bass-channel Deep cap, switched in parallel with CBB2" }
+  - { ref: SWDEEP, part: "Toggle switch",     value: "SPST",           role: "Deep switch — parallels CBB3 into the ladder foot" }
+  - { ref: VRBB, part: "Potentiometer",       value: "10 kΩ-A",        role: "Bass-channel bass (rheostat in the ladder)" }
+  - { ref: VRVB, part: "Audio-taper potentiometer", value: "250 kΩ-A", role: "Bass-channel volume" }
+  # --- Bass channel 2nd stage (V1b) ---
+  - { ref: RLB2, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "V1b plate load" }
+  - { ref: RKB2, part: "Carbon comp resistor", value: "1.5 kΩ · ½ W", role: "V1b cathode bias" }
+  - { ref: CKB2, part: "Electrolytic capacitor", value: "25 µF · 25 V", role: "V1b cathode bypass" }
+  - { ref: CCB2, part: "Coupling capacitor",  value: "0.1 µF",         role: "V1b plate → driver grid divider" }
+  - { ref: RDV1, part: "Carbon comp resistor", value: "220 kΩ · ½ W", role: "Driver grid divider, series leg" }
+  - { ref: RDV2, part: "Carbon comp resistor", value: "220 kΩ · ½ W", role: "Driver grid divider, shunt leg" }
+  - { ref: CDV, part: "Mica capacitor",       value: "0.001 µF",       role: "Driver grid divider shunt cap, across RDV2" }
+  # --- Bass channel driver (V3b) ---
+  - { ref: RLB3, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "Driver plate load" }
+  - { ref: CLB3, part: "Mica capacitor",      value: "0.005 µF",       role: "Driver plate-load bypass — treble roll-off across RLB3" }
+  - { ref: RKB3, part: "Carbon comp resistor", value: "1.5 kΩ · ½ W", role: "Driver cathode bias (no bypass capacitor)" }
+  - { ref: RMXB, part: "Carbon comp resistor", value: "220 kΩ · ½ W", role: "Bass-channel mix resistor into the phase-inverter grid node" }
+  # --- Normal channel input (V2a) ---
+  - { ref: R1n, part: "Carbon comp resistor", value: "68 kΩ · ½ W",  role: "Normal input grid stopper (jack 1)" }
+  - { ref: R2n, part: "Carbon comp resistor", value: "68 kΩ · ½ W",  role: "Normal input grid stopper (jack 2)" }
+  - { ref: RGN1, part: "Carbon comp resistor", value: "1 MΩ · ½ W",  role: "Normal input grid leak" }
+  - { ref: RLN1, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "V2a plate load" }
+  - { ref: RKN1, part: "Carbon comp resistor", value: "1.5 kΩ · ½ W", role: "V2a cathode bias" }
+  - { ref: CKN1, part: "Electrolytic capacitor", value: "25 µF · 25 V", role: "V2a cathode bypass" }
+  # --- Normal channel tone stack (Treble / Bass / Bright) ---
+  - { ref: CTN, part: "Mica capacitor",       value: "250 pF",         role: "Normal treble cap, off the V2a plate" }
+  - { ref: VRTN, part: "Potentiometer",       value: "250 kΩ-A",       role: "Normal treble" }
+  - { ref: RSN, part: "Carbon comp resistor", value: "100 kΩ · ½ W",   role: "Normal tone-stack slope resistor" }
+  - { ref: CBN, part: "Coupling capacitor",   value: "0.1 µF",         role: "Normal tone-stack bass cap, slope node to the bass pot" }
+  - { ref: VRBN, part: "Potentiometer",       value: "250 kΩ-A",       role: "Normal bass (rheostat in the ladder)" }
+  - { ref: CBN2, part: "Coupling capacitor",  value: "0.047 µF",       role: "Normal tone-stack middle-leg cap, slope node to the bleed resistor" }
+  - { ref: RSLN, part: "Carbon comp resistor", value: "6.8 kΩ · ½ W",  role: "Normal tone-stack bleed resistor" }
+  - { ref: VRVN, part: "Audio-taper potentiometer", value: "1 MΩ-A",   role: "Normal volume" }
+  - { ref: CBRN, part: "Mica capacitor",      value: "120 pF",         role: "Normal bright cap, across the volume pot (top lug to wiper)" }
+  - { ref: SWBRT, part: "Toggle switch",      value: "SPST",           role: "Bright switch — puts CBRN across the volume pot" }
+  # --- Normal channel 2nd stage (V2b) ---
+  - { ref: RLN2, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "V2b plate load" }
+  - { ref: RKN2, part: "Carbon comp resistor", value: "1.5 kΩ · ½ W", role: "V2b cathode bias" }
+  - { ref: CKN2, part: "Electrolytic capacitor", value: "25 µF · 25 V", role: "V2b cathode bypass" }
+  - { ref: RMXN, part: "Carbon comp resistor", value: "220 kΩ · ½ W", role: "Normal-channel mix resistor into the phase-inverter grid node" }
+  # --- Phase inverter (V4 12AT7 LTP) ---
+  - { ref: CPI, part: "Mica capacitor",       value: "500 pF",         role: "Mix node → PI hot-grid coupling" }
+  - { ref: RLPA, part: "Carbon comp resistor", value: "82 kΩ · ½ W · 5%", role: "PI plate load (hot side)" }
+  - { ref: RLPB, part: "Carbon comp resistor", value: "100 kΩ · ½ W · 5%", role: "PI plate load (cold side)" }
+  - { ref: RGPA, part: "Carbon comp resistor", value: "1 MΩ · ½ W",   role: "PI grid leak (hot), returned to the tail junction" }
+  - { ref: RGPB, part: "Carbon comp resistor", value: "1 MΩ · ½ W",   role: "PI grid leak (cold), returned to the tail junction" }
+  - { ref: RTAIL, part: "Carbon comp resistor", value: "470 Ω · ½ W", role: "PI cathode resistor" }
+  - { ref: RT2, part: "Carbon comp resistor", value: "22 kΩ · ½ W",   role: "PI tail (junction → feedback node)" }
+  - { ref: RNF, part: "Carbon comp resistor", value: "100 Ω · ½ W",   role: "Feedback node → ground; the tail's return and the NFB divider foot" }
+  - { ref: RNFB, part: "Carbon comp resistor", value: "820 Ω · ½ W",  role: "Negative feedback, OT secondary → feedback node (DC-neutral)" }
+  - { ref: CPIB, part: "Coupling capacitor",  value: "0.1 µF · 200 V", role: "Feedback node → PI cold grid" }
+  # --- Output stage (6L6GC pair) ---
+  - { ref: C1,  part: "Coupling capacitor",   value: "0.1 µF · 400 V", role: "PI hot plate → V5 grid" }
+  - { ref: C2,  part: "Coupling capacitor",   value: "0.1 µF · 400 V", role: "PI cold plate → V6 grid" }
+  - { ref: RGL1, part: "Carbon comp resistor", value: "220 kΩ · ½ W · 5%", role: "V5 grid leak, from the −44 V bias line" }
+  - { ref: RGL2, part: "Carbon comp resistor", value: "220 kΩ · ½ W · 5%", role: "V6 grid leak, from the −44 V bias line" }
+  - { ref: RGS1, part: "Carbon comp resistor", value: "1.5 kΩ · ½ W", role: "V5 grid stopper" }
+  - { ref: RGS2, part: "Carbon comp resistor", value: "1.5 kΩ · ½ W", role: "V6 grid stopper" }
+  - { ref: RS1, part: "Wirewound resistor",   value: "470 Ω · 1 W",   role: "V5 screen resistor" }
+  - { ref: RS2, part: "Wirewound resistor",   value: "470 Ω · 1 W",   role: "V6 screen resistor" }
+  - { ref: T3,  part: "Output transformer",   value: "Fender 125A13A", role: "Push-pull 6L6GC output, into the 2x12 cabinet + EXT SPKR jack" }
+  # --- Power supply ---
+  - { ref: T1,  part: "Power transformer",    value: "Fender 125P7D · 305-0-305 V AC", role: "HT + heaters + pilot (export model: 125P7DX)" }
+  - { ref: T2,  part: "Filter choke",         value: "Fender 125C1A", role: "Plate rail → screen rail" }
+  - { ref: D1,  part: "Rectifier diode",      value: "silicon",       role: "HT rectifier, upper phase (1 of 3 in series)" }
+  - { ref: D2,  part: "Rectifier diode",      value: "silicon",       role: "HT rectifier, upper phase (2 of 3 in series)" }
+  - { ref: D3,  part: "Rectifier diode",      value: "silicon",       role: "HT rectifier, upper phase (3 of 3 in series)" }
+  - { ref: D4,  part: "Rectifier diode",      value: "silicon",       role: "HT rectifier, lower phase (1 of 3 in series)" }
+  - { ref: D5,  part: "Rectifier diode",      value: "silicon",       role: "HT rectifier, lower phase (2 of 3 in series)" }
+  - { ref: D6,  part: "Rectifier diode",      value: "silicon",       role: "HT rectifier, lower phase (3 of 3 in series)" }
+  - { ref: C10, part: "Electrolytic capacitor", value: "70 µF · 350 V", role: "Reservoir, upper half of the series pair (+422 V node)" }
+  - { ref: C11, part: "Electrolytic capacitor", value: "70 µF · 350 V", role: "Reservoir, lower half of the series pair" }
+  - { ref: RBL1, part: "Wirewound resistor",  value: "220 kΩ · 1 W",  role: "Reservoir balancing resistor, across C10" }
+  - { ref: RBL2, part: "Wirewound resistor",  value: "220 kΩ · 1 W",  role: "Reservoir balancing resistor, across C11" }
+  - { ref: SWSTBY, part: "Toggle switch",     value: "SPST",          role: "Standby — +422 V reservoir to the plate rail / choke input" }
+  - { ref: C12, part: "Electrolytic capacitor", value: "20 µF · 525 V", role: "Filter, screen rail (+420 V, past the choke)" }
+  - { ref: RD1, part: "Wirewound resistor",   value: "1 kΩ · 1 W",    role: "Rail dropper, screens → phase-inverter rail" }
+  - { ref: C13, part: "Electrolytic capacitor", value: "20 µF · 525 V", role: "Filter, phase-inverter rail (+410 V)" }
+  - { ref: RD2, part: "Wirewound resistor",   value: "4.7 kΩ · 1 W",  role: "Rail dropper, phase-inverter rail → preamp rail" }
+  - { ref: C14, part: "Electrolytic capacitor", value: "20 µF · 525 V", role: "Filter, preamp rail (+380 V on the layout sheet — see voltages.yaml)" }
+  # --- Bias supply ---
+  - { ref: RBIAS, part: "Wirewound resistor", value: "470 Ω · 1 W",   role: "Bias-supply series resistor, off the 305 V AC tap" }
+  - { ref: DBIAS, part: "Rectifier diode",    value: "silicon",       role: "Bias-supply rectifier" }
+  - { ref: CB1, part: "Electrolytic capacitor", value: "25 µF · 50 V", role: "Bias-supply filter" }
+  - { ref: VRBIAS, part: "Linear potentiometer", value: "10 kΩ-L",    role: "Bias adjust — wiper feeds the 220 kΩ grid leaks" }
+  - { ref: RBIAS2, part: "Carbon comp resistor", value: "15 kΩ · ½ W", role: "Bias divider, pot to ground" }
+  # --- Mains (period parts) ---
+  - { ref: FUSE, part: "Fuse",               value: "2 A slo-blo",    role: "Mains fuse" }
+  - { ref: SWAC, part: "Toggle switch",      value: "SPST",           role: "AC switch" }
+  - { ref: SWGND, part: "Toggle switch",     value: "SPDT",           role: "Ground switch (period; not in modern builds)" }
+  - { ref: CDEATH, part: "Ceramic capacitor", value: "0.047 µF · 600 V", role: "Ground-switch cap (period; not in modern builds)" }
+  # --- Tubes ---
+  - { ref: V1,  part: "Preamp tube",          value: "7025",           role: "Bass channel input + 2nd stage (V1a/V1b)" }
+  - { ref: V2,  part: "Preamp tube",          value: "7025",           role: "Normal channel input + 2nd stage (V2a/V2b)" }
+  - { ref: V3,  part: "Preamp tube",          value: "7025",           role: "Bass channel driver (V3b); one triode section is unused" }
+  - { ref: V4,  part: "Preamp/driver tube",   value: "12AT7",          role: "Long-tailed-pair phase inverter" }
+  - { ref: V5,  part: "Power tube",           value: "6L6GC",          role: "Push-pull output (hot side)" }
+  - { ref: V6,  part: "Power tube",           value: "6L6GC",          role: "Push-pull output (cold side)" }

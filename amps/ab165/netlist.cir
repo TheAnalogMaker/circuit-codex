@@ -1,0 +1,142 @@
+* AB165 (Blackface Bassman-style) — DC operating-point netlist
+* Circuit Codex — CC-BY-SA 4.0. Independently drawn from the published
+* "Fender Model Bassman-Amp AB165" (D-FE) drawing's component values (see
+* meta.yaml); no drawing reproduced. The drawing letters the three preamp
+* bottles 7025 — an alias for the 12AX7 (reference/tubes/12ax7.yaml
+* also_known_as) — a 12AT7 phase inverter, and a 6L6GC pair; the output pair
+* uses the 6L6-family 5881 model (reference/tubes/5881.yaml, anchored on RC-19
+* 6L6GC average characteristics), exactly as amps/5f4 does for its 6L6G.
+*
+* DC conventions. ONE rail is driven — BP1 = +425 V, the printed reservoir /
+* choke node that carries the 6L6 plates (OT primary DCR omitted) and their
+* screen feed — and every rail below it is DERIVED through the drawing's own
+* droppers: 1 kOhm-1W to the +415 V phase-inverter node, 4.7 kOhm-1W on to the
+* +390 V second-stage node, 27 kOhm-1W on to the +320 V input-stage node. That
+* makes the printed rail ladder itself a checked claim rather than an input.
+*
+* The bias supply (470 Ohm-1W feed, rectifier, filter cans and the 10 kOhm /
+* 10 kOhm / 15 kOhm divider around the 10 kOhm-L BIAS BALANCE control) is
+* replaced by an ideal -45 V source, exactly as its ripple-filtering and
+* balance-trim role warrants; the printed -45 V is the value the sheet calls
+* out at the pot. DC-open caps are MODELLED where BOTH leads land on a named DC
+* node (the PI->6L6 couplers, the bass-channel plate-load shunt, the mixer
+* coupler, the PI cold-grid AC ground and every cathode-bypass can) so an
+* eventual layout is placement-checked; open at DC they move no operating
+* point. Caps into the abstracted tone / volume networks stay omitted.
+*
+* MODELLED AS DRAWN, against arithmetic. Two of the drawing's own numbers do
+* not survive its own part values; both are carried as `disputed` chart nodes
+* in voltages.yaml with the arithmetic, never force-fitted (see notes.md):
+*   - the bass channel's second-stage plate load is drawn on the +320 V rail
+*     while the normal channel's identical stage is drawn on +390 V, yet the
+*     chart prints +260 V at both plates;
+*   - the two channel-input stages are identical part for part on the same
+*     +320 V rail, yet the chart prints +220 V (bass) and +280 V (normal).
+*
+* OMITTED. The 47 kOhm / 0.1 uF negative-feedback loop from the output
+* transformer secondary to the phase inverter's hot grid: the capacitor is in
+* series with it, so the loop carries no DC and its far end sits on the speaker
+* line at 0 V. The tone stacks, volume controls, DEEP and BRIGHT switches are
+* AC networks with no DC path to a modelled node.
+* NAMING. Tube instances are named for the SOCKET they sit in and the triode
+* half they use — XV1A/XV1B (bass channel), XV2A/XV2B (normal channel), XV3B
+* (mixer/driver, the only half of its bottle the circuit uses), XPIA/XPIB
+* (12AT7 inverter), XV5/XV6 (6L6GC) — matching bom.yaml's V1..V6 and the board
+* layout's socket ids, so the layout-equivalence gate can anchor every bottle.
+.include models/12ax7.inc
+.include models/12at7.inc
+.include models/5881.inc
+
+VBP1 BP1 0 DC 425
+VBIAS NBIAS 0 DC -45
+
+* --- Supply rail ladder, all derived from BP1 (printed +425/+415/+390/+320).
+RD1 BP1 BPI 1k
+RD2 BPI BD  4.7k
+RD3 BD  BC  27k
+
+* --- Bass channel input V1a (7025/12AX7): 100k plate load off the +320 V rail
+*     with a .01 uF shunt across it (the sheet's treble cut on the bass front
+*     end), 1.5k cathode with a 25 uF can, grid returned through the input
+*     jacks' 1M leak behind two 68k stoppers.
+RLB1 BC PB1 100k
+CLB1 BC PB1 0.01u
+XV1A PB1 GB1 KB1 12AX7
+RGB1 GB1 0 1meg
+RKB1 KB1 0 1500
+CKB1 KB1 0 25u
+
+* --- Bass channel second stage V1b (7025/12AX7): 100k plate load drawn off the
+*     +320 V rail (see the dispute note above), 1.5k/25 uF cathode, grid
+*     returned through the 1M-A volume control.
+RLB2 BC PB2 100k
+XV1B PB2 GB2 KB2 12AX7
+RGB2 GB2 0 1meg
+RKB2 KB2 0 1500
+CKB2 KB2 0 25u
+
+* --- Normal channel input V2a (7025/12AX7): identical to V1a but without the
+*     plate-load shunt; 100k off +320 V, 1.5k/25 uF cathode, 1M grid leak.
+RLN1 BC PN1 100k
+XV2A PN1 GN1 KN1 12AX7
+RGN1 GN1 0 1meg
+RKN1 KN1 0 1500
+CKN1 KN1 0 25u
+
+* --- Normal channel second stage V2b (7025/12AX7): 100k plate load off the
+*     +390 V rail, 1.5k/25 uF cathode, 1M-A volume grid return.
+RLN2 BD PN2 100k
+XV2B PN2 GN2 KN2 12AX7
+RGN2 GN2 0 1meg
+RKN2 KN2 0 1500
+CKN2 KN2 0 25u
+
+* --- Channel mixer. Each second-stage plate reaches the mixing node MIX
+*     through its own 220k, and the mixer/driver's plate is returned to that
+*     same node through 470k — a DC-connected network, so it is solved, not
+*     abstracted. MIX feeds the driver grid through the .01 uF coupler.
+RMXB MIX PB2 220k
+RMXN MIX PN2 220k
+RFBM MIX PM  470k
+CMIX MIX GM  0.01u
+
+* --- Mixer/driver V3b (7025/12AX7): 100k plate load off the +390 V rail,
+*     1.5k/25 uF cathode, 470k grid leak to ground.
+RLM BD PM 100k
+XV3B PM GM KM 12AX7
+RGM GM 0 470k
+RKM KM 0 1500
+CKM KM 0 25u
+
+* --- Phase inverter V4 (12AT7 long-tailed pair): two 100k 5% plate loads off
+*     the +415 V node, cathodes joined at KPI, 470 Ohm to the tail junction
+*     JPI, 22k tail from JPI to ground, both 1M grid leaks returned to JPI.
+*     Each plate additionally carries a 220k back to the output plate rail —
+*     the AB165's local feedback pair, DC-connected and therefore solved.
+RLPA BPI PPIA 100k
+RLPB BPI PPIB 100k
+XPIA PPIA GPIA KPI 12AT7
+XPIB PPIB GPIB KPI 12AT7
+RGPA GPIA JPI 1meg
+RGPB GPIB JPI 1meg
+RTAIL KPI JPI 470
+RT2 JPI 0 22k
+RBSA BP1 PPIA 220k
+RBSB BP1 PPIB 220k
+CPIA PM GPIA 0.1u
+CPIB GPIB 0 0.1u
+
+* --- Output pair 6L6GC (fixed bias): grids to the -45 V line through 220k 5%
+*     leaks and 1500 Ohm stoppers, screens off BP1 through 470 Ohm-1W
+*     stoppers, cathodes grounded, plates at BP1 (OT primary DCR omitted).
+RGL1 NBIAS GO1 220k
+RGS1 GO1 GG1 1500
+XV5 BP1 SO1 GG1 0 5881
+RS1 BP1 SO1 470
+C1 PPIA GO1 0.022u
+
+RGL2 NBIAS GO2 220k
+RGS2 GO2 GG2 1500
+XV6 BP1 SO2 GG2 0 5881
+RS2 BP1 SO2 470
+C2 PPIB GO2 0.022u

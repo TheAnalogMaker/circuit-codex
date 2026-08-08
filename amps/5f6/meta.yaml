@@ -13,7 +13,7 @@ topology:
   phase_inverter: long-tailed-pair
   tone_stack: cathode-follower-fmv
 lineage:
-  derived_from: []          # the 5E6-series Bassman is the direct ancestor — edge added when that circuit lands
+  derived_from: ["5e6a"]    # the 5E6-A is the direct ancestor (reciprocal of amps/5e6a's influenced: ["5f6"])
   influenced: ["5f6a"]      # the 5F6-A is this circuit's direct revision
 sources:
   - desc: "Fender 'Bassman' Model 5F6 drawing (F-EG): every component value AND the printed voltage chart read directly from the published schematic (2026-08-02) — 12AY7 two-channel front end (68k stoppers, 1M leaks, 100k plates, shared 820Ω/250µF cathode), 12AX7 gain stage (100k plate, 820Ω/25µF cathode) direct-coupled to a cathode follower (100k load) feeding the treble/middle/bass stack (56k slope, 250 pF, 2×0.02 µF; 250k/1M/25k pots — the drawing's own wiring re-read 2026-08-03: both the 250 pF and the 56k leave the follower's output, the first 0.02 µF lands on the node shared by the treble pot's lower lug and the bass pot, the bass pot is a rheostat in series down the ladder, the second 0.02 µF feeds the middle pot's WIPER, and the stack's output is the treble wiper alone) whose ground leg runs through the 5 kΩ presence control, 12AX7 long-tailed-pair PI (82k/100k 5% plates, 470Ω + 10k tail to ground, 1M leaks to the tail junction, 47 pF across the plates), 5881 pair fixed-biased at −48 V through 220k leaks with 1500Ω grid stoppers and 100Ω screen resistors, and an 83 mercury-vapour rectifier; rails +432/+430/+385/+325, PT 8087, choke 14684, OT 45249. Not reproduced here; archived at EL34World"

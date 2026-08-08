@@ -1,0 +1,91 @@
+# Circuit Codex metadata — schema: docs/schema.md (v1)
+id: "5e6a"
+name_style: "Tweed Bassman-style"
+family: tweed
+era:
+  start: 1956
+  end: 1957
+wattage: 40
+tubes: [12AY7, 12AY7, 12AX7, 6L6G, 6L6G, 5U4GA, 5U4GA]
+topology:
+  rectifier: { kind: tube, type: "5U4GA", count: 2, note: "dual full-wave rectifier tubes in parallel, both cathodes tied to one B+1 node — no choke on this drawing (unlike 5F6/5F6-A/5F4)" }
+  bias: fixed
+  phase_inverter: cathodyne
+  tone_stack: bass-treble-presence   # interactive 2-knob network + separate presence; exact ladder wiring not re-read at lug level this pass — see notes.md
+lineage:
+  derived_from: []      # 5D6 / plain 5E6 (the "dual-rectifier" 4x10 tweed line this revises) are not yet their own corpus circuits
+  influenced: ["5f6"]    # the 5F6 is this circuit's direct revision — see amps/5f6/meta.yaml (reciprocal edge added there)
+sources:
+  - desc: >-
+      Fender "Bass-Man" Schematic, Model 5E6-A (drawing code A-EE): every
+      component value AND the printed voltage chart read directly from the
+      published schematic (2026-08-08) — 12AY7 two-channel input (1 MEG grid
+      leaks, no stoppers; shared 820 Ω/250 µF cathode; 100 kΩ plates → +130 V);
+      channels combine through 1 MEG leaks + 270 kΩ mixers into a second,
+      single-section 12AY7 gain stage (100 kΩ plate → +130 V, 1.5 kΩ/25 µF
+      cathode); a Presence(5k)/Bass/Treble network (220 kΩ, .005 µF, 1 MEG,
+      .01-400 legible; full ladder wiring not re-read at lug level this pass —
+      see notes.md) feeds a single-section 12AX7 self-biased split-load
+      (cathodyne) phase inverter — 56 kΩ plate, cathode split 1.5 kΩ (junction,
+      where the 1 MEG grid leak returns) + 56 kΩ (cathode pin), the same shape
+      as the 5F4's V3B (a printed pin-voltage cluster near +210/+72/+1.7 exists
+      on the sheet but this pass could not confidently assign it node-by-node —
+      see voltages.yaml) — driving a fixed-bias 6L6G pair (220 kΩ leaks, 1.5 kΩ
+      output grid stoppers, no screen resistors) from two 5U4GA rectifier tubes wired
+      in parallel (no choke: +420/+410/+405 V all read at the same
+      undropped node) through two 10 kΩ droppers to +335 V (PI) and +275 V
+      (preamp). Bias supply: selenium rectifier, 3300 Ω, 100 µF/25 V, 56 kΩ
+      bleeder. Not reproduced here; archived at EL34World.
+    url: "https://el34world.com/charts/Schematics/files/Fender/Fender_bassman_5e6a.pdf"
+  - desc: >-
+      Fender "Bass-Man" Layout, Model 5E6-A (A-EE), page 1 — corroborates the
+      schematic's component values and confirms the physical tube-socket order
+      (5U4G, 5U4G, 6L6G, 6L6G, 12AX7, 12AY7, 12AY7 — seven bottles total) and
+      the two AC-line 0.05 µF/600 V bypass caps, 3 A fuse, ground/AC/standby
+      switches and pilot lamp. Not reproduced here; archived at EL34World.
+    url: "https://el34world.com/charts/Schematics/files/Fender/Fender_bassman_5e6a.pdf"
+  - desc: >-
+      Fender "Bass-Man" Schematic, Model 5E6 (same A-EE drawing code as the
+      5E6-A) — read side by side with the 5E6-A to confirm the two circuits
+      are otherwise identical and to date the one substantive change: a
+      handwritten note on the 5E6 sheet by the bias-supply resistor reads
+      "THIS CHANGE TO INCREASE BIAS ON PLATES SO WON'T GET HOT", with the
+      resistor's value struck through; the 5E6-A drawing prints the changed
+      value (3300 Ω) cleanly with no annotation, confirming the -A suffix
+      marks that fix landing. A lower series resistor in this bias-supply
+      topology delivers a more negative (larger-magnitude) bias, consistent
+      with the note's stated intent of reducing 6L6G plate dissipation.
+    url: "https://el34world.com/charts/Schematics/files/Fender/Fender_bassman_5e6.pdf"
+  - desc: >-
+      Schematic Heaven, Fender Bassman 5E6-A schematic + layout scan — a
+      higher-resolution independent scan of the same A-EE drawing, used to
+      cross-check the values above (title block, component values and printed
+      voltages all agree with the El34World copy).
+    url: "https://schematicheaven.net/fenderamps/bassman_5e6a_schem.pdf"
+  - desc: >-
+      Wikipedia, "Fender Bassman" — dates the 5E6/5E6-A narrow-panel dual-
+      rectifier 4x10 circuits to 1955-1957 as evolutionary refinements of the
+      5D6; this corpus entry uses the defensible later portion of that range
+      (1956-1957) for the -A revision specifically, since no source gives a
+      clean split between 5E6 and 5E6-A production dates (see bassman.yaml).
+    url: "https://en.wikipedia.org/wiki/Fender_Bassman"
+verification:
+  status: draft   # Four nodes miss their printed figures and are published as
+                  # misses rather than tuned away: the preamp rail BP3 reads
+                  # 315 V simulated against the chart's 275 V (14.5%, tol 8%),
+                  # and the three nodes it feeds follow it up — both V1 plates
+                  # at 161 V against 130 V (23.8%) and the shared V1 cathode at
+                  # 2.5 V against 2 V (26.2%). They are one fault, not four: the
+                  # two printed 10 kΩ droppers carry less current in the model
+                  # than the drawing's own rail figures imply (85 V and 60 V of
+                  # drop want 8.5 mA and 6.0 mA; the model draws 5.9 mA and
+                  # 4.7 mA), so every node below the first dropper sits high.
+                  # The likely reading error is which node feeds the 6L6G
+                  # screens — this netlist puts them on BP1 with the plates —
+                  # but that is a lug-level question the current scan could not
+                  # settle, and the same re-read owes V2's and V3's own pin
+                  # voltages (see voltages.yaml). Until it happens this circuit
+                  # stays draft, and the loadline preset it publishes rests on
+                  # the output stage, whose bias and B+ both gate green.
+added: 2026-08-08
+contributors: [TheAnalogMaker]

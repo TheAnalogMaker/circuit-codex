@@ -1,0 +1,272 @@
+# Board layout — redrawn from the published Fender "Bassman-Amp AB165" layout
+# drawing (D-FE). Part refs are the shared key into bom.yaml; the renderer reads
+# each value and part type from there. A legible, schematic-style redraw of the
+# board's principal components in the order the drawing shows them — never a
+# trace or a dimensioned reproduction.
+#
+# The board reads left→right in the order of the chassis' own tube row
+# (6L6GC · 6L6GC · 12AT7 · 7025 · 7025 · 7025): the output-tube grid network and
+# the two local-feedback resistors at the left end, the long-tailed-pair phase
+# inverter next, then the Normal channel, the mixer/driver, and the Bass
+# Instrument channel at the right.
+#
+# Machine-checked equivalence: the point-to-point wiring drawn below has been
+# verified electrically equivalent to the simulated netlist (netlist.cir) by
+# pipeline/verify_layout_nets.py — see the net_map block at the foot of this file
+# and docs/layout-schema.md. Heaters, the pilot lamp and the PT / rectifier AC
+# side are an excluded annotation layer (not in netlist.cir).
+wiring_claim: verified
+
+board:
+  rows: 2
+  cols: 56
+  title: "AB165 · eyelet board layout"
+caption: "Redrawn from the published Fender 'Bassman-Amp AB165' layout drawing — principal board components, in the order the drawing shows them, following the chassis' own tube row. Both channels' tone-stack parts (slope resistors, treble and bass capacitors, bleed legs, the DEEP and BRIGHT capacitors) mount at the controls on the published sheet and are documented schematic-only here; so are the input grid stoppers and grid leaks at the jacks. The 470 Ω screen resistors and 1.5 kΩ grid stoppers are drawn where the sheet mounts them, at the output sockets, and the supply droppers are drawn as the chassis-mounted parts they are, with the filter cans and the rectifier / bias supply drawn minimally — the two 220 kΩ output-grid leaks return to one bias line here, as the simulated netlist models them, rather than to the separate taps either side of the BIAS BALANCE control that the schematic draws. The two 220 kΩ local-feedback resistors ride their own terminal strip on the published sheet and are drawn here on the board. The 6.3 V heater chain (green twisted pair, PT → pilot lamp → the two 6L6GC output tubes → 12AT7 inverter → the three 7025 preamp tubes) is routed as the published sheet shows it; the amplifier is solid-state rectified, so there is no rectifier heater. Not a trace or a dimensioned reproduction."
+source:
+  desc: "Fender 'Bassman-Amp AB165' layout drawing (D-FE), title block read directly: 'FENDER MODEL \"BASSMAN-AMP AB165\" LAYOUT'"
+  url: "https://el34world.com/charts/Schematics/Files/Fender/Fender_bassman_ab165_layout.pdf"
+
+parts:
+  # --- output-tube grid network (left end, beside the two 6L6GC sockets) ---
+  - { ref: C1,   a: [0, 0],  b: [0, 1] }    # .022 PI hot plate → V5 grid (PPIA→GO1)
+  - { ref: RGL1, a: [0, 1],  b: [1, 1] }    # 220k V5 grid leak (GO1→ bias line)
+  - { ref: C2,   a: [0, 3],  b: [0, 4] }    # .022 PI cold plate → V6 grid (PPIB→GO2)
+  - { ref: RGL2, a: [0, 4],  b: [1, 4] }    # 220k V6 grid leak (GO2→ bias line)
+  # --- the AB165 local-feedback pair: each output plate back to its inverter plate
+  - { ref: RBSA, a: [0, 6],  b: [0, 7] }    # 220k V5 plate (BP1) → PPIA
+  - { ref: RBSB, a: [0, 8],  b: [0, 9] }    # 220k V6 plate (BP1) → PPIB
+  # --- negative feedback: speaker line → 47k → 0.1 µF → inverter hot grid ---
+  - { ref: RNFB, a: [1, 7],  b: [1, 9] }    # 47k from the speaker line
+  - { ref: CNFB, a: [1, 9],  b: [1, 11] }   # 0.1 µF in series (shares the 47k eyelet)
+  # --- long-tailed-pair phase inverter (V4 12AT7) ---
+  - { ref: RLPA, a: [0, 11], b: [0, 12] }   # 100k 5% hot plate load (BPI→PPIA)
+  - { ref: RLPB, a: [0, 13], b: [0, 14] }   # 100k 5% cold plate load (BPI→PPIB)
+  - { ref: RTAIL, a: [1, 12], b: [1, 13] }  # 470Ω joined cathodes → tail junction
+  - { ref: RGPA, a: [0, 15], b: [1, 15] }   # 1M hot grid leak (GPIA→JPI)
+  - { ref: RGPB, a: [0, 17], b: [1, 17] }   # 1M cold grid leak (GPIB→JPI)
+  - { ref: RT2,  a: [0, 19], b: [1, 19] }   # 22k tail junction → ground
+  - { ref: CPIB, a: [0, 20], b: [1, 20] }   # 0.1-200 cold grid → ground
+  # --- Normal channel second stage (V2b) ---
+  - { ref: RLN2, a: [0, 22], b: [0, 23] }   # 100k plate load (BD→PN2)
+  - { ref: CKN2, a: [0, 24], b: [0, 25] }   # 25 µF cathode bypass (shares KN2)
+  - { ref: RKN2, a: [0, 25], b: [1, 25] }   # 1.5k cathode (KN2→0)
+  - { ref: RMXN, a: [0, 26], b: [0, 27] }   # 220k mixing resistor (PN2→MIX)
+  # --- Normal channel input (V2a) ---
+  - { ref: RLN1, a: [0, 29], b: [0, 30] }   # 100k plate load (BC→PN1)
+  - { ref: CKN1, a: [0, 31], b: [0, 32] }   # 25 µF cathode bypass (shares KN1)
+  - { ref: RKN1, a: [0, 32], b: [1, 32] }   # 1.5k cathode (KN1→0)
+  # --- mixer / driver (V3b) ---
+  - { ref: RFBM, a: [0, 33], b: [0, 34] }   # 470k driver plate → mixing node
+  - { ref: CMIX, a: [0, 35], b: [0, 36] }   # .01 µF mixing node → driver grid
+  - { ref: RGM,  a: [0, 36], b: [1, 36] }   # 470k grid leak (GM→0)
+  - { ref: RLM,  a: [0, 38], b: [0, 39] }   # 100k plate load (BD→PM)
+  - { ref: CKM,  a: [0, 40], b: [0, 41] }   # 25 µF cathode bypass (shares KM)
+  - { ref: RKM,  a: [0, 41], b: [1, 41] }   # 1.5k cathode (KM→0)
+  - { ref: CPIA, a: [0, 42], b: [0, 43] }   # 0.1 µF driver plate → PI hot grid
+  # --- Bass Instrument channel second stage (V1b) ---
+  - { ref: RLB2, a: [0, 44], b: [0, 45] }   # 100k plate load (BC→PB2 — see notes.md)
+  - { ref: CKB2, a: [0, 46], b: [0, 47] }   # 25 µF cathode bypass (shares KB2)
+  - { ref: RKB2, a: [0, 47], b: [1, 47] }   # 1.5k cathode (KB2→0)
+  - { ref: RMXB, a: [0, 48], b: [0, 49] }   # 220k mixing resistor (PB2→MIX)
+  # --- Bass Instrument channel input (V1a), with the treble-cut shunt ---
+  - { ref: RLB1, a: [0, 51], b: [0, 53] }   # 100k plate load (BC→PB1)
+  - { ref: CLB1, a: [1, 51], b: [1, 53] }   # .01 µF straight across that plate load
+  - { ref: CKB1, a: [0, 54], b: [0, 55] }   # 25 µF cathode bypass (shares KB1)
+  - { ref: RKB1, a: [0, 55], b: [1, 55] }   # 1.5k cathode (KB1→0)
+
+offboard:
+  - { id: TR1,  ref: TR1, kind: xfmr,  edge: left,   at: 0.5,  label: "Power trans" }
+  - { id: PL1,  kind: part, glyph: lamp, edge: left, at: 1.7,  label: "Pilot lamp" }
+  - { id: TR2,  ref: TR2, kind: choke, edge: top,    at: 0.6,  label: "Choke" }
+  - { id: RD1,  ref: RD1, kind: part,  edge: top,    at: 2.4,  label: "Dropper 1" }
+  - { id: RD2,  ref: RD2, kind: part,  edge: top,    at: 4.0,  label: "Dropper 2" }
+  - { id: RD3,  ref: RD3, kind: part,  edge: top,    at: 5.6,  label: "Dropper 3" }
+  - { id: TR3,  ref: TR3, kind: xfmr,  edge: top,    at: 9.0,  label: "Output trans" }
+  - { id: RS1,  ref: RS1, kind: part,  edge: bottom, at: 0.4,  label: "V5 screen" }
+  - { id: V5,   ref: V5,  kind: tube,  edge: bottom, at: 2.2,  label: "V5 · 6L6GC" }
+  - { id: RGS1, ref: RGS1, kind: part, edge: bottom, at: 4.2,  label: "V5 stopper" }
+  - { id: RS2,  ref: RS2, kind: part,  edge: bottom, at: 5.6,  label: "V6 screen" }
+  - { id: V6,   ref: V6,  kind: tube,  edge: bottom, at: 7.4,  label: "V6 · 6L6GC" }
+  - { id: RGS2, ref: RGS2, kind: part, edge: bottom, at: 9.4,  label: "V6 stopper" }
+  - { id: SPK,  kind: jack, edge: bottom, at: 11.6, label: "Spkr" }
+  - { id: V4,   ref: V4,  kind: tube,  edge: bottom, at: 16,   label: "V4 · 12AT7 PI" }
+  - { id: VRBN, ref: VRBN, kind: pot,  edge: top,    at: 21,   label: "Norm Bass" }
+  - { id: VRTN, ref: VRTN, kind: pot,  edge: top,    at: 23,   label: "Norm Treble" }
+  - { id: VRVN, ref: VRVN, kind: pot,  edge: top,    at: 25,   label: "Norm Volume" }
+  - { id: V2,   ref: V2,  kind: tube,  edge: bottom, at: 27,   label: "V2 · 7025 normal" }
+  - { id: SWBRT, ref: SWBRT, kind: switch, edge: top, at: 28,  label: "Bright" }
+  - { id: JN,   kind: jack, edge: top, at: 30.5, label: "Normal in" }
+  - { id: V3,   ref: V3,  kind: tube,  edge: bottom, at: 37,   label: "V3 · 7025 mixer" }
+  - { id: VRBB, ref: VRBB, kind: pot,  edge: top,    at: 42,   label: "Instr Bass" }
+  - { id: VRTB, ref: VRTB, kind: pot,  edge: top,    at: 44,   label: "Instr Treble" }
+  - { id: VRVB, ref: VRVB, kind: pot,  edge: top,    at: 46,   label: "Instr Volume" }
+  # The sheet's control row runs Bass · Treble · Volume · DEEP · jack 2 · jack 1
+  # on each channel, so the switch sits between its channel's volume control and
+  # its input jacks — the same place BRIGHT sits on the normal channel above.
+  - { id: SWDEEP, ref: SWDEEP, kind: switch, edge: top, at: 48.2, label: "Deep" }
+  - { id: V1,   ref: V1,  kind: tube,  edge: bottom, at: 50,   label: "V1 · 7025 bass" }
+  - { id: JB,   kind: jack, edge: top, at: 52.5, label: "Instr in" }
+
+# Ground bus — the bare rail just below the bottom eyelet row; cathode, filter,
+# grid-leak and pot grounds tie to it.
+bus:
+  - { from: [1.45, -0.5], to: [1.45, 55.5] }
+
+# Wiring — read lead-by-lead from the published AB165 layout drawing. Transformer
+# leads carry the drawing's colours. The 6.3 V heater winding is the green pair;
+# it feeds the pilot lamp then daisy-chains socket to socket (style: twisted).
+# Endpoints reference board eyelets (REF.a/REF.b), tube socket pins (Vn.pinN,
+# validated against the basing data — heater pins on the twisted runs), pot lugs,
+# jacks, off-board 2-lead parts (RD1.a/RD1.b …) and transformer leads.
+runs:
+  # === B+1 (+425 V): choke output, output-tube plates through the OT primary,
+  # both screen stoppers and the dropper chain. The top band carries four supply
+  # lanes, each in its own row so no two read as one wire; the transformer
+  # pigtails and the chassis parts' terminals sit clear above them. ==========
+  - { from: TR2.red, to: RD1.a, color: red, via: [[1.20, -1.45]] }
+  - { from: TR3.red, to: RD1.a, color: red, via: [[8.42, -0.24], [2.30, -0.24]] }
+  - { from: RD1.a, to: RS1.a, color: red, via: [[1.55, -0.60], [-0.70, -0.32], [-0.70, 1.86]] }
+  - { from: RS1.a, to: RS2.a, color: red, via: [[0.20, 2.94], [5.21, 2.94]] }
+  - { from: TR3.blue, to: V5.pin3, via: [[8.81, 2.62], [0.85, 2.62], [0.85, 2.02]] }
+  - { from: TR3.brown, to: V6.pin3, via: [[9.19, 2.78], [6.10, 2.78], [6.10, 2.02]] }
+  - { from: TR3.green, to: SPK.tip, via: [[9.58, -0.05], [11.35, 0.55], [11.35, 1.70]] }
+  - { from: SPK.sleeve, to: [1.45, 12.60] }
+
+  # === the AB165 local-feedback pair: each output plate back to its inverter
+  # plate through 220 kOhm, and the plate end of each to its own output tube ===
+  - { from: RBSA.a, to: V5.pin3, via: [[6.00, -0.10], [1.72, -0.10], [1.72, 1.68]] }
+  - { from: RBSB.a, to: V6.pin3, via: [[8.00, 0.62], [6.35, 0.62], [6.35, 1.66]] }
+  - { from: RBSA.b, to: RLPA.b, via: [[7.40, 0.40], [11.60, 0.40]] }
+  - { from: RBSB.b, to: RLPB.b, via: [[9.40, 0.22], [13.60, 0.22]] }
+
+  # === rail ladder: the three chassis droppers feed the plate-load backbone ====
+  - { from: RD1.b, to: RD2.a, via: [[3.20, -1.55]] }
+  - { from: RD2.b, to: RD3.a, via: [[4.80, -1.55]] }
+  - { from: RD1.b, to: RLPA.a, via: [[2.79, -0.38], [10.60, -0.38]] }
+  - { from: RLPA.a, to: RLPB.a, via: [[11.60, 0.55], [12.60, 0.55]] }
+  - { from: RD2.b, to: RLN2.a, via: [[4.39, -0.64], [21.40, -0.64]] }
+  - { from: RLN2.a, to: RLM.a, via: [[22.40, -0.18], [37.60, -0.18]] }
+  - { from: RD3.b, to: RLN1.a, via: [[5.99, -0.50], [28.40, -0.50]] }
+  - { from: RLN1.a, to: RLB2.a, via: [[29.60, -0.34], [43.40, -0.34]] }
+  - { from: RLB2.a, to: RLB1.a, via: [[44.40, -0.20], [50.60, -0.20]] }
+
+  # === bias line. On the sheet each 220 kOhm grid leak returns to its own tap
+  # either side of the 10 kOhm-L BIAS BALANCE control, and the redrawn schematic
+  # keeps those two taps apart. netlist.cir replaces the whole bias supply with
+  # one ideal -45 V source, so the board's two returns are drawn as the single
+  # line that source models — the balance control itself is not drawn. =========
+  - { from: RGL1.b, to: RGL2.b, via: [[1.40, 1.22], [3.60, 1.22]] }
+
+  # === output stage: screens, grids, cathodes =================================
+  - { from: RS1.b, to: V5.pin4, via: [[1.35, 1.62]] }
+  - { from: RS2.b, to: V6.pin4, via: [[6.55, 1.66]] }
+  - { from: C1.b, to: RGS1.a, via: [[1.30, 0.38], [3.55, 0.38], [3.55, 1.62]] }
+  - { from: RGS1.b, to: V5.pin5, via: [[4.20, 1.60], [2.90, 1.60]] }
+  - { from: C2.b, to: RGS2.a, via: [[4.20, 0.52], [11.55, 0.52], [11.55, 1.62], [9.60, 1.62]] }
+  - { from: RGS2.b, to: V6.pin5, via: [[9.40, 1.74], [8.10, 1.74]] }
+  - { from: V5.pin8, to: [1.45, 1.20], via: [[2.30, 2.30], [1.20, 2.30]] }
+  - { from: V6.pin8, to: [1.45, 8.40], via: [[8.40, 2.32]] }
+
+  # === phase inverter: plates -> couplers, cathodes -> tail, leaks -> junction =
+  - { from: RLPA.b, to: V4.pin1, via: [[12.60, 1.30], [14.20, 1.30], [14.20, 2.32], [15.05, 2.32]] }
+  - { from: V4.pin1, to: C1.a, via: [[15.20, 3.12], [0.35, 3.12], [0.35, 0.20]] }
+  - { from: RLPB.b, to: V4.pin6, via: [[14.20, 0.72], [17.60, 0.72], [17.60, 1.62], [16.90, 1.68]] }
+  - { from: V4.pin6, to: C2.a, via: [[16.60, 3.30], [3.30, 3.30], [3.30, 0.28]] }
+  - { from: RGPA.a, to: V4.pin2, via: [[14.75, 0.30], [14.75, 1.74], [15.05, 1.94]] }
+  - { from: RGPB.a, to: V4.pin7, via: [[17.25, 0.30], [17.25, 1.72], [16.95, 1.82]] }
+  - { from: V4.pin3, to: RTAIL.a, via: [[14.55, 1.72], [12.60, 1.28]] }
+  - { from: V4.pin8, to: RTAIL.a, via: [[16.95, 2.48], [12.30, 2.48]] }
+  - { from: RTAIL.b, to: RGPA.b }
+  - { from: RGPA.b, to: RGPB.b }
+  - { from: RGPB.b, to: RT2.a, via: [[18.20, 0.72]] }
+  - { from: RT2.b, to: [1.45, 19] }
+  - { from: CPIB.a, to: RGPB.a, via: [[19.60, 0.30], [17.60, 0.30]] }
+  - { from: CPIB.b, to: [1.45, 20.4] }
+
+  # === negative feedback: speaker line -> 47k -> 0.1 uF -> inverter hot grid ===
+  - { from: SPK.tip, to: RNFB.a, via: [[10.90, 1.85], [10.50, 1.28], [7.40, 1.28]] }
+  - { from: CNFB.b, to: RGPA.a, via: [[11.40, 0.85], [14.45, 0.85], [14.45, 0.20]] }
+
+  # === Normal channel second stage (V2b, pins 6/7/8) ==========================
+  - { from: RLN2.b, to: V2.pin6, via: [[23.20, -0.06], [27.42, -0.06], [27.42, 1.55]] }
+  - { from: RLN2.b, to: RMXN.a, via: [[23.30, 0.30], [25.70, 0.30]] }
+  - { from: VRVN.lug2, to: V2.pin7, via: [[25.00, -0.72], [28.20, -0.72], [28.20, 1.72]] }
+  - { from: V2.pin8, to: RKN2.a, via: [[28.20, 2.60], [23.50, 2.60], [23.50, 1.20], [24.20, 0.34]] }
+  - { from: CKN2.a, to: [1.45, 24] }
+  - { from: RKN2.b, to: [1.45, 25], via: [[25.00, 1.20]] }
+
+  # === Normal channel input (V2a, pins 1/2/3) ================================
+  - { from: RLN1.b, to: V2.pin1, via: [[30.30, 0.34], [30.30, 2.80], [27.20, 2.80], [26.80, 2.45]] }
+  - { from: JN.tip, to: V2.pin2, via: [[30.36, -0.62], [25.50, -0.62], [25.50, 1.80], [26.00, 1.98]] }
+  - { from: V2.pin3, to: RKN1.a, via: [[25.20, 2.00], [25.20, 2.40], [31.60, 2.40], [31.60, 0.55]] }
+  - { from: CKN1.a, to: [1.45, 31] }
+  - { from: RKN1.b, to: [1.45, 32], via: [[32.00, 1.20]] }
+
+  # === channel mixer: both 220k mixing resistors + the 470k blend resistor ====
+  - { from: RMXN.b, to: RFBM.b, via: [[27.40, 0.62], [33.60, 0.62]] }
+  - { from: RFBM.b, to: CMIX.a, via: [[34.40, 0.42], [34.60, 0.42]] }
+  - { from: RMXB.b, to: RFBM.b, via: [[49.20, 2.98], [34.20, 2.98], [34.05, 0.75]] }
+
+  # === mixer / driver (V3b, pins 6/7/8) ======================================
+  - { from: RGM.a, to: V3.pin7, via: [[36.90, 1.28], [37.69, 1.55]] }
+  - { from: RGM.b, to: [1.45, 36.4] }
+  - { from: RLM.b, to: V3.pin6, via: [[39.60, 0.30], [39.60, 1.62], [38.10, 1.66]] }
+  - { from: RFBM.a, to: RLM.b, via: [[33.20, -0.44], [38.80, -0.44]] }
+  - { from: CPIA.a, to: RLM.b, via: [[41.80, -0.30], [39.20, -0.30]] }
+  - { from: V3.pin8, to: RKM.a, via: [[38.20, 2.42], [40.60, 2.42], [40.60, 1.30], [40.80, 0.30]] }
+  - { from: CKM.a, to: [1.45, 40] }
+  - { from: RKM.b, to: [1.45, 41], via: [[41.00, 1.20]] }
+  - { from: CPIA.b, to: RGPA.a, via: [[43.40, 3.48], [13.60, 3.48], [13.60, 0.20]] }
+
+  # === Bass Instrument channel second stage (V1b, pins 6/7/8) =================
+  - { from: RLB2.b, to: V1.pin6, via: [[45.20, -0.06], [50.42, -0.06], [50.42, 1.55]] }
+  - { from: RLB2.b, to: RMXB.a, via: [[45.30, 0.30], [47.70, 0.30]] }
+  - { from: VRVB.lug2, to: V1.pin7, via: [[46.00, -0.72], [53.70, -0.72], [53.70, 1.00], [52.60, 1.55], [51.40, 1.72]] }
+  - { from: V1.pin8, to: RKB2.a, via: [[51.20, 2.60], [45.50, 2.60], [45.50, 1.20], [46.30, 0.34]] }
+  - { from: CKB2.a, to: [1.45, 46] }
+  - { from: RKB2.b, to: [1.45, 47], via: [[47.00, 1.20]] }
+
+  # === Bass Instrument channel input (V1a, pins 1/2/3) =======================
+  - { from: RLB1.b, to: V1.pin1, via: [[53.30, 0.34], [53.30, 2.80], [50.20, 2.80], [49.75, 2.45]] }
+  - { from: RLB1.a, to: CLB1.a }
+  - { from: RLB1.b, to: CLB1.b }
+  - { from: JB.tip, to: V1.pin2, via: [[52.36, -0.62], [47.30, -0.62], [47.30, 1.80], [48.60, 1.98]] }
+  - { from: V1.pin3, to: RKB1.a, via: [[48.20, 2.00], [48.20, 2.40], [54.60, 2.40], [54.60, 0.55]] }
+  - { from: CKB1.a, to: [1.45, 54] }
+  - { from: RKB1.b, to: [1.45, 55], via: [[55.00, 1.20]] }
+
+  # === pot grounds (island controls) =========================================
+  - { from: VRVN.lug1, to: [1.45, 21.5], via: [[24.60, -0.30], [21.50, -0.30]] }
+  - { from: VRVB.lug1, to: [1.45, 43.5], via: [[45.60, -0.44], [43.50, -0.44]] }
+
+  # === power-transformer annotation: HT centre tap, 6.3 V heater chain ========
+  - { from: TR1.red-yellow, to: [1.45, 0.95], via: [[-1.30, 1.10]] }
+  - { from: TR1.green, to: PL1.a, style: twisted }
+  - { from: PL1.b, to: V5.pin7, style: twisted, via: [[-1.20, 3.85], [2.00, 3.85]] }
+  - { from: V5.pin2, to: V6.pin7, style: twisted, via: [[2.40, 3.85], [7.20, 3.85]] }
+  - { from: V6.pin2, to: V4.pin4, style: twisted, via: [[7.60, 3.87], [16.00, 3.87]] }
+  - { from: V4.pin5, to: V2.pin4, style: twisted, via: [[16.40, 3.87], [27.00, 3.87]] }
+  - { from: V2.pin5, to: V3.pin4, style: twisted, via: [[27.40, 3.89], [37.00, 3.89]] }
+  - { from: V3.pin5, to: V1.pin4, style: twisted, via: [[37.40, 3.89], [50.00, 3.89]] }
+  - { from: V1.pin4, to: V1.pin5, style: twisted }
+
+# net_map — reviewable reconciliation of the drawn wiring with the DC netlist
+# (netlist.cir) for pipeline/verify_layout_nets.py. See docs/layout-schema.md.
+net_map:
+  # The push-pull output transformer's primary: netlist.cir omits winding DCR, so
+  # both plate leads and the centre tap collapse onto the +425 V node the netlist
+  # drives (BP1). The speaker jack is the far side of the secondary, whose DCR is
+  # likewise folded into ground — the negative-feedback return reads as ground at
+  # DC (the 47 kΩ loop is capacitor-blocked and carries none).
+  anchors:
+    TR3.red:   BP1    # OT primary centre tap → +425 V
+    TR3.blue:  BP1    # OT primary, V5 plate lead → +425 V
+    TR3.brown: BP1    # OT primary, V6 plate lead → +425 V
+    SPK: "0"          # speaker jack — OT-secondary DCR folded into ground
+  # Netlist elements with no discrete same-named board part — reported in
+  # coverage, never a failure (their nodes still have to check out):
+  netlist_unplaced:
+    RGB1: "1M bass-channel input grid leak — mounted at the input jacks, not on the eyelet board"
+    RGN1: "1M normal-channel input grid leak — mounted at the input jacks, not on the eyelet board"
+    RGB2: "bass-channel volume pot VRVB — the netlist models its DC grid return as one grid-leak (GB2→0)"
+    RGN2: "normal-channel volume pot VRVN — the netlist models its DC grid return as one grid-leak (GN2→0)"
