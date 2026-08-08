@@ -82,7 +82,29 @@ function lineName(fam) {
 }
 
 // --- geometry --------------------------------------------------------------
-const YEAR_MIN = 1945, YEAR_MAX = 1982;
+// The era axis is derived from the corpus, never written down. Both tiers get a
+// vote: the history files place every model (documented and ghost alike) and the
+// amps' own `era` blocks are the authority for the documented ones. A hand-set
+// span silently crops the chart as the corpus grows past it — the axis ran
+// 1945–1982 while lanes reached 2000, so four production bars ran off the right
+// edge and two later models were clamped to it, reading as 1980 introductions
+// under a caption promising "bar spans production years".
+const eraYears = [];
+for (const fam of history)
+  for (const m of fam.models) {
+    if (m.years?.start != null) eraYears.push(m.years.start);
+    if (m.years?.end != null) eraYears.push(m.years.end);
+  }
+for (const a of amps) {
+  if (a.meta.era?.start != null) eraYears.push(a.meta.era.start);
+  if (a.meta.era?.end != null) eraYears.push(a.meta.era.end);
+}
+// Gridlines every TICK years; the axis rounds out to the enclosing gridline so the
+// oldest chip is never flush against the left pad, and carries TAIL_PAD years past
+// the last gridline so the newest span bar and its end dot land inside the plot.
+const TICK = 5, TAIL_PAD = 2;
+const YEAR_MIN = Math.floor(Math.min(...eraYears) / TICK) * TICK;
+const YEAR_MAX = Math.ceil(Math.max(...eraYears) / TICK) * TICK + TAIL_PAD;
 const W = 1300, PAD_L = 108, PAD_R = 30;
 const X0 = PAD_L, X1 = W - PAD_R, PLOTW = X1 - X0;
 const CW = 84, CH = 30, ROWH = 46, BAND_GAP = 14, BANDS_TOP = 34;
@@ -124,11 +146,28 @@ function chipWidth(m, fam) {
 }
 const xScale = (yr) => X0 + ((yr - YEAR_MIN) / (YEAR_MAX - YEAR_MIN)) * PLOTW;
 
-// Fixed lane order: the Fender lines, then the British line placed directly under the
-// Bassman so the one documented cross-family arrow (5F6-A → JTM45) reads as a short hop.
-const FAM_ORDER = ['champ', 'princeton', 'harvard', 'deluxe', 'deluxe-reverb', 'super', 'bassman', 'marshall-lead'];
-const fams = [...history].sort(
-  (a, b) => (FAM_ORDER.indexOf(a.slug) + 1 || 99) - (FAM_ORDER.indexOf(b.slug) + 1 || 99));
+// Lane order: makers grouped, and inside the Fender group the lines run smallest to
+// largest so the Bassman is the last Fender lane and the British group opens with the
+// Marshall line directly under it — that is what makes the one documented cross-family
+// arrow (5F6-A → JTM45) a short hop rather than a traverse of the whole chart.
+// The maker grouping comes from each family file's own `maker_style`, so a lane whose
+// slug nobody thought to list still lands with its countrymen (sorted by era within the
+// group) instead of falling off the bottom of the chart — which is how six new lanes
+// once ended up scattered under the British ones.
+const MAKER_ORDER = ['Fender-style', 'British-style', 'American-style'];
+const FAM_ORDER = [
+  'champ', 'princeton', 'harvard', 'deluxe', 'deluxe-reverb', 'pro', 'super', 'twin', 'bassman',
+  'marshall-lead', 'vox-ac', 'hiwatt',
+  'supro-valco', 'ampeg-portaflex',
+];
+const makerRank = (f) => {
+  const i = MAKER_ORDER.indexOf(String(f.maker_style || ''));
+  return i === -1 ? MAKER_ORDER.length : i;
+};
+const famRank = (f) => FAM_ORDER.indexOf(f.slug) + 1 || 999;
+const fams = [...history].sort((a, b) =>
+  makerRank(a) - makerRank(b) || famRank(a) - famRank(b) ||
+  (a.eraStart ?? 9999) - (b.eraStart ?? 9999) || a.slug.localeCompare(b.slug));
 
 // greedy interval-pack a family's models into sub-rows so chips never overlap,
 // preserving chronological order (left to right)
@@ -249,7 +288,7 @@ for (const fam of fams) {
 const AXIS_Y = y - BAND_GAP + 16;
 const H = AXIS_Y + 38;
 const ticks = [];
-for (let yr = 1945; yr <= 1980; yr += 5) ticks.push(yr);
+for (let yr = YEAR_MIN; yr <= YEAR_MAX - TAIL_PAD; yr += TICK) ticks.push(yr);
 
 // every chip on the chart — the obstacle set a cross-lane arrow must clear
 const allBoxes = [];
