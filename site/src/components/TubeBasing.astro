@@ -36,6 +36,9 @@ const ELEMENTS = {
   'plate':               { label: 'Plate',              fam: 'plate',   color: '#e89b3f', dark: true },
   'diode-plate':         { label: 'Diode plate',        fam: 'plate',   color: '#e89b3f', dark: true },
   'screen-grid':         { label: 'Screen grid',        fam: 'screen',  color: '#d98f34', dark: true },
+  // Suppressor on its own pin (EF86, 6SJ7). It is strapped to the cathode in every
+  // corpus circuit, so it reads as a cathode-family pin rather than a grid.
+  'suppressor-grid':     { label: 'Suppressor grid',    fam: 'cathode', color: '#7fa6ad', dark: true },
   'grid':                { label: 'Control grid',       fam: 'grid',    color: '#8fae7e', dark: true },
   'cathode':             { label: 'Cathode',            fam: 'cathode', color: '#7fa6ad', dark: true },
   'heater':              { label: 'Heater',             fam: 'heater',  color: '#8a6f52', dark: false },

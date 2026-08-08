@@ -117,11 +117,15 @@ const study = t.study ? loadStudy(t.study) : null;
 
     <aside class="side">
       <h3>Used in</h3>
-      <ul class="usedin">
-        {t.used_in.map((id) => (
-          <li><a href={`/amps/${id}/`}>{displayId(id)}</a></li>
-        ))}
-      </ul>
+      {t.used_in.length > 0
+        ? <ul class="usedin">
+            {t.used_in.map((id) => (
+              <li><a href={`/amps/${id}/`}>{displayId(id)}</a></li>
+            ))}
+          </ul>
+        : <p class="usedin-none">No circuit in the corpus uses this tube yet. Its model is
+            fitted and verified against the datasheet all the same, so a circuit that
+            calls for it can be documented without waiting on one.</p>}
     </aside>
   </div>
 </div>
@@ -151,4 +155,5 @@ const study = t.study ? loadStudy(t.study) : null;
   .side h3{font-size:12px;letter-spacing:.14em;margin:0 0 10px;color:var(--faint)}
   .usedin{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:7px}
   .usedin a{font-family:var(--disp);font-size:17px;letter-spacing:.04em}
+  .usedin-none{margin:0;font-size:14px;line-height:1.55;color:var(--muted)}
 </style>

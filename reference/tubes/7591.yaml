@@ -1,0 +1,109 @@
+tube: "7591"
+name: "7591"
+also_known_as: ["7591A"]
+role: >-
+  Beam power tube on an intermediate-shell octal base — the output valve Ampeg
+  built its line around. Nineteen watts of plate dissipation and better than
+  10 mA/V of transconductance make it a high-gain, high-efficiency output tube
+  that needs very little drive: a pair delivers over 20 W where a pair of 6V6s
+  gives 14. The base is the giveaway, an octal shell with pin 1 simply missing,
+  so a 7591 will not seat in an ordinary octal socket layout.
+model:
+  file: models/7591.inc
+  anchor: "Va=300 V, Vg2=300 V, Vg1=-10 V → Ia=60 mA, Ig2=8 mA, gm=10200 µmho"
+  anchor_source: "Tung-Sol 7591 data sheet, March 1, 1961 (plate #6125) — Typical Operation, Class A1 Amplifier"
+  anchor_source_url: https://frank.pocnet.net/sheets/127/7/7591.pdf
+  note: >-
+    µ=16.8 is the amplification factor printed beside this operating point, where
+    it is labelled the triode amplification factor — the same substitution for
+    the grid-No.1-to-grid-No.2 factor that the KT66 model makes, and the only
+    amplification factor any of these publishers prints. Ia, Ig2 and gm are all
+    tabulated at the one point, so KP, KG1 and KG2 anchor there together.
+    EX=1.5 and KVB=30 (pentode) are project defaults per METHODOLOGY.md.
+  corroboration: >-
+    Three publishers print this operating point identically: Tung-Sol (March
+    1961), Sylvania (October 1961) and Westinghouse for the 7591A (April 1963,
+    JEDEC release #4250) all give 10,200 µmho, 29,000 Ω and a triode
+    amplification factor of 16.8. The printed 16.8 is also the only published
+    figure the anchor admits: in this model form gm/Ia can never exceed
+    EX/(Vg2/µ + Vg1), which puts a floor of 15.94 under µ at the tabulated Ia and
+    gm. It agrees with the sheets' average plate characteristics as well — at
+    Vg2=350 V, Vg1=0 V the printed curve runs to roughly 260 mA and the model
+    reads 259 mA.
+  known_limitation: >-
+    The sheets' push-pull Class-AB1 design tables sit well off this fit and were
+    deliberately not fitted to. Halved from the "values for two tubes"
+    convention, their zero-signal rows are 300/300/-12.5 V → 43 mA plate and
+    6.3 mA screen, 350/350/-15.5 → 46 / 6.5, 400/350/-16.0 → 42.5 / 5.5,
+    450/350/-16.5 → 38.5 / 4.8, 450/400/-21 → 33 / 4.7. Against them the model
+    reads 13% to 21% low on plate current and 29% to 64% low on screen current,
+    because the published screen current falls far more slowly with grid bias
+    than a 3/2-power law allows. Those are amplifier design points rather than
+    static characteristics; the Class-A1 characteristics block and the printed
+    plate-characteristic curves agree with each other and with this fit, so they
+    are what it is anchored on. Separately, the sheet's plate resistance at the
+    anchor is 29 kΩ where this model, on the project default KVB, reads about
+    74 kΩ — a per-tube KVB fitted to the published plate resistance is the
+    obvious improvement, and is not attempted here.
+max_ratings:
+  note: >-
+    Design-maximum values. The screen figure carries its own footnote: grid-No.2
+    dissipation may reach 6 W during the peaks of speech and music, and for the
+    screen to work efficiently its two pins (4 and 8) must be tied together
+    outside the socket. Cathode current is capped at 85 mA, which is what
+    actually limits a cathode-biased pair.
+  items:
+    - { label: "Plate voltage", value: "550 V" }
+    - { label: "Grid-No.2 (screen) voltage", value: "440 V" }
+    - { label: "Plate dissipation", value: "19 W" }
+    - { label: "Grid-No.2 dissipation", value: "3.3 W · 6 W on speech and music peaks" }
+    - { label: "Cathode current", value: "85 mA" }
+    - { label: "Grid-No.1 circuit resistance", value: "0.3 MΩ fixed bias · 1.0 MΩ self bias" }
+    - { label: "Heater-cathode voltage, heater negative", value: "200 V total DC and peak" }
+    - { label: "Heater-cathode voltage, heater positive", value: "100 V DC · 200 V total DC and peak" }
+  limits:
+    plate_dissipation_w: 19
+    screen_dissipation_w: 3.3
+    plate_voltage_v: 550
+    screen_voltage_v: 440
+    cathode_current_ma: 85
+  rating_system: design-maximum
+  source: "Tung-Sol 7591 data sheet, March 1, 1961 — Ratings, interpreted according to the design maximum system; identical on Sylvania Engineering Data Service 7591, October 1961"
+  source_url: https://frank.pocnet.net/sheets/127/7/7591.pdf
+basing:
+  code: 8KG
+  base: octal
+  view: bottom
+  source: >-
+    Sylvania Engineering Data Service 7591, October 1961 — "Base: Intermediate
+    Shell Octal 7-Pin (B7-233 or B8-142), Basing 8KG", bottom-view diagram, read
+    pin by pin and cross-checked against the Tung-Sol sheet's own bottom-view
+    diagram of the same base. This is a seven-pin base in an octal shell: there
+    is no pin 1 at all, which is why the position is absent below rather than
+    marked no-connection. Grid No.2 is brought out on both pin 4 and pin 8, and
+    Sylvania's note 1 requires the two to be tied together externally. The later
+    7591A keeps the arrangement pin for pin on a low-loss Plaskon base (B7-238),
+    where the basing designation is 8KQ rather than 8KG; it is rated for 90 mA of
+    cathode current instead of 85, and is otherwise a direct replacement.
+  pins:
+    2: { element: heater }
+    3: { element: plate, hv: true }
+    4: { element: screen-grid, hv: true, note: "g2 — tie externally to pin 8" }
+    5: { element: cathode, note: "k and g3 — the suppressor is tied to the cathode internally" }
+    6: { element: grid, note: "g1" }
+    7: { element: heater }
+    8: { element: screen-grid, hv: true, note: "g2 — tie externally to pin 4" }
+used_in: []
+datasheets:
+  - publisher: Tung-Sol
+    designation: "7591"
+    url: https://frank.pocnet.net/sheets/127/7/7591.pdf
+    confidence: high
+  - publisher: Sylvania
+    designation: "7591"
+    url: https://frank.pocnet.net/sheets/168/7/7591.pdf
+    confidence: high
+  - publisher: Westinghouse
+    designation: 7591A (April 1, 1963; JEDEC release #4250)
+    url: https://frank.pocnet.net/sheets/201/7/7591A.pdf
+    confidence: high

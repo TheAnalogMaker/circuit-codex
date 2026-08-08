@@ -229,6 +229,41 @@ def main() -> int:
     failures += check("EF86", "Ig2", r["ig2"], 0.6e-3, TOL_I)
     failures += check("EF86", "gm", (r["ia_hi"] - r["ia_lo"]) / 0.1, 2200e-6, TOL_GM)
 
+    print("6973 @ Va=250, Vg2=250, Vg1=-15:")
+    r = run_bench(PENTODE_BENCH.format(name="6973", inc=MODELS / "6973.inc",
+                                       vp=250, vg2=250, vg1=-15,
+                                       vg_hi=-14.95, vg_lo=-15.05))
+    failures += check("6973", "Ia", r["ia0"], 46e-3, TOL_I)
+    failures += check("6973", "Ig2", r["ig2"], 3.5e-3, TOL_I)
+    failures += check("6973", "gm", (r["ia_hi"] - r["ia_lo"]) / 0.1, 4800e-6, TOL_GM)
+
+    print("7591 @ Va=300, Vg2=300, Vg1=-10:")
+    r = run_bench(PENTODE_BENCH.format(name="7591", inc=MODELS / "7591.inc",
+                                       vp=300, vg2=300, vg1=-10,
+                                       vg_hi=-9.95, vg_lo=-10.05))
+    failures += check("7591", "Ia", r["ia0"], 60e-3, TOL_I)
+    failures += check("7591", "Ig2", r["ig2"], 8e-3, TOL_I)
+    failures += check("7591", "gm", (r["ia_hi"] - r["ia_lo"]) / 0.1, 10200e-6, TOL_GM)
+
+    # The 6SJ7 is the one pentode whose sheet tabulates plate current at two plate
+    # voltages, so its KVB is fitted rather than defaulted (fit_models.py) — and both
+    # columns are therefore checked here. The 100 V column is what the fit buys: on
+    # the project default KVB it would read 8.8% low, past the tolerance below.
+    print("6SJ7 @ Va=250, Vg2=100, Vg1=-3:")
+    r = run_bench(PENTODE_BENCH.format(name="6SJ7", inc=MODELS / "6sj7.inc",
+                                       vp=250, vg2=100, vg1=-3,
+                                       vg_hi=-2.95, vg_lo=-3.05))
+    failures += check("6SJ7", "Ia", r["ia0"], 3.0e-3, TOL_I)
+    failures += check("6SJ7", "Ig2", r["ig2"], 0.8e-3, TOL_I)
+    failures += check("6SJ7", "gm", (r["ia_hi"] - r["ia_lo"]) / 0.1, 1650e-6, TOL_GM)
+
+    print("6SJ7 @ Va=100, Vg2=100, Vg1=-3 (second tabulated plate voltage):")
+    r = run_bench(PENTODE_BENCH.format(name="6SJ7", inc=MODELS / "6sj7.inc",
+                                       vp=100, vg2=100, vg1=-3,
+                                       vg_hi=-2.95, vg_lo=-3.05))
+    failures += check("6SJ7", "Ia @ Va=100", r["ia0"], 2.9e-3, TOL_I)
+    failures += check("6SJ7", "gm @ Va=100", (r["ia_hi"] - r["ia_lo"]) / 0.1, 1575e-6, TOL_GM)
+
     print("EZ81 @ Va=10 (per anode):")
     r = run_bench(RECT_BENCH.format(name="EZ81", inc=MODELS / "ez81.inc", va=10))
     failures += check("EZ81", "Ia", r["ia0"], 60e-3, TOL_I)

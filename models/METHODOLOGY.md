@@ -43,6 +43,45 @@ exactly against the datasheet anchor:
 Every model is then verified in actual ngspice by `pipeline/test_models.py`
 (CI gate): anchored currents within 2 %, gm within 5 %.
 
+### Where MU comes from, and what happens when nobody prints it
+
+`MU` is the one parameter a single operating point cannot supply. In this model
+form it only ever appears as `Vg2/MU + Vg1`, so at a fixed screen voltage it is a
+pure offset that `KG1` absorbs. The order of preference is therefore:
+
+1. **A printed amplification factor**, if the sheet has one. For pentodes that is
+   the grid-No.1-to-grid-No.2 factor (EL34 11, EL84 19, EF86 38).
+2. **A printed *triode-connection* amplification factor**, where that is all the
+   publisher gives — KT66 9.5 (from the sheet's own gm·ra), 7591 16.8, 6SJ7 19.
+   This is a substitution, not the same quantity, and every model that makes it
+   says so in its header.
+3. **Solved from the sheet's own further operating rows**, when a publisher
+   prints no amplification factor at all. The 6973 is the case: neither RCA's
+   data sheet nor its RC-30 entry prints one, but the sheet tabulates push-pull
+   rows at three different screen voltages, and those rows measure it.
+   `solve_pentode_mu()` scores candidate MU values by the relative error they
+   leave on those rows, with the anchor still solved exactly for each candidate,
+   over an analytic bracket (below `Vg2/(EX/(gm/Ia) + |Vg1|)` the tabulated gm is
+   unreachable at the tabulated current; above `Vg2/|Vg1|` the anchor is past
+   cut-off). A fixed grid scan plus golden-section refinement keeps it
+   deterministic. The residuals it leaves are published, per tube, in
+   `reference/tubes/<tube>.yaml`.
+
+Never fit MU to an amplifier's measured voltages — that is the same circularity
+the calibration-source note below rules out.
+
+### Where KVB comes from
+
+`KVB` is the project default (300 V² triodes, 30 V pentodes) unless the datasheet
+itself measures the plate-voltage dependence, because otherwise nothing in the
+data constrains it. One pentode qualifies today: the **6SJ7**, whose sheet
+tabulates plate current at two plate voltages at the same screen and grid
+(250 V → 3.0 mA, 100 V → 2.9 mA). The only plate-voltage term in the model is
+`atan(Va/KVB)`, so that pair fixes KVB directly
+(`fit_pentode_kvb_from_plate_pair()`, KVB = 8.57). It is worth doing: on the
+default the 100 V point would read 8.8 % low, and the fitted value independently
+lands the model's plate resistance at 0.60 MΩ against the sheet's printed 0.7 MΩ.
+
 ## Mercury-vapour rectifiers (type 83)
 
 One tube in the corpus is not a vacuum device at all. The type 83 is a

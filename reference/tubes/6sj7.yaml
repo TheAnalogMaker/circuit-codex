@@ -1,0 +1,101 @@
+tube: 6sj7
+name: 6SJ7
+also_known_as: [6SJ7GT, "6SJ7-GT (glass octal)", "12SJ7 (12.6 V heater)"]
+role: >-
+  RCA metal sharp-cutoff pentode — the octal preamp valve of the wide-panel
+  tweed era, before the 9-pin 12AX7 took the front end over. A pentode input
+  stage gives several times the gain of a triode in the same place, and the metal
+  envelope is its own shield: grid No.1 comes out on a base pin rather than a top
+  cap, which is what let Fender put it on a chassis-mounted board at all. Grid
+  No.3 (the suppressor) has its own pin and is strapped to the cathode.
+model:
+  file: models/6sj7.inc
+  anchor: "Va=250 V, Vg2=100 V, Vg3=0 V, Vg1=-3 V → Ia=3.0 mA, Ig2=0.8 mA, gm=1650 µmho"
+  anchor_source: "RCA 6SJ7 / 6SJ7-GT data sheet, June 15, 1948 — Amplifier Class A1, pentode connection, typical operation and characteristics"
+  anchor_source_url: https://frank.pocnet.net/sheets/049/6/6SJ7.pdf
+  note: >-
+    Two parameters here are not the usual project defaults, and both are
+    documented rather than assumed. µ=19 is the tabulated TRIODE-connection
+    amplification factor (grids No.2 and No.3 tied to the plate) standing in for
+    the grid-No.1-to-grid-No.2 factor, which neither RCA nor GE prints for this
+    tube — the same substitution the KT66 model makes. RCA's own gm·rp at that
+    point (2500 µmho × 7600 Ω = 19.0) confirms the printed 19. KVB=8.57 is
+    fitted, not defaulted: this is the one pentode in the corpus whose sheet
+    tabulates plate current at two plate voltages at the same screen and grid
+    (Va=250 V → 3.0 mA and Va=100 V → 2.9 mA at Vg2=100 V, Vg1=-3 V), and in
+    this model form that pair measures the plate-voltage dependence directly.
+    Both plate voltages are CI-gated. EX=1.5 is the project default per
+    METHODOLOGY.md.
+  corroboration: >-
+    The fitted KVB is checked against a quantity it was not fitted to. The model
+    reads 0.60 MΩ of plate resistance at Va=100 V against the sheet's printed
+    0.7 MΩ, and 3.7 MΩ at Va=250 V against its "greater than 1 megohm". On the
+    project default KVB=30 the same model would read 160 kΩ at 100 V and put the
+    100 V plate current 8.8% low. RCA (June 1948) and General Electric
+    (ET-T1400, November 1956) print the identical characteristics block, so
+    every fitted number here rests on two independent publishers.
+  known_limitation: >-
+    The sheet's screen current differs between its two plate voltages (0.8 mA at
+    250 V, 0.9 mA at 100 V) — real behaviour that this model form cannot carry,
+    because its screen-current law has no plate-voltage term at all. KG2 anchors
+    on the 250 V column, so the model reads about 11% low on screen current at
+    100 V. Also, µ taken from the triode connection is a known risk rather than a
+    measured value: on the 7591, where both figures are obtainable, the triode
+    figure runs above what the tube's own operating rows imply.
+max_ratings:
+  note: >-
+    Design-centre values, pentode connection. Two and a half watts of plate
+    dissipation and a screen ceiling of 125 V put this firmly in small-signal
+    service: the screen must be fed through a dropper from the preamp rail, never
+    tied to it. The triode-connection column is the same tube with grids No.2 and
+    No.3 on the plate, and it is rated lower still (250 V).
+  items:
+    - { label: "Plate voltage", value: "300 V" }
+    - { label: "Grid-No.2 (screen) voltage", value: "125 V" }
+    - { label: "Grid-No.2 supply voltage", value: "300 V" }
+    - { label: "Plate dissipation", value: "2.5 W" }
+    - { label: "Grid-No.2 dissipation", value: "0.7 W" }
+    - { label: "Grid-No.1 voltage, positive bias value", value: "0 V" }
+    - { label: "Peak heater-cathode voltage", value: "90 V, either polarity" }
+    - { label: "Grid-No.1 circuit resistance", value: "1 MΩ" }
+    - { label: "Plate voltage, triode connection", value: "250 V" }
+    - { label: "Plate dissipation, triode connection", value: "2.5 W" }
+  limits:
+    plate_dissipation_w: 2.5
+    screen_dissipation_w: 0.7
+    plate_voltage_v: 300
+    screen_voltage_v: 125
+  rating_system: design-centre
+  source: "RCA 6SJ7 / 6SJ7-GT data sheet, June 15, 1948 — Amplifier Class A1, maximum ratings (design-centre values); the same figures appear on General Electric ET-T1400, November 1956"
+  source_url: https://frank.pocnet.net/sheets/049/6/6SJ7.pdf
+basing:
+  code: 8N
+  base: octal
+  view: bottom
+  source: >-
+    RCA 6SJ7 / 6SJ7-GT data sheet, June 15, 1948 — bottom-view basing diagram,
+    "Basing Designation 8N" (the glass 6SJ7-GT is GT-8N with the same pin
+    arrangement). Corroborated pin for pin by General Electric ET-T1400,
+    November 1956 ("RETMA 8N", base B8-21, small wafer octal 8-pin), whose
+    terminal-connections list is reproduced below. Pin 1 is the metal shell on
+    the 6SJ7 and the base sleeve on the 6SJ7-GT; either way it is tied to the
+    cathode in use, which is how the tube shields its own grid lead.
+  pins:
+    1: { element: internal-connection, note: "metal shell (6SJ7) or base sleeve (6SJ7-GT) and internal shield — connected to the cathode in use" }
+    2: { element: heater }
+    3: { element: suppressor-grid, note: "g3 — strapped to the cathode in this corpus's circuits, as at the tabulated operating point (Vg3=0)" }
+    4: { element: grid, note: "g1 — on a base pin, not a top cap (this is what separates the 6SJ7 from the 6J7)" }
+    5: { element: cathode }
+    6: { element: screen-grid, hv: true, note: "g2 — fed through a dropper, rated 125 V" }
+    7: { element: heater }
+    8: { element: plate, hv: true }
+used_in: []
+datasheets:
+  - publisher: RCA
+    designation: 6SJ7 / 6SJ7-GT
+    url: https://frank.pocnet.net/sheets/049/6/6SJ7.pdf
+    confidence: high
+  - publisher: General Electric
+    designation: 6SJ7 / 12SJ7 (ET-T1400)
+    url: https://frank.pocnet.net/sheets/093/6/6SJ7.pdf
+    confidence: high

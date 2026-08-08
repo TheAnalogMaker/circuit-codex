@@ -172,12 +172,17 @@ class PentodeFit:
 
 def fit_pentode(name: str, mu: float, vp: float, vg2: float, vg1: float,
                 ia: float, ig2: float, gm: float,
-                vg2_s: float | None = None, vg1_s: float | None = None) -> PentodeFit:
+                vg2_s: float | None = None, vg1_s: float | None = None,
+                kvb: float = KVB_PENTODE) -> PentodeFit:
     """Solve KP, KG1 so the model reproduces (ia, gm) at the plate anchor
     (vp, vg2, vg1). KG2 is fit to Ig2 at a screen anchor which may differ from
     the plate anchor: pass vg2_s/vg1_s when the datasheet tabulates screen
     current at a different operating point than gm/Ia (both default to the
-    plate anchor's vg2/vg1, preserving the single-point behaviour)."""
+    plate anchor's vg2/vg1, preserving the single-point behaviour).
+
+    `kvb` defaults to the project pentode default (30 V); pass a fitted value
+    only when the datasheet itself measures the plate-voltage dependence — see
+    fit_pentode_kvb_from_plate_pair()."""
     a = 1.0 / mu + vg1 / vg2
     r_target = gm / ia
 
@@ -188,12 +193,102 @@ def fit_pentode(name: str, mu: float, vp: float, vg2: float, vg1: float,
 
     kp = _bisect(ratio_err, 1e-3, 5000.0)
     e1 = (vg2 / kp) * _softplus(kp * a)
-    kg1 = (e1 ** EX) * math.atan(vp / KVB_PENTODE) / ia
+    kg1 = (e1 ** EX) * math.atan(vp / kvb) / ia
     vg2s = vg2 if vg2_s is None else vg2_s
     vg1s = vg1 if vg1_s is None else vg1_s
     e2 = vg2s / mu + vg1s
     kg2 = (e2 ** EX) / ig2
-    return PentodeFit(name=name, mu=mu, kp=kp, kg1=kg1, kg2=kg2)
+    return PentodeFit(name=name, mu=mu, kp=kp, kg1=kg1, kg2=kg2, kvb=kvb)
+
+
+def _pentode_ia(vp: float, vg2: float, vg1: float, mu: float, kp: float,
+                kg1: float, kvb: float) -> float:
+    """Koren pentode plate current — the same expression emitted into the .inc."""
+    e1 = (vg2 / kp) * _softplus(kp * (1.0 / mu + vg1 / vg2))
+    return (e1 ** EX) / kg1 * math.atan(vp / kvb) if e1 > 0.0 else 0.0
+
+
+def _pentode_ig2(vg2: float, vg1: float, mu: float, kg2: float) -> float:
+    """Koren pentode screen current — the same expression emitted into the .inc
+    (uramp: no screen current once the grid drives the equivalent voltage negative)."""
+    e2 = vg2 / mu + vg1
+    return (e2 ** EX) / kg2 if e2 > 0.0 else 0.0
+
+
+def fit_pentode_kvb_from_plate_pair(vp_a: float, ia_a: float,
+                                    vp_b: float, ia_b: float) -> float:
+    """Fit KVB to a datasheet that tabulates plate current at TWO plate voltages
+    at the same grid and screen voltages.
+
+    In this model form the only plate-voltage dependence is the atan(Va/KVB)
+    factor, so such a pair measures KVB directly: solve
+    atan(vp_b/KVB)/atan(vp_a/KVB) = ia_b/ia_a. This is the pentode analogue of
+    the 12AX7's two-point treatment — the project default (30 V) is used
+    everywhere the sheet publishes only one plate voltage, because then nothing
+    in the data constrains it."""
+    target = ia_b / ia_a
+    return _bisect(lambda k: math.atan(vp_b / k) / math.atan(vp_a / k) - target,
+                   1e-2, 1.0e4)
+
+
+def solve_pentode_mu(vp: float, vg2: float, vg1: float, ia: float, ig2: float,
+                     gm: float,
+                     ia_rows: list[tuple[float, float, float, float]],
+                     ig2_rows: list[tuple[float, float, float]],
+                     kvb: float = KVB_PENTODE, grid_n: int = 400) -> float:
+    """Solve MU from a sheet's own extra tabulated operating rows, for tubes
+    whose publisher prints no amplification factor at all.
+
+    MU is the one Koren parameter that cannot be solved from a single operating
+    point: it only ever appears as Vg2/MU + Vg1, so at fixed Vg2 it is a pure
+    offset. Where a sheet tabulates further rows at *different* screen voltages,
+    those rows measure it. For each candidate MU the anchor fit is run exactly as
+    usual (KP, KG1, KG2 solved so Ia, gm and Ig2 are reproduced at the anchor),
+    and the candidate is scored by the relative error it leaves on the extra
+    rows — `ia_rows` as (Va, Vg2, Vg1, Ia), `ig2_rows` as (Vg2, Vg1, Ig2).
+
+    The search bracket is analytic, not guessed. Below
+        MU_floor = Vg2 / (EX/(gm/Ia) + |Vg1|)
+    the anchor is unreachable: gm/Ia can never exceed EX/(Vg2/MU + Vg1) in this
+    form, so fit_pentode's bisection has no bracket. Above
+        MU_cutoff = Vg2 / |Vg1|
+    the anchor sits past cutoff and the tube draws nothing. A fixed-count grid
+    scan then a golden-section refinement inside the winning cell keeps the
+    result deterministic (byte-identical .inc files on re-run)."""
+    mu_floor = vg2 / (EX / (gm / ia) + abs(vg1))
+    mu_cutoff = vg2 / abs(vg1)
+
+    def score(mu: float) -> float:
+        try:
+            f = fit_pentode("_", mu=mu, vp=vp, vg2=vg2, vg1=vg1,
+                            ia=ia, ig2=ig2, gm=gm, kvb=kvb)
+        except ValueError:
+            return float("inf")
+        s = 0.0
+        for rvp, rvg2, rvg1, ria in ia_rows:
+            s += ((_pentode_ia(rvp, rvg2, rvg1, mu, f.kp, f.kg1, kvb) - ria) / ria) ** 2
+        for rvg2, rvg1, rig in ig2_rows:
+            got = _pentode_ig2(rvg2, rvg1, mu, f.kg2)
+            # A candidate MU that puts a tabulated screen current at zero is not
+            # "slightly wrong", it is disqualified; score it far off rather than 0.
+            s += ((got - rig) / rig) ** 2 if got > 0.0 else 1.0e6
+        return s
+
+    grid = [mu_floor + (mu_cutoff - mu_floor) * (i + 0.5) / grid_n
+            for i in range(grid_n)]
+    vals = [score(m) for m in grid]
+    k = min(range(grid_n), key=lambda i: vals[i])
+    lo = grid[max(0, k - 1)]
+    hi = grid[min(grid_n - 1, k + 1)]
+    inv_phi = (math.sqrt(5.0) - 1.0) / 2.0
+    c, d = hi - inv_phi * (hi - lo), lo + inv_phi * (hi - lo)
+    for _ in range(200):
+        if score(c) < score(d):
+            hi = d
+        else:
+            lo = c
+        c, d = hi - inv_phi * (hi - lo), lo + inv_phi * (hi - lo)
+    return 0.5 * (lo + hi)
 
 
 def fit_rectifier_perveance(v_drop: float, i_at_drop: float) -> float:
@@ -451,6 +546,77 @@ Cak A K 4p
         emit_pentode(el84, {"cin": 10.8, "cgp": 0.5, "cout": 6.5}) + "\n"
     (MODELS_DIR / "el84.inc").write_text(txt)
 
+    # ---- 6973 (RCA beam power tube, the Supro/Valco 9-pin output valve): the
+    #      sheet's Class-A1 characteristics block tabulates Ia, Ig2 AND gm at one
+    #      point (Va=250, Vg2=250, Vg1=-15 -> Ia=46 mA, Ig2=3.5 mA, gm=4800 umho),
+    #      so KP/KG1/KG2 all anchor there. RCA prints NO amplification factor for
+    #      this tube — not on the data sheet and not in RC-30 — so MU is solved from
+    #      the sheet's own further tabulated push-pull fixed-bias rows, which run the
+    #      screen at 250/280/290 V and therefore measure it (see solve_pentode_mu).
+    p6973_anchor = dict(vp=250.0, vg2=250.0, vg1=-15.0,
+                        ia=46e-3, ig2=3.5e-3, gm=4800e-6)
+    # (Va, Vg2, Vg1, Ia) and (Vg2, Vg1, Ig2) — the fixed-bias table's three columns,
+    # halved from its "values are for 2 tubes" convention.
+    p6973_ia_rows = [(250.0, 250.0, -15.0, 46e-3),
+                     (350.0, 280.0, -22.0, 29e-3),
+                     (400.0, 290.0, -25.0, 25e-3)]
+    p6973_ig2_rows = [(250.0, -15.0, 3.5e-3),
+                      (280.0, -22.0, 1.75e-3),
+                      (290.0, -25.0, 1.25e-3)]
+    mu6973 = solve_pentode_mu(**p6973_anchor,
+                              ia_rows=p6973_ia_rows, ig2_rows=p6973_ig2_rows)
+    p6973 = fit_pentode("6973", mu=mu6973, **p6973_anchor)
+    src_6973 = ("RCA 6973 data sheet, 10-60 (Beam Power Tube, 9-pin miniature); "
+                "https://frank.pocnet.net/sheets/049/6/6973.pdf")
+    txt = common_header("6973 beam power tube",
+                        "Va=250 V, Vg2=250 V, Vg1=-15 V -> Ia=46 mA, Ig2=3.5 mA, gm=4800 umho",
+                        [f"mu={mu6973:.4g} is SOLVED, not read: neither the data sheet nor the",
+                         "RCA Receiving Tube Manual RC-30 entry prints an amplification factor",
+                         "for this tube. It is fitted to the sheet's own push-pull fixed-bias",
+                         "rows (250/250/-15, 350/280/-22, 400/290/-25 V -> 46/29/25 mA per tube",
+                         "and 3.5/1.75/1.25 mA screen), which vary the screen voltage and so",
+                         "measure it; the anchor above is still reproduced exactly. Residuals on",
+                         "those rows: plate +12.0%/+6.4%, screen +7.9%/-3.4%.",
+                         "Independent check: the anchor's own gm/Ia ratio requires mu > 8.51 in",
+                         "this model form, and the solved value sits above that floor.",
+                         "Capacitances from the sheet: Cg1-p=0.4 pF max, Cin=9 pF, Cout=6 pF.",
+                         "Node order: P G2 G1 K"],
+                        source=src_6973) + "\n" + \
+        emit_pentode(p6973, {"cin": 9.0, "cgp": 0.4, "cout": 6.0}) + "\n"
+    (MODELS_DIR / "6973.inc").write_text(txt)
+
+    # ---- 7591 (beam power tube, the Ampeg output valve): the Tung-Sol sheet's
+    #      Class-A1 typical-operation block tabulates Ia, Ig2 AND gm at one point
+    #      (Va=300, Vg2=300, Vg1=-10 -> Ia=60 mA, Ig2=8 mA, gm=10200 umho), so
+    #      KP/KG1/KG2 all anchor there; Sylvania's sheet prints the identical block.
+    #      MU=16.8 is the amplification factor printed on the Tung-Sol sheet.
+    p7591 = fit_pentode("7591", mu=16.8, vp=300.0, vg2=300.0, vg1=-10.0,
+                        ia=60e-3, ig2=8e-3, gm=10200e-6)
+    src_7591 = ("Tung-Sol 7591 data sheet, March 1, 1961 (plate #6125); "
+                "https://frank.pocnet.net/sheets/127/7/7591.pdf")
+    txt = common_header("7591 beam power tube",
+                        "Va=300 V, Vg2=300 V, Vg1=-10 V -> Ia=60 mA, Ig2=8 mA, gm=10200 umho",
+                        ["mu=16.8 is the amplification factor printed beside this operating",
+                         "point (measured in triode connection, as on the KT66). Three sheets",
+                         "agree on the whole block — Tung-Sol 3-1961, Sylvania 10-1961 and",
+                         "Westinghouse 7591A 4-1963 all print 10200 umho, 29000 Ohm, mu 16.8.",
+                         "It is also the only published figure the anchor admits: the tabulated",
+                         "gm/Ia ratio cannot be reached in this model form below mu=15.94, and",
+                         "it agrees with the sheets' average plate characteristics",
+                         "(Vg2=350, Vg1=0 -> ~260 mA; model 259 mA).",
+                         "Known limitation: the sheets' push-pull Class-AB1 DESIGN tables sit",
+                         "well off this fit — plate -13% to -21%, screen -29% to -64% — because",
+                         "the published screen current falls far more slowly with bias than a",
+                         "3/2-power law allows. Those rows are recorded in",
+                         "reference/tubes/7591.yaml, not fitted to. Published plate resistance",
+                         "29 kOhm at the anchor; this model, on the project default KVB, reads",
+                         "about 74 kOhm.",
+                         "Capacitances from the sheet: Cg1-p=0.25 pF, Cin=10 pF, Cout=5 pF.",
+                         "Node order: P G2 G1 K"],
+                        source=src_7591) + "\n" + \
+        emit_pentode(p7591, {"cin": 10.0, "cgp": 0.25, "cout": 5.0}) + "\n"
+    (MODELS_DIR / "7591.inc").write_text(txt)
+
     # ---- EF86 (Philips/Mullard A.F. pentode, Vox AC15 Normal-channel preamp):
     #      the sheet's "typical characteristics" block tabulates Ia, Ig2 and S at
     #      one point (Va=250, Vg2=140, Vg3=0, Vg1=-2.2 -> Ia=3.0 mA, Ig2=0.6 mA,
@@ -473,6 +639,48 @@ Cak A K 4p
                         source=ef86_src) + "\n" + \
         emit_pentode(ef86, {"cin": 3.8, "cgp": 0.05, "cout": 5.1}) + "\n"
     (MODELS_DIR / "ef86.inc").write_text(txt)
+
+    # ---- 6SJ7 (metal sharp-cutoff pentode, the wide-panel tweed input valve):
+    #      RCA (6-15-1948) and GE (ET-T1400, 11-56) print an identical Class-A1
+    #      block, and it tabulates plate current at TWO plate voltages at the same
+    #      screen and grid (Vg2=100, Vg1=-3: Va=250 -> 3.0 mA, Va=100 -> 2.9 mA).
+    #      That pair measures the plate-voltage dependence directly, so KVB is
+    #      fitted to it instead of taking the project default — which would put the
+    #      100 V point 8.8% low. KP/KG1/KG2 then anchor at the 250 V column as usual.
+    sj7_kvb = fit_pentode_kvb_from_plate_pair(vp_a=250.0, ia_a=3.0e-3,
+                                              vp_b=100.0, ia_b=2.9e-3)
+    sj7 = fit_pentode("6SJ7", mu=19.0, vp=250.0, vg2=100.0, vg1=-3.0,
+                      ia=3.0e-3, ig2=0.8e-3, gm=1650e-6, kvb=sj7_kvb)
+    sj7_src = ("RCA 6SJ7 / 6SJ7-GT data sheet, June 15, 1948; "
+               "https://frank.pocnet.net/sheets/049/6/6SJ7.pdf")
+    txt = common_header("6SJ7 sharp-cutoff pentode",
+                        "Va=250 V, Vg2=100 V, Vg3=0 V, Vg1=-3 V -> Ia=3.0 mA, Ig2=0.8 mA, "
+                        "gm=1650 umho; second tabulated plate voltage Va=100 V -> Ia=2.9 mA, "
+                        "gm=1575 umho",
+                        ["mu=19 is the tabulated TRIODE-connection amplification factor (grids",
+                         "No.2 and No.3 tied to the plate), used in place of the grid-No.1-to-",
+                         "grid-No.2 factor, which neither publisher prints — the same substitution",
+                         "the KT66 model makes. RCA's gm.rp at that point (2500 umho x 7600 Ohm)",
+                         "confirms the 19. Known risk: on the 7591, where both figures can be",
+                         "obtained, the triode figure runs above the value the operating rows imply.",
+                         f"KVB={sj7_kvb:.4g} is fitted, not defaulted: the sheet's two tabulated",
+                         "plate voltages measure it (see fit_pentode_kvb_from_plate_pair). It is",
+                         "corroborated independently — the model then reads 0.60 MOhm of plate",
+                         "resistance at Va=100 V against the sheet's printed 0.7 MOhm, and 3.7",
+                         "MOhm at Va=250 V against its 'greater than 1 megohm'.",
+                         "The sheet's screen current differs between the two plate voltages",
+                         "(0.8 mA at 250 V, 0.9 mA at 100 V); this model form has no plate-voltage",
+                         "dependence in Ig2, so KG2 anchors on the 250 V column.",
+                         "Capacitances are the metal 6SJ7's, shell tied to cathode: Cg1-p=0.005 pF",
+                         "max, Cin=6 pF, Cout=7 pF. The glass 6SJ7-GT differs (0.005/7/7 pF with an",
+                         "external shield) and shares the electrical data.",
+                         "Suppressor g3 has its own pin (3) and is strapped to the cathode in this",
+                         "corpus's circuits, as at the tabulated point (Vg3=0), so it is not a",
+                         "separate model node.",
+                         "Node order: P G2 G1 K"],
+                        source=sj7_src) + "\n" + \
+        emit_pentode(sj7, {"cin": 6.0, "cgp": 0.005, "cout": 7.0}) + "\n"
+    (MODELS_DIR / "6sj7.inc").write_text(txt)
 
     # ---- EZ81: the Philips sheet tabulates NO per-anode tube drop — only whole-
     #      rectifier system rows (transformer volts in, DC volts out). The only
@@ -587,11 +795,14 @@ Cak A K 4p
     print(f"  EL34:  MU={el34.mu:g} KP={el34.kp:.6g} KG1={el34.kg1:.6g} KG2={el34.kg2:.6g}")
     print(f"  EL84:  MU={el84.mu:g} KP={el84.kp:.6g} KG1={el84.kg1:.6g} KG2={el84.kg2:.6g}")
     print(f"  EF86:  MU={ef86.mu:g} KP={ef86.kp:.6g} KG1={ef86.kg1:.6g} KG2={ef86.kg2:.6g}")
+    print(f"  6973:  MU={p6973.mu:.6g} KP={p6973.kp:.6g} KG1={p6973.kg1:.6g} KG2={p6973.kg2:.6g} (MU solved from the sheet's rows)")
+    print(f"  7591:  MU={p7591.mu:g} KP={p7591.kp:.6g} KG1={p7591.kg1:.6g} KG2={p7591.kg2:.6g}")
+    print(f"  6SJ7:  MU={sj7.mu:g} KP={sj7.kp:.6g} KG1={sj7.kg1:.6g} KG2={sj7.kg2:.6g} KVB={sj7.kvb:.6g} (KVB fitted)")
     print(f"  EZ81:  PERV={perv_ez:.6g}")
     print(f"  GZ34:  PERV={perv_gz:.6g}")
     print(f"  5U4G:  PERV={perv_5u4:.6g}")
     print(f"  83:    VARC={v_arc:g} IREF={i_arc:g} VSOFT={v_soft:g} (mercury-vapour arc)")
-    print(f"wrote 16 models to {MODELS_DIR}")
+    print(f"wrote 19 models to {MODELS_DIR}")
 
 
 if __name__ == "__main__":
