@@ -1,0 +1,176 @@
+family: ampeg-portaflex
+title: "The Ampeg Portaflex line"
+maker_style: "American-style"
+summary: >
+  Ampeg's answer to the problem of carrying a bass rig: a combo whose chassis
+  hangs upside-down from the lid, so the amplifier folds away inside its own
+  cabinet for the walk to the gig. The Portaflex arrived in 1960 as the 25-watt
+  B-15 and stayed in production, revision by revision, for two decades. Its
+  circuit is unusually consistent across the first ten years — two identical
+  channels, each a pair of high-mu octal triode stages around a passive bass and
+  treble network, feeding one more octal twin triode that both drives and
+  inverts, into a push-pull pair of American beam power tubes with negative
+  feedback taken from the speaker winding. The factory drawings list the same
+  six bottles for the B-15N, B-15NC and B-15NF: three 6SL7 twin triodes, two
+  6L6GC beam power tubes and a 5AR4 rectifier. The line's later chapters swap
+  that octal front end for a noval one and the rectifier tube for silicon.
+models:
+  - designation: "B-15"
+    name: "B-15 Portaflex, first model"
+    years: { start: 1960, end: 1961 }
+    wattage: 25
+    output: "push-pull"
+    tubes: null
+    key_change: >
+      The first Portaflex: a 25-watt two-channel bass combo built around the
+      flip-top cabinet the line is remembered for, the chassis inverted in the
+      lid so the whole amplifier stows inside the box it plays through. No
+      factory drawing for this first model has been read here, so no valve
+      complement is claimed for it.
+    circuit_ref: null
+    sources:
+      - desc: "Wikipedia, \"Ampeg Portaflex\" — the original 1960 model given as a 25-watt two-channel amplifier, replaced by the B-15N in 1961"
+        url: "https://en.wikipedia.org/wiki/Ampeg_Portaflex"
+
+  - designation: "B-15N"
+    name: "B-15N Portaflex"
+    years: { start: 1961, end: 1964 }
+    wattage: 25
+    output: "push-pull 2×6L6GC"
+    tubes: [6SL7, 6SL7, 6SL7, 6L6GC, 6L6GC, 5AR4]
+    key_change: >
+      The model that replaced the original B-15 in 1961 and gave the line its
+      name. Ampeg's own drawing for it prints the complement plainly in the
+      title block — three 6SL7 twin triodes, two 6L6GC beam power tubes and a
+      5AR4 rectifier — and the circuit it draws is two identical channels of two
+      6SL7 stages each, a third 6SL7 driving the output pair, fixed bias from a
+      separate negative supply, and negative feedback taken from the speaker
+      winding back into the driver. The valve complement above is read from that
+      drawing, which carries revision C of 22 January 1974: it is the B-15N
+      circuit as Ampeg last issued it, not necessarily as the first 1961
+      chassis left the bench.
+    circuit_ref: null
+    sources:
+      - desc: "Ampeg factory schematic, engineering issue — title block reads 'B-15-N / U.S. PATENT 3183305 / TUBES / 6SL7 - 6SL7 - 6SL7 - 6L6GC - 6L6GC - 5AR4 / -472-', drawn 'BY S.C. 1268', PART NO. 591722, revision block '1/22/74 | C | 591722-2' over 'B | 591722-1'. Read from the drawing: two channels of 6SL7 stages (470 kΩ and 220 kΩ anode loads, 5.6 kΩ and 2.2 kΩ cathodes, annotated 165 V / 175 V anodes and 2.2 V / 2 V cathodes) into a passive bass/treble network, 270 kΩ channel mixing resistors into the 6SL7 driver (annotated 235 V / 225 V anodes, 3 V / 2.2 V cathodes, 120 kΩ anode loads), 1 kΩ grid stoppers and 270 kΩ grid returns to an annotated -50 V bias line for the 6L6GC pair (annotated 450 V anodes, 445 V screens), a 10 kΩ feedback resistor from the speaker winding, OT-214 output and PT-108 power transformers, and a 5AR4 rectifier with a separate F-4 diode bias supply. Not reproduced here."
+        url: "https://ampeg.com/data/6/0a000509142f661ff65a5784a/application/pdf/"
+      - desc: "Ampeg service-manual schematic sheet of the same revision, headed 'MODEL B15N SCHEMATIC DIAGRAM (REV. C)' — the same circuit and the same annotated voltages, with the manual's own notes ('All capacitors in microfarads, 10%, 400V'; 'Resistors are 1/2 W, 10%, composition'; 'D.C. voltage readings taken with no signal applied using a 20,000 ohm/volt voltmeter') and an A.C. voltage measurement table taken at 0.3 V, 400 c/s in for 11 V across an 8 ohm load. The two sheets agree everywhere both can be read"
+        url: "https://ampeg.com/data/6/0a0005091412661ff665e83fe/application/pdf/"
+      - desc: "Wikipedia, \"Ampeg Portaflex\" — \"B-15 was replaced by the B-15N in 1961\""
+        url: "https://en.wikipedia.org/wiki/Ampeg_Portaflex"
+
+  - designation: "B-15NB"
+    name: "B-15NB Portaflex, blue check"
+    years: { start: 1962, end: 1964 }
+    wattage: 25
+    output: "push-pull"
+    tubes: null
+    key_change: >
+      The revision that dropped the rectifier tube for a solid-state one, and
+      the point at which the blue checked covering arrives. No factory drawing
+      for this revision has been read here, so its valve complement is not
+      claimed.
+    circuit_ref: null
+    sources:
+      - desc: "Wikipedia, \"Ampeg Portaflex\" — the 1962 update fitted \"a solid-state rectifier called the B-15NB\""
+        url: "https://en.wikipedia.org/wiki/Ampeg_Portaflex"
+
+  - designation: "B-15NC"
+    name: "B-15NC Portaflex (shared drawing with the B-12NC)"
+    years: { start: 1964, end: 1965 }
+    wattage: 25
+    output: "push-pull 2×6L6GC"
+    tubes: [6SL7, 6SL7, 6SL7, 6L6GC, 6L6GC, 5AR4]
+    key_change: >
+      The rectifier tube comes back and the hand-wired board gives way to a
+      printed one. Ampeg drew the B-15NC and its 12-inch sister the B-12NC on a
+      single sheet, and the two share a circuit: the same three 6SL7s, the same
+      6L6GC pair on an OT-208 output transformer, the same 5AR4. Two issues of
+      that sheet were published a few months apart, in November 1964 and March
+      1965.
+    circuit_ref: null
+    sources:
+      - desc: "Ampeg factory schematic headed 'MODEL B-12NC — B-15NC', sheet marked 1164, carrying the Ampeg Co., Inc., Industrial Park, Linden N.J. block and the note 'D.C. VOLTAGE READINGS WITH NO SIGNAL INSERTED'. Read from the drawing: 6SL7 stages annotated 110 V and 175 V anodes with 2.2 kΩ and 5.6 kΩ cathodes, a 6SL7-GT driver annotated 300 V / 280 V anodes, a 6L6GC pair annotated 430 V anodes on a 250 Ω 10 W shared cathode resistor bypassed by 50 µF, an OT-208 output transformer, a PT-108 power transformer and a 5AR4 rectifier with 440 V at the reservoir. Not reproduced here"
+        url: "https://ampeg.com/data/6/0a0005091412661ff6c6cb01e/application/pdf/"
+      - desc: "Ampeg factory schematic, second issue — title block reads 'MODEL NOS. B-12-NC & B-15-NC / Tube Location: 6SL7 6SL7 6SL7 6L6GC 6L6GC 5AR4', dated 3-10-65 and initialled R.M.M., with the note 'D.C. VOLTAGE READINGS WITH NO SIGNAL INSERTED'. Same circuit and same annotated voltages as the 1164 sheet"
+        url: "https://ampeg.com/data/6/0a000509144b661ff6d358510/application/pdf/"
+      - desc: "Wikipedia, \"Ampeg Portaflex\" — the line \"went back to a tube rectifier and changed to a printed circuit board in 1964\""
+        url: "https://en.wikipedia.org/wiki/Ampeg_Portaflex"
+
+  - designation: "B-15NF"
+    name: "B-15NF Portaflex (shared drawing with the B-12NF)"
+    years: { start: 1965, end: 1971 }
+    wattage: 25
+    output: "push-pull 2×6L6GC"
+    tubes: [6SL7, 6SL7, 6SL7, 6L6GC, 6L6GC, 5AR4]
+    key_change: >
+      The longest-running of the tube Portaflexes. The output pair moves to
+      fixed bias — the drawing prints a -30 V bias line and a 100 kΩ 2 W feed
+      where the NC had a shared cathode resistor — and the cabinet goes to a
+      single baffle. The valve complement does not change: the same three 6SL7s,
+      6L6GC pair and 5AR4, now on the larger OT-214 output transformer.
+    circuit_ref: null
+    sources:
+      - desc: "Ampeg factory schematic, manual page -58- — title block reads 'MODEL NOS B-12-NF & B-15-NF / U.S. Patent 3183305 / Tube Location: 6SL7 6SL7 6SL7 6L6GC 6L6GC 5AR4', with the notes 'Voltage reading with 20,000 ohm/volt meter' and 'D.C. VOLTAGE READINGS WITH NO SIGNAL INSERTED'. Read from the drawing: 6SL7 stages annotated 165 V and 175 V anodes, a 6SL7 driver annotated 235 V / 225 V, a -30 V bias line feeding 270 kΩ grid returns through 1 kΩ grid stoppers, a 100 kΩ 2 W bias feed, an OT-214 output transformer, PT-108 power transformer and 5AR4 rectifier. Not reproduced here"
+        url: "https://ampeg.com/data/6/0a000509142f661ff7d9e701b/application/pdf/"
+      - desc: "Wikipedia, \"Ampeg Portaflex\" — the mid-1965 revision brought \"fixed bias tubes and a single-baffle cabinet\""
+        url: "https://en.wikipedia.org/wiki/Ampeg_Portaflex"
+
+  - designation: "B-15S"
+    name: "B-15S Portaflex"
+    years: { start: 1971, end: 1977 }
+    wattage: null
+    output: "push-pull 2×7027A"
+    tubes: [12AX7, 12AX7, 12DW7, 12AU7, 7027A, 7027A]
+    key_change: >
+      The break with the octal front end. Every 6SL7 is gone: the two channels
+      run on 12AX7s, the driver on a 12DW7 and a 12AU7, and the output pair is
+      the higher-dissipation 7027A on a much higher rail — the drawing annotates
+      575 V at the anodes against the B-15N's 450 V. The rectifier tube is gone
+      too, replaced by a silicon bridge, and the tone controls sit on a
+      power-amplifier printed board with a four-position rotary voicing switch
+      ahead of them.
+    circuit_ref: null
+    sources:
+      - desc: "Ampeg factory schematic — title block reads 'MODEL B15S / U.S. PATENT PENDING', DRN. BY S.C., DATE 3-71, DWG. NO. 06400, PART NO. 591717-1, REV. C, with the sheet marked 12/71 - 194. Read from the drawing: V1 and V2 12AX7 channel stages annotated 185 V and 280 V anodes, V3 12DW7 and V4 12AU7 driver stages annotated 240 V, V5 and V6 7027A annotated 575 V anodes with a -58 V bias line, a four-position Bass/Flat/Guitar rotary switch (SW1), power-amp printed board 64-60-076, output transformer 8950029, power transformer 8930076 and a silicon bridge rectifier. Not reproduced here"
+        url: "https://ampeg.com/data/6/0a0005091483661ff88b417bc/application/pdf/"
+
+  - designation: "B-15 (reissue)"
+    name: "B-15 / B-15R Portaflex reissue"
+    years: { start: 1997, end: 2000 }
+    wattage: 100
+    output: "push-pull 4×6L6"
+    tubes: null
+    key_change: >
+      The Portaflex name returns under St. Louis Music, on a drawing that has
+      almost nothing to do with the 1960s amplifier: a solid-state front end
+      around dual op-amps feeding four output bottles, a switchable 100 W / 50 W
+      output stage, balanced line out with a ground-lift switch and a five-band
+      voicing section. It is a Portaflex by cabinet and by name.
+    circuit_ref: null
+    sources:
+      - desc: "SLM Electronics CAD schematic — title block reads 'PROJECT NAME: B-15 / DRAWING NAME: SCHEMATIC DRAWING / DRAWING NO. 07S267-01 / REV 4', drawn REM 3/5/97, checked and approved 3/5/97, plotted 11/18/98, 'COPYRIGHT SLM ELECTRONICS', 1850 Bowman Dr., St. Louis, Missouri. Test-point conditions on the sheet read '120V 60HZ LINE VOLTAGE, PWR SW IN 100W POSITION ... 6L6 OUTPUT TUBES INSTALLED, SW5 IN 6L6 POSITION', and the sheet notes 28.6 Vrms into an 8 ohm load at 5% THD, 102 Wrms. Not reproduced here"
+        url: "https://ampeg.com/data/6/0a00050911e1661efc8393e08/application/pdf/"
+
+notes: >
+  Every valve complement above that is claimed at all is read from an Ampeg
+  title block, because the Portaflex is one of the lines where the factory
+  wrote the complement into the drawing rather than leaving it to the tube
+  chart. That makes one widely repeated claim easy to check and easy to
+  correct: no Portaflex drawing in Ampeg's own published schematic library
+  specifies 7591 output tubes. The B-15N, B-15NC and B-15NF sheets all print
+  6L6GC, and the B-15S prints 7027A. The 7591 belongs to Ampeg's guitar
+  amplifiers of the same years, not to the Portaflex.
+
+  Two gaps are left open rather than filled. The first B-15 of 1960 and the
+  solid-state-rectifier B-15NB of 1962 have no factory drawing read here, so
+  they carry years and wattage but no valve complement. And the B-15N sheet
+  that does exist is revision C of January 1974 — it documents the circuit as
+  Ampeg last issued it, more than a decade after the model was introduced, so
+  it dates the circuit's final form rather than its first.
+
+  Dates are as tight as their evidence allows and no tighter. Introduction years
+  come from the published chronology; the closing years of the B-15NF and B-15S
+  rows are bracketed by the drawings read here — the B-15S sheet is dated March
+  1971, which puts a ceiling on the NF — rather than pinned by a dated source of
+  their own. No circuit in this corpus is drawn from this family yet; every row
+  is history-tier.
