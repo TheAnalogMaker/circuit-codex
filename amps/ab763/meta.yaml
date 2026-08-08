@@ -3,8 +3,10 @@ id: "ab763"
 name_style: "Blackface Deluxe Reverb-style"
 family: blackface
 era:
-  start: 1963
-  end: 1967
+  start: 1964   # the AB763 revision's own window. The blackface Deluxe Reverb
+  end: 1967     # arrives in 1963 under the AA763 designation (a history-tier row
+                # in history/families/deluxe-reverb.yaml); field guides that date
+                # 'the AB763 schematic' 1963-1967 are dating the whole blackface era.
 wattage: 22
 tubes: [12AX7, 12AX7, 12AX7, 12AT7, 12AX7, 12AT7, 6V6GT, 6V6GT, GZ34]
 topology:

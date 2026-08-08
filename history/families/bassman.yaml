@@ -52,6 +52,11 @@ models:
   - designation: "5E6 / 5E6-A"
     name: "Bassman (narrow-panel tweed, 4x10)"
     years: { start: 1955, end: 1957 }
+    era_note: >-
+      This row carries the combined 5E6 / 5E6-A designation, so it spans both
+      revisions (1955-1957). The documented circuit is the -A specifically, whose
+      own entry takes the later part of that range as the defensible window for the
+      revision it draws.
     wattage: 40
     output: "push-pull 2x6L6"
     tubes: [12AY7, 12AY7, 12AX7, 6L6, 6L6, 5U4GA, 5U4GA]

@@ -145,9 +145,9 @@ models:
       - desc: "Mojotone Fender Field Guide, 'Fender Narrow Panel Tweed Pro' — 5E5-A (1956-1960), fixed/nonadjustable bias via a selenium bias rectifier, negative-feedback loop restored with the addition of a Presence control"
         url: "https://mojotone.com/blogs/fender-field-guide/fender-narrow-panel-tweed-pro"
 
-  - designation: "6G5"
+  - designation: "6G5 / 6G5-A"
     name: "Pro (brownface)"
-    years: { start: 1960, end: 1961 }
+    years: { start: 1960, end: 1963 }
     wattage: 40
     output: "push-pull 2x6L6GC"
     tubes: [7025, 7025, 7025, 7025, 7025, 6L6GC, 6L6GC]
@@ -163,9 +163,11 @@ models:
       account for two of the amp's five 7025 bottles, the two channels for
       two more. No reverb. Still a single 15-inch speaker combo,
       still carrying a Presence control, and still fixed-bias — the one
-      thread that survives from the 5E5-A across the discontinuity. Revised
-      the following year as the 6G5-A, which swaps in 5881 output tubes; that
-      revision is out of scope here.
+      thread that survives from the 5E5-A across the discontinuity. The 6G5
+      ran 6L6GC output tubes; the 6G5-A that follows it inside this window
+      moved to 5881s. The circuit documented here is the 6G5 itself — the
+      field guide dates the pair together, which is the window this row
+      carries.
     circuit_ref: "6g5"
     sources:
       - desc: "Fender 'Pro-Amp' Model 6G5 drawing (A-FJ), schematic + layout — see amps/6g5/meta.yaml for the full component-level citation. The drawing's own layout page shows five 7025 sockets and the two 6L6GC, and draws a lamp/photoresistor tremolo in the audio path rather than the phase-mixed harmonic vibrato a secondary field guide names"
@@ -184,9 +186,10 @@ notes: >-
   notes. 5E5's wattage is likewise an estimate (cathode bias vs. the 5E5-A's
   fixed bias on the same tube set), not an independently published figure.
   The 6G5-A (1961-1963, 5881 output tubes) is documented by the same field
-  guide as a running change to the 6G5 above and is left out of this file's
-  scope; a future contributor adding it should treat it as a further model
-  row here, not a new family. Two circuits in this line have documented
+  guide as a running change to the 6G5, and the row above carries the pair's
+  shared 1960-1963 window under a combined designation — the same treatment
+  the Super line's 6G4 / 6G4-A row gets. A contributor drawing the -A should
+  split it into a row of its own here, not a new family. Two circuits in this line have documented
   entries in the corpus — the 5E5-A (amps/5e5a/) and the brown 6G5
   (amps/6g5/), which is where the line's tremolo type is settled: the
   drawing wires a lamp and photoresistor into the audio path, so this file

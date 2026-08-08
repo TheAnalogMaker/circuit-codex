@@ -170,6 +170,16 @@ def validate_history(root: Path) -> list[str]:
     non-null circuit_ref pointing at a real amps/ directory, and — because the amp
     pages reverse-map a documented circuit to exactly one family — each circuit_ref
     claimed by at most one family file.
+
+    It also cross-checks the two tiers against each other. A documented circuit is
+    described twice — on its own page from amps/<id>/meta.yaml, and on the family
+    page, the lineage chip and the history badge from the family row that claims it
+    — and nothing used to make the two agree. They drifted publicly: /amps/ab763/
+    said 1963-1967 while its own family row said 1964-1967, and the 5E3 read 12 W on
+    its page and 15 W on its lineage chip. Where both tiers state a fact, they must
+    state the same one; where a row legitimately covers more than the circuit it
+    links (a combined "5E6 / 5E6-A" row spans both revisions' years), the row says so
+    in `era_note` and the mismatch is waived with that reason printed.
     """
     hist_dir = root / "history" / "families"
     if not hist_dir.exists():
@@ -178,6 +188,7 @@ def validate_history(root: Path) -> list[str]:
     amp_dirs = {p.name for p in (root / "amps").iterdir()
                 if p.is_dir() and p.name != "_template"}
     claimed: dict[str, str] = {}  # circuit_ref -> family file that first claimed it
+    waived: list[str] = []        # era_note waivers, printed loudly like the lint's
     files = sorted(hist_dir.glob("*.yaml"))
     n_models = 0
     for fam_path in files:
@@ -253,8 +264,66 @@ def validate_history(root: Path) -> list[str]:
                         f"{claimed[ref]} — a documented circuit belongs to one family")
                 else:
                     claimed[ref] = fam_path.name
+                    errors += _cross_check_row(root, where, m, ref, waived)
+    if waived:
+        print("history/amp cross-check waivers (era_note) in force:")
+        for line in waived:
+            print(f"  {line}")
     print(f"checked {len(files)} history family file(s), {n_models} model(s)")
     return errors
+
+
+# Facts both tiers state, and where each keeps them. Only these are cross-checked:
+# a family row is a one-paragraph summary of a *line*, not a second copy of the
+# circuit's metadata, so it is free to say nothing — but not to say something else.
+_CROSS_FIELDS = (
+    ("years.start", lambda m: (m.get("years") or {}).get("start"),
+     lambda meta: (meta.get("era") or {}).get("start"), "era.start"),
+    ("years.end", lambda m: (m.get("years") or {}).get("end"),
+     lambda meta: (meta.get("era") or {}).get("end"), "era.end"),
+    ("wattage", lambda m: m.get("wattage"),
+     lambda meta: meta.get("wattage"), "wattage"),
+)
+
+
+def _cross_check_row(root: Path, where: str, model: dict, ref: str,
+                     waived: list[str]) -> list[str]:
+    """Every fact a family row and the circuit it links both state must match.
+
+    `era_note` on the row is the escape hatch, and it is a documented one: a row
+    that deliberately covers more than its linked circuit (a combined designation,
+    a line whose production ran past the revision this corpus drew) states why, and
+    the reason is printed by the gate rather than hidden. An `era_note` on a row
+    with no disagreement is itself an error — a stale waiver is a lie about the data
+    and would mask the next real drift.
+    """
+    meta_path = root / "amps" / ref / "meta.yaml"
+    if not meta_path.exists():
+        return []          # the missing-directory error above already fired
+    try:
+        meta = yaml.safe_load(meta_path.read_text()) or {}
+    except yaml.YAMLError:
+        return []          # validate() reports the parse failure on its own pass
+    note = str(model.get("era_note") or "").strip()
+    diffs = []
+    for label, row_get, meta_get, meta_label in _CROSS_FIELDS:
+        row_val, meta_val = row_get(model), meta_get(meta)
+        if row_val is None or meta_val is None:
+            continue       # a row need not state everything the circuit does
+        if row_val != meta_val:
+            diffs.append(f"{label} {row_val} != amps/{ref}/meta.yaml {meta_label} "
+                         f"{meta_val}")
+    if diffs and note:
+        waived.append(f"{where} [{ref}]: {'; '.join(diffs)} — {note}")
+        return []
+    if diffs:
+        return [f"{where}: family row and the circuit it links disagree — "
+                f"{'; '.join(diffs)}. Reconcile them, or state why the row covers "
+                f"more than the circuit in an 'era_note' on this model."]
+    if note:
+        return [f"{where}: era_note waives a disagreement that no longer exists "
+                f"between this row and amps/{ref}/meta.yaml — remove it"]
+    return []
 
 
 def validate_loadlines(root: Path) -> list[str]:

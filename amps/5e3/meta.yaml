@@ -5,7 +5,8 @@ family: tweed
 era:
   start: 1955
   end: 1960
-wattage: 12
+wattage: 15   # Ampwares/Mojotone field guide, narrow-panel Tweed Deluxe
+              # (the wide-panel 5D3 that precedes it is the 12 W entry)
 tubes: [12AY7, 12AX7, 6V6GT, 6V6GT, 5Y3GT]
 topology:
   rectifier: { kind: tube, type: "5Y3GT" }

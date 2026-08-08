@@ -131,6 +131,12 @@ models:
   - designation: "2204"
     name: "Master Volume lead 50 (JMP, later JCM800)"
     years: { start: 1976, end: 1989 }
+    era_note: >-
+      This row dates the model number, which Marshall introduced in 1976. The
+      documented circuit is the later revision, the one whose two input triodes
+      run in series; the 1976 drawing of the same model number still wires them
+      in parallel and fits a 6550 pair for the US market, so the circuit entry
+      starts where that redesign does.
     wattage: 50
     output: "push-pull 2xEL34 (6550 on US-market amplifiers)"
     tubes: [ECC83, ECC83, ECC83, EL34, EL34]

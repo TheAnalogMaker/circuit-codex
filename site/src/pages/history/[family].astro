@@ -130,7 +130,12 @@ const breadcrumbs = [
             <td>{m.years.start}–{m.years.end}</td>
             <td>{m.wattage != null ? `${m.wattage} W` : '—'}</td>
             <td style="font-family:var(--body)">{m.output || '—'}</td>
-            <td class="kc" style="font-family:var(--body)">{String(m.key_change).trim()}</td>
+            <td class="kc" style="font-family:var(--body)">{String(m.key_change).trim()}
+              {/* A row whose span deliberately differs from the circuit it links says
+                  why, right where a reader can see both numbers. pipeline/validate.py
+                  requires the note wherever the two tiers disagree, and rejects one
+                  left behind after they stop disagreeing. */}
+              {m.era_note && <span class="era-note">{String(m.era_note).trim()}</span>}</td>
             <td>
               {m.documented
                 ? <a class="badge ok" href={`/amps/${m.ampId}/`}>{displayId(m.ampId)} circuit ↗</a>
@@ -209,6 +214,7 @@ const breadcrumbs = [
   h2{font-size:18px;letter-spacing:.14em;margin:0 0 12px}
   .d{color:var(--amber);white-space:nowrap}
   .kc{color:var(--muted);font-size:13px;line-height:1.5;min-width:320px}
+  .era-note{display:block;margin-top:7px;padding-left:9px;border-left:2px solid var(--line);color:var(--faint);font-size:12px;font-style:italic}
   .badge{font-family:var(--disp);text-transform:uppercase;letter-spacing:.08em;font-size:10px;border:1px solid var(--line);border-radius:99px;padding:3px 9px;white-space:nowrap;display:inline-block}
   .badge.ok{color:var(--ok);border-color:var(--ok)}
   .badge.draft{color:var(--muted);border-color:var(--line)}

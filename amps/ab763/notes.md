@@ -1,8 +1,10 @@
 # AB763 — Blackface Deluxe Reverb-style
 
 The circuit most players picture when they think "Fender clean": a 22-watt,
-6V6 combo with tube reverb and a genuine tremolo, built on the AB763 chassis that
-ran from 1963 to 1967. Two channels share the output stage — a plain **Normal**
+6V6 combo with tube reverb and a genuine tremolo. The blackface Deluxe Reverb
+arrives in 1963 on the AA763 drawing; the AB763 revision below is the one that
+carried it from 1964 to 1967 and the one the model is remembered by. Two
+channels share the output stage — a plain **Normal**
 channel and a **Vibrato** channel carrying the reverb and the tremolo — feeding a
 fixed-biased 6V6GT pair through a 12AT7 phase inverter, rectified by a GZ34. The
 preamp bottles are marked **7025** on the drawing, the low-noise selected version

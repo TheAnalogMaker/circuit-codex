@@ -13,6 +13,11 @@ models:
   - designation: "5F10"
     name: "Harvard (narrow-panel tweed)"
     years: { start: 1955, end: 1961 }
+    era_note: >-
+      This row spans the whole 5F10 run. The front end changed inside it — early
+      chassis open on a 6AV6, later ones on the 6AT6 — and the documented circuit
+      is the 6AT6 revision, so its own entry dates from that change rather than
+      from the designation itself.
     wattage: 10
     output: "push-pull 2x6V6GT"
     tubes: [6AT6, 12AX7, 6V6GT, 6V6GT, 5Y3GT]
