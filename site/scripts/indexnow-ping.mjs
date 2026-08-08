@@ -80,9 +80,11 @@ async function main() {
       signal: ac.signal,
     });
     // 200 accepted, 202 accepted but key still being validated. Anything else is
-    // reported and ignored. NOTE: a 403 on a site's FIRST deploy is expected — the
-    // ping runs at build time, before this deploy's key file is live for IndexNow
-    // to fetch; the key persists, so the second deploy onward validates.
+    // reported and ignored. NOTE: early 403s (UserForbiddedToAccessSite) are
+    // expected — the first ping runs at build time, before any deploy has put the
+    // key file live, and IndexNow caches that failed validation on its side: a
+    // byte-correct key serving 200 was still refused 23 minutes after going live
+    // (2026-08-08). The key persists; the 403 clears when IndexNow re-fetches it.
     if (res.ok) {
       log(`${res.status} ${res.statusText} — submitted ${urlList.length} URLs`);
     } else {
