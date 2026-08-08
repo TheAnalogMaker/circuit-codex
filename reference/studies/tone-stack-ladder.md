@@ -9,15 +9,18 @@ added: 2026-08-08
 
 The three-knob treble/middle/bass network is the most-redrawn circuit in guitar
 amplification. It has a canonical form — the one tone-stack calculators solve
-and modification guides redraw: the treble pot's cold end on the slope
+and modification guides redraw, familiar from
+[Duncan Amplification's Tone Stack Calculator](https://www.duncanamps.com/tsc/)
+(running since 1999, on a concept by Dave Cigna) and the web calculators that
+follow it: the treble pot's cold end on the slope
 resistor's foot, the
 treble and bass wipers meeting at one output node, the middle capacitor sitting
 on top of a rheostat-wired middle pot.
 
-Nine circuits in this archive plot a multi-knob tone network, and each one
+Ten circuits in this archive carry a multi-knob tone network, and each one
 rests on a published factory drawing. Every one of those drawings has now been read at lug
-level. **The canonical network appears on none of them.** Eight draw a
-different wiring of the same parts — a ladder. The ninth, the tweed Super,
+level. **The canonical network appears on none of them.** Nine draw a
+different wiring of the same parts — a ladder. The tenth, the tweed Super,
 draws a third network altogether. This is the write-up of that reading: what
 the sheets show, what the difference does to the curve, and how the wrong
 network got into this archive in the first place.
@@ -27,11 +30,11 @@ network got into this archive in the first place.
 Six circuits' drawings were read in the pass that opened the question — the Fender 5F6
 (schematic and factory layout), 5F6-A (schematic and layout), the Marshall
 JTM45, 1987 and 1959 drawings, and the Fender Princeton AA964 (schematic and
-layout). Three more followed: the Deluxe Reverb AB763, the Princeton Reverb
-AA1164, and the tweed Super 5F4.
+layout). Four more followed: the Deluxe Reverb AB763, the Princeton Reverb
+AA1164, the blackface Champ AA764, and the tweed Super 5F4.
 
-All eight of the multi-knob circuits except the 5F4 draw the same network, and
-it is not the canonical one. Four things differ, and all four are visible at the pot lugs:
+Every multi-knob circuit except the 5F4 — nine of the ten — draws the same
+network, and it is not the canonical one. Four things differ, and all four are visible at the pot lugs:
 
 1. The treble pot's **lower lug** does not sit on the slope resistor's foot. It
    sits on the far side of the first bass capacitor.
@@ -51,7 +54,7 @@ differ. Amber marks the connections that move.
 
 <figure class="fig"><svg class="fig-sch" viewBox="0 0 780 560" role="img" xmlns="http://www.w3.org/2000/svg" aria-labelledby="fig-joined-t fig-joined-d"><title id="fig-joined-t">The joined network — the textbook redrawing</title><desc id="fig-joined-d">Schematic fragment of the three-knob tone stack in its joined form: the treble capacitor and the slope resistor both leave the input; the treble pot's lower lug sits on the slope resistor's foot; the bass capacitor feeds the bass pot from that same foot; the treble and bass wipers meet at one output node; and the mid capacitor lands on the top of a rheostat-wired middle pot.</desc><line class="wire" x1="56" y1="60" x2="90" y2="60"/><polygon class="wire-fill" points="100,60 89,65 89,55"/><line class="wire" x1="100" y1="60" x2="300" y2="60"/><line class="e-lead" x1="324" y1="44" x2="324" y2="76"/><line class="e-lead" x1="336" y1="44" x2="336" y2="76"/><line class="e-lead" x1="300" y1="60" x2="324" y2="60"/><line class="e-lead" x1="336" y1="60" x2="360" y2="60"/><line class="wire" x1="360" y1="60" x2="560" y2="60"/><circle class="jn" cx="100" cy="60" r="3"/><line class="wire" x1="100" y1="60" x2="100" y2="120"/><rect class="e-lead" x="92" y="130" width="16" height="40"/><line class="e-lead" x1="100" y1="120" x2="100" y2="130"/><line class="e-lead" x1="100" y1="170" x2="100" y2="180"/><line class="wire" x1="100" y1="180" x2="100" y2="250"/><line class="wire" x1="560" y1="60" x2="560" y2="130"/><rect class="e-lead" x="552" y="140" width="16" height="40"/><line class="e-lead" x1="560" y1="130" x2="560" y2="140"/><line class="e-lead" x1="560" y1="180" x2="560" y2="190"/><line class="e-lead" x1="600" y1="160" x2="586" y2="160"/><polygon class="e-lead-fill" points="586,160 574,166 574,154"/><line class="wire hl" x1="560" y1="190" x2="560" y2="250"/><circle class="jn" cx="560" cy="250" r="3"/><line class="wire" x1="600" y1="160" x2="700" y2="160"/><circle class="jn" cx="700" cy="160" r="3"/><line class="wire" x1="700" y1="160" x2="734" y2="160"/><polygon class="wire-fill" points="744,160 733,165 733,155"/><line class="wire" x1="100" y1="250" x2="560" y2="250"/><circle class="jn" cx="180" cy="250" r="3"/><circle class="jn" cx="430" cy="250" r="3"/><line class="wire" x1="430" y1="250" x2="430" y2="260"/><line class="e-lead" x1="414" y1="284" x2="446" y2="284"/><line class="e-lead" x1="414" y1="296" x2="446" y2="296"/><line class="e-lead" x1="430" y1="260" x2="430" y2="284"/><line class="e-lead" x1="430" y1="296" x2="430" y2="320"/><line class="wire" x1="430" y1="320" x2="430" y2="365"/><rect class="e-lead" x="422" y="375" width="16" height="40"/><line class="e-lead" x1="430" y1="365" x2="430" y2="375"/><line class="e-lead" x1="430" y1="415" x2="430" y2="425"/><line class="e-lead" x1="470" y1="395" x2="456" y2="395"/><polygon class="e-lead-fill" points="456,395 444,401 444,389"/><line class="wire" x1="430" y1="425" x2="430" y2="455"/><polyline class="wire hl" points="470,395 700,395 700,160"/><line class="wire hl" x1="180" y1="250" x2="180" y2="322"/><line class="e-lead hl" x1="164" y1="346" x2="196" y2="346"/><line class="e-lead hl" x1="164" y1="358" x2="196" y2="358"/><line class="e-lead hl" x1="180" y1="322" x2="180" y2="346"/><line class="e-lead hl" x1="180" y1="358" x2="180" y2="382"/><line class="wire hl" x1="180" y1="382" x2="180" y2="455"/><line class="wire" x1="180" y1="455" x2="430" y2="455"/><circle class="jn" cx="210" cy="455" r="3"/><circle class="jn" cx="250" cy="455" r="3"/><line class="wire" x1="250" y1="455" x2="250" y2="460"/><rect class="e-lead" x="242" y="470" width="16" height="40"/><line class="e-lead" x1="250" y1="460" x2="250" y2="470"/><line class="e-lead" x1="250" y1="510" x2="250" y2="520"/><line class="e-lead" x1="210" y1="490" x2="224" y2="490"/><polygon class="e-lead-fill" points="224,490 236,496 236,484"/><line class="wire hl" x1="210" y1="490" x2="210" y2="455"/><line class="wire" x1="250" y1="520" x2="250" y2="524"/><g class="gndsym"><line class="g" x1="250" y1="524" x2="250" y2="532"/><line class="g" x1="239" y1="532" x2="261" y2="532"/><line class="g" x1="243.5" y1="537" x2="256.5" y2="537"/><line class="g" x1="247" y1="542" x2="253" y2="542"/></g><text class="io-lbl" x="56" y="44" text-anchor="start">From the cathode follower</text><text class="cl" x="120" y="155" text-anchor="start">56 kΩ slope</text><text class="cl" x="330" y="40" text-anchor="middle">250 pF</text><text class="cl" x="540" y="165" text-anchor="end">250 kΩ Treble</text><text class="cl" x="410" y="295" text-anchor="end">0.02 µF</text><text class="cl" x="410" y="400" text-anchor="end">1 MΩ Bass</text><text class="cl" x="162" y="357" text-anchor="end">0.02 µF</text><text class="cl" x="272" y="495" text-anchor="start">25 kΩ Middle</text><text class="ndl" x="110" y="242" text-anchor="start">N2 · slope foot</text><text class="ndl" x="568" y="48" text-anchor="start">N3</text><text class="ndl" x="440" y="345" text-anchor="start">N4</text><text class="ndl" x="300" y="447" text-anchor="start">N5</text><text class="ndl" x="700" y="140" text-anchor="middle">OUT</text></svg><figcaption>The joined network — the canonical redrawing. The treble pot bridges the treble capacitor and the slope resistor’s foot; the treble and bass wipers meet at one output node; the middle capacitor sits on top of a rheostat-wired middle pot. Drawn here as the reference form, on the 5F6-A’s values.</figcaption></figure>
 
-<figure class="fig"><svg class="fig-sch" viewBox="0 0 780 490" role="img" xmlns="http://www.w3.org/2000/svg" aria-labelledby="fig-ladder-t fig-ladder-d"><title id="fig-ladder-t">The ladder — what the published sheets draw</title><desc id="fig-ladder-d">Schematic fragment of the same seven parts wired as a ladder: the treble capacitor and the slope resistor both leave the input; the bass capacitor runs from the slope foot to a node that carries the treble pot's lower lug and the hot end of the bass pot; the bass pot is a rheostat with its wiper strapped to that node; the middle capacitor lands on the middle pot's wiper; and the stack's output is the treble wiper alone.</desc><line class="wire" x1="56" y1="60" x2="90" y2="60"/><polygon class="wire-fill" points="100,60 89,65 89,55"/><line class="wire" x1="100" y1="60" x2="300" y2="60"/><line class="e-lead" x1="324" y1="44" x2="324" y2="76"/><line class="e-lead" x1="336" y1="44" x2="336" y2="76"/><line class="e-lead" x1="300" y1="60" x2="324" y2="60"/><line class="e-lead" x1="336" y1="60" x2="360" y2="60"/><line class="wire" x1="360" y1="60" x2="560" y2="60"/><circle class="jn" cx="100" cy="60" r="3"/><line class="wire" x1="100" y1="60" x2="100" y2="100"/><rect class="e-lead" x="92" y="110" width="16" height="40"/><line class="e-lead" x1="100" y1="100" x2="100" y2="110"/><line class="e-lead" x1="100" y1="150" x2="100" y2="160"/><line class="wire" x1="100" y1="160" x2="100" y2="185"/><line class="wire" x1="560" y1="60" x2="560" y2="130"/><rect class="e-lead" x="552" y="140" width="16" height="40"/><line class="e-lead" x1="560" y1="130" x2="560" y2="140"/><line class="e-lead" x1="560" y1="180" x2="560" y2="190"/><line class="e-lead" x1="600" y1="160" x2="586" y2="160"/><polygon class="e-lead-fill" points="586,160 574,166 574,154"/><line class="wire hl" x1="560" y1="190" x2="560" y2="245"/><line class="wire" x1="600" y1="160" x2="700" y2="160"/><line class="wire" x1="700" y1="160" x2="734" y2="160"/><polygon class="wire-fill" points="744,160 733,165 733,155"/><line class="wire" x1="100" y1="185" x2="430" y2="185"/><circle class="jn" cx="180" cy="185" r="3"/><line class="e-lead hl" x1="414" y1="209" x2="446" y2="209"/><line class="e-lead hl" x1="414" y1="221" x2="446" y2="221"/><line class="e-lead hl" x1="430" y1="185" x2="430" y2="209"/><line class="e-lead hl" x1="430" y1="221" x2="430" y2="245"/><line class="wire hl" x1="430" y1="245" x2="560" y2="245"/><circle class="jn" cx="430" cy="245" r="3"/><circle class="jn" cx="470" cy="245" r="3"/><line class="wire" x1="430" y1="245" x2="430" y2="280"/><rect class="e-lead" x="422" y="290" width="16" height="40"/><line class="e-lead" x1="430" y1="280" x2="430" y2="290"/><line class="e-lead" x1="430" y1="330" x2="430" y2="340"/><line class="e-lead" x1="470" y1="310" x2="456" y2="310"/><polygon class="e-lead-fill" points="456,310 444,316 444,304"/><line class="wire hl" x1="470" y1="310" x2="470" y2="245"/><line class="wire" x1="430" y1="340" x2="430" y2="385"/><line class="wire" x1="250" y1="385" x2="430" y2="385"/><circle class="jn" cx="250" cy="385" r="3"/><rect class="e-lead" x="242" y="395" width="16" height="40"/><line class="e-lead" x1="250" y1="385" x2="250" y2="395"/><line class="e-lead" x1="250" y1="435" x2="250" y2="445"/><line class="e-lead" x1="210" y1="415" x2="224" y2="415"/><polygon class="e-lead-fill" points="224,415 236,421 236,409"/><line class="wire" x1="250" y1="445" x2="250" y2="449"/><g class="gndsym"><line class="g" x1="250" y1="449" x2="250" y2="457"/><line class="g" x1="239" y1="457" x2="261" y2="457"/><line class="g" x1="243.5" y1="462" x2="256.5" y2="462"/><line class="g" x1="247" y1="467" x2="253" y2="467"/></g><line class="wire hl" x1="210" y1="415" x2="180" y2="415"/><line class="wire hl" x1="180" y1="415" x2="180" y2="330"/><line class="e-lead hl" x1="164" y1="294" x2="196" y2="294"/><line class="e-lead hl" x1="164" y1="306" x2="196" y2="306"/><line class="e-lead hl" x1="180" y1="270" x2="180" y2="294"/><line class="e-lead hl" x1="180" y1="306" x2="180" y2="330"/><line class="wire hl" x1="180" y1="270" x2="180" y2="185"/><text class="io-lbl" x="56" y="44" text-anchor="start">From the cathode follower</text><text class="cl" x="120" y="135" text-anchor="start">56 kΩ slope</text><text class="cl" x="330" y="40" text-anchor="middle">250 pF</text><text class="cl" x="540" y="165" text-anchor="end">250 kΩ Treble</text><text class="cl" x="410" y="220" text-anchor="end">0.02 µF</text><text class="cl" x="410" y="315" text-anchor="end">1 MΩ Bass</text><text class="cl" x="160" y="305" text-anchor="end">0.02 µF</text><text class="cl" x="272" y="420" text-anchor="start">25 kΩ Middle</text><text class="ndl" x="110" y="177" text-anchor="start">N2 · slope foot</text><text class="ndl" x="568" y="48" text-anchor="start">N3</text><text class="ndl" x="500" y="266" text-anchor="start">N4 · the treble pot's lower lug</text><text class="ndl" x="300" y="377" text-anchor="start">N5</text><text class="ndl" x="700" y="140" text-anchor="middle">OUT</text></svg><figcaption>The ladder — what all eight published three- and two-knob sheets draw. The bass capacitor lands on the node carrying the treble pot’s lower lug; the bass pot is a rheostat strapped into that node; the second capacitor feeds the middle pot’s wiper; the output is the treble wiper alone. Same seven parts, same values.</figcaption></figure>
+<figure class="fig"><svg class="fig-sch" viewBox="0 0 780 490" role="img" xmlns="http://www.w3.org/2000/svg" aria-labelledby="fig-ladder-t fig-ladder-d"><title id="fig-ladder-t">The ladder — what the published sheets draw</title><desc id="fig-ladder-d">Schematic fragment of the same seven parts wired as a ladder: the treble capacitor and the slope resistor both leave the input; the bass capacitor runs from the slope foot to a node that carries the treble pot's lower lug and the hot end of the bass pot; the bass pot is a rheostat with its wiper strapped to that node; the middle capacitor lands on the middle pot's wiper; and the stack's output is the treble wiper alone.</desc><line class="wire" x1="56" y1="60" x2="90" y2="60"/><polygon class="wire-fill" points="100,60 89,65 89,55"/><line class="wire" x1="100" y1="60" x2="300" y2="60"/><line class="e-lead" x1="324" y1="44" x2="324" y2="76"/><line class="e-lead" x1="336" y1="44" x2="336" y2="76"/><line class="e-lead" x1="300" y1="60" x2="324" y2="60"/><line class="e-lead" x1="336" y1="60" x2="360" y2="60"/><line class="wire" x1="360" y1="60" x2="560" y2="60"/><circle class="jn" cx="100" cy="60" r="3"/><line class="wire" x1="100" y1="60" x2="100" y2="100"/><rect class="e-lead" x="92" y="110" width="16" height="40"/><line class="e-lead" x1="100" y1="100" x2="100" y2="110"/><line class="e-lead" x1="100" y1="150" x2="100" y2="160"/><line class="wire" x1="100" y1="160" x2="100" y2="185"/><line class="wire" x1="560" y1="60" x2="560" y2="130"/><rect class="e-lead" x="552" y="140" width="16" height="40"/><line class="e-lead" x1="560" y1="130" x2="560" y2="140"/><line class="e-lead" x1="560" y1="180" x2="560" y2="190"/><line class="e-lead" x1="600" y1="160" x2="586" y2="160"/><polygon class="e-lead-fill" points="586,160 574,166 574,154"/><line class="wire hl" x1="560" y1="190" x2="560" y2="245"/><line class="wire" x1="600" y1="160" x2="700" y2="160"/><line class="wire" x1="700" y1="160" x2="734" y2="160"/><polygon class="wire-fill" points="744,160 733,165 733,155"/><line class="wire" x1="100" y1="185" x2="430" y2="185"/><circle class="jn" cx="180" cy="185" r="3"/><line class="e-lead hl" x1="414" y1="209" x2="446" y2="209"/><line class="e-lead hl" x1="414" y1="221" x2="446" y2="221"/><line class="e-lead hl" x1="430" y1="185" x2="430" y2="209"/><line class="e-lead hl" x1="430" y1="221" x2="430" y2="245"/><line class="wire hl" x1="430" y1="245" x2="560" y2="245"/><circle class="jn" cx="430" cy="245" r="3"/><circle class="jn" cx="470" cy="245" r="3"/><line class="wire" x1="430" y1="245" x2="430" y2="280"/><rect class="e-lead" x="422" y="290" width="16" height="40"/><line class="e-lead" x1="430" y1="280" x2="430" y2="290"/><line class="e-lead" x1="430" y1="330" x2="430" y2="340"/><line class="e-lead" x1="470" y1="310" x2="456" y2="310"/><polygon class="e-lead-fill" points="456,310 444,316 444,304"/><line class="wire hl" x1="470" y1="310" x2="470" y2="245"/><line class="wire" x1="430" y1="340" x2="430" y2="385"/><line class="wire" x1="250" y1="385" x2="430" y2="385"/><circle class="jn" cx="250" cy="385" r="3"/><rect class="e-lead" x="242" y="395" width="16" height="40"/><line class="e-lead" x1="250" y1="385" x2="250" y2="395"/><line class="e-lead" x1="250" y1="435" x2="250" y2="445"/><line class="e-lead" x1="210" y1="415" x2="224" y2="415"/><polygon class="e-lead-fill" points="224,415 236,421 236,409"/><line class="wire" x1="250" y1="445" x2="250" y2="449"/><g class="gndsym"><line class="g" x1="250" y1="449" x2="250" y2="457"/><line class="g" x1="239" y1="457" x2="261" y2="457"/><line class="g" x1="243.5" y1="462" x2="256.5" y2="462"/><line class="g" x1="247" y1="467" x2="253" y2="467"/></g><line class="wire hl" x1="210" y1="415" x2="180" y2="415"/><line class="wire hl" x1="180" y1="415" x2="180" y2="330"/><line class="e-lead hl" x1="164" y1="294" x2="196" y2="294"/><line class="e-lead hl" x1="164" y1="306" x2="196" y2="306"/><line class="e-lead hl" x1="180" y1="270" x2="180" y2="294"/><line class="e-lead hl" x1="180" y1="306" x2="180" y2="330"/><line class="wire hl" x1="180" y1="270" x2="180" y2="185"/><text class="io-lbl" x="56" y="44" text-anchor="start">From the cathode follower</text><text class="cl" x="120" y="135" text-anchor="start">56 kΩ slope</text><text class="cl" x="330" y="40" text-anchor="middle">250 pF</text><text class="cl" x="540" y="165" text-anchor="end">250 kΩ Treble</text><text class="cl" x="410" y="220" text-anchor="end">0.02 µF</text><text class="cl" x="410" y="315" text-anchor="end">1 MΩ Bass</text><text class="cl" x="160" y="305" text-anchor="end">0.02 µF</text><text class="cl" x="272" y="420" text-anchor="start">25 kΩ Middle</text><text class="ndl" x="110" y="177" text-anchor="start">N2 · slope foot</text><text class="ndl" x="568" y="48" text-anchor="start">N3</text><text class="ndl" x="500" y="266" text-anchor="start">N4 · the treble pot's lower lug</text><text class="ndl" x="300" y="377" text-anchor="start">N5</text><text class="ndl" x="700" y="140" text-anchor="middle">OUT</text></svg><figcaption>The ladder — what all nine published three- and two-knob sheets draw. The bass capacitor lands on the node carrying the treble pot’s lower lug; the bass pot is a rheostat strapped into that node; the second capacitor feeds the middle pot’s wiper; the output is the treble wiper alone. Same seven parts, same values.</figcaption></figure>
 
 The node names are the ones the corpus's own wiring gate uses, so a reader can
 follow the check as well as the picture: **IN** is the stack input, **N2** the
@@ -77,6 +80,7 @@ pot lugs. Nothing is reproduced; the drawings are cited in full at the end.
 | AA964 | 045419 schematic **and** L-FD layout | Ladder, two-knob: fixed 6.8 kΩ leg |
 | AB763 | C-FD, both channels | Ladder, two-knob, both channels part for part |
 | AA1164 | D 045427 rev A, both sheets | Ladder, two-knob. Layout mounts the 6.8 kΩ on the bass pot's case |
+| AA764 | I-FD schematic **and** layout | Ladder, two-knob: 15 kΩ leg, chassis-mounted at the Bass control |
 | 5F4 | C-EG | Neither — a split treble/bass network |
 
 **The 5F6 is the strongest single witness**, because it exists twice. Its
@@ -103,12 +107,14 @@ wiper back to the foot lug, the two Unicord sheets use the arrow-through-body
 symbol. The 1987 and the 1959 are wire-for-wire identical here; whatever
 separates a 50 W head from a 100 W one, it is not this network.
 
-**The blackface two-knob sheets** — AA964, AB763, AA1164 — draw the same ladder
-with the middle pot replaced by a fixed 6.8 kΩ leg and a 100 kΩ slope. The
+**The blackface two-knob sheets** — AA964, AB763, AA1164, AA764 — draw the same
+ladder with the middle pot replaced by a fixed leg and a 100 kΩ slope: 6.8 kΩ
+on the two Princetons and the Deluxe Reverb, 15 kΩ on the Champ. The
 AA964 exists as schematic and layout, and both agree. The AB763 draws it twice,
 once per channel, part for part. The AA1164's layout sheet mounts the 6.8 kΩ on
 the bass pot itself, grounded to its case — a detail only a layout page can
-carry.
+carry — and the AA764's mounts its 15 kΩ off the board at the Bass control, the
+same idiom.
 
 ## The tweed Super draws a third network — and its chart stops fighting
 
@@ -145,15 +151,19 @@ from the same solver the tone-stack lab runs, on the 5F6-A's own part values.
 
 | Control setting | Ladder (as drawn) | Joined (textbook) | Gap at 1 kHz |
 |---|---|---|---|
-| Treble 5 · Middle 5 · Bass 5 | −12.8 dB | −13.8 dB | 1.0 dB |
+| Treble 5 · Middle 5 · Bass 5 | −12.8 dB | −13.8 dB | 0.9 dB |
 | Treble 10 · Middle 1 · Bass 9 | −13.5 dB | −23.2 dB | 9.7 dB |
 | Treble 5 · Middle 0 · Bass 0 | −17.2 dB | −100.7 dB | 83.5 dB |
 | Treble 10 · Middle 0 · Bass 0 | −12.3 dB | −100.9 dB | 88.6 dB |
 
 At five all round the two curves lie a decibel apart — inside the tolerance of
 the capacitors these networks are built from, and well inside what anyone would notice
-by ear. Sweep the whole dial and, as long as no control is at a stop, the worst
-disagreement at 1 kHz is 9.7 dB. Go to the stops and the two networks stop
+by ear. Across the whole-number dial settings with neither Bass nor Middle at
+zero, the worst disagreement at 1 kHz is 9.7 dB, at Treble 10 · Middle 1 ·
+Bass 9 — the second row above. That bound belongs to the detent grid, not to
+the networks: below the first detent the curves part company smoothly, and
+sliding Bass and Middle together toward zero walks the gap up without a
+ceiling into the last two rows. Go to the stops and the two networks stop
 resembling each other at all.
 
 **The stops are where the wiring shows.** Wind Bass and Middle both to zero. In
@@ -189,7 +199,9 @@ the wiring its own sheet draws:
 [AA1164](/reference/guides/tone-stack-lab/?preset=aa1164#lab) ·
 [5F4](/reference/guides/tone-stack-lab/?preset=5f4#lab).
 Set Bass and Middle to zero on any three-knob preset and watch the curve stop
-around thirty decibels down instead of falling off the chart.
+around thirty decibels down instead of falling off the chart. The tenth
+drawing, the AA764's, is read and gated like the rest; its parts are not yet
+built into a lab preset.
 
 ## Why the error propagates
 
@@ -240,17 +252,25 @@ sweeps of the same element lists, 10 Hz–100 kHz at 40 points per decade, for t
 joined reference form, the ladder in both its mid-leg forms, and the 5F4's split
 network: worst-case disagreement 5 × 10⁻⁵ dB. The −30.8 dB ladder floor and the
 −104.7 dB joined floor quoted above were each reproduced by ngspice to within
-0.1 dB.
+0.1 dB. That cross-check is committed, not archival:
+[`check-tonestack-spice.mjs`](https://github.com/TheAnalogMaker/circuit-codex/blob/main/site/scripts/check-tonestack-spice.mjs)
+rebuilds the element lists, runs the ngspice sweeps, and re-derives every
+decibel and hertz figure this study prints, on every push — so the numbers
+above cannot drift from the solver that produced them.
 
 **Gating.** A drawing and a published curve can drift apart silently, so they
 are tied together in continuous integration.
 [`check_tonestack_wiring.py`](https://github.com/TheAnalogMaker/circuit-codex/blob/main/pipeline/check_tonestack_wiring.py)
 reads
-the reference designators out of the site's own preset table, walks the nets in
-each circuit's schematic file, and asserts the node set of the wiring that
-preset declares — treble-wiper-only output, bass wiper strapped to an end lug,
-mid capacitor on the wiper, and no two stack nodes shorted. It currently reports
-9 of 9. A schematic edited back toward the joined network fails the build.
+the reference designators out of the site's own preset table — and out of a
+companion table carrying the multi-knob networks the lab does not yet plot —
+walks the nets in each circuit's schematic file, and asserts the node set of
+the wiring each declares: treble-wiper-only output, bass wiper strapped to an
+end lug, mid capacitor on the wiper, and no two stack nodes shorted. It
+currently reports 11 of 11 — the nine multi-knob presets, the AB763's vibrato
+channel, and the AA764's stack. A schematic edited back toward the joined
+network, in any of the ten circuits and on either AB763 channel, fails the
+build.
 
 ## Sources
 
@@ -278,13 +298,17 @@ rehosted.
   [el34world.com](https://el34world.com/charts/Schematics/files/Fender/Fender_deluxe_reverb_ab763.pdf)
 - Fender *Princeton Reverb-Amp* AA1164 (drawing D 045427 rev A), both sheets —
   [el34world.com](https://el34world.com/charts/Schematics/files/Fender/Fender_princeton_reverb_aa1164.pdf)
+- Fender *Champ-Amp* AA764 (I-FD), schematic —
+  [el34world.com](https://el34world.com/charts/Schematics/files/Fender/Fender_champ_AA764_schem.pdf)
+  — and layout —
+  [el34world.com](https://el34world.com/charts/Schematics/files/Fender/Fender_champ_AA764_layout.pdf)
 
 ## Status
 
-**Adopted corpus-wide on 2026-08-03.** All nine schematics draw the network
+**Adopted corpus-wide on 2026-08-03.** All ten schematics draw the network
 their own sheets draw; the board diagrams and their captions follow the same
 sheets; each amp's notes state the wiring in words; and every lab preset
-declares which wiring it is solved with. The wiring gate reports 9 of 9, the
+declares which wiring it is solved with. The wiring gate reports 11 of 11, the
 layout-to-netlist equivalence gate is green, and the 5F4 is
 [verified](/amps/5f4/) against its printed chart with its phase-inverter
 dispute withdrawn.

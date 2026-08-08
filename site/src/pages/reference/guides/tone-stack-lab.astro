@@ -362,8 +362,9 @@ const description = 'An interactive frequency-response lab for the passive tone 
       the AC15 is the one whose network the solver genuinely lacks: its Top Cut sits after
       the phase inverter, bridged across both of its outputs — a differential cut with no
       counterpart in these stacks. The AA764 draws the same two-knob ladder the AA964
-      preset is solved with, but its own part roles have not yet been read into a preset,
-      so it waits on that reading rather than on a new model. The other {singleKnob.length}
+      preset is solved with — its drawing is read at lug level and held by the same
+      wiring gate as the presets here — but it has not yet been built into a preset,
+      so it waits on that step rather than on a new model. The other {singleKnob.length}
       {' '}— the single tone controls of
       {' '}{singleKnob.map((a) => displayId(a.id)).join(', ').replace(/, ([^,]*)$/, ' and $1')} —
       are simply not built as presets yet. A curve for a network that is not the circuit's
