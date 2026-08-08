@@ -70,6 +70,7 @@ def verify_amp(amp_dir: Path) -> tuple[int, int]:
     sim = simulate(amp_dir / "netlist.cir", list(nodes))
 
     hard, warn = 0, 0
+    worst: tuple[float, str] | None = None
     print(f"{meta['id']} ({status}):")
     for name, entry in nodes.items():
         got = sim[name]
@@ -88,6 +89,8 @@ def verify_amp(amp_dir: Path) -> tuple[int, int]:
         tol = entry.get("tol_pct", 5) / 100
         err = abs(got - chart) / abs(chart)
         ok = err <= tol
+        if worst is None or err > worst[0]:
+            worst = (err, name)
         marker = "ok  " if ok else ("WARN" if status == "draft" else "FAIL")
         print(f"  {marker} {name}: simulated {got:.1f} V, chart {chart:g} V "
               f"({err * 100:.1f}% off, tol {tol * 100:.0f}%)")
@@ -96,6 +99,22 @@ def verify_amp(amp_dir: Path) -> tuple[int, int]:
                 hard += 1
             else:
                 warn += 1
+
+    # meta.yaml's max_deviation_pct is a hand-written mirror of the number this
+    # run just computed, and the site prints it on the amp page. A mirror needs
+    # a gate that executes it: the 5E4-A shipped 9.2 (its driver plate) while
+    # its worst gated node was the 12AY7 cathode at 10.0. Wrong either way, so
+    # this fails for draft and verified alike — like the dispute_note check, it
+    # is an internal contradiction, not a chart disagreement.
+    claimed = (meta.get("verification") or {}).get("max_deviation_pct")
+    if claimed is not None:
+        if worst is None:
+            print(f"  FAIL max_deviation_pct: {claimed} declared but no node is gated")
+            hard += 1
+        elif abs(float(claimed) - worst[0] * 100) > 0.05:
+            print(f"  FAIL max_deviation_pct: meta.yaml says {claimed}, worst gated "
+                  f"node is {worst[1]} at {worst[0] * 100:.1f}%")
+            hard += 1
     return hard, warn
 
 

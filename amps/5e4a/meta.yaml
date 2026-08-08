@@ -31,7 +31,7 @@ sources:
 verification:
   status: verified
   date: 2026-08-08
-  max_deviation_pct: 9.2   # worst gated node (PPIA, the driver plate: simulated 207.5 V against the layout sheet's printed 190 V, tol 20%); every rail lands within 6% of its printed value and every cathode within 10%
+  max_deviation_pct: 10.0   # worst gated node (KAY, the shared 12AY7 input cathode: simulated 2.1 V against the schematic sheet's printed 1.9 V, tol 20%); next is PPIA, the driver plate, at 9.2% (207.5 V against a printed 190 V), and every rail lands within 6% of its printed value
 # Day the circuit landed in the corpus (git history, amps/5e4a/).
 added: 2026-08-08
 contributors: [TheAnalogMaker]

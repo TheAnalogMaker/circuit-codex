@@ -101,8 +101,9 @@ prints the rails and every cathode; the layout sheet, same title block and same
 notice, prints the plate voltages beside the eyelets they belong to. Between
 them the chart covers every node this netlist solves, so the entry is gated
 against the drawing's own figures at the drawing's own tolerance. Every rail
-lands within 6% and every tube pin within 10%; the worst node is the driver
-plate at 9.2%. Nothing is disputed and nothing is force-fitted.
+lands within 6%; the worst node is the shared 12AY7 input cathode at 10.0%,
+with the driver plate next at 9.2%. Nothing is disputed and nothing is
+force-fitted.
 
 One approximation is stated rather than hidden. The sheet's 390 → 385 V drop
 across the choke is taken by the whole plate-plus-screen current, but this
