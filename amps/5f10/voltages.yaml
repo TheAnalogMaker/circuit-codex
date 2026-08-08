@@ -9,7 +9,7 @@ nodes:
   PAT:  { chart: 140, tol_pct: 20, note: "6AT6 plate, printed pin value" }
   KAT:  { chart: 1.3, tol_pct: 20, note: "6AT6 cathode above the 1.5 k (25 uF bypass)" }
   P2A:  { chart: 170, tol_pct: 20, note: "12AX7 driver plate" }
-  K2A:  { chart: null, note: "informational — driver cathode (unbypassed 1.5 k); the 56 k negative-feedback resistor loads it at DC and the anchor-fit 12AX7 slightly under-predicts current here, so simulation (~1.2 V) runs below the printed +1.5 V" }
+  K2A:  { chart: 1.5, tol_pct: 20, note: "12AX7 driver cathode, unbypassed 1.5 k — printed on the same F-EF chart as the rest of this table. The 56 k negative-feedback resistor loads it at DC and the anchor-fit 12AX7 runs a little light here, so simulation sits below the printed figure; it stays inside the chart's own +/-20% convention and is gated like every other tube pin" }
   PPI:  { chart: 207, tol_pct: 20, note: "cathodyne plate, 56 k load from +250" }
   KPI:  { chart: 44.3, tol_pct: 20, note: "cathodyne cathode pin (top of the 1.5 k)" }
   JPI:  { chart: 43, tol_pct: 20, note: "cathodyne junction (1.5 k / 56 k), grid-leak return" }

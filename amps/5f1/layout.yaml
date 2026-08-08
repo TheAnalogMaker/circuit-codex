@@ -20,7 +20,7 @@ board:
   rows: 2
   cols: 20
   title: "5F1 · eyelet board layout"
-caption: "Redrawn from the published Fender 5F1 layout drawing (K-EE), page 2 — principal board components and point-to-point wiring, in the order and connections the drawing shows. The drawing's two-jack \"linked input\" pad (two 68k resistors + jack-normalling contacts converging on one node) is represented through the single 68k (R3) already modeled in bom.yaml/schematic.kicad_sch, matching that simplification. The 6.3 V heater chain (green twisted pair, PT → pilot lamp → 6V6 → 12AX7) and the chassis-mounted 1 MΩ grid leak (R1) at the input jacks are routed as the published sheet shows them. Not a trace or a dimensioned reproduction."
+caption: "Redrawn from the published Fender 5F1 layout drawing (K-EE), page 2 — principal board components and point-to-point wiring, in the order and connections the drawing shows. The drawing's two-jack \"linked input\" pad (two 68k resistors + jack-normalling contacts converging on one node) is represented through the single 68k (R3) already modelled in this entry's parts list and schematic, matching that simplification. The 6.3 V heater chain (green twisted pair, PT → pilot lamp → 6V6 → 12AX7) and the chassis-mounted 1 MΩ grid leak (R1) at the input jacks are routed as the published sheet shows them. Not a trace or a dimensioned reproduction."
 source:
   desc: "Fender 'Champ-Amp' Model 5F1 layout drawing (K-EE), page 2"
   url: "https://el34world.com/charts/Schematics/files/Fender/Fender_champ_5f1_schem.pdf"

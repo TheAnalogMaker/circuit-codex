@@ -4,7 +4,7 @@ The smallest amp in the tweed canon and the clearest illustration of a complete
 guitar amplifier: one 12AX7 providing two gain stages, a cathode-biased 6V6GT
 single-ended output, a 5Y3GT rectifier, and nothing else — no tone control, no
 phase inverter, five watts of pure signal path. Produced 1958–1964; direct
-ancestor: the 5E1 (lineage edge lands when `amps/5e1` exists).
+ancestor: the mid-1950s [5E1](/amps/5e1/).
 
 ## Circuit walkthrough (short form)
 

@@ -38,8 +38,8 @@ items:
   - { ref: C8,  part: "Coupling capacitor",   value: "0.02 µF · 600 V", role: "Driver plate → cathodyne grid — the one value the schematic sheet leaves unlabelled; read from the layout sheet" }
   - { ref: RGB, part: "Carbon comp resistor", value: "1 MΩ · ½ W",   role: "Cathodyne grid leak, returned to the 1.5 kΩ/56 kΩ cathode junction" }
   - { ref: RLB, part: "Carbon comp resistor", value: "56 kΩ · ½ W",  role: "V3B (cathodyne) plate load" }
-  - { ref: RTAIL, part: "Carbon comp resistor", value: "1.5 kΩ · ½ W", role: "Cathodyne cathode resistor (cathode → the 56 kΩ junction)" }
-  - { ref: RT2, part: "Carbon comp resistor", value: "56 kΩ · ½ W",  role: "Cathodyne cathode load (junction → ground)" }
+  - { ref: RKA, part: "Carbon comp resistor", value: "1.5 kΩ · ½ W", role: "Cathodyne cathode resistor (cathode → the 56 kΩ junction)" }
+  - { ref: RKB, part: "Carbon comp resistor", value: "56 kΩ · ½ W",  role: "Cathodyne cathode load (junction → ground)" }
   - { ref: C9,  part: "Coupling capacitor",   value: "0.1 µF · 400 V", role: "Cathodyne plate → V4 grid" }
   - { ref: C10, part: "Coupling capacitor",   value: "0.1 µF · 200 V", role: "Cathodyne cathode → V5 grid" }
   - { ref: R5s, part: "Carbon comp resistor", value: "1.5 kΩ · ½ W", role: "V4 grid stopper" }

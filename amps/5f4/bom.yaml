@@ -1,5 +1,5 @@
 # Parts list — reference designators match schematic.kicad_sch exactly.
-notes: "The schematic draws one jack per channel (the chassis has four). Output tubes are drawn '6L6G' on the C-EG sheet; Fender shipped the tweed Super with 5881s (interchangeable 6L6-family) and the 5881 SPICE model stands in for simulation. The tone network is capacitor-isolated and omitted from the DC netlist (the phase-inverter grid's DC path through it is modelled as a single leak resistor). Parts drawn only as annotations (bright cap, presence, NFB, line caps, power transformer) are listed without designators."
+notes: "The schematic draws one jack per channel (the chassis has four). Output tubes are drawn '6L6G' on the C-EG sheet; Fender shipped the tweed Super with 5881s (interchangeable 6L6-family) and the 5881 SPICE model stands in for simulation. The tone network is capacitor-isolated and omitted from the DC netlist (the phase-inverter grid's DC path through it is modelled as a single leak resistor). The negative-feedback resistor, the presence pot and its 0.1 µF bleed cap are chassis wiring rather than board wiring, but the drawing carries all three, so they carry designators (RNF, VR6, C17) and are drawn on the schematic. Parts drawn only as annotations (bright cap, line caps, power transformer) are listed without designators."
 items:
   - { ref: R1s, part: "Carbon comp resistor", value: "68 kΩ · ½ W",  role: "Channel-1 grid stopper" }
   - { ref: R2s, part: "Carbon comp resistor", value: "68 kΩ · ½ W",  role: "Channel-2 grid stopper" }
@@ -34,8 +34,11 @@ items:
   - { ref: C8,  part: "Coupling capacitor",   value: "0.02 µF · 600 V", role: "Driver plate → cathodyne grid" }
   - { ref: RGB, part: "Carbon comp resistor", value: "1 MΩ · ½ W",   role: "Cathodyne grid leak, returned to the 1.5 kΩ/56 kΩ cathode junction" }
   - { ref: RLB, part: "Carbon comp resistor", value: "56 kΩ · ½ W",  role: "V3B (cathodyne) plate load" }
-  - { ref: RTAIL, part: "Carbon comp resistor", value: "1.5 kΩ · ½ W", role: "Cathodyne cathode resistor (cathode → the 56 kΩ junction)" }
-  - { ref: RT2, part: "Carbon comp resistor", value: "56 kΩ · ½ W",  role: "Cathodyne cathode load (junction → ground)" }
+  - { ref: RKA, part: "Carbon comp resistor", value: "1.5 kΩ · ½ W", role: "Cathodyne cathode resistor (cathode → the 56 kΩ junction)" }
+  - { ref: RKB, part: "Carbon comp resistor", value: "56 kΩ · ½ W",  role: "Cathodyne cathode load (junction → ground)" }
+  - { ref: RNF, part: "Carbon comp resistor", value: "56 kΩ · ½ W",  role: "Negative feedback, speaker → V3A (driver) cathode" }
+  - { ref: VR6, part: "Linear potentiometer", value: "5 kΩ",        role: "Presence — from the driver's cathode to ground" }
+  - { ref: C17, part: "Film capacitor",       value: "0.1 µF · 200 V", role: "Presence wiper to ground" }
   - { ref: C9,  part: "Coupling capacitor",   value: "0.1 µF · 400 V", role: "Cathodyne plate → V4 grid" }
   - { ref: C10, part: "Coupling capacitor",   value: "0.1 µF · 200 V", role: "Cathodyne cathode → V5 grid" }
   - { ref: R5s, part: "Carbon comp resistor", value: "1.5 kΩ · ½ W", role: "V4 grid stopper" }
@@ -62,6 +65,4 @@ items:
   - { ref: T3,  part: "Output transformer",   value: "Fender 45216",   role: "Push-pull output into 2 × 10 in speakers" }
   - { ref: "—", part: "Power transformer",    value: "Fender 8087",    role: "HT + heaters + rectifier filament" }
   - { ref: "—", part: "Mica capacitor",       value: "100 pF",         role: "Bright cap across VR1 (annotation only on schematic)" }
-  - { ref: "—", part: "Linear potentiometer", value: "5 kΩ",           role: "Presence (annotation only)" }
-  - { ref: "—", part: "Carbon comp resistor", value: "56 kΩ · ½ W",   role: "Negative feedback, speaker → V3A cathode (annotation only)" }
   - { ref: "—", part: "Film capacitor",       value: "0.05 µF · 600 V (×2)", role: "AC-line filter caps (annotation only)" }

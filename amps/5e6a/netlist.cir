@@ -79,8 +79,8 @@ C2 K2A 0 25u
 RLA BP2 PPI 56k
 XV3A PPI GPI KPI 12AX7
 RGPI GPI JPI 1meg
-RTAIL KPI JPI 1.5k
-RT2 JPI 0 56k
+RKA KPI JPI 1.5k
+RKB JPI 0 56k
 
 * Cathodyne -> 6L6G grids: 0.1u coupling caps (DC-open) + 1.5k grid stoppers.
 * PPI (the plate output) drives V4's grid; KPI (the cathode output) drives

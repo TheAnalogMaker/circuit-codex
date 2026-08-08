@@ -156,11 +156,30 @@ s.wire(172.5, 109.62, 184.5, 109.62)
 # cathodyne cathode chain: 1.5k -> J -> 56k -> gnd (beside the tube)
 s.wire(176.53, 99.62, 176.53, 102)
 s.wire(176.53, 102, 184.5, 102)
-s.sym("R", "RTAIL", "1.5k", 184.5, 105.81, lx=2.0)
+s.sym("R", "RKA", "1.5k", 184.5, 105.81, lx=2.0)
 s.junction(184.5, 109.62)
-s.sym("R", "RT2", "56k", 184.5, 113.43, lx=2.0)
+s.sym("R", "RKB", "56k", 184.5, 113.43, lx=2.0)
 s.gnd(184.5, 117.24)
-s.text("56k NFB from the speaker + 5k presence (0.1 µF on its wiper) land on V3A's cathode (annotation)", 150, 149, 1.1)
+
+# ---- negative feedback + presence, both on the driver's cathode ---------
+# The C-EG sheet returns 56k from the speaker to V3A's cathode and hangs the
+# 5k presence pot on that same node, its wiper bleeding to ground through
+# 0.1 uF. All three sit at ~0 V DC, so the DC model leaves them out — but the
+# drawing carries them, so this schematic draws them rather than naming them
+# in a note.
+s.junction(176.53, 133.62)
+s.wire(176.53, 133.62, 152, 133.62)
+s.wire(152, 133.62, 152, 145)
+s.junction(152, 145)
+nl, nr = s.series_h("R", "RNF", "56k", 136, 145)
+s.wire(nr, 145, 152, 145)
+s.wire(124, 145, nl, 145)
+s.glabel("SPKR", 124, 145, 180)
+s.sym("POT", "VR6", "5k pres", 152, 148.81)
+s.gnd(152, 152.62)
+s.wire(157.08, 148.81, 166, 148.81)          # presence wiper -> 0.1 uF -> gnd
+s.sym("C", "C17", ".1u", 166, 152.62)
+s.gnd(166, 156.43)
 
 # ---- 6L6G pair, fixed bias ----------------------------------------------
 # V4 is driven from the cathodyne's PLATE (C9, 0.1-400), V5 from its

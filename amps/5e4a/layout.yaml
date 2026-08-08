@@ -60,8 +60,8 @@ parts:
   - { ref: RLB,  a: [1, 18], b: [1, 19] }   # 56k cathodyne plate load (V3B)
   - { ref: RK3,  a: [1, 20], b: [1, 21] }   # 1.5k driver cathode bias (NFB/presence land here)
   - { ref: RGB,  a: [1, 22], b: [1, 23] }   # 1M cathodyne grid leak -> 1.5k/56k junction
-  - { ref: RTAIL, a: [0, 24], b: [1, 24] }  # 1.5k cathodyne cathode -> junction (vertical)
-  - { ref: RT2,  a: [1, 25], b: [1, 26] }   # 56k junction -> ground
+  - { ref: RKA, a: [0, 24], b: [1, 24] }  # 1.5k cathodyne cathode -> junction (vertical)
+  - { ref: RKB,  a: [1, 25], b: [1, 26] }   # 56k junction -> ground
   # --- split tone network (board half) + driver->cathodyne coupler ------------
   - { ref: C16,  a: [0, 22], b: [0, 23] }   # 0.1 µF bass-branch coupler (node A -> node B)
   - { ref: C8,   a: [0, 25], b: [0, 27] }   # 0.02 µF driver plate -> cathodyne grid
@@ -207,17 +207,17 @@ runs:
   - { from: RLA.b, to: V3.pin1, via: [[17, 1.6], [20, 1.6]] }    # -> V3A (driver) plate
   - { from: RLB.a, to: C13.a, via: [[18, 0.8], [9.6, 0.8]] } # 56k cathodyne plate load -> B+3
   - { from: RLB.b, to: V3.pin6, via: [[19, 1.72], [20.4, 1.72]] }  # -> V3B (cathodyne) plate
-  - { from: V3.pin1, to: C8.a, via: [[19.5, 1.75], [24.7, 1.75], [24.7, 0.45]] }   # driver plate -> 0.02 coupler (rises right of RTAIL.b, lands C8.a from below-left)
+  - { from: V3.pin1, to: C8.a, via: [[19.5, 1.75], [24.7, 1.75], [24.7, 0.45]] }   # driver plate -> 0.02 coupler (rises right of RKA.b, lands C8.a from below-left)
   - { from: V3.pin6, to: C9.a, via: [[20.8, 1.85], [16.2, 1.85], [16.2, 0.55]] } # cathodyne plate -> 0.1 coupler to V4 (climbs clear of RLA.a)
   - { from: C8.b, to: V3.pin7, via: [[26.8, 1.3], [20.8, 1.3], [20.8, 2.0]] }   # 0.02 coupler -> cathodyne grid (drops left of RGB.a, approaches pin7 from below)
   - { from: RGB.a, to: V3.pin7, via: [[22, 1.9], [20, 1.9]] }   # 1M grid leak -> cathodyne grid
   - { from: V3.pin3, to: RK3.a, via: [[20, 1.68], [19.6, 1.68], [19.6, 1.05]] } # driver cathode -> 1.5k (lands RK3.a from below-left)
   - { from: RK3.b, to: [1.45, 20.3], via: [[20.3, 1.15]] }        # driver cathode bias -> ground bus
-  - { from: V3.pin8, to: RTAIL.a, via: [[21, 2.35], [24.3, 2.35], [24.3, 0.55]] } # cathodyne cathode -> 1.5k (RTAIL)
-  - { from: C10.a, to: RTAIL.a, via: [[19, -0.35], [24, -0.35]] }  # 0.1 coupler to V5 taps the cathode node (top lane)
-  - { from: RTAIL.b, to: RT2.a }                   # cathode 1.5k -> junction
-  - { from: RGB.b, to: RT2.a, via: [[23, 1.62], [24.3, 1.62]] }     # grid-leak return -> junction (approach from lower-left)
-  - { from: RT2.b, to: [1.45, 26] }                # 56k junction leg -> ground bus
+  - { from: V3.pin8, to: RKA.a, via: [[21, 2.35], [24.3, 2.35], [24.3, 0.55]] } # cathodyne cathode -> 1.5k (RKA)
+  - { from: C10.a, to: RKA.a, via: [[19, -0.35], [24, -0.35]] }  # 0.1 coupler to V5 taps the cathode node (top lane)
+  - { from: RKA.b, to: RKB.a }                   # cathode 1.5k -> junction
+  - { from: RGB.b, to: RKB.a, via: [[23, 1.62], [24.3, 1.62]] }     # grid-leak return -> junction (approach from lower-left)
+  - { from: RKB.b, to: [1.45, 26] }                # 56k junction leg -> ground bus
 
   # --- V2A gain stage + V2B cathode follower ---------------------------------
   - { from: RL3.a, to: C14.a }                     # V2A plate load -> B+4
@@ -313,9 +313,9 @@ net_map:
   # to BP1 declares the DC bridge the netlist collapses (OT primary DCR omitted,
   # so both 6L6G plates and the centre tap read as B+1). The OT secondary /
   # speaker and the off-board 56 k NFB + 5 k presence sit at ~0 V DC and are the
-  # netlist's excluded annotation layer (RT2 already carries the tail-to-ground
+  # netlist's excluded annotation layer (RKB already carries the cathodyne's junction-to-ground
   # 56 k), so they are deliberately NOT anchored — folding them to ground would
-  # wrongly short the phase-inverter tail junction (JPI) to ground.
+  # wrongly short the cathodyne's cathode junction (JPI) to ground.
   anchors:
     T3.brown: BP1    # OT primary, V4 plate lead — netlist omits OT primary DCR (plate node = B+1)
     T3.blue:  BP1    # OT primary, V5 plate lead

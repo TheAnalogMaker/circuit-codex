@@ -1,5 +1,5 @@
-# Parts list — reference designators match netlist.cir. No schematic.kicad_sch
-# is authored in this delivery, so there is no BOM<->schematic cross-check yet.
+# Parts list — reference designators match netlist.cir and schematic.kicad_sch,
+# so pipeline/validate.py cross-checks the two in both directions.
 notes: "The schematic draws two input jacks per channel (mic 1/2, instrument
   1/2), each pair sharing that channel's grid path; this list carries one
   representative grid stopper + leak per channel, matching the simplification
@@ -14,25 +14,25 @@ items:
   - { ref: RL2, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "V1B (instrument) plate load" }
   - { ref: RK1, part: "Carbon comp resistor", value: "820 Ω · ½ W",  role: "Shared V1 cathode bias" }
   - { ref: C4,  part: "Electrolytic capacitor (dual can)", value: "25 µF + 25 µF · 25 V", role: "Shared V1 cathode bypass" }
-  - { ref: C_c1, part: "Coupling capacitor", value: "0.02 µF · 600 V", role: "V1A → instrument volume" }
-  - { ref: C_c2, part: "Coupling capacitor", value: "0.02 µF · 600 V", role: "V1B → mic volume" }
+  - { ref: C5, part: "Coupling capacitor", value: "0.02 µF · 600 V", role: "V1A → instrument volume" }
+  - { ref: C6, part: "Coupling capacitor", value: "0.02 µF · 600 V", role: "V1B → mic volume" }
   - { ref: VR1, part: "Audio-taper potentiometer", value: "1 MΩ",    role: "Instrument volume" }
   - { ref: VR2, part: "Audio-taper potentiometer", value: "1 MΩ",    role: "Mic volume" }
   - { ref: RMX1, part: "Carbon comp resistor", value: "270 kΩ · ½ W", role: "Instrument-channel mixing resistor" }
   - { ref: RMX2, part: "Carbon comp resistor", value: "270 kΩ · ½ W", role: "Mic-channel mixing resistor" }
-  - { ref: RL3, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "V2 plate load (value not confidently legible; carried at this corpus's standard for the role, see notes.md)" }
-  - { ref: RG3, part: "Carbon comp resistor", value: "1 MΩ · ½ W", role: "V2 grid leak (netlist.cir RG3 — the mixing node's DC reference to ground)" }
-  - { ref: RK2, part: "Carbon comp resistor", value: "1.5 kΩ · ½ W", role: "V2 cathode bias (value not confidently legible; standard-for-role, see notes.md)" }
+  - { ref: RL3, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "V2 plate load (value not confidently legible; carried at this corpus's standard for the role — see the notes on this page)" }
+  - { ref: RG3, part: "Carbon comp resistor", value: "1 MΩ · ½ W", role: "V2 grid leak — the mixing node's DC reference to ground" }
+  - { ref: RK2, part: "Carbon comp resistor", value: "1.5 kΩ · ½ W", role: "V2 cathode bias (value not confidently legible; standard-for-role — see the notes on this page)" }
   - { ref: C4b, part: "Electrolytic capacitor", value: "25 µF · 25 V (est.)", role: "V2 cathode bypass, drawn as its own can beside RK2 (value not printed on this copy, carried at V1's can rating for the same role)" }
-  - { ref: RFB1, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "V2 plate-to-grid resistor — printed on the sheet bridging V2's own plate and grid leads; annotation only (see notes.md: modelled as a plain DC resistor it collapses V2's chart-matched operating point, so at least one leg almost certainly sits behind an unresolved coupling cap — not in netlist.cir)" }
-  - { ref: RBLEED, part: "Carbon comp resistor", value: "5 MΩ · ½ W", role: "V2 grid -> driver (V3A) grid — printed on the sheet as a long return spanning the tone/coupling network; annotation only, same caveat as RFB1 (not in netlist.cir)" }
-  - { ref: C_tr1, part: "Coupling capacitor", value: "0.01 µF · 400 V", role: "Treble-peak cap, ahead of the Treble pot" }
-  - { ref: C_tr2, part: "Coupling capacitor", value: "500 pF", role: "Treble pot cold-lug shunt cap (printed \".0005\")" }
+  - { ref: RFB1, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "V2 plate-to-grid resistor — printed on the sheet bridging V2's own plate and grid leads; annotation only: modelled as a plain DC resistor it collapses V2's chart-matched operating point, so at least one leg almost certainly sits behind an unresolved coupling cap, and it is left out of the DC model (see the notes on this page)" }
+  - { ref: RBLEED, part: "Carbon comp resistor", value: "5 MΩ · ½ W", role: "V2 grid -> driver (V3A) grid — printed on the sheet as a long return spanning the tone/coupling network; annotation only, same caveat as RFB1, and likewise left out of the DC model" }
+  - { ref: C7, part: "Coupling capacitor", value: "0.01 µF · 400 V", role: "Treble-peak cap, ahead of the Treble pot" }
+  - { ref: C8, part: "Coupling capacitor", value: "500 pF", role: "Treble pot cold-lug shunt cap (printed \".0005\")" }
   - { ref: VR3, part: "Audio-taper potentiometer", value: "1 MΩ",    role: "Bass" }
   - { ref: VR4, part: "Audio-taper potentiometer", value: "1 MΩ",    role: "Treble" }
   - { ref: VR5, part: "Audio-taper potentiometer", value: "5 kΩ",    role: "Presence" }
-  - { ref: R_NFB, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "Negative-feedback resistor, speaker/OT-secondary node to the Presence pot's hot lug" }
-  - { ref: C_NFB, part: "Coupling capacitor", value: "0.1 µF · 200 V", role: "Presence wiper -> driver (V3A) grid — the sheet lands this tap on the driver's GRID, not its cathode where the 5F4 puts the same tap (see notes.md)" }
+  - { ref: RNF, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "Negative-feedback resistor, speaker/OT-secondary node to the Presence pot's hot lug" }
+  - { ref: C9, part: "Coupling capacitor", value: "0.1 µF · 200 V", role: "Presence wiper -> driver (V3A) grid — the sheet lands this tap on the driver's GRID, not its cathode where the 5F4 puts the same tap" }
   - { ref: RL4, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "V3A (driver) plate load" }
   - { ref: RK3, part: "Carbon comp resistor", value: "1.5 kΩ · ½ W", role: "V3A (driver) cathode bias" }
   - { ref: C1,  part: "Coupling capacitor",   value: "0.02 µF · 600 V", role: "V3A (driver) → cathodyne grid" }
@@ -46,14 +46,14 @@ items:
   - { ref: R6s, part: "Carbon comp resistor", value: "1.5 kΩ · ½ W", role: "V5 grid stopper" }
   - { ref: RGL1, part: "Carbon comp resistor", value: "220 kΩ · ½ W", role: "V4 fixed-bias grid leak" }
   - { ref: RGL2, part: "Carbon comp resistor", value: "220 kΩ · ½ W", role: "V5 fixed-bias grid leak" }
-  - { ref: RD1, part: "Power resistor", value: "16 kΩ (est.)", role: "Rail dropper BP2 → BP3 (not confidently legible; derived from the printed rail figures and modelled stage currents, see notes.md)" }
-  - { ref: RD2, part: "Power resistor", value: "22 kΩ (est.)", role: "Rail dropper BP3 → BP4 (not confidently legible; derived, see notes.md)" }
+  - { ref: RD1, part: "Power resistor", value: "16 kΩ (est.)", role: "Rail dropper BP2 → BP3 (not confidently legible; derived from the printed rail figures and modelled stage currents — see the notes on this page)" }
+  - { ref: RD2, part: "Power resistor", value: "22 kΩ (est.)", role: "Rail dropper BP3 → BP4 (not confidently legible; derived — see the notes on this page)" }
   - { ref: RCHOKE, part: "Filter choke", value: "~110 Ω DCR (est.)", role: "BP1 → BP2, screens supply" }
-  - { ref: C_f1, part: "Electrolytic capacitor", value: "16 µF · 450 V", role: "Filter, BP2 (screens)" }
-  - { ref: C_f2, part: "Electrolytic capacitor", value: "16 µF · 450 V", role: "Filter, BP3 (driver/PI)" }
-  - { ref: C_f3, part: "Electrolytic capacitor", value: "8 µF · 450 V",  role: "Filter, BP4 (preamp)" }
+  - { ref: C10, part: "Electrolytic capacitor", value: "16 µF · 450 V", role: "Filter, BP2 (screens)" }
+  - { ref: C11, part: "Electrolytic capacitor", value: "16 µF · 450 V", role: "Filter, BP3 (driver/PI)" }
+  - { ref: C12, part: "Electrolytic capacitor", value: "8 µF · 450 V",  role: "Filter, BP4 (preamp)" }
   - { ref: D1, part: "Selenium rectifier", value: "SEL", role: "Bias supply rectifier, HT tap -> -32 V" }
-  - { ref: C_bias, part: "Electrolytic capacitor", value: "100 µF · 25 V", role: "Bias supply filter, -32 V" }
+  - { ref: C13, part: "Electrolytic capacitor", value: "100 µF · 25 V", role: "Bias supply filter, -32 V" }
   - { ref: V1,  part: "Preamp tube",     value: "12AY7",  role: "Mic + instrument first stage (V1A/V1B)" }
   - { ref: V2,  part: "Preamp tube",     value: "12AY7",  role: "Shared second stage (one triode used)" }
   - { ref: V3,  part: "Preamp tube",     value: "12AX7",  role: "Driver + cathodyne PI (V3A/V3B)" }

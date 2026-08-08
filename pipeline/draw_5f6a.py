@@ -154,7 +154,26 @@ s.wire(br2, 126, 168.91, 126)
 s.wire(bl2, 126, 158.75, 126)
 s.wire(158.75, 126, 158.75, 116.62)
 s.wire(158.75, 116.62, 168.91, 116.62)  # bottom grid AC-grounded to J
-s.text("47 pF balance cap V3A grid-plate omitted (AC only) · NFB 27k + presence 5k join the tail foot at ~0 V DC", 150, 148, 1.1)
+s.text("47 pF balance cap V3A grid-plate omitted (AC only)", 95, 150, 1.1)
+
+# ---- negative feedback + presence, at the phase-inverter tail -----------
+# This is the 5F6-A's headline change from the 5F6: the presence pot and the
+# feedback return leave the tone stack's ground leg and land here instead,
+# the pot bridging the tail junction to ground with 0.1 uF on its wiper.
+# All three sit at ~0 V DC, so the DC model leaves them out — but they are
+# the revision, so this schematic draws them rather than naming them.
+s.junction(185, 116.62)
+s.wire(185, 116.62, 185, 147)
+s.junction(185, 147)
+nl, nr = s.series_h("R", "RNF", "27k", 170, 147)
+s.wire(nr, 147, 185, 147)
+s.wire(158, 147, nl, 147)
+s.glabel("SPKR", 158, 147, 180)
+s.sym("POT", "VR6", "5k pres", 185, 150.81)
+s.gnd(185, 154.62)
+s.wire(190.08, 150.81, 196, 150.81)          # presence wiper -> 0.1 uF -> gnd
+s.sym("C", "C16", ".1u", 196, 154.62)
+s.gnd(196, 158.43)
 
 # ---- 5881 pair, fixed bias ----------------------------------------------
 for y, pref, cref, glref, sref in [(84, "V4", "C8", "RGL1", "RS1"), (136, "V5", "C9", "RGL2", "RS2")]:
@@ -247,6 +266,9 @@ s.glabel("HT_B", 138.1, 172.72, 180)
 s.wire(138.1, 172.72, 141.91, 172.72)
 s.sym("DIODE_SS", "D1", "SEL", 146.99, 172.72, lx=-2.0, ly=-5.4)
 s.wire(152.07, 172.72, 155.88, 172.72)
+s.junction(154.5, 172.72)
+s.sym("C", "C15b", "8u", 154.5, 176.53, lx=-6.6)
+s.gnd(154.5, 180.34)
 l, r = s.series_h("R", "RB1", "15k", 159.69, 172.72)
 s.wire(155.88, 172.72, l, 172.72)
 s.wire(r, 172.72, 171.12, 172.72)
@@ -257,7 +279,6 @@ s.junction(168.58, 172.72)
 s.sym("C", "C15", "8u", 168.58, 176.53, lx=2.2)
 s.gnd(168.58, 180.34)
 s.glabel("-48V", 171.12, 172.72, 0)
-s.text("bias caps 8u/150V x2 (one shown)", 145, 186.5, 1.1)
 
 s.write(OUT, [
     ("5F6-A — Tweed Bassman-style · Circuit Codex · CC-BY-SA 4.0 · redrawn from circuit facts", 25, 66, 2.0),

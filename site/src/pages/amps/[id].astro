@@ -38,6 +38,9 @@ const allChartNull = !!amp.voltages && Object.values(amp.voltages.nodes)
 // Model 1959 Super Lead — 4 of them, so "pair" cannot be the answer for every
 // push-pull stage. Anything the words below do not cover falls back to the ×N
 // notation the load-line explorer's own preset chips use.
+// The valve named here is the one the drawing letters (loadline.tube_lettered),
+// not the SPICE model the netlist instantiates: the whole 6L6 family shares one
+// clean-room fit, so a 6L6GB pair would otherwise read "5881 pair" on its page.
 const OUTPUT_GROUP_WORD = { 1: '', 2: 'pair', 3: 'trio', 4: 'quartet', 6: 'sextet' };
 function outputGroup(tube, n) {
   const word = OUTPUT_GROUP_WORD[n];
@@ -280,7 +283,7 @@ const breadcrumbs = [
           {loadline && (
             <p class="footnote">The output stage behind these numbers can be drawn:
               the <a href={`/reference/guides/load-lines/?preset=${amp.id}`}>load line
-              explorer</a> plots this circuit's {outputGroup(loadline.tube, loadline.output_tubes)} at
+              explorer</a> plots this circuit's {outputGroup(loadline.tube_lettered ?? loadline.tube, loadline.output_tubes)} at
               the DC operating point its netlist carries — {Math.round(loadline.plate_v)} V on the
               plates with {loadline.bias === 'cathode'
                 ? `a ${loadline.rk_total} Ω cathode resistor`
