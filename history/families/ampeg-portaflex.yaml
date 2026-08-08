@@ -168,6 +168,47 @@ notes: >
   Ampeg last issued it, more than a decade after the model was introduced, so
   it dates the circuit's final form rather than its first.
 
+  No circuit from this family is drawn in the corpus yet, and the reason is
+  worth recording so the next pass does not re-walk it. A first attempt at the
+  B-15N stopped at three connections on the revision-C sheet it could not read:
+  where the R28 470 kΩ / R29 510 kΩ midpoint goes, which supply dropper feeds
+  the channel anode loads, and a driver-cathode node whose printed voltages
+  refuse to balance. A re-read of the same published drawing at 400 dpi, zoomed
+  to the pixel, settles the first two as a drafting convention rather than a
+  circuit question, and leaves the third standing.
+
+  The sheet runs a long horizontal ground bus across the middle of the drawing,
+  and three vertical lines cross it. At working magnification each crossing
+  looks like a junction; at pixel level each is a **hop-over** — the little
+  S-jog the draughtsman used for "crosses, does not connect". None of the three
+  resistors above the bus is grounded there. Read that way the drawing resolves
+  into three series chains, each spanning the two 6SL7 driver anodes (the sheet
+  prints 235 V on one and 225 V on the other) with a node in the middle:
+
+    * R26 120 kΩ and R27 120 kΩ — the driver's two ANODE LOADS, sharing one
+      supply node between them. That answers "which dropper feeds what": the
+      pair is fed from a single node, not from two separate rails.
+    * R28 470 kΩ and R29 510 kΩ — a second divider across the same two plates,
+      its midpoint running down into the power-supply block.
+    * R30 270 kΩ and R31 270 kΩ — meeting at the node the sheet labels −50 V.
+      They are the two output-tube GRID RETURNS, which is what the title-block
+      reading above already said they should be: R30 reaches the 6L6GC grid line
+      beyond C13, R31 the other beyond C14, since the two 0.022 µF capacitors
+      break each driver plate from the grid line it drives.
+
+  What is still open is not the drawing. Two of those three midpoints have a
+  third leg running down into the supply block that has not been traced to a
+  named rail; and the driver cathodes still contradict themselves on the sheet's
+  own chart — the printed 3 V and 2.2 V, taken with the 220 Ω and 1 kΩ drawn
+  under them, imply currents no 6SL7 section passes, which is a disputed-node
+  case to be written down with its arithmetic rather than resolved. Landing the
+  amp also needs shared-file work this family cannot do alone: models/ carries
+  no 6SL7, and one would have to be fitted clean-room from tabulated datasheet
+  anchors (RCA 6SL7GT Class A1: Va=250 V, Vg=−2 V → Ia=2.3 mA, gm=1600 µmho,
+  µ=70) with a reference/tubes/6sl7.yaml to match. The 6L6GC needs no new model:
+  models/5881.inc is already anchored on RC-19 6L6GC average characteristics and
+  reference/tubes/6l6gc.yaml already exists.
+
   Dates are as tight as their evidence allows and no tighter. Introduction years
   come from the published chronology; the closing years of the B-15NF and B-15S
   rows are bracketed by the drawings read here — the B-15S sheet is dated March
