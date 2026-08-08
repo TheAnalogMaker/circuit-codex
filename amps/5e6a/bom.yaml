@@ -1,5 +1,5 @@
 # Parts list — reference designators match netlist.cir where the part is
-# DC-modeled. schematic.kicad_sch (drawn 2026-08-08 from a fresh lug-level
+# DC-modeled. schematic.kicad_sch (drawn from a lug-level
 # read of the high-resolution Schematic Heaven A-EE scan, cross-checked
 # against the El34World copy) now carries every part below with a real ref —
 # that pass also corrected two prior mis-readings: the "10 MΩ channel-linking
@@ -8,7 +8,7 @@
 # input jacks; CJ1, a channel-jumper cap between the two channels' post-coupler
 # nodes), and two 100 kΩ padding resistors (RP1/RP2, ahead of each volume pot)
 # had not been catalogued at all. The presence/bass/treble ladder's own internal
-# wiring is drawn as read this pass but keeps a documented residual uncertainty
+# wiring is drawn as read but keeps a documented residual uncertainty
 # — see schematic.kicad_sch's own annotation and notes.md — short of the
 # lug-by-lug confidence amps/5f6/5f6a earned on 2026-08-03.
 notes: "Two rectifier tubes (V6/V7) are documented but not DC-modeled — an ideal B+ source stands in for the rectifier+PT, the corpus-wide convention (see netlist.cir header). The tone-stack ladder, the volume-pot bodies and the channel-jumper cap are likewise off netlist.cir's DC path (DC-open or abstracted) even though they now carry real schematic refs."
@@ -21,9 +21,9 @@ items:
   - { ref: C1,  part: "Electrolytic capacitor", value: "250 µF · 6 V", role: "Shared V1 cathode bypass" }
   - { ref: CC1, part: "Coupling capacitor",   value: "0.02 µF · 600 V", role: "V1A → channel-A padding resistor (DC-open)" }
   - { ref: CC2, part: "Coupling capacitor",   value: "0.02 µF · 600 V", role: "V1B → channel-B padding resistor (DC-open)" }
-  - { ref: CJ1, part: "Mica capacitor",       value: "100 pF (printed .0001)", role: "Channel jumper, bridging channel-A's and channel-B's post-coupler nodes directly (DC-open) — corrected 2026-08-08 from a prior pass that paired it with the 10 MΩ resistor now identified as RFB" }
-  - { ref: RP1, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "Channel-A volume-pot padding resistor, coupler → VR1 hot lug — not catalogued before 2026-08-08" }
-  - { ref: RP2, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "Channel-B volume-pot padding resistor, coupler → VR2 hot lug — not catalogued before 2026-08-08" }
+  - { ref: CJ1, part: "Mica capacitor",       value: "100 pF (printed .0001)", role: "Channel jumper, bridging channel-A's and channel-B's post-coupler nodes directly (DC-open). At low resolution it reads as one part with the RFB resistor above it; the two are unrelated" }
+  - { ref: RP1, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "Channel-A volume-pot padding resistor, coupler → VR1 hot lug" }
+  - { ref: RP2, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "Channel-B volume-pot padding resistor, coupler → VR2 hot lug" }
   - { ref: VR1, part: "Audio-taper potentiometer", value: "1 MΩ",    role: "Channel-A (bright) volume" }
   - { ref: VR2, part: "Audio-taper potentiometer", value: "1 MΩ",    role: "Channel-B (normal) volume" }
   - { ref: RM1, part: "Carbon comp resistor", value: "270 kΩ · ½ W", role: "Channel-A mixer into V2 grid (DC-open, wiper-fed)" }
@@ -31,14 +31,14 @@ items:
   - { ref: RL3, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "V2 plate load" }
   - { ref: RK2, part: "Carbon comp resistor", value: "1.5 kΩ · ½ W", role: "V2 cathode bias" }
   - { ref: C2,  part: "Electrolytic capacitor", value: "25 µF · 25 V", role: "V2 cathode bypass" }
-  - { ref: RFB, part: "Carbon comp resistor", value: "10 MΩ",        role: "V2 plate-to-grid feedback/self-bias resistor, drawn as a loop above V2 on the A-EE sheet — identified 2026-08-08; previously mis-catalogued as a channel-linking resistor at the input jacks" }
+  - { ref: RFB, part: "Carbon comp resistor", value: "10 MΩ",        role: "V2 plate-to-grid feedback/self-bias resistor, drawn as a loop above V2 on the A-EE sheet. Its left end lands on the post-mixer V2 grid node, not on the input jacks" }
   - { ref: VR5, part: "Linear potentiometer", value: "5 kΩ",         role: "Presence — hot lug on the shared presence/NFB bus, wiper → CPR → ground" }
   - { ref: CPR, part: "Film capacitor",       value: "0.1 µF · 200 V", role: "Presence wiper → ground" }
   - { ref: RNF, part: "Carbon comp resistor", value: "20 kΩ",        role: "Negative feedback, speaker node → the presence/NFB bus (this family's usual take-off; cf. the 5F6's 27 kΩ)" }
   - { ref: RBL, part: "Carbon comp resistor", value: "220 kΩ · ½ W", role: "Bleeder, V2 plate node → ground" }
   - { ref: RTS, part: "Carbon comp resistor", value: "220 kΩ · ½ W", role: "V2 plate node → the bass-pot wiper junction" }
   - { ref: RBS, part: "Carbon comp resistor", value: "220 kΩ · ½ W", role: "Bass shelf, wiper junction → CBS" }
-  - { ref: CBS, part: "Mica capacitor",       value: "0.005 µF (printed .005)", role: "Bass shelf → ground — corrected 2026-08-08 from a prior pass's misread \"500 pF (printed .0005)\"; this pass reads the printed value as .005, i.e. 0.005 µF" }
+  - { ref: CBS, part: "Mica capacitor",       value: "0.005 µF (printed .005)", role: "Bass shelf → ground. The sheet is dense here and the printed figure reads .005, not the .0005 the same patch of ink can suggest — a factor of ten" }
   - { ref: VR4, part: "Audio-taper potentiometer", value: "1 MΩ",    role: "Bass — wiper on the shelf junction, hot lug on the presence/NFB bus" }
   - { ref: C3,  part: "Coupling capacitor",   value: "0.1 µF · 200 V", role: "V2 plate → C4 (first of two series caps into the treble network)" }
   - { ref: C4,  part: "Mica capacitor",       value: "250 pF (printed .00025)", role: "C3 → the treble network (second of two series caps)" }

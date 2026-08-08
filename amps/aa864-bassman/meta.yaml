@@ -13,8 +13,13 @@ topology:
   phase_inverter: long-tailed-pair
   tone_stack: tb
 lineage:
-  derived_from: []   # the blonde/brown 6G6-B piggyback it replaced is not in the corpus
-  influenced: []
+  derived_from: ["6g6b"]   # the blonde piggyback it replaced: the AA864 carries the
+                           # 6G6-B's two-channel Bass/Normal split, its solid-state
+                           # rectifier and its long-tailed-pair inverter onto the
+                           # blackface chassis, then redesigns the preamp for bass duty.
+                           # Reciprocal of amps/6g6b's influenced.
+  influenced: ["ab165"]    # the next revision letter on the same chassis; reciprocal
+                           # of amps/ab165's derived_from.
 sources:
   - desc: >-
       Fender 'BASSMAN-AMP AA864' drawing, title block read directly: FENDER MODEL

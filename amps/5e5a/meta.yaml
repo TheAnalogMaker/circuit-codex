@@ -40,26 +40,19 @@ sources:
   - desc: "Fender 'Pro-Amp' Model 5E5-A layout drawing (J-EE), same sheet set —
       corroborates the tube complement (5U4GA, 2x6L6GB, 12AX7, 2x12AY7), the
       BASS/TREBLE (1M) and PRESENCE (5K) pot values, and the two-input-per-channel
-      MIC/INST front panel. Cited for the board-facts it carries, not
-      for a layout.yaml (none is authored in this delivery)"
+      MIC/INST front panel. Cited for the board facts it carries; this entry
+      ships no board drawing (see notes.md)"
     url: "https://schematicheaven.net/fenderamps/pro_5e5a_schem.pdf"
-  - desc: "Same Fender 'Pro-Amp' Model 5E5-A schematic+layout sheet set
-      (J-EE), re-fetched and read at 300 dpi during the drawings session
-      (2026-08-08) — title block re-verified against the data-core session's
-      citation above ('FENDER PRO-AMP SCHEMATIC/LAYOUT MODEL 5E5-A', J-EE).
-      Sharper than the compressed copy the data-core session had: V2's own
-      plate/cathode voltages (+130/+1.9, previously left informational) and
-      the driver's cathode (+1.6, previously misread +1.4) are now
-      confidently legible and gated in voltages.yaml. Also newly legible: a
-      100k resistor across V2's own plate/grid and a 5 MEG resistor from
-      V2's grid to the driver's grid (bom.yaml RFB1/RBLEED, annotation only —
-      modelled as plain DC resistors they collapse V2's chart-matched
-      operating point, so at least one leg likely sits behind a coupling cap
-      this scan doesn't resolve); and the negative-feedback + Presence tap
-      confirmed landing on the driver's GRID (not the cathode, as the
-      data-core session's 5F4-analogy guess had it). Used to author
-      schematic.kicad_sch. Not reproduced here; archived at
-      Schematic Heaven"
+  - desc: "The same Fender 'Pro-Amp' Model 5E5-A schematic + layout sheet set
+      (J-EE) read at 300 dpi, which is the resolution the finer figures need:
+      the title block ('FENDER PRO-AMP SCHEMATIC/LAYOUT MODEL 5E5-A', J-EE),
+      V2's own plate and cathode voltages (+130/+1.9, both gated), the
+      driver's cathode (+1.6), a 100k resistor across V2's own plate and grid
+      and a 5 MEG resistor from V2's grid to the driver's grid (bom.yaml
+      RFB1/RBLEED — carried as parts, not modelled; see notes.md), and the
+      negative-feedback + Presence tap landing on the driver's GRID rather
+      than its cathode. The source for schematic.kicad_sch. Not reproduced
+      here; archived at Schematic Heaven"
     url: "https://schematicheaven.net/fenderamps/pro_5e5a_schem.pdf"
   - desc: "Mojotone Fender Field Guide, 'Fender Narrow Panel Tweed Pro' — 5E5
       (1955)/5E5-A (1956-1960) dating, full tube complement (12AY7 mic/instrument,
@@ -70,11 +63,10 @@ sources:
     url: "https://mojotone.com/blogs/fender-field-guide/fender-narrow-panel-tweed-pro"
 verification:
   status: draft   # Two reasons, stated rather than tuned away.
-                  # (1) A 2026-08-08 re-read at 300 dpi (see sources) resolved
-                  # most of the data-core session's uncertainty (V2's own
-                  # plate/cathode voltages, the driver's cathode digit) and
-                  # is now gated in voltages.yaml, 12/12 non-informational
-                  # nodes green. Still open: V2's own resistor VALUES and the
+                  # (1) The 300 dpi read of the J-EE sheet (see sources)
+                  # resolved V2's own plate/cathode voltages and the driver's
+                  # cathode digit; all are gated in voltages.yaml, 12/12
+                  # non-informational nodes green. Still open: V2's own resistor VALUES and the
                   # two rail-dropper resistors (carried at this corpus's
                   # standard values for the role, not guessed), the driver's
                   # and cathodyne's uncharted plate voltages, and whether

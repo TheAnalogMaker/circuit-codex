@@ -70,7 +70,7 @@ C2 K2A 0 25u
 * would imply (physically impossible for a 12AX7 — an earlier draft of this
 * netlist tried exactly that reading, from a misassigned printed figure, and
 * ngspice drove the tube to near cutoff, which is how the mistake was caught;
-* see voltages.yaml for why PPI/KPI/JPI are left informational this pass
+* see voltages.yaml for why PPI/KPI/JPI are left informational
 * rather than asserted against a specific misassigned reading). Only one of
 * the 12AX7's two triode sections is wired on this drawing (the other is not
 * shown connected). The Presence/Bass/Treble ladder ahead of it is DC-open

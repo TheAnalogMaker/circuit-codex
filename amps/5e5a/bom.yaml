@@ -32,7 +32,7 @@ items:
   - { ref: VR4, part: "Audio-taper potentiometer", value: "1 MΩ",    role: "Treble" }
   - { ref: VR5, part: "Audio-taper potentiometer", value: "5 kΩ",    role: "Presence" }
   - { ref: R_NFB, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "Negative-feedback resistor, speaker/OT-secondary node to the Presence pot's hot lug" }
-  - { ref: C_NFB, part: "Coupling capacitor", value: "0.1 µF · 200 V", role: "Presence wiper -> driver (V3A) grid — re-read 2026-08-08: lands on the driver's GRID, not the cathode (see notes.md correction)" }
+  - { ref: C_NFB, part: "Coupling capacitor", value: "0.1 µF · 200 V", role: "Presence wiper -> driver (V3A) grid — the sheet lands this tap on the driver's GRID, not its cathode where the 5F4 puts the same tap (see notes.md)" }
   - { ref: RL4, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "V3A (driver) plate load" }
   - { ref: RK3, part: "Carbon comp resistor", value: "1.5 kΩ · ½ W", role: "V3A (driver) cathode bias" }
   - { ref: C1,  part: "Coupling capacitor",   value: "0.02 µF · 600 V", role: "V3A (driver) → cathodyne grid" }

@@ -1,7 +1,5 @@
 # Parts list — reference designators match schematic.kicad_sch exactly.
 # vendor_url fields land with the Phase-1 affiliate/BOM work.
-# schematic.kicad_sch has not landed with this pass (meta/netlist/voltages/bom/notes
-# only); refs below are assigned to match netlist.cir and are ready for the redraw.
 notes: "Numbering follows the schematic. The AC-line section (power transformer, fuse, line cap) is drawn as annotation only and carries no designator. Values are from the published Champ 5C1 (F-DH) drawing."
 items:
   - { ref: R1,  part: "Carbon comp resistor", value: "75 kΩ · ½ W",        role: "Input 1 to ground" }

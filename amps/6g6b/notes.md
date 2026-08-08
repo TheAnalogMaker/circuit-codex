@@ -9,7 +9,9 @@ stage before a long-tailed-pair phase inverter and a fixed-bias 5881 pair.
 The 6G6 (late 1960) used a GZ34 tube rectifier; the 6G6-A (early 1961)
 moved to solid-state rectification; the 6G6-B carried that forward with
 further circuit changes through 1963, running in blonde Tolex until the
-blackface AA864 piggyback head replaced it in 1964.
+blackface [AA864](/amps/aa864-bassman/) piggyback head replaced it in 1964 —
+carrying this circuit's two-channel split, its solid-state supply and its
+long-tailed-pair inverter with it.
 
 ## Circuit walkthrough (short form)
 

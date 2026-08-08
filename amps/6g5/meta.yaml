@@ -13,7 +13,7 @@ topology:
   phase_inverter: long-tailed-pair
   tone_stack: tb
 lineage:
-  derived_from: ["5e5a"]  # the narrow-panel tweed Pro, landed alongside this entry:
+  derived_from: ["5e5a"]  # the narrow-panel tweed Pro:
                           # this brown circuit is a direct redesign of it (fixed bias
                           # and the Presence control carry over; the tube rectifier
                           # gives way to silicon, the cathodyne to a long-tailed pair,
@@ -55,14 +55,13 @@ sources:
       sheet: values +/-20% (chart) or +/-20% read to ground with an electronic
       voltmeter; layout sheet separately notes resistors 1/2 W - 10% and capacitors
       >= 400 V unless marked. Not reproduced here; archived at Schematic Heaven.
-      Tube count (2026-08-08 drawing pass): the companion published LAYOUT sheet
-      (same A-FJ, page 2 of the archived PDF) draws the physical chassis socket
-      row directly and shows five 7025 sockets plus the two 6L6GC — not seven
-      7025s as an earlier pass of this entry counted from the more crowded
-      schematic page. Corrected here; each preamp/driver/PI/oscillator function
-      maps to its own socket per netlist.cir's existing bottle grouping (V1
-      Normal both stages, V2 Bright both stages, V3 tremolo oscillator, V5
-      driver, V6 phase inverter), so no netlist ref changed."
+      Tube count read from the companion published LAYOUT sheet (same A-FJ, page 2
+      of the archived PDF), which draws the physical chassis socket row directly:
+      five 7025 sockets plus the two 6L6GC. The schematic page, which places each
+      triode half where the signal needs it rather than where the socket is, reads
+      as more. Each preamp/driver/PI/oscillator function maps to its own socket
+      (V1 Normal both stages, V2 Bright both stages, V3 tremolo oscillator, V5
+      driver, V6 phase inverter)."
     url: "https://schematicheaven.net/fenderamps/pro_6g5_schem.pdf"
   - desc: "Mojotone/Ampwares Fender field guide, 'Brownface Pro' — 6G5 production
       window 1960-1963, 40 W nominal rating, 1x15\" combo, front-panel control

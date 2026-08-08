@@ -11,7 +11,7 @@ topology:
   rectifier: { kind: tube, type: "5U4GA", count: 2, note: "dual full-wave rectifier tubes in parallel, both cathodes tied to one B+1 node — no choke on this drawing (unlike 5F6/5F6-A/5F4)" }
   bias: fixed
   phase_inverter: cathodyne
-  tone_stack: bass-treble-presence   # interactive 2-knob network + separate presence; exact ladder wiring not re-read at lug level this pass — see notes.md
+  tone_stack: bass-treble-presence   # interactive 2-knob network + separate presence; one lug of the ladder is unresolved — see notes.md
 lineage:
   derived_from: []      # 5D6 / plain 5E6 (the "dual-rectifier" 4x10 tweed line this revises) are not yet their own corpus circuits
   influenced: ["5f6"]    # the 5F6 is this circuit's direct revision — see amps/5f6/meta.yaml (reciprocal edge added there)
@@ -24,12 +24,12 @@ sources:
       channels combine through 1 MEG leaks + 270 kΩ mixers into a second,
       single-section 12AY7 gain stage (100 kΩ plate → +130 V, 1.5 kΩ/25 µF
       cathode); a Presence(5k)/Bass/Treble network (220 kΩ, .005 µF, 1 MEG,
-      .01-400 legible; full ladder wiring not re-read at lug level this pass —
+      .01-400 legible; one lug of the ladder unresolved —
       see notes.md) feeds a single-section 12AX7 self-biased split-load
       (cathodyne) phase inverter — 56 kΩ plate, cathode split 1.5 kΩ (junction,
       where the 1 MEG grid leak returns) + 56 kΩ (cathode pin), the same shape
       as the 5F4's V3B (a printed pin-voltage cluster near +210/+72/+1.7 exists
-      on the sheet but this pass could not confidently assign it node-by-node —
+      on the sheet but not confidently assignable node-by-node at this resolution —
       see voltages.yaml) — driving a fixed-bias 6L6G pair (220 kΩ leaks, 1.5 kΩ
       output grid stoppers, no screen resistors) from two 5U4GA rectifier tubes wired
       in parallel (no choke: +420/+410/+405 V all read at the same

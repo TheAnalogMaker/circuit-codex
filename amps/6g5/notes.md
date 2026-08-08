@@ -115,36 +115,34 @@ status is set by CI plus maintainer review once the remaining structure is
 resolved (most likely against a second copy of this drawing or the companion
 6G5-A revision), not asserted ahead of the evidence.
 
-## Drawings (2026-08-08)
+## Seven bottles, five noval sockets
 
-A KiCad schematic and board layout were added in this pass, redrawn from the
-same published drawing (schematic + layout sheet, both pages of the archived
-PDF). The physical tube count came out at **five 7025s, not seven** — the
-published layout sheet's own socket row draws five noval sockets plus the two
-6L6GC octals; an earlier pass of this entry had counted seven from the more
-crowded schematic page (see meta.yaml sources for the correction). Each
-preamp/driver/PI/oscillator function maps to its own socket, matching
-netlist.cir's existing bottle grouping (V1 Normal, both stages; V2 Bright,
-both stages; V3 tremolo oscillator, excluded; V5 driver; V6 phase inverter),
-so no netlist ref changed. `pipeline/verify_layout_nets.py` passes and
-`layout.yaml` carries `wiring_claim: verified` — the drawn board wiring is
-electrically equivalent to the DC netlist within its documented scope (the
-driven BP3/BDRV/BD anchors, the tone stacks, the oscillator's own network, and
-the driver's local feedback network stay outside that scope, exactly as
-notes.md describes above). The channel tone stacks, the oscillator's
-phase-shift ladder, and the driver's local feedback network are drawn in the
-schematic but not placed on the board diagram — schematic-only, matching this
-corpus's other two-knob "tb" entries (see `amps/ab763/layout.yaml`). None of
-this upgrades the entry past `draft`: the wiring-equivalence proof is a claim
-about connectivity, not about the still-unresolved supply topology and
-component values discussed above.
+The chassis carries **five 7025s, not seven**. The published layout sheet's own
+socket row draws five noval sockets alongside the two 6L6GC octals, and the
+denser schematic page — where each triode half is drawn where the signal needs
+it rather than where the socket is — is easy to read as seven. Each
+preamp/driver/inverter/oscillator function maps onto its own socket: V1 carries
+both Normal stages, V2 both Bright stages, V3 the tremolo oscillator (excluded
+from the DC model), V5 the driver and V6 the phase inverter.
+
+The board diagram's wiring is proved electrically equivalent to the simulated
+netlist within the documented DC scope, so this entry's layout carries a
+verified wiring claim. Outside that scope, by declaration: the driven BP3 /
+BDRV / BD anchors, both channels' tone stacks, the oscillator's own
+phase-shift ladder and the driver's local feedback network. Those three
+networks are drawn on the schematic but not placed on the board diagram —
+schematic-only, the same convention this corpus's other two-knob entries
+follow. None of that lifts the entry past **draft**: a wiring-equivalence
+proof is a claim about connectivity, not about the supply topology and
+component values still unresolved above.
 
 ## Lineage
 
-The Pro line's brown-era predecessor is the tweed Pro (5C5/5D5/5E5-A) — not yet
-a circuit entry in this corpus as this note is written. Once it lands,
-`meta.yaml`'s `lineage.derived_from` should carry its id: the 6G5 keeps the
-tweed Pro's 6L6GC output pair and 40 W-class rating while replacing cathode
-bias with fixed bias, the tube rectifier with a silicon bridge, and adding the
-tremolo and second channel described above — the same shape of redesign the
-6G3 applies to the tweed Deluxe.
+The 6G5's predecessor is the narrow-panel tweed Pro, the **5E5-A**, which this
+corpus documents — and the metadata carries the derivation edge. The brown
+circuit keeps the tweed Pro's 40 W-class output pair and its Presence control,
+and replaces the tube rectifier with a silicon bridge, the split-load cathodyne
+with a long-tailed pair, and the single channel with two plus tremolo. It is
+the same shape of redesign the 6G3 applies to the tweed Deluxe. Behind the
+5E5-A stand the earlier tweed Pros, the 5C5 and 5D5, which are history-tier
+entries rather than documented circuits.

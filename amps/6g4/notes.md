@@ -60,7 +60,7 @@ printed +315 V (hot plate) / +310 V (cold plate) through the 82k/100k plate
 loads. A separate rectified/filtered bias tap (56 kΩ + 10 kΩ divider, 8 µF ·
 150 V filter) delivers the fixed **−55 V** bias line.
 
-## Reading against the printed chart — and what this DATA CORE pass could not fully resolve
+## Reading against the printed chart — and what the scan does not resolve
 
 The drawing prints a full voltage chart directly on the schematic at every
 stage (no separate tabulated table), read to ground with an electronic
@@ -89,28 +89,21 @@ oscillator with no static DC operating point, and unlike those two circuits'
 own charts, the 6G4 drawing prints no dynamic-average pin voltage for it at
 all, so there is nothing to report even informationally.
 
-**Tube-bottle assignment (schematic-tier pass, 2026-08-08).** The DATA CORE
-pass's `bom.yaml` listed six separate 12AX7/7025 bottle designators (V1–V6)
-for a circuit `meta.yaml` correctly counts as five — the published layout
-page shows exactly five 7025 sockets, matching the tube row it prints
-alongside the GZ34 and the two 6L6GCs. Drawing the schematic required
-resolving the gap: the tremolo oscillator is drawn as the second section of
-the same bottle as channel 1's recovery stage (V2A/V2B) — the identical
-"driver-stage-and-oscillator-share-a-bottle" pairing 6G3 uses — and the
-phase inverter is renumbered V6 → V5 to close the count. Which of the two
-channels' recovery stages pairs with the oscillator is not separately
-legible at this scan's resolution; channel 1 is this pass's editorial
-choice, not a read fact. A leftover off-by-one in a few `bom.yaml`/
-`voltages.yaml` role/note strings (the 6L6GC pair mislabeled V6/V7 instead
-of the bom's own V7/V8) is also corrected.
+**Nine functions, eight bottles.** The published layout page draws exactly five
+noval sockets alongside the GZ34 and the two 6L6GCs, so the circuit's nine
+preamp/driver/inverter/oscillator functions have to share. They share the way
+the 6G3 shares: the tremolo oscillator is the second section of the same bottle
+as a channel's recovery stage. Which of the two channels it pairs with is not
+legible at this scan's resolution — channel 1 is an editorial choice here, not
+a read fact, and it has no bearing on the DC model, which excludes the
+oscillator entirely.
 
-**What would upgrade this circuit toward `verified`.** Per docs/schema.md,
-`verification.status: verified` requires `schematic.kicad_sch` and a landed
-`layout.yaml` alongside the files this DATA CORE pass delivers (meta/
-netlist/voltages/bom/notes) — those artifacts, and the higher-resolution
-re-read of the three preamp-rail droppers a schematic redraw would force,
-are schematic/layout-tier work this pass does not attempt (see the
-verification note in meta.yaml). A gated node's own worst deviation today
-(the phase-inverter cold plate, 3.2% against a printed value with a ±20%
-convention) does not itself block that upgrade — it is the missing
-artifacts, and the un-gated preamp rails, that do.
+**What stands between this circuit and `verified`.** The drawings have landed:
+the schematic passes its grammar gate, both board styles render with zero
+collision-lint findings, and the drawn wiring is proved electrically equivalent
+to the netlist. What remains is the un-gated preamp rails above — a
+higher-resolution read of the three dropping resistors would turn three
+calibrated rails into checked ones — and the maintainer's own review, which is
+the only thing that grants `verified` here. A gated node's worst deviation
+today (the phase-inverter cold plate, 3.2% against a printed value carrying a
+±20% convention) is not what is holding it back.

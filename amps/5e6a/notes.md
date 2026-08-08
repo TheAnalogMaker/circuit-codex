@@ -67,41 +67,34 @@ bleeder) delivers a larger-magnitude (more negative) bias voltage, which
 lowers 6L6G quiescent plate current and dissipation — exactly the fix the
 note describes. This is the one circuit-level change the "-A" suffix marks.
 
-## What this pass verified, and what it didn't
+## What the drawing resolves, and what it does not
 
-The title block, tube complement (confirming the dual-5U4GA rectifier and the
-2×12AY7/1×12AX7 preamp split), the rail chain, and V1's front end all read
-consistently off the drawing, cross-check against the higher-resolution
-Schematic Heaven scan of the same A-EE drawing, and gate against the printed
-chart within the usual tolerance (worst node 29.8%, against the chart's own
-±20% convention and the extra slack a choke-less, dual-rectifier supply
-earns — see `voltages.yaml`). Three things are explicitly **not** resolved
-this pass and are flagged rather than guessed at:
+The title block, tube complement (a dual-5U4GA rectifier and a 2×12AY7/1×12AX7
+preamp split), the rail chain and V1's front end all read consistently off the
+drawing, agree across the two archived copies of the same A-EE sheet, and gate
+against the printed chart within the usual tolerance (worst node 29.8%, against
+the chart's own ±20% convention and the extra slack a choke-less,
+dual-rectifier supply earns). Three things the sheet does **not** resolve are
+flagged here rather than guessed at:
 
-- **V2's own pin voltages** — the printed figures around V2 sit in a dense
-  cluster on the scan that this pass could not confidently separate from the
-  neighboring tone-network figures. `voltages.yaml` reports them as
-  simulated-only (`chart: null`).
-- **V3's plate/cathode/junction pin voltages** — a printed figure cluster
-  near +210/+72/+1.7 V exists close to the 12AX7 on the sheet, and a first
-  attempt at this netlist assigned +72 V to the cathode pin and +1.7 V to the
-  grid-leak junction (mirroring how those two numbers read on the page).
-  Simulating that assignment drove the tube to near cutoff — a 12AX7 cannot
-  hold ~1.25 mA against the roughly −70 V grid-to-cathode bias that pairing
-  implies, so at least one of those two figures was assigned to the wrong
-  node (or belongs to a different pin altogether, e.g. V2's). The netlist now
-  uses the 5F4's V3B values verbatim (56k plate, 1.5k/56k cathode split, same
-  shape), which is known to simulate sensibly, and `voltages.yaml` leaves
-  PPI/KPI/JPI informational rather than re-guess which number goes where.
-  This is exactly the kind of error `verify_amps.py` exists to catch, and
-  it's why the two-pass structure (a value re-read against a working DC
-  model) matters more here than the raw OCR confidence would suggest.
-- **The Presence/Bass/Treble ladder's exact wiring** — mostly resolved
-  2026-08-08 (see below), with one residual lug-level uncertainty flagged
-  in `schematic.kicad_sch`'s own annotation. Because the network is entirely
-  DC-open, none of this has any bearing on the netlist's operating point —
-  it only means the tone-stack lab does not yet have a topology to plot for
-  this amp (it isn't one of `site/src/lib/corpus.js`'s plottable shapes).
+- **V2's own pin voltages** — the printed figures around V2 sit in a cluster
+  dense enough that they cannot be confidently separated from the neighbouring
+  tone-network figures. `voltages.yaml` reports them as simulated-only
+  (`chart: null`).
+- **V3's plate/cathode/junction pin voltages** — a printed figure cluster near
+  +210/+72/+1.7 V sits close to the 12AX7 on the sheet, but the obvious
+  assignment (+72 V to the cathode pin, +1.7 V to the grid-leak junction) does
+  not survive simulation: a 12AX7 cannot hold ~1.25 mA against the roughly
+  −70 V grid-to-cathode bias that pairing implies, so at least one figure
+  belongs to another node — possibly to V2. The netlist therefore uses the
+  5F4's V3B values verbatim (56k plate, 1.5k/56k cathode split, the same
+  shape), and `voltages.yaml` leaves PPI/KPI/JPI informational rather than
+  assign the printed numbers to pins the physics rules out.
+- **One lug of the Presence/Bass/Treble ladder** — the ladder is drawn as read
+  (see below), with a single residual lug-level uncertainty annotated on the
+  schematic itself. Because the network is entirely DC-open, none of it bears
+  on the operating point; it does mean the tone-stack lab has no topology to
+  plot for this amp, whose ladder is not one of the shapes it solves.
 
 All three are draft-status gaps, not disputes: nothing here contradicts the
 drawing. The bias-supply figure's printed **sign** is also
@@ -110,37 +103,30 @@ read as negative for consistency with every other fixed-bias amp in this
 corpus and because the circuit only functions as drawn (a fixed-bias output
 pair) with a negative supply.
 
-## Drawings pass, 2026-08-08 — schematic, and two corrections
+## The tone ladder, lug by lug
 
-`schematic.kicad_sch` landed this session, drawn from a fresh lug-level read
-of the high-resolution Schematic Heaven A-EE scan (cross-checked against the
-El34World copy — see `meta.yaml` sources). That read resolved the
-Presence/Bass/Treble ladder
-well enough to draw (bleeder + bass shelf + a shared presence/NFB bus fed by
-a 20 kΩ resistor off the speaker node, the family's usual feedback take-off;
-treble wired as a rheostat, the same trick the family's 3-knob ladders use
-for the bass pot) and **corrected two mis-readings** from the original data-
-core pass:
+The schematic redraws the Presence/Bass/Treble ladder from a lug-level read of
+the A-EE sheet: a bleeder, a bass shelf, and a shared presence/NFB bus fed by a
+20 kΩ resistor off the speaker node — the family's usual feedback take-off —
+with the treble pot wired as a rheostat, the same trick the family's three-knob
+ladders use for their bass pot.
 
-- The **"10 MΩ channel-linking resistor... in series with a small mica
-  cap"** bom.yaml entry was actually two unrelated parts, now `RFB` (a light
-  V2 plate-to-grid feedback/self-bias resistor, drawn as a loop above V2 on
-  the sheet — its left end lands on the post-mixer V2 grid node, not on the
-  input jacks) and `CJ1` (a channel-jumper cap bridging the two channels'
-  post-coupler nodes directly). Two 100 kΩ padding resistors (`RP1`/`RP2`,
-  each channel's coupler → volume-pot hot lug) had not been catalogued at
-  all.
-- The bass-shelf mica cap bom.yaml read as **"500 pF (printed .0005)"**;
-  this pass reads the same printed figure as **".005"**, i.e. 0.005 µF
-  (`CBS`) — a 10× correction. The sheet is dense at that exact spot and a
-  third read would be worth having before this entry leaves draft.
+Two details of that region are easy to misread and are worth stating plainly.
+What looks at low resolution like one "10 MΩ channel-linking resistor in series
+with a small mica cap" is two unrelated parts: `RFB`, a light V2 plate-to-grid
+feedback resistor drawn as a loop above V2, whose left end lands on the
+post-mixer V2 grid node rather than on the input jacks; and `CJ1`, a
+channel-jumper cap bridging the two channels' post-coupler nodes directly. Each
+channel also carries a 100 kΩ padding resistor from its coupler to its
+volume-pot hot lug (`RP1`/`RP2`). And the bass-shelf mica reads **.005**, i.e.
+0.005 µF (`CBS`), not the .0005 the same dense patch of ink can suggest — a
+factor of ten, and worth a third read before this entry leaves draft.
 
-**Residual uncertainty, honestly flagged rather than guessed past:** which
-of the bass pot's two end lugs is the "hot" one riding the shared
-presence/NFB bus vs. the "cold" one feeding the fixed shelf network is drawn
-as read but the two lugs sit close together on the scan — see the comment
-in `schematic.kicad_sch` right above that block. A dedicated lug-by-lug
-re-check, the kind `amps/5f6`/`amps/5f6a` got on 2026-08-03, would firm this
+**One residual uncertainty, flagged rather than guessed past:** which of the
+bass pot's two end lugs is the "hot" one riding the shared presence/NFB bus and
+which is the "cold" one feeding the fixed shelf network. It is drawn as read,
+the two lugs sit close together on the sheet, and the schematic carries a
+comment saying so right above that block. A lug-by-lug re-check would firm it
 up before this entry leaves draft.
 
 ## The board
@@ -161,10 +147,8 @@ tone-network parts are on the board.
 
 ## Lineage
 
-The family history (`history/families/bassman.yaml`) already stated the
-5F6/5F6-A's phase inverter change is a revision of "the cathodyne splitter"
-that came before it — this circuit is that predecessor, landing with
-`lineage.influenced: ["5f6"]`. The reciprocal edge (`5f6`'s
-`lineage.derived_from: ["5e6a"]`) is added in the same change. The 5E6-A's
-own ancestor, the plain 5E6 (and behind it the 5D6), is not yet a documented
-circuit in this corpus, so `derived_from` is left empty here.
+The Bassman family history records the 5F6/5F6-A's long-tailed-pair phase
+inverter as a revision of "the cathodyne splitter" that came before it. This
+circuit is that predecessor: the corpus carries the edge in both directions,
+5E6-A → 5F6. Behind the 5E6-A stand the plain 5E6 and the 5D6, neither of them
+a documented circuit here, so this entry claims no ancestor of its own.

@@ -111,8 +111,13 @@ Everything else in the chart is gated at the sheet's own ±20 % convention.
 
 ## Lineage
 
-The AB165's ancestors — the blonde 6G6-B and the blackface AA864 that first
-carried the Bassman name onto a piggyback chassis — are not yet documented
-circuits here, so this entry records no lineage edge. Whatever it inherited, it
-did not inherit from the tweed Bassman: the [5F6-A](/amps/5f6a/) shares the
+The AB165 is the second revision letter on the blackface piggyback chassis, and
+this corpus documents the circuit it supersedes: the [AA864](/amps/aa864-bassman/)
+of 1964, whose Bass/Normal split, 12AT7 long-tailed pair, solid-state supply and
+fixed-bias 6L6GC pair all carry straight through. What the AB165 changes is the
+Bass channel — the blend network and the 220 kΩ local feedback from each output
+plate that give this revision its reputation. Behind the AA864 stands the blonde
+[6G6-B](/amps/6g6b/) piggyback, also documented here.
+
+None of it comes from the tweed Bassman. The [5F6-A](/amps/5f6a/) shares the
 name and nothing in this schematic.

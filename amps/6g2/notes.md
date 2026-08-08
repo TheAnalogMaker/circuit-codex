@@ -91,25 +91,23 @@ of the printed chart (worst nodes: the cathodyne's cathode pin and tail
 junction, 3.9 %; every other node inside 2 %) — tighter than several of this
 corpus's own *verified* entries.
 
-One component read was corrected against that chart rather than trusted on
-first pass, and the correction is recorded here rather than hidden: the
-cathodyne's cathode resistor, in the faintest corner of this scan, first read
-as 700 Ω. Simulated against the netlist, 700 Ω does not reproduce the printed
+One component value on this sheet is settled by the chart rather than by the
+ink, and it is worth stating which: the cathodyne's cathode resistor, in the
+faintest corner of the scan, reads plausibly as 700 Ω. Simulated against the
+netlist, 700 Ω does not reproduce the printed
 +56.5 V (cathode) / +55 V (tail junction) pair — it lands both nodes over
 20 % high. 1.5 kΩ — a value this same sheet uses repeatedly elsewhere, as
 every 6V6 grid stopper — reproduces both within 4 %, and is a far more
 plausible misread of a faint "1500" than an unrelated "700" would be. The
 tail-to-ground resistor (56 kΩ) is read in agreement with the identical
 cathodyne recipe the 5F10 and AA964 factory drawings independently carry, and
-that value is now further confirmed by the same chart match. Everything
-else — the rail chain, both preamp stages, the cathodyne's plate load, the
-output stage, and the bias supply — was read without this kind of ambiguity
-on the first pass.
+that value is further confirmed by the same chart match. Everything else — the
+rail chain, both preamp stages, the cathodyne's plate load, the output stage,
+and the bias supply — carries no such ambiguity.
 
-This DC model is verification-ready: it stays `draft` in `meta.yaml` only
-because this delivery does not include `schematic.kicad_sch` (assigned
-separately), which `pipeline/validate.py` requires before a `verified` claim
-is earned.
+The entry stays a **draft** pending the maintainer's review, which is the only
+thing that grants `verified` here. The DC model itself is ready for it: every
+gated node reproduces inside 4%.
 
 ## The oscillator, excluded
 

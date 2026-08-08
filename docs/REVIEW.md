@@ -10,6 +10,7 @@ on the rendered output.
 | Metadata schema | `pipeline/validate.py` | Missing/invalid fields, bad lineage refs, unlinked sources |
 | Artifact completeness | `pipeline/validate.py` | A `verified` amp missing netlist, voltages, notes, schematic, or BOM |
 | BOM ↔ schematic cross-check | `pipeline/validate.py` | Any designator in one but not the other (both directions; V1A/V1B collapse to bottle V1) |
+| History ↔ amp cross-check | `pipeline/validate.py` | A family row and the circuit it links stating different years or wattage — the two tiers describing the same amplifier on the family page, the lineage chip and the amp's own page. Where a row deliberately covers more (or less) than its circuit, it carries an `era_note` saying why; the note is printed loudly like a lint waiver, renders on the family page beside both numbers, and is an error once the disagreement it waives is gone |
 | Tube-model anchors | `pipeline/fit_models.py` + `test_models.py` | Model drift; models not matching datasheet anchors in ngspice |
 | Operating-point verification | `pipeline/verify_amps.py` | Simulated DC vs published chart outside tolerance (blocking for `verified`) |
 | Schematic grammar | `pipeline/check_schematics.py` | kiutils round-trip failures |
@@ -109,3 +110,46 @@ circuit designation and style name carry at that size, and that the board band
 reads as a drawing rather than a grey texture. Check the crop landed on a
 dense stretch of board, that no caption is sliced by the bottom edge, and that
 the spec strip and the tube complement have not run into each other.
+
+## Prose is written against the POST-batch corpus
+
+Learned the hard way on 2026-08-08, when fifteen circuits landed in one
+session: entries written early in a batch described a corpus the same batch
+outgrew. `amps/ab165/notes.md` told readers that the AA864 and the 6G6-B "are
+not yet documented circuits here" — the AA864 landed in the *same commit*, the
+6G6-B later the same day. `amps/6g5/notes.md` told readers the tweed Pro was
+"not yet a circuit entry" and that `derived_from` "should carry its id once it
+lands", on a page whose own metadata panel already showed `derived_from: 5e5a`.
+Four netlist headers said the 6L6GC had no model, three hours after the 6L6GC
+model was committed. None of it was a wrong *fact* when written; all of it was
+a wrong fact when published.
+
+Two standing rules follow:
+
+1. **Write against the corpus the batch will ship, not the one in front of
+   you.** If a circuit is assigned in the same batch, it exists. Say what the
+   relation is, not that the relation is pending. Never publish an instruction
+   to your future self ("once it lands, `derived_from` should carry its id") —
+   that is a work item, and a work item in visitor documentation reads as the
+   site talking to itself.
+2. **The integrator runs a stale-claims sweep before pushing.** Once every
+   entry in the batch is merged, grep the whole batch's published prose for
+   existence claims and process narration and re-check each hit against the
+   grown corpus. The phrases that have actually gone stale here:
+
+   ```
+   grep -rniE "not (yet )?(a )?(documented|in the corpus|circuit entry)|exists yet|\
+   once it lands|should carry|this (pass|session)|(data-core|drawings) (pass|session)|\
+   earlier pass|first pass|what this entry ships|[0-9]{4}-[0-9]{2}-[0-9]{2} re-read" \
+     amps/*/notes.md amps/*/meta.yaml amps/*/layout.yaml amps/*/bom.yaml amps/*/netlist.cir
+   ```
+
+   Numeric counts are not the whole problem — a count sweep catches "33
+   circuits" going stale but not "that circuit is not documented here". Both
+   need checking.
+
+The structural cause is worth naming too: `notes.md` is a single channel doing
+double duty, public circuit story *and* session work log, and the site
+publishes the whole file under "Circuit story". Until that split exists, the
+discipline is the author's: **a dated heading in `notes.md` is a defect**, and
+so is any sentence whose subject is the project rather than the circuit.

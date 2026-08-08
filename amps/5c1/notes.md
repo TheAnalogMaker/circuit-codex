@@ -79,39 +79,30 @@ rail), the 6SJ7 plate (+130 V, not chart-gated — see above), and the 6V6
 cathode (+14 V). `pipeline/verify_amps.py` simulates within tolerance on
 every chart-gated node: the 6V6 plate rail 1.4% off (+324.4 V), the shared
 screen/preamp rail 3.9% off (+249.8 V), and the 6V6 cathode 9.7% off
-(+15.4 V) — all inside Fender's own ±20% convention. Getting the screen rail
-right took a second pass: routing it (as first drafted) onto the plate's own
-+320 V node instead of the drawing's actual +260 V node overloaded the 6V6
-enough to pull the simulated cathode to +20.4 V, a 46% miss, and dragged the
-shared rail down to +303 V against its +260 V chart reading, a 17% miss on a
-node the tube isn't even supposed to load that hard. Both symptoms cleared
-once the screen moved to its drawn node.
+(+15.4 V) — all inside Fender's own ±20% convention.
 
-## Schematic and layout
+The screen node is where this circuit punishes a careless reading. Tie the 6V6
+screen to the plate's own +320 V rail instead of the +260 V node the drawing
+actually feeds it from and the tube draws hard enough to pull the simulated
+cathode to +20.4 V — a 46% miss — while dragging the shared rail down to
++303 V against its printed +260 V, a 17% miss on a node the tube is not
+supposed to load that hard. The chart catches it immediately, which is the
+point of gating against it.
 
-`schematic.kicad_sch` is redrawn from the same F-DH sheet's schematic page
-(`pipeline/draw_5c1.py`) and passes `check_schematics.py`, including its
-KiCanvas-strict tokenization check. `layout.yaml` is redrawn from the F-DH
-sheet's *own* layout page (page 2 of the same PDF) — a genuine factory layout
-sheet exists for this circuit, so the board order and point-to-point wiring
-are read from it rather than derived: 6SJ7 preamp stage, then 6V6GT output,
-then the resistor-dropped B+ chain, then 5Y3GT rectifier, left to right — the
-reverse of the rectifier-first reading order every later Champ in this corpus
-uses. Both drawing styles render clean with zero collision-lint findings and
-no waiver. `pipeline/verify_layout_nets.py` proves the drawn wiring
-electrically equivalent to `netlist.cir` (`wiring_claim: verified`); getting
-there surfaced one real bug in the netlist itself — `C3` (the 6SJ7-plate-to-
-volume-pot coupler) had been modelled as a direct bridge from the plate node
-to the 6V6 grid node, short-circuiting past the pot the drawing actually
-routes it through. The fix (removing `C3` from `netlist.cir`, matching how
-5E1's and 5F1's identical pot-input couplers are already left out) changes no
-simulated voltage — SPICE treats a coupling cap as open at DC regardless of
-whether the line is present — but it was the difference between an honest
-equivalence proof and a false one.
+## The board, as the factory drew it
 
-With both drawings landed and every gate above green — `check_schematics`,
-`check_layouts` (zero findings, both styles), `verify_layout_nets`
-(`wiring_claim: verified`), and every chart-gated node in tolerance —
-`verification.status` moves to `verified` (`docs/schema.md`, AGENTS.md rule
-4). `pipeline/fit_models.py` was not re-run for this pass — the 6SJ7 model
-already exists in `models/6sj7.inc` and carries zero drift here.
+A genuine factory layout page exists for this circuit — page 2 of the same F-DH
+sheet — so the board order and the point-to-point wiring here are read from it
+rather than derived. It runs 6SJ7 preamp stage, 6V6GT output, resistor-dropped
+B+ chain, 5Y3GT rectifier, left to right: the reverse of the rectifier-first
+reading order every later Champ in this corpus uses.
+
+The drawn wiring is proved electrically equivalent to the simulated netlist,
+so this board carries a verified wiring claim, and both drawing styles render
+with zero collision-lint findings and no waiver. One detail is worth naming
+because it is easy to get wrong on a circuit this small: the coupler out of the
+6SJ7's plate feeds the **volume pot**, not the 6V6 grid directly, so a model
+that bridges plate to grid short-circuits past the control the drawing routes
+it through. It makes no difference to any simulated voltage — SPICE treats a
+coupling cap as open at DC either way — and every difference to whether the
+equivalence proof means anything.

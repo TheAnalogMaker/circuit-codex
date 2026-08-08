@@ -10,6 +10,12 @@ after the name had spent a decade attached to a guitar classic. The two share th
 word on the panel and nothing else. The title block reads
 `FENDER MODEL "BASSMAN-AMP AA864" P/B`.
 
+What the AA864 does inherit, it inherits from the blonde piggyback it replaced —
+the [6G6-B](/amps/6g6b/), also documented here: the two-channel Bass/Normal
+split, the solid-state supply and the long-tailed-pair inverter all carry across
+the changeover, and the preamp is redesigned around them. A year later the
+[AB165](/amps/ab165/) reworks the Bass channel again on the same chassis.
+
 Six bottles do the work: three **7025**s (the low-noise 12AX7 the sheet calls for),
 a **12AT7** phase inverter, and a **6L6GC** pair. The three 7025s hold six triode
 sections and the circuit uses five, because the two channels are not built the
@@ -113,10 +119,11 @@ that does not close. The simulation solves the node at +379 V.
 
 ## Tube models
 
-The sheet's **7025** is a 12AX7 and uses that model. The **6L6GC** pair runs this
-archive's 5881 model, which is not a substitution: that model is fitted to the
-RC-19 **6L6-GC** average characteristics and the 5881 is the ruggedised member of
-the same family, so the 6L6GC is the tube the parameters were derived for.
+The sheet's **7025** is a 12AX7 and uses that model. The **6L6GC** pair runs the
+corpus's own 6L6GC model, fitted to the RCA 6L6-GC data sheet's Class A1
+characteristics — so the ratings the load-line explorer draws over this circuit
+are the 6L6GC's 30 W plate dissipation on a 500 V ceiling, which is the headroom
+a +422 V plate rail is asking for.
 
 This circuit is published as a **draft**. Its component values and voltage chart
 are read from the published drawings and its operating point is solved against
