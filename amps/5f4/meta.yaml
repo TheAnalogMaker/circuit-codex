@@ -13,7 +13,10 @@ topology:
   phase_inverter: cathodyne
   tone_stack: cathode-follower-tb
 lineage:
-  derived_from: []   # the tweed 5E-series Super is the direct ancestor — edge added when that circuit lands
+  derived_from: ["5e4a"]   # the narrow-panel 5E4-A is the direct ancestor: same two-channel
+                           # 12AY7 front end, same cathode-follower treble/bass network, same
+                           # driver + split-load cathodyne, same selenium bias supply. The 5F4
+                           # changes the output pair back to 6L6G and lifts the rails.
   influenced: []     # front-half sibling to the 5F6-A Bassman (shared 12AY7 + CF preamp); its tone network and cathodyne PI are its own — see notes
 sources:
   - desc: "Fender 'Super-Amp' Model 5F4 drawing (C-EG): every component value AND the printed voltage chart read directly from the published schematic (2026-07-18; tone network and phase inverter re-read at lug level 2026-08-03) — 12AY7 two-channel front end (68k stoppers, 1M leaks, shared 820Ω/25µF cathode, 100k plates), a 12AX7 gain stage plus a DC-coupled cathode follower feeding the SPLIT treble/bass tone network (250p into the 1M treble pot with .01 to ground at its far end; .1-200 into a 220k/100k chain injected at the 1M bass pot's WIPER with .005 and direct grounds on its ends; 220k back to the output node = the PI grid, no coupler; 4.7M NFB returned to the coupler node), a 12AX7 driver (100k plate, 1.5k cathode at +1.7 V) DC-fed from the network and coupled by .02-600 into a split-load cathodyne (56k plate, 1.5k+56k cathode, 1M grid leak to the junction; .1-400 plate and .1-200 cathode couplers into 1.5k stoppers), a 6L6G pair fixed-biased at -40 V through 220k leaks, 56k speaker NFB + 5k presence with .1-200 on the driver cathode, and a 5U4G rectifier; rails +415/+410/+332/+280, PT 8087, OT 45216, choke 14684. Not reproduced here; archived at EL34World"
