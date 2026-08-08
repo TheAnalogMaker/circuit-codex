@@ -1,0 +1,108 @@
+# Parts list — read from the two sheets of the Marshall 2204 STD factory drawing
+# (2204PRE.DGM iss 4, 19-5-88; 2204PWR.DGM iss 2, 18-6-89). This is the 50 W
+# master-volume lead head: one cascaded channel with High and Low inputs, preamp
+# volume and master volume, 3x ECC83 + 2x EL34, silicon bridge rectifier.
+# Designators are the drawing's own (R1…R37, C1…C23, VR1…VR6, RV1, D1…D5, T1…T3,
+# J1…J5, F1/F2, S1/S2, SEL1/SEL2, MS1) rather than invented ones.
+notes: "The drawing prints component values with no wattage or voltage rating except where noted (R8 and R29 are marked 1 W), so ratings are not asserted here. Cathode-bypass and coupling capacitor VALUES are open at DC and do not enter the operating-point netlist; they are listed for completeness. Designators C6, C13 and R28 appear nowhere on either 2204 STD sheet — the JM80 board these sheets document is shared with other models, and unused positions are simply absent from this drawing; they are not omitted here by oversight."
+items:
+  # --- inputs + V1a, the input stage ---
+  - { ref: J1,  part: "Jack socket", value: "¼ in mono", role: "High-sensitivity input" }
+  - { ref: J2,  part: "Jack socket", value: "¼ in mono", role: "Low-sensitivity input" }
+  - { ref: R2,  part: "Carbon film resistor", value: "1 MΩ", role: "Input grid leak" }
+  - { ref: R3,  part: "Carbon film resistor", value: "68 kΩ", role: "Input grid stopper into V1a" }
+  - { ref: R4,  part: "Carbon film resistor", value: "100 kΩ", role: "V1a plate load" }
+  - { ref: R1,  part: "Carbon film resistor", value: "2.7 kΩ", role: "V1a cathode bias" }
+  - { ref: C1,  part: "Electrolytic capacitor", value: "0.68 µF", role: "V1a cathode bypass" }
+  - { ref: C2,  part: "Ceramic capacitor", value: "100 pF", role: "Across V1a, plate to cathode — high-frequency shunt" }
+  # --- preamp volume network, into the cascaded second stage V1b ---
+  - { ref: C3,  part: "Coupling capacitor", value: "0.022 µF", role: "V1a plate → preamp-volume network" }
+  - { ref: R5,  part: "Carbon film resistor", value: "470 kΩ", role: "Series arm ahead of the preamp volume" }
+  - { ref: C4,  part: "Ceramic capacitor", value: "470 pF", role: "Bright cap across R5" }
+  - { ref: VR1, part: "Logarithmic potentiometer", value: "1 MΩ", role: "Preamp volume" }
+  - { ref: C5,  part: "Film capacitor", value: "0.001 µF", role: "Bright cap across the preamp volume's upper section (drawn '1n0')" }
+  - { ref: R7,  part: "Carbon film resistor", value: "100 kΩ", role: "V1b plate load" }
+  - { ref: R6,  part: "Carbon film resistor", value: "10 kΩ", role: "V1b cathode bias — unbypassed" }
+  - { ref: R8,  part: "Power resistor", value: "10 kΩ · 1 W", role: "Rail dropper, preamp rail → input-stage rail" }
+  - { ref: C21, part: "Electrolytic capacitor", value: "50+50 µF dual can", role: "Preamp-rail and input-stage-rail filter, one section each side of R8" }
+  # --- interstage divider into V2a, third gain stage ---
+  - { ref: C7,  part: "Coupling capacitor", value: "0.022 µF", role: "V1b plate → interstage divider" }
+  - { ref: R10, part: "Carbon film resistor", value: "470 kΩ", role: "Interstage divider, series arm" }
+  - { ref: C8,  part: "Ceramic capacitor", value: "470 pF", role: "Bright cap across R10" }
+  - { ref: R11, part: "Carbon film resistor", value: "470 kΩ", role: "Interstage divider, shunt arm — also V2a's grid return" }
+  - { ref: R12, part: "Carbon film resistor", value: "100 kΩ", role: "V2a plate load" }
+  - { ref: R9,  part: "Carbon film resistor", value: "820 Ω", role: "V2a cathode bias — unbypassed" }
+  # --- V2b cathode follower + TMB tone stack ---
+  - { ref: R13, part: "Carbon film resistor", value: "100 kΩ", role: "V2b cathode-follower load" }
+  - { ref: R15, part: "Carbon film resistor", value: "33 kΩ", role: "Tone-stack slope resistor" }
+  - { ref: C10, part: "Ceramic capacitor", value: "470 pF", role: "Tone stack — treble" }
+  - { ref: VR3, part: "Linear potentiometer", value: "220 kΩ", role: "Treble" }
+  - { ref: C11, part: "Film capacitor", value: "0.022 µF", role: "Tone stack — bass" }
+  - { ref: VR5, part: "Logarithmic potentiometer", value: "1 MΩ", role: "Bass — wired as a rheostat, wiper strapped to the top" }
+  - { ref: C12, part: "Film capacitor", value: "0.022 µF", role: "Tone stack — middle" }
+  - { ref: VR4, part: "Linear potentiometer", value: "22 kΩ", role: "Middle" }
+  - { ref: R14, part: "Wire link", value: "wire link", role: "Panel link from the treble wiper to the master volume, in the R14 position" }
+  - { ref: VR2, part: "Logarithmic potentiometer", value: "1 MΩ", role: "Master volume" }
+  # --- V3 long-tailed-pair phase inverter ---
+  - { ref: C9,  part: "Coupling capacitor", value: "0.022 µF", role: "Master volume → V3a grid" }
+  - { ref: R17, part: "Carbon film resistor", value: "1 MΩ", role: "PI grid leak (V3a), returned to the tail junction" }
+  - { ref: R19, part: "Carbon film resistor", value: "1 MΩ", role: "PI grid leak (V3b), returned to the tail junction" }
+  - { ref: R18, part: "Carbon film resistor", value: "82 kΩ", role: "PI plate load (V3a, the driven side)" }
+  - { ref: R21, part: "Carbon film resistor", value: "100 kΩ", role: "PI plate load (V3b)" }
+  - { ref: R16, part: "Carbon film resistor", value: "470 Ω", role: "PI shared cathode resistor" }
+  - { ref: R20, part: "Carbon film resistor", value: "10 kΩ", role: "PI tail, junction → feedback node" }
+  - { ref: C15, part: "Film capacitor", value: "0.1 µF", role: "AC-grounds V3b's grid to the feedback node" }
+  # --- feedback + presence ---
+  - { ref: R22, part: "Carbon film resistor", value: "100 kΩ", role: "Negative feedback, output-transformer secondary → feedback node" }
+  - { ref: R23, part: "Carbon film resistor", value: "4.7 kΩ", role: "Feedback node → ground" }
+  - { ref: C17, part: "Film capacitor", value: "0.1 µF", role: "Presence cap, feedback node → presence pot" }
+  - { ref: VR6, part: "Potentiometer", value: "22 kΩ", role: "Presence" }
+  # --- output stage (V4/V5 EL34) ---
+  - { ref: C14, part: "Coupling capacitor", value: "0.022 µF", role: "PI (V3a) → V4 grid" }
+  - { ref: C16, part: "Coupling capacitor", value: "0.022 µF", role: "PI (V3b) → V5 grid" }
+  - { ref: C18, part: "Ceramic capacitor", value: "47 pF", role: "Phase compensation, across the two output grids" }
+  - { ref: R24, part: "Carbon film resistor", value: "220 kΩ", role: "V4 grid leak, from the bias node" }
+  - { ref: R25, part: "Carbon film resistor", value: "220 kΩ", role: "V5 grid leak, from the bias node" }
+  - { ref: R31, part: "Carbon film resistor", value: "5.6 kΩ", role: "V4 grid stopper" }
+  - { ref: R32, part: "Carbon film resistor", value: "5.6 kΩ", role: "V5 grid stopper" }
+  - { ref: R33, part: "Carbon film resistor", value: "1.5 kΩ", role: "V4 screen-grid resistor" }
+  - { ref: R34, part: "Carbon film resistor", value: "1.5 kΩ", role: "V5 screen-grid resistor" }
+  # --- fixed-bias supply ---
+  - { ref: D1,  part: "Rectifier diode", value: "1N4007", role: "Bias-supply rectifier" }
+  - { ref: R30, part: "Carbon film resistor", value: "220 kΩ", role: "Bias-supply series resistor" }
+  - { ref: C20, part: "Electrolytic capacitor", value: "10 µF", role: "Bias-supply reservoir" }
+  - { ref: R27, part: "Carbon film resistor", value: "15 kΩ", role: "Bias-supply series resistor into the bias node" }
+  - { ref: R26, part: "Carbon film resistor", value: "56 kΩ", role: "Bias divider, upper leg" }
+  - { ref: RV1, part: "Trim potentiometer", value: "22 kΩ", role: "Bias adjust" }
+  - { ref: C19, part: "Electrolytic capacitor", value: "10 µF", role: "Bias-node filter" }
+  # --- power supply ---
+  - { ref: D2,  part: "Rectifier diode", value: "1N4007", role: "HT bridge rectifier" }
+  - { ref: D3,  part: "Rectifier diode", value: "1N4007", role: "HT bridge rectifier" }
+  - { ref: D4,  part: "Rectifier diode", value: "1N4007", role: "HT bridge rectifier" }
+  - { ref: D5,  part: "Rectifier diode", value: "1N4007", role: "HT bridge rectifier" }
+  - { ref: C23, part: "Electrolytic capacitor", value: "50+50 µF dual can", role: "HT reservoir" }
+  - { ref: F2,  part: "Fuse", value: "T500 mA", role: "HT fuse" }
+  - { ref: T3,  part: "Filter choke", value: "choke (value not marked)", role: "Reservoir → screen-supply choke" }
+  - { ref: C22, part: "Electrolytic capacitor", value: "50+50 µF dual can", role: "Screen-node filter after the choke — both sections of the can land on that node (unlike C21, whose sections straddle R8)" }
+  - { ref: R29, part: "Power resistor", value: "10 kΩ · 1 W", role: "Rail dropper, screen node → preamp rail" }
+  - { ref: S2,  part: "Toggle switch", value: "SPST", role: "Standby" }
+  # --- transformers, output, mains ---
+  - { ref: T2,  part: "Output transformer", value: "Marshall 789-139 · 16/8/4 Ω taps", role: "Push-pull EL34 output transformer" }
+  - { ref: SEL2, part: "Rotary switch", value: "3-position", role: "Speaker impedance selector" }
+  - { ref: J3,  part: "Jack socket", value: "¼ in mono", role: "Speaker output" }
+  - { ref: J4,  part: "Jack socket", value: "¼ in mono", role: "Speaker output" }
+  - { ref: R35, part: "Carbon film resistor", value: "2.2 kΩ", role: "DI attenuator, series arm off the secondary" }
+  - { ref: R36, part: "Carbon film resistor", value: "100 Ω", role: "DI attenuator, shunt arm" }
+  - { ref: R37, part: "Carbon film resistor", value: "560 Ω", role: "DI output series resistor" }
+  - { ref: J5,  part: "Jack socket", value: "¼ in mono", role: "DI output" }
+  - { ref: T1,  part: "Power transformer", value: "Marshall 1202-324 · 240/220/120 V primary · HT + 6.3 V heaters", role: "Mains/HT transformer" }
+  - { ref: SEL1, part: "Voltage selector", value: "240/220/120 V", role: "Mains primary selection" }
+  - { ref: F1,  part: "Fuse", value: "T2 A", role: "Mains fuse (T3 A on 120 V)" }
+  - { ref: S1,  part: "Toggle switch", value: "DPST", role: "Mains switch" }
+  - { ref: MS1, part: "Mains inlet", value: "N / E / L", role: "Mains connector" }
+  # --- valves ---
+  - { ref: V1, part: "Preamp tube", value: "ECC83 (12AX7)", role: "Input stage + cascaded second stage (V1a/V1b)" }
+  - { ref: V2, part: "Preamp tube", value: "ECC83 (12AX7)", role: "Third gain stage + cathode follower (V2a/V2b)" }
+  - { ref: V3, part: "Preamp tube", value: "ECC83 (12AX7)", role: "Long-tailed-pair phase inverter (V3a/V3b)" }
+  - { ref: V4, part: "Power tube", value: "EL34", role: "Push-pull output (upper)" }
+  - { ref: V5, part: "Power tube", value: "EL34", role: "Push-pull output (lower)" }

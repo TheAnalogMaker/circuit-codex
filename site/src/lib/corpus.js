@@ -752,6 +752,14 @@ const TONE_STACK_SPECS = [
     refs: { slope: 'RSL', trebleCap: 'C8', treblePot: 'VR3', bassCap: 'C9', bassPot: 'VR4', midCap: 'C10', midPot: 'VR5' },
   },
   {
+    id: 'm2204', kind: 'fmv', wiring: 'ladder',
+    blurb: 'The master-volume head keeps the 1987\'s ladder but swaps two parts: a 470 pF treble capacitor for the 500 pF and a 22 kΩ middle control for the 25 kΩ. The output feeds a master volume rather than the phase inverter directly.',
+    drive: { kind: 'cathode-follower', tube: '12ax7' },
+    load: 'VR2',
+    refs: { slope: 'R15', trebleCap: 'C10', treblePot: 'VR3', bassCap: 'C11', bassPot: 'VR5', midCap: 'C12', midPot: 'VR4' },
+    note: 'The stack\'s output reaches the master volume through the panel link the drawing carries in the R14 position, so the control that loads this network is the 1 MΩ master volume.',
+  },
+  {
     id: '5f4', kind: 'split', wiring: 'split',
     blurb: 'The tweed Super\'s tone circuit as the 5F4 sheet draws it — not a two-knob cut of the Bassman ladder but a different network: treble on a 250 pF divider with its cold end bled to ground through 0.01 µF, bass on a 0.1 µF-coupled chain injected into the bass pot\'s wiper, the two recombined through 220 kΩ at the phase inverter\'s grid.',
     drive: { kind: 'cathode-follower', tube: '12ax7' },

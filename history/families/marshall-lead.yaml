@@ -7,7 +7,9 @@ summary: >
   had scaled from 45 to 100 watts, swapped its output valve and rectifier for
   louder, more available parts, and traded its acrylic ("plexi") front panel for metal.
   By the mid-1970s the founding hand-wired designs had been re-labelled and
-  moved to circuit boards, closing out the era this family file documents.
+  moved to circuit boards, and the line's last structural change arrived with
+  them: a master volume after the tone stack and the two input triodes wired in
+  series rather than as separate channels, which is where this family file closes.
 models:
   - designation: "JTM45"
     name: "JTM45 (offset/script-panel head)"
@@ -126,6 +128,40 @@ models:
       - desc: "Marshall model 1987 factory drawing, Unicord drawing 70-19-11, dated July 1970 — same schematic already read for the corpus's m1987 circuit entry; confirms 3xECC83/2xEL34 with a silicon full-wave rectifier and no rectifier valve"
         url: "https://www.drtube.com/schematics/marshall/1987u.gif"
 
+  - designation: "2204"
+    name: "Master Volume lead 50 (JMP, later JCM800)"
+    years: { start: 1976, end: 1989 }
+    wattage: 50
+    output: "push-pull 2xEL34 (6550 on US-market amplifiers)"
+    tubes: [ECC83, ECC83, ECC83, EL34, EL34]
+    key_change: >
+      The 50-watt head rewired for players who wanted the preamp driven hard at
+      a bearable volume. Marshall introduced the 100-watt 2203 in late 1975 and
+      this 50-watt 2204 in 1976, repurposing the second channel's volume control
+      as a master volume between the tone stack and the phase inverter. The
+      deeper change followed: the two input triodes, until then one per channel
+      and mixed together, were connected in series with a preamp volume between
+      them — a third gain stage ahead of the tone stack. Marshall's own drawing
+      for the first 2204 still shows the older parallel front end, and the
+      series arrangement reached the model in early 1977; the corpus's m2204
+      circuit entry documents the later, cascaded revision. In late 1980 the
+      2203 and 2204 were repackaged with a new cabinet and panel and sold as the
+      JCM800 series, the circuit unchanged. Output valves were a 6550 pair on
+      US-market amplifiers and an EL34 pair (or KT77) elsewhere. The end year
+      above is the date of the latest factory-drawing issue read for this entry
+      (18-6-89), not a documented last year of production — the sources used
+      here do not pin one.
+    circuit_ref: m2204
+    sources:
+      - desc: "Wikipedia, \"Marshall Amplification\" — the late-1975 introduction of the Master Volume series with the 100 W 2203 followed by the 50 W 2204 in 1976; the change connecting the input stages in series rather than in parallel and repurposing the second channel volume as a master volume, reaching the 2204 in early 1977; and the late-1980 repackaging of the 2203 and 2204 as the JCM800 series"
+        url: "https://en.wikipedia.org/wiki/Marshall_Amplification"
+      - desc: "Marshall model 2204 factory drawing, two sheets titled '2204 STD Preamp' (file 2204PRE.DGM, issue 4, 19-5-88) and '2204 STD Output Stage & PSU' (file 2204PWR.DGM, issue 2, 18-6-89), Jim Marshall Products Ltd., Bletchley, Milton Keynes — the same drawing already read for the corpus's m2204 circuit entry; confirms 3xECC83 + 2xEL34 with a four-diode silicon bridge, the cascaded V1a-to-V1b front end with a preamp volume between them, and a master volume after the tone stack"
+        url: "https://www.drtube.com/schematics/marshall/2204prem.gif"
+      - desc: "Marshall model 2204 factory drawing, title block '50W MASTER MODEL / MODEL NO. 2204', dated 11/11/76, drawn FJK, Jim Marshall Products Ltd. for Unicord Incorporated, Westbury NY — the first 2204 revision, showing the parallel two-channel input pair that the 1977 change replaced, and a 6550 output pair for the US market"
+        url: "https://www.drtube.com/schematics/marshall/2204u.gif"
+      - desc: "Marshall specification sheet '2204 50W MASTER VOLUME LEAD AMP / 2104 50W MASTER VOLUME LEAD AMP', dated 11/81 — prints the output-valve fitment as '6550 for USA (EL34, KT77 elsewhere)' and rates the amplifier in excess of 50 W RMS into 4, 8 or 16 ohms"
+        url: "https://www.drtube.com/schematics/marshall/2204specs.gif"
+
 notes: >
   This line's dating is better documented than the tweed families, and the
   100-watt sheet read for the jtm100 circuit entry settles part of what used
@@ -147,6 +183,12 @@ notes: >
   its own right, so the jtm100 and 1959 rows above are kept as successive
   entries rather than merged.
 
-  Circuit entries exist in this corpus for jtm45, jtm100, m1959 and m1987. The
-  JTM50 row is still history-tier only (circuit_ref: null) until a circuit
-  entry is built for it.
+  One date above is weaker than the others and is flagged rather than dressed
+  up. No last year of production is documented for the 2204 in the sources used
+  here, so that row closes at the latest factory-drawing issue read for it
+  (18-6-89) — a floor under the model's life, not the end of it.
+
+  Circuit entries exist in this corpus for jtm45, jtm100, m1959, m1987 and
+  m2204. The JTM50 row is still history-tier only (circuit_ref: null) until a
+  circuit entry is built for it, as is the 100-watt 2203 that led the
+  master-volume pair.

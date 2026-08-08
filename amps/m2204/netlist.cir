@@ -1,0 +1,124 @@
+* Marshall model 2204 "Master Volume" 50 W lead — DC operating-point netlist
+* Circuit Codex — CC-BY-SA 4.0. Independently drawn from the published Marshall
+* 2204 STD factory drawing's component values (two sheets, 2204PRE.DGM iss 4
+* 19-5-88 and 2204PWR.DGM iss 2 18-6-89; see meta.yaml). No drawing reproduced.
+*
+* NO PUBLISHED VOLTAGE CHART: the 2204 STD sheets print component values only.
+* (The earlier 11/11/76 Unicord 2204 sheet does print node voltages, but it draws
+* a different revision — parallel two-channel input, 6550 output pair, US mains —
+* so those figures are not a chart for this circuit and are not used.) This amp
+* therefore lands as DRAFT. The reservoir B+1 is DRIVEN at 470 V — a
+* representative figure for a 240 V-mains JCM800-era 50 W head, stated as a
+* modelling assumption, NOT a measurement — and the downstream rails are DERIVED
+* through the drawn supply network (choke + R29 10 k + R8 10 k droppers). Node
+* voltages are reported informationally in voltages.yaml (chart: null); none is
+* gate-compared.
+*
+* DC conventions (as in the sibling amps): the output-transformer primary DCR is
+* omitted, so each EL34 plate node sits at B+1 — which on this circuit is the
+* RESERVOIR, because the drawing takes the OT centre tap ahead of the choke and
+* feeds only the screens and the preamp through it. DC-open caps whose BOTH leads
+* land on named DC nodes are modelled (they move no operating point but let the
+* layout net-check verify their placement): the V1a cathode bypass C1, the
+* PI->EL34-grid couplers C14/C16, the grid-to-grid compensation cap C18, and C15
+* from the inverter's cold grid to the feedback node. Caps with a lead inside an
+* abstracted network (C3/C7/C9 and the tone-stack and volume-pot internals) stay
+* out. The fixed-bias network (D1/R30/C20 raw supply, R27 15k, R26 56k, RV1 22k
+* trimmer, C19 filter) is replaced by an ideal negative source; the drawing prints
+* no bias figure, so the value is a representative estimate. Grid-leak, grid-stopper
+* and grid-return resistors carry ~0 DC; grids sit at their leak return. Heaters,
+* the pilot lamp, the DI network and the PT/rectifier AC side are not modelled.
+*
+* Element names are the drawing's own reference designators (R1...R37, C1...C23),
+* the same key bom.yaml and layout.yaml use, so the layout-to-netlist equivalence
+* gate can match a modelled element to the part on the board. Two elements have no
+* designator because they have no discrete part: RCHOKE is the T3 choke's DC
+* resistance, and RGV1 is V1b's grid return through the 1 M preamp volume VR1.
+.include models/12ax7.inc
+.include models/el34.inc
+
+VBP1 BP1 0 DC 470
+VBIAS NBIAS 0 DC -47
+
+* Rail chain: reservoir (OT centre tap, EL34 plates) -> choke -> EL34 screen node
+* -> R29 10k -> preamp rail X (PI plates, V2) -> R8 10k -> input rail (V1).
+* Choke DCR estimated; dropper values from the drawing.
+RCHOKE BP1 BP2 50
+R29 BP2 BP3 10k
+R8 BP3 BP4 10k
+
+* --- V1 (ECC83) cascaded input pair: V1a -> preamp volume -> V1b ---
+* V1a: R4 100k plate, R1 2k7 cathode, C1 0.68uF bypass, R2 1M grid leak
+R4 BP4 P1A 100k
+XV1A P1A G1A K1A 12AX7
+R2 G1A 0 1meg
+R1 K1A 0 2.7k
+C1 K1A 0 0.68u
+* V1b: grid returns to ground through the 1M preamp volume VR1 (the R5 470k /
+* C4 470p series arm and C3 are DC-open); R7 100k plate; R6 10k cathode, NO bypass
+R7 BP4 P1B 100k
+XV1B P1B G1B K1B 12AX7
+RGV1 G1B 0 1meg
+R6 K1B 0 10k
+
+* --- V2 (ECC83) third gain stage + cathode follower ---
+* V2a grid sits on the R10 470k / R11 470k divider's shunt leg (C7 is DC-open, so
+* the DC return is R11 alone); R12 100k plate; R9 820R cathode, NO bypass
+R12 BP3 P2A 100k
+XV2A P2A G2A K2A 12AX7
+R11 G2A 0 470k
+R9 K2A 0 820
+* V2b cathode follower: grid DC-coupled to V2a plate, plate on the X rail,
+* R13 100k cathode load feeding the TMB tone stack
+XV2B BP3 P2A KCF 12AX7
+R13 KCF 0 100k
+
+* --- V3 (ECC83) long-tailed-pair phase inverter ---
+* R18 82k on the driven side (V3a, fed from the master volume through C9),
+* R21 100k on the other (V3b); R16 470R shared cathode over the R20 10k tail;
+* both 1M grid leaks (R17, R19) return to the tail junction.
+R18 BP3 PPIA 82k
+XV3A PPIA GPIA KPI 12AX7
+R17 GPIA JPI 1meg
+R21 BP3 PPIB 100k
+XV3B PPIB GPIB KPI 12AX7
+R19 GPIB JPI 1meg
+R16 KPI JPI 470
+R20 JPI NNFB 10k
+* Feedback node: R23 4k7 to ground, and R22 100k back to the output-transformer
+* secondary, which is at 0 V DC. The presence leg (VR6 22k through C17 0.1uF) is
+* capacitor-blocked and carries no DC.
+R23 NNFB 0 4.7k
+R22 NNFB 0 100k
+* C15 0.1uF AC-grounds the inverter's cold grid to that node (DC-open, both leads
+* on named DC nodes).
+C15 GPIB NNFB 0.1u
+
+* --- V4 / V5 (EL34) push-pull output, fixed bias ---
+* Cathodes grounded; screens from the post-choke node through R33/R34 1k5; plates
+* at B+1 (OT primary DCR omitted). Each grid sits at the -47 V bias line through
+* its 220k leak, then a 5k6 stopper into the valve. g3 (suppressor) is tied to the
+* cathode in use; the model's node order is P G2 G1 K.
+* The 0.022uF PI->grid couplers (C14/C16) are open at DC (no op-point shift) but
+* are modelled — both leads on named DC nodes — so the layout net-check proves the
+* push-pull phase natively: a coupler on the wrong grid, or crossed PI outputs,
+* becomes a WRONG TERMINAL rather than escaping as unmodelled wiring. C18 47p
+* bridges the two grid nodes ahead of the stoppers, exactly as drawn.
+R24 NG4 NBIAS 220k
+C14 PPIA NG4 0.022u
+R31 NG4 G4 5.6k
+R33 BP2 SG4 1.5k
+XV4 BP1 SG4 G4 0 EL34
+R25 NG5 NBIAS 220k
+C16 PPIB NG5 0.022u
+R32 NG5 G5 5.6k
+R34 BP2 SG5 1.5k
+XV5 BP1 SG5 G5 0 EL34
+C18 NG4 NG5 47p
+* NOTE the -47 V modelling bias is more negative than a real 2204's measured
+* grid bias: the single-anchor EL34 fit (anchored at Va=Vg2=250, Vg1=-13.5)
+* over-predicts plate current when extrapolated to a 470 V rail, so a colder bias
+* is needed to land a physical ~38 mA/valve idle. The same fit puts its screen
+* current at exactly zero once the grid is past -Vg2/mu, so R33/R34 drop nothing
+* here where a real amp drops a few volts. Both are v0-model limitations
+* (models/METHODOLOGY.md), and both are why this amp is DRAFT, not verified.

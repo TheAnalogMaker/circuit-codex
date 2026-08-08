@@ -1,0 +1,37 @@
+# NO PUBLISHED VOLTAGE CHART. Both sheets of the Marshall 2204 STD factory
+# drawing (2204PRE.DGM iss 4, 19-5-88; 2204PWR.DGM iss 2, 18-6-89) print component
+# values only, never a valve-voltage chart, and no publishable measured-voltage
+# reference for this revision was located. The earlier 11/11/76 Unicord 2204 sheet
+# does print node voltages, but it draws a different circuit — parallel two-channel
+# input, 6550 output pair, US mains — so it is not a chart for this one. Every node
+# below therefore carries `chart: null` and is reported INFORMATIONALLY (simulated
+# only, never gate-compared). This is why the amp is DRAFT: verified is earned
+# against a measured reference, and none exists here to earn it — see notes.md and
+# meta.yaml.
+#
+# The netlist drives the reservoir B+1 at 470 V (a representative figure for a
+# 240 V-mains JCM800-era 50 W head, stated as a modelling assumption, NOT a
+# measurement) and derives the downstream rails through the drawn supply network.
+# The preamp / phase-inverter nodes come from the well-characterised 12AX7 model;
+# the EL34 output operating point is only a rough estimate (single-anchor v0 fit
+# extrapolated far past its 250 V datasheet anchor — see models/METHODOLOGY.md),
+# which is a second, independent reason this circuit is not offered as verified.
+source: "Marshall model 2204 STD factory drawing, sheets 2204PRE.DGM (iss 4, 19-5-88) and 2204PWR.DGM (iss 2, 18-6-89) — component values only; the drawing prints NO valve-voltage chart. Values below are simulated from the redrawn netlist, not read from any chart."
+nodes:
+  BP2:  { chart: null, note: "EL34 screen supply node, after the filter choke (the OT centre tap is taken ahead of it, at B+1)" }
+  BP3:  { chart: null, note: "preamp rail X — phase-inverter plates, V2a plate load and V2b plate, after the R29 10 kΩ dropper" }
+  BP4:  { chart: null, note: "input-stage rail — V1a and V1b plate loads, after the R8 10 kΩ dropper" }
+  P1A:  { chart: null, note: "V1a plate — input stage, 100 kΩ load, 2.7 kΩ cathode" }
+  K1A:  { chart: null, note: "V1a cathode (2.7 kΩ; 0.68 µF bypass)" }
+  P1B:  { chart: null, note: "V1b plate — cascaded second stage, 100 kΩ load" }
+  K1B:  { chart: null, note: "V1b cathode (10 kΩ, unbypassed) — the cold, gain-shaping stage the 2204 adds over the 1987" }
+  P2A:  { chart: null, note: "V2a plate — third gain stage (100 kΩ load), DC-coupled to the cathode follower" }
+  K2A:  { chart: null, note: "V2a cathode (820 Ω, unbypassed)" }
+  KCF:  { chart: null, note: "V2b cathode follower output (100 kΩ load) feeding the TMB tone stack" }
+  PPIA: { chart: null, note: "phase-inverter plate, 82 kΩ side (V3a — the driven side, fed from the master volume)" }
+  PPIB: { chart: null, note: "phase-inverter plate, 100 kΩ side (V3b)" }
+  KPI:  { chart: null, note: "phase-inverter shared cathode over the 470 Ω cathode resistor" }
+  JPI:  { chart: null, note: "phase-inverter tail junction — both 1 MΩ grid leaks return here, above the 10 kΩ tail" }
+  NNFB: { chart: null, note: "negative-feedback node at the foot of the tail: 4.7 kΩ to ground, 100 kΩ back to the output-transformer secondary, presence leg capacitor-blocked" }
+  SG4:  { chart: null, note: "V4 screen grid, through its 1.5 kΩ screen resistor (the v0 EL34 fit draws no screen current at this bias, so the drop reads as zero — see notes.md)" }
+  SG5:  { chart: null, note: "V5 screen grid, through its 1.5 kΩ screen resistor" }

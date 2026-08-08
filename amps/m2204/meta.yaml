@@ -1,0 +1,41 @@
+# Circuit Codex metadata — schema: docs/schema.md (v1)
+id: "m2204"
+name_style: "Master Volume lead 50-style"
+family: british
+era:
+  start: 1977
+  end: 1989
+wattage: 50
+tubes: [ECC83, ECC83, ECC83, EL34, EL34]
+topology:
+  rectifier: { kind: solid-state, type: "silicon bridge" }
+  bias: fixed
+  phase_inverter: long-tailed-pair
+  tone_stack: cathode-follower-fmv
+lineage:
+  derived_from: ["m1987"]   # the 50 W lead head, cascaded and given a master volume
+  influenced: []
+sources:
+  - desc: "Marshall model 2204 factory drawing, sheet 1 of 2 — title block reads '2204 STD / Preamp', MARSHALL, Jim Marshall Products Ltd., Bletchley, Milton Keynes, England; file 2204PRE.DGM; issue 4, dated 19-5-88, drawn CPV. Note block: 'PCB: JM80. V1,2: ECC83.' Every preamp value read directly from the published drawing: one channel with High (J1) and Low (J2) inputs, R3 68k stopper and R2 1M leak into V1a (R4 100k plate, R1 2k7 cathode with C1 0.68u bypass, C2 100p across the triode); V1a couples out through C3 0.022u into the preamp-volume network (R5 470k bridged by C4 470p, VR1 1M log with C5 1n0 across its upper section) and the wiper drives V1b — a CASCADED second stage, not a second channel (R7 100k plate, R6 10k cathode UNBYPASSED); V1b plate through C7 0.022u into an R10 470k / R11 470k divider with C8 470p across the series arm, into V2a (R12 100k plate, R9 820R cathode unbypassed); V2b DC-coupled cathode follower (R13 100k load); FMV tone stack (R15 33k slope, C10 470p / VR3 220k lin treble, C11 0.022u / VR5 1M log bass wired as a rheostat, C12 0.022u / VR4 22k lin middle, output taken from the treble wiper through the panel link 'R14'); VR2 1M log master volume; supply rail X decoupled by R8 10k 1W with a C21 50+50u dual can. The drawing prints NO valve-voltage chart. Not reproduced here; archived at Dr. Tube."
+    url: "https://www.drtube.com/schematics/marshall/2204prem.gif"
+  - desc: "Marshall model 2204 factory drawing, sheet 2 of 2 — title block reads '2204 STD / Output Stage & PSU', MARSHALL, Jim Marshall Products Ltd., Bletchley, Milton Keynes, England; file 2204PWR.DGM; issue 1 dated 19-5-88 and issue 2 dated 18-6-89, both drawn CPV. Every value read directly from the published drawing: V3 ECC83 long-tailed-pair phase inverter (R18 82k plate on the driven side, R21 100k on the other, R16 470R shared cathode, R17 1M and R19 1M grid leaks returned to the tail junction, C9 0.022u in from the master volume, C15 0.1u from the cold grid to the feedback node); R20 10k tail to a feedback node carrying R23 4k7 to ground, R22 100k from the output-transformer secondary, and VR6 22k presence through C17 0.1u; C14 and C16 0.022u couplers to the output grids with C18 47p across them, R24 220k and R25 220k grid leaks off a common bias node, R31 5k6 and R32 5k6 grid stoppers; V4/V5 EL34 pair, cathodes grounded (fixed bias), R33 1k5 and R34 1k5 screen resistors; bias supply D1 1N4007 / R30 220k / C20 10u raw, R27 15k to the bias node with R26 56k and RV1 22k lin adjust and C19 10u filter; power a 4 x 1N4007 bridge into a C23 50+50u reservoir, HT fuse T500mA, T3 choke, C22 50+50u, R29 10k 1W to the preamp rail X; output transformer 789-139 with 16/8/4 ohm taps, mains transformer 1202-324 with 240/220/120 V selection, R35 2k2 / R36 100R / R37 560R DI network. The drawing prints NO valve-voltage chart. Not reproduced here; archived at Dr. Tube."
+    url: "https://www.drtube.com/schematics/marshall/2204pwrm.gif"
+  - desc: "The same two 2204 STD sheets mirrored as a single two-page PDF by thetubestore — used to read the drawing at higher resolution than the GIF scans allow. Identical title blocks, issues and dates; not an independent draughting of the circuit."
+    url: "https://www.thetubestore.com/lib/thetubestore/schematics/Marshall/Marshall-50W-2204S-Schematic.pdf"
+  - desc: "Marshall specification sheet '2204 50W MASTER VOLUME LEAD AMP / 2104 50W MASTER VOLUME LEAD AMP', dated 11/81 — prints the tube complement (V1, V2, V3 ECC83/12AX7; output valves V4, V5 '6550 for USA (EL34, KT77 elsewhere)'), power output (in excess of 50 W RMS at clipping into 4, 8 or 16 ohms, 3 % average distortion), input sensitivity, tone-control ranges, and power-supply requirements (120/220/240 Vac, 175 W maximum, HT fuse T500mA). This is the source for the EL34 complement documented here being the non-US fitment."
+    url: "https://www.drtube.com/schematics/marshall/2204specs.gif"
+  - desc: "Marshall model 2204 factory drawing, title block '50W MASTER MODEL / MODEL NO. 2204', dated 11/11/76, drawn FJK, Jim Marshall Products Ltd. for Unicord Incorporated, 75 Frost Street, Westbury NY — the EARLIER revision, and a different circuit from the one documented here: its V1 is a two-channel PARALLEL input pair mixed through 100k resistors (an 820R/330u and a 2.7k/0.68u cathode, exactly the 1987 front end) rather than the cascaded V1a-to-V1b chain, and its legend reads 'V4-5 6550'. Cited to fix which revision this entry documents, and as the only Marshall-printed voltage figures found for any 2204 (400 V at the output plates, 87 V at the phase-inverter plates, 205 V and 150 V at V1, 39 V at the inverter cathode, -63 V bias) — figures that belong to that other revision at US mains and are therefore NOT used as a chart here."
+    url: "https://www.drtube.com/schematics/marshall/2204u.gif"
+  - desc: "Wikipedia, 'Marshall Amplification' — the late-1975 introduction of the Master Volume series with the 100 W 2203 followed by the 50 W 2204 in 1976; the change that connects the input stages in series rather than in parallel and repurposes the second channel volume as a master volume, reaching the 2204 in early 1977; and the late-1980 repackaging of the 2203 and 2204 as the JCM800 series"
+    url: "https://en.wikipedia.org/wiki/Marshall_Amplification"
+  - desc: "Mullard/Philips EL34 data sheet, January 1969 (A.F. Output Pentode) — anchor for the CC0 EL34 tube model: Va=250 V, Vg2=250 V, Vg1=-13.5 V -> Ia=100 mA, Ig2=14.9 mA, gm=12.5 mA/V, mu(g1-g2)=11"
+    url: "https://frank.pocnet.net/sheets/010/e/EL34.pdf"
+verification:
+  status: draft   # both 2204 STD sheets print component values only — no valve-
+                  # voltage chart — and no publishable measured reference for this
+                  # revision was found. The EL34 v0 model is also far outside its
+                  # 250 V anchor at this rail. Verified must be earned.
+# Day the circuit landed in the corpus (git history, amps/m2204/) — the feed's
+# pubDate for a draft; production builds are shallow clones and cannot ask git.
+added: 2026-08-08
+contributors: [TheAnalogMaker]

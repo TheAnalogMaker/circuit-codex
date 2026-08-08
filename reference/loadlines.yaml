@@ -686,3 +686,26 @@ stages:
   ot_primary_note: Push-pull EL34 primary, 16/8/4 Ω secondary — Output transformer
   sim_ip_ma: 44.746
   sim_ig2_ma: 0.0
+- amp: 'm2204'
+  name_style: Master Volume lead 50-style
+  tube: 'EL34'
+  output_tubes: 2
+  config: push-pull
+  bias: fixed
+  plate_node: BP1
+  plate_v: 470.0
+  screen_node: SG4
+  screen_v: 469.592
+  cathode_node: '0'
+  cathode_v: 0.0
+  rk_total: null
+  rk_per_tube: null
+  grid_node: G4
+  grid_v: -47.0
+  grid_supply_node: null
+  grid_supply_v: null
+  ot_primary_z: null
+  ot_primary_approx: false
+  ot_primary_note: Marshall 789-139 · 16/8/4 Ω taps — Push-pull EL34 output transformer
+  sim_ip_ma: 37.5694
+  sim_ig2_ma: 0.0

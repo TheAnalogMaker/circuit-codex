@@ -49,6 +49,29 @@ LIB = f"""  (lib_symbols
       (symbol "C_1_1"
         {_pin("passive", 0, 3.81, 270, 3.048, "~", "1")}
         {_pin("passive", 0, -3.81, 90, 3.048, "~", "2")}))
+    (symbol "cx:DUALCAN" (pin_numbers hide) (pin_names hide) (in_bom yes) (on_board yes)
+      (property "Reference" "C" (at 2.54 1.27 0) {FONT})
+      (property "Value" "C" (at 2.54 -1.27 0) {FONT})
+      (symbol "DUALCAN_0_1"
+        {_poly("(xy -3.556 0.762) (xy -1.524 0.762)")}
+        {_poly("(xy 1.524 0.762) (xy 3.556 0.762)")}
+        {_poly("(xy -3.556 -0.762) (xy 3.556 -0.762)")})
+      (symbol "DUALCAN_1_1"
+        {_pin("passive", -2.54, 3.81, 270, 3.048, "A", "1")}
+        {_pin("passive", 2.54, 3.81, 270, 3.048, "B", "2")}
+        {_pin("passive", 0, -3.81, 90, 3.048, "COM", "3")}))
+    (symbol "cx:CONN3" (pin_numbers hide) (pin_names hide) (in_bom yes) (on_board yes)
+      (property "Reference" "MS" (at 0 -6.35 0) {FONT})
+      (property "Value" "inlet" (at 0 -8.89 0) {FONT})
+      (symbol "CONN3_0_1"
+        (rectangle (start -5.715 -2.54) (end 5.715 2.54) {_STROKE})
+        (circle (center -3.81 0) (radius 0.635) {_STROKE})
+        (circle (center 0 0) (radius 0.635) {_STROKE})
+        (circle (center 3.81 0) (radius 0.635) {_STROKE}))
+      (symbol "CONN3_1_1"
+        {_pin("passive", -3.81, 5.08, 270, 2.54, "1", "1")}
+        {_pin("passive", 0, 5.08, 270, 2.54, "2", "2")}
+        {_pin("passive", 3.81, 5.08, 270, 2.54, "3", "3")}))
     (symbol "cx:POT" (pin_numbers hide) (pin_names hide) (in_bom yes) (on_board yes)
       (property "Reference" "VR" (at 2.54 1.27 0) {FONT})
       (property "Value" "POT" (at 2.54 -1.27 0) {FONT})
@@ -356,6 +379,21 @@ class Sch:
         """Pilot lamp centred at (x, y); pins top and bottom."""
         self.sym("LAMP", ref, val, x, y, lx=lx, ly=ly)
         return {"hi": (x, y - 5.08), "lo": (x, y + 5.08)}
+
+    def dualcan(self, ref: str, val: str, x: float, y: float,
+                lx: float = 4.6, ly: float = -1.0) -> dict:
+        """Dual-section can (a `50+50 µF` filter): two top terminals over one
+        common negative, exactly as the period drawings letter it."""
+        self.sym("DUALCAN", ref, val, x, y, lx=lx, ly=ly)
+        return {"a": (x - 2.54, y - 3.81), "b": (x + 2.54, y - 3.81),
+                "com": (x, y + 3.81)}
+
+    def conn3(self, ref: str, val: str, x: float, y: float,
+              lx: float = -5.0, ly: float = 4.0) -> dict:
+        """Three-pole connector (a mains inlet: neutral / earth / live)."""
+        self.sym("CONN3", ref, val, x, y, lx=lx, ly=ly)
+        return {"1": (x - 3.81, y - 5.08), "2": (x, y - 5.08),
+                "3": (x + 3.81, y - 5.08)}
 
     def tank(self, ref: str, val: str, x: float, y: float,
              lx: float = -7.0, ly: float = -9.4) -> dict:
