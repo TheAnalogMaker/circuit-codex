@@ -1,0 +1,308 @@
+# Board layout — redrawn from the published Fender 'Pro-Amp' 5E5-A layout
+# drawing (J-EE), page 2 of the same PDF as the schematic. Part refs are the
+# shared key into bom.yaml; the renderer reads each value and part type from
+# there. A legible, schematic-style redraw of the board's principal
+# components in the order the drawing shows them, with a lead-by-lead wiring
+# layer — never a trace or a dimensioned reproduction.
+#
+# The published sheet reads left->right: bias supply and the fixed-bias
+# 6L6GB output support at the left, the driver + split-load cathodyne phase
+# inverter and the James tone network / Presence tap in the centre, the
+# single-triode 12AY7 second stage and the 12AY7 input pair at the right —
+# matching the tube row the drawing prints (5U4GA · 6L6GB · 6L6GB · 12AX7 ·
+# 12AY7 · 12AY7) and the panel row (PRESENCE · BASS · TREBLE · INST.VOL ·
+# MIC.VOL). The board-part ORDER below follows that reading; individual
+# eyelet coordinates are this session's own placement (the published sheet's
+# eyelet grid was not re-digitised point-by-point at this pass — see
+# notes.md "2026-08-08 re-read"), so treat column numbers as an honest
+# redraw of the part sequence, not a traced position.
+#
+# Machine-checked equivalence: the point-to-point wiring drawn below has been
+# verified electrically equivalent to the simulated netlist (netlist.cir) by
+# pipeline/verify_layout_nets.py — see the net_map block at the foot of this
+# file and docs/layout-schema.md. Heaters, the pilot lamp, the PT/rectifier
+# AC side, the bias-supply selenium network, and the RFB1/RBLEED/tone/
+# Presence annotation layer (netlist.cir's documented, honest exclusions —
+# see notes.md) are drawn but not net-checked.
+wiring_claim: verified
+
+board:
+  rows: 2
+  cols: 53
+  title: "5E5-A · eyelet board layout"
+caption: "Redrawn from the published Fender 5E5-A 'Pro-Amp' layout drawing (J-EE), page 2 — principal board components and their hookup, in the order the drawing shows them (bias supply and output support at the left, the driver/cathodyne phase inverter in the centre, the James tone network, V2 gain stage and V1 input pair at the right). The chassis has four input jacks (two per channel); the drawing's four 68 kΩ grid stoppers collapse to the two the schematic/BOM model (R1s, R2s), and the two 1 MΩ input grid leaks (RG1, RG2) mount at the channel jacks as generic off-board parts. The James tone network (Bass, Treble pots + C_tr1/C_tr2) is drawn in the simplified arrangement notes.md documents; its lug-level wiring is illustrative. RFB1 and RBLEED (V2's own printed plate-to-grid resistor and its long grid-to-driver-grid return) and the Presence + negative-feedback pair (VRP, R_NFB, C_NFB) are real, schematic-drawn components — see schematic.kicad_sch — but are chassis wiring not drawn on this board layout, the same treatment 5f4's layout gives its own NFB/Presence pair: RFB1/RBLEED's exact coupling is unresolved even on the sharper 2026-08-08 scan (notes.md), and the Presence/NFB pair's board-level lug routing was not independently re-verified. Not a trace or a dimensioned reproduction."
+source:
+  desc: "Fender 'Pro-Amp' Model 5E5-A layout drawing (J-EE), page 2 of the schematic PDF"
+  url: "https://schematicheaven.net/fenderamps/pro_5e5a_schem.pdf"
+
+# Board-mounted parts. a / b are eyelet endpoints [row, col]; the body is
+# drawn between them (same row = axial part; shared column across the rows =
+# a vertical leg — a cathode resistor or bypass can to the ground bus).
+parts:
+  # --- bias supply + main filter cans + rail droppers (power end, left) ----
+  - { ref: C_bias, a: [0, 0], b: [0, 2] }    # 100 uF bias-supply filter
+  - { ref: C_f1,   a: [0, 3], b: [0, 5] }    # 16 uF filter, B+2 (screens)
+  - { ref: RD1,    a: [1, 4], b: [1, 5] }    # 16k dropper B+2->B+3
+  - { ref: C_f2,   a: [0, 6], b: [0, 8] }    # 16 uF filter, B+3 (driver/PI)
+  - { ref: RD2,    a: [1, 6], b: [1, 7] }    # 22k dropper B+3->B+4
+  - { ref: C_f3,   a: [0, 9], b: [0, 11] }   # 8 uF filter, B+4 (preamp)
+  # --- 6L6GB output support: grid leaks (from -32 V) + 1.5k grid stoppers --
+  - { ref: RGL1,   a: [1, 9],  b: [1, 10] }  # 220k V4 grid leak
+  - { ref: R5s,    a: [1, 11], b: [1, 12] }  # 1.5k V4 grid stopper
+  - { ref: RGL2,   a: [1, 13], b: [1, 14] }  # 220k V5 grid leak
+  - { ref: R6s,    a: [1, 15], b: [1, 16] }  # 1.5k V5 grid stopper
+  # --- cathodyne -> 6L6GB grid couplers ------------------------------------
+  - { ref: C2,     a: [0, 12], b: [0, 14] }  # 0.1 uF cathodyne PLATE -> V4 grid
+  - { ref: C3,     a: [0, 15], b: [0, 17] }  # 0.1 uF cathodyne CATHODE -> V5 grid
+  # --- phase inverter: driver (V3A) + split-load cathodyne (V3B) ----------
+  - { ref: RL4,    a: [1, 17], b: [1, 18] }  # 100k driver plate load (V3A)
+  - { ref: RL5,    a: [1, 19], b: [1, 20] }  # 56k cathodyne plate load (V3B)
+  - { ref: RK3,    a: [1, 21], b: [1, 22] }  # 1.5k driver cathode bias (NFB/presence land here... on the GRID, see notes.md — RK3 is the driver's own cathode bias, undisturbed)
+  - { ref: RGPI,   a: [1, 23], b: [1, 24] }  # 1M cathodyne grid leak -> 1.5k/56k junction
+  - { ref: RKA,    a: [0, 25], b: [1, 25] }  # 1.5k cathodyne cathode -> junction (vertical)
+  - { ref: RKB,    a: [1, 26], b: [1, 27] }  # 56k junction -> ground
+  # --- driver -> cathodyne coupler -----------------------------------------
+  - { ref: C1,     a: [0, 26], b: [0, 28] }  # 0.02 uF driver plate -> cathodyne grid
+  # --- Presence + negative feedback (into the driver's grid) --------------
+  # --- James tone network (board half). RFB1, RBLEED, and the Presence/NFB
+  # pair (R_NFB, C_NFB, VRP) are printed on the sheet (see schematic.kicad_sch
+  # and notes.md) but NOT drawn here — same treatment 5f4's layout gives its
+  # own NFB/Presence pair ("chassis wiring drawn schematically or off the
+  # board"): RFB1/RBLEED's exact coupling is unresolved even on the sharper
+  # scan (notes.md), and the Presence/NFB pair's board-level lug routing was
+  # not independently re-verified to the same confidence as the rest of this
+  # layout — drawing either with a confident point-to-point wire would
+  # overclaim past what the source supports.
+  - { ref: C_tr1,  a: [0, 31], b: [0, 32] }  # .01-400 treble peak cap
+  - { ref: C_tr2,  a: [1, 31], b: [1, 32] }  # .0005 uF treble pot shunt cap
+  # --- V2 (single-triode 12AY7) --------------------------------------------
+  - { ref: RL3,    a: [1, 36], b: [1, 37] }  # 100k V2 plate load
+  - { ref: RG3,    a: [0, 29], b: [1, 29] }  # 1M V2 grid leak (vertical, free column between C1 and the tone network)
+  - { ref: RK2,    a: [0, 38], b: [1, 38] }  # 1.5k V2 cathode (vertical)
+  - { ref: C4b,    a: [0, 39], b: [0, 40] }  # 25 uF V2 cathode bypass
+  # --- channel mixers -------------------------------------------------------
+  - { ref: RMX1,   a: [1, 39], b: [1, 40] }  # 270k instrument-channel mixer
+  - { ref: RMX2,   a: [1, 41], b: [1, 42] }  # 270k mic-channel mixer
+  # --- V1 12AY7 input pair (right end) --------------------------------------
+  - { ref: C_c1,   a: [0, 41], b: [0, 43] }  # 0.02 uF V1A -> instrument volume
+  - { ref: RL1,    a: [1, 43], b: [1, 44] }  # 100k V1A plate load
+  - { ref: C_c2,   a: [0, 44], b: [0, 46] }  # 0.02 uF V1B -> mic volume
+  - { ref: RL2,    a: [1, 45], b: [1, 46] }  # 100k V1B plate load
+  - { ref: R1s,    a: [1, 48], b: [1, 49] }  # 68k instrument-channel grid stopper
+  - { ref: RK1,    a: [0, 47], b: [1, 47], nudge: [-4, 14] }  # 820 ohm shared 12AY7 cathode (vertical)
+  - { ref: C4,     a: [0, 48], b: [0, 49] }  # 25+25 uF 12AY7 cathode bypass can
+  - { ref: R2s,    a: [1, 50], b: [1, 51] }  # 68k mic-channel grid stopper
+
+# Off-board items drawn as labelled stubs around the board, in the drawing's
+# positions: tubes along the bottom, the pots and input jacks up top,
+# transformers/choke to either side.
+offboard:
+  - { id: PT,   kind: xfmr,  edge: left,   at: 0.2, label: "Power trans" }
+  - { id: RCHOKE, ref: RCHOKE, kind: choke, edge: left, at: 1.5, label: "Choke" }
+  - { id: PL1,  kind: part, glyph: lamp, edge: left, at: 2.7, label: "Pilot lamp" }
+  - { id: V6,   ref: V6, kind: tube, edge: bottom, at: 2.5,  label: "V6 · 5U4GA" }
+  - { id: V4,   ref: V4, kind: tube, edge: bottom, at: 7,    label: "V4 · 6L6GB" }
+  - { id: V5,   ref: V5, kind: tube, edge: bottom, at: 11.5, label: "V5 · 6L6GB" }
+  - { id: SPK,  kind: jack, edge: bottom, at: 16, label: "Spkr jacks" }
+  - { id: V3,   ref: V3, kind: tube, edge: bottom, at: 21.5, label: "V3 · 12AX7 (PI)" }
+  - { id: V2,   ref: V2, kind: tube, edge: bottom, at: 36.5, label: "V2 · 12AY7" }
+  - { id: V1,   ref: V1, kind: tube, edge: bottom, at: 47,   label: "V1 · 12AY7" }
+  # Bias-supply rectifier, off the board (per the 5F4/5F10/6G3 precedent).
+  - { id: D1,   ref: D1, kind: part, edge: top, at: 0.5, label: "D1", cathode: b }
+  # Presence (5k) exists on the panel (per the layout sheet's row) but its
+  # board-level wiring is not drawn — see the parts[] comment above.
+  - { id: VR4,  ref: VR4, kind: pot, edge: top, at: 31.5, label: "Treble" }
+  - { id: VR3,  ref: VR3, kind: pot, edge: top, at: 38.5, label: "Bass" }
+  - { id: VR1,  ref: VR1, kind: pot, edge: top, at: 42.5, label: "Volume · Inst" }
+  - { id: VR2,  ref: VR2, kind: pot, edge: top, at: 45.5, label: "Volume · Mic" }
+  - { id: JI,   kind: jack, edge: top, at: 47.5, label: "Inst in" }
+  - { id: JM,   kind: jack, edge: top, at: 50.2, label: "Mic in" }
+  # RG1 / RG2 (1 MΩ input grid leaks) mount at the channel jacks per the
+  # sheet — generic 2-lead off-board parts (kind: part).
+  - { id: RG1,  ref: RG1, kind: part, edge: top, at: 46.7, label: "RG1" }
+  - { id: RG2,  ref: RG2, kind: part, edge: top, at: 50.9, label: "RG2" }
+  - { id: T2,   ref: T2, kind: xfmr, edge: right, at: 0.5, label: "Output trans" }
+
+# Ground bus — the bare tinned rail running the length of the board just
+# below the bottom eyelet row.
+bus:
+  - { from: [1.45, -0.4], to: [1.45, 50.4] }
+
+# Wiring — read lead-by-lead from the published 5E5-A layout drawing (J-EE),
+# following the same conventions this corpus's other Fender-family layouts
+# use (5f4, 5f6a): the PT secondary colours feed the 5U4GA (red/red HT,
+# yellow/yellow 5 V filament), the output-transformer primary carries its
+# marked colours to B+1, the PT primary (black) lands on the chassis
+# switches (off the board, not drawn), and the 6.3 V heater winding (green)
+# daisy-chains the pilot lamp then socket to socket in physical order
+# (style: twisted). Endpoints reference board eyelets (REF.a/REF.b), tube
+# socket pins (Vn.pinN, validated against reference/tubes basing — heater
+# pins on the twisted runs), pot lugs (VRn.lugN), jacks, off-board 2-lead
+# parts, and choke/transformer leads (by colour). `via` waypoints are
+# [col, row]; row<0 routes above the board, row>1 below it.
+runs:
+  # --- power transformer secondary -> 5U4GA rectifier (marked colours) -----
+  - { from: PT.red1, to: V6.pin4, via: [[2.1, 0.5], [2.5, 1.7]] }
+  - { from: PT.red2, to: V6.pin6, via: [[2.05, 0.85], [3.6, 2]] }
+  - { from: PT.red-yellow, to: [1.45, 2], via: [[1.2, 1.15]] }
+  - { from: PT.yellow1, to: V6.pin2, via: [[0.9, 0.7], [0.62, 2.5], [1.83, 2.75]] }
+  - { from: PT.yellow2, to: V6.pin8, via: [[2.7, 0.55], [2.7, 2.3]] }
+
+  # --- B+1 (unfiltered, no board cap — bom.yaml carries no BP1 filter): the
+  # rectifier output feeds the choke input directly; the choke's OUTPUT is
+  # BP2 and gets the first filter can (C_f1). The OT centre tap (BP1, per
+  # net_map) reaches the same rectifier-output point by a long return along
+  # the bottom margin.
+  - { from: V6.pin8, to: RCHOKE.hi, color: red, via: [[4.35, 2.68], [1.5, 2.68]] }
+  - { from: T2.red, to: V6.pin8, color: red, via: [[49.7, 0.245], [49.7, 3.7], [0.7, 3.7], [0.548, 2.85]] }
+  - { from: RCHOKE.lo, to: C_f1.a, via: [[2.4, 0.5]] }
+
+  # --- filtered rail: BP2 filter, two rail droppers, BP3/BP4 filters -------
+  - { from: C_f1.a, to: RD1.a }
+  - { from: RD1.b, to: C_f2.a, via: [[6, 0.42]] }
+  - { from: C_f2.a, to: RD2.a, via: [[7.1, 0.78]] }
+  - { from: RD2.b, to: C_f3.a, via: [[7.4, 0.5], [9.5, 0.5]] }
+  - { from: C_bias.b, to: [1.45, 0.5] }
+  - { from: C_f1.b, to: [1.45, 4.4], via: [[5.3, 1.35], [4.4, 1.35]] }
+  - { from: C_f2.b, to: [1.45, 6.5], via: [[6.5, 1.1]] }
+  - { from: C_f3.b, to: [1.45, 11.2], via: [[11.2, 1]] }
+
+  # --- bias supply: selenium rect (off-board) -> C_bias -> -32 V -----------
+  - { from: D1.a, to: PT.red2, via: [[0.1, -0.62], [-0.5, -0.2]] }
+  - { from: D1.b, to: C_bias.a, via: [[0.95, -0.35]] }
+  - { from: RGL1.b, to: C_bias.a, via: [[9.4, 1.5], [1.227, 1.555]] }
+  - { from: RGL2.b, to: C_bias.a, via: [[13.4, 1.7], [-0.4, 1.7], [-0.4, 1]] }
+
+  # --- 6L6GB output: grids, screens, plates, cathodes, OT -------------------
+  - { from: C2.b, to: R5s.a, via: [[13.7, 0.42]] }
+  - { from: R5s.b, to: V4.pin5, via: [[12.35, 1.18], [7.4, 1.18]] }
+  - { from: RGL1.a, to: V4.pin5, via: [[9.4, 2.3], [6.4, 2.3]] }
+  - { from: C3.b, to: R6s.a, via: [[16.5, 0.62]] }
+  - { from: R6s.b, to: V5.pin5, via: [[15.5, 2.5], [12.6, 2.5]] }
+  - { from: RGL2.a, to: V5.pin5, via: [[13.32, 1.115], [9.6, 1.05]] }
+  - { from: V4.pin4, to: C_f1.a, via: [[6.7, 0.5], [4.3, 0.3]] }
+  - { from: V5.pin4, to: C_f1.a, via: [[8.345, 1.6], [4.917, 1.1]] }
+  - { from: V4.pin3, to: T2.brown, via: [[5.5, 2.68], [51.3, 2.68], [51.3, 0.86], [49.1, 0.31]] }
+  - { from: V5.pin3, to: T2.blue, via: [[10, 2.85], [51.6, 2.85], [51.6, 0.41], [49.4, 0.41], [51.036, 0.875]] }
+  - { from: V4.pin8, to: [1.45, 7.9], via: [[7.9, 2.75], [9.326, 2.549]] }
+  - { from: V5.pin8, to: [1.45, 11.9], via: [[12.069, 2.75], [13.356, 2.033]] }
+  - { from: T2.sec1, to: SPK, via: [[48.2, 0.63], [48.2, 3.05], [16, 3.05], [16.55, 1.9]] }
+  - { from: T2.sec2, to: SPK, via: [[48.8, 0.74], [48.8, 3.25], [18.3, 3.25], [18.3, 1.8]] }
+
+  # --- phase inverter: driver (V3A) + split-load cathodyne (V3B) -----------
+  - { from: RL4.a, to: C_f2.a, via: [[17, 0.55], [7.2, 0.55]] }
+  - { from: RL4.b, to: V3.pin1, via: [[18, 1.6], [21, 1.6]] }
+  - { from: RL5.a, to: C_f2.a, via: [[19, -0.3], [7, -0.3]] }
+  - { from: RL5.b, to: V3.pin6, via: [[20, 1.72], [21.4, 1.72]] }
+  - { from: V3.pin1, to: C1.a, via: [[21.3, 1.75], [25.7, 1.7], [25.7, 0.45]] }
+  - { from: V3.pin6, to: C2.a, via: [[21.8, 1.85], [13.2, 1.85], [13.2, 0.55]] }
+  - { from: C1.b, to: V3.pin7, via: [[27.8, 1.3], [22.4, 1.3], [22.4, 2]] }
+  - { from: RGPI.a, to: V3.pin7, via: [[23, 2.3], [21, 2.3]] }
+  - { from: V3.pin3, to: RK3.a, via: [[21.7, 1.2], [22.08, 1.2], [22.032, 1.03]] }
+  - { from: RK3.b, to: [1.45, 22.2], via: [[22.2, 1.15]] }
+  - { from: V3.pin8, to: RKA.a, via: [[22, 3.3], [25.3, 3.3], [25.3, 0.55]] }
+  - { from: C3.a, to: RKA.a, via: [[20, -0.35], [25, -0.35]] }
+  - { from: RKA.b, to: RKB.a }
+  - { from: RGPI.b, to: RKB.a, via: [[24, 1.62], [25.3, 1.62]] }
+  - { from: RKB.b, to: [1.45, 27] }
+
+  # Presence + negative feedback (VRP, R_NFB, C_NFB): chassis wiring, not
+  # drawn on this board layout — see the parts[] comment above and notes.md.
+
+  # --- James tone network (illustrative — see notes.md). Simplified to two
+  # independent shunt branches off the same V2-plate feed (rather than the
+  # cascaded ladder some James networks use), which keeps each pot's wiper
+  # lead a short, direct run to the driver's grid instead of a tight
+  # pot-to-pot loop — visually clearer and just as illustrative.
+  - { from: V2.pin6, to: C_tr1.a, via: [[36.5, 1.05], [31.2, 1.076], [31.2, 0.4]] }
+  - { from: C_tr1.b, to: VR4.lug3, via: [[32.2, -0.5]] }
+  - { from: VR4.lug1, to: C_tr2.a, via: [[31.6, -1.1], [32.833, -0.48]] }
+  - { from: C_tr2.b, to: [1.45, 31.3] }
+  - { from: VR4.lug2, to: VR3.lug2, via: [[32.9, -2.6], [38.9, -2.6]] }
+  - { from: V2.pin6, to: VR3.lug3, via: [[36.5, 1.8], [37.6, 1.63], [37.64, -0.54]] }
+  - { from: VR3.lug1, to: [1.45, 38.5] }
+  - { from: VR3.lug2, to: V3.pin7, via: [[39.708, -0.24], [39.78, 2.5], [21.296, 2.5]] }
+
+  # RFB1 / RBLEED: printed on the sheet but not drawn here — see the parts[]
+  # comment above and notes.md.
+
+  # --- V2 (12AY7, single triode) --------------------------------------------
+  - { from: RL3.a, to: C_f3.a, via: [[36.5, 0.6], [11.6, 0.9]] }
+  - { from: RL3.b, to: V2.pin6, via: [[37, 1.7], [36.6, 1.7]] }
+  - { from: RG3.a, to: V2.pin7, via: [[29, -3.2], [35.7, -3.2], [35.7, 1.657]] }
+  - { from: RG3.b, to: [1.45, 29.6] }
+  - { from: V2.pin8, to: RK2.a, via: [[36.4, 2.6], [38.2, 2.6], [38.2, 0.35]] }
+  - { from: RK2.b, to: [1.45, 38.4] }
+  - { from: C4b.a, to: RK2.a }
+  - { from: C4b.b, to: [1.45, 39.6], via: [[39.6, 0.6]] }
+
+  # --- channel mixers + volumes -> V2 grid ----------------------------------
+  - { from: VR1.lug2, to: RMX1.a, via: [[42.5, -0.45], [39.3, -0.45], [39.3, 1.12]] }
+  - { from: RMX1.b, to: V2.pin7, via: [[40, 2.15], [36.3, 2.15]] }
+  - { from: VR1.lug1, to: [1.45, 42.6] }
+  - { from: VR2.lug2, to: RMX2.a, via: [[45.5, -0.5], [41.6, -0.5]] }
+  - { from: RMX2.b, to: V2.pin7, via: [[42, 2.3], [36.4, 2.3]] }
+  - { from: VR2.lug1, to: [1.45, 45.6] }
+
+  # --- 12AY7 input pair (V1): instrument + mic channels ----------------------
+  - { from: JI, to: R1s.b, via: [[48.5, -0.45]] }
+  - { from: RG1.a, to: R1s.b }
+  - { from: RG1.b, to: [1.45, 44.9] }
+  - { from: R1s.a, to: V1.pin7, via: [[48, 1.9], [47.558, 1.9]] }
+  - { from: V1.pin6, to: RL1.b, via: [[46.5, 1.7], [44, 1.7]] }
+  - { from: RL1.a, to: C_f3.a, via: [[43, 0.55], [11.7, 0.4]] }
+  - { from: V1.pin6, to: C_c1.a, via: [[46.157, 1.85], [42.3, 1.85], [42.3, 0.4]] }
+  - { from: C_c1.b, to: VR1.lug3, via: [[43.5, -0.4], [42.5, -0.4]] }
+  - { from: JM, to: R2s.b, via: [[51, 0.45], [51, 1]] }
+  - { from: RG2.a, to: R2s.b, via: [[52.2, -0.2], [51.7, 0.65]] }
+  - { from: RG2.b, to: [1.45, 47.4], via: [[47.4, 0.5]] }
+  - { from: R2s.a, to: V1.pin2, via: [[50.5, 1.25], [48.2, 1.25]] }
+  - { from: V1.pin1, to: RL2.b, via: [[45.5, 2.05], [46, 1.6]] }
+  - { from: RL2.a, to: C_f3.a, via: [[45, 0.34], [12.1, 0.25]] }
+  - { from: V1.pin1, to: C_c2.a, via: [[46.5, 2.18], [45.3, 2.18], [45.3, 0.4]] }
+  - { from: C_c2.b, to: VR2.lug3, via: [[46, -0.42], [45.5, -0.42]] }
+  - { from: V1.pin8, to: RK1.a, via: [[46.6, 3.4], [48.12, 3.4], [47.7, 0.7]] }
+  - { from: V1.pin3, to: RK1.a, via: [[47.5, 2.3], [48.4, 2.3], [48.4, 0.6]] }
+  - { from: RK1.b, to: [1.45, 47.2] }
+  - { from: C4.a, to: RK1.a }
+  - { from: C4.b, to: [1.45, 49.9], via: [[49.937, 0.972]] }
+
+  # --- 6.3 V heater chain (green twisted pair) ------------------------------
+  # PT green pair -> pilot lamp -> V4 6L6GB -> V5 6L6GB -> V3 12AX7 (PI) ->
+  # V2 12AY7 -> V1 12AY7, in the drawing's physical daisy order. The 5U4GA
+  # rectifier is directly heated off the 5 V winding, so it is not on this
+  # chain.
+  - { from: PT.green, to: PL1.a, style: twisted }
+  - { from: PL1.b, to: V4.pin7, style: twisted, via: [[-1.2, 3.7], [7, 3.7]] }
+  - { from: V4.pin2, to: V5.pin7, style: twisted, via: [[7, 3.72], [11.5, 3.72]] }
+  - { from: V5.pin2, to: V3.pin4, style: twisted, via: [[11.5, 3.74], [21.5, 3.74]] }
+  - { from: V3.pin5, to: V2.pin4, style: twisted, via: [[21.5, 3.72], [36.5, 3.72]] }
+  - { from: V2.pin5, to: V1.pin4, style: twisted, via: [[36.5, 3.7], [47, 3.7]] }
+  - { from: V1.pin4, to: V1.pin5, style: twisted }
+
+# net_map — the reviewable data layer reconciling the drawn wiring with the
+# DC-operating-point netlist (netlist.cir) for pipeline/verify_layout_nets.py.
+# See docs/layout-schema.md.
+net_map:
+  # Terminals the netlist gives no discrete node to reach on their own —
+  # co-anchoring the OT-primary leads to BP1 declares the DC bridge the
+  # netlist collapses (OT primary DCR omitted).
+  anchors:
+    T2.brown: BP1
+    T2.blue:  BP1
+    T2.red:   BP1
+  # DC-transparent series parts the netlist omits (no DC grid current -> zero
+  # drop): the 12AY7 grids draw none, so each 68k stopper == its input node.
+  series_bridge:
+    R1s: "68k instrument-channel grid stopper — omitted from netlist (12AY7 V1A grid == input node at DC)"
+    R2s: "68k mic-channel grid stopper — omitted from netlist (12AY7 V1B grid == input node at DC)"
+  # Netlist elements with no discrete board 2-lead part — reported in
+  # coverage, never a failure.
+  netlist_unplaced:
+    RCHOKE: "filter choke DCR (110 ohm BP1->BP2) — realised as the off-board chassis choke (kind: choke), not a board 2-lead part; its two rails are anchored independently (BP1 by the 6L6GB plates, BP2 by the screens/RD1)"
+    RG4:    "driver grid reference — the netlist's single 1M leak-to-ground abstraction of the real James tone network (VR3/VR4 + C_tr1/C_tr2, drawn) plus the Presence/NFB tap (R_NFB/C_NFB/VRP, chassis wiring — not drawn on this layout) and RFB1/RBLEED (V2's own printed feedback pair — also not drawn, see the parts[] comment); no single board part corresponds"
+  # RFB1 and RBLEED are drawn (parts[] + runs[] above) but deliberately
+  # absent from every net_map key: they are not in netlist.cir at all (see
+  # notes.md), so the equivalence check neither anchors nor bridges them —
+  # they are inert as far as the DC graph verify_layout_nets builds, exactly
+  # like the tone network's own passive parts.

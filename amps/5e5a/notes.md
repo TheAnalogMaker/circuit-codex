@@ -154,28 +154,23 @@ See its own header for what the drawing carries, and the caveat above for
 what stays illustrative rather than chart-verified (the James network's
 internal lug wiring).
 
-## No board drawing yet, and why
+## The board
 
-This circuit ships without the board diagram its siblings carry. The
-published J-EE sheet set does include a layout page ("FENDER 'PRO-AMP'
-LAYOUT MODEL 5E5-A", page 2) — contrary to the usual expectation that tweed
-Pros lack one — and a drawing was built from it, so the gap is not for want
-of a source.
+The J-EE sheet set carries its own layout page ("FENDER 'PRO-AMP' LAYOUT
+MODEL 5E5-A"), so the board diagram here is redrawn from a factory drawing
+rather than derived from the schematic. It reads the way the sheet reads,
+left to right: the bias supply and the fixed-bias 6L6GB support at the power
+end; the driver and the split-load cathodyne in the centre, with the James
+tone network beside them; then the single-triode second stage and the 12AY7
+input pair. Column positions are this entry's own placement of that
+sequence, not a dimensioned transfer of the sheet's grid.
 
-It is held back on the collision lint — the gate that rejects wiring-layer
-ambiguity, where two runs sit within a few pixels of each other and read as
-one wire, or an endpoint lands that close to another run and reads as a
-joint that isn't there. On this board it would not reach zero. Iteration cut
-the raw first pass from 72 findings to 10 — several of them real routing
-mistakes, fixed along the way — and the last ten are sub-5px proximities
-clustered in the two densest spots on the board: the Bass and Treble pots'
-adjacent lugs, and V1's pin ring with the parts crowded around it (the
-cathode and stopper resistors, both grid leaks, and the two input jacks).
-Each fix in those zones tended to surface another at a similar margin.
-
-Ten findings is not a build error and the drawing reads correctly to the
-eye, but this archive does not publish a diagram a blocking gate rejects,
-and it does not waive a gate to make a drawing publishable. The
-board drawing lands when the lint does, or when a maintainer judges this
-board's part density a documented limit. Until then the schematic carries
-the circuit and the parts list carries the board.
+The drawn point-to-point wiring is proved electrically equivalent to the
+simulated circuit, so a lead traced across the board lands on the node the
+netlist gives it. Two things on the drawing are illustrative rather than
+proved. The James network's internal lug wiring is drawn in the simplified
+arrangement described above. And the presence control and its
+negative-feedback pair, along with V2's own plate-to-grid resistor and its
+long grid return, are chassis wiring rather than board wiring: they are real
+components, drawn on the schematic, and deliberately absent from the board
+diagram.
