@@ -151,7 +151,7 @@ s.sym("R", "RKA", "1.5k", 208.5, 105.81, lx=2.0)
 s.junction(208.5, 109.62)
 s.sym("R", "RKB", "56k", 208.5, 113.43, lx=2.0)
 s.gnd(208.5, 117.24)
-s.text("The Presence wiper and the 100k feedback resistor land on V3A's GRID — not its cathode, where the 5F4 puts the same tap", 150, 149, 1.1)
+s.note("The Presence wiper and the 100k feedback resistor land on V3A's GRID — not its cathode, where the 5F4 puts the same tap")
 
 # ---- 6L6GB pair, fixed bias ----------------------------------------------
 for y, pref, cref, glref, gstop in [(84, "V4", "C2", "RGL1", "R5s"),
