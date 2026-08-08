@@ -143,6 +143,19 @@ available scan does not resolve their interconnection well enough to assert it,
 so the schematic names the interfaces each valve works into and asserts nothing
 further.
 
+The board layout is **derived**. JMI published no board-layout sheet for the
+AC30/6, and none has been located, so the diagram lays this circuit's own parts
+out in signal order along the chassis on the house eyelet grid — a builder's
+reference for the circuit rather than a record of the factory's tag-strip
+construction, which is what the amplifier actually used. Its point-to-point
+wiring is nonetheless machine-checked: every part the operating-point netlist
+models is verified in CI, terminal for terminal, to sit on the same nets the
+simulation solves. Two details of the drawing are worth naming, because both are
+the factory's own choices rather than the archive's: the designators are OS/065's
+throughout, which means **T2 is the mains transformer and T1 the output
+transformer**; and the GZ34 does not sit on the 6.3 V heater chain with the other
+nine valves, because the mains transformer carries a separate 5 V winding for it.
+
 This copy of OS/065 also carries a **later hand addition**: a blue-ink negative
 feedback loop, drawn in by some previous owner from the output transformer back
 towards the front end, with a 1 MΩ resistor and a 0.1 µF capacitor. It is not
