@@ -1,0 +1,144 @@
+* 6G6-B (Blonde Bassman-style) — DC operating-point netlist
+* Circuit Codex — CC-BY-SA 4.0. Independently drawn from the published 6G6-B
+* (E-FB) drawing's component values (see meta.yaml); no drawing reproduced.
+* The drawing labels all four preamp bottles 7025 — an alias for the 12AX7
+* (reference/tubes/12ax7.yaml also_known_as) — so every small-signal stage
+* uses the clean-room 12AX7 model.
+*
+* DC conventions — RAILS. Unlike the single-reservoir tweed circuits, the
+* E-FB drawing prints several B+ taps directly at the pins that use them
+* (+428, +430, +410, +355, +230 V) without showing every dropping resistor
+* that links them (the drawing's own droppers thread behind the tone-stack
+* artwork this netlist does not carry). Each printed rail is therefore driven
+* as its OWN ideal source rather than derived through a guessed chain — an
+* honest simplification flagged here rather than asserted as a solved chain.
+* BP428 (5881 plates, OT primary DCR omitted), BP430 (5881 screens),
+* BP410 (phase-inverter plate supply), BP355 (Normal-channel recovery plate
+* supply), BP230 (shared preamp rail — Bass ch. V1A, Normal ch. V2A, and
+* both driver-bottle sections read within a few volts of +230 on the chart,
+* consistent with one shared dropped tap).
+*
+* Two full channels (Bass, Normal), each two preamp stages with its own
+* Bass/Treble/Volume network sandwiched between them (network NOT modelled —
+* an abstracted control island, same convention as every other amp in the
+* corpus), mix at the grid of a shared two-stage driver bottle. The Bass
+* channel's own Treble control (front panel: Bass 25k-L / Treble 250k-A /
+* Volume 250k-L, ahead of the Bass jacks) physically sits between the driver
+* bottle's two sections rather than beside its other two pots; the driver
+* bottle then drives a long-tailed-pair phase inverter and a fixed-bias
+* 5881 pair. Grid-leak resistors below stand in for "returns to
+* ~0 V DC through the volume pot / mixing network above it" — since these
+* stages draw no grid current, the exact leak value does not move the
+* tube's own operating point (set by its cathode resistor and rail).
+*
+* V1B's own plate load (100 kΩ cathode is chart-read; the load feeding it
+* is not legible on the rendered drawing) and the driver bottle's first
+* section cathode (mirrored from its chart-confirmed twin) are engineering
+* estimates, not chart figures — flagged inline and left `chart: null` in
+* voltages.yaml rather than asserted as read.
+.include models/12ax7.inc
+.include models/5881.inc
+
+VBP428 BP428 0 DC 428
+VBP430 BP430 0 DC 430
+VBP410 BP410 0 DC 410
+VBP355 BP355 0 DC 355
+VBP230 BP230 0 DC 230
+VBIAS  NBIAS 0 DC -54
+
+* --- V1 (7025 = 12AX7) — BASS channel
+* V1A input: 220k plate load off the shared +230 V preamp rail, 2700 Ω
+* cathode (bypassed on the drawing; DC-irrelevant). Grid returns to ground
+* through the two 68 kΩ jack stoppers' 1 MΩ leak (jack parts, BOM only).
+RL1A BP230 P1A 220k
+XV1A P1A G1A K1A 12AX7
+RG1A G1A 0 1meg
+RK1A K1A 0 2700
+
+* V1B recovery: 100 kΩ cathode, UNBYPASSED (no cap drawn) — the printed
+* +13.6 V here is the largest local-feedback cathode in the preamp, matching
+* a stage built to stay clean feeding the Bass/Volume network. Its own plate
+* load is not legible on the rendered drawing; modelled as 220k off the same
+* +230 V rail (symmetric with V1A) — an estimate, so P1B is chart: null.
+RL1B BP230 P1B 220k
+XV1B P1B G1B K1B 12AX7
+RG1B G1B 0 1meg
+RK1B K1B 0 100k
+
+* --- V2 (7025) — NORMAL channel
+* V2A input: 1500 Ω cathode, 100k plate load off the shared +230 V rail.
+RL2A BP230 P2A 100k
+XV2A P2A G2A K2A 12AX7
+RG2A G2A 0 1meg
+RK2A K2A 0 1500
+
+* V2B recovery: 2700 Ω cathode, 220k plate load off the +355 V rail
+* (the drawing's own tap for this stage, printed a few lines above it).
+RL2B BP355 P2B 220k
+XV2B P2B G2B K2B 12AX7
+RG2B G2B 0 1meg
+RK2B K2B 0 2700
+
+* --- V3 (7025) — shared driver + Bass-channel Treble recovery. Both
+* channels' Volume outputs mix at V3A's grid (network not modelled, see
+* header); the Bass channel's own Treble control (250k-A) sits between
+* V3A's plate and V3B's grid. Both sections read the same +150 V on the
+* chart off the same 100k/+230V leg;
+* V3B's 1500 Ω / +1.3 V cathode is chart-read, V3A's is mirrored from it
+* (identical plate/load reading strongly implies an identical cathode —
+* not itself printed, so K3A stays chart: null).
+RL3A BP230 P3A 100k
+XV3A P3A G3A K3A 12AX7
+RG3A G3A 0 1meg
+RK3A K3A 0 1500
+
+RL3B BP230 P3B 100k
+XV3B P3B G3B K3B 12AX7
+RG3B G3B 0 1meg
+RK3B K3B 0 1500
+* V3A plate -> V3B grid runs through the Treble pot network (not modelled);
+* V3B's own grid leak (RG3B, above) stands in for its DC return.
+
+* --- V4 (7025) — long-tailed-pair phase inverter. 82k (hot) / 100k (cold)
+* 5% plates off the +410 V rail; both 1M grid leaks return to the tail
+* junction JPI. Shared cathodes KPI sit 820 Ω above JPI (both chart-read:
+* +30.0 V / +28.0 V — the 2.0 V split over 820 Ω implies ~2.4 mA combined
+* tail current, corroborating the 82k/100k plate currents below within the
+* chart's own tolerance). JPI's return to ground (the presence-control foot,
+* per the front-panel PRESENCE 25k-L pot and the family's other LTP designs)
+* is not legible on the rendered drawing; modelled as a plain 10k so the
+* ~2.4 mA implied above lands near the chart's own +28 V — an estimate, so
+* the resistor value itself is not asserted as read, only JPI's two
+* chart-anchored endpoints (KPI, JPI) are.
+RL4A BP410 P4A 82k
+XV4A P4A G4A KPI 12AX7
+RG4A G4A JPI 1meg
+RL4B BP410 P4B 100k
+XV4B P4B G4B KPI 12AX7
+RG4B G4B JPI 1meg
+RTAIL KPI JPI 820
+RFOOT JPI 0 10k
+
+* V3B plate -> V4A grid coupling (the .0005 uF cap the chart shows landing
+* on a 1M leak already anchored at JPI — DC-open, moves no operating point).
+C1 P3B G4A 0.0005u
+
+* --- 5881 pair — fixed bias via 220k leaks from -54 V, cathodes grounded
+* (no cathode resistor drawn), 470 Ω 1W screen resistors off +430 V, plates
+* direct on +428 V (OT primary DCR omitted, matching the 2 V drawing split
+* between the +430 V screen tap and the +428 V plate tap). Two distinct
+* single-ended bottles V5 / V6 — NOT dual-section "V5A/V5B", which the
+* netlist parser would misread as one bottle's two triode halves.
+RGL5 NBIAS G5 220k
+XV5 BP428 S5 G5 0 5881
+RS5 BP430 S5 470
+RGL6 NBIAS G6 220k
+XV6 BP428 S6 G6 0 5881
+RS6 BP430 S6 470
+
+* PI plate -> output grid couplers (0.1 uF on the drawing, DC-open). C2
+* carries V4A (82k plate) to V5's grid, C3 carries V4B (100k plate) to V6's
+* grid — modelled so the eventual layout-equivalence gate checks the
+* inter-stage routing and push-pull phase natively.
+C2 P4A G5 0.1u
+C3 P4B G6 0.1u

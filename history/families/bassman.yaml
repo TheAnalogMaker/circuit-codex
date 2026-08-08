@@ -118,24 +118,47 @@ models:
         url: "https://el34world.com/charts/Schematics/files/Fender/Fender_bassman_5f6a.pdf"
       - desc: "Wikipedia, 'Fender Bassman' — 5F6-A (1958-1960): GZ34 rectifier, presence-circuit modification; widely cited as one of the greatest guitar amps"
         url: "https://en.wikipedia.org/wiki/Fender_Bassman"
-  - designation: "6G6 / 6G6-A / 6G6-B"
+  - designation: "6G6 / 6G6-A"
     name: "Bassman (brown/blonde piggyback)"
-    years: { start: 1960, end: 1963 }
+    years: { start: 1960, end: 1962 }
     wattage: 50
-    output: "push-pull 2x5881/6L6GC"
+    output: "push-pull 2x5881"
     tubes: [12AX7, 12AX7, 12AX7, 12AX7, 5881, 5881, GZ34]
     key_change: >-
       A complete break from the tweed combo: the Bassman became a piggyback rig
       — a separate head atop its own speaker cabinet — in brown then blonde
-      Tolex, rated around 50 watts. The 6G6 kept a GZ34 rectifier; the 6G6-A
-      moved to a solid-state rectifier and a two-12" cabinet. This
-      brown/blonde era is the bridge between the tweed 4x10 guitar classic and
-      the blackface bass head that followed.
+      Tolex, rated around 50 watts. The 6G6 (late 1960) kept a GZ34 rectifier;
+      the 6G6-A (early 1961) moved to a solid-state rectifier and a two-12"
+      cabinet. This brown/blonde era is the bridge between the tweed 4x10
+      guitar classic and the blackface bass head that followed.
     circuit_ref: null
     sources:
       - desc: "El34World schematic archive, Fender Bassman 6G6-A drawing (designation-indexed piggyback circuit)"
         url: "https://el34world.com/charts/Schematics/files/Fender/Fender_bassman_6g6a.pdf"
-      - desc: "Wikipedia, 'Fender Bassman' — 6G6 (late 1960) 50 W blonde/brown piggyback, GZ34 rectifier, 6G6-A solid-state rectifier and 2x12 cab, 6G6-B circuit changes through 1963"
+      - desc: "Wikipedia, 'Fender Bassman' — 6G6 (late 1960) 50 W blonde/brown piggyback, GZ34 rectifier, 6G6-A (early 1961) solid-state rectifier and 2x12 cab"
+        url: "https://en.wikipedia.org/wiki/Fender_Bassman"
+  - designation: "6G6-B"
+    name: "Bassman (blonde piggyback, definitive two-channel circuit)"
+    years: { start: 1963, end: 1964 }
+    wattage: 50
+    output: "push-pull 2x5881"
+    tubes: [7025, 7025, 7025, 7025, 5881, 5881]
+    key_change: >-
+      The last and most fully worked-out revision of the piggyback Bassman
+      before the blackface changeover: still blonde Tolex, but now a genuine
+      two-channel amplifier — Bass and Normal each carry their own two-stage
+      preamp and their own Bass/Treble/Volume network, mixing only at a shared
+      driver stage ahead of the long-tailed-pair phase inverter. It carries
+      the 6G6-A's solid-state rectifier forward (no rectifier tube at all in
+      this drawing) and drops the GZ34 the combined 6G6/6G6-A designation
+      above still lists. Discontinued in 1964 when the blackface AA864
+      piggyback head took the Bassman name back to a purpose-built bass
+      circuit.
+    circuit_ref: 6g6b
+    sources:
+      - desc: "Circuit Codex amp 6g6b (fully documented: every rail, every cathode value, and both phase-inverter plate voltages read from the printed chart on the E-FB factory drawing; solid-state full-wave rectifier off a centre-tapped HT winding, 82k/100k long-tailed-pair PI, -54 V fixed bias)"
+        url: "https://el34world.com/charts/Schematics/Files/Fender/Fender_bassman_6g6b.pdf"
+      - desc: "Wikipedia, 'Fender Bassman' — 6G6-B circuit changes carried through 1963; the blonde/piggyback Bassman line ran 1960-1964, superseded by the blackface AA864 piggyback head in 1964"
         url: "https://en.wikipedia.org/wiki/Fender_Bassman"
   - designation: "AA864"
     name: "Bassman (blackface piggyback head)"

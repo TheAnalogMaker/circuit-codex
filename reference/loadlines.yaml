@@ -385,6 +385,29 @@ stages:
     on this sheet
   sim_ip_ma: 20.412
   sim_ig2_ma: 0.1676
+- amp: '6g6b'
+  name_style: Blonde Bassman-style
+  tube: '5881'
+  output_tubes: 2
+  config: push-pull
+  bias: fixed
+  plate_node: BP428
+  plate_v: 428.0
+  screen_node: S5
+  screen_v: 430.0
+  cathode_node: '0'
+  cathode_v: 0.0
+  rk_total: null
+  rk_per_tube: null
+  grid_node: G5
+  grid_v: -54.0
+  grid_supply_node: NBIAS
+  grid_supply_v: -54.0
+  ot_primary_z: null
+  ot_primary_approx: false
+  ot_primary_note: Fender 125A13A — Push-pull output
+  sim_ip_ma: 14.7892
+  sim_ig2_ma: 0.0
 - amp: 'aa1164'
   name_style: Blackface Princeton Reverb-style
   tube: '6V6GT'
