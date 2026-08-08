@@ -108,8 +108,8 @@ function modelQualifier(slug, nameStyle) {
 export function displayId(id, nameStyle) {
   const raw = String(id);
   const m = QUALIFIED_ID.exec(raw);
-  // Fender's own drawings hyphenate A-suffix models: 5F6-A, 5F2-A
-  const desig = (m ? m[1] : raw).toUpperCase().replace(/^(\d[A-Z]\d+)A$/, '$1-A');
+  // Fender's own drawings hyphenate the revision suffix: 5F6-A, 5F2-A, 6G6-B
+  const desig = (m ? m[1] : raw).toUpperCase().replace(/^(\d[A-Z]\d+)([AB])$/, '$1-$2');
   if (!m) return desig;
   return `${desig} (${modelQualifier(m[2], nameStyle ?? styleById(raw))})`;
 }

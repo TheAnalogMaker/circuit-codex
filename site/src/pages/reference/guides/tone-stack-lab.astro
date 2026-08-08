@@ -36,6 +36,12 @@ const singleKnob = absent.filter((a) => a.meta.topology.tone_stack === 'single-k
   && !gated.includes(a) && !topCut.includes(a));
 const otherNetwork = absent.filter((a) => !topCut.includes(a)
   && !gated.includes(a) && !singleKnob.includes(a));
+// The gated group used to be entirely two-knob ladders, and the sentence below
+// said so. It is not any more — the AB763 Twin draws the full three-knob FMV
+// network — so the claim is split by what each circuit's own topology records
+// rather than asserted over the whole group.
+const gatedLadder = gated.filter((a) => a.meta.topology.tone_stack === 'tb');
+const gatedOther = gated.filter((a) => !gatedLadder.includes(a));
 const nameList = (list) => list.map((a) => displayId(a.id)).join(', ')
   .replace(/, ([^,]*)$/, ' and $1');
 
@@ -376,8 +382,13 @@ const description = 'An interactive frequency-response lab for the passive tone 
       {' '}{nameList(topCut)} {topCut.length === 1 ? 'is the one' : 'are the ones'} whose
       network the solver genuinely lacks: the Vox Top Cut sits after the phase inverter,
       bridged across both of its outputs — a differential cut with no counterpart in these
-      stacks. {nameList(gated)} {gated.length === 1 ? 'draws' : 'draw'} the same two-knob
-      ladder the blackface presets are solved with, read at lug level and held by the same
+      stacks. {nameList(gatedLadder)} {gatedLadder.length === 1 ? 'draws' : 'draw'} the same
+      two-knob ladder the blackface presets are solved with{gatedOther.length > 0 && (
+        <Fragment>, and {nameList(gatedOther)}{' '}{gatedOther.length === 1 ? 'draws' : 'draw'}
+        {' '}the three-knob network the tweed and British presets are solved with, twice over —
+        once per channel, identical part for part, so a preset would have to declare which
+        channel the curve came from</Fragment>
+      )}. {gated.length === 1 ? 'It is' : 'All are'} read at lug level and held by the same
       wiring gate as the presets here, but not yet built into
       {' '}{gated.length === 1 ? 'a preset' : 'presets'} — {gated.length === 1 ? 'it waits' : 'they wait'}
       {' '}on that step rather than on a new model. The single tone controls of

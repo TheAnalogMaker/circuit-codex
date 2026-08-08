@@ -111,8 +111,9 @@ def amp_ids() -> list[str]:
 
 def display_id(amp_id: str) -> str:
     """The circuit designation as the drawings print it — Fender hyphenates the
-    A-suffix models (5F6-A, 5F2-A). Mirrors displayId() in site/src/lib/corpus.js."""
-    return re.sub(r"^(\d[A-Z]\d+)A$", r"\1-A", amp_id.upper())
+    revision suffix (5F6-A, 5F2-A, 6G6-B). Mirrors displayId() in
+    site/src/lib/corpus.js."""
+    return re.sub(r"^(\d[A-Z]\d+)([AB])$", r"\1-\2", amp_id.upper())
 
 
 # Display names for the topology values, verbatim from TOPOLOGY_DIMENSIONS in
