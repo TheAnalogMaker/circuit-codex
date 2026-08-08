@@ -143,28 +143,21 @@ in `schematic.kicad_sch` right above that block. A dedicated lug-by-lug
 re-check, the kind `amps/5f6`/`amps/5f6a` got on 2026-08-03, would firm this
 up before this entry leaves draft.
 
-## No board drawing yet, and why
+## The board
 
-This circuit ships without the board diagram its siblings carry. A drawing
-was built from the same A-EE layout page, and its *electrical* content
-checks out: the layout-to-netlist equivalence gate proved the drawn
-point-to-point wiring equivalent to the simulated netlist within the
-documented DC scope, with every tube anchored and the two 5U4GA rectifiers
-left outside the DC model by the same convention every other rectifier in
-this archive follows.
+The board diagram is redrawn from the A-EE sheet's own layout page: the
+principal components in the order the drawing shows them, with their hookup.
+The parallel-rectifier supply is the feature of it — two 5U4GAs and no choke,
+so plates, screens and the output transformer's centre tap all land on one
+first-filter node carrying three 16 µF cans, where most of this corpus's
+tweed amps split the screen supply behind a choke.
 
-What it does not pass is the collision lint — the gate that rejects
-wiring-layer ambiguity, where two runs sit close enough to read as one wire
-or an endpoint close enough to another run to read as a joint that isn't
-there. Substantial rework took this board from 140 findings to 64 across
-both drawing styles, concentrated in a handful of long B+ rail returns and
-the points where several pot lugs converge. 64 is not close.
-
-Wiring that is electrically right is not the same as a drawing that is
-legible, and a diagram a reader can misread is worse than no diagram. This
-archive does not publish a drawing a blocking gate rejects, and it does not
-waive the gate to make one publishable. The board drawing lands when the
-lint does.
+The drawn point-to-point wiring is proved electrically equivalent to the
+simulated circuit within the documented DC scope, every valve anchored, with
+the two rectifiers outside the DC model by the same convention every other
+rectifier here follows. The five panel pots sit off the board as the sheet
+draws them, and the primary leads land on chassis switches; the fixed
+tone-network parts are on the board.
 
 ## Lineage
 

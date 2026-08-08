@@ -1,0 +1,348 @@
+# Board layout — redrawn from the published Fender "Bassman" Model 6G6-B (E-FB)
+# layout drawing, page 1 (board.rows/cols follow the drawing's own terminal
+# strip). Part refs are the shared key into bom.yaml; the renderer reads each
+# value and part type from there. A legible, schematic-style redraw of the
+# board's principal components in the order the drawing shows them — never a
+# trace or a dimensioned reproduction.
+#
+# The board reads left->right exactly as the drawing's tube row does: the
+# bias supply and the silicon bridge/reservoir at the left, the dropper chain
+# next, the two 5881 output tubes, the phase-inverter 7025, the Normal-channel
+# 7025 pair, the shared-driver 7025 pair (with the Bass channel's own Treble
+# pot in its signal path), and the Bass-channel 7025 pair at the right end —
+# matching the drawing's front-panel groups (Presence/Normal pots at the left
+# of the panel, Bass-channel Bass/Treble/Volume at the right).
+board:
+  rows: 2
+  cols: 186
+  title: "6G6-B · eyelet board layout"
+caption: "Redrawn from the published Fender 'Bassman' Model 6G6-B (E-FB) layout drawing — principal board components, in the order the drawing shows them. Each channel's Bass/Treble/Volume tone network mounts on the board on the published sheet and is drawn here in full (the Bass channel's own Treble control sits in the shared driver bottle's own signal path, per the front-panel silkscreen order). The 6.3 V heater chain (green twisted pair, PT -> pilot lamp -> the two 5881 outputs -> the phase-inverter 7025 -> the Normal-channel 7025 -> the driver 7025 -> the Bass-channel 7025) is routed in the drawing's own socket order. Not a trace or a dimensioned reproduction."
+source:
+  desc: "Fender 'Bassman' Model 6G6-B drawing (E-FB), board-layout page"
+  url: "https://el34world.com/charts/Schematics/Files/Fender/Fender_bassman_6g6b.pdf"
+
+# Wiring proven electrically equivalent to netlist.cir by
+# pipeline/verify_layout_nets.py (PASS — see net_map at the foot of this file
+# for the anchors/netlist_unplaced reconciliation). All six tube bottles
+# (V1-V6) anchor to their sockets by id with zero UNANCHORED; the four 12AX7
+# grid/plate/cathode triples and the two 5881 plate/screen/grid/cathode sets
+# match the netlist node-for-node. meta.yaml's own verification.status stays
+# draft (the DC-operating-point-vs-chart pass is a separate gate — see
+# meta.yaml/notes.md); this wiring_claim covers only drawing<->netlist
+# equivalence, which is what pipeline/verify_layout_nets.py hard-gates.
+wiring_claim: verified
+
+parts:
+  # --- bias supply (far left) -------------------------------------------------
+  - { ref: DB1, a: [1, 0], b: [1, 1] }      # bias rectifier diode, off the AC tap
+  - { ref: RB1, a: [1, 2], b: [1, 3] }      # 1k 1W series
+  - { ref: C13, a: [0, 3], b: [1, 3] }      # 25/50 uF dual can, shares RB1.b eyelet
+  - { ref: RB2, a: [1, 4], b: [1, 5] }      # 27k 1W bleeder
+
+  # --- silicon HT bridge + reservoir (B+1) ------------------------------------
+  - { ref: DR1, a: [1, 8],  b: [1, 9] }     # leg A upper
+  - { ref: DR2, a: [1, 9],  b: [1, 10] }    # leg A middle
+  - { ref: DR3, a: [1, 10], b: [1, 11] }    # leg A lower -> B+1
+  - { ref: DR4, a: [1, 13], b: [1, 14] }    # leg B upper
+  - { ref: DR5, a: [1, 14], b: [1, 15] }    # leg B middle
+  - { ref: DR6, a: [1, 15], b: [1, 16] }    # leg B lower -> B+1
+  - { ref: C10, a: [0, 17], b: [1, 17] }    # 20 uF, first B+ node
+
+  # --- dropper chain: 4.7k -> choke -> 20uF -> 27k -> 20uF(dual) -------------
+  - { ref: RD1, a: [1, 20], b: [1, 21] }    # 4.7k 1W, before the choke
+  - { ref: L1,  a: [0, 24], b: [0, 26] }    # choke TR2, 125C1A (axial, top row)
+  - { ref: C11, a: [0, 28], b: [1, 28] }    # 20 uF, post-choke (BP428)
+  - { ref: RD2, a: [1, 30], b: [1, 31] }    # 27k 1W, preamp/driver tap
+  - { ref: C12, a: [0, 33], b: [1, 33] }    # 20 uF dual, driver/preamp taps (BP410)
+
+  # --- output pair support (V5 upper phase / V6 lower phase) -----------------
+  - { ref: C2,   a: [0, 37], b: [0, 39] }   # 0.1 uF V4A plate -> V5 grid
+  - { ref: RGL5, a: [0, 39], b: [1, 39] }   # 220k V5 grid leak -> -BIAS, shares eyelet
+  - { ref: RS5,  a: [1, 41], b: [1, 42] }   # 470 1W V5 screen stopper
+  - { ref: C3,   a: [0, 44], b: [0, 46] }   # 0.1 uF V4B plate -> V6 grid
+  - { ref: RGL6, a: [0, 46], b: [1, 46] }   # 220k V6 grid leak -> -BIAS, shares eyelet
+  - { ref: RS6,  a: [1, 48], b: [1, 49] }   # 470 1W V6 screen stopper
+
+  # --- long-tailed-pair phase inverter (V4A/V4B) ------------------------------
+  - { ref: C1,   a: [0, 52], b: [0, 54] }   # 500 pF driver -> V4A grid
+  - { ref: RL4A, a: [0, 56], b: [0, 57] }   # 82k 5% V4A plate load
+  - { ref: RL4B, a: [0, 58], b: [0, 59] }   # 100k 5% V4B plate load
+  - { ref: RG4A, a: [0, 60], b: [1, 60] }   # 1M V4A grid leak -> tail junction
+  - { ref: RG4B, a: [0, 61], b: [1, 61] }   # 1M V4B grid leak -> tail junction
+  - { ref: RTAIL, a: [1, 64], b: [1, 66] }  # 820 shared cathode (a=JPI hub, b=KPI near V4)
+  - { ref: RFOOT, a: [1, 62], b: [1, 64] }  # 10k (estimate) tail -> ground, b shares RTAIL.a (JPI)
+
+  # --- shared driver (V3A/V3B) + Bass channel's own Treble control -----------
+  - { ref: RG3A, a: [0, 70], b: [1, 70] }   # 1M (estimate) V3A grid leak — mix node
+  - { ref: RL3A, a: [0, 71], b: [0, 72] }   # 100k V3A plate load
+  - { ref: RK3A, a: [1, 71], b: [1, 72] }   # 1500 (estimate) V3A cathode
+  - { ref: CDR1, a: [0, 74], b: [0, 76] }   # 0.1 uF V3A plate -> Bass ch. Treble
+  - { ref: RG3B, a: [0, 79], b: [1, 79] }   # 1M (estimate) V3B grid leak
+  - { ref: RL3B, a: [0, 80], b: [0, 81] }   # 100k V3B plate load
+  - { ref: RK3B, a: [1, 80], b: [1, 81] }   # 1500 V3B cathode
+  - { ref: RM2,  a: [0, 83], b: [0, 84] }   # 470k V3B -> PI mixing/coupling
+
+  # --- Normal channel: V2A input, tone network, V2B recovery -----------------
+  - { ref: R3s,  a: [1, 88], b: [1, 89] }   # 68k jack 2 stopper
+  - { ref: R4s,  a: [1, 90], b: [1, 91] }   # 68k jack 1 stopper
+  - { ref: RG2A, a: [0, 87], b: [1, 87] }   # 1M input grid leak
+  - { ref: RL2A, a: [0, 92], b: [0, 93] }   # 100k V2A plate load
+  - { ref: RK2A, a: [1, 93], b: [1, 94] }   # 1500 V2A cathode
+  - { ref: CK2A, a: [0, 94], b: [0, 95] }   # 25 uF bypass, shares RK2A.b eyelet (col)
+  - { ref: CTN4, a: [0, 97], b: [0, 99] }   # 250 pF treble branch, off V2A plate
+  - { ref: CTN5, a: [1, 97], b: [1, 101] }  # 0.05 uF bass-leg branch, off V2A plate, shares RTN4.a eyelet
+  - { ref: RTN4, a: [1, 101], b: [1, 102] } # 6800 tone-network foot
+  - { ref: CTN6, a: [0, 101], b: [0, 102] } # 0.005 uF foot bypass
+  - { ref: RG2B, a: [0, 106], b: [1, 106] } # 1M (estimate) V2B grid leak
+  - { ref: RL2B, a: [0, 107], b: [0, 108] } # 220k V2B plate load, off +355 V
+  - { ref: RK2B, a: [1, 107], b: [1, 108] } # 2700 V2B cathode
+  - { ref: CK2B, a: [0, 109], b: [0, 110] } # 25 uF bypass, shares RK2B.b eyelet (col)
+  - { ref: RM1,  a: [0, 112], b: [0, 113] } # 470k Normal ch. mixer -> mix node
+
+  # --- shared driver's Bass-ch. Treble + Normal Bass/Treble/Volume pots are
+  # off-board (see below); the following are the Bass channel's own network --
+  - { ref: R1s,  a: [1, 156], b: [1, 157] } # 68k jack 2 stopper
+  - { ref: R2s,  a: [1, 158], b: [1, 159] } # 68k jack 1 stopper
+  - { ref: RG1A, a: [0, 155], b: [1, 155] } # 1M input grid leak
+  - { ref: RL1A, a: [0, 160], b: [0, 161] } # 220k V1A plate load
+  - { ref: RK1A, a: [1, 160], b: [1, 161] } # 2700 V1A cathode
+  - { ref: CK1A, a: [0, 162], b: [0, 163] } # 25 uF bypass, shares RK1A.b eyelet (col)
+  - { ref: C0,   a: [0, 165], b: [0, 167] } # 0.1 uF (estimate) interstage coupler
+  - { ref: RG1B, a: [0, 167], b: [1, 167] } # 1M V1B grid leak, shares C0.b eyelet
+  - { ref: RL1B, a: [0, 168], b: [0, 169] } # 220k (estimate) V1B plate load
+  - { ref: RK1B, a: [1, 169], b: [1, 170] } # 100k V1B cathode, unbypassed
+  - { ref: CTN1, a: [0, 172], b: [0, 174] } # 250 pF treble-bleed branch, off V1B plate
+  - { ref: RTN1, a: [0, 174], b: [0, 176] } # 47k treble-bleed slope, shares CTN1.b eyelet
+  - { ref: RTN2, a: [1, 172], b: [1, 174] } # 1M bass-leg branch, off V1B plate
+  - { ref: CTN2, a: [1, 174], b: [1, 176] } # 0.25 uF bridging cap, shares RTN2.b eyelet
+  - { ref: CTN3, a: [0, 176], b: [0, 178] } # 0.25 uF bridging cap, shares RTN1.b eyelet
+  - { ref: RTN3, a: [0, 178], b: [1, 178] } # 10k dropper, paralleled by VR1, shares CTN3.b eyelet
+  - { ref: RBF,  a: [1, 178], b: [1, 179] } # 820 tone-network foot -> ground, shares RTN3.b eyelet
+
+# Off-board items: valves along the bottom in the drawing's own socket order
+# (5881 x2, then the four 7025 bottles), the power transformer and pilot lamp
+# at the left, pots/jacks up top following the front-panel silkscreen groups.
+offboard:
+  - { id: PT,  kind: xfmr, edge: left, at: 0.4, label: "Power trans" }
+  - { id: PL1, kind: part, glyph: lamp, edge: left, at: 2.6, label: "Pilot lamp" }
+  - { id: V5,  ref: V5, kind: tube, edge: bottom, at: 42,  label: "V5 · 5881" }
+  - { id: V6,  ref: V6, kind: tube, edge: bottom, at: 49,  label: "V6 · 5881" }
+  - { id: T3,  ref: T3, kind: xfmr, edge: bottom, at: 56,  label: "Output trans" }
+  - { id: SPK, kind: jack, edge: bottom, at: 60, label: "Spkr / ext. spkr" }
+  - { id: V4,  ref: V4, kind: tube, edge: bottom, at: 66,  label: "V4 · 7025 (PI)" }
+  - { id: VR7, ref: VR7, kind: pot, edge: top, at: 63, label: "Presence" }
+  - { id: V3,  ref: V3, kind: tube, edge: bottom, at: 82,  label: "V3 · 7025 (driver)" }
+  - { id: VR6, ref: VR6, kind: pot, edge: top, at: 76, label: "Bass ch. Treble" }
+  - { id: JN,  kind: jack, edge: top, at: 89, label: "Normal 2/1" }
+  - { id: VR3, ref: VR3, kind: pot, edge: top, at: 98, label: "Normal Treble" }
+  - { id: VR4, ref: VR4, kind: pot, edge: top, at: 102, label: "Normal Bass" }
+  - { id: VR5, ref: VR5, kind: pot, edge: top, at: 108, label: "Normal Volume" }
+  - { id: V2,  ref: V2, kind: tube, edge: bottom, at: 108, label: "V2 · 7025 (Normal)" }
+  - { id: V1,  ref: V1, kind: tube, edge: bottom, at: 165, label: "V1 · 7025 (Bass)" }
+  - { id: VR1, ref: VR1, kind: pot, edge: top, at: 177.3, label: "Bass ch. Bass" }
+  - { id: VR2, ref: VR2, kind: pot, edge: top, at: 158, label: "Bass ch. Volume" }
+  - { id: JB,  kind: jack, edge: top, at: 182, label: "Bass 2/1" }
+
+# Ground bus — bare tinned rail running the length of the board just below the
+# bottom eyelet row.
+bus:
+  - { from: [1.45, -0.4], to: [1.45, 185.4] }
+
+runs:
+  # --- bias supply -------------------------------------------------------
+  - { from: PT.ht2, to: DB1.a, via: [[-2, -0.9], [-0.5, -0.9]] }
+  - { from: DB1.b, to: RB1.a, via: [[1.5, 0.6]] }
+  - { from: RB1.b, to: RB2.a, via: [[3.6, 1.2]] }
+  - { from: C13.a, to: RB1.b }
+  - { from: C13.b, to: [1.45, 3.3] }
+  - { from: RB2.b, to: [1.45, 5.3], via: [[5.3, 1.2]] }
+
+  # --- silicon HT bridge -------------------------------------------------
+  - { from: PT.ht1, to: DR1.a, via: [[-2.426, 0.675], [-2.4, 1.7], [8.2, 1.7], [8.4, 1.62]] }
+  - { from: DR3.b, to: DR6.b, via: [[11.4, 1.28]] }
+  - { from: DR3.b, to: C10.a, via: [[11, 0.55]] }
+  - { from: PT.ht3, to: DR4.a, via: [[-3.2, 1.2], [-3.2, 3.4], [13.2, 3.4], [13.4, 1.62]] }
+  - { from: C10.b, to: [1.45, 17], via: [[17, 1.33]] }
+
+  # --- dropper chain: B+1 -> 4.7k -> choke -> 20uF (BP428) -> 27k -> 20uF dual (BP410) --
+  - { from: C10.a, to: RD1.a, via: [[17.4, -0.4], [20.4, -0.4]] }
+  - { from: RD1.b, to: L1.a, via: [[22.4, 0.6], [23.5, 0.05]] }
+  - { from: L1.b, to: C11.a, via: [[26.5, 0.05], [27.6, -0.4]] }
+  - { from: C11.b, to: [1.45, 28] }
+  - { from: C11.a, to: RD2.a, via: [[28.6, -1.1], [30.4, -1.1], [30.4, -0.4]] }
+  - { from: RD2.b, to: C12.a, via: [[32.4, -0.55], [33.4, -0.4]] }
+  - { from: C12.b, to: [1.45, 33], via: [[33.9, 0.95]] }
+
+  # BP428 deep lane (screens/plates feed): C11 -> RS5/RGL5 -> RS6/RGL6
+  - { from: RS5.a, to: RS6.a, via: [[42.6, -2.4], [48.6, -2.4]] }
+  - { from: RGL5.b, to: RGL6.b, via: [[39.6, -1.6], [46.6, -1.6]] }
+
+  # BP410 deep lane: C12 -> RL4A -> RL4B -> RM2 (V3B->PI coupling resistor rail side)
+  - { from: C12.a, to: RL4A.a, via: [[33.6, -2.8], [56.4, -2.8]] }
+  - { from: RL4A.a, to: RL4B.a, via: [[58.495, -2.8], [58.4, -2.8]] }
+
+  # BP230 deep lane: RL3A -> RL3B -> RL2A -> RL1A -> RL1B (long backbone, y=-3.2)
+  - { from: RL3A.a, to: RL3B.a, via: [[71.4, -3.2], [80.4, -3.2]] }
+  - { from: RL3B.a, to: RL2A.a, via: [[79.133, -1.803], [81.58, -3.2], [91.97, -3.2]] }
+  - { from: RL2A.a, to: RL1A.a, via: [[94.8, -3.2], [160.4, -3.2], [159.751, -0.36]] }
+  - { from: RL1A.a, to: RL1B.a, via: [[160.6, -3.2], [168.4, -3.2]] }
+
+  # MIXG deep lane: RG3A (driver grid) -> RM1 (Normal ch. mixer out) -> VR2 (Bass ch. Volume wiper)
+  - { from: RG3A.a, to: RM1.b, via: [[68.648, -2.373], [70.4, -3.6], [111.19, -3.6]] }
+  - { from: RM1.b, to: VR2.lug2, via: [[113.6, -3.6], [158, -3.6], [158.047, -1.003]] }
+
+  # --- V5/V6 output support -----------------------------------------------
+  - { from: RL4A.b, to: C2.a, via: [[57.6, -3.4], [37.4, -3.4], [37.4, -0.4]] }
+  - { from: C2.b, to: V5.pin5, via: [[39.6, -0.4], [39.802, -0.4], [39.6, 1.05], [42, 1.6]] }
+  - { from: RGL5.a, to: V5.pin5, via: [[39.708, -0.216], [40, 0.3], [40, 1.49]] }
+  - { from: RS5.b, to: V5.pin4, via: [[42.6, 0.5], [44.1, 1.5]] }
+  - { from: V5.pin3, to: T3.pri_a, via: [[42, 2.16], [42, 3.4], [55, 3.4]] }
+  - { from: V5.pin8, to: [1.45, 42], via: [[43.316, 1.648]] }
+  - { from: RL4B.b, to: C3.a, via: [[59.6, -3.8], [44.4, -3.8], [44.4, -0.4]] }
+  - { from: C3.b, to: V6.pin5, via: [[47.75, -0.4], [46.6, 1.05], [49, 1.6]] }
+  - { from: RGL6.a, to: V6.pin5, via: [[46.704, -0.241], [47, 0.3], [47, 1.501]] }
+  - { from: RS6.b, to: V6.pin4, via: [[49.6, 0.5], [49.131, 0.585], [49.5, 1.5]] }
+  - { from: V6.pin3, to: T3.pri_b, via: [[49, 2.16], [49, 3.6], [55, 3.6]] }
+  - { from: V6.pin8, to: [1.45, 49], via: [[50.063, 1.56]] }
+  - { from: T3.ct, to: T3.pri_b, via: [[55.222, 3.268], [51, 3.75]] }
+  - { from: T3.sec_h, to: SPK, via: [[57.5, 2.6], [59, 2.2]] }
+  - { from: T3.sec_c, to: SPK, via: [[57.5, 3.4], [61, 2.8]] }
+
+  # --- long-tailed-pair phase inverter (V4A/V4B) --------------------------
+  - { from: RM2.a, to: C1.a, via: [[84.236, -1.648], [64.5, -2.8], [64.5, -2], [52.4, -2], [52.4, -0.4]] }
+  - { from: C1.b, to: V4.pin7, via: [[54.642, 1.13], [63.61, 1.698], [66.311, 1.908]] }
+  - { from: RL4A.b, to: V4.pin6, via: [[57.6, -0.2], [65.4, -0.2], [65.4, 1.6]] }
+  - { from: RL4B.b, to: V4.pin1, via: [[59.847, -0.265], [66.6, 0.19], [66.08, 2.05]] }
+  - { from: RG4A.a, to: V4.pin7, via: [[60.4, -0.55], [65.6, -0.55], [65.6, 1.75]] }
+  - { from: RG4A.b, to: RFOOT.b, via: [[60.6, 1.15]] }
+  - { from: RG4B.a, to: V4.pin2, via: [[61.4, 1.05], [66.4, 1.85], [66.4, 1.9]] }
+  - { from: RG4B.b, to: RFOOT.b, via: [[61.6, 1.25], [64, 1.25]] }
+  - { from: VR7.lug3, to: RFOOT.b, via: [[63.38, -0.9], [64, -0.9], [64.1, 1.05]] }
+  - { from: V4.pin8, to: RTAIL.b, via: [[65.2, 1.5], [67.15, 1.62]] }
+  - { from: V4.pin3, to: RTAIL.b, via: [[66.8, 1.3], [66.19, 1.297]] }
+  - { from: RFOOT.a, to: [1.45, 62] }
+  - { from: VR7.lug1, to: [1.45, 63], via: [[63, -0.4], [63, 1.9], [60.945, 1.841]] }
+
+  # --- shared driver (V3A/V3B) + Bass-ch. Treble ---------------------------
+  - { from: RG3A.a, to: V3.pin7, via: [[70.6, -1.2], [78.2, -1.2], [78.2, 1.7]] }
+  - { from: RG3A.b, to: [1.45, 70] }
+  - { from: RL3A.b, to: V3.pin6, via: [[71.4, -0.15], [79.239, -0.15], [79.2, 1.615]] }
+  - { from: RK3A.a, to: V3.pin8, via: [[71.6, 1.62], [79.578, 1.62]] }
+  - { from: RK3A.b, to: [1.45, 72] }
+  - { from: RL3A.b, to: CDR1.a, via: [[72.6, -0.4], [74.4, -0.4]] }
+  - { from: CDR1.b, to: VR6.lug3, via: [[76.6, -0.4], [76, -0.9]] }
+  - { from: VR6.lug2, to: RG3B.a, via: [[76, -0.75], [79.6, -0.552]] }
+  - { from: VR6.lug1, to: [1.45, 76], via: [[75.753, -0.4], [74.85, 1.7]] }
+  - { from: RG3B.a, to: V3.pin2, via: [[78.92, -0.6], [79.655, -0.6], [79.655, 1.95]] }
+  - { from: RG3B.b, to: [1.45, 79] }
+  - { from: RL3B.b, to: V3.pin1, via: [[80.4, -0.15], [80.4, 2.05]] }
+  - { from: RK3B.a, to: V3.pin3, via: [[80.6, 1.62], [81.4, 1.62], [81.4, 1.812]] }
+  - { from: RK3B.b, to: [1.45, 81] }
+  - { from: RL3B.b, to: RM2.a, via: [[81.6, -0.4], [83.4, -0.4], [84.916, -1.925], [83.4, -2.8]] }
+
+  # --- Normal channel: input, V2A, tone network, V2B, mixer ----------------
+  - { from: JN, to: R3s.a, via: [[89, -0.7], [88.4, -0.55], [88.4, -0.4]] }
+  - { from: JN, to: R4s.a, via: [[89, -1.1], [90.4, -0.7], [90.4, -0.4]] }
+  - { from: R3s.b, to: V2.pin7, via: [[90.561, -0.4], [92.74, -0.4], [97.326, 2.327]] }
+  - { from: R4s.b, to: R3s.b, via: [[90.019, -0.65], [89.6, -0.65], [89.277, -0.4]] }
+  - { from: RG2A.a, to: R4s.b, via: [[87.4, -0.9], [91.6, -0.9], [91.6, -0.65]] }
+  - { from: RG2A.b, to: [1.45, 87] }
+  - { from: RL2A.b, to: V2.pin6, via: [[92.4, -0.15], [93.2, -0.15], [93.2, 1.3]] }
+  - { from: RK2A.a, to: V2.pin8, via: [[93.7, 1.8], [103.037, 2.325]] }
+  - { from: CK2A.a, to: RK2A.a }
+  - { from: CK2A.b, to: [1.45, 95] }
+  - { from: RK2A.b, to: [1.45, 94] }
+  - { from: RL2A.b, to: CTN4.a, via: [[93.6, -0.4], [96.94, -0.4]] }
+  - { from: CTN4.a, to: CTN5.a, via: [[97.19, -0.02]] }
+  - { from: CTN4.b, to: VR3.lug3, via: [[99.6, -0.4], [98, -0.75]] }
+  - { from: CTN5.b, to: VR3.lug1, via: [[101.19, 1.4], [98, 1.55], [98, -0.6]] }
+  - { from: RTN4.b, to: [1.45, 102] }
+  - { from: CTN6.a, to: RTN4.a, via: [[100.404, 0.42]] }
+  - { from: CTN6.b, to: RTN4.b, via: [[101.9, -0.15], [101.077, 0.316]] }
+  - { from: VR4.lug3, to: RTN4.a, via: [[102, -0.75], [101.4, -0.15]] }
+  - { from: VR4.lug1, to: RTN4.b, via: [[101.896, -0.6], [101.6, 1.55], [100.746, 1.519]] }
+  - { from: VR3.lug2, to: VR5.lug3, via: [[98, -0.6], [108, -0.6], [108, -0.75]] }
+  - { from: VR5.lug1, to: [1.45, 111], via: [[108, -0.4], [111, -0.4], [109.097, 1.848], [111, 1.9]] }
+  - { from: VR5.lug2, to: V2.pin2, via: [[107.888, -0.56], [107.78, 0.376], [107.8, 1.95]] }
+  - { from: RG2B.a, to: V2.pin2, via: [[106.4, -0.55], [107.6, -0.55], [107.6, 1.95]] }
+  - { from: RG2B.b, to: [1.45, 106] }
+  - { from: RL2B.a, to: V2.pin1, via: [[107.4, -0.15], [108.34, -0.1], [106.863, 1.635], [108, 1.98]] }
+  - { from: RK2B.a, to: V2.pin3, via: [[107.626, 1.523], [109.501, 1.5], [109.089, 2.034]] }
+  - { from: CK2B.a, to: RK2B.a }
+  - { from: CK2B.b, to: [1.45, 110] }
+  - { from: RK2B.b, to: [1.45, 108] }
+  # RL2B.b (BP355) carries no drawn run to another board part — this rail's
+  # own derivation was not traced from the available scan (see meta.yaml/
+  # netlist.cir header); net_map anchors RL2B.b to BP355 directly, matching
+  # the honest "driven as its own ideal source" convention netlist.cir uses.
+  - { from: RM1.a, to: V2.pin1, via: [[112.4, -0.9], [108.6, -0.9], [108.603, 1.952]] }
+
+  # --- Bass channel: input, V1A, C0, V1B, tone network ---------------------
+  - { from: JB, to: R1s.a, via: [[182, -0.7], [160, -0.7], [156.4, -0.4]] }
+  - { from: JB, to: R2s.a, via: [[182, -1.5], [159, -1.5], [158.4, -0.4]] }
+  - { from: R1s.b, to: V1.pin7, via: [[157.6, -0.4], [160.8, -0.4], [160.657, 1.724]] }
+  - { from: R2s.b, to: R1s.b, via: [[159.6, -0.65], [157.6, -0.65], [157.05, -0.4], [159.061, 0.623]] }
+  - { from: RG1A.a, to: R2s.b, via: [[155.4, -1.3], [159.6, -1.3], [161.2, -0.65]] }
+  - { from: RG1A.b, to: [1.45, 155] }
+  - { from: RL1A.b, to: V1.pin6, via: [[160.4, -0.15], [160.639, -0.15], [161.586, 1.6]] }
+  - { from: RK1A.a, to: V1.pin8, via: [[161.4, 1.5], [163.769, 1.544]] }
+  - { from: CK1A.a, to: RK1A.a }
+  - { from: CK1A.b, to: [1.45, 163] }
+  - { from: RK1A.b, to: [1.45, 162] }
+  - { from: RL1A.b, to: C0.a, via: [[161.6, -0.4], [165.4, -0.4]] }
+  - { from: C0.b, to: RG1B.a, via: [[167.6, -0.4], [167.02, -0.65]] }
+  - { from: RG1B.a, to: V1.pin2, via: [[167.841, -0.358], [166.8, -0.415], [166.757, 1.95]] }
+  - { from: RG1B.b, to: [1.45, 167] }
+  - { from: RL1B.b, to: V1.pin1, via: [[168.4, -0.15], [166.6, -0.15], [166.6, 2.058]] }
+  - { from: RK1B.a, to: V1.pin3, via: [[169.4, 1.5], [166.8, 1.644], [166.579, 1.605]] }
+  - { from: RK1B.b, to: [1.45, 170] }
+  - { from: RL1B.b, to: CTN1.a, via: [[169.613, -0.4], [172.4, -0.4]] }
+  - { from: RL1B.b, to: RTN2.a, via: [[169.8, -0.9], [171.4, -0.9], [171.4, 1.4], [172.4, 1.4]] }
+  - { from: CTN2.b, to: RTN1.b, via: [[176.19, 1.4], [174.791, 1.415], [174.192, -0.4]] }
+  - { from: RTN1.b, to: VR2.lug3, via: [[176.19, -3], [157.9, -3], [157.9, -0.9]] }
+  - { from: VR1.lug1, to: RTN3.a, via: [[177, -0.75], [178.19, -0.4]] }
+  - { from: VR1.lug3, to: RTN3.b, via: [[177, -0.6], [176.59, 1.4]] }
+  - { from: RBF.b, to: [1.45, 179] }
+  - { from: VR2.lug1, to: [1.45, 158], via: [[158.535, -0.4], [159.6, 1.9]] }
+
+  # --- 6.3 V heater chain (twisted pair, drawing's own socket order) --------
+  - { from: PT.heat, to: PL1.a, style: twisted }
+  - { from: PL1.b, to: V5.pin2, style: twisted, via: [[-1.4, 4.15], [41.85, 4.15], [41.85, 2.16]] }
+  - { from: V5.pin7, to: V6.pin2, style: twisted, via: [[44.2, 2.16], [44.2, 4.17], [46.35, 4.17], [46.35, 2.16]] }
+  - { from: V6.pin7, to: V4.pin4, style: twisted, via: [[51.7, 2.16], [51.7, 4.19], [64.5, 4.19], [64.5, 2.16]] }
+  - { from: V4.pin5, to: V2.pin4, style: twisted, via: [[66.5, 2.16], [66.5, 4.15], [91.5, 4.15], [91.5, 2.16]] }
+  - { from: V2.pin5, to: V3.pin4, style: twisted, via: [[94.5, 2.16], [94.5, 4.17], [77.5, 4.17], [77.5, 2.16]] }
+  - { from: V3.pin5, to: V1.pin4, style: twisted, via: [[80.5, 2.16], [80.5, 4.19], [159.5, 4.19], [159.5, 2.16]] }
+  - { from: V1.pin4, to: V1.pin5, style: twisted }
+
+# net_map — reviewable reconciliation of the drawn wiring with the DC netlist
+# (netlist.cir) for pipeline/verify_layout_nets.py. See docs/layout-schema.md.
+net_map:
+  # OT primary DCR omitted (matches every other amp in the corpus): both 5881
+  # plates and the primary centre tap sit at the same driven node, BP428.
+  anchors:
+    T3.pri_a: BP428
+    T3.pri_b: BP428
+    T3.ct:    BP428
+    SPK: "0"          # speaker jack — OT-secondary DCR folded into ground (NFB return)
+    RL2B.b: BP355     # rail not traced to a shared derivation on the available scan (single consumer; see netlist.cir header)
+    RS5.a: BP430      # screen rail — not traced to a shared board dropper on the available scan (two consumers, chained to each other only)
+    RGL5.b: NBIAS     # bias-supply island (DB1/RB1/RB2/C13) is its own abstracted, unmodelled network — not wired into this anchor (see netlist_unplaced below)
+  netlist_unplaced:
+    R1s: "Bass ch. jack-2 stopper — chassis-mounted at the jacks, ahead of RG1A; no DC grid current so it moves no operating point"
+    R2s: "Bass ch. jack-1 stopper — as R1s"
+    R3s: "Normal ch. jack-2 stopper — as R1s"
+    R4s: "Normal ch. jack-1 stopper — as R1s"
+    RTN1: "Bass ch. tone-network treble-bleed slope — control-network island, not modelled in netlist.cir"
+    RTN2: "Bass ch. tone-network bass-leg resistor — control-network island"
+    RTN3: "Bass ch. tone-network dropper, paralleled by VR1 — control-network island"
+    RBF: "Bass ch. tone-network foot — control-network island"
+    RTN4: "Normal ch. tone-network foot — control-network island"
+    CTN1: "Bass ch. tone-network treble-bleed cap — control-network island"
+    CTN2: "Bass ch. tone-network bridging cap — control-network island"
+    CTN3: "Bass ch. tone-network bridging cap — control-network island"
+    CTN4: "Normal ch. tone-network treble cap — control-network island"
+    CTN5: "Normal ch. tone-network bass-leg cap — control-network island"
+    CTN6: "Normal ch. tone-network foot bypass — control-network island"
+    CDR1: "V3A -> Bass ch. Treble coupling cap — control-network island, DC-open"
+    C0: "V1A -> V1B interstage coupler (estimate) — DC-open, moves no operating point"

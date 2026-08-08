@@ -91,18 +91,15 @@ stage read from the sheet, and the deck settles about a third under it. That
 second disagreement is recorded, not explained — no arithmetic here resolves
 it, and it is one of the reasons this entry is a draft.
 
-**What this entry ships.** The data core and the schematic: `meta.yaml`,
-`netlist.cir`, `voltages.yaml`, `bom.yaml`, this file and
-`schematic.kicad_sch`. There is no board drawing. One was built from the
-E-FB layout page and it is being held back: the repository's layout lint
-still finds 55 terminal-ambiguity collisions in it — points where a wire
-run ends close enough to another run's interior that a reader cannot tell a
-junction from a crossing. That is a drawing a reader could misread, so it
-waits for a pass that clears the lint rather than landing behind a waiver.
+**What this entry ships.** The circuit data, the redrawn schematic, and the
+board drawing built from the E-FB layout page — each channel's Bass, Treble
+and Volume network drawn in full, because on this sheet those parts mount on
+the board rather than at the panel. The drawn wiring is proved electrically
+equivalent to the simulated circuit.
 
-`verification.status` is `draft`. Per AGENTS.md a `verified` claim needs
-every gate green together, and this circuit does not have every artifact
-yet, let alone every gate.
+The entry stays a draft while those two chart figures stand unresolved.
+Neither is smoothed over above, and a verified badge is a maintainer's to
+grant, not this entry's to claim.
 
 ## The Bass/Normal split, and why the driver bottle carries a Treble pot
 

@@ -23,7 +23,7 @@ against pipeline/og_manifest.json, written whenever the PNGs are.
 
 
 ================================ THE CROP ==================================
-Deterministic, and the same rule for all eighteen boards.
+Deterministic, and the same rule for every board in the corpus.
 
   height    The window is framed to the drawing's under-chassis view: from just
             below the row of pots and jacks along the board's top edge, down

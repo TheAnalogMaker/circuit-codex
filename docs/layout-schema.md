@@ -331,8 +331,10 @@ waivers:
 ```
 
 An amp with zero lint failures needs no entry. Remove the waiver once the layout
-is remediated. The list is currently **empty**: all 18 layouts pass every check,
-wiring and label alike.
+is remediated. The list is currently **empty**, and stays that way as the corpus grows:
+every layout in `amps/` passes every check, wiring and label alike. A count
+belongs in the gate's own output, not in prose that goes stale the next time a
+board lands.
 
 ### Label placement (automatic)
 

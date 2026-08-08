@@ -1,0 +1,354 @@
+board: {rows: 2, cols: 94, title: 5E6-A · eyelet board layout}
+caption: Redrawn from the published Fender 5E6-A (A-EE) layout drawing — the principal board components
+  in the order the drawing shows them, with their hookup. This circuit runs two 5U4GA rectifier tubes
+  in parallel with no choke, so the plates, screens and OT centre tap all land on one first-filter node
+  (three 16 µF cans, C9/C10/C11) rather than the choke-fed screen node most of this corpus's other tweed
+  amps carry. Pots (volume ×2, bass, treble, presence) are panel-mounted, off the board, as the sheet
+  draws them; the fixed tone-network parts (RBL/RTS/RBS/CBS/RNF/C3/C4/C7/C8) are on the board. The channel-jumper
+  cap (CJ1) and each channel's 100 kΩ padding resistor (RP1/RP2) sit between the coupling caps and the
+  volume pots, as read off the Schematic Heaven scan this pass — see notes.md for the two mis-readings
+  that pass corrected. The board's several chassis-ground returns are drawn as one bare ground bus in
+  the house style. The 6.3 V heater chain (green twisted pair, power transformer → pilot lamp → the two
+  6L6G → the 12AX7 → the two 12AY7) follows the daisy order of the sheet's tube row; the two 5U4GA rectifiers
+  are directly heated from the 5 V winding and off the 6.3 V chain. The power-transformer primary leads
+  land on chassis switches, off the board. Not a trace or a dimensioned reproduction.
+source: {desc: 'Fender "Bass-Man" Layout, Model 5E6-A (A-EE), page 1', url: 'https://el34world.com/charts/Schematics/files/Fender/Fender_bassman_5e6a.pdf'}
+wiring_claim: verified
+parts:
+- ref: D1
+  part: Rectifier (bias)
+  a: [1, 0]
+  b: [1, 1]
+  cathode: b
+- ref: C14
+  part: Electrolytic capacitor
+  a: [0, 2]
+  b: [0, 3]
+- ref: RB1
+  part: Carbon comp resistor
+  a: [1, 2]
+  b: [1, 3]
+- ref: RB2
+  part: Carbon comp resistor
+  a: [1, 4]
+  b: [1, 5]
+- ref: C9
+  part: Electrolytic capacitor
+  a: [0, 8]
+  b: [0, 9]
+- ref: C10
+  part: Electrolytic capacitor
+  a: [0, 10]
+  b: [0, 11]
+- ref: C11
+  part: Electrolytic capacitor
+  a: [0, 12]
+  b: [0, 13]
+- ref: RD1
+  part: Power resistor
+  a: [1, 14]
+  b: [1, 15]
+- ref: C12
+  part: Electrolytic capacitor
+  a: [0, 16]
+  b: [0, 17]
+- ref: RD2
+  part: Power resistor
+  a: [1, 18]
+  b: [1, 19]
+- ref: C13
+  part: Electrolytic capacitor
+  a: [0, 20]
+  b: [0, 21]
+- ref: RGL2
+  part: Carbon comp resistor
+  a: [1, 22]
+  b: [1, 23]
+- ref: C6
+  part: Coupling capacitor
+  a: [0, 24]
+  b: [0, 25]
+- ref: R6s
+  part: Carbon comp resistor
+  a: [1, 26]
+  b: [1, 27]
+- ref: RGL1
+  part: Carbon comp resistor
+  a: [1, 28]
+  b: [1, 29]
+- ref: C5
+  part: Coupling capacitor
+  a: [0, 30]
+  b: [0, 31]
+- ref: R5s
+  part: Carbon comp resistor
+  a: [1, 32]
+  b: [1, 33]
+- ref: RLA
+  part: Carbon comp resistor
+  a: [1, 34]
+  b: [1, 35]
+- ref: RGPI
+  part: Carbon comp resistor
+  a: [1, 36]
+  b: [1, 37]
+- ref: RTAIL
+  part: Carbon comp resistor
+  a: [0, 38]
+  b: [1, 38]
+- ref: RT2
+  part: Carbon comp resistor
+  a: [1, 40]
+  b: [1, 41]
+- ref: RBL
+  part: Carbon comp resistor
+  a: [0, 42]
+  b: [1, 42]
+- ref: RTS
+  part: Carbon comp resistor
+  a: [1, 44]
+  b: [1, 45]
+- ref: RBS
+  part: Carbon comp resistor
+  a: [1, 46]
+  b: [1, 47]
+- ref: CBS
+  part: Mica capacitor
+  a: [0, 48]
+  b: [1, 48]
+- ref: RNF
+  part: Carbon comp resistor
+  a: [1, 50]
+  b: [1, 51]
+- ref: C3
+  part: Coupling capacitor
+  a: [0, 52]
+  b: [0, 53]
+- ref: C4
+  part: Mica capacitor
+  a: [0, 54]
+  b: [0, 55]
+- ref: C7
+  part: Film capacitor
+  a: [1, 56]
+  b: [1, 57]
+- ref: C8
+  part: Mica capacitor
+  a: [0, 58]
+  b: [0, 59]
+- ref: RFB
+  part: Carbon comp resistor
+  a: [1, 60]
+  b: [1, 61]
+- ref: RL3
+  part: Carbon comp resistor
+  a: [1, 62]
+  b: [1, 63]
+- ref: RK2
+  part: Carbon comp resistor
+  a: [0, 64]
+  b: [1, 64]
+- ref: C2
+  part: Electrolytic capacitor
+  a: [0, 66]
+  b: [0, 67]
+- ref: CJ1
+  part: Mica capacitor
+  a: [0, 68]
+  b: [0, 69]
+- ref: RP1
+  part: Carbon comp resistor
+  a: [1, 70]
+  b: [1, 71]
+- ref: RP2
+  part: Carbon comp resistor
+  a: [1, 72]
+  b: [1, 73]
+- ref: RM1
+  part: Carbon comp resistor
+  a: [1, 74]
+  b: [1, 75]
+- ref: RM2
+  part: Carbon comp resistor
+  a: [1, 76]
+  b: [1, 77]
+- ref: RG1
+  part: Carbon comp resistor
+  a: [1, 78]
+  b: [1, 79]
+- ref: RG2
+  part: Carbon comp resistor
+  a: [1, 80]
+  b: [1, 81]
+- ref: RL1
+  part: Carbon comp resistor
+  a: [1, 82]
+  b: [1, 83]
+- ref: RL2
+  part: Carbon comp resistor
+  a: [1, 84]
+  b: [1, 85]
+- ref: RK1
+  part: Carbon comp resistor
+  a: [0, 86]
+  b: [1, 86]
+- ref: C1
+  part: Electrolytic capacitor
+  a: [0, 88]
+  b: [0, 89]
+- ref: CC1
+  part: Coupling capacitor
+  a: [0, 90]
+  b: [0, 91]
+- ref: CC2
+  part: Coupling capacitor
+  a: [0, 92]
+  b: [0, 93]
+offboard:
+- {id: T2, kind: xfmr, edge: left, at: 0.2, label: Power trans}
+- {id: PL1, kind: part, glyph: lamp, edge: left, at: 1.4, label: Pilot lamp}
+- {id: V6, ref: V6, kind: tube, edge: bottom, at: 3.0, label: V6 · 5U4GA}
+- {id: V7, ref: V7, kind: tube, edge: bottom, at: 11.0, label: V7 · 5U4GA}
+- {id: V4, ref: V4, kind: tube, edge: bottom, at: 25.0, label: V4 · 6L6G}
+- {id: V5, ref: V5, kind: tube, edge: bottom, at: 30.0, label: V5 · 6L6G}
+- {id: SPK, kind: jack, edge: bottom, at: 38.5, label: Spkr jack}
+- {id: V3, ref: V3, kind: tube, edge: bottom, at: 43.0, label: V3 · 12AX7 (PI)}
+- {id: V2, ref: V2, kind: tube, edge: bottom, at: 65.0, label: V2 · 12AY7}
+- {id: V1, ref: V1, kind: tube, edge: bottom, at: 87.0, label: V1 · 12AY7}
+- {id: VR5, ref: VR5, kind: pot, edge: top, at: 51, label: Presence}
+- {id: CPR, ref: CPR, kind: part, edge: top, at: 53.5, label: CPR}
+- {id: VR4, ref: VR4, kind: pot, edge: top, at: 46, label: Bass}
+- {id: VR3, ref: VR3, kind: pot, edge: top, at: 58, label: Treble}
+- {id: VR1, ref: VR1, kind: pot, edge: top, at: 82, label: Vol · channel A}
+- {id: VR2, ref: VR2, kind: pot, edge: top, at: 91, label: Vol · channel B}
+- {id: JA, kind: jack, edge: top, at: 78, label: Channel-A in}
+- {id: JB, kind: jack, edge: top, at: 93.5, label: Channel-B in}
+- {id: T3, ref: T3, kind: xfmr, edge: right, at: 0.5, label: Output trans}
+bus:
+- from: [1.45, -0.4]
+  to: [1.45, 93.4]
+runs:
+  - { from: T2.red-yellow, to: D1.a, color: red-yellow, via: [[0.571, 0.783], [-0.04, 0.85]] }
+  - { from: D1.b, to: RB1.a }
+  - { from: C14.a, to: RB1.a }
+  - { from: C14.b, to: [1.45, 2.4], via: [[2.4, 0.55]] }
+  - { from: RB1.b, to: RB2.a }
+  - { from: RB2.b, to: [1.45, 4.4], via: [[4.4, 1.22]] }
+  - { from: RGL2.b, to: RB1.b, via: [[22.2, 2.32], [5.144, 2.32]] }
+  - { from: RGL1.b, to: RB1.b, via: [[28.2, 2.92], [4.8, 2.92]] }
+  - { from: T2.red1, to: V6.pin6, via: [[-0.6, 0.12], [-0.6, 2.32], [3, 2.32], [3, 1.65]] }
+  - { from: T2.red2, to: V7.pin4, via: [[-0.832, 0.18], [-0.984, 2.02], [10.828, 2.276], [11.26, 1.618]] }
+  - { from: T2.yellow1, to: V6.pin2, via: [[-1.2, 0.24], [-1.2, 1.72], [1.8, 1.72]] }
+  - { from: T2.yellow2, to: V6.pin8, via: [[-1.5, 0.3], [-1.5, 1.376], [4.4, 1.42]] }
+  - { from: V6.pin2, to: V7.pin2, via: [[1.8, 2.62], [9, 2.62]] }
+  - { from: V6.pin8, to: V7.pin8, via: [[4.842, 1.72], [13.6, 1.72]] }
+  - { from: V6.pin8, to: [1, 8], color: red, via: [[4.4, 1.691], [8.5, 1.3]] }
+  - { from: C9.a, to: [1, 8] }
+  - { from: C9.b, to: [1.45, 9.3], via: [[9.3, 0.55]] }
+  - { from: C9.a, to: C10.a, via: [[8.103, 0.102]] }
+  - { from: C10.b, to: [1.45, 11.3], via: [[11.3, 0.55]] }
+  - { from: C10.a, to: C11.a, via: [[11.137, 0.177]] }
+  - { from: C11.b, to: [1.45, 13.3], via: [[13.3, 0.55]] }
+  - { from: RD1.a, to: C11.a, via: [[14.2, 0.62]] }
+  - { from: RD1.b, to: C12.a, via: [[16.2, 0.62]] }
+  - { from: C12.b, to: [1.45, 17.3], via: [[17.3, 0.55]] }
+  - { from: RD2.a, to: C12.a, via: [[18.2, 0.62]] }
+  - { from: RD2.b, to: C13.a, via: [[20.2, 0.62]] }
+  - { from: C13.b, to: [1.45, 21.3], via: [[21.3, 0.55]] }
+  - { from: V4.pin4, to: [1, 8], via: [[8.32, 1.9]] }
+  - { from: V5.pin4, to: [1, 8], via: [[30, 2.1], [7.75, 2.1]] }
+  - { from: V4.pin3, to: T3.blue, via: [[24.602, 1.98], [24.6, 4.1], [94.5, 4.1], [94.572, 0.31]] }
+  - { from: V5.pin3, to: T3.brown, via: [[30, 2.426], [30.4, 4.7], [94.209, 4.7], [93.717, 0.41]] }
+  - { from: T3.red, to: [1, 8], color: red, via: [[94.322, 0.546], [94.343, 5.2], [9.456, 5.2], [7.844, 1.18]] }
+  - { from: C5.a, to: V3.pin1, via: [[30.2, 0.6], [34.3, 0.6], [34.3, 1.3]] }
+  - { from: C5.b, to: R5s.a }
+  - { from: R5s.b, to: V4.pin5, via: [[33.2, 1.476], [25.9, 1.3]] }
+  - { from: RGL1.a, to: V4.pin5, via: [[28.2, 1.3], [26.3, 1.66]] }
+  - { from: C6.a, to: V3.pin3, via: [[24.2, 3.8], [34.6, 3.8], [35.699, 1.206]] }
+  - { from: C6.b, to: R6s.a }
+  - { from: R6s.b, to: V5.pin5, via: [[27.2, 1.62], [30.9, 1.3]] }
+  - { from: RGL2.a, to: V5.pin5, via: [[22.2, 1.3], [31.2, 1.641]] }
+  - { from: V4.pin8, to: [1.45, 25], via: [[25, 2.34]] }
+  - { from: V5.pin8, to: [1.45, 30], via: [[30, 2.34]] }
+  - { from: T3.green, to: SPK, via: [[95.1, 0.61], [95.1, 3.8], [38.5, 3.8], [38.5, 2.1]] }
+  - { from: T3.black, to: [1.45, 39.5], via: [[95.3, 0.71], [95.3, 4.4], [39.5, 4.4], [39.75, 2.851]] }
+  - { from: RNF.a, to: SPK, via: [[50.2, 1.3], [40, 2.4], [38.9, 2.3]] }
+  - { from: RLA.a, to: RD1.b, via: [[34.2, 1.72], [15.9, 1.72]] }
+  - { from: RLA.b, to: V3.pin1, via: [[41.551, 2.16]] }
+  - { from: RTAIL.a, to: V3.pin3, via: [[37.803, 1.389], [34.9, 2.21]] }
+  - { from: RTAIL.b, to: RT2.a, via: [[39.161, 1.159]] }
+  - { from: RGPI.b, to: RT2.a, via: [[37.2, 1.3], [39.6, 1.2]] }
+  - { from: RT2.b, to: [1.45, 41.3], via: [[41.3, 1.22]] }
+  - { from: C8.b, to: V3.pin2, via: [[58.2, 1.72], [35.3, 1.55], [35.47, 2.44], [37.887, 2.515]] }
+  - { from: RGPI.a, to: V3.pin2, via: [[36.2, 1.3], [35.6, 2.3]] }
+  - { from: RBL.a, to: RL3.b, via: [[42, 0.85], [63.2, 0.85]] }
+  - { from: RBL.b, to: [1.45, 42], via: [[42, 1.22]] }
+  - { from: RTS.a, to: RBL.a, via: [[44.2, 0.62], [41.642, 0.62]] }
+  - { from: RTS.b, to: VR4.lug2, via: [[45.2, 0.34], [46, -0.9]] }
+  - { from: VR4.lug3, to: RNF.b, via: [[46, -1.55], [50, -1.1]] }
+  - { from: VR4.lug3, to: VR5.lug3, via: [[51, -1.1]] }
+  - { from: VR4.lug1, to: RBS.a, via: [[46, -0.2], [46.2, 0.62]] }
+  - { from: RBS.b, to: CBS.a, via: [[47.2, 0.62], [48, 0.62]] }
+  - { from: CBS.b, to: [1.45, 48], via: [[48, 1.22]] }
+  - { from: VR5.lug2, to: CPR.a, via: [[51, -0.6]] }
+  - { from: RNF.b, to: [1, 38.5], color: green, via: [[51.2, 5], [40, 5], [38.7, 1.9]] }
+  - { from: C3.a, to: RBL.a, via: [[52.2, 0.42], [42.6, 0.42]] }
+  - { from: C3.b, to: C4.a }
+  - { from: C4.b, to: VR3.lug1, via: [[55.2, 0.34], [58, -0.6]] }
+  - { from: VR3.lug1, to: VR3.lug2 }
+  - { from: VR3.lug2, to: C7.a, via: [[59.5, -1.015], [59.5, 1.15], [56.2, 1.15], [56.2, 0.92]] }
+  - { from: C7.b, to: [1.45, 57], via: [[57, 1.22]] }
+  - { from: VR3.lug2, to: C8.a, via: [[61, -1.3], [61, 0.55], [58.2, 0.55]] }
+  - { from: RD2.b, to: RL3.a, via: [[20.694, 1.05], [61.6, 1.108]] }
+  - { from: RL3.b, to: V2.pin6, via: [[62.2, 0.62], [65, 0.75]] }
+  - { from: RFB.b, to: RL3.b, via: [[61.2, 0.16], [62.6, 0.16]] }
+  - { from: RFB.a, to: V2.pin7, via: [[60.2, 0.62], [63.928, 1.55]] }
+  - { from: RM1.b, to: V2.pin7, via: [[75.2, 1.9]] }
+  - { from: RM2.b, to: V2.pin7, via: [[77.2, 2.1], [64.8, 2.5]] }
+  - { from: V2.pin8, to: RK2.a, via: [[65.029, 1.72], [64, 0.34]] }
+  - { from: RK2.b, to: [1.45, 64], via: [[64, 1.22]] }
+  - { from: C2.a, to: RK2.a }
+  - { from: C2.b, to: [1.45, 67], via: [[67, 0.55]] }
+  - { from: JA, to: RG1.a, via: [[78, -0.46], [78.2, 0.92]] }
+  - { from: RG1.b, to: [1.45, 79], via: [[79.2, 1.22]] }
+  - { from: RG1.a, to: V1.pin7, via: [[78.831, 0.34], [88.182, 1.411]] }
+  - { from: JB, to: RG2.a, via: [[93.5, -0.46], [80.2, 1.66]] }
+  - { from: RG2.b, to: [1.45, 81], via: [[81.2, 1.22]] }
+  - { from: RG2.a, to: V1.pin2, via: [[80.2, 0.72], [86.6, 2.44]] }
+  - { from: V1.pin6, to: RL1.b, via: [[87.3, 1.72], [83.2, 1.3]] }
+  - { from: RL3.a, to: RL1.a, via: [[63.146, 1.72], [82.245, 1.72]] }
+  - { from: V1.pin6, to: CC1.a, via: [[86.6, 1.66], [90.2, 0.34]] }
+  - { from: CC1.b, to: RP1.a }
+  - { from: RP1.b, to: VR1.lug3, via: [[71.2, -1.8], [82, -1.8]] }
+  - { from: CC1.b, to: CJ1.a, via: [[91.648, 5], [69.684, 5]] }
+  - { from: CJ1.b, to: CC2.b, via: [[68.2, 3.5], [92.2, 3.5]] }
+  - { from: V1.pin1, to: RL2.b, via: [[86.015, 2.5], [85.219, 1.3]] }
+  - { from: RL1.a, to: RL2.a, via: [[82.2, 0.34], [84.2, 0.355]] }
+  - { from: V1.pin1, to: CC2.a, via: [[86.6, 2.62], [92.2, 0.34]] }
+  - { from: CC2.b, to: RP2.a }
+  - { from: RP2.b, to: VR2.lug3, via: [[73.2, -2.1], [91, -2.1]] }
+  - { from: VR1.lug2, to: RM1.a, via: [[82, -1.55], [75, -1.3]] }
+  - { from: VR1.lug1, to: [1.45, 82], via: [[82.685, -0.123]] }
+  - { from: VR2.lug2, to: RM2.a, via: [[91, -1.55], [77, -1.339]] }
+  - { from: VR2.lug1, to: [1.45, 91], via: [[90.692, -0.6]] }
+  - { from: V1.pin8, to: RK1.a, via: [[87.1, 2.2]] }
+  - { from: V1.pin3, to: RK1.a, via: [[85.3, 1.66], [85.7, 0.9]] }
+  - { from: RK1.b, to: [1.45, 86], via: [[86, 1.22]] }
+  - { from: C1.a, to: RK1.a }
+  - { from: C1.b, to: [1.45, 89], via: [[89, 0.55]] }
+  - { from: T2.green, to: PL1.a, style: twisted }
+  - { from: PL1.b, to: V4.pin2, style: twisted, via: [[-1.4, 3.78], [25, 3.78], [25, 2.6]] }
+  - { from: V4.pin7, to: V5.pin2, style: twisted, via: [[24.6, 2.6], [24.6, 3.8], [30, 3.8], [30, 2.6]] }
+  - { from: V5.pin7, to: V3.pin4, style: twisted, via: [[29.6, 2.6], [29.6, 3.82], [43, 3.82]] }
+  - { from: V3.pin5, to: V2.pin4, style: twisted, via: [[43, 3.78], [65, 3.78]] }
+  - { from: V2.pin5, to: V1.pin4, style: twisted, via: [[65, 3.76], [87, 3.76]] }
+  - { from: V1.pin4, to: V1.pin5, style: twisted }
+  - { from: T2.green-yellow, to: [1.45, 0.7], via: [[-0.69, 0.39], [0.7, 1.15]] }
+net_map:
+  anchors: {T3.blue: BP1, T3.brown: BP1, T3.red: BP1, SPK: '0'}
+  series_bridge: {RP1: '100k channel-A volume-pot padding resistor — no DC path through it (downstream
+      of the DC-blocking CC1 coupler), so it carries no grid current', RP2: 100k channel-B volume-pot
+      padding resistor — same}
+  netlist_unplaced: {RG3: 'V2 grid return — realised through the two channels'' 1M volume-pot bodies (VR1/VR2)
+      and the 270k mixers (RM1/RM2) to ground, plus RFB''s own light plate-tie, not a single discrete
+      board resistor'}
