@@ -130,6 +130,10 @@ export function layoutAlt(amp, style = 'current') {
 
 // A per-amp meta description built from the circuit's own metadata (era, output,
 // tube lineup, topology) so every amp page reads distinctly — 5E1 vs 5F1, etc.
+// The closing artifact sentence is keyed to verification.status: only a circuit
+// whose operating point actually passed the chart gate advertises published-chart
+// operating points; a draft's operating point is simulated (its page badge says
+// so), and its description must say the same rather than borrow the claim.
 export function ampMetaDescription(m) {
   const tubes = (m.tubes || []).join(', ');
   const rect = m.topology?.rectifier?.type || m.topology?.rectifier?.kind || 'tube';
@@ -138,9 +142,11 @@ export function ampMetaDescription(m) {
     ? `${m.topology.phase_inverter} phase inverter` : null;
   const topo = [bias, pi].filter(Boolean).join(', ');
   const era = m.era ? `${m.era.start}–${m.era.end}` : '';
+  const artifacts = m.verification?.status === 'verified'
+    ? 'Redrawn KiCad schematic, ngspice-verified netlist, published-chart operating points, and structured metadata.'
+    : 'Redrawn KiCad schematic, ngspice netlist, simulated draft operating points, and structured metadata.';
   return `${m.name_style} (${era}), ${m.wattage} W on ${tubes}` +
-    (topo ? `, ${topo}` : '') + `, ${rect} rectifier. ` +
-    `Redrawn KiCad schematic, ngspice-verified netlist, published-chart operating points, and structured metadata.`;
+    (topo ? `, ${topo}` : '') + `, ${rect} rectifier. ` + artifacts;
 }
 
 export const GITHUB = 'https://github.com/TheAnalogMaker/circuit-codex';
