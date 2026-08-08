@@ -109,11 +109,42 @@ def amp_ids() -> list[str]:
                   and (d / "layout.yaml").exists() and (d / "meta.yaml").exists())
 
 
-def display_id(amp_id: str) -> str:
-    """The circuit designation as the drawings print it — Fender hyphenates the
-    revision suffix (5F6-A, 5F2-A, 6G6-B). Mirrors displayId() in
+# A qualified id — `<designation>-<model>`, e.g. `ab763-twin` — marks a designation
+# the factory reused across two amplifiers (AB763 heads both the Deluxe Reverb and
+# the Twin Reverb drawing). See docs/schema.md and QUALIFIED_ID in corpus.js.
+QUALIFIED_ID = re.compile(r"^([a-z0-9]+)-([a-z0-9]+)$")
+
+
+def model_qualifier(slug: str, name_style: str) -> str:
+    """The qualifier text, taken from the circuit's own name_style starting at the
+    word the slug matches — never typed twice. Mirrors modelQualifier() in
     site/src/lib/corpus.js."""
-    return re.sub(r"^(\d[A-Z]\d+)([AB])$", r"\1-\2", amp_id.upper())
+    words = [w for w in str(name_style or "").split() if w]
+    for i, w in enumerate(words):
+        if re.sub(r"[^A-Za-z0-9].*$", "", w).lower() == slug:
+            return " ".join(words[i:])
+    return slug[:1].upper() + slug[1:]
+
+
+def display_id_parts(amp_id: str, name_style: str = "") -> tuple[str, str | None]:
+    """(designation, qualifier) for a circuit id. The designation is printed as the
+    drawings print it — Fender hyphenates the revision suffix (5F6-A, 5F2-A,
+    6G6-B). A qualified id carries a second element; an unqualified one does not.
+    Mirrors displayId() in site/src/lib/corpus.js, which renders the pair as
+    "AB763 (Twin Reverb-style)" — the card sets the same two parts as type."""
+    m = QUALIFIED_ID.match(amp_id)
+    desig = re.sub(r"^(\d[A-Z]\d+)([AB])$", r"\1-\2",
+                   (m.group(1) if m else amp_id).upper())
+    if not m:
+        return desig, None
+    return desig, model_qualifier(m.group(2), name_style)
+
+
+def display_id(amp_id: str, name_style: str = "") -> str:
+    """The full label, parenthetical and all — the string corpus.js's displayId()
+    returns for the same circuit."""
+    desig, qual = display_id_parts(amp_id, name_style)
+    return desig if qual is None else f"{desig} ({qual})"
 
 
 # Display names for the topology values, verbatim from TOPOLOGY_DIMENSIONS in
@@ -256,7 +287,7 @@ def card_svg(amp_id: str) -> str:
     cx0, cy0, cw, ch = crop_window(rend)
     s = CARD_W / cw
 
-    did = display_id(amp_id)
+    did, qual = display_id_parts(amp_id, str(meta.get("name_style", "")))
     era = meta.get("era") or {}
     v = meta.get("verification") or {}
     verified = v.get("status") == "verified"
@@ -276,16 +307,33 @@ def card_svg(amp_id: str) -> str:
                  weight=600, spacing=1.4, anchor="end"))
 
     # --- circuit designation, and the verification chip on its baseline ----
+    # A reused designation is only half a name: "AB763" alone heads two different
+    # amplifiers, so a qualified id carries its parenthetical here exactly as every
+    # other surface renders it — set smaller, on the designation's own baseline, so
+    # the designation keeps the display size it earns.
     id_size = 146 if len(did) <= 3 else (128 if len(did) <= 5 else 112)
     id_w = adv(did, id_size, 2)
     e.append(txt(PAD_L - 4, 212, did, AMBER, id_size, weight=700, spacing=2))
-    e.append(f'<rect x="{PAD_L}" y="236" width="104" height="5" rx="2.5" fill="{AMBER_DIM}"/>')
 
     chip = f"✓  VERIFIED  {v.get('date')}" if verified and v.get("date") else \
            ("✓  VERIFIED" if verified else "DRAFT")
     chip_col, chip_edge = (OK, OK) if verified else (MUTED, LINE)
     cwid = adv(chip, 21, 2.6) + 44
     chip_x = PAD_R - cwid
+
+    if qual:
+        # Set to fit the room left between the designation and the verification
+        # chip, so the parenthetical can never run under the chip on a longer
+        # style name or a verified card's dated badge.
+        q_txt, q_gap = f"({qual})", 18
+        q_x = PAD_L - 4 + id_w + q_gap
+        q_size = 40
+        while q_size > 24 and q_x + adv(q_txt, q_size, 1.6) > chip_x - 26:
+            q_size -= 2
+        e.append(txt(q_x, 212, q_txt, AMBER_DIM, q_size, weight=600, spacing=1.6))
+        id_w += q_gap + adv(q_txt, q_size, 1.6)
+    e.append(f'<rect x="{PAD_L}" y="236" width="104" height="5" rx="2.5" fill="{AMBER_DIM}"/>')
+
     e.append(f'<rect x="{fmt(chip_x)}" y="171" width="{fmt(cwid)}" height="40" '
              f'rx="20" fill="none" stroke="{chip_edge}" stroke-width="1.5"/>')
     e.append(txt(PAD_R - 22, 198, chip, chip_col, 21, spacing=2.6, anchor="end"))
@@ -413,17 +461,55 @@ def build(ids: list[str]) -> None:
          "cards": dict(sorted(cards.items()))}, indent=2) + "\n")
 
 
+# Worked examples of the label the card must print, one per shape the id grammar
+# allows. They exist because display_id() is a hand-written mirror of displayId()
+# in site/src/lib/corpus.js: the two diverged silently once — the card headlined
+# "AB763-TWIN", a designation Fender never printed and no other surface uses — and
+# only a mirror the gate actually executes stops that happening twice. Any new
+# shape of id belongs here on the day it lands.
+DISPLAY_ID_EXAMPLES = [
+    # (id, name_style, expected label)
+    ("5e3", "Tweed Deluxe-style", "5E3"),
+    ("5f6a", "Tweed Bassman-style", "5F6-A"),
+    ("6g6b", "Brown Bassman-style", "6G6-B"),
+    ("ab763", "Blackface Deluxe Reverb-style", "AB763"),
+    ("ab763-twin", "Blackface Twin Reverb-style", "AB763 (Twin Reverb-style)"),
+    ("aa864-bassman", "Blackface Bassman-style", "AA864 (Bassman-style)"),
+    ("jtm45", "British 45 W-style", "JTM45"),
+]
+
+
+def check_display_id() -> list[str]:
+    """Prove the mirror still mirrors, on the worked examples and on the corpus."""
+    errs = []
+    for amp_id, style, want in DISPLAY_ID_EXAMPLES:
+        got = display_id(amp_id, style)
+        if got != want:
+            errs.append(f"display_id({amp_id!r}) = {got!r}, expected {want!r} — "
+                        f"the card label has diverged from displayId() in "
+                        f"site/src/lib/corpus.js")
+    for amp_id in amp_ids():
+        if QUALIFIED_ID.match(amp_id):
+            meta = yaml.safe_load((AMPS / amp_id / "meta.yaml").read_text())
+            _, qual = display_id_parts(amp_id, str(meta.get("name_style", "")))
+            if not qual or qual[0].islower():
+                errs.append(f"{amp_id}: model-qualified id renders no qualifier on "
+                            f"its social card")
+    return errs
+
+
 def check() -> int:
     """Staleness gate. Needs no rsvg and no fonts: it rebuilds each card's SVG
     from the corpus and compares digests with the manifest written beside the
     committed PNGs, so an edited layout, meta.yaml or renderer shows up as a
-    stale card, and a hand-edited PNG shows up too."""
+    stale card, and a hand-edited PNG shows up too. It also re-proves the one
+    piece of corpus.js this file duplicates (the id → label mirror)."""
     if not MANIFEST.exists():
         print("og cards missing — run pipeline/render_og.py", file=sys.stderr)
         return 1
     cards = (json.loads(MANIFEST.read_text()).get("cards") or {})
     ids = amp_ids()
-    errs: list[str] = []
+    errs: list[str] = check_display_id()
     for amp_id in ids:
         rec = cards.get(amp_id)
         png = OUT_DIR / f"{amp_id}.png"
