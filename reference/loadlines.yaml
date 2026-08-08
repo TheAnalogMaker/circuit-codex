@@ -592,6 +592,30 @@ stages:
   ot_primary_note: 4 kΩ anode-to-anode primary · 8 Ω / 15 Ω secondary taps — Output transformer (Haddon)
   sim_ip_ma: 47.9413
   sim_ig2_ma: 5.1832
+- amp: 'jtm100'
+  name_style: British 100-watt lead-style
+  tube: 'KT66'
+  output_tubes: 4
+  config: push-pull
+  bias: fixed
+  plate_node: BP1
+  plate_v: 560.0
+  screen_node: S5
+  screen_v: 558.451
+  cathode_node: '0'
+  cathode_v: 0.0
+  rk_total: null
+  rk_per_tube: null
+  grid_node: G5
+  grid_v: -65.0
+  grid_supply_node: null
+  grid_supply_v: null
+  ot_primary_z: null
+  ot_primary_approx: false
+  ot_primary_note: Push-pull, 4x KT66 primary — Output to the speaker; secondary leads lettered on the
+    sheet — blue 100 V line, white 16 Ω, yellow 8 Ω, orange common
+  sim_ip_ma: 71.5516
+  sim_ig2_ma: 0.0
 - amp: 'jtm45'
   name_style: British lead-style
   tube: 'KT66'

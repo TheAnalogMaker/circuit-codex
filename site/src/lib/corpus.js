@@ -731,6 +731,13 @@ const TONE_STACK_SPECS = [
     refs: { slope: 'RSL', trebleCap: 'C4', treblePot: 'VR3', bassCap: 'C5', bassPot: 'VR4', midCap: 'C6', midPot: 'VR5' },
   },
   {
+    id: 'jtm100', kind: 'fmv', wiring: 'ladder',
+    blurb: 'The 100-watt head carries the JTM45\'s stack with one value changed — the middle capacitor is lettered 0.02 µF rather than 0.01 µF, so the bass and middle positions read the same. Plotted as the 100 W drawing wires it: treble-wiper output, bass rheostat, mid cap into the middle pot\'s wiper.',
+    drive: { kind: 'cathode-follower', tube: '12ax7' },
+    load: 'RGA',
+    refs: { slope: 'RSL', trebleCap: 'C4', treblePot: 'VR3', bassCap: 'C5', bassPot: 'VR4', midCap: 'C6', midPot: 'VR5' },
+  },
+  {
     id: 'm1987', kind: 'fmv', wiring: 'ladder',
     blurb: 'The British lead variant: a 33 kΩ slope resistor and a 500 pF treble cap move the whole curve. Plotted as the Unicord drawing wires it — the same ladder as the JTM45.',
     drive: { kind: 'cathode-follower', tube: '12ax7' },

@@ -30,24 +30,33 @@ models:
         url: "https://www.drtube.com/schematics/marshall/jtm45tr.gif"
 
   - designation: "JTM100"
-    name: "100-watt Super Lead prototype head"
+    name: "100-watt head (JTM45/100, Super 100)"
     years: { start: 1965, end: 1966 }
     wattage: 100
     output: "push-pull 4xKT66"
-    tubes: null
+    tubes: [ECC83, ECC83, ECC83, KT66, KT66, KT66, KT66]
     key_change: >
-      Built at the request of The Who's Pete Townshend and John Entwistle, who
-      wanted more clean headroom than the 45-watt head could give; Marshall
-      doubled the output section to four KT66s. Schematic-archive era charts
-      index this circuit separately from the later cataloged "1959" model
-      number, though sources do not agree on whether the two names describe
-      one continuous circuit or successive revisions — treated here as the
-      immediate predecessor to the 1959-numbered Super Lead.
-    circuit_ref: null
+      Built for players who wanted more clean headroom than the 45-watt head
+      could give; Marshall doubled the output section to four KT66s and, for
+      the first time, dropped the rectifier valve for silicon diodes. The
+      corpus's own jtm100 circuit entry documents a factory sheet from this
+      window: the JTM45 front end essentially unchanged — four inputs, shared
+      820-ohm input cathode, DC-coupled cathode follower, 56k/270pF tone stack,
+      long-tailed-pair inverter — ahead of four KT66s on a 560 V rail, with the
+      5k presence control wired in series in the inverter's tail. The
+      100-watt Lead and Bass heads wore left-over JTM45 panels into 1966,
+      which is why the same amplifier is also called JTM45/100 and its rear
+      panel reads "Super 100 Amplifier"; the 100-watt PA models, needing eight
+      inputs, got JTM100 panels of their own.
+    circuit_ref: jtm100
     sources:
       - desc: "Dr. Tube schematic-archive Marshall index — lists a distinct \"JTM100\" entry dated 1965-1967, ahead of the 1959-catalog-number Super Lead"
         url: "https://www.drtube.com/schematics/marshall.htm"
-      - desc: "Wikipedia, \"Marshall Amplification\" — Townshend/Entwistle origin story for the first 100-watt heads"
+      - desc: "Dr. Tube JTM100 page — the 100-watt heads on left-over JTM45 panels until some time in 1966 (hence \"JTM45/100\"), JTM100 panels on the eight-input PA models, the JTM100s as the first Marshalls with solid-state rectifiers, and early JTM100s fitted with KT66s before EL34s; also the archive that publishes and dates the factory sheet read for the corpus's jtm100 circuit entry"
+        url: "https://www.drtube.com/marshall-jtm100/"
+      - desc: "Marshall factory drawing, title block \"BASIC SCHEMATIC FOR MARSHALL 100 WATT SUPER TREM AMP / TYPE 1959T\" — same schematic already read for the corpus's jtm100 circuit entry; confirms the 4xECC83 (one of them the tremolo valve the plain head omits) + 4xKT66 complement, the silicon diode banks with no rectifier valve, and a printed valve-voltage chart giving 560 V plates and 559 V screens"
+        url: "https://www.drtube.com/schematics/marshall/1959t-66.gif"
+      - desc: "Wikipedia, \"Marshall Amplification\" — origin story for the first 100-watt heads as a special order from players wanting more than 45 watts on stage"
         url: "https://en.wikipedia.org/wiki/Marshall_Amplification"
 
   - designation: "1959"
@@ -60,11 +69,13 @@ models:
       Marshall's catalog number for the 100-watt Super Lead head. Its power
       valves moved from KT66 to Mullard EL34 as KT66 costs rose, in the same
       window (mid-to-late 1960s) the corpus's own circuit entries bracket for
-      the family: the jtm45 entry documents a GZ34 tube-rectified supply as
-      late as 1966, while the corpus's m1959 circuit entry documents a
-      July-1970 factory drawing with four EL34s over a silicon bridge — the
-      exact year the 100-watt head's rectifier crossed over is not pinned down
-      by the sources used here. The acrylic ("plexi") front panel was replaced
+      the family: the jtm100 entry documents four KT66s already over silicon
+      diodes on a 1966 sheet, while the m1959 entry documents a July-1970
+      factory drawing with four EL34s over a silicon bridge. The 100-watt
+      head's rectifier had therefore crossed to silicon before its output
+      valves did, and the archive that publishes both sheets records the
+      100-watt heads as the first Marshalls to drop the rectifier valve. The
+      acrylic ("plexi") front panel was replaced
       by brushed metal in 1969, and the model picked up a "mkII" suffix and
       "JMP" branding after Marshall moved to printed-circuit construction in
       the mid-1970s. A US-market Mark II sheet of the same drawing number
@@ -116,13 +127,26 @@ models:
         url: "https://www.drtube.com/schematics/marshall/1987u.gif"
 
 notes: >
-  This line's dating is better documented than the tweed families, but two
-  gaps remain honest gaps rather than resolved facts: (1) sources used here
-  do not pin an exact year for the 100-watt head's tube-to-silicon rectifier
-  crossover, only a bracket (GZ34 documented 1966, silicon documented 1970);
-  (2) the relationship between the "JTM100"/"JTM50" schematic-archive names
-  and the "1959"/"1987" catalog numbers — same circuits under two naming
-  schemes, or successive revisions — is not settled by the sources consulted.
-  Only jtm45, m1959 and m1987 have documented circuit entries in this corpus
-  at present; the JTM100 and JTM50 rows above are history-tier only
-  (circuit_ref: null) until a circuit entry is built for them.
+  This line's dating is better documented than the tweed families, and the
+  100-watt sheet read for the jtm100 circuit entry settles part of what used
+  to be open here. The tube-to-silicon rectifier crossover is no longer a
+  1966–1970 bracket: the 1966 100-watt drawing already rectifies its HT with
+  two banks of silicon diodes behind a standby switch, with no rectifier
+  valve, while the jtm45 entry's own sheet still shows a GZ34 at 45 watts.
+  The rectifier changed with the wattage, not with the output valve, which
+  moved from KT66 to EL34 later.
+
+  The naming question is likewise narrower than it was. That 100-watt sheet
+  carries the factory type number "1959T" in its own title block while the
+  schematic archive files it under the JTM100 heading, so the two names are
+  the factory's number and the era's panel name for overlapping hardware
+  rather than two different circuits — the archive itself explains that the
+  100-watt Lead and Bass heads simply wore left-over JTM45 panels into 1966.
+  What remains unsettled is the boundary: the sources consulted do not say
+  which revision first carried the metal panel and the 1959 catalog number in
+  its own right, so the jtm100 and 1959 rows above are kept as successive
+  entries rather than merged.
+
+  Circuit entries exist in this corpus for jtm45, jtm100, m1959 and m1987. The
+  JTM50 row is still history-tier only (circuit_ref: null) until a circuit
+  entry is built for it.

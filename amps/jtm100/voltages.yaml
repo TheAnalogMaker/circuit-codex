@@ -1,0 +1,50 @@
+# Printed valve-voltage chart read directly from the published Marshall 100-watt
+# factory drawing (tremolo variant; title block "BASIC SCHEMATIC FOR MARSHALL
+# 100 WATT SUPER TREM AMP / TYPE 1959T"). The drawing's own footnote states the
+# measurement conditions: "ALL VOLTAGES MEASURED TO CHASSIS UNDER NO SIGNAL
+# CONDITIONS WITH AN AVO MODEL 8 Mk II. METER SENSITIVITY 20,000 ohm/V."
+#
+# The chart numbers the valves V1/V3/V4/V5-V8 for the head documented here; its
+# V2 row (175 / 0 / 1.5, second triode struck through) is the tremolo oscillator
+# valve, which the plain head does not carry.
+#
+# This drawing is unusually generous: besides the pin chart it circles six node
+# voltages on the schematic itself, and those supply the rail figures below
+# (560 reservoir, 559 screens, 470 phase-inverter rail, 390 preamp rail, 16 at
+# the top of the presence pot, 65/66 at the negative bias filter). Rails get the
+# 8% the sibling entries use — the choke DCR is an estimate, not a printed value
+# — except the presence-pot node, which is set by tube current rather than by a
+# stiff supply and carries the tube-pin 20%.
+#
+# Two chart cells are deliberately not gated. The phase-inverter grids are
+# printed as "+" rather than a number, so JPI carries chart: null; and the
+# KT66 control-grid cell (pin 5) is a hand-lettered range the archived scan does
+# not render legibly, so the output grids carry chart: null as well and the
+# netlist's bias source uses the schematic's circled -65 V instead.
+#
+# The chart is internally consistent to a degree worth recording, and it is what
+# fixes the phase-inverter tail topology. 52 V at the PI cathodes with 310/300 V
+# plates off a 470 V rail implies 1.95 + 1.70 = 3.65 mA through the tail; that
+# current needs about 14 k to ground, which is the drawn 10 k plus the 5 k
+# presence pot in series — and it lands the pot's top at 18 V against the
+# circled 16. The presence control is therefore IN the tail here, not bypassing
+# it to ground.
+source: "Marshall 100 W factory drawing, printed VALVE VOLTAGE CHART: V1 pins 1/2/3 = 285 / 0 / 2 and pins 6/7/8 = 285 / 0 / 2; V2 (tremolo valve, not in this head) 175 / 0 / 1.5; V3 pins 1/2/3 = 225 / 0 / 1.4 and pins 6/7/8 = 400 / 225 / 225; V4 pins 1/2/3 = 310 / '+' / 52 and pins 6/7/8 = 300 / '+' / 52; V5-V8 pins 3/4 = 560 / 559 each, pin 5 an illegible hand-lettered range. Circled schematic nodes: 560 reservoir, 559 screens, 470 PI rail, 390 preamp rail, 16 presence-pot top, 65/66 bias filter (negative — the filter cans are drawn minus-up)."
+nodes:
+  BP2:  { chart: 559, tol_pct: 8, note: "KT66 screen node after the 20 H choke (DCR estimated at 150 Ω, as in jtm45) — the drawing's circled 559 and the chart's V5–V8 pin-4 rows agree on it" }
+  BP3:  { chart: 470, tol_pct: 8, note: "phase-inverter rail after the 8.2 kΩ dropper — circled on the drawing" }
+  BP4:  { chart: 390, tol_pct: 8, note: "preamp rail after the 10 kΩ/1 W dropper — circled on the drawing. The chart's own V3 pin 6 reads 400 V at the cathode follower's plate, which is this same node; the two printed figures differ by 2.5%" }
+  P1A:  { chart: 285, tol_pct: 20, note: "ECC83 input plate, channel I (chart V1 pin 1)" }
+  P1B:  { chart: 285, tol_pct: 20, note: "ECC83 input plate, channel II (chart V1 pin 6)" }
+  KA:   { chart: 2, tol_pct: 20, note: "shared ECC83 input cathode, 820 Ω with a 25 µF bypass (chart V1 pins 3 and 8)" }
+  P3A:  { chart: 225, tol_pct: 20, note: "V3A plate = cathode-follower grid, direct-coupled (chart V3 pin 1, and pin 7 reads the same 225 at the follower's grid)" }
+  K3A:  { chart: 1.4, tol_pct: 20, note: "V3A cathode, 820 Ω unbypassed (chart V3 pin 3)" }
+  KCF:  { chart: 225, tol_pct: 20, note: "cathode-follower output over its 100 kΩ load (chart V3 pin 8)" }
+  PPIA: { chart: 310, tol_pct: 20, note: "phase-inverter plate, 82 kΩ side — the tone-stack-driven triode (chart V4 pin 1)" }
+  PPIB: { chart: 300, tol_pct: 20, note: "phase-inverter plate, 100 kΩ side (chart V4 pin 6)" }
+  KPI:  { chart: 52, tol_pct: 20, note: "phase-inverter cathodes, 470 Ω above the tail junction (chart V4 pins 3 and 8)" }
+  PRES: { chart: 16, tol_pct: 20, note: "top of the 5 kΩ presence pot, where the 10 kΩ tail lands and the 27 kΩ feedback resistor arrives — circled on the drawing. Set by phase-inverter current, so it carries the tube-pin tolerance rather than the rail one" }
+  JPI:  { chart: null, note: "tail junction where both 1 MΩ grid leaks return; the chart prints the phase-inverter grids only as '+' (qualitative)" }
+  S5:   { chart: null, note: "V5 screen after its 1 kΩ/5 W stopper. The chart's 559 V pin-4 figure is already gated at BP2; this node is informational because the anchor-point KT66 model draws no screen current at this operating point (its screen term goes to zero below Vg2/mu + Vg1 = 0), so the stopper shows no drop and the node reads exactly BP2 — a v0-model limitation, models/METHODOLOGY.md" }
+  NGA:  { chart: null, note: "phase-A output-grid node: the 0.1 µF coupler, the 220 kΩ leak to the bias line, V6's grid directly and V5's grid through its 15 kΩ stopper. The chart's pin-5 cell is an illegible hand-lettered range, so the modelled -65 V comes from the drawing's circled bias-filter figure instead" }
+  NGB:  { chart: null, note: "phase-B output-grid node — V7 direct, V8 through its 15 kΩ stopper; same basis as NGA" }

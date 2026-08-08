@@ -1,0 +1,103 @@
+# Circuit Codex metadata — schema: docs/schema.md (v1)
+id: "jtm100"
+name_style: "British 100-watt lead-style"
+family: british
+era:
+  start: 1965
+  end: 1966
+wattage: 100
+tubes: [ECC83, ECC83, ECC83, KT66, KT66, KT66, KT66]
+topology:
+  rectifier: { kind: solid-state, type: "silicon diode bank" }
+  bias: fixed
+  phase_inverter: long-tailed-pair
+  tone_stack: cathode-follower-fmv
+lineage:
+  derived_from: ["jtm45"]   # the 45-watt head with the output section doubled: 2xKT66 + GZ34 -> 4xKT66 + silicon
+  influenced: ["m1959"]     # the cataloged Super Lead that replaced the KT66 quartet with EL34s
+sources:
+  - desc: >-
+      Marshall factory drawing, title block "BASIC SCHEMATIC FOR MARSHALL 100 WATT
+      SUPER TREM AMP / TYPE 1959T" — the drawing carries no drawing number and no
+      date in its title block; the schematic archive that publishes it files it
+      under the JTM100 heading and dates the sheet 1966. Complement read off the
+      drawing: 4x ECC83 (V1-V4) + 4x KT66 (V5-V8), no rectifier valve — the HT is
+      rectified by two arms of three series silicon diodes ("DIODES IS107") behind
+      a standby switch, with a 1 A slow-blow fuse in the HT centre-tap return and
+      a 2 A slow-blow in the mains lead. Every value below is read directly
+      from the published drawing. Four jacks across two channels (68k stoppers, 1M
+      leaks); V1A/V1B 100k plates on one shared 820R cathode with a 25uF bypass;
+      0.02 couplers into 1M volume pots (100pF bright cap across the second pot);
+      270k mixers into the V3A grid, the second mixer paralleled by a capacitor
+      whose value is not legible on the archived scan; V3A 100k plate over an
+      unbypassed 820R; V3B DC-coupled cathode follower with a 100k load; FMV stack
+      (56k slope, 270pF/250k treble, 0.02/1M bass, 0.02/25k middle); 0.02 into the
+      long-tailed-pair (82k plate on the tone-stack side, 100k on the other, 47pF
+      across the plates, both 1M leaks returning to the junction BETWEEN
+      them, 470R cathode-to-junction and a 10k tail into a 5k presence pot with a
+      0.1 wiper cap, a 27k feedback resistor from the 16-ohm tap onto the top of
+      that pot and a 0.1 from the same node up to the V4B grid); 0.1 couplers onto two phase nodes,
+      each with a 220k grid leak to the bias line and a 15k grid stopper feeding
+      ONE valve of its pair while the other valve's grid taps the phase node
+      directly; 1k 5W screen stoppers on all four KT66s; adjustable bias from an
+      HT-tap diode, a 470k trim, 150k, and a 56k/16k divider with 8uF filters;
+      supply reservoir of three series 32uF+32uF pairs, a 20H choke ("20H CH1") to
+      the screen node, then 8.2k with 32uF to the phase-inverter rail and 10k/1W
+      with 16uF to the preamp rail; universal mains 110/250 V, T1 secondary leads
+      lettered blue "100 V LINE", white "16 ohm", yellow "8 ohm" and orange
+      "common". Not reproduced here; archived at Dr. Tube.
+    url: "https://www.drtube.com/schematics/marshall/1959t-66.gif"
+  - desc: >-
+      The same drawing's printed "VALVE VOLTAGE CHART" — the measurement basis for
+      voltages.yaml. Footnote: "ALL RESISTORS ARE HALF WATT UNLESS OTHERWISE
+      STATED. ALL VOLTAGES MEASURED TO CHASSIS UNDER NO SIGNAL CONDITIONS WITH AN
+      AVO MODEL 8 Mk II. METER SENSITIVITY 20,000 ohm/V." Rows: V1 pins 1/2/3 and
+      6/7/8 = 285 / 0 / 2 and 285 / 0 / 2; V2 (the tremolo valve, absent from this
+      head) 175 / 0 / 1.5 with its second triode struck through; V3 = 225 / 0 / 1.4
+      and 400 / 225 / 225; V4 = 310 / "+" / 52 and 300 / "+" / 52, the phase-
+      inverter grids marked only as positive; V5-V8 pins 3/4 = 560 / 559 each, with
+      the pin-5 control-grid cell a hand-lettered range that the archived scan does
+      not render legibly. The drawing additionally circles node voltages on the
+      schematic itself: 560 at the reservoir, 559 at the screen node, 470 at the
+      phase-inverter rail, 390 at the preamp rail, 16 at the top of the presence
+      pot, and 65/66 at the negative bias filter.
+    url: "https://www.drtube.com/schematics/marshall/1959t-66.gif"
+  - desc: >-
+      Dr. Tube schematic-archive Marshall / JTM100 index — the naming and dating
+      frame for this circuit. It records that the first 100-watt amps (1965) used
+      two 50-watt output transformers before a single 100-watt part, that the
+      100-watt Lead and Bass heads carried left-over JTM45 panels into 1966 (hence
+      "JTM45/100") while the 100-watt PA models carried JTM100 panels, that the
+      JTM100s were the first Marshalls with solid-state rectifiers, and that early
+      JTM100s were fitted with KT66s and later ones with EL34s. It is also the
+      source that files the drawing above under JTM100 and dates it 1966.
+    url: "https://www.drtube.com/marshall-jtm100/"
+  - desc: >-
+      GEC / M-O Valve Co. KT66 data sheet (Issue 4, April 1963) — anchor for the
+      CC0 KT66 tube model: Va=250 V, Vg2=250 V, Vg1=-15 V -> Ia=85 mA, gm=7 mA/V;
+      screen Ig2=2.5 mA at the Class AB1 push-pull tetrode point (Vg2=300,
+      Vg1=-27); mu(g1-g2)=9.5 from the triode-connection gm.ra. The sheet's 25 W
+      plate-dissipation rating is what the simulated idle current at this circuit's
+      560 V rail is measured against in notes.md.
+    url: "https://frank.pocnet.net/sheets/084/k/KT66_GEC.pdf"
+  - desc: >-
+      Wikipedia, "Marshall Amplification" — the 100-watt heads as a special order
+      from players who wanted more than 45 watts on stage, the 1965 introduction of
+      the 100-watt Super Lead under catalog number 1959, and the later cost-driven
+      move from KT66 to EL34 output valves that ends the circuit documented here.
+    url: "https://en.wikipedia.org/wiki/Marshall_Amplification"
+verification:
+  status: draft   # the drawing prints a full valve-voltage chart and every gated
+                  # node lands inside the era's printed tolerances (worst 13.1%),
+                  # and the drawn board wiring is proved equivalent to the netlist
+                  # (layout.yaml carries wiring_claim: verified). What still stands
+                  # between that and a verified operating point is the output
+                  # stage: the v0 anchor-point KT66 model idles the quartet at
+                  # ~72 mA per valve on this 560 V rail — 40 W against the KT66's
+                  # 25 W rating, an artifact of running a 250 V anchor fit at 2.2x
+                  # its anchor voltage. See notes.md. Verified is earned, not
+                  # granted.
+# Day the circuit landed in the corpus (git history, amps/jtm100/) — the feed's
+# pubDate for a draft; production builds are shallow clones and cannot ask git.
+added: 2026-08-08
+contributors: [TheAnalogMaker]

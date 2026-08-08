@@ -1,0 +1,126 @@
+* JTM100 — Marshall 100 W head, four KT66 — DC operating-point netlist
+* Circuit Codex — CC-BY-SA 4.0. Independently drawn from the published Marshall
+* factory drawing's component values and its printed valve-voltage chart (title
+* block "BASIC SCHEMATIC FOR MARSHALL 100 WATT SUPER TREM AMP / TYPE 1959T";
+* see meta.yaml). No drawing reproduced.
+*
+* THIS IS THE PLAIN HEAD. The factory sheet is the tremolo version, exactly as
+* the corpus's jtm45 sheet is: its V2 is a tremolo oscillator valve driving a
+* transistor that shunts the V3A grid node through a capacitor, and neither the
+* valve nor the shunt network belongs to the non-tremolo 100 W head. Both are
+* omitted here, so the valve numbering follows the drawing and skips V2 —
+* V1 input pair, V3 second stage + cathode follower, V4 phase inverter,
+* V5..V8 the KT66 quartet.
+*
+* DC conventions (as in the sibling Marshall entries). The reservoir B+1 is
+* DRIVEN at the chart's 560 V KT66 plate figure and every downstream rail is
+* DERIVED through the drawn choke and dropper values. The 20 H choke is modelled
+* as a 150 ohm DCR estimate — the same estimate the jtm45 entry makes for the
+* same 20 H part, since neither drawing prints a DCR. The output-transformer
+* primary DCR is omitted, so each KT66 plate node sits at B+1, which is what the
+* chart's 560 V plate row reads. DC-open caps are MODELLED where both leads land
+* on named DC nodes (the shared-input cathode bypass C3, the presence-node coupler C8,
+* the plate-to-plate compensation cap C12 and the PI->output couplers C9/C10) so
+* that a later layout net-check can prove their placement; open at DC, they move
+* no operating point. Tone-stack caps and the volume/tone couplers have a lead
+* inside an abstracted network and stay out; the stack is capacitor-coupled at
+* DC throughout. The adjustable fixed-bias supply (HT-tap diode, 470 k trim,
+* 150 k, the 56 k/16 k divider and its 8 uF filters) is replaced by an ideal
+* -65 V source — the schematic's own circled figure at that node. Grid-stopper,
+* grid-leak and screen-stopper resistors carry ~0 DC; grids sit at their leak
+* return. Heaters, the mains side and the solid-state HT rectifier bank are not
+* modelled.
+.include models/12ax7.inc
+.include models/kt66.inc
+
+VBP1 BP1 0 DC 560
+VBIAS NBIAS 0 DC -65
+
+* Rail chain: reservoir / OT centre tap -> 20 H choke -> KT66 screens -> 8.2 k
+* -> phase inverter -> 10 k (1 W) -> preamp. The drawing annotates the screen
+* node as "the junction of 1k, 8.2k and 20H choke", which is what fixes this
+* order.
+RCHOKE BP1 BP2 150
+RD1 BP2 BP3 8.2k
+RD2 BP3 BP4 10k
+
+* --- V1 (ECC83) input valve: four jacks, two channels, shared cathode ---
+* 100 k plates, one shared 820 ohm cathode with a 25 uF bypass. Each channel's
+* grid returns to ground through its 1 M leak (the 68 k stoppers carry no DC).
+RL1 BP4 P1A 100k
+XV1A P1A G1A KA 12AX7
+RG1 G1A 0 1meg
+RL2 BP4 P1B 100k
+XV1B P1B G1B KA 12AX7
+RG2 G1B 0 1meg
+RK1 KA 0 820
+C3 KA 0 25u
+
+* --- V3A (ECC83) second stage ---
+* Grid returns to ground through the 270 k mixers and the 1 M volume pots;
+* represented, as in the sibling entries, by a single 1 M DC return.
+RL3 BP4 P3A 100k
+XV3A P3A G3A K3A 12AX7
+RG3 G3A 0 1meg
+RK2 K3A 0 820
+
+* --- V3B (ECC83) cathode follower ---
+* Grid DC-coupled to the V3A plate, plate on the preamp rail, 100 k cathode
+* load feeding the treble/middle/bass stack.
+XV3B BP4 P3A KCF 12AX7
+RKCF KCF 0 100k
+
+* --- V4 (ECC83) long-tailed-pair phase inverter ---
+* 82 k (tone-stack side) and 100 k plate loads off the PI rail; the two cathodes
+* are joined and sit 470 ohm above the tail junction where both 1 M grid leaks
+* return; from there 10 k drops to the 5 k presence pot, whose top is the node
+* the drawing circles at 16 V and where the 27 k feedback resistor lands.
+RLA BP3 PPIA 82k
+XV4A PPIA GPIA KPI 12AX7
+RGA GPIA JPI 1meg
+RLB BP3 PPIB 100k
+XV4B PPIB GPIB KPI 12AX7
+RGB GPIB JPI 1meg
+* C8: the 0.1 uF that AC-couples the V4B grid to the PRESENCE / FEEDBACK node —
+* the top of the 5 k presence pot, where the 10 k tail and the 27 k feedback
+* resistor also land. Read off the drawing lead by lead: the 10 k and the 0.1 uF
+* tee off the SAME vertical (the one the 27 k comes down), but they land on
+* different points of the grid-leak column — the 10 k on the junction BETWEEN the
+* two 1 M leaks (the tail junction), the 0.1 uF on the bottom of the lower leak,
+* which is the V4B grid. Both leads are named DC nodes and the cap is open at DC,
+* so the operating point is unmoved and the layout gate can check its placement.
+C8 GPIB PRES 0.1u
+* C12: 47 pF plate-to-plate phase compensation (DC-open, both leads named).
+C12 PPIA PPIB 47p
+RTAIL KPI JPI 470
+RT2 JPI PRES 10k
+* The presence pot sits IN the tail, not at DC ground: the drawing's circled
+* 16 V at its top is what the chart's 52 V PI cathode needs to be consistent
+* with the drawn 470 + 10k, and the 27 k feedback resistor and the pot's 0.1 uF
+* wiper cap are DC-neutral there.
+RPRES PRES 0 5k
+
+* --- V5..V8 (KT66) parallel push-pull output, adjustable fixed bias ---
+* Each phase: a 0.1 uF coupler from a PI plate onto a phase node that carries
+* the drawn 220 k grid leak to the bias line. The drawing then feeds ONE valve
+* of each pair through a 15 k grid stopper and takes the other valve's grid
+* straight off the phase node — an asymmetry the sheet draws explicitly and
+* that is reproduced here rather than tidied up. Cathodes grounded; each screen
+* fed from the screen rail through its own 1 k 5 W stopper; plates at B+1.
+* Model node order is P G2 G1 K.
+* --- phase A (from the 82 k PI plate): V5 (stopper) + V6 (direct)
+C9 PPIA NGA 0.1u
+RGL1 NGA NBIAS 220k
+R5s NGA G5 15k
+XV5 BP1 S5 G5 0 KT66
+RS1 BP2 S5 1k
+XV6 BP1 S6 NGA 0 KT66
+RS2 BP2 S6 1k
+* --- phase B (from the 100 k PI plate): V7 (direct) + V8 (stopper)
+C10 PPIB NGB 0.1u
+RGL2 NGB NBIAS 220k
+XV7 BP1 S7 NGB 0 KT66
+RS3 BP2 S7 1k
+R8s NGB G8 15k
+XV8 BP1 S8 G8 0 KT66
+RS4 BP2 S8 1k
