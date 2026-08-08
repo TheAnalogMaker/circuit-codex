@@ -62,9 +62,14 @@ const jsonld = {
   ...(vDate ? { datePublished: vDate } : {}),
   publisher: { '@type': 'Organization', name: 'Circuit Codex' },
 };
+const breadcrumbs = [
+  { name: 'Home', url: '/' },
+  { name: 'Circuits', url: '/#circuits' },
+  { name: displayId(amp.id), url: `/amps/${amp.id}/` },
+];
 ---
 <Base title={`${displayId(amp.id)} — ${m.name_style} · Circuit Codex`}
-      description={metaDescription} ogType="article" jsonld={jsonld}>
+      description={metaDescription} ogType="article" jsonld={jsonld} breadcrumbs={breadcrumbs}>
 <div class="wrap wrap-wide">
   <header class="amp-head">
     <h1>{displayId(amp.id)} <span class="style">{m.name_style} · {m.era.start}–{m.era.end} · {m.wattage} W</span></h1>

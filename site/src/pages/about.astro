@@ -1,6 +1,6 @@
 ---
 import Base from '../layouts/Base.astro';
-import { loadCorpus, GITHUB } from '../lib/corpus.js';
+import { loadCorpus, datasetJsonLd, GITHUB } from '../lib/corpus.js';
 
 const amps = loadCorpus();
 const nCircuits = amps.length;
@@ -19,8 +19,11 @@ const disputedPhrase = nDisputed === 0 ? 'no circuit here currently documents a 
 const title = 'About & how to contribute · Circuit Codex';
 const description =
   'What Circuit Codex is, what its verification does and does not prove, how the archive is built with AI under human review, and how to contribute.';
+// This page describes the corpus, so it carries the same Dataset record the home
+// page does — the two are the entry points a data catalogue is likely to land on.
+const dataset = datasetJsonLd(Astro.site);
 ---
-<Base title={title} description={description}>
+<Base title={title} description={description} jsonld={dataset}>
 <div class="wrap">
   <header class="page-head">
     <h1>About Circuit Codex</h1>

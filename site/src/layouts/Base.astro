@@ -1,6 +1,6 @@
 ---
-const { title, description, jsonld, ogType = 'website' } = Astro.props;
-import { GITHUB } from '../lib/corpus.js';
+const { title, description, jsonld, breadcrumbs, ogType = 'website' } = Astro.props;
+import { GITHUB, breadcrumbJsonLd } from '../lib/corpus.js';
 
 // Absolute URLs for canonical + social cards (Astro.site = https://circuitcodex.com).
 const canonical = new URL(Astro.url.pathname, Astro.site).href;
@@ -23,6 +23,28 @@ if (!ld && isGuide) {
     publisher: { '@type': 'Organization', name: 'Circuit Codex' },
   };
 }
+
+// The page's place in the site, as a breadcrumb trail. Pages that know their own
+// section pass it in; guide and safety pages sit under Reference by construction, so
+// the trail is derived here rather than repeated across fourteen files. The leaf
+// name is the page title with the site suffix and any subtitle clause dropped —
+// titles here separate those with an em dash or a middle dot.
+const leafName = (t) => String(t)
+  .split(/\s+[—·]\s+/)
+  .filter((seg) => seg.trim() !== 'Circuit Codex')[0]
+  .trim();
+const trail = breadcrumbs
+  || (isGuide ? [
+    { name: 'Home', url: '/' },
+    { name: 'Reference', url: '/reference/' },
+    { name: leafName(title), url: path },
+  ] : null);
+
+// Every structured-data block this page publishes, one <script> each.
+const ldBlocks = [
+  ...(Array.isArray(ld) ? ld : ld ? [ld] : []),
+  ...(trail ? [breadcrumbJsonLd(trail, Astro.site)] : []),
+];
 ---
 <!doctype html>
 <html lang="en">
@@ -33,6 +55,7 @@ if (!ld && isGuide) {
 <meta name="description" content={description} />
 <link rel="canonical" href={canonical} />
 <link rel="sitemap" href="/sitemap-index.xml" />
+<link rel="alternate" type="application/rss+xml" title="Circuit Codex — new circuits &amp; studies" href="/feed.xml" />
 <meta property="og:site_name" content="Circuit Codex" />
 <meta property="og:type" content={ogType} />
 <meta property="og:title" content={title} />
@@ -48,7 +71,7 @@ if (!ld && isGuide) {
 <meta name="twitter:image" content={ogImage} />
 <!-- Cloudflare Web Analytics — cookieless; disclosed on /about/ and in the footer -->
 <script type="module" is:inline src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "99bac2012cc545cc9ed94952c8cb36dd"}'></script>
-{ld && <script type="application/ld+json" set:html={JSON.stringify(ld)} />}
+{ldBlocks.map((block) => <script type="application/ld+json" set:html={JSON.stringify(block)} />)}
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='55' r='30' fill='none' stroke='%23e89b3f' stroke-width='8'/><rect x='44' y='10' width='12' height='28' rx='4' fill='%23e89b3f'/></svg>" />
 <style is:global>
   :root{

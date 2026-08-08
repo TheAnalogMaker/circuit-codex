@@ -6,9 +6,15 @@ export async function getStaticPaths() {
   return loadStudies().map((s) => ({ params: { slug: s.slug }, props: { study: s } }));
 }
 const { study } = Astro.props;
+const breadcrumbs = [
+  { name: 'Home', url: '/' },
+  { name: 'Reference', url: '/reference/' },
+  { name: study.title, url: `/reference/studies/${study.slug}/` },
+];
 ---
 <Base title={`${study.title} · Circuit Codex`}
-      description={study.subtitle || `A Circuit Codex reference study: ${study.title}.`}>
+      description={study.subtitle || `A Circuit Codex reference study: ${study.title}.`}
+      breadcrumbs={breadcrumbs}>
 <div class="wrap">
   <header class="shead">
     <a class="back" href="/reference/">← Reference</a>

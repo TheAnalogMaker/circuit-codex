@@ -168,8 +168,13 @@ const jsonld = {
   about: `${page.dimLabel}: ${page.label}`,
   publisher: { '@type': 'Organization', name: 'Circuit Codex' },
 };
+const breadcrumbs = [
+  { name: 'Home', url: '/' },
+  { name: 'Topology', url: '/topology/' },
+  { name: page.label, url: `/topology/${page.slug}/` },
+];
 ---
-<Base title={title} description={copy.metaDescription} jsonld={jsonld}>
+<Base title={title} description={copy.metaDescription} jsonld={jsonld} breadcrumbs={breadcrumbs}>
 <div class="wrap wrap-wide">
   <header class="thead">
     <a class="back" href="/topology/">← Topology</a>

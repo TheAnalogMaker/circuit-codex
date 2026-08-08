@@ -50,8 +50,13 @@ const jsonld = {
   about: `${fam.maker_style} guitar amplifier line history`,
   publisher: { '@type': 'Organization', name: 'Circuit Codex' },
 };
+const breadcrumbs = [
+  { name: 'Home', url: '/' },
+  { name: 'History', url: '/history/' },
+  { name: fam.title, url: `/history/${fam.slug}/` },
+];
 ---
-<Base title={title} description={description} ogType="article" jsonld={jsonld}>
+<Base title={title} description={description} ogType="article" jsonld={jsonld} breadcrumbs={breadcrumbs}>
 <div class="wrap wrap-wide">
   <header class="page-head">
     <div class="eyebrow"><a href="/history/">History</a> · {fam.maker_style}</div>

@@ -1,6 +1,6 @@
 ---
 import Base from '../layouts/Base.astro';
-import { corpusByFamily, corpusStats, displayId, GITHUB } from '../lib/corpus.js';
+import { corpusByFamily, corpusStats, displayId, datasetJsonLd, GITHUB } from '../lib/corpus.js';
 // The corpus grid is grouped by amp line — the family that documents each circuit
 // in the history tier, oldest cosmetic era first. Grouping and order both come from
 // the data (see corpusByFamily), so a new circuit files itself under the right
@@ -15,9 +15,29 @@ const famMeta = (f) => [
   f.eraStart != null ? `${f.eraStart}–${f.eraEnd}` : null,
   `${f.amps.length} circuit${f.amps.length === 1 ? '' : 's'}`,
 ].filter(Boolean).join(' · ');
+
+// Structured data. The corpus itself is one schema.org Dataset (data catalogues and
+// Google Dataset Search read this); the circuit grid below is the matching ItemList,
+// in the order the page actually renders it.
+const dataset = datasetJsonLd(Astro.site);
+const itemList = {
+  '@context': 'https://schema.org',
+  '@type': 'ItemList',
+  name: 'Documented circuits in the Circuit Codex corpus',
+  description: 'Every tube-amplifier circuit documented in the archive, grouped by amp line, oldest era first.',
+  numberOfItems: stats.circuits,
+  itemListOrder: 'https://schema.org/ItemListOrderAscending',
+  itemListElement: families.flatMap((f) => f.amps).map((a, i) => ({
+    '@type': 'ListItem',
+    position: i + 1,
+    name: `${displayId(a.id)} — ${a.meta.name_style}`,
+    url: new URL(`amps/${a.id}/`, Astro.site).href,
+  })),
+};
 ---
 <Base title="Circuit Codex — the open archive of classic guitar amp circuits"
-      description="Every classic tube amp circuit — redrawn KiCad schematics, ngspice-verified netlists, and the lineage that connects them. Open, machine-readable, CC-BY-SA.">
+      description="Every classic tube amp circuit — redrawn KiCad schematics, ngspice-verified netlists, and the lineage that connects them. Open, machine-readable, CC-BY-SA."
+      jsonld={[dataset, itemList]}>
 <div class="wrap">
   <header class="hero">
     <div class="eyebrow">An open, machine-readable archive</div>

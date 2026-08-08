@@ -2,6 +2,7 @@
 // notes.md) so every page on the site is generated from the repo data.
 import fs from 'node:fs';
 import path from 'node:path';
+import { execFileSync } from 'node:child_process';
 import yaml from 'js-yaml';
 import { marked } from 'marked';
 
@@ -843,4 +844,202 @@ export function toneStackPresets() {
 // decide whether to offer the "plot this stack" link.
 export function toneStackPresetIds() {
   return new Set(TONE_STACK_SPECS.map((s) => s.id));
+}
+
+// ------------------------------------------------------------- dates for feeds
+// A dated entry needs a date the repository can actually prove. Two sources exist:
+// a verified circuit carries verification.date in its own meta.yaml, and a working
+// git checkout knows when a file first appeared. Neither is invented: where both are
+// absent (a draft circuit built from a shallow clone), the entry ships without a
+// date rather than with today's.
+
+let _gitUsable = null;
+function gitUsable() {
+  if (_gitUsable !== null) return _gitUsable;
+  try {
+    const shallow = execFileSync('git', ['rev-parse', '--is-shallow-repository'],
+      { cwd: REPO_ROOT, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
+    // A shallow clone (CI checkouts, `clone --depth 1`) reports every path as first
+    // seen at the single grafted commit, which would date the whole corpus to the
+    // day of the build. Treat that as "no date available".
+    _gitUsable = shallow === 'false';
+  } catch {
+    _gitUsable = false; // no git binary, or not a checkout
+  }
+  return _gitUsable;
+}
+
+// Date a file first entered the repository, or null when that cannot be known.
+// Takes a single file path — `--follow` (which carries the date across renames)
+// accepts exactly one pathspec.
+export function gitCreationDate(relPath) {
+  if (!gitUsable()) return null;
+  try {
+    const out = execFileSync(
+      'git', ['log', '--diff-filter=A', '--follow', '--format=%aI', '-1', '--', relPath],
+      { cwd: REPO_ROOT, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
+    if (!out) return null;
+    const d = new Date(out);
+    return isNaN(d) ? null : d;
+  } catch {
+    return null;
+  }
+}
+
+function asDate(v) {
+  if (!v) return null;
+  const d = v instanceof Date ? v : new Date(v);
+  return isNaN(d) ? null : d;
+}
+
+// ------------------------------------------------------------------- feed items
+// One entry per documented circuit and per reference study, newest first, undated
+// entries last. A circuit is dated by the day its operating point was verified
+// against the published chart; a draft (and every study) falls back to the day the
+// file entered the repository.
+export function feedEntries() {
+  const circuits = loadCorpus().map((amp) => {
+    const m = amp.meta;
+    const verified = m.verification?.status === 'verified';
+    const date = asDate(m.verification?.date) || gitCreationDate(`amps/${amp.id}/meta.yaml`);
+    return {
+      kind: 'circuit',
+      title: `${displayId(amp.id)} — ${m.name_style}`,
+      link: `/amps/${amp.id}/`,
+      description: `${verified ? 'Verified circuit' : 'Draft circuit'}: ${ampMetaDescription(m)}`,
+      categories: ['Circuit', verified ? 'Verified' : 'Draft'],
+      date,
+    };
+  });
+  const studies = loadStudies().map((s) => ({
+    kind: 'study',
+    title: s.title,
+    link: `/reference/studies/${s.slug}/`,
+    description: s.subtitle || `A Circuit Codex reference study: ${s.title}.`,
+    categories: ['Study'],
+    date: gitCreationDate(`reference/studies/${s.slug}.md`),
+  }));
+  return [...circuits, ...studies].sort((a, b) => {
+    if (a.date && b.date) return b.date - a.date;
+    if (a.date) return -1;
+    if (b.date) return 1;
+    return a.title.localeCompare(b.title);
+  });
+}
+
+// --------------------------------------------------------------- dataset record
+// The corpus described as one machine-readable Dataset (schema.org), for Google
+// Dataset Search and any other catalogue that reads structured data. Every field is
+// computed from the repository or fixed by its licence files — nothing is asserted
+// here that the corpus does not carry.
+
+export const DATA_LICENSE = 'https://creativecommons.org/licenses/by-sa/4.0/';
+export const REPO_ARCHIVE = `${GITHUB}/archive/refs/heads/main.zip`;
+
+// Earliest and latest production year the archive covers, taken from the circuits'
+// own era spans and the history tier's model years — so adding a 1940s model or a
+// later revision moves the coverage without anyone editing prose.
+export function corpusTemporalCoverage() {
+  const years = [];
+  for (const a of loadCorpus()) {
+    if (a.meta.era?.start) years.push(a.meta.era.start);
+    if (a.meta.era?.end) years.push(a.meta.era.end);
+  }
+  for (const fam of loadHistory()) {
+    for (const m of fam.models) {
+      if (m.years?.start) years.push(m.years.start);
+      if (m.years?.end) years.push(m.years.end);
+    }
+  }
+  if (!years.length) return null;
+  return `${Math.min(...years)}/${Math.max(...years)}`;
+}
+
+// Most recent date the corpus can prove something changed: the newest verification
+// date on any circuit. Understates rather than overstates — a draft added since then
+// carries no date of its own.
+function corpusDateModified() {
+  const dates = loadCorpus()
+    .map((a) => asDate(a.meta.verification?.date))
+    .filter(Boolean);
+  return dates.length ? new Date(Math.max(...dates)).toISOString().slice(0, 10) : null;
+}
+
+export function datasetJsonLd(site) {
+  const base = site ? new URL('/', site).href : 'https://circuitcodex.com/';
+  const stats = corpusStats();
+  const coverage = corpusTemporalCoverage();
+  const modified = corpusDateModified();
+  const ids = loadCorpus().map((a) => displayId(a.id));
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Dataset',
+    name: 'Circuit Codex — vintage guitar tube-amplifier circuit corpus',
+    alternateName: 'Circuit Codex corpus',
+    description:
+      `Structured, machine-readable records for ${stats.circuits} vintage guitar tube-amplifier ` +
+      `circuits (${stats.verified} with DC operating points verified against their published ` +
+      `voltage charts): independently redrawn KiCad schematics, ngspice netlists, parts lists, ` +
+      `board layouts, and circuit metadata (era, tube complement, rectifier, bias, phase inverter, ` +
+      `tone stack). Includes ${stats.models} clean-room tube SPICE models dedicated to the public ` +
+      `domain and a history tier placing ${stats.historyModels} models across ${stats.families} ` +
+      `amplifier lines. Circuit data CC-BY-SA-4.0; tube models CC0.`,
+    url: base,
+    sameAs: GITHUB,
+    license: DATA_LICENSE,
+    isAccessibleForFree: true,
+    inLanguage: 'en',
+    creator: { '@type': 'Organization', name: 'The Analog Maker', url: base },
+    publisher: { '@type': 'Organization', name: 'Circuit Codex', url: base },
+    keywords: [
+      'guitar amplifier', 'vacuum tube amplifier', 'tube amp circuits', 'schematic',
+      'SPICE netlist', 'ngspice', 'KiCad', 'tube SPICE models', 'voltage chart',
+      'eyelet board layout', 'tone stack', 'phase inverter', 'amplifier history',
+      ...ids,
+    ],
+    ...(coverage ? { temporalCoverage: coverage } : {}),
+    ...(modified ? { dateModified: modified } : {}),
+    measurementTechnique:
+      'ngspice DC operating-point simulation of each redrawn netlist, compared node by node ' +
+      'against the circuit\'s published factory voltage chart',
+    variableMeasured: [
+      { '@type': 'PropertyValue', name: 'DC node voltage', unitText: 'V' },
+      { '@type': 'PropertyValue', name: 'Component value', description: 'Resistance (Ω), capacitance (F) and voltage rating per parts-list entry' },
+      { '@type': 'PropertyValue', name: 'Rated output power', unitText: 'W' },
+    ],
+    distribution: [
+      {
+        '@type': 'DataDownload',
+        name: 'Corpus repository archive (ZIP)',
+        description: 'Full repository snapshot: amps/, models/, history/ and reference/ data.',
+        encodingFormat: 'application/zip',
+        contentUrl: REPO_ARCHIVE,
+      },
+      {
+        '@type': 'DataDownload',
+        name: 'Circuit metadata and netlists (Git repository)',
+        description: 'Per-circuit meta.yaml, voltages.yaml, bom.yaml, layout.yaml and netlist.cir.',
+        encodingFormat: 'text/yaml',
+        contentUrl: GITHUB,
+      },
+    ],
+  };
+}
+
+// ------------------------------------------------------------------ breadcrumbs
+// BreadcrumbList in schema.org terms. Callers pass the trail as {name, url} pairs
+// (paths are resolved against the site origin); the leaf keeps its own URL so the
+// list is self-describing.
+export function breadcrumbJsonLd(trail, site) {
+  const abs = (u) => (site ? new URL(u, site).href : u);
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: trail.map((c, i) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      name: c.name,
+      item: abs(c.url),
+    })),
+  };
 }
