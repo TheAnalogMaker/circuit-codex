@@ -36,6 +36,8 @@ Pull requests that break these are closed regardless of quality:
    wiring layer that CI proves electrically equivalent to your netlist. It renders in
    two styles from the one file; commit both (`pipeline/render_layouts.py` and
    `pipeline/render_layouts.py --style sheet`) and look at both PNGs before you push.
+   A layout also feeds the amp page's link-preview card, so regenerate and look at
+   that too: `pipeline/render_og.py <id>` → `site/public/og/<id>.png`.
 5. Open a PR. CI validates the metadata schema, cross-checks BOM↔schematic
    designators, round-trips the schematic, simulates the operating point in ngspice
    against your chart values, renders and lint-checks both layout drawings, and runs

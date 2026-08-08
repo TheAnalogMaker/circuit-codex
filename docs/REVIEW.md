@@ -15,6 +15,7 @@ on the rendered output.
 | Schematic grammar | `pipeline/check_schematics.py` | kiutils round-trip failures |
 | Layout render + determinism | `pipeline/check_layouts.py` | A `layout.yaml` that fails to render, or a stale committed drawing out of sync with a fresh render — checked for **both** published styles (`layout.svg` and the era `layout-sheet.svg`) |
 | Era value lettering | `pipeline/test_era_values.py` | The sheet style's on-body value shorthand (`4.7K`, `.02-400`, `25MFD`, `250PF`) drifting from the documented convention, or mangling a value it cannot parse — swept over every value in every `bom.yaml` |
+| Social-card staleness | `pipeline/render_og.py --check` | A committed `site/public/og/<id>.png` no longer matching the layout, metadata or renderer it was built from — or hand-edited. Digest-based, so it needs no rasteriser in CI |
 | Wiring collision lint | `pipeline/check_layouts.py` | Wiring-layer ambiguity — near-parallel overlap (two runs reading as one wire) or terminal ambiguity (an endpoint reading as landing on another run). The three **label** checks additionally run against the sheet style, which sets its type at its own sizes and letters values on the bodies (findings tagged `[sheet]`). Blocking unless the amp carries a waiver in `pipeline/lint_waivers.yaml`; active waivers are printed loudly |
 | Layout ↔ netlist equivalence | `pipeline/verify_layout_nets.py` | The drawn point-to-point wiring not being electrically equivalent to the verified netlist — an extra connection (short), a missing connection (split node), a lead on the wrong node, an **unanchored tube**, or a signal run relabelled `twisted`. Builds both net graphs and proves isomorphism within the DC scope (heaters/pilot/PT-AC excluded, declared in `net_map`). Hardened 2026-07-19 (see `docs/layout-schema.md`): EU/US valve aliases resolve, every netlist tube must anchor to a socket (by id or type) or fail, PI→output coupling caps + grid leaks are modelled so push-pull phase and inter-stage routing are checked natively, twisted runs are validated onto heater pins, `net_map` anchors are labelled CONSTRAINING/REDUNDANT, and the unverified control-network island is declared terminal-by-terminal. A round-2 re-audit (same day) closed three more escapes: the **phantom-pin bug** (pin anchors now thread bottle→socket, so a function-named tube checks its *real* socket terminals), a complete **unchecked-terminal enumeration** (every non-modelled part lead and pot lug is listed with its net, tagged *placement not DC-checked*, so a mis-lugged pot ground or a bias resistor on a live rail can't hide by landing on a netlist-carrying net), and **shrinking the unchecked set** (every DC-open cap with both leads on named DC nodes added to the netlist across all 8 amps, `verify_amps` still 8/0/0). **Hard-blocking** for any amp whose `layout.yaml` sets `wiring_claim: verified`; report-only otherwise. Hardened again 2026-08-02 (**H9**): the section↔triode-half assignment is now enumerated for *every* multi-section bottle, including one whose netlist models only one of its two halves (a 12AX7 sharing a socket with an excluded tremolo oscillator, or a single-triode channel input) — those sockets previously anchored no pin at all and their whole signal wiring went unchecked; a candidate half must carry every role the netlist instance uses, so a numbered detector-diode plate (6AT6) is never mistaken for a triode half. A `--selftest` step first proves the gate catches a planted fault for every hole class (now incl. phantom-pin full-path, the two enumeration cases, and the H9 wrong-pin + 6AT6 false-positive pair, and HB, the same half-bottle wired ACROSS both triode halves) |
 
@@ -92,3 +93,19 @@ Iterate until it reads like a reference diagram a builder could follow. Layouts
 that still carry overlap/termination debt are held behind a
 `pipeline/lint_waivers.yaml` waiver, not shipped clean — remove the waiver only
 once the layout passes the lint on its own.
+
+## Social cards — the same rule
+
+Each amp page's link preview is a generated card carrying a crop of that amp's
+own layout drawing, so a layout change changes a published figure:
+
+```
+python pipeline/render_og.py <id>     # → site/public/og/<id>.png (needs librsvg)
+```
+
+Read the PNG before committing it. It is seen at a fraction of its 1200×630 —
+a forum or chat preview is often 500 px wide — so what matters is that the
+circuit designation and style name carry at that size, and that the board band
+reads as a drawing rather than a grey texture. Check the crop landed on a
+dense stretch of board, that no caption is sliced by the bottom edge, and that
+the spec strip and the tube complement have not run into each other.

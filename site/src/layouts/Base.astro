@@ -1,10 +1,13 @@
 ---
-const { title, description, jsonld, breadcrumbs, ogType = 'website' } = Astro.props;
+const { title, description, jsonld, breadcrumbs, ogType = 'website', ogImage: card, ogImageAlt } = Astro.props;
 import { GITHUB, breadcrumbJsonLd } from '../lib/corpus.js';
 
 // Absolute URLs for canonical + social cards (Astro.site = https://circuitcodex.com).
 const canonical = new URL(Astro.url.pathname, Astro.site).href;
-const ogImage = new URL('og.png', Astro.site).href;
+// Pages that have a card of their own (an amp page passes `og/<id>.png`, built by
+// pipeline/render_og.py) pass it here; everything else shares the brand card.
+const ogImage = new URL(String(card ?? 'og.png').replace(/^\//, ''), Astro.site).href;
+const ogAlt = ogImageAlt ?? 'Circuit Codex — verified tube-amp circuit archive';
 
 // Structured data: use whatever the page passed; otherwise, guide/safety pages
 // get a default TechArticle so the reference section is machine-readable.
@@ -64,11 +67,12 @@ const ldBlocks = [
 <meta property="og:image" content={ogImage} />
 <meta property="og:image:width" content="1200" />
 <meta property="og:image:height" content="630" />
-<meta property="og:image:alt" content="Circuit Codex — verified tube-amp circuit archive" />
+<meta property="og:image:alt" content={ogAlt} />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content={title} />
 <meta name="twitter:description" content={description} />
 <meta name="twitter:image" content={ogImage} />
+<meta name="twitter:image:alt" content={ogAlt} />
 <!-- Cloudflare Web Analytics — cookieless; disclosed on /about/ and in the footer -->
 <script type="module" is:inline src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "99bac2012cc545cc9ed94952c8cb36dd"}'></script>
 {ldBlocks.map((block) => <script type="application/ld+json" set:html={JSON.stringify(block)} />)}

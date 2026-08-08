@@ -42,6 +42,7 @@ python3 pipeline/verify_amps.py         # DC op-point vs chart (draft=warn, veri
 cd pipeline && python3 check_schematics.py   # kiutils round-trip
 cd pipeline && python3 check_tonestack_wiring.py  # drawn tone stack == plotted one
 cd pipeline && python3 check_layouts.py      # BOTH layout renders + collision lint (+waivers)
+python3 pipeline/render_og.py --check        # per-amp social cards match their layouts
 python3 pipeline/verify_layout_nets.py       # layout↔netlist equivalence (+--selftest)
 python3 pipeline/export_loadlines.py --check # reference/loadlines.yaml vs the netlists
 cd site && npm ci && npm run build      # site must build
@@ -76,7 +77,10 @@ Fetch-based review cannot see whether SVG renders. Any `set:html`-injected SVG n
 (`python3 pipeline/render_layouts.py --png <id>`, or `--style sheet --png <id>` for
 the era layout-sheet drawing, then actually look at the PNG; KiCanvas schematics need
 a browser screenshot after ~12 s render time). Every board ships in both styles, so a
-layout change means looking at both. See `docs/REVIEW.md` for the standing rules and
+layout change means looking at both — and a layout change also regenerates that
+amp's social card (`python3 pipeline/render_og.py <id>`, then look at
+`site/public/og/<id>.png`; it needs rsvg, which Workers Builds does not have, so
+the PNGs are committed). See `docs/REVIEW.md` for the standing rules and
 `docs/layout-schema.md` for the two styles, the wiring layer, lint, and
 equivalence-gate semantics.
 

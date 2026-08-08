@@ -131,7 +131,10 @@ const breadcrumbs = [
 ];
 ---
 <Base title={`${displayId(amp.id)} — ${m.name_style} · Circuit Codex`}
-      description={metaDescription} ogType="article" jsonld={jsonld} breadcrumbs={breadcrumbs}>
+      description={metaDescription} ogType="article" jsonld={jsonld} breadcrumbs={breadcrumbs}
+      ogImage={`og/${amp.id}.png`}
+      ogImageAlt={`${displayId(amp.id)} — ${m.name_style}, ${m.wattage} W: Circuit Codex card, with a detail of the redrawn board layout drawing`}>
+
 <div class="wrap wrap-wide">
   <header class="amp-head">
     <h1>{displayId(amp.id)} <span class="style">{m.name_style} · {m.era.start}–{m.era.end} · {m.wattage} W</span></h1>

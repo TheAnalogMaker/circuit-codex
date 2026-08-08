@@ -35,6 +35,11 @@ jobs:
       # layout-sheet.svg): staleness, well-formedness, wiring collisions, and the
       # label checks against each style's own type.
       - run: python pipeline/check_layouts.py
+      # Every amp page's link-preview card carries a crop of that amp's own
+      # layout drawing, so a changed layout, meta.yaml or card renderer leaves a
+      # committed card showing a board the corpus no longer draws. --check needs
+      # no rasteriser: it rebuilds each card's SVG and compares digests.
+      - run: python pipeline/render_og.py --check
       # Layout <-> netlist electrical-equivalence gate. The self-test proves the
       # gate catches planted wiring faults (a gate that can't is decoration); the
       # main run hard-fails any amp whose layout.yaml claims wiring_claim: verified
