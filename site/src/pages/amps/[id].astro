@@ -1,6 +1,6 @@
 ---
 import Base from '../../layouts/Base.astro';
-import { loadCorpus, displayId, ampMetaDescription, layoutAlt, layoutMinWidth, topologyHref, circuitFamilyMap, loadHistory, TOPOLOGY_DIMENSIONS, loadLoadlineStages, toneStackPresetIds, GITHUB } from '../../lib/corpus.js';
+import { loadCorpus, displayId, ampMetaDescription, layoutAlt, layoutMinWidth, topologyHref, circuitFamilyMap, loadHistory, TOPOLOGY_DIMENSIONS, loadLoadlineStages, toneStackPresetIds, ampOpPoints, designatorScheme, listPhrase, GITHUB } from '../../lib/corpus.js';
 
 export async function getStaticPaths() {
   const stages = new Map(loadLoadlineStages().map((s) => [s.amp, s]));
@@ -34,6 +34,38 @@ const lineageRelated = [
 // simulation-only (chart: null). Such pages must not promise chart comparison.
 const allChartNull = !!amp.voltages && Object.values(amp.voltages.nodes)
   .every((e) => e.chart === null || e.chart === undefined);
+// Operating-point rows: the published chart joined to the simulated value the
+// verification run exported, with each row's deviation computed from the two
+// numbers standing beside it. See ampOpPoints() in lib/corpus.js.
+const opRows = ampOpPoints(amp);
+// Voltages print with one decimal and a real minus sign, matching the house
+// units style used elsewhere on the page (−40 V, not -40 V).
+const volts = (n) => `${String(Number(n).toFixed(1)).replace('-', '−')} V`;
+const chartVolts = (n) => `${String(n).replace('-', '−')} V`;
+// A long dispute note is arithmetic, not a table cell: the row shows its first
+// sentence and opens the rest on demand, so one disputed node cannot triple the
+// height of every row around it.
+function leadSentence(s, max = 96) {
+  const text = String(s || '').trim();
+  if (text.length <= max) return { lead: text, rest: '' };
+  const stop = text.slice(0, max + 40).search(/[.:;]\s/);
+  const cut = stop > 24 ? stop + 1 : text.lastIndexOf(' ', max);
+  // A clause cut at a colon or semicolon is not a sentence: close it with an
+  // ellipsis so the summary reads as the start of something rather than as a
+  // statement that trails off mid-punctuation.
+  const lead = text.slice(0, cut).trim().replace(/[:;,]$/, '') + (/[.!?]$/.test(text.slice(0, cut).trim()) ? '' : ' …');
+  return { lead, rest: text.slice(cut).trim() };
+}
+// What this parts list may claim about its designators, read from the amp's own
+// BOM and the presence of a redrawn schematic — see designatorScheme().
+const refs = designatorScheme(amp);
+// Small counts read as words in prose; a sentence never opens with a numeral.
+const COUNT_WORDS = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven',
+  'eight', 'nine', 'ten', 'eleven', 'twelve'];
+const countWord = (n) => {
+  const w = COUNT_WORDS[n];
+  return w ? w.charAt(0).toUpperCase() + w.slice(1) : String(n);
+};
 // How to name the output bottles in prose. The corpus runs 1, 2 and — since the
 // Model 1959 Super Lead — 4 of them, so "pair" cannot be the answer for every
 // push-pull stage. Anything the words below do not cover falls back to the ×N
@@ -175,9 +207,14 @@ const breadcrumbs = [
       </div>
 
       {amp.hasLayout && (
-        <div class="viewer layout">
+        <div class="viewer layout" style={layoutFloor ? `--layout-floor:${layoutFloor}px` : undefined}>
           <div class="viewer-head">
             <span>Board layout — redrawn reference diagram · source noted on the drawing</span>
+            {/* Shown only when the drawing really is wider than its box — the
+                measurement lives in the script below. A styled scrollbar is not
+                enough on its own: several platforms hide theirs until something
+                moves, which makes a cut-off drawing look like a broken one. */}
+            <span class="scroll-flag" hidden>scrolls ↔</span>
             {amp.hasLayoutSheet && (
               <span class="layout-tools">
                 {/* The style buttons only do something with JS, so they stay
@@ -192,24 +229,40 @@ const breadcrumbs = [
               </span>
             )}
           </div>
-          <div class="layout-canvas">
+          {/* The drawing's own scroll container. Its scrollable width is the whole
+              drawing — board, caption and the colour/joint/body legend beneath it,
+              all inside one viewBox — so nothing on the sheet is unreachable, only
+              off-screen until scrolled. It is focusable because a region a mouse can
+              scroll must be scrollable from the keyboard too. */}
+          <div class="layout-canvas" tabindex="0" role="group"
+               aria-label={`${displayId(amp.id)} board drawing`}>
             {amp.hasLayoutSheet && (
               <img src={`/layouts/${amp.id}-sheet.svg`} loading="lazy" decoding="async"
-                data-layout="sheet" alt={layoutAlt(amp, 'sheet')}
-                style={layoutFloor ? `min-width:${layoutFloor}px` : undefined} />
+                data-layout="sheet" alt={layoutAlt(amp, 'sheet')} />
             )}
             <img src={`/layouts/${amp.id}.svg`} loading="lazy" decoding="async"
               data-layout="current" alt={layoutAlt(amp, 'current')}
-              hidden={amp.hasLayoutSheet}
-              style={layoutFloor ? `min-width:${layoutFloor}px` : undefined} />
+              hidden={amp.hasLayoutSheet} />
           </div>
           <p class="layout-scroll-note">
-            Scroll the drawing sideways to read the whole board, or
-            <a href={amp.hasLayoutSheet ? `/layouts/${amp.id}-sheet.svg` : `/layouts/${amp.id}.svg`}
-               target="_blank" rel="noopener"
-               data-full-current={`/layouts/${amp.id}.svg`}
-               data-full-sheet={`/layouts/${amp.id}-sheet.svg`}> open the
-            full-size diagram</a> in its own tab.
+            {/* Which of these two the reader gets is measured, not assumed: a board
+                that already fits must not be told to scroll. The overflow variant is
+                the one served, since most boards overflow and it is the safe reading
+                if the measuring script never runs. */}
+            <span data-fit="over">Scroll the drawing sideways to read the whole board —
+              the source line and the colour legend run along the bottom of the sheet — or
+              <a href={amp.hasLayoutSheet ? `/layouts/${amp.id}-sheet.svg` : `/layouts/${amp.id}.svg`}
+                 target="_blank" rel="noopener"
+                 data-full-current={`/layouts/${amp.id}.svg`}
+                 data-full-sheet={`/layouts/${amp.id}-sheet.svg`}> open the
+              full-size diagram</a> in its own tab.</span>
+            <span data-fit="fits" hidden>The whole board is on screen, source line and
+              colour legend included.
+              <a href={amp.hasLayoutSheet ? `/layouts/${amp.id}-sheet.svg` : `/layouts/${amp.id}.svg`}
+                 target="_blank" rel="noopener"
+                 data-full-current={`/layouts/${amp.id}.svg`}
+                 data-full-sheet={`/layouts/${amp.id}-sheet.svg`}> Open the
+              full-size diagram</a> in its own tab to zoom in or print it.</span>
             {amp.hasLayoutSheet && (
               <span data-style-note="sheet"> Values are lettered on the parts in the
                 period shorthand — <b>.02-400</b>, <b>250-5</b>, <b>1MEG</b>:
@@ -252,29 +305,55 @@ const breadcrumbs = [
                 chart. Because there is no measured reference to verify against, this circuit is
                 published as a draft.</p>
             : <p class="sub">Chart values read from the published drawing — or, where the drawing carries no voltage chart, from the cited published measurements (never reproduced).
-                Tolerances are this project's verification targets: tube-pin nodes carry the
+                The simulated column is this circuit's own netlist solved in ngspice by the run
+                that gates it; every deviation beside it is those two numbers compared, not a
+                separately stated figure. Tolerances are this project's verification targets:
+                tube-pin nodes carry the
                 tolerance the cited source states, or ±20% — the era's printed convention —
                 where it states none, and power rails are held to tighter internal targets.
-                {isVerified && ` Simulation matches every node within target — worst deviation ${v.max_deviation_pct}%.`}</p>}
-          <div class="tbl"><table>
-            <thead><tr><th>Node</th><th>Chart</th><th>Tolerance</th><th>Note</th></tr></thead>
+                {isVerified && ` Every gated node lands within target — worst deviation ${v.max_deviation_pct}%.`}</p>}
+          <div class="tbl"><table class="ops">
+            <thead><tr>
+              <th>Node</th>
+              {!allChartNull && <th>Chart</th>}
+              <th>Simulated</th>
+              {!allChartNull && <th>Deviation</th>}
+              {!allChartNull && <th>Tolerance</th>}
+              <th>Note</th>
+            </tr></thead>
             <tbody>
-              {Object.entries(amp.voltages.nodes).map(([node, e]) => (
-                <tr>
-                  <td>{node}</td>
-                  <td>{e.chart === null || e.chart === undefined ? '—' : `${e.chart} V`}</td>
-                  <td>{e.disputed ? <span class="chip">chart disputed</span> : (e.chart === null || e.chart === undefined ? '' : `±${e.tol_pct ?? 5}%`)}</td>
-                  <td style="font-family:var(--body);color:var(--faint)">{e.dispute_note || e.note || ''}</td>
+              {opRows.map((r) => (
+                <tr class={r.disputed ? 'row-disputed' : undefined}>
+                  <td class="node">{r.node}{r.disputed && <><br /><span class="flag">chart disputed</span></>}</td>
+                  {!allChartNull && <td>{r.chart === null ? '—' : chartVolts(r.chart)}</td>}
+                  <td class="sim">{r.sim === null ? '—' : volts(r.sim)}</td>
+                  {!allChartNull && (
+                    <td class={r.dev_pct === null ? '' : (r.disputed ? 'dev off-chart' : (r.within ? 'dev ok' : 'dev over'))}>
+                      {r.dev_pct === null ? '—' : `${r.dev_pct.toFixed(1)}%`}
+                    </td>
+                  )}
+                  {!allChartNull && <td>{r.chart === null ? '—' : (r.disputed ? 'not gated' : `±${r.tol_pct}%`)}</td>}
+                  <td class="note">
+                    {r.disputed && r.dispute_note
+                      ? (leadSentence(r.dispute_note).rest
+                          ? <details><summary>{leadSentence(r.dispute_note).lead}</summary>
+                              <p>{leadSentence(r.dispute_note).rest}</p></details>
+                          : leadSentence(r.dispute_note).lead)
+                      : (r.note || '')}
+                  </td>
                 </tr>
               ))}
             </tbody>
           </table></div>
           {allChartNull
             ? <p class="footnote">Every node here is simulation-only — there is no published
-                chart to check against — so no chart column or tolerance is shown.</p>
+                chart to check against — so no chart, deviation or tolerance column is shown.</p>
             : <p class="footnote">Tube-pin nodes are checked at the tolerance the cited source
                 states, or at the era's ±20% convention where it states none; power-rail nodes are
-                held to tighter internal verification targets.</p>}
+                held to tighter internal verification targets.
+                {opRows.some((r) => r.disputed) && ' A node marked chart disputed is excluded from that check — its printed value contradicts the rest of the chart, and the note says how; its deviation is shown for the record, not as a result.'}
+                {' '}Simulated figures are the netlist's DC solution, not measurements from a
+                chassis.</p>}
           {/* LOADLINE-LINK — delimited for hand-merge. Only for circuits whose output
               stage pipeline/export_loadlines.py could read out of the netlist. */}
           {loadline && (
@@ -294,17 +373,30 @@ const breadcrumbs = [
       {amp.bom && (
         <section>
           <h2>Parts list</h2>
-          <p class="sub">{amp.hasSchematic
-            ? 'Reference designators match the schematic above.'
-            : 'Reference designators follow the corpus convention; the redrawn schematic is in progress.'} {amp.bom.notes}</p>
-          <div class="tbl"><table>
-            <thead><tr><th>Ref</th><th>Part</th><th>Value / rating</th><th>Role</th></tr></thead>
+          <p class="sub">
+            {refs.crossChecked
+              ? "Every designator in this list appears on the schematic above, and every designator on the schematic appears here — the two are checked against each other in both directions, a valve's two halves counting as one bottle (V1A and V1B are both V1)."
+              : "Reference designators follow the corpus convention; the redrawn schematic is in progress, so this list is not yet checked against one."}
+            {refs.undesignated > 0 && (refs.undesignated === 1
+              ? ' One part the drawing carries as an annotation rather than a numbered symbol is listed here without a designator, and stands outside that check.'
+              : ` ${countWord(refs.undesignated)} parts the drawing carries as annotations rather than numbered symbols are listed here without designators, and stand outside that check.`)}
+            {refs.tubeGaps.length > 0 && ` Valve numbers are the source drawing's own and are not renumbered here to close a gap: this circuit carries ${listPhrase(refs.tubes)}, and a number missing from that run is a valve the circuit does not carry.`}
+            {' '}{amp.bom.notes}</p>
+          <div class="tbl"><table class="bom">
+            <thead><tr><th>Ref</th><th>Part</th><th class="val">Value / rating</th><th>Role</th></tr></thead>
             <tbody>
               {amp.bom.items.map((i) => (
                 <tr>
                   <td style="color:var(--amber)">{i.ref}</td>
                   <td style="font-family:var(--body)">{i.part}</td>
-                  <td>{i.value}</td>
+                  {/* House units style joins a value to its rating with a middle
+                      dot ("250 kΩ · ½ W"). Each side is one quantity and must not
+                      break inside itself — a column narrow enough to wrap "½ W"
+                      onto its own line was reading as a half-stated rating — so the
+                      tokens are emitted individually and only the separator wraps. */}
+                  <td class="val">{String(i.value ?? '').split(' · ').map((tok, n) => (
+                    <>{n > 0 ? <span class="sep"> · </span> : ''}<span class="tok">{tok}</span></>
+                  ))}</td>
                   <td style="font-family:var(--body);color:var(--faint)">{i.role}</td>
                 </tr>
               ))}
@@ -406,11 +498,33 @@ const breadcrumbs = [
   (function () {
     var box = document.querySelector('.viewer.layout');
     if (!box) return;
+    // Does the drawing overflow its scroll container right now? The scroll note
+    // says one thing when it does and another when it does not, and neither is
+    // guessed: a board that fits must not tell the reader to scroll, and one that
+    // overflows must say what is off the right edge. Re-measured on resize, since
+    // the drawing takes the column's width down to its own floor.
+    var can = box.querySelector('.layout-canvas');
+    function fit() {
+      var over = can.scrollWidth - can.clientWidth > 1;
+      box.setAttribute('data-overflow', over ? 'true' : 'false');
+      var notes = box.querySelectorAll('[data-fit]');
+      for (var i = 0; i < notes.length; i++)
+        notes[i].hidden = notes[i].dataset.fit !== (over ? 'over' : 'fits');
+      var flag = box.querySelector('.scroll-flag');
+      if (flag) flag.hidden = !over;
+    }
+    fit();
+    if (window.ResizeObserver) new ResizeObserver(fit).observe(can);
+    else window.addEventListener('resize', fit);
+    // The drawings load lazily, so the first measurement can precede the layout
+    // the loaded image settles into.
+    var loading = box.querySelectorAll('img[data-layout]');
+    for (var L = 0; L < loading.length; L++) loading[L].addEventListener('load', fit);
     var group = box.querySelector('.layout-styles');
     if (!group) return;                       // this board has one drawing only
     var KEY = 'cc-layout-style';
     var imgs = box.querySelectorAll('img[data-layout]');
-    var full = box.querySelector('a[data-full-sheet]');
+    var full = box.querySelectorAll('a[data-full-sheet]');
     var btns = group.querySelectorAll('button[data-style]');
     var notes = box.querySelectorAll('[data-style-note]');
     var pending = 0;
@@ -424,12 +538,14 @@ const breadcrumbs = [
         // its fetch or its timeout can land after the reader has moved on.
         if (token !== pending) return;
         for (var i = 0; i < imgs.length; i++) imgs[i].hidden = imgs[i].dataset.layout !== style;
+        fit();   // both styles share a viewBox, but measure rather than assume
       }
       for (var j = 0; j < btns.length; j++)
         btns[j].setAttribute('aria-pressed', btns[j].dataset.style === style ? 'true' : 'false');
       for (var n = 0; n < notes.length; n++)
         notes[n].hidden = notes[n].dataset.styleNote !== style;
-      if (full) full.href = style === 'sheet' ? full.dataset.fullSheet : full.dataset.fullCurrent;
+      for (var f = 0; f < full.length; f++)
+        full[f].href = style === 'sheet' ? full[f].dataset.fullSheet : full[f].dataset.fullCurrent;
       if (defer && next && !next.complete) {
         // The drawing that is not on screen is deferred, so the first switch to
         // it has to fetch it. Hold the current one in place until it is ready:
@@ -474,7 +590,14 @@ const breadcrumbs = [
   /* The subtitle now lives inside the h1 (one heading for SEO/a11y) but keeps its
      original look: body font, sentence case, muted, lighter than the display title. */
   h1 .style{font-family:var(--body);text-transform:none;font-weight:400;letter-spacing:normal;font-size:16px;color:var(--muted);white-space:normal}
+  /* An amp page is figure-led: a board drawing and a schematic sheet set its
+     width, not a line of prose. On a large screen the wrap opens up so those
+     figures get the room — every prose block on the page carries its own
+     measure cap (70–90ch), so the extra width lands on the drawings and the
+     tables rather than stretching sentences. Base.astro widens the nav and
+     footer wraps at the same breakpoint so the page keeps one alignment. */
   .wrap-wide{max-width:1140px}
+  @media(min-width:1440px){.wrap-wide{max-width:1320px}}
   .cols{display:grid;grid-template-columns:1fr minmax(280px,340px);gap:24px;align-items:start;margin-top:16px}
   /* A grid item's automatic minimum size is its min-content width, so the board
      drawing's min-width (see layoutMinWidth) would widen the 1fr track to the
@@ -488,6 +611,9 @@ const breadcrumbs = [
   /* Board-drawing style toggle + print link. Same button treatment as the
      load-line explorer's controls, sized down to sit on the viewer's head rule. */
   .layout-tools{margin-left:auto;display:flex;align-items:center;gap:8px}
+  .scroll-flag{font-family:var(--disp);text-transform:uppercase;letter-spacing:.12em;font-size:10px;
+    color:var(--amber);border:1px solid var(--amber-dim);border-radius:99px;padding:1px 8px}
+  .scroll-flag[hidden]{display:none}
   .layout-styles{display:flex;gap:0}
   .sbtn{background:var(--well);border:1px solid var(--line);color:var(--muted);font-family:var(--disp);text-transform:uppercase;letter-spacing:.12em;font-size:10.5px;padding:4px 10px;cursor:pointer;border-radius:5px;line-height:1.5}
   .layout-styles .sbtn{border-radius:0}
@@ -498,17 +624,53 @@ const breadcrumbs = [
   a.sbtn{white-space:nowrap}
   .viewer-body{padding:22px 18px;color:var(--muted);font-size:14.5px}
   .viewer-body p{margin:0}
-  .viewer-canvas{height:580px}
+  /* The schematic viewer fits a whole KiCad sheet into this box, so the box's
+     size IS the drawing's size: at the old fixed 580 px in a 726 px column the
+     sheet fitted to the width and left the circuit itself a band a few hundred
+     pixels tall — a postage stamp. The panel now takes a share of the viewport
+     height, floored so a laptop still gets a usable panel and capped so a tall
+     display does not hand over a whole screen before the reader has seen there
+     is a page under it. A sheet is wider than it is tall, so it still fits by
+     width and leaves some ground above and below; closing that gap means
+     cropping the sheet to its drawing, which is a change to the schematic
+     itself, not to this box.
+
+     The panel is sized from its own width rather than from a fixed number, so
+     it stays roughly the shape of the thing it holds at every column width: a
+     phone gets a panel a little taller than it is wide, a wide desktop column
+     gets a big one, and neither hands the reader a tall box with a thin drawing
+     stranded in the middle of it. `width:100%` is load-bearing there: with an
+     aspect ratio and an auto width, a min-height resolves the box's WIDTH
+     through the ratio instead of from its parent, and the panel grows wider
+     than the column it sits in. */
+  .viewer-canvas{width:100%;aspect-ratio:5/4;height:auto;min-height:300px;max-height:min(76vh,860px)}
   .viewer-canvas kicanvas-embed{display:block;width:100%;height:100%}
   /* The drawings are wider than the column and set their type in viewBox units,
      so scaling one to fit would make its labels unreadable. Scroll instead —
-     the same treatment the lineage figure already uses. */
+     the same treatment the lineage figure already uses. This box is the scroll
+     container, and its scrollable width is the drawing's whole width (see
+     --layout-floor below): the board, the source line and the footer legend all
+     live in one viewBox, so scrolling reaches every part of the sheet. */
   .layout-canvas{padding:10px;overflow-x:auto;overscroll-behavior-x:contain}
+  /* A drawing that overflows must SAY so. macOS hides overlay scrollbars until
+     something moves, which left the only sign of the missing right-hand side —
+     the legend running off the edge — looking like a rendering bug. Give the
+     container a permanent track. */
+  .layout-canvas{scrollbar-color:var(--amber-dim) var(--well)}
+  .layout-canvas::-webkit-scrollbar{height:11px}
+  .layout-canvas::-webkit-scrollbar-track{background:var(--well);border-top:1px solid var(--line-soft)}
+  .layout-canvas::-webkit-scrollbar-thumb{background:var(--amber-dim);border-radius:99px;border:3px solid var(--well)}
+  .layout-canvas::-webkit-scrollbar-thumb:hover{background:var(--amber)}
+  .layout-canvas:focus-visible{outline:2px solid var(--amber);outline-offset:-2px;border-radius:6px}
   .layout-scroll-note{color:var(--faint);font-size:12px;margin:0;padding:0 16px 10px}
   .layout-scroll-note b{color:var(--muted);font-family:var(--mono);font-weight:400}
   .layout-scroll-note [hidden]{display:none}
   .layout-note{color:var(--muted);font-size:12.5px;line-height:1.55;margin:0;padding:10px 16px 14px;border-top:1px solid var(--line-soft);max-width:90ch}
-  .layout-canvas img{display:block;width:100%;height:auto;border-radius:4px}
+  /* The drawing takes the column's width, but never shrinks below the floor the
+     page computed for it (layoutMinWidth() in lib/corpus.js, handed down as
+     --layout-floor on .viewer.layout). Both styles read the same property, so
+     the two drawings of one board can never disagree about their own width. */
+  .layout-canvas img{display:block;width:100%;min-width:var(--layout-floor,0);height:auto;border-radius:4px}
   /* An author `display` rule outranks the UA sheet's [hidden], so both the
      off-screen drawing and the no-JS toggle need it restated. */
   .layout-canvas img[hidden]{display:none}
@@ -516,6 +678,39 @@ const breadcrumbs = [
   h2{font-size:17px;letter-spacing:.14em;margin:28px 0 4px}
   .sub{color:var(--muted);font-size:13.5px;margin:0 0 14px;max-width:70ch}
   .footnote{color:var(--faint);font-size:12px;margin:10px 0 0;max-width:70ch}
+  /* ---- operating-point table ------------------------------------------------
+     The chart and the simulation stand in adjacent columns with their deviation
+     between them, so the heading's "vs." is something the reader can check
+     rather than something the prose asserts. */
+  .ops td{vertical-align:top}
+  .ops .node{white-space:nowrap;color:var(--ink)}
+  .ops .sim{color:var(--ink)}
+  .ops .dev{white-space:nowrap}
+  .ops .dev.ok{color:var(--ok)}
+  .ops .dev.over{color:var(--amber)}
+  /* A disputed node's deviation is arithmetic for the record, not a result: it
+     is neither pass nor fail, and must not be coloured as either. */
+  .ops .dev.off-chart{color:var(--faint)}
+  /* The dispute badge is a status on the node, not a tolerance. It used to sit
+     in the Tolerance column, where it read as the tolerance itself. */
+  .ops .flag{display:inline-block;margin-top:3px;font-family:var(--disp);text-transform:uppercase;
+    letter-spacing:.1em;font-size:9.5px;color:var(--oxblood);border:1px solid var(--oxblood);
+    border-radius:99px;padding:1px 7px;white-space:nowrap}
+  .ops .note{font-family:var(--body);color:var(--faint);min-width:26ch;max-width:46ch}
+  /* Dispute notes carry the arithmetic that makes the dispute checkable — four
+     to six lines of it, which used to set the height of every row on the page.
+     The row shows the claim; the working opens under it. */
+  .ops .note details summary{cursor:pointer;color:var(--muted)}
+  .ops .note details[open] summary{margin-bottom:4px}
+  .ops .note details p{margin:0;color:var(--faint)}
+  .ops tr.row-disputed td{background:rgba(156,74,56,.06)}
+  /* ---- parts list ---------------------------------------------------------
+     "250 kΩ · ½ W" is two quantities, not seven words: the column keeps enough
+     room for the common case and each quantity stays whole, so a narrow window
+     can break the line at the separator but never inside "½ W". */
+  .bom .val{min-width:14ch}
+  .bom .val .tok{white-space:nowrap}
+  .bom .val .sep{color:var(--faint)}
   .viewer-fallback{padding:22px 18px;color:var(--muted);font-size:14.5px;margin:0}
   .meta{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:18px;position:sticky;top:72px}
   .meta dl{margin:0;display:grid;grid-template-columns:max-content 1fr;gap:9px 14px;font-size:14px}
@@ -544,7 +739,7 @@ const breadcrumbs = [
      already a light-ground drawing sized to its own viewBox, so a browser
      prints it directly.) */
   @media print{
-    .layout-tools{display:none}
+    .layout-tools,.scroll-flag{display:none}
     .viewer.layout{border:none;background:none;break-inside:avoid}
     .layout-canvas{overflow:visible;padding:0}
     .layout-canvas img{min-width:0 !important;width:100%}

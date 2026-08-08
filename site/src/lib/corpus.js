@@ -121,11 +121,114 @@ export function displayId(id, nameStyle) {
 // drawing reads as a grey smear. Small boards keep fitting the column (the
 // floor is under the column width, so `max()` leaves them alone); big ones
 // overflow their scroll container instead of shrinking.
+//
+// The floor is one half of a contract with the amp page, and the two halves have
+// to agree or the drawing loses its edges. The page hands this number to the
+// figure as `--layout-floor`; the drawing takes `width:100%` but never less than
+// the floor, and the element that scrolls is the box the drawing sits in, whose
+// scrollable width is therefore the WHOLE drawing — board, caption and footer
+// legend alike, since all three live inside the same viewBox. Nothing may clip
+// that box (no `overflow:hidden` ancestor, no `min-width:0` on the drawing) or
+// the legend becomes unreachable rather than merely off-screen.
 export const LAYOUT_MIN_SCALE = 0.62;
 
 export function layoutMinWidth(amp) {
   const units = amp?.layoutWidth;
   return units ? Math.round(units * LAYOUT_MIN_SCALE) : null;
+}
+
+// ------------------------------------------------- simulated operating points
+// reference/op-points.yaml — written by `pipeline/verify_amps.py --export` from
+// the same ngspice run that gates each circuit against its published chart, and
+// re-checked for staleness by every ordinary gate run. The site cannot run
+// ngspice at build time, so this file is how a simulated volt reaches the page.
+let _opPoints = null;
+export function loadOpPoints() {
+  if (_opPoints) return _opPoints;
+  const p = path.join(REFERENCE_DIR, 'op-points.yaml');
+  const raw = readIfExists(p);
+  _opPoints = new Map(Object.entries((raw ? yaml.load(raw) : null)?.amps || {}));
+  return _opPoints;
+}
+
+// One row per node of an amp's operating-point table, joining the published chart
+// (amps/<id>/voltages.yaml) to the simulated value (reference/op-points.yaml).
+//
+// `dev_pct` is computed here, from the two numbers in the row, rather than being
+// a third stored figure that could drift from either. A node the chart does not
+// carry, and a node whose printed value the corpus disputes, both have a
+// simulated value and no meaningful deviation *against the chart*: the disputed
+// row keeps its arithmetic (a reader deserves to see how far apart they are) but
+// is marked as excluded from gating, exactly as verify_amps.py treats it.
+export function ampOpPoints(amp) {
+  const nodes = amp?.voltages?.nodes;
+  if (!nodes) return [];
+  const sims = loadOpPoints().get(amp.id) || {};
+  return Object.entries(nodes).map(([node, e]) => {
+    const chart = e.chart === null || e.chart === undefined ? null : Number(e.chart);
+    const sim = Object.prototype.hasOwnProperty.call(sims, node) ? Number(sims[node]) : null;
+    const disputed = !!e.disputed;
+    const dev = chart !== null && sim !== null && chart !== 0
+      ? Math.abs(sim - chart) / Math.abs(chart) * 100
+      : null;
+    return {
+      node,
+      chart,
+      sim,
+      disputed,
+      dev_pct: dev,
+      tol_pct: e.tol_pct ?? 5,
+      // Only a node with a chart value and no dispute is gated by verify_amps.py;
+      // the page's "within tolerance" reading must match that rule exactly.
+      gated: chart !== null && !disputed,
+      within: dev !== null && !disputed ? dev <= (e.tol_pct ?? 5) : null,
+      note: e.note || '',
+      dispute_note: e.dispute_note || '',
+    };
+  });
+}
+
+// ------------------------------------------------------- designator scheme
+// What the parts list may honestly claim about its reference designators.
+//
+// `pipeline/validate.py` cross-checks every designator in bom.yaml against
+// schematic.kicad_sch in both directions (multi-section bottles collapse: V1A
+// and V1B are both V1) — but only when the amp has both files, and it never
+// sees a part the drawing shows only as an annotation, which is listed with no
+// designator at all. So the page states the match where that gate proves it,
+// names the parts outside it, and — because valve numbers are the source
+// drawing's own and are never renumbered here to close a gap — says which
+// bottles this circuit actually carries when the run has a hole in it. A reader
+// who counts V1, V2, V5 on the page should be told that is the drawing's
+// numbering, not a missing row.
+const TUBE_REF = /^V(\d+)[AB]?$/;
+
+export function designatorScheme(amp) {
+  const items = amp?.bom?.items || [];
+  const undesignated = items.filter((i) => !i.ref || i.ref === '—').length;
+  const tubes = [...new Set(items
+    .map((i) => TUBE_REF.exec(String(i.ref || '')))
+    .filter(Boolean)
+    .map((m) => Number(m[1])))].sort((a, b) => a - b);
+  const gaps = tubes.length
+    ? Array.from({ length: tubes[tubes.length - 1] - tubes[0] + 1 },
+                 (_, k) => tubes[0] + k).filter((n) => !tubes.includes(n))
+    : [];
+  return {
+    // The CI cross-check runs on exactly this pair of files.
+    crossChecked: !!(amp?.hasSchematic && items.length),
+    undesignated,
+    tubes: tubes.map((n) => `V${n}`),
+    tubeGaps: gaps.map((n) => `V${n}`),
+  };
+}
+
+// "V1, V3 and V5" — an Oxford-comma-free list for prose.
+export function listPhrase(parts) {
+  const a = [...parts];
+  if (a.length <= 1) return a[0] || '';
+  if (a.length === 2) return `${a[0]} and ${a[1]}`;
+  return `${a.slice(0, -1).join(', ')} and ${a[a.length - 1]}`;
 }
 
 // Board construction, read from the amp's own layout.yaml (board.title) — so the
