@@ -11,7 +11,10 @@ corpus does not draw. This gate closes that gap.
 
 The reference designators are read out of the site's own TONE_STACK_SPECS table
 rather than restated here, so the two cannot drift apart: rename a part in
-corpus.js and this gate follows it.
+corpus.js and this gate follows it. The companion TONE_STACK_GATE_EXTRAS table
+(same file) lists the multi-knob networks the lab does not yet plot — the
+AB763's vibrato channel and the AA764's stack — so every drawing the corpus
+claims to have read at lug level is walked here, preset or not.
 
 Each preset declares which of the two stack wirings its schematic draws
 (`wiring` in TONE_STACK_SPECS), and the gate asserts the matching network.
@@ -27,7 +30,7 @@ Each preset declares which of the two stack wirings its schematic draws
     N5   mid-leg top        bass-pot other end lug · mid cap · mid leg
 
 'ladder' — the wiring the published 5F6, 5F6-A, JTM45, 1987, 1959, AA964,
-AB763 and AA1164 sheets draw:
+AB763 (both channels), AA1164 and AA764 sheets draw:
 
     IN   stack input        slope resistor · treble cap
     N2   slope foot         slope resistor · bass cap · mid cap
@@ -76,12 +79,10 @@ POT_ENDS = ("1", "3")
 POT_WIPER = "2"
 
 
-def load_specs() -> list:
-    """The tone-stack presets the site publishes, straight out of corpus.js."""
-    src = CORPUS_JS.read_text(encoding="utf-8")
-    m = re.search(r"const TONE_STACK_SPECS = \[(.*?)\n\];", src, re.S)
+def _parse_table(src: str, name: str) -> list:
+    m = re.search(r"const " + name + r" = \[(.*?)\n\];", src, re.S)
     if not m:
-        raise SystemExit("check_tonestack_wiring: TONE_STACK_SPECS not found in corpus.js")
+        raise SystemExit(f"check_tonestack_wiring: {name} not found in corpus.js")
     specs = []
     for block in re.findall(r"\{\s*\n?\s*id: '([^']+)', kind: '([^']+)',(.*?)\n  \},", m.group(1), re.S):
         amp, kind, body = block
@@ -96,11 +97,24 @@ def load_specs() -> list:
             mid = (mm.group(1), mm.group(2))
         wm = re.search(r"wiring: '([^']+)'", body)
         wiring = wm.group(1) if wm else "joined"
+        cm = re.search(r"channel: '([^']+)'", body)
         specs.append({"id": amp, "kind": kind, "refs": refs, "midLeg": mid,
-                      "wiring": wiring})
+                      "wiring": wiring, "channel": cm.group(1) if cm else None})
+    return specs
+
+
+def load_specs() -> list:
+    """Every tone-stack network the site's tables declare: the published
+    presets (TONE_STACK_SPECS) plus the read-but-not-plotted networks
+    (TONE_STACK_GATE_EXTRAS), straight out of corpus.js."""
+    src = CORPUS_JS.read_text(encoding="utf-8")
+    specs = _parse_table(src, "TONE_STACK_SPECS")
     if not specs:
         raise SystemExit("check_tonestack_wiring: parsed no presets out of TONE_STACK_SPECS")
-    return specs
+    extras = _parse_table(src, "TONE_STACK_GATE_EXTRAS")
+    if not extras:
+        raise SystemExit("check_tonestack_wiring: parsed no entries out of TONE_STACK_GATE_EXTRAS")
+    return specs + extras
 
 
 class Fail(Exception):
@@ -360,13 +374,14 @@ def main() -> int:
     specs = [s for s in load_specs() if s["kind"] in ("fmv", "tb", "split")]
     failures = []
     for spec in specs:
+        label = spec["id"] + (f" ({spec['channel']} channel)" if spec.get("channel") else "")
         problems = check(spec["id"], spec)
         if problems:
             failures.extend(problems)
             for p in problems:
                 print(f"FAIL {p}")
         else:
-            print(f"ok   {spec['id']}: drawing matches the plotted {spec['kind']} "
+            print(f"ok   {label}: drawing matches the declared {spec['kind']} "
                   f"network ({spec['wiring']} wiring)")
     print(f"checked {len(specs)} tone stack(s), {len(failures)} failure(s)")
     return 1 if failures else 0

@@ -662,10 +662,11 @@ function tubeSmallSignal(tubeId) {
 //          single-resistance drive model this solver assumes does not describe it.
 //   5f10   single-knob; not yet built as a preset.
 //   aa764  a two-knob stack drawn as the same ladder the AA964 preset now solves
-//          (treble-wiper output, bass rheostat), but with its own part roles
-//          (0.047 µF, 15 kΩ leg) that have not yet been read into a preset entry
-//          and gate-checked. Absent until that reading is done, not because the
-//          solver lacks its network.
+//          (treble-wiper output, bass rheostat), with its own part roles
+//          (0.047 µF, 15 kΩ leg). Its wiring is read and gate-checked (see
+//          TONE_STACK_GATE_EXTRAS below); it is absent here only because it has
+//          not yet been built into a preset entry, not because the solver lacks
+//          its network.
 //
 // Adding one is cheap once the wiring is known; publishing a curve for a network
 // that is not the circuit's own is not recoverable.
@@ -740,11 +741,40 @@ const TONE_STACK_SPECS = [
     midLeg: { kind: 'fixed', ref: 'RSL' },
   },
   {
-    id: '5f2a', kind: 'single-knob',
+    // 'treble-cut' is a name, not a stack wiring: the network is a rheostat and
+    // a capacitor bleeding treble to ground (trebleCutElements), so neither
+    // 'ladder' nor 'joined' describes it. Declared explicitly so no preset falls
+    // back to the 'joined' default silently.
+    id: '5f2a', kind: 'single-knob', wiring: 'treble-cut',
     blurb: 'One knob: a rheostat and a small capacitor bleeding treble to ground.',
     drive: { kind: 'plate', tube: '12ax7', plateLoad: 'R4' },
     load: 'VR1',
     refs: { tonePot: 'VR2', cutCap: 'C3' },
+  },
+];
+
+// Read but not plotted: multi-knob tone networks the wiring gate asserts that
+// the lab does not (yet) carry as a preset. pipeline/check_tonestack_wiring.py
+// reads this table alongside TONE_STACK_SPECS, so every drawing the corpus
+// claims to have read at lug level is walked by the same gate — and the refs
+// live here, beside the preset table, so the two cannot drift apart.
+//
+//   ab763 vibrato — the AB763 draws its two-knob ladder twice, once per
+//     channel; the preset above solves the normal channel's designators, and
+//     this entry makes the vibrato channel's drawing gated too.
+//   aa764 — read at lug level (treble-wiper output, bass rheostat, 15 kΩ leg)
+//     but not yet built into a preset; see the absence note above.
+// eslint-disable-next-line no-unused-vars -- read by pipeline/check_tonestack_wiring.py
+const TONE_STACK_GATE_EXTRAS = [
+  {
+    id: 'ab763', kind: 'tb', wiring: 'ladder', channel: 'vibrato',
+    refs: { slope: 'RSV', trebleCap: 'CTV', treblePot: 'VRTV', bassCap: 'CBV', bassPot: 'VRBV', midCap: 'CBV2' },
+    midLeg: { kind: 'fixed', ref: 'RSLV' },
+  },
+  {
+    id: 'aa764', kind: 'tb', wiring: 'ladder',
+    refs: { slope: 'R6', trebleCap: 'C2', treblePot: 'VR2', bassCap: 'C3', bassPot: 'VR3', midCap: 'C4' },
+    midLeg: { kind: 'fixed', ref: 'R7' },
   },
 ];
 
