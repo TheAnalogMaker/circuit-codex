@@ -31,6 +31,18 @@ jobs:
       # against every value in every BOM: each one is either lettered to the
       # same physical quantity or left in house units verbatim.
       - run: python pipeline/test_era_values.py
+      # A part states its value on up to four surfaces (schematic symbol, BOM,
+      # layout label, era sheet lettering). validate.py proves the designators
+      # line up; this proves the quantities do. The self-test runs first because
+      # a gate that cannot fail proves nothing: it pushes 29 planted pairs — a
+      # decade slip, a unit slip, a wattage and a working-voltage clash, a wrong
+      # valve, part number and impedance ratio — through the same normalisers.
+      # --strict fails on disagreements only. UNSTATED and UNLINKED rows are
+      # printed but never gated: they are the archive declining to invent a
+      # figure its source never printed, and gating them would reward inventing
+      # one.
+      - run: python pipeline/check_value_consistency.py --selftest
+      - run: python pipeline/check_value_consistency.py --strict
       # Renders and lints BOTH published drawings of every board (layout.svg and
       # layout-sheet.svg): staleness, well-formedness, wiring collisions, and the
       # label checks against each style's own type.

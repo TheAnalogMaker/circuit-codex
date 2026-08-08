@@ -1,8 +1,11 @@
 # Proposal — wire `check_value_consistency.py` into CI
 
-**Status:** awaiting owner decision. The script stays report-only until then;
-this document exists so the decision can be made on evidence rather than on a
-promise.
+**Status:** IMPLEMENTED 2026-08-08, on the integration of the four parallel
+units this page was written during. The precondition it set for itself — a
+corpus with zero disagreements — held on the merged tree, so the two steps
+below are now in `.github/workflows/ci.yml` and the gate list in `AGENTS.md`.
+The gate blocks from this commit on. Nothing here grants any circuit
+`verified`; that remains the maintainer's alone (AGENTS.md rule 4).
 
 ## What it gates
 
@@ -15,18 +18,24 @@ token) and reports every designator whose surfaces disagree.
 
 ## Why now
 
-The corpus is clean. As of 2026-08-08:
+The corpus is clean. On the merged tree, 2026-08-08:
 
 ```
 $ python3 pipeline/check_value_consistency.py
-8 findings across 34 amps: UNSTATED=2, UNLINKED=6
+7 findings across 34 amps: UNSTATED=2, UNLINKED=5
   0 disagreement(s) — gated (--strict)
-  8 declared-gap row(s) — informational: a value the source did not print, or an
+  7 declared-gap row(s) — informational: a value the source did not print, or an
     annotation with no designator to cross-check against
 
 $ python3 pipeline/check_value_consistency.py --strict ; echo $?
 0
 ```
+
+One declared gap fewer than when this page was drafted: the 5F4 and 5F6-A
+schematics stopped naming their negative-feedback network in a text note and
+now draw it, so `RNF`, `VR6` and their wiper caps carry designators the gate can
+cross-check instead of ref-less annotations it could only report. A gap closes
+by drawing the part, never by relaxing the gate.
 
 The 28 findings this gate reported before that work were: nine spellings of a
 valve name the corpus's own equivalence table already reconciles (`7025` /
