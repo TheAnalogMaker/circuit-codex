@@ -1,3 +1,8 @@
+---
+# Day the study was published (git history) — the feed's pubDate. Explicit because
+# production builds are shallow clones whose git history cannot date anything.
+added: 2026-07-18
+---
 # Calibrating the 12AX7: which datasheet do you believe?
 
 *A metrology study behind the Circuit Codex tube models.*

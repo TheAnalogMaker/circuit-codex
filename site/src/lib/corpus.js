@@ -312,7 +312,16 @@ export function loadStudy(slug) {
 }
 
 function parseStudy(filePath, slug) {
-  const md = fs.readFileSync(filePath, 'utf8');
+  let md = fs.readFileSync(filePath, 'utf8');
+  // Optional YAML frontmatter. `added` records the day the study was published
+  // (its feed date) — explicit, because the production build is a shallow clone
+  // whose git history cannot date anything (see gitCreationDate).
+  let front = {};
+  const fm = md.match(/^---\n([\s\S]*?)\n---\n/);
+  if (fm) {
+    front = yaml.load(fm[1]) || {};
+    md = md.slice(fm[0].length);
+  }
   const titleMatch = md.match(/^#\s+(.+)$/m);
   const title = titleMatch ? titleMatch[1].trim() : slug;
   // Subtitle: a leading italic line just under the H1 (e.g. *A metrology study…*).
@@ -321,7 +330,7 @@ function parseStudy(filePath, slug) {
   // Strip H1 and the subtitle line from the rendered body — they become the header.
   let body = md.replace(/^#\s+.+\n/, '');
   if (subtitle) body = body.replace(/^\s*\*.+?\*\s*\n/, '');
-  return { slug, title, subtitle, html: marked.parse(body) };
+  return { slug, title, subtitle, added: front.added ?? null, html: marked.parse(body) };
 }
 
 function hostOf(url) {
@@ -853,11 +862,13 @@ export function toneStackPresetIds() {
 }
 
 // ------------------------------------------------------------- dates for feeds
-// A dated entry needs a date the repository can actually prove. Two sources exist:
-// a verified circuit carries verification.date in its own meta.yaml, and a working
-// git checkout knows when a file first appeared. Neither is invented: where both are
-// absent (a draft circuit built from a shallow clone), the entry ships without a
-// date rather than with today's.
+// A dated entry needs a date the repository can actually prove. The sources, in
+// order: a verified circuit carries verification.date, every draft circuit and
+// study carries an explicit `added` date in its own file (validate.py requires it
+// of drafts), and — as a local-only backstop — a full git checkout knows when a
+// file first appeared. The explicit dates are what production uses: Workers Builds
+// clones shallow, so the git fallback correctly reports nothing there. Where every
+// source is absent, the entry ships without a date rather than with today's.
 
 let _gitUsable = null;
 function gitUsable() {
@@ -901,13 +912,15 @@ function asDate(v) {
 // ------------------------------------------------------------------- feed items
 // One entry per documented circuit and per reference study, newest first, undated
 // entries last. A circuit is dated by the day its operating point was verified
-// against the published chart; a draft (and every study) falls back to the day the
-// file entered the repository.
+// against the published chart, otherwise by its explicit `added` date; a study by
+// its frontmatter `added`. The git-creation fallback only matters in a full local
+// checkout — production builds are shallow clones, where it yields nothing.
 export function feedEntries() {
   const circuits = loadCorpus().map((amp) => {
     const m = amp.meta;
     const verified = m.verification?.status === 'verified';
-    const date = asDate(m.verification?.date) || gitCreationDate(`amps/${amp.id}/meta.yaml`);
+    const date = asDate(m.verification?.date) || asDate(m.added)
+      || gitCreationDate(`amps/${amp.id}/meta.yaml`);
     return {
       kind: 'circuit',
       title: `${displayId(amp.id)} — ${m.name_style}`,
@@ -923,7 +936,7 @@ export function feedEntries() {
     link: `/reference/studies/${s.slug}/`,
     description: s.subtitle || `A Circuit Codex reference study: ${s.title}.`,
     categories: ['Study'],
-    date: gitCreationDate(`reference/studies/${s.slug}.md`),
+    date: asDate(s.added) || gitCreationDate(`reference/studies/${s.slug}.md`),
   }));
   return [...circuits, ...studies].sort((a, b) => {
     if (a.date && b.date) return b.date - a.date;

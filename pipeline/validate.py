@@ -4,6 +4,7 @@
 Phase-0 stub: structural checks only. Grows alongside the schema — kicad_sch
 round-trip (kiutils) and ngspice operating-point checks land with the pilot amps.
 """
+import datetime
 import re
 import sys
 from pathlib import Path
@@ -41,6 +42,14 @@ def validate(meta_path: Path) -> list[str]:
         for key in ("date", "max_deviation_pct"):
             if key not in v:
                 errors.append(f"{meta_path}: verified circuits require verification.{key}")
+    # Every circuit must carry a provable date for the site feed: verification.date
+    # once verified, an explicit `added` (the git landing date) while draft. The
+    # production build is a shallow clone, so git history cannot supply it there.
+    if status == "draft" and "added" not in meta:
+        errors.append(f"{meta_path}: draft circuits require 'added' (the date the "
+                      "circuit landed in the corpus — the feed's pubDate)")
+    if "added" in meta and not isinstance(meta["added"], datetime.date):
+        errors.append(f"{meta_path}: 'added' must be an unquoted YYYY-MM-DD date")
         for artifact in ("voltages.yaml", "netlist.cir", "notes.md",
                          "schematic.kicad_sch", "bom.yaml"):
             if not (meta_path.parent / artifact).exists():

@@ -20,4 +20,6 @@ sources: []                # list of {desc, url} — cite AND link every claim s
                            #        url: "https://..."
 verification:
   status: draft            # draft | verified — set to verified ONLY by CI + maintainer
+added: 1970-01-01          # day the circuit landed in the corpus — the feed's pubDate
+                           # while draft (required: production builds cannot ask git)
 contributors: []

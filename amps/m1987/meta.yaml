@@ -26,4 +26,7 @@ verification:
   status: draft   # no factory voltage chart exists and no publishable measured
                   # reference was found; the EL34 v0 model is also only a rough
                   # fit at this rail — verified must be earned, so it stays draft
+# Day the circuit landed in the corpus (git history, amps/m1987/) — the feed's
+# pubDate for a draft; production builds are shallow clones and cannot ask git.
+added: 2026-07-19
 contributors: [TheAnalogMaker]

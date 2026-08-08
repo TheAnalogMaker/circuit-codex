@@ -23,6 +23,7 @@ Schema will stabilize at the end of Phase 0 (pilot: 5f1, 5e3, 5f6a).
 | `verification.status` | enum | ✓ | `draft` · `verified` — **only CI + maintainer review set `verified`** |
 | `verification.date` | date | when verified | |
 | `verification.max_deviation_pct` | number | when verified | Worst node deviation, simulated vs published chart |
+| `added` | date | when draft | Day the circuit landed in the corpus (its git landing date). The feed dates a draft by it — production builds are shallow clones, so git cannot. Verified circuits are dated by `verification.date` instead |
 | `contributors` | list | — | GitHub handles, in landing order |
 
 ## Example

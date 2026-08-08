@@ -27,4 +27,7 @@ verification:
   status: draft   # drawing carries no chart, and no 5F2-A-specific measured chart
                   # was obtainable; simulation is checked against the DC-identical
                   # 5F1 Champ's published measurements (see notes.md, Verification)
+# Day the circuit landed in the corpus (git history, amps/5f2a/) — the feed's
+# pubDate for a draft; production builds are shallow clones and cannot ask git.
+added: 2026-07-18
 contributors: [TheAnalogMaker]

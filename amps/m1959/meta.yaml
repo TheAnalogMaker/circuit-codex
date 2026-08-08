@@ -31,4 +31,7 @@ verification:
                   # sibling's chart, the EL34 output stage has no published
                   # figures at all, and the v0 EL34 model is only a rough fit at
                   # this rail — verified must be earned, so it stays draft
+# Day the circuit landed in the corpus (git history, amps/m1959/) — the feed's
+# pubDate for a draft; production builds are shallow clones and cannot ask git.
+added: 2026-08-02
 contributors: [TheAnalogMaker]

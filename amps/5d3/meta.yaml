@@ -28,4 +28,7 @@ verification:
   status: draft   # the 5D3 sheets print no chart, and no 5D3-specific measured
                   # chart was obtainable; only the output-stage cathode transfers
                   # from the sibling 5C3 chart (see voltages.yaml and notes.md)
+# Day the circuit landed in the corpus (git history, amps/5d3/) — the feed's
+# pubDate for a draft; production builds are shallow clones and cannot ask git.
+added: 2026-08-02
 contributors: [TheAnalogMaker]
