@@ -71,6 +71,21 @@ sources:
       schematic reading above where the two disagree (see note)."
     url: "https://mojotone.com/blogs/fender-field-guide/fender-brownface-pro"
 verification:
-  status: draft
+  status: draft   # The artifacts are complete and every gate is green — the
+                  # six gated nodes land (worst 15.3%, the driver plate), the
+                  # schematic round-trips, and the drawn board wiring is proved
+                  # equivalent to netlist.cir. The blocker is the strength of
+                  # the chart comparison itself: the drawing's preamp and
+                  # driver supply topology could not be resolved from this
+                  # scan, so BD, BDRV and BP3 are driven anchors CHOSEN TO FIT
+                  # rather than rails derived through read droppers. That
+                  # leaves ten of the sixteen printed figures — both channels'
+                  # stage plates and cathodes among them — reported
+                  # informationally instead of compared, and makes the plate
+                  # readings they reproduce circular. The -55 V bias label is
+                  # also a rotated print read with lower confidence than the
+                  # horizontal rail figures. WORK ITEM: read the dropper chain
+                  # off a sharper scan so the preamp rails are derived, then
+                  # gate the preamp nodes and re-run this verification.
 added: 2026-08-08
 contributors: [TheAnalogMaker]

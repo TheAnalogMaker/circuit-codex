@@ -73,9 +73,12 @@ verification:
                   # RFB1/RBLEED (bom.yaml) sit behind a coupling cap this scan
                   # doesn't resolve — flagged for a maintainer with a
                   # still-sharper scan or the physical chassis.
-                  # (2) Verified is earned by CI + maintainer sign-off
-                  # (CONTRIBUTING.md #6), never granted by the agent that lands
-                  # a draft.
+                  # (2) No board layout: layout.yaml, both layout renders and
+                  # this amp's social card are absent, so the layout<->netlist
+                  # wiring equivalence a verified badge claims cannot be proved.
+                  # WORK ITEM: settle the open values in (1) against a sharper
+                  # scan, draw the layout from the J-EE layout sheet already
+                  # cited in sources, then re-run this verification.
 # Day the circuit landed in the corpus (git history) — the feed's pubDate for a
 # draft; production builds are shallow clones and cannot ask git.
 added: 2026-08-08

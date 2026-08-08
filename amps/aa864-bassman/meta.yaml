@@ -60,6 +60,17 @@ sources:
       off the sheet
     url: "https://en.wikipedia.org/wiki/Fender_Bassman"
 verification:
-  status: draft
+  status: draft   # ONE thing is missing, and it is not the chart. The printed
+                  # AA864 chart is read whole and gated: 18 nodes, 0 failures,
+                  # worst 11.6% (PPB, the inverter's cold plate) against the
+                  # sheet's own +/-20%; the two solved rails land inside 0.2%.
+                  # The redrawn schematic, BOM and netlist are all present and
+                  # green. What is absent is the board layout — layout.yaml,
+                  # both layout renders and this amp's social card — and a
+                  # verified badge claims layout<->netlist wiring equivalence
+                  # (see the About page's step 4), which cannot be proved
+                  # without one. WORK ITEM: draw the layout from the AA864
+                  # LAYOUT sheet already cited in sources, set
+                  # wiring_claim: verified, then re-run this verification.
 added: 2026-08-08
 contributors: [TheAnalogMaker]

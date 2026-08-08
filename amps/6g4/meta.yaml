@@ -30,9 +30,17 @@ verification:
                   # verify_layout_nets (PASS, wiring_claim: verified, --selftest 9/9)
                   # all pass — but `verified` on THIS field is earned only by the
                   # human maintainer's review (AGENTS.md rule 4), never set by an
-                  # agent regardless of how many gates pass. Still draft pending that
-                  # review, and pending the un-gated preamp-rail droppers (see
-                  # notes.md) a schematic redraw alone could not resolve.
+                  # agent regardless of how many gates pass. The substantive blocker
+                  # is the preamp: the drawing's dropping chain from +456 V into the
+                  # three preamp/recovery rails is not legible at this scan's
+                  # resolution, so BD/BE1/BE2 are driven at CALIBRATED values chosen
+                  # to land the plates on their printed +170/+160/+120 V. Four of the
+                  # chart's six preamp figures are therefore reproduced by
+                  # construction, and the cathode figures that would have checked them
+                  # were not legibly read either — leaving PPIA/PPIB as the only free
+                  # comparisons in the whole preamp and inverter. WORK ITEM: read the
+                  # dropper values (or the printed cathode pins) off a sharper scan so
+                  # those rails are derived, then gate them and re-run.
 # Day the circuit landed in the corpus (git history, amps/6g4/) — the feed's
 # pubDate while draft; production builds are shallow clones and cannot ask git.
 added: 2026-08-08

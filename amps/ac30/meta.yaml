@@ -45,6 +45,15 @@ verification:
                   # measurement convention, so there is no per-pin reference to
                   # verify against. The same reason the sibling AC15 is a draft.
                   # See voltages.yaml and notes.md.
+                  # Two artifacts are also absent, and each is a hard bar on its
+                  # own: schematic.kicad_sch (required of every verified circuit,
+                  # and this is the only circuit in the corpus without one) and
+                  # the whole board-layout set — layout.yaml, both renders and
+                  # this amp's social card — without which the layout<->netlist
+                  # wiring equivalence a verified badge claims cannot be proved.
+                  # WORK ITEM: redraw the schematic and the layout, then revisit
+                  # whether the sheet's annotated working voltages are a strong
+                  # enough per-pin reference to verify against at all.
 # Day the circuit landed in the corpus (git history, amps/ac30/) — the feed's
 # pubDate for a draft; production builds are shallow clones and cannot ask git.
 added: 2026-08-08

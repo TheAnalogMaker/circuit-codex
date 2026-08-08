@@ -28,6 +28,20 @@ sources:
   - desc: "Wikipedia, 'Fender Bassman' — 6G6-B production window and circuit lineage: 6G6 (late 1960, GZ34 tube rectifier) -> 6G6-A (early 1961, solid-state rectifier, 2x12 cabinet) -> 6G6-B (circuit changes carried through 1963); the blonde/piggyback Bassman line ran 1960-1964, superseded by the blackface AA864 piggyback head in 1964"
     url: "https://en.wikipedia.org/wiki/Fender_Bassman"
 verification:
-  status: draft
+  status: draft   # Two blockers, both concrete.
+                  # (1) Two gated nodes miss their printed figures and are
+                  # published as misses rather than tuned away: V1B's cathode
+                  # reads 3.2 V simulated against the chart's 13.6 V (76.1%,
+                  # tol 20%) and V2A's 1.2 V against 1.9 V (35.8%). The V1B
+                  # figure in particular is a cathode-network reading to settle
+                  # against a sharper scan — 13.6 V over the drawn resistor is
+                  # a current this stage does not pass — after which it is
+                  # either gated clean or carried as `disputed` with the
+                  # arithmetic. Every other node lands (worst of them 17.3%).
+                  # (2) No board layout: layout.yaml, both layout renders and
+                  # this amp's social card are absent, so the layout<->netlist
+                  # wiring equivalence a verified badge claims cannot be proved.
+                  # WORK ITEM: settle (1) on a sharper scan, draw the layout
+                  # from the E-FB layout page, then re-run this verification.
 added: 2026-08-08
 contributors: [TheAnalogMaker]
