@@ -36,6 +36,25 @@
  *   node scripts/shoot.mjs --out <dir>              # everything
  *   node scripts/shoot.mjs --out <dir> --amps 5f1,5e3,jtm45   # rig check
  *   node scripts/shoot.mjs --out <dir> --skip-amps  # pages only
+ *
+ * CROP MODE — zoom on a region instead of accepting it at full-page scale.
+ * A whole A3 sheet fitted into a 1600-px viewer leaves value text ~3 px tall;
+ * every "unconfirmable at screenshot resolution" verdict in the 2026-08 review
+ * was in fact confirmable once the same pixels were crop-zoomed. This mode
+ * does that properly: it re-renders at a higher deviceScaleFactor (KiCanvas
+ * paints its WebGL canvas at the DPR, so this is a true re-rasterise, not an
+ * upscale) and clips to the region:
+ *
+ *   node scripts/shoot.mjs --out <dir> --crop 5f6a:520,180,220,140
+ *   node scripts/shoot.mjs --out <dir> --crop 6g4:80,60,300,200 --crop-scale 4
+ *
+ * The region x,y,w,h is in CSS pixels of the schematic viewer element — i.e.
+ * the SAME pixel coordinates you read off a prior <id>-schematic.png (those
+ * are captured at deviceScaleFactor 1, where element CSS px == image px). So
+ * the loop is: find the suspicious spot in the overview shot, note its pixel
+ * box, re-invoke with --crop, and read the region at 3x (default) device
+ * resolution as <id>-schematic-crop-<x>x<y>.png. Repeatable; crop mode shoots
+ * only the requested crops and skips everything else.
  */
 import { mkdir, writeFile, readdir } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
@@ -58,7 +77,8 @@ const FAMILIES = ['champ', 'bassman'];
 
 // ---------------------------------------------------------------- args ----
 function args(argv) {
-  const out = { out: null, amps: null, skipAmps: false, skipPages: false };
+  const out = { out: null, amps: null, skipAmps: false, skipPages: false,
+                crops: [], cropScale: 3 };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     if (a === '--out') out.out = argv[++i];
@@ -66,6 +86,11 @@ function args(argv) {
     else if (a === '--skip-amps') out.skipAmps = true;
     else if (a === '--skip-pages') out.skipPages = true;
     else if (a === '--base') process.env.SHOOT_BASE = argv[++i];
+    else if (a === '--crop') {
+      const m = /^([a-z0-9-]+):(\d+),(\d+),(\d+),(\d+)$/.exec(argv[++i] || '');
+      if (!m) { console.error('shoot.mjs: --crop wants <id>:<x>,<y>,<w>,<h> (CSS px of the schematic viewer)'); process.exit(2); }
+      out.crops.push({ id: m[1], x: +m[2], y: +m[3], w: +m[4], h: +m[5] });
+    } else if (a === '--crop-scale') out.cropScale = Math.max(1, +argv[++i] || 3);
   }
   if (!out.out) { console.error('shoot.mjs: --out <dir> is required'); process.exit(2); }
   return out;
@@ -244,6 +269,64 @@ async function shootAmp(ctx, out, id, manifest) {
   console.log(`  ${id}: ${files.length} files${notes.length ? ' — ' + notes.join(' | ') : ''}`);
 }
 
+// --------------------------------------------------------------- crops ----
+/**
+ * Re-render one amp's schematic at a higher deviceScaleFactor and clip to a
+ * region (see CROP MODE in the header). A dedicated context per crop: the DPR
+ * is a context property, and it is the DPR — not any post-hoc resample — that
+ * makes KiCanvas paint the region with real extra pixels.
+ */
+async function shootCrop(browser, out, crop, scale, manifest) {
+  const url = `${BASE}/amps/${crop.id}/`;
+  const notes = [`crop ${crop.x},${crop.y},${crop.w},${crop.h} @ deviceScaleFactor ${scale}`];
+  const files = [];
+  const ctx = await browser.newContext({
+    viewport: VIEWPORT,
+    deviceScaleFactor: scale,
+    userAgent: 'circuit-codex-review-rig (visual QA; contact via github.com/TheAnalogMaker/circuit-codex)',
+  });
+  const page = await ctx.newPage();
+  try {
+    const resp = await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 60000 });
+    if (!resp || !resp.ok()) notes.push(`HTTP ${resp ? resp.status() : 'none'}`);
+    await settlePage(page);
+    const { ok } = await waitForSchematicPaint(page, notes);
+    if (!ok) notes.push('paint gate not cleared — crop may be blank');
+    // Document-space geometry of the embed, so the clip survives any scroll
+    // position (page.screenshot clips in page coordinates).
+    const geo = await page.evaluate(() => {
+      const el = document.querySelector('kicanvas-embed');
+      if (!el) return null;
+      const b = el.getBoundingClientRect();
+      return { x: b.x + window.scrollX, y: b.y + window.scrollY, w: b.width, h: b.height };
+    });
+    if (!geo) {
+      notes.push('no schematic embed on this page');
+    } else if (crop.x >= geo.w || crop.y >= geo.h) {
+      notes.push(`region origin outside the ${Math.round(geo.w)}x${Math.round(geo.h)} element`);
+    } else {
+      const clip = {
+        x: geo.x + crop.x,
+        y: geo.y + crop.y,
+        width: Math.min(crop.w, geo.w - crop.x),
+        height: Math.min(crop.h, geo.h - crop.y),
+      };
+      if (clip.width < crop.w || clip.height < crop.h)
+        notes.push(`region trimmed to the element: ${Math.round(clip.width)}x${Math.round(clip.height)}`);
+      const name = `${crop.id}-schematic-crop-${crop.x}x${crop.y}.png`;
+      await writeFile(`${out}/${name}`, await page.screenshot({ clip, timeout: 30000 }));
+      files.push(name);
+    }
+  } catch (e) {
+    notes.push(`ERROR: ${e.message}`);
+  } finally {
+    await page.close().catch(() => {});
+    await ctx.close().catch(() => {});
+  }
+  manifest.push({ page: `/amps/${crop.id}/`, url, files, notes });
+  console.log(`  ${crop.id} crop: ${files.length ? files[0] : 'FAILED'} — ${notes.join(' | ')}`);
+}
+
 // --------------------------------------------------------------- pages ----
 async function shootSimple(ctx, out, path, slug, manifest, extra) {
   const url = `${BASE}${path}`;
@@ -308,6 +391,15 @@ async function main() {
   });
 
   try {
+    if (opt.crops.length) {
+      // Crop mode shoots only the requested regions — the overview pass that
+      // found the suspicious pixels has already happened.
+      console.log(`crops (${opt.crops.length}) @ ${opt.cropScale}x:`);
+      for (const crop of opt.crops) {
+        await shootCrop(browser, out, crop, opt.cropScale, manifest);
+        await sleep(500);
+      }
+    } else {
     if (!opt.skipPages) {
       console.log('pages:');
       await shootSimple(ctx, out, '/', 'home', manifest);
@@ -375,6 +467,7 @@ async function main() {
         await sleep(500);   // be gentle with the origin
       }
     }
+    }
   } finally {
     await ctx.close().catch(() => {});
     await browser.close().catch(() => {});
@@ -384,6 +477,7 @@ async function main() {
   await writeFile(`${out}/manifest.json`, JSON.stringify({
     base: BASE,
     viewport: VIEWPORT,
+    ...(opt.crops.length ? { crop_scale: opt.cropScale } : {}),
     captured: new Date().toISOString(),
     paint_gate: {
       floor_ms: FLOOR_MS, ceiling_ms: CEILING_MS, poll_ms: POLL_MS,

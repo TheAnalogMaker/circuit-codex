@@ -53,6 +53,17 @@ injected with `set:html` (which bypasses Astro's scoping). Two standing rules:
 (2) figure-heavy pages get a **screenshot-based** visual pass (a browser, not
 a fetch) before they count as reviewed.
 
+**And eyes need zoom** (learned 2026-08-08): a full-sheet capture at viewer
+scale leaves value text ~3 px tall, and a reviewer who "confirms" a fix at
+that resolution is accepting it on faith — every "unconfirmable at screenshot
+resolution" item in the closing visual pass turned out to be perfectly
+confirmable once the same pixels were crop-zoomed. Never accept a fix at
+full-page resolution: verify the exact region with
+`node scripts/shoot.mjs --out <dir> --crop <id>:<x>,<y>,<w>,<h>` (region in
+the pixel coordinates of the prior overview `<id>-schematic.png`; it
+re-renders at 3x device resolution rather than upscaling), or at minimum
+PIL-crop the overview PNG and LANCZOS-upscale the region before judging it.
+
 First judge run: 2026-07-18 (caught internal-notes voice leaking into the
 5E3 circuit story, among others — see repo history).
 
