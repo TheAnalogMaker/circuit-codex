@@ -1,0 +1,53 @@
+# Circuit Codex metadata — schema: docs/schema.md (v1)
+id: "dr103"
+name_style: "Hiwatt Custom 100-style"
+family: british
+era:
+  start: 1969
+  end: 1981
+wattage: 100
+tubes: [ECC83, ECC83, ECC83, ECC81, EL34, EL34, EL34, EL34]
+topology:
+  rectifier: { kind: solid-state, type: "silicon bridge" }
+  bias: fixed
+  phase_inverter: long-tailed-pair
+  tone_stack: cathode-follower-fmv
+lineage:
+  derived_from: []   # the documented ancestor is a customised Sound City L100, which has no entry in this corpus
+  influenced: []
+sources:
+  - desc: "Four-input DR103 preamp drawing, read for every preamp value in this entry. Title block reads 'HIWATT / Late 60s Four-Input Preamp / Preamp from DR103 S/N 903 / Drawing rev. 1.0 - Mark Huss'. It is a published REDRAW taken off a specific amplifier, not a factory document, and no factory drawing of the four-input DR103 was found for this entry. Values read directly from it: four jacks in two pairs (Brilliant high/low, Normal high/low) on 68 kohm stoppers into 1 Mohm leaks; V1 ECC83 with 220 kohm plate loads on both halves and ONE shared 1.5 kohm cathode resistor bypassed by 100 uF/16 V; 1 nF (Brilliant) and 10 nF (Normal) couplers into 470 kohm-A volume pots, mixing through two 470 kohm resistors; V2 ECC83 as a 220 kohm-plate / 2.2 kohm-cathode gain stage direct-coupled to a cathode follower on a 120 kohm 2 W load; cathode-follower FMV tone stack (100 pF treble cap into a 220 kohm treble pot, 100 kohm slope, 47 nF into the 470 kohm-A bass rheostat, 47 nF into a 22 kohm middle pot) into a 470 kohm-A master volume; V3 ECC83 as a 100 kohm-plate / 2.2 kohm-cathode driver whose plate reaches the next grid through a 22 nF cap PARALLELED BY 1.8 Mohm against a 1 Mohm leak — a DC-coupled divider — feeding a second cathode follower on 220 kohm; V4 ECC81 long-tailed pair with unequal 82 kohm / 91 kohm plate loads, a 22 kohm tail over 2.2 kohm, a 1 Mohm between the two grids and 100 nF from the second grid to the tail junction; 47 nF output couplers; presence 100 kohm lin with 1 nF in, 100 R to ground and 47 nF out; feedback 10 kohm from the 16 ohm tap with 270 R and 10 nF at the junction. The sheet prints NO voltages. Not reproduced here; archived at the MHuss Hiwatt pages."
+    url: "https://hiwatt.org/Schematics/DR103sn903pre.pdf"
+  - desc: "Published DR103 wiring diagram titled 'HIWATT DR103 LAYOUT, EARLY 1970'S', credited on the sheet to Mark Huss (with updates from Jukka K.) and Brian Haberman, 2007 — the source for the output stage, the supply chain and the control complement of the four-input amplifier, and a second reading of the preamp. Read from it: four input jacks (Normal and Brilliant pairs); seven controls — Normal Volume, Brilliant Volume, Bass, Treble, Middle, Presence, Master Volume; V1/V2/V3 ECC83 with V4 ECC81; four EL34s each on a 22 kohm grid stopper and a 100 R screen stopper, two 100 kohm grid leaks off the bias line; supply cans of 220 uF/350 V and a 2x50 uF/450 V, each with a 220 kohm balancing resistor, behind a UF5408 bridge; droppers 100 R 5 W, 1 k 2 W and 470 R 10 W; bias network 1 k / UF5408 / 100 uF 63 V / 47 kohm / 100 kohm; feedback leg 10 k, 470 R and 10 nF. Where it and the S/N 903 drawing differ they differ in control values (500 kohm log volumes and bass, 250 kohm lin treble and master, 100 kohm lin middle against the S/N 903 amp's 470 kohm-A and 220 kohm / 22 kohm) — in-era variation, recorded rather than merged; the S/N 903 values are the ones this entry documents. Not reproduced here."
+    url: "https://hiwatt.org/Layouts/DR103hiwattlayout.pdf"
+  - desc: "Hiwatt DR103 owner's manual, distributed by Biacrown Ltd ('THIS MANUAL COVERS MODEL NUMBER DR103', 'Manufactured in England by the Audio Brothers'), carrying three dated factory sheets whose title blocks read 'HIWATT DR103 POWER SUPPLY CIRCUIT DIAGRAM  Drawn 22/11/94  Issue 3.', 'HIWATT DR103 PREAMPLIFIER CIRCUIT DIAGRAM  Drawn 19/05/95  Issue 4.  S/No. AB0309 Onwards' and 'HIWATT DR103 OUTPUT STAGE CIRCUIT DIAGRAM  Drawn 25/04/94  Issue 1.'. THESE SHEETS DOCUMENT A LATER, TWO-INPUT REVISION and are NOT the circuit modelled here — the Issue-4 preamp shows one jack per channel, 470 kohm volumes with a 220 kohm lin master and a 100 kohm lin middle, and labels every preamp valve ECC83. They are used for three things only: the printed bias figure 'BIAS (-38V)' on the Issue-3 supply sheet, whose 1 k / 1N5408 / 100 uF / 47 kohm network is the one the early wiring diagram also shows; the manual's DR103 SPECIFICATION page ('Valve types: Output valves 4 x matched EL34 (6CA7); Preamp valves V1,V2,V3, 3 x ECC83 (12AX7)(7025); Preamp valve V4 1 x ECC81 (12AT7)(6201)', 'Output power: 100W RMS (min) into 8 Ohms', line voltages 100/117.5/225/250 V a.c., 330 W maximum consumption, 4/8/16 ohm speaker taps); and the two working voltages the Issue-4 sheet annotates, +160 V at the V1 plate on a 220 kohm load over the same shared 1.5 kohm / 100 uF cathode this circuit uses, and +140 V at the second stage. Note that the SPECIFICATION page and the Issue-4 drawing contradict each other on V4: the specification calls it an ECC81, the drawing letters 'VALVES V1,V2,V3,V4 = ECC83'. The specification, the early wiring diagram and the S/N 903 drawing all agree on ECC81, so ECC81 is what this entry records. Not reproduced here; archived at El34World."
+    url: "https://el34world.com/charts/Schematics/files/Hiwatt/Hiwatt_100w_dr103.pdf"
+  - desc: "Hiwatt factory-lineage hand-drawn sheets archived with the DR504, used as the cross-reference for how far the preamp travelled across the line and for the only published Hiwatt HT figure read for this work. Page 2 is headed 'HIWATT PREAMP AND DRIVE' and lists the models it covers — 'DR504 DR405 DR103 DR201 ALL COMBO'S' — drawing the same four-valve preamp and driver this entry documents; page 3 is headed 'POWER SUPPLY / DR504 SA212 SA112 SA115', signed 'HIWATT JULY 79', and prints 460 V at the HT node after the standby switch, the 100 ohm 5 W / 1 k 1 W dropper chain to the second and third HT rails, and 'BIAS -36v'. The DR504 output-stage sheet of the same set names the transformers 'OUTPUT TRANSFORMER PARTRIDGE TG 6556 / TH 7551' and the mains transformer 'PARTRIDGE TYPE TH 7550'. These are 50-watt figures and are NOT claimed as DR103 values."
+    url: "https://el34world.com/charts/Schematics/files/Hiwatt/Hiwatt_50w_dr504.pdf"
+  - desc: "Wikipedia, 'Hiwatt' — the maker history behind this circuit: Dave Reeves trained in the Royal Air Force and worked at Mullard, was made redundant in 1966 and founded Hylight in September 1966; he built Sound City-branded amplifiers for Ivor Arbiter's shop, and 'Under the Hiwatt brand, Reeves' customized Sound City L100 amplifiers were renamed the DR103 Custom 100'; the DR201 and DR405 followed at bassist Glenn Cornick's urging; Partridge transformers gave the amplifiers their 'hi-fi' character; from 1971 the certified government wirer Harry Joyce standardised the schematics and capped his output at forty amplifiers a month; Reeves died in 1981 and former employees continued as Biacrown Ltd until the company folded in 1984"
+    url: "https://en.wikipedia.org/wiki/Hiwatt"
+  - desc: "Vintage Guitar, 'Ronnie Wood's '69 Hiwatt 100 DR103' — a dated published example of the four-input DR103 in 1969, the evidence for the start of the bracket recorded in era.start"
+    url: "https://www.vintageguitar.com/14871/ronnie-woods-69-hiwatt-100-dr103/"
+  - desc: "Mullard/Philips EL34 data sheet, January 1969 (A.F. Output Pentode) — anchor for the CC0 EL34 tube model and its octal basing: Va=250 V, Vg2=250 V, Vg1=-13.5 V -> Ia=100 mA, Ig2=14.9 mA, gm=12.5 mA/V, mu(g1-g2)=11"
+    url: "https://frank.pocnet.net/sheets/010/e/EL34.pdf"
+  - desc: "RCA 12AT7 data sheet (March 1, 1954) — tabulated Class-A1 characteristics behind the clean-room CC0 12AT7 model used for the ECC81 phase inverter: Va=250 V, 200 ohm cathode bias -> Ia=10 mA, gm=5500 umho, mu=60; second point Va=100 V / 270 ohm -> 3.7 mA, 4000 umho. Basing 9A"
+    url: "https://frank.pocnet.net/sheets/049/1/12AT7.pdf"
+  - desc: "RCA Receiving Tube Manual RC-19 (1959), 12AX7 average characteristics — the two-point anchor behind the CC0 12AX7 model used for the three ECC83 stages: Va=250 V / -2 V -> 1.2 mA, 1600 umho and Va=100 V / -1 V -> 0.5 mA, mu=100"
+    url: "https://frank.pocnet.net/sheets/093/1/12AX7.pdf"
+verification:
+  status: draft   # Three independent reasons, each stated rather than tuned away.
+                  # (1) NO published valve-voltage chart for this circuit was
+                  # found, and no factory drawing of the four-input DR103 either;
+                  # the preamp rests on published redraws, so every node in
+                  # voltages.yaml carries chart: null and nothing is gated.
+                  # (2) No DR103 drawing read here prints an HT figure, so the
+                  # supply rail is DRIVEN at a stated assumption (480 V) rather
+                  # than a measurement — see netlist.cir.
+                  # (3) At the printed -38 V bias the v0 EL34 model returns about
+                  # 95 mA per valve, roughly twice what these amplifiers are
+                  # actually set to: a single-anchor fit extrapolated to a screen
+                  # voltage 87% above its anchor. Reported, not tuned away.
+# Day the circuit landed in the corpus (git history, amps/dr103/) — the feed's
+# pubDate for a draft; production builds are shallow clones and cannot ask git.
+added: 2026-08-08
+contributors: [TheAnalogMaker]

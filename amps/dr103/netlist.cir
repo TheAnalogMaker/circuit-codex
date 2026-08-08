@@ -1,0 +1,162 @@
+* Hiwatt DR103 "Custom 100" — DC operating-point netlist
+* Circuit Codex — CC-BY-SA 4.0. Independently drawn from the component values
+* published on the four-input DR103 preamp drawing taken from serial number 903
+* ("HIWATT / Late 60s Four-Input Preamp / Preamp from DR103 S/N 903 / Drawing
+* rev. 1.0 - Mark Huss") and, for the output stage and supply, the published
+* early-1970s DR103 wiring diagram of the same archive, cross-read against the
+* dated factory sheets in the DR103 owner's manual. No drawing reproduced.
+*
+* SOURCE BASIS AND WHY THIS IS A DRAFT. No factory drawing of the four-input
+* DR103 has been read for this entry: the drawings that carry a factory title
+* block ("HIWATT DR103 PREAMPLIFIER CIRCUIT DIAGRAM / Drawn 19/05/95 / Issue 4.
+* / S/No. AB0309 Onwards", "...POWER SUPPLY... / Drawn 22/11/94 / Issue 3.",
+* "...OUTPUT STAGE... / Drawn 25/04/94 / Issue 1.") document the LATER two-input
+* revision. The four-input circuit modelled here rests on published redraws, and
+* NO published valve-voltage chart for it has been found. Every node in
+* voltages.yaml therefore carries chart: null and is reported informationally.
+*
+* THE SUPPLY RAIL IS AN ASSUMPTION, NOT A MEASUREMENT. No DR103 drawing read
+* here prints an HT figure. BP1 is DRIVEN at 480 V as an explicitly stated
+* modelling assumption; the only published Hiwatt HT figure read for this work is
+* the 460 V printed on the 50-watt DR504 supply sheet ("POWER SUPPLY / DR504
+* SA212 SA112 SA115 ... HIWATT JULY 79"), and the DR103's 100-watt supply is the
+* larger one. Every downstream rail is DERIVED through the drawn
+* 100 R / 470 R / 1 k / 47 k / 22 k chain, so only one number is assumed.
+*
+* THE BIAS IS READ, BUT OFF A LATER SHEET. VBIAS is set to the -38 V printed on
+* the DR103 Issue-3 power-supply drawing (22/11/94). That sheet is a later
+* revision of the same amplifier's supply; its bias network (1 k / 1N5408 /
+* 100 uF / 47 k) is the one the early-1970s wiring diagram also shows, and the
+* sibling DR504 sheet of July 1979 prints -36 V for the same topology. It is a
+* printed figure, not a chosen one, and it is not from the four-input era.
+*
+* DC conventions (as in the sibling amps): the output-transformer primary DCR is
+* omitted, so each EL34 plate node sits at BP1, and the OT secondary's 16 ohm tap
+* is taken as DC ground, so the 10 k feedback resistor returns to 0. DC-open caps
+* whose BOTH leads land on named DC nodes are modelled (they move no operating
+* point but let the layout net-check verify their placement): the cathode-bypass
+* caps C1 and C7, the V3B->V3A interstage coupler C8 that parallels the 1.8 Meg
+* DC-coupling resistor, the phase-inverter grid cap C9, and the PI->output-grid
+* couplers C13/C14. Parts with a lead inside an abstracted network stay out: the
+* volume-pot couplers, the whole tone stack (its 100 k slope resistor sits behind
+* two 47 nF caps and has no DC path at all), and the presence network (1 nF into
+* a 100 k pot, 100 R to ground, 47 nF out, plus the 270 R / 10 nF leg at the
+* feedback node — every branch DC-isolated by a capacitor). The mains
+* transformer, bridge, reservoir bank and bias rectifier are replaced by the two
+* ideal sources. Input grid stoppers carry no DC and are left to the layout
+* gate's series_bridge declaration. Heaters and the pilot neon are not modelled.
+.include models/12ax7.inc
+.include models/12at7.inc
+.include models/el34.inc
+
+VBP1 BP1 0 DC 480
+VBIAS NBIAS 0 DC -38
+
+* --- supply rails, as the drawings chain them ---
+* HT1 (EL34 plates / OT centre tap) -> 100 R 5 W -> HT2 -> 470 R 10 W -> the
+* EL34 screen bus; HT2 -> 1 k 1 W -> HT3 (preamp); HT3 -> 47 k 2 W -> BP4
+* (second-stage plate load) -> 22 k 2 W -> BP5 (input valve and driver).
+RD1 BP1 BP2 100
+RD2 BP2 BSCR 470
+RD3 BP2 BP3 1k
+RD4 BP3 BP4 47k
+RD5 BP4 BP5 22k
+
+* --- V1 (ECC83) input valve: Brilliant and Normal channels, shared cathode ---
+* Both halves sit on 220 k plate loads off the most-dropped rail and share one
+* 1.5 k cathode resistor bypassed by 100 uF — the two channels are NOT voiced
+* apart at the cathode the way the Marshall lead amps are; they are voiced apart
+* by their coupling caps (1 nF Brilliant, 10 nF Normal).
+RL1 BP5 P1A 220k
+XV1A P1A G1A K1 12AX7
+RG1 G1A 0 1meg
+RL2 BP5 P1B 220k
+XV1B P1B G1B K1 12AX7
+RG2 G1B 0 1meg
+RK1 K1 0 1.5k
+C1 K1 0 100u
+
+* --- V2 (ECC83) second stage + cathode follower ---
+* V2B grid returns to ground through the two 470 k mixing resistors and the
+* volume pots below them; both mixers are modelled so the layout net-check sees
+* two channels arriving, not one lumped return.
+RM1 G2B 0 470k
+RM2 G2B 0 470k
+RL3 BP4 P2B 220k
+XV2B P2B G2B K2B 12AX7
+RK2 K2B 0 2.2k
+* V2A cathode follower: plate straight on HT3, grid DC-coupled to the V2B plate,
+* 120 k 2 W cathode load feeding the tone stack.
+XV2A BP3 P2B KCF 12AX7
+RKCF KCF 0 120k
+
+* --- V3 (ECC83) driver + second cathode follower ---
+* V3B's grid returns to ground down the master-volume track (the tone stack
+* above it is capacitively isolated, so the pot is its only DC path; at zero grid
+* current the value does not move the node, and the full 470 k track is used).
+RMV G3B 0 470k
+RL4 BP5 P3B 100k
+XV3B P3B G3B K3B 12AX7
+RK3 K3B 0 2.2k
+C7 K3B 0 0.047u
+* The V3B plate is coupled to the V3A grid by a 22 nF cap PARALLELED BY A
+* 1.8 Meg RESISTOR: this stage is DC-coupled through a divider, the 1.8 Meg
+* against the 1 Meg grid leak, so the V3A grid sits at a real fraction of the
+* V3B plate voltage rather than at zero. That divider is what sets the phase
+* inverter's grid reference in this amplifier and it is modelled here.
+R18 P3B G3A 1.8meg
+C8 P3B G3A 0.022u
+RG3 G3A 0 1meg
+* V3A cathode follower: plate on BP5, 220 k cathode load, DC-coupled straight
+* into the phase-inverter grid — there is no coupling cap between them, so the
+* V3A cathode node IS the V4A grid node.
+XV3A BP5 G3A KCF2 12AX7
+RKCF2 KCF2 0 220k
+
+* --- V4 (ECC81) long-tailed-pair phase inverter ---
+* Unequal plate loads 82 k / 91 k off HT3; the shared cathode runs through a
+* 22 k tail to the junction where the negative feedback lands, and 2.2 k carries
+* that junction to ground. The 10 k feedback resistor comes from the output
+* transformer's 16 ohm tap, which is at DC ground, so it is a second path to
+* ground from the same junction and it DOES change the operating point.
+RLA BP3 PPIA 82k
+XV4A PPIA KCF2 KPI 12AT7
+RLB BP3 PPIB 91k
+XV4B PPIB GPIB KPI 12AT7
+* V4B's grid takes its DC reference from V4A's grid through a 1 Meg resistor and
+* is AC-tied to the feedback junction by the 100 nF cap; both leads of that cap
+* land on named DC nodes, so it is modelled to let the layout gate prove it.
+RGB KCF2 GPIB 1meg
+C9 GPIB JPI 0.1u
+RTAIL KPI JPI 22k
+RT2 JPI 0 2.2k
+RNFB JPI 0 10k
+
+* --- V5..V8 (EL34) parallel push-pull output, fixed bias ---
+* Cathodes grounded; each screen fed from the 470 R screen bus through its own
+* 100 R stopper; plates at BP1 (OT primary DCR omitted). Two valves per phase:
+* the PI plates couple in through 47 nF caps (open at DC) onto a phase node
+* carrying the drawn 100 k grid leak to the bias line and a 22 k stopper into
+* each grid. The model's node order is P G2 G1 K; g3 is tied to the cathode in
+* use. As on the sibling 100 W amps, the anchor-point EL34 model draws NO screen
+* current at this operating point (models/METHODOLOGY.md), so the 100 R stoppers
+* and the 470 R feed show no drop and the screen nodes read exactly BP2 — a v0
+* model limitation, and one more reason this circuit is DRAFT.
+* --- phase A (from the 82 k PI plate): V5 + V6
+C13 PPIA NGA 0.047u
+RGL1 NGA NBIAS 100k
+RS5 NGA G5 22k
+RSC5 BSCR SG5 100
+XV5 BP1 SG5 G5 0 EL34
+RS6 NGA G6 22k
+RSC6 BSCR SG6 100
+XV6 BP1 SG6 G6 0 EL34
+* --- phase B (from the 91 k PI plate): V7 + V8
+C14 PPIB NGB 0.047u
+RGL2 NGB NBIAS 100k
+RS7 NGB G7 22k
+RSC7 BSCR SG7 100
+XV7 BP1 SG7 G7 0 EL34
+RS8 NGB G8 22k
+RSC8 BSCR SG8 100
+XV8 BP1 SG8 G8 0 EL34

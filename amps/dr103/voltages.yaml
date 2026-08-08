@@ -1,0 +1,61 @@
+# Operating-point report for the four-input Hiwatt DR103.
+#
+# THERE IS NO CHART. No published valve-voltage chart for this circuit was found
+# for this entry, and no factory drawing of the four-input DR103 either. The two
+# drawings the preamp and output stage are read from print component values only
+# (the S/N 903 preamp sheet) or component values and wiring (the early-1970s
+# wiring diagram). Every node below therefore carries chart: null: the simulated
+# figure is reported, nothing is gated, and the circuit stays a draft.
+#
+# What IS printed, on documents that are not this revision, is recorded here so a
+# reader can weigh the simulation against something:
+#
+#   * The factory Issue-4 preamp sheet of 19/05/95 (the later two-input DR103)
+#     annotates +160 V at the V1 plate. That stage is component-identical to this
+#     one — 220 kOhm plate load over a shared 1.5 kOhm cathode resistor bypassed
+#     by 100 uF — although the rail feeding it is reached through a different
+#     dropper chain. This circuit simulates 163 V there, about 2% above it. That
+#     agreement is an encouraging cross-check, NOT a chart value, and it is not
+#     gated: the supplies differ.
+#   * The Issue-3 supply sheet of 22/11/94 prints BIAS (-38V), and the sibling
+#     DR504 supply sheet of July 1979 prints -36 V for the same network. -38 V is
+#     what the netlist drives, so NBIAS is not a test of anything.
+#   * The same DR504 sheet prints 460 V at its HT node. The DR103's supply is the
+#     larger one; 480 V is the stated assumption this netlist drives BP1 at.
+#
+# THE OUTPUT STAGE IS THE WEAK POINT, AND IT IS THE MODEL, NOT THE CIRCUIT. At
+# the printed -38 V bias and a 467 V screen, the anchor-point EL34 model returns
+# about 95 mA per valve — some 45 W of plate dissipation against the valve's 25 W
+# rating, and roughly twice the 40-50 mA these amplifiers are actually set to.
+# The model is a single-anchor Koren fit taken at Vg2 = 250 V (models/METHODOLOGY.md);
+# extrapolated to a screen 87% above that anchor its cut-off knee lands in the
+# wrong place, and the DR103 sits right on that knee. Nothing here is adjusted to
+# hide it. Note that this does not disturb the preamp: the EL34 plates hang
+# directly on the driven BP1, so no preamp rail below sees their current.
+source: "No published valve-voltage chart exists for this circuit. Simulated values only; the printed figures named above come from the later factory Issue-3/Issue-4 DR103 sheets and from the DR504 supply sheet of July 1979, and are recorded as context, not as chart values."
+nodes:
+  BP1:  { chart: null, note: "HT1 — EL34 plates and output-transformer centre tap. DRIVEN at 480 V as the netlist's one stated assumption; the OT primary DCR is omitted, so every plate sits here" }
+  BP2:  { chart: null, note: "HT2, after the 100 Ohm 5 W dropper — feeds the EL34 screen bus and the preamp chain" }
+  BSCR: { chart: null, note: "EL34 screen bus, after the 470 Ohm 10 W feed from HT2. The drop across it is the model's total screen current; each valve then has its own 100 Ohm stopper" }
+  BP3:  { chart: null, note: "HT3, after the 1 kOhm 1 W dropper — the preamp rail proper: the V2A cathode follower's plate and both phase-inverter plate loads hang here" }
+  BP4:  { chart: null, note: "second-stage rail, after the 47 kOhm 2 W dropper — carries only the V2B 220 kOhm plate load, which is why the drop across that resistor is so large" }
+  BP5:  { chart: null, note: "input and driver rail, after the 22 kOhm 2 W dropper — the V1 plate loads, the V3B plate load and the V3A cathode follower's plate all sit here" }
+  P1A:  { chart: null, note: "V1A plate — Brilliant channel, 220 kOhm load. The later factory Issue-4 sheet annotates +160 V at the equivalent plate on the same 220 kOhm / 1.5 kOhm stage; not gated, because the rail chain feeding it differs" }
+  P1B:  { chart: null, note: "V1B plate — Normal channel, the same 220 kOhm load. The two channels are voiced apart by their couplers (1 nF against 10 nF), not at the cathode, so the two plates idle identically" }
+  K1:   { chart: null, note: "the single 1.5 kOhm cathode resistor both V1 halves share, bypassed by 100 uF — one of the clearest differences from the Marshall lead amps, which split the two channels' cathodes" }
+  P2B:  { chart: null, note: "V2B plate (220 kOhm load) — also the V2A cathode follower's grid, DC-coupled" }
+  K2B:  { chart: null, note: "V2B cathode over 2.2 kOhm, unbypassed" }
+  KCF:  { chart: null, note: "V2A cathode-follower output over its 120 kOhm 2 W load, driving the tone stack. Its plate sits on HT3, so this triode works across a large plate-to-cathode voltage — the reason the drawing specifies a 2 W part here" }
+  P3B:  { chart: null, note: "V3B plate (100 kOhm load) — the driver stage after the master volume" }
+  K3B:  { chart: null, note: "V3B cathode over 2.2 kOhm, bypassed by 47 nF" }
+  G3A:  { chart: null, note: "V3A grid. This node is NOT at zero: the V3B plate reaches it through a 1.8 MOhm resistor against a 1 MOhm leak, with a 22 nF cap across the 1.8 MOhm for signal. The divider is what gives the phase inverter a lifted grid reference" }
+  KCF2: { chart: null, note: "V3A cathode follower over 220 kOhm — and, because there is no coupling cap between them, this node IS the V4A phase-inverter grid" }
+  PPIA: { chart: null, note: "phase-inverter plate, 82 kOhm side (V4A, the driven half)" }
+  PPIB: { chart: null, note: "phase-inverter plate, 91 kOhm side (V4B). The unequal loads compensate the long-tailed pair's inherent imbalance" }
+  KPI:  { chart: null, note: "phase-inverter shared cathode, sitting a couple of volts above its grids — which are themselves lifted to the V3A cathode voltage" }
+  JPI:  { chart: null, note: "tail junction between the 22 kOhm tail and the 2.2 kOhm to ground. The 10 kOhm negative-feedback resistor from the output transformer's 16 Ohm tap also lands here, and since that tap is at DC ground it is a second path to ground: it moves this node, unlike the arrangement in the Marshall heads where feedback returns to a grounded point" }
+  GPIB: { chart: null, note: "V4B grid, referred to V4A's grid through 1 MOhm and tied to the tail junction for signal by the 100 nF cap" }
+  NGA:  { chart: null, note: "grid line of the V5/V6 pair, off the 82 kOhm plate through a 47 nF coupler, held at the bias line by a 100 kOhm leak" }
+  NGB:  { chart: null, note: "grid line of the V7/V8 pair, off the 91 kOhm plate — the other push-pull phase" }
+  G5:   { chart: null, note: "V5 control grid, after its 22 kOhm stopper. Carries no DC current, so it reads the bias line" }
+  SG5:  { chart: null, note: "V5 screen after its 100 Ohm stopper. The figure below is the one to distrust: see the note on the EL34 model at the head of this file" }

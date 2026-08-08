@@ -640,6 +640,31 @@ stages:
   ot_primary_note: 4 kΩ anode-to-anode primary · 8 Ω / 15 Ω secondary taps — Output transformer (Haddon)
   sim_ip_ma: 47.9413
   sim_ig2_ma: 5.1832
+- amp: 'dr103'
+  name_style: Hiwatt Custom 100-style
+  tube: 'EL34'
+  output_tubes: 4
+  config: push-pull
+  bias: fixed
+  plate_node: BP1
+  plate_v: 480.0
+  screen_node: SG5
+  screen_v: 467.249
+  cathode_node: '0'
+  cathode_v: 0.0
+  rk_total: null
+  rk_per_tube: null
+  grid_node: G5
+  grid_v: -38.0
+  grid_supply_node: null
+  grid_supply_v: null
+  ot_primary_z: null
+  ot_primary_approx: false
+  ot_primary_note: Hiwatt TH7549/2 · 4/8/16 Ω taps — Output transformer, feedback from the 16 Ω tap; the
+    Reeves-era four-input heads carried Partridge iron whose DR103 part number was not read on any drawing
+    consulted
+  sim_ip_ma: 94.6167
+  sim_ig2_ma: 5.036
 - amp: 'jtm100'
   name_style: British 100-watt lead-style
   tube: 'KT66'

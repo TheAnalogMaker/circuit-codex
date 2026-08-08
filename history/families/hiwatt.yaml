@@ -1,0 +1,195 @@
+family: hiwatt
+title: "The Hiwatt line"
+maker_style: "British-style"
+summary: >
+  Dave Reeves trained in electronics in the Royal Air Force and worked at
+  Mullard; made redundant in 1966, he set up Hylight in September of that year
+  and built amplifiers under contract for Ivor Arbiter's Sound City shop. When
+  the Who's management fell out with Marshall in 1967 and John Entwistle and
+  Pete Townshend took up Sound City amps, the customised heads Reeves was
+  building for them became the basis of his own badge: the DR103 Custom 100.
+  What followed was one circuit at four sizes. A single four-valve preamp — two
+  cathode followers, a tone stack and a master volume — sits in front of 50, 100,
+  200 and 400 watts of EL34s across the DR504, DR103, DR201 and DR405, and one
+  factory-lineage sheet says so on its face, heading itself "HIWATT PREAMP AND
+  DRIVE" over the model list "DR504 DR405 DR103 DR201 ALL COMBO'S". Partridge
+  transformers and, from 1971, Harry Joyce's standardised wiring gave the line
+  its reputation for headroom and for being built like equipment rather than like
+  instruments.
+models:
+  - designation: "Hiwatt (1964 one-off)"
+    name: "First use of the Hiwatt name"
+    years: { start: 1964, end: 1964 }
+    key_change: >
+      The name appears on an amplifier two years before the company existed. The
+      general reference used here records it as a single project rather than a
+      product, and no circuit or specification for it was found, so nothing is
+      claimed beyond the date and the fact of it.
+    circuit_ref: null
+    sources:
+      - desc: "Wikipedia, \"Hiwatt\" — \"The 'Hiwatt' name was first used on an amp by Reeves in 1964, but this was likely a one-off project\""
+        url: "https://en.wikipedia.org/wiki/Hiwatt"
+
+  - designation: "L100"
+    name: "Sound City L100 (Reeves-built)"
+    years: { start: 1966, end: 1969 }
+    wattage: 100
+    output: "push-pull 4×EL34"
+    tubes: null
+    key_change: >
+      Not a Hiwatt, but the amplifier the first Hiwatt was. Reeves founded
+      Hylight in September 1966 after being made redundant at Mullard and
+      contracted with Ivor Arbiter's Sound City music store to build Sound
+      City-branded guitar amplifiers; the L100 was the 100-watt head of that
+      range. The customised versions he built became the DR103. The bracket here
+      runs from the founding of Hylight to the point the Hiwatt badge takes over,
+      and is a bracket rather than a production record — no dated Sound City
+      drawing was read for this entry, and no valve complement is claimed.
+    circuit_ref: null
+    sources:
+      - desc: "Wikipedia, \"Hiwatt\" — Reeves's RAF training and Mullard employment, his redundancy in 1966 and the founding of Hylight in September 1966; the Sound City manufacturing contract with Ivor Arbiter; and \"Under the Hiwatt brand, Reeves' customized Sound City L100 amplifiers were renamed the DR103 Custom 100\""
+        url: "https://en.wikipedia.org/wiki/Hiwatt"
+      - desc: "Wikipedia, \"Hiwatt\" — the Who connection that put those amplifiers on stage: \"Following a financial disagreement between Marshall and the Who's management in 1967, John Entwistle and Pete Townshend adopted Sound City amps\""
+        url: "https://en.wikipedia.org/wiki/Hiwatt"
+
+  - designation: "DR103"
+    name: "DR103 Custom 100, four-input"
+    years: { start: 1969, end: 1981 }
+    wattage: 100
+    output: "push-pull 4×EL34"
+    tubes: [ECC83, ECC83, ECC83, ECC81, EL34, EL34, EL34, EL34]
+    key_change: >
+      The model the badge is built on, and the circuit this corpus documents:
+      four inputs across a Brilliant and a Normal channel, a four-valve preamp
+      with two cathode followers and a master volume, an ECC81 long-tailed pair
+      and four EL34s over a silicon bridge. From 1971 the certified government
+      wirer Harry Joyce standardised the schematics and eliminated the
+      variations that had accumulated in a hand-built run, capping his own
+      output at forty amplifiers a month to hold the standard. The bracket ends
+      at Reeves's death in 1981; the model itself continued under later owners
+      in revised form.
+    circuit_ref: "dr103"
+    sources:
+      - desc: "Four-input DR103 preamp drawing, title block \"HIWATT / Late 60s Four-Input Preamp / Preamp from DR103 S/N 903 / Drawing rev. 1.0 - Mark Huss\" — the drawing this corpus's dr103 circuit entry reads its preamp values from; a published redraw taken off a specific early amplifier, not a factory document"
+        url: "https://hiwatt.org/Schematics/DR103sn903pre.pdf"
+      - desc: "Published wiring diagram \"HIWATT DR103 LAYOUT, EARLY 1970'S\" (Mark Huss, with updates from Jukka K., and Brian Haberman, 2007) — four inputs, seven controls including a master volume, 3×ECC83 + 1×ECC81 preamp and four EL34s, and the supply and bias networks the circuit entry reads"
+        url: "https://hiwatt.org/Layouts/DR103hiwattlayout.pdf"
+      - desc: "Wikipedia, \"Hiwatt\" — the DR103 Custom 100 as the renamed customised Sound City L100; Partridge transformers lending the amplifiers a \"hi-fi\" character; and Harry Joyce, \"certified government wirer\", standardising the schematics from 1971 while limiting \"his workload to 40 amps per month in order to maintain high quality standards\""
+        url: "https://en.wikipedia.org/wiki/Hiwatt"
+      - desc: "Vintage Guitar, \"Ronnie Wood's '69 Hiwatt 100 DR103\" — a dated published example of the four-input head in 1969, the evidence for the start of this bracket"
+        url: "https://www.vintageguitar.com/14871/ronnie-woods-69-hiwatt-100-dr103/"
+
+  - designation: "DR504"
+    name: "DR504 Custom 50"
+    years: { start: 1969, end: 1981 }
+    wattage: 50
+    output: "push-pull 2×EL34"
+    tubes: [ECC83, ECC83, ECC83, ECC81, EL34, EL34]
+    key_change: >
+      The same amplifier at half the output valves. Its factory-lineage sheets
+      share the preamp and driver page with the DR103, the DR201 and the DR405,
+      and change only behind the phase inverter: two EL34s on 22 kΩ grid
+      stoppers and 1 kΩ 5 W screen stoppers, a Partridge output transformer
+      TG 6556 / TH 7551, and a supply whose sheet prints 460 V at the HT node and
+      −36 V of fixed bias. The introduction year is not pinned by the sources
+      read here, so the row is bracketed to the Reeves-era run; the July 1979
+      sheets are dated evidence of production inside it.
+    circuit_ref: null
+    sources:
+      - desc: "Hiwatt factory-lineage sheets archived with the DR504: page 2 headed \"HIWATT PREAMP AND DRIVE\" over the model list \"DR504 DR405 DR103 DR201 ALL COMBO'S\", drawing the shared four-valve preamp and driver; the output-stage page headed \"OUTPUT STAGE / DR504 SA112 SA115 SA212\" with \"2 EL34\", 22K grid stoppers, 1K 5W screen stoppers, 100K grid leaks, \"BIAS -36v\" and \"OUTPUT TRANSFORMER PARTRIDGE TG 6556 / TH 7551\"; and the supply page headed \"POWER SUPPLY / DR504 SA212 SA112 SA115\" printing 460 V after the standby switch, a 100 Ω 5 W and 1 K 1 W dropper chain to the second and third HT rails, and \"MAINS TRANSFORMER PARTRIDGE TYPE TH 7550\". All three signed \"HIWATT JULY 79\""
+        url: "https://el34world.com/charts/Schematics/files/Hiwatt/Hiwatt_50w_dr504.pdf"
+
+  - designation: "DR201"
+    name: "DR201 Custom 200"
+    years: { start: 1969, end: 1981 }
+    wattage: 200
+    tubes: null
+    key_change: >
+      One of the two high-power heads the general reference credits to the
+      urging of the bassist Glenn Cornick, who wanted more than a 100-watt head
+      could give. It runs the same preamp and driver page as the DR103. No
+      introduction year and no valve complement are claimed: neither was found
+      in the sources read, so the row is bracketed to the Reeves-era run.
+    circuit_ref: null
+    sources:
+      - desc: "Wikipedia, \"Hiwatt\" — the DR201 and DR405 as the 200-watt and 400-watt models created at bassist Glenn Cornick's urging"
+        url: "https://en.wikipedia.org/wiki/Hiwatt"
+      - desc: "Hiwatt factory-lineage sheet \"HIWATT PREAMP AND DRIVE\", model list \"DR504 DR405 DR103 DR201 ALL COMBO'S\" — the evidence that the DR201 carries the same preamp and driver as the DR103"
+        url: "https://el34world.com/charts/Schematics/files/Hiwatt/Hiwatt_50w_dr504.pdf"
+
+  - designation: "DR405"
+    name: "DR405 Custom 400"
+    years: { start: 1969, end: 1981 }
+    wattage: 400
+    tubes: null
+    key_change: >
+      The largest head of the line, and the other of the two Glenn Cornick asked
+      for. Like the DR201 it sits behind the shared preamp and driver page. Its
+      introduction year and valve complement are likewise not pinned by the
+      sources read, and are not claimed.
+    circuit_ref: null
+    sources:
+      - desc: "Wikipedia, \"Hiwatt\" — the DR201 and DR405 as the 200-watt and 400-watt models created at bassist Glenn Cornick's urging"
+        url: "https://en.wikipedia.org/wiki/Hiwatt"
+      - desc: "Hiwatt factory-lineage sheet \"HIWATT PREAMP AND DRIVE\", model list \"DR504 DR405 DR103 DR201 ALL COMBO'S\" — the evidence that the DR405 carries the same preamp and driver as the DR103"
+        url: "https://el34world.com/charts/Schematics/files/Hiwatt/Hiwatt_50w_dr504.pdf"
+
+  - designation: "DR103 (Biacrown era)"
+    name: "DR103 under Biacrown Ltd"
+    years: { start: 1981, end: 1984 }
+    wattage: 100
+    output: "push-pull 4×EL34"
+    tubes: null
+    key_change: >
+      Reeves died in 1981 after a fall down a staircase. Several Hiwatt
+      employees incorporated as Biacrown Ltd and carried the amplifiers on "with
+      minor circuit changes until 1984, when the company folded for financial
+      reasons". What those changes were is not documented in the sources read
+      here, so nothing is claimed about the circuit of this period beyond the
+      fact that it moved.
+    circuit_ref: null
+    sources:
+      - desc: "Wikipedia, \"Hiwatt\" — Reeves's death in 1981, former employees incorporating as Biacrown Ltd and continuing production \"with minor circuit changes until 1984, when the company folded for financial reasons\", and vintage Reeves-era amplifiers becoming more prized as later owners cut costs"
+        url: "https://en.wikipedia.org/wiki/Hiwatt"
+
+  - designation: "DR103 (Issue 3/4 sheets, S/No. AB0309 onwards)"
+    name: "DR103, two-input revision"
+    years: { start: 1994, end: 1995 }
+    wattage: 100
+    output: "push-pull 4×EL34"
+    tubes: [ECC83, ECC83, ECC83, ECC81, EL34, EL34, EL34, EL34]
+    key_change: >
+      The revision the surviving factory title blocks actually describe, and a
+      different amplifier from the four-input head: one jack per channel, 470 kΩ
+      volumes with a 220 kΩ lin master and a 100 kΩ lin middle, 10 kΩ preamp
+      droppers in place of the 47 kΩ and 22 kΩ of the earlier chain, and printed
+      working voltages of +160 V at the input plate and +140 V at the second
+      stage. The years given are the DATES ON THE DRAWINGS — 22/11/94 for the
+      supply sheet, 25/04/94 for the output stage, 19/05/95 for the preamp — not
+      a production bracket, which the sources read do not give. The sheets carry
+      no serial-number end, only a start: "S/No. AB0309 Onwards". The
+      accompanying specification page and the preamp drawing contradict each
+      other on the phase-inverter valve, the page calling it an ECC81 and the
+      drawing lettering all four preamp valves ECC83.
+    circuit_ref: null
+    sources:
+      - desc: "Hiwatt DR103 owner's manual (\"THIS MANUAL COVERS MODEL NUMBER DR103\", \"Distributed by Biacrown Ltd\", \"Manufactured in England by the Audio Brothers\") carrying three dated factory sheets whose title blocks read \"HIWATT DR103 POWER SUPPLY CIRCUIT DIAGRAM  Drawn 22/11/94  Issue 3.\", \"HIWATT DR103 OUTPUT STAGE CIRCUIT DIAGRAM  Drawn 25/04/94  Issue 1.\" and \"HIWATT DR103 PREAMPLIFIER CIRCUIT DIAGRAM  Drawn 19/05/95  Issue 4.  S/No. AB0309 Onwards\", plus a DR103 SPECIFICATION page giving 4×matched EL34, 3×ECC83 for V1-V3 and 1×ECC81 for V4, 100 W RMS minimum into 8 Ω, 4/8/16 Ω speaker taps, 100/117.5/225/250 V line taps, 330 W maximum consumption, 640×288×269 mm and 20.5 kg"
+        url: "https://el34world.com/charts/Schematics/files/Hiwatt/Hiwatt_100w_dr103.pdf"
+
+notes: >
+  This family carries a documentation problem the Fender and Marshall lines do
+  not, and it is stated rather than smoothed over: the DR103 that people mean —
+  the four-input Reeves-era head — has no factory drawing among the documents
+  read for this corpus. The sheets that carry a proper factory title block are
+  all dated 1994-95 and describe a later two-input revision. The four-input
+  circuit entry therefore rests on published redraws and is published as a
+  draft. Three further gaps are left open rather than filled. Introduction years
+  for the DR504, DR201 and DR405 were not found, so those rows are bracketed to
+  the Reeves-era run instead of dated. What Biacrown's "minor circuit changes"
+  were is not documented in anything read here. And the dating of the last row
+  sits oddly against the row before it: the general reference has Biacrown
+  folding in 1984, yet the manual bearing the 1994 and 1995 drawings names
+  Biacrown Ltd as its distributor — no source read here reconciles the two, so
+  both are recorded as they stand. Only the DR103 has a documented circuit entry
+  in this corpus at present; every other row is history-tier (circuit_ref: null)
+  until one is built.

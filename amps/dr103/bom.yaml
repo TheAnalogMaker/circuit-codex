@@ -1,0 +1,128 @@
+# Parts list for the four-input Hiwatt DR103 "Custom 100" — 100 W head, four
+# inputs across two channels, 3x ECC83 + 1x ECC81 preamp, 4x EL34 output, silicon
+# bridge rectifier. Preamp values are read from the S/N 903 four-input preamp
+# drawing; the output stage, the supply and the control complement are read from
+# the published early-1970s DR103 wiring diagram; the two transformer part
+# numbers are the ones the factory Issue-1 and Issue-3 sheets letter on their own
+# drawings. Designators follow the drawings' valve numbering (V1-V4 preamp,
+# V5-V8 output) and are the ones netlist.cir uses.
+notes: "Coupling and cathode-bypass capacitor VALUES are open at DC; those whose both leads land on named DC nodes are carried in the operating-point netlist so their board placement can be machine-checked, the rest are listed here for completeness only. Two honest caveats live in this list. (1) The S/N 903 drawing and the early-1970s wiring diagram disagree on four control values — the wiring diagram gives 500 kOhm log volumes and bass, 250 kOhm lin treble and master and a 100 kOhm lin middle where the S/N 903 amp carries 470 kOhm-A volumes, bass and master with a 220 kOhm treble and a 22 kOhm middle. The S/N 903 values are listed, because that is the drawing this entry's netlist follows; the variation is real and is recorded in notes.md rather than averaged away. (2) The transformer part numbers TH7549/2 and TH7548/5 are lettered on the factory sheets of 1994-95, which document a later revision of this amplifier; the four-input amplifiers of the Reeves era carried Partridge transformers, whose DR103 part numbers were not read on any drawing consulted here. The mains transformer, fuses, switches, neon, impedance selector and jack sockets are annotations on the drawings and are listed here without designators, as in the sibling entries."
+items:
+  # --- inputs (V1) ---
+  - { ref: R1s, part: "Carbon comp resistor", value: "68 kΩ · ½ W", role: "Brilliant high-gain input grid stopper" }
+  - { ref: R2s, part: "Carbon comp resistor", value: "68 kΩ · ½ W", role: "Brilliant low-gain input grid stopper" }
+  - { ref: R3s, part: "Carbon comp resistor", value: "68 kΩ · ½ W", role: "Normal high-gain input grid stopper" }
+  - { ref: R4s, part: "Carbon comp resistor", value: "68 kΩ · ½ W", role: "Normal low-gain input grid stopper" }
+  - { ref: RG1, part: "Carbon comp resistor", value: "1 MΩ · ½ W", role: "Brilliant input grid leak" }
+  - { ref: RG2, part: "Carbon comp resistor", value: "1 MΩ · ½ W", role: "Normal input grid leak" }
+  - { ref: "—", part: "Jack socket", value: "1/4 in", role: "Brilliant high-gain input" }
+  - { ref: "—", part: "Jack socket", value: "1/4 in", role: "Brilliant low-gain input" }
+  - { ref: "—", part: "Jack socket", value: "1/4 in", role: "Normal high-gain input" }
+  - { ref: "—", part: "Jack socket", value: "1/4 in", role: "Normal low-gain input" }
+  # --- V1 ECC83 input valve, one half per channel, shared cathode ---
+  - { ref: RL1, part: "Carbon comp resistor", value: "220 kΩ · ½ W", role: "V1A plate load (Brilliant)" }
+  - { ref: RL2, part: "Carbon comp resistor", value: "220 kΩ · ½ W", role: "V1B plate load (Normal)" }
+  - { ref: RK1, part: "Carbon comp resistor", value: "1.5 kΩ · ½ W", role: "V1 cathode bias — ONE resistor shared by both channels" }
+  - { ref: C1,  part: "Electrolytic capacitor", value: "100 µF · 16 V", role: "V1 shared cathode bypass" }
+  # --- volumes and channel mixing ---
+  - { ref: C2,  part: "Coupling capacitor", value: "0.001 µF · 400 V", role: "V1A → Brilliant volume — the small coupler is the whole Brilliant voicing" }
+  - { ref: C3,  part: "Coupling capacitor", value: "0.01 µF · 400 V", role: "V1B → Normal volume" }
+  - { ref: VR1, part: "Audio-taper potentiometer", value: "470 kΩ", role: "Brilliant volume" }
+  - { ref: VR2, part: "Audio-taper potentiometer", value: "470 kΩ", role: "Normal volume" }
+  - { ref: RM1, part: "Carbon comp resistor", value: "470 kΩ · ½ W", role: "Brilliant mixing resistor into the V2B grid" }
+  - { ref: RM2, part: "Carbon comp resistor", value: "470 kΩ · ½ W", role: "Normal mixing resistor into the V2B grid" }
+  # --- V2 ECC83 gain stage + cathode follower ---
+  - { ref: RL3, part: "Carbon comp resistor", value: "220 kΩ · ½ W", role: "V2B plate load (second stage)" }
+  - { ref: RK2, part: "Carbon comp resistor", value: "2.2 kΩ · ½ W", role: "V2B cathode bias, unbypassed" }
+  - { ref: RKCF, part: "Power resistor", value: "120 kΩ · 2 W", role: "V2A cathode-follower load — a 2 W part because this triode works across most of the HT" }
+  # --- tone stack (treble / bass / middle, driven by the cathode follower) ---
+  - { ref: C4,  part: "Mica capacitor", value: "100 pF", role: "Tone stack — treble" }
+  - { ref: RSL, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "Tone-stack slope resistor" }
+  - { ref: VR3, part: "Potentiometer", value: "220 kΩ", role: "Treble" }
+  - { ref: C5,  part: "Film capacitor", value: "0.047 µF · 400 V", role: "Tone stack — bass" }
+  - { ref: VR4, part: "Audio-taper potentiometer", value: "470 kΩ", role: "Bass — wired as a rheostat, wiper tied to its top lug" }
+  - { ref: C6,  part: "Film capacitor", value: "0.047 µF · 400 V", role: "Tone stack — middle, into the middle pot's wiper" }
+  - { ref: VR5, part: "Potentiometer", value: "22 kΩ", role: "Middle" }
+  - { ref: RTM, part: "Carbon comp resistor", value: "220 kΩ · ½ W", role: "Treble-wiper output into the master volume" }
+  - { ref: VR6, part: "Audio-taper potentiometer", value: "470 kΩ", role: "Master volume — a control the contemporary Marshall lead heads do not have" }
+  # --- V3 ECC83 driver + second cathode follower ---
+  - { ref: RL4, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "V3B plate load (driver)" }
+  - { ref: RK3, part: "Carbon comp resistor", value: "2.2 kΩ · ½ W", role: "V3B cathode bias" }
+  - { ref: C7,  part: "Film capacitor", value: "0.047 µF · 400 V", role: "V3B cathode bypass" }
+  - { ref: C8,  part: "Coupling capacitor", value: "0.022 µF · 400 V", role: "V3B plate → V3A grid, across the 1.8 MΩ DC-coupling resistor" }
+  - { ref: R18, part: "Carbon comp resistor", value: "1.8 MΩ · ½ W", role: "V3B plate → V3A grid DC path — the upper leg of the divider that lifts the phase inverter's grid reference" }
+  - { ref: RG3, part: "Carbon comp resistor", value: "1 MΩ · ½ W", role: "V3A grid leak — the lower leg of that divider" }
+  - { ref: RKCF2, part: "Carbon comp resistor", value: "220 kΩ · ½ W", role: "V3A cathode-follower load, DC-coupled straight into the phase-inverter grid" }
+  # --- V4 ECC81 long-tailed-pair phase inverter ---
+  - { ref: RLA, part: "Carbon comp resistor", value: "82 kΩ · ½ W", role: "PI plate load, driven side (V4A)" }
+  - { ref: RLB, part: "Carbon comp resistor", value: "91 kΩ · ½ W", role: "PI plate load, other side (V4B) — deliberately unequal" }
+  - { ref: RGB, part: "Carbon comp resistor", value: "1 MΩ · ½ W", role: "V4B grid referred to the V4A grid" }
+  - { ref: RTAIL, part: "Carbon comp resistor", value: "22 kΩ · ½ W", role: "PI tail (shared cathode → feedback junction)" }
+  - { ref: RT2, part: "Carbon comp resistor", value: "2.2 kΩ · ½ W", role: "PI tail (feedback junction → ground)" }
+  - { ref: C9,  part: "Film capacitor", value: "0.1 µF · 160 V", role: "V4B grid to the tail junction, for signal" }
+  # --- presence and negative feedback ---
+  - { ref: C11, part: "Film capacitor", value: "0.001 µF · 400 V", role: "V3B plate → presence pot" }
+  - { ref: VR7, part: "Linear potentiometer", value: "100 kΩ", role: "Presence" }
+  - { ref: RPG, part: "Carbon comp resistor", value: "100 Ω · ½ W", role: "Presence wiper to ground" }
+  - { ref: C12, part: "Film capacitor", value: "0.047 µF · 400 V", role: "Presence network → feedback junction" }
+  - { ref: RNFB, part: "Carbon comp resistor", value: "10 kΩ · ½ W", role: "Negative feedback, 16 Ω secondary tap → PI tail junction" }
+  - { ref: RPD, part: "Carbon comp resistor", value: "270 Ω · ½ W", role: "Feedback-junction shunt leg, in series with C10" }
+  - { ref: C10, part: "Film capacitor", value: "0.01 µF · 400 V", role: "Feedback-junction shunt leg to ground" }
+  # --- output stage (V5-V8 EL34) ---
+  - { ref: C13, part: "Coupling capacitor", value: "0.047 µF · 400 V", role: "PI (82 kΩ plate) → V5/V6 grid line" }
+  - { ref: C14, part: "Coupling capacitor", value: "0.047 µF · 400 V", role: "PI (91 kΩ plate) → V7/V8 grid line" }
+  - { ref: RGL1, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "Grid leak for the V5/V6 pair, from the bias line" }
+  - { ref: RGL2, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "Grid leak for the V7/V8 pair, from the bias line" }
+  - { ref: RS5, part: "Carbon comp resistor", value: "22 kΩ · ½ W", role: "V5 grid stopper — four times the value the Marshall heads use" }
+  - { ref: RS6, part: "Carbon comp resistor", value: "22 kΩ · ½ W", role: "V6 grid stopper" }
+  - { ref: RS7, part: "Carbon comp resistor", value: "22 kΩ · ½ W", role: "V7 grid stopper" }
+  - { ref: RS8, part: "Carbon comp resistor", value: "22 kΩ · ½ W", role: "V8 grid stopper" }
+  - { ref: RSC5, part: "Carbon comp resistor", value: "100 Ω · ½ W", role: "V5 screen-grid stopper" }
+  - { ref: RSC6, part: "Carbon comp resistor", value: "100 Ω · ½ W", role: "V6 screen-grid stopper" }
+  - { ref: RSC7, part: "Carbon comp resistor", value: "100 Ω · ½ W", role: "V7 screen-grid stopper" }
+  - { ref: RSC8, part: "Carbon comp resistor", value: "100 Ω · ½ W", role: "V8 screen-grid stopper" }
+  # --- fixed-bias supply ---
+  - { ref: D5,  part: "Silicon rectifier diode", value: "UF5408", role: "Bias-supply rectifier, off its own transformer tap" }
+  - { ref: RB1, part: "Power resistor", value: "1 kΩ · 2 W", role: "Bias-supply series resistor ahead of the diode" }
+  - { ref: C16, part: "Electrolytic capacitor", value: "100 µF · 63 V", role: "Bias-supply filter" }
+  - { ref: RB2, part: "Carbon comp resistor", value: "47 kΩ · ½ W", role: "Bias-supply bleed / divider — this bias is NOT adjustable on the drawings read here" }
+  # --- power supply ---
+  - { ref: D1,  part: "Silicon rectifier diode", value: "UF5408", role: "HT bridge rectifier" }
+  - { ref: D2,  part: "Silicon rectifier diode", value: "UF5408", role: "HT bridge rectifier" }
+  - { ref: D3,  part: "Silicon rectifier diode", value: "UF5408", role: "HT bridge rectifier" }
+  - { ref: D4,  part: "Silicon rectifier diode", value: "UF5408", role: "HT bridge rectifier" }
+  - { ref: C17, part: "Electrolytic capacitor", value: "220 µF · 350 V", role: "Reservoir, upper half of the series pair" }
+  - { ref: C18, part: "Electrolytic capacitor", value: "220 µF · 350 V", role: "Reservoir, lower half of the series pair" }
+  - { ref: RB3, part: "Carbon comp resistor", value: "220 kΩ · ½ W", role: "Reservoir balancing resistor, upper" }
+  - { ref: RB4, part: "Carbon comp resistor", value: "220 kΩ · ½ W", role: "Reservoir balancing resistor, lower" }
+  - { ref: RD1, part: "Power resistor", value: "100 Ω · 5 W", role: "Dropper HT1 (plates) → HT2" }
+  - { ref: RD2, part: "Power resistor", value: "470 Ω · 10 W", role: "Feed from HT2 to the EL34 screen bus" }
+  - { ref: RD3, part: "Power resistor", value: "1 kΩ · 2 W", role: "Dropper HT2 → HT3 (preamp rail); the factory Issue-3 sheet letters 1 W here" }
+  - { ref: C19, part: "Electrolytic capacitor", value: "50 µF · 450 V (×2)", role: "HT2/HT3 filter can, a series pair in one housing" }
+  - { ref: RB5, part: "Carbon comp resistor", value: "220 kΩ · ½ W", role: "Balancing resistor for the 50 µF can, upper" }
+  - { ref: RB6, part: "Carbon comp resistor", value: "220 kΩ · ½ W", role: "Balancing resistor for the 50 µF can, lower" }
+  - { ref: C20, part: "Electrolytic capacitor", value: "220 µF · 350 V", role: "HT3 filter" }
+  - { ref: RB7, part: "Carbon comp resistor", value: "220 kΩ · ½ W", role: "Balancing resistor for the HT3 filter" }
+  - { ref: RD4, part: "Power resistor", value: "47 kΩ · 2 W", role: "Dropper HT3 → second-stage rail" }
+  - { ref: C21, part: "Electrolytic capacitor", value: "32 µF · 450 V", role: "Second-stage rail filter" }
+  - { ref: RD5, part: "Power resistor", value: "22 kΩ · 2 W", role: "Dropper second-stage rail → input and driver rail" }
+  - { ref: C22, part: "Electrolytic capacitor", value: "16 µF · 350 V", role: "Input and driver rail filter" }
+  # --- valves ---
+  - { ref: V1, part: "Preamp tube", value: "ECC83 (12AX7)", role: "Input valve — one half per channel (V1A Brilliant / V1B Normal)" }
+  - { ref: V2, part: "Preamp tube", value: "ECC83 (12AX7)", role: "Second gain stage + cathode follower into the tone stack (V2B/V2A)" }
+  - { ref: V3, part: "Preamp tube", value: "ECC83 (12AX7)", role: "Driver + second cathode follower into the phase inverter (V3B/V3A)" }
+  - { ref: V4, part: "Preamp tube", value: "ECC81 (12AT7)", role: "Long-tailed-pair phase inverter (V4A/V4B)" }
+  - { ref: V5, part: "Power tube", value: "EL34", role: "Parallel push-pull output — phase A" }
+  - { ref: V6, part: "Power tube", value: "EL34", role: "Parallel push-pull output — phase A" }
+  - { ref: V7, part: "Power tube", value: "EL34", role: "Parallel push-pull output — phase B" }
+  - { ref: V8, part: "Power tube", value: "EL34", role: "Parallel push-pull output — phase B" }
+  # --- transformers, hardware, annotations ---
+  - { ref: T1, part: "Output transformer", value: "Hiwatt TH7549/2 · 4/8/16 Ω taps", role: "Output transformer, feedback from the 16 Ω tap; the Reeves-era four-input heads carried Partridge iron whose DR103 part number was not read on any drawing consulted" }
+  - { ref: "—", part: "Power transformer", value: "Hiwatt TH7548/5 · 100/117.5/225/250 V primary taps", role: "Mains/HT transformer with the bias winding (annotation)" }
+  - { ref: "—", part: "Toggle switch", value: "DPST", role: "Mains (annotation)" }
+  - { ref: "—", part: "Toggle switch", value: "SPST", role: "HT standby, between the reservoir and HT1 (annotation)" }
+  - { ref: "—", part: "Rotary switch", value: "3-position", role: "Speaker impedance selector, 4/8/16 Ω (annotation)" }
+  - { ref: "—", part: "Jack socket", value: "1/4 in", role: "Speaker output (annotation)" }
+  - { ref: "—", part: "Neon indicator", value: "mains neon", role: "Panel indicator across the primary (annotation)" }
+  - { ref: "—", part: "Fuse", value: "3.15 A slow-blow", role: "Mains fuse, 6.3 A on the 100 V and 117.5 V taps (annotation)" }
+  - { ref: "—", part: "Fuse", value: "3.15 A slow-blow", role: "H.T. fuse (annotation)" }
