@@ -94,8 +94,8 @@ const nCircuits = new Set(magnetics.map((m) => m.ampId)).size;
 const nTransformers = magnetics.filter((m) => /transformer/i.test(m.type)).length;
 const nChokes = magnetics.filter((m) => /choke/i.test(m.type)).length;
 ---
-<Base title="Era transformer reference — lead colours, corpus parts & impedance ratio · Circuit Codex"
-      description="How the windings of a tweed-era Fender power transformer are colour-coded — black primary, red HT with a red-yellow centre tap, yellow rectifier filament, green heaters — read straight off the published Fender layout drawings, with an original interactive diagram and reference table. Plus every transformer and choke in the corpus, and a one-line impedance-ratio refresher.">
+<Base title="Transformer lead colours, parts & ratio — Circuit Codex"
+      description="How a tweed-era Fender power transformer's leads are colour-coded, plus every corpus transformer and choke and an impedance-ratio refresher.">
 <div class="wrap">
   <header class="ghead">
     <a class="back" href="/reference/">← Reference</a>
