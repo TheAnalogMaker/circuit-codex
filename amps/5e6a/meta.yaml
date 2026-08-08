@@ -87,11 +87,11 @@ verification:
                   # voltages (see voltages.yaml). Until it happens this circuit
                   # stays draft, and the loadline preset it publishes rests on
                   # the output stage, whose bias and B+ both gate green.
-                  # A second, independent blocker: no board layout. layout.yaml,
-                  # both layout renders and this amp's social card are absent,
-                  # so the layout<->netlist wiring equivalence a verified badge
-                  # claims cannot be proved. WORK ITEM: settle the screen-node
-                  # reading above on a sharper scan, draw the layout from the
-                  # A-EE layout page already cited in sources, then re-run.
+                  # The artifact set is complete and is not what holds this
+                  # entry back: the board layout is drawn from the A-EE layout
+                  # page cited in sources, both renders and the social card are
+                  # present, and the drawn wiring is proved electrically
+                  # equivalent to netlist.cir. WORK ITEM: settle the screen-node
+                  # reading above on a sharper scan, then re-run.
 added: 2026-08-08
 contributors: [TheAnalogMaker]

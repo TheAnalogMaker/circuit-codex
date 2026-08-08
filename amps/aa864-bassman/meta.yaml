@@ -60,17 +60,21 @@ sources:
       off the sheet
     url: "https://en.wikipedia.org/wiki/Fender_Bassman"
 verification:
-  status: draft   # ONE thing is missing, and it is not the chart. The printed
-                  # AA864 chart is read whole and gated: 18 nodes, 0 failures,
-                  # worst 11.6% (PPB, the inverter's cold plate) against the
-                  # sheet's own +/-20%; the two solved rails land inside 0.2%.
-                  # The redrawn schematic, BOM and netlist are all present and
-                  # green. What is absent is the board layout — layout.yaml,
-                  # both layout renders and this amp's social card — and a
-                  # verified badge claims layout<->netlist wiring equivalence
-                  # (see the About page's step 4), which cannot be proved
-                  # without one. WORK ITEM: draw the layout from the AA864
-                  # LAYOUT sheet already cited in sources, set
-                  # wiring_claim: verified, then re-run this verification.
+  status: draft   # What remains is the maintainer's sign-off, not an artifact
+                  # and not the chart. The printed AA864 chart is read whole
+                  # and gated: 18 nodes, 0 failures, worst 11.6% (PPB, the
+                  # inverter's cold plate) against the sheet's own +/-20%; the
+                  # two solved rails land inside 0.2%. The redrawn schematic,
+                  # BOM and netlist are present and green, and the board layout
+                  # is now drawn from the AA864 LAYOUT sheet cited in sources —
+                  # both renders and the social card present, collision lint 0
+                  # findings with no waiver, and the drawn wiring proved
+                  # electrically equivalent to netlist.cir (42/44 parts matched,
+                  # 6 bottles anchored, 0 UNANCHORED), so wiring_claim:
+                  # verified is carried in layout.yaml.
+                  # CONTRIBUTING.md #6 makes `verified` require the operating
+                  # point within tolerance AND a human maintainer's sign-off;
+                  # the first is met, so this entry is queued for the second.
+                  # An agent does not grant the badge to itself.
 added: 2026-08-08
 contributors: [TheAnalogMaker]

@@ -40,8 +40,7 @@ sources:
   - desc: "Fender 'Pro-Amp' Model 5E5-A layout drawing (J-EE), same sheet set —
       corroborates the tube complement (5U4GA, 2x6L6GB, 12AX7, 2x12AY7), the
       BASS/TREBLE (1M) and PRESENCE (5K) pot values, and the two-input-per-channel
-      MIC/INST front panel. Cited for the board facts it carries; this entry
-      ships no board drawing (see notes.md)"
+      MIC/INST front panel, and is the source the board drawing is redrawn from"
     url: "https://schematicheaven.net/fenderamps/pro_5e5a_schem.pdf"
   - desc: "The same Fender 'Pro-Amp' Model 5E5-A schematic + layout sheet set
       (J-EE) read at 300 dpi, which is the resolution the finer figures need:
@@ -62,8 +61,8 @@ sources:
       removed feedback entirely) — cross-reference for the schematic reading"
     url: "https://mojotone.com/blogs/fender-field-guide/fender-narrow-panel-tweed-pro"
 verification:
-  status: draft   # Two reasons, stated rather than tuned away.
-                  # (1) The 300 dpi read of the J-EE sheet (see sources)
+  status: draft   # One reason, stated rather than tuned away.
+                  # The 300 dpi read of the J-EE sheet (see sources)
                   # resolved V2's own plate/cathode voltages and the driver's
                   # cathode digit; all are gated in voltages.yaml, 12/12
                   # non-informational nodes green. Still open: V2's own resistor VALUES and the
@@ -73,12 +72,12 @@ verification:
                   # RFB1/RBLEED (bom.yaml) sit behind a coupling cap this scan
                   # doesn't resolve — flagged for a maintainer with a
                   # still-sharper scan or the physical chassis.
-                  # (2) No board layout: layout.yaml, both layout renders and
-                  # this amp's social card are absent, so the layout<->netlist
-                  # wiring equivalence a verified badge claims cannot be proved.
-                  # WORK ITEM: settle the open values in (1) against a sharper
-                  # scan, draw the layout from the J-EE layout sheet already
-                  # cited in sources, then re-run this verification.
+                  # The artifact set is otherwise complete: the board layout is
+                  # drawn from the J-EE layout sheet cited in sources, both
+                  # renders and the social card are present, and the drawn
+                  # wiring is proved electrically equivalent to netlist.cir.
+                  # WORK ITEM: settle the open values above against a sharper
+                  # scan, then re-run this verification.
 # Day the circuit landed in the corpus (git history) — the feed's pubDate for a
 # draft; production builds are shallow clones and cannot ask git.
 added: 2026-08-08

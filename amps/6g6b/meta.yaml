@@ -38,10 +38,11 @@ verification:
                   # a current this stage does not pass — after which it is
                   # either gated clean or carried as `disputed` with the
                   # arithmetic. Every other node lands (worst of them 17.3%).
-                  # (2) No board layout: layout.yaml, both layout renders and
-                  # this amp's social card are absent, so the layout<->netlist
-                  # wiring equivalence a verified badge claims cannot be proved.
-                  # WORK ITEM: settle (1) on a sharper scan, draw the layout
-                  # from the E-FB layout page, then re-run this verification.
+                  # (2) Maintainer sign-off, which CONTRIBUTING.md reserves to
+                  # a human. The artifact set is complete: the board layout is
+                  # drawn from the E-FB layout page, both renders and the social
+                  # card are present, and the drawn wiring is proved
+                  # electrically equivalent to netlist.cir.
+                  # WORK ITEM: settle (1) on a sharper scan, then re-run.
 added: 2026-08-08
 contributors: [TheAnalogMaker]
