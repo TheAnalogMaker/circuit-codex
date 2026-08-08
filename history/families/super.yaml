@@ -84,12 +84,42 @@ models:
     tubes: [12AY7, 12AX7, 6L6G, 6L6G, 5U4G]
     key_change: >-
       The narrow-panel redesign. The 5E4 moves to the tighter cabinet and a fuller
-      preamp (12AY7 plus 12AX7). A short-lived 5E4-A variant substituted a 6V6GT output
-      pair and used a selenium rectifier in the bias supply — a bridge toward the 5F4
-      rather than the mainline circuit.
+      preamp (12AY7 plus 12AX7), keeping a 2x6L6G output stage and a 5U4G rectifier over
+      from the wide-panel line. No distinct, verifiable factory drawing for the plain
+      5E4 has been located as of this research pass (2026-08-08) — every schematic found
+      under a "5E4" label (thetubestore's "Fender-Super-5E4-G-EE-Schematic.pdf", and two
+      independently-hosted copies of a "Super-5E4-Schematic.pdf" — Mojotone's own
+      field-guide link and vintagefenderamprepair.com's copy) is, on inspection, the
+      5E4-A drawing (Fender code G-EE, below) with the "-A" and its "*NOTE — (A) WAS 22K
+      OHMS" revision footnote edited out of the title block; none show a 6L6G-tube,
+      non-selenium-bias circuit distinct from 5E4-A. Vintage-amp restorers report the
+      same gap first-hand. `circuit_ref` stays null pending a genuine primary source.
     circuit_ref: null
     sources:
-      - desc: "Mojotone/Ampwares Fender field guide, 'Narrow Panel Tweed Super' — 5E4 (1955) and 5E4-A variant; 5E4 two 6L6G with 5U4G, 5E4-A two 6V6GT; selenium bias rectifier on 5E4-A"
+      - desc: "Mojotone/Ampwares Fender field guide, 'Narrow Panel Tweed Super' — 5E4 (1955) tube complement (2x6L6G, 5U4G, no selenium bias rectifier) distinct from the 5E4-A variant; this entry's own hosted 'schematic' link resolves to the 5E4-A drawing instead (see key_change)"
+        url: "https://mojotone.com/blogs/fender-field-guide/fender-narrow-panel-tweed-super"
+      - desc: "AmpGarage forum thread ('Super 5E4 schematic') confirming no distinct 5E4 (non-A) schematic is known to circulate — every source claiming one 'ends up to be 5E4-A'"
+        url: "https://ampgarage.com/forum/viewtopic.php?t=32600"
+  - designation: "5E4-A"
+    name: "Super 5E4-A (narrow-panel tweed)"
+    years: { start: 1955, end: 1956 }
+    wattage: null
+    output: "push-pull 2x6V6GT"
+    tubes: [12AY7, 12AY7, 12AX7, 6V6GT, 6V6GT, 5U4GA]
+    key_change: >-
+      A running revision of the 5E4 drawing (still Fender code G-EE), not a separate
+      circuit sheet: it swaps the output pair for 6V6GT, adds a selenium rectifier to
+      the bias supply, and revises one bias-supply resistor from 22 kΩ to 18 kΩ — the
+      change the drawing itself footnotes ("(A) WAS 22K OHMS"). The preamp gains a
+      second 12AY7 gain stage ahead of a 12AX7 driver/phase-inverter stage, and the
+      panel carries the same five knobs (Presence, Bass, Treble, Inst. Vol, Mic. Vol)
+      the 5F4 later keeps. A bridge toward the 5F4's selenium-rectified bias supply,
+      though the 5F4 itself reverts to 6L6G output tubes.
+    circuit_ref: null
+    sources:
+      - desc: "Fender 'Super-Amp' Model 5E4-A drawing (G-EE): title block reads 'SUPER-AMP 5E4-A', printed voltage chart present; tube complement (12AY7 x2, 12AX7, 6V6GT x2, 5U4GA), rail structure (+390/+385/+300/+250, -32V bias via a selenium rectifier), and front-end topology (shared-cathode 12AY7 pair, 100k-loaded second 12AY7 gain stage) read directly (2026-08-08); the phase-inverter and tone-network wiring were legible but not yet transcribed to netlist precision, so this circuit is not landed as a documented amp pending that pass. Not reproduced here; archived at EL34World"
+        url: "https://el34world.com/charts/Schematics/files/Fender/Fender_super_5e4a.pdf"
+      - desc: "Mojotone/Ampwares Fender field guide, 'Narrow Panel Tweed Super' — 5E4-A tube complement and selenium bias rectifier confirmation"
         url: "https://mojotone.com/blogs/fender-field-guide/fender-narrow-panel-tweed-super"
   - designation: "5F4"
     name: "Super 5F4 (narrow-panel tweed)"
@@ -124,7 +154,7 @@ models:
       plus a Normal/Bright two-channel panel with presence. The 6G4 ran 6L6GC output
       tubes; the later 6G4-A moved to 5881s. Twin 10-inch speakers continue; the field
       guide's 40 W rating is a factory figure and higher than the tweed Super's.
-    circuit_ref: null
+    circuit_ref: "6g4"
     sources:
       - desc: "Mojotone/Ampwares Fender field guide, 'Brownface Super' — 6G4 (2x6L6GC) and 6G4-A (2x5881), 1960-1963, 40 W, GZ34, fixed non-adjustable bias, vibrato, Normal/Bright channels, two 10-inch speakers"
         url: "https://mojotone.com/blogs/fender-field-guide/fender-brownface-super"

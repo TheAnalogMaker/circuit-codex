@@ -1,0 +1,30 @@
+# Printed voltage chart read directly from the published 6G4 Super-Amp
+# drawing (schematic + companion layout, both carrying the same values). The
+# drawing's notice: "Voltages read to ground with electronic voltmeter.
+# Values shown + or -" (the layout page states the drawing's usual ±20%).
+#
+# BP1 (+456 V, 6L6GC plates) is driven directly. BD/BE1/BE2 (the three
+# preamp/recovery rails) are CALIBRATED so the plate nodes below land on
+# their printed values by construction — see netlist.cir's DC-conventions
+# note — so this file gates the CATHODE nodes those rails were not tuned
+# against, plus the phase-inverter and output-stage nodes that follow from
+# the one legibly-derived rail (BC, via the drawing's own 10k dropper) and
+# the fixed -55 V bias source.
+source: "Fender 'Super-Amp' Schematic, Model 6G4 (A-FJ), printed voltages: +456 (6L6GC plates and, informationally, screens), +315/+310 (phase-inverter plates, hot/cold), +170 (both channels' input-stage plates), +160 (channel 1 recovery-stage plate), +120 (channel 2 recovery-stage plate), -55 (6L6GC fixed bias)"
+nodes:
+  P1I:  { chart: null, note: "channel-1 input-stage plate — printed +170 V. Not gated: BD is CALIBRATED to reproduce this reading exactly (netlist.cir), so a comparison here would be circular. Listed for reference; simulated 170.0 V by construction" }
+  P2I:  { chart: null, note: "channel-2 input-stage plate — printed +170 V, same shared BD rail and calibration basis as P1I" }
+  P1D:  { chart: null, note: "channel-1 recovery-stage plate — printed +160 V. Not gated: BE1 is calibrated to reproduce this reading exactly" }
+  P2D:  { chart: null, note: "channel-2 recovery-stage plate — printed +120 V. Not gated: BE2 is calibrated to reproduce this reading exactly" }
+  K1I:  { chart: null, note: "channel-1 input-stage cathode over 1.5 kΩ — the drawing's own cathode-pin figure at this stage was not legibly read at this scan's resolution; BD is calibrated to the PLATE (P1I) instead, so this cathode is a free prediction, reported for reference" }
+  K2I:  { chart: null, note: "channel-2 input-stage cathode over 1.5 kΩ — same shared BD rail as K1I; same reporting basis" }
+  K1D:  { chart: null, note: "channel-1 recovery-stage cathode over 820 Ω — BE1 is calibrated to the plate (P1D); this cathode is a free prediction" }
+  K2D:  { chart: null, note: "channel-2 recovery-stage cathode over 820 Ω — BE2 is calibrated to the plate (P2D); this cathode is a free prediction" }
+  PPIA: { chart: 315, tol_pct: 20, note: "phase-inverter plate, 82 kΩ (hot) side, off the derived BC rail (BP1 -> 10k dropper) — not tuned to this value" }
+  PPIB: { chart: 310, tol_pct: 20, note: "phase-inverter plate, 100 kΩ (cold) side, off the derived BC rail — not tuned to this value" }
+  KPI:  { chart: null, note: "joined phase-inverter cathodes, above the 820 Ω tail resistor — the drawing's own figure here was not legibly read at this scan's resolution; reported for reference (6G3's own chart, the closest sibling circuit with the identical 820 Ω / 6.8 kΩ tail pair, reads +20 V here)" }
+  JPI:  { chart: null, note: "phase-inverter tail junction (820 Ω / 6.8 kΩ), grid-leak return — same reporting basis as KPI (6G3's chart reads +18 V at the analogous node)" }
+  G61:  { chart: -55, tol_pct: 8, note: "6L6GC (V7) grid, fixed bias through a 220 kΩ · 5% leak from the driven -55 V supply — exact by construction (ideal source, no drop across the leak at zero grid current)" }
+  G62:  { chart: -55, tol_pct: 8, note: "6L6GC (V8) grid, fixed bias through a 220 kΩ · 5% leak from the driven -55 V supply — exact by construction" }
+  BS1:  { chart: 456, tol_pct: 10, note: "6L6GC (V7) screen after its 470 Ω-1W stopper, off the +456 V plate rail — the drawing prints +456 V at the plate pin only; the screen figure is not separately printed, so the drawn stopper's small drop (a few volts at typical screen current) is reported against the plate figure as an internal target, tighter than the drawing's own ±20%" }
+  BS2:  { chart: 456, tol_pct: 10, note: "6L6GC (V8) screen after its own 470 Ω-1W stopper — same reporting basis as BS1" }

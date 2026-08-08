@@ -1,0 +1,114 @@
+# Parts list — read from the published 6G4 Super-Amp drawing (schematic +
+# companion layout). Reference designators follow the DC netlist where a
+# part is modeled and are descriptive otherwise. Values are the drawing's;
+# the notice sets 1/2 W resistors and 400 V caps unless noted. The drawing's
+# five 7025 sockets are drawn far apart across the sheet (channel 1 input and
+# recovery stage, channel 2 input and recovery stage, and the phase inverter)
+# each carrying its own "7025" label — this list follows the drawing's own
+# per-stage grouping. The schematic-tier pass (2026-08-08) resolved which
+# physical bottle holds which pair of triode sections: see the "Tubes"
+# section below — the oscillator shares channel 1's recovery-stage bottle
+# (V2A/V2B), and the phase inverter is V5.
+notes: "The oscillator's own resistor/cap network (Speed ladder, Intensity feed) is listed but its DC point is excluded from the netlist — see notes.md. The tone-stack and volume-pot networks between the input and recovery stages carry no DC path in this model and are listed for completeness, not cross-checked against a schematic here (no schematic.kicad_sch lands with this DATA CORE pass; see meta.yaml verification note)."
+items:
+  # --- Channel 1 input stage ---
+  - { ref: R1a, part: "Carbon comp resistor", value: "68 kΩ · ½ W", role: "Channel-1 input grid stopper (jack 1)" }
+  - { ref: R2a, part: "Carbon comp resistor", value: "68 kΩ · ½ W", role: "Channel-1 input grid stopper (jack 2)" }
+  - { ref: RG1I, part: "Carbon comp resistor", value: "1 MΩ · ½ W", role: "Channel-1 input grid leak" }
+  - { ref: RL1I, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "Channel-1 input-stage plate load" }
+  - { ref: RK1I, part: "Carbon comp resistor", value: "1.5 kΩ · ½ W", role: "Channel-1 input-stage cathode bias" }
+  - { ref: CK1I, part: "Dual electrolytic capacitor", value: "25/25 µF", role: "Channel-1 input-stage cathode bypass (one section of a dual can)" }
+  # --- Channel 1 tone stack + volume ---
+  - { ref: CT1, part: "Mica capacitor", value: "250 pF", role: "Channel-1 treble cap (250MM on the drawing)" }
+  - { ref: VRT1, part: "Potentiometer", value: "250 kΩ-L", role: "Channel-1 treble" }
+  - { ref: RS1T, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "Channel-1 tone-stack slope resistor" }
+  - { ref: VRB1, part: "Potentiometer", value: "250 kΩ-A", role: "Channel-1 bass" }
+  - { ref: RSL1, part: "Carbon comp resistor", value: "10 kΩ · ½ W", role: "Channel-1 tone-stack bleed resistor" }
+  - { ref: VRV1, part: "Potentiometer", value: "500 kΩ-L", role: "Channel-1 volume" }
+  # --- Channel 1 recovery/2nd stage ---
+  - { ref: RL1D, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "Channel-1 recovery-stage plate load" }
+  - { ref: RK1D, part: "Carbon comp resistor", value: "820 Ω · ½ W", role: "Channel-1 recovery-stage cathode bias" }
+  - { ref: CK1D, part: "Dual electrolytic capacitor", value: "25/25 µF", role: "Channel-1 recovery-stage cathode bypass" }
+  - { ref: CC1D, part: "Coupling capacitor", value: "0.05 µF", role: "Channel-1 recovery-stage output coupling into the mixing network" }
+  - { ref: RM1, part: "Carbon comp resistor", value: "6.8 kΩ · ½ W", role: "Channel-1 mixing resistor into the phase-inverter grid" }
+  # --- Channel 2 input stage (mirrors channel 1) ---
+  - { ref: R1b, part: "Carbon comp resistor", value: "68 kΩ · ½ W", role: "Channel-2 input grid stopper (jack 1)" }
+  - { ref: R2b, part: "Carbon comp resistor", value: "68 kΩ · ½ W", role: "Channel-2 input grid stopper (jack 2)" }
+  - { ref: RG2I, part: "Carbon comp resistor", value: "1 MΩ · ½ W", role: "Channel-2 input grid leak" }
+  - { ref: RL2I, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "Channel-2 input-stage plate load" }
+  - { ref: RK2I, part: "Carbon comp resistor", value: "1.5 kΩ · ½ W", role: "Channel-2 input-stage cathode bias" }
+  - { ref: CK2I, part: "Dual electrolytic capacitor", value: "25/25 µF", role: "Channel-2 input-stage cathode bypass" }
+  # --- Channel 2 tone stack + volume ---
+  - { ref: CT2, part: "Mica capacitor", value: "250 pF", role: "Channel-2 treble cap" }
+  - { ref: VRT2, part: "Potentiometer", value: "250 kΩ-L", role: "Channel-2 treble" }
+  - { ref: RS2T, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "Channel-2 tone-stack slope resistor" }
+  - { ref: VRB2, part: "Potentiometer", value: "250 kΩ-A", role: "Channel-2 bass" }
+  - { ref: RSL2, part: "Carbon comp resistor", value: "10 kΩ · ½ W", role: "Channel-2 tone-stack bleed resistor" }
+  - { ref: VRV2, part: "Potentiometer", value: "500 kΩ-L", role: "Channel-2 volume" }
+  # --- Channel 2 recovery/2nd stage ---
+  - { ref: RL2D, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "Channel-2 recovery-stage plate load" }
+  - { ref: RK2D, part: "Carbon comp resistor", value: "820 Ω · ½ W", role: "Channel-2 recovery-stage cathode bias" }
+  - { ref: CK2D, part: "Dual electrolytic capacitor", value: "25/25 µF", role: "Channel-2 recovery-stage cathode bypass" }
+  - { ref: CC2D, part: "Coupling capacitor", value: "0.05 µF", role: "Channel-2 recovery-stage output coupling into the mixing network" }
+  - { ref: RM2, part: "Carbon comp resistor", value: "220 kΩ · ½ W", role: "Channel-2 mixing resistor into the phase-inverter grid" }
+  # --- Tremolo oscillator (7025) — DC point excluded (see notes.md) ---
+  - { ref: VRSPD, part: "Reverse-audio potentiometer", value: "4 MΩ-RA", role: "Tremolo speed" }
+  - { ref: RTO1, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "Tremolo phase-shift ladder resistor" }
+  - { ref: CTO1, part: "Film capacitor", value: "0.01 µF", role: "Tremolo phase-shift cap" }
+  - { ref: CTO2, part: "Film capacitor", value: "0.01 µF", role: "Tremolo phase-shift cap" }
+  - { ref: RTOFB, part: "Carbon comp resistor", value: "4.7 MΩ · ½ W", role: "Oscillator feedback resistor" }
+  - { ref: CTOFB, part: "Film capacitor", value: "0.005 µF", role: "Oscillator feedback cap" }
+  - { ref: VRINT, part: "Reverse-audio potentiometer", value: "10 MΩ-RA", role: "Tremolo intensity" }
+  - { ref: RINT, part: "Carbon comp resistor", value: "220 kΩ · ½ W", role: "Intensity series resistor into the bias line" }
+  # --- Presence / negative feedback ---
+  - { ref: VRPRES, part: "Linear potentiometer", value: "5 kΩ-L", role: "Presence" }
+  - { ref: RPF, part: "Carbon comp resistor", value: "1.5 kΩ · ½ W", role: "Presence/feedback foot resistor to ground" }
+  - { ref: RNFB, part: "Carbon comp resistor", value: "56 kΩ · 1 W", role: "Negative feedback, speaker line → PI tail area (DC-neutral)" }
+  # --- Phase inverter (7025 LTP) ---
+  - { ref: RD1, part: "Carbon comp resistor", value: "10 kΩ · ½ W", role: "PI supply dropper, BP1 → BC" }
+  - { ref: RLPA, part: "Carbon comp resistor", value: "82 kΩ · ½ W · 5%", role: "PI plate load (hot side)" }
+  - { ref: RLPB, part: "Carbon comp resistor", value: "100 kΩ · ½ W · 5%", role: "PI plate load (cold side)" }
+  - { ref: RGPA, part: "Carbon comp resistor", value: "1 MΩ · ½ W", role: "PI grid leak (hot), returned to the tail junction" }
+  - { ref: RGPB, part: "Carbon comp resistor", value: "1 MΩ · ½ W", role: "PI grid leak (cold), returned to the tail junction" }
+  - { ref: RTAIL, part: "Carbon comp resistor", value: "820 Ω · ½ W · 5%", role: "PI shared cathode resistor" }
+  - { ref: RT2, part: "Carbon comp resistor", value: "6.8 kΩ · ½ W · 5%", role: "PI tail (junction → ground/NFB foot)" }
+  - { ref: C1, part: "Coupling capacitor", value: "0.05 µF · 400 V", role: "PI hot plate → V7 grid" }
+  - { ref: C2, part: "Coupling capacitor", value: "0.05 µF · 400 V", role: "PI cold plate → V8 grid" }
+  # --- Output stage (6L6GC pair) ---
+  - { ref: RGL1, part: "Carbon comp resistor", value: "220 kΩ · ½ W · 5%", role: "V7 grid leak, from the -55 V bias line" }
+  - { ref: RGL2, part: "Carbon comp resistor", value: "220 kΩ · ½ W · 5%", role: "V8 grid leak, from the -55 V bias line" }
+  - { ref: RS1, part: "Wirewound resistor", value: "470 Ω · 1 W", role: "V7 screen resistor" }
+  - { ref: RS2, part: "Wirewound resistor", value: "470 Ω · 1 W", role: "V8 screen resistor" }
+  - { ref: T2, part: "Output transformer", value: "Fender 45216", role: "Push-pull 6L6GC output" }
+  # --- Power supply ---
+  - { ref: T1, part: "Power transformer", value: "Fender 8087", role: "HT + heaters + rectifier filament" }
+  - { ref: CH1, part: "Filter choke", value: "Fender 125C1A", role: "Reservoir → screen/preamp rail" }
+  - { ref: C10, part: "Electrolytic capacitor", value: "20-600 pF (filter, ×N per drawing)", role: "HT filter caps at the several rail nodes (per-node values not fully resolved at this scan's resolution)" }
+  # --- Bias supply ---
+  - { ref: DBIAS, part: "Rectifier (bias)", value: "silicon diode", role: "Bias-supply rectifier" }
+  - { ref: RBIAS1, part: "Carbon comp resistor", value: "56 kΩ · ½ W", role: "Bias-supply series resistor" }
+  - { ref: RBIAS2, part: "Carbon comp resistor", value: "10 kΩ · ½ W", role: "Bias-supply series resistor" }
+  - { ref: CBIAS, part: "Electrolytic capacitor", value: "8 µF · 150 V", role: "Bias-supply filter" }
+  # --- Tubes ---
+  # Fixed 2026-08-08 (schematic-tier pass): the published layout page shows
+  # exactly FIVE 7025 sockets (matching meta.yaml's 5x 12AX7 tube count),
+  # not six — the DATA CORE pass's separate "V5" oscillator entry over-counted
+  # by one bottle. The oscillator is drawn here as the second section of V2
+  # (V2A = channel-1 recovery, V2B = oscillator), the same "driver + tremolo
+  # share a bottle" pairing 6G3 uses (amps/6g3/bom.yaml); which of the two
+  # channels' recovery stages shares with the oscillator is not separately
+  # legible at this scan's resolution, so channel 1 is an editorial choice,
+  # not a read fact. The phase inverter is renumbered V6 -> V5 to close the
+  # gap this leaves (V1..V5 = the five physical 7025 bottles). Also corrected
+  # here and in voltages.yaml: the 6L6GC grid/screen roles above (C1/C2/
+  # RGL1/RGL2/RS1/RS2) previously cited "V6"/"V7" for the output pair, an
+  # off-by-one left over from an earlier numbering draft — the output pair is
+  # V7 (hot)/V8 (cold) per this table, matching netlist.cir's XV7/XV8.
+  - { ref: V1, part: "Preamp tube", value: "12AX7 (7025)", role: "Channel-1 input stage" }
+  - { ref: V2, part: "Preamp tube", value: "12AX7 (7025)", role: "Channel-1 recovery/2nd stage (V2A) + tremolo oscillator (V2B) — shared bottle, see note above" }
+  - { ref: V3, part: "Preamp tube", value: "12AX7 (7025)", role: "Channel-2 input stage" }
+  - { ref: V4, part: "Preamp tube", value: "12AX7 (7025)", role: "Channel-2 recovery/2nd stage" }
+  - { ref: V5, part: "Preamp/driver tube", value: "12AX7 (7025)", role: "Long-tailed-pair phase inverter (renumbered from V6, see note above)" }
+  - { ref: V7, part: "Power tube", value: "6L6GC", role: "Push-pull output (hot side)" }
+  - { ref: V8, part: "Power tube", value: "6L6GC", role: "Push-pull output (cold side)" }
+  - { ref: V9, part: "Rectifier tube", value: "GZ34", role: "Full-wave rectifier (V9A/V9B)" }

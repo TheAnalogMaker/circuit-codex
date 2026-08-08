@@ -1,0 +1,39 @@
+# Circuit Codex metadata — schema: docs/schema.md (v1)
+id: "6g4"
+name_style: "Brown Super-style"
+family: other
+era:
+  start: 1960
+  end: 1963
+wattage: 40
+tubes: [12AX7, 12AX7, 12AX7, 12AX7, 12AX7, 6L6GC, 6L6GC, GZ34]
+topology:
+  rectifier: { kind: tube, type: "GZ34" }
+  bias: fixed
+  phase_inverter: long-tailed-pair
+  tone_stack: tb
+lineage:
+  derived_from: ["5f4"]   # the tweed Super this circuit replaces (family: history/families/super.yaml)
+  influenced: []
+sources:
+  - desc: "Fender 'Super-Amp' Schematic, Model 6G4 (A-FJ) — two-page factory sheet: schematic + companion layout, both carrying the same printed voltages. Title block reads 'FENDER \"SUPER-AMP\" SCHEMATIC / MODEL 6G4 / A-FJ'; the companion page 'FENDER \"SUPER-AMP\" LAYOUT / MODEL 6G4 / A-FJ'. Complement read from the drawing: 5x 7025 (preamp/phase-inverter, labelled on the sheet — a 12AX7 alias per reference/tubes/12ax7.yaml also_known_as), 2x 6L6GC (output), GZ34 (rectifier) — matching the layout page's tube row (GZ34, 6L6GC, 6L6GC, 7025 x5) exactly, distinguishing this drawing from the later 6G4-A revision (2x 5881, 2x 12AX7 + 3x 7025, K-FJ), also archived at the same source and cross-read to disambiguate the two. Two mirrored channels (each: two inputs on 68 kOhm stoppers into a 1 Megohm grid leak, a 100 kOhm-plate/1.5 kOhm-cathode 7025 input stage off the +170 V rail, a Bass/Treble two-knob tone ladder, a Volume pot, and a second 100 kOhm-plate/820 Ohm-cathode 7025 recovery stage — channel 1's recovery plate printed +160 V, channel 2's +120 V) mix into a long-tailed-pair phase inverter (7025, plate rail printed +315 V hot side / +310 V cold side, 820 Ohm shared cathode to a 6.8 kOhm tail, both grids on 1 Megohm leaks) driving a fixed-bias 6L6GC pair (220 kOhm 5% grid leaks off a -55 V bias line, 470 Ohm screen stoppers, plates and screens at the printed +456 V). Bias-vary tremolo: a phase-shift oscillator (Speed on a reverse-audio 4 Megohm pot feeding a 100 kOhm/.01uF/.01uF ladder) whose Intensity control (10 Megohm-RA) injects into the same -55 V bias line the output grids share — the drawing gives it no printed static operating point (see notes.md); excluded from the netlist, same documented-exclusion pattern as the 6G3 and AB763 oscillators. Presence: 1500 Ohm foot resistor to ground carrying a 56 kOhm negative-feedback return from the speaker line, in parallel with a 5 kOhm-linear Presence pot into the tail area — same recipe as 6G3, DC-neutral. Notice: 'VOLTAGES READ TO GROUND WITH ELECTRONIC VOLTMETER, VALUES SHOWN + OR -' (the layout page states the drawing's usual '+/- 20%'); resistors 1/2 W if not specified, condensers at least 400 V if not specified. Transformers/choke boxed on the schematic: TR1-8087 (power), TR2-45216 (output), CH-125C1A (choke). Not reproduced here; archived at EL34World."
+    url: "https://el34world.com/charts/Schematics/files/Fender/Fender_super_6g4_schem.pdf"
+  - desc: "Fender 'Super-Amp' Schematic, Model 6G4-A (K-FJ) — the immediately following production revision (2x 5881 output, 12AX7/12AX7/7025x3 preamp), used only as a cross-reference to confirm the 6G4 (this entry) is the earlier 6L6GC/all-7025 revision and to disambiguate the two drawings' near-identical titles and layout. Not used for any 6G4 component value."
+    url: "https://el34world.com/charts/Schematics/files/Fender/Fender_super_6g4a.pdf"
+  - desc: "Mojotone/Ampwares Fender field guide, 'Brownface Super' — 6G4 (2x 6L6GC) and 6G4-A (2x 5881) production window 1960-1963, 40 W factory rating, GZ34, fixed non-adjustable bias, vibrato, two-channel panel with presence, twin 10-inch speakers — the era/wattage citation also used in history/families/super.yaml"
+    url: "https://mojotone.com/blogs/fender-field-guide/fender-brownface-super"
+verification:
+  status: draft   # A full printed voltage chart exists (inline on the schematic, at
+                  # every stage) and every gated node below is read directly from it.
+                  # schematic.kicad_sch and layout.yaml have now landed (2026-08-08) —
+                  # check_schematics, check_layouts (0 collisions, both styles) and
+                  # verify_layout_nets (PASS, wiring_claim: verified, --selftest 9/9)
+                  # all pass — but `verified` on THIS field is earned only by the
+                  # human maintainer's review (AGENTS.md rule 4), never set by an
+                  # agent regardless of how many gates pass. Still draft pending that
+                  # review, and pending the un-gated preamp-rail droppers (see
+                  # notes.md) a schematic redraw alone could not resolve.
+# Day the circuit landed in the corpus (git history, amps/6g4/) — the feed's
+# pubDate while draft; production builds are shallow clones and cannot ask git.
+added: 2026-08-08
+contributors: [TheAnalogMaker]

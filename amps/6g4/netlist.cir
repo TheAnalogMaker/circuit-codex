@@ -1,0 +1,142 @@
+* 6G4 (Brown Super-style) — DC operating-point netlist
+* Circuit Codex — CC-BY-SA 4.0. Independently drawn from the published 6G4
+* (A-FJ) drawing's component values (see meta.yaml); no drawing reproduced.
+* The drawing labels every preamp/PI bottle 7025 — an alias for the 12AX7
+* (reference/tubes/12ax7.yaml also_known_as). The output pair is drawn
+* "6L6GC"; the 5881/6L6GC-family CC0 model stands in, exactly as it already
+* does for the 5F4 Super's 6L6G pair (reference/tubes/5881.yaml).
+*
+* DC conventions. BP1 = +456 V (6L6GC plates) is driven at its printed chart
+* value; screens hang off BP1 through 470 Ohm-1W stoppers each (OT primary
+* DCR omitted, matching every other amp in the corpus).
+*
+* The three preamp/recovery rails (BD feeding both channels' input stages;
+* BE1/BE2 feeding each channel's own recovery stage) are each driven at a
+* CALIBRATED value, not the printed plate voltage itself: the drawing's own
+* dropping-resistor chain from BP1 into these rails was not legible at this
+* scan's resolution, so each rail is set to the value that, through the
+* drawing's own 100k plate load and the tube's self-bias, lands the SIMULATED
+* PLATE at its printed chart reading (BD=261 V -> P1I/P2I=+170 V; BE1=284 V
+* -> P1D=+160 V; BE2=215 V -> P2D=+120 V). This is a calibration, not a
+* prediction — the plate nodes it reproduces are exactly the printed values
+* by construction, so voltages.yaml gates the cathode nodes it was NOT tuned
+* against instead (see there). Channel 2's recovery rail sits well below
+* channel 1's (+120 V vs +160 V) exactly as printed; both are modeled
+* independently rather than assumed symmetric.
+*
+* One rail IS derived from a legible resistor: BC, the phase-inverter plate
+* supply, through the drawing's own 10k dropper off BP1 (visible above the PI
+* in the schematic, feeding down into the +315 V/+310 V plate pair) —
+* modelled carrying only the PI's own current. The printed 5%-tolerance
+* 82k/100k asymmetric LTP plate loads — the same pair every fixed-bias
+* long-tailed-pair amp in this corpus uses (5f4/6g3/ab763) — split BC's
+* derived ~429 V into the hot/cold pair, landing within a few percent of the
+* printed 315/310 (see voltages.yaml) without being tuned to it.
+*
+* Fixed-bias supply (a rectified/filtered tap through a 56k/10k divider,
+* 8 uF/150 V filter) is replaced by an ideal -55 V source, printed directly
+* on the drawing (see meta.yaml sources) — exactly as its AC/ripple-
+* filtering role warrants. The Intensity control injects the tremolo
+* oscillator's AC into this same -55 V line; it carries no DC (the output
+* grids draw no grid current), so it moves no operating point either.
+*
+* The 56k negative-feedback resistor returns from the speaker terminal
+* (~0 V DC through the OT secondary) and parallels the 1500 Ohm Presence
+* foot resistor — same recipe as 6G3 (amps/6g3/netlist.cir) — DC-neutral,
+* omitted. DC-open coupling/bypass caps are MODELLED where both leads land
+* on a named DC node (every cathode-bypass can, the PI-plate -> output-grid
+* couplers) so an eventual layout is placement-checked; open at DC they move
+* no operating point. Caps into the abstracted tone-stack / volume / mixing-
+* resistor / tremolo-oscillator networks stay omitted, same convention as
+* every other amp here.
+*
+* EXCLUDED — the tremolo (bias-vary) oscillator. It is a running phase-shift
+* oscillator (Speed on a reverse-audio pot feeding a resistor/cap ladder into
+* a 7025 grid) with no static DC operating point printed on the drawing at
+* all (unlike 6G3/AB763, whose oscillators at least print a dynamic-average
+* pin voltage); documented in notes.md, not modeled. Its plate supply is not
+* shared with any gated node in this netlist, so excluding it degrades
+* nothing below.
+.include models/12ax7.inc
+.include models/5881.inc
+
+VBP1 BP1 0 DC 456
+VBD  BD  0 DC 261
+VBE1 BE1 0 DC 284
+VBE2 BE2 0 DC 215
+VBIAS NBIAS 0 DC -55
+
+* PI supply: BP1 -> 10k -> BC (drawing's own dropper; carries only the PI's
+* own current in this model — see DC-conventions note above).
+RD1 BP1 BC 10k
+
+* --- Channel 1 input stage (V1, 7025): 100k plate off BD, 1.5k cathode (25uF
+*     bypass), grid direct from the two input jacks' 68k stoppers merged at
+*     a 1M leak to ground (no coupling cap — the first stage's grid is the
+*     jack-merge node itself).
+RL1I BD P1I 100k
+XV1 P1I G1I K1I 12AX7
+RG1I G1I 0 1meg
+RK1I K1I 0 1500
+CK1I K1I 0 25u
+
+* --- Channel 1 recovery/2nd stage (V2, 7025): 100k plate off BE1, 820 Ohm
+*     cathode (25uF bypass). Grid returns through the tone stack and 1M-A
+*     volume pot, which carry no DC path to anything but ground; modeled as
+*     a single 1M leak, same abstraction every other amp in the corpus uses
+*     for a post-tone-stack grid.
+RL1D BE1 P1D 100k
+XV2A P1D G1D K1D 12AX7
+RG1D G1D 0 1meg
+RK1D K1D 0 820
+CK1D K1D 0 25u
+
+* --- Channel 2 input stage (V3, 7025): identical topology to channel 1, same
+*     shared BD rail (both channels' input plates print the same +170 V).
+RL2I BD P2I 100k
+XV3 P2I G2I K2I 12AX7
+RG2I G2I 0 1meg
+RK2I K2I 0 1500
+CK2I K2I 0 25u
+
+* --- Channel 2 recovery/2nd stage (V4, 7025): 100k plate off BE2 (channel 2's
+*     own, lower-printed rail), 820 Ohm cathode (25uF bypass).
+RL2D BE2 P2D 100k
+XV4 P2D G2D K2D 12AX7
+RG2D G2D 0 1meg
+RK2D K2D 0 820
+CK2D K2D 0 25u
+
+* --- Phase inverter (V5, 7025 long-tailed pair): 82k (hot) / 100k (cold) 5%
+*     plate loads from the derived BC rail; cathodes joined at KPI, 820 Ohm
+*     to the tail junction JPI, 6.8k tail to ground; both 1M grid leaks
+*     return to JPI. Both channels' recovery-stage outputs mix into the two
+*     grids through the drawing's own mixing resistors (DC-blocked by their
+*     own .05uF couplers upstream), so the 1M leaks are each grid's only DC
+*     path — same abstraction as the tone-stack-fed grids above.
+RLPA BC PPIA 82k
+XV5A PPIA GPIA KPI 12AX7
+RGPA GPIA JPI 1meg
+RLPB BC PPIB 100k
+XV5B PPIB GPIB KPI 12AX7
+RGPB GPIB JPI 1meg
+RTAIL KPI JPI 820
+RT2 JPI 0 6800
+
+* --- Output pair 6L6GC (fixed bias): grids to -55 V through 220k-5% leaks,
+*     screens off BP1 through 470 Ohm-1W stoppers each, cathodes grounded,
+*     plates at BP1 (OT primary DCR omitted). Two distinct single-ended
+*     bottles V7 / V8 (bom.yaml); the 6L6GC uses the 5881/6L6GC-family model.
+RGL1 NBIAS G61 220k
+RS1 BP1 BS1 470
+XV7 BP1 BS1 G61 0 5881
+RGL2 NBIAS G62 220k
+RS2 BP1 BS2 470
+XV8 BP1 BS2 G62 0 5881
+
+* PI-plate -> 6L6GC-grid coupling caps (0.05uF, DC-open). Modeled so an
+* eventual layout's inter-stage routing and push-pull phase are machine-
+* checked; each grid still sits at -55 V through its 220k leak, op point
+* unmoved.
+C1 PPIA G61 0.05u
+C2 PPIB G62 0.05u
