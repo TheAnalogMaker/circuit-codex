@@ -80,8 +80,16 @@ async function main() {
       signal: ac.signal,
     });
     // 200 accepted, 202 accepted but key still being validated. Anything else is
-    // reported and ignored.
-    log(`${res.status} ${res.statusText} — submitted ${urlList.length} URLs`);
+    // reported and ignored. NOTE: a 403 on a site's FIRST deploy is expected — the
+    // ping runs at build time, before this deploy's key file is live for IndexNow
+    // to fetch; the key persists, so the second deploy onward validates.
+    if (res.ok) {
+      log(`${res.status} ${res.statusText} — submitted ${urlList.length} URLs`);
+    } else {
+      const bodyText = (await res.text().catch(() => '')).trim();
+      log(`${res.status} ${res.statusText} (ignored) — ${urlList.length} URLs submitted`
+        + (bodyText ? `; response body: ${bodyText.slice(0, 500)}` : ''));
+    }
   } catch (err) {
     log(`submission failed (ignored): ${err?.message || err}`);
   } finally {
