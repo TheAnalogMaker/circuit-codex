@@ -993,6 +993,9 @@ export function datasetJsonLd(site) {
   return {
     '@context': 'https://schema.org',
     '@type': 'Dataset',
+    // One stable identity for the one dataset: the / and /about/ copies of this
+    // block carry the same @id, so catalogues merge them instead of counting two.
+    '@id': `${base}#dataset`,
     name: 'Circuit Codex — vintage guitar tube-amplifier circuit corpus',
     alternateName: 'Circuit Codex corpus',
     description:
@@ -1018,9 +1021,12 @@ export function datasetJsonLd(site) {
     ],
     ...(coverage ? { temporalCoverage: coverage } : {}),
     ...(modified ? { dateModified: modified } : {}),
+    // "or cited published measurements": not every verified circuit has a factory
+    // chart — the 5E3 verifies against Robinette's published measurements — and the
+    // technique statement must cover what the gate actually compares against.
     measurementTechnique:
       'ngspice DC operating-point simulation of each redrawn netlist, compared node by node ' +
-      'against the circuit\'s published factory voltage chart',
+      'against the circuit\'s published factory voltage chart or cited published measurements',
     variableMeasured: [
       { '@type': 'PropertyValue', name: 'DC node voltage', unitText: 'V' },
       { '@type': 'PropertyValue', name: 'Component value', description: 'Resistance (Ω), capacitance (F) and voltage rating per parts-list entry' },

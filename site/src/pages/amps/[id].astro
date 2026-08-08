@@ -124,9 +124,12 @@ const jsonld = {
   ...(vDate ? { datePublished: vDate } : {}),
   publisher: { '@type': 'Organization', name: 'Circuit Codex' },
 };
+// Two crumbs, deliberately: the circuits index IS the homepage (there is no
+// /circuits/ page, only the /#circuits section), and a middle crumb pointing at
+// a fragment of position 1's own URL adds no navigational level. Schema.org and
+// Google's rich-result rules are both satisfied by a two-item BreadcrumbList.
 const breadcrumbs = [
   { name: 'Home', url: '/' },
-  { name: 'Circuits', url: '/#circuits' },
   { name: displayId(amp.id), url: `/amps/${amp.id}/` },
 ];
 ---
