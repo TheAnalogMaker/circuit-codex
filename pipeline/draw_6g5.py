@@ -191,7 +191,12 @@ s.gnd(210, teeD - 16)
 # ============================ TREMOLO OSCILLATOR (V3, excluded) ========
 YT = 230
 PT_ = YT - 11.1
-s.caption('Tremolo — V3 phase-shift oscillator driving a lamp/photoresistor pair (OPTO) that shunts the mixing node. DC point excluded from netlist.cir (notes.md).', 26, 196, 1.4)
+# The old single-sentence banner here was ~175 mm of lettering — wider than
+# any clear band on this sheet, so it printed across the bias diodes however
+# it was placed. The heading keeps to a headline beside the oscillator; the
+# mechanism sentence is a note, and notes live in the band.
+s.caption('Tremolo — V3 phase-shift oscillator (DC point excluded from netlist.cir)', 122, 227, 1.4)
+s.note('The tremolo oscillator drives a lamp/photoresistor pair (OPTO) whose photocell shunts the channel-mixing node (notes.md).')
 s.note('Phase-shift ladder values (RTOG1/RTOG2/CTO1-3) are a schematic-only reading, typical of this circuit family — not confidently resolved from the scan (bom.yaml).')
 t3 = s.triode("V3", "7025", 100, YT)
 s.wire(100, YT - 7.62, 100, PT_)
@@ -284,7 +289,11 @@ s.sym("R", "RPRES", "1.6k", 220, JY + 3.81, lx=3.2, ly=2.0)
 s.sym("POT", "VRPRES", "5k-L pres.", 220, JY + 3.81 + 7.62 + 3.81, lx=3.2, ly=2.0)
 s.wire(220, JY + 7.62, 220, JY + 7.62 + 3.81)
 s.gnd(220, JY + 3.81 + 7.62 + 3.81 + 3.81)
-nl, nr = s.series_h("R", "RNFB", "56k", 206, JY)
+# The feedback resistor is drawn directly (not via series_h) so its lettering
+# can be pinned horizontal UNDER the part: series_h letters vertically beside
+# the body, and here that column straddled the NFB wire itself.
+s.sym("R", "RNFB", "56k", 206, JY, rot=90, lx=-2.2, ly=2.4, label_rot=0)
+nl, nr = 206 - 3.81, 206 + 3.81
 s.wire(nr, JY, 220, JY)
 s.wire(196, JY, nl, JY)
 s.glabel("SPKR", 192, JY, 180)

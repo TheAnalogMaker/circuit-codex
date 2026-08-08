@@ -273,7 +273,12 @@ l, r = s.series_h("R", "RB1", "15k", 159.69, 196.0)
 s.wire(155.88, 196.0, l, 196.0)
 s.wire(r, 196.0, 171.12, 196.0)
 s.junction(166.04, 196.0)
-s.sym("R", "RB2", "56k", 166.04, 199.81)
+# RB2's lettering is authored into the one clear pocket of this cramped block:
+# above the supply wire, right of RB1's vertical lettering, left of the -48V
+# flag. The fallback anchor put "RB2"/"56k" in the 2.5 mm channel beside C15,
+# where the rendered glyphs (wider than the placer's old estimate) printed
+# through RB2's own body and into C15b's designator.
+s.sym("R", "RB2", "56k", 166.04, 199.81, lx=-4.2, ly=-9.1)
 s.gnd(166.04, 203.62)
 s.junction(168.58, 196.0)
 s.sym("C", "C15", "8u", 168.58, 199.81, lx=2.2)

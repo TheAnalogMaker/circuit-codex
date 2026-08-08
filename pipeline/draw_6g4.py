@@ -199,7 +199,10 @@ cl, cr = s.series_h("C", "CTO1", ".01u", 188, teeo)
 s.wire(184, teeo, cl, teeo)
 s.wire(cr, teeo, 196, teeo)
 s.junction(196, teeo)                              # N1
-s.sym("POT", "VRSPD", "4M-RA speed", 196, teeo + 3.81)
+# Anchor the Speed pot's lettering beside its own ground stub, under the
+# wiper: the default anchor sat the value line on the ladder wire and CTO2's
+# left pin, and the placer's alternative dropped it onto the ground stub.
+s.sym("POT", "VRSPD", "4M-RA speed", 196, teeo + 3.81, lx=2.6, ly=2.8)
 s.gnd(196, teeo + 11.43)
 s.text("Speed", 184, teeo - 6, 1.2)
 cl, cr = s.series_h("C", "CTO2", ".01u", 204, teeo)

@@ -72,7 +72,9 @@ for (y, hi, lo, sHi, sLo, gref, pref, plref, kref, kval, cbref, cbval,
     cl, cr = s.series_h("C", cpref, cpval, 70, ty)
     s.wire(cl, ty, 66, ty)
     s.wire(cr, ty, 80, ty)
-    s.sym("POT", vref, "1M vol", 80, ty + 3.81)
+    # Volume-pot lettering anchored below the wiper, clear of the pot body:
+    # the default anchor laid "1M vol" across the wiper wire and RM's pin.
+    s.sym("POT", vref, "1M vol", 80, ty + 3.81, lx=2.8, ly=2.2)
     s.wire(80, ty + 7.62, 80, ty + 9.5)
     s.gnd(80, ty + 9.5)
     # bright cap across the volume pot (top -> wiper)
