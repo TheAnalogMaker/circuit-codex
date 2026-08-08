@@ -1,0 +1,99 @@
+* 6G2 (Brown Princeton-style) — DC operating-point netlist
+* Circuit Codex — CC-BY-SA 4.0. Independently drawn from the published 6G2
+* (H-FA) drawing's component values (see meta.yaml); no drawing reproduced.
+* The drawing labels the first bottle 7025 — an alias for the 12AX7
+* (reference/tubes/12ax7.yaml also_known_as) — so V1 uses the clean-room
+* 12AX7 model.
+*
+* DC conventions. One rail is driven: BP = +315 V, the 5Y3GT reservoir, which
+* is also the output-transformer centre tap and the tremolo oscillator's own
+* plate supply. Everything below it is DERIVED through the drawing's own
+* droppers, so the simulated screen and preamp/PI rails are predictions
+* checked against the printed chart, not inputs: 1000 Ohm-1W to the +312 V
+* screen node (BS), then 10k-1W to the +280 V preamp/PI node (BD). The 6V6
+* plates sit on BP directly (output-transformer primary DCR omitted, matching
+* every other push-pull amp in this corpus).
+*
+* The fixed-bias supply — a 100k-5% feed off one HT leg, a rectifier, a
+* 25 uF/50 V can and a 30k-5% bleeder — is replaced by an ideal -35 V source,
+* exactly as its AC/ripple-filtering role warrants.
+*
+* EXCLUDED — the tremolo oscillator, the second section of the 12AX7 that
+* also carries the cathodyne (V2B). It is a running phase-shift oscillator: a
+* dynamic average, not a static quiescent point, so it is reported in
+* notes.md rather than modelled. Its 56k plate load taps the DRIVEN node BP
+* directly, so leaving it out changes nothing downstream.
+*
+* The 6V6 grids are NOT fed through a fixed 220k-style grid-leak resistor on
+* this drawing (unlike the AA964 that follows it): both grids wire straight
+* into the Intensity pot's wiper, and the pot's other two ends are the -35 V
+* bias supply on one side and the (AC-only, capacitor-coupled) oscillator
+* output on the other. Because the output grids draw no DC grid current, no
+* current flows through the pot at all — its resistance, and the Intensity
+* setting, move no operating point — so the grids sit at exactly -35 V
+* through their 1500 ohm grid-stopper resistors, which are what is modelled
+* here. No negative-feedback resistor was found on the published drawing.
+*
+* DC-open caps are MODELLED where BOTH leads land on a named DC node (the two
+* cathode-bypass cans, the driver-to-cathodyne coupler, and the cathodyne's
+* two output couplers — the plate coupler and the tail-junction coupler,
+* matching the 5F10's own cathodyne wiring) so the board layout is placement-
+* checked; open at DC they move no operating point. The input-stage coupler
+* into the abstracted volume/tone network stays omitted, as does the tone/
+* volume network itself — the driver grid sees it only as a DC return to
+* ground (no grid current, so the pot's own resistance is not load-bearing).
+.include models/12ax7.inc
+.include models/6v6gt.inc
+
+VBP BP 0 DC 315
+VBIAS NBIAS 0 DC -35
+
+* rail chain: reservoir -> 1000R-1W -> screens (BS) -> 10k-1W -> preamp/PI (BD)
+RD1 BP BS 1000
+RD2 BS BD 10k
+
+* --- V1A (7025 = 12AX7), input stage: two jacks share a 68k stopper each into
+*     a 1M grid leak; 100k plate load off BD; 1.5k cathode with a 25 uF bypass.
+RL1 BD PA 100k
+XV1A PA GA KA 12AX7
+RG1 GA 0 1meg
+RK1 KA 0 1.5k
+C1 KA 0 25u
+
+* --- V1B (7025), second stage: identical 100k plate load and 1.5k/25uF
+*     cathode. Its grid sits on the abstracted Tone/Volume network — no grid
+*     current flows, so it is tied to ground through a nominal 1M rather than
+*     simulating the pot network itself (the network's own caps are DC-open
+*     into an unmodelled node and are correspondingly omitted).
+RL2 BD PB 100k
+XV1B PB GB KB 12AX7
+RG2 GB 0 1meg
+RK2 KB 0 1.5k
+C5 KB 0 25u
+
+* --- V2A cathodyne phase inverter (12AX7, shares its bottle with the
+*     tremolo oscillator, V2B, excluded below): 56k plate load off BD; a
+*     small cathode resistor into a tail junction (JPI); 56k tail-to-ground;
+*     the 1M grid leak returns to the TAIL, not ground, so the grid floats at
+*     the tail's own DC level (no grid current -> no drop across the leak) —
+*     the same wiring the 5F10 Harvard and the AA964 Princeton (this circuit's
+*     own descendant) both use for their cathodynes.
+RL3 BD PPI 56k
+XV2A PPI GPI KPI 12AX7
+RKA KPI JPI 1500
+RKB JPI 0 56k
+RGPI GPI JPI 1meg
+C6 PB GPI 0.02u
+
+* --- Output pair 6V6GT (fixed bias): grids tied to -35 V through 1500 ohm
+*     grid-stopper resistors (see the header note on why no dedicated leak
+*     resistor is needed here); screens on the +312 V node BS; cathodes
+*     grounded; plates on BP. Two distinct single-ended bottles V3 / V4, one
+*     driven from the cathodyne's plate output, the other from its tail
+*     junction.
+XV3 BP BS G61 0 6V6GT
+RG3 NBIAS G61 1500
+XV4 BP BS G62 0 6V6GT
+RG4 NBIAS G62 1500
+C7 PPI G61 0.1u
+C8 JPI G62 0.1u

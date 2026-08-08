@@ -1,0 +1,73 @@
+# Parts list — read from the published 6G2 Princeton drawing (schematic +
+# layout). Reference designators follow the DC netlist where a part is
+# modeled and are descriptive otherwise. The drawing's notice sets 1/2 W 10%
+# resistors and 400 V capacitors unless a part is marked otherwise, and every
+# value below is the drawing's own — except the two flagged in their own role
+# line, which lean on the sibling 5F10/AA964 cathodyne family pattern where
+# this sheet's own scan is faint (see meta.yaml sources).
+notes: "Both input jacks share one 68 kΩ stopper each into a common 1 MΩ leak. The tremolo oscillator's own parts are listed for the record; its DC operating point is excluded from the netlist (see notes.md). Parts drawn only as annotations — mains cap, fuse, switches, pilot lamp — are listed without designators. The two transformers are numbered T1 (power) and T2 (output) under the archive's convention; the drawing's own labels are TR1 and TR2."
+items:
+  # --- Input (V1A) ---
+  - { ref: R1,  part: "Carbon comp resistor", value: "68 kΩ · ½ W",    role: "Input grid stopper (jack 1)" }
+  - { ref: R2,  part: "Carbon comp resistor", value: "68 kΩ · ½ W",    role: "Input grid stopper (jack 2)" }
+  - { ref: RG1, part: "Carbon comp resistor", value: "1 MΩ · ½ W",     role: "V1A grid leak" }
+  - { ref: RL1, part: "Carbon comp resistor", value: "100 kΩ · ½ W",   role: "V1A plate load" }
+  - { ref: RK1, part: "Carbon comp resistor", value: "1.5 kΩ · ½ W",   role: "V1A cathode bias" }
+  - { ref: C1,  part: "Electrolytic capacitor", value: "25 µF · 25 V", role: "V1A cathode bypass" }
+  # --- Tone / Volume (abstracted — AC only, no DC netlist node) ---
+  - { ref: C2,  part: "Coupling capacitor",   value: "0.02 µF · 400 V", role: "V1A plate → Tone/Volume network" }
+  - { ref: VR1, part: "Linear potentiometer", value: "1 MΩ-A",         role: "Tone (capacitor-coupled cut, single-knob style)" }
+  - { ref: C3,  part: "Mica capacitor",       value: "0.0005 µF",      role: "Tone cut cap" }
+  - { ref: VR2, part: "Audio-taper potentiometer", value: "1 MΩ-A",    role: "Volume" }
+  - { ref: C4,  part: "Coupling capacitor",   value: "0.02 µF · 400 V", role: "Volume wiper → V1B grid" }
+  # --- V1B second stage ---
+  - { ref: RG2, part: "—",                    value: "—",              role: "V1B grid returns to ground through the Volume pot's own body — no discrete leak resistor; modelled in netlist.cir as a nominal 1 MΩ, since no grid current flows and the pot's own value is not load-bearing" }
+  - { ref: RL2, part: "Carbon comp resistor", value: "100 kΩ · ½ W",   role: "V1B plate load" }
+  - { ref: RK2, part: "Carbon comp resistor", value: "1.5 kΩ · ½ W",   role: "V1B cathode bias" }
+  - { ref: C5,  part: "Electrolytic capacitor", value: "25 µF · 25 V", role: "V1B cathode bypass" }
+  - { ref: C6,  part: "Coupling capacitor",   value: "0.02 µF · 400 V", role: "V1B plate → cathodyne grid" }
+  # --- V2A cathodyne phase inverter ---
+  - { ref: RL3,  part: "Carbon comp resistor", value: "56 kΩ · ½ W",   role: "Cathodyne plate load" }
+  - { ref: RGPI, part: "Carbon comp resistor", value: "1 MΩ · ½ W",    role: "Cathodyne grid leak, returned to the tail junction (not ground)" }
+  - { ref: RKA,  part: "Carbon comp resistor", value: "1.5 kΩ · ½ W",  role: "Cathodyne cathode resistor, into the tail junction — the same 1.5 kΩ used elsewhere on this sheet as a grid stopper; an initial read as 700 Ω did not reproduce the printed cathode/junction chart values (+56.5 V / +55 V) in simulation; 1.5 kΩ reproduces both within 4%" }
+  - { ref: RKB,  part: "Carbon comp resistor", value: "56 kΩ · ½ W",   role: "Cathodyne tail-to-ground resistor — read against the faint corner of this sheet, cross-checked against the identical 56 kΩ tail on the sibling 5F10 (Harvard) and AA964 (blackface Princeton) cathodynes, and consistent with the printed chart once RKA above was corrected" }
+  - { ref: C7,   part: "Coupling capacitor",  value: "0.1 µF · 400 V", role: "Cathodyne plate → V3 grid" }
+  - { ref: C8,   part: "Coupling capacitor",  value: "0.1 µF · 400 V", role: "Cathodyne tail junction → V4 grid" }
+  # --- V2B tremolo oscillator (excluded from the DC netlist — see notes.md) ---
+  - { ref: RL4, part: "Carbon comp resistor", value: "56 kΩ · ½ W",    role: "Oscillator plate load, off the driven reservoir (BP), killed at the tremolo-pedal jack" }
+  - { ref: —,   part: "Phase-shift RC ladder", value: "≈0.01–0.02 µF / 1 MΩ sections", role: "Oscillator frequency-setting network — component count and exact taps not fully resolved on this scan; excluded from the gated netlist regardless (see notes.md)" }
+  - { ref: VR3, part: "Reverse-audio potentiometer", value: "3 MΩ-RA", role: "Speed (oscillator frequency)" }
+  - { ref: R3,  part: "Carbon comp resistor", value: "100 kΩ · ½ W",   role: "Speed-control end resistor" }
+  - { ref: R4,  part: "Carbon comp resistor", value: "220 kΩ · ½ W",   role: "Oscillator output feed to the Intensity control" }
+  - { ref: C9,  part: "Coupling capacitor",   value: "0.1 µF · 400 V", role: "Oscillator output coupling to the Intensity control" }
+  - { ref: VR4, part: "Linear potentiometer", value: "250 kΩ-L",       role: "Intensity — sits directly in the -35 V bias line feeding both 6V6 grids; carries no DC (see netlist.cir header)" }
+  - { ref: C10, part: "Film capacitor",       value: "0.05 µF · 200 V", role: "Intensity wiper to ground" }
+  - { ref: —,   part: "Jack",                 value: "closed-circuit", role: "Tremolo footswitch pedal jack (shorts the oscillator's plate supply)" }
+  # --- Output stage ---
+  - { ref: RG3, part: "Carbon comp resistor", value: "1.5 kΩ · ½ W",   role: "V3 grid stopper, wired straight to the -35 V bias line" }
+  - { ref: RG4, part: "Carbon comp resistor", value: "1.5 kΩ · ½ W",   role: "V4 grid stopper, same bias-line wiring" }
+  # --- Power supply ---
+  - { ref: RD1, part: "Power resistor",       value: "1000 Ω · 1 W",  role: "Rail dropper +315 V → +312 V (screens)" }
+  - { ref: RD2, part: "Power resistor",       value: "10 kΩ · 1 W",   role: "Rail dropper +312 V → +280 V (preamp/PI)" }
+  - { ref: C11, part: "Electrolytic capacitor", value: "30-450 µF · 450 V", role: "Reservoir filter, +315 V" }
+  - { ref: C12, part: "Electrolytic capacitor", value: "30-450 µF · 450 V", role: "Filter, +312 V screen node" }
+  - { ref: C13, part: "Electrolytic capacitor", value: "30-450 µF · 450 V", role: "Filter, +280 V preamp/PI node" }
+  # --- Bias supply ---
+  - { ref: R5,  part: "Carbon comp resistor", value: "100 kΩ · 5 % · ½ W", role: "Bias-supply feed from the HT winding" }
+  - { ref: D1,  part: "Rectifier (bias)",     value: "selenium · silicon diode in modern builds", role: "Bias-supply rectifier" }
+  - { ref: C14, part: "Electrolytic capacitor", value: "25 µF · 50 V", role: "Bias-supply filter" }
+  - { ref: R6,  part: "Carbon comp resistor", value: "30 kΩ · 5 % · ½ W", role: "Bias-supply bleeder — sets the -35 V line" }
+  # --- Tubes ---
+  - { ref: V1,  part: "Preamp tube",          value: "7025 (12AX7)",  role: "Input + second stage (V1A/V1B)" }
+  - { ref: V2,  part: "Preamp tube",          value: "12AX7",         role: "Cathodyne phase inverter + tremolo oscillator (V2A/V2B)" }
+  - { ref: V3,  part: "Power tube",           value: "6V6GT",         role: "Push-pull output (plate-side drive)" }
+  - { ref: V4,  part: "Power tube",           value: "6V6GT",         role: "Push-pull output (tail-side drive)" }
+  - { ref: V5,  part: "Rectifier tube",       value: "5Y3GT",         role: "Full-wave rectifier" }
+  # --- Transformers and chassis hardware ---
+  - { ref: T1,  part: "Power transformer",    value: "125P1A",        role: "HT + heaters + rectifier filament" }
+  - { ref: T2,  part: "Output transformer",   value: "125A10B",       role: "Push-pull output, centre-tapped primary" }
+  - { ref: —,   part: "Fuse",                 value: "2 A",           role: "AC mains fuse (annotation only)" }
+  - { ref: —,   part: "Switch",               value: "SPST",          role: "AC power switch (annotation only)" }
+  - { ref: —,   part: "Switch",               value: "SPST",          role: "Ground (polarity) switch (annotation only)" }
+  - { ref: —,   part: "Film capacitor",       value: "0.05 µF · 600 V", role: "Mains-to-chassis cap on the ground switch (annotation only)" }
+  - { ref: —,   part: "Pilot lamp",           value: "6.3 V",         role: "Pilot light (annotation only)" }

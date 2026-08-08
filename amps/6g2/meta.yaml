@@ -1,0 +1,53 @@
+# Circuit Codex metadata — schema: docs/schema.md (v1)
+id: "6g2"
+name_style: "Brown Princeton-style"
+family: other
+era:
+  start: 1961
+  end: 1963
+wattage: 12
+tubes: [7025, 12AX7, 6V6GT, 6V6GT, 5Y3GT]
+topology:
+  rectifier: { kind: tube, type: "5Y3GT" }
+  bias: fixed
+  phase_inverter: cathodyne
+  tone_stack: single-knob
+lineage:
+  derived_from: []   # NOT the 5F2-A: the 5F2-A's own notes.md calls the 6G2 a break
+                     # in the line — single-ended cathode bias gives way to a fixed-
+                     # bias push-pull pair, a different power stage, not a revision
+                     # of the earlier one. No documented single-ended ancestor lands
+                     # in this corpus.
+  influenced: ["aa964"]   # the blackface Princeton keeps the fixed-bias 6V6 pair,
+                          # the cathodyne (56 k plate, small cathode R into a tail,
+                          # 1 M leak returned to the tail), and the bias-vary
+                          # tremolo almost unchanged
+sources:
+  - desc: "Fender 'Princeton' Model 6G2 drawing (H-FA), schematic + layout: every component value AND the printed voltage chart read directly from the published sheet (+315 reservoir/OT centre tap, +312 screen node, +280 preamp/PI rail, +230 cathodyne plate, +200 tremolo-oscillator plate, +185 both 7025 plates with +1.5 shared-type cathodes, cathodyne cathode +56.5 over a 1.5k resistor into a +55 tail, -35 fixed bias; two-jack input 68k stoppers/1M leak; 7025 V1A+V1B each 100k plate/1.5k-25uF cathode; cathodyne (12AX7) 56k plate load, 1.5k cathode resistor into a tail junction, 56k tail-to-ground, 1M grid leak returned to the tail (not ground); 6V6GT pair grounded cathodes with 1500 ohm grid stoppers, both grids wired directly into the Intensity control's wiper rather than through a fixed grid-leak resistor — the Intensity pot itself sits in the -35 V bias line (one end at the fixed-bias supply, the other AC-coupled to the tremolo oscillator through a .1 uF cap), so no dedicated 220k-5% grid leak is printed on this drawing the way the later blackface Princeton (AA964) carries one; tremolo oscillator on the other 12AX7 half, phase-shift type, 56k plate load off the raw reservoir, Speed 3M-RA, output into the Intensity control through 220k + .1 uF; bias supply 100k-5% + rectifier + 25uF/50V + 30k-5% bleeder; no negative-feedback resistor found on the published drawing (unlike the 5F10 Harvard and the AA964 Princeton that bracket it). TR1 125P1A, TR2 125A10B. Notice: values +/-20%, read to ground with an electronic voltmeter, resistors 1/2 W 10% unless marked, capacitors at least 400 V unless marked. The cathodyne cathode resistor is a faint corner of this scan; an initial 700 ohm read did not reproduce the printed +56.5/+55 V chart pair in simulation, while 1.5 kOhm (a value this same sheet uses repeatedly elsewhere, as the grid stoppers) reproduces both within 4% — recorded as the corrected reading, not a substitution. Not reproduced here; archived at EL34World"
+    url: "https://el34world.com/charts/Schematics/files/Fender/Fender_princeton_6g2_schem.pdf"
+  - desc: "Fender 'Princeton' Model 6G2 layout drawing (H-FA): the physical order of the board/eyelet parts, the socket pin numbering for the 5Y3GT/6V6GT/12AX7/7025 sockets, and the transformer/wire-colour callouts (PT yellow/red/red/yellow HT, black rectifier filament; OT blue/brown to the 6V6 plates, red centre tap, green to the speaker jacks). Confirms the two 6V6GT sockets and the +315 V pin annotation against the schematic. Not reproduced here; archived at EL34World"
+    url: "https://el34world.com/charts/Schematics/files/Fender/Fender_princeton_6g2.pdf"
+  - desc: "Fender 'Princeton-Amp AA964' schematic (drawing 045419) — cross-reference for the 6G2's own cathodyne, which the AA964's own published values (56 k plate load, 1 k cathode resistor to a 56 k tail, 1 M grid leak returned to that junction) closely match in topology; used here only to corroborate the tail-to-ground resistor read as 56 k on the 6G2 sheet where the scan is faint, never to substitute a value the 6G2 drawing itself does not carry"
+    url: "https://el34world.com/charts/Schematics/files/Fender/Fender_princeton_AA964_schem.pdf"
+  - desc: "Fender 'Harvard' Model 5F10 drawing (F-EF) — second cross-reference for the same cathodyne family recipe (56 k plate + small cathode R into a tail, 56 k tail-to-ground, 1 M leak returned to the tail), a contemporaneous fixed-bias 6V6 Fender design sharing the identical PI topology"
+    url: "https://el34world.com/charts/Schematics/files/Fender/Fender_harvard_5f10_schem.pdf"
+  - desc: "Mojotone Fender Field Guide, 'Fender Brownface Princeton' — production window 1961-1963, 12 W rating, push-pull 2x6V6GT with phase inverter, fixed bias, 5Y3GT rectifier"
+    url: "https://mojotone.com/blogs/fender-field-guide/fender-brownface-princeton"
+verification:
+  status: draft   # The drawing prints a comprehensive per-pin voltage set (unlike
+                  # the single-ended 5F2-A or the AC15), and the DC netlist
+                  # reproduces every gated node within 4% of that printed chart
+                  # (pipeline/verify_amps.py, worst node KPI/JPI at 3.9%) — a
+                  # tighter match than several of this corpus's own verified
+                  # entries. It stays draft for a structural reason, not a
+                  # numerical one: this delivery carries meta/netlist/voltages/
+                  # bom/notes only, and pipeline/validate.py correctly requires
+                  # schematic.kicad_sch (and, by the schema, layout.yaml) before
+                  # a `verified` claim is earned — those artifacts are separately
+                  # assigned. Flip to verified once they land and the remaining
+                  # gates (check_schematics, check_layouts, verify_layout_nets)
+                  # are green; the DC model itself is verification-ready today.
+# Day the circuit landed in the corpus (git history, amps/6g2/) — the feed's
+# pubDate for a draft; production builds are shallow clones and cannot ask git.
+added: 2026-08-08
+contributors: [TheAnalogMaker]

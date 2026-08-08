@@ -1,0 +1,23 @@
+# Printed voltage chart read directly from the published 6G2 Princeton drawing
+# (schematic and layout carry the same values). The drawing's notice: "Voltages
+# read to ground with electronic voltmeter. Values shown + or - 20%."
+# Tube pins therefore get 20%; the two rail nodes below the driven reservoir
+# carry a tighter internal target because they are predictions of the
+# drawing's own dropper chain (1000 Ohm-1W, 10k-1W), not readings.
+#
+# ONE rail is driven — BP = +315 V, the 5Y3GT reservoir / output-transformer
+# centre tap — and every rail below it is solved through the printed
+# droppers; see netlist.cir.
+source: "Fender 'Princeton' Model 6G2 (H-FA) drawing, printed voltages: +315 (reservoir / OT centre tap), +312 (6V6 screen node), +280 (preamp/PI rail), +230 (cathodyne plate), +185 (both 7025 plates), +1.5 (both 7025 cathodes), cathodyne cathode +56.5 into a +55 tail junction, -35 (6V6 fixed bias, and the tremolo oscillator's own +200/oscillating plate, excluded — see notes.md)"
+nodes:
+  BS:   { chart: 312, tol_pct: 8,  note: "6V6 screen node, one 1000 Ohm-1W dropper below the driven reservoir — internal target, tighter than the drawing's own +/-20%" }
+  BD:   { chart: 280, tol_pct: 8,  note: "preamp/PI rail, 10k-1W below the screen node — internal target" }
+  PA:   { chart: 185, tol_pct: 20, note: "V1A (7025) plate, 100k off BD" }
+  KA:   { chart: 1.5, tol_pct: 20, note: "V1A cathode, over its own 1.5k/25uF" }
+  PB:   { chart: 185, tol_pct: 20, note: "V1B (7025) plate, 100k off BD — the drawing prints the same value at both 7025 plates" }
+  KB:   { chart: 1.5, tol_pct: 20, note: "V1B cathode, over its own 1.5k/25uF" }
+  PPI:  { chart: 230, tol_pct: 20, note: "cathodyne plate, 56k load from BD" }
+  KPI:  { chart: 56.5, tol_pct: 20, note: "cathodyne cathode pin, above the 1.5k cathode resistor into the tail" }
+  JPI:  { chart: 55,  tol_pct: 20, note: "cathodyne tail junction (1.5k cathode resistor / 56k-to-ground), grid-leak return" }
+  G61:  { chart: -35, tol_pct: 8,  note: "6V6 (V3) grid — wired straight to the -35 V bias line through its 1500 ohm grid stopper; no dedicated leak resistor on this drawing (see netlist.cir header)" }
+  G62:  { chart: -35, tol_pct: 8,  note: "6V6 (V4) grid, same bias-line wiring" }
