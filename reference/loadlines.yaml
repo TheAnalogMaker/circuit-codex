@@ -388,7 +388,7 @@ stages:
   sim_ig2_ma: 3.6949
 - amp: '6g4'
   name_style: Brown Super-style
-  tube: '5881'
+  tube: '6L6GC'
   output_tubes: 2
   config: push-pull
   bias: fixed
@@ -411,7 +411,7 @@ stages:
   sim_ig2_ma: 0.1957
 - amp: '6g5'
   name_style: Brown Pro-style
-  tube: '5881'
+  tube: '6L6GC'
   output_tubes: 2
   config: push-pull
   bias: fixed
@@ -429,8 +429,8 @@ stages:
   grid_supply_v: -55.0
   ot_primary_z: null
   ot_primary_approx: false
-  ot_primary_note: n/a — Push-pull output to speaker — the drawing's own designator; part number not printed
-    on this sheet
+  ot_primary_note: 'push-pull : speaker — Push-pull output into the 15-inch speaker; no part number printed
+    on this sheet'
   sim_ip_ma: 20.412
   sim_ig2_ma: 0.1676
 - amp: '6g6b'
@@ -504,7 +504,7 @@ stages:
   sim_ig2_ma: 3.7174
 - amp: 'aa864-bassman'
   name_style: Blackface Bassman-style
-  tube: '5881'
+  tube: '6L6GC'
   output_tubes: 2
   config: push-pull
   bias: fixed
@@ -550,7 +550,7 @@ stages:
   sim_ig2_ma: 2.4043
 - amp: 'ab165'
   name_style: Blackface Bassman-style
-  tube: '5881'
+  tube: '6L6GC'
   output_tubes: 2
   config: push-pull
   bias: fixed

@@ -4,8 +4,8 @@
 * meta.yaml); no drawing reproduced. The drawing letters the three preamp
 * bottles 7025 — an alias for the 12AX7 (reference/tubes/12ax7.yaml
 * also_known_as) — a 12AT7 phase inverter, and a 6L6GC pair; the output pair
-* uses the 6L6-family 5881 model (reference/tubes/5881.yaml, anchored on RC-19
-* 6L6GC average characteristics), exactly as amps/5f4 does for its 6L6G.
+* uses the 6L6GC's own clean-room model, models/6l6gc.inc
+* (reference/tubes/6l6gc.yaml).
 *
 * DC conventions. ONE rail is driven — BP1 = +425 V, the printed reservoir /
 * choke node that carries the 6L6 plates (OT primary DCR omitted) and their
@@ -45,7 +45,7 @@
 * layout's socket ids, so the layout-equivalence gate can anchor every bottle.
 .include models/12ax7.inc
 .include models/12at7.inc
-.include models/5881.inc
+.include models/6l6gc.inc
 
 VBP1 BP1 0 DC 425
 VBIAS NBIAS 0 DC -45
@@ -131,12 +131,12 @@ CPIB GPIB 0 0.1u
 *     stoppers, cathodes grounded, plates at BP1 (OT primary DCR omitted).
 RGL1 NBIAS GO1 220k
 RGS1 GO1 GG1 1500
-XV5 BP1 SO1 GG1 0 5881
+XV5 BP1 SO1 GG1 0 6L6GC
 RS1 BP1 SO1 470
 C1 PPIA GO1 0.022u
 
 RGL2 NBIAS GO2 220k
 RGS2 GO2 GG2 1500
-XV6 BP1 SO2 GG2 0 5881
+XV6 BP1 SO2 GG2 0 6L6GC
 RS2 BP1 SO2 470
 C2 PPIB GO2 0.022u

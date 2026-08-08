@@ -1,11 +1,15 @@
 tube: 5881
 name: "5881"
-also_known_as: [6L6WGB, "6L6GC (family)"]
+also_known_as: [6L6WGB]
 role: >-
-  Beam-power output tube of the 6L6GC / 5881 family — the higher-power American
-  output tube. It drives the tweed 5F6-A Bassman, and its family model stands in
-  for the 6L6G in the 5F4 Super. The model is anchored on 6L6GC average
-  characteristics.
+  The ruggedized member of the 6L6 beam-power line — Tung-Sol's premium-quality
+  6L6, and the output tube the tweed 5F6-A Bassman is drawn around. It shares the
+  family's 7AC octal basing and its Class A1 characteristics with the 6L6GC, but
+  not its ratings: 23 W on a 400 V ceiling against the 6L6GC's 30 W on 500 V. A
+  circuit is bound to the model whose name its drawing prints, so the amps
+  lettered 6L6GC use reference/tubes/6l6gc.yaml and only the ones lettered 5881
+  are here; where a drawing letters the older 6L6G, this model stands in for it
+  (5E5-A, 5E6-A, 5F4 — documented on those entries).
 model:
   file: models/5881.inc
   anchor: "Va=250 V, Vg2=250 V, Vg1=-14 V → Ia=72 mA, Ig2=5 mA, gm=6000 µmho"
@@ -49,7 +53,7 @@ basing:
     6: { element: nc }
     7: { element: heater }
     8: { element: cathode }
-used_in: ["5e5a", "5e6a", "5f4", "5f6", "5f6a", "6g4", "6g5", "aa864-bassman", "ab165"]
+used_in: ["5e5a", "5e6a", "5f4", "5f6", "5f6a", "6g6b"]
 datasheets:
   - publisher: RCA
     designation: 6L6GC

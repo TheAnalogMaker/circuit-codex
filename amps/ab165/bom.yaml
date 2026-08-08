@@ -4,7 +4,7 @@
 # cross-checks every one of them against it in both directions.
 # Values are the drawing's; its notice sets ½ W / 10 % resistors and 400 V caps
 # unless marked otherwise.
-notes: "The drawing shows one jack symbol per channel input pair; the chassis carries two per channel. The two bias-supply filter cans carry polarity marks but no printed value. The 6L6GC pair is simulated on the 6L6-family 5881 model (reference/tubes/5881.yaml), as amps/5f4 does for its 6L6G."
+notes: "The drawing shows one jack symbol per channel input pair; the chassis carries two per channel. The two bias-supply filter cans carry polarity marks but no printed value. The 6L6GC pair is simulated on the 6L6GC model (reference/tubes/6l6gc.yaml)."
 items:
   # --- Bass channel input (V1a) ---
   - { ref: R1b, part: "Carbon comp resistor", value: "68 kΩ · ½ W",  role: "Bass input grid stopper (jack 1)" }

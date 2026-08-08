@@ -3,10 +3,10 @@
 * "Pro-Amp" Model 6G5 drawing's component values (see meta.yaml); no drawing
 * reproduced. The drawing labels the preamp bottles 7025 — an alias for the
 * 12AX7 (reference/tubes/12ax7.yaml also_known_as). The output tubes are
-* printed 6L6GC; no dedicated clean-room 6L6GC model exists yet, so — exactly
-* as amps/5f6a and amps/m1959 do for the same family — the 5881 model stands
-* in (reference/tubes/5881.yaml documents 5881/6L6WGB as 6L6GC-class at these
-* ratings; also_known_as carries the alias).
+* printed 6L6GC and are simulated on the 6L6GC's own clean-room model,
+* models/6l6gc.inc (reference/tubes/6l6gc.yaml), which carries that tube's
+* 30 W / 500 V design-maximum ratings — the ones the load-line explorer
+* overlays on this circuit's +456 V plate rail.
 *
 * DC conventions. B+1 is DRIVEN at the printed +456 V (6L6GC plates, OT primary
 * DCR omitted, and the point the shared screen dropper hangs from) — the
@@ -40,12 +40,12 @@
 * the same reasoning amps/ab763 documents for its own tremolo oscillator. Its
 * printed pins (+120 V plate, +1.5 V cathode) are reported informational only.
 *
-* DC-open caps are not modelled (no board layout exists yet for this entry to
-* placement-check them against); the tone stacks, volume pots, tremolo
-* photocell, and the PI-tail NFB/Presence network are abstracted networks that
-* carry ~0 V DC and are omitted, matching every other amp in the corpus.
+* DC-open caps outside the checked wiring are not modelled; the tone stacks,
+* volume pots, tremolo photocell and the PI-tail NFB/Presence network are
+* abstracted networks that carry ~0 V DC and are omitted, matching every other
+* amp in the corpus.
 .include models/12ax7.inc
-.include models/5881.inc
+.include models/6l6gc.inc
 
 VBP1 BP1 0 DC 456
 VBIAS NBIAS 0 DC -55
@@ -67,10 +67,10 @@ VBD  BD  0 DC 300
 * Individual 470 Ohm-1W screen stoppers off the shared BP2 screens node.
 RGL1 NBIAS G71 220k
 RSC1 BP2 S71 470
-XV7 BP1 S71 G71 0 5881
+XV7 BP1 S71 G71 0 6L6GC
 RGL2 NBIAS G72 220k
 RSC2 BP2 S72 470
-XV8 BP1 S72 G72 0 5881
+XV8 BP1 S72 G72 0 6L6GC
 
 * --- Long-tailed-pair phase inverter (V6), off BP3 ---
 * 82k (hot, tone-stack/driver-fed side) / 100k (cold) plate loads; 820 Ohm

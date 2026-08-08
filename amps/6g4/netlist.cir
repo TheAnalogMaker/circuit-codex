@@ -3,8 +3,8 @@
 * (A-FJ) drawing's component values (see meta.yaml); no drawing reproduced.
 * The drawing labels every preamp/PI bottle 7025 — an alias for the 12AX7
 * (reference/tubes/12ax7.yaml also_known_as). The output pair is drawn
-* "6L6GC"; the 5881/6L6GC-family CC0 model stands in, exactly as it already
-* does for the 5F4 Super's 6L6G pair (reference/tubes/5881.yaml).
+* "6L6GC" and simulated on the 6L6GC's own CC0 model, models/6l6gc.inc
+* (reference/tubes/6l6gc.yaml) — no stand-in.
 *
 * DC conventions. BP1 = +456 V (6L6GC plates) is driven at its printed chart
 * value; screens hang off BP1 through 470 Ohm-1W stoppers each (OT primary
@@ -58,7 +58,7 @@
 * shared with any gated node in this netlist, so excluding it degrades
 * nothing below.
 .include models/12ax7.inc
-.include models/5881.inc
+.include models/6l6gc.inc
 
 VBP1 BP1 0 DC 456
 VBD  BD  0 DC 261
@@ -126,13 +126,13 @@ RT2 JPI 0 6800
 * --- Output pair 6L6GC (fixed bias): grids to -55 V through 220k-5% leaks,
 *     screens off BP1 through 470 Ohm-1W stoppers each, cathodes grounded,
 *     plates at BP1 (OT primary DCR omitted). Two distinct single-ended
-*     bottles V7 / V8 (bom.yaml); the 6L6GC uses the 5881/6L6GC-family model.
+*     bottles V7 / V8 (bom.yaml), on models/6l6gc.inc.
 RGL1 NBIAS G61 220k
 RS1 BP1 BS1 470
-XV7 BP1 BS1 G61 0 5881
+XV7 BP1 BS1 G61 0 6L6GC
 RGL2 NBIAS G62 220k
 RS2 BP1 BS2 470
-XV8 BP1 BS2 G62 0 5881
+XV8 BP1 BS2 G62 0 6L6GC
 
 * PI-plate -> 6L6GC-grid coupling caps (0.05uF, DC-open). Modeled so an
 * eventual layout's inter-stage routing and push-pull phase are machine-

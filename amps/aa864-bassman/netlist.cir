@@ -3,9 +3,8 @@
 * "BASSMAN-AMP AA864" drawing's component values (see meta.yaml); no drawing
 * reproduced. The sheet labels the preamp bottles 7025 — an alias for the 12AX7
 * (reference/tubes/12ax7.yaml also_known_as) — and the output pair 6L6GC, which
-* instantiates models/5881.inc: that model is anchored on the RC-19 6L6-GC
-* average characteristics, so this is the family's own model, not a substitution
-* (reference/tubes/5881.yaml, models/METHODOLOGY.md).
+* instantiates models/6l6gc.inc, the 6L6GC's own clean-room fit
+* (reference/tubes/6l6gc.yaml, models/METHODOLOGY.md).
 *
 * DC conventions. Two printed rail nodes are driven at their charted values and
 * every stage below is solved: BPL = +422 V (OT centre tap / 6L6 plate rail, OT
@@ -39,7 +38,7 @@
 * through either tone stack (both slope chains reach ground only through 0.1 uF).
 .include models/12ax7.inc
 .include models/12at7.inc
-.include models/5881.inc
+.include models/6l6gc.inc
 
 VBPL BPL 0 DC 422
 VBSC BSC 0 DC 420
@@ -127,10 +126,10 @@ CPIB NFB GPB 0.1u
 C1 PPA GG1 0.1u
 RGL1 NBIAS GG1 220k
 RGS1 GG1 G61 1500
-XV5 BPL S61 G61 0 5881
+XV5 BPL S61 G61 0 6L6GC
 RS1 BSC S61 470
 C2 PPB GG2 0.1u
 RGL2 NBIAS GG2 220k
 RGS2 GG2 G62 1500
-XV6 BPL S62 G62 0 5881
+XV6 BPL S62 G62 0 6L6GC
 RS2 BSC S62 470

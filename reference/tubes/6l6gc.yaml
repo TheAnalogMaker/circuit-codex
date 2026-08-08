@@ -57,7 +57,7 @@ basing:
     6: { element: nc }
     7: { element: heater }
     8: { element: cathode, note: "internally tied to grid No.3 (the beam-forming plates)" }
-used_in: ["ab763-twin"]
+used_in: ["6g4", "6g5", "aa864-bassman", "ab165", "ab763-twin"]
 datasheets:
   - publisher: RCA
     designation: 6L6-GC

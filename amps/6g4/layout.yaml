@@ -34,7 +34,7 @@ board:
   title: "6G4 · eyelet board layout"
 caption: "Redrawn from the published Fender 6G4 'Super-Amp' layout drawing (A-FJ), page 2 of the two-page factory sheet — principal board components and their hookup, in the order the drawing shows them: output/phase-inverter parts nearest the GZ34/6L6GC row, then V2 (channel 1's recovery stage, sharing its bottle with the tremolo oscillator V2B), V1 (channel 1 input), V4 (channel 2 recovery), V3 (channel 2 input). Off the board: both channels' tone-stack internals (treble cap, slope and bleed resistors — they carry no DC node the netlist checks, the same convention ab763's layout uses for its own tone stack), the tremolo oscillator's own resistor/cap ladder and its Intensity feed into the bias line (excluded from netlist.cir — see notes.md; the -55 V bias line itself is drawn reaching the two output grid leaks directly), the input grid stoppers and leaks (mounted at the jacks), and the bias-supply group, drawn as the small sub-board the sheet boxes separately. The 6.3 V heater chain (green twisted pair, PT -> pilot lamp -> the two 6L6GCs -> the five 7025s) is drawn in the conventional daisy order the sheet's own \"TO ALL HEATERS AND PILOT LIGHT\" annotation implies rather than routes explicitly; the GZ34 is off that chain, on the 5 V winding. Not a trace or a dimensioned reproduction."
 source:
-  desc: "Fender 'Super-Amp' Layout, Model 6G4 (A-FJ), page 2 of the two-page factory sheet (page 1 is the schematic redrawn in this amp's schematic.kicad_sch)"
+  desc: "Fender 'Super-Amp' Layout, Model 6G4 (A-FJ), page 2 of the two-page factory sheet (page 1 is the schematic)"
   url: "https://el34world.com/charts/Schematics/files/Fender/Fender_super_6g4_schem.pdf"
 
 parts:
@@ -126,8 +126,8 @@ bus:
 # transformer leads carry the drawing's colours. Endpoints reference board
 # eyelets (REF.a/REF.b), tube socket pins (Vn.pinN, validated against the
 # basing data), pot lugs, jacks, off-board 2-lead parts and transformer
-# leads. Pin numbers: 5881/6L6GC (V7/V8) plate=3, screen=4, grid=5,
-# cathode=8, heaters=2/7 (reference/tubes/5881.yaml); GZ34 (V9) plate
+# leads. Pin numbers: 6L6GC (V7/V8) plate=3, screen=4, grid=5,
+# cathode=8, heaters=2/7 (reference/tubes/6l6gc.yaml); GZ34 (V9) plate
 # unit1=4, unit2=6, cathode(B+)=8, heater=2 (reference/tubes/gz34.yaml);
 # 12AX7 (V1-V5) unit1 plate=6/grid=7/cathode=8, unit2 plate=1/grid=2/
 # cathode=3, heaters=4/5 (reference/tubes/12ax7.yaml).
