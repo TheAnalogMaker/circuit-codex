@@ -26,6 +26,28 @@ const breadcrumbs = [
 </div>
 </Base>
 
+<!-- Study figures arrive through set:html, so scoped styles cannot reach them:
+     the schematic-fragment artwork is styled globally, in the same idiom the
+     reading-schematics guide uses. -->
+<style is:global>
+  .prose figure.fig{margin:26px 0 8px;border:1px solid var(--line);border-radius:10px;
+    background:var(--panel);padding:14px 16px 4px}
+  .prose figure.fig figcaption{color:var(--faint);font-size:13.5px;line-height:1.6;
+    padding:10px 2px 12px;border-top:1px dashed var(--line);margin-top:8px}
+  .fig-sch{display:block;width:100%;height:auto}
+  .fig-sch .wire,.fig-sch .e-lead,.fig-sch .gndsym line{fill:none;stroke:var(--ink);
+    stroke-width:1.8;vector-effect:non-scaling-stroke;stroke-linecap:round;stroke-linejoin:round}
+  .fig-sch .hl{stroke:var(--amber)}
+  .fig-sch .wire-fill,.fig-sch .e-lead-fill{fill:var(--ink);stroke:none}
+  .fig-sch .hl-fill{fill:var(--amber);stroke:none}
+  .fig-sch .gndsym line{stroke:var(--faint)}
+  .fig-sch .jn{fill:var(--ink);stroke:none}
+  .fig-sch .cl{font-family:var(--mono);font-size:15px;fill:var(--muted)}
+  .fig-sch .ndl{font-family:var(--disp);font-size:14.5px;fill:var(--faint);letter-spacing:.08em}
+  .fig-sch .io-lbl{font-family:var(--disp);text-transform:uppercase;letter-spacing:.14em;
+    font-size:14.5px;fill:var(--muted)}
+</style>
+
 <style>
   .shead{padding:44px 0 8px}
   .back{font-family:var(--disp);text-transform:uppercase;letter-spacing:.14em;font-size:11.5px;color:var(--muted)}

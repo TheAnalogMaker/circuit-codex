@@ -24,7 +24,7 @@ items:
   - { ref: C5,  part: "Film capacitor",       value: "0.02 µF · 400 V", role: "Tone stack — bass (the parts list prints one 0.02 µF line covering both this and the middle position)" }
   - { ref: C5b, part: "Film capacitor",       value: "0.02 µF · 400 V", role: "Tone stack — middle (same printed line as C5)" }
   - { ref: VR4, part: "Audio-taper potentiometer", value: "1 MΩ",    role: "Bass" }
-  - { ref: VR5, part: "Linear potentiometer", value: "25 kΩ",         role: "Middle (rheostat-wired)" }
+  - { ref: VR5, part: "Linear potentiometer", value: "25 kΩ",         role: "Middle (the second 0.02 µF lands on its wiper; its full track stands in the ground leg)" }
   - { ref: C6,  part: "Coupling capacitor",   value: "0.02 µF · 400 V", role: "Tone stack → phase-inverter grid" }
   - { ref: RGA, part: "Carbon comp resistor", value: "1 MΩ · ½ W",   role: "PI grid leak (V3A), returned to tail junction" }
   - { ref: RGB, part: "Carbon comp resistor", value: "1 MΩ · ½ W",   role: "PI grid leak (V3B), returned to tail junction" }
