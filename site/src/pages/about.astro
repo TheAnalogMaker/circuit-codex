@@ -106,7 +106,9 @@ const dataset = datasetJsonLd(Astro.site);
         designator, in both directions.</li>
       <li><strong>Layout wiring equivalence.</strong> The board layout's drawn wiring is
         proven electrically equivalent to the simulated netlist — same net structure,
-        terminal for terminal — by a checker that is itself tested with planted faults.</li>
+        terminal for terminal — by a checker that is itself tested with planted faults:
+        in its last full audit, ten planted faults were five caught, five explicitly
+        enumerated as outside the DC model, and none silent.</li>
       <li><strong>Human sign-off.</strong> A maintainer reviews before any badge is
         granted. CI can block a claim; it can never grant one.</li>
     </ol>
