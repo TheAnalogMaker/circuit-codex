@@ -85,7 +85,7 @@ s.wire(101.6, 84, 108, 84)
 tcl, tcr = s.series_h("C", "C_tr1", ".01u 400V", 112, 84)
 s.wire(tcr, 84, 122, 84)
 s.sym("POT", "VR4", "1M treble", 122, 87.81)          # top pin (122, 84)
-s.sym("C", "C_tr2", ".0005u", 122, 95.43)              # top pin (122, 91.62) == VR4 bottom pin
+s.sym("C", "C_tr2", "500p", 122, 95.43)              # top pin (122, 91.62) == VR4 bottom pin
 s.gnd(122, 99.24)                                      # == C_tr2 bottom pin
 s.wire(127.08, 87.81, 137, 87.81)                      # VR4 wiper -> right
 s.wire(137, 87.81, 137, 92.19)
@@ -106,7 +106,7 @@ s.note('RFB1 (100k, V2 plate<->grid) and RBLEED (5MEG, V2 grid -> driver grid) a
 s.note('on the sheet but excluded from netlist.cir — see notes.md "2026-08-08 re-read"')
 
 # Presence + negative feedback: speaker/OT-secondary node -> R_NFB 100k ->
-# VR5 (Presence, 5k, other lug grounded) -> wiper -> C_NFB .1-200 -> driver
+# VR5 (Presence, 5k, other lug grounded) -> wiper -> C_NFB .1u/200V -> driver
 # grid. Confirmed 2026-08-08 landing on the GRID, not the cathode.
 s.glabel("SPKR", 205, 60, 180)
 s.wire(205, 60, 198, 60)

@@ -15,6 +15,9 @@ topology:
 lineage:
   derived_from: ["m1987"]   # the 50 W lead head, cascaded and given a master volume
   influenced: []
+conventions:
+  designators: sequential   # parts numbered straight through (R1…R13), as the source sheet does
+  notation: uk    # Marshall factory drafting: RKM infix resistors (4k7) and nanofarad film caps (1n0)
 sources:
   - desc: "Marshall model 2204 factory drawing, sheet 1 of 2 — title block reads '2204 STD / Preamp', MARSHALL, Jim Marshall Products Ltd., Bletchley, Milton Keynes, England; file 2204PRE.DGM; issue 4, dated 19-5-88, drawn CPV. Note block: 'PCB: JM80. V1,2: ECC83.' Every preamp value read directly from the published drawing: one channel with High (J1) and Low (J2) inputs, R3 68k stopper and R2 1M leak into V1a (R4 100k plate, R1 2k7 cathode with C1 0.68u bypass, C2 100p across the triode); V1a couples out through C3 0.022u into the preamp-volume network (R5 470k bridged by C4 470p, VR1 1M log with C5 1n0 across its upper section) and the wiper drives V1b — a CASCADED second stage, not a second channel (R7 100k plate, R6 10k cathode UNBYPASSED); V1b plate through C7 0.022u into an R10 470k / R11 470k divider with C8 470p across the series arm, into V2a (R12 100k plate, R9 820R cathode unbypassed); V2b DC-coupled cathode follower (R13 100k load); FMV tone stack (R15 33k slope, C10 470p / VR3 220k lin treble, C11 0.022u / VR5 1M log bass wired as a rheostat, C12 0.022u / VR4 22k lin middle, output taken from the treble wiper through the panel link 'R14'); VR2 1M log master volume; supply rail X decoupled by R8 10k 1W with a C21 50+50u dual can. The drawing prints NO valve-voltage chart. Not reproduced here; archived at Dr. Tube."
     url: "https://www.drtube.com/schematics/marshall/2204prem.gif"

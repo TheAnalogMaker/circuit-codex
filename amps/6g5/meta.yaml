@@ -20,6 +20,8 @@ lineage:
                           # and tremolo is added), not an independent design.
                           # Reciprocal of amps/5e5a's influenced: ["6g5"].
   influenced: []
+conventions:
+  designators: functional   # designators carry a role code (RD1 dropper, RL4 plate load, CK1 cathode bypass)
 sources:
   - desc: "Fender 'Pro-Amp' Model 6G5 drawing (A-FJ), schematic + layout: component
       values AND the printed voltage chart read directly from the published sheet.

@@ -131,7 +131,7 @@ s.gnd(ts2 + 12, platetee + 28)
 s.sym("POT", "VR5", "5k pres", ts2 + 22, nfby + 3.81)
 s.wire(ts2, nfby, ts2 + 22, nfby)
 s.wire(ts2 + 27.08, nfby + 3.81, ts2 + 32, nfby + 3.81)
-s.sym("C", "CPR", ".1u-200", ts2 + 32, nfby + 7.62)
+s.sym("C", "CPR", ".1u 200V", ts2 + 32, nfby + 7.62)
 s.gnd(ts2 + 32, nfby + 11.43)
 nl, nr = s.series_h("R", "RNF", "20k", ts2 + 22, nfby - 8)
 s.wire(ts2 + 22, nfby, ts2 + 22, nfby - 8)
@@ -142,7 +142,7 @@ s.text("RNF: negative feedback from the speaker node, the family's usual take-of
 # V2 plate coupling into the treble network: two caps in series, as drawn
 cx = ts2b
 s.wire(cx, platetee, cx, 96)
-s.sym("C", "C3", ".1u-200", cx, 96 + 3.81)
+s.sym("C", "C3", ".1u 200V", cx, 96 + 3.81)
 s.wire(cx, 96 + 7.62, cx, 100.62)
 s.sym("C", "C4", "250p", cx, 100.62 + 3.81)
 s.wire(cx, 100.62 + 7.62, cx, 108.5)
@@ -150,7 +150,7 @@ s.wire(cx, 108.5, cx + 14, 108.5)
 trl, trr = s.series_h("R", "VR3", "1M treb", cx + 22, 108.5)
 s.wire(cx + 14, 108.5, trl, 108.5)
 s.wire(trr, 108.5, cx + 34, 108.5)
-s.sym("C", "C7", ".01u-400", cx + 34, 112.31)
+s.sym("C", "C7", ".01u 400V", cx + 34, 112.31)
 s.gnd(cx + 34, 116.12)
 tl2, tr2 = s.series_h("C", "C8", "47p", cx + 44, 108.5)
 s.wire(cx + 34, 108.5, tl2, 108.5)
@@ -177,8 +177,8 @@ s.wire(gbr, 109.62, 192.12, 109.62)
 
 # ---- 6L6G pair, fixed bias ------------------------------------------------
 for y, pref, cref, cval, glref, gsref in [
-        (84, "V4", "C5", ".1u-400", "RGL1", "R5s"),
-        (136, "V5", "C6", ".1u-200", "RGL2", "R6s")]:
+        (84, "V4", "C5", ".1u 400V", "RGL1", "R5s"),
+        (136, "V5", "C6", ".1u 200V", "RGL2", "R6s")]:
     if y == 84:
         s.wire(184.15, 80.9, 201.93, 80.9)
         s.junction(184.15, 80.9)
@@ -263,14 +263,14 @@ s.glabel("HT_B", 150.1, 160.72, 180)
 s.wire(150.1, 160.72, 153.91, 160.72)
 s.sym("DIODE_SS", "D1", "SEL", 158.99, 160.72, lx=-2.0, ly=-5.4)
 s.wire(164.07, 160.72, 167.88, 160.72)
-l, r = s.series_h("R", "RB1", "3300", 171.69, 160.72)
+l, r = s.series_h("R", "RB1", "3.3k", 171.69, 160.72)
 s.wire(167.88, 160.72, l, 160.72)
 s.wire(r, 160.72, 183.12, 160.72)
 s.junction(178.04, 160.72)
 s.sym("R", "RB2", "56k", 178.04, 164.53)
 s.gnd(178.04, 168.34)
 s.junction(180.58, 160.72)
-s.sym("C", "C14", "100u-25", 180.58, 164.53, lx=2.2)
+s.sym("C", "C14", "100u 25V", 180.58, 164.53, lx=2.2)
 s.gnd(180.58, 168.34)
 s.glabel("-42V", 183.12, 160.72, 0)
 

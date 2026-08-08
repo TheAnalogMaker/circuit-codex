@@ -16,6 +16,8 @@ lineage:
   derived_from: []   # 5F2 is the direct ancestor — edge added when amps/5f2 lands
   influenced: []     # sibling of the 5F1 Champ (same DC signal path + a tone control);
                      # that edge lands when the family tree fills in
+conventions:
+  designators: sequential   # parts numbered straight through (R1…R13), as the source sheet does
 sources:
   - desc: "Fender 'Princeton' Model 5F2-A drawing (K-EG), layout + schematic sheets: every component value read directly from the published drawing (2026-07-18) — two-jack input (68k stoppers, 1M leak), V1A 100k/1.5k-bypassed, the single tone/volume network (1M lin pots, 0.02/0.005/500 pF caps), V1B 100k with an UNbypassed 1.5k cathode carrying the 22k speaker feedback, 6V6GT 470 Ω · 1 W / 220 kΩ, and the 32 µF/8 µF/8 µF supply split by a 10 kΩ · 1 W and a 22k dropper (PT 66079, OT 265). The drawing prints no voltage chart. Not reproduced here; archived at EL34World"
     url: "https://el34world.com/charts/Schematics/files/Fender/Fender_princeton_5f2a.pdf"

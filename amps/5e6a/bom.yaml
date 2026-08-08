@@ -63,7 +63,7 @@ items:
   - { ref: C12, part: "Electrolytic capacitor", value: "16 µF · 450 V", role: "Filter, B+2" }
   - { ref: C13, part: "Electrolytic capacitor", value: "8 µF · 450 V", role: "Filter, B+3" }
   - { ref: D1,  part: "Rectifier (bias)",     value: "selenium (silicon diode in modern builds)", role: "Bias supply rectifier" }
-  - { ref: RB1, part: "Carbon comp resistor", value: "3,300 Ω · ½ W", role: "Bias supply series resistor (changed from a higher value between the 5E6 and 5E6-A revisions — see meta.yaml sources)" }
+  - { ref: RB1, part: "Carbon comp resistor", value: "3.3 kΩ · ½ W", role: "Bias supply series resistor (changed from a higher value between the 5E6 and 5E6-A revisions — see meta.yaml sources)" }
   - { ref: C14, part: "Electrolytic capacitor", value: "100 µF · 25 V", role: "Bias supply filter" }
   - { ref: RB2, part: "Carbon comp resistor", value: "56 kΩ · ½ W",  role: "Bias supply bleeder" }
   - { ref: V1,  part: "Preamp tube",          value: "12AY7",          role: "Two-channel input (V1A/V1B)" }

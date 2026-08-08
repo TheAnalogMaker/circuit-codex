@@ -19,6 +19,8 @@ lineage:
                           # tremolo — refined here with a GZ34 in place of the
                           # 5Y3GT and a dedicated 220k-5% output grid leak
   influenced: []
+conventions:
+  designators: functional   # designators carry a role code (RD1 dropper, RL4 plate load, CK1 cathode bypass)
 sources:
   - desc: "Fender 'Princeton-Amp AA964' schematic (drawing 045419): every component value AND the printed voltage chart read directly from the published sheet (+420 V reservoir/OT centre tap and 6V6 plates, +415 V screens, +290 V preamp/inverter rail, +190 V both 7025 plates with +1.5 V cathodes, cathodyne +220 V plate / +65 V cathode / +63.8 V junction, tremolo oscillator +260 V plate and +2.4 V cathode, -34 V fixed bias; dropper chain 1 k-1 W then 18 k-1 W + 18 k-1 W with four 20 uF-450 V cans; cathodyne = 56 k plate load, 1 k cathode resistor to a 56 k tail, 1 M grid leak returned to that junction; 6V6 220 k 5% grid leaks and no screen stoppers; 2.7 k negative feedback from the speaker to the 47 ohm tail under V1B's 1.5 k cathode resistor; TR1 125P1B 340-0-340 V, TR2 125A10B). Notice: values +/-20%, read to ground with an electronic voltmeter, resistors 1/2 W 10% and capacitors 400 V unless marked. The preamp bottle is labelled 7025 (a 12AX7 alias). Not reproduced here; archived at EL34World"
     url: "https://el34world.com/charts/Schematics/files/Fender/Fender_princeton_AA964_schem.pdf"

@@ -20,6 +20,8 @@ lineage:
                            # Reciprocal of amps/6g6b's influenced.
   influenced: ["ab165"]    # the next revision letter on the same chassis; reciprocal
                            # of amps/ab165's derived_from.
+conventions:
+  designators: functional   # designators carry a role code (RD1 dropper, RL4 plate load, CK1 cathode bypass)
 sources:
   - desc: >-
       Fender 'BASSMAN-AMP AA864' drawing, title block read directly: FENDER MODEL

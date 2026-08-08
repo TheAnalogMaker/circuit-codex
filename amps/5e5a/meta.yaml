@@ -19,6 +19,8 @@ lineage:
                       # edge added when that circuit lands; see history/families/pro.yaml
   influenced: ["6g5"] # the brown 6G5 replaces this circuit in 1960 (reciprocal of
                       # amps/6g5's derived_from: ["5e5a"])
+conventions:
+  designators: functional   # designators carry a role code (RD1 dropper, RL4 plate load, CK1 cathode bypass)
 sources:
   - desc: "Fender 'Pro-Amp' Model 5E5-A schematic (J-EE): component values read
       directly from the published drawing where legible, plus the printed

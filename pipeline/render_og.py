@@ -200,7 +200,7 @@ def crop_window(rend: SheetRenderer) -> tuple[float, float, float, float]:
                       float(rend.board_w), float(rend.board_h))
 
     # Vertical content band: below the sheet title, above the footer stack.
-    attrib_row = max(r for r in rend._footer_rows() if r is not None)
+    attrib_row = len(rend._footer_stack()) - 1
     top_limit = max(14.0, by - 96.0)
     bot_limit = min(H - 14.0, rend._footer_y(attrib_row) - 24.0 * rend.cs)
     avail_h = max(60.0, bot_limit - top_limit)

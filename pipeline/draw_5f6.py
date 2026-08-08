@@ -195,7 +195,7 @@ for y, pref, cref, glref, gsref, sref in [(84, "V4", "C8", "RGL1", "RGS1", "RS1"
         gy = 136
     p = s.pentode(pref, "5881", 224, gy)
     s.junction(205.74, gy)
-    gl2, gr2 = s.series_h("R", gsref, "1500", 211, gy)
+    gl2, gr2 = s.series_h("R", gsref, "1.5k", 211, gy)
     s.wire(205.74, gy, gl2, gy)
     s.wire(gr2, gy, p["g1"][0], gy)
     s.sym("R", glref, "220k", 205.74, gy + 3.81)

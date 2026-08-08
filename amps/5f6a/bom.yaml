@@ -39,7 +39,7 @@ items:
   - { ref: RGL2, part: "Carbon comp resistor", value: "220 kΩ · ½ W", role: "V5 grid leak, from the −48 V bias line" }
   - { ref: RS1, part: "Carbon comp resistor", value: "470 Ω · 1 W",  role: "V4 screen resistor" }
   - { ref: RS2, part: "Carbon comp resistor", value: "470 Ω · 1 W",  role: "V5 screen resistor" }
-  - { ref: RD1, part: "Power resistor",       value: "4,700 Ω",       role: "Rail dropper B+2 → B+3" }
+  - { ref: RD1, part: "Power resistor",       value: "4.7 kΩ",       role: "Rail dropper B+2 → B+3" }
   - { ref: RD2, part: "Power resistor",       value: "10 kΩ",         role: "Rail dropper B+3 → B+4" }
   - { ref: L1,  part: "Filter choke",         value: "Fender 14684",  role: "B+1 → B+2 (screens)" }
   - { ref: C11, part: "Electrolytic capacitor", value: "20 µF · 600 V", role: "Filter, B+1" }

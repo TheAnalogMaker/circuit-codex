@@ -48,7 +48,7 @@ import yaml
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from render_layouts import (           # noqa: E402
-    annotation_value, category, era_pair, primary_value,
+    annotation_value, category, era_pair, primary_value, resolve_tube_slug,
 )
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -69,6 +69,17 @@ _UNSET = object()
 # Relative tolerance for a quantity comparison. Values are exact decimals on
 # every surface — this only absorbs 1/3-style repeating fractions.
 REL_TOL = Decimal("0.005")
+
+# Findings that are DEFECTS — two surfaces stating different things about one
+# part. These are what --strict gates on.
+HARD_KINDS = ("MISMATCH", "UNIT-MISMATCH", "VOLTS-MISMATCH", "WATTS-MISMATCH",
+              "TYPE-MISMATCH", "AMBIGUOUS")
+# Findings that are DECLARED GAPS — the corpus refusing to invent a figure the
+# source never printed, or an annotation the electrical model has no designator
+# for. Reported so they stay visible, never gated: hiding them would make the
+# archive's honesty rule invisible, and gating them would push someone to invent
+# a number to clear the gate.
+SOFT_KINDS = ("UNSTATED", "UNLINKED")
 
 
 # ---------------------------------------------------------------------------
@@ -500,7 +511,18 @@ def _designation_one(raw: str, cat: str) -> str | None:
         m = _RE_TUBE_TYPE.match(s)
         if not m:
             return None
-        return m.group(1).replace("-", "")
+        # Resolve through the corpus's OWN valve-equivalence table — every
+        # reference/tubes/*.yaml `also_known_as` list plus the EU/US supplement
+        # render_layouts already uses to pick a socket's basing. Two surfaces
+        # that name one valve under two accepted names are agreeing, and this
+        # archive says so in its own data: a 7025 IS the low-noise 12AX7 whose
+        # basing the drawing anchors to, and "5Y3-GT" and "5Y3GT" are one
+        # rectifier written two ways. Nine of the twenty-eight findings this
+        # gate reported were that difference in spelling, which buried the
+        # question it exists to answer — does any surface name a DIFFERENT
+        # valve? Anything the table does not know still compares verbatim.
+        tok = m.group(1).replace("-", "")
+        return resolve_tube_slug(tok) or tok
 
     if cat == "diode":
         s = _RE_COUNT_SUFFIX.sub("", s)
@@ -709,6 +731,9 @@ def _sch_quantity(tok: str, dim: str) -> Decimal | None:
 # ---------------------------------------------------------------------------
 _ERA_RES = re.compile(r"^(\d+(?:\.\d+)?)(MEG|K)?(?:-(\d+(?:\.\d+)?))?$")
 _ERA_MFD = re.compile(r"^(\d+(?:\.\d+)?)MFD$")
+# A twin can, lettered the way the era sheets lettered it: sections joined by a
+# slash with the unit written once — "25/25MFD", "50+50MFD".
+_ERA_MULTI_MFD = re.compile(r"^(\d+(?:\.\d+)?(?:\s*[/+]\s*\d+(?:\.\d+)?)+)MFD$")
 _ERA_PF = re.compile(r"^(\d+(?:\.\d+)?)PF$")
 _ERA_FILM = re.compile(r"^(\.\d+|\d+(?:\.\d+)?)(?:-(\d+(?:\.\d+)?))?$")
 _ERA_VOLTS = re.compile(r"^(\d+(?:\.\d+)?)V\b")
@@ -753,6 +778,12 @@ def read_era(value: str, cat: str, dim=_UNSET) -> Reading | None:
             mv = _ERA_VOLTS.match(v2)
             if mv:
                 volts = _dec(mv.group(1))
+        m = _ERA_MULTI_MFD.match(v1)
+        if m:
+            secs = [_dec(t) for t in re.split(r"\s*[/+]\s*", m.group(1))]
+            if all(x is not None for x in secs):
+                return Reading("sheet(era)", raw, "farads", volts=volts,
+                               sections=tuple(x * Decimal("1E-6") for x in secs))
         m = _ERA_MFD.match(v1)
         if m:
             n = _dec(m.group(1))
@@ -1113,7 +1144,7 @@ def main() -> int:
     else:
         _print_table(findings, len(ids))
 
-    hard = [f for f in findings if f["kind"] not in ("UNLINKED", "UNSTATED")]
+    hard = [f for f in findings if f["kind"] not in SOFT_KINDS]
     if args.strict and hard:
         return 1
     return 0
@@ -1123,8 +1154,7 @@ def _print_table(findings: list[dict], n_amps: int) -> None:
     if not findings:
         print(f"value consistency: {n_amps} amps, every surface agrees")
         return
-    order = ["MISMATCH", "UNIT-MISMATCH", "VOLTS-MISMATCH", "WATTS-MISMATCH",
-             "TYPE-MISMATCH", "AMBIGUOUS", "UNSTATED", "UNLINKED"]
+    order = list(HARD_KINDS) + list(SOFT_KINDS)
     rank = {k: i for i, k in enumerate(order)}
     findings = sorted(findings, key=lambda f: (rank.get(f["kind"], 99), f["amp"], f["ref"]))
 
@@ -1143,10 +1173,21 @@ def _print_table(findings: list[dict], n_amps: int) -> None:
     counts: dict[str, int] = {}
     for f in findings:
         counts[f["kind"]] = counts.get(f["kind"], 0) + 1
+    hard = sum(v for k, v in counts.items() if k in HARD_KINDS)
+    soft = sum(v for k, v in counts.items() if k in SOFT_KINDS)
     print()
     print(f"{len(findings)} findings across {n_amps} amps: " +
           ", ".join(f"{k}={v}" for k, v in sorted(counts.items(),
                                                   key=lambda kv: rank.get(kv[0], 99))))
+    # The two counts mean different things and must never be added together.
+    # A DISAGREEMENT is a defect: two surfaces state different quantities for one
+    # part and a builder cannot tell which to trust. The rest are this archive
+    # keeping its own honesty rule — a value the source never printed, or an
+    # annotation the electrical model carries no designator for. Those are
+    # published deliberately (AGENTS.md rule 5) and are not gated.
+    print(f"  {hard} disagreement(s) — gated (--strict)")
+    print(f"  {soft} declared-gap row(s) — informational: a value the source did "
+          f"not print, or an annotation with no designator to cross-check against")
 
 
 if __name__ == "__main__":

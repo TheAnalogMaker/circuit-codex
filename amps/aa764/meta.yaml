@@ -15,6 +15,8 @@ topology:
 lineage:
   derived_from: ["5f1"]   # the tweed 5F1 Champ is the direct ancestor
   influenced: []
+conventions:
+  designators: sequential   # parts numbered straight through (R1…R13), as the source sheet does
 sources:
   - desc: "Fender 'Champ Amp AA764' drawing (I-FD), schematic + layout sheets: every component value AND the printed voltage chart read directly from the published sheet — two 68 kΩ input stoppers on a 1 MΩ leak; 12AX7 stages with 100 kΩ plate loads and 1.5 kΩ/25 µF cathodes; treble-bass tone stack (250 pF, 100 kΩ slope, 0.1 µF and 0.047 µF, 250 kΩ treble and bass pots, 15 kΩ to ground) ahead of a 1 MΩ volume; 47 Ω/2.7 kΩ negative-feedback divider under the second cathode; 0.02 µF coupling into a 6V6GT with a 220 kΩ grid leak and a 470 Ω · 1 W cathode; rails +360/+350/+330 on three 20 µF · 450 V cans split by 1 kΩ · 1 W and 10 kΩ · 1 W; 5Y3GT rectifier off a 320-0-320 V winding; transformers TR1 125P1B and TR2 125A35A. Notice: values ±20%, read to ground with an electronic voltmeter. Not reproduced here; archived at EL34World"
     url: "https://el34world.com/charts/Schematics/files/Fender/Fender_champ_AA764_schem.pdf"

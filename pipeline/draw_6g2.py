@@ -97,7 +97,7 @@ s.wire(108, 69.81, 108, 66)           # node Y -> V1B grid tee
 
 # Tone: X -> C3 (.0005u mica) -> VR1 (1M-A, wired as a rheostat) -> gnd
 s.wire(84, 66, 76, 66)
-s.sym("C", "C3", ".0005u", 76, 69.81, ly=-6.2)
+s.sym("C", "C3", "500p", 76, 69.81, ly=-6.2)
 s.sym("POT", "VR1", "1M-A", 76, 77.43, ly=2.2)
 s.wire(81.08, 77.43, 81.08, 73.62)
 s.wire(81.08, 73.62, 76, 73.62)
@@ -285,7 +285,7 @@ s.gnd(218, BY + 7.62)
 s.junction(224, BY)
 s.wire(224, BY - 3.5, 224, BY)
 s.glabel("BP", 224, BY - 3.5, 90)
-l, r = s.series_h("R", "RD1", "1000 1W", 230, BY)
+l, r = s.series_h("R", "RD1", "1k 1W", 230, BY)
 s.wire(224, BY, l, BY)
 s.wire(r, BY, 244, BY)
 s.junction(238, BY)

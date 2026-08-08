@@ -113,6 +113,9 @@ def validate(meta_path: Path) -> list[str]:
     if "added" in meta and not isinstance(meta["added"], datetime.date):
         errors.append(f"{meta_path}: 'added' must be an unquoted YYYY-MM-DD date")
     errors += check_bom_refs(meta_path.parent)
+    refs = bom_refs(meta_path.parent)
+    errors += check_conventions(meta, meta_path, refs)
+    errors += check_iron(meta, meta_path, refs)
     for i, src in enumerate(meta.get("sources") or []):
         if not isinstance(src, dict) or not src.get("desc"):
             errors.append(f"{meta_path}: sources[{i}] must be a mapping with 'desc' (and ideally 'url')")
@@ -129,6 +132,123 @@ def _strip_unit(ref: str) -> str:
     if len(ref) > 1 and ref[-1] in "AB" and ref[0] in "VTLD":
         return ref[:-1]
     return ref
+
+
+# ---------------------------------------------------------------------------
+# conventions: how this drawing letters itself
+# ---------------------------------------------------------------------------
+# TWO REFERENCE-DESIGNATOR SCHEMES SHIP IN THIS CORPUS AND BOTH STAY.
+#
+# The 5F1, 5E1, 5F2-A, 5C1 and AA764 number their parts straight through —
+# R1…R13, C1…C10 — the way their own factory sheets do. The 5E3, 5F10, 5F4 and
+# most of what came after carry a role code in the designator instead: RD1 is
+# rail dropper 1, RL4 a plate load, CK1 a cathode bypass. Neither is wrong. The
+# first is what a small drawing with a dozen parts wants; the second is what a
+# hundred-part Bassman needs before a reader can hold it in their head.
+#
+# Normalising the corpus onto one of them was the alternative, and it was
+# rejected: renaming R1 to RG1 across a netlist, a schematic, a layout, a
+# voltage chart and prose changes nothing a builder can measure, breaks every
+# link anyone has made into this archive, and — worse — erases which scheme the
+# amp's own source drawing used. What a reader actually needs is to be TOLD, on
+# the page, which scheme they are reading. So each amp declares it, the site
+# prints it, and this gate proves the declaration matches the parts list.
+#
+# One rule binds both schemes: a designator is what a DRAWING letters on a part.
+# It never contains an underscore. `C_tr1` and `C_NFB` are source-code
+# identifiers that leaked out of a generator script onto a published board, and
+# a builder looking for "C_NFB" on a factory sheet will not find it.
+DESIGNATOR_SCHEMES = ("sequential", "functional")
+# Class prefixes a plain sequential designator may use: the standard reference
+# designator letters, plus the ones this corpus's drawings actually letter.
+_SEQ_CLASS = (r"(?:R|C|L|T|V|D|Q|X|Y|F|J|S|SW|VR|RV|PL|SPK|CH|MS|SEL|JSPK|QS|"
+              r"OPTO|TANK)")
+RE_SEQUENTIAL = re.compile(rf"^{_SEQ_CLASS}\d+[a-z]?$")
+RE_DESIGNATOR = re.compile(r"^[A-Za-z][A-Za-z0-9]*$")
+
+
+def detect_designator_scheme(refs) -> str:
+    """'sequential' when every designator is class + running number, else
+    'functional'. Deliberately not a judgement call: one designator carrying a
+    role code makes the whole parts list a functional one to read."""
+    return ("sequential" if all(RE_SEQUENTIAL.match(r) for r in refs)
+            else "functional")
+
+
+def check_conventions(meta: dict, meta_path: Path, refs) -> list[str]:
+    errors = []
+    conv = meta.get("conventions") or {}
+    if not isinstance(conv, dict):
+        return [f"{meta_path}: 'conventions' must be a mapping"]
+    notation = str(conv.get("notation", "us")).lower()
+    if notation not in ("us", "uk"):
+        errors.append(f"{meta_path}: conventions.notation must be 'us' or 'uk' "
+                      f"(the schematic's drafting idiom), got {notation!r}")
+    declared = conv.get("designators")
+    if declared is None:
+        errors.append(
+            f"{meta_path}: conventions.designators is required — "
+            f"'sequential' (R1…R13, the small tweed sheets) or 'functional' "
+            f"(RD1/RL4/CK1, role coded). Both ship in this corpus; a reader has "
+            f"to be told which one this page is written in")
+    elif declared not in DESIGNATOR_SCHEMES:
+        errors.append(f"{meta_path}: conventions.designators must be one of "
+                      f"{list(DESIGNATOR_SCHEMES)}, got {declared!r}")
+    elif refs:
+        actual = detect_designator_scheme(refs)
+        if actual != declared:
+            odd = sorted({r for r in refs if not RE_SEQUENTIAL.match(r)})[:6]
+            errors.append(
+                f"{meta_path}: conventions.designators says {declared!r} but the "
+                f"parts list reads {actual!r}" +
+                (f" ({', '.join(odd)} carry role codes)" if odd else ""))
+    # The one rule both schemes share.
+    bad = sorted({r for r in refs if not RE_DESIGNATOR.match(str(r))})
+    if bad and str(meta.get("id")) not in DESIGNATOR_WAIVERS:
+        errors.append(
+            f"{meta_path}: designator(s) {', '.join(bad)} are not designators a "
+            f"drawing could letter — a reference designator is letters and "
+            f"digits only (no underscores, spaces or punctuation)")
+    return errors
+
+
+# A designator waiver is a DECLARED, dated debt, printed loudly — the same
+# mechanism pipeline/lint_waivers.yaml uses for a collision the drawing cannot
+# yet resolve. It is never silent and never open-ended.
+DESIGNATOR_WAIVERS = {
+    "5e5a": "board and schematic carry generator-script names (C_f1, C_tr1, "
+            "C_NFB, R_NFB); the rename touches netlist.cir, voltages.yaml and "
+            "the drawn board together and is queued as its own change",
+}
+
+
+def check_iron(meta: dict, meta_path: Path, refs) -> list[str]:
+    """meta.yaml `iron:` — the electrical rating for a transformer or choke whose
+    parts-list value is a bare factory part number. render_layouts.load_iron()
+    letters it beside the glyph; a key that names no such part would be a rating
+    the drawing silently drops."""
+    iron = meta.get("iron")
+    if iron is None:
+        return []
+    if not isinstance(iron, dict):
+        return [f"{meta_path}: 'iron' must be a mapping of designator -> rating"]
+    errors = []
+    for ref, rating in iron.items():
+        if refs and str(ref) not in refs:
+            errors.append(f"{meta_path}: iron['{ref}'] names no bom.yaml designator")
+        if not str(rating).strip():
+            errors.append(f"{meta_path}: iron['{ref}'] is empty — omit the key "
+                          f"rather than state a blank rating")
+    return errors
+
+
+def bom_refs(amp_dir: Path) -> list[str]:
+    path = amp_dir / "bom.yaml"
+    if not path.exists():
+        return []
+    data = yaml.safe_load(path.read_text()) or {}
+    return [str(it["ref"]) for it in (data.get("items") or [])
+            if it.get("ref") and it["ref"] != "—"]
 
 
 def check_bom_refs(amp_dir: Path) -> list[str]:
