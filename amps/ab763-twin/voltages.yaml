@@ -1,0 +1,37 @@
+# Printed voltage chart read directly from the published "TWIN REVERB-AMP AB763"
+# drawing (the schematic and the layout sheet, C-FD, carry the same values). The
+# drawing's notice: "Voltages read to ground with electronic voltmeter. Values
+# shown + or - 20%."
+#
+# Tube pins therefore get the drawing's own 20%; the supply rails get tighter
+# internal targets, because two of them are DRIVEN at their printed values
+# (BP1 = +460 V reservoir / 6L6GC plates, BB = +458 V post-choke node [B]) and
+# the other two are solved through the drawing's own droppers — so BC and BD are
+# a check on the chart, not an input to it. See netlist.cir.
+#
+# The tremolo 12AX7 is excluded from the netlist (no static operating point for
+# either half — see notes.md), so its printed pins are documented there rather
+# than listed here. It hangs off the DRIVEN node BB, not the preamp rail, so its
+# absence shifts nothing below.
+source: "Fender AB763 Twin Reverb-Amp drawing, printed voltages: +460 (6L6GC plates, OT centre tap), +458 (screens, post-choke node B, reverb-transformer feed), +450 (phase-inverter plate supply, node C), +440 (reverb-driver plate), +410 (preamp plate supply, node D), +8.6 (reverb-driver cathode), +280/+275 (mix-driver and reverb-recovery plates) and +270/+260/+250/+240 (the four channel preamp plates) all on +2.0 V cathodes, PI +245/+235 plates with +100 V joined cathodes and a +98 V tail junction, -52 (6L6GC fixed bias); tremolo 12AX7 +380/+5.6/+2.0 excluded"
+nodes:
+  BC:   { chart: 450, tol_pct: 8,  note: "node [C], the phase-inverter plate supply — solved from BB through the drawing's 1 kOhm-1W dropper" }
+  BD:   { chart: 410, tol_pct: 8,  note: "node [D], the preamp plate supply feeding all six 100 kOhm plate loads — solved from BC through the 4.7 kOhm-1W dropper" }
+  S61:  { chart: 458, tol_pct: 8,  note: "6L6GC screen after its 470 Ohm-1W stopper, off the post-choke node BB" }
+  G61:  { chart: -52, tol_pct: 8,  note: "6L6GC grid, fixed bias via a shared 220 kOhm leak and a 1500 Ohm stopper from the -52 V supply" }
+  PRD:  { chart: 440, tol_pct: 20, note: "reverb-driver 12AT7 plate (both sections paralleled), off BB through the TR4 primary DCR" }
+  KRD:  { chart: 8.6, tol_pct: 20, note: "reverb-driver 12AT7 shared cathode over 2.2 kOhm" }
+  PN1:  { chart: 260, tol_pct: 20, note: "Normal-channel input plate, 100 kOhm from +410" }
+  KN1:  { chart: 2.0, tol_pct: 20, note: "Normal-channel input cathode over 1.5 kOhm" }
+  PV1:  { chart: 250, tol_pct: 20, note: "Vibrato-channel input plate, 100 kOhm from +410" }
+  KV1:  { chart: 2.0, tol_pct: 20, note: "Vibrato-channel input cathode over 1.5 kOhm" }
+  PN2:  { chart: 270, tol_pct: 20, note: "Normal-channel 2nd stage plate, 100 kOhm from +410" }
+  PV2:  { chart: 240, tol_pct: 20, note: "Vibrato-channel 2nd stage plate, 100 kOhm from +410" }
+  KA:   { chart: 2.0, tol_pct: 20, note: "the 820 Ohm / 25 uF cathode network the two channels' second stages SHARE (drawing box [A]); the drawing prints +2.0 V at both ends of it" }
+  PR1:  { chart: 275, tol_pct: 20, note: "reverb-recovery plate, 100 kOhm from +410" }
+  PD1:  { chart: 280, tol_pct: 20, note: "reverb/dry mix-driver plate, 100 kOhm from +410" }
+  KE:   { chart: 2.0, tol_pct: 20, note: "the 820 Ohm / 25 uF cathode network the recovery and mix-driver stages SHARE (drawing box [E]); printed +2.0 V at both ends" }
+  PPIA: { chart: 245, tol_pct: 20, note: "PI plate, 82 kOhm (hot) side" }
+  PPIB: { chart: 235, tol_pct: 20, note: "PI plate, 100 kOhm (cold) side" }
+  KPI:  { chart: 100, tol_pct: 20, note: "PI joined cathodes, above the 470 Ohm" }
+  JPI:  { chart: 98,  tol_pct: 20, note: "PI tail junction (470 Ohm / 22 kOhm), grid-leak return" }

@@ -192,6 +192,14 @@ def main() -> int:
     failures += check("5881", "Ig2", r["ig2"], 5e-3, TOL_I)
     failures += check("5881", "gm", (r["ia_hi"] - r["ia_lo"]) / 0.1, 6000e-6, TOL_GM)
 
+    print("6L6GC @ Va=250, Vg2=250, Vg1=-14:")
+    r = run_bench(PENTODE_BENCH.format(name="6L6GC", inc=MODELS / "6l6gc.inc",
+                                       vp=250, vg2=250, vg1=-14,
+                                       vg_hi=-13.95, vg_lo=-14.05))
+    failures += check("6L6GC", "Ia", r["ia0"], 72e-3, TOL_I)
+    failures += check("6L6GC", "Ig2", r["ig2"], 5e-3, TOL_I)
+    failures += check("6L6GC", "gm", (r["ia_hi"] - r["ia_lo"]) / 0.1, 6000e-6, TOL_GM)
+
     print("KT66 @ Va=250, Vg2=250, Vg1=-15 (plate/gm anchor):")
     r = run_bench(PENTODE_BENCH.format(name="KT66", inc=MODELS / "kt66.inc",
                                        vp=250, vg2=250, vg1=-15,

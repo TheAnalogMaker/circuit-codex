@@ -50,7 +50,7 @@ OUT = ROOT / "reference" / "loadlines.yaml"
 # pentodes it saw if one does not. That gate is what caught the EL84 missing here
 # when the Vox AC15 joined the corpus; a frozen list that silently drops a circuit is
 # the failure mode this file is most exposed to.
-POWER_TUBES = {"6V6GT", "5881", "KT66", "EL34", "EL84"}
+POWER_TUBES = {"6V6GT", "5881", "6L6GC", "KT66", "EL34", "EL84"}
 
 class QStr(str):
     """A string that must survive both YAML loaders. Circuit ids like 5e1 and tube

@@ -1,0 +1,276 @@
+# Board layout — redrawn from the published Fender "TWIN REVERB-AMP AB763" LAYOUT
+# drawing (C-FD), whose title block is cited in meta.yaml. Part refs are the
+# shared key into bom.yaml; the renderer reads each value and part type from
+# there. A legible, schematic-style redraw of the board's principal components in
+# the order the drawing shows them — never a trace or a dimensioned reproduction.
+#
+# The board reads left→right along the chassis, matching the socket row the sheet
+# draws beneath it: the four 6L6GC outputs with their own grid stoppers and screen
+# resistors and the speaker jacks at the left, then the long-tailed-pair phase
+# inverter and its feedback network, the tremolo tube, the reverb recovery and
+# reverb/dry mix driver, the reverb driver and its transformer, the vibrato
+# channel and finally the normal channel at the right
+# (6L6GC · 6L6GC · 6L6GC · 6L6GC · 12AT7 PI · 12AX7 tremolo · 7025 recovery+mix ·
+# 12AT7 reverb driver · 7025 vibrato · 7025 normal).
+#
+# Machine-checked equivalence: the point-to-point wiring drawn below has been
+# verified electrically equivalent to the simulated netlist (netlist.cir) by
+# pipeline/verify_layout_nets.py — see the net_map block at the foot of this file
+# and docs/layout-schema.md. Heaters, the pilot lamp, the tremolo oscillator, the
+# rectifier and the PT AC side are an excluded annotation layer (not in
+# netlist.cir).
+wiring_claim: verified
+
+board:
+  rows: 2
+  cols: 87
+  title: "AB763 (Twin Reverb) · eyelet board layout"
+caption: "Redrawn from the published Fender 'TWIN REVERB-AMP AB763' layout drawing — principal board components, in the order the drawing shows them, above the socket row the sheet draws beneath the board. One deviation from the sheet, stated plainly: it mounts each output valve's 1.5 kΩ grid stopper and 470 Ω · 1 W screen resistor at the valve socket itself, and this drawing puts them on the board directly above the socket each serves, so that every lead stays traceable at the four-valve output end. The two rail droppers sit in the chassis with the filter cans and the bias balance control is panel-mounted, as the sheet shows them. Not drawn here: both channels' tone-stack parts (100 kΩ slope resistors, 250 pF, 0.1 µF and 0.047 µF capacitors and the treble/bass/middle pots), the bright caps across the volume controls, the tremolo oscillator's phase-shift network and its optocoupler, the reverb send and reverb-mix network, the 68 kΩ input stoppers and 1 MΩ grid leaks at the input jacks, and the silicon rectifier, reservoir and bias supply in the chassis — all of them documented on the schematic instead. Two 820 Ω / 25 µF cathode networks are SHARED between stages, exactly as the drawing shows: one between the two channels' second stages, one between the reverb recovery and the mix driver. The 6.3 V heater chain (green twisted pair, transformer → pilot lamp → the four 6L6GC outputs → the 12AT7 phase inverter → the 12AX7 tremolo → the 7025 recovery/mix → the 12AT7 reverb driver → the vibrato 7025 → the normal 7025) is routed as the sheet's 'TO ALL 6.3 VOLT HEATERS' run shows it; this amplifier has no rectifier tube. Not a trace or a dimensioned reproduction."
+source:
+  desc: "Fender 'TWIN REVERB-AMP AB763' LAYOUT drawing (C-FD, Fender Musical Instruments, Fullerton)"
+  url: "https://el34world.com/charts/Schematics/files/Fender/Fender_twin_reverb_ab763_layout.pdf"
+
+parts:
+  # --- output stage: one screen resistor and one grid stopper per valve, on the
+  #     board directly above the socket each serves, plus one coupler and one
+  #     grid leak per phase -----------------------------------------------------
+  - { ref: RSC1, a: [0, 2],  b: [0, 3] }    # 470Ω·1W V7 screen resistor
+  - { ref: RST1, a: [1, 3],  b: [1, 4] }    # 1.5k V7 grid stopper
+  - { ref: RGL1, a: [0, 5],  b: [1, 5] }    # 220k 5% grid leak for the V7/V8 pair
+  - { ref: C1,   a: [1, 7],  b: [1, 5] }    # 0.1 µF PI hot plate → the V7/V8 grid line
+  - { ref: RSC2, a: [0, 7],  b: [0, 8] }    # 470Ω·1W V8 screen resistor
+  - { ref: RST2, a: [1, 8],  b: [1, 9] }    # 1.5k V8 grid stopper
+  - { ref: RSC3, a: [0, 12], b: [0, 13] }   # 470Ω·1W V9 screen resistor
+  - { ref: RST3, a: [1, 13], b: [1, 14] }   # 1.5k V9 grid stopper
+  - { ref: RGL2, a: [0, 15], b: [1, 15] }   # 220k 5% grid leak for the V9/V10 pair
+  - { ref: C2,   a: [1, 17], b: [1, 15] }   # 0.1 µF PI cold plate → the V9/V10 grid line
+  - { ref: RSC4, a: [0, 17], b: [0, 18] }   # 470Ω·1W V10 screen resistor
+  - { ref: RST4, a: [1, 18], b: [1, 19] }   # 1.5k V10 grid stopper
+  # --- negative-feedback divider + phase-inverter tail ------------------------
+  - { ref: RFB2, a: [0, 21], b: [0, 22] }   # 820Ω from the OT secondary → feedback node
+  - { ref: RFB1, a: [0, 22], b: [1, 22] }   # 100Ω feedback divider leg → ground
+  - { ref: RT22, a: [0, 22], b: [0, 24] }   # 22k feedback node → tail junction (shares NFB)
+  - { ref: RTAIL, a: [0, 24], b: [1, 24] }  # 470Ω tail junction (JPI) → joined cathodes
+  - { ref: RLPA, a: [0, 26], b: [0, 27] }   # 82k 5% hot plate load (BC → PPIA)
+  - { ref: RLPB, a: [0, 28], b: [0, 29] }   # 100k 5% cold plate load (BC → PPIB)
+  - { ref: RGPA, a: [0, 30], b: [1, 30] }   # 1M hot grid leak, returned to the tail junction
+  - { ref: RGPB, a: [0, 31], b: [1, 31] }   # 1M cold grid leak, returned to the tail junction
+  # --- reverb recovery + reverb/dry mix driver (V4) ---------------------------
+  - { ref: RGR1, a: [0, 46], b: [1, 46] }   # 220k recovery grid resistor (tank return)
+  - { ref: RLR1, a: [0, 49], b: [0, 50] }   # 100k recovery plate load (BD → PR1)
+  - { ref: CKE,  a: [0, 51], b: [0, 52] }   # 25 µF bypass for the SHARED [E] cathode
+  - { ref: RKE,  a: [0, 52], b: [1, 52] }   # 820Ω cathode SHARED by recovery + mix driver
+  - { ref: RGD1, a: [1, 53], b: [1, 54] }   # 3.3M mix-driver grid resistor, dry path
+  - { ref: RLD1, a: [0, 54], b: [0, 55] }   # 100k mix-driver plate load (BD → PD1)
+  # --- reverb driver (V3 12AT7, both sections paralleled) ---------------------
+  - { ref: RGRD, a: [0, 60], b: [1, 60] }   # 1M grid leak for the paralleled grids
+  - { ref: CKRD, a: [0, 61], b: [0, 62] }   # 25 µF cathode bypass (shares KRD)
+  - { ref: RKRD, a: [0, 62], b: [1, 62] }   # 2.2k shared cathode
+  # --- vibrato channel (V2) ---------------------------------------------------
+  - { ref: RLV1, a: [0, 69], b: [0, 70] }   # 100k input plate load (BD → PV1)
+  - { ref: CKV1, a: [0, 71], b: [0, 72] }   # 25 µF cathode bypass (shares KV1)
+  - { ref: RKV1, a: [0, 72], b: [1, 72] }   # 1.5k input cathode
+  - { ref: RLV2, a: [0, 73], b: [0, 74] }   # 100k 2nd-stage plate load (BD → PV2)
+  - { ref: CKA,  a: [0, 75], b: [0, 76] }   # 25 µF bypass for the SHARED [A] cathode
+  - { ref: RKA,  a: [0, 76], b: [1, 76] }   # 820Ω cathode SHARED by both 2nd stages
+  # --- normal channel (V1) ----------------------------------------------------
+  - { ref: RLN1, a: [0, 80], b: [0, 81] }   # 100k input plate load (BD → PN1)
+  - { ref: CKN1, a: [0, 82], b: [0, 83] }   # 25 µF cathode bypass (shares KN1)
+  - { ref: RKN1, a: [0, 83], b: [1, 83] }   # 1.5k input cathode
+  - { ref: RLN2, a: [0, 84], b: [0, 85] }   # 100k 2nd-stage plate load (BD → PN2)
+
+offboard:
+  # Chassis hardware, in the sheet's own arrangement: the transformer and pilot
+  # lamp at the left, the valve row along the bottom, the controls along the top.
+  - { id: T1,  ref: T1, kind: xfmr,  edge: left,   at: 0.35, label: "Power trans" }
+  - { id: PL1, kind: part, glyph: lamp, edge: left, at: 1.55, label: "Pilot lamp" }
+  - { id: T3,  ref: T3, kind: xfmr,  edge: top,    at: 10,   label: "Output trans" }
+  - { id: T2,  ref: T2, kind: choke, edge: top,    at: 23.5, label: "Choke" }
+  - { id: RD1, ref: RD1, kind: part, edge: top,    at: 26.5, label: "RD1" }
+  - { id: RD2, ref: RD2, kind: part, edge: top,    at: 29.5, label: "RD2" }
+  - { id: VRBAL, ref: VRBAL, kind: pot, edge: top, at: 34.5, label: "Bias balance" }
+  - { id: VRSPD, ref: VRSPD, kind: pot, edge: top, at: 38,   label: "Speed" }
+  - { id: VRINT, ref: VRINT, kind: pot, edge: top, at: 42,   label: "Intensity" }
+  - { id: VRREV, ref: VRREV, kind: pot, edge: top, at: 45.5, label: "Reverb" }
+  - { id: T4,  ref: T4, kind: xfmr,  edge: top,    at: 65,   label: "Reverb trans" }
+  - { id: JV,  kind: jack, edge: top, at: 67, label: "Vibrato in" }
+  - { id: VRVV, ref: VRVV, kind: pot, edge: top, at: 70,   label: "Vibrato vol" }
+  - { id: JN,  kind: jack, edge: top, at: 78, label: "Normal in" }
+  - { id: VRVN, ref: VRVN, kind: pot, edge: top, at: 81,   label: "Normal vol" }
+  # --- the valve row ----------------------------------------------------------
+  - { id: V7,  ref: V7, kind: tube,  edge: bottom, at: 4,  label: "V7 · 6L6GC" }
+  - { id: V8,  ref: V8, kind: tube,  edge: bottom, at: 9,  label: "V8 · 6L6GC" }
+  - { id: V9,  ref: V9, kind: tube,  edge: bottom, at: 14, label: "V9 · 6L6GC" }
+  - { id: V10, ref: V10, kind: tube, edge: bottom, at: 19, label: "V10 · 6L6GC" }
+  - { id: SPK, kind: jack, edge: bottom, at: 23, label: "Spkr" }
+  - { id: V6,  ref: V6, kind: tube,  edge: bottom, at: 28, label: "V6 · 12AT7 PI" }
+  - { id: V5,  ref: V5, kind: tube,  edge: bottom, at: 40, label: "V5 · 12AX7 trem" }
+  - { id: V4,  ref: V4, kind: tube,  edge: bottom, at: 53, label: "V4 · 7025 rev/mix" }
+  - { id: V3,  ref: V3, kind: tube,  edge: bottom, at: 62, label: "V3 · 12AT7 rev drv" }
+  - { id: V2,  ref: V2, kind: tube,  edge: bottom, at: 72, label: "V2 · 7025 vib" }
+  - { id: V1,  ref: V1, kind: tube,  edge: bottom, at: 83, label: "V1 · 7025 norm" }
+
+# Ground bus — the bare rail just below the bottom eyelet row; cathode, filter,
+# grid-leak and pot grounds tie to it.
+bus:
+  - { from: [1.45, -0.5], to: [1.45, 85.5] }
+
+# Wiring — read lead-by-lead from the published AB763 Twin Reverb layout drawing.
+# Transformer leads carry the drawing's colours. The 6.3 V winding is the green
+# pair; it feeds the pilot lamp and then daisy-chains socket to socket
+# (style: twisted). Endpoints reference board eyelets (REF.a/REF.b), tube socket
+# pins (Vn.pinN, validated against the basing data — heater pins on the twisted
+# runs), pot lugs, jacks, the off-board pilot lamp and transformer leads.
+runs:
+  # === +458 V node [B]: the screen resistors chain along a lane between the two
+  # eyelet rows, then rise at the right of the output group to the first dropper;
+  # the reverb transformer's primary feed joins it there. =====================
+  - { from: RSC1.a, to: RSC2.a, via: [[2.4, 0.42], [6.6, 0.42]] }
+  - { from: RSC2.a, to: RSC3.a, via: [[7.4, 0.42], [11.6, 0.42]] }
+  - { from: RSC3.a, to: RSC4.a, via: [[12.4, 0.42], [16.6, 0.42]] }
+  - { from: RSC4.a, to: RD1.a, color: red, via: [[17.4, 0.28], [20.2, 0.28], [20.2, -2.45], [25.8, -2.45]] }
+  - { from: T4.red, to: RD1.a, color: red, via: [[64.2, -2.75], [27.5, -2.75]] }
+  # === +450 V node [C]: dropper to dropper, then the two PI plate loads =======
+  - { from: RD1.b, to: RD2.a, via: [[27.4, -0.45], [28.9, -0.45]] }
+  - { from: RD2.a, to: RLPB.a, via: [[29.4, -0.25], [28.4, -0.25]] }
+  - { from: RLPB.a, to: RLPA.a, via: [[27.6, 0.42], [26.4, 0.42]] }
+  # === +410 V node [D]: dropper output → the six preamp plate loads ===========
+  - { from: RD2.b, to: RLR1.a, color: red, via: [[30.5, -1.7], [48.4, -1.7], [48.4, 0.4]] }
+  - { from: RLR1.a, to: RLD1.a, via: [[49.6, 0.42], [53.6, 0.42]] }
+  - { from: RLD1.a, to: RLV1.a, via: [[55.4, -0.6], [68.4, -0.6], [68.6, 0.4]] }
+  - { from: RLV1.a, to: RLV2.a, via: [[69.6, 0.42], [72.6, 0.42]] }
+  - { from: RLV2.a, to: RLN1.a, via: [[74.4, -0.6], [79.4, -0.6], [79.6, 0.4]] }
+  - { from: RLN1.a, to: RLN2.a, via: [[80.6, 0.42], [83.6, 0.42]] }
+  # === -52 V bias line: both grid leaks up to the balance control's wiper =====
+  - { from: RGL1.a, to: VRBAL.lug2, via: [[5.4, -0.35], [5.4, -2.05], [33.6, -2.05]] }
+  - { from: RGL2.a, to: VRBAL.lug2, via: [[15.4, -0.5], [15.4, -2.28], [35.6, -2.28]] }
+  # === output stage: grid line, grid stoppers, screens, cathodes, plates ======
+  - { from: RST1.a, to: C1.b, via: [[3.2, 1.28], [4.6, 1.28]] }
+  - { from: RST2.a, to: C1.b, via: [[7.8, 1.16], [5.4, 1.16]] }
+  - { from: RST3.a, to: C2.b, via: [[13.2, 1.28], [14.6, 1.28]] }
+  - { from: RST4.a, to: C2.b, via: [[17.8, 1.16], [15.4, 1.16]] }
+  - { from: RST1.b, to: V7.pin5, via: [[4.9, 1.5]] }
+  - { from: RST2.b, to: V8.pin5, via: [[9.9, 1.5]] }
+  - { from: RST3.b, to: V9.pin5, via: [[14.9, 1.5]] }
+  - { from: RST4.b, to: V10.pin5, via: [[19.9, 1.5]] }
+  - { from: RSC1.b, to: V7.pin4, via: [[3.9, 1.62]] }
+  - { from: RSC2.b, to: V8.pin4, via: [[8.9, 1.62]] }
+  - { from: RSC3.b, to: V9.pin4, via: [[13.9, 1.62]] }
+  - { from: RSC4.b, to: V10.pin4, via: [[18.9, 1.62]] }
+  - { from: V7.pin8, to: [1.45, 4.5], via: [[4.4, 1.72]] }
+  - { from: V8.pin8, to: [1.45, 9.5], via: [[9.4, 1.72]] }
+  - { from: V9.pin8, to: [1.45, 14.5], via: [[14.4, 1.72]] }
+  - { from: V10.pin8, to: [1.45, 19.5], via: [[19.4, 1.72]] }
+  - { from: T3.blue, to: V7.pin3, via: [[9.2, -0.3], [1.4, -0.3], [1.4, 3.0], [3.5, 3.0]] }
+  - { from: T3.blue, to: V8.pin3, via: [[9.6, -0.14], [6.2, -0.14], [6.2, 2.86], [8.5, 2.86]] }
+  - { from: T3.brown, to: V9.pin3, via: [[10.4, -0.14], [11.6, -0.14], [11.6, 2.86], [13.5, 2.86]] }
+  - { from: T3.brown, to: V10.pin3, via: [[10.8, -0.3], [16.6, -0.3], [16.6, 3.0], [18.5, 3.0]] }
+  - { from: T3.green, to: SPK.tip, via: [[10.8, 0.92], [23.6, 0.92]] }
+  - { from: SPK.sleeve, to: [1.45, 23.5] }
+  # === phase inverter: plates, grids, tail, feedback ==========================
+  - { from: RLPA.b, to: V6.pin6, via: [[27.7, 1.5]] }
+  - { from: C1.a, to: V6.pin6, via: [[7.4, 1.3], [7.4, 2.55], [28.0, 2.55]] }
+  - { from: RLPB.b, to: V6.pin1, via: [[28.3, 1.7]] }
+  - { from: C2.a, to: V6.pin1, via: [[17.4, 1.34], [17.4, 2.72], [28.6, 2.72]] }
+  - { from: RGPA.a, to: V6.pin7, via: [[29.3, 1.55]] }
+  - { from: RGPB.a, to: V6.pin2, via: [[30.4, 1.55]] }
+  - { from: RGPA.b, to: RTAIL.a, via: [[29.6, 1.32], [24.5, 0.4]] }
+  - { from: RGPB.b, to: RTAIL.a, via: [[31.4, 1.78], [26.4, 1.15]] }
+  - { from: V6.pin8, to: RTAIL.b, via: [[28.4, 2.35], [25.0, 2.35], [24.6, 1.72]] }
+  - { from: V6.pin3, to: RTAIL.b, via: [[27.3, 1.88], [25.0, 1.5]] }
+  - { from: RFB1.b, to: [1.45, 21.8], via: [[21.8, 1.3]] }
+  - { from: RFB2.a, to: SPK.tip, via: [[20.6, 0.7], [20.6, 1.9], [22.4, 1.9]] }
+  # === reverb driver V3 (both sections paralleled) ============================
+  - { from: V3.pin6, to: V3.pin1, via: [[61.3, 2.7]] }
+  - { from: V3.pin1, to: T4.blue, via: [[62.6, 2.36], [64.9, 2.36]] }
+  - { from: V3.pin7, to: V3.pin2, via: [[61.8, 2.5], [61.5, 3.2]] }
+  - { from: V3.pin7, to: RGRD.a, via: [[62.0, 2.0], [60.7, 1.4]] }
+  - { from: RGRD.b, to: [1.45, 60.2] }
+  - { from: V3.pin8, to: RKRD.a, via: [[63.2, 2.0]] }
+  - { from: V3.pin3, to: RKRD.a, via: [[61.2, 1.4]] }
+  - { from: CKRD.a, to: [1.45, 61] }
+  - { from: RKRD.b, to: [1.45, 62.4], via: [[62.2, 1.5]] }
+  - { from: T4.green, to: [1.45, 65.4], via: [[65.4, -0.5]] }
+  # === reverb recovery + reverb/dry mix driver (V4) ===========================
+  - { from: RLR1.b, to: V4.pin6, via: [[50.2, 1.62]] }
+  - { from: RGR1.a, to: V4.pin7, via: [[45.8, -0.5], [51.0, -0.5], [52.0, 0.3]] }
+  - { from: RGR1.b, to: [1.45, 46] }
+  - { from: V4.pin8, to: RKE.a, via: [[52.6, 1.62]] }
+  - { from: CKE.a, to: [1.45, 51] }
+  - { from: RKE.b, to: [1.45, 52], via: [[52.3, 1.5]] }
+  - { from: RLD1.b, to: V4.pin1, via: [[55.0, 1.8]] }
+  - { from: RGD1.a, to: V4.pin2, via: [[53.6, 1.34]] }
+  - { from: RGD1.b, to: [1.45, 54] }
+  - { from: V4.pin3, to: RKE.a, via: [[53.3, 2.4], [50.6, 2.4], [50.6, 1.2], [51.6, 0.7]] }
+  # === vibrato channel (V2) ===================================================
+  - { from: RLV1.b, to: V2.pin6, via: [[70.2, 1.62]] }
+  - { from: JV.tip, to: V2.pin7, via: [[67.0, -0.45], [71.5, -0.45]] }
+  - { from: V2.pin8, to: RKV1.a, via: [[71.8, 2.3], [71.6, 0.5]] }
+  - { from: CKV1.a, to: [1.45, 71] }
+  - { from: RKV1.b, to: [1.45, 72] }
+  - { from: RLV2.b, to: V2.pin1, via: [[74.0, 1.8]] }
+  - { from: VRVV.lug2, to: V2.pin2, via: [[70.0, -0.55], [70.6, -0.55], [70.4, 1.9]] }
+  - { from: V2.pin3, to: RKA.a, via: [[72.5, 2.35], [75.6, 1.8]] }
+  - { from: CKA.a, to: [1.45, 75] }
+  - { from: RKA.b, to: [1.45, 76.5], via: [[76.4, 1.4]] }
+  - { from: VRVV.lug1, to: [1.45, 69.2], via: [[69.4, -1.0], [69.2, -1.0]] }
+  # === normal channel (V1) ====================================================
+  - { from: RLN1.b, to: V1.pin6, via: [[81.2, 1.62]] }
+  - { from: JN.tip, to: V1.pin7, via: [[78.0, -0.45], [82.5, -0.45]] }
+  - { from: V1.pin8, to: RKN1.a, via: [[82.8, 2.3], [82.6, 0.5]] }
+  - { from: CKN1.a, to: [1.45, 82] }
+  - { from: RKN1.b, to: [1.45, 83] }
+  - { from: RLN2.b, to: V1.pin1, via: [[85.0, 1.8]] }
+  - { from: VRVN.lug2, to: V1.pin2, via: [[81.0, -0.55], [81.6, -0.55], [81.4, 1.9]] }
+  - { from: VRVN.lug1, to: [1.45, 80.2], via: [[80.4, -1.0], [80.2, -1.0]] }
+  # the normal channel's second stage shares the [A] cathode network with the
+  # vibrato channel's — one 820 Ω and one 25 µF for both, drawn on the vibrato side
+  - { from: V1.pin3, to: RKA.a, via: [[84.0, 2.4], [85.8, 1.26], [77.8, 1.26], [77.4, 0.8]] }
+  # === island control grounds =================================================
+  - { from: VRREV.lug1, to: [1.45, 44.4], via: [[45.0, -1.35], [44.4, -1.35]] }
+  - { from: VRSPD.lug1, to: [1.45, 36.8], via: [[37.6, -1.35], [36.8, -1.35]] }
+  - { from: VRINT.lug1, to: [1.45, 41.6], via: [[41.6, -1.35]] }
+  # === 6.3 V heater chain (green twisted pair) =================================
+  # The sheet's 'TO ALL 6.3 VOLT HEATERS' run: transformer green pair → pilot lamp
+  # → the four 6L6GC outputs → the phase inverter → the tremolo valve → the
+  # recovery/mix valve → the reverb driver → vibrato → normal. There is no
+  # rectifier valve on this amplifier. Twisted runs land only on heater pins
+  # (6L6GC octal 2/7; noval 4/5) — validated.
+  - { from: T1.green, to: PL1.a, style: twisted }
+  - { from: PL1.b, to: V7.pin7, style: twisted, via: [[-1.2, 3.75], [4.0, 3.75]] }
+  - { from: V7.pin2, to: V8.pin7, style: twisted, via: [[4.0, 3.75], [9.0, 3.75]] }
+  - { from: V8.pin2, to: V9.pin7, style: twisted, via: [[9.0, 3.75], [14.0, 3.75]] }
+  - { from: V9.pin2, to: V10.pin7, style: twisted, via: [[14.0, 3.75], [19.0, 3.75]] }
+  - { from: V10.pin2, to: V6.pin4, style: twisted, via: [[19.0, 3.75], [28, 3.75]] }
+  - { from: V6.pin5, to: V5.pin4, style: twisted, via: [[28, 3.78], [40, 3.78]] }
+  - { from: V5.pin5, to: V4.pin4, style: twisted, via: [[40, 3.78], [53, 3.78]] }
+  - { from: V4.pin5, to: V3.pin4, style: twisted, via: [[53, 3.78], [62, 3.78]] }
+  - { from: V3.pin5, to: V2.pin4, style: twisted, via: [[62, 3.78], [72, 3.78]] }
+  - { from: V2.pin5, to: V1.pin4, style: twisted, via: [[72, 3.78], [83, 3.78]] }
+  - { from: V1.pin4, to: V1.pin5, style: twisted }
+
+# net_map — reviewable reconciliation of the drawn wiring with the DC netlist
+# (netlist.cir) for pipeline/verify_layout_nets.py. See docs/layout-schema.md.
+net_map:
+  # The tremolo valve is a running phase-shift oscillator and a neon-lamp driver;
+  # neither half has a static DC operating point, so netlist.cir excludes both
+  # (see notes.md). Declared here so its socket is an annotation-layer exclusion
+  # printed loudly, like a rectifier — never a silently dropped valve. Its 6.3 V
+  # heater is still validated onto heater pins by the twisted-run check.
+  excluded_tubes:
+    V5: "12AX7 tremolo oscillator + neon-lamp driver — no static DC operating point for either half (excluded from netlist.cir); its phase-shift network and optocoupler mount at the Speed/Intensity controls. No signal pin is DC-checked."
+  anchors:
+    T3.blue:  BP1    # OT primary, the hot pair's plate lead → +460 V (winding DCR omitted)
+    T3.brown: BP1    # OT primary, the cold pair's plate lead → +460 V
+    T4.red:   BB     # reverb-transformer primary, the +458 V side
+    VRBAL.lug2: NBIAS  # the bias supply is abstracted; its balance wiper is the −52 V line
+    SPK.tip: "0"     # speaker jack — OT-secondary DCR folded into ground
+    SPK.sleeve: "0"  # (the feedback return reads as ground at DC)
+  # Netlist elements with no discrete same-named board part — reported in
+  # coverage, never a failure (their nodes still have to check out):
+  netlist_unplaced:
+    RTR4: "reverb transformer T4 primary DCR (~200 Ω) — the winding, not a discrete board resistor; its +458 V lead anchors to BB and its plate lead lands on the paralleled V3 plates (PRD)"
+    RGN1: "1 MΩ normal-channel input grid leak — mounted at the input jacks, not on the eyelet board"
+    RGV1: "1 MΩ vibrato-channel input grid leak — mounted at the input jacks, not on the eyelet board"
+    RGN2: "normal volume pot VRVN — the netlist models its DC grid return as one grid leak (GN2 → 0)"
+    RGV2: "vibrato volume pot VRVV — the netlist models its DC grid return as one grid leak (GV2 → 0)"

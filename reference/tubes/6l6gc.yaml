@@ -1,0 +1,73 @@
+tube: 6l6gc
+name: 6L6GC
+also_known_as: [6L6-GC]
+role: >-
+  The top of the 6L6 beam-power line and the American output valve of the
+  blackface era — a 30 W plate rating on a 500 V ceiling, which is what lets a
+  quartet of them sit on the AB763 Twin Reverb's +460 V rail. It shares the
+  6L6 family's 7AC octal basing with the 6L6G and the 5881, and drops into
+  either socket; the reverse does not hold, because both of those are rated
+  below it.
+model:
+  file: models/6l6gc.inc
+  anchor: "Va=250 V, Vg2=250 V, Vg1=−14 V → Ia=72 mA, Ig2=5 mA, gm=6000 µmho"
+  anchor_source: "RCA 6L6-GC data sheet, DATA 1, 8-60, Class A1 characteristics"
+  note: >-
+    µ is the grid-No.1-to-grid-No.2 amplification factor (8) printed in RCA's
+    RC-19 manual; the 6L6-GC sheet itself prints none. The fit lands on the same
+    numbers as models/5881.inc, because the 5881 is the ruggedized 6L6GC and RCA
+    prints one set of Class A1 characteristics for both. The two are carried as
+    separate models because their maximum ratings are not the same tube's, and
+    every rating the load-line explorer overlays is read from the model's own
+    entry here.
+max_ratings:
+  note: >-
+    Design-maximum values from the RCA 6L6-GC sheet's Class A1 AF-power-amplifier
+    table. This is the headroom that separates the 6L6GC from the rest of the
+    family: the 5881 is rated 23 W / 400 V and the original 6L6G lower still, so
+    a rating figure borrowed from either understates what this tube is rated for.
+  items:
+    - { label: "Plate dissipation", value: "30 W" }
+    - { label: "Plate voltage", value: "500 V" }
+    - { label: "Screen (grid No.2) voltage", value: "450 V" }
+    - { label: "Screen (grid No.2) input", value: "5 W" }
+  limits:
+    plate_dissipation_w: 30
+    screen_dissipation_w: 5
+    plate_voltage_v: 500
+    screen_voltage_v: 450
+  rating_system: design-maximum
+  source: "RCA 6L6-GC data sheet (design-maximum system)"
+  source_url: https://frank.pocnet.net/sheets/049/6/6L6GC.pdf
+basing:
+  code: 7AC
+  base: octal
+  view: bottom
+  source: >-
+    RCA 6L6-GC data sheet ("Basing Designation for BOTTOM VIEW . . . 7AC", with
+    the pin list printed beside the diagram); the whole 6L6 family shares the
+    JEDEC 7AC octal arrangement already recorded in reference/tubes/5881.yaml
+    and reference/tubes/6l6g.yaml.
+  pins:
+    1: { element: nc }
+    2: { element: heater }
+    3: { element: plate, hv: true }
+    4: { element: screen-grid, hv: true }
+    5: { element: grid }
+    6: { element: nc }
+    7: { element: heater }
+    8: { element: cathode, note: "internally tied to grid No.3 (the beam-forming plates)" }
+used_in: ["ab763-twin"]
+datasheets:
+  - publisher: RCA
+    designation: 6L6-GC
+    url: https://frank.pocnet.net/sheets/049/6/6L6GC.pdf
+    confidence: high
+  - publisher: General Electric
+    designation: 6L6GC
+    url: https://frank.pocnet.net/sheets/093/6/6L6GC.pdf
+    confidence: high
+  - publisher: Tung-Sol
+    designation: 6L6GC
+    url: https://frank.pocnet.net/sheets/127/6/6L6GC.pdf
+    confidence: high

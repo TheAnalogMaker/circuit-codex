@@ -1,0 +1,49 @@
+# Circuit Codex metadata — schema: docs/schema.md (v1)
+# Model-qualified id: Fender put the AB763 designation on more than one drawing.
+# The corpus's bare `ab763` is the Deluxe Reverb; this is the Twin Reverb sheet.
+id: "ab763-twin"
+name_style: "Blackface Twin Reverb-style"
+family: blackface
+era:
+  start: 1963
+  end: 1967
+wattage: 85
+# Socket order as the layout sheet places them, reading from the preamp end:
+# Normal channel, Vibrato channel, reverb driver, reverb recovery + mix driver,
+# tremolo, phase inverter, then the output quartet. The drawing letters the
+# preamp bottles 7025 (a 12AX7 alias) except the tremolo, which it letters 12AX7.
+tubes: [12AX7, 12AX7, 12AT7, 12AX7, 12AX7, 12AT7, 6L6GC, 6L6GC, 6L6GC, 6L6GC]
+topology:
+  rectifier: { kind: solid-state, type: "silicon full-wave" }
+  bias: fixed
+  phase_inverter: long-tailed-pair
+  tone_stack: fmv
+lineage:
+  derived_from: []   # the blonde 6G8-A Twin is the direct ancestor (four bottles,
+                     # fixed bias, solid-state rectifier, long-tailed pair) — the
+                     # edge lands when that circuit does; see history/families/twin.yaml
+  influenced: []     # amps/ab763 is this circuit's SIBLING, not its parent: the same
+                     # 1963 blackface platform on a Deluxe chassis. The relationship is
+                     # documented in notes.md and in the two family files, and is
+                     # deliberately not drawn as a derivation arrow
+sources:
+  - desc: "Fender 'TWIN REVERB-AMP AB763' drawing (C-FD), schematic + layout sheets: every component value AND the printed voltage chart read directly from the published sheets (2026-08-08) — 68k input stoppers on 1M leaks; four preamp stages with 100k plate loads off the +410 V node [D] (channel inputs on 1.5k/25uF cathodes, both channels' SECOND stages sharing ONE 820 Ohm/25 uF cathode network through the drawing's boxed node [A]); three-knob tone stacks in both channels (250 pF treble cap and 100k slope off the plate node, 0.1 to the treble-lug/bass node, 0.047 to the middle pot, 250k-A treble and bass, 10k-A middle, treble-wiper output) into 1M-A volumes with switched 120 pF bright caps; reverb send 500 pF into a 12AT7 with both sections paralleled (1M leak, 2.2k/25uF cathode) driving the 125A20B transformer off node [B]; reverb recovery (220k tank leak, 100k plate) and the reverb/dry mix driver (3.3M with 10 pF across it, 100k plate) sharing a second 820 Ohm/25 uF cathode network through boxed node [E]; both channels coupled into 220k mixing resistors that meet and feed the phase inverter through 0.001; 12AT7 long-tailed pair (82k/100k 5% plates off +450 node [C], 470 Ohm cathode resistor to a 22k tail, 1M leaks to the tail junction) with the 820 Ohm speaker feedback landing on a 100 Ohm divider leg; four 6L6GC fixed-biased at -52 V through two 220k 5% leaks, 1500 Ohm grid stoppers and 470 Ohm-1W screen stoppers; supply +460 reservoir (70+70 uF in series with 220k-1W balancing) -> 125C1A choke -> +458 [B] -> 1k-1W -> +450 [C] -> 4.7k-1W -> +410 [D] on 20 uF/525 V cans, solid-state rectification (three series diodes per leg off 340-0-340 V) and a bias supply of 470 Ohm-1W + diode + 25 uF/50 V + a 10k-L balance control over a 27k leg; transformers TR1 125P34A, TR2 125C1A, TR3 125A29A, TR4 125A20B. Notice: values +/-20%, read to ground with an electronic voltmeter; all resistors 1/2 W 10% and all capacitors at least 400 V unless specified. Not reproduced here; archived at EL34World"
+    url: "https://el34world.com/charts/Schematics/files/Fender/Fender_twin_reverb_ab763.pdf"
+  - desc: "Fender 'TWIN REVERB-AMP AB763' LAYOUT drawing (C-FD, Fender Musical Instruments, Fullerton) — the board layout in amps/ab763-twin/layout.yaml is redrawn from this sheet: the socket row left to right (four 6L6GC, 12AT7 phase inverter, 12AX7 tremolo, 7025 reverb recovery + mix, 12AT7 reverb driver, 7025 vibrato, 7025 normal), the eyelet board's part order above it, the control row (Intensity, Speed, Reverb, then the vibrato channel's Bass/Middle/Treble/Volume with its Bright switch, the two Vibrato jacks, the normal channel's Bass/Middle/Treble/Volume with its Bright switch and the two Normal jacks), the pilot lamp and the 6.3 V heater run marked 'TO ALL 6.3 VOLT HEATERS', the transformer lead colours (green heater pair, red 340 VAC pair, red-yellow centre tap, red-blue 48 VAC bias tap, black primary; blue and brown output-transformer plate leads, green speaker lead), the chassis-mounted bias board (470 Ohm-1W, rectifier, 25 uF/50 V, 10k-L balance to -52 V) and the four 6L6GC sockets' own 1500 Ohm grid stoppers and 470 Ohm-1W screen resistors. Notice on the sheet: 'all resistors 1/2 watt 10% tolerance if not specified', 'all capacitors at least 400 volt rating if not specified', voltages +/- 20%. Not reproduced here"
+    url: "https://el34world.com/charts/Schematics/files/Fender/Fender_twin_reverb_ab763_layout.pdf"
+  - desc: "Mojotone/Ampwares Fender field guide, 'Blackface Twin Reverb' — 1963-1967, 85 W, four 6L6GC, 7025 preamp, fixed bias with an adjustment pot, solid-state rectifier, 2 x 12 in at 4 Ohms; Normal and Vibrato channels each with Bright switch, Volume, Treble, Middle and Bass, plus Reverb, Speed and Intensity"
+    url: "https://mojotone.com/blogs/fender-field-guide/fender-blackface-twin-reverb"
+  - desc: "RCA 6L6-GC data sheet (DATA 1, 8-60) — tabulated Class A1 characteristics read for the clean-room CC0 6L6GC tube model added with this amp (Va=250 V, Vg2=250 V, Vg1=-14 V -> Ia=72 mA, Ig2=5 mA, gm=6000 umho), its interelectrode capacitances, its 7AC basing, and its design-maximum ratings (30 W plate dissipation, 500 V plate, 450 V screen). The amplification factor is RC-19's grid-No.1-to-grid-No.2 figure of 8; this sheet prints none"
+    url: "https://frank.pocnet.net/sheets/049/6/6L6GC.pdf"
+verification:
+  status: draft
+  # Every gated node lands inside the drawing's own +/-20% notice (worst 14.9%,
+  # the vibrato channel's second-stage plate — one end of a cathode node the chart
+  # prints two different plate voltages against). The redrawn schematic and the
+  # board layout have since landed: the BOM<->schematic cross-check passes both
+  # ways, and pipeline/verify_layout_nets.py proves the drawn board wiring
+  # electrically equivalent to netlist.cir (layout.yaml carries
+  # wiring_claim: verified). The entry stays draft because 'verified' is the
+  # maintainer's to grant, never an agent's.
+added: 2026-08-08
+contributors: [TheAnalogMaker]

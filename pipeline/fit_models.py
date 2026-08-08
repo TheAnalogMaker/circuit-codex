@@ -477,6 +477,38 @@ Cak A K 4p
         emit_pentode(p5881, {"cin": 10.0, "cgp": 0.6, "cout": 12.0}) + "\n"
     (MODELS_DIR / "5881.inc").write_text(txt)
 
+    # ---- 6L6GC (RCA beam power, the blackface Twin's output valve): the RCA
+    #      6L6-GC data sheet's Class A1 characteristics, Va=250, Vg2=250,
+    #      Vg1=-14 -> Ia=72 mA, Ig2=5 mA, gm=6000 umho. RCA's sheet prints no
+    #      amplification factor, so MU is the grid-No.1-to-grid-No.2 factor
+    #      RC-19 prints for this tube (8) — METHODOLOGY's first preference, a
+    #      published amplification factor, taken from the publisher's own manual.
+    #
+    #      The anchor row is the same one the 5881 model carries, because the
+    #      5881 IS the ruggedized 6L6GC and RCA prints one set of Class A1
+    #      characteristics for both; the two fits are therefore numerically
+    #      identical by construction, not by copying. They are separate models
+    #      because their MAXIMUM RATINGS are not the same tube's — 30 W / 500 V
+    #      here against the 5881's 23 W / 400 V — and every rating the load-line
+    #      explorer overlays is read from the model's own reference entry. A
+    #      6L6GC circuit plotted on 5881 ratings reads as exceeding a plate
+    #      voltage it is rated for.
+    #      Capacitances are this sheet's own (Cg1-p 0.6, Cg1-k 10, Cp-k 6.5 pF).
+    g6l6gc = fit_pentode("6L6GC", mu=8.0, vp=250.0, vg2=250.0, vg1=-14.0,
+                         ia=72e-3, ig2=5e-3, gm=6000e-6)
+    txt = common_header("6L6GC beam power tube",
+                        "Va=250 V, Vg2=250 V, Vg1=-14 V -> Ia=72 mA, Ig2=5 mA, gm=6000 umho",
+                        ["mu is the grid-No.1-to-grid-No.2 amplification factor (8) from",
+                         "RCA RC-19; the 6L6-GC data sheet prints none (see METHODOLOGY,",
+                         "'Where MU comes from'). Same anchor row as models/5881.inc — the",
+                         "5881 is the ruggedized 6L6GC and RCA prints one Class A1 set for",
+                         "both — so the fits coincide; the ratings attached to each do not.",
+                         "Node order: P G2 G1 K"],
+                        source=("RCA 6L6-GC data sheet, DATA 1, 8-60, Class A1 "
+                                "characteristics; https://frank.pocnet.net/sheets/049/6/6L6GC.pdf")) \
+        + "\n" + emit_pentode(g6l6gc, {"cin": 10.0, "cgp": 0.6, "cout": 6.5}) + "\n"
+    (MODELS_DIR / "6l6gc.inc").write_text(txt)
+
     # ---- KT66 (GEC beam power tube, JTM45 output): plate/gm anchor at the
     #      GEC datasheet's gm test point Va=250, Vg2=250, Vg1=-15 -> Ia=85 mA,
     #      gm=7 mA/V (datasheet pp.1 & 3). mu(g1-g2)=9.5 from the triode-
@@ -791,6 +823,7 @@ Cak A K 4p
     print(f"  6V6GT: MU={v6.mu:g} KP={v6.kp:.6g} KG1={v6.kg1:.6g} KG2={v6.kg2:.6g} KVB={v6.kvb:g}")
     print(f"  5Y3GT: PERV={perv:.6g}")
     print(f"  5881:  MU={p5881.mu:g} KP={p5881.kp:.6g} KG1={p5881.kg1:.6g} KG2={p5881.kg2:.6g}")
+    print(f"  6L6GC: MU={g6l6gc.mu:g} KP={g6l6gc.kp:.6g} KG1={g6l6gc.kg1:.6g} KG2={g6l6gc.kg2:.6g}")
     print(f"  KT66:  MU={kt66.mu:g} KP={kt66.kp:.6g} KG1={kt66.kg1:.6g} KG2={kt66.kg2:.6g}")
     print(f"  EL34:  MU={el34.mu:g} KP={el34.kp:.6g} KG1={el34.kg1:.6g} KG2={el34.kg2:.6g}")
     print(f"  EL84:  MU={el84.mu:g} KP={el84.kp:.6g} KG1={el84.kg1:.6g} KG2={el84.kg2:.6g}")

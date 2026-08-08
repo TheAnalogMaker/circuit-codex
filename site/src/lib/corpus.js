@@ -683,9 +683,12 @@ function tubeSmallSignal(tubeId) {
 // pot or a fixed bleed, what drives the network — and those claims are read off the
 // amp's own parts list and its recorded topology.tone_stack, not inferred. A circuit
 // is listed only where its stack is one of the networks tonestack.js actually
-// solves. Six of the sixteen documented circuits that carry a tone control are
-// therefore absent, and the guide page names all six — it counts them out of the
-// corpus rather than repeating a number, so the two cannot drift apart:
+// solves. Circuits that carry a tone control and are still absent from this table
+// are named on the guide page, which derives them from the corpus and sorts them
+// into four groups — so that paragraph stays true as the archive grows. No count
+// is repeated here, because a number written into a comment goes stale the first
+// time a circuit lands and nobody notices. The notes below say why each of the
+// long-standing absentees is absent; they are reasons, not a census:
 //
 //   ac15   topology.tone_stack: top-cut — a cap and pot across the two phase-inverter
 //          outputs, a differential cut with no counterpart here. Not a variant of the
@@ -818,6 +821,11 @@ const TONE_STACK_SPECS = [
 //     both are read at lug level. The two differ only in their part values
 //     (390 pF / 8.2 kΩ on the bass-instrument channel against 250 pF / 6.8 kΩ
 //     on the normal one), so both are gated here rather than plotted twice.
+//   ab763-twin — a three-knob FMV stack, the network this solver models best,
+//     but drawn twice and driven from a plate rather than a cathode follower.
+//     Both channels' stacks are identical part for part, so a single preset
+//     would have to declare which one the curve came from and the drawing
+//     gives no reason to prefer either. Both are gated here instead.
 // eslint-disable-next-line no-unused-vars -- read by pipeline/check_tonestack_wiring.py
 const TONE_STACK_GATE_EXTRAS = [
   {
@@ -839,6 +847,14 @@ const TONE_STACK_GATE_EXTRAS = [
     id: 'ab165', kind: 'tb', wiring: 'ladder', channel: 'bass instrument',
     refs: { slope: 'RSB', trebleCap: 'CTB', treblePot: 'VRTB', bassCap: 'CBB', bassPot: 'VRBB', midCap: 'CBB2' },
     midLeg: { kind: 'fixed', ref: 'RSLB' },
+  },
+  {
+    id: 'ab763-twin', kind: 'fmv', wiring: 'ladder', channel: 'normal',
+    refs: { slope: 'RSN', trebleCap: 'CTN', treblePot: 'VRTN', bassCap: 'CBN', bassPot: 'VRBN', midCap: 'CBN2', midPot: 'VRMN' },
+  },
+  {
+    id: 'ab763-twin', kind: 'fmv', wiring: 'ladder', channel: 'vibrato',
+    refs: { slope: 'RSV', trebleCap: 'CTV', treblePot: 'VRTV', bassCap: 'CBV', bassPot: 'VRBV', midCap: 'CBV2', midPot: 'VRMV' },
   },
 ];
 

@@ -1,0 +1,143 @@
+family: twin
+title: "The Twin line"
+maker_style: "Fender-style"
+summary: >-
+  The Twin is Fender's flagship: two 12-inch speakers in one cabinet, and a circuit
+  that spends fifteen years chasing more clean volume than the speakers of the day
+  could take. It starts in the tweed era as a 25 W pair of 6L6s, gains a third
+  preamp tube and a presence control, then in 1957 doubles its output bottles to four
+  and adopts the long-tailed-pair inverter that carries it to 80 W. The blonde Tolex
+  redesign trades cathode bias for fixed bias and the rectifier tube for silicon, and
+  in 1963 the blackface generation adds spring reverb, tremolo and a middle control
+  to produce the Twin Reverb — the amp the whole line is remembered as. Tweed-era
+  production dates are approximate — Fender did not date-stamp early circuits — so
+  the sub-circuit ranges below are the defensible spans, not hard boundaries.
+models:
+  - designation: "5C8"
+    name: "Twin 5C8 (wide-panel tweed)"
+    years: { start: 1952, end: 1954 }
+    wattage: 25
+    output: "push-pull 2x6L6"
+    tubes: [6SC7, 6SC7, 6J7, 6L6, 6L6, 5U4G]
+    key_change: >-
+      The original Twin, and the first Fender amplifier built around a pair of 12-inch
+      speakers. An octal front end feeds a cathode-biased 6L6 pair on a 5U4G rectifier
+      for a rated 25 W, with separate instrument and microphone volumes and a
+      bass/treble pair on the top panel — already a two-knob tone stack when most of
+      the line still had one. The wide-panel cabinet dates the run; the model itself
+      was introduced in 1952, before the tweed cosmetics settled.
+    circuit_ref: null
+    sources:
+      - desc: "Mojotone/Ampwares Fender field guide, 'Wide Panel Tweed Twin' — circuits 5C8 and 5D8, 25 W, 2 x 12 in; 5C8 preamp two 6SC7 plus a 6J7, output two 6L6 or 5881, cathode bias, 5U4G rectifier; the wide-panel run bracketed 1953-1955"
+        url: "https://mojotone.com/blogs/fender-field-guide/fender-wide-panel-tweed-twin"
+      - desc: "Wikipedia, 'Fender Twin' — the Twin introduced in 1952; the original an all-tube combo with dual 12-inch speakers and two 6L6 tubes rated at 25 W"
+        url: "https://en.wikipedia.org/wiki/Fender_Twin"
+      - desc: "Fender 'Twin' 5C8 schematic archived at EL34World (designation-indexed anchor; drawing not reproduced)"
+        url: "https://el34world.com/charts/Schematics/files/Fender/Fender_twin_5c8.pdf"
+  - designation: "5D8"
+    name: "Twin 5D8 (wide-panel tweed)"
+    years: { start: 1954, end: 1955 }
+    wattage: 25
+    output: "push-pull 2x6L6G"
+    tubes: [12AY7, 12AY7, 12AY7, 6L6G, 6L6G, 5Y3GT, 5Y3GT]
+    key_change: >-
+      The wide-panel revision retires the octal preamp for three 12AY7s and adds a
+      presence control to the top panel — the first on a Twin. It also doubles the
+      rectifier, running a pair of 5Y3GTs where the 5C8 used a single 5U4G, which is
+      the first sign of the supply-stiffening that defines the rest of the line.
+      Output stays a cathode-biased 6L6 pair at the same 25 W rating.
+    circuit_ref: null
+    sources:
+      - desc: "Mojotone/Ampwares Fender field guide, 'Wide Panel Tweed Twin' — 5D8 preamp three 12AY7, output two 6L6G, two 5Y3GT rectifiers, cathode bias, and a Presence control listed on the 5D8 only"
+        url: "https://mojotone.com/blogs/fender-field-guide/fender-wide-panel-tweed-twin"
+      - desc: "Fender 'Twin' 5D8 schematic archived at EL34World (designation-indexed anchor; drawing not reproduced)"
+        url: "https://el34world.com/charts/Schematics/files/Fender/Fender_twin_5d8.pdf"
+  - designation: "5E8 / 5E8-A"
+    name: "Twin 5E8 and 5E8-A (narrow-panel tweed)"
+    years: { start: 1955, end: 1957 }
+    wattage: null
+    output: "push-pull 2x6L6"
+    tubes: [12AY7, 12AX7, 6L6, 6L6, 5U4G, 5U4G]
+    key_change: >-
+      The narrow-panel redesign, and the point at which the Twin's supply stops being
+      the limit. The circuit carries twin 5U4 rectifiers — the same arrangement the
+      narrow-panel Bassman uses — in Fender's pursuit of a louder, cleaner amplifier,
+      still driving a 6L6 pair. This is the last Twin with two output bottles.
+    circuit_ref: null
+    sources:
+      - desc: "Wikipedia, 'Fender Twin' — the narrow-panel Twin (model 5E8, 1955) with dual 5U4 rectifiers and 6L6 power tubes, twin 12-inch speakers; the dual-rectifier design shared with the Bassman and described as part of Fender's pursuit of a louder, cleaner amplifier"
+        url: "https://en.wikipedia.org/wiki/Fender_Twin"
+      - desc: "Fender 'Twin' 5E8 and 5E8-A schematics archived at EL34World (designation-indexed anchors; drawings not reproduced)"
+        url: "https://el34world.com/charts/Schematics/files/Fender/Fender_twin_5e8a.pdf"
+  - designation: "5F8 / 5F8-A"
+    name: "Twin 5F8 and 5F8-A (high-power tweed)"
+    years: { start: 1957, end: 1960 }
+    wattage: 80
+    output: "push-pull-parallel 4x5881"
+    tubes: [12AY7, 12AX7, 12AX7, 5881, 5881, 5881, 5881, GZ34]
+    key_change: >-
+      The decisive revision of the line, and the one the blackface amp inherits: four
+      output bottles instead of two, driven by a long-tailed-pair phase inverter, for
+      a jump to 80 W. The 5F8 was briefly rectified by a type 83 mercury-vapour tube
+      on a special socket before Fender replaced it with a GZ34 — a change that
+      reached the tube chart only on the second production run. The 5F8-A of 1958 ran
+      into early 1960 and is the last tweed Twin.
+    circuit_ref: null
+    sources:
+      - desc: "Wikipedia, 'Fender Twin' — modified in 1957 to four 5881 power tubes with the more efficient long-tailed pair phase inverter for a power increase to 80 W; the 5F8 briefly rectified with a type 83 mercury-vapour tube on a special socket, superseded by a GZ34; the 5F8-A released 1958 and produced into early 1960"
+        url: "https://en.wikipedia.org/wiki/Fender_Twin"
+      - desc: "Fender 'Twin' 5F8 and 5F8-A schematics archived at EL34World (designation-indexed anchors; drawings not reproduced)"
+        url: "https://el34world.com/charts/Schematics/files/Fender/Fender_twin_5f8a.pdf"
+  - designation: "6G8 / 6G8-A"
+    name: "Twin-Amp 6G8 and 6G8-A (blonde Tolex)"
+    years: { start: 1960, end: 1963 }
+    wattage: null
+    output: "push-pull-parallel 4x6L6GC (6G8) / 4x5881 (6G8-A)"
+    tubes: [7025, 7025, 7025, 12AX7, 6L6GC, 6L6GC, 6L6GC, 6L6GC]
+    key_change: >-
+      The Tolex redesign, and the circuit the blackface Twin Reverb is a revision of
+      rather than a departure from: fixed (non-adjustable) bias replaces cathode bias,
+      a solid-state rectifier replaces the GZ34, and the amp gains Normal and Bright
+      channels with a harmonic vibrato and a presence control. Published output is
+      cited loosely at 80-100 W, so no single figure is recorded here. Twin-Amp
+      production paused in the first months of 1960 and the model reappeared in blonde
+      Tolex in mid-1960, which is why the span opens a year before the field guide's.
+    circuit_ref: null
+    sources:
+      - desc: "Mojotone/Ampwares Fender field guide, 'Blonde Twin' — circuits 6G8 and 6G8-A, 80-100 W, fixed non-adjustable bias, solid-state rectifier, harmonic vibrato, 7025 preamp with a long-tailed 7025 inverter; output four 6L6GC (6G8) or four 5881 (6G8-A); the field guide brackets the run 1961-1963"
+        url: "https://mojotone.com/blogs/fender-field-guide/fender-blonde-twin"
+      - desc: "Wikipedia, 'Fender Twin' — Twin-Amp production interrupted in the first months of 1960, the model re-emerging in mid-1960 in blonde Tolex and running to 1963, when it was replaced by the Twin Reverb-Amp"
+        url: "https://en.wikipedia.org/wiki/Fender_Twin"
+      - desc: "Fender 'Twin' 6G8 and 6G8-A schematics archived at EL34World (designation-indexed anchors; drawings not reproduced)"
+        url: "https://el34world.com/charts/Schematics/files/Fender/Fender_twin_6g8a.pdf"
+  - designation: "AB763"
+    name: "Twin Reverb AB763 (blackface)"
+    years: { start: 1963, end: 1967 }
+    wattage: 85
+    output: "push-pull-parallel 4x6L6GC"
+    tubes: [7025, 7025, 12AT7, 7025, 12AX7, 12AT7, 6L6GC, 6L6GC, 6L6GC, 6L6GC]
+    key_change: >-
+      The Twin becomes the Twin Reverb. The blonde amp's four-bottle output stage,
+      fixed bias and solid-state rectifier carry over; what is new is an onboard spring
+      reverb driven by a 12AT7 and recovered by its own stage, a tube tremolo working
+      through an optocoupler, and a middle control that turns both channels' tone
+      stacks into the three-knob network. Rated 85 W into two 12-inch speakers, with
+      an adjustable bias pot. This is the circuit documented in the corpus at
+      amps/ab763-twin, where the printed AB763 voltage chart is read and simulated.
+    circuit_ref: "ab763-twin"
+    sources:
+      - desc: "Mojotone/Ampwares Fender field guide, 'Blackface Twin Reverb' — schematic AB763, 1963-1967, 85 W, four 6L6GC, 7025 preamp, fixed bias with an adjustment pot, solid-state rectifier, 2 x 12 in at 4 Ohms; Normal and Vibrato channels each with Bright switch, Volume, Treble, Middle and Bass, plus Reverb, Speed and Intensity"
+        url: "https://mojotone.com/blogs/fender-field-guide/fender-blackface-twin-reverb"
+      - desc: "Fender 'TWIN REVERB-AMP AB763' schematic and layout sheets archived at EL34World (designation-indexed anchor; component values and the printed voltage chart read from the drawing, not reproduced)"
+        url: "https://el34world.com/charts/Schematics/files/Fender/Fender_twin_reverb_ab763.pdf"
+notes: >-
+  Tweed sub-circuit dating (5C8/5D8/5E8/5F8) is approximate: the field guide brackets
+  the wide-panel run 1953-1955 without firm per-circuit boundaries, and the model
+  predates the tweed cosmetics, so the ranges above are defensible spans. Wattage is
+  left null where only a loose published range exists. Fender used the AB763
+  designation on more than one drawing: the blackface Deluxe Reverb carries it too,
+  and lives in history/families/deluxe-reverb.yaml, which owns the corpus's amps/ab763
+  circuit entry. This file owns amps/ab763-twin. The two are contemporaries on the
+  same blackface platform rather than parent and child, so neither family file claims
+  the other's circuit and the archive draws no derivation arrow between them. The
+  silverface Twin Reverb circuits that follow AB763 are out of scope here.

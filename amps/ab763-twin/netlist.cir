@@ -1,0 +1,156 @@
+* AB763 (Blackface Twin Reverb-style) — DC operating-point netlist
+* Circuit Codex — CC-BY-SA 4.0. Independently drawn from the published
+* "TWIN REVERB-AMP AB763" drawing's component values (see meta.yaml); no drawing
+* reproduced. The drawing labels the six preamp bottles 7025 and 12AX7 — 7025 is
+* an alias for the 12AX7 (reference/tubes/12ax7.yaml also_known_as) — and the
+* reverb driver and phase inverter 12AT7. The output quartet is lettered
+* 6L6GC(4) and uses the clean-room 6L6GC model added with this amp.
+*
+* DC conventions. Two printed supply nodes are driven at their charted values and
+* everything below them is solved:
+*   BP1 = +460 V — the reservoir node: 6L6GC plates through the output
+*                  transformer (TR3, 125A29A) primary, whose DCR is omitted, so
+*                  plate node == OT centre tap, both printed +460 V.
+*   BB  = +458 V — node [B] on the drawing, the post-choke node (TR2, 125C1A).
+*                  It feeds the four 470 Ohm-1W screen stoppers, the reverb
+*                  driver through the reverb transformer (TR4, 125A20B) primary,
+*                  and the excluded tremolo (below).
+* The two lower rails are DERIVED through the drawing's own droppers, so their
+* simulated values are a check on the chart rather than an input to it:
+*   BB -> 1k-1W  -> BC (printed +450 V, the phase-inverter plate supply, node [C])
+*   BC -> 4.7k-1W-> BD (printed +410 V, the preamp plate supply,      node [D])
+*
+* The negative-bias supply (bias tap + 470 Ohm-1W + rectifier + 25 uF/50 V can +
+* 10k-L balance control over a 27k leg) is replaced by an ideal -52 V source,
+* exactly as its AC/ripple-filtering role warrants. Likewise the solid-state main
+* rectifier (two three-diode strings off a 340-0-340 V winding) and the 70+70 uF
+* series reservoir with its 220k-1W balancing pair: BP1 is driven at the value
+* they produce.
+*
+* DC-open caps are MODELLED where BOTH leads land on a named DC node (the PI ->
+* output-grid coupling caps and every cathode-bypass can) so an eventual layout
+* is placement-checked; open at DC they move no operating point. Caps into the
+* abstracted volume / tone / reverb-mix / tremolo networks stay omitted.
+*
+* SHARED CATHODE NETWORKS. The drawing carries boxed letters for nodes that
+* appear in more than one place ([B] [C] [D] are the supply nodes above). Two
+* more, [A] and [E], tie cathodes together, and each pair is printed at the same
+* +2.0 V:
+*   [A] the Normal channel's second stage and the Vibrato channel's second stage
+*       share ONE 820 Ohm / 25 uF cathode network (drawn on the vibrato side).
+*   [E] the reverb-recovery stage and the reverb/dry mix driver share another.
+* Modelled as drawn: KA and KE each carry two triodes.
+*
+* EXCLUDED — the tremolo (vibrato) 12AX7. Neither half has a static operating
+* point: one is a running phase-shift oscillator (its printed +2.0 V cathode is a
+* grid-leak-detected average), and the other drives a neon lamp inside the
+* optocoupler, so its printed +380 V plate / +5.6 V cathode are the average a
+* meter reads while the lamp fires and extinguishes. Both are documented in
+* notes.md, not modelled. Unlike the Deluxe Reverb's tremolo, this one taps BB —
+* a DRIVEN node — not the preamp rail, so leaving it out shifts no gated node.
+.include models/12ax7.inc
+.include models/12at7.inc
+.include models/6l6gc.inc
+
+VBP1 BP1 0 DC 460
+VBB  BB  0 DC 458
+VBIAS NBIAS 0 DC -52
+
+* supply droppers (BOM RD1, RD2) — the two lower rails are solved, not driven
+RD1 BB BC 1k
+RD2 BC BD 4.7k
+
+* --- Normal channel input stage (12AX7): 100k plate off BD, 1.5k cathode with a
+*     25 uF bypass, grid returned to ground through the input jacks' 1M leak.
+RLN1 BD PN1 100k
+XV1A PN1 GN1 KN1 12AX7
+RGN1 GN1 0 1meg
+RKN1 KN1 0 1500
+CKN1 KN1 0 25u
+
+* --- Vibrato channel input stage (12AX7): identical topology, same rail.
+RLV1 BD PV1 100k
+XV2A PV1 GV1 KV1 12AX7
+RGV1 GV1 0 1meg
+RKV1 KV1 0 1500
+CKV1 KV1 0 25u
+
+* --- Normal 2nd stage + Vibrato 2nd stage (12AX7 each): 100k plate loads off
+*     BD; both cathodes on the SHARED node KA (820 Ohm / 25 uF, drawing box [A]).
+*     Each grid returns through its channel's 1M volume pot (~0 V DC).
+RLN2 BD PN2 100k
+XV1B PN2 GN2 KA 12AX7
+RGN2 GN2 0 1meg
+RLV2 BD PV2 100k
+XV2B PV2 GV2 KA 12AX7
+RGV2 GV2 0 1meg
+RKA KA 0 820
+CKA KA 0 25u
+
+* --- Reverb recovery + reverb/dry mix driver (12AX7 each): 100k plate loads off
+*     BD; both cathodes on the SHARED node KE (820 Ohm / 25 uF, drawing box [E]).
+*     The recovery grid returns to ground through its 220k tank leak; the mix
+*     driver's grid sits at ~0 V through the 3.3M in the dry-signal path.
+RLR1 BD PR1 100k
+XV4B PR1 GR1 KE 12AX7
+RGR1 GR1 0 220k
+RLD1 BD PD1 100k
+XV4A PD1 GD1 KE 12AX7
+RGD1 GD1 0 3.3meg
+RKE KE 0 820
+CKE KE 0 25u
+
+* --- Reverb driver (12AT7, BOTH sections in parallel): plates tied and fed from
+*     BB through the reverb transformer TR4 (125A20B) primary DCR, modelled at
+*     200 Ohm; grids tied through a 1M leak; shared 2.2k cathode with a 25 uF can.
+RTR4 BB PRD 200
+XV3A PRD GRD KRD 12AT7
+XV3B PRD GRD KRD 12AT7
+RGRD GRD 0 1meg
+RKRD KRD 0 2.2k
+CKRD KRD 0 25u
+
+* --- Phase inverter (12AT7 long-tailed pair): 82k (hot) and 100k (cold) 5% plate
+*     loads off BC; cathodes joined at KPI, 470 Ohm down to the tail junction JPI,
+*     22k from JPI to the feedback node NFB; both 1M grid leaks return to JPI.
+*     NFB is the speaker-feedback divider: 100 Ohm to ground, and the 820 Ohm
+*     feedback resistor to the output-transformer secondary, which the netlist
+*     folds into ground (the secondary's DCR is not modelled). At DC the pair
+*     therefore sees 22k in series with 100 || 820 = 89 Ohm.
+RLPA BC PPIA 82k
+XV6A PPIA GPIA KPI 12AT7
+RGPA GPIA JPI 1meg
+RLPB BC PPIB 100k
+XV6B PPIB GPIB KPI 12AT7
+RGPB GPIB JPI 1meg
+RTAIL KPI JPI 470
+RT22 JPI NFB 22k
+RFB1 NFB 0 100
+RFB2 NFB 0 820
+
+* --- Output quartet 6L6GC (fixed bias): each PAIR shares a 220k grid leak to the
+*     -52 V line and a 0.1 uF coupler from one phase-inverter plate; each BOTTLE
+*     then gets its own 1500 Ohm grid stopper and 470 Ohm-1W screen stopper off
+*     BB. Cathodes grounded; plates at BP1 (OT primary DCR omitted).
+RGL1 NBIAS GB1 220k
+RST1 GB1 G61 1500
+XV7 BP1 S61 G61 0 6L6GC
+RSC1 BB S61 470
+RST2 GB1 G62 1500
+XV8 BP1 S62 G62 0 6L6GC
+RSC2 BB S62 470
+
+RGL2 NBIAS GB2 220k
+RST3 GB2 G63 1500
+XV9 BP1 S63 G63 0 6L6GC
+RSC3 BB S63 470
+RST4 GB2 G64 1500
+XV10 BP1 S64 G64 0 6L6GC
+RSC4 BB S64 470
+
+* PI-plate -> output-grid coupling caps (0.1 uF, DC-open). Modelled so an
+* eventual layout's inter-stage routing and push-pull phase are machine-checked;
+* each grid pair still sits at -52 V through its 220k leak, so the operating
+* point is unmoved.
+C1 PPIA GB1 0.1u
+C2 PPIB GB2 0.1u
