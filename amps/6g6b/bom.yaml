@@ -92,7 +92,7 @@ items:
   - { ref: DB1, part: "Rectifier (bias)", value: "silicon diode", role: "Bias supply rectifier, AC tap" }
   - { ref: RB1, part: "Carbon comp resistor", value: "1 kΩ · 1 W · 5%", role: "Bias supply series resistor" }
   - { ref: RB2, part: "Carbon comp resistor", value: "27 kΩ · 1 W · 5%", role: "Bias supply bleeder" }
-  - { ref: C13, part: "Electrolytic capacitor", value: "25/50 µF (dual can)", role: "Bias supply filter" }
+  - { ref: C13, part: "Electrolytic capacitor", value: "25 µF + 50 µF", role: "Bias supply filter — one dual-section can" }
   - { ref: V1, part: "Preamp tube", value: "7025 (12AX7-family)", role: "Bass channel, both stages (V1A/V1B)" }
   - { ref: V2, part: "Preamp tube", value: "7025 (12AX7-family)", role: "Normal channel, both stages (V2A/V2B)" }
   - { ref: V3, part: "Preamp tube", value: "7025 (12AX7-family)", role: "Shared driver + Bass ch. Treble (V3A/V3B)" }

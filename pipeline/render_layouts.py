@@ -2429,6 +2429,9 @@ PLUS_GUTTER = 17.0
 
 _ERA_NUM = r"[0-9][0-9,]*(?:\.[0-9]+)?"
 _RE_TRAILING_PAREN = re.compile(r"\s*\([^()]*\)\s*$")
+# The factory value-voltage shorthand ("20-600", ".02-400") inside a house value
+# string. era_pair() refuses it; pipeline/test_era_values.py rejects it in bom.yaml.
+_RE_VALUE_DASH_PAIR = re.compile(r"\d\s*-\s*\d")
 _RE_OHMS = re.compile(rf"^({_ERA_NUM})\s*([kM])?\s*(?:Ω|ohms?)$")
 _RE_FARADS = re.compile(rf"^({_ERA_NUM})\s*([µμunp])F$")
 _RE_VOLTS = re.compile(rf"^({_ERA_NUM})\s*V\b(.*)$")
@@ -2511,6 +2514,15 @@ def era_pair(value: str, cat: str) -> tuple[str, str | None]:
     house = (toks[0], toks[1] if len(toks) > 1 else None)
     prim = _RE_TRAILING_PAREN.sub("", toks[0]).strip()   # '0.0005 µF (500 pF)'
     rest = toks[1:]
+
+    # Refuse a half-parse. The era shorthand packs value and working voltage into
+    # one dashed token ("20-600" = 20 µF at 600 V), and that shorthand belongs to
+    # the LETTERING, never to the house value string. Left in `value`, it used to
+    # come apart into nonsense: "30-450 µF · 450 V" lettered as "30-450 µF" over a
+    # "450 V" second line — one part claiming two different working voltages. A
+    # number this function cannot read whole is a number it must not letter at all.
+    if _RE_VALUE_DASH_PAIR.search(prim):
+        return house
 
     ohms = _parse_ohms(prim)
     if ohms is not None:
@@ -3464,6 +3476,21 @@ LINT_GLYPH_H = 2.5
 LINT_LABEL_GAP = 2.2      # (e) clear space every label demands around itself (px)
 LINT_LABEL_W = 0.5        # (e) intersection of the grown boxes that trips it (px)
 LINT_LABEL_H = 0.5
+# --- envelope checks (h/i) --------------------------------------------------
+# These two exist because the lint above was tuned on the first twenty boards and
+# measures things RELATIVE to each other — labels against wires, labels against
+# bodies, labels against labels. Nothing measured the drawing against its own
+# page. So a board could pass 28/28 while an input jack was drawn at cx = -7.6,
+# ink outside the viewBox and invisible in every render (5C1 shipped that way),
+# and nothing would stop a label being placed in the margin, far from the part it
+# names, where a reader cannot attribute it at all.
+LINT_BOUNDS_SLACK = 0.5   # (h) ink may sit this far outside the viewBox, no more
+# (i) The furthest a label may sit from the nearest box of the thing it names.
+# Measured across the corpus: the widest legitimate reach is 58 px (a lead label
+# on a transformer's far terminal), so this is generous by half again — it is a
+# guard against a label that has come adrift, not a placement rule.
+LINT_LABEL_REACH = 90.0
+_RE_LABEL_OWNER = re.compile(r"\s+(?:ref|value)$")
 
 
 def _parallel_overlap(a1, a2, b1, b2, sep):
@@ -3680,7 +3707,42 @@ def _lint_labels(rend: "Renderer", runs, bus, amp_id: str,
                     f"{amp_id}: labels collide — '{la['text']}' ({la['tag']}) and "
                     f"'{lbb['text']}' ({lbb['tag']}) overlap {w:.1f}x{h:.1f}px at "
                     f"({(ba[0]+ba[2])/2:.0f},{(ba[1]+ba[3])/2:.0f})")
+    # (h) ink outside the page. Every glyph and every label must sit inside the
+    # viewBox the drawing publishes; ink beyond it is simply not in the picture.
+    for kind, items in (("glyph", rend.obstacles), ("label", labels)):
+        for it in items:
+            bx = it["box"]
+            out_x = max(-bx[0], bx[2] - rend.width)
+            out_y = max(-bx[1], bx[3] - rend.height)
+            if max(out_x, out_y) > LINT_BOUNDS_SLACK:
+                what = f" '{it['text']}'" if it.get("text") else ""
+                fails.append(
+                    f"{amp_id}: outside the viewBox — {kind}{what} ({it['tag']}) "
+                    f"runs {max(out_x, 0.0):.1f}px past the left/right edge and "
+                    f"{max(out_y, 0.0):.1f}px past the top/bottom of the "
+                    f"{rend.width:.0f}x{rend.height:.0f} page")
+    # (i) a label adrift from what it names
+    owners: dict[str, list] = {}
+    for ob in rend.obstacles:
+        owners.setdefault(ob["tag"], []).append(ob["box"])
+    for lb in labels:
+        own = _RE_LABEL_OWNER.sub("", lb["tag"])
+        if own not in owners:
+            continue                    # nothing registered a body to measure against
+        reach = min(_box_gap(lb["box"], b) for b in owners[own])
+        if reach > LINT_LABEL_REACH:
+            fails.append(
+                f"{amp_id}: label adrift — '{lb['text']}' ({lb['tag']}) sits "
+                f"{reach:.0f}px from the nearest part of {own}; a reader cannot "
+                f"tell what it labels")
     return fails
+
+
+def _box_gap(a, b) -> float:
+    """Shortest distance between two axis-aligned boxes (0 when they touch)."""
+    dx = max(a[0] - b[2], b[0] - a[2], 0.0)
+    dy = max(a[1] - b[3], b[1] - a[3], 0.0)
+    return math.hypot(dx, dy)
 
 
 def render_all(write: bool = True, style: str = "house",

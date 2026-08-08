@@ -4,9 +4,8 @@
 # schematic (schematic.kicad_sch) by pipeline/validate.py, in both directions.
 # The drawing's notice sets 1/2 W resistors and >=400 V capacitors unless a part
 # is marked otherwise (the layout sheet separately gives 10% resistor tolerance).
-# Physical tube-socket count (2026-08-08 drawing pass): the published layout
-# sheet's own socket row shows five 7025s + two 6L6GC (seven tubes total, not
-# nine) — see meta.yaml sources. Socket assignment: V1 = Normal channel, both
+# Physical tube-socket count: the published layout sheet's own socket row shows
+# five 7025s + two 6L6GC, seven tubes in all — see meta.yaml sources. Socket assignment: V1 = Normal channel, both
 # stages (V1A/V1B share one bottle); V2 = Bright channel, both stages (V2A/V2B);
 # V3 = tremolo oscillator (its own bottle, one section used, DC point excluded
 # from netlist.cir — see notes.md); V5 = driver (its own bottle, one section
@@ -59,8 +58,8 @@ items:
   - { ref: RK2B, part: "Carbon comp resistor", value: "1.5 kΩ · ½ W (informational)", role: "V2B cathode bias — mirrors RK1B" }
   - { ref: CK2B, part: "Electrolytic capacitor", value: "25 µF (informational)", role: "V2B cathode bypass — mirrors CK1B" }
   # --- Tremolo oscillator V3 (excluded from netlist — see notes.md) ---
-  - { ref: CMIX1, part: "Coupling capacitor", value: ".05 µF (schematic-only)", role: "V1B plate to the channel-mixing node — netlist.cir treats this node as DC-open past the plate (see its header); value not independently confirmed from the scan, matched to the amp's other .05 µF couplers" }
-  - { ref: CMIX2, part: "Coupling capacitor", value: ".05 µF (schematic-only)", role: "V2B plate to the channel-mixing node — mirrors CMIX1" }
+  - { ref: CMIX1, part: "Coupling capacitor", value: "0.05 µF (schematic-only)", role: "V1B plate to the channel-mixing node — netlist.cir treats this node as DC-open past the plate (see its header); value not independently confirmed from the scan, matched to the amp's other .05 µF couplers" }
+  - { ref: CMIX2, part: "Coupling capacitor", value: "0.05 µF (schematic-only)", role: "V2B plate to the channel-mixing node — mirrors CMIX1" }
   - { ref: RG5, part: "Carbon comp resistor", value: "1 MΩ · ½ W", role: "Channel-mixing node grid leak, referenced by netlist.cir's RG5 (driver grid returns to ground through it)" }
   - { ref: RTOP, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "Oscillator plate load" }
   - { ref: RTOK, part: "Carbon comp resistor", value: "1.5 kΩ · ½ W", role: "Oscillator cathode bias" }
@@ -68,12 +67,12 @@ items:
   - { ref: VRSPD, part: "Rheostat", value: "4 MΩ-RA", role: "Speed control" }
   - { ref: RTOG1, part: "Carbon comp resistor", value: "1 MΩ · ½ W (schematic-only)", role: "Phase-shift ladder resistor — topology typical of this circuit family, not confidently resolved from the scan (see notes)" }
   - { ref: RTOG2, part: "Carbon comp resistor", value: "1 MΩ · ½ W (schematic-only)", role: "Phase-shift ladder resistor — schematic-only, see RTOG1" }
-  - { ref: CTO1, part: "Film capacitor", value: ".01 µF (schematic-only)", role: "Phase-shift ladder cap — schematic-only, see RTOG1" }
-  - { ref: CTO2, part: "Film capacitor", value: ".01 µF (schematic-only)", role: "Phase-shift ladder cap — schematic-only, see RTOG1" }
-  - { ref: CTO3, part: "Film capacitor", value: ".02 µF (schematic-only)", role: "Phase-shift ladder cap, oscillator plate to the ladder — schematic-only, see RTOG1" }
+  - { ref: CTO1, part: "Film capacitor", value: "0.01 µF (schematic-only)", role: "Phase-shift ladder cap — schematic-only, see RTOG1" }
+  - { ref: CTO2, part: "Film capacitor", value: "0.01 µF (schematic-only)", role: "Phase-shift ladder cap — schematic-only, see RTOG1" }
+  - { ref: CTO3, part: "Film capacitor", value: "0.02 µF (schematic-only)", role: "Phase-shift ladder cap, oscillator plate to the ladder — schematic-only, see RTOG1" }
   - { ref: VRINT, part: "Potentiometer", value: "250 kΩ-L", role: "Intensity control" }
-  - { ref: OPTO, part: "Lamp + photoresistor pair", value: "n/a", role: "Optocoupler shunting the channel-mixing node to ground — the tremolo element itself" }
-  - { ref: JVIB, part: "Jack", value: "n/a", role: "Vibrato (footswitch) pedal jack" }
+  - { ref: OPTO, part: "Lamp + photoresistor pair", value: "tremolo optocoupler", role: "Optocoupler shunting the channel-mixing node to ground — the tremolo element itself" }
+  - { ref: JVIB, part: "Jack", value: "vibrato footswitch", role: "Vibrato (footswitch) pedal jack" }
   # --- Driver stage V5 (modelled simply; local feedback network not modelled) ---
   - { ref: RL5, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "V5 plate load" }
   - { ref: RK5, part: "Carbon comp resistor", value: "820 Ω · ½ W", role: "V5 cathode bias" }
@@ -113,13 +112,13 @@ items:
   - { ref: CF7, part: "Electrolytic capacitor", value: "20 µF · 600 V", role: "Filter, along the 56k/10k dropper chain toward the PI/driver/preamp supplies" }
   - { ref: RD1, part: "Carbon comp resistor", value: "56 kΩ · 1 W", role: "Screens node to phase-inverter/driver supply dropper" }
   - { ref: RD2, part: "Carbon comp resistor", value: "10 kΩ · ½ W", role: "Phase-inverter/driver supply dropper (continues RD1)" }
-  - { ref: L1, part: "Choke", value: "n/a", role: "B+ reservoir to plates/screens filter choke, labelled CH. on the drawing" }
-  - { ref: TR1, part: "Power transformer", value: "n/a", role: "Mains primary + HT/heater secondaries — the drawing's own designator; part number not printed on this sheet" }
-  - { ref: TR2, part: "Output transformer", value: "n/a", role: "Push-pull output to speaker — the drawing's own designator; part number not printed on this sheet" }
+  - { ref: L1, part: "Choke", value: "CH. · inductance not printed", role: "B+ reservoir to plates/screens filter choke, labelled CH. on the drawing" }
+  - { ref: TR1, part: "Power transformer", value: "HT secondary · 6.3 V heaters", role: "Mains primary + HT/heater secondaries; no part number printed on this sheet" }
+  - { ref: TR2, part: "Output transformer", value: "push-pull : speaker", role: "Push-pull output into the 15-inch speaker; no part number printed on this sheet" }
   - { ref: F1, part: "Fuse", value: "3 A", role: "Mains fuse" }
-  - { ref: SW1, part: "Switch", value: "n/a", role: "AC power switch" }
-  - { ref: PL1, part: "Pilot lamp", value: "n/a", role: "Pilot lamp, fed from the 6.3 V heater chain" }
-  - { ref: JSPK, part: "Jack", value: "n/a", role: "Speaker jack" }
+  - { ref: SW1, part: "Switch", value: "SPST", role: "AC power switch" }
+  - { ref: PL1, part: "Pilot lamp", value: "6.3 V", role: "Pilot lamp, fed from the 6.3 V heater chain" }
+  - { ref: JSPK, part: "Jack", value: "speaker", role: "Speaker jack" }
   - { ref: DBIAS, part: "Silicon diode", value: "1N4007-class (schematic-only)", role: "Bias-supply rectifier — the drawing's own bias derivation was not fully resolved from the scan (see notes.md); netlist.cir treats -55 V as an ideal source" }
   - { ref: CBIAS, part: "Electrolytic capacitor", value: "25 µF (schematic-only)", role: "Bias-supply filter — schematic-only, see DBIAS" }
   # --- Tubes ---

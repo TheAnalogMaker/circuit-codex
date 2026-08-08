@@ -49,9 +49,9 @@ items:
   # --- Power supply ---
   - { ref: RD1, part: "Power resistor",       value: "1000 Ω · 1 W",  role: "Rail dropper +315 V → +312 V (screens)" }
   - { ref: RD2, part: "Power resistor",       value: "10 kΩ · 1 W",   role: "Rail dropper +312 V → +280 V (preamp/PI)" }
-  - { ref: C11, part: "Electrolytic capacitor", value: "30-450 µF · 450 V", role: "Reservoir filter, +315 V" }
-  - { ref: C12, part: "Electrolytic capacitor", value: "30-450 µF · 450 V", role: "Filter, +312 V screen node" }
-  - { ref: C13, part: "Electrolytic capacitor", value: "30-450 µF · 450 V", role: "Filter, +280 V preamp/PI node" }
+  - { ref: C11, part: "Electrolytic capacitor", value: "30 µF · 450 V", role: "Reservoir filter, +315 V" }
+  - { ref: C12, part: "Electrolytic capacitor", value: "30 µF · 450 V", role: "Filter, +312 V screen node" }
+  - { ref: C13, part: "Electrolytic capacitor", value: "30 µF · 450 V", role: "Filter, +280 V preamp/PI node" }
   # --- Bias supply ---
   - { ref: R5,  part: "Carbon comp resistor", value: "100 kΩ · 5 % · ½ W", role: "Bias-supply feed from the HT winding" }
   - { ref: D1,  part: "Rectifier (bias)",     value: "selenium · silicon diode in modern builds", role: "Bias-supply rectifier" }

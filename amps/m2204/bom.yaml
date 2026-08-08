@@ -24,7 +24,7 @@ items:
   - { ref: R7,  part: "Carbon film resistor", value: "100 kΩ", role: "V1b plate load" }
   - { ref: R6,  part: "Carbon film resistor", value: "10 kΩ", role: "V1b cathode bias — unbypassed" }
   - { ref: R8,  part: "Power resistor", value: "10 kΩ · 1 W", role: "Rail dropper, preamp rail → input-stage rail" }
-  - { ref: C21, part: "Electrolytic capacitor", value: "50+50 µF dual can", role: "Preamp-rail and input-stage-rail filter, one section each side of R8" }
+  - { ref: C21, part: "Electrolytic capacitor", value: "50 µF + 50 µF", role: "Preamp-rail and input-stage-rail filter, one section each side of R8" }
   # --- interstage divider into V2a, third gain stage ---
   - { ref: C7,  part: "Coupling capacitor", value: "0.022 µF", role: "V1b plate → interstage divider" }
   - { ref: R10, part: "Carbon film resistor", value: "470 kΩ", role: "Interstage divider, series arm" }
@@ -80,10 +80,10 @@ items:
   - { ref: D3,  part: "Rectifier diode", value: "1N4007", role: "HT bridge rectifier" }
   - { ref: D4,  part: "Rectifier diode", value: "1N4007", role: "HT bridge rectifier" }
   - { ref: D5,  part: "Rectifier diode", value: "1N4007", role: "HT bridge rectifier" }
-  - { ref: C23, part: "Electrolytic capacitor", value: "50+50 µF dual can", role: "HT reservoir" }
+  - { ref: C23, part: "Electrolytic capacitor", value: "50 µF + 50 µF", role: "HT reservoir" }
   - { ref: F2,  part: "Fuse", value: "T500 mA", role: "HT fuse" }
   - { ref: T3,  part: "Filter choke", value: "choke (value not marked)", role: "Reservoir → screen-supply choke" }
-  - { ref: C22, part: "Electrolytic capacitor", value: "50+50 µF dual can", role: "Screen-node filter after the choke — both sections of the can land on that node (unlike C21, whose sections straddle R8)" }
+  - { ref: C22, part: "Electrolytic capacitor", value: "50 µF + 50 µF", role: "Screen-node filter after the choke — both sections of the can land on that node (unlike C21, whose sections straddle R8)" }
   - { ref: R29, part: "Power resistor", value: "10 kΩ · 1 W", role: "Rail dropper, screen node → preamp rail" }
   - { ref: S2,  part: "Toggle switch", value: "SPST", role: "Standby" }
   # --- transformers, output, mains ---
