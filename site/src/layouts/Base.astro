@@ -16,6 +16,11 @@ const ogAlt = ogImageAlt ?? 'Circuit Codex — verified tube-amp circuit archive
 // publisher field already does — the <title> tag keeps it for the browser tab.
 const path = Astro.url.pathname;
 const isGuide = path.startsWith('/reference/guides/') || path.startsWith('/reference/safety');
+// A circuit page is led by two figures — the board drawing and the schematic
+// sheet — and runs a wider content wrap on a large screen than a reading page
+// does. The nav and footer follow it there; see the breakpoint in the global
+// styles below.
+const isFigurePage = path.startsWith('/amps/');
 const headline = String(title).replace(/\s*[·—]\s*Circuit Codex\s*$/, '');
 let ld = jsonld;
 if (!ld && isGuide) {
@@ -94,6 +99,15 @@ const ldBlocks = [
   *{box-sizing:border-box}
   body{background:var(--ground);color:var(--ink);font-family:var(--body);line-height:1.6;margin:0;min-height:100vh}
   .wrap{max-width:1020px;margin:0 auto;padding:0 24px}
+  /* Amp pages run a wider content wrap on a large screen, because a board
+     drawing and a schematic sheet — not a line of prose — set their width
+     (.wrap-wide in pages/amps/[id].astro). The nav bar and the footer follow at
+     the same breakpoint, and only on those pages, so the page reads as one
+     column of chrome rather than a narrow header sitting over wide content.
+     Ordinary reading pages keep the 1020px measure at every width. */
+  @media(min-width:1440px){
+    body[data-figure-page] nav .wrap,body[data-figure-page] footer .wrap{max-width:1320px}
+  }
   a{color:var(--amber);text-decoration:none}
   a:hover,a:focus-visible{text-decoration:underline}
   :focus-visible{outline:2px solid var(--amber);outline-offset:2px;border-radius:2px}
@@ -101,7 +115,11 @@ const ldBlocks = [
   .nav-in{display:flex;align-items:baseline;gap:28px;padding:14px 0;flex-wrap:wrap}
   .brand{font-family:var(--disp);text-transform:uppercase;letter-spacing:.22em;font-size:15px;color:var(--ink)}
   .brand b{color:var(--amber);font-weight:600}
-  .nav-links{display:flex;gap:20px;margin-left:auto;font-family:var(--disp);text-transform:uppercase;letter-spacing:.14em;font-size:12.5px}
+  /* Eight links do not fit one phone-width row: unwrapped, they pushed the whole
+     document 150 px wider than the viewport, so every page — not just the nav —
+     scrolled sideways, and a figure with its own sideways scroll had to compete
+     with the page for the same gesture. */
+  .nav-links{display:flex;flex-wrap:wrap;gap:8px 20px;margin-left:auto;font-family:var(--disp);text-transform:uppercase;letter-spacing:.14em;font-size:12.5px}
   .nav-links a{color:var(--muted)}
   h1,h2,h3{font-family:var(--disp);text-transform:uppercase;font-weight:600;letter-spacing:.06em;text-wrap:balance}
   .chip{font-family:var(--disp);text-transform:uppercase;letter-spacing:.1em;font-size:10.5px;border:1px solid var(--line);border-radius:99px;padding:2px 9px;color:var(--muted);white-space:nowrap}
@@ -117,7 +135,7 @@ const ldBlocks = [
   .tbl{overflow-x:auto;border:1px solid var(--line);border-radius:8px}
 </style>
 </head>
-<body data-pagefind-body>
+<body data-pagefind-body data-figure-page={isFigurePage ? '' : undefined}>
 <nav data-pagefind-ignore><div class="wrap nav-in">
   <a href="/" style="text-decoration:none"><span class="brand">The Analog Maker <b>/ Circuit Codex</b></span></a>
   <span class="nav-links">
