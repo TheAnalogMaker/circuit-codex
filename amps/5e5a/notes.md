@@ -100,15 +100,15 @@ the two rail-dropper resistors between the screens node and the preamp node
 (16k / 22k — the second figure matches 5e3's own front-end dropper exactly;
 the first is derived from the printed +385→+300 V drop divided by the stage
 currents the rest of the netlist already fixes, ≈5.2 mA, giving ≈16 kΩ). The
-driver's and cathodyne's own plate voltages remain uncharted (`chart: null`
-in voltages.yaml) — informational only, never gated. A maintainer with a
+driver's and cathodyne's own plate voltages remain uncharted — carried in the
+voltage table as informational only, never gated. A maintainer with a
 sharper scan or the physical chassis should confirm or correct these
 three values, plus resolve the RFB1/RBLEED coupling question above, before
-this circuit is considered for `verified`.
+this circuit is considered for verified status.
 
 ## Verification
 
-`pipeline/verify_amps.py` passes all twelve chart-gated nodes within
+Simulation passes all twelve chart-gated nodes within
 tolerance (worst: BP4 at 8.3% against its 10% rail tolerance — the preamp
 rail furthest from the not-confidently-legible RD1/RD2 dropper estimates;
 next-worst PAY1/PAY2 at 8.0% and P2/K2 at ~10.5%, all against the 20% tube-pin
@@ -117,14 +117,13 @@ tolerance). K3A, the driver cathode, lands within 2.4% of its printed
 distinctively-shaped printed figures on this chart — land within 1%, the
 strongest single piece of evidence that the driver+cathodyne reading above is
 the circuit the sheet actually draws. As a draft circuit these are reported,
-not gated; `verification.status` stays `draft` until a maintainer confirms
-the remaining not-confidently-legible values and the RFB1/RBLEED coupling
-question, per CONTRIBUTING.md.
+not gated, and this circuit stays published as a draft until a maintainer
+confirms the remaining not-confidently-legible values and the RFB1/RBLEED
+coupling question.
 
-`schematic.kicad_sch` redraws the circuit above from the same J-EE sheet set.
-See its own header for what the drawing carries, and the caveat above for
-what stays illustrative rather than chart-verified (the James network's
-internal lug wiring).
+The schematic on this page redraws the circuit above from the same J-EE sheet
+set. The caveat above says what stays illustrative rather than chart-verified
+(the James network's internal lug wiring).
 
 ## The board
 

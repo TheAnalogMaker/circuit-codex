@@ -20,8 +20,9 @@ TMB tone stack (56k slope, 250 pF treble, 0.02 µF caps; 250k/1M/25k pots) →
 tail, both 1M grid leaks returned to the tail junction, 47 pF across the
 plates →
 0.1 µF couplers → **5881 pair**, fixed-biased at −48 V through 220k leaks,
-**470 Ω 1W screen resistors** → 2Ω output (four 8Ω speakers), 27k NFB into
-the tail foot with the 5k presence control.
+**470 Ω 1W screen resistors** → 2 Ω output (four 8 Ω speakers), with 27 kΩ of
+negative feedback returning to the phase-inverter tail alongside the 5 kΩ
+presence pot and its 0.1 µF wiper cap.
 
 Power: 325-0-325 (PT 8087) → GZ34 → standby → **+432 V** plates (20 µF) →
 choke (14684) → **+430 V** screens → 4.7 kΩ → **+385 V** PI (20 µF) → 10k →
@@ -58,6 +59,29 @@ audibly at the stops: as drawn, the fixed 25 kΩ leg keeps the stack from ever
 going fully silent with Bass and Middle at zero, where the textbook network's
 output falls to ground. The tone-stack lab plots this circuit with the wiring
 its sheets draw.
+
+## What the revision changed
+
+Both drawings print the same rails (+432/+430/+385/+325), the same −48 V bias
+and the same transformer set (8087 power, 14684 choke, 45249 output into a 2 Ω
+secondary), so the differences from the [5F6](/amps/5f6/) are narrow and
+specific:
+
+- **Rectifier.** The 83 mercury-vapour tube gives way to the GZ34.
+- **Presence.** The 5 kΩ presence pot and the 27 kΩ feedback return leave the
+  tone stack's ground leg and land at the phase-inverter tail instead, the pot
+  bridging the tail to ground with 0.1 µF on its wiper. The middle pot's foot,
+  which fed the presence pot on the 5F6, now runs straight to ground.
+- **Output stage.** The 5F6's 1.5 kΩ grid stoppers and 100 Ω screen resistors
+  become no stoppers and 470 Ω 1 W screen resistors.
+- **Second-stage cathode.** The 5F6 bypasses V2A's 820 Ω cathode resistor with
+  25 µF; here the same resistor runs unbypassed.
+
+The two parts lists share their resistor and pot designators, so those read
+side by side. The capacitor numbers do not: the 5F6 carries two capacitors this
+revision drops — the 25 µF on V2A's cathode and the 47 pF across the
+phase-inverter plates — so the C run diverges from C4 onward and the same
+number names a different part on each page. Compare capacitors by role.
 
 ## Verification — against the printed factory chart
 

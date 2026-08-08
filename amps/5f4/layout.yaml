@@ -30,7 +30,7 @@ board:
   rows: 2
   cols: 49
   title: "5F4 · eyelet board layout"
-caption: "Redrawn from the published Fender 5F4 'Super-Amp' layout drawing (C-EG), page 1 — principal board components and their hookup, in the order the drawing shows them. The chassis has four input jacks (two per channel); the drawing's four 68 kΩ grid stoppers collapse to the two the schematic/BOM model (R1s, R2s), and the two 1 MΩ input grid leaks (RG1, RG2) mount at the channel jacks as the sheet shows. The tone network is wired as the sheet draws it: the 250 pF treble cap, 0.1 µF bass coupler and its 220 kΩ leak sit on the board; the 0.01 µF (C6) hangs at the treble pot and the 0.005 µF (C7) at the bass pot, whose other end lug is grounded to its case; the bass branch lands on the bass pot's WIPER, and the second 220 kΩ (RSR) is strung pot-to-pot from the bass wiper to the treble wiper, whose lead alone carries the output to the phase inverter. The presence pot, the 56 kΩ negative-feedback resistor (both landing at the driver's cathode), the 100 pF bright cap, and the two AC-line caps are chassis wiring drawn schematically or off the board. The power-transformer primary (black) lands on chassis switches, off the board; the 6.3 V heater chain (green twisted pair, PT → pilot lamp → the two 6L6G output tubes → 12AX7 phase inverter → 12AX7 → 12AY7) is routed as the published sheet shows it, and the directly-heated 5U4G rectifier runs off the 5 V winding, not the 6.3 V chain. Not a trace or a dimensioned reproduction."
+caption: "Redrawn from the published Fender 5F4 'Super-Amp' layout drawing (C-EG), page 1 — principal board components and their hookup, in the order the drawing shows them. The chassis has four input jacks (two per channel); the drawing's four 68 kΩ grid stoppers collapse to the two the schematic/BOM model (R1s, R2s), and the two 1 MΩ input grid leaks (RG1, RG2) mount at the channel jacks as the sheet shows. The tone network is wired as the sheet draws it: the 250 pF treble cap, 0.1 µF bass coupler and its 220 kΩ leak sit on the board; the 0.01 µF (C6) hangs at the treble pot and the 0.005 µF (C7) at the bass pot, whose other end lug is grounded to its case; the bass branch lands on the bass pot's WIPER, and the second 220 kΩ (RSR) is strung pot-to-pot from the bass wiper to the treble wiper, whose lead alone carries the output to the phase inverter. The presence pot and the 56 kΩ negative-feedback resistor both land at the driver's cathode: they are chassis wiring rather than board wiring, so they are drawn at the chassis edge — the feedback resistor as a discrete part, because a bare lead from the speaker jack to that cathode would draw a short the amplifier does not have. The 0.1 µF on the presence wiper is drawn at the chassis edge beside the pot. The 100 pF bright cap and the two AC-line caps are chassis parts too and are left off this drawing; the schematic carries them. The power-transformer primary (black) lands on chassis switches, off the board; the 6.3 V heater chain (green twisted pair, PT → pilot lamp → the two 6L6G output tubes → 12AX7 phase inverter → 12AX7 → 12AY7) is routed as the published sheet shows it, and the directly-heated 5U4G rectifier runs off the 5 V winding, not the 6.3 V chain. Not a trace or a dimensioned reproduction."
 source:
   desc: "Fender 'Super-Amp' Model 5F4 layout drawing (C-EG), page 1"
   url: "https://el34world.com/charts/Schematics/files/Fender/Fender_super_5f4.pdf"
@@ -61,8 +61,8 @@ parts:
   - { ref: RLB,  a: [1, 18], b: [1, 19] }   # 56k cathodyne plate load (V3B)
   - { ref: RK3,  a: [1, 20], b: [1, 21] }   # 1.5k driver cathode bias (NFB/presence land here)
   - { ref: RGB,  a: [1, 22], b: [1, 23] }   # 1M cathodyne grid leak -> 1.5k/56k junction
-  - { ref: RTAIL, a: [0, 24], b: [1, 24] }  # 1.5k cathodyne cathode -> junction (vertical)
-  - { ref: RT2,  a: [1, 25], b: [1, 26] }   # 56k junction -> ground
+  - { ref: RKA, a: [0, 24], b: [1, 24] }  # 1.5k cathodyne cathode -> junction (vertical)
+  - { ref: RKB,  a: [1, 25], b: [1, 26] }   # 56k junction -> ground
   # --- split tone network (board half) + driver->cathodyne coupler ------------
   - { ref: C16,  a: [0, 22], b: [0, 23] }   # 0.1 µF bass-branch coupler (node A -> node B)
   - { ref: C8,   a: [0, 25], b: [0, 27] }   # 0.02 µF driver plate -> cathodyne grid
@@ -99,6 +99,11 @@ offboard:
   - { id: V4,  ref: V4, kind: tube, edge: bottom, at: 6.5,  label: "V4 · 6L6G" }
   - { id: V5,  ref: V5, kind: tube, edge: bottom, at: 10.5, label: "V5 · 6L6G" }
   - { id: SPK, kind: jack, edge: bottom, at: 15, label: "Spkr jacks" }
+  # 56 kΩ negative-feedback resistor. Chassis wiring, not board wiring, but a
+  # bare lead from the speaker jack to the driver's cathode would draw a short
+  # that is not there — so it is drawn as the discrete 2-lead off-board part it
+  # is, the same way the 5F6-A sheet's own 27 kΩ return is drawn.
+  - { id: RNF, ref: RNF, kind: part, edge: bottom, at: 17.6, label: "NFB" }
   - { id: V3,  ref: V3, kind: tube, edge: bottom, at: 20,   label: "V3 · 12AX7 (PI)" }
   - { id: V2,  ref: V2, kind: tube, edge: bottom, at: 33,   label: "V2 · 12AX7" }
   - { id: V1,  ref: V1, kind: tube, edge: bottom, at: 44,   label: "V1 · 12AY7" }
@@ -111,7 +116,8 @@ offboard:
   # schematic names only "HT_B" for its tap, so the drawing takes the nearer
   # of the two red HT leads; which end carries the tap is not a circuit claim.
   - { id: D1, ref: D1, kind: part, edge: top, at: 0.5, label: "D1", cathode: b }
-  - { id: VRP, kind: pot, edge: top, at: 4,  label: "Presence" }
+  - { id: VR6, ref: VR6, kind: pot, edge: top, at: 4,  label: "Presence" }
+  - { id: C17, ref: C17, kind: part, edge: top, at: 6.4, label: "C17" }
   - { id: C7,  ref: C7, kind: part, edge: top, at: 21.8, label: "C7" }
   - { id: VR4, ref: VR4, kind: pot, edge: top, at: 24, label: "Bass" }
   - { id: RSR, ref: RSR, kind: part, edge: top, at: 26, label: "RSR" }
@@ -153,142 +159,145 @@ bus:
 # waypoints are [col, row]; row<0 routes above the board, row>1 below it.
 runs:
   # --- power transformer secondary -> 5U4G rectifier (marked colours) --------
-  - { from: PT.red1, to: V6.pin4, via: [[2.1, 0.5], [2.5, 1.7]] }                 # HT plate 1
-  - { from: PT.red2, to: V6.pin6, via: [[2.0, 0.85], [3.6, 2.0]] }                 # HT plate 2
-  - { from: PT.red-yellow, to: [1.45, 2], via: [[1.2, 1.15]] }         # HT centre tap -> ground bus
-  - { from: PT.yellow1, to: V6.pin2, via: [[0.9, 0.7], [0.5, 2.5], [1.8, 2.75]] }              # 5 V rectifier filament (steeper dive, clear of yellow2)
-  - { from: PT.yellow2, to: V6.pin8, via: [[2.7, 0.55], [2.7, 2.3]] }              # 5 V filament / cathode (B+ out) (clear of RB2.b)
-  - { from: V6.pin8, to: C11.a, color: red, via: [[4.35, 2.68], [4.35, 0.4]] }   # B+ -> first filter (climbs col4.35, clear of bias eyelets)
+  - { from: PT.red1, to: V6.pin4, via: [[2.1, 0.5], [2.5, 1.7]] }
+  - { from: PT.red2, to: V6.pin6, via: [[2, 0.85], [3.6, 1.62]] }
+  - { from: PT.red-yellow, to: [1.45, 2], via: [[-1.858, 0.223]] }
+  - { from: PT.yellow1, to: V6.pin2, via: [[0.892, 0.7], [0.518, 2.5], [1.8, 2.75]] }
+  - { from: PT.yellow2, to: V6.pin8, via: [[2.7, 0.55], [2.7, 2.3]] }
+  - { from: V6.pin8, to: C11.a, color: red, via: [[4.35, 2.68], [4.35, 0.4]] }
 
   # --- filtered B+ rail: choke, then two 10k droppers ------------------------
-  - { from: C11.a, to: L1.hi }                     # B+1 (+415) -> choke
-  - { from: L1.lo, to: C12.a, via: [[1.0, 0.888]] }  # choke -> B+2 (+410, screens; lifted clear of RB1.b, now a live joint)
-  - { from: C12.a, to: RD1.a }                     # B+2 -> 10k dropper
-  - { from: RD1.b, to: C13.a, via: [[7.2, 0.42]] }                     # -> B+3 (+332, PI)
-  - { from: C13.a, to: RD2.a, via: [[7.6, 0.78]] }                     # B+3 -> 10k dropper
-  - { from: RD2.b, to: C14.a, via: [[7, 0.5], [34.5, 0.5]] }   # -> B+4 (+280, preamp)
-  - { from: C11.b, to: [1.45, 4.7], via: [[4.75, 1.1]] }   # filter negatives -> ground bus (landing offset off RD1.b col)
-  - { from: C12.b, to: [1.45, 7.7], via: [[7.6, 1.1]] }    # landing offset off RGL1.a col
-  - { from: C13.b, to: [1.45, 10.7], via: [[10.6, 1.0]] }  # landing offset off R5s.b col
-  - { from: C14.b, to: [1.45, 36.7], via: [[36.7, 1.1]] }   # landing offset off RL3.a col
+  - { from: C11.a, to: L1.hi }
+  - { from: L1.lo, to: C12.a, via: [[1, 0.888]] }
+  - { from: C12.a, to: RD1.a }
+  - { from: RD1.b, to: C13.a, via: [[7.2, 0.42]] }
+  - { from: C13.a, to: RD2.a, via: [[7.6, 0.78]] }
+  - { from: RD2.b, to: C14.a, via: [[7, 0.5], [34.5, 0.5]] }
+  - { from: C11.b, to: [1.45, 4.7], via: [[4.75, 1.1]] }
+  - { from: C12.b, to: [1.45, 7.7], via: [[7.6, 1.1]] }
+  - { from: C13.b, to: [1.45, 10.7], via: [[10.6, 1]] }
+  - { from: C14.b, to: [1.45, 36.7], via: [[36.7, 1.1]] }
 
   # --- bias supply: selenium rect (off-board) -> RB1 -> -40 V ----------------
-  - { from: D1.a, to: PT.red2, via: [[0.1, -0.62], [-0.5, -0.2]] }   # HT tap -> selenium anode
-  - { from: D1.b, to: RB1.b, via: [[0.95, -0.35]] }                 # selenium cathode -> 6.8k series
-  - { from: RB1.a, to: C15.a }                     # 6.8k series -> -40 V filter node
-  - { from: C15.b, to: [1.45, 0.5], via: [[0.7, 1.1]] }   # bias filter -> ground bus (clear of RGL1.b return approach)
+  - { from: D1.a, to: PT.red2, via: [[0.1, -0.62], [-0.5, -0.2]] }
+  - { from: D1.b, to: RB1.b, via: [[0.95, -0.35]] }
+  - { from: RB1.a, to: C15.a }
+  - { from: C15.b, to: [1.45, 0.5], via: [[0.615, 1.1]] }
   # bows below RB1.b — that eyelet now carries the selenium cathode, and a
   # run passing straight over a live joint reads as landing on it
-  - { from: RB2.a, to: RB1.a, via: [[1.0, 1.19]] }   # 56k bleeder across -40 V
-  - { from: RB2.b, to: [1.45, 3.0] }
-  - { from: RGL1.b, to: RB1.a, via: [[9, 1.62], [1.2, 1.62]] }   # grid leaks return to -40 V
-  - { from: RGL2.b, to: RB1.a, via: [[13, 1.5], [-0.4, 1.5], [-0.4, 1.0]] }
+  - { from: RB2.a, to: RB1.a, via: [[1, 1.19]] }
+  - { from: RB2.b, to: [1.45, 3] }
+  - { from: RGL1.b, to: RB1.a, via: [[9, 1.62], [1.2, 1.62]] }
+  - { from: RGL2.b, to: RB1.a, via: [[12.312, 1.52], [-0.4, 1.54], [-0.4, 1]] }
 
   # --- 6L6G output: grids, screens, plates, cathodes, OT ---------------------
   # OT primary / B+ / plate leads run in a harness band below the sockets.
-  - { from: C9.b, to: R5s.a, via: [[18, 0.42], [11, 0.42]] }   # PI coupler -> V4 grid stopper
-  - { from: R5s.b, to: V4.pin5, via: [[10.35, 1.18], [6.4, 1.18]] }  # -> V4 grid (breaks left above the pin row, clear of V5.pin5)
-  - { from: RGL1.a, to: V4.pin5, via: [[8, 2.1], [5.4, 2.1]] }    # grid leak -> V4 grid
-  - { from: C10.b, to: R6s.a, via: [[21, 0.62], [15, 0.62]] }  # PI coupler -> V5 grid stopper
-  - { from: R6s.b, to: V5.pin5, via: [[14.5, 2.28], [11.6, 2.28]] } # -> V5 grid (drops left of the Spkr jack at col15)
-  - { from: RGL2.a, to: V5.pin5, via: [[12, 2.1], [9.4, 2.1]] }  # grid leak -> V5 grid
-  - { from: V4.pin4, to: C12.a, via: [[5.7, 1.5]] } # V4 screen -> +410 (B+2) (rises clear of V4.pin3, approaches C12.a from the left)
-  - { from: V5.pin4, to: C12.a, via: [[7.4, 1.75], [6.3, 0.5]] } # V5 screen -> +410 (B+2) (breaks left above the plate pin, clear of V4 cathode drop)
-  - { from: V4.pin3, to: T3.brown, via: [[4.5, 2.68], [49.1, 2.68], [49.1, 0.31]] }  # V4 plate -> OT primary (brown), rises at the right margin clear of R2s/RG2
-  - { from: V5.pin3, to: T3.blue, via: [[9.0, 2.85], [49.4, 2.85], [49.4, 0.41]] }    # V5 plate -> OT primary (blue), rises right of brown
-  - { from: T3.red, to: C11.a, color: red, via: [[49.7, 0.52], [49.7, 2.5], [3.4, 2.5], [3.4, 0.4]] } # OT centre tap -> B+1 (rises at the far right margin, climbs col3.4 at the left)
-  - { from: V4.pin8, to: [1.45, 6.9], via: [[6.9, 2.75]] }             # V4 cathode -> ground (fixed bias)
-  - { from: V5.pin8, to: [1.45, 10.9], via: [[10.9, 2.75]] }            # V5 cathode -> ground
-  - { from: T3.sec1, to: SPK, via: [[48.5, 0.63], [48.5, 3.05], [15.0, 3.05], [15.0, 1.9]] }   # OT secondary -> speaker (vertical approach from directly above)
-  - { from: T3.sec2, to: SPK, via: [[48.8, 0.74], [48.8, 3.2], [17.3, 3.2], [17.3, 1.8]] }     # OT secondary -> speaker (diagonal approach from the right, clear of sec1)
-  - { from: SPK, to: RK3.a, via: [[17.5, 1.94], [17.5, 3.35], [19.9, 3.35], [19.9, 1.35]] }  # 56k NFB (off-board) -> the driver's cathode (exits jack upper-right, rises left of the V3 socket)
+  - { from: C9.b, to: R5s.a, via: [[18, 0.42], [11, 0.42]] }
+  - { from: R5s.b, to: V4.pin5, via: [[10.35, 1.18], [6.4, 1.18]] }
+  - { from: RGL1.a, to: V4.pin5, via: [[8, 2.1], [5.4, 2.1]] }
+  - { from: C10.b, to: R6s.a, via: [[21, 0.62], [15, 0.62]] }
+  - { from: R6s.b, to: V5.pin5, via: [[14.5, 2.28], [11.6, 2.28]] }
+  - { from: RGL2.a, to: V5.pin5, via: [[12, 2.1], [9.4, 2.1]] }
+  - { from: V4.pin4, to: C12.a, via: [[5.7, 1.5]] }
+  - { from: V5.pin4, to: C12.a, via: [[7.4, 1.75], [6.3, 0.5]] }
+  - { from: V4.pin3, to: T3.brown, via: [[4.5, 2.68], [49.1, 2.68], [49.1, 0.31]] }
+  - { from: V5.pin3, to: T3.blue, via: [[9, 2.85], [49.4, 2.85], [49.4, 0.41]] }
+  - { from: T3.red, to: C11.a, color: red, via: [[49.7, 0.52], [49.7, 2.5], [3.4, 2.5], [3.4, 0.4]] }
+  - { from: V4.pin8, to: [1.45, 6.9], via: [[7.147, 2.75]] }
+  - { from: V5.pin8, to: [1.45, 10.9], via: [[11.11, 2.75]] }
+  - { from: T3.sec1, to: SPK, via: [[48.5, 0.63], [48.5, 3.05], [15.8, 3.05], [15.05, 1.9]] }
+  - { from: T3.sec2, to: SPK, via: [[48.8, 0.74], [48.8, 3.2], [17.3, 3.2], [16.5, 1.8]] }
+  - { from: SPK, to: RNF.a, via: [[15.269, 2.55], [17, 2.55]] }
+  - { from: RNF.b, to: RK3.a, via: [[18.2, 2.7], [18.2, 3.35], [20.16, 3.35], [19.9, 1.35]] }
 
   # --- phase inverter: driver (V3A) + split-load cathodyne (V3B) -------------
-  - { from: RLA.a, to: C13.a, via: [[16, 0.55], [9, 0.55]] }    # 100k driver plate load -> B+3
-  - { from: RLA.b, to: V3.pin1, via: [[17, 1.6], [20, 1.6]] }    # -> V3A (driver) plate
-  - { from: RLB.a, to: C13.a, via: [[18, 0.8], [9.6, 0.8]] } # 56k cathodyne plate load -> B+3
-  - { from: RLB.b, to: V3.pin6, via: [[19, 1.72], [20.4, 1.72]] }  # -> V3B (cathodyne) plate
-  - { from: V3.pin1, to: C8.a, via: [[19.5, 1.75], [24.7, 1.75], [24.7, 0.45]] }   # driver plate -> 0.02 coupler (rises right of RTAIL.b, lands C8.a from below-left)
-  - { from: V3.pin6, to: C9.a, via: [[20.8, 1.85], [16.2, 1.85], [16.2, 0.55]] } # cathodyne plate -> 0.1 coupler to V4 (climbs clear of RLA.a)
-  - { from: C8.b, to: V3.pin7, via: [[26.8, 1.3], [20.8, 1.3], [20.8, 2.0]] }   # 0.02 coupler -> cathodyne grid (drops left of RGB.a, approaches pin7 from below)
-  - { from: RGB.a, to: V3.pin7, via: [[22, 1.9], [20, 1.9]] }   # 1M grid leak -> cathodyne grid
-  - { from: V3.pin3, to: RK3.a, via: [[20, 1.68], [19.6, 1.68], [19.6, 1.05]] } # driver cathode -> 1.5k (lands RK3.a from below-left)
-  - { from: RK3.b, to: [1.45, 20.3], via: [[20.3, 1.15]] }        # driver cathode bias -> ground bus
-  - { from: V3.pin8, to: RTAIL.a, via: [[21, 2.35], [24.3, 2.35], [24.3, 0.55]] } # cathodyne cathode -> 1.5k (RTAIL)
-  - { from: C10.a, to: RTAIL.a, via: [[19, -0.35], [24, -0.35]] }  # 0.1 coupler to V5 taps the cathode node (top lane)
-  - { from: RTAIL.b, to: RT2.a }                   # cathode 1.5k -> junction
-  - { from: RGB.b, to: RT2.a, via: [[23, 1.62], [24.3, 1.62]] }     # grid-leak return -> junction (approach from lower-left)
-  - { from: RT2.b, to: [1.45, 26] }                # 56k junction leg -> ground bus
+  - { from: RLA.a, to: C13.a, via: [[16, 0.55], [9, 0.55]] }
+  - { from: RLA.b, to: V3.pin1, via: [[17, 1.6], [20, 1.6]] }
+  - { from: RLB.a, to: C13.a, via: [[18, 0.8], [9.6, 0.8]] }
+  - { from: RLB.b, to: V3.pin6, via: [[19, 1.72], [20.4, 1.72]] }
+  - { from: V3.pin1, to: C8.a, via: [[19.5, 1.65], [24.7, 1.75], [24.7, 0.45]] }
+  - { from: V3.pin6, to: C9.a, via: [[20.633, 1.818], [16.203, 1.778], [16.345, 0.55]] }
+  - { from: C8.b, to: V3.pin7, via: [[26.648, 1.3], [20.8, 1.3], [20.8, 2]] }
+  - { from: RGB.a, to: V3.pin7, via: [[22, 1.9], [20, 1.9]] }
+  - { from: V3.pin3, to: RK3.a, via: [[20, 1.68], [19.6, 1.68], [19.6, 1.05]] }
+  - { from: RK3.b, to: [1.45, 20.3], via: [[20.3, 1.15]] }
+  - { from: V3.pin8, to: RKA.a, via: [[21, 2.35], [24.3, 2.35], [24.3, 0.55]] }
+  - { from: C10.a, to: RKA.a, via: [[19, -0.35], [24, -0.35]] }
+  - { from: RKA.b, to: RKB.a }
+  - { from: RGB.b, to: RKB.a, via: [[23, 1.62], [24.3, 1.62]] }
+  - { from: RKB.b, to: [1.45, 26] }
 
   # --- V2A gain stage + V2B cathode follower ---------------------------------
-  - { from: RL3.a, to: C14.a }                     # V2A plate load -> B+4
-  - { from: RL3.b, to: V2.pin6, via: [[37, 1.5], [34.2, 1.5]] }    # -> V2A plate
-  - { from: V2.pin6, to: V2.pin2, via: [[33.2, 2.4], [32.4, 2.4]] }           # V2A plate -> V2B grid (DC-coupled, dips down-left clear of pin8)
-  - { from: V2.pin1, to: C14.a, via: [[33, 1.65], [35.5, 1.65]] }   # V2B (CF) plate -> B+4 (own lane below RL3.b feed)
-  - { from: V2.pin8, to: RK2.a, via: [[34.5, 2.3], [34.2, 2.3], [34.2, 0.35]] } # V2A cathode -> 1.5k (riser clear of RK2.b, lands from lower-right)
-  - { from: RK2.b, to: [1.45, 34.4] }                # 1.5k -> ground bus
+  - { from: RL3.a, to: C14.a }
+  - { from: RL3.b, to: V2.pin6, via: [[37, 1.542], [34.566, 1.5]] }
+  - { from: V2.pin6, to: V2.pin2, via: [[33.2, 2.4], [32.4, 2.4]] }
+  - { from: V2.pin1, to: C14.a, via: [[33, 1.65], [35.76, 1.65]] }
+  - { from: V2.pin8, to: RK2.a, via: [[34.5, 2.3], [34.2, 2.3], [34.2, 0.35]] }
+  - { from: RK2.b, to: [1.45, 34.4] }
   # C4's + lead shares RK2's top eyelet (an eyelet is one solder point)
-  - { from: C4.b, to: [1.45, 33.8], via: [[33.5, 0.6]] }  # 25 µF bypass negative -> ground bus (row-1 gap at 33.5, landing clear of the mixer dive)
-  - { from: RF1.b, to: V2.pin7, via: [[31.5, 2.0], [33.0, 2.0]] }   # 4.7M grid reference -> V2A grid (approaches pin7 from below, clear of pin3)
+  - { from: C4.b, to: [1.45, 33.8], via: [[33.5, 0.6]] }
+  - { from: RF1.b, to: V2.pin7, via: [[31.5, 2], [33, 2]] }
 
   # --- split treble/bass tone network, as the C-EG sheet wires it -------------
   # (250 pF + 0.1 coupler + 220k leak on the board; 0.01 at the treble pot and
   # 0.005 at the bass pot; the bass pot's other end lug grounded to its case;
   # the branch injected at the bass WIPER; RSR 220k strung bass wiper -> treble
   # wiper; the treble wiper's lead alone carries the output to the PI grid.)
-  - { from: V2.pin3, to: RKCF.a, via: [[32, 1.6], [29.4, 1.5]] } # CF cathode (node A) -> 100k load (leaves pin3 steeply up-left)
-  - { from: RKCF.b, to: [1.45, 28.6] }               # CF load -> ground bus
-  - { from: C5.a, to: VR3.lug3, via: [[28.35, -0.55]] } # 250 pF -> treble hot lug (the sheet's RED lead)
-  - { from: VR3.lug1, to: C6.a, via: [[27.69, -1.2], [29.9, -1.2]] } # treble cold lug -> 0.01 at the pot (high lane, above the lug row)
-  - { from: C6.b, to: [1.45, 30.6], via: [[30.55, -0.6]] }      # 0.01 -> chassis ground (drawn to the bus)
-  - { from: C16.b, to: RKCF.a, via: [[23.4, -0.5], [28.5, -0.5]] } # node A -> 0.1 bass coupler (top lane; lands the shared CF eyelet)
-  - { from: C16.a, to: RSL.a, via: [[21.6, 1.25], [26.5, 1.25]] }   # 0.1 coupler -> node B (the 100k's feed)
-  - { from: RSL.a, to: RF1.a, via: [[27.6, 1.3], [29.6, 1.3]] }     # node B -> the 4.7M feedback's eyelet
-  - { from: RSH.a, to: RF1.a, via: [[30.6, 0.5]] }                  # 220k leak -> node B
-  - { from: RSH.b, to: [1.45, 31.5], via: [[32.5, 0.5], [31.5, 0.85]] } # 220k -> ground bus (row-0 gap at 32.5, row-1 gap at 31.5)
-  - { from: RSL.b, to: VR4.lug2, via: [[26, 0.9], [24, -0.3]] } # 100k -> the bass pot's WIPER (the sheet's YELLOW lead)
-  - { from: RSR.a, to: VR4.lug2, via: [[25.7, -0.75], [24.35, -0.75]] } # 220k RSR -> bass wiper
-  - { from: RSR.b, to: VR3.lug2, via: [[26.4, -0.75], [27.75, -0.75]] } # 220k RSR -> treble wiper
-  - { from: VR4.lug3, to: C7.a, via: [[24.5, -1.05], [22.1, -1.05]] } # bass end lug -> 0.005 at the pot
-  - { from: C7.b, to: [1.45, 21.2], via: [[21.2, -0.7], [21.2, 0.6]] } # 0.005 -> chassis ground (drawn to the bus, down the row-0 gap left of C16)
-  - { from: VR4.lug1, to: [1.45, 23.7] }           # bass end lug grounded to the case -> bus
-  - { from: VR3.lug2, to: V3.pin2, via: [[28.6, -0.6], [21.5, -0.6], [21.5, 2.3]] } # treble wiper -> driver grid (the sheet's WHITE lead: below the lug row, then down the row-0/row-1 gap at col 21.5)
+  - { from: V2.pin3, to: RKCF.a, via: [[32, 1.6], [29.4, 1.5]] }
+  - { from: RKCF.b, to: [1.45, 28.6] }
+  - { from: C5.a, to: VR3.lug3, via: [[28.35, -0.55]] }
+  - { from: VR3.lug1, to: C6.a, via: [[27.69, -1.2], [29.9, -1.2]] }
+  - { from: C6.b, to: [1.45, 30.6], via: [[30.55, -0.6]] }
+  - { from: C16.b, to: RKCF.a, via: [[23.4, -0.5], [28.5, -0.5]] }
+  - { from: C16.a, to: RSL.a, via: [[21.6, 1.25], [26.5, 1.25]] }
+  - { from: RSL.a, to: RF1.a, via: [[27.6, 1.3], [29.6, 1.3]] }
+  - { from: RSH.a, to: RF1.a, via: [[30.6, 0.5]] }
+  - { from: RSH.b, to: [1.45, 31.5], via: [[32.5, 0.5], [31.5, 0.85]] }
+  - { from: RSL.b, to: VR4.lug2, via: [[26, 0.861], [24, -0.3]] }
+  - { from: RSR.a, to: VR4.lug2, via: [[25.7, -0.75], [24.35, -0.75]] }
+  - { from: RSR.b, to: VR3.lug2, via: [[26.4, -0.75], [27.75, -0.75]] }
+  - { from: VR4.lug3, to: C7.a, via: [[24.5, -1.05], [22.1, -1.05]] }
+  - { from: C7.b, to: [1.45, 21.2], via: [[21.2, -0.7], [21.2, 0.6]] }
+  - { from: VR4.lug1, to: [1.45, 23.7] }
+  - { from: VR3.lug2, to: V3.pin2, via: [[28.6, -0.6], [21.5, -0.6], [21.5, 2.3]] }
 
   # --- channel volumes + mixers -> V2A grid ----------------------------------
-  - { from: VR1.lug2, to: RM1.a, via: [[39, -0.45], [31.3, -0.45], [31.3, 0.85]] } # ch1 wiper -> mixer (drops clear of C4.b eyelet/ground)
-  - { from: RM1.b, to: V2.pin7, via: [[33.9, 2.0], [34.2, 1.95]] }    # mixer -> V2A grid (approaches pin7 from the right, clear of pin6/pin8)
-  - { from: VR1.lug1, to: [1.45, 38.7] }           # ch1 volume ground (clear of RL1.a eyelet)
-  - { from: VR2.lug2, to: RM2.a, via: [[43, -0.5], [35.6, -0.5]] } # ch2 wiper -> mixer
-  - { from: RM2.b, to: V2.pin7, via: [[36, 1.9], [34.4, 1.9]] } # mixer -> V2A grid (approaches pin7 from the right, clear of pin6)
-  - { from: VR2.lug1, to: [1.45, 43] }             # ch2 volume ground
+  - { from: VR1.lug2, to: RM1.a, via: [[39, -0.45], [31.3, -0.45], [31.3, 0.85]] }
+  - { from: RM1.b, to: V2.pin7, via: [[33.9, 2], [34.2, 1.95]] }
+  - { from: VR1.lug1, to: [1.45, 38.7] }
+  - { from: VR2.lug2, to: RM2.a, via: [[43, -0.5], [35.6, -0.5]] }
+  - { from: RM2.b, to: V2.pin7, via: [[36, 1.9], [34.4, 1.9]] }
+  - { from: VR2.lug1, to: [1.45, 43] }
 
   # --- 12AY7 input pair (V1): channel 1 + channel 2 --------------------------
   # (four chassis jacks per the drawing; the 1 MΩ leaks RG1/RG2 mount at the jacks)
-  - { from: JI, to: R1s.b, via: [[46, -0.45], [45, -0.4]] }     # ch1 jack -> 68k stopper
-  - { from: RG1.a, to: R1s.b, via: [[44.8, 1.85]] }            # ch1 1 MΩ grid leak -> input node (parallel lane left of the jack drop)
-  - { from: RG1.b, to: [1.45, 45.5] }                          # grid leak -> ground bus (clear of R1s.b input node)
-  - { from: R1s.a, to: V1.pin7, via: [[44, 1.95], [44.8, 1.95]] }   # stopper -> V1A grid (approaches pin7 from below-right, clear of pin6)
-  - { from: V1.pin6, to: RL1.b, via: [[43.5, 1.7], [40, 1.7]] }   # V1A plate -> 100k load
-  - { from: RL1.a, to: C14.a, via: [[39, 0.55], [37, 0.55]] }   # B+4 rail -> V1A plate load
-  - { from: V1.pin6, to: C1.a, via: [[44.2, 1.85], [38.3, 1.85], [38.3, 0.4]] }    # V1A plate -> coupler (dips below pin6, clear of pin3, climbs clear of RL3.b eyelet)
-  - { from: C1.b, to: VR1.lug3, via: [[40, -0.4], [39, -0.4]] } # coupler -> ch1 volume
-  - { from: JM, to: R2s.b, via: [[47.6, 0.45], [47.6, 1.0]] }      # ch2 jack -> 68k stopper (diverges left of C3.b, into R2s.b from the left)
-  - { from: RG2.a, to: R2s.b, via: [[48.9, -0.2], [48.6, 0.65]] }  # ch2 1 MΩ grid leak -> input node
-  - { from: RG2.b, to: [1.45, 46.6], via: [[46.7, 0.5]] }      # grid leak -> ground bus (clear of R2s.a drop)
-  - { from: R2s.a, to: V1.pin2, via: [[47, 1.7], [44, 1.7]] }   # stopper -> V1B grid
-  - { from: V1.pin1, to: RL2.b, via: [[42.5, 1.95], [42, 1.6]] } # V1B plate -> 100k load (leaves pin1 up-left, clear of pin8)
-  - { from: RL2.a, to: C14.a, via: [[41, 0.34], [37.3, 0.34]] }     # B+4 rail -> V1B plate load
-  - { from: V1.pin1, to: C2.a, via: [[45.3, 2.18], [41.3, 2.18], [41.3, 0.4]] }  # V1B plate -> coupler (low lane clear of pin2, climbs clear of RL2.a)
-  - { from: C2.b, to: VR2.lug3, via: [[43, -0.42], [43, -0.42]] } # coupler -> ch2 volume
-  - { from: V1.pin8, to: RK1.a, via: [[44.6, 2.35], [45.8, 2.35], [45.8, 0.55]] }   # V1A cathode -> shared 820 Ω
-  - { from: V1.pin3, to: RK1.a, via: [[45.5, 2.3], [46.4, 2.3], [46.4, 0.6]] } # V1B cathode -> shared 820 Ω (dip clear of the red B+ bus)
-  - { from: RK1.b, to: [1.45, 46] }                # 820 Ω -> ground bus
-  - { from: C3.a, to: RK1.a }                      # cathode bypass across 820 Ω
-  - { from: C3.b, to: [1.45, 48.25], via: [[48.25, 0.9]] }   # cathode-bypass negative -> ground (right of R2s.b, clear of the sec1 rise)
+  - { from: JI, to: R1s.b, via: [[46, -0.45], [45, -0.4]] }
+  - { from: RG1.a, to: R1s.b, via: [[44.8, 1.85]] }
+  - { from: RG1.b, to: [1.45, 45.5] }
+  - { from: R1s.a, to: V1.pin7, via: [[44, 1.95], [44.8, 1.95]] }
+  - { from: V1.pin6, to: RL1.b, via: [[43.5, 1.7], [40, 1.7]] }
+  - { from: RL1.a, to: C14.a, via: [[39, 0.55], [37, 0.55]] }
+  - { from: V1.pin6, to: C1.a, via: [[44.2, 1.85], [38.3, 1.85], [38.3, 0.4]] }
+  - { from: C1.b, to: VR1.lug3, via: [[40, -0.4], [39, -0.4]] }
+  - { from: JM, to: R2s.b, via: [[47.6, 0.45], [47.6, 1]] }
+  - { from: RG2.a, to: R2s.b, via: [[48.9, -0.2], [48.6, 0.65]] }
+  - { from: RG2.b, to: [1.45, 46.6], via: [[46.7, 0.5]] }
+  - { from: R2s.a, to: V1.pin2, via: [[47, 1.7], [44.03, 1.7]] }
+  - { from: V1.pin1, to: RL2.b, via: [[42.5, 2.05], [42, 1.6]] }
+  - { from: RL2.a, to: C14.a, via: [[41, 0.34], [37.3, 0.34]] }
+  - { from: V1.pin1, to: C2.a, via: [[45.3, 2.18], [41.3, 2.18], [41.3, 0.4]] }
+  - { from: C2.b, to: VR2.lug3, via: [[43, -0.42], [43.05, -0.42]] }
+  - { from: V1.pin8, to: RK1.a, via: [[44.6, 2.35], [45.796, 2.35], [45.715, 0.55]] }
+  - { from: V1.pin3, to: RK1.a, via: [[45.5, 2.3], [46.4, 2.3], [46.4, 0.6]] }
+  - { from: RK1.b, to: [1.45, 46] }
+  - { from: C3.a, to: RK1.a }
+  - { from: C3.b, to: [1.45, 48.25], via: [[48.25, 0.9]] }
 
   # --- presence control (5k), on the driver's cathode -------------------------
-  - { from: VRP.lug3, to: RK3.a, via: [[4, -0.8], [18.5, -0.8], [18.5, 0.55]] } # presence -> the driver's cathode (down the row-0 gap left of C10)
-  - { from: VRP.lug1, to: [1.45, 3.6], via: [[3.6, 0.5]] }   # presence ground (landing between the red-bus climb and RD1.a col)
+  - { from: VR6.lug3, to: RK3.a, via: [[4, -0.8], [18.5, -0.8], [18.5, 0.55]] }
+  - { from: VR6.lug1, to: [1.45, 3.6], via: [[3.6, 0.5]] }
+  - { from: VR6.lug2, to: C17.a, via: [[4, -1.3], [6, -1.3]] }
+  - { from: C17.b, to: [1.45, 6.8], via: [[6.8, -0.45]] }
 
   # --- 6.3 V heater chain (green twisted pair) ------------------------------
   # PT green pair -> pilot lamp -> V4 6L6 -> V5 6L6 -> V3 12AX7 (PI) -> V2 12AX7
@@ -296,13 +305,13 @@ runs:
   # directly heated off the 5 V winding, so it is not on this chain. Twisted
   # runs land only on heater pins (6L6 octal 2/7, noval 4/5); routed in a deep
   # lane below the output harness.
-  - { from: PT.green, to: PL1.a, style: twisted }                                    # 6.3 V -> pilot lamp
-  - { from: PL1.b, to: V4.pin7, style: twisted, via: [[-1.2, 3.7], [6.5, 3.7]] }     # lamp -> V4 6L6 heater
-  - { from: V4.pin2, to: V5.pin7, style: twisted, via: [[6.5, 3.72], [10.5, 3.72]] } # V4 -> V5 heater
-  - { from: V5.pin2, to: V3.pin4, style: twisted, via: [[10.5, 3.74], [20, 3.74]] }  # V5 -> V3 (PI) heater
-  - { from: V3.pin5, to: V2.pin4, style: twisted, via: [[20, 3.72], [33, 3.72]] }    # V3 -> V2 heater
-  - { from: V2.pin5, to: V1.pin4, style: twisted, via: [[33, 3.7], [44, 3.7]] }      # V2 -> V1 heater
-  - { from: V1.pin4, to: V1.pin5, style: twisted } # close the pair at the last socket
+  - { from: PT.green, to: PL1.a, style: twisted }
+  - { from: PL1.b, to: V4.pin7, style: twisted, via: [[-1.2, 3.7], [6.5, 3.7]] }
+  - { from: V4.pin2, to: V5.pin7, style: twisted, via: [[6.5, 3.72], [10.5, 3.72]] }
+  - { from: V5.pin2, to: V3.pin4, style: twisted, via: [[10.5, 3.74], [20, 3.74]] }
+  - { from: V3.pin5, to: V2.pin4, style: twisted, via: [[20, 3.72], [33, 3.72]] }
+  - { from: V2.pin5, to: V1.pin4, style: twisted, via: [[33, 3.7], [44, 3.7]] }
+  - { from: V1.pin4, to: V1.pin5, style: twisted }
 
 # net_map — the reviewable data layer reconciling the drawn wiring with the
 # DC-operating-point netlist (netlist.cir) for pipeline/verify_layout_nets.py.
@@ -314,9 +323,9 @@ net_map:
   # to BP1 declares the DC bridge the netlist collapses (OT primary DCR omitted,
   # so both 6L6G plates and the centre tap read as B+1). The OT secondary /
   # speaker and the off-board 56 k NFB + 5 k presence sit at ~0 V DC and are the
-  # netlist's excluded annotation layer (RT2 already carries the tail-to-ground
+  # netlist's excluded annotation layer (RKB already carries the cathodyne's junction-to-ground
   # 56 k), so they are deliberately NOT anchored — folding them to ground would
-  # wrongly short the phase-inverter tail junction (JPI) to ground.
+  # wrongly short the cathodyne's cathode junction (JPI) to ground.
   anchors:
     T3.brown: BP1    # OT primary, V4 plate lead — netlist omits OT primary DCR (plate node = B+1)
     T3.blue:  BP1    # OT primary, V5 plate lead

@@ -37,16 +37,12 @@ on this same undropped node) → 10 kΩ → **+335 V** (V3 supply) → 10 kΩ �
   with three separate 16 µF/450 V cans sitting at slightly different physical
   points on one low-impedance rail rather than three RC-filtered stages.
 - **Two rectifier tubes, not one.** The 5E6-A keeps the "dual rectifier"
-  scheme the family history (`history/families/bassman.yaml`) describes for
-  the 5D6 lineage: two 5U4GA tubes wired in parallel off separate secondary
+  scheme this archive's Bassman family timeline describes for the 5D6 lineage: two 5U4GA tubes wired in parallel off separate secondary
   taps, both cathodes landing on the same first-filter node — extra current
-  capacity for the 4x10 cab's fixed-bias 6L6G pair. `history/families/bassman.yaml`
-  previously carried this circuit's tube list without a rectifier at all and
-  with the wrong preamp-tube count (`12AY7, 12AX7, 12AX7`); both are corrected
-  here from the drawing (see that file's own history).
+  capacity for the 4x10 cab's fixed-bias 6L6G pair.
 - **Cathodyne, not long-tailed-pair.** The corpus's own existing citation
-  chain already had this right (`history/families/bassman.yaml`'s 5F6 entry:
-  "swapped the cathodyne splitter for a long-tailed-pair phase inverter") —
+  chain already had this right — the family timeline's 5F6 entry reads "swapped
+  the cathodyne splitter for a long-tailed-pair phase inverter" —
   the 5E6-A's V3 is a single 12AX7 section, self-biased with a split cathode
   resistor exactly the way the 5F4's V3B is (1.5 kΩ junction + 56 kΩ tail),
   just without the extra driver stage the 5F4 puts in front of it.
@@ -71,16 +67,24 @@ note describes. This is the one circuit-level change the "-A" suffix marks.
 
 The title block, tube complement (a dual-5U4GA rectifier and a 2×12AY7/1×12AX7
 preamp split), the rail chain and V1's front end all read consistently off the
-drawing, agree across the two archived copies of the same A-EE sheet, and gate
-against the printed chart within the usual tolerance (worst node 29.8%, against
-the chart's own ±20% convention and the extra slack a choke-less,
-dual-rectifier supply earns). Three things the sheet does **not** resolve are
-flagged here rather than guessed at:
+drawing and agree across the two archived copies of the same A-EE sheet. They
+do **not** all agree with the printed chart, and this entry is published as a
+draft for that reason: four of the twelve nodes miss, and they miss as one
+fault rather than four. The preamp rail reads 315 V simulated against the
+chart's 275 V — 14.5% out, against the 8% this corpus holds a rail to — and
+the three nodes it feeds follow it up: both 12AY7 plates at 161 V against a
+printed 130 V (23.8%) and the shared 12AY7 cathode at 2.5 V against 2 V
+(26.2%), both past the chart's own ±20% convention. The two printed 10 kΩ
+droppers carry less current in the model than the drawing's own rail figures
+imply, so every node below the first dropper sits high; the likeliest reading
+error is which node feeds the 6L6G screens. The rails above that dropper, the
+output stage and its bias all gate clean. Three things the sheet does **not**
+resolve are flagged here rather than guessed at:
 
 - **V2's own pin voltages** — the printed figures around V2 sit in a cluster
   dense enough that they cannot be confidently separated from the neighbouring
-  tone-network figures. `voltages.yaml` reports them as simulated-only
-  (`chart: null`).
+  tone-network figures. The voltage table carries them as simulated-only, with
+  no chart figure to check against.
 - **V3's plate/cathode/junction pin voltages** — a printed figure cluster near
   +210/+72/+1.7 V sits close to the 12AX7 on the sheet, but the obvious
   assignment (+72 V to the cathode pin, +1.7 V to the grid-leak junction) does
@@ -88,7 +92,7 @@ flagged here rather than guessed at:
   −70 V grid-to-cathode bias that pairing implies, so at least one figure
   belongs to another node — possibly to V2. The netlist therefore uses the
   5F4's V3B values verbatim (56k plate, 1.5k/56k cathode split, the same
-  shape), and `voltages.yaml` leaves PPI/KPI/JPI informational rather than
+  shape), and the voltage table leaves PPI/KPI/JPI informational rather than
   assign the printed numbers to pins the physics rules out.
 - **One lug of the Presence/Bass/Treble ladder** — the ladder is drawn as read
   (see below), with a single residual lug-level uncertainty annotated on the

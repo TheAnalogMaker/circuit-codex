@@ -13,6 +13,7 @@ stages:
 - amp: '5c1'
   name_style: Wide-panel Champ-style
   tube: '6V6GT'
+  tube_lettered: '6V6GT'
   output_tubes: 1
   config: single-ended
   bias: cathode
@@ -37,6 +38,7 @@ stages:
 - amp: '5d3'
   name_style: Wide-panel Tweed Deluxe-style
   tube: '6V6GT'
+  tube_lettered: '6V6GT'
   output_tubes: 2
   config: push-pull
   bias: cathode
@@ -61,6 +63,7 @@ stages:
 - amp: '5e1'
   name_style: Tweed Champ-style
   tube: '6V6GT'
+  tube_lettered: '6V6GT'
   output_tubes: 1
   config: single-ended
   bias: cathode
@@ -85,6 +88,7 @@ stages:
 - amp: '5e3'
   name_style: Tweed Deluxe-style
   tube: '6V6GT'
+  tube_lettered: '6V6GT'
   output_tubes: 2
   config: push-pull
   bias: cathode
@@ -108,6 +112,7 @@ stages:
 - amp: '5e4a'
   name_style: Tweed Super-style
   tube: '6V6GT'
+  tube_lettered: '6V6GT'
   output_tubes: 2
   config: push-pull
   bias: fixed
@@ -132,6 +137,7 @@ stages:
 - amp: '5e5a'
   name_style: Tweed Pro-style
   tube: '5881'
+  tube_lettered: '6L6GB'
   output_tubes: 2
   config: push-pull
   bias: fixed
@@ -155,6 +161,7 @@ stages:
 - amp: '5e6a'
   name_style: Tweed Bassman-style
   tube: '5881'
+  tube_lettered: '6L6G'
   output_tubes: 2
   config: push-pull
   bias: fixed
@@ -178,6 +185,7 @@ stages:
 - amp: '5f1'
   name_style: Tweed Champ-style
   tube: '6V6GT'
+  tube_lettered: '6V6GT'
   output_tubes: 1
   config: single-ended
   bias: cathode
@@ -202,6 +210,7 @@ stages:
 - amp: '5f10'
   name_style: Tweed Harvard-style
   tube: '6V6GT'
+  tube_lettered: '6V6GT'
   output_tubes: 2
   config: push-pull
   bias: fixed
@@ -226,6 +235,7 @@ stages:
 - amp: '5f2a'
   name_style: Tweed Princeton-style
   tube: '6V6GT'
+  tube_lettered: '6V6GT'
   output_tubes: 1
   config: single-ended
   bias: cathode
@@ -250,6 +260,7 @@ stages:
 - amp: '5f4'
   name_style: Tweed Super-style
   tube: '5881'
+  tube_lettered: '6L6G'
   output_tubes: 2
   config: push-pull
   bias: fixed
@@ -273,6 +284,7 @@ stages:
 - amp: '5f6'
   name_style: Tweed Bassman-style
   tube: '5881'
+  tube_lettered: '5881'
   output_tubes: 2
   config: push-pull
   bias: fixed
@@ -290,12 +302,13 @@ stages:
   grid_supply_v: null
   ot_primary_z: null
   ot_primary_approx: false
-  ot_primary_note: Fender 45249 — Push-pull output into four speakers
+  ot_primary_note: Fender 45249 · 2 Ω secondary — Push-pull output into four 8 Ω speakers
   sim_ip_ma: 29.6907
   sim_ig2_ma: 0.9755
 - amp: '5f6a'
   name_style: Tweed Bassman-style
   tube: '5881'
+  tube_lettered: '5881'
   output_tubes: 2
   config: push-pull
   bias: fixed
@@ -319,6 +332,7 @@ stages:
 - amp: '6161'
   name_style: Valco 6161-style
   tube: '6973'
+  tube_lettered: '6973'
   output_tubes: 2
   config: push-pull
   bias: cathode
@@ -343,6 +357,7 @@ stages:
 - amp: '6g2'
   name_style: Brown Princeton-style
   tube: '6V6GT'
+  tube_lettered: '6V6GT'
   output_tubes: 2
   config: push-pull
   bias: fixed
@@ -366,6 +381,7 @@ stages:
 - amp: '6g3'
   name_style: Brown Deluxe-style
   tube: '6V6GT'
+  tube_lettered: '6V6GT'
   output_tubes: 2
   config: push-pull
   bias: fixed
@@ -389,6 +405,7 @@ stages:
 - amp: '6g4'
   name_style: Brown Super-style
   tube: '6L6GC'
+  tube_lettered: '6L6GC'
   output_tubes: 2
   config: push-pull
   bias: fixed
@@ -412,6 +429,7 @@ stages:
 - amp: '6g5'
   name_style: Brown Pro-style
   tube: '6L6GC'
+  tube_lettered: '6L6GC'
   output_tubes: 2
   config: push-pull
   bias: fixed
@@ -436,6 +454,7 @@ stages:
 - amp: '6g6b'
   name_style: Blonde Bassman-style
   tube: '5881'
+  tube_lettered: '5881'
   output_tubes: 2
   config: push-pull
   bias: fixed
@@ -459,6 +478,7 @@ stages:
 - amp: 'aa1164'
   name_style: Blackface Princeton Reverb-style
   tube: '6V6GT'
+  tube_lettered: '6V6GT'
   output_tubes: 2
   config: push-pull
   bias: fixed
@@ -482,6 +502,7 @@ stages:
 - amp: 'aa764'
   name_style: Blackface Champ-style
   tube: '6V6GT'
+  tube_lettered: '6V6GT'
   output_tubes: 1
   config: single-ended
   bias: cathode
@@ -505,6 +526,7 @@ stages:
 - amp: 'aa864-bassman'
   name_style: Blackface Bassman-style
   tube: '6L6GC'
+  tube_lettered: '6L6GC'
   output_tubes: 2
   config: push-pull
   bias: fixed
@@ -528,6 +550,7 @@ stages:
 - amp: 'aa964'
   name_style: Blackface Princeton-style
   tube: '6V6GT'
+  tube_lettered: '6V6GT'
   output_tubes: 2
   config: push-pull
   bias: fixed
@@ -551,6 +574,7 @@ stages:
 - amp: 'ab165'
   name_style: Blackface Bassman-style
   tube: '6L6GC'
+  tube_lettered: '6L6GC'
   output_tubes: 2
   config: push-pull
   bias: fixed
@@ -574,6 +598,7 @@ stages:
 - amp: 'ab763'
   name_style: Blackface Deluxe Reverb-style
   tube: '6V6GT'
+  tube_lettered: '6V6GT'
   output_tubes: 2
   config: push-pull
   bias: fixed
@@ -597,6 +622,7 @@ stages:
 - amp: 'ab763-twin'
   name_style: Blackface Twin Reverb-style
   tube: '6L6GC'
+  tube_lettered: '6L6GC'
   output_tubes: 4
   config: push-pull
   bias: fixed
@@ -621,6 +647,7 @@ stages:
 - amp: 'ac15'
   name_style: Vox AC15-style
   tube: 'EL84'
+  tube_lettered: 'EL84'
   output_tubes: 2
   config: push-pull
   bias: cathode
@@ -644,6 +671,7 @@ stages:
 - amp: 'ac30'
   name_style: Vox AC30/6-style
   tube: 'EL84'
+  tube_lettered: 'EL84'
   output_tubes: 4
   config: push-pull
   bias: cathode
@@ -667,6 +695,7 @@ stages:
 - amp: 'dr103'
   name_style: Hiwatt Custom 100-style
   tube: 'EL34'
+  tube_lettered: 'EL34'
   output_tubes: 4
   config: push-pull
   bias: fixed
@@ -692,6 +721,7 @@ stages:
 - amp: 'jtm100'
   name_style: British 100-watt lead-style
   tube: 'KT66'
+  tube_lettered: 'KT66'
   output_tubes: 4
   config: push-pull
   bias: fixed
@@ -716,6 +746,7 @@ stages:
 - amp: 'jtm45'
   name_style: British lead-style
   tube: 'KT66'
+  tube_lettered: 'KT66'
   output_tubes: 2
   config: push-pull
   bias: fixed
@@ -739,6 +770,7 @@ stages:
 - amp: 'm1959'
   name_style: Super Lead 100-style
   tube: 'EL34'
+  tube_lettered: 'EL34'
   output_tubes: 4
   config: push-pull
   bias: fixed
@@ -763,6 +795,7 @@ stages:
 - amp: 'm1987'
   name_style: Plexi lead 50-style
   tube: 'EL34'
+  tube_lettered: 'EL34'
   output_tubes: 2
   config: push-pull
   bias: fixed
@@ -786,6 +819,7 @@ stages:
 - amp: 'm2204'
   name_style: Master Volume lead 50-style
   tube: 'EL34'
+  tube_lettered: 'EL34'
   output_tubes: 2
   config: push-pull
   bias: fixed

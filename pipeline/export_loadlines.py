@@ -200,6 +200,24 @@ def simulate(netlist: Path, nodes: list[str], probes: list[str]) -> dict[str, fl
 OT_Z = re.compile(r"(≈|~|approx\.?\s*)?\s*([\d.]+)\s*(k)?\s*Ω\s*:", re.I)
 
 
+def lettered_output_tube(bom: dict | None) -> str | None:
+    """The output valve's own designation, as the parts list letters it.
+
+    `tube` above is the SPICE model the netlist instantiates, and those two are
+    not always the same designation: the whole 6L6 family shares one clean-room
+    fit (models/5881.inc), so a 5E5-A whose sheet letters 6L6GB and a 5F4 whose
+    sheet letters 6L6G both simulate as '5881'. The model name is what the
+    browser solver needs; the lettered designation is what the amp page must
+    print, because that is the valve the drawing names. Returns None when the
+    parts list carries no power tube, and the caller falls back to the model."""
+    for item in (bom or {}).get("items", []) or []:
+        if str(item.get("part", "")).strip().lower() == "power tube":
+            v = str(item.get("value", "")).strip()
+            if v:
+                return v
+    return None
+
+
 def ot_primary(bom: dict | None) -> tuple[float | None, bool, str | None]:
     """(primary ohms, approximate?, note) from the parts list's output-transformer row."""
     for item in (bom or {}).get("items", []) or []:
@@ -269,6 +287,10 @@ def build() -> dict:
             "amp": QStr(meta["id"]),
             "name_style": meta["name_style"],
             "tube": QStr(stage["model"]),
+            # The designation the drawing letters, where it differs from the model
+            # the netlist instantiates (the 6L6 family shares one fit) — this is
+            # what the amp page prints; `tube` stays the solver's model name.
+            "tube_lettered": QStr(lettered_output_tube(bom) or stage["model"]),
             "output_tubes": n,
             "config": config,
             "bias": "cathode" if rk_total is not None else "fixed",

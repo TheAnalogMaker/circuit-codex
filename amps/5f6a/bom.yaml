@@ -1,5 +1,5 @@
 # Parts list — reference designators match schematic.kicad_sch exactly.
-notes: "The schematic draws one jack per channel (the chassis has four). Parts drawn only as annotations (bright cap, NFB, presence, balance cap) are listed without designators."
+notes: "The schematic draws one jack per channel (the chassis has four). The negative-feedback resistor, the presence pot and its 0.1 µF wiper cap are chassis wiring rather than board wiring, but they are this revision's headline change from the 5F6, so they carry designators (RNF, VR6, C16) and are drawn on the schematic. Parts drawn only as annotations (bright cap, balance cap) are listed without designators."
 items:
   - { ref: R1s, part: "Carbon comp resistor", value: "68 kΩ · ½ W",  role: "Bright-channel grid stopper" }
   - { ref: R2s, part: "Carbon comp resistor", value: "68 kΩ · ½ W",  role: "Normal-channel grid stopper" }
@@ -32,6 +32,9 @@ items:
   - { ref: RLB, part: "Carbon comp resistor", value: "100 kΩ · ½ W · 5%", role: "PI plate load (V3B)" }
   - { ref: RTAIL, part: "Carbon comp resistor", value: "470 Ω · ½ W", role: "PI tail bias" }
   - { ref: RT2, part: "Carbon comp resistor", value: "10 kΩ · ½ W",  role: "PI tail (junction → foot)" }
+  - { ref: RNF, part: "Carbon comp resistor", value: "27 kΩ · ½ W",  role: "Negative feedback, speaker → the phase-inverter tail" }
+  - { ref: VR6, part: "Linear potentiometer", value: "5 kΩ",        role: "Presence — from the tail to ground; the 5F6 puts the same pot in the tone stack's ground leg instead" }
+  - { ref: C16, part: "Film capacitor",       value: "0.1 µF · 200 V", role: "Presence wiper to ground" }
   - { ref: C7,  part: "Film capacitor",       value: "0.1 µF · 200 V", role: "V3B grid AC-ground to the tail junction" }
   - { ref: C8,  part: "Coupling capacitor",   value: "0.1 µF · 400 V", role: "PI → V4 grid" }
   - { ref: C9,  part: "Coupling capacitor",   value: "0.1 µF · 400 V", role: "PI → V5 grid" }
@@ -49,7 +52,8 @@ items:
   - { ref: D1,  part: "Rectifier (bias)",     value: "selenium (silicon diode in modern builds)", role: "Bias supply rectifier" }
   - { ref: RB1, part: "Carbon comp resistor", value: "15 kΩ · ½ W",  role: "Bias supply series resistor" }
   - { ref: RB2, part: "Carbon comp resistor", value: "56 kΩ · ½ W",  role: "Bias supply bleeder" }
-  - { ref: C15, part: "Electrolytic capacitor", value: "8 µF · 150 V (×2)", role: "Bias supply filters" }
+  - { ref: C15, part: "Electrolytic capacitor", value: "8 µF · 150 V", role: "Bias supply filter, −48 V line" }
+  - { ref: C15b, part: "Electrolytic capacitor", value: "8 µF · 150 V", role: "Bias supply reservoir, rectifier side of the 15 kΩ (the sheet's second can — the parts list prints one 8 µF · 150 V line covering both)" }
   - { ref: V1,  part: "Preamp tube",          value: "12AY7",          role: "Both input stages (V1A/V1B)" }
   - { ref: V2,  part: "Preamp tube",          value: "12AX7",          role: "Second stage + cathode follower (V2A/V2B)" }
   - { ref: V3,  part: "Preamp tube",          value: "12AX7",          role: "Long-tailed-pair phase inverter (V3A/V3B)" }
@@ -60,5 +64,3 @@ items:
   - { ref: "—", part: "Power transformer",    value: "Fender 8087 · 325-0-325 V",    role: "HT + heaters + rectifier filament" }
   - { ref: "—", part: "Mica capacitor",       value: "100 pF",         role: "Bright cap across VR1 (annotation only on schematic)" }
   - { ref: "—", part: "Mica capacitor",       value: "47 pF",          role: "Across the two PI plates (annotation only)" }
-  - { ref: "—", part: "Carbon comp resistor", value: "27 kΩ · ½ W",   role: "Negative feedback, speaker → tail foot (annotation only)" }
-  - { ref: "—", part: "Linear potentiometer", value: "5 kΩ",           role: "Presence (annotation only)" }

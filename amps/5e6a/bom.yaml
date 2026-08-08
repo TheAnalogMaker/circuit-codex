@@ -11,7 +11,7 @@
 # wiring is drawn as read but keeps a documented residual uncertainty
 # — see schematic.kicad_sch's own annotation and notes.md — short of the
 # lug-by-lug confidence amps/5f6/5f6a earned on 2026-08-03.
-notes: "Two rectifier tubes (V6/V7) are documented but not DC-modeled — an ideal B+ source stands in for the rectifier+PT, the corpus-wide convention (see netlist.cir header). The tone-stack ladder, the volume-pot bodies and the channel-jumper cap are likewise off netlist.cir's DC path (DC-open or abstracted) even though they now carry real schematic refs."
+notes: "Two rectifier tubes (V6/V7) are documented but not DC-modeled — an ideal B+ source stands in for the rectifier+PT, the corpus-wide convention. The tone-stack ladder, the volume-pot bodies and the channel-jumper cap sit off the DC model's path too (DC-open or abstracted), even though each carries its own schematic designator."
 items:
   - { ref: RG1, part: "Carbon comp resistor", value: "1 MΩ · ½ W",  role: "Channel-A (bright) input grid leak" }
   - { ref: RG2, part: "Carbon comp resistor", value: "1 MΩ · ½ W",  role: "Channel-B (normal) input grid leak" }
@@ -46,8 +46,8 @@ items:
   - { ref: C7,  part: "Film capacitor",       value: "0.01 µF · 400 V", role: "Treble network → ground" }
   - { ref: C8,  part: "Mica capacitor",       value: "47 pF (printed 47 MMF)", role: "Treble network → V3 grid" }
   - { ref: RLA, part: "Carbon comp resistor", value: "56 kΩ · ½ W",  role: "V3 (cathodyne) plate load" }
-  - { ref: RTAIL, part: "Carbon comp resistor", value: "1.5 kΩ · ½ W", role: "V3 cathode-split resistor between the cathode pin KPI and the junction JPI (grid-leak return)" }
-  - { ref: RT2, part: "Carbon comp resistor", value: "56 kΩ · ½ W",  role: "V3 cathode-split resistor between the junction JPI and ground" }
+  - { ref: RKA, part: "Carbon comp resistor", value: "1.5 kΩ · ½ W", role: "V3 cathode-split resistor between the cathode pin KPI and the junction JPI (grid-leak return)" }
+  - { ref: RKB, part: "Carbon comp resistor", value: "56 kΩ · ½ W",  role: "V3 cathode-split resistor between the junction JPI and ground" }
   - { ref: RGPI, part: "Carbon comp resistor", value: "1 MΩ · ½ W",  role: "V3 grid leak, returned to the cathode-split junction (through the tone network, DC-open)" }
   - { ref: C5,  part: "Coupling capacitor",   value: "0.1 µF · 400 V", role: "V3 plate → V4 grid" }
   - { ref: C6,  part: "Coupling capacitor",   value: "0.1 µF · 200 V", role: "V3 cathode → V5 grid" }
@@ -69,10 +69,10 @@ items:
   - { ref: V1,  part: "Preamp tube",          value: "12AY7",          role: "Two-channel input (V1A/V1B)" }
   - { ref: V2,  part: "Preamp tube",          value: "12AY7",          role: "Second gain stage (one section wired)" }
   - { ref: V3,  part: "Preamp tube",          value: "12AX7",          role: "Self-biased split-load (cathodyne) phase inverter (one section wired)" }
-  - { ref: V4,  part: "Power tube",           value: "6L6G",           role: "Push-pull output (upper); simulated as 5881 — see netlist.cir" }
-  - { ref: V5,  part: "Power tube",           value: "6L6G",           role: "Push-pull output (lower); simulated as 5881 — see netlist.cir" }
-  - { ref: V6,  part: "Rectifier tube",       value: "5U4GA",          role: "Rectifier, tube 1 of 2 (parallel full-wave, not DC-modeled — see netlist.cir header)" }
-  - { ref: V7,  part: "Rectifier tube",       value: "5U4GA",          role: "Rectifier, tube 2 of 2 (parallel full-wave, not DC-modeled — see netlist.cir header)" }
+  - { ref: V4,  part: "Power tube",           value: "6L6G",           role: "Push-pull output (upper); simulated on the 5881 family model" }
+  - { ref: V5,  part: "Power tube",           value: "6L6G",           role: "Push-pull output (lower); simulated on the 5881 family model" }
+  - { ref: V6,  part: "Rectifier tube",       value: "5U4GA",          role: "Rectifier, tube 1 of 2 (parallel full-wave, not DC-modeled)" }
+  - { ref: V7,  part: "Rectifier tube",       value: "5U4GA",          role: "Rectifier, tube 2 of 2 (parallel full-wave, not DC-modeled)" }
   - { ref: "—", part: "Power transformer",    value: "Fender part number not legible on this scan", role: "HT + heaters + rectifier filament" }
   - { ref: T3,  part: "Output transformer",   value: "Fender part number not legible on this scan", role: "Push-pull output into four 10-inch speakers" }
   - { ref: "—", part: "Film capacitor",       value: "0.05 µF · 600 V (×2)", role: "AC-line bypass, ground switch / AC switch (annotation only)" }

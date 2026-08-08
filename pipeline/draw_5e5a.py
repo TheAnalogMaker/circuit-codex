@@ -16,8 +16,8 @@ s = Sch()
 
 # ---- V1 12AY7, two channels, shared 820R/dual-25u cathode ----------------
 for ch, (y, jack, gref, pref, plref, cref, vref, mref) in enumerate([
-        (92, "INST", "RG1", "V1A", "RL1", "C_c1", "VR1", "RMX1"),
-        (126, "MIC", "RG2", "V1B", "RL2", "C_c2", "VR2", "RMX2")]):
+        (92, "INST", "RG1", "V1A", "RL1", "C5", "VR1", "RMX1"),
+        (126, "MIC", "RG2", "V1B", "RL2", "C6", "VR2", "RMX2")]):
     s.glabel(jack, 26, y, 180)
     s.wire(26, y, 30.48, y)
     l, r = s.series_h("R", f"R{ch + 1}s", "68k", 34.29, y)
@@ -82,11 +82,11 @@ s.wire(fr, fby, 101.6, fby)
 ty2 = 109 - 7.62 - 3.48
 s.wire(101.6, ty2, 101.6, 84)
 s.wire(101.6, 84, 108, 84)
-tcl, tcr = s.series_h("C", "C_tr1", ".01u 400V", 112, 84)
+tcl, tcr = s.series_h("C", "C7", ".01u 400V", 112, 84)
 s.wire(tcr, 84, 122, 84)
 s.sym("POT", "VR4", "1M treble", 122, 87.81)          # top pin (122, 84)
-s.sym("C", "C_tr2", "500p", 122, 95.43)              # top pin (122, 91.62) == VR4 bottom pin
-s.gnd(122, 99.24)                                      # == C_tr2 bottom pin
+s.sym("C", "C8", "500p", 122, 95.43)              # top pin (122, 91.62) == VR4 bottom pin
+s.gnd(122, 99.24)                                      # == C8 bottom pin
 s.wire(127.08, 87.81, 137, 87.81)                      # VR4 wiper -> right
 s.wire(137, 87.81, 137, 92.19)
 s.sym("POT", "VR3", "1M bass", 137, 96)                # top pin (137, 92.19) == wire above
@@ -105,18 +105,18 @@ s.wire(180, 68, 180, 126)
 s.note('RFB1 (100k, V2 plate<->grid) and RBLEED (5MEG, V2 grid -> driver grid) are printed')
 s.note('on the sheet but excluded from netlist.cir — see notes.md "2026-08-08 re-read"')
 
-# Presence + negative feedback: speaker/OT-secondary node -> R_NFB 100k ->
-# VR5 (Presence, 5k, other lug grounded) -> wiper -> C_NFB .1u/200V -> driver
+# Presence + negative feedback: speaker/OT-secondary node -> RNF 100k ->
+# VR5 (Presence, 5k, other lug grounded) -> wiper -> C9 .1u/200V -> driver
 # grid. Confirmed 2026-08-08 landing on the GRID, not the cathode.
 s.glabel("SPKR", 205, 60, 180)
 s.wire(205, 60, 198, 60)
-pnl, pnr = s.series_h("R", "R_NFB", "100k", 190, 60)
+pnl, pnr = s.series_h("R", "RNF", "100k", 190, 60)
 s.wire(198, 60, pnr, 60)
 s.wire(pnl, 60, 184, 60)
 s.sym("POT", "VR5", "5k pres", 184, 63.81)
 s.gnd(184, 71.43)
 s.wire(189.08, 63.81, 192, 63.81)
-ncl, ncr = s.series_h("C", "C_NFB", ".1u 200V", 196, 63.81)
+ncl, ncr = s.series_h("C", "C9", ".1u 200V", 196, 63.81)
 s.wire(ncr, 63.81, 200, 63.81)
 s.wire(200, 63.81, 200, 126)
 
@@ -151,7 +151,7 @@ s.sym("R", "RKA", "1.5k", 208.5, 105.81, lx=2.0)
 s.junction(208.5, 109.62)
 s.sym("R", "RKB", "56k", 208.5, 113.43, lx=2.0)
 s.gnd(208.5, 117.24)
-s.text("VR5 presence wiper + R_NFB land on V3A's grid (annotation) — see notes.md", 150, 149, 1.1)
+s.text("The Presence wiper and the 100k feedback resistor land on V3A's GRID — not its cathode, where the 5F4 puts the same tap", 150, 149, 1.1)
 
 # ---- 6L6GB pair, fixed bias ----------------------------------------------
 for y, pref, cref, glref, gstop in [(84, "V4", "C2", "RGL1", "R5s"),
@@ -225,7 +225,7 @@ s.junction(105.41, 177.8)
 s.glabel("B+2", 105.41, 175.26, 90)
 s.wire(105.41, 175.26, 105.41, 177.8)
 s.junction(108.86, 177.8)
-s.sym("C", "C_f1", "16u", 108.86, 181.61)
+s.sym("C", "C10", "16u", 108.86, 181.61)
 s.gnd(108.86, 185.42)
 l, r = s.series_h("R", "RD1", "16k", 115.57, 177.8)
 s.wire(r, 177.8, 127, 177.8)
@@ -233,14 +233,14 @@ s.junction(121.92, 177.8)
 s.glabel("B+3", 121.92, 175.26, 90)
 s.wire(121.92, 175.26, 121.92, 177.8)
 s.junction(124.46, 177.8)
-s.sym("C", "C_f2", "16u", 124.46, 181.61)
+s.sym("C", "C11", "16u", 124.46, 181.61)
 s.gnd(124.46, 185.42)
 l, r = s.series_h("R", "RD2", "22k", 130.81, 177.8)
 s.wire(r, 177.8, 142.24, 177.8)
 s.junction(137.16, 177.8)
 s.glabel("B+4", 137.16, 175.26, 90)
 s.wire(137.16, 175.26, 137.16, 177.8)
-s.sym("C", "C_f3", "8u", 142.24, 181.61)
+s.sym("C", "C12", "8u", 142.24, 181.61)
 s.gnd(142.24, 185.42)
 # bias supply: HT tap -> selenium -> 100uF filter -> -32V node
 s.glabel("HT_B", 150.1, 160.72, 180)
@@ -248,7 +248,7 @@ s.wire(150.1, 160.72, 153.91, 160.72)
 s.sym("DIODE_SS", "D1", "SEL", 158.99, 160.72, lx=-2.0, ly=-5.4)
 s.wire(164.07, 160.72, 167.88, 160.72)
 s.junction(167.88, 160.72)
-s.sym("C", "C_bias", "100u", 167.88, 164.53)
+s.sym("C", "C13", "100u", 167.88, 164.53)
 s.gnd(167.88, 168.34)
 s.glabel("-32V", 170.42, 160.72, 0)
 

@@ -8,7 +8,10 @@ driver + split-load (cathodyne) phase inverter rather than a long-tailed pair.
 Produced across the late-tweed years (1957–1960), it shares the 5F6-A's power
 iron almost part-for-part (PT 8087, choke 14684, a 5881/6L6G pair biased near
 −40 V) while running a slightly lower rail set. Its direct ancestor is the
-5E-series Super not yet published in this archive.
+narrow-panel [5E4-A](/amps/5e4a/), which it follows stage for stage — the same
+two-channel 12AY7 front end, the same cathode-follower treble/bass network, the
+same driver + split-load cathodyne, the same selenium bias supply — changing the
+output pair back to 6L6G and lifting the rails.
 
 ## Circuit walkthrough (short form)
 

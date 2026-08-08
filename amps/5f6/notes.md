@@ -85,9 +85,21 @@ preamp values, so the differences are narrow and specific:
   ground leg, below the middle pot, with the 27k feedback resistor landing on
   that same junction and a 0.1 µF cap from the presence wiper to ground; the
   phase-inverter tail's 10k returns straight to ground. The 5F6-A moves the
-  presence pot and the feedback return down to the tail foot instead.
+  presence pot, its cap and the feedback return down to the phase-inverter
+  tail, and runs the middle pot's foot straight to ground instead.
 - **Output stage.** The 5F6's 1.5 kΩ grid stoppers and 100 Ω screen resistors
   become no stoppers and 470 Ω 1 W screen resistors.
+- **Second-stage cathode.** The 5F6 bypasses V2A's 820 Ω cathode resistor with
+  25 µF; the 5F6-A leaves the same resistor unbypassed. It costs the later amp
+  gain at the bottom of the band before the tone stack ever sees the signal.
+- **Output transformer secondary.** Both sheets print the same 45249 and the
+  same 2 Ω secondary for four 8 Ω speakers.
+
+One thing to watch when reading the two parts lists together: the resistor and
+pot designators are shared, but the capacitor numbers are not. This amp carries
+two capacitors the 5F6-A does not — the 25 µF on V2A's cathode and the 47 pF
+across the phase-inverter plates — so the C run diverges from C4 onward and the
+same number names a different part on each page. Compare capacitors by role.
 
 ## Verification — against the printed factory chart
 

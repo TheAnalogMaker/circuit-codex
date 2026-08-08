@@ -40,12 +40,13 @@ the junction at 46.1 V, a clean −1.3 V grid-to-cathode. The plate (56 kΩ from
 
 ## Verification — against the printed factory chart
 
-The F-EF drawing prints a full voltage chart, and simulation matches it across
-the board: the +302 V and +250 V rails land within 2 %, and every compared tube
-pin is within 8.4 % (the chart's own convention is ±20 %). The driver cathode is
-the one node left informational — it is unbypassed and loaded at DC by the 56 kΩ
-feedback resistor returning from the speaker, and the anchor-fit 12AX7 model runs
-a little light there, so simulation reads about 1.2 V against the printed 1.5 V.
+The F-EF drawing prints a full voltage chart, and every node on it is gated
+against simulation. The +302 V and +250 V rails land within 3 %, and every tube
+pin is within the chart's own ±20 % convention. The worst of them is the driver
+cathode at 15.7 %: it is unbypassed and loaded at DC by the 56 kΩ feedback
+resistor returning from the speaker, and the anchor-fit 12AX7 model runs a
+little light there, so simulation reads 1.3 V against the printed 1.5 V. Every
+other pin lands within 7.8 %. Nothing is disputed and nothing is excluded.
 The 6AT6 uses a purpose-built, public-domain model fitted to its RCA datasheet
 (triode section only); the two diode units play no part in the amplifier and are
 left unmodeled.

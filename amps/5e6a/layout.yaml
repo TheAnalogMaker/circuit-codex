@@ -91,11 +91,11 @@ parts:
   part: Carbon comp resistor
   a: [1, 36]
   b: [1, 37]
-- ref: RTAIL
+- ref: RKA
   part: Carbon comp resistor
   a: [0, 38]
   b: [1, 38]
-- ref: RT2
+- ref: RKB
   part: Carbon comp resistor
   a: [1, 40]
   b: [1, 41]
@@ -274,10 +274,10 @@ runs:
   - { from: RNF.a, to: SPK, via: [[50.2, 1.3], [40, 2.4], [38.9, 2.3]] }
   - { from: RLA.a, to: RD1.b, via: [[34.2, 1.72], [15.9, 1.72]] }
   - { from: RLA.b, to: V3.pin1, via: [[41.551, 2.16]] }
-  - { from: RTAIL.a, to: V3.pin3, via: [[37.803, 1.389], [34.9, 2.21]] }
-  - { from: RTAIL.b, to: RT2.a, via: [[39.161, 1.159]] }
-  - { from: RGPI.b, to: RT2.a, via: [[37.2, 1.3], [39.6, 1.2]] }
-  - { from: RT2.b, to: [1.45, 41.3], via: [[41.3, 1.22]] }
+  - { from: RKA.a, to: V3.pin3, via: [[37.803, 1.389], [34.9, 2.21]] }
+  - { from: RKA.b, to: RKB.a, via: [[39.161, 1.159]] }
+  - { from: RGPI.b, to: RKB.a, via: [[37.2, 1.3], [39.6, 1.2]] }
+  - { from: RKB.b, to: [1.45, 41.3], via: [[41.3, 1.22]] }
   - { from: C8.b, to: V3.pin2, via: [[58.2, 1.72], [35.3, 1.55], [35.47, 2.44], [37.887, 2.515]] }
   - { from: RGPI.a, to: V3.pin2, via: [[36.2, 1.3], [35.6, 2.3]] }
   - { from: RBL.a, to: RL3.b, via: [[42, 0.85], [63.2, 0.85]] }
