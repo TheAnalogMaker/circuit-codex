@@ -154,7 +154,7 @@ s.wire(br2, 126, 168.91, 126)
 s.wire(bl2, 126, 158.75, 126)
 s.wire(158.75, 126, 158.75, 116.62)
 s.wire(158.75, 116.62, 168.91, 116.62)  # bottom grid AC-grounded to J
-s.text("47 pF balance cap V3A grid-plate omitted (AC only) · NFB 27k + presence 5k join the tail foot at ~0 V DC", 150, 148, 1.1)
+s.note('47 pF balance cap V3A grid-plate omitted (AC only) · NFB 27k + presence 5k join the tail foot at ~0 V DC')
 
 # ---- 5881 pair, fixed bias ----------------------------------------------
 for y, pref, cref, glref, sref in [(84, "V4", "C8", "RGL1", "RS1"), (136, "V5", "C9", "RGL2", "RS2")]:
@@ -243,24 +243,23 @@ s.wire(137.16, 175.26, 137.16, 177.8)
 s.sym("C", "C14", "8u", 142.24, 181.61)
 s.gnd(142.24, 185.42)
 # bias supply (compact): HT tap -> diode -> 15k -> -48V node, 56k bleeder
-s.glabel("HT_B", 138.1, 172.72, 180)
-s.wire(138.1, 172.72, 141.91, 172.72)
-s.sym("DIODE_SS", "D1", "SEL", 146.99, 172.72, lx=-2.0, ly=-5.4)
-s.wire(152.07, 172.72, 155.88, 172.72)
-l, r = s.series_h("R", "RB1", "15k", 159.69, 172.72)
-s.wire(155.88, 172.72, l, 172.72)
-s.wire(r, 172.72, 171.12, 172.72)
-s.junction(166.04, 172.72)
-s.sym("R", "RB2", "56k", 166.04, 176.53)
-s.gnd(166.04, 180.34)
-s.junction(168.58, 172.72)
-s.sym("C", "C15", "8u", 168.58, 176.53, lx=2.2)
-s.gnd(168.58, 180.34)
-s.glabel("-48V", 171.12, 172.72, 0)
-s.text("bias caps 8u/150V x2 (one shown)", 145, 186.5, 1.1)
+s.glabel("HT_B", 138.1, 196.0, 180)
+s.wire(138.1, 196.0, 141.91, 196.0)
+s.sym("DIODE_SS", "D1", "SEL", 146.99, 196.0, lx=-2.0, ly=-5.4)
+s.wire(152.07, 196.0, 155.88, 196.0)
+l, r = s.series_h("R", "RB1", "15k", 159.69, 196.0)
+s.wire(155.88, 196.0, l, 196.0)
+s.wire(r, 196.0, 171.12, 196.0)
+s.junction(166.04, 196.0)
+s.sym("R", "RB2", "56k", 166.04, 199.81)
+s.gnd(166.04, 203.62)
+s.junction(168.58, 196.0)
+s.sym("C", "C15", "8u", 168.58, 199.81, lx=2.2)
+s.gnd(168.58, 203.62)
+s.glabel("-48V", 171.12, 196.0, 0)
+s.note("Bias caps 8 µF/150 V x2 (one shown)")
 
 s.write(OUT, [
-    ("5F6-A — Tweed Bassman-style · Circuit Codex · CC-BY-SA 4.0 · redrawn from circuit facts", 25, 66, 2.0),
-    ("Heaters, PT primary and standby omitted — see netlist.cir and meta.yaml", 25, 70.5, 1.3),
+    "Heaters, PT primary and standby omitted — see netlist.cir and meta.yaml",
 ])
 print(f"wrote {OUT}")

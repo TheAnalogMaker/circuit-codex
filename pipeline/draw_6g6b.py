@@ -54,7 +54,6 @@ s.gnd(gx - 3.81, BY + 12.81)
 s.wire(54, BY + 7.62, 54, BY + 10)
 s.wire(54, BY + 10, 60, BY + 10)
 s.shunt_rc("RK1A", "2700", "CK1A", "25u", 60, BY + 10)
-s.gnd(60, BY + 10)
 # V1A plate -> 220k -> shared +230V rail
 s.plate_load("RL1A", "220k", t1a["p"], "BP230")
 P1A_Y = BY - 7.62 - 3.48
@@ -163,7 +162,6 @@ s.gnd(gx2 - 3.81, NY0 + 12.81)
 s.wire(54, NY0 + 7.62, 54, NY0 + 10)
 s.wire(54, NY0 + 10, 60, NY0 + 10)
 s.shunt_rc("RK2A", "1500", "CK2A", "25u", 60, NY0 + 10)
-s.gnd(60, NY0 + 10)
 s.plate_load("RL2A", "100k", t2a["p"], "BP230")
 P2A_Y = NY0 - 7.62 - 3.48
 s.junction(54, P2A_Y)
@@ -218,7 +216,6 @@ s.junction(180, NY0)
 s.wire(190, NY0 + 7.62, 190, NY0 + 10)
 s.wire(190, NY0 + 10, 196, NY0 + 10)
 s.shunt_rc("RK2B", "2700", "CK2B", "25u", 196, NY0 + 10)
-s.gnd(196, NY0 + 10)
 s.plate_load("RL2B", "220k", t2b["p"], "BP355")
 P2B_Y = NY0 - 7.62 - 3.48
 s.junction(190, P2B_Y)
@@ -323,8 +320,7 @@ s.wire(RC - 20, TAIL_Y + 7.62, RC - 20, TAIL_Y + 7.62 + 3.81)
 s.text("Presence control: front-panel 25 kΩ-L pot at the phase-inverter tail "
        "junction; exact internal tap not traced from the available scan —",
        300, 292, 1.15)
-s.text("drawn as a DC-neutral shunt at the tail, matching the corpus's other "
-       "long-tailed-pair designs.", 300, 295.5, 1.15)
+s.note("drawn as a DC-neutral shunt at the tail, matching the corpus's other long-tailed-pair designs.")
 
 # ============================ OUTPUT PAIR (5881) ==============================
 OX = 420.0
@@ -386,11 +382,7 @@ s.wire(pt["ht_a"][0], pt["ht_a"][1], pt["ht_a"][0] + 3, pt["ht_a"][1])
 s.glabel("HT_A", pt["ht_a"][0] + 3, pt["ht_a"][1], 0)
 s.wire(pt["ht_b"][0], pt["ht_b"][1], pt["ht_b"][0] + 3, pt["ht_b"][1])
 s.glabel("HT_B", pt["ht_b"][0] + 3, pt["ht_b"][1], 0)
-s.text("Power — universal power transformer (TR1, 125P7A), centre-tapped HT "
-       "winding; two 3-diode series legs form a silicon full-wave bridge "
-       "(no rectifier tube); 20 uF/600V filters either side of the choke "
-       "(TR2, 125C1A); 4.7 k/1 W and 27 k/1 W droppers feed the driver and "
-       "preamp taps.", 20, 306, 1.4)
+s.note('Power — universal power transformer (TR1, 125P7A), centre-tapped HT winding; two 3-diode series legs form a silicon full-wave bridge (no rectifier tube); 20 uF/600V filters either side of the choke (TR2, 125C1A); 4.7 k/1 W and 27 k/1 W droppers feed the driver and preamp taps.')
 # Each leg: HT_A (or HT_B) at top -> 3 series diodes -> joins the other leg's
 # output at the bottom = B+1 (first filter node). The PT's HT centre tap
 # (grounded) is the rectifier's return path, not the diode string itself.
@@ -443,8 +435,8 @@ s.text("BP430 (5881 screens) and BP355 (Normal ch. recovery) tap the same "
        "this pass; both", 20, 320, 1.15)
 s.text("are driven directly as ideal sources in netlist.cir, printed at "
        "their own chart values (see meta.yaml).", 20, 323.5, 1.15)
-s.glabel("BP430", 30, 328, 0)
-s.glabel("BP355", 60, 328, 0)
+s.glabel("BP430", 30, 340, 0)
+s.glabel("BP355", 30, 346, 0)
 
 # ============================ BIAS SUPPLY =====================================
 BSY = 300.0
@@ -470,15 +462,7 @@ s.text("Bias supply: silicon diode off an AC tap, 1 k/4.7 k dropping through "
        "the choke, 27 k bleeder, dual 25/50 uF can -> -54 V.", 220, 312, 1.15)
 
 s.write(OUT, [
-    ("Model 6G6-B — Blonde Bassman-style · Circuit Codex · CC-BY-SA 4.0 · "
-     "redrawn from circuit facts", 20, 12, 2.2),
-    ("Two full channels (Bass, Normal), each two preamp stages with its own "
-     "Bass/Treble/Volume tone network, mixing at a shared driver bottle "
-     "ahead of a long-tailed-pair phase inverter and a fixed-bias 5881 "
-     "pair off a solid-state bridge — no rectifier tube.", 20, 17, 1.4),
-    ("The Bass channel's own Treble control sits inside the driver bottle's "
-     "signal path (V3A -> VR6 -> V3B), not beside its Bass/Volume pots. "
-     "Heaters, PT primary, ground switch, fuse and standby switch omitted.",
-     20, 21.5, 1.3),
-], paper="A2")
+    "Two full channels (Bass, Normal), each two preamp stages with its own Bass/Treble/Volume tone network, mixing at a shared driver bottle ahead of a long-tailed-pair phase inverter and a fixed-bias 5881 pair off a solid-state bridge — no rectifier tube.",
+    "The Bass channel's own Treble control sits inside the driver bottle's signal path (V3A -> VR6 -> V3B), not beside its Bass/Volume pots. Heaters, PT primary, ground switch, fuse and standby switch omitted.",
+])
 print(f"wrote {OUT}")

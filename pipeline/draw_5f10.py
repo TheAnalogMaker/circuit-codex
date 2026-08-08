@@ -25,7 +25,7 @@ for jack, ref, y in [("IN3", "R3s", 86), ("IN2", "R2s", 96), ("IN1", "R1s", 112)
 s.gnd(20, 116)                 # jack-1 normalling ground (grid DC reference)
 s.wire(20, 112, 20, 116)
 s.wire(GB, 86, GB, 112)        # grid bus
-s.text("Inputs 1-3, each via a 68k stopper; grid grounded through the switched jacks", 14, 80, 1.1)
+s.caption('Inputs 1-3, each via a 68k stopper; grid grounded through the switched jacks', 14, 80, 1.1)
 
 # ---- V1 6AT6 first stage ------------------------------------------------
 t1 = s.triode("V1", "6AT6", 54, 100)
@@ -202,7 +202,6 @@ s.gnd(168.58, 175.62)
 s.glabel("-21V", 171.12, 168, 0)
 
 s.write(OUT, [
-    ("5F10 — Tweed Harvard-style · Circuit Codex · CC-BY-SA 4.0 · redrawn from circuit facts", 22, 70, 2.0),
-    ("Heaters, PT primary, AC switch/fuse/pilot omitted — see netlist.cir and meta.yaml", 22, 74.5, 1.3),
+    "Heaters, PT primary, AC switch/fuse/pilot omitted — see netlist.cir and meta.yaml",
 ])
 print(f"wrote {OUT}")

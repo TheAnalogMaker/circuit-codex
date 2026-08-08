@@ -162,7 +162,6 @@ s.sym("C", "C13", "16u", 124.46, 181.61)
 s.gnd(124.46, 185.42)
 
 s.write(OUT, [
-    ("5E3 — Tweed Deluxe-style · Circuit Codex · CC-BY-SA 4.0 · redrawn from circuit facts", 25, 70, 2.0),
-    ("Heaters and PT primary omitted — see netlist.cir and meta.yaml", 25, 74.5, 1.3),
+    "Heaters and PT primary omitted — see netlist.cir and meta.yaml",
 ])
 print(f"wrote {OUT}")

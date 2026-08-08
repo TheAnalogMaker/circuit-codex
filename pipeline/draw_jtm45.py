@@ -267,10 +267,9 @@ s.junction(180.58, 160.72)
 s.sym("C", "C16", "25u", 180.58, 164.53, lx=2.2)
 s.gnd(180.58, 168.34)
 s.glabel("-50V", 183.12, 160.72, 0)
-s.text("standby switch between reservoir and B+1 (omitted)", 60, 186.5, 1.1)
+s.note('standby switch between reservoir and B+1 (omitted)')
 
 s.write(OUT, [
-    ("JTM45 — British lead-style · Circuit Codex · CC-BY-SA 4.0 · redrawn from circuit facts", 25, 66, 2.0),
-    ("Heaters, PT primary, standby and the tremolo section omitted — see netlist.cir and meta.yaml", 25, 70.5, 1.3),
+    "Heaters, PT primary, standby and the tremolo section omitted — see netlist.cir and meta.yaml",
 ])
 print(f"wrote {OUT}")

@@ -26,17 +26,11 @@ OUT = Path(__file__).resolve().parent.parent / "amps" / "aa1164" / "schematic.ki
 s = Sch()
 
 # ============================ TITLE ==================================
-s.text("AA1164 — Blackface Princeton Reverb-style · Circuit Codex · CC-BY-SA 4.0 · redrawn from circuit facts",
-       12, 15, 2.2)
-s.text("Rails: B+1 +420 (reservoir / OT centre tap) · B+2 +400 (screens, reverb driver, tremolo) · B+3 +320 · B+4 +240 · bias -34 V. "
-       "Heater chain and pilot lamp are shown on the board layout (layout.yaml).",
-       12, 20, 1.3)
+s.note('Rails: B+1 +420 (reservoir / OT centre tap) · B+2 +400 (screens, reverb driver, tremolo) · B+3 +320 · B+4 +240 · bias -34 V. Heater chain and pilot lamp are shown on the board layout (layout.yaml).')
 
 # ============================ PREAMP (band 1, left) ==================
 YN = 56
-s.text("Preamp — two inputs, 7025 (12AX7) gain stage, treble/bass stack, Volume, second stage", 12, 32, 1.5)
-
-# --- inputs: two 68k stoppers onto a shared 1M grid leak
+s.caption('Preamp — two inputs, 7025 (12AX7) gain stage, treble/bass stack, Volume, second stage', 12, 32, 1.5)# --- inputs: two 68k stoppers onto a shared 1M grid leak
 s.glabel("INPUT 1", 12, YN - 4, 180)
 l, r = s.series_h("R", "R1a", "68k", 24, YN - 4)
 s.wire(16, YN - 4, l, YN - 4)
@@ -51,7 +45,7 @@ s.sym("R", "RGN1", "1M", 38, YN + 4 + 3.81)
 s.gnd(38, YN + 4 + 7.62)
 
 # --- V1A input stage
-t1 = s.triode("V1A", "12AX7", 52, YN)
+t1 = s.triode("V1A", "12AX7 (7025)", 52, YN)
 s.wire(38, YN, t1["g"][0], YN)
 s.plate_load("RLN1", "100k", t1["p"], "B+4")
 s.wire(52, YN + 7.62, 52, YN + 9)
@@ -116,7 +110,7 @@ s.gnd(132, TRB + 11.43)
 # --- V1B second stage
 s.wire(137.08, TRB + 7.62, 144, TRB + 7.62)
 s.wire(144, TRB + 7.62, 144, YN)
-t1b = s.triode("V1B", "12AX7", 156, YN)
+t1b = s.triode("V1B", "12AX7 (7025)", 156, YN)
 s.wire(144, YN, t1b["g"][0], YN)
 s.plate_load("RLN2", "100k", t1b["p"], "B+4")
 s.wire(156, YN + 7.62, 156, YN + 9)
@@ -427,13 +421,12 @@ s.wire(208.89, 196.46, 214, 196.46)
 s.glabel("SPKR", 214, 196.46, 0)
 s.wire(208.89, 201.54, 214, 201.54)
 s.gnd(214, 201.54)
-jext = s.jack("JEXT", "ext spkr", 236, 206)
+jext = s.jack("JEXT", "ext spkr", 236, 212)
 s.glabel("SPKR", 218, jext["tip"][1], 180)
 s.wire(222, jext["tip"][1], jext["tip"][0], jext["tip"][1])
 s.wire(jext["sleeve"][0], jext["sleeve"][1], 226, jext["sleeve"][1])
 s.gnd(226, jext["sleeve"][1])
-s.text("125A10B secondary drives the speaker and the parallel external-speaker jack; the 2.7 kΩ feedback leaves this node",
-       214, 216, 1.1)
+s.note("125A10B secondary drives the speaker and the parallel external-speaker jack; the 2.7 kΩ feedback leaves this node")
 
 # ============================ TREMOLO OSCILLATOR (band 4) ============
 YT = 246
@@ -507,5 +500,5 @@ s.wire(100, jvib["tip"][1], jvib["tip"][0], jvib["tip"][1])
 s.wire(jvib["sleeve"][0], jvib["sleeve"][1], 156, jvib["sleeve"][1])
 s.gnd(156, jvib["sleeve"][1])
 
-s.write(OUT, [], paper="A3")
+s.write(OUT)
 print(f"wrote {OUT}")

@@ -117,12 +117,8 @@ def tone_volume(tee, cc, cval, vrv, vrt, ccut, cutval, cbright, mixer):
 
 
 # ============================ TITLE ==================================
-s.text("6G3 — Brown Deluxe-style · Circuit Codex · CC-BY-SA 4.0 · redrawn from circuit facts",
-       26, 18, 2.2)
-s.text("Rails: B+1 +375 (reservoir · OT centre tap · tremolo oscillator) · B+2 +365 screens · B+3 +325 phase inverter · B+4 +270 preamp · bias -26 V",
-       26, 23, 1.3)
-s.text("Heaters, PT primary/mains, pilot lamp, chassis switches and the tremolo footswitch jack are omitted here — see netlist.cir, meta.yaml, layout.yaml. The drawing prints the first bottle 7025, a low-noise 12AX7.",
-       26, 27, 1.3)
+s.note('Rails: B+1 +375 (reservoir · OT centre tap · tremolo oscillator) · B+2 +365 screens · B+3 +325 phase inverter · B+4 +270 preamp · bias -26 V')
+s.note('Heaters, PT primary/mains, pilot lamp, chassis switches and the tremolo footswitch jack are omitted here — see netlist.cir, meta.yaml, layout.yaml. The drawing prints the first bottle 7025, a low-noise 12AX7.')
 
 # ============================ NORMAL CHANNEL =========================
 YN = 62
@@ -133,7 +129,7 @@ tone_volume(teeN, "C1", ".02u", "VR1", "VR2", "C5", ".01u", "C6", "R5")
 
 # ============================ BRIGHT CHANNEL =========================
 YB = 104
-s.text("Bright channel — no treble shunt across the plate load", 12, 90, 1.6)
+s.caption('Bright channel — no treble shunt across the plate load', 12, 90, 1.6)
 t1b = input_stage(YB, "BRIGHT 1", "BRIGHT 2", "R3n", "R4n", "RG2", "V1B", "7025")
 teeB = plate_load_220k("RL2", t1b["p"])
 tone_volume(teeB, "C2", ".02u", "VR3", "VR4", "C7", ".02u", "C8", "R6")
@@ -415,5 +411,5 @@ s.gnd(246, YBI + 7.62)
 s.wire(246, YBI, 258, YBI)
 s.glabel("-26V", 258, YBI, 0)
 
-s.write(OUT, [], paper="A3")
+s.write(OUT)
 print(f"wrote {OUT}")

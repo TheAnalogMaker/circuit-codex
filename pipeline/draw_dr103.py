@@ -95,9 +95,7 @@ s.wire(54, 111.62, 54, 122)
 s.wire(54, 122, 60, 122)
 s.wire(60, 122, 68, 122)
 s.shunt_rc("RK1", "1k5", "C1", "100u", 68, 122)
-s.text("V1 shares ONE cathode resistor between the two channels — they are "
-       "voiced apart by their coupling capacitors, not at the cathode.",
-       20, 136, 1.2)
+s.note('V1 shares ONE cathode resistor between the two channels — they are voiced apart by their coupling capacitors, not at the cathode.')
 s.junction(MIXLINE_X, 96.71)
 s.junction(MIXLINE_X, V2_Y)
 
@@ -466,13 +464,7 @@ s.text("the two 100 k grid leaks return the output grids to this line as it "
        "BIAS (-38 V) for the same network.", 20, 292, 1.2)
 
 s.write(OUT, [
-    ("DR103 — Hiwatt Custom 100-style · Circuit Codex · CC-BY-SA 4.0 · "
-     "redrawn from circuit facts", 20, 26, 2.2),
-    ("Four inputs across two channels into a shared-cathode ECC83, a "
-     "cathode-follower FMV stack with a master volume, a second cathode "
-     "follower, an ECC81 long-tailed pair and four EL34s.", 20, 31, 1.4),
-    ("Heaters, the mains transformer, the standby switch, the fuses, the "
-     "mains neon and the speaker impedance selector are omitted — see "
-     "netlist.cir and meta.yaml.", 20, 35.5, 1.3),
-], paper="A3")
+    "Four inputs across two channels into a shared-cathode ECC83, a cathode-follower FMV stack with a master volume, a second cathode follower, an ECC81 long-tailed pair and four EL34s.",
+    "Heaters, the mains transformer, the standby switch, the fuses, the mains neon and the speaker impedance selector are omitted — see netlist.cir and meta.yaml.",
+])
 print(f"wrote {OUT}")

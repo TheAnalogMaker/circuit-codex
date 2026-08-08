@@ -42,12 +42,8 @@ def plate_rl(ref: str, val: str, plate: tuple, rail: str, gap: float = 3.48) -> 
 
 
 # ============================ TITLE ==================================
-s.text("6G2 — Brown Princeton-style · Circuit Codex · CC-BY-SA 4.0 · redrawn from circuit facts",
-       20, 18, 2.2)
-s.text("Rails: BP +315 (reservoir · OT centre tap · oscillator plate) · BS +312 screens · BD +280 preamp/PI · bias -35 V (Intensity rides this line)",
-       20, 23, 1.3)
-s.text("Heaters, PT primary/mains, pilot lamp and chassis switches are omitted here — see netlist.cir, meta.yaml, layout.yaml. The drawing prints the first bottle 7025, a low-noise 12AX7.",
-       20, 27, 1.3)
+s.note('Rails: BP +315 (reservoir · OT centre tap · oscillator plate) · BS +312 screens · BD +280 preamp/PI · bias -35 V (Intensity rides this line)')
+s.note('Heaters, PT primary/mains, pilot lamp and chassis switches are omitted here — see netlist.cir, meta.yaml, layout.yaml. The drawing prints the first bottle 7025, a low-noise 12AX7.')
 
 # ============================ INPUT + V1A =============================
 s.text("Input — two jacks share a 68k stopper each into a common 1M leak", 12, 46, 1.5)
@@ -79,8 +75,7 @@ s.shunt_rc("RK1", "1.5k", "C1", "25u", 62, 76)
 tapA = plate_rl("RL1", "100k", t1a["p"], "BD")   # (62, 54.9)
 
 # ============================ TONE / VOLUME NETWORK ====================
-s.text("Tone/Volume — single-knob cut network (capacitor-coupled Tone; Volume feeds V1B through its own coupler)",
-       62, 44, 1.3)
+s.caption('Tone/Volume — single-knob cut network (capacitor-coupled Tone; Volume feeds V1B through its own coupler)', 62, 44, 1.3)
 s.wire(tapA[0], tapA[1], 74, tapA[1])
 s.junction(*tapA)
 cl, cr = s.series_h("C", "C2", ".02u", 77.81, tapA[1])
@@ -130,8 +125,7 @@ s.shunt_rc("RK2", "1.5k", "C5", "25u", 122, 76)
 tapB = plate_rl("RL2", "100k", t1b["p"], "BD")   # (122, 54.9)
 
 # ============================ CATHODYNE PHASE INVERTER ===================
-s.text("Cathodyne phase inverter — plate + tail-junction outputs drive the two 6V6 grids",
-       150, 44, 1.4)
+s.caption('Cathodyne phase inverter — plate + tail-junction outputs drive the two 6V6 grids', 150, 44, 1.4)
 s.wire(tapB[0], tapB[1], 140, tapB[1])
 s.junction(*tapB)
 cl6, cr6 = s.series_h("C", "C6", ".02u", 144.19, tapB[1])
@@ -163,8 +157,7 @@ s.wire(GX, 87.43, JPI_X, 87.43)
 s.wire(JPI_X, 87.43, JPI_X, JPI_Y)
 
 # ============================ OUTPUT COUPLERS + 6V6 PAIR =================
-s.text("Output pair — grounded cathodes, fixed bias through 1.5k grid stoppers off the -35 V line",
-       200, 44, 1.4)
+s.caption('Output pair — grounded cathodes, fixed bias through 1.5k grid stoppers off the -35 V line', 200, 44, 1.4)
 GY3 = 50          # V3 grid row (plate-side output)
 GY4 = JPI_Y        # V4 grid row (tail-junction output)
 
@@ -218,14 +211,10 @@ s.text("No negative-feedback resistor found on the published drawing — open lo
 
 # ============================ TREMOLO OSCILLATOR =========================
 YT = 150
-s.text("Bias-vary tremolo — V2B phase-shift oscillator (the other half of the cathodyne's own 12AX7 bottle)",
-       20, 130, 1.5)
-s.text("Its DC point alone is excluded from netlist.cir — a running oscillator has no static operating point (notes.md)",
-       20, 135, 1.3)
-s.text("The phase-shift RC ladder between grid/cathode and the Speed tap is NOT resolved from this scan (bom.yaml):",
-       20, 140, 1.2)
-s.text("its interfaces are named below and nothing further is asserted about their interconnection — cf. amps/ac15.",
-       20, 144.5, 1.2)
+s.caption("Bias-vary tremolo — V2B phase-shift oscillator (the other half of the cathodyne's own 12AX7 bottle)", 20, 130, 1.5)
+s.note('Its DC point alone is excluded from netlist.cir — a running oscillator has no static operating point (notes.md)')
+s.note('The phase-shift RC ladder between grid/cathode and the Speed tap is NOT resolved from this scan (bom.yaml):')
+s.note('its interfaces are named below and nothing further is asserted about their interconnection — cf. amps/ac15.')
 
 t2b = s.triode("V2B", "12AX7", 70, YT)
 # Plate: RL4 (56k) straight to BP (the driven reservoir, not the derived BD
@@ -291,7 +280,7 @@ s.wire(212, YPW + 3.74, 212, BY)
 s.wire(200, BY, 224, BY)
 s.junction(212, BY)
 s.junction(218, BY)
-s.sym("C", "C11", "30-450u", 218, BY + 3.81)
+s.sym("C", "C11", "30u 450V", 218, BY + 3.81)
 s.gnd(218, BY + 7.62)
 s.junction(224, BY)
 s.wire(224, BY - 3.5, 224, BY)
@@ -303,7 +292,7 @@ s.junction(238, BY)
 s.wire(238, BY - 3.5, 238, BY)
 s.glabel("BS", 238, BY - 3.5, 90)
 s.junction(242, BY)
-s.sym("C", "C12", "30-450u", 242, BY + 3.81)
+s.sym("C", "C12", "30u 450V", 242, BY + 3.81)
 s.gnd(242, BY + 7.62)
 l, r = s.series_h("R", "RD2", "10k 1W", 250, BY)
 s.wire(244, BY, l, BY)
@@ -311,7 +300,7 @@ s.wire(r, BY, 264, BY)
 s.junction(258, BY)
 s.wire(258, BY - 3.5, 258, BY)
 s.glabel("BD", 258, BY - 3.5, 90)
-s.sym("C", "C13", "30-450u", 264, BY + 3.81)
+s.sym("C", "C13", "30u 450V", 264, BY + 3.81)
 s.gnd(264, BY + 7.62)
 
 # ============================ BIAS SUPPLY =================================
@@ -352,5 +341,5 @@ s.glabel("-35V", 224, 244, 90)
 s.sym("C", "C10", ".05u", 224, 251.62, lx=2.8, ly=-3.2)
 s.gnd(224, 255.43)
 
-s.write(OUT, [], paper="A3")
+s.write(OUT)
 print(f"wrote {OUT}")

@@ -69,7 +69,7 @@ s.plate_load("RL3", "100k", t2a["p"], "B+4")
 # NOT from the stack output
 s.junction(91.44, 109)
 s.wire(91.44, 109, 91.44, 84)
-fl, fr = s.series_h("R", "RF1", "5M", 100, 84)
+fl, fr = s.series_h("R", "RF1", "5M", 120, 84)
 s.wire(91.44, 84, fl, 84)
 s.wire(fr, 84, 137, 84)
 s.wire(137, 84, 137, 119.5)             # down to node B (crossing = no join)
@@ -168,7 +168,7 @@ s.sym("R", "RTAIL", "1.5k", 184.5, 105.81, lx=2.0)
 s.junction(184.5, 109.62)
 s.sym("R", "RT2", "56k", 184.5, 113.43, lx=2.0)
 s.gnd(184.5, 117.24)
-s.text("56k NFB from the speaker + 5k presence (0.1 µF on its wiper) land on V3A's cathode (annotation)", 150, 149, 1.1)
+s.note("56k NFB from the speaker + 5k presence (0.1 µF on its wiper) land on V3A's cathode (annotation)")
 
 # ---- 6V6GT pair, fixed bias ----------------------------------------------
 # V4 is driven from the cathodyne's PLATE (C9, 0.1-400), V5 from its
@@ -277,7 +277,6 @@ s.gnd(180.58, 168.34)
 s.glabel("-32V", 183.12, 160.72, 0)
 
 s.write(OUT, [
-    ("5E4-A — Tweed Super-style · Circuit Codex · CC-BY-SA 4.0 · redrawn from circuit facts", 25, 66, 2.0),
-    ("Heaters, PT primary and standby omitted — see netlist.cir and meta.yaml", 25, 70.5, 1.3),
+    "Heaters, PT primary and standby omitted — see netlist.cir and meta.yaml",
 ])
 print(f"wrote {OUT}")

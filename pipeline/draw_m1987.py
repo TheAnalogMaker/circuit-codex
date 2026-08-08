@@ -62,7 +62,6 @@ for (y, hi, lo, sHi, sLo, gref, pref, plref, kref, kval, cbref, cbval,
     s.wire(54, y + 7.62, 54, y + 10)
     s.wire(54, y + 10, 60, y + 10)
     s.shunt_rc(kref, kval, cbref, cbval, 60, y + 10)
-    s.gnd(60, y + 10)
     # plate stub -> coupler -> volume pot
     ty = y - 7.62 - 3.48
     s.wire(54, ty, 66, ty)
@@ -95,7 +94,6 @@ s.wire(MIXLINE_X, 110, t2a["g"][0], 110)
 s.wire(110, 117.62, 110, 120)
 s.wire(110, 120, 116, 120)
 s.shunt_rc("RK3", "820", "C7", ".68u", 116, 120)
-s.gnd(116, 120)
 s.plate_load("RL3", "100k", t2a["p"], "B+4")
 # DC-coupled cathode follower: grid from the V2A plate stub tee
 tee = 110 - 7.62 - 3.48
@@ -244,9 +242,7 @@ s.wire(258.89, 116.54, 261.4, 116.54)
 s.glabel("GND", 261.4, 116.54, 0)
 
 # ======================= power supply — silicon rectifier ===================
-s.text("Power — universal-primary PT (110/120/200/225/245 V) + HT winding; "
-       "silicon full-wave rectifier; 50u+80u reservoir; choke; 10k/47k/10k "
-       "droppers", 24, 160, 1.4)
+s.note('Power — universal-primary PT (110/120/200/225/245 V) + HT winding; silicon full-wave rectifier; 50u+80u reservoir; choke; 10k/47k/10k droppers')
 # HT winding (global labels) -> two rectifier diodes -> reservoir B+1
 s.glabel("HT_A", 26, 170, 180)
 s.wire(26, 170, 30, 170)
@@ -343,9 +339,6 @@ s.sym("C", "C16", "8u", 197, BY + 7.62, lx=2.2)  # top pin at the -BIAS node
 s.gnd(197, BY + 11.43)
 
 s.write(OUT, [
-    ("Model 1987 — Plexi lead 50-style · Circuit Codex · CC-BY-SA 4.0 · redrawn "
-     "from circuit facts", 24, 66, 2.0),
-    ("EL34 evolution of the JTM45 — silicon rectifier, dual EL34 output. Heaters, "
-     "PT primary and pilot lamp omitted — see netlist.cir and meta.yaml", 24, 70.5, 1.3),
+    "EL34 evolution of the JTM45 — silicon rectifier, dual EL34 output. Heaters, PT primary and pilot lamp omitted — see netlist.cir and meta.yaml",
 ])
 print(f"wrote {OUT}")

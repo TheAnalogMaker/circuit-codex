@@ -15,7 +15,9 @@ on the rendered output.
 | Operating-point verification | `pipeline/verify_amps.py` | Simulated DC vs published chart outside tolerance (blocking for `verified`) |
 | Published simulated volts | `pipeline/verify_amps.py` | `reference/op-points.yaml` — the per-node simulated voltages the amp pages print in their Simulated column — no longer matching what the run just simulated. The site cannot run ngspice at build time, so those numbers are exported (`--export`) and committed; a stale export would publish a voltage no run produced, which is why staleness fails like any other gate result |
 | Worst-deviation claim | `pipeline/verify_amps.py` | `verification.max_deviation_pct` disagreeing with the worst gated node the same run just computed. The field is a hand-written mirror of a number the site prints on the amp page, so it needs a gate that executes it: the 5E4-A shipped `9.2` (its driver plate) while its worst node was the 12AY7 cathode at 10.0%. Blocking for draft and verified alike — an internal contradiction, not a chart disagreement |
-| Schematic grammar | `pipeline/check_schematics.py` | kiutils round-trip failures |
+| Schematic grammar | `pipeline/check_schematics.py` | kiutils round-trip failures, plus KiCanvas-strict tokenization (a raw quote inside a string that kiutils forgives and KiCanvas renders as a blank panel) |
+| Schematic sheet furniture | `pipeline/check_schematics.py` | An empty title block — the corpus shipped 34 sheets whose Title and Date were blank, advertising an unfinished drawing under the `verified` badge. Every sheet now states its own designation, style, revision date and status, read from its `meta.yaml` |
+| Schematic legibility | `pipeline/check_schematics.py` | Lettering printed through live circuitry (a B+ flag over the sheet title, tremolo prose over a phase-shift ladder), drawing content laid into the bottom-right corner where the worksheet prints the title block over it, and a drawing that fills less than 62% of its sheet's drawable area. All three are pure geometry, invisible to a parser and fatal to a reader; the gate reconstructs symbol bodies, pins, property text and labels from the file itself and fails on overlap, intrusion and dilution |
 | Layout render + determinism | `pipeline/check_layouts.py` | A `layout.yaml` that fails to render, or a stale committed drawing out of sync with a fresh render — checked for **both** published styles (`layout.svg` and the era `layout-sheet.svg`) |
 | Era value lettering | `pipeline/test_era_values.py` | The sheet style's on-body value shorthand (`4.7K`, `.02-400`, `25MFD`, `250PF`) drifting from the documented convention, or mangling a value it cannot parse — swept over every value in every `bom.yaml` |
 | Social-card staleness | `pipeline/render_og.py --check` | A committed `site/public/og/<id>.png` no longer matching the layout, metadata or renderer it was built from — or hand-edited. Digest-based, so it needs no rasteriser in CI |
@@ -96,6 +98,33 @@ Iterate until it reads like a reference diagram a builder could follow. Layouts
 that still carry overlap/termination debt are held behind a
 `pipeline/lint_waivers.yaml` waiver, not shipped clean — remove the waiver only
 once the layout passes the lint on its own.
+
+## Schematics — the sheet is the figure
+
+`check_schematics.py` proves a sheet parses, states its own identity, fits its
+paper and prints no lettering through its own circuitry. It cannot see whether
+the circuit *reads*. KiCanvas is the renderer the site ships against and the
+only true proof — a browser screenshot after about twelve seconds of render
+time — but it is far too slow to iterate against. For the iterations, there is
+a fast approximation:
+
+```
+python3 pipeline/_sch_preview.py <id> /tmp/sch-<id>.png 3.0   # needs librsvg
+```
+
+It draws the file's own geometry — page outline, title-block reserve, symbol
+graphics, wires, junctions, labels, lettering — at a fidelity good enough to
+answer "does this read". It is a review aid and **not** evidence about what
+KiCanvas shows: its font is not KiCad's and its labels are plain text, not
+flags. A schematic change is reviewed when the gate is green, the preview
+reads, and a browser screenshot confirms it.
+
+Two things the preview is specifically good at catching, both of which shipped
+live before the 2026-08-08 pass: a part standing *on* a wire rather than beside
+it (which shorts it out — the 6G4's tremolo plate load and its oscillator grid
+leak were both drawn that way), and a ground flag taken off the head of a shunt
+part instead of its foot, so the flag prints down through the body it grounds.
+Neither shows up in a netlist gate, because neither file is the netlist.
 
 ## Social cards — the same rule
 

@@ -118,22 +118,18 @@ def channel(y, tag, jn2, rjn, rg, vref_a, rl_a, rk_a, ck_a,
 
 
 # ============================ TITLE ==================================
-s.text("6G5 — Brown Pro-style · Circuit Codex · CC-BY-SA 4.0 · redrawn from circuit facts",
-       26, 18, 2.2)
-s.text("Rails: BP1 +456 (post-choke) · BP2 +430 screens · BP3 +410 (PI, driven anchor) · BDRV +480 (driver, driven anchor) · BD +300 (preamp, driven anchor) · bias -55 V",
-       26, 23, 1.3)
-s.text("Heaters, PT primary/mains, pilot lamp and chassis switches are omitted here — see netlist.cir, meta.yaml, layout.yaml. BP3/BDRV/BD are DRIVEN anchors, not derived through the dropper chain shown (notes.md).",
-       26, 27, 1.3)
+s.note('Rails: BP1 +456 (post-choke) · BP2 +430 screens · BP3 +410 (PI, driven anchor) · BDRV +480 (driver, driven anchor) · BD +300 (preamp, driven anchor) · bias -55 V')
+s.note('Heaters, PT primary/mains, pilot lamp and chassis switches are omitted here — see netlist.cir, meta.yaml, layout.yaml. BP3/BDRV/BD are DRIVEN anchors, not derived through the dropper chain shown (notes.md).')
 
 # ============================ NORMAL CHANNEL (top) ====================
 YN = 62
-s.text("Normal channel — V1 (both stages share one 7025)", 12, 48, 1.6)
+s.caption('Normal channel — V1 (both stages share one 7025)', 12, 48, 1.6)
 t1b, teeN2 = channel(YN, "NORM", "NORM2", "R1N", "RG1A", "V1A", "RL1A", "RK1A", "CK1A",
                       "VRB1", "VRT1", "CT1", "CF1", "RF1", "VRV1", "RL1B", "RK1B", "CK1B", "BD")
 
 # ============================ BRIGHT CHANNEL (bottom) ==================
 YB = 160
-s.text("Bright channel — V2 (both stages share one 7025)", 12, 146, 1.6)
+s.caption('Bright channel — V2 (both stages share one 7025)', 12, 146, 1.6)
 t2b, teeB2 = channel(YB, "BRT", "BRT2", "R2N", "RG2A", "V2A", "RL2A", "RK2A", "CK2A",
                       "VRB2", "VRT2", "CT2", "CF2", "RF2", "VRV2", "RL2B", "RK2B", "CK2B", "BD")
 
@@ -157,8 +153,7 @@ s.junction(MX, teeB2)
 s.junction(MX, MY)
 s.sym("R", "RG5", "1M", MX, MY + 3.81, lx=3.2, ly=1.0)
 s.gnd(MX, MY + 7.62)
-s.text("Channel-mixing node — both channels sum here; the tremolo photocell (below) also shunts it",
-       150, MY - 18, 1.3)
+s.note('Channel-mixing node — both channels sum here; the tremolo photocell (below) also shunts it')
 
 # ============================ DRIVER (V5) ==============================
 XD = 200
@@ -169,8 +164,7 @@ s.wire(XD, MY + 7.62, XD, MY + 9)
 s.shunt_rc("RK5", "820", "CK5", "25u", XD, MY + 9)
 teeD = MY - 7.62 - 3.48
 s.junction(XD, teeD)
-s.text("Driver — local feedback network read from the drawing but not confidently resolved (schematic-only; see notes.md, bom.yaml)",
-       184, teeD - 14, 1.2)
+s.note('Driver — local feedback network read from the drawing but not confidently resolved (schematic-only; see notes.md, bom.yaml)')
 # local feedback network: plate -> RFB1 470k -> node -> RFB2/RFB3 220k each,
 # one to ground, one back toward the mixing node; CFB1 2500p bridges the plate
 # tee to ground. Drawn for the record; not part of the DC model.
@@ -197,10 +191,8 @@ s.gnd(210, teeD - 16)
 # ============================ TREMOLO OSCILLATOR (V3, excluded) ========
 YT = 230
 PT_ = YT - 11.1
-s.text("Tremolo — V3 phase-shift oscillator driving a lamp/photoresistor pair (OPTO) that shunts the mixing node. DC point excluded from netlist.cir (notes.md).",
-       26, 196, 1.4)
-s.text("Phase-shift ladder values (RTOG1/RTOG2/CTO1-3) are a schematic-only reading, typical of this circuit family — not confidently resolved from the scan (bom.yaml).",
-       26, 200, 1.2)
+s.caption('Tremolo — V3 phase-shift oscillator driving a lamp/photoresistor pair (OPTO) that shunts the mixing node. DC point excluded from netlist.cir (notes.md).', 26, 196, 1.4)
+s.note('Phase-shift ladder values (RTOG1/RTOG2/CTO1-3) are a schematic-only reading, typical of this circuit family — not confidently resolved from the scan (bom.yaml).')
 t3 = s.triode("V3", "7025", 100, YT)
 s.wire(100, YT - 7.62, 100, PT_)
 s.sym("R", "RTOP", "100k", 100, PT_ - 3.81)
@@ -235,7 +227,7 @@ s.wire(60, PT_ - 16, 30, PT_ - 16)
 s.wire(30, PT_ - 16, 30, YT + 11)
 s.wire(30, YT + 11, 100, YT + 11)
 s.sym("R", "RTOG2", "1M", 40, PT_ - 3.81)
-s.gnd(40, PT_ - 7.62)
+s.gnd(40, PT_ - 7.62, 90)
 s.wire(40, PT_, 36, PT_)
 s.wire(36, PT_, 36, YT)
 s.wire(36, YT, t3["g"][0], YT)
@@ -247,7 +239,7 @@ cathode_split_rc("RTOK", "1.5k", "CTOK", "25u+25u", 100, YT + 11)
 s.wire(100, PT_, 120, PT_)
 s.sym("POT", "VRINT", "250k-L intens.", 120, PT_ + 3.81)
 s.gnd(120, PT_ + 7.62)
-op = s.opto("OPTO", "roach", 148, PT_)
+op = s.opto("OPTO", "optocoupler", 148, PT_)
 s.wire(125.08, PT_, 148 - 6.35, PT_)
 s.wire(op["l2"][0], op["l2"][1], op["l2"][0] - 4, op["l2"][1])
 s.gnd(op["l2"][0] - 4, op["l2"][1])
@@ -267,7 +259,7 @@ XPI = 258
 YPH = 100
 YPB = 160
 JY = 130
-s.text("Long-tailed-pair phase inverter", 244, 86, 1.6)
+s.text("Long-tailed-pair phase inverter", 244, 70, 1.6)
 s.wire(XD + 7.62, MY, 230, MY)
 s.wire(230, MY, 230, YPH)
 t6a = s.triode("V6A", "7025", XPI, YPH)
@@ -291,7 +283,7 @@ s.junction(220, JY)
 s.sym("R", "RPRES", "1.6k", 220, JY + 3.81, lx=3.2, ly=2.0)
 s.sym("POT", "VRPRES", "5k-L pres.", 220, JY + 3.81 + 7.62 + 3.81, lx=3.2, ly=2.0)
 s.wire(220, JY + 7.62, 220, JY + 7.62 + 3.81)
-s.gnd(220, JY + 7.62 + 3.81 + 3.81)
+s.gnd(220, JY + 3.81 + 7.62 + 3.81 + 3.81)
 nl, nr = s.series_h("R", "RNFB", "56k", 206, JY)
 s.wire(nr, JY, 220, JY)
 s.wire(196, JY, nl, JY)
@@ -398,7 +390,7 @@ s.sym("C", "CF3", "20u 600V", 62, BY + 3.81)
 s.gnd(62, BY + 7.62)
 s.wire(62, BY, 62, BY - 3.5)
 s.glabel("B_RES", 62, BY - 3.5, 90)
-s.text("+460 V reservoir", 55, BY - 6, 1.1)
+s.text("+460 V reservoir", 34, BY - 6, 1.1)
 # choke to BP1
 s.wire(62, BY, 68, BY)
 s.sym("CHOKE", "L1", "CH.", 78, BY)
@@ -436,8 +428,7 @@ s.wire(r, BY, 142, BY)
 s.junction(142, BY)
 s.sym("C", "CF7", "20u 600V", 142, BY + 3.81)
 s.gnd(142, BY + 7.62)
-s.text("56k/10k dropper — illustrative; BP3/BDRV/BD are driven anchors (see header)",
-       100, BY + 14, 1.1)
+s.note('56k/10k dropper — illustrative; BP3/BDRV/BD are driven anchors (see header)')
 # anchors, drawn as labelled taps off this illustrative chain
 s.wire(130, BY, 130, BY - 8)
 s.glabel("BP3", 130, BY - 8, 90)
@@ -458,10 +449,10 @@ s.wire(fr, 224 - 5.08, 40 - 8.89, 224 - 5.08)
 s.wire(40 - 8.89, 224 + 5.08, 8, 224 + 5.08)
 s.glabel("MAINS", 8, 224 + 5.08, 180)
 s.text("Mains cord not drawn — annotation layer (layout.yaml)", 8, 232, 1.1)
-s.wire(40 + 8.89, 224 - 5.08, 44, 224 - 5.08)
-s.glabel("HT_A", 44, 224 - 5.08, 0)
-s.wire(40 + 8.89, 224 + 5.08, 44, 224 + 5.08)
-s.glabel("HT_B", 44, 224 + 5.08, 0)
+s.wire(40 + 8.89, 224 - 5.08, 52, 224 - 5.08)
+s.glabel("HT_A", 52, 224 - 5.08, 0)
+s.wire(40 + 8.89, 224 + 5.08, 52, 224 + 5.08)
+s.glabel("HT_B", 52, 224 + 5.08, 0)
 lp = s.lamp("PL1", "pilot", 20, 236)
 s.wire(lp["hi"][0], lp["hi"][1], lp["hi"][0], 231)
 s.glabel("HTR_A", lp["hi"][0], 231, 90)
@@ -483,5 +474,5 @@ s.gnd(222, 227.62)
 s.wire(222, 220, 230, 220)
 s.glabel("-55V", 230, 220, 0)
 
-s.write(OUT, [], paper="A3")
+s.write(OUT)
 print(f"wrote {OUT}")

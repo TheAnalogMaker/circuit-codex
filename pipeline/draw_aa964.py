@@ -23,11 +23,7 @@ OUT = Path(__file__).resolve().parent.parent / "amps" / "aa964" / "schematic.kic
 s = Sch()
 
 # ============================ TITLE ==================================
-s.text("AA964 — Blackface Princeton-style · Circuit Codex · CC-BY-SA 4.0 · redrawn from circuit facts",
-       20, 16, 2.2)
-s.text("Heaters and pilot lamp omitted here — see netlist.cir, meta.yaml, layout.yaml.  "
-       "Rails: B+1 +420 · B+2 +415 screens · B+3 +370 · B+4 +290 · bias -34 V",
-       20, 21, 1.3)
+s.note('Heaters and pilot lamp omitted here — see netlist.cir, meta.yaml, layout.yaml.  Rails: B+1 +420 · B+2 +415 screens · B+3 +370 · B+4 +290 · bias -34 V')
 
 # ============================ INPUT + FIRST STAGE (V1A) ===============
 YN = 62
@@ -200,8 +196,7 @@ s.gnd(314, 78)
 # ============================ TREMOLO OSCILLATOR (V2A) ================
 YT = 180
 RAILY = 208                                    # phase-shift ladder rail
-s.text("Tremolo oscillator (½ 12AX7) — a running phase-shift oscillator; its DC point "
-       "is excluded from netlist.cir (see notes.md)", 20, 148, 1.4)
+s.caption('Tremolo oscillator (½ 12AX7) — a running phase-shift oscillator; its DC point is excluded from netlist.cir (see notes.md)', 20, 148, 1.4)
 t2a = s.triode("V2A", "12AX7", 60, YT)
 s.plate_load("RTO", "220k", t2a["p"], "B+2")
 s.wire(60, YT + 7.62, 60, YT + 10)
@@ -274,8 +269,7 @@ s.text("At DC the 0.1 µF blocks the oscillator, so no current flows in the Inte
 
 # ============================ POWER SUPPLY ============================
 YPW = 252
-s.text("Power supply — TR1 125P1B 340-0-340 · GZ34 · 20 µF·450 V cans, "
-       "1 k-1 W then 18 k-1 W + 18 k-1 W droppers", 20, 238, 1.4)
+s.note('Power supply — TR1 125P1B 340-0-340 · GZ34 · 20 µF·450 V cans, 1 k-1 W then 18 k-1 W + 18 k-1 W droppers')
 pt = s.pt("TR1", "125P1B", 44, YPW)
 s.wire(pt["pri1"][0], pt["pri1"][1], pt["pri1"][0] - 4, pt["pri1"][1])
 s.glabel("MAINS", pt["pri1"][0] - 4, pt["pri1"][1], 180)
@@ -356,5 +350,5 @@ s.sym("C", "CDEATH", ".047u 600V", 238, 224, rot=90, lx=-3.2, ly=-6.2)
 s.wire(241.81, 224, 246, 224)
 s.gnd(246, 224)
 
-s.write(OUT, [], paper="A3")
+s.write(OUT)
 print(f"wrote {OUT}")

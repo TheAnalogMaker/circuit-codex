@@ -66,7 +66,7 @@ s.junction(99.06, 109)
 s.wire(chan_nodes[0][0], chan_nodes[0][1], chan_nodes[0][0], (chan_nodes[0][1] + chan_nodes[1][1]) / 2 - 3.81)
 s.sym("C", "CJ1", "100p", chan_nodes[0][0], (chan_nodes[0][1] + chan_nodes[1][1]) / 2)
 s.wire(chan_nodes[0][0], (chan_nodes[0][1] + chan_nodes[1][1]) / 2 + 3.81, chan_nodes[1][0], chan_nodes[1][1])
-s.text("No grid stoppers on this drawing (unlike the 5F6/5F6-A's 68k); CJ1 jumpers the two channels", 30, 76, 1.1)
+s.note("No grid stoppers on this drawing (unlike the 5F6/5F6-A's 68k); CJ1 jumpers the two channels")
 
 # shared cathode
 s.wire(49.53, 99.62, 49.53, 103)
@@ -93,7 +93,7 @@ s.wire(109.22, platetee, 109.22, 88)
 s.wire(109.22, 88, 99.06, 88)
 s.wire(99.06, 88, 99.06, 109)
 fl, fr = s.series_h("R", "RFB", "10M", 103.5, 88)
-s.text("RFB reads as a plate-to-grid loop on the A-EE sheet (light self-bias/NFB); netlist.cir omits it -- negligible at 10 Mohm beside the 100 kohm plate load", 30, 81, 1.1)
+s.note('RFB reads as a plate-to-grid loop on the A-EE sheet (light self-bias/NFB); netlist.cir omits it -- negligible at 10 Mohm beside the 100 kohm plate load')
 
 # ---- tone network: bass shelf, presence/NFB bus, treble rheostat ---------
 # Read off the Schematic Heaven A-EE scan this pass (2026-08-08). Node M is
@@ -110,7 +110,7 @@ s.wire(109.22, platetee, mx, platetee)
 s.junction(109.22, platetee)
 s.wire(mx, platetee, mx, 84)
 s.sym("R", "RBL", "220k", mx, 80.19)
-s.gnd(mx, 76.38)
+s.gnd(mx, 76.38, 90)
 ts2 = 158.75
 tl, tr = s.series_h("R", "RTS", "220k", mx + 8, platetee)
 s.wire(mx, platetee, tl, platetee)
@@ -154,7 +154,7 @@ s.sym("C", "C7", ".01u-400", cx + 34, 112.31)
 s.gnd(cx + 34, 116.12)
 tl2, tr2 = s.series_h("C", "C8", "47p", cx + 44, 108.5)
 s.wire(cx + 34, 108.5, tl2, 108.5)
-s.text("VR3 (treble) wired as a rheostat -- the same trick the family's 3-knob ladders use for the bass pot", 158, 118, 1.1)
+s.note("VR3 (treble) wired as a rheostat -- the same trick the family's 3-knob ladders use for the bass pot")
 
 # ---- phase inverter: self-biased split-load (cathodyne) V3 ---------------
 # Same shape as the 5F4's V3B (netlist.cir; known to converge sensibly).
@@ -275,7 +275,6 @@ s.gnd(180.58, 168.34)
 s.glabel("-42V", 183.12, 160.72, 0)
 
 s.write(OUT, [
-    ("5E6-A -- Tweed Bassman-style . Circuit Codex . CC-BY-SA 4.0 . redrawn from circuit facts", 25, 66, 2.0),
-    ("Heaters, PT primary and standby omitted -- see netlist.cir and meta.yaml", 25, 70.5, 1.3),
+    "Heaters, PT primary and standby omitted -- see netlist.cir and meta.yaml",
 ])
 print(f"wrote {OUT}")

@@ -21,11 +21,7 @@ OUT = Path(__file__).resolve().parent.parent / "amps" / "aa764" / "schematic.kic
 s = Sch()
 
 # ============================ TITLE ==================================
-s.text("AA764 — Blackface Champ-style · Circuit Codex · CC-BY-SA 4.0 · redrawn from circuit facts",
-       18, 16, 2.0)
-s.text("Heaters (6.3 V, one leg grounded), pilot lamp, AC switch and fuse omitted here — see netlist.cir, notes.md, layout.yaml. "
-       "Rails: B+1 +360 · B+2 +350 screen · B+3 +330 preamp",
-       18, 21, 1.3)
+s.note('Heaters (6.3 V, one leg grounded), pilot lamp, AC switch and fuse omitted here — see netlist.cir, notes.md, layout.yaml. Rails: B+1 +360 · B+2 +350 screen · B+3 +330 preamp')
 
 # ============================ INPUT + V1A ============================
 YH, YL, GB = 58.0, 66.0, 34.0          # high jack, low jack, grid bus
@@ -134,8 +130,7 @@ s.glabel("GND", 209, 61.08, 0)
 
 # ============================ POWER SUPPLY ===========================
 YPW = 150.0
-s.text("Power supply — TR1 125P1B, 320-0-320 V, 5Y3GT full-wave, three 20 µF · 450 V sections",
-       18, 136, 1.6)
+s.note('Power supply — TR1 125P1B, 320-0-320 V, 5Y3GT full-wave, three 20 µF · 450 V sections')
 pt = s.pt("T1", "125P1B", 40, YPW)
 s.wire(pt["pri1"][0], pt["pri1"][1], pt["pri1"][0] - 4, pt["pri1"][1])
 s.glabel("MAINS", pt["pri1"][0] - 4, pt["pri1"][1], 180)
@@ -188,5 +183,5 @@ s.sym("C", "C11", ".047u 600V", 168, 145, rot=90, lx=-3.2, ly=-6.2)
 s.wire(171.81, 145, 176, 145)
 s.gnd(176, 145)
 
-s.write(OUT, [], paper="A4")
+s.write(OUT)
 print(f"wrote {OUT}")

@@ -124,26 +124,20 @@ def tone_stack(tee, ct, rs, cb, cm, vrt, vrb, vrm, vrv, cbr, x2, xv=118):
 
 
 # ============================ TITLE ==================================
-s.text("AB763 (Twin Reverb) — Blackface Twin Reverb-style · Circuit Codex · CC-BY-SA 4.0 · redrawn from circuit facts",
-       26, 20, 2.4)
-s.text("Heaters, pilot lamp and mains switching omitted here — see netlist.cir, meta.yaml, layout.yaml. "
-       "Rails: B+1 +460 (plates, OT centre tap) · B+2 +458 node [B] (screens, reverb transformer, tremolo) · "
-       "B+3 +450 node [C] (PI plates) · B+4 +410 node [D] (all six preamp plate loads) · bias -52 V",
-       26, 25, 1.5)
-s.text("Chart notice: voltages read to ground with an electronic voltmeter, values ±20%. "
-       "Resistors ½ W 10% and capacitors at least 400 V unless marked.", 26, 29.5, 1.4)
+s.note('Heaters, pilot lamp and mains switching omitted here — see netlist.cir, meta.yaml, layout.yaml. Rails: B+1 +460 (plates, OT centre tap) · B+2 +458 node [B] (screens, reverb transformer, tremolo) · B+3 +450 node [C] (PI plates) · B+4 +410 node [D] (all six preamp plate loads) · bias -52 V')
+s.note('Chart notice: voltages read to ground with an electronic voltmeter, values ±20%. Resistors ½ W 10% and capacitors at least 400 V unless marked.')
 
 # ============================ NORMAL CHANNEL (top row) ================
 YN = 64
 s.text("Normal channel", 12, 46, 1.8)
-input_stage(YN, "NORM 1", "NORM 2", "R1n", "R2n", "RGN1", "V1A", "12AX7",
+input_stage(YN, "NORM 1", "NORM 2", "R1n", "R2n", "RGN1", "V1A", "12AX7 (7025)",
             "RLN1", "RKN1", "CKN1", "B+4")
 teeN = YN - 7.62 - 3.48
 tone_stack(teeN, "CTN", "RSN", "CBN", "CBN2", "VRTN", "VRBN", "VRMN", "VRVN",
            "CBRN", 140)
 
 # normal second stage: 100k plate load off B+4, cathode on the SHARED [A] node
-t1b = s.triode("V1B", "12AX7", 140, YN)
+t1b = s.triode("V1B", "12AX7 (7025)", 140, YN)
 s.plate_load("RLN2", "100k", t1b["p"], "B+4")
 # V1B plate -> 0.047 coupler -> the normal channel's 220k mixing resistor
 s.wire(140, teeN, 146, teeN)
@@ -159,13 +153,14 @@ s.glabel("MIXER", 186, teeN, 0)
 # ============================ VIBRATO CHANNEL (second row) ============
 YV = 122
 s.text("Vibrato channel (reverb + tremolo)", 12, 104, 1.8)
-input_stage(YV, "VIB 1", "VIB 2", "R1v", "R2v", "RGV1", "V2A", "12AX7",
+input_stage(YV, "VIB 1", "VIB 2", "R1v", "R2v", "RGV1", "V2A", "12AX7 (7025)",
             "RLV1", "RKV1", "CKV1", "B+4")
 teeV = YV - 7.62 - 3.48
 tone_stack(teeV, "CTV", "RSV", "CBV", "CBV2", "VRTV", "VRBV", "VRMV", "VRVV",
            "CBRV", 140)
 
-t2b = s.triode("V2B", "12AX7", 140, YV)
+
+t2b = s.triode("V2B", "12AX7 (7025)", 140, YV)
 s.plate_load("RLV2", "100k", t2b["p"], "B+4")
 # V2B plate -> 0.02 coupler -> the reverb/tremolo mix node (down to the block below)
 s.wire(140, teeV, 146, teeV)
@@ -237,7 +232,7 @@ gl, gr = s.series_h("R", "RGR1", "220k", 162, YR - 6)
 s.wire(154, YR - 6, gl, YR - 6)
 s.wire(gr, YR - 6, 172, YR - 6)
 s.wire(172, YR - 6, 172, YR)
-t4b = s.triode("V4B", "12AX7", 182, YR)
+t4b = s.triode("V4B", "12AX7 (7025)", 182, YR)
 s.wire(172, YR, t4b["g"][0], YR)
 s.plate_load("RLR1", "100k", t4b["p"], "B+4")
 # recovery plate -> 0.003 -> the 100k-L reverb control -> 470k mix resistor
@@ -278,7 +273,7 @@ s.wire(206, YM - 8, cl, YM - 8)
 s.wire(cr, YM - 8, 232, YM - 8)
 s.wire(232, YM - 8, 232, YM)
 s.junction(232, YM)
-t4a = s.triode("V4A", "12AX7", 244, YM)
+t4a = s.triode("V4A", "12AX7 (7025)", 244, YM)
 s.wire(232, YM, t4a["g"][0], YM)
 s.plate_load("RLD1", "100k", t4a["p"], "B+4")
 # mix-driver plate -> 0.1 -> the vibrato channel's 220k mixing resistor
@@ -307,8 +302,7 @@ s.junction(251.62, 250)
 
 # ============================ TREMOLO OSCILLATOR (excluded) ==========
 YT = 300
-s.text("Tremolo oscillator (V5) + optocoupler — dynamic; neither half has a static DC "
-       "operating point, so both are excluded from netlist.cir (notes.md)", 12, 278, 1.5)
+s.caption('Tremolo oscillator (V5) + optocoupler — dynamic; neither half has a static DC operating point, so both are excluded from netlist.cir (notes.md)', 12, 278, 1.5)
 t5a = s.triode("V5A", "12AX7", 60, YT)
 t5b = s.triode("V5B", "12AX7", 122, YT)
 s.plate_load("RTO1", "220k", t5a["p"], "B+2")
@@ -361,7 +355,7 @@ s.wire(40, YT, t5a["g"][0], YT)
 s.wire(20, 268, 20, 280)
 s.sym("R", "RTOG3", "2.2M", 20, 283.81)
 s.gnd(20, 287.62)
-s.text("The vibrato footswitch grounds this bus and stops the oscillator", 12, 296, 1.3)
+s.note('The vibrato footswitch grounds this bus and stops the oscillator')
 # lamp driver: 100k cathode, 10M plate bleeder, the neon lamp in series with 100k
 s.sym("R", "RKTO2", "100k", 122, YT + 11.43)
 s.gnd(122, YT + 15.24)
@@ -599,9 +593,7 @@ s.gnd(406, YPW + 7.62)
 
 # ============================ BIAS SUPPLY ===========================
 YB = YPW
-s.text("Bias supply — the 48 V tap → 470 Ω · 1 W → rectifier → 25 µF · 50 V → the 10 kΩ "
-       "balance control over a 27 kΩ leg; its wiper sets the −52 V grid line",
-       436, 296, 1.5)
+s.note('Bias supply — the 48 V tap → 470 Ω · 1 W → rectifier → 25 µF · 50 V → the 10 kΩ balance control over a 27 kΩ leg; its wiper sets the −52 V grid line')
 s.glabel("BIAS TAP", 436, YB, 180)
 l, r = s.series_h("R", "RBIAS", "470 1W", 452, YB)
 s.wire(444, YB, l, YB)
@@ -623,12 +615,12 @@ s.wire(494, YB + 12, 514, YB + 12)
 s.glabel("-52V", 514, YB + 12, 0)
 
 # ============================ DEATH CAP =============================
-s.text("Period ground-switch cap (not in modern builds)", 246, 396, 1.3)
+s.note('Period ground-switch cap (not in modern builds)')
 s.glabel("MAINS", 246, YB + 52, 180)
 s.wire(246, YB + 52, 252, YB + 52)
 s.sym("C", "CDEATH", ".047u 600V", 256, YB + 52, rot=90, lx=-3.6, ly=-6.4)
 s.wire(259.81, YB + 52, 266, YB + 52)
 s.gnd(266, YB + 52)
 
-s.write(OUT, [], paper="A2")
+s.write(OUT)
 print(f"wrote {OUT}")

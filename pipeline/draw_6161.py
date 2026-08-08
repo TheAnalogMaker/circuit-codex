@@ -88,18 +88,13 @@ def volume(vtop, y, vref, cbref, rmref, feed_y):
 
 
 # ============================ TITLE ==================================
-s.text("6161 — Valco 6161-style · Circuit Codex · CC-BY-SA 4.0 · redrawn from circuit facts",
-       24, 16, 2.2)
-s.text("Rails: BP1 reservoir · OT centre tap · 6973 plates — BP2 6973 screens, on their OWN supply node (not tapped on the transformer primary) — B1 preamp and inverter rail. "
-       "The drawing prints no voltages of any kind.", 24, 21, 1.3)
-s.text("Heaters, the mains side beyond the transformer (2 A fuse, switch, mains capacitor, line-reverse arrangement), the neon pilot, the input and footswitch jacks and the two 10-inch speakers are omitted here — see netlist.cir, bom.yaml, layout.yaml.",
-       24, 25, 1.3)
-s.text("The two stubs lettered A are the sheet's own markers on the two output-grid nodes; they are two separate nodes, not one, and the published redraw of the Supro-badged sibling bridges them with a silencing switch.",
-       24, 29, 1.3)
+s.note('Rails: BP1 reservoir · OT centre tap · 6973 plates — BP2 6973 screens, on their OWN supply node (not tapped on the transformer primary) — B1 preamp and inverter rail. The drawing prints no voltages of any kind.')
+s.note('Heaters, the mains side beyond the transformer (2 A fuse, switch, mains capacitor, line-reverse arrangement), the neon pilot, the input and footswitch jacks and the two 10-inch speakers are omitted here — see netlist.cir, bom.yaml, layout.yaml.')
+s.note("The two stubs lettered A are the sheet's own markers on the two output-grid nodes; they are two separate nodes, not one, and the published redraw of the Supro-badged sibling bridges them with a silencing switch.")
 
 # ============================ CHANNEL 1 ==============================
 Y1 = 62
-s.text("Channel 1 — 2.2 kΩ cathode left UNBYPASSED, and no grid stopper", 12, 46, 1.6)
+s.caption('Channel 1 — 2.2 kΩ cathode left UNBYPASSED, and no grid stopper', 12, 46, 1.6)
 input_pair(Y1, "CH1 TREBLE", "CH1 BASS", "CIN1", "RMX1", "RG1")
 t1a = s.triode("V1A", "12AX7", 54, Y1)
 s.wire(GB, Y1, t1a["g"][0], Y1)
@@ -128,8 +123,8 @@ volume(128, TEE1, "VR1", "CB1", "RM1", 66)
 
 # ============================ CHANNEL 2 ==============================
 Y2 = 120
-s.text("Channel 2 — 2.2 kΩ grid stopper, 1.5 kΩ cathode bypassed by 35 µF, and a 500 pF cut on the plate. Its cathode is node C, shared with the tremolo follower.",
-       12, 104, 1.6)
+s.caption('Channel 2 — 2.2 kΩ grid stopper, 1.5 kΩ cathode bypassed by 35 µF', 12, 90, 1.6)
+s.note("Channel 2 also carries a 500 pF cut on its plate, and its cathode is node C — shared with the tremolo follower.")
 input_pair(Y2, "CH2 TREBLE", "CH2 BASS", "CIN2", "RMX2", "RG2")
 t1b = s.triode("V1B", "12AX7", 60, Y2)
 l, r = s.series_h("R", "RGS1", "2.2k", 46, Y2)
@@ -170,8 +165,7 @@ s.wire(r, TEE2, 128, TEE2)
 volume(128, TEE2, "VR2", "CB2", "RM2", 124)
 
 # ============================ MIXER + TONE ===========================
-s.text("Volume · mixer · tone — the two wipers sum through 270 kΩ apiece into one node, and the amp's ONLY tone control hangs there, trimming both channels at once.",
-       150, 74, 1.5)
+s.caption("Volume · mixer · tone — the two wipers sum through 270 kΩ apiece into one node, and the amp's ONLY tone control hangs there, trimming both channels at once.", 150, 74, 1.5)
 s.junction(MIXX, MIXY)
 s.sym("C", "CT1", "500p", MIXX - 8, MIXY + 3.81, lx=-11.0, ly=2.4)
 s.wire(MIXX - 8, MIXY, MIXX, MIXY)
@@ -388,8 +382,7 @@ s.wire(100, t3b["k"][1], 100, YF + 12)
 s.glabel("C", 100, YF + 12, 270)
 
 # ============================ POWER SUPPLY ===========================
-s.text("Power supply — E-3693A mains transformer, 5Y3-GT full-wave rectifier, three cans and two droppers: no choke and no standby.",
-       262, 218, 1.5)
+s.note('Power supply — E-3693A mains transformer, 5Y3-GT full-wave rectifier, three cans and two droppers: no choke and no standby.')
 pt = s.pt("T1", "E-3693A", 300, 232, lx=-6.35, ly=-12.5)
 s.wire(pt["pri1"][0], pt["pri1"][1], pt["pri1"][0] - 4, pt["pri1"][1])
 s.glabel("MAINS", pt["pri1"][0] - 4, pt["pri1"][1], 180)
@@ -435,5 +428,5 @@ s.gnd(296, 257.62)
 s.wire(288, 250, 296, 250)
 s.glabel("B1", 288, 250, 180)
 
-s.write(OUT, [], paper="A3")
+s.write(OUT)
 print(f"wrote {OUT}")

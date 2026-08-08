@@ -40,16 +40,16 @@ def input_stage(y, j1, j2, r1, r2, rleak, vref, vval, rload, rk, ck, ckval, rail
     t = s.triode(vref, vval, 52, y)
     s.wire(gb, y, t["g"][0], y)
     s.plate_load(rload, "100k", t["p"], rail)
+    # cathode RC on its own stub: kept off the tube's own column so the next
+    # channel's plate-load rail flag has a clear run past it
     s.wire(52, y + 7.62, 52, y + 9)
-    s.shunt_rc(rk, "1.5k", ck, ckval, 52, y + 9)
+    s.wire(52, y + 9, 62, y + 9)
+    s.shunt_rc(rk, "1.5k", ck, ckval, 62, y + 9)
     return t
 
 
 # ============================ TITLE ==================================
-s.text("AB763 — Blackface Deluxe Reverb-style · Circuit Codex · CC-BY-SA 4.0 · redrawn from circuit facts",
-       26, 20, 2.2)
-s.text("Heaters, PT primary/mains, pilot lamp omitted here — see netlist.cir, meta.yaml, layout.yaml. Rails: B+1 +415 · B+2 +415 screens · B+3 +325 · B+4 +180 · bias -35 V",
-       26, 25, 1.3)
+s.note('Heaters, PT primary/mains, pilot lamp omitted here — see netlist.cir, meta.yaml, layout.yaml. Rails: B+1 +415 · B+2 +415 screens · B+3 +325 · B+4 +180 · bias -35 V')
 
 # ============================ NORMAL CHANNEL (top row) ================
 YN = 62
@@ -227,7 +227,8 @@ s.wire(87.11, YR - 10, 87.11, YR - 6.54)      # plates -> PRI_P
 s.wire(87.11, YR - 1.46, 87.11, YR + 2)
 s.glabel("B+1", 87.11, YR + 2, 90)            # PRI_B -> B+1
 s.wire(104.89, YR - 6.54, 110, YR - 6.54)
-s.glabel("REVERB TANK", 110, YR - 6.54, 0)
+s.wire(110, YR - 6.54, 110, YR - 16)
+s.glabel("REVERB TANK", 110, YR - 16, 90)
 s.wire(104.89, YR - 1.46, 110, YR - 1.46)
 s.gnd(110, YR - 1.46)
 
@@ -290,8 +291,7 @@ s.glabel("PIG", 232, YM - 20, 0)
 
 # ============================ TREMOLO OSCILLATOR (excluded) ==========
 YT = 210
-s.text("Tremolo oscillator (V5) + optocoupler — dynamic; DC point excluded from netlist (notes.md)",
-       26, 198, 1.4)
+s.caption('Tremolo oscillator (V5) + optocoupler — dynamic; DC point excluded from netlist (notes.md)', 26, 198, 1.4)
 # V5A = phase-shift oscillator; V5B = intensity driver into the optocoupler.
 t5a = s.triode("V5A", "12AX7", 56, YT)
 t5b = s.triode("V5B", "12AX7", 96, YT)
@@ -365,7 +365,7 @@ s.gnd(op["p2"][0] + 4, op["p2"][1])
 XPI = 258
 YPH = 100  # hot
 YPB = 132  # cold
-s.text("Long-tailed-pair phase inverter", 244, 86, 1.6)
+s.text("Long-tailed-pair phase inverter", 244, 70, 1.6)
 # hot grid input from PIG (mixer output)
 s.glabel("PIG", 232, YPH, 180)
 cl, cr = s.series_h("C", "CPIA", ".001u", 240, YPH)
@@ -475,8 +475,7 @@ s.glabel("GND", 363.43, 118.54, 0)
 
 # ============================ POWER SUPPLY (bottom) ==================
 YPW = 250
-s.text("Power supply — PT 125P33A 330-0-330, GZ34 full-wave, choke 125C3A · standby/mains AC switch omitted",
-       26, 236, 1.4)
+s.note('Power supply — PT 125P33A 330-0-330, GZ34 full-wave, choke 125C3A · standby/mains AC switch omitted')
 pt = s.pt("T1", "125P33A", 40, YPW)
 s.wire(pt["pri1"][0], pt["pri1"][1], pt["pri1"][0] - 4, pt["pri1"][1])
 s.glabel("MAINS", pt["pri1"][0] - 4, pt["pri1"][1], 180)
@@ -561,12 +560,12 @@ s.wire(r, YB, 254, YB)
 s.glabel("-35V", 254, YB, 0)
 
 # ============================ DEATH CAP =============================
-s.text("Period ground-switch cap (not in modern builds)", 190, 258, 1.1)
+s.note('Period ground-switch cap (not in modern builds)')
 s.glabel("MAINS", 190, YB + 16, 180)
 s.wire(190, YB + 16, 194, YB + 16)
 s.sym("C", "CDEATH", ".047u", 198, YB + 16, rot=90, lx=-3.2, ly=-6.2)
 s.wire(201.81, YB + 16, 206, YB + 16)
 s.gnd(206, YB + 16)
 
-s.write(OUT, [], paper="A3")
+s.write(OUT)
 print(f"wrote {OUT}")

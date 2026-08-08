@@ -42,7 +42,7 @@ python3 pipeline/verify_amps.py         # DC op-point vs chart (draft=warn, veri
                                         #   + reference/op-points.yaml staleness (the
                                         #   simulated volts the amp pages print).
                                         #   Regenerate with --export and commit.
-cd pipeline && python3 check_schematics.py   # kiutils round-trip
+cd pipeline && python3 check_schematics.py   # kiutils round-trip + sheet furniture/legibility lint
 cd pipeline && python3 check_tonestack_wiring.py  # drawn tone stack == plotted one
 cd pipeline && python3 check_layouts.py      # BOTH layout renders + collision lint (+waivers)
 python3 pipeline/render_og.py --check        # per-amp social cards match their layouts

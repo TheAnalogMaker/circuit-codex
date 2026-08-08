@@ -416,13 +416,7 @@ s.text("Bias: the 470 k trimmer parallels the 150 k, so winding it changes "
        "the series resistance ahead of the diode.", 180, 292, 1.2)
 
 s.write(OUT, [
-    ("JTM100 — British 100-watt lead-style · Circuit Codex · CC-BY-SA 4.0 · "
-     "redrawn from circuit facts", 20, 26, 2.2),
-    ("Four KT66s in parallel push-pull on a 560 V solid-state rail — the JTM45 "
-     "front end with its output section doubled. The tremolo valve of the "
-     "source sheet is omitted, so the numbering skips V2.", 20, 31, 1.4),
-    ("Channel I and channel II are identical apart from the 100 pF bright cap "
-     "across channel II's volume control; the chassis carries two jacks per "
-     "channel, each with its own 68 kohm stopper.", 20, 35.5, 1.3),
-], paper="A3")
+    "Four KT66s in parallel push-pull on a 560 V solid-state rail — the JTM45 front end with its output section doubled. The tremolo valve of the source sheet is omitted, so the numbering skips V2.",
+    "Channel I and channel II are identical apart from the 100 pF bright cap across channel II's volume control; the chassis carries two jacks per channel, each with its own 68 kohm stopper.",
+])
 print(f"wrote {OUT}")

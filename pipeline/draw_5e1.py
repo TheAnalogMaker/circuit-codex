@@ -93,8 +93,7 @@ s.wire(168.89, 92.54, 171.43, 92.54)       # SEC_C -> ground
 s.glabel("GND", 171.43, 92.54, 0)
 
 # ---- power supply: 5Y3GT, reservoir, choke, 22k dropper -----------------
-s.text("Power supply — center-tapped HT · 5Y3GT full-wave · choke-filtered · heaters and PT primary omitted",
-       25, 150, 1.5)
+s.note('Power supply — center-tapped HT · 5Y3GT full-wave · choke-filtered · heaters and PT primary omitted')
 for x, ref, ht in [(50.8, "V3A", "HT_A"), (63.5, "V3B", "HT_B")]:
     s.glabel(ht, x, 152.5, 90)
     s.wire(x, 152.5, x, 155.16)
@@ -124,7 +123,6 @@ s.gnd(122, 180.42)
 s.glabel("B+3", 122, 169.24, 90)
 
 s.write(OUT, [
-    ("5E1 — Tweed Champ-style · Circuit Codex · CC-BY-SA 4.0 · redrawn from circuit facts", 25, 70, 2.0),
-    ("Heaters and PT primary omitted — see netlist.cir and meta.yaml", 25, 74.5, 1.3),
+    "Heaters and PT primary omitted — see netlist.cir and meta.yaml",
 ])
 print(f"wrote {OUT}")
