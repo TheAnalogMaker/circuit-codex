@@ -93,11 +93,11 @@ stage read from the sheet, and the deck settles about a third under it. That
 second disagreement is recorded, not explained — no arithmetic here resolves
 it, and it is one of the reasons this entry is a draft.
 
-**What this entry ships.** The circuit data, the redrawn schematic, and the
-board drawing built from the E-FB layout page — each channel's Bass, Treble
-and Volume network drawn in full, because on this sheet those parts mount on
-the board rather than at the panel. The drawn wiring is proved electrically
-equivalent to the simulated circuit.
+The board drawing follows the E-FB layout page, and it draws each channel's
+Bass, Treble and Volume network in full — on this sheet those parts mount on
+the board rather than at the panel, which is why they appear here and not as
+panel stubs. The drawn wiring is proved electrically equivalent to the
+simulated circuit.
 
 The entry stays a draft while those two chart figures stand unresolved.
 Neither is smoothed over above, and a verified badge is a maintainer's to

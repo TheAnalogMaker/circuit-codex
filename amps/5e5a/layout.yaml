@@ -12,10 +12,10 @@
 # matching the tube row the drawing prints (5U4GA · 6L6GB · 6L6GB · 12AX7 ·
 # 12AY7 · 12AY7) and the panel row (PRESENCE · BASS · TREBLE · INST.VOL ·
 # MIC.VOL). The board-part ORDER below follows that reading; individual
-# eyelet coordinates are this session's own placement (the published sheet's
-# eyelet grid was not re-digitised point-by-point at this pass — see
-# notes.md "2026-08-08 re-read"), so treat column numbers as an honest
-# redraw of the part sequence, not a traced position.
+# eyelet coordinates are this entry's own placement of that sequence (the
+# published sheet's eyelet grid is not re-digitised point-by-point), so treat
+# column numbers as an honest redraw of the part sequence, not a traced
+# position.
 #
 # Machine-checked equivalence: the point-to-point wiring drawn below has been
 # verified electrically equivalent to the simulated netlist (netlist.cir) by
@@ -30,7 +30,7 @@ board:
   rows: 2
   cols: 53
   title: "5E5-A · eyelet board layout"
-caption: "Redrawn from the published Fender 5E5-A 'Pro-Amp' layout drawing (J-EE), page 2 — principal board components and their hookup, in the order the drawing shows them (bias supply and output support at the left, the driver/cathodyne phase inverter in the centre, the James tone network, V2 gain stage and V1 input pair at the right). The chassis has four input jacks (two per channel); the drawing's four 68 kΩ grid stoppers collapse to the two the schematic/BOM model (R1s, R2s), and the two 1 MΩ input grid leaks (RG1, RG2) mount at the channel jacks as generic off-board parts. The James tone network (Bass, Treble pots + C_tr1/C_tr2) is drawn in the simplified arrangement notes.md documents; its lug-level wiring is illustrative. RFB1 and RBLEED (V2's own printed plate-to-grid resistor and its long grid-to-driver-grid return) and the Presence + negative-feedback pair (VRP, R_NFB, C_NFB) are real, schematic-drawn components — see schematic.kicad_sch — but are chassis wiring not drawn on this board layout, the same treatment 5f4's layout gives its own NFB/Presence pair: RFB1/RBLEED's exact coupling is unresolved even on the sharper 2026-08-08 scan (notes.md), and the Presence/NFB pair's board-level lug routing was not independently re-verified. Not a trace or a dimensioned reproduction."
+caption: "Redrawn from the published Fender 5E5-A 'Pro-Amp' layout drawing (J-EE), page 2 — principal board components and their hookup, in the order the drawing shows them (bias supply and output support at the left, the driver/cathodyne phase inverter in the centre, the James tone network, V2 gain stage and V1 input pair at the right). The chassis has four input jacks (two per channel); the drawing's four 68 kΩ grid stoppers collapse to the two the schematic/BOM model (R1s, R2s), and the two 1 MΩ input grid leaks (RG1, RG2) mount at the channel jacks as generic off-board parts. The James tone network (Bass, Treble pots + C_tr1/C_tr2) is drawn in the simplified arrangement the circuit story describes; its lug-level wiring is illustrative. RFB1 and RBLEED (V2's own printed plate-to-grid resistor and its long grid-to-driver-grid return) and the Presence + negative-feedback pair (VRP, R_NFB, C_NFB) are real components, drawn on the schematic, but are chassis wiring rather than board wiring — the same treatment 5f4's layout gives its own NFB/Presence pair: RFB1/RBLEED's exact coupling is not resolved on this copy of the drawing, and the Presence/NFB pair's board-level lug routing is not independently confirmed. Not a trace or a dimensioned reproduction."
 source:
   desc: "Fender 'Pro-Amp' Model 5E5-A layout drawing (J-EE), page 2 of the schematic PDF"
   url: "https://schematicheaven.net/fenderamps/pro_5e5a_schem.pdf"
