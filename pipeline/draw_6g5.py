@@ -290,9 +290,10 @@ s.sym("POT", "VRPRES", "5k-L pres.", 220, JY + 3.81 + 7.62 + 3.81, lx=3.2, ly=2.
 s.wire(220, JY + 7.62, 220, JY + 7.62 + 3.81)
 s.gnd(220, JY + 3.81 + 7.62 + 3.81 + 3.81)
 # The feedback resistor is drawn directly (not via series_h) so its lettering
-# can be pinned horizontal UNDER the part: series_h letters vertically beside
-# the body, and here that column straddled the NFB wire itself.
-s.sym("R", "RNFB", "56k", 206, JY, rot=90, lx=-2.2, ly=2.4, label_rot=0)
+# can be anchored UNDER the part: series_h's beside-the-body anchor left the
+# block straddling the NFB wire itself. (No label_rot: sym()'s default
+# rotation compensation already letters a rot-90 body horizontally.)
+s.sym("R", "RNFB", "56k", 206, JY, rot=90, lx=-2.2, ly=2.4)
 nl, nr = 206 - 3.81, 206 + 3.81
 s.wire(nr, JY, 220, JY)
 s.wire(196, JY, nl, JY)
