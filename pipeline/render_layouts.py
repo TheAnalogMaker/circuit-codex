@@ -209,6 +209,11 @@ ROWGAP = 116       # px between the two eyelet rows
 # above row 0 for the ref to sit ON the board rather than overhanging into the
 # dark well, where dark board ink has nothing to read against.
 BOARD_TOP_PAD = 56
+# Headroom the canvas reserves above the highest wiring lane routed above the
+# board, and the extra gap it reserves where that lane passes under the drawing
+# title — see Renderer._top_lane_y().
+TOP_LANE_CLEAR = 16
+TITLE_LANE_CLEAR = 14
 MARGIN_L, MARGIN_R = 128, 128
 MARGIN_TOP, MARGIN_BOT = 150, 236
 # Page-chrome type scale. A board's px geometry is fixed (CW/ROWGAP), so sheet
@@ -949,10 +954,18 @@ class Renderer:
         # (baseline 34, descender ~40).
         rise = max([self._top_label_rise(it) for it in self.offboard
                     if it.get("edge") == "top"] or [0.0])
-        self.board_y = max(MARGIN_TOP, int(math.ceil(52 + rise + 84)))
         self.board_w = PAD_X * 2 + (self.cols - 1) * CW
         self.board_h = BOARD_TOP_PAD + ROWGAP + 40
         self.width = self.board_x + self.board_w + MARGIN_R
+        # The bottom margin below already grows so the deepest routing lane
+        # clears the footer legend; the head of the canvas needs the mirror of
+        # that rule. A run routed ABOVE the board (a negative `via` row) lays a
+        # lane across the top of the sheet — high enough and it leaves the sheet
+        # entirely, and the drawing title sits in that same band, where a wire
+        # drawn through the words reads as part of the circuit. Boards whose
+        # wiring already clears both keep their geometry exactly as it was.
+        self.board_y = max(MARGIN_TOP, int(math.ceil(52 + rise + 84)),
+                           self._top_lane_y())
         # ---- page-chrome type scale -------------------------------------
         # Board geometry is a fixed px grid (CW/ROWGAP), so a 50-column board
         # renders 2.4x wider than a 20-column one at a near-constant height.
@@ -1206,6 +1219,62 @@ class Renderer:
         be struck by its own wiring. Bottom/left/right items already label away
         from the board with the house 'below the glyph' band."""
         return -1 if item.get("edge") == "top" else 1
+
+    def _top_lane_y(self):
+        """The least `board_y` that (a) keeps every wiring lane routed above the
+        board inside the canvas, and (b) keeps the lanes that pass under the
+        drawing title clear of it. 0 when nothing routes above the board.
+
+        A run's `via` list is enough to find those lanes: each consecutive pair
+        of vias is routed orthogonally, so the pair covers columns
+        min..max somewhere at or above the shallower of its two rows. That is a
+        conservative read — it can reserve headroom for a lane that turns before
+        it reaches the title — and conservative is the right side to err on for
+        a rule whose failure modes are a wire that leaves the sheet and a wire
+        drawn through a word.
+
+        Both styles are measured and the taller title wins, so the two drawings
+        of one board keep a common geometry.
+        """
+        segs = []                      # (row, col_lo, col_hi), row < 0 only
+        for spec in (list(self.runs) + list(self.bus)):
+            pts = []
+            for v in (spec.get("via") or []):
+                if not (isinstance(v, (list, tuple)) and len(v) == 2):
+                    continue
+                try:
+                    pts.append((float(v[0]), float(v[1])))
+                except (TypeError, ValueError):
+                    continue
+            for (c0, r0), (c1, r1) in zip(pts, pts[1:]):
+                if min(r0, r1) < 0:
+                    segs.append((min(r0, r1), min(c0, c1), max(c0, c1)))
+            for c, r in pts:
+                if r < 0:
+                    segs.append((r, c, c))
+        if not segs:
+            return 0
+        title = ((self.layout.get("board", {}) or {}).get("title")
+                 or f"{self.amp_id.upper()} board layout")
+        # self.cs is a function of self.width alone and is assigned further down
+        # this constructor; recompute it here rather than reorder the geometry.
+        cs = min(1.62, max(0.92, self.width / CHROME_REF_W))
+        house_ts, sheet_ts = round(17 * cs, 2), round(18 * cs, 2)
+        # house: baseline 20+ts plus a descender; sheet: same baseline, plus the
+        # rule drawn under it at +7.5 and its own stroke.
+        bottom = 20 + max(house_ts * 1.22, sheet_ts + 7.5 + 0.6 * cs)
+        right = self.board_x + max(
+            text_width(title, house_ts, spacing="0.08em"),
+            text_width(title.upper(), sheet_ts, spacing="0.14em"))
+        need = 0
+        for row, c_lo, c_hi in segs:
+            # (a) the lane has to be on the sheet at all
+            need = max(need, TOP_LANE_CLEAR - BOARD_TOP_PAD - row * ROWGAP)
+            # (b) and clear of the title where it passes beneath it
+            if self.board_x + PAD_X + c_lo * CW <= right:
+                need = max(need, bottom + TITLE_LANE_CLEAR - BOARD_TOP_PAD
+                           - row * ROWGAP)
+        return int(math.ceil(need))
 
     def _top_label_rise(self, item):
         """How far above a TOP-edge item's centre its label band's cap-top
