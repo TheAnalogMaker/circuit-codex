@@ -52,6 +52,15 @@ cd site && node scripts/check-lineage-caption.mjs   # lineage prose names every 
 Use `python3` (no `python` on PATH in the usual environments). ngspice is required
 (`brew install ngspice` locally; apt in CI).
 
+**Non-gating steps.** `npm run build` ends with `node scripts/indexnow-ping.mjs`,
+which submits the built sitemap's URLs to IndexNow (Bing, Yandex, Seznam) so a
+deploy is announced instead of waited for. It is deliberately outside the gate set:
+every failure path logs and exits 0, because a slow search-engine API is not a claim
+about the corpus and must never fail a build. It also skips on local builds — set
+`INDEXNOW=1` to force a submission, `INDEXNOW=0` to suppress one in CI. The
+authentication key is public by design and lives in `site/public/<key>.txt`; if that
+file is ever renamed, the `KEY` constant in the script must move with it.
+
 ## Editorial voice (public pages)
 
 Site pages are **visitor documentation**, never working notes: no process narration,
