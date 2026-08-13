@@ -21,7 +21,7 @@ const description = 'Search the Circuit Codex archive — circuits, tube referen
       document.addEventListener('DOMContentLoaded', mount);
       return;
     }
-    new PagefindUI({
+    const ui = new PagefindUI({
       element: '#search',
       showSubResults: true,
       showImages: false,
@@ -33,6 +33,10 @@ const description = 'Search the Circuit Codex archive — circuits, tube referen
         one_result: '[COUNT] result for [SEARCH_TERM]',
       },
     });
+    // Header search submits here as ?q=. triggerSearch is PagefindUI's
+    // documented way to preload that term (and fill the input).
+    const q = new URLSearchParams(location.search).get('q');
+    if (q) ui.triggerSearch(q);
   })();
 </script>
 </Base>
