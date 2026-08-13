@@ -62,21 +62,16 @@ sources:
       off the sheet
     url: "https://en.wikipedia.org/wiki/Fender_Bassman"
 verification:
-  status: draft   # What remains is the maintainer's sign-off, not an artifact
-                  # and not the chart. The printed AA864 chart is read whole
-                  # and gated: 18 nodes, 0 failures, worst 11.6% (PPB, the
-                  # inverter's cold plate) against the sheet's own +/-20%; the
-                  # two solved rails land inside 0.2%. The redrawn schematic,
-                  # BOM and netlist are present and green, and the board layout
-                  # is now drawn from the AA864 LAYOUT sheet cited in sources —
-                  # both renders and the social card present, collision lint 0
-                  # findings with no waiver, and the drawn wiring proved
-                  # electrically equivalent to netlist.cir (42/44 parts matched,
-                  # 6 bottles anchored, 0 UNANCHORED), so wiring_claim:
-                  # verified is carried in layout.yaml.
-                  # CONTRIBUTING.md #6 makes `verified` require the operating
-                  # point within tolerance AND a human maintainer's sign-off;
-                  # the first is met, so this entry is queued for the second.
-                  # An agent does not grant the badge to itself.
+  status: verified  # Maintainer (GM) sign-off 2026-08-13, in-session. The
+                    # printed AA864 chart is read whole and gated: 18 nodes,
+                    # 0 failures, worst 11.6% (PPB, the inverter's cold plate)
+                    # against the sheet's own +/-20%; solved rails inside 0.2%.
+                    # The one printed-figure conflict (the circuit sheet's +340
+                    # vs the layout sheet's +380 at the preamp rail) is
+                    # documented in the BPR node note and worked through, with
+                    # the arithmetic, in the circuit story — the entry carries
+                    # the figure that closes.
+  date: 2026-08-13
+  max_deviation_pct: 11.6
 added: 2026-08-08
 contributors: [TheAnalogMaker]
