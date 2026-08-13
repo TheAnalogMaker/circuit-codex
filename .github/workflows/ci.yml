@@ -82,6 +82,10 @@ jobs:
       # numbers cannot drift from the code that produced them.
       - run: node scripts/check-tonestack-spice.mjs
         working-directory: site
-      # Phase-0 roadmap for this workflow:
-      # - kiutils round-trip of amps/*/schematic.kicad_sch
-      # - schematic SVG rendering via kicad-cli
+      # The lineage caption gate reads the built page and proves the prose still
+      # names every derivation arrow the SVG draws. INDEXNOW=0 so a slow
+      # search-engine ping cannot fail CI (the ping is not a corpus claim).
+      - run: INDEXNOW=0 npm run build
+        working-directory: site
+      - run: node scripts/check-lineage-caption.mjs
+        working-directory: site

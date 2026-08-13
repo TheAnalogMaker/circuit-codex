@@ -91,6 +91,11 @@ const itemList = {
     <p class="sub">Every documented circuit, grouped by the line it belongs to, oldest era first.
       <a href="/history/">The history tier</a> places each line's other models;
       <a href={`${GITHUB}/blob/main/CONTRIBUTING.md`}>contributions welcome</a>.</p>
+    <div class="corpus-filter" role="group" aria-label="Filter circuits by status">
+      <button type="button" class="chip v" data-filter="all" aria-pressed="true">All</button>
+      <button type="button" class="chip" data-filter="verified" aria-pressed="false">Verified</button>
+      <button type="button" class="chip" data-filter="draft" aria-pressed="false">Draft</button>
+    </div>
     {families.map((f) => (
       <div class="fam">
         <div class="fam-head">
@@ -99,7 +104,8 @@ const itemList = {
         </div>
         <div class="grid">
           {f.amps.map((a) => (
-            <a class="card" href={`/amps/${a.id}/`}>
+            <a class="card" href={`/amps/${a.id}/`}
+               data-status={a.meta.verification?.status === 'verified' ? 'verified' : 'draft'}>
               <div class="id">{displayId(a.id)}</div>
               <div class="style">{a.meta.name_style} · {a.meta.wattage} W</div>
               <div class="tubes">{a.meta.tubes.join(' · ')}</div>
@@ -116,6 +122,41 @@ const itemList = {
       </div>
     ))}
   </section>
+  <script is:inline>
+    (function () {
+      const root = document.getElementById('circuits');
+      if (!root) return;
+      const buttons = root.querySelectorAll('[data-filter]');
+      const cards = root.querySelectorAll('.card[data-status]');
+      const fams = root.querySelectorAll('.fam');
+
+      function apply(status) {
+        const allowed = status === 'verified' || status === 'draft' ? status : 'all';
+        buttons.forEach(function (b) {
+          const on = b.getAttribute('data-filter') === allowed;
+          b.setAttribute('aria-pressed', on ? 'true' : 'false');
+          b.classList.toggle('v', on);
+        });
+        cards.forEach(function (card) {
+          card.hidden = allowed !== 'all' && card.getAttribute('data-status') !== allowed;
+        });
+        fams.forEach(function (fam) {
+          fam.hidden = !fam.querySelector('.card[data-status]:not([hidden])');
+        });
+        const url = new URL(location.href);
+        if (allowed === 'all') url.searchParams.delete('status');
+        else url.searchParams.set('status', allowed);
+        if (url.href !== location.href) history.replaceState(null, '', url);
+      }
+
+      const initial = new URLSearchParams(location.search).get('status');
+      apply(initial === 'verified' || initial === 'draft' ? initial : 'all');
+      root.addEventListener('click', function (e) {
+        const btn = e.target.closest('[data-filter]');
+        if (btn && root.contains(btn)) apply(btn.getAttribute('data-filter'));
+      });
+    })();
+  </script>
 </div>
 </Base>
 
@@ -142,6 +183,7 @@ const itemList = {
   .fam-meta{font-family:var(--mono);font-size:11.5px;color:var(--faint)}
   .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
   .card{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:18px 18px 14px;display:flex;flex-direction:column;gap:8px;color:inherit}
+  .card[hidden],.fam[hidden]{display:none}
   .card:hover{border-color:var(--amber-dim);text-decoration:none}
   .card .id{font-family:var(--disp);font-size:24px;letter-spacing:.04em}
   .card .style{color:var(--muted);font-size:13.5px;margin-top:-6px}
@@ -150,4 +192,6 @@ const itemList = {
   .explore{margin:8px 0 28px}
   .explore-grid{margin-top:4px}
   .inline-link{color:var(--amber)}
+  .corpus-filter{display:flex;flex-wrap:wrap;gap:8px;margin:-6px 0 20px}
+  .corpus-filter .chip{background:transparent;cursor:pointer}
 </style>

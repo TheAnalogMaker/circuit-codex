@@ -112,15 +112,25 @@ const ldBlocks = [
   a:hover,a:focus-visible{text-decoration:underline}
   :focus-visible{outline:2px solid var(--amber);outline-offset:2px;border-radius:2px}
   nav{border-bottom:1px solid var(--line);position:sticky;top:0;background:rgba(23,19,16,.94);backdrop-filter:blur(6px);z-index:9}
-  .nav-in{display:flex;align-items:baseline;gap:28px;padding:14px 0;flex-wrap:wrap}
+  .nav-in{display:flex;align-items:center;gap:28px;padding:14px 0;flex-wrap:wrap}
   .brand{font-family:var(--disp);text-transform:uppercase;letter-spacing:.22em;font-size:15px;color:var(--ink)}
   .brand b{color:var(--amber);font-weight:600}
-  /* Eight links do not fit one phone-width row: unwrapped, they pushed the whole
-     document 150 px wider than the viewport, so every page — not just the nav —
-     scrolled sideways, and a figure with its own sideways scroll had to compete
-     with the page for the same gesture. */
-  .nav-links{display:flex;flex-wrap:wrap;gap:8px 20px;margin-left:auto;font-family:var(--disp);text-transform:uppercase;letter-spacing:.14em;font-size:12.5px}
+  /* Links plus the search field do not fit one phone-width row: unwrapped, they
+     pushed the whole document wider than the viewport, so every page — not just
+     the nav — scrolled sideways, and a figure with its own sideways scroll had
+     to compete with the page for the same gesture. Wrap is the fix; the field
+     shrinks rather than forcing a horizontal page scroll. */
+  .nav-links{display:flex;flex-wrap:wrap;align-items:center;gap:8px 20px;margin-left:auto;font-family:var(--disp);text-transform:uppercase;letter-spacing:.14em;font-size:12.5px}
   .nav-links a{color:var(--muted)}
+  .nav-search{flex:0 1 11rem;min-width:0;margin:0}
+  .nav-search input{
+    appearance:none;-webkit-appearance:none;box-sizing:border-box;width:100%;min-width:0;
+    font-family:var(--body);font-size:13px;letter-spacing:0;text-transform:none;
+    color:var(--ink);background:var(--well);border:1px solid var(--line);border-radius:99px;
+    padding:4px 12px;
+  }
+  .nav-search input::placeholder{color:var(--faint);font-family:var(--disp);font-size:12px;letter-spacing:.1em;text-transform:uppercase}
+  .nav-search input:focus{outline:2px solid var(--amber);outline-offset:2px;border-color:var(--amber-dim)}
   h1,h2,h3{font-family:var(--disp);text-transform:uppercase;font-weight:600;letter-spacing:.06em;text-wrap:balance}
   .chip{font-family:var(--disp);text-transform:uppercase;letter-spacing:.1em;font-size:10.5px;border:1px solid var(--line);border-radius:99px;padding:2px 9px;color:var(--muted);white-space:nowrap}
   .chip.v{color:var(--amber);border-color:var(--amber-dim)}
@@ -138,16 +148,17 @@ const ldBlocks = [
 <body data-pagefind-body data-figure-page={isFigurePage ? '' : undefined}>
 <nav data-pagefind-ignore><div class="wrap nav-in">
   <a href="/" style="text-decoration:none"><span class="brand">The Analog Maker <b>/ Circuit Codex</b></span></a>
-  <span class="nav-links">
+  <div class="nav-links">
     <a href="/#circuits">Circuits</a>
     <a href="/history/">History</a>
     <a href="/lineage/">Lineage</a>
     <a href="/reference/">Reference</a>
     <a href="/about/">About</a>
-    <a href="/search/">Search</a>
     <a href={GITHUB}>GitHub</a>
-    <a href="https://www.youtube.com/@theanalogmaker">YouTube</a>
-  </span>
+    <form class="nav-search" action="/search/" method="get" role="search">
+      <input type="search" name="q" placeholder="Search" aria-label="Search the archive" enterkeyhint="search" autocomplete="off" />
+    </form>
+  </div>
 </div></nav>
 <slot />
 <footer data-pagefind-ignore><div class="wrap">
