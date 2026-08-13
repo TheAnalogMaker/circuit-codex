@@ -426,13 +426,45 @@ export function loadSources() {
 
 export function loadTubes() {
   const dir = path.join(REFERENCE_DIR, 'tubes');
-  return fs.readdirSync(dir)
+  const tubes = fs.readdirSync(dir)
     .filter((f) => f.endsWith('.yaml'))
     .map((f) => {
       const t = yaml.load(fs.readFileSync(path.join(dir, f), 'utf8'));
       return { ...t, name: String(t.name), datasheets: (t.datasheets || []).map((d) => ({ ...d, host: hostOf(d.url) })) };
     })
     .sort((a, b) => a.name.localeCompare(b.name, 'en', { numeric: true }));
+  // The "Used in" list is derived from each circuit's own tubes: field, not
+  // typed into the tube file. A hand list went stale (the 6SJ7 page said no
+  // circuit used it while the 5C1 listed one). pipeline/check_tube_used_in.py
+  // still gates the YAML so the files stay honest for anyone reading them.
+  const amps = loadCorpus();
+  return tubes.map((t) => ({ ...t, used_in: circuitsUsingTube(t, amps) }));
+}
+
+// A bottle lettered on an amp matches a tube page if the designation, after
+// stripping punctuation and parentheticals, equals the page's name, slug, or
+// one of its also_known_as tokens. 7025 and ECC83 therefore land on the 12AX7
+// page; 6L6GB lands on 6L6G, not 5881. Keep this rule in lockstep with
+// pipeline/check_tube_used_in.py.
+export function designationToken(s) {
+  return String(s ?? '').split('(')[0].split('·')[0].replace(/[^A-Za-z0-9]/g, '').toUpperCase();
+}
+
+export function tubeNameTokens(t) {
+  const names = new Set([
+    designationToken(t.name),
+    designationToken(t.tube),
+  ]);
+  for (const aka of t.also_known_as || []) names.add(designationToken(aka));
+  names.delete('');
+  return names;
+}
+
+export function circuitsUsingTube(t, amps = loadCorpus()) {
+  const names = tubeNameTokens(t);
+  return amps
+    .filter((a) => (a.meta.tubes || []).some((lab) => names.has(designationToken(lab))))
+    .map((a) => a.id);
 }
 
 export function loadStudies() {
@@ -802,12 +834,6 @@ function tubeSmallSignal(tubeId) {
 //          interactive volume network rather than being fed from one stage, so the
 //          single-resistance drive model this solver assumes does not describe it.
 //   5f10   single-knob; not yet built as a preset.
-//   aa764  a two-knob stack drawn as the same ladder the AA964 preset now solves
-//          (treble-wiper output, bass rheostat), with its own part roles
-//          (0.047 µF, 15 kΩ leg). Its wiring is read and gate-checked (see
-//          TONE_STACK_GATE_EXTRAS below); it is absent here only because it has
-//          not yet been built into a preset entry, not because the solver lacks
-//          its network.
 //
 // Adding one is cheap once the wiring is known; publishing a curve for a network
 // that is not the circuit's own is not recoverable.
@@ -897,6 +923,31 @@ const TONE_STACK_SPECS = [
     midLeg: { kind: 'fixed', ref: 'RSL' },
   },
   {
+    id: 'aa764', kind: 'tb', wiring: 'ladder',
+    blurb: 'The blackface Champ\'s two-knob stack — the same ladder the Princeton presets solve, with a 15 kΩ fixed leg and a 0.047 µF mid capacitor — plotted as the AA764 sheet wires it: treble-wiper output, bass rheostat.',
+    drive: { kind: 'plate', tube: '12ax7', plateLoad: 'R4' },
+    load: 'VR1',
+    refs: { slope: 'R6', trebleCap: 'C2', treblePot: 'VR2', bassCap: 'C3', bassPot: 'VR3', midCap: 'C4' },
+    midLeg: { kind: 'fixed', ref: 'R7' },
+  },
+  {
+    id: 'ab165', kind: 'tb', wiring: 'ladder',
+    blurb: 'The blackface Bassman\'s two-knob stack, plotted from the Normal channel as the AB165 sheet wires it: treble-wiper output, bass rheostat, 6.8 kΩ fixed leg. The bass-instrument channel is the same ladder with a 390 pF treble cap and an 8.2 kΩ foot — gated against that drawing, not plotted twice.',
+    drive: { kind: 'plate', tube: '12ax7', plateLoad: 'RLN1' },
+    load: 'VRVN',
+    refs: { slope: 'RSN', trebleCap: 'CTN', treblePot: 'VRTN', bassCap: 'CBN', bassPot: 'VRBN', midCap: 'CBN2' },
+    midLeg: { kind: 'fixed', ref: 'RSLN' },
+    note: 'The Bassman sheet draws this network twice. This preset is the Normal channel; the bass-instrument channel\'s different part values are held by the wiring gate rather than plotted as a second curve.',
+  },
+  {
+    id: 'ab763-twin', kind: 'fmv', wiring: 'ladder',
+    blurb: 'The Twin Reverb\'s three-knob stack, fed from a plate rather than a follower — the Normal channel, plotted as the AB763 Twin sheet wires it: treble-wiper output, bass rheostat, mid capacitor into a 10 kΩ middle pot. The Vibrato channel draws the identical network, part for part.',
+    drive: { kind: 'plate', tube: '12ax7', plateLoad: 'RLN1' },
+    load: 'VRVN',
+    refs: { slope: 'RSN', trebleCap: 'CTN', treblePot: 'VRTN', bassCap: 'CBN', bassPot: 'VRBN', midCap: 'CBN2', midPot: 'VRMN' },
+    note: 'Both channels are identical, so the curve is the Normal channel\'s and does not need a second preset. The Vibrato channel stays in the wiring gate so a later drawing change cannot silently desync them.',
+  },
+  {
     // 'treble-cut' is a name, not a stack wiring: the network is a rheostat and
     // a capacitor bleeding treble to ground (trebleCutElements), so neither
     // 'ladder' nor 'joined' describes it. Declared explicitly so no preset falls
@@ -915,20 +966,13 @@ const TONE_STACK_SPECS = [
 // claims to have read at lug level is walked by the same gate — and the refs
 // live here, beside the preset table, so the two cannot drift apart.
 //
-//   ab763 vibrato — the AB763 draws its two-knob ladder twice, once per
-//     channel; the preset above solves the normal channel's designators, and
-//     this entry makes the vibrato channel's drawing gated too.
-//   aa764 — read at lug level (treble-wiper output, bass rheostat, 15 kΩ leg)
-//     but not yet built into a preset; see the absence note above.
-//   ab165 — like the AB763 it draws the two-knob ladder once per channel, and
-//     both are read at lug level. The two differ only in their part values
-//     (390 pF / 8.2 kΩ on the bass-instrument channel against 250 pF / 6.8 kΩ
-//     on the normal one), so both are gated here rather than plotted twice.
-//   ab763-twin — a three-knob FMV stack, the network this solver models best,
-//     but drawn twice and driven from a plate rather than a cathode follower.
-//     Both channels' stacks are identical part for part, so a single preset
-//     would have to declare which one the curve came from and the drawing
-//     gives no reason to prefer either. Both are gated here instead.
+//   ab763 vibrato — the AB763 draws its two-knob ladder twice; the preset
+//     solves the normal channel, and this entry keeps the vibrato channel gated.
+//   ab165 bass instrument — the preset plots the Normal channel; this channel
+//     is the same ladder with different part values (390 pF / 8.2 kΩ).
+//   ab763-twin vibrato — the preset plots the Normal channel; this channel is
+//     identical part for part and stays gated so a later drawing change cannot
+//     silently desync them.
 // eslint-disable-next-line no-unused-vars -- read by pipeline/check_tonestack_wiring.py
 const TONE_STACK_GATE_EXTRAS = [
   {
@@ -937,23 +981,9 @@ const TONE_STACK_GATE_EXTRAS = [
     midLeg: { kind: 'fixed', ref: 'RSLV' },
   },
   {
-    id: 'aa764', kind: 'tb', wiring: 'ladder',
-    refs: { slope: 'R6', trebleCap: 'C2', treblePot: 'VR2', bassCap: 'C3', bassPot: 'VR3', midCap: 'C4' },
-    midLeg: { kind: 'fixed', ref: 'R7' },
-  },
-  {
-    id: 'ab165', kind: 'tb', wiring: 'ladder', channel: 'normal',
-    refs: { slope: 'RSN', trebleCap: 'CTN', treblePot: 'VRTN', bassCap: 'CBN', bassPot: 'VRBN', midCap: 'CBN2' },
-    midLeg: { kind: 'fixed', ref: 'RSLN' },
-  },
-  {
     id: 'ab165', kind: 'tb', wiring: 'ladder', channel: 'bass instrument',
     refs: { slope: 'RSB', trebleCap: 'CTB', treblePot: 'VRTB', bassCap: 'CBB', bassPot: 'VRBB', midCap: 'CBB2' },
     midLeg: { kind: 'fixed', ref: 'RSLB' },
-  },
-  {
-    id: 'ab763-twin', kind: 'fmv', wiring: 'ladder', channel: 'normal',
-    refs: { slope: 'RSN', trebleCap: 'CTN', treblePot: 'VRTN', bassCap: 'CBN', bassPot: 'VRBN', midCap: 'CBN2', midPot: 'VRMN' },
   },
   {
     id: 'ab763-twin', kind: 'fmv', wiring: 'ladder', channel: 'vibrato',

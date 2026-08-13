@@ -12,9 +12,9 @@ corpus does not draw. This gate closes that gap.
 The reference designators are read out of the site's own TONE_STACK_SPECS table
 rather than restated here, so the two cannot drift apart: rename a part in
 corpus.js and this gate follows it. The companion TONE_STACK_GATE_EXTRAS table
-(same file) lists the multi-knob networks the lab does not yet plot — the
-AB763's vibrato channel and the AA764's stack — so every drawing the corpus
-claims to have read at lug level is walked here, preset or not.
+(same file) lists the multi-knob networks the lab has read at lug level but
+does not plot as their own preset — second channels, mainly — so every
+drawing the corpus claims to have read that closely is walked here.
 
 Each preset declares which of the two stack wirings its schematic draws
 (`wiring` in TONE_STACK_SPECS), and the gate asserts the matching network.

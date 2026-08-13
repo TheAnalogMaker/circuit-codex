@@ -1,0 +1,16 @@
+name: Site or pipeline
+description: A broken page, a stale claim, or a tooling fix — not a circuit correction.
+title: "Site: "
+labels: ["enhancement"]
+body:
+  - type: input
+    id: url
+    attributes:
+      label: Page or path
+      placeholder: https://circuitcodex.com/amps/5e3/
+  - type: textarea
+    id: what
+    attributes:
+      label: What happens, and what should
+    validations:
+      required: true

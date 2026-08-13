@@ -88,10 +88,10 @@ const hasToneStackLab = toneStackPresetIds().has(amp.id);
 // paths for a reader who has just read this circuit: other documented amps in
 // its history family line, plus amps sharing its phase-inverter or tone-stack
 // topology, each group also linking the matching cross-cut page. Budgeted to
-// ~5 links total so the block stays a hand-picked path, not a link dump — when
+// ~6 links so three groups can each keep one sibling plus the cross-cut — when
 // it would run over, sibling-amp links are trimmed from the least-specific
 // groups first, but every present group keeps its one cross-cut link.
-const RELATED_LINK_BUDGET = 5;
+const RELATED_LINK_BUDGET = 6;
 const relatedGroups = [];
 if (historyFamily) {
   const famSiblingIds = (loadHistory().find((f) => f.slug === historyFamily.slug)?.models || [])
@@ -127,8 +127,8 @@ for (const dimKey of ['phase_inverter', 'tone_stack']) {
 // never 404s and is always on-topic) — those are spent first. What is left of
 // the budget is handed out as amp-sibling links one at a time, round-robin in
 // group order (family line first, most specific), capped at 2 per group, so
-// three groups at the default budget read as 1 sibling + 1 sibling + cross-cut-
-// only rather than silently dropping a whole group.
+// three groups at the default budget read as one sibling each plus the
+// cross-cut, rather than leaving the last group as a hanging separator.
 const MAX_AMP_LINKS_PER_GROUP = 2;
 for (const g of relatedGroups) g.ampLinks = [];
 let linkCount = relatedGroups.length;
@@ -185,11 +185,19 @@ const breadcrumbs = [
     {v.status === 'verified'
       ? <span class="chip ok">✓ verified {vDate}</span>
       : <span class="chip">draft</span>}
+    <nav class="jump" aria-label="On this page">
+      {amp.hasSchematic && <a href="#schematic">Schematic</a>}
+      {amp.hasLayout && <a href="#layout">Layout</a>}
+      <a href="#op-point">Operating point</a>
+      <a href="#parts">Parts</a>
+      <a href="#story">Story</a>
+      <a href="#sources">Sources</a>
+    </nav>
   </header>
 
   <div class="cols">
     <div class="main">
-      <div class="viewer">
+      <div class="viewer" id="schematic">
         <div class="viewer-head">Schematic — redrawn in KiCad · scroll to zoom, drag to pan</div>
         {amp.hasSchematic ? (
           <div class="viewer-canvas">
@@ -210,7 +218,7 @@ const breadcrumbs = [
       </div>
 
       {amp.hasLayout && (
-        <div class="viewer layout" style={layoutFloor ? `--layout-floor:${layoutFloor}px` : undefined}>
+        <div class="viewer layout" id="layout" style={layoutFloor ? `--layout-floor:${layoutFloor}px` : undefined}>
           <div class="viewer-head">
             <span>Board layout — redrawn reference diagram · source noted on the drawing</span>
             {/* Shown only when the drawing really is wider than its box — the
@@ -300,7 +308,7 @@ const breadcrumbs = [
 
       {amp.voltages && (
         <section>
-          <h2>{allChartNull ? 'Simulated operating point' : 'Operating point vs. published chart'}</h2>
+          <h2 id="op-point">{allChartNull ? 'Simulated operating point' : 'Operating point vs. published chart'}</h2>
           {allChartNull
             ? <p class="sub">No published voltage chart exists for this circuit — the factory
                 drawing prints component values only. The voltages below are informational
@@ -375,7 +383,7 @@ const breadcrumbs = [
 
       {amp.bom && (
         <section>
-          <h2>Parts list</h2>
+          <h2 id="parts">Parts list</h2>
           <p class="sub">
             {refs.crossChecked
               ? "Every designator in this list appears on the schematic above, and every designator on the schematic appears here — the two are checked against each other in both directions, a valve's two halves counting as one bottle (V1A and V1B are both V1)."
@@ -410,7 +418,7 @@ const breadcrumbs = [
 
       {amp.notesHtml && (
         <section>
-          <h2>Circuit story</h2>
+          <h2 id="story">Circuit story</h2>
           <div class="notes" set:html={amp.notesHtml} />
         </section>
       )}
@@ -465,7 +473,7 @@ const breadcrumbs = [
 
   {m.sources && (
     <section class="sources">
-      <h2>Sources</h2>
+      <h2 id="sources">Sources</h2>
       <ul class="src">{m.sources.map((s) => (
         <li>{typeof s === 'string' ? s : (<>
           {s.desc}{s.url && <> — <a href={s.url} rel="external nofollow">{new URL(s.url).hostname}</a></>}
@@ -484,7 +492,7 @@ const breadcrumbs = [
             <dt>{g.label}</dt>
             <dd>{g.ampLinks.map((rid, i) => (
               <>{i > 0 ? ', ' : ''}<a href={`/amps/${rid}/`}>{displayId(rid)}</a></>
-            ))} · <a href={g.crossCutHref}>{g.crossCutText}</a></dd>
+            ))}{g.ampLinks.length > 0 ? ' · ' : ''}<a href={g.crossCutHref}>{g.crossCutText}</a></dd>
           </>
         ))}
       </dl>
@@ -589,6 +597,10 @@ const breadcrumbs = [
 
 <style>
   .amp-head{display:flex;align-items:baseline;gap:16px;flex-wrap:wrap;padding:56px 0 8px}
+  .jump{flex-basis:100%;display:flex;flex-wrap:wrap;gap:6px 14px;margin:4px 0 0;
+    font-family:var(--disp);text-transform:uppercase;letter-spacing:.12em;font-size:11.5px}
+  .jump a{color:var(--muted)}
+  #schematic,#layout,#op-point,#parts,#story,#sources{scroll-margin-top:72px}
   h1{font-size:38px;letter-spacing:.05em;margin:0}
   /* The subtitle now lives inside the h1 (one heading for SEO/a11y) but keeps its
      original look: body font, sentence case, muted, lighter than the display title. */
