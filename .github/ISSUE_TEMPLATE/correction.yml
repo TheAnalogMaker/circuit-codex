@@ -1,0 +1,45 @@
+name: Correction or source
+description: A wrong value, a missing lineage edge, a chart that doesn't match its source, or a bench measurement.
+title: "Correction: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Corrections are the most useful small contributions this archive gets.
+        Cite what you checked against. Do not open a chassis for our benefit —
+        [high-voltage safety](https://circuitcodex.com/reference/safety/) first.
+  - type: input
+    id: circuit
+    attributes:
+      label: Circuit id
+      description: Directory id, lowercase (`5e3`, `jtm45`, `ab763-twin`). Leave blank if this is not about one circuit.
+      placeholder: 5e3
+  - type: dropdown
+    id: kind
+    attributes:
+      label: What is wrong or new
+      options:
+        - Wrong part value or designator
+        - Voltage chart / operating-point disagreement
+        - Missing or extra lineage edge
+        - Source citation
+        - Bench measurement
+        - Prose or page claim
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: claim
+    attributes:
+      label: What the site or file currently says
+      description: Quote the claim, or link the page and name the row.
+    validations:
+      required: true
+  - type: textarea
+    id: source
+    attributes:
+      label: What you checked it against
+      description: Published chart, dated schematic revision, or a bench reading (meter, mains voltage, conditions). Link if you can.
+    validations:
+      required: true

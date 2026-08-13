@@ -40,6 +40,8 @@ python3 pipeline/test_models.py         # ngspice datasheet-anchor checks
 python3 pipeline/test_era_values.py     # era lettering + house/schematic surface conventions
 python3 pipeline/check_value_consistency.py --selftest && \
 python3 pipeline/check_value_consistency.py --strict   # cross-surface quantities agree
+python3 pipeline/check_tube_used_in.py --selftest && \
+python3 pipeline/check_tube_used_in.py                 # tube used_in == circuits that letter the tube
 python3 pipeline/verify_amps.py         # DC op-point vs chart (draft=warn, verified=FAIL)
                                         #   + reference/op-points.yaml staleness (the
                                         #   simulated volts the amp pages print).

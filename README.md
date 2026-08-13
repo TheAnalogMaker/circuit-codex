@@ -11,14 +11,15 @@ An [Analog Maker](https://theanalogmaker.com) project, live at
 **[circuitcodex.com](https://circuitcodex.com)**. Guitar-pedal circuits are on the
 roadmap once the amp corpus is established.
 
-**Status: live — [circuitcodex.com](https://circuitcodex.com).** The corpus holds
-**8 circuits** — 7 CI-verified against their published voltage charts, 1 draft — plus
-9 open-licensed tube SPICE models. Every amp carries a redrawn KiCad schematic, an
-ngspice netlist checked node-by-node against the factory voltage chart, a redrawn
-board-layout diagram, structured metadata, and a circuit walkthrough. The current
-tweed-and-early-Marshall set is **5E1, 5E3, 5F1, 5F2-A, 5F4, 5F6-A, 5F10, and the
-JTM45** (5F2-A is the lone draft — its factory drawing prints no voltage chart to
-verify against). Browse it all at
+**Status: live — [circuitcodex.com](https://circuitcodex.com).** The homepage
+stat block is generated from this repository at deploy time (circuit count,
+verified count, CC0 tube models, history-tier rows). Do not restate those
+numbers here — they rot the first time a circuit lands. Every documented amp
+carries a redrawn KiCad schematic, an ngspice netlist, a redrawn board-layout
+diagram, structured metadata, and a circuit walkthrough. A `verified` badge
+means the netlist landed inside the published voltage chart in CI **and** a
+maintainer signed off; everything else is `draft`, with the blocker named on
+the page. Browse the live corpus at
 [circuitcodex.com](https://circuitcodex.com).
 
 ## Principles

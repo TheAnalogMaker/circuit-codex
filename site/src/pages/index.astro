@@ -43,9 +43,11 @@ const itemList = {
     <div class="eyebrow">An open, machine-readable archive</div>
     <h1>Every classic tube amp circuit.<br />Redrawn. Verified. Connected.</h1>
     <p class="lede">The amplifiers that made electric guitar — as clean KiCad schematics,
-      <strong>simulation-verified netlists</strong>, and structured metadata, built in the open.
-      No scans, no mystery: every circuit redrawn from the underlying facts and checked
-      against its published voltage chart in CI. Free forever, CC-BY-SA.
+      <strong>simulation-checked netlists</strong>, and structured metadata, built in the open.
+      No scans: every circuit is redrawn from the underlying facts. A
+      <a href="/about/#verified">verified</a> badge means the netlist landed inside
+      the published voltage chart in CI; drafts are published with the blocker named.
+      Free forever, CC-BY-SA.
       New here? <a href="/about/">Start with what this is, what it proves, and how to
       contribute</a>.</p>
     <div class="stats" role="list">
@@ -55,6 +57,34 @@ const itemList = {
       <div class="stat" role="listitem"><div class="n">{stats.historyModels}</div><div class="l">model histories</div></div>
     </div>
   </header>
+
+  <section class="explore" aria-labelledby="explore-h">
+    <h2 id="explore-h">Start here</h2>
+    <p class="sub">The archive is more than a circuit index. These are the surfaces
+      that show how the circuits connect, and what the knobs actually do.</p>
+    <div class="grid explore-grid">
+      <a class="card" href="/reference/guides/tone-stack-lab/">
+        <div class="id">Tone-stack lab</div>
+        <div class="style">Move the knobs. The curve is the circuit's own parts.</div>
+        <div class="tubes">The factory sheets draw a ladder, not the textbook stack — <span class="inline-link">study ↗</span></div>
+      </a>
+      <a class="card" href="/reference/guides/load-lines/">
+        <div class="id">Load-line explorer</div>
+        <div class="style">Plate curves from the corpus CC0 models, in the browser.</div>
+        <div class="tubes">Start from any documented output stage</div>
+      </a>
+      <a class="card" href="/lineage/">
+        <div class="id">Lineage tree</div>
+        <div class="style">Succession inside each family; arrows only where a derivation is documented.</div>
+        <div class="tubes">{stats.historyModels} models across {stats.families} lines</div>
+      </a>
+      <a class="card" href="/reference/studies/tone-stack-ladder/">
+        <div class="id">The ladder finding</div>
+        <div class="style">What the published sheets actually draw at the lugs.</div>
+        <div class="tubes">A cited study, not a slogan</div>
+      </a>
+    </div>
+  </section>
 
   <section id="circuits">
     <h2>The corpus</h2>
@@ -117,4 +147,7 @@ const itemList = {
   .card .style{color:var(--muted);font-size:13.5px;margin-top:-6px}
   .card .tubes{font-family:var(--mono);font-size:12px;color:var(--faint)}
   .chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:auto;padding-top:8px}
+  .explore{margin:8px 0 28px}
+  .explore-grid{margin-top:4px}
+  .inline-link{color:var(--amber)}
 </style>

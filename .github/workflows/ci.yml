@@ -43,6 +43,11 @@ jobs:
       # one.
       - run: python pipeline/check_value_consistency.py --selftest
       - run: python pipeline/check_value_consistency.py --strict
+      # Each tube page's used_in list must be the circuits that letter that
+      # tube (name, slug, or also_known_as). A hand list said the 6SJ7 was
+      # unused while the 5C1 listed one.
+      - run: python pipeline/check_tube_used_in.py --selftest
+      - run: python pipeline/check_tube_used_in.py
       # Renders and lints BOTH published drawings of every board (layout.svg and
       # layout-sheet.svg): staleness, well-formedness, wiring collisions, and the
       # label checks against each style's own type.

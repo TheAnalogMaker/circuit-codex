@@ -1,0 +1,46 @@
+name: Wanted circuit
+description: Propose a circuit the corpus should document next. Claim one and follow CONTRIBUTING.md.
+title: "Wanted: "
+labels: ["wanted circuits"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        A wanted-circuit issue is an invitation, not a reservation. The three
+        hard rules still bind: redraw from facts (never scan or trace),
+        circuit-number-first naming, DCO sign-off. New circuits land as `draft`.
+  - type: input
+    id: designation
+    attributes:
+      label: Circuit designation
+      description: The number the factory drawing carries (`5E5-A`, `B-15N`, `1987`). This becomes the directory id, lowercased, and is the only name the files may use as an identifier.
+      placeholder: B-15N
+    validations:
+      required: true
+  - type: input
+    id: style
+    attributes:
+      label: Descriptive style name
+      description: "Maker vocabulary belongs only here, never in the id (`Tweed Pro-style`, `Portaflex-style`)."
+      placeholder: Portaflex-style
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: Why this circuit
+      description: What it adds to the lineage or the model set. Name the ancestor or the bottle the corpus is missing, if that is the reason.
+    validations:
+      required: true
+  - type: textarea
+    id: sources
+    attributes:
+      label: Published sources you would read from
+      description: Links to archived drawings, voltage charts, or dated revisions. Do not attach factory scans to the issue.
+    validations:
+      required: true
+  - type: input
+    id: blocker
+    attributes:
+      label: Known blocker (if any)
+      description: "Example: needs a 6SL7 model; drawing prints no voltage chart; designation collides and needs a model-qualified id."
