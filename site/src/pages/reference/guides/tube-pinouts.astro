@@ -36,6 +36,20 @@ const oneLine = (s) => {
   const cut = flat.indexOf('. ');
   return cut === -1 ? flat : flat.slice(0, cut + 1);
 };
+
+// The noval blurb is derived from the tubes actually in the bucket, the same
+// way the octal split above is — a hand-written "both of these are dual
+// triodes" survived the base growing pentodes, output tubes and a rectifier.
+// A twin triode is a tube with two triode units and no screen grid; the rest
+// split by the same dissipation/screen tests the octals use.
+const plateUnits = (t) => new Set(Object.values(t.basing.pins || {})
+  .filter((p) => p.element === 'plate').map((p) => p.unit ?? 1)).size;
+const novalTwins = noval.filter((t) => hasPin(t, 'grid') && !hasPin(t, 'screen-grid') && plateUnits(t) === 2);
+const novalPentPre = noval.filter((t) => hasPin(t, 'grid') && hasPin(t, 'screen-grid') && isSignal(t));
+const novalPower = noval.filter((t) => hasPin(t, 'grid') && !isSignal(t));
+const novalRect = noval.filter((t) => !hasPin(t, 'grid'));
+const names = (ts) => ts.map((t) => t.name).join(ts.length === 2 ? ' and ' : ', ')
+  .replace(/, ([^,]+)$/, ' and $1');
 ---
 <Base title="Tube pinout diagrams · Circuit Codex"
       description="Interactive bottom-view basing diagrams for every tube in the corpus — noval 9-pin and 7-pin miniature preamp bottles, and octal preamp, output and rectifier tubes. Read each pin by hovering it, grouped by base family, with a short guide to bottom-view convention, index-gap orientation, and RETMA basing codes.">
@@ -68,8 +82,12 @@ const oneLine = (s) => {
 
   <section>
     <h2>Noval 9-pin (B9A)</h2>
-    <p class="sub">The small-button nine-pin preamp bottle. Both of these are dual triodes —
-      two independent gain stages in one glass, their pins interleaved around the ring.</p>
+    <p class="sub">The small-button nine-pin base, doing every job in the amplifier.
+      {names(novalTwins)} are twin triodes — two independent gain stages in one glass, their
+      pins interleaved around the ring{novalPentPre.length > 0 && <> — while the {names(novalPentPre)} are
+      single preamp pentodes</>}{novalPower.length > 0 && <>, the {names(novalPower)} are output
+      tubes</>}{novalRect.length > 0 && <>, and the {names(novalRect)}{novalRect.length === 1 ? ' is a rectifier' : ' are rectifiers'}</>}.
+      Same base, different sockets: check the code before assuming a shared wiring.</p>
     <div class="pin-grid">
       {noval.map((t) => (
         <article class="pin-card">
