@@ -523,6 +523,30 @@ stages:
   ot_primary_note: Fender 125A35A — Single-ended output (impedance ratio not marked on the drawing)
   sim_ip_ma: 44.3715
   sim_ig2_ma: 3.7174
+- amp: 'aa764-vibro'
+  name_style: Blackface Vibro Champ-style
+  tube: '6V6GT'
+  tube_lettered: '6V6GT'
+  output_tubes: 1
+  config: single-ended
+  bias: cathode
+  plate_node: BP1
+  plate_v: 355.0
+  screen_node: BP2
+  screen_v: 349.11
+  cathode_node: K2
+  cathode_v: 22.233
+  rk_total: 470.0
+  rk_per_tube: 470.0
+  grid_node: G2
+  grid_v: 0.0
+  grid_supply_node: null
+  grid_supply_v: null
+  ot_primary_z: null
+  ot_primary_approx: false
+  ot_primary_note: Fender 125A35A — Single-ended output (impedance ratio not marked on the drawing)
+  sim_ip_ma: 43.6374
+  sim_ig2_ma: 3.6679
 - amp: 'aa864-bassman'
   name_style: Blackface Bassman-style
   tube: '6L6GC'

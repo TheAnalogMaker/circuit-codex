@@ -107,7 +107,7 @@ models:
       - desc: "Rob Robinette, 'How Amps Work' — 5F1 component roles and B+ structure"
         url: "https://robrobinette.com/How_Amps_Work.htm"
   - designation: "AA764"
-    name: "Champ / Vibro Champ (blackface)"
+    name: "Champ (blackface)"
     years: { start: 1964, end: 1968 }
     wattage: 5
     output: "single-ended 6V6"
@@ -117,16 +117,45 @@ models:
       treble-and-bass stack between the two 12AX7 stages. The supply also stiffens
       (+360/+350/+330 V against the 5F1's +340/+295/+250) and the feedback loop
       moves onto a 47 Ω divider leg, but the output stage stays a cathode-biased
-      single-ended 6V6. The AA764 renumbering coincides with the tremolo-equipped
-      Vibro Champ sibling, which adds a tube tremolo oscillator ahead of the same
-      power stage; the plain Champ omits it.
+      single-ended 6V6. The AA764 designation is shared with the tremolo-equipped
+      Vibro Champ sibling below — same audio path, same designation, a different
+      drawing.
     circuit_ref: "aa764"
     sources:
       - desc: "EL34World schematic archive, Fender Champ AA764 sheet (indexed by designation)"
         url: "https://el34world.com/charts/Schematics/files/Fender/Fender_champ_AA764_schem.pdf"
       - desc: "Wikipedia, Fender Champ — blackface AA764 / Vibro Champ tremolo introduction"
         url: "https://en.wikipedia.org/wiki/Fender_Champ"
+  - designation: "AA764"
+    name: "Vibro Champ (blackface)"
+    years: { start: 1964, end: 1967 }
+    wattage: 5
+    output: "single-ended 6V6"
+    tubes: [12AX7, 12AX7, 6V6GT, 5Y3GT]
+    key_change: >
+      The AA764 drawing's tremolo-equipped sibling: the plain Champ's audio path
+      (two-stage 12AX7 preamp, treble-and-bass stack, cathode-biased single-ended
+      6V6, 5Y3GT rectifier) carries over component-for-component, plus a second,
+      dedicated 12AX7 running a bias-vary tremolo oscillator (Speed and Intensity
+      controls) ahead of the same output stage. Fender's own drawing prints
+      "VIBRO-CHAMP AA764" — the identical designation the plain Champ sheet
+      carries, so this circuit lands in the corpus under the qualified id
+      amps/aa764-vibro rather than colliding with amps/aa764 (docs/schema.md,
+      "Ids and colliding designations").
+    circuit_ref: "aa764-vibro"
+    sources:
+      - desc: "EL34World schematic archive, Fender Vibro Champ AA764 sheet (indexed by designation; two print runs exist under Fender Electric Instrument Company and later CBS-era letterheads, both AA764 and both read for this entry)"
+        url: "https://el34world.com/charts/Schematics/Files/Fender/Fender_vibro_champ_aa764.pdf"
+      - desc: "Mojotone/Ampwares Fender field guide, 'Blackface Vibro Champ' — AA764, 1964-1967, cathode-biased 6V6GT/5Y3GT, single 8-inch Oxford 8EV speaker"
+        url: "https://mojotone.com/blogs/fender-field-guide/fender-blackface-vibro-champ"
+      - desc: "Wikipedia, Fender Champ — blackface AA764 / Vibro Champ tremolo introduction"
+        url: "https://en.wikipedia.org/wiki/Fender_Champ"
 notes: >
+  The AA764 designation covers two drawings in this family: the plain Champ
+  (amps/aa764, landed first, keeps the bare id) and its tremolo-equipped Vibro
+  Champ sibling (amps/aa764-vibro, the qualified id — its own drawing prints
+  the identical AA764 designation). Both rows above share that designation
+  deliberately; it is not a data-entry duplicate.
   Tweed-era production dates (5B1 through 5D1) are fuzzy and overlap between
   revisions; the ranges given are the defensible spans, not firm year-by-year
   boundaries. Wattage figures for the pre-5E1 Champions were never formally

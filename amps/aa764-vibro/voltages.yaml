@@ -1,0 +1,31 @@
+# Printed voltage chart read directly from the published Fender "VIBRO-CHAMP
+# AA764" drawing (schematic sheet I-FD; the layout sheet repeats the same
+# tube-pin values). The drawing's notice: "Voltages read to ground with
+# electronic voltmeter. Values shown + or - 20%." Tube pins therefore get
+# 20%; the supply rails get a tighter internal target.
+#
+# The reservoir node BP1 is DRIVEN at its printed +355 V and every node below
+# it is solved (see netlist.cir). The 6V6 plate is not listed: with the output
+# transformer primary DCR omitted it is the same node as BP1, so its printed
+# +342 V would compare against the driven value rather than a solved one. The
+# gap between the printed +355 V reservoir and the printed +342 V plate is the
+# 125A35A primary winding resistance, a figure the drawing does not print —
+# same convention as amps/aa764.
+#
+# The tremolo oscillator (V4, excluded — see netlist.cir and notes.md) taps
+# the same BP3 preamp rail V1A/V1B share, through its own 470 kΩ plate load.
+# Leaving it unmodelled means BP3 carries less current here than the real
+# circuit did, so the simulated V1A/V1B plates read a little above the
+# printed chart. Both nodes still land well inside the drawing's own ±20 %
+# convention (see the deviations recorded in notes.md), so they are gated
+# normally rather than set aside as informational — unlike amps/ab763, whose
+# larger shared-rail deviation crossed that line.
+source: "Fender 'VIBRO-CHAMP AA764' drawing (I-FD), printed chart: +355 V (reservoir / OT primary feed), +340 V (6V6 screen pin 4), +342 V (6V6 plate, unlabeled pin near +340 V), +2 V (6V6 grid, pin 6 — no cathode figure is printed), +320 V (preamp rail), +205 V / +1.6 V (12AX7 first stage plate and cathode), +200 V / +1.5 V (12AX7 second stage plate and cathode), +170 V / +1.6 V and +340 V / +175 V (tremolo oscillator, excluded)"
+nodes:
+  BP2: { chart: 340, tol_pct: 8,  note: "6V6 screen node, after the 1 kΩ · 1 W dropper (R14)" }
+  BP3: { chart: 320, tol_pct: 8,  note: "preamp plate rail, after the 10 kΩ · 1 W dropper (R15) — also feeds the excluded oscillator's 470 kΩ plate load, off-model" }
+  P1A: { chart: 205, tol_pct: 20, note: "12AX7 first-stage plate, chart pin 1" }
+  K1A: { chart: 1.6, tol_pct: 20, note: "12AX7 first-stage cathode over 1.5 kΩ, chart pin 3" }
+  P1B: { chart: 200, tol_pct: 20, note: "12AX7 second-stage plate, chart pin 6" }
+  K1B: { chart: 1.5, tol_pct: 20, note: "12AX7 second-stage cathode, chart pin 8 — 1.5 kΩ down to the 47 Ω/2.7 kΩ feedback divider" }
+  K2:  { chart: null, note: "6V6GT cathode over 470 Ω · 1 W — the drawing prints no figure at this pin, only +2 V at the grid (pin 6). Simulated for reference, not gated" }

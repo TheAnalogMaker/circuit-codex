@@ -1,0 +1,55 @@
+# Parts list — reference designators match schematic.kicad_sch (once drawn) and
+# netlist.cir where a part is modelled. The drawing assigns no component
+# designators; numbering is Circuit Codex's own, following the schematic left
+# to right, top row (audio path) before bottom row (tremolo). vendor_url fields
+# land with the Phase-1 BOM work.
+notes: "The audio path (R1-R15, VR1-VR3, C1-C11, V1-V3, T1-T2) duplicates amps/aa764 part-for-part — same values, same roles — because the Vibro Champ drawing is the plain Champ's circuit plus a tremolo oscillator ahead of the same output stage; only the printed rail voltages differ (see meta.yaml). One channel across two input jacks (high/low), each with its own 68 kΩ stopper sharing the 1 MΩ leak. V1B's 1.5 kΩ cathode resistor does not go straight to ground: it lands on a 47 Ω leg that carries the 2.7 kΩ negative-feedback return from the speaker jack, and its 25 µF can bypasses only the 1.5 kΩ. Both transformer part numbers are printed on the drawing (TR1 125P1B, TR2 125A35A) — the same parts aa764 prints, though this sheet's own HT winding reads 315-0-315 V against aa764's printed 320-0-320 V for the identical 125P1B (see amps/aa764/bom.yaml's note on this transformer printing different figures across drawings). This list numbers them T1 and T2, the archive's convention where a drawing prints no designators of its own. — The tremolo oscillator (V4, both sections) is a dedicated bottle, not shared with an audio-path stage (contrast amps/6g3, whose oscillator is the second half of its driver tube). Its parts are listed in full below, but its DC operating point is excluded from netlist.cir (see notes.md): it is a running phase-shift oscillator with no static quiescent point. C16's exact value (the phase-shift feedback network's coupling capacitor, plate to Speed control) could not be read with full confidence at the available scan resolution; C15 is recorded with the value legible on both the schematic and layout sheets, and the network is described qualitatively in notes.md rather than over-specified."
+items:
+  - { ref: R1,  part: "Carbon comp resistor",       value: "68 kΩ · ½ W",      role: "Input grid stopper, jack 1 (high)" }
+  - { ref: R2,  part: "Carbon comp resistor",       value: "68 kΩ · ½ W",      role: "Input grid stopper, jack 2 (low)" }
+  - { ref: R3,  part: "Carbon comp resistor",       value: "1 MΩ · ½ W",       role: "Input grid leak" }
+  - { ref: R4,  part: "Carbon comp resistor",       value: "100 kΩ · ½ W",     role: "V1A plate load" }
+  - { ref: R5,  part: "Carbon comp resistor",       value: "1.5 kΩ · ½ W",     role: "V1A cathode bias" }
+  - { ref: R6,  part: "Carbon comp resistor",       value: "100 kΩ · ½ W",     role: "Tone stack — slope resistor" }
+  - { ref: R7,  part: "Carbon comp resistor",       value: "15 kΩ · ½ W",      role: "Tone stack — bass leg to ground" }
+  - { ref: R8,  part: "Carbon comp resistor",       value: "100 kΩ · ½ W",     role: "V1B plate load" }
+  - { ref: R9,  part: "Carbon comp resistor",       value: "1.5 kΩ · ½ W",     role: "V1B cathode bias" }
+  - { ref: R10, part: "Carbon comp resistor",       value: "47 Ω · ½ W",       role: "V1B cathode return / feedback divider leg" }
+  - { ref: R11, part: "Carbon comp resistor",       value: "2.7 kΩ · ½ W",     role: "Negative feedback, speaker → V1B cathode divider" }
+  - { ref: R12, part: "Carbon comp resistor",       value: "220 kΩ · ½ W",     role: "6V6 grid leak" }
+  - { ref: R13, part: "Wirewound resistor",         value: "470 Ω · 1 W",      role: "6V6 cathode bias" }
+  - { ref: R14, part: "Power resistor",              value: "1 kΩ · 1 W",       role: "Rail dropper B+1→B+2" }
+  - { ref: R15, part: "Power resistor",              value: "10 kΩ · 1 W",      role: "Rail dropper B+2→B+3" }
+  - { ref: VR1, part: "Audio-taper potentiometer",  value: "1 MΩ",             role: "Volume (catalog 1MA-2-35 / 0143)" }
+  - { ref: VR2, part: "Audio-taper potentiometer",  value: "250 kΩ",           role: "Treble (catalog 250K-A-2-35 / 0266)" }
+  - { ref: VR3, part: "Audio-taper potentiometer",  value: "250 kΩ",           role: "Bass (catalog 250K-A / 0012)" }
+  - { ref: C1,  part: "Electrolytic capacitor",     value: "25 µF · 25 V",     role: "V1A cathode bypass" }
+  - { ref: C2,  part: "Mica capacitor",              value: "250 pF",           role: "Tone stack — treble cap" }
+  - { ref: C3,  part: "Film capacitor",              value: "0.1 µF · 400 V",   role: "Tone stack — bass cap" }
+  - { ref: C4,  part: "Film capacitor",              value: "0.047 µF · 400 V", role: "Tone stack — bass leg cap" }
+  - { ref: C5,  part: "Electrolytic capacitor",     value: "25 µF · 25 V",     role: "V1B cathode bypass (across R9 only)" }
+  - { ref: C6,  part: "Coupling capacitor",         value: "0.02 µF · 400 V",  role: "V1B → 6V6 grid" }
+  - { ref: C7,  part: "Electrolytic capacitor",     value: "25 µF · 25 V",     role: "6V6 cathode bypass" }
+  - { ref: C8,  part: "Electrolytic capacitor",     value: "20 µF · 450 V",    role: "Filter, B+1 (reservoir)" }
+  - { ref: C9,  part: "Electrolytic capacitor",     value: "20 µF · 450 V",    role: "Filter, B+2 (screen)" }
+  - { ref: C10, part: "Electrolytic capacitor",     value: "20 µF · 450 V",    role: "Filter, B+3 (preamp)" }
+  - { ref: C11, part: "Film capacitor",              value: "0.047 µF · 600 V", role: "Across the AC line (period part; omitted in modern builds)" }
+  - { ref: V1,  part: "Preamp tube",                 value: "12AX7",            role: "Both audio-path gain stages (V1A/V1B)" }
+  - { ref: V2,  part: "Power tube",                  value: "6V6GT",            role: "Single-ended output" }
+  - { ref: V3,  part: "Rectifier tube",              value: "5Y3GT",            role: "Full-wave rectifier" }
+  - { ref: T1,  part: "Power transformer",           value: "Fender 125P1B · 315-0-315 V · 6.3 V · 5 V", role: "HT + heaters + rectifier filament" }
+  - { ref: T2,  part: "Output transformer",          value: "Fender 125A35A",   role: "Single-ended output (impedance ratio not marked on the drawing)" }
+  - { ref: "—", part: "Fuse",                        value: "1 A slo-blo",      role: "Mains fuse" }
+  # --- Tremolo oscillator (V4, both sections) — EXCLUDED from netlist.cir; see notes.md ---
+  - { ref: J1,  part: "Open-circuit phone jack",     value: "—",                role: "Vibrato Pedal jack — normalling switch mutes/enables the oscillator when nothing is plugged in" }
+  - { ref: R20, part: "Carbon comp resistor",       value: "1 MΩ · ½ W",       role: "Vibrato-jack bleeder to ground" }
+  - { ref: R21, part: "Carbon comp resistor",       value: "1 MΩ · ½ W",       role: "V4A grid leak" }
+  - { ref: R22, part: "Carbon comp resistor",       value: "470 kΩ · ½ W",     role: "V4A plate load, off the B+3 rail" }
+  - { ref: R23, part: "Carbon comp resistor",       value: "4.7 kΩ · ½ W",     role: "V4A cathode bias" }
+  - { ref: R24, part: "Rheostat / potentiometer",   value: "3 MΩ, reverse-audio taper", role: "Speed control (catalog 3.0M-RA / 0015)" }
+  - { ref: R25, part: "Carbon comp resistor",       value: "100 kΩ · ½ W",     role: "Speed control's fixed leg to ground" }
+  - { ref: R26, part: "Carbon comp resistor",       value: "68 kΩ · ½ W",      role: "V4B cathode bias" }
+  - { ref: R27, part: "Rheostat / potentiometer",   value: "25 kΩ, reverse-audio taper", role: "Intensity control (catalog 25K-RA / 37947), fed from V4B's cathode" }
+  - { ref: C15, part: "Film capacitor",              value: "0.01 µF",          role: "Vibrato-jack line coupling cap" }
+  - { ref: C16, part: "Film capacitor",              value: "value not legible on the available scan", role: "Phase-shift coupling cap between V4A's grid network and the Speed control — present on the drawing, not individually confirmed here" }
+  - { ref: V4,  part: "Oscillator/driver tube",      value: "12AX7",            role: "Tremolo oscillator (V4A, RC phase-shift) and buffer (V4B, cathode-follower into Intensity) — EXCLUDED from netlist.cir, no static DC operating point" }

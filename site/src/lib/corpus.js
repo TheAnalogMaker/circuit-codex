@@ -973,6 +973,10 @@ const TONE_STACK_SPECS = [
 //   ab763-twin vibrato — the preset plots the Normal channel; this channel is
 //     identical part for part and stays gated so a later drawing change cannot
 //     silently desync them.
+//   aa764-vibro — the Vibro Champ's audio path (including the tone stack) is
+//     component-for-component identical to the plain aa764 preset (same
+//     refs, same values); this entry keeps its own schematic gated so a later
+//     drawing change to either sibling cannot silently desync them.
 // eslint-disable-next-line no-unused-vars -- read by pipeline/check_tonestack_wiring.py
 const TONE_STACK_GATE_EXTRAS = [
   {
@@ -988,6 +992,11 @@ const TONE_STACK_GATE_EXTRAS = [
   {
     id: 'ab763-twin', kind: 'fmv', wiring: 'ladder', channel: 'vibrato',
     refs: { slope: 'RSV', trebleCap: 'CTV', treblePot: 'VRTV', bassCap: 'CBV', bassPot: 'VRBV', midCap: 'CBV2', midPot: 'VRMV' },
+  },
+  {
+    id: 'aa764-vibro', kind: 'tb', wiring: 'ladder',
+    refs: { slope: 'R6', trebleCap: 'C2', treblePot: 'VR2', bassCap: 'C3', bassPot: 'VR3', midCap: 'C4' },
+    midLeg: { kind: 'fixed', ref: 'R7' },
   },
 ];
 

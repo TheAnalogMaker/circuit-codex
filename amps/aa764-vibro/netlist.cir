@@ -1,0 +1,86 @@
+* AA764-VIBRO (Blackface Vibro Champ-style) — DC operating-point netlist
+* Circuit Codex — CC-BY-SA 4.0. Independently drawn from published circuit
+* facts (see meta.yaml sources); no factory drawing reproduced.
+*
+* This circuit's audio path (V1A/V1B preamp, tone stack, 6V6GT output) is
+* component-for-component the same as amps/aa764 (the non-tremolo Champ that
+* shares the same AA764 designation) — same plate loads, same cathode
+* networks, same feedback divider, same droppers. What is added for the
+* "VIBRO-CHAMP AA764" drawing is a second, dedicated 12AX7 tremolo oscillator
+* ahead of the same output stage; see the EXCLUDED note below. Only the
+* reservoir voltage differs, +355 V here against aa764's +360 V, the drawing's
+* own printed figure — the oscillator's added current draw plausibly explains
+* the 5 V gap, but each amp's chart is read and driven as printed, never
+* adjusted to match its sibling.
+*
+* DC conventions (mirrors amps/aa764/netlist.cir v0, documented in notes.md):
+*  - B+1 = 355 V per the published chart (the reservoir node). Every node
+*    below it is DERIVED by simulation, never asserted.
+*  - Output transformer primary DCR omitted, so the 6V6 plate IS node BP1.
+*    The chart prints +355 V at the reservoir and +342 V at the plate pin;
+*    that gap is the 125A35A primary winding resistance, which the drawing
+*    does not print. It is therefore not modelled and the plate is not gated
+*    as a separate node (see voltages.yaml).
+*  - The screen hangs off BP2 (the middle 20 uF node) with no screen stopper,
+*    same as aa764 — the drawing shows the screen wired straight to that node.
+*  - Volume / treble / bass controls are AC-only networks behind blocking
+*    caps; they carry no DC and are abstracted. V1B's grid returns to ground
+*    through the 1 Meg volume pot, which IS modelled as the grid's DC return.
+*  - DC-open caps (coupling / cathode-bypass) are MODELLED where both leads
+*    land on a named DC node, so their board placement is machine-checked by
+*    verify_layout_nets; they are open at DC and move no operating point.
+*    Tone-stack caps, whose far leads sit inside the abstracted pot network,
+*    stay out.
+*  - Negative feedback: the speaker jack sits at DC ground through the output
+*    transformer secondary's near-zero DCR, so the 2.7k feedback resistor is
+*    modelled as 2.7k from the cathode divider node KFB to ground, in
+*    parallel with the 47 Ohm leg. Same topology as aa764.
+*
+* EXCLUDED — the tremolo (vibrato) oscillator V4 (12AX7, both sections). It
+* is a running RC phase-shift oscillator (first section) feeding a cathode-
+* follower buffer (second section) into the Intensity control, which injects
+* the AC signal at the 6V6 cathode/bias node — it has no static DC operating
+* point of its own (see notes.md and amps/ab763's V5, the same category of
+* exclusion). Its printed chart pins (+170 V / +1.6 V first section, +340 V /
+* +175 V second section) are dynamic averages, not a quiescent point, and are
+* documented in notes.md rather than modelled or gated. The oscillator's first
+* section plate ties to the same BP3 preamp rail that feeds V1A/V1B (through
+* its own 470k dropper, off-model); excluding it means this netlist's BP3
+* carries slightly less current than the real circuit, so the simulated V1A/
+* V1B plates read a little above the printed chart — see voltages.yaml for
+* how each node's tolerance was set with that in mind.
+.include models/12ax7.inc
+.include models/6v6gt.inc
+
+VBP1 BP1 0 DC 355
+
+* power rail droppers: BP1 (reservoir / OT primary) -> BP2 (screen)
+* -> BP3 (preamp plates) — same 1k/10k pair as aa764
+R14 BP1 BP2 1k
+R15 BP2 BP3 10k
+
+* V1A input stage (grid returned to ground through the input jacks' 1M leak)
+R4  BP3 P1A 100k
+XV1A P1A G1A K1A 12AX7
+R3  G1A 0 1meg
+R5  K1A 0 1500
+
+* V1B driver stage. Cathode sits above the feedback divider: 1.5k (bypassed)
+* down to KFB, then 47 Ohm to ground; the 2.7k feedback leg lands on KFB.
+R8  BP3 P1B 100k
+XV1B P1B G1B K1B 12AX7
+RVOL G1B 0 1meg
+R9  K1B KFB 1500
+R10 KFB 0 47
+R11 KFB 0 2700
+
+* 6V6GT output stage (plate at BP1 through the OT primary, screen at BP2)
+XV2 BP1 BP2 G2 K2 6V6GT
+R12 G2 0 220k
+R13 K2 0 470
+
+* DC-open caps (both leads on a named DC node — placement layout-checked)
+C1  K1A 0   25u
+C5  K1B KFB 25u
+C7  K2  0   25u
+C6  P1B G2  0.02u
