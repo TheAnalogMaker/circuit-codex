@@ -107,3 +107,35 @@ calibrated rails into checked ones — and the maintainer's own review, which is
 the only thing that grants `verified` here. A gated node's worst deviation
 today (the phase-inverter cold plate, 3.2% against a printed value carrying a
 ±20% convention) is not what is holding it back.
+
+**Hunting a sharper copy (2026-08-30).** Every mirror found traces back to the
+same single 2002 scan pair. `el34world.com`'s two-page schematic+layout PDF
+and `schematicheaven.net`'s copy are byte-identical (209,750 bytes, same
+embedded 2179×1437/2250×1269 rasters, `Acrobat 5.0 Image Conversion Plug-in`
+CreationDate `2002-01-21`); Prowess Amplifiers' schematic and layout pages
+serve the identical rasters (same pixel dimensions, same CreationDate,
+same embedded object ID) merely re-saved as single-page PDFs — no new scan.
+Two archives turned up only the *following* production revision, 6G4-A
+(2× 5881, different preamp complement — the drawing already excluded per
+`meta.yaml`'s disambiguation source): `thetubestore.com` and
+`schematicheaven.net/fenderamps/super_6g4a_schem.pdf`, matching `kbapps.com`'s
+6G4-A page. `elektrotanya.com`'s copy 403s. Two resale sites
+(`electronicservicemanuals.com`, `audioservicemanuals.com`) list the 6G4 sheet
+behind a paywall with no preview resolution stated; not pursued — a purchased
+copy would still need to out-resolve the same public 2002 scan to be worth
+anything, and there's no indication it's a different source. `thevintagesound.com`'s
+Field Guide mirror was unreachable (connection refused). The `el34world`
+forum's own 6G4-build thread links back to `el34world`'s own copy; the
+`ampgarage` "editable Fender schematics" thread doesn't carry a 6G4 redraw at
+all. Rendering both pages of the source PDF at 300 dpi (a straight upsample of
+the same 2179×1437/2250×1269 rasters — no information gain) and inspecting the
+region between the main 6L6GC-plate rail and the three preamp-rail takeoffs
+confirms the earlier finding rather than merely restating it: on both the
+schematic and the companion layout page, no continuous, legible wire run
+carrying a resistor value connects the B+ rail to the +170 V/+160 V/+120 V
+takeoffs. This isn't a blurry digit on an otherwise-traceable run — the run
+itself doesn't resolve at this scan's resolution on either drawing. No
+sharper copy of the 6G4 (as opposed to 6G4-A) sheet surfaced anywhere
+searched. BD/BE1/BE2 remain calibrated; `verified` still requires either a
+sharper original scan than any archive currently mirrors, or the maintainer's
+own inspection of a physical unit/better print.

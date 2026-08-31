@@ -42,7 +42,14 @@ verification:
                   # were not legibly read either — leaving PPIA/PPIB as the only free
                   # comparisons in the whole preamp and inverter. WORK ITEM: read the
                   # dropper values (or the printed cathode pins) off a sharper scan so
-                  # those rails are derived, then gate them and re-run.
+                  # those rails are derived, then gate them and re-run. HUNT
+                  # (2026-08-30): every mirror checked (el34world, schematicheaven,
+                  # Prowess Amplifiers schematic+layout) is the same 2002 scan pair
+                  # (identical rasters/CreationDate) or the wrong revision (6G4-A);
+                  # elektrotanya 403s, two resale sites paywall with no better
+                  # resolution stated, thevintagesound unreachable, no forum redraw
+                  # exists. See notes.md "Hunting a sharper copy" for the full list.
+                  # Still blocked; still draft.
 # Day the circuit landed in the corpus (git history, amps/6g4/) — the feed's
 # pubDate while draft; production builds are shallow clones and cannot ask git.
 added: 2026-08-08
