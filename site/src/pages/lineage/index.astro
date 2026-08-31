@@ -105,7 +105,22 @@ for (const a of amps) {
 const TICK = 5, TAIL_PAD = 2;
 const YEAR_MIN = Math.floor(Math.min(...eraYears) / TICK) * TICK;
 const YEAR_MAX = Math.ceil(Math.max(...eraYears) / TICK) * TICK + TAIL_PAD;
-const W = 1300, PAD_L = 108, PAD_R = 30;
+// The corpus lives in the 1946–1968 cluster; the only chips past 1970 are a
+// line's late chapters (a 1971 revision, a 1997 reissue). On a plain linear
+// axis those few ghosts stretched the era axis to 2000 and packed every
+// lane's real content into the left third of the chart — so the axis
+// COMPRESSES after BREAK: one decade to the right of the break takes the
+// width a half-decade takes to its left, the gridlines switch to ten-year
+// steps there (the visible cue), and the figcaption states the compression.
+// Still monotonic and still derived from the corpus, so nothing is cropped
+// or clamped; only the tail's scale changes.
+const BREAK = 1970, COMPRESS = 4;
+const compressed = YEAR_MAX > BREAK + TICK;
+const effYear = (yr) => (!compressed || yr <= BREAK)
+  ? yr - YEAR_MIN
+  : (BREAK - YEAR_MIN) + (yr - BREAK) / COMPRESS;
+const EFF_SPAN = effYear(YEAR_MAX);
+const W = 1300, PAD_L = 118, PAD_R = 30;
 const X0 = PAD_L, X1 = W - PAD_R, PLOTW = X1 - X0;
 const CW = 84, CH = 30, ROWH = 46, BAND_GAP = 14, BANDS_TOP = 34;
 // Clearance a connector keeps from any chip it passes, and the minimum horizontal
@@ -144,7 +159,24 @@ function chipWidth(m, fam) {
   const ver = m.documented && byId.get(m.ampId)?.meta.verification?.status === 'verified';
   return Math.max(CW, Math.round((chipLabel(m, fam).length + (ver ? 2 : 0)) * 6.9) + 18);
 }
-const xScale = (yr) => X0 + ((yr - YEAR_MIN) / (YEAR_MAX - YEAR_MIN)) * PLOTW;
+const xScale = (yr) => X0 + (effYear(yr) / EFF_SPAN) * PLOTW;
+
+// Lane labels print the family's own name (lineName), not the internal slug —
+// "Ampeg Portaflex", never "AMPEG-PORTAFLEX". A long name wraps to two lines
+// at the most balanced space so it stays inside the label gutter.
+function laneLines(fam) {
+  const name = lineName(fam);
+  if (name.length <= 16) return [name];
+  const words = name.split(' ');
+  if (words.length === 1) return [name];
+  let best = [name], bestDiff = Infinity;
+  for (let i = 1; i < words.length; i++) {
+    const a = words.slice(0, i).join(' '), b2 = words.slice(i).join(' ');
+    const d = Math.abs(a.length - b2.length);
+    if (d < bestDiff) { bestDiff = d; best = [a, b2]; }
+  }
+  return best;
+}
 
 // Lane order: makers grouped, and inside the Fender group the lines run smallest to
 // largest so the Bassman is the last Fender lane and the British group opens with the
@@ -288,7 +320,10 @@ for (const fam of fams) {
 const AXIS_Y = y - BAND_GAP + 16;
 const H = AXIS_Y + 38;
 const ticks = [];
-for (let yr = YEAR_MIN; yr <= YEAR_MAX - TAIL_PAD; yr += TICK) ticks.push(yr);
+const preEnd = compressed ? BREAK : YEAR_MAX - TAIL_PAD;
+for (let yr = YEAR_MIN; yr <= preEnd; yr += TICK) ticks.push(yr);
+if (compressed)
+  for (let yr = BREAK + 10; yr <= YEAR_MAX - TAIL_PAD; yr += 10) ticks.push(yr);
 
 // every chip on the chart — the obstacle set a cross-lane arrow must clear
 const allBoxes = [];
@@ -412,7 +447,9 @@ const jsonld = {
             </g>
           ))}
           <line class="axis" x1={X0} y1={AXIS_Y} x2={X1} y2={AXIS_Y} />
-          <text class="axis-cap" x={X1} y={AXIS_Y - 9} text-anchor="end">◂ era introduced · bar spans production years ▸</text>
+          <!-- What a bar means lives in the legend row below, where HTML wraps
+               and nothing clips — an SVG caption anchored to the plot's right
+               border shipped truncated mid-word. -->
         </g>
 
         <!-- family lanes: succession chain + model chips, grouped for hover isolation -->
@@ -420,7 +457,10 @@ const jsonld = {
           <g class="fam">
             <rect class={i % 2 ? 'band-bg alt' : 'band-bg'} x={X0 - 8} y={b.top - 4}
                   width={PLOTW + 16} height={b.height - 8} rx="7" />
-            <text class="lane" x={10} y={b.mid} dominant-baseline="middle">{b.fam.family}</text>
+            <text class="lane" x={10} y={laneLines(b.fam).length === 1 ? b.mid : b.mid - 6.5}
+                  dominant-baseline="middle">
+              {laneLines(b.fam).map((l, li) => <tspan x={10} dy={li === 0 ? 0 : 13}>{l}</tspan>)}
+            </text>
             {b.succ.map((d) => <path class="succ" d={d} fill="none" />)}
             {b.nodes.map((n) => {
               const m = n.m, box = n.box;
@@ -433,8 +473,11 @@ const jsonld = {
                   <line class="span" x1={box.x + box.w - 2} y1={box.cy} x2={spanX2} y2={box.cy} />
                   <circle class="span-end" cx={spanX2} cy={box.cy} r="2.2" />
                   <rect class="chip" x={box.x} y={box.y} width={box.w} height={box.h} rx="6" />
-                  <text class="cid" x={box.cx} y={box.y + 13} text-anchor="middle">{n.label}{ver && <tspan class="tick"> ✓</tspan>}</text>
-                  <text class="cstyle" x={box.cx} y={box.y + 24} text-anchor="middle">{m.wattage != null ? `${m.wattage} W` : '—'}</text>
+                  {/* A model whose family file states no wattage gets a
+                      name-only chip, centred — a bare em-dash where a number
+                      should be reads as a rendering failure, not a gap. */}
+                  <text class="cid" x={box.cx} y={box.y + (m.wattage != null ? 13 : 19)} text-anchor="middle">{n.label}{ver && <tspan class="tick"> ✓</tspan>}</text>
+                  {m.wattage != null && <text class="cstyle" x={box.cx} y={box.y + 24} text-anchor="middle">{`${m.wattage} W`}</text>}
                 </a>
               );
             })}
@@ -461,6 +504,7 @@ const jsonld = {
     <div class="legend">
       <span class="lg"><span class="sw doc"></span>Documented circuit — links its page</span>
       <span class="lg"><span class="sw ghost"></span>History-tier model — links its family history</span>
+      <span class="lg"><span class="sw-span"></span>Chip sits at the era introduced · bar spans the production years</span>
       <span class="lg"><span class="sw-succ"></span>Succession within a family</span>
       <span class="lg"><span class="sw-arrow"></span>Documented derivation between families</span>
     </div>
@@ -473,10 +517,15 @@ const jsonld = {
       circuits' data — the power tubes and rectifier where those differ, the output rating where
       they do not. Within-family documented derivations
       (the 5E1 Champ to the 5F1, the JTM45 to the model 1987) are carried by the succession line
-      rather than double-drawn as arrows. Outline chips are history-tier models — placed and
+      rather than double-drawn as arrows. Each chip sits at its model's introduction year and its
+      bar runs to the end of production{compressed && <>; the era axis compresses to the right of
+      the {BREAK} gridline — the tick steps widen from five years to ten there — so the few late
+      chapters that reach the 1990s do not squeeze the crowded 1946–1968 core where the corpus
+      lives</>}. Outline chips are history-tier models — placed and
       sourced, their circuits not yet drawn — so each family reads as a complete chain even where
       only one or two circuits are documented; the gaps are honest, and an outline chip becomes
-      solid when its circuit lands.
+      solid when its circuit lands. A chip with no second line is a model whose family file
+      states no wattage.
     </figcaption>
   </figure>
 </div>
@@ -497,6 +546,8 @@ const jsonld = {
   .legend .sw{width:22px;height:13px;border-radius:3px;display:inline-block}
   .legend .sw.doc{background:var(--panel);border:1.3px solid var(--amber-dim)}
   .legend .sw.ghost{background:transparent;border:1.3px dashed var(--faint)}
+  .legend .sw-span{width:22px;height:0;border-top:1.8px solid var(--line);display:inline-block;position:relative}
+  .legend .sw-span::after{content:"";position:absolute;right:-2px;top:-3.5px;width:5px;height:5px;border-radius:50%;background:var(--faint)}
   .legend .sw-succ{width:22px;height:0;border-top:1.6px dotted var(--muted);display:inline-block}
   .legend .sw-arrow{width:22px;height:0;border-top:2px solid var(--amber-dim);display:inline-block;position:relative}
   .legend .sw-arrow::after{content:"▸";position:absolute;right:-4px;top:-9px;color:var(--amber-dim);font-size:11px}
@@ -511,7 +562,6 @@ const jsonld = {
   .tree .grid line{stroke:var(--line-soft);stroke-width:1}
   .tree .grid line.axis{stroke:var(--line);stroke-width:1.5}
   .tree .yr{fill:var(--faint);font-family:var(--mono);font-size:11px;text-anchor:middle}
-  .tree .axis-cap{fill:var(--faint);font-family:var(--disp);text-transform:uppercase;letter-spacing:.16em;font-size:10px}
 
   .tree .band-bg{fill:var(--panel);opacity:.35}
   .tree .band-bg.alt{fill:var(--panel);opacity:.16}
