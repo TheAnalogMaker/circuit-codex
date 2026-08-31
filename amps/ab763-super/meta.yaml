@@ -1,0 +1,52 @@
+# Circuit Codex metadata — schema: docs/schema.md (v1)
+id: "ab763-super"
+name_style: "Blackface Super Reverb-style"
+family: blackface
+era:
+  start: 1964   # the AB763 revision's own window, matching the sibling AB763
+  end: 1967     # Deluxe Reverb (amps/ab763) and Twin Reverb (amps/ab763-twin)
+                # entries — AA763 (1963) is the drawing's own predecessor.
+wattage: 40
+tubes: [12AX7, 12AX7, 12AX7, 12AT7, 12AX7, 12AT7, 6L6GC, 6L6GC, GZ34]
+topology:
+  rectifier: { kind: tube, type: "GZ34" }
+  bias: fixed
+  phase_inverter: long-tailed-pair
+  tone_stack: tb
+lineage:
+  derived_from: ["6g4"]   # the brown Super: fixed bias, GZ34, 2x6L6GC, 40 W (history/families/super.yaml)
+  influenced: []
+conventions:
+  designators: functional   # designators carry a role code (RD1 dropper, RL4 plate load, CK1 cathode bypass)
+sources:
+  - desc: "Fender 'SUPER-REVERB-AMP AB763' schematic (title block: FENDER MODEL \"SUPER-REVERB-AMPAB763\" SCHEMATIC, drawing code C-FD). Every component value AND the printed voltage chart read directly from the sheet. Rails: +460 V (6L6GC plates; OT centre tap reads +465 V, 5 V above the plate reading, OT primary DCR omitted — merged to one rail exactly as amps/ab763's own +415/+420 pair is), +460 V screens (via 470 Ω-1W stoppers), +450 V (phase-inverter plates and reverb-driver plate, node [C] — reached from +460 V through a printed 1 kΩ-1W dropper, RD1, not modelled since both ends are chart-driven), +410 V (Normal input, Vibrato input, Vibrato 2nd stage, mix driver and reverb-recovery plate rail, node [D] — reached from +450 V through a printed 4.7 kΩ-1W dropper, RD2, modelled so its simulated value is a check on the chart). Stage readings: +270 V / +2.1 V (Normal and Vibrato input stages, 100 kΩ plate / 1.5 kΩ cathode); +270 V / +2.1 V (Vibrato 2nd stage, 100 kΩ / 820 Ω, cathode box [A]); +270 V / +2.0 V (mix driver and reverb-recovery, 100 kΩ / 820 Ω each on their own cathode network); +450 V / +8.4 V (reverb-driver 12AT7, both sections paralleled, 2.2 kΩ shared cathode, fed off [C] through the reverb transformer TR4 primary DCR); +230 V (both phase-inverter plates, 82 kΩ hot / 100 kΩ cold at 5%), +106 V / +104.5 V (PI joined cathodes / tail junction, 470 Ω to the junction, 22 kΩ to ground); -52 V fixed bias (adjustable — a 10 kΩ-L pot on the rectified tap, not a fixed divider). Notice printed on the sheet: 'VOLTAGES READ TO GROUND WITH ELECTRONIC VOLTMETER VALUES SHOWN + OR - 20%', 'ALL RESISTORS 1/2 WATT 10% TOLERANCE IF NOT SPECIFIED', 'ALL CAPACITORS AT LEAST 400 VOLT RATING IF NOT SPECIFIED'. The preamp bottles are labelled 7025 (a 12AX7 alias, reference/tubes/12ax7.yaml also_known_as); the tremolo oscillator is labelled plain 12AX7. Export-model transformer table printed on the sheet: TR1-125P5D (125P5DX export) power, TR2-125C1A choke, TR3-125A9A output, TR4-125A20B reverb — the same reverb-transformer part number amps/ab763 and amps/ab763-twin cite. Two structural details distinguish this drawing from its Deluxe/Twin Reverb siblings, both read directly off the sheet: (1) the Normal channel keeps the two-knob tone stack (fixed 6.8 kΩ bleed resistor, no third pot) while the Vibrato channel's third position is a genuine 250 kΩ-A Middle potentiometer wired in place of that bleed resistor — an asymmetric stack, not a shared one; (2) each 6L6GC control grid carries its own 1500 Ω series stopper between the 0.1 µF coupling cap and the tube pin, in addition to the 220 kΩ·5% bias leak — a resistor amps/ab763's 6V6GT stage does not draw. Not reproduced here; archived at EL34World."
+    url: "https://el34world.com/charts/Schematics/Files/Fender/Fender_super_reverb_ab763_schematic.pdf"
+  - desc: "Mojotone/Ampwares Fender field guide, 'Fender Blackface Super Reverb' — production window 1963-1967 under AA763 then AB763, 40 W factory rating, two 6L6GC output tubes, GZ34 rectifier, fixed bias with an adjustable pot, four 10-inch speakers (Jensen C10R / Oxford 10L6 / CTS variants), reverb and tremolo. Used here for the wattage and speaker-complement facts the schematic itself does not print; every component value and voltage above is read from the schematic, not this page."
+    url: "https://mojotone.com/blogs/fender-field-guide/fender-blackface-super-reverb"
+verification:
+  status: draft   # Two reasons, both concrete.
+                  # (1) Three gated nodes miss and are published as misses.
+                  # The Vibrato 2nd stage, the mix driver and the reverb
+                  # recovery are drawn identically (100 kΩ plate load off
+                  # +410 V over an 820 Ω cathode) and all three cathodes land
+                  # 27-30% under their printed figures on a ±20% convention.
+                  # The chart's own two readings for these stages do not close
+                  # on each other: 2.1 V over 820 Ω is 2.6 mA, which through
+                  # 100 kΩ would put the plate at +150 V, not the +270 V
+                  # printed two pins away; read from the plate instead it is
+                  # 1.4 mA, which is 1.2 V at the cathode, not 2.1 V. The
+                  # simulation sits between them self-consistently. Whether the
+                  # cathode figures were read at a shared box, or these three
+                  # plate loads are not the 100 kΩ read here, is not settled by
+                  # this scan. See notes.md.
+                  # (2) Maintainer sign-off, which AGENTS.md rule 4 reserves to
+                  # a human. Seventeen of twenty gated nodes land, both derived
+                  # rails reproduce their printed values through the drawing's
+                  # own droppers to within half a percent, the artifact set is
+                  # complete (schematic, both layout styles, social card), and
+                  # the drawn wiring is proved equivalent to netlist.cir. The
+                  # tremolo oscillator V5 is excluded — a running phase-shift
+                  # oscillator has no static operating point — and it taps a
+                  # driven node, so excluding it moves no gated value.
+added: 2026-08-30
+contributors: [TheAnalogMaker]

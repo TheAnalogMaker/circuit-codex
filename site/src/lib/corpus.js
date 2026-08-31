@@ -948,6 +948,13 @@ const TONE_STACK_SPECS = [
     note: 'Both channels are identical, so the curve is the Normal channel\'s and does not need a second preset. The Vibrato channel stays in the wiring gate so a later drawing change cannot silently desync them.',
   },
   {
+    id: 'ab763-super', kind: 'fmv', wiring: 'ladder', channel: 'vibrato',
+    blurb: 'The Super Reverb Vibrato channel\'s three-knob stack — the one AB763-family Middle control in this corpus that is a genuine pot rather than the two-knob channels\' fixed bleed leg — plotted as the Super Reverb sheet wires it: treble-wiper output, bass rheostat, mid capacitor into a 250 kΩ middle pot. The Normal channel keeps the plain two-knob ladder and is gated, not plotted, below.',
+    drive: { kind: 'plate', tube: '12ax7', plateLoad: 'RLV1' },
+    load: 'VRVV',
+    refs: { slope: 'RSV', trebleCap: 'CTV', treblePot: 'VRTV', bassCap: 'CBV', bassPot: 'VRBV', midCap: 'CBV2', midPot: 'VRMV' },
+  },
+  {
     // 'treble-cut' is a name, not a stack wiring: the network is a rheostat and
     // a capacitor bleeding treble to ground (trebleCutElements), so neither
     // 'ladder' nor 'joined' describes it. Declared explicitly so no preset falls
@@ -973,6 +980,9 @@ const TONE_STACK_SPECS = [
 //   ab763-twin vibrato — the preset plots the Normal channel; this channel is
 //     identical part for part and stays gated so a later drawing change cannot
 //     silently desync them.
+//   ab763-super normal — the preset plots the Vibrato channel's genuine
+//     three-knob network; the Normal channel is the plain two-knob ladder
+//     (a different kind, not a duplicate) and stays gated here.
 //   aa764-vibro — the Vibro Champ's audio path (including the tone stack) is
 //     component-for-component identical to the plain aa764 preset (same
 //     refs, same values); this entry keeps its own schematic gated so a later
@@ -992,6 +1002,11 @@ const TONE_STACK_GATE_EXTRAS = [
   {
     id: 'ab763-twin', kind: 'fmv', wiring: 'ladder', channel: 'vibrato',
     refs: { slope: 'RSV', trebleCap: 'CTV', treblePot: 'VRTV', bassCap: 'CBV', bassPot: 'VRBV', midCap: 'CBV2', midPot: 'VRMV' },
+  },
+  {
+    id: 'ab763-super', kind: 'tb', wiring: 'ladder', channel: 'normal',
+    refs: { slope: 'RSN', trebleCap: 'CTN', treblePot: 'VRTN', bassCap: 'CBN', bassPot: 'VRBN', midCap: 'CBN2' },
+    midLeg: { kind: 'fixed', ref: 'RSLN' },
   },
   {
     id: 'aa764-vibro', kind: 'tb', wiring: 'ladder',

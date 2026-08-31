@@ -1,0 +1,138 @@
+* AB763 (Blackface Super Reverb-style) — DC operating-point netlist
+* Circuit Codex — CC-BY-SA 4.0. Independently drawn from the published
+* "SUPER-REVERB-AMP AB763" drawing's component values (see meta.yaml); no
+* drawing reproduced. The drawing labels the five preamp bottles 7025/12AX7 —
+* 7025 is an alias for the 12AX7 (reference/tubes/12ax7.yaml also_known_as) —
+* and the reverb driver and phase inverter 12AT7. The output pair is lettered
+* 6L6GC and uses the same clean-room model amps/ab763-twin's quartet does.
+*
+* DC conventions. One printed rail is DRIVEN at its charted value; the two
+* rails below it are DERIVED through the drawing's own printed droppers, so
+* their simulated values are a check on the chart rather than an input to it
+* (same choice amps/ab763-twin makes for its BC/BD pair):
+*   BP1 = +460 V — 6L6GC plates, through the output transformer (TR3, 125A9A)
+*                  primary, DCR omitted, so plate node == OT centre tap (the
+*                  chart's own +465 V is 5 V above this — merged here exactly
+*                  as amps/ab763 merges its own +415/+420 pair). Also feeds the
+*                  screens (470 Ohm-1W stoppers) and the reverb driver (through
+*                  the reverb transformer TR4, 125A20B, primary DCR).
+*   BP1 -> 1k-1W  -> BC (printed +450 V, node [C]) — phase-inverter plate supply.
+*   BC  -> 4.7k-1W-> BD (printed +410 V, node [D]) — preamp plate supply (every
+*                  100k-loaded preamp triode below).
+*
+* The negative-bias supply (a dedicated PT tap, a silicon rectifier, a 25 uF/
+* 50 V filter can and a 10k-L adjustment pot) is replaced by an ideal -52 V
+* source, exactly as its AC/ripple-filtering role warrants — the pot sets the
+* level the chart prints, it does not divide a resistor ladder the DC solve
+* needs. Likewise the reservoir (two 70 uF/350 V caps with 220k-1W balancing
+* bleeders off the standby switch): BP1 is driven at the value they produce.
+*
+* DC-open caps are MODELLED where BOTH leads land on a named DC node (the PI ->
+* output-grid coupling caps and every cathode-bypass can) so an eventual layout
+* is placement-checked; open at DC they move no operating point. Caps into the
+* abstracted volume / tone / reverb-mix / tremolo networks stay omitted.
+*
+* EXCLUDED — the tremolo (vibrato) oscillator V5 (12AX7). It is a running
+* phase-shift oscillator: no static DC operating point (see notes.md). It taps
+* BP1 — a DRIVEN node — not a derived preamp rail, so leaving it out shifts no
+* gated node's simulated value (the same structural point amps/ab763-twin's own
+* tremolo exclusion makes, and unlike amps/ab763's tremolo, which shares its
+* derived input-stage rail and so DOES move it).
+.include models/12ax7.inc
+.include models/12at7.inc
+.include models/6l6gc.inc
+
+VBP1 BP1 0 DC 460
+VBIAS NBIAS 0 DC -52
+
+* supply droppers (BOM RD1, RD2) — the two lower rails are solved, not driven
+RD1 BP1 BC 1k
+RD2 BC BD 4.7k
+
+* --- Normal channel input V1a (12AX7): 100k plate, 1.5k cathode (25uF), grid
+*     returned to ground through the input jacks' 1M leak. Plate rail BD.
+RLN1 BD PN1 100k
+XV1A PN1 GN1 KN1 12AX7
+RGN1 GN1 0 1meg
+RKN1 KN1 0 1500
+CKN1 KN1 0 25u
+
+* --- Vibrato channel input V2a (12AX7): identical topology, plate rail BD.
+RLV1 BD PV1 100k
+XV2A PV1 GV1 KV1 12AX7
+RGV1 GV1 0 1meg
+RKV1 KV1 0 1500
+CKV1 KV1 0 25u
+
+* --- Vibrato channel 2nd stage V2b (12AX7): 100k plate, 820 cathode (25uF),
+*     grid returns through the vibrato volume pot (~0 V DC). Plate rail BD.
+*     Own cathode network (drawing box [A]) — not shared with any other stage.
+RLV2 BD PV2 100k
+XV2B PV2 GV2 KV2 12AX7
+RGV2 GV2 0 1meg
+RKV2 KV2 0 820
+CKV2 KV2 0 25u
+
+* --- Mix driver V3a (12AX7): 100k plate, 820 cathode (25uF); grid carries the
+*     mixed dry+reverb signal, shunted by the tremolo optocoupler (DC-open).
+*     DC grid ~0 via the 3.3M leak. Plate rail BD. Own cathode network.
+RLD1 BD PD1 100k
+XV3A PD1 GD1 KD1 12AX7
+RGD1 GD1 0 3.3meg
+RKD1 KD1 0 820
+CKD1 KD1 0 25u
+
+* --- Reverb-recovery amp V3b (12AX7): 100k plate, 820 cathode (25uF), grid
+*     from the reverb-tank output through a 220k leak (~0 V DC). Plate rail
+*     BD. Own cathode network — distinct from V3a's and from V2b's.
+RLR1 BD PR1 100k
+XV3B PR1 GR1 KR1 12AX7
+RGRV GR1 0 220k
+RKR1 KR1 0 820
+CKR1 KR1 0 25u
+
+* --- Reverb driver V4 (12AT7, BOTH sections in parallel): shared 2.2k cathode
+*     (25uF), grids tied through a 1M leak, plates tied and fed from BP1
+*     through the reverb transformer TR4 (125A20B) primary DCR (modeled 200
+*     Ohm) — matching amps/ab763's own TR4 (same part number) modeling choice.
+RTR4 BP1 PRD 200
+XV4A PRD GRD KRD 12AT7
+XV4B PRD GRD KRD 12AT7
+RGRD GRD 0 1meg
+RKRD KRD 0 2.2k
+CKRD KRD 0 25u
+
+* --- Phase inverter V6 (12AT7 long-tailed pair): 82k (hot) and 100k (cold)
+*     5% plate loads from BC; cathodes joined at KPI, 470 Ohm to the tail
+*     junction JPI, 22k tail from JPI to ground; both 1M grid leaks return to
+*     JPI. The 820 Ohm/OT-secondary negative-feedback loop sits at ~0 V DC
+*     (omitted, same treatment as amps/ab763's RNFB).
+RLPA BC PPIA 82k
+XV6A PPIA GPIA KPI 12AT7
+RGPA GPIA JPI 1meg
+RLPB BC PPIB 100k
+XV6B PPIB GPIB KPI 12AT7
+RGPB GPIB JPI 1meg
+RTAIL KPI JPI 470
+RT2 JPI 0 22k
+
+* --- Output pair 6L6GC (fixed bias): grids to -52 V through 220k-5% leaks at
+*     node GB1/GB2, each then through its OWN 1500 Ohm grid stopper (a detail
+*     this drawing carries that amps/ab763's 6V6GT stage does not) into the
+*     tube; screens off BP1 through 470 Ohm-1W stoppers; cathodes grounded;
+*     plates at BP1 (OT primary DCR omitted). Two distinct bottles V7 / V8.
+RGL1 NBIAS GB1 220k
+RST1 GB1 G61 1500
+XV7 BP1 S61 G61 0 6L6GC
+RS1 BP1 S61 470
+RGL2 NBIAS GB2 220k
+RST2 GB2 G62 1500
+XV8 BP1 S62 G62 0 6L6GC
+RS2 BP1 S62 470
+
+* PI-plate -> 6L6-grid coupling caps (0.1u, DC-open), landing on the grid-leak
+* node ahead of the stopper. Modeled so an eventual layout's inter-stage
+* routing and push-pull phase are machine-checked; each 6L6 grid still sits
+* at -52 V through its 220k leak, so the op point is unmoved.
+C1 PPIA GB1 0.1u
+C2 PPIB GB2 0.1u

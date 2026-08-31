@@ -643,6 +643,30 @@ stages:
   ot_primary_note: Fender 125A1A — Push-pull 6V6 output
   sim_ip_ma: 38.2022
   sim_ig2_ma: 2.0921
+- amp: 'ab763-super'
+  name_style: Blackface Super Reverb-style
+  tube: '6L6GC'
+  tube_lettered: '6L6GC'
+  output_tubes: 2
+  config: push-pull
+  bias: fixed
+  plate_node: BP1
+  plate_v: 460.0
+  screen_node: S61
+  screen_v: 459.583
+  cathode_node: '0'
+  cathode_v: 0.0
+  rk_total: null
+  rk_per_tube: null
+  grid_node: G61
+  grid_v: -52.0
+  grid_supply_node: null
+  grid_supply_v: null
+  ot_primary_z: null
+  ot_primary_approx: false
+  ot_primary_note: Fender 125A9A — Push-pull 6L6GC output
+  sim_ip_ma: 30.4981
+  sim_ig2_ma: 0.8874
 - amp: 'ab763-twin'
   name_style: Blackface Twin Reverb-style
   tube: '6L6GC'

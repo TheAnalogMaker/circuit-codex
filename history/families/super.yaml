@@ -164,6 +164,31 @@ models:
         url: "https://mojotone.com/blogs/fender-field-guide/fender-brownface-super"
       - desc: "Fender 'Super-Amp' 6G4-A schematic archived at EL34World (designation-indexed anchor; drawing not reproduced)"
         url: "https://el34world.com/charts/Schematics/files/Fender/Fender_super_6g4a.pdf"
+  - designation: "AB763"
+    name: "Super Reverb AB763 (blackface)"
+    years: { start: 1964, end: 1967 }
+    wattage: 40
+    output: "push-pull 2x6L6GC"
+    tubes: [7025, 7025, 7025, 12AT7, 12AX7, 12AT7, 6L6GC, 6L6GC, GZ34]
+    key_change: >-
+      The Super becomes the Super Reverb. The brown 6G4's fixed-bias, GZ34-rectified
+      2x6L6GC output stage and 40 W rating carry straight over from the same amplifier;
+      what is new is an onboard spring reverb driven by a 12AT7 and recovered by its own
+      stage, a tube tremolo working through an optocoupler, and four 10-inch speakers in
+      place of the 6G4's two 10s. Unlike the Deluxe Reverb and Twin Reverb siblings on
+      this same platform, the two channels' tone stacks are asymmetric as printed: the
+      Normal channel keeps a fixed two-knob (Treble/Bass) ladder, while the Vibrato
+      channel's third position is a genuine Middle potentiometer. Adjustable bias (a
+      10 kΩ pot on the negative supply) and a 1.5 kΩ grid stopper ahead of each 6L6GC's
+      220 kΩ bias leak are two more details this drawing prints that the Deluxe Reverb's
+      6V6GT stage does not carry. This is the circuit documented in the corpus at
+      amps/ab763-super, where the printed AB763 voltage chart is read and simulated.
+    circuit_ref: "ab763-super"
+    sources:
+      - desc: "Mojotone/Ampwares Fender field guide, 'Fender Blackface Super Reverb' — production window 1963-1967 under AA763 then AB763, 40 W, two 6L6GC, GZ34, fixed bias with an adjustable pot, four 10-inch speakers, reverb and tremolo"
+        url: "https://mojotone.com/blogs/fender-field-guide/fender-blackface-super-reverb"
+      - desc: "Fender 'SUPER-REVERB-AMP AB763' schematic archived at EL34World (designation-indexed anchor; component values and the printed voltage chart read from the drawing, not reproduced — see amps/ab763-super/meta.yaml for the full title-block transcription)"
+        url: "https://el34world.com/charts/Schematics/Files/Fender/Fender_super_reverb_ab763_schematic.pdf"
 notes: >-
   Power ratings across this family are inconsistent between sources and eras: the
   field guide lists the wide-panel tweed Super at figures that look like a Deluxe
@@ -174,3 +199,12 @@ notes: >-
   rating is defensible. Tweed sub-circuit dates are approximate; the "Dual
   Professional" entry uses the pre-5-series name because the numbered designations
   had not yet begun, mirroring how the Deluxe line's "Model 26" woodie is handled.
+  Fender used the AB763 designation on more than one drawing: the blackface Deluxe
+  Reverb carries it (history/families/deluxe-reverb.yaml, owning amps/ab763) and so
+  does the blackface Twin Reverb (history/families/twin.yaml, owning amps/ab763-twin).
+  This file owns amps/ab763-super. All three are contemporaries on the same
+  reverb/tremolo blackface platform rather than parent and child of one another, so
+  no family file claims another's circuit and the archive draws no derivation arrow
+  between them — each Reverb circuit's own lineage arrow instead points back to its
+  own line's pre-reverb ancestor (this file's AB763 row points to 6G4, the brown
+  Super, via amps/ab763-super's own `lineage.derived_from`).

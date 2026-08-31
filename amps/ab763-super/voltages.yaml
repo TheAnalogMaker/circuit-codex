@@ -1,0 +1,30 @@
+# Printed voltage chart read directly from the published SUPER-REVERB-AMP AB763
+# drawing (single-sheet schematic; the same sheet carries the notice). Notice:
+# "Voltages read to ground with electronic voltmeter. Values shown + or - 20%."
+#
+# One rail is DRIVEN at its printed value (BP1 = +460 V, 6L6GC plates) and the
+# two rails below it are DERIVED through the drawing's own printed droppers
+# (RD1 1k, RD2 4.7k) — see netlist.cir. Their simulated values are therefore a
+# genuine check against the chart's own +450 V / +410 V, not an echo of it.
+source: "Fender SUPER-REVERB-AMP AB763 schematic, printed voltages: +460 (6L6GC plates, screens), +465 (OT centre tap, merged with the plate reading — primary DCR omitted), +450 (phase-inverter plates and reverb-driver plate, node [C]), +410 (preamp plate rail, node [D]), +270/+2.0-2.1 (preamp stage plates/cathodes), +230 (PI plates, both branches), +106/+104.5 (PI cathode/tail junction), +450/+8.4 (reverb-driver plate/cathode), -52 (fixed bias, adjustable pot)"
+nodes:
+  S61:  { chart: 460, tol_pct: 8,  note: "6L6GC (V7) screen after its 470 Ohm-1W stopper, off the +460 plate rail" }
+  G61:  { chart: -52, tol_pct: 8,  note: "6L6GC (V7) grid, fixed bias via 220k leak + 1.5k stopper from the -52 V supply" }
+  BC:   { chart: 450, tol_pct: 5,  note: "phase-inverter / reverb-driver plate rail, node [C] — derived from BP1 through the printed 1k-1W dropper (RD1); check against the chart, not an input to it" }
+  BD:   { chart: 410, tol_pct: 5,  note: "preamp plate rail, node [D] — derived from BC through the printed 4.7k-1W dropper (RD2); check against the chart" }
+  PRD:  { chart: 450, tol_pct: 20, note: "reverb-driver 12AT7 plate (paralleled sections), off BP1 through the TR4 primary DCR" }
+  KRD:  { chart: 8.4, tol_pct: 20, note: "reverb-driver 12AT7 shared cathode over 2.2k" }
+  PN1:  { chart: 270, tol_pct: 20, note: "Normal-channel input plate, 100k from BD" }
+  KN1:  { chart: 2.1, tol_pct: 20, note: "Normal-channel input cathode over 1.5k" }
+  PV1:  { chart: 270, tol_pct: 20, note: "Vibrato-channel input plate, 100k from BD" }
+  KV1:  { chart: 2.1, tol_pct: 20, note: "Vibrato-channel input cathode over 1.5k" }
+  PV2:  { chart: 270, tol_pct: 20, note: "Vibrato-channel 2nd-stage plate, 100k from BD" }
+  KV2:  { chart: 2.1, tol_pct: 20, note: "Vibrato-channel 2nd-stage cathode over 820 Ohm (drawing box [A])" }
+  PD1:  { chart: 270, tol_pct: 20, note: "mix-driver plate, 100k from BD" }
+  KD1:  { chart: 2.0, tol_pct: 20, note: "mix-driver cathode over 820 Ohm" }
+  PR1:  { chart: 270, tol_pct: 20, note: "reverb-recovery plate, 100k from BD" }
+  KR1:  { chart: 2.0, tol_pct: 20, note: "reverb-recovery cathode over 820 Ohm" }
+  PPIA: { chart: 230, tol_pct: 20, note: "PI plate, 82k (hot) side" }
+  PPIB: { chart: 230, tol_pct: 20, note: "PI plate, 100k (cold) side — chart prints the same +230 V for both branches despite the unequal plate loads" }
+  KPI:  { chart: 106,   tol_pct: 20, note: "PI joined cathodes, above the 470 Ohm" }
+  JPI:  { chart: 104.5, tol_pct: 20, note: "PI tail junction (470 Ohm / 22k), grid-leak return" }
