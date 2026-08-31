@@ -50,8 +50,8 @@ cathode, 3.3 MΩ grid leak, 10 pF bright cap) sums the dry Vibrato signal and
 the recovered reverb, is shunted by the tremolo optocoupler, and drives a
 12AT7 **long-tailed pair** (82 kΩ and 100 kΩ 5% plate loads, a 470 Ω cathode
 resistor to a tail junction, 22 kΩ tail to ground, both 1 MΩ grid leaks
-returned to that junction) — exactly the tail values amps/ab763's own phase
-inverter uses. The pair splits the signal for the **6L6GC pair**, each output
+returned to that junction) — exactly the tail values the [Deluxe
+Reverb](/amps/ab763/)'s own phase inverter uses. The pair splits the signal for the **6L6GC pair**, each output
 tube fixed-biased at **−52 V** through a 220 kΩ leak *and its own 1.5 kΩ grid
 stopper* — a resistor the Deluxe Reverb's 6V6GT stage does not carry — with
 470 Ω · 1 W screen resistors, and an 820 Ω negative-feedback loop returning
@@ -64,15 +64,15 @@ reservoir caps (with 220 kΩ balancing bleeders off the standby switch) →
 filter choke (125C1A) → **+460 V** at the 6L6GC plates (the output
 transformer 125A9A's centre tap reads +465 V on the chart, 5 V above the
 plate reading — merged to one modelled rail, the primary DCR omitted, exactly
-as amps/ab763 merges its own +415 V/+420 V pair) → **+460 V** screens (via
+as the Deluxe Reverb merges its own +415 V/+420 V pair) → **+460 V** screens (via
 470 Ω · 1 W stoppers) → a printed **1 kΩ** dropper → **+450 V** at the
 phase-inverter plates and the reverb-driver plate → a printed **4.7 kΩ**
 dropper → **+410 V** at every 100 kΩ-loaded preamp stage. A separate PT tap
 feeds a silicon-rectified, 25 µF-filtered supply through an **adjustable
 10 kΩ-L pot** for the **−52 V** fixed bias — unlike the Deluxe Reverb's fixed
 bias-balance arrangement, this platform lets the player (or the tech) trim
-the output-tube bias directly, the same feature amps/ab763-twin's own bias
-supply carries.
+the output-tube bias directly, the same feature the [Twin
+Reverb](/amps/ab763-twin/)'s own bias supply carries.
 
 ## Bias and lineage
 
@@ -80,7 +80,7 @@ The blackface Super Reverb inherits its fixed-bias, GZ34-rectified, 2×6L6GC
 output section directly from the brown-Tolex Super — the [6G4](/amps/6g4/) —
 rather than from any tweed circuit, carrying over the same 40 W rating, the
 same output-tube count, and the family's long-standing "power ratings vary by
-source" caveat (see history/families/super.yaml). The AB763 revision adds the
+source" caveat, recorded on the Super family page. The AB763 revision adds the
 reverb/tremolo Vibrato channel and the asymmetric tone-stack pair documented
 above; the Normal channel's simpler two-knob stack is the closer cousin of
 the Deluxe Reverb's own (both channels, in that amp).
@@ -93,26 +93,26 @@ tighter target). One rail is driven at its charted value (BP1 = +460 V, the
 6L6GC plate/screen supply); the two rails below it (+450 V, +410 V) are
 **derived** through the drawing's own printed dropper resistors (1 kΩ, then
 4.7 kΩ) rather than driven directly, so their simulated values are a genuine
-check against the chart — the same modelling choice amps/ab763-twin makes for
-its own BC/BD pair, and a step more rigorous than amps/ab763's, which drives
-both of its own two upper rails independently.
+check against the chart — the same modelling choice the Twin Reverb entry makes for
+its own BC/BD pair, and a step more rigorous than the Deluxe Reverb's, which
+drives both of its own two upper rails independently.
 
 ## Exclusions and what is reported, not gated
 
 - **The tremolo oscillator (V5, 12AX7).** A running phase-shift oscillator
   has no static DC operating point — its printed pins are the average a meter
   reads while it swings, set by grid-leak detection — so it is documented
-  here rather than modelled in netlist.cir, the same treatment amps/ab763 and
-  amps/ab763-twin give their own tremolo stages. Its supply taps BP1, a
+  here rather than modelled in the simulated deck, the same treatment the
+  Deluxe Reverb and Twin Reverb entries give their own tremolo stages. Its supply taps BP1, a
   **driven** node, so excluding it shifts no gated node's simulated value —
-  unlike amps/ab763, whose tremolo shares a *derived* input-stage rail and so
-  does move one.
+  unlike the Deluxe Reverb, whose tremolo shares a *derived* input-stage rail
+  and so does move one.
 
-- **BC and BD are derived, not measured inputs.** Both carry a `chart:`
-  value in voltages.yaml precisely so a passing run of `verify_amps.py`
+- **BC and BD are derived, not measured inputs.** Both carry the chart's
+  printed figure in the operating-point table precisely so a passing check
   demonstrates the drawing's own two dropper resistors reproduce its own two
   printed rail voltages under the modelled preamp/PI load — a genuine
-  cross-check the pilot amps' single-driven-rail approach does not offer.
+  cross-check a single-driven-rail model cannot offer.
 
 ## Three cathodes the chart and the drawing disagree about
 
@@ -151,11 +151,12 @@ the reason this entry is a draft.
 
 ## Verification
 
-`verification.status` stays `draft`, and nothing here sets it: that flip is
-the maintainer's, never an agent's. What the entry does carry is a
-`wiring_claim: verified` on the board drawing — a narrower claim, and one the
-equivalence gate actually proves, that every run drawn on the board is
-electrically the same net the netlist declares within the documented DC scope.
+The entry is published as a **draft**: the verified badge is the
+maintainer's to grant after review, and nothing short of that review grants
+it. What the entry does carry is a verified wiring claim on the board
+drawing — a narrower claim, and one that is actually proved: every run drawn
+on the board is electrically the same net the simulated circuit declares,
+within the documented DC scope.
 
 The full artifact set is present: schematic, board layout in both styles, the
 social card, and the family-tier entry. The three cathode nodes above are the

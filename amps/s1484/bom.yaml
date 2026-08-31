@@ -98,12 +98,12 @@ items:
   - { ref: R24, part: "Carbon comp resistor", value: "68 kΩ · ½ W · 20%", role: "Channel 1 mixing resistor, V2A plate into the mixer node" }
   - { ref: R25, part: "Carbon comp resistor", value: "68 kΩ · ½ W · 20%", role: "Channel 2 mixing resistor, V2B plate into the mixer node" }
   - { ref: R26, part: "Carbon comp resistor", value: "560 kΩ · ½ W · 20%", role: "Mixer-node resistor — the two channels meet here" }
-  - { ref: R27, part: "Carbon comp resistor", value: "220 kΩ · ½ W · 20%", role: "From the mixer node to the same node R33 feeds off; part of the supply-and-mixing web this entry does not resolve (notes.md)" }
+  - { ref: R27, part: "Carbon comp resistor", value: "220 kΩ · ½ W · 20%", role: "From the mixer node to the same node R33 feeds off; part of the supply-and-mixing web this entry does not resolve (see the circuit story)" }
   - { ref: C12, part: "Film capacitor", value: "0.02 µF · 600 V", role: "Mixer node into V3A's grid. The one value the schematic and the factory parts list disagree on — see `notes` above" }
   # --- V3, driver and split-load phase inverter -----------------------------------
   - { ref: R28, part: "Carbon comp resistor", value: "1 MΩ · ½ W · 20%", role: "V3A grid leak" }
   - { ref: R29, part: "Carbon comp resistor", value: "1.5 kΩ · ½ W · 20%", role: "V3A cathode bias, unbypassed" }
-  - { ref: R34, part: "Carbon comp resistor", value: "100 kΩ · ½ W · 20%", role: "V3A plate load. Its lower lead CROSSES the cathodyne's 125 V wire on the drawing without a junction dot and carries on to the preamp rail — reading that crossing as a junction is what makes the printed chart appear to contradict itself (notes.md)" }
+  - { ref: R34, part: "Carbon comp resistor", value: "100 kΩ · ½ W · 20%", role: "V3A plate load. Its lower lead CROSSES the cathodyne's 125 V wire on the drawing without a junction dot and carries on to the preamp rail — reading that crossing as a junction is what makes the printed chart appear to contradict itself (see the circuit story)" }
   - { ref: C13, part: "Film capacitor", value: "0.01 µF · 600 V", role: "V3A plate into V3B's grid" }
   - { ref: R31, part: "Carbon comp resistor", value: "1 MΩ · ½ W · 20%", role: "V3B grid return — to the cathode-side tap, not to ground, which is what makes this a cathodyne. Exactly the 1 MΩ the 6CG7 sheet gives as its maximum fixed-bias grid-circuit resistance" }
   - { ref: R32, part: "Carbon comp resistor", value: "2.2 kΩ · ½ W · 20%", role: "V3B's own cathode resistor, above the tap — the small one that sets the bias" }
@@ -126,7 +126,7 @@ items:
   - { ref: R40, part: "Carbon comp resistor", value: "560 kΩ · ½ W · 20%", role: "V4B grid series resistor" }
   - { ref: R41, part: "Carbon comp resistor", value: "68 kΩ · ½ W · 20%", role: "V4B grid to the ground bus, the bottom of that divider" }
   - { ref: R42, part: "Carbon comp resistor", value: "10 kΩ · ½ W · 20%", role: "V4B cathode bias, unbypassed" }
-  - { ref: R43, part: "Carbon comp resistor", value: "1 MΩ · ½ W · 20%", role: "V5 grid leak. The drawing letters an unplaceable 55 V beside it — see voltages.yaml and notes.md" }
+  - { ref: R43, part: "Carbon comp resistor", value: "1 MΩ · ½ W · 20%", role: "V5 grid leak. The drawing letters an unplaceable 55 V beside it — recorded in the operating-point table and the circuit story" }
   - { ref: R44, part: "Carbon comp resistor", value: "820 Ω · ½ W · 20%", role: "SHARED cathode resistor for both V5 triodes, printed 8.2 V — about 10 mA between the pair, which is what a reverb driver has to pass. The parts list row reads '800 ohm' (see `notes`)" }
   - { ref: R45, part: "Carbon comp resistor", value: "27 kΩ · ½ W · 20%", role: "V5A plate load" }
   - { ref: R46, part: "Carbon comp resistor", value: "27 kΩ · ½ W · 20%", role: "V5B plate load" }

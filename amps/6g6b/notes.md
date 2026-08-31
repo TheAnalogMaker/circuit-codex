@@ -65,17 +65,14 @@ through its own 56 kΩ · 1 W dropper and a 20 µF · 600 V filter. A small
 silicon diode off an AC tap, 1 kΩ dropping, a 27 kΩ bleeder and a 25/50 µF
 dual can produce −54 V for the output bias.
 
-## Reading this drawing — the correction this entry carries
+## Reading this drawing
 
 The E-FB drawing (both the board-layout and schematic pages) prints its own
 title block reading "FENDER 'BASSMAN' LAYOUT / SCHEMATIC — MODEL 6G6-B" —
 confirmed against the target amp before any value was read.
 
-An earlier pass over this sheet published two chart figures the simulated
-deck could not reach: V1B's cathode, read as "+13.6 V" against a simulated
-3.2 V, and V2A's cathode, printed +1.9 V against a simulated 1.2 V. Both
-gaps were the reading's, not the print's, and a lug-level re-read at 750 dpi
-settles both.
+Two places on this sheet are easy to misread, and both reward a lug-level
+look at high magnification.
 
 - **V1B is a cathode follower.** Its plate lead runs straight down to the
   Bass row's +230 V lane with no plate-load resistor in it; its grid takes
@@ -86,16 +83,18 @@ settles both.
   lettering, and it runs the full height of the text rather than sitting on
   the baseline like the decimal points elsewhere on the sheet. A follower
   riding about a volt above the +135 V plate that drives it is exactly what
-  +136 V beside +135 V describes; 13.6 V across 100 kΩ is a current no
-  self-biased 12AX7 stage can pass at any rail on this drawing.
+  +136 V beside +135 V describes; read the crossing wire as a decimal point
+  and the resulting 13.6 V across 100 kΩ is a current no self-biased 12AX7
+  stage can pass at any rail on this drawing.
 - **The sheet's third "+230 V." is a plate voltage.** It letters +230 V
   twice on the Bass row's own supply lane — a rail — and once more in the
   Normal channel, at V2A's plate. That plate's 100 kΩ load climbs to the
-  +355 V lane, the same lane V2B's 220 kΩ uses. Hanging it on a shared
-  +230 V rail instead halved the stage's current and is what put the
-  simulated cathode a third under the printed 1.9 V.
+  +355 V lane, the same lane V2B's 220 kΩ uses. Hang it on a shared
+  +230 V rail instead and the stage's current halves, leaving the cathode a
+  third under the printed 1.9 V — the sheet's own figures rule that reading
+  out.
 
-Both corrections are corroborated by arithmetic already on the sheet.
+Both readings are corroborated by arithmetic already on the sheet.
 136 V across 100 kΩ is 1.36 mA; add V1A's 0.43 mA and the driver bottle's
 two 0.8 mA sections and the +230 V lane draws about 3.4 mA, which across its
 own 56 kΩ · 1 W dropper falls 190 V from the +428 V node — landing on the
@@ -105,10 +104,10 @@ printed +230 V. Read as a common-cathode stage instead, V1B passes about
 1.9 V across its 1500 Ω cathode resistor is 1.27 mA — the two printed
 figures agreeing to 2%.
 
-Two figures the earlier pass carried as engineering estimates are printed
-after all and are now read: V3A's cathode (+1.2 V beside its 1.5 kΩ) and the
-phase-inverter tail's foot (6.8 kΩ, 4.7 kΩ, the 56 kΩ feedback and the
-Presence pot across the foot). Nothing in `netlist.cir` is an estimate now.
+V3A's cathode figure (+1.2 V beside its 1.5 kΩ) and the phase-inverter
+tail's whole foot (6.8 kΩ, 4.7 kΩ, the 56 kΩ feedback and the Presence pot
+across the foot) are likewise printed on the sheet and read directly:
+nothing in the simulated deck is an estimate.
 The Presence pot itself is the one drawn DC path left out of the deck — pots
 are omitted corpus-wide — and including its 25 kΩ element would move the
 tail junction from 28.4 V to about 27.8 V, both inside the chart's ±20%.

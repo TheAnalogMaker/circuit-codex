@@ -2,7 +2,7 @@
 # Reference designators follow the DC netlist where a part is modeled and are
 # descriptive otherwise. Values are the drawing's; the notice sets 1/2 W / 10%
 # resistors and 400 V caps unless noted.
-notes: "The drawing shows one jack per channel input pair; the chassis carries two per channel. Tremolo-oscillator and reverb-tank interconnect parts are listed but the oscillator's DC point is excluded from the netlist (see notes.md). The Normal channel's tone stack is the fixed two-knob ladder (6.8 kΩ bleed); the Vibrato channel's third pot is a genuine Middle control wired in place of that bleed resistor, not a shared component — the two stacks are asymmetric, read as printed."
+notes: "The drawing shows one jack per channel input pair; the chassis carries two per channel. Tremolo-oscillator and reverb-tank interconnect parts are listed but the oscillator's DC point is excluded from the netlist (see the circuit story). The Normal channel's tone stack is the fixed two-knob ladder (6.8 kΩ bleed); the Vibrato channel's third pot is a genuine Middle control wired in place of that bleed resistor, not a shared component — the two stacks are asymmetric, read as printed."
 items:
   # --- Normal channel input (V1a) ---
   - { ref: R1n, part: "Carbon comp resistor", value: "68 kΩ · ½ W",  role: "Normal input grid stopper (jack 1)" }
@@ -109,7 +109,7 @@ items:
   - { ref: RD1, part: "Wirewound resistor",   value: "1 kΩ · 1 W",   role: "Rail dropper B → C" }
   - { ref: RD2, part: "Wirewound resistor",   value: "4.7 kΩ · 1 W", role: "Rail dropper C → D" }
   # --- Bias supply ---
-  - { ref: RBIAS, part: "Wirewound resistor", value: "470 Ω",         role: "Bias-supply series resistor (wattage marking not fully legible on the scan; role and value read directly, matching amps/ab763's identical 470 Ω bias-feed resistor)" }
+  - { ref: RBIAS, part: "Wirewound resistor", value: "470 Ω",         role: "Bias-supply series resistor (wattage marking not fully legible on the scan; role and value read directly, matching the Deluxe Reverb's identical 470 Ω bias-feed resistor)" }
   - { ref: DBIAS, part: "Rectifier (bias)",   value: "silicon diode", role: "Bias-supply rectifier" }
   - { ref: CBIAS, part: "Electrolytic capacitor", value: "25 µF · 50 V", role: "Bias-supply filter" }
   - { ref: VRBIAS, part: "Linear potentiometer", value: "10 kΩ-L",    role: "Bias adjustment" }

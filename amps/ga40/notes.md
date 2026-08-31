@@ -93,8 +93,9 @@ and the track above it passes what is left — and at DC it makes no difference
 at all, which is why the operating point is unmoved either way. The schematic
 and the board layout draw it as the sheet draws it.
 
-The simulation is the part that misses. See `voltages.yaml` — the corpus's 5879
-model is a single-anchor fit at Va = 250 V, Vg2 = 100 V, and in this model form
+The simulation is the part that misses, and the operating-point table on this
+page records it node by node. The corpus's 5879 model is a single-anchor fit
+at Va = 250 V, Vg2 = 100 V, and in this model form
 the screen-current law has no plate-voltage term at all. Run at the screen
 voltage this circuit uses it draws roughly a third of the screen current the real
 valve does, so the 750 kΩ dropper leaves the screen at +130 V instead of +95 V
@@ -110,9 +111,10 @@ meter-sensitive node on the sheet, and it is the node the simulation misses by
 the most. The same loading is worth only about 3 V at the anode, behind 100 kΩ,
 and nothing at all at the cathode.
 
-What remains is a v0 tube-fit limitation of exactly the kind
-`models/METHODOLOGY.md` warns about. It is one of the three reasons this circuit
-is a draft, and it is left visible rather than hidden behind an ungated node.
+What remains is a limitation of the archive's first-generation tube fits — a
+single-anchor model asked to work far from its anchor. It is one of the three
+reasons this circuit is a draft, and it is left visible rather than hidden
+behind an ungated node.
 
 ## Channel 2 and the tremolo — read, not lettered
 

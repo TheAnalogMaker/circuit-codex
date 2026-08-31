@@ -19,7 +19,7 @@ nodes:
   BP230: { chart: 230, tol_pct: 8, note: "Bass-row B+ lane — lettered twice on that lane, and dropped to it from node B (the post-choke +428 V node) through a 56 kΩ 1 W resistor" }
   P1A:  { chart: 135, tol_pct: 20, note: "Bass ch. V1A (input) plate, 220 kΩ off BP230 — also V1B's grid, which it drives directly" }
   K1A:  { chart: 1.1, tol_pct: 20, note: "Bass ch. V1A cathode, 2700 Ω" }
-  K1B:  { chart: 136, tol_pct: 20, note: "Bass ch. V1B cathode-follower output: 100 kΩ load to ground, plate straight on BP230, grid taken directly off P1A. The follower rides about a volt above the plate that drives it, so the printed +136 V beside the printed +135 V is the drawing agreeing with itself; 136 V over 100 kΩ is the 1.36 mA that also closes the 56 kΩ rail dropper's arithmetic (see notes.md)" }
+  K1B:  { chart: 136, tol_pct: 20, note: "Bass ch. V1B cathode-follower output: 100 kΩ load to ground, plate straight on BP230, grid taken directly off P1A. The follower rides about a volt above the plate that drives it, so the printed +136 V beside the printed +135 V is the drawing agreeing with itself; 136 V over 100 kΩ is the 1.36 mA that also closes the 56 kΩ rail dropper's arithmetic (see the circuit story)" }
   P2A:  { chart: 230, tol_pct: 20, note: "Normal ch. V2A plate, 100 kΩ climbing to BP355 — the sheet's third '+230 V.' reading, a plate voltage and not a rail. The 125 V across that 100 kΩ is the same 1.25 mA the printed 1.9 V over 1500 Ω implies" }
   K2A:  { chart: 1.9, tol_pct: 20, note: "Normal ch. V2A (input) cathode, 1500 Ω" }
   P2B:  { chart: 190, tol_pct: 20, note: "Normal ch. V2B (recovery) plate, 220 kΩ off BP355" }

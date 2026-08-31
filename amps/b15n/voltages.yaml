@@ -24,9 +24,12 @@
 #     264 V drop, so the printed 225 V anode needs a 489 V supply. The highest
 #     node in this amplifier is the 450 V reservoir.
 #
-# Both cathodes are therefore carried as disputed. The two anode figures are
-# gated normally — one lands inside the era's tolerance and one does not — so a
-# reader can see exactly which printed numbers hold and which do not.
+# Both cathodes are therefore carried as disputed, and so is unit 2's anode
+# (P3B): its printed 235 V and the 3 V printed at the cathode below it are two
+# statements about one current that disagree by more than a factor of ten, so
+# the pair is excluded together. Unit 1's anode (P3A) is gated normally and
+# lands inside the era's tolerance — the one driver figure of the four that
+# the drawn parts can reach.
 #
 # WHY THE PREAMP PLATES SIMULATE HIGH, and why that is not a fault in the
 # reading. The sheet says the readings were taken on a 20,000 Ω/volt meter: on

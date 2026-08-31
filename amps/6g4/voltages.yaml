@@ -12,7 +12,7 @@
 # the fixed -55 V bias source.
 source: "Fender 'Super-Amp' Schematic, Model 6G4 (A-FJ), printed voltages: +456 (6L6GC plates and, informationally, screens), +315/+310 (phase-inverter plates, hot/cold), +170 (both channels' input-stage plates), +160 (channel 1 recovery-stage plate), +120 (channel 2 recovery-stage plate), -55 (6L6GC fixed bias)"
 nodes:
-  P1I:  { chart: null, note: "channel-1 input-stage plate — printed +170 V. Not gated: BD is CALIBRATED to reproduce this reading exactly (netlist.cir), so a comparison here would be circular. Listed for reference; simulated 170.0 V by construction" }
+  P1I:  { chart: null, note: "channel-1 input-stage plate — printed +170 V. Not gated: BD is CALIBRATED to reproduce this reading exactly, so a comparison here would be circular. Listed for reference; simulated 170.0 V by construction" }
   P2I:  { chart: null, note: "channel-2 input-stage plate — printed +170 V, same shared BD rail and calibration basis as P1I" }
   P1D:  { chart: null, note: "channel-1 recovery-stage plate — printed +160 V. Not gated: BE1 is calibrated to reproduce this reading exactly" }
   P2D:  { chart: null, note: "channel-2 recovery-stage plate — printed +120 V. Not gated: BE2 is calibrated to reproduce this reading exactly" }

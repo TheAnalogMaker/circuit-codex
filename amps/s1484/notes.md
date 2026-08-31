@@ -84,8 +84,8 @@ does not.
 | node | printed | simulated | |
 |---|---|---|---|
 | V1 shared cathode | 1.1 V | 1.1 V | +4.0% |
-| V2A cathode | 1.1 V | 1.2 V | +13.3% |
-| V2B cathode | 1.1 V | 1.2 V | +13.3% |
+| V2A cathode | 1.1 V | 1.2 V | +13.4% |
+| V2B cathode | 1.1 V | 1.2 V | +13.4% |
 | V3A cathode | 4 V | 3.2 V | **−20.7%** |
 | cathodyne tap | 125 V | 117.5 V | −6.0% |
 

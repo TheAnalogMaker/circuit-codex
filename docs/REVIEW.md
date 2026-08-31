@@ -190,6 +190,26 @@ Two standing rules follow:
    circuits" going stale but not "that circuit is not documented here". Both
    need checking.
 
+   Repo paths are the other leak (the growth-wave-3 judges found 40+ of them
+   live): a page that cites `notes.md`, `bom.yaml`, `verify_layout_nets.py` or
+   a bare `amps/<id>` directory is working notes wearing a visitor page's
+   clothes. Sweep every rendered prose surface for them — `notes.md` bodies,
+   and the *rendered* YAML fields: `desc:` in meta.yaml sources, `notes:` and
+   per-item `role:` in bom.yaml, `note:`/`dispute_note:` in voltages.yaml
+   (YAML comments never render and are fine):
+
+   ```
+   grep -rniE "amps/[a-z0-9-]+|(notes|meta|bom|voltages|layout)\.(md|yaml)|\
+   netlist\.cir|kicad_sch|[a-z0-9_-]+\.py|docs/[a-z]|models/METHODOLOGY|\
+   reference/tubes/|history/families/" amps/*/notes.md
+   ```
+
+   and the same pattern over the YAML fields (a script that walks the parsed
+   fields beats grepping whole files, which comments would flood). A markdown
+   link to a live site page — `[Champ](/amps/aa764/)` — is the correct form
+   for a same-site cross-reference and is not a hit; the bare directory
+   spelling `amps/aa764` in prose is.
+
 The structural cause is worth naming too: `notes.md` is a single channel doing
 double duty, public circuit story *and* session work log, and the site
 publishes the whole file under "Circuit story". Until that split exists, the

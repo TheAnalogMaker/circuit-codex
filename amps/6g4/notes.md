@@ -24,7 +24,7 @@ cathode) → a mixing resistor into the phase inverter. The two channels'
 recovery stages sit on **different** rails, though — channel 1's plate prints
 +160 V and channel 2's +120 V — so this circuit, unlike its siblings, is not
 simulated as perfectly symmetric between channels; each recovery rail is
-modeled at its own printed value (see netlist.cir).
+modelled at its own printed value.
 
 The drawing does not print channel names (unlike the following 6G4-A
 revision, whose otherwise near-identical drawing labels its two channels
@@ -65,7 +65,7 @@ loads. A separate rectified/filtered bias tap (56 kΩ + 10 kΩ divider, 8 µF ·
 The drawing prints a full voltage chart directly on the schematic at every
 stage (no separate tabulated table), read to ground with an electronic
 voltmeter, values shown ± (the companion layout page states the drawing's
-usual ±20%). Several of those printed values are gated in voltages.yaml —
+usual ±20%). Several of those printed values are gated in the operating-point table —
 the phase-inverter plates (+315 V/+310 V, both within a few percent) and the
 fixed-bias/screen nodes (exact by construction, driven or one resistor
 away). The **channel input and recovery rails are not gated**: at this
@@ -74,8 +74,8 @@ scan's resolution, the drawing's own dropping-resistor chain from the main
 each is instead **calibrated** — driven at whatever value reproduces the
 printed *plate* reading through the drawing's own (legibly-read) 100 kΩ
 plate loads and the tube's own self-bias. That reproduces the plate voltages
-by construction, which is not a verification of them, so voltages.yaml
-reports those plate nodes as informational and gates the cathode nodes the
+by construction, which is not a verification of them, so the operating-point
+table reports those plate nodes as informational and gates the cathode nodes the
 calibration was *not* tuned against instead. The joined phase-inverter
 cathode/tail-junction nodes (KPI/JPI) are reported the same way: not legibly
 read on this drawing, but landing close to 6G3's own **verified** chart at
@@ -108,34 +108,19 @@ the only thing that grants `verified` here. A gated node's worst deviation
 today (the phase-inverter cold plate, 3.2% against a printed value carrying a
 ±20% convention) is not what is holding it back.
 
-**Hunting a sharper copy (2026-08-30).** Every mirror found traces back to the
-same single 2002 scan pair. `el34world.com`'s two-page schematic+layout PDF
-and `schematicheaven.net`'s copy are byte-identical (209,750 bytes, same
-embedded 2179×1437/2250×1269 rasters, `Acrobat 5.0 Image Conversion Plug-in`
-CreationDate `2002-01-21`); Prowess Amplifiers' schematic and layout pages
-serve the identical rasters (same pixel dimensions, same CreationDate,
-same embedded object ID) merely re-saved as single-page PDFs — no new scan.
-Two archives turned up only the *following* production revision, 6G4-A
-(2× 5881, different preamp complement — the drawing already excluded per
-`meta.yaml`'s disambiguation source): `thetubestore.com` and
-`schematicheaven.net/fenderamps/super_6g4a_schem.pdf`, matching `kbapps.com`'s
-6G4-A page. `elektrotanya.com`'s copy 403s. Two resale sites
-(`electronicservicemanuals.com`, `audioservicemanuals.com`) list the 6G4 sheet
-behind a paywall with no preview resolution stated; not pursued — a purchased
-copy would still need to out-resolve the same public 2002 scan to be worth
-anything, and there's no indication it's a different source. `thevintagesound.com`'s
-Field Guide mirror was unreachable (connection refused). The `el34world`
-forum's own 6G4-build thread links back to `el34world`'s own copy; the
-`ampgarage` "editable Fender schematics" thread doesn't carry a 6G4 redraw at
-all. Rendering both pages of the source PDF at 300 dpi (a straight upsample of
-the same 2179×1437/2250×1269 rasters — no information gain) and inspecting the
-region between the main 6L6GC-plate rail and the three preamp-rail takeoffs
-confirms the earlier finding rather than merely restating it: on both the
-schematic and the companion layout page, no continuous, legible wire run
-carrying a resistor value connects the B+ rail to the +170 V/+160 V/+120 V
-takeoffs. This isn't a blurry digit on an otherwise-traceable run — the run
-itself doesn't resolve at this scan's resolution on either drawing. No
-sharper copy of the 6G4 (as opposed to 6G4-A) sheet surfaced anywhere
-searched. BD/BE1/BE2 remain calibrated; `verified` still requires either a
-sharper original scan than any archive currently mirrors, or the maintainer's
-own inspection of a physical unit/better print.
+**No sharper copy of the 6G4 sheet is publicly archived.** Every mirror of
+the two-page schematic-and-layout scan that could be found — el34world,
+Schematic Heaven, Prowess Amplifiers — serves the same single 2002 scan:
+byte-identical files, or re-saves of the identical embedded page images with
+no new information in them. Several archives carry only the *following*
+production revision, the 6G4-A (a 2× 5881 output pair and a different preamp
+complement — a different drawing, and the one this entry's own sources
+distinguish it from). On both pages of that one scan, no continuous, legible
+wire run carrying a resistor value connects the main B+ rail to the
++170 V/+160 V/+120 V preamp-rail takeoffs: the run itself does not resolve
+at the scan's resolution, on the schematic or on the companion layout page,
+and magnifying the embedded page images adds nothing a magnified copy of the
+same pixels cannot. The three preamp rails (BD, BE1, BE2) therefore remain
+calibrated rather than checked, and `verified` requires either a sharper
+original scan than any archive currently mirrors, or the maintainer's own
+inspection of a physical unit or a better print.

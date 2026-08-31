@@ -8,7 +8,7 @@
 # per-stage grouping. Which physical bottle holds which pair of triode
 # sections is set out in the "Tubes" section below: the oscillator shares
 # channel 1's recovery-stage bottle (V2A/V2B), and the phase inverter is V5.
-notes: "The oscillator's own resistor/cap network (Speed ladder, Intensity feed) is listed but its DC point is excluded from the netlist — see notes.md. The tone-stack and volume-pot networks between the input and recovery stages carry no DC path in this model and are listed for completeness."
+notes: "The oscillator's own resistor/cap network (Speed ladder, Intensity feed) is listed but its DC point is excluded from the netlist — see the circuit story. The tone-stack and volume-pot networks between the input and recovery stages carry no DC path in this model and are listed for completeness."
 items:
   # --- Channel 1 input stage ---
   - { ref: R1a, part: "Carbon comp resistor", value: "68 kΩ · ½ W", role: "Channel-1 input grid stopper (jack 1)" }

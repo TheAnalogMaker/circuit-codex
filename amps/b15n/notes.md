@@ -34,8 +34,8 @@ window; the component values are revision C's.
 
 ## Reading the sheet: the hop-overs
 
-An earlier attempt at this circuit stopped on three connections it could not
-read, and the reason is a drafting convention rather than a circuit question. A
+Three connections on this sheet cannot be read until one drafting convention
+is recognised — a convention, not a circuit question. A
 long horizontal ground bus runs across the middle of the drawing, and several
 vertical lines cross it. At working magnification each crossing looks like a
 junction. At 400 dpi, zoomed to the pixel, each is a **hop-over** — the small
@@ -163,19 +163,23 @@ cathode figures fail arithmetic that needs no simulator:
   amplifier is the 450 V reservoir, and the driver rail sits below it behind
   22 kΩ.
 
-Both cathodes are therefore carried as **disputed** nodes with that arithmetic
-written down, and neither is gated. The two plate figures are gated normally, so
-a reader can see which printed numbers hold: unit 1's 225 V lands inside the
-era's ±20 %, unit 2's 235 V does not, and the entry says so instead of choosing
-a supply reading that would flatter it.
+Three of the four figures are therefore carried as **disputed** nodes with
+that arithmetic written down, and none of the three is gated: both cathodes,
+and unit 2's 235 V plate — the other half of the same impossible pair, since
+its printed plate and printed cathode are two statements about one current
+that disagree by more than a factor of ten. Unit 1's plate is the one figure
+of the four the drawn parts can reach, and it is gated normally: its 225 V
+lands inside the era's ±20 %. The other three stand in the table as the
+sheet's own contradiction, shown for the record instead of tuned away or
+flattered by an invented supply reading.
 
 **The negative-bias supply is an AC-fed half-wave block, and the sheet does say
 so.** Every part in it is legible — D1 lettered *F-4*, R34 47 kΩ, R35 56 kΩ,
 R36 100 kΩ · 2 W, R42 10 kΩ, and two 10 µF · 100 V cans whose polarity marks put
-the bias line negative with respect to the bottom rail. An earlier reading of
-this entry left the corner where R36 leaves the rectifier block unclaimed, on
-the grounds that it appeared to tap a DC node too positive for the diode ahead
-of it to conduct. Read at the pixel, on both sheets, that corner resolves: the
+the bias line negative with respect to the bottom rail. The corner where R36
+leaves the rectifier block is the one place the block's feed is easy to
+misread as tapping a DC node too positive for the diode ahead of it to
+conduct. Read at the pixel, on both sheets, that corner resolves: the
 line from R36 drops past the two yellow 5 V leads — **hopping over both**, in
 the same S-jog convention the rest of the drawing uses — and joins the red HT
 lead at **V6 pin 4, the 5AR4's own plate**. That is not a DC node. A rectifier
@@ -186,11 +190,11 @@ rectifier side of D1 and R34 on the bias side; R42 separates the two cans. It is
 the ordinary Fender-style negative-bias tap, drawn off the rectifier plate
 rather than off a dedicated winding.
 
-The −50 V line is still **driven at the value the sheet prints** in
-`netlist.cir`, exactly as the 450 V reservoir is: no netlist in this corpus
+The −50 V line is still **driven at the value the sheet prints** in the
+simulated deck, exactly as the 450 V reservoir is: no deck in this corpus
 simulates a supply, and an AC-fed half-wave rectifier has no place in a DC
-operating-point deck. What changed is that the reason is now scope rather than
-doubt, and the schematic draws the block whole.
+operating-point model. The exclusion is a matter of scope, not doubt — and
+the schematic draws the block whole.
 
 ## Two things about the drawing itself
 
