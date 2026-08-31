@@ -168,13 +168,67 @@ def export_text(sims: dict[str, dict[str, float]]) -> str:
     Simulated volts only. The chart value each is compared against, its tolerance
     and its note live in the amp's voltages.yaml and are not copied here: two
     copies of one number is exactly the drift this corpus gates against
-    everywhere else. Rounded to 3 decimals — ngspice is deterministic on a fixed
-    netlist, so the file regenerates byte-identical and can be a drift gate.
+    everywhere else. Rounded to 3 decimals. ngspice is deterministic on a fixed
+    netlist only within one build — across builds the last digits move — so the
+    drift gate compares values through numeric_drift(), never bytes.
     """
     amps = {QStr(amp): {QStr(node): round(float(v), 3) for node, v in sorted(nodes.items())}
             for amp, nodes in sorted(sims.items())}
     return HEADER + yaml.safe_dump({"amps": amps}, sort_keys=False, allow_unicode=True,
                                    width=100)
+
+
+def numeric_drift(committed: str, fresh: str,
+                  atol: float = 5e-3, rtol: float = 5e-4) -> list[str]:
+    """Value-level differences between a committed generated YAML and this run's.
+
+    This gate compared bytes until 2026-08-30, on the stated theory that ngspice
+    is deterministic on a fixed netlist. It is — within one build. Across builds
+    the solver's final digits move (Homebrew macOS against the CI runner's apt
+    ngspice), and a node that lands near a rounding boundary flips its third
+    decimal: the b15n push failed only on CI, on numbers no page prints and no
+    reader relies on. Solver provenance is not corpus drift. So both generated-
+    reference gates (this file and export_loadlines.py) now parse the two texts
+    and compare what the files CLAIM: identical structure, identical keys,
+    identical non-numeric leaves — and numbers equal within atol, or rtol of the
+    committed value, whichever is larger. Real staleness (a netlist edited
+    without re-export) moves a value by whole tenths at minimum; cross-build
+    noise sits at the last rounded digit. Comment-only edits vanish at parse
+    time and are deliberately not gated: regeneration restores them, and a
+    comment is not a number a page prints. Returns difference lines naming each
+    offending path — empty when the committed file is fresh.
+    """
+    diffs: list[str] = []
+
+    def note(path: str, a: object, b: object) -> None:
+        diffs.append(f"{path or '/'}: committed {a!r}, this run {b!r}")
+
+    def is_num(x: object) -> bool:
+        return isinstance(x, (int, float)) and not isinstance(x, bool)
+
+    def walk(a: object, b: object, path: str) -> None:
+        if isinstance(a, dict) and isinstance(b, dict):
+            for k in sorted(a.keys() | b.keys(), key=str):
+                if k not in a or k not in b:
+                    note(f"{path}/{k}", a.get(k, "<absent>"), b.get(k, "<absent>"))
+                else:
+                    walk(a[k], b[k], f"{path}/{k}")
+        elif isinstance(a, list) and isinstance(b, list):
+            if len(a) != len(b):
+                note(path, f"{len(a)} item(s)", f"{len(b)} item(s)")
+            else:
+                for i, (x, y) in enumerate(zip(a, b)):
+                    walk(x, y, f"{path}[{i}]")
+        elif is_num(a) and is_num(b):
+            if abs(a - b) > max(atol, rtol * abs(a)):
+                note(path, a, b)
+        elif a != b or type(a) is not type(b):
+            note(path, a, b)
+
+    walk(yaml.safe_load(committed), yaml.safe_load(fresh), "")
+    if len(diffs) > 12:
+        diffs = diffs[:12] + [f"… and {len(diffs) - 12} more"]
+    return diffs
 
 
 def main() -> int:
@@ -202,12 +256,24 @@ def main() -> int:
     else:
         # The amp pages print these numbers. A stale file would print a voltage
         # this run did not produce, so staleness is a hard failure like any other.
+        # A drift gate that cannot fail proves nothing: three planted faults run
+        # first, every time — a value moved past tolerance, a renamed node, and
+        # a last-digit flip that must NOT trip. Pure python, no ngspice.
+        planted = "amps:\n  'x':\n    'N1': 100.0\n    'N2': 1.5\n"
+        assert numeric_drift(planted, planted.replace("100.0", "100.4")), \
+            "numeric_drift missed a moved value — the staleness gate lost its teeth"
+        assert numeric_drift(planted, planted.replace("N2", "N3")), \
+            "numeric_drift missed a renamed node — the staleness gate lost its teeth"
+        assert not numeric_drift(planted, planted.replace("100.0", "100.001")), \
+            "numeric_drift trips on a last-digit rounding flip — gate overtight"
         rel = OUT.relative_to(ROOT)
         if not OUT.exists():
             print(f"\nFAIL {rel} missing — run pipeline/verify_amps.py --export")
             total_hard += 1
-        elif OUT.read_text() != text:
+        elif (drift := numeric_drift(OUT.read_text(), text)):
             print(f"\nFAIL {rel} is stale — re-run pipeline/verify_amps.py --export")
+            for line in drift:
+                print(f"  {line}")
             total_hard += 1
         else:
             print(f"\nok {rel} matches this run ({sum(len(v) for v in sims.values())} node(s))")

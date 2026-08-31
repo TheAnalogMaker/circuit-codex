@@ -20,8 +20,12 @@ The simulated currents and voltages are written out as a parity reference: the b
 solver runs the same Koren maths on the same fitted parameters, so its answer must
 match this file. The page shows both numbers side by side.
 
-Deterministic: re-running regenerates the same file (ngspice is deterministic on a
-fixed netlist), so `python3 pipeline/export_loadlines.py --check` is a drift gate.
+Drift gate: `python3 pipeline/export_loadlines.py --check` fails when the checked-in
+file no longer says what this run simulates. The comparison is value-level
+(verify_amps.numeric_drift), never byte-level: ngspice is deterministic on a fixed
+netlist only within one build, and across builds (Homebrew macOS vs the CI runner's
+apt ngspice) the last rounded digit of a node can flip — solver provenance, not
+corpus drift.
 
 Usage:
     python3 pipeline/export_loadlines.py            # regenerate reference/loadlines.yaml
@@ -37,6 +41,10 @@ import tempfile
 from pathlib import Path
 
 import yaml
+
+# One definition of "what counts as drift" for both generated reference files —
+# see numeric_drift's docstring for why bytes were the wrong thing to compare.
+from verify_amps import numeric_drift
 
 ROOT = Path(__file__).resolve().parent.parent
 AMPS = ROOT / "amps"
@@ -333,8 +341,11 @@ def main() -> int:
         if not OUT.exists():
             print(f"FAIL {OUT.relative_to(ROOT)} missing — run pipeline/export_loadlines.py")
             return 1
-        if OUT.read_text() != text:
+        drift = numeric_drift(OUT.read_text(), text)
+        if drift:
             print(f"FAIL {OUT.relative_to(ROOT)} is stale — re-run pipeline/export_loadlines.py")
+            for line in drift:
+                print(f"  {line}")
             return 1
         print(f"ok {OUT.relative_to(ROOT)} matches the netlists ({len(data['stages'])} stage(s))")
         return 0
