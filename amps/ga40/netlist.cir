@@ -1,0 +1,119 @@
+* GA-40 (Gibson GA-40 Les Paul-style, 5879 revision) — DC operating-point netlist
+* Circuit Codex — CC-BY-SA 4.0. Independently drawn from the published component
+* values of the Gibson factory drawing whose title block reads "GA-40" and whose
+* lower left carries the "Les Paul" signature (see meta.yaml). No drawing
+* reproduced.
+*
+* Designators are functional (the corpus's own). The drawing letters NO
+* reference designators at all — not on the bottles, not on the passives — so
+* there are none to reuse and none are invented. See bom.yaml.
+*
+* DC conventions — RAILS. This drawing prints a VOLTAGE TABLE with a per-tube
+* E(B+) column, and it prints three different rails there: +310 V at the 6V6GTs,
+* +280 V at the 12AX7 inverter, +265 V at both 5879s. The droppers between them
+* are on the sheet (a 3 H choke and a pair of 10 kOhm resistors with their cans)
+* but the rail they feed also carries channel 2 and the whole tremolo, neither of
+* which this netlist models (see SCOPE). Each printed rail is therefore driven as
+* its OWN ideal source rather than derived through a chain missing half its load
+* — the same honest simplification the 6G6-B entry makes, flagged here rather
+* than asserted as a solved chain. Every stage's own plate, screen and cathode is
+* then DERIVED through the drawing's own resistors and gated against the table.
+*
+* SCOPE — this netlist covers channel 1's 5879 pentode stage, the 12AX7 paraphase
+* phase inverter, and the cathode-biased 6V6GT pair. That is the whole signal path
+* from the channel-1 jacks to the output transformer.
+*
+* EXCLUDED, and why:
+*   - The 6SQ7 tremolo oscillator. It is a running phase-shift oscillator whose
+*     quiescent point is shifted by grid-leak detection, so it has no static DC
+*     operating point worth reporting — the same treatment the AB763, 6G3 and
+*     6161 tremolo oscillators get. Its plate load taps a rail this netlist
+*     DRIVES rather than derives, so unlike the 6161 case the exclusion costs
+*     nothing downstream.
+*   - Channel 2's 5879. Not because it is uninteresting — it is the tremolo-
+*     modulated channel, and modulating a pentode's screen and B+ is how this amp
+*     makes tremolo at all — but because its screen is fed through the tremolo's
+*     Depth network, and neither that network nor the channel-2 screen dropper
+*     resolves on the only published drawing of this revision. The chart's own
+*     channel-2 row says the same thing loudly: +32 V on that screen against
+*     +95 V on channel 1's, off the same +265 rail. Guessing the resistor that
+*     makes that number is exactly what this corpus does not do. What IS legible
+*     of channel 2 is written down in notes.md and left out of the parts list.
+*
+* The 5Y3GT rectifier, the 3 H choke and the mains transformer ahead of the rails
+* are not modelled (no corpus netlist simulates its supply). Output-transformer
+* primary DCR is omitted, so both 6V6GT anodes sit on the driven +310 rail; the
+* chart prints +305 V there against +310 V at the screens, and that 5 V is the
+* half-primary drop this netlist does not carry. The screens hang directly on the
+* same rail, exactly as drawn — this circuit has NO screen resistors on its
+* output tubes.
+*
+* DC-open caps are MODELLED where BOTH leads land on a named DC node (the three
+* cathode-bypass cans, the 5879 screen bypass and the two inverter -> 6V6GT grid
+* couplers): open at DC they move no operating point, but modelling them fixes
+* the push-pull phase and the bypass placement in the data. Caps with a lead
+* inside an abstracted network (the input couplers, the volume/mixer network, the
+* tone control across the inverter's own plate, the whole tremolo ladder) stay
+* out, and so do the filter cans — a can across an ideal source asserts nothing.
+* Heaters, the pilot lamp and the polarity switch are not modelled.
+.include models/12ax7.inc
+.include models/5879.inc
+.include models/6v6gt.inc
+
+VBP310 BP310 0 DC 310
+VBP280 BP280 0 DC 280
+VBP265 BP265 0 DC 265
+
+* --- V1, channel 1: 5879 pentode input stage --------------------------------
+* Two jacks, each through its own 51 kOhm series resistor onto the grid, with a
+* single 1 MOhm leak at the jack end. 100 kOhm plate load and a 750 kOhm screen
+* dropper both off the +265 rail, screen bypassed to ground by 0.05 uF, cathode
+* 3.3 kOhm bypassed by 20 uF. The 51 kOhm/1 MOhm pair is the DC path from grid to
+* ground; the stage draws no grid current, so it sets no operating point of its
+* own — it is here because it is what the drawing letters.
+RIN1 G1 NIN1 51k
+RIN2 G1 NIN1 51k
+RG1  NIN1 0 1meg
+RL1  BP265 P1 100k
+RS1  BP265 SG1 750k
+CS1  SG1 0 0.05u
+XV1  P1 SG1 G1 K1 5879
+RK1  K1 0 3.3k
+CK1  K1 0 20u
+
+* --- V4, 12AX7 paraphase phase inverter --------------------------------------
+* V4A is the driver: 220 kOhm anode load off +280, grid fed from the mixing node.
+* Its anode drives the first 6V6GT's grid through 0.02 uF, and the 470 kOhm that
+* leaks that grid to ground does not go to ground — it lands on V4B's grid, where
+* 7.5 kOhm carries on to ground. That divider is what makes this a paraphase and
+* not a long-tailed pair: 7.5/(470+7.5) is 1/63.7, and a 12AX7 on a 220 kOhm load
+* has about that gain, so V4B returns the same swing inverted. V4B's anode drives
+* the second 6V6GT's grid, whose 470 kOhm leak does go to ground. Both halves
+* share ONE 1 kOhm cathode resistor with a 20 uF bypass.
+* RMIX stands in for "V4A's grid returns to ~0 V DC through the channel-1 volume
+* pot" — the 470 kOhm mixing resistor off that pot's wiper. The channel-2 leg of
+* the mixer (its own 100 kOhm) leaves with channel 2; no grid current flows, so
+* neither the pot's setting nor the second leg moves this operating point.
+RMIX NMIX 0 470k
+RL4A BP280 P4A 220k
+XV4A P4A NMIX K4 12AX7
+RL4B BP280 P4B 220k
+XV4B P4B NPARA K4 12AX7
+RK4  K4 0 1k
+CK4  K4 0 20u
+RPA  G5 NPARA 470k
+RPB  NPARA 0 7.5k
+
+* --- V5, V6: 6V6GT push-pull output, cathode bias ----------------------------
+* One shared 200 Ohm resistor biases the pair, bypassed by 20 uF — there is no
+* bias supply anywhere in the amp. G5's DC return is the paraphase divider
+* itself (470 kOhm + 7.5 kOhm); G6 has its own 470 kOhm leak. Both 0.02 uF
+* couplers are modelled so a coupler on the wrong grid is a wrong-node error in
+* the data. Screens on the rail, no screen resistors.
+CC1  P4A G5 0.02u
+CC2  P4B G6 0.02u
+RGL6 G6 0 470k
+XV5  BP310 BP310 G5 KOUT 6V6GT
+XV6  BP310 BP310 G6 KOUT 6V6GT
+RKO  KOUT 0 200
+CKO  KOUT 0 20u

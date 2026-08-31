@@ -14,11 +14,21 @@ const octal = byBase('octal');
 // as rectifiers. A rectifier has no control grid at all; among the rest, the
 // datasheet plate-dissipation rating is what separates a small-signal bottle
 // from an output bottle (1-2.5 W here against 14-30 W).
+//
+// An unrated bottle falls back on the screen grid, because "no printed rating"
+// is not evidence of size. Every octal output tube in this corpus is a
+// beam/pentode with a screen pin; a small-signal triode has none. The 6L6G
+// (no ratings block, screen on pin 4) still files as an output tube, and the
+// 6SQ7 — a double-diode triode whose 1943 RCA and 1947 Tung-Sol sheets print
+// no plate-dissipation figure at all — no longer files as one.
 const hasPin = (t, el) => Object.values(t.basing.pins || {}).some((p) => p.element === el);
 const dissipation = (t) => t.max_ratings?.limits?.plate_dissipation_w ?? null;
+const isSignal = (t) => (dissipation(t) !== null
+  ? dissipation(t) <= 5
+  : !hasPin(t, 'screen-grid'));
 const octalRect = octal.filter((t) => !hasPin(t, 'grid'));
-const octalSignal = octal.filter((t) => hasPin(t, 'grid') && dissipation(t) !== null && dissipation(t) <= 5);
-const octalPower = octal.filter((t) => hasPin(t, 'grid') && !(dissipation(t) !== null && dissipation(t) <= 5));
+const octalSignal = octal.filter((t) => hasPin(t, 'grid') && isSignal(t));
+const octalPower = octal.filter((t) => hasPin(t, 'grid') && !isSignal(t));
 
 // First sentence of the role blurb, for a one-line caption under each diagram.
 const oneLine = (s) => {

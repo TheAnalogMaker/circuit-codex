@@ -1,0 +1,236 @@
+# Board layout — DERIVED, not read from a factory layout drawing.
+#
+# Gibson published no board-layout drawing for this chassis and none was located:
+# what the factory issued is the circuit drawing whose title block reads "GA-40"
+# and whose lower left carries the "Les Paul" signature, cited below and in
+# meta.yaml. The arrangement here is therefore the Circuit Codex's own — this
+# circuit's parts laid out in signal order along the chassis on the house two-row
+# eyelet grid, ordered to match the valve row beneath it (5Y3GT · 6V6GT · 6V6GT ·
+# 12AX7 inverter · 6SQ7 tremolo · 5879 channel 2 · 5879 channel 1). It is a
+# builder's diagram of THIS circuit, not a record of how Gibson dressed its own
+# chassis. The caption says so and `board.title` carries "(derived)".
+#
+# TWO SOCKETS CARRY NO BOARD PARTS, and that is the point. Channel 2's 5879 and
+# the 6SQ7 tremolo oscillator are read on the drawing but not lettered in
+# bom.yaml — channel 2's screen is fed through the tremolo's Depth network, and
+# neither that network nor the channel-2 screen dropper resolves on the only
+# published drawing of this revision. Both bottles are drawn because both are in
+# the amplifier and both sit on the 6.3 V heater chain; their signal wiring is
+# not asserted here. They are declared in net_map.excluded_tubes below, so the
+# equivalence gate prints them as exclusions rather than passing them in silence.
+#
+# Part refs are the shared key into bom.yaml; the renderer reads each value and
+# part type from there, so the layout and the parts list cannot disagree.
+#
+# Machine-checked equivalence: the point-to-point wiring below has been verified
+# electrically equivalent to netlist.cir by pipeline/verify_layout_nets.py — see
+# the net_map block at the foot of this file and docs/layout-schema.md. Heaters,
+# the pilot lamp and the PT / rectifier AC side are an excluded annotation layer
+# (not in netlist.cir).
+wiring_claim: verified
+
+board:
+  rows: 2
+  cols: 77
+  title: "GA-40 · board layout (derived)"
+caption: "A derived layout: Gibson published no board-layout drawing for this chassis, so the arrangement below is the Circuit Codex's own — this circuit's parts laid out in signal order along the chassis and drawn on the house eyelet grid, not a record of the factory's own construction. Every value comes from the parts list, which is read from the drawing whose title block reads \"GA-40\". Two sockets deliberately carry no board parts: channel 2's 5879 and the 6SQ7 tremolo oscillator are read on that drawing but not lettered, because channel 2's screen is fed through the tremolo's Depth network and neither the network nor the channel-2 screen dropper resolves on the only published scan. Both bottles are drawn because both are in the amplifier and both sit on the heater chain. Parts drawn off the board: the choke, the volume and tone controls, the pilot lamp and the input and speaker jacks. The 6.3 V heater chain (twisted pair, transformer → pilot lamp → the two 6V6GTs → the inverter → the tremolo triode → both 5879s) is likewise derived: with no layout sheet its daisy order is the physical socket order and the twisted-pair green is the house heater idiom, not a sourced wire colour — as is every other lead here, which is why all hookup and transformer leads are drawn in the neutral tone and the transformer pigtails are lettered by function. The 5Y3GT is directly heated and takes the 5 V winding, off that chain. Not a trace or a dimensioned reproduction."
+source:
+  desc: "Gibson factory drawing, title block \"GA-40\" with the \"Les Paul\" signature at the lower left — layout DERIVED from that circuit drawing; Gibson published no board-layout sheet for this chassis and none was located"
+  url: "https://schematicheaven.net/gibsonamps/ga40.pdf"
+
+# Board-mounted parts. a / b are eyelet endpoints [row, col]; the body is drawn
+# between them (same row = axial part; shared column across rows = vertical leg).
+# Two leads in one eyelet are one solder point — used deliberately below, e.g.
+# the supply chain's droppers and cans meeting at their shared rail eyelets.
+parts:
+  # --- power supply: reservoir -> choke -> +310 -> 10k -> +280 -> 10k -> +265 --
+  - { ref: CF1, a: [0, 1],  b: [1, 1] }     # 20 µF reservoir, ahead of the choke
+  - { ref: CF2, a: [0, 5],  b: [1, 5] }     # 10 µF post-choke can (BP310)
+  - { ref: RD1, a: [0, 5],  b: [0, 8] }     # 10 kΩ, BP310 -> BP280
+  - { ref: RD2, a: [0, 8],  b: [0, 11] }    # 10 kΩ, BP280 -> BP265
+  #   ^ no can sits on the +280 eyelet: a published restoration records four
+  #     (20/10/10/10 µF) and this reading places three. The gap is left visible.
+  - { ref: CF3, a: [0, 11], b: [1, 11] }    # 10 µF preamp-rail can (BP265)
+  # --- output stage: the shared cathode resistor, couplers, grid leaks ---------
+  - { ref: RKO, a: [0, 14], b: [1, 14] }    # 200 Ω — the pair's ENTIRE bias
+  - { ref: CKO, a: [0, 16], b: [1, 16] }    # 20 µF across it
+  - { ref: RL4B, a: [0, 19], b: [0, 21] }   # 220 kΩ inverted-side plate load
+  - { ref: CC2, a: [0, 21], b: [0, 23] }    # 0.02 µF P4B -> V6 grid
+  - { ref: RGL6, a: [0, 23], b: [1, 23] }   # 470 kΩ V6 grid leak — the one that
+  #                                           does go to ground
+  - { ref: RL4A, a: [0, 26], b: [0, 28] }   # 220 kΩ driver plate load
+  - { ref: CT1, a: [1, 26], b: [1, 28] }    # 0.005 µF driver anode -> Tone
+  - { ref: CC1, a: [0, 28], b: [0, 30] }    # 0.02 µF P4A -> V5 grid
+  - { ref: RPA, a: [0, 30], b: [1, 30] }    # 470 kΩ paraphase divider, upper leg
+  #                                           — it leaks V5's grid to the TAP,
+  #                                           not to ground
+  - { ref: RPB, a: [1, 30], b: [1, 32] }    # 7.5 kΩ divider foot -> ground
+  # --- inverter cathodes (ONE resistor for both halves) and the mixer ---------
+  - { ref: RK4, a: [0, 34], b: [1, 34] }    # 1 kΩ shared cathode
+  - { ref: CK4, a: [0, 36], b: [1, 36] }    # 20 µF bypass
+  - { ref: RM1, a: [0, 41], b: [0, 43] }    # 470 kΩ channel-1 mixing resistor
+  # --- channel 1 --------------------------------------------------------------
+  - { ref: RL1, a: [0, 55], b: [0, 57] }    # 100 kΩ plate load (BP265 -> P1)
+  - { ref: CV1, a: [0, 57], b: [0, 59] }    # 0.01 µF plate -> volume
+  - { ref: RS1, a: [0, 62], b: [0, 64] }    # 750 kΩ screen dropper (BP265 -> SG1)
+  - { ref: CS1, a: [0, 64], b: [1, 64] }    # 0.05 µF screen bypass
+  - { ref: RK1, a: [0, 66], b: [1, 66] }    # 3.3 kΩ cathode
+  - { ref: CK1, a: [0, 68], b: [1, 68] }    # 20 µF cathode bypass
+  - { ref: RIN1, a: [0, 70], b: [0, 72] }   # 51 kΩ, first jack -> the grid
+  - { ref: RIN2, a: [1, 70], b: [1, 72] }   # 51 kΩ, second jack -> the SAME grid
+  #   ^ the two sit in parallel between one jack node and one grid; drawn on the
+  #     two rows and tied at both ends so neither reads as the other's series mate
+  - { ref: RG1, a: [0, 74], b: [1, 74] }    # 1 MΩ grid leak, at the jack end
+
+offboard:
+  - { id: T1, ref: T1, kind: xfmr, edge: left, at: 0.4, label: "Power trans" }
+  - { id: L1, ref: L1, kind: choke, edge: top, at: 3, label: "Choke" }
+  - { id: PL1, kind: part, glyph: lamp, edge: top, at: 0.6, value: "6.3 V", label: "Pilot lamp" }
+  #   ^ value sourced: bom.yaml letters the pilot as a 6.3 V lamp across the
+  #     heater winding, marked P.L. on the circuit drawing. It carries no ref
+  #     because the drawing gives the mains-side hardware no designators.
+  - { id: V7, ref: V7, kind: tube, edge: bottom, at: 4, label: "V7 · 5Y3GT" }
+  - { id: V5, ref: V5, kind: tube, edge: bottom, at: 11, label: "V5 · 6V6GT" }
+  - { id: V6, ref: V6, kind: tube, edge: bottom, at: 17, label: "V6 · 6V6GT" }
+  - { id: T2, ref: T2, kind: xfmr, edge: bottom, at: 24, label: "Output trans" }
+  - { id: SPK, kind: jack, edge: bottom, at: 30, label: "Speaker" }
+  - { id: V4, ref: V4, kind: tube, edge: bottom, at: 37, label: "V4 · 12AX7 inverter" }
+  - { id: V3, ref: V3, kind: tube, edge: bottom, at: 46, label: "V3 · 6SQ7 tremolo" }
+  - { id: V2, ref: V2, kind: tube, edge: bottom, at: 51, label: "V2 · 5879 ch 2" }
+  - { id: V1, ref: V1, kind: tube, edge: bottom, at: 65, label: "V1 · 5879 ch 1" }
+  - { id: VR3, ref: VR3, kind: pot, edge: top, at: 25.5, label: "Tone" }
+  - { id: VR1, ref: VR1, kind: pot, edge: top, at: 60.5, label: "Volume · ch 1" }
+  - { id: JI1, kind: jack, edge: top, at: 71, label: "Ch 1 in 1" }
+  - { id: JI2, kind: jack, edge: top, at: 75, label: "Ch 1 in 2" }
+
+# Ground bus — the bare rail just below the bottom eyelet row; filter, cathode,
+# grid-leak, pot and jack grounds tie to it.
+bus:
+  - { from: [1.45, -0.5], to: [1.45, 76.5] }
+
+runs:
+  # === power transformer -> 5Y3GT -> the reservoir =========================
+  # Each pigtail leaves along its own row and drops in its own vertical lane, so
+  # no two transformer leads read as one. Every lead is lettered by function:
+  # with no factory layout sheet this drawing asserts no wire colours.
+  - { from: T1.ha, to: V7.pin4, via: [[-1.55, 0.274], [-1.55, 2.42], [3.0, 2.42]] }
+  - { from: T1.hb, to: V7.pin6, via: [[-1.35, 0.337], [-1.35, 2.95], [5.4, 2.95]] }
+  - { from: T1.ct, to: [1.45, -0.25], via: [[-1.15, 0.400], [-1.15, 1.22], [-0.25, 1.22]] }
+  - { from: T1.ra, to: V7.pin8, via: [[-0.95, 0.463], [-0.95, 3.25], [4.7, 3.25]] }
+  - { from: T1.rb, to: V7.pin2, via: [[-0.75, 0.526], [-0.75, 3.58], [3.3, 3.58]] }
+  - { from: V7.pin8, to: CF1.a, via: [[4.6, 2.12], [1.8, 1.85]] }
+
+  # === reservoir -> choke -> the post-choke node ============================
+  - { from: CF1.a, to: L1.hi, via: [[1.0, -0.55]] }
+  - { from: L1.lo, to: CF2.a, via: [[4.0, -0.55]] }
+  # That node is the output-transformer centre tap, and BOTH screens hang
+  # straight on it: this circuit has no screen resistors at all.
+  - { from: CF2.a, to: T2.ct, via: [[5.0, -0.55], [14.6, -0.55], [14.6, 3.30], [23.6, 3.30]] }
+  - { from: T2.ct, to: V6.pin4, via: [[23.4, 1.15], [16.75, 1.15]] }
+  - { from: CF2.a, to: V5.pin4, via: [[6.2, -0.80], [12.0, -0.80], [12.0, 1.30]] }
+  - { from: V5.pin3, to: T2.pa, via: [[10.0, 2.20], [10.0, 3.05], [24.2, 3.05]] }
+  - { from: V6.pin3, to: T2.pb, via: [[16.0, 2.20], [16.0, 3.55], [24.6, 3.55]] }
+  - { from: T2.sa, to: SPK.tip, via: [[25.4, 2.05], [29.6, 2.05]] }
+  - { from: T2.sb, to: SPK.sleeve, via: [[25.7, 2.36], [30.4, 2.36]] }
+  - { from: SPK.sleeve, to: [1.45, 31.5], via: [[31.5, 2.15]] }
+
+  # === the two dropped rails, tapped along the board ========================
+  - { from: [0, 8], to: RL4B.a, via: [[8.5, -1.30], [18.5, -1.30]] }
+  - { from: RL4B.a, to: RL4A.a, via: [[19.5, -1.30], [25.5, -1.30]] }
+  - { from: [0, 11], to: RL1.a, via: [[11.5, -1.80], [54.5, -1.80]] }
+  - { from: RL1.a, to: RS1.a, via: [[55.5, -1.30], [61.5, -1.30]] }
+  - { from: CF1.b, to: [1.45, 1] }
+  - { from: CF2.b, to: [1.45, 5] }
+  - { from: CF3.b, to: [1.45, 11] }
+
+  # === output stage: cathodes, grids ========================================
+  - { from: V5.pin8, to: RKO.a, via: [[11.8, 2.35], [15.4, 1.60]] }
+  - { from: RKO.a, to: CKO.a, via: [[14.5, -0.52], [15.5, -0.52]] }
+  - { from: CKO.a, to: V6.pin8, via: [[17.9, 1.60], [18.6, 2.35]] }
+  - { from: RKO.b, to: [1.45, 14] }
+  - { from: CKO.b, to: [1.45, 16] }
+  - { from: RGL6.a, to: V6.pin5, via: [[23.0, -0.80], [17.3, -0.80], [17.3, 1.55]] }
+  - { from: RGL6.b, to: [1.45, 23] }
+  - { from: RPA.a, to: V5.pin5, via: [[30.2, -1.05], [13.0, -1.05], [13.0, 1.60]] }
+  - { from: RPB.b, to: [1.45, 32] }
+
+  # === paraphase inverter ===================================================
+  - { from: RL4A.b, to: V4.pin6, via: [[28.4, -0.80], [37.4, -0.80]] }
+  - { from: RL4B.b, to: V4.pin1, via: [[21.4, -1.55], [32.8, -1.55], [32.8, 2.95], [36.2, 2.95]] }
+  - { from: RPA.b, to: V4.pin2, via: [[30.7, 1.72], [35.6, 1.72], [35.6, 2.35]] }
+  - { from: RM1.b, to: V4.pin7, via: [[43.4, 1.75], [38.9, 1.75]] }
+  - { from: RK4.a, to: V4.pin3, via: [[34.3, 1.28], [35.3, 1.82]] }
+  - { from: RK4.a, to: CK4.a, via: [[34.5, -0.52], [35.5, -0.52]] }
+  - { from: CK4.a, to: V4.pin8, via: [[36.6, 1.30], [39.6, 1.30], [39.6, 2.05]] }
+  - { from: RK4.b, to: [1.45, 34] }
+  - { from: CK4.b, to: [1.45, 36] }
+
+  # === tone control (the whole tone circuit) and channel-1 volume ===========
+  - { from: [0, 28], to: CT1.b }
+  - { from: CT1.a, to: VR3.lug1, via: [[25.2, 1.55], [25.2, -0.32]] }
+  - { from: VR3.lug2, to: [1.45, 24.4], via: [[24.4, -0.55]] }
+  # The 0.01 µF coupler lands on the volume's WIPER and the mixing resistor
+  # leaves the TOP of the track, with the bottom end grounded — the way the
+  # circuit drawing wires both channels' volumes. See bom.yaml VR1.
+  - { from: CV1.b, to: VR1.lug2, via: [[59.6, -0.32]] }
+  - { from: VR1.lug1, to: [1.45, 61.3], via: [[61.3, -0.55]] }
+  - { from: VR1.lug3, to: RM1.a, via: [[60.4, -2.05], [41.0, -2.05]] }
+
+  # === channel 1 ============================================================
+  - { from: RL1.b, to: V1.pin8, via: [[57.4, 1.15], [66.4, 1.15], [66.4, 2.55]] }
+  - { from: RS1.b, to: V1.pin7, via: [[64.4, 1.28], [67.2, 1.28], [67.2, 1.90]] }
+  - { from: CS1.b, to: [1.45, 64] }
+  - { from: RK1.a, to: V1.pin3, via: [[65.4, 1.08], [62.0, 1.72], [62.0, 1.93]] }
+  - { from: RK1.a, to: CK1.a, via: [[66.5, -0.52], [67.5, -0.52]] }
+  - { from: RK1.b, to: [1.45, 66] }
+  - { from: CK1.b, to: [1.45, 68] }
+  # grid No.3 is strapped to the cathode at the socket, as the 5879 data sheet
+  # directs (reference/tubes/5879.yaml basing) — the same strap the 5C1 draws
+  # on its 6SJ7.
+  - { from: V1.pin9, to: V1.pin3 }
+  - { from: RIN1.a, to: RIN2.a }
+  - { from: RIN1.b, to: RIN2.b }
+  - { from: RIN2.a, to: V1.pin1, via: [[69.8, 1.60], [68.4, 2.30], [65.6, 2.90]] }
+  - { from: RIN1.b, to: RG1.a, via: [[72.4, -0.42], [73.6, -0.42]] }
+  - { from: RG1.b, to: [1.45, 74] }
+  - { from: JI1.tip, to: RIN1.b, via: [[70.9, -0.95], [71.9, -0.95]] }
+  - { from: JI2.tip, to: RG1.a, via: [[75.1, -0.72], [74.3, -0.72]] }
+  - { from: JI1.sleeve, to: [1.45, 69.4], via: [[69.4, -0.55]] }
+  - { from: JI2.sleeve, to: [1.45, 75.4], via: [[75.4, -0.55]] }
+
+  # === 6.3 V heater chain (twisted pair) ====================================
+  # Derived, like the rest of this drawing: with no layout sheet the daisy order
+  # is the physical socket order. The 5Y3GT is directly heated and takes the 5 V
+  # winding (drawn above), so it is off this chain. Twisted runs land only on
+  # heater pins — noval 4/5 on the 5879 and the 12AX7, octal 2/7 on the 6V6GTs,
+  # and octal 7/8 on the 6SQ7, whose pin 2 is its triode grid, not a heater —
+  # each validated against the reference/tubes basing data.
+  - { from: T1.fil, to: PL1.a, style: twisted, via: [[-1.2, 4.20], [0.2, 4.20]] }
+  - { from: PL1.b, to: V5.pin2, style: twisted, via: [[1.0, 4.20], [10.4, 4.20]] }
+  - { from: V5.pin7, to: V6.pin2, style: twisted, via: [[12.0, 4.20], [16.4, 4.20]] }
+  - { from: V6.pin7, to: V4.pin4, style: twisted, via: [[18.0, 4.20], [36.4, 4.20]] }
+  - { from: V4.pin5, to: V3.pin7, style: twisted, via: [[38.0, 4.20], [45.4, 4.20]] }
+  - { from: V3.pin8, to: V2.pin4, style: twisted, via: [[47.0, 4.20], [50.4, 4.20]] }
+  - { from: V2.pin5, to: V1.pin4, style: twisted, via: [[52.0, 4.20], [64.4, 4.20]] }
+
+# net_map — reviewable reconciliation of the drawn wiring with the DC netlist
+# (netlist.cir) for pipeline/verify_layout_nets.py. See docs/layout-schema.md.
+net_map:
+  # Two sockets the DC netlist legitimately omits, declared so the gate prints
+  # them as exclusions rather than passing them in silence. An UNdeclared
+  # unmodelled signal tube still hard-fails, so nothing can be buried here.
+  excluded_tubes:
+    V2: "5879 channel 2 — excluded from netlist.cir: its screen is fed through the tremolo's Depth network, and neither that network nor the channel-2 screen dropper resolves on the only published drawing of this revision (notes.md). Its 6.3 V heater is on the twisted chain; no signal pin is DC-checked."
+    V3: "6SQ7 tremolo oscillator — a phase-shift oscillator with no static DC operating point, so it cannot be a quiescent stage the equivalence check verifies (excluded from netlist.cir; its Frequency and Depth networks are not lettered). Its 6.3 V heater is on the twisted chain; no signal pin is DC-checked."
+  anchors:
+    # The netlist omits output-transformer primary DCR, so both 6V6GT plate leads
+    # and the primary centre tap collapse onto the post-choke node BP310 — which
+    # is what makes the centre tap, the screens and the plate node one node in
+    # netlist.cir.
+    T2.ct: BP310      # OT primary centre tap -> the post-choke rail
+    T2.pa: BP310      # OT primary, V5 plate lead (winding DCR omitted)
+    T2.pb: BP310      # OT primary, V6 plate lead (winding DCR omitted)
+  # Netlist elements with no discrete same-named board part — reported in
+  # coverage, never a failure (their nodes still have to check out):
+  netlist_unplaced:
+    RMIX: "the inverter's DC grid return, modelled as one 470 kΩ from the driver grid to ground. On the board it is the 470 kΩ mixing resistor RM1 in series with the 1 MΩ channel-1 volume VR1 — no grid current flows, so neither the pot's setting nor channel 2's own 100 kΩ mixing leg moves this operating point"

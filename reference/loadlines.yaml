@@ -718,6 +718,31 @@ stages:
     consulted
   sim_ip_ma: 94.6167
   sim_ig2_ma: 5.036
+- amp: 'ga40'
+  name_style: Gibson GA-40 Les Paul-style
+  tube: '6V6GT'
+  tube_lettered: '6V6GT'
+  output_tubes: 2
+  config: push-pull
+  bias: cathode
+  plate_node: BP310
+  plate_v: 310.0
+  screen_node: BP310
+  screen_v: 310.0
+  cathode_node: KOUT
+  cathode_v: 18.312
+  rk_total: 200.0
+  rk_per_tube: 400.0
+  grid_node: G5
+  grid_v: 0.0
+  grid_supply_node: null
+  grid_supply_v: null
+  ot_primary_z: null
+  ot_primary_approx: false
+  ot_primary_note: Gibson (no number printed) — Output transformer, centre-tapped primary; the centre
+    tap is the post-choke supply node the screens also sit on
+  sim_ip_ma: 41.9923
+  sim_ig2_ma: 3.7877
 - amp: 'jtm100'
   name_style: British 100-watt lead-style
   tube: 'KT66'

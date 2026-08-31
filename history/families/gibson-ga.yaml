@@ -1,0 +1,102 @@
+family: gibson-ga
+title: "The Gibson GA line"
+maker_style: "American-style"
+summary: >-
+  Gibson built amplifiers to sell guitars, and it built them its own way. The GA
+  line ran from the late 1930s to the late 1960s and its house style has almost
+  nothing in common with Fullerton's: pentode input valves rather than twin
+  triodes, paraphase phase splitters long after the long-tailed pair had won,
+  cathode bias with no bias supply anywhere in the chassis, one tone control
+  rather than a tone stack, and tremolo that swings a pentode's screen instead of
+  gating the signal path. The GA-40 Les Paul is the line's landmark — the
+  amplifier Gibson named after its own endorsee, catalogued from 1952 until the
+  Les Paul agreement ended in late 1962 — and it is really three different
+  amplifiers wearing one model number, which is why the corpus files it by the
+  circuit on the drawing rather than by the badge on the cabinet. Gibson also
+  went its own way on bottles: where the rest of the industry standardised on
+  6V6 and 6L6, the last Les Paul amplifiers left the factory with 7591s and
+  6EU7s.
+models:
+  - designation: "GA-40"
+    name: "GA-40 Les Paul, first circuit (6SJ7 / 6SN7)"
+    years: { start: 1952, end: 1954 }
+    wattage: null
+    output: "push-pull 2×6V6GT"
+    tubes: [6SJ7, 6SJ7, 6SJ7, 6SN7, 6V6GT, 6V6GT, 6V6GT, 5V4G]
+    key_change: >-
+      The amplifier Gibson launched with the Les Paul name, and a different
+      machine from the one the corpus documents. Its own tube-location strip
+      letters three octal 6SJ7 pentodes — Mic Amp, Instrument Amp and Driver — a
+      6SN7 covering both the phase inverter and the tremolo, and then THREE
+      6V6GTs: two on the output and a third doing the tremolo's modulating, with
+      a 5V4G rectifier. The house traits are already here: cathode bias on the
+      output pair, a pentode at the input, and a tremolo that modulates rather
+      than gates. Unlike its successor the sheet letters full reference
+      designators (R1–R39, C1–C20) and prints a component legend and the
+      transformer numbers, but it prints no voltages at all. The upper end of
+      this bracket is the year of the latest drawing cited here that still shows
+      this circuit, not a dated changeover — no source cited here dates the
+      changeover itself, which is why a year sits unclaimed between this row and
+      the next.
+    circuit_ref: null
+    sources:
+      - desc: "Gibson factory drawing captioned 'GA40 1954' — tube-location strip V1 6SJ7 'Mic Amp', V2 6SJ7 'Instr Amp', V3 6SJ7 'Driver', V4 6SN7 'Phase Inverter — Tremolo', V5 and V6 6V6GT 'Output', V7 6V6GT 'Tremolo', V8 5V4G 'Rectifier'; printed component legend R1–R39 and C1–C20; transformers T1 GA-40P (650 V C.T. at 120 mA, 6.3 V C.T. at 3.25 A, 5 V at 2.0 A) and T2 Z3533 (10,000 Ω primary, 5 to 8 Ω secondary); chokes L1 GA25C 10 H at 120 mA and L2 E1896 30 H at 30 mA. No voltages are printed anywhere on the sheet"
+        url: "https://schematicheaven.net/gibsonamps/ga40_2.pdf"
+      - desc: "GuitarPlayer, 'Classic Gear: Gibson Les Paul GA-40 Amp' — the GA-40 Les Paul debuted in 1952 with 'three octal 6SJ7s and one 6SN7', and the model 'remained in the catalog until late 1962 or early '63' when Les Paul's agreement with Gibson ended"
+        url: "https://www.guitarplayer.com/gear/classic-gear-gibson-les-paul-ga-40-amp"
+
+  - designation: "GA-40"
+    name: "GA-40 Les Paul, 5879 circuit (the documented one)"
+    years: { start: 1956, end: 1962 }
+    wattage: 15
+    output: "push-pull 2×6V6GT"
+    tubes: [5879, 5879, 6SQ7, 12AX7, 6V6GT, 6V6GT, 5Y3GT]
+    key_change: >-
+      The octals go and the circuit the corpus documents arrives: a 5879
+      sharp-cutoff pentode at the front of each channel, a 6SQ7 running the
+      tremolo, a 12AX7 paraphase phase inverter and two 6V6GTs on one shared
+      200 Ω cathode resistor behind a 5Y3GT. The paraphase is balanced by a
+      470 kΩ / 7.5 kΩ divider hanging off the first output grid, whose ratio of
+      1/63.7 is what a 12AX7 on a 220 kΩ load gives back. The tone circuit is a
+      single capacitor and a single control on the inverter's own anode — the
+      amplifier has no tone stack — and channel 2 gets its voicing instead from a
+      five-section ladder of 0.005 µF capacitors and 1 MΩ shunts. The tremolo,
+      credited to Seth Lover, modulates channel 2's screen and supply rather than
+      gating the signal, which is why the factory chart prints +32 V on that
+      screen against +95 V on channel 1's. The drawing carries no date and no
+      revision box, and published accounts distinguish more than one 5879
+      version, so this bracket runs from the earliest year the sources cited
+      here put the 5879 front end to the last year the model was catalogued —
+      an outer bound over the 5879 revisions, not a production record.
+    circuit_ref: "ga40"
+    sources:
+      - desc: "Gibson factory drawing, title block 'GA-40' with the 'Les Paul' signature — two 5879 pentodes, a 6SQ7 tremolo oscillator, a 12AX7 paraphase inverter, two 6V6GT and a 5Y3GT; 220 kΩ inverter anode loads on one shared 1 kΩ cathode resistor; 470 kΩ/7.5 kΩ paraphase divider; 200 Ω shared output cathode resistor with a 20 µF bypass and screens straight on the supply node; supply 20 µF reservoir, 3 H choke, 10 µF, then 10 kΩ droppers to the inverter and preamp rails. The sheet prints a full voltage table"
+        url: "https://schematicheaven.net/gibsonamps/ga40.pdf"
+      - desc: "Published bench feature on a 1956 GA-40 Les Paul at Guitar.com — lists '2x 5879, 2x 6V6, 1x 5Y3' with a '6SQ7 triode' for the tremolo, credits the tremolo circuit to Seth Lover, puts the output at approximately 15 watts from a cathode-biased 6V6 pair, dates this second-generation model to 1956 and 1957, gives the controls as four input jacks with volume, volume, frequency, depth and treble/bass, and describes channel 2's filter network as being of the Vox AC10/AC15 kind. It also records that Gibson built no fewer than five Les Paul GA-40 variants"
+        url: "https://guitar.com/reviews/1956-gibson-ga-40/"
+      - desc: "Service thread on The Amp Garage — records that the 1954–1956 amplifiers used 6SJ7 preamp tubes and a 6SN7 phase inverter while from 1956 they used 5879 preamp tubes and a 12AX7 phase inverter with a cathode-biased 6V6 pair, calls the inverter an 'old fashioned basic paraphase phase splitter', and describes the tremolo as working by B+ and screen-voltage modulation of the pentode input tube"
+        url: "https://ampgarage.com/forum/viewtopic.php?t=27749"
+
+  - designation: "GA-40T"
+    name: "GA-40T Les Paul, last circuit (7591 / 6EU7)"
+    years: { start: 1962, end: 1963 }
+    wattage: null
+    output: "push-pull 2×7591"
+    tubes: [6EU7, 6EU7, 12AU7, 6EU7, 7591, 7591, GZ34]
+    key_change: >-
+      The end of the line, and the point where Gibson stops sounding like the
+      1950s. Every bottle changes: 6EU7s and a 12AU7 in front, a pair of 7591s on
+      the output behind a GZ34, and — for the first time in this family — FIXED
+      bias, with a −20 V supply and a gain-set control instead of one shared
+      cathode resistor. The tremolo stops modulating a screen and becomes an
+      optical circuit, a light-dependent resistor and bulb assembly in a can,
+      switched by a foot pedal. The drawing's own legend names the parts by
+      Gibson stock number down to the pots and the LDR. It is undated; the
+      bracket here is the closing years of the Les Paul line rather than a dated
+      changeover, and it is an outer bound on the sources cited below.
+    circuit_ref: null
+    sources:
+      - desc: "Gibson factory drawing, title block 'GA-40T' — layout box letters V1/V2/V4 6EU7, V3 12AU7, V5 and V6 7591, V7 GZ34; parts legend gives R8/R20 volume 500 kΩ audio, R25 tone 2 MΩ audio, R41 frequency 1 MΩ reversed audio, R43 depth 250 kΩ reversed audio, R44 gain set 500 Ω wirewound / 200 Ω minimum, an LDR 'Light Dependent Resistor & Bulb Assembly (70-95) RE-LDR-430G', filter choke TF-3021H, power transformer TF-60P, output transformer TF-P-6417, and a 12-inch 8 Ω speaker; −20 V fixed-bias supply; working voltages annotated beside the circuit (+435, +430, +425, +410, +305, +245, +225, +155, +150 V)"
+        url: "https://schematicheaven.net/gibsonamps/ga40t_crestline.pdf"
+      - desc: "GuitarPlayer, 'Classic Gear: Gibson Les Paul GA-40 Amp' — the GA-40 Les Paul 'remained in the catalog until late 1962 or early '63' when Les Paul's agreement with Gibson ended, which is where this bracket closes"
+        url: "https://www.guitarplayer.com/gear/classic-gear-gibson-les-paul-ga-40-amp"

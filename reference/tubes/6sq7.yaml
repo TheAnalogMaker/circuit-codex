@@ -1,0 +1,73 @@
+tube: 6sq7
+name: 6SQ7
+also_known_as: [6SQ7GT, "6SQ7-GT/G"]
+role: >-
+  Octal double-diode high-mu triode — two diode plates and one µ=100 triode in
+  one envelope, all three sections sharing a single cathode. It is the classic
+  radio detector-plus-first-audio bottle, and in the Gibson GA-40 it is the
+  triode alone that works: a phase-shift tremolo oscillator whose output
+  modulates the screen and supply of the channel-2 preamp pentode. The two
+  diode plates are unused there. This file exists so the drawn socket pins
+  validate against the real basing — no SPICE model is carried, because no
+  netlist in this corpus simulates the tube (a running oscillator has no static
+  operating point to check).
+basing:
+  code: 8Q
+  base: octal
+  view: bottom
+  source: >-
+    RCA 6SQ7, 6SQ7-GT/G data sheet, Dec. 1 1943 — "Basing Designation ... 8Q"
+    (GT-8Q for the glass version), with the terminal list printed beside the
+    bottom-view diagram and reproduced below. Pin 1 is the metal 6SQ7's shell
+    and the GT/G's base sleeve; both are strapped to the cathode in service, so
+    it is filed as an internal connection rather than an element of its own. The
+    heaters sit on pins 7 and 8, NOT the octal power tube's 2 and 7 — pin 2 is
+    the triode grid on this base. Cross-checked against the Tung-Sol
+    6SQ7/6SQ7GT sheet (Dec. 1 1947), which prints the same 8-pin octal
+    bottom view and the same 6.3 V, 300 mA heater.
+  pins:
+    1: { element: internal-connection, note: "metal shell (6SQ7) / base sleeve (6SQ7-GT/G) — connected to the cathode in service" }
+    2: { element: grid, note: "triode grid" }
+    3: { element: cathode, note: "shared by the triode and both diode units" }
+    4: { element: diode-plate, unit: 2 }
+    5: { element: diode-plate, unit: 1 }
+    6: { element: plate, hv: true, note: "triode plate" }
+    7: { element: heater }
+    8: { element: heater }
+max_ratings:
+  note: >-
+    Design-centre values, and deliberately short: neither the RCA nor the
+    Tung-Sol sheet prints a plate-dissipation rating for this bottle, so none is
+    stated here. What both do print is a 300 V plate ceiling and a heater-cathode
+    limit — 100 V on the RCA sheet, 90 V on the Tung-Sol one, which is the
+    tighter of the two and the figure a builder should work to. The typical
+    operation both give is the resistance-coupled amplifier chart for the Type 75,
+    where the triode idles under a milliamp; this is a detector and first-audio
+    valve, not a driver.
+  items:
+    - { label: "Plate voltage (triode unit)", value: "300 V" }
+    - { label: "D-C heater-cathode potential", value: "100 V (RCA); 90 V (Tung-Sol)" }
+    - { label: "Heater", value: "6.3 V, 0.3 A, coated unipotential cathode" }
+    - { label: "Amplification factor (triode unit)", value: "100" }
+    - { label: "Plate resistance", value: "110 kΩ at 100 V; 91 kΩ at 250 V" }
+    - { label: "Transconductance", value: "900 µmho at 100 V; 1100 µmho at 250 V" }
+    - { label: "Diode current, each plate, continuous", value: "1.0 mA (Tung-Sol)" }
+    - { label: "Plate dissipation", value: "not printed on either cited sheet" }
+  limits:
+    plate_voltage_v: 300
+  rating_system: design-centre
+  source: >-
+    RCA 6SQ7, 6SQ7-GT/G data sheet, Dec. 1 1943, "Maximum Ratings Are
+    Design-Center Values — TRIODE UNIT"; Tung-Sol 6SQ7, 6SQ7GT sheet,
+    Dec. 1 1947, "RATINGS (interpreted according to RMA standard M8-210)".
+  source_url: https://frank.pocnet.net/sheets/049/6/6SQ7.pdf
+used_in: ["ga40"]
+datasheets:
+  - publisher: RCA
+    designation: "6SQ7, 6SQ7-GT/G"
+    url: https://frank.pocnet.net/sheets/049/6/6SQ7.pdf
+    confidence: high
+  - publisher: Tung-Sol
+    designation: "6SQ7, 6SQ7GT"
+    url: https://frank.pocnet.net/sheets/127/6/6SQ7.pdf
+    confidence: high

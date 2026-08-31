@@ -1,0 +1,82 @@
+# Parts list for the Gibson GA-40, 5879 revision, read from the factory drawing
+# whose title block reads "GA-40" and whose lower left carries the "Les Paul"
+# signature.
+#
+# Designators are FUNCTIONAL — the corpus's own. This drawing letters NO
+# reference designators at all: not on the bottles, not on the passives. (Its
+# 1954 predecessor did, R1–R39 and C1–C20 with a printed legend; the 5879 sheet
+# dropped them.) The bottle numbering below is this corpus's, chosen to run in
+# signal order, and it is stated here rather than implied.
+#
+# A designator here means the SCHEMATIC draws that part. What the DC netlist
+# asserts is a narrower set, stated in netlist.cir's own SCOPE block.
+#
+# WHAT IS NOT IN THIS LIST, and why. Channel 2's 5879 stage and the whole 6SQ7
+# tremolo are read on the drawing but NOT lettered here. Channel 2's screen is
+# fed through the tremolo's Depth network — modulating that screen is how this
+# amplifier makes tremolo — and neither the network nor the channel-2 screen
+# dropper resolves on the only published drawing of this revision. Lettering a
+# part list for a stage whose supply cannot be read would be a guess dressed as a
+# reading. What IS legible of both is written out in notes.md, where it can be
+# corrected rather than built from. Parts the drawing resolves as values whose
+# wiring this entry does not draw — the mains side beyond the transformer, the
+# jacks, the speaker — carry ref "—" (annotation only), the same convention the
+# tweed, Marshall, Vox and Valco entries use.
+notes: "Capacitor values are open at DC and do not enter the operating-point netlist; they are listed for completeness, and the ones whose BOTH leads land on a named DC node are modelled anyway so the push-pull phase and the bypass placement are fixed in the data. The drawing prints no wattages and no tolerances anywhere, so the era's implied ½ W is stated for the small resistors and the shared output cathode resistor — a part passing 92 mA at 18.5 V, some 1.7 W — carries no rating this entry can cite. A published restoration of a GA-40 records the supply-can complement as 20/10/10/10 µF at 450 WVDC; three of those four are lettered below, and the fourth is most likely on the +280 inverter rail, where this reading places no can. The gap is left visible rather than filled."
+items:
+  # --- bottles ---
+  - { ref: V1, part: "Tube", value: "5879", role: "Channel 1 preamp pentode" }
+  - { ref: V2, part: "Tube", value: "5879", role: "Channel 2 preamp pentode — the tremolo-modulated channel (stage not lettered here; see the header)" }
+  - { ref: V3, part: "Tube", value: "6SQ7", role: "Tremolo phase-shift oscillator (excluded from the netlist; network not lettered here)" }
+  - { ref: V4, part: "Tube", value: "12AX7", role: "Paraphase phase inverter, both triodes" }
+  - { ref: V5, part: "Tube", value: "6V6GT", role: "Output beam power tube" }
+  - { ref: V6, part: "Tube", value: "6V6GT", role: "Output beam power tube" }
+  - { ref: V7, part: "Rectifier tube", value: "5Y3GT", role: "Full-wave rectifier" }
+  # --- iron ---
+  - { ref: T1, part: "Power transformer", value: "Gibson (no number printed)", role: "Mains transformer — centre-tapped HT winding, 5 V rectifier winding, 6.3 V heater winding. The drawing prints the windings and no part number" }
+  - { ref: T2, part: "Output transformer", value: "Gibson (no number printed)", role: "Output transformer, centre-tapped primary; the centre tap is the post-choke supply node the screens also sit on" }
+  - { ref: L1, part: "Choke", value: "3 H", role: "Smoothing choke between the reservoir and the screen/output-transformer node" }
+  # --- channel 1 inputs ---
+  - { ref: "—", part: "Jack socket", value: "1/4 in", role: "Channel 1 input, first jack (annotation only)" }
+  - { ref: "—", part: "Jack socket", value: "1/4 in", role: "Channel 1 input, second jack (annotation only)" }
+  - { ref: RIN1, part: "Carbon comp resistor", value: "51 kΩ · ½ W", role: "Channel 1 first-jack series resistor into the grid" }
+  - { ref: RIN2, part: "Carbon comp resistor", value: "51 kΩ · ½ W", role: "Channel 1 second-jack series resistor into the same grid" }
+  - { ref: RG1, part: "Carbon comp resistor", value: "1 MΩ · ½ W", role: "Channel 1 grid leak — at the jack end, ahead of both 51 kΩ resistors" }
+  # --- V1, channel 1 ---
+  - { ref: RL1, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "Channel 1 plate load, off the +265 preamp rail" }
+  - { ref: RS1, part: "Carbon comp resistor", value: "750 kΩ · ½ W", role: "Channel 1 screen dropper, +265 rail → screen grid — the resistor the factory chart's own arithmetic confirms to 749 kΩ" }
+  - { ref: CS1, part: "Film capacitor", value: "0.05 µF", role: "Channel 1 screen bypass to ground" }
+  - { ref: RK1, part: "Carbon comp resistor", value: "3.3 kΩ · ½ W", role: "Channel 1 cathode bias" }
+  - { ref: CK1, part: "Electrolytic capacitor", value: "20 µF", role: "Channel 1 cathode bypass (no voltage rating printed)" }
+  - { ref: CV1, part: "Coupling capacitor", value: "0.01 µF", role: "Channel 1 plate → volume coupler" }
+  # --- volume / mixer ---
+  - { ref: VR1, part: "Potentiometer", value: "1 MΩ", role: "Channel 1 volume — the drawing prints no taper. It is wired the unusual way round: the coupler drives the WIPER and the mixing resistor leaves the top of the track, with the bottom end grounded. Channel 2's volume is wired identically" }
+  - { ref: RM1, part: "Carbon comp resistor", value: "470 kΩ · ½ W", role: "Channel 1 mixing resistor, volume control → inverter grid. It leaves the TOP of the volume track, not the wiper: the drawing brings the 0.01 µF coupler onto the wiper instead (see VR1)" }
+  # --- V4, 12AX7 paraphase phase inverter ---
+  - { ref: RL4A, part: "Carbon comp resistor", value: "220 kΩ · ½ W", role: "Inverter driver plate load, off the +280 rail" }
+  - { ref: RL4B, part: "Carbon comp resistor", value: "220 kΩ · ½ W", role: "Inverter inverted-side plate load, off the same rail" }
+  - { ref: RK4, part: "Carbon comp resistor", value: "1 kΩ · ½ W", role: "Inverter cathode bias — ONE resistor shared by both triodes" }
+  - { ref: CK4, part: "Electrolytic capacitor", value: "20 µF", role: "Inverter cathode bypass (no voltage rating printed)" }
+  - { ref: RPA, part: "Carbon comp resistor", value: "470 kΩ · ½ W", role: "Paraphase divider, upper leg — first output grid down to the inverted half's grid; doubles as that output grid's leak" }
+  - { ref: RPB, part: "Carbon comp resistor", value: "7.5 kΩ · ½ W", role: "Paraphase divider, lower leg — the inverted half's grid down to ground. 7.5/477.5 is 1/63.7, which is what a 12AX7 on a 220 kΩ load gives back" }
+  # --- tone control ---
+  - { ref: CT1, part: "Film capacitor", value: "0.005 µF", role: "Tone capacitor, inverter driver anode → Tone control" }
+  - { ref: VR3, part: "Potentiometer", value: "1 MΩ", role: "Tone — the amplifier's only tone control, working treble to bass, wired with its wiper to ground and sitting between the phase inverter and the output tubes" }
+  # --- 6V6GT output stage ---
+  - { ref: CC1, part: "Coupling capacitor", value: "0.02 µF", role: "Inverter driver anode → V5 grid" }
+  - { ref: CC2, part: "Coupling capacitor", value: "0.02 µF", role: "Inverter inverted-side anode → V6 grid" }
+  - { ref: RGL6, part: "Carbon comp resistor", value: "470 kΩ · ½ W", role: "V6 grid leak — the only one of the two that goes to ground" }
+  - { ref: RKO, part: "Power resistor", value: "200 Ω", role: "SHARED 6V6GT cathode bias resistor — the whole bias arrangement for the pair, with no bias supply anywhere in the amp. The drawing prints no wattage" }
+  - { ref: CKO, part: "Electrolytic capacitor", value: "20 µF", role: "6V6GT cathode bypass (no voltage rating printed)" }
+  # --- power supply ---
+  - { ref: CF1, part: "Electrolytic capacitor", value: "20 µF", role: "Reservoir can, ahead of the choke — the 5Y3GT cathode node the chart reads +315 V" }
+  - { ref: CF2, part: "Electrolytic capacitor", value: "10 µF", role: "Post-choke smoothing — the +310 V node that is also the output-transformer centre tap and both 6V6GT screens" }
+  - { ref: RD1, part: "Carbon comp resistor", value: "10 kΩ · ½ W", role: "+310 node → +280 inverter rail" }
+  - { ref: RD2, part: "Carbon comp resistor", value: "10 kΩ · ½ W", role: "+280 inverter rail → +265 preamp rail" }
+  - { ref: CF3, part: "Electrolytic capacitor", value: "10 µF", role: "+265 preamp rail smoothing" }
+  - { ref: "—", part: "Speaker", value: "12 in", role: "Single 12-inch speaker (annotation only). Published accounts of this revision name a Jensen P12Q; the drawing letters no make" }
+  - { ref: "—", part: "Film capacitor", value: "0.02 µF", role: "Mains-side capacitor to ground, selected onto one line leg or the other by the polarity switch (annotation only)" }
+  - { ref: "—", part: "Toggle switch", value: "SPST", role: "Mains on/off, marked SW on the drawing, in one line leg (annotation only)" }
+  - { ref: "—", part: "Fuse", value: "3 A", role: "Mains fuse, in the other line leg (annotation only)" }
+  - { ref: "—", part: "Toggle switch", value: "SPDT", role: "Polarity switch — the era's line-reverse arrangement, which chooses which mains leg the 0.02 µF capacitor grounds; drawn beside the 115–125 V 50–60 cycle mains legend (annotation only)" }
+  - { ref: "—", part: "Pilot lamp", value: "6.3 V", role: "Pilot lamp, marked P.L. across the 6.3 V heater winding (annotation only)" }

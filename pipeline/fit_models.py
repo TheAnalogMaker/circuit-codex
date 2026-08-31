@@ -788,6 +788,44 @@ Cak A K 4p
         emit_pentode(sj7, {"cin": 6.0, "cgp": 0.005, "cout": 7.0}) + "\n"
     (MODELS_DIR / "6sj7.inc").write_text(txt)
 
+    # ---- 5879 (9-pin sharp-cutoff pentode built for low microphonics, leakage
+    #      noise and hum — the Gibson GA-40's preamp valve). RCA's Class-A1 block
+    #      tabulates the pentode connection at one point only (Va=250, Vg2=100,
+    #      Vg1=-3 -> Ia=1.8 mA, Ig2=0.4 mA, gm=1000 umho, rp=2 MOhm), so KP/KG1/KG2
+    #      anchor there and KVB takes the project pentode default: unlike the 6SJ7
+    #      this sheet prints no second plate voltage, so nothing in the data
+    #      constrains it (METHODOLOGY.md).
+    p5879 = fit_pentode("5879", mu=21.0, vp=250.0, vg2=100.0, vg1=-3.0,
+                        ia=1.8e-3, ig2=0.4e-3, gm=1000e-6)
+    src_5879 = ("RCA 5879 data sheet, Data 1, 3-61 (Sharp-Cutoff Pentode, 9-pin "
+                "miniature); https://frank.pocnet.net/sheets/049/5/5879.pdf")
+    txt = common_header("5879 sharp-cutoff pentode",
+                        "Va=250 V, Vg2=100 V, Vg3=0 V, Vg1=-3 V -> Ia=1.8 mA, Ig2=0.4 mA, "
+                        "gm=1000 umho",
+                        ["mu=21 is the tabulated TRIODE-connection amplification factor,",
+                         "standing in for the grid-No.1-to-grid-No.2 factor, which RCA does",
+                         "not print for this tube — the same documented substitution the",
+                         "6SJ7 and KT66 models make (METHODOLOGY.md). RCA prints 21 in BOTH",
+                         "triode columns (Va=100 V and Va=250 V), so the figure is at least",
+                         "stable across the sheet's own plate range. Known risk: on the 7591,",
+                         "where both quantities can be obtained, the triode figure runs above",
+                         "what the operating rows imply.",
+                         "KVB is the project pentode default (30). This sheet tabulates only",
+                         "ONE pentode-connection plate voltage, so — unlike the 6SJ7 — nothing",
+                         "in the data measures the plate-voltage dependence.",
+                         "Corroboration on a quantity NOT fitted: the sheet prints 2 MOhm of",
+                         "plate resistance at the anchor and this model reads 1.70 MOhm there",
+                         "(15% low, on the default KVB). The anchor currents and gm are exact",
+                         "by construction and CI-gated; rp is not.",
+                         "Capacitances from the sheet, pentode connection: Cg1-p=0.11 pF max,",
+                         "Cin=2.7 pF, Cout=2.4 pF.",
+                         "Grid No.3 is 'connected to cathode at socket' on the sheet's own",
+                         "pentode-connection row, so it is not a separate model node.",
+                         "Node order: P G2 G1 K"],
+                        source=src_5879) + "\n" + \
+        emit_pentode(p5879, {"cin": 2.7, "cgp": 0.11, "cout": 2.4}) + "\n"
+    (MODELS_DIR / "5879.inc").write_text(txt)
+
     # ---- EZ81: the Philips sheet tabulates NO per-anode tube drop — only whole-
     #      rectifier system rows (transformer volts in, DC volts out). The only
     #      per-anode datum published is the Ia-Va anode characteristic, fig.
@@ -906,6 +944,7 @@ Cak A K 4p
     print(f"  6973:  MU={p6973.mu:.6g} KP={p6973.kp:.6g} KG1={p6973.kg1:.6g} KG2={p6973.kg2:.6g} (MU solved from the sheet's rows)")
     print(f"  7591:  MU={p7591.mu:g} KP={p7591.kp:.6g} KG1={p7591.kg1:.6g} KG2={p7591.kg2:.6g}")
     print(f"  6SJ7:  MU={sj7.mu:g} KP={sj7.kp:.6g} KG1={sj7.kg1:.6g} KG2={sj7.kg2:.6g} KVB={sj7.kvb:.6g} (KVB fitted)")
+    print(f"  5879:  MU={p5879.mu:g} KP={p5879.kp:.6g} KG1={p5879.kg1:.6g} KG2={p5879.kg2:.6g}")
     print(f"  EZ81:  PERV={perv_ez:.6g}")
     print(f"  GZ34:  PERV={perv_gz:.6g}")
     print(f"  5U4G:  PERV={perv_5u4:.6g}")

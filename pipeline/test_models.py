@@ -284,6 +284,14 @@ def main() -> int:
     failures += check("6SJ7", "Ia @ Va=100", r["ia0"], 2.9e-3, TOL_I)
     failures += check("6SJ7", "gm @ Va=100", (r["ia_hi"] - r["ia_lo"]) / 0.1, 1575e-6, TOL_GM)
 
+    print("5879 @ Va=250, Vg2=100, Vg1=-3:")
+    r = run_bench(PENTODE_BENCH.format(name="5879", inc=MODELS / "5879.inc",
+                                       vp=250, vg2=100, vg1=-3,
+                                       vg_hi=-2.95, vg_lo=-3.05))
+    failures += check("5879", "Ia", r["ia0"], 1.8e-3, TOL_I)
+    failures += check("5879", "Ig2", r["ig2"], 0.4e-3, TOL_I)
+    failures += check("5879", "gm", (r["ia_hi"] - r["ia_lo"]) / 0.1, 1000e-6, TOL_GM)
+
     print("EZ81 @ Va=10 (per anode):")
     r = run_bench(RECT_BENCH.format(name="EZ81", inc=MODELS / "ez81.inc", va=10))
     failures += check("EZ81", "Ia", r["ia0"], 60e-3, TOL_I)

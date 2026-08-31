@@ -1,0 +1,66 @@
+# Circuit Codex metadata — schema: docs/schema.md (v1)
+id: "ga40"
+name_style: "Gibson GA-40 Les Paul-style"
+family: other
+era:
+  # The drawing is UNDATED — no date, no revision box, no drawing number beyond
+  # the model in the title block. The GA-40 model number spans a decade and at
+  # least three circuits (see history/families/gibson-ga.yaml); THIS drawing is
+  # the 5879 one. The sources cited below date the 5879 + 12AX7 front end from
+  # 1956 and put the model in the catalogue until late 1962, and they describe
+  # more than one 5879 version. The bracket is an outer bound over those, not a
+  # production record: the sheet carries no feature that dates it inside the span.
+  start: 1956
+  end: 1962
+wattage: 15
+tubes: [5879, 5879, 6SQ7, 12AX7, 6V6GT, 6V6GT, 5Y3GT]
+topology:
+  rectifier: { kind: tube, type: "5Y3GT" }
+  bias: cathode
+  phase_inverter: paraphase
+  tone_stack: single-knob
+lineage:
+  derived_from: []   # no documented derivation from another circuit in this corpus
+  influenced: []
+conventions:
+  designators: functional   # designators carry a role code (RL1 plate load, RS1 screen dropper, CK4 cathode bypass)
+  notation: us
+sources:
+  - desc: "Gibson factory drawing, title block 'GA-40' at the upper right and the 'Les Paul' signature at the lower left — THIS is the revision documented here. Complement read from the drawing: two 5879 pentodes (Channel 1 and Channel 2, one bottle each), a 6SQ7 tremolo oscillator, a 12AX7 phase inverter, two 6V6GT and a 5Y3GT. Values read directly from the drawing: each channel fed by two jacks through their own 51 kΩ series resistors onto one grid with a single 1 MΩ leak at the jack end; channel 1 on a 100 kΩ plate load with a 750 kΩ screen dropper bypassed by 0.05 µF and a 3.3 kΩ cathode resistor bypassed by 20 µF, coupled out through 0.01 µF to a 1 MΩ volume control and on through 470 kΩ to the inverter grid; channel 2 on a 2.2 kΩ cathode resistor and a 510 kΩ plate load, its output through a five-section ladder of 0.005 µF series capacitors with 1 MΩ shunts to its own 1 MΩ volume and a 100 kΩ mixing resistor; 12AX7 paraphase inverter with 220 kΩ anode loads on both halves, ONE shared 1 kΩ cathode resistor bypassed by 20 µF, and a 470 kΩ / 7.5 kΩ divider taking the first output grid down to the second half's grid; 0.02 µF inverter-to-grid couplers, 470 kΩ leak on the second output grid, the divider itself on the first; a 0.005 µF capacitor and a 1 MΩ control from the first inverter anode to ground as the amplifier's only tone control; 6V6GT pair on ONE shared 200 Ω cathode resistor with a 20 µF bypass and no bias supply, screens taken straight off the supply node with no screen resistors; supply chain 20 µF reservoir → 3 H choke → 10 µF → 10 kΩ → inverter rail → 10 kΩ → 10 µF preamp rail; tremolo on a 6SQ7 phase-shift oscillator with 510 kΩ resistors in its anode chain, a 500 kΩ Frequency control and a 100 kΩ / 500 kΩ Depth network; mains side a polarity switch choosing which line leg a 0.02 µF capacitor grounds, an on/off switch in one leg and a 3 A fuse in the other, and a 6.3 V pilot lamp on the heater winding. The sheet also prints a VOLTAGE TABLE (see voltages.yaml). Not reproduced here; archived at Schematic Heaven's Gibson library and mirrored at el34world."
+    url: "https://schematicheaven.net/gibsonamps/ga40.pdf"
+  - desc: "The same Gibson GA-40 drawing mirrored in el34world's Gibson schematic folder — byte-identical to the Schematic Heaven copy, and the second archive this entry's reading can be checked against."
+    url: "https://el34world.com/charts/Schematics/files/Gibson/Gibson_ga40.pdf"
+  - desc: "Gibson factory drawing captioned 'GA40 1954' — the EARLIER circuit under the same model number, cited here only to fix what this entry is not. It is a different amplifier. Its own tube-location strip letters V1 6SJ7 'Mic Amp', V2 6SJ7 'Instr Amp', V3 6SJ7 'Driver', V4 6SN7 'Phase Inverter — Tremolo', V5 and V6 6V6GT 'Output', V7 6V6GT 'Tremolo' and V8 5V4G 'Rectifier'; it carries a printed component legend (R1–R39, C1–C20) and the transformer numbers T1 GA-40P and T2 Z3533. There is no 5879 and no 6SQ7 on it, and the tremolo modulator is a third 6V6GT rather than a triode. Recorded as a history-tier row in history/families/gibson-ga.yaml."
+    url: "https://schematicheaven.net/gibsonamps/ga40_2.pdf"
+  - desc: "Published bench feature on a 1956 GA-40 Les Paul at Guitar.com — the complement corroboration and the wattage this entry records. It lists '2x 5879, 2x 6V6, 1x 5Y3' with a '6SQ7 triode' for the tremolo, credits the tremolo circuit to Seth Lover, puts the output at 'approximately 15 watts' from a cathode-biased 6V6 pair, dates this second-generation model to 1956 and 1957, names the controls as four input jacks with volume, volume, frequency, depth and treble/bass, and describes channel 2 as carrying a filter network of the Vox AC10/AC15 kind — which is the five-section 0.005 µF ladder on the drawing. It also records that Gibson built no fewer than five Les Paul GA-40 variants."
+    url: "https://guitar.com/reviews/1956-gibson-ga-40/"
+  - desc: "GuitarPlayer's 'Classic Gear: Gibson Les Paul GA-40 Amp' — the model chronology behind this entry's era bracket and the new history/families/gibson-ga.yaml file: the GA-40 Les Paul debuted in 1952 and 'remained in the catalog until late 1962 or early '63' when Les Paul's agreement with Gibson ended; the original configuration carried 'three octal 6SJ7s and one 6SN7'; the mid-to-late-1950s variant is the one with the 5879 pentode preamp."
+    url: "https://www.guitarplayer.com/gear/classic-gear-gibson-les-paul-ga-40-amp"
+  - desc: "Service thread on The Amp Garage discussing the GA-40 Les Paul schematics — the independent naming of the inverter and of the tremolo mechanism this entry reports. It records that the 1954–1956 amplifiers used 6SJ7 preamp tubes and a 6SN7 phase inverter while from 1956 they used 5879 preamp tubes and a 12AX7 phase inverter with a cathode-biased 6V6 pair; it calls the inverter an 'old fashioned basic paraphase phase splitter' and describes the tremolo as working by B+ and screen-voltage modulation of the pentode input tube, which is why channel 2's screen sits so far below channel 1's on the factory chart."
+    url: "https://ampgarage.com/forum/viewtopic.php?t=27749"
+  - desc: "Published restoration account of a GA-40 Les Paul by Greg Cutshaw — the one place this entry's supply-can complement is corroborated. It records the power-supply capacitors as '20/10/10/10 µF at 450 WVDC', the original 6SQ7 oscillator tube, a single tone control working treble to bass, the tone circuit sitting 'between the phase inverter and power amp tubes', and 15 W RMS output."
+    url: "https://www.gregcutshaw.com/Gibson%20GA-40%20Amp/Gibson%20GA-40%20Amp.html"
+  - desc: "RCA 6SQ7, 6SQ7-GT/G data sheet, Dec. 1 1943 (Duplex-Diode High-Mu Triode) — the basing the drawn 6SQ7 socket is wired to, and the reason its heater pins are not the octal power tube's. \"Basing Designation ... 8Q\" with the printed terminal list: pin 1 metal shell (base sleeve on the GT/G), 2 triode grid, 3 cathode, 4 and 5 diode plates, 6 triode plate, 7 and 8 HEATER. Heater 6.3 V, 0.3 A; triode µ=100; maximum plate voltage 300 V, and no plate-dissipation rating printed on either this sheet or the Tung-Sol one. Cross-checked against the Tung-Sol 6SQ7 / 6SQ7GT sheet, Dec. 1 1947. See reference/tubes/6sq7.yaml."
+    url: "https://frank.pocnet.net/sheets/049/6/6SQ7.pdf"
+  - desc: "RCA 5879 data sheet, Data 1, 3-61 (Sharp-Cutoff Pentode, 9-pin miniature, 'For Audio-Amplifier Applications Critical as to Microphonics, Leakage Noise, and Hum') — anchor for the new CC0 5879 tube model and for the ratings that make this a preamp valve and nothing else: pentode connection Va=250 V, Vg2=100 V, Vg1=-3 V → Ia=1.8 mA, Ig2=0.4 mA, gm=1000 µmho, rp=2 MΩ; design-maximum 1.25 W plate dissipation, 0.25 W screen input, 330 V plate and screen supply; basing 9AD with grid No.3 'connected to cathode at socket'. See reference/tubes/5879.yaml and models/METHODOLOGY.md."
+    url: "https://frank.pocnet.net/sheets/049/5/5879.pdf"
+verification:
+  status: draft   # Three reasons, all stated rather than tuned away.
+                  # (1) Channel 2 and the whole 6SQ7 tremolo are EXCLUDED from
+                  # the netlist: channel 2's screen is fed through the tremolo's
+                  # Depth network, and neither that network nor the channel-2
+                  # screen dropper resolves on the only published drawing of this
+                  # revision. Verified is earned whole.
+                  # (2) The three channel-1 nodes the chart prints all land
+                  # OUTSIDE the era's ±20% convention (plate −24%, screen +37%,
+                  # cathode +23%) — a v0 tube-model residual, not a circuit
+                  # disagreement: the chart's own arithmetic reproduces every
+                  # resistor this entry reads to within a few percent. See
+                  # voltages.yaml and notes.md.
+                  # (3) The drawing is undated, so the era bracket is an outer
+                  # bound over more than one 5879 revision rather than a
+                  # production record.
+# Day the circuit landed in the corpus (git history, amps/ga40/) — the feed's
+# pubDate for a draft; production builds are shallow clones and cannot ask git.
+added: 2026-08-30
+contributors: [TheAnalogMaker]

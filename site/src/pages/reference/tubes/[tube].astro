@@ -11,7 +11,7 @@ export async function getStaticPaths() {
   }));
 }
 const { t, loadLineable } = Astro.props;
-const modelUrl = `${GITHUB}/blob/main/${t.model.file}`;
+const modelUrl = t.model ? `${GITHUB}/blob/main/${t.model.file}` : null;
 const study = t.study ? loadStudy(t.study) : null;
 ---
 <Base title={`${t.name} — tube reference · Circuit Codex`}
@@ -57,6 +57,7 @@ const study = t.study ? loadStudy(t.study) : null;
         </table></div>
       </section>
 
+      {t.model ? (
       <section>
         <h2>Circuit Codex model</h2>
         <p class="sub">A CC0 ngspice model {t.model.form || 'in the Koren form'}, fitted here to the
@@ -83,6 +84,17 @@ const study = t.study ? loadStudy(t.study) : null;
         )}
         {/* /LOADLINE-LINK */}
       </section>
+      ) : (
+      <section>
+        <h2>Circuit Codex model</h2>
+        <p class="sub">No SPICE model is carried for this valve. Nothing in the corpus
+          simulates it: the one circuit that uses it runs it as a tremolo oscillator,
+          which has no static operating point a DC model could be checked against. The
+          basing above is what this archive asserts about it, and the socket wiring on
+          the board drawing is validated against that.
+          <a href={`${GITHUB}/blob/main/models/METHODOLOGY.md`}>How the models are derived →</a></p>
+      </section>
+      )}
 
       {t.max_ratings && (
         <section>

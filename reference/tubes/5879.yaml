@@ -1,0 +1,90 @@
+tube: 5879
+name: 5879
+also_known_as: []
+role: >-
+  RCA nine-pin sharp-cutoff pentode, built for the one job its sheet names in
+  the title: audio-amplifier applications critical as to microphonics, leakage
+  noise and hum. That brief is what put it at the front of a Gibson combo, where
+  a preamp valve sits a few inches from a twelve-inch speaker. It is a small
+  valve for a small signal — 1.25 W of plate dissipation, 1.8 mA at the
+  tabulated point — and it buys the gain of a pentode where a triode of the era
+  would give several times less. Grid No.3 has its own pin and the sheet directs
+  it to be connected to the cathode at the socket.
+model:
+  file: models/5879.inc
+  anchor: "Va=250 V, Vg2=100 V, Vg3=0 V, Vg1=-3 V → Ia=1.8 mA, Ig2=0.4 mA, gm=1000 µmho"
+  anchor_source: "RCA 5879 data sheet, Data 1, 3-61 — Characteristics, Class A1 Amplifier, pentode-connection column"
+  anchor_source_url: https://frank.pocnet.net/sheets/049/5/5879.pdf
+  note: >-
+    µ=21 is the tabulated TRIODE-connection amplification factor standing in for
+    the grid-No.1-to-grid-No.2 factor, which RCA does not print for this tube —
+    the documented substitution METHODOLOGY.md allows, and the one the 6SJ7 and
+    KT66 models already make. RCA prints 21 in both of its triode columns
+    (Va=100 V and Va=250 V), so the figure at least holds across the sheet's own
+    plate range. EX=1.5 and KVB=30 are the project pentode defaults: this sheet
+    tabulates the pentode connection at ONE plate voltage only, so — unlike the
+    6SJ7 — nothing in the data measures the plate-voltage dependence.
+  corroboration: >-
+    Plate resistance is not fitted and is therefore a free check on the fit. The
+    sheet prints 2 MΩ at the anchor; the model reads 1.70 MΩ there, 15% low.
+  known_limitation: >-
+    A single-anchor fit at Va=250 V, Vg2=100 V. The GA-40 works the valve well
+    below that on the plate (its chart prints +175 V behind a 100 kΩ load) though
+    close to it on the screen (+95 V), so the screen — which sets the current in
+    a pentode — is near the anchor while the plate is not. Screen current carries
+    no plate-voltage term in this model form at all, and µ is a substitution
+    rather than a measured grid-No.1-to-grid-No.2 factor, which on the 7591 is
+    known to run high.
+max_ratings:
+  note: >-
+    Design-maximum values. The pentode-connection column is the one that applies
+    in this corpus's circuits; the triode column is the same valve with grid No.3
+    and grid No.2 tied to the plate, and is rated lower on the plate (275 V) but
+    higher on dissipation (1.7 W). A quarter of a watt of screen input and 1.25 W
+    on the plate keep this firmly a small-signal valve: the screen is fed through
+    a dropper, never tied to the rail.
+  items:
+    - { label: "Plate voltage", value: "330 V" }
+    - { label: "Grid-No.3 (suppressor)", value: "connect to cathode at socket" }
+    - { label: "Grid-No.2 (screen) supply voltage", value: "330 V" }
+    - { label: "Grid-No.2 input", value: "0.25 W for screen voltages up to 165 V (above that, the sheet's rating chart)" }
+    - { label: "Grid-No.1 voltage, negative-bias value", value: "55 V" }
+    - { label: "Grid-No.1 voltage, positive-bias value", value: "0 V" }
+    - { label: "Plate dissipation", value: "1.25 W" }
+    - { label: "Peak heater-cathode voltage", value: "100 V, either polarity" }
+    - { label: "Grid-No.1 circuit resistance", value: "2.2 MΩ" }
+    - { label: "Plate voltage, triode connection", value: "275 V" }
+    - { label: "Plate dissipation, triode connection", value: "1.7 W" }
+  limits:
+    plate_dissipation_w: 1.25
+    screen_dissipation_w: 0.25
+    plate_voltage_v: 330
+    screen_voltage_v: 330
+  rating_system: design-maximum
+  source: "RCA 5879 data sheet, Data 1, 3-61 — Amplifier, Class A1, Maximum Ratings, Design-Maximum Values"
+  source_url: https://frank.pocnet.net/sheets/049/5/5879.pdf
+basing:
+  code: 9AD
+  base: noval-b9a
+  view: bottom
+  source: >-
+    RCA 5879 data sheet, Data 1, 3-61 — "Basing Designation for BOTTOM VIEW …
+    9AD", with the terminal list reproduced below. Two pins are no-connection,
+    which is what lets the sheet claim its low grid-to-plate capacitance
+    (0.11 pF max) without an external shield.
+  pins:
+    1: { element: grid, note: "g1" }
+    2: { element: no-connection }
+    3: { element: cathode }
+    4: { element: heater }
+    5: { element: heater }
+    6: { element: no-connection }
+    7: { element: screen-grid, hv: true, note: "g2 — fed through a dropper" }
+    8: { element: plate, hv: true }
+    9: { element: suppressor-grid, note: "g3 — the sheet directs it to be connected to the cathode at the socket" }
+used_in: ["ga40"]
+datasheets:
+  - publisher: RCA
+    designation: 5879
+    url: https://frank.pocnet.net/sheets/049/5/5879.pdf
+    confidence: high

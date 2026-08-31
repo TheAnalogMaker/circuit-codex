@@ -1,0 +1,57 @@
+# The Gibson GA-40 drawing prints a VOLTAGE TABLE — a proper tabulated
+# valve-voltage chart of the kind Fender printed, one row per bottle and columns
+# for E(p1), E(sg), E(k), E(p2) and E(B+), with its own stated measurement
+# convention: "VOLTAGES TO CHASSIS WITH 20,000 O.P.V. METER" and, for the
+# tremolo row, "TREMOLO 'OFF', DEPTH 'MIN'". The rows, transcribed:
+#
+#   5Y3GT  rectifier      300 VAC   —      +315   300 VAC   —
+#   6V6GT  output         +305      +310   +18.5  —         +310
+#   12AX7  Ø inverter     +135      —      +1.25  +135      +280
+#   5879   channel 1      +175      +95    +4     —         +265
+#   5879   channel 2      +130      +32    +1.45  —         +265
+#   6SQ7   tremolo osc.   +130**    —      +1.45  —         —
+#
+# THREE RAILS ARE DRIVEN, not derived — +310, +280 and +265, each taken from the
+# chart's own E(B+) column, because the droppers between them also feed channel 2
+# and the tremolo and this netlist models neither (netlist.cir SCOPE). A driven
+# node proves nothing, so none of the three appears below; only DERIVED nodes do.
+# The 6V6GT anode figure (+305 V) is not gated either: the corpus omits
+# output-transformer primary DCR, so both anodes collapse onto the driven +310
+# rail and the 5 V between them is that winding's drop.
+#
+# CLOSURE TEST first, because it decides where the residual below actually sits.
+# Take the three resistors read off the drawing and two of the printed voltages,
+# and see whether they predict the third. The plate sits at +175 V off the +265 V
+# rail, so the lettered 100 kΩ load passes 0.90 mA. The screen sits at +95 V off
+# the same rail, so the lettered 750 kΩ dropper passes 0.227 mA. Those two
+# currents over the lettered 3.3 kΩ cathode resistor give +3.72 V — against a
+# printed +4.0 V, 7% low. Three resistors read off a low-resolution scan, closing
+# on a chart measured through them to 7%: the VALUES are right.
+#
+# HONEST RESIDUAL — all three channel-1 nodes still miss, and the miss is in the
+# tube model. The corpus's 5879 is a single-anchor fit at Va=250 V, Vg2=100 V, and
+# in this model form the screen-current law has no plate-voltage term at all. Run
+# at the screen voltage this circuit actually uses it draws roughly a third of the
+# screen current the real valve does, so the 750 kΩ dropper leaves the screen at
+# +130 V instead of +95 V and the extra screen volts pull the plate down to
+# +134 V. Part of the gap is not the model's, either: the chart's own stated
+# convention is a 20,000 ohms-per-volt meter, which on a 250 V range is 5 MΩ, and
+# 5 MΩ across a node fed through 750 kΩ draws 19 µA — worth roughly 14 V of extra
+# drop in that dropper. The screen this chart printed is therefore lower than the
+# screen the amplifier ran, and by the largest margin of any node on the sheet.
+# The three figures are gated at the era's ±20% anyway, and reported failing,
+# because hiding a v0 model limitation behind `chart: null` would be the
+# dishonest fix. It is the second of the three reasons this circuit is a draft.
+source: "Gibson GA-40 factory drawing, printed VOLTAGE TABLE: 5Y3GT 300 VAC per plate with +315 at the cathode; 6V6GT +305 plate, +310 screen, +18.5 cathode, +310 B+; 12AX7 +135 at both plates, +1.25 cathode, +280 B+; 5879 channel 1 +175 plate, +95 screen, +4 cathode, +265 B+; 5879 channel 2 +130 plate, +32 screen, +1.45 cathode, +265 B+; 6SQ7 tremolo oscillator +130 plate, +1.45 cathode. Stated convention: voltages to chassis with a 20,000 ohms-per-volt meter, tremolo 'off' and depth 'min'. See meta.yaml for the link."
+nodes:
+  P1:    { chart: 175, tol_pct: 20, note: "channel-1 5879 anode, 100 kΩ load off the +265 rail. Reads low: see the honest residual above — the 5879 model's screen-current law is anchored at Vg2=100 V and this stage runs at +95 V on a 750 kΩ dropper" }
+  SG1:   { chart: 95, tol_pct: 20, note: "channel-1 5879 screen grid, fed through 750 kΩ and bypassed to ground by 0.05 µF — the node that sets a pentode's current, and the node the model misses" }
+  K1:    { chart: 4, tol_pct: 20, note: "channel-1 5879 cathode, 3.3 kΩ bypassed by 20 µF. The chart's own plate and screen currents over that resistor give +3.7 V, so the printed +4 V and the drawing's 3.3 kΩ agree; the simulated figure inherits the screen error above" }
+  P4A:   { chart: 135, tol_pct: 20, note: "phase-inverter anode, driver half — 220 kΩ load off the +280 rail. The chart prints one figure for both halves in its E(p1)/E(p2) columns" }
+  P4B:   { chart: 135, tol_pct: 20, note: "phase-inverter anode, inverted half — 220 kΩ load, the half whose grid hangs on the 470 kΩ/7.5 kΩ paraphase divider" }
+  K4:    { chart: 1.25, tol_pct: 20, note: "phase-inverter shared cathode over ONE 1 kΩ resistor (20 µF bypass) — both halves on it, which is why 1.25 V and not half that" }
+  KOUT:  { chart: 18.5, tol_pct: 20, note: "shared 6V6GT cathode over the single 200 Ω resistor (20 µF bypass) — the amp's entire bias arrangement, for both bottles, with no bias supply anywhere" }
+  NPARA: { chart: null, note: "informational — the paraphase tap itself, where the 470 kΩ from the first output grid meets the 7.5 kΩ to ground and drives the inverter's second grid. Idles at exactly 0 V: there is no grid-current model (models/METHODOLOGY.md v0)" }
+  G5:    { chart: null, note: "informational — first 6V6GT control grid, behind the 0.02 µF coupler; its DC return is the paraphase divider itself rather than a leak of its own" }
+  G6:    { chart: null, note: "informational — second 6V6GT control grid, behind its own 0.02 µF coupler with a 470 kΩ leak to ground" }
+  NIN1:  { chart: null, note: "informational — the channel-1 jack node, where the 1 MΩ leak meets both 51 kΩ input resistors. No grid current flows, so this node sets no operating point" }
