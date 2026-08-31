@@ -6,13 +6,24 @@
 #
 # Format:  <amp_id>: "<reason>"
 #
-# As of 2026-07-19 the list is EMPTY: every amp with a wiring layer passes the
-# collision lint with zero failures. ab763 (the largest board in the corpus —
-# blackface Deluxe Reverb, 9 tubes on a 62-column board) was brought 72→0 the
-# same way as the rest: ≥18° bearing fan-out at every shared node, deep-lane
-# separation, far-side pin approaches and off-column ground drops — every
-# endpoint preserved, the wiring re-verified electrically equivalent to the
-# netlist (wiring_claim: verified). No board was routed by inventing a wire.
+# History: from 2026-07-19 to 2026-08-31 the list was EMPTY — every amp with a
+# wiring layer passed with zero failures. ab763 (the largest board in the
+# corpus — blackface Deluxe Reverb, 9 tubes on a 62-column board) was brought
+# 72→0 the same way as the rest: ≥18° bearing fan-out at every shared node,
+# deep-lane separation, far-side pin approaches and off-column ground drops —
+# every endpoint preserved, the wiring re-verified electrically equivalent to
+# the netlist (wiring_claim: verified). No board was routed by inventing a wire.
 # Keep this mechanism in place: any future amp that lands with lint debt gets a
 # documented entry here rather than a silent downgrade.
-waivers: {}
+waivers:
+  m1987: >-
+    V5's socket caption is struck lengthwise by the harness horizontals under
+    the socket row (2026-08-31, after check (c) learned to measure wire PAINT
+    rather than centrelines — the strike was always painted, the old test just
+    could not see it). The band below V5 carries seven stacked long runs at a
+    12-14 px pitch (runs 45/51/52/91/73/39/40), so no caption lane exists
+    within the label ladder's reach and no single nudge clears it; the fix is
+    a harness-band re-route of the three board-to-board links routed through
+    the caption band, which is per-layout routing work of exactly the kind the
+    2026-08-08 fan-out note reserves for its own session. Two findings waived
+    (house + sheet), both the same caption.

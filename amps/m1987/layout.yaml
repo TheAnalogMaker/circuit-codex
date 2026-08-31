@@ -92,7 +92,7 @@ offboard:
   - { id: L1,  ref: L1, kind: choke, edge: left, at: 1.5, label: "Choke" }
   - { id: PL1, kind: part, glyph: lamp, edge: left, at: 2.6, label: "Pilot lamp" }
   - { id: V4,  ref: V4, kind: tube, edge: bottom, at: 31,   label: "V4 · EL34" }
-  - { id: V5,  ref: V5, kind: tube, edge: bottom, at: 38,   label: "V5 · EL34" }
+  - { id: V5,  ref: V5, kind: tube, edge: bottom, at: 38,   label: "V5 · EL34", label_nudge: [0, 32] }   # caption below the two long horizontals routed through its band
   - { id: SPK, kind: jack, edge: bottom, at: 41, label: "Spkr jacks" }
   # NFB resistor (annotation only — no board designator): taps the speaker /
   # OT-secondary node and returns to the phase-inverter tail foot. Drawn as a

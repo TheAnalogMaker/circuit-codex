@@ -679,6 +679,25 @@ def _seg_box_span(p, q, box):
     return (t1 - t0) * math.hypot(dx, dy)
 
 
+def _seg_box_span_painted(p, q, box, halfw, inset=1.6):
+    """Span of segment p-q through a label's box, measured against the wire's
+    PAINT rather than its centreline. The box is grown PERPENDICULAR to the
+    segment by `halfw` (half the painted stroke: ink that reaches into the
+    type strikes it even when the centreline passes just outside the box) and
+    inset ALONG the segment's direction by `inset` (a glyph does not fill its
+    em box). Direction-aware on purpose: growing the box on all sides would
+    make every transversal crossing measure the label's height plus a stroke —
+    tripping the absolute floor — when a halo'd transversal crossing is the
+    ordinary, accepted case on a wired board. Along the type the measure is
+    unchanged; across it, paint counts."""
+    dx, dy = q[0] - p[0], q[1] - p[1]
+    L = math.hypot(dx, dy)
+    ux, uy = (1.0, 0.0) if L < 1e-9 else (abs(dx) / L, abs(dy) / L)
+    gx = halfw * uy - inset * ux
+    gy = halfw * ux - inset * uy
+    return _seg_box_span(p, q, (box[0] - gx, box[1] - gy, box[2] + gx, box[3] + gy))
+
+
 def _clean_polyline(pts, eps=1.5):
     """Drop coincident points and collapse degenerate out-and-back spurs.
 
@@ -1351,6 +1370,18 @@ class Renderer:
         })
         return ""
 
+    # Painted half-widths of the wiring layer, per conductor class. The label
+    # lint and the placer test wire PAINT against type, not centrelines: a
+    # house run paints a 4.8 px casing, so its ink reaches 2.4 px past the
+    # line the geometry stores, and a centreline that misses a label box by a
+    # fraction of a pixel still drives paint through the baseline of the type
+    # (the growth-wave-3 judges counted 92 labels struck that way while the
+    # centreline test reported clean). Keep these in step with the stroke
+    # widths in run_wire()/bus_wire().
+    RUN_HALF = 2.4       # plain run: 4.8 px casing
+    TWIST_HALF = 2.5     # twisted heater pair: 5.0 px casing
+    BUS_HALF = 3.2       # ground bus: 6.4 px edge stroke
+
     # Candidate placements, tried in order: the authored position first, then a
     # short deterministic ladder of small moves. Kept short and local on
     # purpose — a label that has to travel far to find air is a drawing problem
@@ -1402,10 +1433,11 @@ class Renderer:
             width = box[2] - box[0]
             tbox = _shrink(box, LINT_LABEL_INSET)
             hard_wire = soft_wire = False
-            for _name, pts in wires:
+            for _name, pts, halfw in wires:
                 span = 0.0
                 for k in range(len(pts) - 1):
-                    span = max(span, _seg_box_span(pts[k], pts[k + 1], tbox))
+                    span = max(span, _seg_box_span_painted(
+                        pts[k], pts[k + 1], box, halfw, LINT_LABEL_INSET))
                 if span > max(LINT_WIRE_SPAN, LINT_WIRE_FRAC * width):
                     hard_wire = True
                     break
@@ -1518,9 +1550,12 @@ class Renderer:
         if not (self.LEADER_GAP < gap < self.LEADER_MAX):
             return ""
         (x1, y1), (x2, y2) = _box_link(box, target)
+        # Dashed, so a leader can never be read as a hookup run: every real
+        # conductor in both styles is a continuous stroke, and a hairline that
+        # crossed a live run used to be distinguishable only by weight.
         return (f'<line x1="{fmt(x1)}" y1="{fmt(y1)}" x2="{fmt(x2)}" y2="{fmt(y2)}" '
                 f'stroke="{self.LEADER_INK}" stroke-width="0.9" opacity="0.75" '
-                f'stroke-linecap="round"/>'
+                f'stroke-dasharray="3.2 2.4" stroke-linecap="round"/>'
                 f'<circle cx="{fmt(x2)}" cy="{fmt(y2)}" r="1.4" '
                 f'fill="{self.LEADER_INK}" opacity="0.75"/>')
 
@@ -1725,19 +1760,34 @@ class Renderer:
         `T2.sec_h`), and those four identical black leads into four identical
         terminals told a builder nothing about which was which. The callout
         letters the terminal name the data already carries, so nothing is
-        invented and nothing is left to guess."""
+        invented and nothing is left to guess.
+
+        Placement is OFF the lead's axis on purpose: a name centred on a
+        vertical lead put the lead — and the run continuing from its terminal
+        — straight through its own glyphs (the GA-40's PT and OT terminal
+        names all shipped struck that way). Beside the lead, with the same
+        halo weight the pot labels carry, the placer and the lint can both do
+        their job."""
         if lead_base(colour) is not None:
             return
         txt = str(colour).replace("_", " ").replace("-", " ").upper()
-        edge = item.get("edge", "left")
         dx, dy = base[0] - ex_, base[1] - ey_       # points back at the body
         if abs(dx) >= abs(dy):
+            # horizontal lead: just past the terminal, lifted off the axis so
+            # the run leaving the terminal cannot underline the type
             lx, anchor = ex_ - math.copysign(7.5, dx), ("end" if dx > 0 else "start")
-            ly = ey_ + 3.0
+            ly = ey_ - 6.0
         else:
-            lx, anchor, ly = ex_, "middle", ey_ - math.copysign(8.0, dy)
+            # vertical lead: beside the stub, alternating sides by slot so
+            # neighbouring terminal names on one face do not fight for the
+            # same lane
+            slots = self.xfmr_leads.get(item.get("id"), [])
+            idx = slots.index(colour) if colour in slots else 0
+            side = 1.0 if idx % 2 == 0 else -1.0
+            lx, anchor = ex_ + side * 6.0, ("start" if side > 0 else "end")
+            ly = ey_ + dy / 2.0 + 2.5
         self.lab(lx, ly, txt, ink, 7.5, anchor=anchor, weight=600, spacing="0.03em",
-                 halo=halo, halo_width=2.4,
+                 halo=halo, halo_width=3.0,
                  tag=f"lead {item.get('id', '')}.{colour}",
                  group=f"lead:{item.get('id', '')}.{colour}",
                  keep_in=self.canvas_box())
@@ -2098,9 +2148,12 @@ class Renderer:
             self.obst_circle(x, y, r, f"socket {item.get('id', '')}")
             # tube-socket ID label: opaque halo AND the final text pass, so a
             # heater twisted pair routed close under the socket reads behind
-            # the text instead of cutting through it.
+            # the text instead of cutting through it. `label_nudge` is the same
+            # authored escape hatch the pots carry, for a caption whose whole
+            # band is occupied by a routed run.
+            lnx, lny = (item.get("label_nudge") or [0, 0])[:2]
             lab_y = (y - r - 8) if sgn < 0 else (y + r + 15)
-            labs.append(self.lab(x, lab_y, label, INK, 12, spacing="0.05em",
+            labs.append(self.lab(x + lnx, lab_y + lny, label, INK, 12, spacing="0.05em",
                                  halo=WELL, halo_width=3.2,
                                  tag=f"socket {item.get('id', '')}",
                                  group=f"tube:{item.get('id', '')}",
@@ -2179,6 +2232,13 @@ class Renderer:
                            f'stroke-linecap="round"/>')
                 els.append(term_dot(ex_, ey_, 2.4))
                 self.obst_circle(ex_, ey_, 2.4, f"pigtail {item.get('id', '')}.{colour}")
+                # the pigtail stub is a conductor drawn inline, not a run — box
+                # it as an obstacle so the label placer and lint check (d) see
+                # it (the GA-40's terminal names sat under their own leads
+                # because nothing measured them)
+                self.obst_rect(min(base[0], ex_) - 1.5, min(base[1], ey_) - 1.5,
+                               max(base[0], ex_) + 1.5, max(base[1], ey_) + 1.5,
+                               f"pigtail {item.get('id', '')}.{colour}")
                 self._lead_callout(item, colour, ex_, ey_, base, MUTED, BOARD)
             # Edge-safe placement: an off-board transformer near a side border can
             # carry a sublabel wider than the gap to the canvas edge (the OT on the
@@ -2586,8 +2646,10 @@ class Renderer:
         # the crossings that remain. Placement is resolved here too, against the
         # finished geometry, so a label lands in air by measurement rather than
         # by hand-authored nudge.
-        wires = [(f"run[{r['i']}]", r["pts"]) for r in runs if r["pts"]]
-        wires += [(f"bus[{b['j']}]", b["pts"]) for b in bus if b["pts"]]
+        wires = [(f"run[{r['i']}]", r["pts"],
+                  self.TWIST_HALF if r["twisted"] else self.RUN_HALF)
+                 for r in runs if r["pts"]]
+        wires += [(f"bus[{b['j']}]", b["pts"], self.BUS_HALF) for b in bus if b["pts"]]
         els.append(self._emit_labels(wires))
         # title + attribution
         title = (self.layout.get("board", {}) or {}).get("title") or f"{self.amp_id.upper()} board layout"
@@ -3311,8 +3373,9 @@ class SheetRenderer(Renderer):
                 els.append(text(nx, ny + 3, str(pin), SH_INK2, 7.5, weight=600,
                                 halo=SH_PAPER, halo_width=2.2))
             self.obst_circle(x, y, r + 5, f"socket {item.get('id', '')}")
+            lnx, lny = (item.get("label_nudge") or [0, 0])[:2]
             lab_y = (y - r - 13) if sgn < 0 else (y + r + 20)
-            self.lab(x, lab_y, label, SH_INK, 12, weight=700, spacing="0.06em",
+            self.lab(x + lnx, lab_y + lny, label, SH_INK, 12, weight=700, spacing="0.06em",
                      halo=SH_PAPER, halo_width=3.0,
                      tag=f"socket {item.get('id', '')}",
                      group=f"tube:{item.get('id', '')}", keep_in=self.canvas_box())
@@ -3397,6 +3460,10 @@ class SheetRenderer(Renderer):
                            f'stroke-linecap="round"/>')
                 els.append(sheet_term(ex_, ey_, 2.2))
                 self.obst_circle(ex_, ey_, 2.4, f"pigtail {item.get('id', '')}.{colour}")
+                # box the stub as an obstacle, exactly as the house style does
+                self.obst_rect(min(base[0], ex_) - 1.5, min(base[1], ey_) - 1.5,
+                               max(base[0], ex_) + 1.5, max(base[1], ey_) + 1.5,
+                               f"pigtail {item.get('id', '')}.{colour}")
                 self._lead_callout(item, colour, ex_, ey_, base, SH_INK2, SH_PAPER)
             if val:
                 val_x, val_anchor = self._edge_safe(x, val, 9.5, False)
@@ -3673,8 +3740,10 @@ class SheetRenderer(Renderer):
             seen.add(key)
             els.append(sheet_solder(tx, ty))
             self.obst_circle(tx, ty, 4.5, "solder joint")
-        wires = [(f"run[{r['i']}]", r["pts"]) for r in runs if r["pts"]]
-        wires += [(f"bus[{b['j']}]", b["pts"]) for b in bus if b["pts"]]
+        wires = [(f"run[{r['i']}]", r["pts"],
+                  self.TWIST_HALF if r["twisted"] else self.RUN_HALF)
+                 for r in runs if r["pts"]]
+        wires += [(f"bus[{b['j']}]", b["pts"], self.BUS_HALF) for b in bus if b["pts"]]
         els.append(self._emit_labels(wires))
         els += self._fixed
         title = ((self.layout.get("board", {}) or {}).get("title")
@@ -3874,7 +3943,8 @@ def lint_layout(amp_dir: Path, style: str = "house",
     drawing legible was hand-authored `label_nudge` / `value_nudge`, unmeasured:
 
       (c) label struck by a wire — a run, twisted heater pair or ground-bus
-          segment passing through more than 3 px of a label's (inset) box;
+          segment whose PAINT (stroke half-width included) runs along a
+          label's box past the strike threshold;
       (d) label over a glyph — a label's box overlapping a part body, socket,
           pot, jack, transformer, terminal dot, lug pip or eyelet by more than
           2.5 px in both axes;
@@ -3989,25 +4059,29 @@ def _lint_labels(rend: "Renderer", runs, bus, amp_id: str,
     amp_id = f"{amp_id} [sheet]" if style == "sheet" else amp_id
     rend.render()
     labels = rend.labels
-    # (full box, inset box): the inset box is what is tested for contact, but the
-    # wire-strike fraction is of the label's OWN width — the same measure the
-    # placer uses, so a placement the placer accepts is one the gate accepts.
-    boxes = [(lb, _shrink(lb["box"], LINT_LABEL_INSET), lb["box"][2] - lb["box"][0])
+    # (label, full box, inset box, width): check (c) measures the wire's PAINT
+    # against the full box via _seg_box_span_painted — the same measure the
+    # placer uses, so a placement the placer accepts is one the gate accepts;
+    # checks (d)/(e) keep the inset box (glyphs and labels have no stroke).
+    boxes = [(lb, lb["box"], _shrink(lb["box"], LINT_LABEL_INSET),
+              lb["box"][2] - lb["box"][0])
              for lb in labels]
     fails: list[str] = []
-    # (c) label struck by a wire
+    # (c) label struck by a wire — painted width included, per conductor class
     wires = []
     for r in runs:
         if r["pts"]:
-            wires.append((f"run[{r['i']}]", r["pts"]))
+            wires.append((f"run[{r['i']}]", r["pts"],
+                          rend.TWIST_HALF if r["twisted"] else rend.RUN_HALF))
     for b in bus:
         if b["pts"]:
-            wires.append((f"bus[{b['j']}]", b["pts"]))
-    for lb, box, width in boxes:
-        for name, pts in wires:
+            wires.append((f"bus[{b['j']}]", b["pts"], rend.BUS_HALF))
+    for lb, fbox, box, width in boxes:
+        for name, pts, halfw in wires:
             span = 0.0
             for k in range(len(pts) - 1):
-                span = max(span, _seg_box_span(pts[k], pts[k + 1], box))
+                span = max(span, _seg_box_span_painted(
+                    pts[k], pts[k + 1], fbox, halfw, LINT_LABEL_INSET))
             if span > max(LINT_WIRE_SPAN, LINT_WIRE_FRAC * width):
                 fails.append(
                     f"{amp_id}: label struck by wire — '{lb['text']}' ({lb['tag']}) "
@@ -4015,7 +4089,7 @@ def _lint_labels(rend: "Renderer", runs, bus, amp_id: str,
                     f"({(box[0]+box[2])/2:.0f},{(box[1]+box[3])/2:.0f})")
                 break
     # (d) label over a glyph
-    for lb, box, _w in boxes:
+    for lb, _f, box, _w in boxes:
         for ob in rend.obstacles:
             w, h = _box_overlap(box, ob["box"])
             if w > LINT_GLYPH_W and h > LINT_GLYPH_H:
@@ -4027,7 +4101,7 @@ def _lint_labels(rend: "Renderer", runs, bus, amp_id: str,
     # (e) label over a label
     for i in range(len(boxes)):
         for j in range(i + 1, len(boxes)):
-            (la, _ia, _wa), (lbb, _ib, _wb) = boxes[i], boxes[j]
+            (la, _fa, _ia, _wa), (lbb, _fb, _ib, _wb) = boxes[i], boxes[j]
             ba, bb = la["box"], lbb["box"]
             w, h = _box_overlap(_shrink(ba, -LINT_LABEL_GAP), bb)
             if w > LINT_LABEL_W and h > LINT_LABEL_H:

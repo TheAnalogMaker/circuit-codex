@@ -131,15 +131,15 @@ offboard:
   - { id: V4,  ref: V4, kind: tube, edge: bottom, at: 66,  label: "V4 · 7025 (PI)" }
   - { id: VR7, ref: VR7, kind: pot, edge: top, at: 67, label: "Presence" }
   - { id: V3,  ref: V3, kind: tube, edge: bottom, at: 82,  label: "V3 · 7025 (driver)" }
-  - { id: VR6, ref: VR6, kind: pot, edge: top, at: 76, label: "Bass ch. Treble" }
+  - { id: VR6, ref: VR6, kind: pot, edge: top, at: 76, label: "Bass ch. · Treble" }
   - { id: JN,  kind: jack, edge: top, at: 89, label: "Normal 2/1" }
-  - { id: VR3, ref: VR3, kind: pot, edge: top, at: 98, label: "Normal Treble" }
-  - { id: VR4, ref: VR4, kind: pot, edge: top, at: 102, label: "Normal Bass" }
-  - { id: VR5, ref: VR5, kind: pot, edge: top, at: 108, label: "Normal Volume" }
+  - { id: VR3, ref: VR3, kind: pot, edge: top, at: 98, label: "Normal ch. · Treble" }
+  - { id: VR4, ref: VR4, kind: pot, edge: top, at: 102, label: "Normal ch. · Bass" }
+  - { id: VR5, ref: VR5, kind: pot, edge: top, at: 108, label: "Normal ch. · Volume" }
   - { id: V2,  ref: V2, kind: tube, edge: bottom, at: 108, label: "V2 · 7025 (Normal)" }
   - { id: V1,  ref: V1, kind: tube, edge: bottom, at: 165, label: "V1 · 7025 (Bass)" }
-  - { id: VR1, ref: VR1, kind: pot, edge: top, at: 177.3, label: "Bass ch. Bass" }
-  - { id: VR2, ref: VR2, kind: pot, edge: top, at: 158, label: "Bass ch. Volume" }
+  - { id: VR1, ref: VR1, kind: pot, edge: top, at: 177.3, label: "Bass ch. · Bass" }
+  - { id: VR2, ref: VR2, kind: pot, edge: top, at: 158, label: "Bass ch. · Volume" }
   - { id: JB,  kind: jack, edge: top, at: 182, label: "Bass 2/1" }
 
 # Ground bus — bare tinned rail running the length of the board just below the

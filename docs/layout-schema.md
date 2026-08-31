@@ -144,7 +144,7 @@ read as `±25MFD` on every narrow can in the corpus.
 | `glyph` | Only for `kind: part` — `lamp` draws the pilot-lamp glyph; otherwise the body its BOM part type calls for (see body vocabulary above), at the same size a board part gets, with its value lettered on it |
 | `value` | Only meaningful on a **ref-less** item, and only for `kind: part`. Values live in `bom.yaml`, keyed by ref, so a layout and the parts list can never disagree — and that stays true for every part the BOM knows. But the annotation layer draws parts the electrical model does not carry (a negative-feedback resistor stated only as a schematic *text note*, so it has no symbol and therefore no BOM ref), and those had no way to state a value at all: they shipped as blank bodies. A ref'd item ignores this field, so the two can never diverge. The value must be sourced in a comment; the lint fails a ref-less `kind: part` that has neither |
 | `cathode` | Only for a `kind: part` whose BOM type is a diode/rectifier — `a` \| `b`, same meaning as on `parts[]` |
-| `label_nudge` / `value_nudge` | Only for `kind: pot` — `[dx, dy]` px shifts for the name+value pair / the value alone, keeping the label's opaque halo. Same status as `parts[]`'s nudges: an authored starting point for the automatic placement pass, not the mechanism |
+| `label_nudge` / `value_nudge` | For `kind: pot` — `[dx, dy]` px shifts for the name+value pair / the value alone, keeping the label's opaque halo. `kind: tube` accepts `label_nudge` too (the socket caption as one piece), for a caption whose whole natural band is occupied by a routed run. Same status as `parts[]`'s nudges: an authored starting point for the automatic placement pass, not the mechanism |
 
 Tubes draw their real pin ring with pin numbers; the pin count is read from the
 tube's `reference/tubes/<tube>.yaml` basing data (via the `ref`'s BOM value), so
@@ -292,7 +292,15 @@ and the only thing keeping it honest was hand-authored `nudge` / `label_nudge` /
 (`text_box()` in `render_layouts.py`) and inset ~1.6 px before testing, because
 every label carries an opaque halo and a wire that merely grazes a box is not a
 legibility defect. A transversal crossing is likewise *not* a failure — the halo
-handles it; a wire lying **along** the type is.
+handles it; a wire lying **along** the type is. Since 2026-08-31 the wire test
+measures the conductor's **paint**, not its centreline: the box is grown
+perpendicular to each segment by that conductor class's painted half-width
+(2.4 px for a house run's 4.8 px casing, the bus's own half-width for bus
+segments), so a run whose centreline passes a fraction of a pixel outside the
+box can no longer drive its casing through the baseline of the type unreported
+— while along the type the measure (and the transversal-crossing allowance) is
+unchanged. The label placer scores candidates with the identical test, so a
+placement the placer accepts is still one the gate accepts.
 
 Because the lint must measure what actually ships, it renders the layout and
 reads the renderer's own label and obstacle registries — the same geometry the

@@ -84,7 +84,7 @@ parts:
   - { ref: R12,   a: [0, 98], b: [1, 98] }     # first cathode, UNBYPASSED
   - { ref: C5,    a: [0, 100], b: [0, 102] }      # first anode -> the ULTRA network
   - { ref: C6,    a: [0, 102], b: [1, 102] }      # ULTRA LO series capacitor
-  - { ref: R13,   a: [1, 102], b: [1, 104] }     # ULTRA LO series resistor
+  - { ref: R13,   a: [1, 102], b: [1, 104], value_nudge: [0, -12] }     # ULTRA LO series resistor; value lifted off the row-2 run
   - { ref: R14,   a: [1, 104], b: [1, 106] }     # shunt leg, shorted out by ULTRA LO
   - { ref: C20,   a: [0, 102], b: [0, 104] }     # into the volume control
   - { ref: C7,    a: [0, 106], b: [0, 108] }      # ULTRA HI bright capacitor

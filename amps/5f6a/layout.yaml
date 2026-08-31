@@ -36,8 +36,8 @@ parts:
   - { ref: C12,  a: [0, 6],  b: [0, 8] }    # 20 µF filter, B+2 (screens)
   - { ref: C13,  a: [0, 9],  b: [0, 11] }   # 20 µF filter, B+3 (PI)
   - { ref: C14,  a: [0, 12], b: [0, 14] }   # 8 µF filter, B+4 (preamp)
-  - { ref: RD1,  a: [1, 4],  b: [1, 5] }    # 4.7k dropper B+2→B+3
-  - { ref: RD2,  a: [1, 6],  b: [1, 7] }    # 10k dropper B+3→B+4
+  - { ref: RD1,  a: [1, 4],  b: [1, 5], value_nudge: [-14, 0] }    # 4.7k dropper B+2→B+3; value clear of RD2's
+  - { ref: RD2,  a: [1, 6],  b: [1, 7], value_nudge: [14, 0] }    # 10k dropper B+3→B+4; value clear of RD1's
   # 5881 output: grid leaks (from −48 V) + 470 Ω 1W screen resistors
   - { ref: RGL1, a: [1, 8],  b: [1, 9] }    # 220k V4 grid leak
   - { ref: RS1,  a: [1, 10], b: [1, 11] }   # 470 Ω 1W V4 screen

@@ -44,7 +44,7 @@ parts:
   # HT_B to the DIODE_SS anode pin and the 150 k (RB1) to its cathode pin, and
   # this run pair lands HT_B on D1.a and RB1 on D1.b — so the band is at b.
   - { ref: D1,   a: [1, 6],  b: [1, 7], cathode: b }    # 1N4007 bias rectifier
-  - { ref: C16,  a: [0, 0],  b: [0, 1] }    # 25 µF bias reservoir
+  - { ref: C16,  a: [0, 0],  b: [0, 1], value_nudge: [0, -12] }    # 25 µF bias reservoir; value lifted off run[1]
   - { ref: C15,  a: [0, 3],  b: [0, 4] }    # 0.05 µF bias filter
   # --- main filter cans + rail droppers (power end, left) ---------------------
   - { ref: C11,  a: [0, 6],  b: [0, 8] }    # 32 µF reservoir, B+1

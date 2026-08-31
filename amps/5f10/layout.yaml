@@ -48,7 +48,7 @@ parts:
   - { ref: C10, a: [0, 18], b: [1, 18] }   # 16 µF · 450 V, B+3 (preamp/PI/plate loads)
   # cathodyne phase inverter self-bias stack (its signature, like the 5E3's)
   - { ref: RKA,  a: [0, 20], b: [1, 20] }   # 1.5k cathode → junction
-  - { ref: RKB,  a: [1, 22], b: [1, 24] }   # 56k junction → ground
+  - { ref: RKB,  a: [1, 22], b: [1, 24], nudge: [0, -26] }   # 56k junction → ground; ref lifted above the run band
   # driver stage cathode + speaker negative-feedback (board interleaves this
   # between the cathodyne parts, as the drawing itself does)
   - { ref: RK2,  a: [0, 26], b: [1, 26] }   # 1.5k driver cathode (unbypassed)
@@ -80,8 +80,8 @@ offboard:
   - { id: PL1,  kind: part, glyph: lamp, edge: left, at: 1.6, label: "Pilot lamp" }
   - { id: SELRECT, ref: D1, kind: rect, edge: top, at: 2, label: "Selenium rect." }
   - { id: V5,   ref: V5,  kind: tube, edge: bottom, at: 3,   label: "V5 · 5Y3GT" }
-  - { id: V3,   ref: V3,  kind: tube, edge: bottom, at: 22,  label: "V3 · 6V6GT" }
-  - { id: V4,   ref: V4,  kind: tube, edge: bottom, at: 28,  label: "V4 · 6V6GT" }
+  - { id: V3,   ref: V3,  kind: tube, edge: bottom, at: 22,  label: "V3 · 6V6GT", label_nudge: [0, 16] }   # clear of run[21] along the caption band
+  - { id: V4,   ref: V4,  kind: tube, edge: bottom, at: 28,  label: "V4 · 6V6GT", label_nudge: [0, 16] }   # clear of run[21] along the caption band
   - { id: SPK,  kind: jack,  edge: bottom, at: 35,  label: "Spkr jack" }
   - { id: T1,   kind: xfmr,  edge: right,  at: 0.3, label: "Output trans" }
   - { id: V2,   ref: V2,  kind: tube, edge: bottom, at: 41,  label: "V2 · 12AX7" }
