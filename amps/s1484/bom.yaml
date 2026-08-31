@@ -1,0 +1,175 @@
+# Parts list for the Silvertone chassis 185.11040, read from the factory drawing
+# and from the factory REPAIR PARTS LIST printed on the same manual's Division 57
+# technical-manual page.
+#
+# This is one of the few entries in the corpus whose maker published a parts list
+# at all, so the tolerances and working voltages below are the FACTORY's, not this
+# corpus's era conventions: "All Resistors ½ watt unless otherwise noted", every
+# resistor 20%, and each capacitor's rating printed in its own row. Where the
+# schematic and the parts list disagree — they do, once — the schematic is what
+# this entry records and the disagreement is stated in `notes` and notes.md.
+#
+# Designators are SEQUENTIAL and they are the drawing's own: R1…R61, C1…C31,
+# D1…D5, V1…V8, plus T1, T2, CH1, J2 and SW1…SW4. Every one of the 61 lettered
+# resistors and 31 lettered capacitors appears in the factory parts list, and the
+# two lists agree on the count. Two assemblies — the CS55 reverb pan and the
+# 306-2H tremolo modulator — are labelled on the drawing with their Sears part
+# numbers instead of designators, so they carry ref "—" here.
+#
+# TWO PARTS ARE DRAWN AND NEVER LETTERED. Each channel's 1 MΩ grid leak — from the
+# junction of its two 68 kΩ jack resistors down to the ground bus — carries no
+# reference designator on either published copy of the drawing and appears in no
+# row of the factory parts list, whose 1 MΩ group is exactly R5, R28, R31, R43 and
+# R47. They are real components in the signal path (the netlist models both), so
+# they are listed here with ref "—" rather than given invented numbers: a
+# designator is what a drawing letters on a part, and these the factory never did.
+#
+# Parts the drawing resolves as values whose wiring this entry does not draw — the
+# jacks, the mains side beyond the transformer, the speakers, the cabinet — carry
+# ref "—" as annotation only, the same convention the tweed, Marshall and Vox
+# entries use.
+notes: "One disagreement inside the factory documentation, recorded rather than resolved: the SCHEMATIC letters C12 as .02 µF, and the PARTS LIST files C12 in its .01 µF · 600 V tubular group (with C10, C11, C13, C16, C20, C21). C12 is the coupler from the V2 mixer node into V3A's grid, so it is open at DC either way and no operating point turns on it; the schematic's 0.02 µF is what this list records, because the schematic is the surface this corpus reads circuits from. A second, smaller gap: the schematic letters R44 as 820 Ω where the parts list row reads '800 ohm, 20%' under part number 18-82002 — the two overlap inside the printed 20% and the schematic's 820 Ω is recorded. Capacitor values are open at DC and do not enter the operating-point netlist; they are listed for completeness. The output transformer's primary half-resistances (85 Ω each) are recorded here but not modelled: no netlist in this corpus simulates output-transformer primary resistance, and 85 Ω is what the drawing's own 480 V rail and 475 V plates differ by."
+items:
+  # --- bottles -----------------------------------------------------------------
+  # The socket numbers V1…V8 are the numbering both published copies use. On the
+  # factory scan consulted they are hand-added beside each envelope where the
+  # passive designators are typeset; the reproduction sets them in type. Both
+  # copies assign them identically, and the TUBE LAYOUT panel letters the tube
+  # TYPES in type on both.
+  - { ref: V1, part: "Tube", value: "12AX7", role: "Both preamp channels' first stage, one triode each — and one shared cathode resistor" }
+  - { ref: V2, part: "Tube", value: "12AX7", role: "Both channels' second stage, one triode each; the two plates are summed into the mixer node" }
+  - { ref: V3, part: "Tube", value: "6CG7", role: "Driver (V3A) and split-load phase inverter (V3B). The drawing letters the socket '6CG7 or 6FQ7'" }
+  - { ref: V4, part: "Tube", value: "12AX7", role: "Reverb — recovery amplifier (V4A) and the second half feeding the reverb driver" }
+  - { ref: V5, part: "Tube", value: "6CG7", role: "Reverb driver, both triodes on one shared 820 Ω cathode resistor. Lettered '6CG7 or 6FQ7' like V3" }
+  - { ref: V6, part: "Tube", value: "12AX7", role: "Tremolo oscillator, driving the neon lamp inside the 306-2H light-operated modulator" }
+  - { ref: V7, part: "Tube", value: "6L6GC", role: "Output beam power tube, fixed bias, cathode to chassis" }
+  - { ref: V8, part: "Tube", value: "6L6GC", role: "Output beam power tube, the other half of the pair" }
+  # --- iron and assemblies -------------------------------------------------------
+  - { ref: T1, part: "Power transformer", value: "Sears DD-50", role: "Mains transformer, 117 V 60 Hz. The drawing prints winding RESISTANCES rather than voltages: 3.7 Ω primary, 5.75 Ω and 6.2 Ω on the two HT windings that feed the multiplier, 3.7 Ω on the bias winding, plus the 6.3 V heater winding" }
+  - { ref: T2, part: "Output transformer", value: "Sears O50", role: "Output transformer, centre-tapped primary; the drawing prints 85 Ω for each primary half and takes the centre tap to the 480 V rail. Secondary drives two 8 Ω speakers" }
+  - { ref: CH1, part: "Choke", value: "Sears L480", role: "Supply choke, between a junction of the capacitor-multiplier stack and the 340 V screen node. The drawing prints no inductance and no DC resistance" }
+  - { ref: "—", part: "Reverb pan", value: "Sears CS55", role: "Spring reverberation unit, driven from V5 and returned to V4. The drawing labels it with its Sears part number rather than a reference designator, so it carries none here" }
+  - { ref: "—", part: "Tremolo modulator", value: "Sears 306-2H", role: "Light-operated tremolo unit — a neon lamp driven by V6 facing a photocell that shunts the signal path. Drawn inside a dashed outline, no reference designator" }
+  # --- inputs (annotation only) --------------------------------------------------
+  - { ref: "—", part: "Jack socket", value: "1/4 in", role: "Channel 1 input, first jack" }
+  - { ref: "—", part: "Jack socket", value: "1/4 in", role: "Channel 1 input, second jack" }
+  - { ref: "—", part: "Jack socket", value: "1/4 in", role: "Channel 2 input, first jack" }
+  - { ref: "—", part: "Jack socket", value: "1/4 in", role: "Channel 2 input, second jack" }
+  - { ref: R1, part: "Carbon comp resistor", value: "68 kΩ · ½ W · 20%", role: "Channel 1 grid resistor, first jack" }
+  - { ref: R2, part: "Carbon comp resistor", value: "68 kΩ · ½ W · 20%", role: "Channel 1 grid resistor, second jack" }
+  - { ref: R3, part: "Carbon comp resistor", value: "68 kΩ · ½ W · 20%", role: "Channel 2 grid resistor, first jack" }
+  - { ref: R4, part: "Carbon comp resistor", value: "68 kΩ · ½ W · 20%", role: "Channel 2 grid resistor, second jack" }
+  - { ref: "—", part: "Carbon comp resistor", value: "1 MΩ", role: "Channel 1 grid leak, from the R1/R2 junction to the ground bus — DRAWN BUT NEVER LETTERED, and absent from the factory parts list (see the header note)" }
+  - { ref: "—", part: "Carbon comp resistor", value: "1 MΩ", role: "Channel 2 grid leak, from the R3/R4 junction to the ground bus — the other unlettered part" }
+  # --- V1, both channels ---------------------------------------------------------
+  - { ref: R5, part: "Carbon comp resistor", value: "1 MΩ · ½ W · 20%", role: "Channel 1 feedback resistor — V1A's grid back to the far side of C3, the input of channel 1's tone network. Channel 2 has no counterpart; it gets R9 in series instead" }
+  - { ref: R6, part: "Carbon comp resistor", value: "1.5 kΩ · ½ W · 20%", role: "SHARED cathode resistor for both V1 triodes — one resistor biases both channels' first stages" }
+  - { ref: C1, part: "Electrolytic capacitor", value: "25 µF · 25 V", role: "Bypass across R6, so the two channels share their cathode bypass too" }
+  - { ref: R8, part: "Carbon comp resistor", value: "220 kΩ · ½ W · 20%", role: "V1A plate load (channel 1)" }
+  - { ref: R7, part: "Carbon comp resistor", value: "220 kΩ · ½ W · 20%", role: "V1B plate load (channel 2)" }
+  - { ref: C3, part: "Film capacitor", value: "0.02 µF · 600 V", role: "Channel 1 plate coupler into the tone network" }
+  - { ref: C2, part: "Film capacitor", value: "0.02 µF · 600 V", role: "Channel 2 plate coupler into the tone network" }
+  - { ref: R9, part: "Carbon comp resistor", value: "220 kΩ · ½ W · 20%", role: "Channel 2 series resistor between C2 and the tone network — the asymmetry between the two channels, together with R5" }
+  # --- channel 1 tone network ----------------------------------------------------
+  - { ref: R10, part: "Carbon comp resistor", value: "100 kΩ · ½ W · 20%", role: "Channel 1 bass-network series resistor, from the coupler node to the top of R11" }
+  - { ref: R11, part: "Linear-taper potentiometer", value: "1 MΩ", role: "Channel 1 BASS" }
+  - { ref: C4, part: "Disc ceramic capacitor", value: "0.0015 µF", role: "Across R11's upper half (the R10 side)" }
+  - { ref: C5, part: "Film capacitor", value: "0.02 µF · 600 V", role: "Across R11's lower half (the R12 side)" }
+  - { ref: R12, part: "Carbon comp resistor", value: "68 kΩ · ½ W · 20%", role: "Channel 1 bass-network shunt to the ground bus" }
+  - { ref: R16, part: "Carbon comp resistor", value: "100 kΩ · ½ W · 20%", role: "Channel 1 — R11's wiper into the volume node" }
+  - { ref: C8, part: "Disc ceramic capacitor", value: "680 pF", role: "Channel 1 treble bypass, straight from the coupler node to the volume node around the bass network" }
+  - { ref: R18, part: "Audio-taper potentiometer", value: "1 MΩ", role: "Channel 1 TREBLE — wired as a rheostat (wiper strapped to one end) shunting the volume node to ground through C10, so the control is a treble cut" }
+  - { ref: C10, part: "Film capacitor", value: "0.01 µF · 600 V", role: "Channel 1 treble-cut capacitor, in series with R18 to the ground bus" }
+  - { ref: R20, part: "Linear-taper potentiometer", value: "1 MΩ", role: "Channel 1 VOLUME, bottom end grounded, wiper to V2A's grid" }
+  # --- channel 2 tone network (the same network, drawn mirrored) ------------------
+  - { ref: R15, part: "Carbon comp resistor", value: "100 kΩ · ½ W · 20%", role: "Channel 2 bass-network series resistor" }
+  - { ref: R14, part: "Linear-taper potentiometer", value: "1 MΩ", role: "Channel 2 BASS" }
+  - { ref: C7, part: "Disc ceramic capacitor", value: "0.0015 µF", role: "Across R14's half on the R15 side" }
+  - { ref: C6, part: "Film capacitor", value: "0.02 µF · 600 V", role: "Across R14's half on the R13 side" }
+  - { ref: R13, part: "Carbon comp resistor", value: "68 kΩ · ½ W · 20%", role: "Channel 2 bass-network shunt to the ground bus" }
+  - { ref: R17, part: "Carbon comp resistor", value: "100 kΩ · ½ W · 20%", role: "Channel 2 — R14's wiper into the volume node" }
+  - { ref: C9, part: "Disc ceramic capacitor", value: "680 pF", role: "Channel 2 treble bypass" }
+  - { ref: R19, part: "Audio-taper potentiometer", value: "1 MΩ", role: "Channel 2 TREBLE, the same treble-cut rheostat as R18" }
+  - { ref: C11, part: "Film capacitor", value: "0.01 µF · 600 V", role: "Channel 2 treble-cut capacitor" }
+  - { ref: R21, part: "Linear-taper potentiometer", value: "1 MΩ", role: "Channel 2 VOLUME, wiper to V2B's grid" }
+  # --- V2, one make-up stage per channel, then the mixer --------------------------
+  - { ref: R22, part: "Carbon comp resistor", value: "4.7 kΩ · ½ W · 20%", role: "V2A cathode bias — UNBYPASSED; there is no cathode can anywhere on this bottle" }
+  - { ref: R23, part: "Carbon comp resistor", value: "4.7 kΩ · ½ W · 20%", role: "V2B cathode bias, likewise unbypassed" }
+  - { ref: R24, part: "Carbon comp resistor", value: "68 kΩ · ½ W · 20%", role: "Channel 1 mixing resistor, V2A plate into the mixer node" }
+  - { ref: R25, part: "Carbon comp resistor", value: "68 kΩ · ½ W · 20%", role: "Channel 2 mixing resistor, V2B plate into the mixer node" }
+  - { ref: R26, part: "Carbon comp resistor", value: "560 kΩ · ½ W · 20%", role: "Mixer-node resistor — the two channels meet here" }
+  - { ref: R27, part: "Carbon comp resistor", value: "220 kΩ · ½ W · 20%", role: "From the mixer node to the same node R33 feeds off; part of the supply-and-mixing web this entry does not resolve (notes.md)" }
+  - { ref: C12, part: "Film capacitor", value: "0.02 µF · 600 V", role: "Mixer node into V3A's grid. The one value the schematic and the factory parts list disagree on — see `notes` above" }
+  # --- V3, driver and split-load phase inverter -----------------------------------
+  - { ref: R28, part: "Carbon comp resistor", value: "1 MΩ · ½ W · 20%", role: "V3A grid leak" }
+  - { ref: R29, part: "Carbon comp resistor", value: "1.5 kΩ · ½ W · 20%", role: "V3A cathode bias, unbypassed" }
+  - { ref: R34, part: "Carbon comp resistor", value: "100 kΩ · ½ W · 20%", role: "V3A plate load. Its lower lead CROSSES the cathodyne's 125 V wire on the drawing without a junction dot and carries on to the preamp rail — reading that crossing as a junction is what makes the printed chart appear to contradict itself (notes.md)" }
+  - { ref: C13, part: "Film capacitor", value: "0.01 µF · 600 V", role: "V3A plate into V3B's grid" }
+  - { ref: R31, part: "Carbon comp resistor", value: "1 MΩ · ½ W · 20%", role: "V3B grid return — to the cathode-side tap, not to ground, which is what makes this a cathodyne. Exactly the 1 MΩ the 6CG7 sheet gives as its maximum fixed-bias grid-circuit resistance" }
+  - { ref: R32, part: "Carbon comp resistor", value: "2.2 kΩ · ½ W · 20%", role: "V3B's own cathode resistor, above the tap — the small one that sets the bias" }
+  - { ref: R30, part: "Carbon comp resistor", value: "68 kΩ · ½ W · 20%", role: "V3B cathode load, tap to ground — the half of the split-load pair that faces R33's 68 kΩ in the plate" }
+  - { ref: R33, part: "Carbon comp resistor", value: "68 kΩ · ½ W · 20%", role: "V3B plate load — matched to R30 within the parts list's own 20%, which is what balances the inverter" }
+  - { ref: C14, part: "Film capacitor", value: "0.02 µF · 600 V", role: "Cathode-side output, tap to V8's grid" }
+  - { ref: C15, part: "Film capacitor", value: "0.02 µF · 600 V", role: "Plate-side output, V3B plate to V7's grid" }
+  # --- output stage --------------------------------------------------------------
+  - { ref: R35, part: "Carbon comp resistor", value: "330 kΩ · ½ W · 20%", role: "V8 grid resistor, from the −36 V bias node" }
+  - { ref: R36, part: "Carbon comp resistor", value: "330 kΩ · ½ W · 20%", role: "V7 grid resistor, from the same node. There is no cathode resistor on either bottle: both pin 8s go straight to the chassis" }
+  - { ref: SW2, part: "Switch", value: "SPST", role: "STANDBY, in the line that feeds the output grids' bias network" }
+  - { ref: "—", part: "Loudspeaker", value: "12 in · 8 Ω", role: "Sears 12-H8, two used, wired across the secondary (annotation only)" }
+  # --- reverb --------------------------------------------------------------------
+  - { ref: R37, part: "Linear-taper potentiometer", value: "1 MΩ", role: "REVERB DEPTH, with SW1 ganged to it — the parts list calls SW1 'part of control R37', so turning the control fully down switches the reverb off" }
+  - { ref: SW1, part: "Switch", value: "SPST", role: "Reverb off, ganged to R37" }
+  - { ref: R38, part: "Carbon comp resistor", value: "2.2 kΩ · ½ W · 20%", role: "V4A cathode bias" }
+  - { ref: C17, part: "Electrolytic capacitor", value: "25 µF · 25 V", role: "V4A cathode bypass" }
+  - { ref: R39, part: "Carbon comp resistor", value: "100 kΩ · ½ W · 20%", role: "V4A plate load" }
+  - { ref: C16, part: "Film capacitor", value: "0.01 µF · 600 V", role: "V4A plate into V5's grid" }
+  - { ref: R40, part: "Carbon comp resistor", value: "560 kΩ · ½ W · 20%", role: "V4B grid series resistor" }
+  - { ref: R41, part: "Carbon comp resistor", value: "68 kΩ · ½ W · 20%", role: "V4B grid to the ground bus, the bottom of that divider" }
+  - { ref: R42, part: "Carbon comp resistor", value: "10 kΩ · ½ W · 20%", role: "V4B cathode bias, unbypassed" }
+  - { ref: R43, part: "Carbon comp resistor", value: "1 MΩ · ½ W · 20%", role: "V5 grid leak. The drawing letters an unplaceable 55 V beside it — see voltages.yaml and notes.md" }
+  - { ref: R44, part: "Carbon comp resistor", value: "820 Ω · ½ W · 20%", role: "SHARED cathode resistor for both V5 triodes, printed 8.2 V — about 10 mA between the pair, which is what a reverb driver has to pass. The parts list row reads '800 ohm' (see `notes`)" }
+  - { ref: R45, part: "Carbon comp resistor", value: "27 kΩ · ½ W · 20%", role: "V5A plate load" }
+  - { ref: R46, part: "Carbon comp resistor", value: "27 kΩ · ½ W · 20%", role: "V5B plate load" }
+  - { ref: C18, part: "Film capacitor", value: "0.02 µF · 600 V", role: "V5A plate coupler into the reverb drive network" }
+  - { ref: C19, part: "Film capacitor", value: "0.02 µF · 600 V", role: "V5B plate coupler into the reverb drive network" }
+  - { ref: R47, part: "Carbon comp resistor", value: "1 MΩ · ½ W · 20%", role: "Reverb drive network, upper leg between the two couplers" }
+  - { ref: R48, part: "Carbon comp resistor", value: "68 kΩ · ½ W · 20%", role: "Reverb drive network, lower leg; the junction of R47 and R48 feeds the CS55 pan" }
+  - { ref: J2, part: "Jack socket", value: "Sears 12B", role: "Dual foot switch jack (reverb and tremolo), for the FS-2 footswitch" }
+  - { ref: "—", part: "Foot switch", value: "Sears FS-2", role: "Dual foot switch (annotation only)" }
+  # --- tremolo ---------------------------------------------------------------------
+  - { ref: C20, part: "Film capacitor", value: "0.01 µF · 600 V", role: "Tremolo oscillator phase-shift network" }
+  - { ref: C21, part: "Film capacitor", value: "0.01 µF · 600 V", role: "Tremolo oscillator phase-shift network" }
+  - { ref: C22, part: "Film capacitor", value: "0.02 µF · 600 V", role: "Tremolo oscillator phase-shift network" }
+  - { ref: R49, part: "Carbon comp resistor", value: "2.2 MΩ · ½ W · 20%", role: "Tremolo oscillator phase-shift network" }
+  - { ref: R50, part: "Carbon comp resistor", value: "560 kΩ · ½ W · 20%", role: "Tremolo oscillator phase-shift network" }
+  - { ref: R52, part: "Carbon comp resistor", value: "68 kΩ · ½ W · 20%", role: "Tremolo oscillator phase-shift network" }
+  - { ref: R51, part: "Linear-taper potentiometer", value: "1 MΩ", role: "TREMOLO SPEED, in the phase-shift network" }
+  - { ref: R53, part: "Carbon comp resistor", value: "330 kΩ · ½ W · 20%", role: "V6 plate load" }
+  - { ref: R54, part: "Carbon comp resistor", value: "560 kΩ · ½ W · 20%", role: "Tremolo oscillator network" }
+  - { ref: C23, part: "Film capacitor", value: "0.5 µF · 200 V", role: "Tremolo network — the largest film capacitor in the amplifier" }
+  - { ref: C24, part: "Film capacitor", value: "0.05 µF · 600 V", role: "V6 cathode-side network capacitor" }
+  - { ref: R55, part: "Linear-taper potentiometer", value: "100 kΩ", role: "TREMOLO STRENGTH — the depth control, working with the 306-2H photocell" }
+  - { ref: R56, part: "Carbon comp resistor", value: "27 kΩ · ½ W · 20%", role: "V6 cathode circuit, at the printed −1.5 V node" }
+  - { ref: R57, part: "Carbon comp resistor", value: "15 MΩ · ½ W · 20%", role: "The largest resistor in the amplifier, across V6's plate-to-cathode path where the neon lamp of the 306-2H is driven" }
+  # --- power supply -----------------------------------------------------------------
+  - { ref: D1, part: "Rectifier diode", value: "1N3194", role: "Capacitor-multiplier diode, upper HT winding" }
+  - { ref: D2, part: "Rectifier diode", value: "1N3194", role: "Capacitor-multiplier diode, upper HT winding" }
+  - { ref: D3, part: "Rectifier diode", value: "1N3194", role: "Capacitor-multiplier diode, lower HT winding" }
+  - { ref: D4, part: "Rectifier diode", value: "1N3194", role: "Capacitor-multiplier diode, lower HT winding" }
+  - { ref: C26, part: "Electrolytic capacitor", value: "100 µF · 150 V", role: "Multiplier stack, top section — four 150 V cans in series is how a 480 V rail is made out of 150 V parts" }
+  - { ref: C27, part: "Electrolytic capacitor", value: "100 µF · 150 V", role: "Multiplier stack, second section" }
+  - { ref: C28, part: "Electrolytic capacitor", value: "100 µF · 150 V", role: "Multiplier stack, third section" }
+  - { ref: C29, part: "Electrolytic capacitor", value: "100 µF · 150 V", role: "Multiplier stack, bottom section" }
+  - { ref: C25, part: "Electrolytic capacitor", value: "20 µF + 10 µF + 5 µF · 450 V", role: "The whole triple-section filter can, one part in the factory list ('5-10-20 mfd., 450 v.') and one can on the chassis. The schematic letters its sections C25A, C25B and C25C along the two-dropper chain: C25A on the 340 V screen node, C25B between R58 and R59, C25C at the R59 end" }
+  - { ref: R58, part: "Carbon comp resistor", value: "68 kΩ · ½ W · 20%", role: "Supply dropper between the C25A and C25B nodes" }
+  - { ref: R59, part: "Carbon comp resistor", value: "68 kΩ · ½ W · 20%", role: "Supply dropper between the C25B and C25C nodes" }
+  - { ref: D5, part: "Rectifier diode", value: "1N3754", role: "Negative bias rectifier, on its own transformer winding" }
+  - { ref: C30, part: "Electrolytic capacitor", value: "100 µF · 50 V", role: "Bias-supply reservoir — a 50 V part, which is the clearest sign the −36 V bias line is all it ever sees" }
+  - { ref: R60, part: "Carbon comp resistor", value: "100 kΩ · ½ W · 20%", role: "Bias-supply divider, upper leg" }
+  - { ref: R61, part: "Carbon comp resistor", value: "2.2 kΩ · ½ W · 20%", role: "Bias-supply divider, lower leg" }
+  # --- mains side (annotation only) --------------------------------------------------
+  - { ref: SW3, part: "Switch", value: "SPST", role: "AC power switch" }
+  - { ref: SW4, part: "Switch", value: "SPDT", role: "Ground (polarity) switch — period practice, not built today" }
+  - { ref: C31, part: "Film capacitor", value: "0.05 µF · 600 V", role: "Line-to-chassis capacitor across the ground switch — the era's 'death cap'; period practice, never fitted in a modern build" }
+  - { ref: "—", part: "Fuse", value: "2 A", role: "Mains fuse in the Sears 68 fuse holder (annotation only)" }
+  - { ref: "—", part: "Pilot lamp", value: "No. 47", role: "Pilot lamp on the heater winding (annotation only)" }

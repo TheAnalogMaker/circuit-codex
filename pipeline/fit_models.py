@@ -473,6 +473,47 @@ def main() -> None:
         emit_triode(sl7, {"cgk": 3.0, "cgp": 2.8, "cpk": 3.8}, "") + "\n"
     (MODELS_DIR / "6sl7gt.inc").write_text(txt)
 
+    # ---- 6CG7: medium-mu nine-pin twin triode (mu=20), the phase-inverter and
+    #      reverb-driver bottle of the Silvertone/Danelectro chassis. RCA 6CG7 data
+    #      sheet (8-59, DATA 1) prints TWO Class-A1 columns, values for each unit:
+    #        Va=250 V, Vg=-8 V -> Ia=9 mA,  gm=2600 umho, rp=7700 ohm, mu=20
+    #        Va=90 V,  Vg=0 V  -> Ia=10 mA, gm=3000 umho, rp=6700 ohm, mu=20
+    #      and a third row, Ia at Va=250 V / Vg=-12.5 V -> 1.3 mA.
+    #
+    #      The fit is SINGLE-ANCHOR at the 250 V column (KP, KG1 solved to Ia+gm),
+    #      the same treatment as 12AY7/6AT6/12AT7/6SL7GT. The 12AX7's two-point fit
+    #      is not copied here: that one exists because a documented calibration study
+    #      (reference/studies/12ax7-calibration.md) found the two published operating
+    #      points mutually consistent across four manufacturers and the plate GRAPH
+    #      the outlier. No such study exists for this tube, and the second column is
+    #      taken at a different grid voltage as well as a different plate voltage, so
+    #      it is used here as an unfitted CHECK and its residual is published rather
+    #      than tuned away.
+    #
+    #      KVB stays the project triode default (300 V^2). METHODOLOGY.md's
+    #      measured-KVB rule needs plate current tabulated at two plate voltages at
+    #      the SAME grid voltage; RCA's two columns move the grid as well, so
+    #      nothing in the data constrains KVB.
+    cg7 = fit_triode("6CG7", mu=20.0, vp=250.0, vg=-8.0, ia=9.0e-3, gm=2600e-6)
+    txt = common_header("6CG7 medium-mu twin triode (one section)",
+                        "Va=250 V, Vg=-8 V -> Ia=9 mA, gm=2600 umho, mu=20",
+                        ["Electrically the nine-pin equivalent of the octal 6SN7; the",
+                         "Silvertone 185.11040 drawing letters the socket '6CG7 or 6FQ7'",
+                         "and the 6FQ7 is the same tube with a controlled-warm-up heater.",
+                         "Unfitted checks against the sheet's other published rows, left",
+                         "as residuals rather than tuned away (single-anchor v0):",
+                         "  Va=90 V, Vg=0 V   -> 8.42 mA here vs 10 mA printed (16% low),",
+                         "                       gm 2749 vs 3000 umho (8% low);",
+                         "  Va=250 V, Vg=-12.5 V -> 1.43 mA here vs 1.3 mA printed;",
+                         "  rp at the anchor 7.31 kohm vs the sheet's 7700 ohm (5% low),",
+                         "  so effective mu at the anchor is 19.0 rather than 20.",
+                         "Node order: P G K. Basing 9AJ (reference/tubes/6cg7.yaml).",
+                         "Pin 9 is an internal shield, not an electrode, and is not",
+                         "modeled; neither is the controlled 11 s heater warm-up."],
+                        source="RCA 6CG7 data sheet, 8-59, DATA 1, Class A1 characteristics") + "\n" + \
+        emit_triode(cg7, {"cgk": 2.3, "cgp": 4.0, "cpk": 2.2}, "") + "\n"
+    (MODELS_DIR / "6cg7.inc").write_text(txt)
+
     # ---- 6V6GT: Va=250, Vg2=250, Vg1=-12.5 -> Ia=45 mA, Ig2=4.5 mA, gm=4100 umho
     v6 = fit_pentode("6V6GT", mu=9.6, vp=250.0, vg2=250.0, vg1=-12.5,
                      ia=45e-3, ig2=4.5e-3, gm=4100e-6)

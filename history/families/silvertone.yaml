@@ -1,0 +1,56 @@
+family: silvertone
+title: "The Silvertone amplifiers"
+maker_style: "American-style"
+summary: >-
+  Silvertone was not a maker. It was Sears, Roebuck's house brand, and the
+  amplifiers sold under it were built to order by other companies and identified
+  in service literature by a Sears chassis number rather than by a circuit
+  designation — which is why the entries in this family are catalogued by the
+  number stamped on the chassis plate. Danelectro of Neptune City, New Jersey
+  built the guitar amplifiers of the 1960s line, and its house style is nothing
+  like Fullerton's or Chicago's. A Danelectro-built Silvertone puts its tone
+  controls between two gain stages rather than in one stack after the first;
+  gives each channel its own Bass and Treble instead of sharing a network; sums
+  the channels through resistors into a mixer node; and, in the larger amplifiers,
+  reaches for a nine-pin 6CG7 where an American maker would have reached for a
+  12AX7 or a 12AT7. Two habits are more distinctive still. The supplies are
+  solid-state early and unusually — a stacked capacitor multiplier building a high
+  rail out of low-voltage electrolytics, years before Fender let a silicon diode
+  near a guitar amplifier. And the tremolo is optical: a neon lamp facing a
+  photocell inside a sealed module, which is what gives these amplifiers their
+  slow, soft modulation instead of the era's usual chop. Sears sold them by
+  catalogue, cheaply, in enormous numbers, which is the other reason they matter —
+  more players learned on one of these than on anything with a nameplate.
+models:
+  - designation: "185.11040"
+    name: "Model 1484 Twin Twelve"
+    years: { start: 1963, end: 1967 }
+    wattage: 60
+    output: "push-pull 2×6L6GC"
+    tubes: [12AX7, 12AX7, 6CG7, 12AX7, 6CG7, 12AX7, 6L6GC, 6L6GC]
+    key_change: >-
+      The big one, and the circuit this corpus documents: a piggyback head over a
+      2×12 cabinet, eight bottles, reverb and tremolo, and a 60 W catalogue rating.
+      Four 12AX7s, two 6CG7s and two 6L6GCs, with no rectifier tube anywhere — the
+      480 V rail is built by stacking four 100 µF · 150 V electrolytics behind four
+      1N3194 diodes, and a fifth diode makes the −36 V fixed bias for the output
+      pair. Both preamp channels' first triodes share one cathode resistor; each
+      channel carries its own Bass, Treble and Volume between the first and second
+      stages; the two are summed through 68 kΩ each into a 560 kΩ mixer node. The
+      phase inverter is a cathodyne on one half of a 6CG7, its 68 kΩ plate load
+      matched against 68 kΩ in the cathode and its grid returned to the cathode
+      tap. Reverb runs a CS55 spring unit driven by the second 6CG7 at 10 mA;
+      tremolo runs a 306-2H light-operated modulator — a neon lamp and a photocell
+      in one sealed part. The drawing carries no date; the bracket is the model's
+      published introduction and withdrawal, with a pot-code-dated 1965 example
+      inside it.
+    circuit_ref: "s1484"
+    sources:
+      - desc: "Silvertone factory drawing, title block 'SCHEMATIC DIAGRAM OF SILVERTONE CHASSIS 185.11040' — complement V1/V2/V4/V6 12AX7, V3/V5 '6CG7 or 6FQ7', V7/V8 6L6GC and no rectifier tube; four 1N3194 diodes with four 100 µF · 150 V capacitors making 480 V, a 1N3754 making −36 V; 68 kΩ mixing resistors into a 560 kΩ node; 68 kΩ against 68 kΩ around the split-load inverter; 330 kΩ grid resistors on both output tubes with their cathodes at chassis; printed voltages lettered on the nodes and measured with a 20,000 Ω/volt meter"
+        url: "https://schematicheaven.net/bargainbin/silvertone1484.pdf"
+      - desc: "Sears 'Owner's Manual — Service Data and Repair Parts List for Silvertone Musical Instrument Amplifier Model No. 1484', reproduced by the Silvertone archive: the Division 57 technical-manual page headed 'CHASSIS NO. 185.11040' and boxed 'USED IN MODEL 1484' carries the factory parts list (T1 DD-50 power transformer, T2 O50 output transformer, CH1 L480 choke, CS55 spring reverberation unit, 306-2H light-operated tremolo unit, FS-2 dual foot switch, 12-H8 12-inch 8 Ω speakers, two used), and the operating page describes the two channels — channel one with 'Two Inputs and three controls', 'CHANNEL TWO . . . contains both Reverberation and Tremolo'"
+        url: "https://www.silvertoneworld.net/schematics/Sears_Silvertone_1484_Twin_Twelve_REPRODUCTION_Manual.pdf"
+      - desc: "Silvertone archive model page — model 1484 Twin Twelve introduced 1963 and retired 1967, chassis #11040 named as the common revision"
+        url: "https://www.silvertoneworld.net/amplifiers/1484/1484_schematic.html"
+      - desc: "Dealer documentation of a surviving example at Chicago Music Exchange, titled '60-Watt': complement '6FQ7 (x2), 12AX7 (x4), 6L6 (x2)', 2×12 cabinet, 'Pot codes date to 1965'"
+        url: "https://www.chicagomusicexchange.com/products/silvertone-model-1484-twin-twelve-60-watt-2x12-piggyback-1226495"

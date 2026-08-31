@@ -1,0 +1,71 @@
+tube: 6cg7
+name: 6CG7
+also_known_as: [6FQ7, ECC186]
+role: >-
+  Medium-mu (µ=20) nine-pin twin triode — electrically the 6SN7 rebuilt on a noval
+  base when the industry left the octal behind, and rated to pass real current: 9 mA
+  a section at 250 V, 4 W a plate. That is what the Danelectro-built Silvertone
+  chassis wants in the two jobs a 12AX7 does badly, and it uses one for each: the
+  split-load phase inverter that drives a pair of 6L6GCs, and the reverb driver that
+  has to swing a tank. The 6FQ7 is the same tube with a controlled warm-up heater —
+  the drawing letters the socket "6CG7 or 6FQ7" and means it.
+model:
+  file: models/6cg7.inc
+  anchor: "Va=250 V, Vg=−8 V → Ia=9 mA, gm=2600 µmho, rp=7700 Ω, µ=20"
+  anchor_source: "RCA 6CG7 data sheet, 8-59, DATA 1, Class A1 amplifier characteristics (each unit)"
+  note: >-
+    Single-anchor Koren fit at the 250 V column (KP, KG1 solved to reproduce the plate
+    current and transconductance; MU=20 and EX=1.5 fixed, KVB at the project triode
+    default because RCA's two columns move the grid voltage as well as the plate
+    voltage and so constrain nothing about it). The sheet's other published rows are
+    used as unfitted checks and their residuals are published rather than tuned away:
+    at Va=90 V / Vg=0 V the model reads 8.42 mA against 10 mA printed and gm 2749
+    against 3000 µmho; at Va=250 V / Vg=−12.5 V it reads 1.43 mA against 1.3 mA; plate
+    resistance at the anchor comes out 7.31 kΩ against the printed 7700 Ω, so effective
+    µ at the anchor is 19.0 rather than 20.
+max_ratings:
+  note: >-
+    Design-maximum values, Class A1 amplifier, each unit. Two of them matter to the
+    circuits in this corpus. The 330 V plate ceiling is low for a bottle sitting in an
+    amplifier whose rectifier stack makes 480 V, so every 6CG7 socket in the Silvertone
+    chassis is fed through a dropper and idles well under it. And the 1 MΩ grid-circuit
+    limit for fixed-bias operation is exactly the value that chassis returns its
+    inverter grid through — the drawing sits on the rating, not inside it.
+  items:
+    - { label: "Plate voltage", value: "330 V" }
+    - { label: "Plate dissipation, either plate", value: "4 W" }
+    - { label: "Plate dissipation, both plates (both units operating)", value: "5.7 W" }
+    - { label: "Cathode current", value: "22 mA" }
+    - { label: "Peak heater-cathode voltage", value: "200 V either polarity" }
+    - { label: "Grid-circuit resistance, fixed bias", value: "1 MΩ" }
+  limits:
+    plate_dissipation_w: 4
+    plate_voltage_v: 330
+  rating_system: design-maximum
+  source: "RCA 6CG7 data sheet, 8-59, DATA 1 (design-maximum values)"
+  source_url: http://www.tubebooks.org/tubedata/hb-3/receiving_tubes_part_1/6CG7.PDF
+basing:
+  code: 9AJ
+  base: noval-b9a
+  view: bottom
+  source: >-
+    RCA 6CG7 data sheet — "Base . . . Small-Button Noval 9-Pin (JEDEC No. E9-1),
+    Basing Designation for BOTTOM VIEW . . . 9AJ", with the pin list printed beside the
+    diagram. Note that 9AJ is NOT the 9A base the 12AX7 family uses: pin 9 here is an
+    internal shield, where the 12AX7 puts the heater centre tap.
+  pins:
+    1: { element: plate, unit: 2, hv: true }
+    2: { element: grid, unit: 2 }
+    3: { element: cathode, unit: 2 }
+    4: { element: heater }
+    5: { element: heater }
+    6: { element: plate, unit: 1, hv: true }
+    7: { element: grid, unit: 1 }
+    8: { element: cathode, unit: 1 }
+    9: { element: shield, note: "internal shield" }
+used_in: ["s1484"]
+datasheets:
+  - publisher: RCA
+    designation: 6CG7
+    url: http://www.tubebooks.org/tubedata/hb-3/receiving_tubes_part_1/6CG7.PDF
+    confidence: high

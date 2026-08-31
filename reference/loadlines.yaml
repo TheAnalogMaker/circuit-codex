@@ -840,3 +840,28 @@ stages:
   ot_primary_note: Marshall 789-139 · 16/8/4 Ω taps — Push-pull EL34 output transformer
   sim_ip_ma: 37.5694
   sim_ig2_ma: 0.0
+- amp: 's1484'
+  name_style: Silvertone Twin Twelve-style
+  tube: '6L6GC'
+  tube_lettered: '6L6GC'
+  output_tubes: 2
+  config: push-pull
+  bias: fixed
+  plate_node: PLATE
+  plate_v: 475.0
+  screen_node: BSCR
+  screen_v: 340.0
+  cathode_node: '0'
+  cathode_v: 0.0
+  rk_total: null
+  rk_per_tube: null
+  grid_node: G8
+  grid_v: -36.0
+  grid_supply_node: NBIAS
+  grid_supply_v: -36.0
+  ot_primary_z: null
+  ot_primary_approx: false
+  ot_primary_note: Sears O50 — Output transformer, centre-tapped primary; the drawing prints 85 Ω for
+    each primary half and takes the centre tap to the 480 V rail. Secondary drives two 8 Ω speakers
+  sim_ip_ma: 26.746
+  sim_ig2_ma: 1.1565

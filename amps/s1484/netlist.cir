@@ -1,0 +1,130 @@
+* s1484 (Silvertone Twin Twelve-style) — DC operating-point netlist
+* Circuit Codex — CC-BY-SA 4.0. Independently drawn from the published component
+* values and printed voltages of the factory drawing whose title block reads
+* "SCHEMATIC DIAGRAM OF SILVERTONE CHASSIS 185.11040" (see meta.yaml). No drawing
+* reproduced.
+*
+* Designators are the drawing's own (sequential: R1..R61, C1..C31, D1..D5,
+* V1..V8). See bom.yaml.
+*
+* SCOPE — this netlist solves the BIAS of five bottles against the drawing's own
+* printed plate voltages, and reports the output pair's idle current at its printed
+* pin voltages. It covers: V1 (both preamp channels on one shared cathode resistor),
+* V2 (both make-up gain stages), V3 (the 6CG7 gain stage and the split-load phase
+* inverter it drives), and V7/V8 (the fixed-bias 6L6GC pair).
+*
+* WHAT IS DRIVEN, AND WHY THAT IS UNUSUAL HERE. Every source below is a figure
+* the drawing prints. The corpus's usual arrangement — drive the top rail, derive
+* every node under it through the drawn droppers — is NOT used, because this
+* amplifier's B+ cannot be derived from anything the sheet letters. Its supply is
+* not a rectifier and a dropper chain: it is a stacked capacitor multiplier
+* (four 100 uF/150 V cans C26..C29 across two secondaries through 1N3194s D1..D4)
+* whose intermediate rails the drawing never labels, feeding a choke CH.1 and a
+* three-section can C25A/B/C tapped by R58 and R59. The sheet prints exactly two
+* supply figures — 480 V at the top of the stack and 340 V at the 6L6GC screens —
+* and no figure at all on the node that feeds the preamp plate loads. Deriving the
+* preamp stages would therefore mean inventing a rail voltage, and this corpus does
+* not invent supply voltages. So the preamp plates are driven at their own printed
+* values and the CATHODES are what this netlist derives and voltages.yaml gates.
+* That makes each preamp result a test of the drawn cathode resistor and the tube
+* model against the printed cathode voltage, at the printed plate voltage — not a
+* test of the supply, which stays an open question stated in notes.md.
+*
+* EXCLUDED — V4 and V5 (the reverb recovery stage and the 6CG7 reverb driver) and
+* V6 (the tremolo's phase-shift oscillator and its neon/photocell modulator, the
+* 306-2H). V6 is excluded for the reason the corpus excludes every tremolo
+* oscillator: a running oscillator shifted by grid-leak detection has no static
+* operating point worth reporting. V4 and V5 are excluded because the drawing
+* prints no plate voltage this entry can place on V4's second half — see the
+* unplaced "55 V" recorded in voltages.yaml — so the same driven-plate treatment
+* used above cannot be applied to that bottle without guessing which node the
+* figure belongs to.
+*
+* The output stage is driven the same way, at the three figures the drawing prints
+* on it: 475 V at both plates, 340 V at the screens, -36 V at the bias node. No
+* corpus netlist models output-transformer primary resistance, so the printed 480 V
+* rail above the plates and the 85 ohm the drawing gives for each primary half stay
+* out; the 5 V between them is the drop that pair of numbers implies. The screens
+* could not be derived from 480 V in any case — the path runs through CH.1, whose
+* DC resistance the drawing does not print — and the bias node comes from a separate
+* negative supply (D5 with C30, 100 uF/50 V) that no operating-point netlist here
+* simulates. What the output stage therefore reports is its IDLE CURRENT at the
+* printed pin voltages, which is the number a builder actually wants from it.
+*
+* DC-open caps are not modelled here at all; unlike the corpus's derived-rail
+* netlists there are no decoupling placements for them to fix, because no rail is
+* derived. Heaters, the pilot lamp, the standby switch SW2, the reverb footswitch
+* J2 and the mains side are not modelled.
+.include models/12ax7.inc
+.include models/6cg7.inc
+.include models/6l6gc.inc
+
+* --- driven: the drawing's own printed figures -------------------------------
+VPLT  PLATE 0 DC 475     ; both 6L6GC plates, printed 475 V (the 480 V rail above
+                         ; them and the 85 ohm per primary half are not modelled)
+VSCR  BSCR  0 DC 340     ; 6L6GC screen node, printed 340 V
+VBIAS NBIAS 0 DC -36     ; R35/R36 junction, printed -36 V
+VP1A  P1A   0 DC 100     ; V1A plate, printed 100 V
+VP1B  P1B   0 DC 100     ; V1B plate, printed 100 V
+VP2A  P2A   0 DC 93      ; V2A plate, printed 93 V
+VP2B  P2B   0 DC 93      ; V2B plate, printed 93 V
+VP3A  P3A   0 DC 100     ; V3A plate, printed 100 V
+VP3B  P3B   0 DC 225     ; V3B plate, printed 225 V
+
+* --- V1, 12AX7: channel 1 and channel 2 first stages -------------------------
+* One cathode resistor, R6 1.5 kOhm bypassed by C1, carries BOTH triodes: V1A pin
+* 8 and V1B pin 3 land on the same node. Both grids return to ground through a
+* 1 MOhm leak that the drawing letters no designator on (bom.yaml), so both sit at
+* 0 V DC; channel 1's R5 1 MOhm feedback resistor reaches ground through the tone
+* network and changes no DC. The 68 kOhm jack resistors R1..R4 carry no current.
+XV1A P1A G1A K1 12AX7
+XV1B P1B G1B K1 12AX7
+RG1A G1A 0 1meg
+RG1B G1B 0 1meg
+R6   K1  0 1.5k
+
+* --- V2, 12AX7: one make-up stage per channel --------------------------------
+* Separate cathodes here: R22 and R23, 4.7 kOhm each and UNBYPASSED — the drawing
+* gives this bottle no cathode can at all. Each grid comes off a 1 MOhm volume pot
+* (R20, R21) whose bottom end is grounded, so each grid is at 0 V DC wherever the
+* wiper sits.
+XV2A P2A G2A K2A 12AX7
+XV2B P2B G2B K2B 12AX7
+RG2A G2A 0 1meg
+RG2B G2B 0 1meg
+R22  K2A 0 4.7k
+R23  K2B 0 4.7k
+
+* --- V3, 6CG7: gain stage + split-load phase inverter ------------------------
+* V3A is a straight gain stage: 1 MOhm grid leak R28 to ground, 1.5 kOhm cathode
+* R29 with no bypass can.
+XV3A P3A G3A K3A 6CG7
+R28  G3A 0 1meg
+R29  K3A 0 1.5k
+*
+* V3B is the phase inverter, and it is a CATHODYNE: the two outputs leave through
+* C15 from the plate and C14 from node NA on the cathode side, and the loads that
+* set them are R33 68 kOhm in the plate and R30 68 kOhm in the cathode — equal
+* within 3%, which is what makes the split balanced. R32 2.2 kOhm above NA is the
+* small extra cathode resistor that sets the bias, and R31 1 MOhm returns the grid
+* to NA rather than to ground, the standard cathodyne grid return (and exactly the
+* 1 MOhm the 6CG7 sheet gives as its maximum fixed-bias grid-circuit resistance).
+* NA therefore carries the cathode current and nothing else: R34, V3A's 100 kOhm
+* plate load, crosses this wire on the drawing WITHOUT a junction dot and carries
+* on down to the preamp rail (notes.md — reading that crossing as a junction is the
+* one mistake that makes the printed chart look self-contradictory). With V3A's
+* plate driven at its printed value, R34 carries no information and is omitted.
+XV3B P3B G3B K3B 6CG7
+R31  NA  G3B 1meg
+R32  NA  K3B 2.2k
+R30  NA  0   68k
+
+* --- V7 / V8, 6L6GC push-pull, FIXED bias, cathodes to chassis ---------------
+* No cathode resistor anywhere: both pin 8s go straight to the ground bus, and the
+* grids are held at -36 V through R35 and R36, 330 kOhm each. Both plates share one
+* node, as in every push-pull netlist here, because the transformer primary's DC
+* resistance is not modelled.
+R35  NBIAS G8 330k
+R36  NBIAS G7 330k
+XV8  PLATE BSCR G8 0 6L6GC
+XV7  PLATE BSCR G7 0 6L6GC

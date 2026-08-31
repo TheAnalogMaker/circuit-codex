@@ -1,0 +1,91 @@
+# Printed voltages read from the published Silvertone 185.11040 drawing. The sheet
+# does not print a tabulated valve-voltage chart of the kind Fender printed; it
+# letters the figures directly on the nodes, and states its measurement condition
+# in note 3 beside the title block: "VOLTAGES MEASURED FROM POINTS INDICATED TO
+# CHASSIS WITH 20,000 OHM/VOLT METER." It prints no tolerance, so the corpus's era
+# convention applies — ±20% at tube pins, tighter on a rail — and every tolerance
+# below is this corpus's, not the sheet's.
+#
+# READ THE NETLIST'S SCOPE BLOCK FIRST. Nine of the figures below are INPUTS, not
+# results: this amplifier's B+ comes from a stacked capacitor multiplier whose
+# intermediate rails the drawing never labels, so the preamp plate voltages are
+# driven at their own printed values and it is the CATHODES that are derived and
+# gated. Each gated preamp node is therefore a test of the drawn cathode resistor
+# and the tube model at the printed plate voltage — a real check, but a narrower
+# one than the rail-down verification the tweed and blackface entries carry.
+#
+# One printed figure cannot be placed on any node at all. The sheet letters "55 V"
+# beside R43, V5's 1 MΩ grid leak — but that resistor runs from V5's grid, which
+# sits behind the 0.01 µF coupler C16 and can only be at 0 V DC, down to the
+# chassis. No DC potential exists anywhere on it. It is recorded here as an
+# unplaced figure rather than forced onto a node; see notes.md.
+source: "Silvertone factory drawing, title block 'SCHEMATIC DIAGRAM OF SILVERTONE CHASSIS 185.11040', voltages lettered on the nodes and measured (note 3) with a 20,000 Ω/volt meter. Printed: 6L6GC plates 475 V and the rail above them 480 V; 6L6GC screens 340 V; fixed bias −36 V; V1 plates 100 V and shared cathode 1.1 V; V2 plates 93 V and cathodes 1.1 V; V3A plate 100 V and cathode 4 V; V3B plate 225 V and cathode-side tap 125 V; V4A plate 160 V and cathode 1.5 V, V4B cathode 0.8 V; V5 plates 215 V and shared cathode 8.2 V; V6 plate 120 V and cathode 1.5 V; the tremolo network 205 V and −1.5 V; and an unplaced 55 V beside R43."
+nodes:
+  # --- gated: derived by the netlist, compared against the printed figure -------
+  K1:
+    chart: 1.1
+    tol_pct: 20
+    note: "V1's SHARED cathode — both preamp channels' first triodes land on one node over R6 1.5 kΩ, bypassed by C1 25 µF · 25 V. One resistor sets the bias for both channels"
+  K2A:
+    chart: 1.1
+    tol_pct: 20
+    note: "V2A cathode over R22 4.7 kΩ, UNBYPASSED — this bottle gets no cathode can at all"
+  K2B:
+    chart: 1.1
+    tol_pct: 20
+    note: "V2B cathode over R23 4.7 kΩ, likewise unbypassed; the drawing prints the same 1.1 V on both halves"
+  K3A:
+    chart: 4
+    tol_pct: 20
+    note: "V3A cathode over R29 1.5 kΩ, unbypassed. The worst-agreeing node in the entry: the model idles this 6CG7 at about 2.1 mA against the 2.7 mA the printed 4 V implies, which is why the entry is a draft"
+  NA:
+    chart: 125
+    tol_pct: 20
+    note: "the cathodyne's cathode-side output tap — the junction of R30 68 kΩ (to chassis), R32 2.2 kΩ (to V3B's cathode) and R31 1 MΩ (the grid return), with C14 taking the inverted drive off it to V8's grid. R34 crosses this wire on the drawing without a junction dot and is NOT connected to it"
+
+  # The unplaced 55 V is NOT listed as a node. It has no node to be listed under:
+  # R43 runs from V5's grid — behind the 0.01 µF coupler C16, so at 0 V DC — to the
+  # chassis end of R44, and neither end can carry it. The likeliest reading is that
+  # the figure belongs to V4B's plate, the nearest node the sheet otherwise never
+  # gives a voltage for, but the drawing does not put it there and this entry does
+  # not move it. See notes.md.
+
+  # --- informational: driven inputs, printed on the drawing ---------------------
+  PLATE:
+    chart: null
+    note: "informational — DRIVEN INPUT at the printed 475 V, both 6L6GC plates. The drawing also prints 480 V one node up, at the top of the capacitor-multiplier stack and the transformer centre tap, and 85 Ω for each primary half; no netlist in this corpus models output-transformer primary resistance, so the 5 V between those two printed figures is stated rather than simulated. What the stage reports instead is its idle current, which the load-line explorer prints"
+  BSCR:
+    chart: null
+    note: "informational — DRIVEN INPUT at the printed 340 V, the 6L6GC screen node. It is fed through CH.1, whose DC resistance the drawing does not print, so it cannot be derived from the 480 V rail"
+  NBIAS:
+    chart: null
+    note: "informational — DRIVEN INPUT at the printed −36 V, the junction of R35 and R36 (330 kΩ each) that fixed-biases both output grids. It comes from a separate negative supply, D5 with C30 100 µF · 50 V, which no operating-point netlist in this corpus simulates"
+  P1A:
+    chart: null
+    note: "informational — DRIVEN INPUT at the printed 100 V, V1A plate (channel 1), load R8 220 kΩ"
+  P1B:
+    chart: null
+    note: "informational — DRIVEN INPUT at the printed 100 V, V1B plate (channel 2), load R7 220 kΩ"
+  P2A:
+    chart: null
+    note: "informational — DRIVEN INPUT at the printed 93 V, V2A plate"
+  P2B:
+    chart: null
+    note: "informational — DRIVEN INPUT at the printed 93 V, V2B plate"
+  P3A:
+    chart: null
+    note: "informational — DRIVEN INPUT at the printed 100 V, V3A plate (load R34 100 kΩ, whose far end is the unlabelled preamp rail)"
+  P3B:
+    chart: null
+    note: "informational — DRIVEN INPUT at the printed 225 V, V3B plate: the cathodyne's plate output, load R33 68 kΩ against R30's 68 kΩ in the cathode"
+
+  # --- informational: derived, no printed figure to compare against -------------
+  K3B:
+    chart: null
+    note: "informational — V3B's cathode itself, R32 2.2 kΩ above the NA tap. The drawing prints the tap, not the cathode"
+  G7:
+    chart: null
+    note: "informational — V7 grid, held at the bias node through R36 330 kΩ. These tube models carry no grid current, so it sits exactly at the bias supply"
+  G8:
+    chart: null
+    note: "informational — V8 grid, likewise through R35 330 kΩ"
