@@ -8,8 +8,17 @@ const byBase = (b) => tubes.filter((t) => t.basing.base === b);
 const noval = byBase('noval-b9a');
 const sevenPin = byBase('miniature-7pin');
 const octal = byBase('octal');
-const octalPower = octal.filter((t) => t.basing.code === '7AC');
-const octalRect = octal.filter((t) => t.basing.code !== '7AC');
+// Split the octals by what the tube IS, read off facts already in its own file,
+// not by "7AC or not". The old code/=7AC test put every non-7AC octal under the
+// rectifier heading, which filed the 6SJ7 preamp pentode, the 7591 and the EL34
+// as rectifiers. A rectifier has no control grid at all; among the rest, the
+// datasheet plate-dissipation rating is what separates a small-signal bottle
+// from an output bottle (1-2.5 W here against 14-30 W).
+const hasPin = (t, el) => Object.values(t.basing.pins || {}).some((p) => p.element === el);
+const dissipation = (t) => t.max_ratings?.limits?.plate_dissipation_w ?? null;
+const octalRect = octal.filter((t) => !hasPin(t, 'grid'));
+const octalSignal = octal.filter((t) => hasPin(t, 'grid') && dissipation(t) !== null && dissipation(t) <= 5);
+const octalPower = octal.filter((t) => hasPin(t, 'grid') && !(dissipation(t) !== null && dissipation(t) <= 5));
 
 // First sentence of the role blurb, for a one-line caption under each diagram.
 const oneLine = (s) => {
@@ -19,7 +28,7 @@ const oneLine = (s) => {
 };
 ---
 <Base title="Tube pinout diagrams · Circuit Codex"
-      description="Interactive bottom-view basing diagrams for the ten amp tubes in the corpus — 12AX7, 12AY7, 6AT6, 6V6GT, 5881, 6L6G, KT66, 5Y3GT, 5U4G and GZ34. Read each pin by hovering it, grouped by base family, with a short guide to bottom-view convention, index-gap orientation, and RETMA basing codes.">
+      description="Interactive bottom-view basing diagrams for every tube in the corpus — noval 9-pin and 7-pin miniature preamp bottles, and octal preamp, output and rectifier tubes. Read each pin by hovering it, grouped by base family, with a short guide to bottom-view convention, index-gap orientation, and RETMA basing codes.">
 <div class="wrap">
   <header class="ghead">
     <a class="back" href="/reference/">← Reference</a>
@@ -84,10 +93,33 @@ const oneLine = (s) => {
   </section>
 
   <section>
+    <h2>Octal — preamp tubes</h2>
+    <p class="sub">The same octal shell doing small-signal work, a watt or two of plate
+      dissipation instead of twenty. Each carries its own arrangement rather than a shared
+      one: the 6SJ7 brings grid No.1 out on a base pin instead of a top cap, and the 6SL7GT
+      spends all eight pins on two complete triodes — grid, plate and cathode of one unit on
+      pins 1 to 3, the other on 4 to 6.</p>
+    <div class="pin-grid">
+      {octalSignal.map((t) => (
+        <article class="pin-card">
+          <div class="pc-head">
+            <a class="pc-name" href={`/reference/tubes/${t.tube}/`}>{t.name}</a>
+            <span class="chip v">{t.basing.code}</span>
+          </div>
+          <TubeBasing basing={t.basing} name={t.name} compact />
+          <p class="pc-role">{oneLine(t.role)}</p>
+        </article>
+      ))}
+    </div>
+  </section>
+
+  <section>
     <h2>Octal — output tubes</h2>
-    <p class="sub">The eight-pin octal base with its keyed centre spigot. The beam-power output
-      tubes all follow the 7AC arrangement: plate on 3, screen on 4, control grid on 5 — both
-      the plate and screen sit at B+.</p>
+    <p class="sub">The eight-pin octal base with its keyed centre spigot. Most of these follow
+      the 7AC arrangement — plate on 3, screen on 4, control grid on 5 — which is why a 6V6GT,
+      5881 and KT66 drop into the same output-stage layout. The EL34 (K8A) and the 7591 (8KG)
+      do not: read their diagrams before rewiring a socket for either. On all of them both the
+      plate and the screen sit at B+.</p>
     <div class="pin-grid">
       {octalPower.map((t) => (
         <article class="pin-card">
