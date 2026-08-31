@@ -1,0 +1,125 @@
+# Circuit Codex metadata — schema: docs/schema.md (v1)
+id: b15n
+name_style: "Ampeg B-15N Portaflex-style"
+family: other
+era:
+  # Production years of the MODEL, from the published chronology: the B-15N
+  # replaced the original B-15 in 1961 and gave way to the B-15NC in 1964.
+  # The drawing documented here is REVISION C of 22 January 1974 — the circuit
+  # as Ampeg last issued it, a decade after the model left the catalogue, not
+  # as the first 1961 chassis left the bench. The bracket is the model's, the
+  # values are revision C's, and the difference is stated rather than hidden
+  # (see notes.md). The years match history/families/ampeg-portaflex.yaml.
+  start: 1961
+  end: 1964
+wattage: 25
+tubes: [6SL7, 6SL7, 6SL7, 6L6GC, 6L6GC, 5AR4]
+topology:
+  rectifier: { kind: tube, type: "5AR4" }
+  bias: fixed              # -50 V line, 270 kΩ grid returns, cathodes to ground
+  phase_inverter: paraphase  # self-balancing (floating) paraphase: a 470 kΩ /
+                             # 510 kΩ divider strung across the two driver
+                             # anodes feeds the second grid through C11
+  tone_stack: per-channel-tb # each channel carries its own printed Bass+Treble
+                             # board after its second gain stage, ahead of the
+                             # 270 kΩ mixing resistor; the Volume sits earlier,
+                             # between the two stages. No Middle control
+lineage:
+  derived_from: []   # no documented circuit ancestor in this corpus
+  influenced: []
+conventions:
+  notation: us
+  designators: functional  # the sheet's own R1…R42 / C1…C20 / VR1…VR7 numbers are
+                           # kept wherever it letters a part uniquely; role codes
+                           # cover the parts it letters NOT AT ALL (both printed
+                           # tone boards, the driver cathode bypass) and the two
+                           # it letters C19 a second and third time. One role code
+                           # makes the whole list read as functional — see bom.yaml
+sources:
+  - desc: >-
+      Ampeg factory schematic, engineering issue — THIS is the revision documented here.
+      Title block read from the sheet: "B-15-N / U.S. PATENT 3183305 / TUBES /
+      6SL7 - 6SL7 - 6SL7 - 6L6GC - 6L6GC - 5AR4 / -472-", with "BY S.C. | 1268 |
+      PART NO. 591722 | C" beneath it and a revision block reading "1/22/74 | C |
+      591722-2" over "B | 591722-1"; the Ampeg roundel, POST OFFICE BOX 315,
+      LINDEN, NEW JERSEY 07036. Sheet notes: "1 ALL RESISTORS 1/2 W 10% UNLESS
+      OTHERWISE SPECIFIED", "2 ALL CAPACITORS IN MFD & 400V UNLESS OTHERWISE
+      SPECIFIED", "3 VOLTAGE READINGS ARE D.C. TAKEN WITH NO SIGNAL INSERTED
+      USING A 20,000 Ω/VOLT METER". Values read from the drawing: two identical
+      channels, each a 6SL7 with a 470 kΩ anode load (annotated 165 V) over an
+      unbypassed 5.6 kΩ cathode (2.2 V) into a 39 kΩ/1 MΩ ULTRA LO shelving
+      network and a 1 MΩ linear volume with a 500 pF ULTRA HI bright cap, then a
+      second 6SL7 section on 220 kΩ (175 V) over 2.2 kΩ (2 V) into a printed
+      Bass/Treble board (220 kΩ series, 1 MΩ bass pot with 0.001 µF and 0.01 µF
+      to its wiper over a 22 kΩ foot, 120 kΩ link, 470 pF into a 1 MΩ treble pot
+      over a 0.0047 µF foot) and out through a 270 kΩ mixing resistor; a third
+      6SL7 as driver and self-balancing paraphase on two 120 kΩ anode loads
+      (annotated 235 V and 225 V) with a 470 kΩ/510 kΩ divider across those two
+      anodes feeding the second grid through 0.022 µF, a 220 Ω cathode taking
+      10 kΩ of negative feedback from the output transformer's green secondary
+      lead and a 1 kΩ/25 µF cathode on the other half; 0.022 µF couplers and
+      1 kΩ stoppers to a 6L6GC pair whose grids return through 270 kΩ each to an
+      annotated -50 V line and whose cathodes go straight to ground (annotated
+      450 V anodes, 445 V screens, no screen stoppers, no cathode resistor);
+      OT-214 output transformer (the handwritten part number beside it is only
+      partly legible on this scan), PT-108 power transformer (part 300708-1),
+      a 5AR4 with a 30 µF · 600 V reservoir, a 1 kΩ · 10 W dropper to
+      the screen node and two 22 kΩ · 1 W droppers off it to the preamp and
+      driver rails, a three-section 40 µF · 500 V can, and a separate "F-4"
+      diode bias supply. Not reproduced here.
+    url: "https://ampeg.com/data/6/0a000509142f661ff65a5784a/application/pdf/"
+  - desc: >-
+      Ampeg service-manual schematic sheet of the same revision, headed "MODEL B15N
+      SCHEMATIC DIAGRAM (REV. C)" — the corroborating second reading. Same circuit,
+      same annotated voltages, with the manual's own notes ("1. Capacitance values
+      are in microfarads, 10%, 400V", "2. Resistors are 1/2 W, 10%, composition",
+      "3. D.C. voltage readings taken with no signal applied using a 20,000 ohm/volt
+      voltmeter", "4. Actual circuit may vary slightly due to normal production
+      changes") and an A.C. VOLTAGE MEASUREMENTS table taken at "INPUT: .3V A.C.
+      400/cps" for "OUTPUT: 11V A.C. across 8 ohms load", with "Bass and Treble
+      controls at mid-position and ultra hi and ultra lo switches off". Only the
+      table's first two rows survive the page trim on the published scan: V1 and V2
+      (6SL7) read .65 V on pin 1, 19 V on pin 2, .29 V on pin 4 and 6.5 V on pin 5,
+      pins 7 and 8 marked "Fil.". The two sheets agree on every component value and
+      every D.C. annotation; where they differ is the bias-supply corner, and the
+      difference is recorded in notes.md.
+    url: "https://ampeg.com/data/6/0a0005091412661ff665e83fe/application/pdf/"
+  - desc: >-
+      Wikipedia, "Ampeg Portaflex" — the model chronology behind this entry's era
+      bracket and its 25 W rating: the 1960 B-15 "was replaced by the B-15N in 1961",
+      and the line's 1962 update fitted "a solid-state rectifier called the B-15NB".
+    url: "https://en.wikipedia.org/wiki/Ampeg_Portaflex"
+  - desc: >-
+      RCA 6SL7-GT data sheet, November 5, 1954 — the anchor behind the clean-room
+      6SL7GT model this circuit's five triode sections are simulated on: Amplifier
+      Class A1, Va=250 V, Vg=-2 V → Ia=2.3 mA, rp=44 kΩ, gm=1600 µmho, µ=70, with a
+      1 W plate dissipation and a 300 V plate ceiling per unit. Basing 8BD, which is
+      what makes the drawing's pin numbers readable: pins 1/2/3 are grid, plate and
+      cathode of unit 2 and pins 4/5/6 the same of unit 1. See
+      reference/tubes/6sl7gt.yaml and models/METHODOLOGY.md.
+    url: "https://frank.pocnet.net/sheets/049/6/6SL7GT.pdf"
+  - desc: >-
+      RCA 6L6-GC data sheet, DATA 1, 8-60 — the anchor behind the clean-room 6L6GC
+      output model: Class A1 Va=250 V, Vg2=250 V, Vg1=-14 V → Ia=72 mA, Ig2=5 mA,
+      gm=6000 µmho, design-maximum 30 W plate, 500 V plate, 450 V screen. The
+      450 V/445 V this drawing annotates sits inside that envelope, which is the
+      reason the Portaflex could run the rail it does. See reference/tubes/6l6gc.yaml.
+    url: "https://frank.pocnet.net/sheets/049/6/6L6GC.pdf"
+verification:
+  status: draft   # One reason, stated rather than tuned away: the driver
+                  # stage's four printed voltages cannot all be true. 3 V across
+                  # a 220 Ω cathode resistor is 13.6 mA, six times what a 6SL7
+                  # section is rated to pass and 3.2 W into a 1 W plate, and
+                  # 2.2 V across the other half's 1 kΩ needs a 489 V rail behind
+                  # a 120 kΩ load in an amplifier whose highest node is 450 V.
+                  # Those nodes are carried as disputed with their arithmetic
+                  # (voltages.yaml), never force-fitted, and one of the two
+                  # plate figures beside them lands outside the era's ±20% too.
+                  # The eight preamp nodes and the screen node all land inside
+                  # the era's ±20%, the schematic and both board-layout styles
+                  # are drawn and gated, and the drawn wiring is machine-checked
+                  # equivalent to netlist.cir (layout.yaml `wiring_claim`) — but
+                  # verified is earned whole, and the human maintainer's
+                  # sign-off is what grants it.
+added: 2026-08-30
+contributors: [TheAnalogMaker]

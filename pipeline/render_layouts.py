@@ -166,6 +166,7 @@ WIRE = {
     "gray":         "#9c968a",
     "white":        "#e7dcc2",
     "red-yellow":   "#d79a45",   # HT centre-tap striped lead -> warm amber
+    "red-white":    "#e08a86",   # HT centre-tap striped lead (red/white tracer)
     "green-yellow": "#9cba50",
     "blue-white":   "#8fb4dc",
     "red-blue":     "#c56f93",   # bias-tap striped lead -> red with a violet cast
@@ -2645,6 +2646,7 @@ SHEET_WIRE = {
     "gray":         "#6e6a5e",
     "white":        "#948b76",
     "red-yellow":   "#9c5a1e",
+    "red-white":    "#b4534d",
     "green-yellow": "#7d8a1c",
     "blue-white":   "#54779c",
     "red-blue":     "#7e3f63",

@@ -1,0 +1,93 @@
+# Voltages annotated beside the circuit on the published Ampeg B-15N drawing
+# (revision C, part 591722). This sheet carries no tabulated valve-voltage chart
+# of the kind Fender printed — the figures are written next to the pins they
+# belong to — and it states no tolerance, only how the readings were taken:
+# "VOLTAGE READINGS ARE D.C. TAKEN WITH NO SIGNAL INSERTED USING A 20,000 Ω/VOLT
+# METER". Tube pins therefore get the era's ±20 %; the screen node, derived
+# through one printed dropper from a driven rail, gets a tighter 8 %.
+#
+# TWO nodes are DRIVEN at their own printed values and every other node is
+# solved: BP1 = +450 V (the 5AR4 cathode / 30 µF reservoir / OT-214 centre tap,
+# which is the 6L6GC plate node) and NBIAS = -50 V (the line the sheet labels).
+# See netlist.cir.
+#
+# THE DRIVER STAGE DOES NOT ADD UP, and it is recorded rather than fitted. Four
+# figures are printed around V3 — 235 V and 3 V on pins 2 and 3, 225 V and 2.2 V
+# on pins 5 and 6 — and the two cathode figures are arithmetically impossible in
+# this amplifier:
+#
+#   pin 3, 3 V across the 220 Ω R25:  3 / 220 = 13.6 mA. A 6SL7 section is a
+#     1 W, 300 V small-signal triode whose own data sheet gives 2.3 mA at its
+#     Class-A point; 13.6 mA at the printed 235 V anode is 3.2 W in a 1 W plate,
+#     and it would need 1636 V behind the 120 kΩ anode load to deliver.
+#   pin 6, 2.2 V across the 1 kΩ R24: 2.2 mA through the 120 kΩ anode load is a
+#     264 V drop, so the printed 225 V anode needs a 489 V supply. The highest
+#     node in this amplifier is the 450 V reservoir.
+#
+# Both cathodes are therefore carried as disputed. The two anode figures are
+# gated normally — one lands inside the era's tolerance and one does not — so a
+# reader can see exactly which printed numbers hold and which do not.
+#
+# WHY THE PREAMP PLATES SIMULATE HIGH, and why that is not a fault in the
+# reading. The sheet says the readings were taken on a 20,000 Ω/volt meter: on
+# its 250 V range that is a 5 MΩ load hung on the node being read. Across the
+# 470 kΩ anode load of the first stage the meter's own 36 µA adds about 17 V of
+# extra drop, which turns a 181 V node into a ~164 V reading — the sheet prints
+# 165 V. The second stage's 220 kΩ load gives about 8 V of the same effect
+# (187 V simulated, ~179 V read, 175 V printed). The corpus simulates the
+# circuit, not the instrument, so the meter is not modelled; it is simply the
+# reason a +10 % deviation here is the expected sign and size.
+source: "Ampeg B-15N factory schematic, revision C (part 591722), voltages annotated beside the circuit: 165 V / 2.2 V and 175 V / 2 V at each channel's two 6SL7 stages; 235 V / 3 V and 225 V / 2.2 V at the 6SL7 driver; 450 V at both 6L6GC anodes, 445 V at their screens, -50 V at the fixed-bias line. Sheet note: 'VOLTAGE READINGS ARE D.C. TAKEN WITH NO SIGNAL INSERTED USING A 20,000 Ω/VOLT METER'. The service-manual sheet (REV. C) prints the same figures."
+nodes:
+  BP2:  { chart: 445, tol_pct: 8, note: "6L6GC screen node — the 40 µF can after the 1 kΩ · 10 W dropper R39. The 5 V the drawing puts between plates and screens is about 5 mA through that dropper, which is what a 6L6GC pair idles at; the screens carry no stoppers of their own" }
+  P1A:  { chart: 165, tol_pct: 20, note: "channel 1, first 6SL7 stage (pin 5) — 470 kΩ load off the preamp rail" }
+  K1A:  { chart: 2.2, tol_pct: 20, note: "channel 1, first stage cathode (pin 6) over 5.6 kΩ, no bypass can anywhere in either channel's first stage" }
+  P1B:  { chart: 175, tol_pct: 20, note: "channel 1, second 6SL7 stage (pin 2) — 220 kΩ load, grid off the volume wiper" }
+  K1B:  { chart: 2,   tol_pct: 20, note: "channel 1, second stage cathode (pin 3) over 2.2 kΩ, also unbypassed" }
+  P2A:  { chart: 165, tol_pct: 20, note: "channel 2, first stage — component-for-component identical to channel 1, and the drawing prints the same figures" }
+  K2A:  { chart: 2.2, tol_pct: 20, note: "channel 2, first stage cathode over 5.6 kΩ" }
+  P2B:  { chart: 175, tol_pct: 20, note: "channel 2, second stage — 220 kΩ load" }
+  K2B:  { chart: 2,   tol_pct: 20, note: "channel 2, second stage cathode over 2.2 kΩ" }
+  P3A:  { chart: 225, tol_pct: 20, note: "driver V3 unit 1 (pin 5), the paraphase-inverted half — 120 kΩ load off the driver rail. Its own cathode figure is disputed below, so read this one as what it is: the printed anode voltage, which the circuit reproduces inside the era's tolerance while the cathode beside it cannot be true" }
+  P3B:
+    chart: 235
+    disputed: true
+    dispute_note: >-
+      Driver V3 unit 2 (pin 2), the half the channels feed and the half the 10 kΩ
+      feedback resistor lands under. Its printed 235 V and the 3 V printed at the
+      cathode below it are two statements about one current and they disagree by
+      more than a factor of ten. 235 V behind the drawn 120 kΩ load is 1.3 mA from
+      a ~390 V rail, which over the drawn 220 Ω cathode resistor would read 0.29 V,
+      not 3 V; conversely 3 V over 220 Ω is 13.6 mA, which through 120 kΩ is a
+      1636 V drop. Neither can be reconciled by any reading of the supply, because
+      the amplifier's highest node is the 450 V reservoir. Simulated with the drawn
+      values the stage settles near 138 V with 0.42 V on its cathode: the 220 Ω
+      leaves the section almost unbiased, so it runs hot and its anode sits low.
+      That is what the drawn parts do; the pair of figures printed beside them is
+      recorded here and left standing.
+  K3B:
+    chart: 3
+    disputed: true
+    dispute_note: >-
+      Same node pair, taken from the cathode side. 3 V across R25's 220 Ω is
+      13.6 mA — six times the 2.3 mA the 6SL7 data sheet gives for its Class-A
+      point, and 3.2 W dissipated in a plate rated 1 W. R25 is not a plain bias
+      resistor either: it is the shunt leg of the global feedback divider, with
+      R40 10 kΩ returning from the output transformer's green secondary lead into
+      the same node, which lowers the effective cathode resistance rather than
+      raising it. There is no reading of this sheet under which 3 V appears here.
+  K3A:
+    chart: 2.2
+    disputed: true
+    dispute_note: >-
+      Driver V3 unit 1's cathode (pin 6) over R24 1 kΩ, bypassed by 25 µF. 2.2 V
+      is 2.2 mA; 2.2 mA through the drawn 120 kΩ anode load is a 264 V drop, so
+      the 225 V printed at the anode above it would require a 489 V supply. The
+      amplifier's highest node is the 450 V reservoir, and the driver rail sits
+      below it behind R38's 22 kΩ. The stage simulates at 1.47 V with the drawn
+      values, which is 33 % below the printed figure — outside the era's ±20 % —
+      while the anode it feeds lands inside. The contradiction is the sheet's,
+      not the model's, and it is left visible.
+  BP3:  { chart: null, note: "informational — the preamp rail both channels share, after R37's 22 kΩ from the screen node (40 µF can). The drawing prints no figure for it" }
+  BP4:  { chart: null, note: "informational — the driver rail, after R38's 22 kΩ from the same screen node (40 µF can). Also unprinted. R37 and R38 leave the screen node together and never rejoin: the sheet's own hop-overs put each on its own horizontal" }
+  NPP:  { chart: null, note: "informational — the paraphase tap itself, the midpoint of R28 470 kΩ and R29 510 kΩ strung across the two driver anodes. It is the whole inverter: it sees the two plates' antiphase swings and feeds the residual to the second grid through C11. No DC path leaves it except through that coupler, so its idle voltage is fixed entirely by the two plates it divides" }

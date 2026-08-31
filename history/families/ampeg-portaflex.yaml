@@ -49,11 +49,11 @@ models:
       drawing, which carries revision C of 22 January 1974: it is the B-15N
       circuit as Ampeg last issued it, not necessarily as the first 1961
       chassis left the bench.
-    circuit_ref: null
+    circuit_ref: "b15n"
     sources:
       - desc: "Ampeg factory schematic, engineering issue — title block reads 'B-15-N / U.S. PATENT 3183305 / TUBES / 6SL7 - 6SL7 - 6SL7 - 6L6GC - 6L6GC - 5AR4 / -472-', drawn 'BY S.C. 1268', PART NO. 591722, revision block '1/22/74 | C | 591722-2' over 'B | 591722-1'. Read from the drawing: two channels of 6SL7 stages (470 kΩ and 220 kΩ anode loads, 5.6 kΩ and 2.2 kΩ cathodes, annotated 165 V / 175 V anodes and 2.2 V / 2 V cathodes) into a passive bass/treble network, 270 kΩ channel mixing resistors into the 6SL7 driver (annotated 235 V / 225 V anodes, 3 V / 2.2 V cathodes, 120 kΩ anode loads), 1 kΩ grid stoppers and 270 kΩ grid returns to an annotated -50 V bias line for the 6L6GC pair (annotated 450 V anodes, 445 V screens), a 10 kΩ feedback resistor from the speaker winding, OT-214 output and PT-108 power transformers, and a 5AR4 rectifier with a separate F-4 diode bias supply. Not reproduced here."
         url: "https://ampeg.com/data/6/0a000509142f661ff65a5784a/application/pdf/"
-      - desc: "Ampeg service-manual schematic sheet of the same revision, headed 'MODEL B15N SCHEMATIC DIAGRAM (REV. C)' — the same circuit and the same annotated voltages, with the manual's own notes ('All capacitors in microfarads, 10%, 400V'; 'Resistors are 1/2 W, 10%, composition'; 'D.C. voltage readings taken with no signal applied using a 20,000 ohm/volt voltmeter') and an A.C. voltage measurement table taken at 0.3 V, 400 c/s in for 11 V across an 8 ohm load. The two sheets agree everywhere both can be read"
+      - desc: "Ampeg service-manual schematic sheet of the same revision, headed 'MODEL B15N SCHEMATIC DIAGRAM (REV. C)' — the same circuit and the same annotated voltages, with the manual's own notes ('All capacitors in microfarads, 10%, 400V'; 'Resistors are 1/2 W, 10%, composition'; 'D.C. voltage readings taken with no signal applied using a 20,000 ohm/volt voltmeter') and an A.C. voltage measurement table taken at 0.3 V, 400 c/s in for 11 V across an 8 ohm load. The two sheets agree on every component value and every annotated voltage in the signal path and the B+ chain. They differ in the bias corner, which a full reading of both has since established: the engineering sheet carries R42 10 kΩ and a second 10 µF · 100 V can that the manual sheet does not draw, and the manual's single bias can reads 100 µF · 100 V where the engineering sheet's reads 10 µF"
         url: "https://ampeg.com/data/6/0a0005091412661ff665e83fe/application/pdf/"
       - desc: "Wikipedia, \"Ampeg Portaflex\" — \"B-15 was replaced by the B-15N in 1961\""
         url: "https://en.wikipedia.org/wiki/Ampeg_Portaflex"
@@ -168,50 +168,57 @@ notes: >
   Ampeg last issued it, more than a decade after the model was introduced, so
   it dates the circuit's final form rather than its first.
 
-  No circuit from this family is drawn in the corpus yet, and the reason is
-  worth recording so the next pass does not re-walk it. A first attempt at the
-  B-15N stopped at three connections on the revision-C sheet it could not read:
-  where the R28 470 kΩ / R29 510 kΩ midpoint goes, which supply dropper feeds
-  the channel anode loads, and a driver-cathode node whose printed voltages
-  refuse to balance. A re-read of the same published drawing at 400 dpi, zoomed
-  to the pixel, settles the first two as a drafting convention rather than a
-  circuit question, and leaves the third standing.
+  One circuit from this family is now drawn in the corpus — the B-15N, from the
+  revision-C sheet above — and the reading that unlocked it is worth recording
+  so the rest of the line does not re-walk it. A first attempt stopped at three
+  connections it could not read: where the R28 470 kΩ / R29 510 kΩ midpoint
+  goes, which supply dropper feeds the channel anode loads, and a driver-cathode
+  node whose printed voltages refuse to balance. Re-read at 400 dpi, zoomed to
+  the pixel, the first two are a drafting convention rather than a circuit
+  question. The third stands, and is published as a disputed node.
 
   The sheet runs a long horizontal ground bus across the middle of the drawing,
-  and three vertical lines cross it. At working magnification each crossing
+  and several vertical lines cross it. At working magnification each crossing
   looks like a junction; at pixel level each is a **hop-over** — the little
-  S-jog the draughtsman used for "crosses, does not connect". None of the three
-  resistors above the bus is grounded there. Read that way the drawing resolves
-  into three series chains, each spanning the two 6SL7 driver anodes (the sheet
-  prints 235 V on one and 225 V on the other) with a node in the middle:
+  S-jog the draughtsman used for "crosses, does not connect". The same jog turns
+  up wherever this draughtsman crosses a line: at the channel mixing resistors'
+  crossings of their own tone-board input lines, and at every crossing the
+  driver rail makes on its way down to the supply. Read that way the drawing
+  resolves into three series chains, each spanning the two 6SL7 driver anodes
+  (the sheet prints 235 V on one and 225 V on the other) with a node in the
+  middle:
 
     * R26 120 kΩ and R27 120 kΩ — the driver's two ANODE LOADS, sharing one
-      supply node between them. That answers "which dropper feeds what": the
-      pair is fed from a single node, not from two separate rails.
-    * R28 470 kΩ and R29 510 kΩ — a second divider across the same two plates,
-      its midpoint running down into the power-supply block.
+      supply node between them. That node runs down to the foot of R38, a
+      22 kΩ · 1 W dropper off the 6L6GC screen node; its twin R37 leaves the
+      same screen node for the preamp rail both channels share, and the two
+      never rejoin.
+    * R28 470 kΩ and R29 510 kΩ — a divider across the same two plates, whose
+      midpoint is coupled by C11 0.022 µF to the second grid. That divider is
+      the phase inverter: a self-balancing (floating) paraphase.
     * R30 270 kΩ and R31 270 kΩ — meeting at the node the sheet labels −50 V.
       They are the two output-tube GRID RETURNS, which is what the title-block
       reading above already said they should be: R30 reaches the 6L6GC grid line
       beyond C13, R31 the other beyond C14, since the two 0.022 µF capacitors
       break each driver plate from the grid line it drives.
 
-  What is still open is not the drawing. Two of those three midpoints have a
-  third leg running down into the supply block that has not been traced to a
-  named rail; and the driver cathodes still contradict themselves on the sheet's
-  own chart — the printed 3 V and 2.2 V, taken with the 220 Ω and 1 kΩ drawn
-  under them, imply currents no 6SL7 section passes, which is a disputed-node
-  case to be written down with its arithmetic rather than resolved. Landing the
-  amp also needs shared-file work this family cannot do alone: models/ carries
-  no 6SL7, and one would have to be fitted clean-room from tabulated datasheet
-  anchors (RCA 6SL7GT Class A1: Va=250 V, Vg=−2 V → Ia=2.3 mA, gm=1600 µmho,
-  µ=70) with a reference/tubes/6sl7.yaml to match. The 6L6GC needs no new model:
-  models/5881.inc is already anchored on RC-19 6L6GC average characteristics and
-  reference/tubes/6l6gc.yaml already exists.
+  Two things remain open on the B-15N and are published as such on its own
+  page. The driver cathodes contradict themselves on the sheet's own annotations
+  — the printed 3 V and 2.2 V, taken with the 220 Ω and 1 kΩ drawn under them,
+  imply currents no 6SL7 section passes — so both are disputed nodes carrying
+  their arithmetic. And one crossing in the negative-bias supply is not settled,
+  so the −50 V line is driven at the value the sheet prints rather than derived.
+  Everything else solves: eight preamp nodes and the screen node land inside the
+  era's ±20 %.
+
+  No new tube model was needed for it. The corpus already carries clean-room
+  fits for all three bottles — the 6SL7 anchored on the RCA 6SL7GT Class A1
+  point (Va=250 V, Vg=−2 V → Ia=2.3 mA, gm=1600 µmho, µ=70), the 6L6GC on the
+  RCA 6L6-GC sheet, and the 5AR4 under its other name, the GZ34.
 
   Dates are as tight as their evidence allows and no tighter. Introduction years
   come from the published chronology; the closing years of the B-15NF and B-15S
   rows are bracketed by the drawings read here — the B-15S sheet is dated March
   1971, which puts a ceiling on the NF — rather than pinned by a dated source of
-  their own. No circuit in this corpus is drawn from this family yet; every row
-  is history-tier.
+  their own. One row — the B-15N — links a drawn circuit; every other row is
+  history-tier.

@@ -1,0 +1,368 @@
+# Board layout — DERIVED, not read from a factory layout drawing.
+#
+# Ampeg published no board-layout sheet for the B-15N and none was located: both
+# published sheets are the same circuit drawing (the engineering issue whose
+# title block reads "B-15-N ... PART NO. 591722" revision C, and the
+# service-manual sheet headed "MODEL B15N SCHEMATIC DIAGRAM (REV. C)"). The
+# arrangement here is therefore the Circuit Codex's own — this circuit's parts
+# laid out in signal order along the chassis on the house two-row eyelet grid,
+# ordered to match the valve row beneath it (5AR4 · 6L6GC · 6L6GC · 6SL7 driver
+# · 6SL7 channel 2 · 6SL7 channel 1). It is a builder's diagram of THIS circuit,
+# not a record of how Ampeg dressed its own chassis, which carried two printed
+# tone boards and a good deal of terminal-strip work. The caption says so and
+# `board.title` carries "(derived)".
+#
+# Part refs are the shared key into bom.yaml; the renderer reads each value and
+# part type from there, so the layout and the parts list cannot disagree.
+#
+# Machine-checked equivalence: the point-to-point wiring below has been verified
+# electrically equivalent to netlist.cir by pipeline/verify_layout_nets.py — see
+# the net_map block at the foot of this file and docs/layout-schema.md. Heaters,
+# the pilot lamp, the standby switch and the PT / rectifier AC side are an
+# excluded annotation layer (not in netlist.cir).
+wiring_claim: verified
+
+board:
+  rows: 2
+  cols: 188
+  title: "B-15N · board layout (derived)"
+caption: "A derived layout: Ampeg published no board-layout drawing for this chassis, so the arrangement below is the Circuit Codex's own — this circuit's parts laid out in signal order along the chassis and drawn on the house eyelet grid, not a record of the factory's own construction, which put each channel's Bass and Treble network on its own printed board (P.E.C.). Every value comes from the parts list, which is read from the Ampeg drawing whose title block reads \"B-15-N / U.S. PATENT 3183305\", part 591722, revision C. Transformer lead colours are the drawing's own: PT-108 red HT pair with a red-white centre tap, yellow 5 V rectifier winding, green 6.3 V heater winding; OT-214 blue and brown to the two 6L6GC plates with a red centre tap, and a green/black secondary. The OT secondary's yellow tap, the EXT. SPKR. jack J6 that normals the internal 8 ohm speaker, and the whole mains side beyond the transformer primary (POWER and POLAR. switches, the 3 A and 6 A fuses, the switched AC outlet and its two 0.047 uF capacitors) are outside this drawing. The panel pilot is drawn as the panel item it is and carries no lead here: this circuit puts P.L. straight across the transformer's mains primary, not on the heater chain, and that side of the circuit is out of scope. The 6.3 V heater chain (twisted pair, transformer to the two 6L6GCs, then the driver, then the two channel valves, with the VR7 hum balance across the line at the far end) is likewise derived: with no layout sheet its daisy order is the physical socket order. The 5AR4 is indirectly heated from the 5 V winding, off that chain. Not a trace or a dimensioned reproduction."
+source:
+  desc: "Ampeg factory schematic, engineering issue, title block \"B-15-N / U.S. PATENT 3183305 / TUBES / 6SL7 - 6SL7 - 6SL7 - 6L6GC - 6L6GC - 5AR4 / -472-\", PART NO. 591722, revision C of 1/22/74 — layout DERIVED from that circuit drawing; Ampeg published no board-layout sheet for this chassis and none was located"
+  url: "https://ampeg.com/data/6/0a000509142f661ff65a5784a/application/pdf/"
+
+# Board-mounted parts. a / b are eyelet endpoints [row, col]; the body is drawn
+# between them (same row = axial part; shared column across rows = vertical leg).
+# Two leads in one eyelet are one solder point — used deliberately below, e.g.
+# the supply chain's droppers and cans meeting at their shared rail eyelets and
+# each tone board's pot connections.
+parts:
+  # === power supply: reservoir -> 1 kOhm 10 W -> screen node -> two 22 kOhm ==
+  - { ref: C17,  a: [0, 1],  b: [1, 1] }    # 30 uF reservoir (BP1)
+  - { ref: R39,  a: [0, 1],  b: [0, 4] }    # 1 kOhm 10 W, BP1 -> screen node
+  - { ref: C16A, a: [0, 4],  b: [1, 4] }    # screen-node section of the C16 can
+  - { ref: R37,  a: [0, 4],  b: [0, 7] }    # 22 kOhm 1 W, BP2 -> preamp rail
+  - { ref: C16B, a: [0, 7],  b: [1, 7] }    # preamp-rail section
+  - { ref: R38,  a: [0, 10], b: [0, 13] }   # 22 kOhm 1 W, BP2 -> driver rail
+  - { ref: C16C, a: [0, 13], b: [1, 13] }   # driver-rail section
+  # === negative-bias supply =================================================
+  - { ref: R36,  a: [0, 16], b: [0, 19] }   # 100 kOhm 2 W from the 5AR4 plate
+  - { ref: R35,  a: [0, 19], b: [1, 19] }   # 56 kOhm on the rectifier side
+  - { ref: D1,   a: [0, 19], b: [0, 22], cathode: a }
+  #   ^ cathode read from schematic.kicad_sch: D1's cathode faces R36 and the
+  #     5AR4 plate, its anode the bias filter, so it conducts toward the bias
+  #     line on the half cycle that plate swings below ground.
+  - { ref: R34,  a: [0, 22], b: [1, 22] }   # 47 kOhm on the bias side
+  - { ref: C15,  a: [0, 25], b: [1, 25] }   # 10 uF bias filter
+  - { ref: R42,  a: [0, 25], b: [0, 28] }   # 10 kOhm between the two cans
+  - { ref: CBF2, a: [0, 28], b: [1, 28] }   # 10 uF on the -50 V line itself
+  # === output stage: couplers, grid returns, stoppers, load resistor ========
+  - { ref: C13,  a: [0, 32], b: [0, 34] }   # 0.022 driver plate -> V5 grid
+  - { ref: R30,  a: [0, 34], b: [1, 34] }   # 270 kOhm V5 grid return to -50 V
+  - { ref: R33,  a: [0, 34], b: [0, 36] }   # 1 kOhm V5 grid stopper
+  - { ref: C14,  a: [0, 38], b: [0, 40] }   # 0.022 inverted plate -> V4 grid
+  - { ref: R31,  a: [0, 40], b: [1, 40] }   # 270 kOhm V4 grid return to -50 V
+  - { ref: R32,  a: [0, 40], b: [0, 42] }   # 1 kOhm V4 grid stopper
+  - { ref: R41,  a: [0, 44], b: [1, 44] }   # 250 Ohm 10 W across the secondary
+  # === driver / self-balancing paraphase (V3) ==============================
+  - { ref: R26,  a: [0, 50], b: [0, 52] }   # 120 kOhm driver anode load
+  - { ref: R25,  a: [0, 54], b: [1, 54] }   # 220 Ohm driver cathode / NFB shunt
+  - { ref: R40,  a: [0, 56], b: [0, 58] }   # 10 kOhm global feedback
+  - { ref: R27,  a: [0, 60], b: [0, 62] }   # 120 kOhm inverted-side anode load
+  - { ref: R24,  a: [0, 64], b: [1, 64] }   # 1 kOhm inverted-side cathode
+  - { ref: CKD1, a: [0, 66], b: [1, 66] }   # 25 uF across it
+  - { ref: R23,  a: [0, 68], b: [1, 68] }   # 470 kOhm inverted-side grid leak
+  - { ref: R28,  a: [0, 70], b: [0, 72] }   # 470 kOhm paraphase divider, upper
+  - { ref: R29,  a: [0, 72], b: [0, 74] }   # 510 kOhm paraphase divider, lower
+  - { ref: C11,  a: [0, 76], b: [0, 78] }   # 0.022 tap -> the second grid
+  # === channel 2 (V2) — base column 84 ======================================
+  - { ref: R3,    a: [0, 84], b: [0, 86] }      # BRIGHT jack series resistor
+  - { ref: C2,    a: [1, 84], b: [1, 86] }      # bridges it
+  - { ref: R4,    a: [0, 88], b: [0, 90] }      # NORMAL jack series resistor
+  - { ref: R6,    a: [0, 92], b: [1, 92] }      # input grid leak
+  - { ref: R11,   a: [0, 94], b: [0, 96] }     # first anode load
+  - { ref: R12,   a: [0, 98], b: [1, 98] }     # first cathode, UNBYPASSED
+  - { ref: C5,    a: [0, 100], b: [0, 102] }      # first anode -> the ULTRA network
+  - { ref: C6,    a: [0, 102], b: [1, 102] }      # ULTRA LO series capacitor
+  - { ref: R13,   a: [1, 102], b: [1, 104] }     # ULTRA LO series resistor
+  - { ref: R14,   a: [1, 104], b: [1, 106] }     # shunt leg, shorted out by ULTRA LO
+  - { ref: C20,   a: [0, 102], b: [0, 104] }     # into the volume control
+  - { ref: C7,    a: [0, 106], b: [0, 108] }      # ULTRA HI bright capacitor
+  - { ref: R19,   a: [0, 110], b: [0, 112] }     # second anode load
+  - { ref: R20,   a: [0, 114], b: [1, 114] }     # second cathode, UNBYPASSED
+  - { ref: C8,    a: [0, 116], b: [0, 118] }      # second anode -> the tone board
+  - { ref: CTB3,  a: [0, 118], b: [1, 118] }    # board input -> treble top lug
+  - { ref: RTB1,  a: [0, 118], b: [0, 120] }    # board input -> bass top lug
+  - { ref: CTB1,  a: [0, 120], b: [1, 120] }    # bass top lug -> wiper
+  - { ref: CTB2,  a: [0, 124], b: [1, 124] }    # bass bottom lug -> wiper
+  - { ref: RTB2,  a: [0, 124], b: [0, 126] }    # bass foot -> ground
+  - { ref: R21,   a: [0, 130], b: [0, 132] }     # link: bass wiper -> treble wiper
+  - { ref: R22,   a: [0, 132], b: [0, 134] }     # mixing resistor
+  - { ref: CTB4,  a: [1, 130], b: [1, 132] }    # treble foot -> ground
+  # === channel 1 (V1) — base column 136, component for component the same ====
+  - { ref: R1,    a: [0, 136], b: [0, 138] }      # BRIGHT jack series resistor
+  - { ref: C1,    a: [1, 136], b: [1, 138] }      # bridges it
+  - { ref: R2,    a: [0, 140], b: [0, 142] }      # NORMAL jack series resistor
+  - { ref: R5,    a: [0, 144], b: [1, 144] }      # input grid leak
+  - { ref: R7,    a: [0, 146], b: [0, 148] }      # first anode load
+  - { ref: R8,    a: [0, 150], b: [1, 150] }      # first cathode, UNBYPASSED
+  - { ref: C3,    a: [0, 152], b: [0, 154] }      # first anode -> the ULTRA network
+  - { ref: C4,    a: [0, 154], b: [1, 154] }      # ULTRA LO series capacitor
+  - { ref: R9,    a: [1, 154], b: [1, 156] }      # ULTRA LO series resistor
+  - { ref: R10,   a: [1, 156], b: [1, 158] }     # shunt leg, shorted out by ULTRA LO
+  - { ref: C19,   a: [0, 154], b: [0, 156] }     # into the volume control
+  - { ref: C9,    a: [0, 158], b: [0, 160] }      # ULTRA HI bright capacitor
+  - { ref: R15,   a: [0, 162], b: [0, 164] }     # second anode load
+  - { ref: R16,   a: [0, 166], b: [1, 166] }     # second cathode, UNBYPASSED
+  - { ref: C10,   a: [0, 168], b: [0, 170] }     # second anode -> the tone board
+  - { ref: CTA3,  a: [0, 170], b: [1, 170] }    # board input -> treble top lug
+  - { ref: RTA1,  a: [0, 170], b: [0, 172] }    # board input -> bass top lug
+  - { ref: CTA1,  a: [0, 172], b: [1, 172] }    # bass top lug -> wiper
+  - { ref: CTA2,  a: [0, 176], b: [1, 176] }    # bass bottom lug -> wiper
+  - { ref: RTA2,  a: [0, 176], b: [0, 178] }    # bass foot -> ground
+  - { ref: R17,   a: [0, 182], b: [0, 184] }     # link: bass wiper -> treble wiper
+  - { ref: R18,   a: [0, 184], b: [0, 186] }     # mixing resistor
+  - { ref: CTA4,  a: [1, 182], b: [1, 184] }    # treble foot -> ground
+
+offboard:
+  - { id: T1, ref: T1, kind: xfmr, edge: left, at: 0.4, label: "Power trans" }
+  - { id: SW5, ref: SW5, kind: part, edge: top, at: 2, label: "Standby" }
+  - { id: PL1, kind: part, glyph: lamp, edge: top, at: 10, value: "mains", label: "Pilot (mains)" }
+  #   ^ no run: this pilot is drawn straight across the power transformer's
+  #     mains primary, on the side of the circuit this drawing does not carry.
+  #     Giving it a lead here would assert wiring the layout does not document.
+  #   ^ value sourced: bom.yaml lists the pilot as a mains-side lamp, read from
+  #     the circuit drawing, which gives no lamp type or rating.
+  - { id: V6, ref: V6, kind: tube, edge: bottom, at: 5,  label: "V6 · 5AR4" }
+  - { id: V5, ref: V5, kind: tube, edge: bottom, at: 33, label: "V5 · 6L6GC" }
+  - { id: V4, ref: V4, kind: tube, edge: bottom, at: 41, label: "V4 · 6L6GC" }
+  - { id: T2, ref: T2, kind: xfmr, edge: bottom, at: 47.5, label: "Output trans" }
+  - { id: SPK, kind: jack, edge: bottom, at: 54, label: "Speaker" }
+  - { id: V3, ref: V3, kind: tube, edge: bottom, at: 63, label: "V3 · 6SL7 driver" }
+  - { id: J5, kind: jack, edge: top, at: 70, label: "Ext amp" }
+  # channel 2 controls, jacks and valve
+  - { id: J3, kind: jack, edge: top, at: 84, label: "Ch 2 bright" }
+  - { id: J4, kind: jack, edge: top, at: 89, label: "Ch 2 normal" }
+  - { id: SW4, ref: SW4, kind: part, edge: bottom, at: 100, label: "Ultra Lo · ch 2" }
+  - { id: V2, ref: V2, kind: tube, edge: bottom, at: 103, label: "V2 · 6SL7 ch 2" }
+  - { id: SW3, ref: SW3, kind: part, edge: top, at: 108, label: "Ultra Hi · ch 2" }
+  - { id: VR4, ref: VR4, kind: pot, edge: top, at: 112, label: "Volume · ch 2" }
+  - { id: VR5, ref: VR5, kind: pot, edge: top, at: 121, label: "Bass · ch 2" }
+  - { id: VR6, ref: VR6, kind: pot, edge: top, at: 128, label: "Treble · ch 2" }
+  # channel 1 controls, jacks and valve
+  - { id: J1, kind: jack, edge: top, at: 136, label: "Ch 1 bright" }
+  - { id: J2, kind: jack, edge: top, at: 141, label: "Ch 1 normal" }
+  - { id: SW2, ref: SW2, kind: part, edge: bottom, at: 152, label: "Ultra Lo · ch 1" }
+  - { id: V1, ref: V1, kind: tube, edge: bottom, at: 155, label: "V1 · 6SL7 ch 1" }
+  - { id: SW1, ref: SW1, kind: part, edge: top, at: 160, label: "Ultra Hi · ch 1" }
+  - { id: VR1, ref: VR1, kind: pot, edge: top, at: 164, label: "Volume · ch 1" }
+  - { id: VR2, ref: VR2, kind: pot, edge: top, at: 173, label: "Bass · ch 1" }
+  - { id: VR3, ref: VR3, kind: pot, edge: top, at: 180, label: "Treble · ch 1" }
+  - { id: VR7, ref: VR7, kind: pot, edge: bottom, at: 170, label: "Hum balance" }
+
+# Ground bus — the bare rail just below the bottom eyelet row; filter, cathode,
+# grid-leak, pot and jack grounds tie to it.
+bus:
+  - { from: [1.45, -0.5], to: [1.45, 187.5] }
+
+runs:
+  # === power transformer -> 5AR4 -> the reservoir ==========================
+  - { from: T1.red1, to: R36.a, via: [[-1.6,0.21],[-1.6,-1.15],[15.4,-1.15]] }
+  - { from: R36.a, to: V6.pin4, via: [[15.4,1.32],[4.45,1.32]] }
+  - { from: T1.red2, to: V6.pin6, via: [[-1.35,0.29],[-1.35,1.68],[6.58,1.68],[6.58,1.89]] }
+  - { from: T1.red-white, to: SW5.a, via: [[-1.1,0.36],[-1.1,-1.45],[1.61,-1.45]] }
+  - { from: SW5.b, to: [1.45, 8], via: [[2.39,-0.65],[8,-0.65]] }
+  - { from: T1.yellow1, to: V6.pin8, via: [[-0.85,0.44],[-0.85,2.8],[6.4,2.8]] }
+  - { from: T1.yellow2, to: V6.pin2, via: [[-0.6,0.51],[-0.6,1.22],[3.05,1.22],[3.05,2.04]] }
+  - { from: V6.pin8, to: C17.a, via: [[7.2,2.6],[2.4,2.6],[2.4,0.55],[1.4,0.55]] }
+  - { from: C17.b, to: [1.45, 1] }
+  - { from: C16A.b, to: [1.45, 4] }
+  - { from: C16B.b, to: [1.45, 7] }
+  - { from: C16C.b, to: [1.45, 13] }
+
+  # === BP1: reservoir, output-transformer centre tap =======================
+  - { from: C17.a, to: T2.red, via: [[0.6,-3.05],[46.89,-3.05]] }
+
+  # === BP2: screen node -> the second dropper and both screens =============
+  - { from: C16A.a, to: R38.a, via: [[3,-1.35],[9,-1.35]] }
+  - { from: C16A.a, to: V4.pin4, via: [[5,-2.05],[36.4,-2.05],[36.4,1.32],[40.45,1.32]] }
+  - { from: V4.pin4, to: V5.pin4, via: [[42.1,1.62],[34.1,1.62],[34.1,1.62]] }
+
+  # === BP3 / BP4: the preamp and driver rails, tapped along the board ======
+  - { from: C16B.a, to: R11.a, via: [[8,-2.55],[93,-2.55]] }
+  - { from: R11.a, to: R19.a, via: [[95,-2.55],[109,-2.55]] }
+  - { from: R19.a, to: R7.a, via: [[111,-2.55],[145,-2.55]] }
+  - { from: R7.a, to: R15.a, via: [[147,-2.55],[161,-2.55]] }
+  - { from: C16C.a, to: R26.a, via: [[14,-1.75],[49,-1.75]] }
+  - { from: R26.a, to: R27.a, via: [[51,-1.75],[59,-1.75]] }
+
+  # === the negative-bias supply, and the -50 V line it feeds ===============
+  - { from: R35.b, to: [1.45, 19] }
+  - { from: R34.b, to: [1.45, 22] }
+  - { from: D1.b, to: C15.a, via: [[22.8,-0.65],[24.2,-0.65]] }
+  - { from: C15.b, to: [1.45, 25] }
+  - { from: CBF2.b, to: [1.45, 28] }
+  - { from: CBF2.a, to: R30.b, via: [[29.2,-0.75],[29.2,1.05],[33.6,1.05]] }
+  - { from: R30.b, to: R31.b, via: [[34.6,1.22],[40.4,1.22]] }
+
+  # === output stage: grids, screens, cathodes, plates ======================
+  - { from: R33.b, to: V5.pin5, via: [[36.6,0.58],[33.55,0.58]] }
+  - { from: R32.b, to: V4.pin5, via: [[42.6,0.58],[41.55,0.58]] }
+  - { from: V5.pin8, to: [1.45, 35.6], via: [[34.4,2.8],[35.6,2.8]] }
+  - { from: V4.pin8, to: [1.45, 43.6], via: [[42.4,2.8],[43.6,2.8]] }
+  - { from: V5.pin3, to: T2.blue, via: [[31.42,1.89],[31.42,3.3],[47.19,3.3]] }
+  - { from: V4.pin3, to: T2.brown, via: [[39.42,1.89],[39.42,3.62],[47.5,3.62]] }
+  - { from: T2.green, to: R41.a, via: [[47.81,1.1],[44.6,1.1]] }
+  - { from: T2.black, to: [1.45, 49.6], via: [[48.11,1.3],[49.6,1.3]] }
+  - { from: R41.a, to: SPK.tip, via: [[44.8,-0.45],[53.4,-0.45],[53.4,2.45],[53.86,2.45]] }
+  - { from: SPK.sleeve, to: [1.45, 55.8], via: [[55.2,2.45]] }
+  - { from: R41.b, to: [1.45, 44] }
+
+  # === driver / self-balancing paraphase (V3) ==============================
+  - { from: R26.b, to: V3.pin2, via: [[52.6,1.22],[61.05,1.22],[61.05,2.04]] }
+  - { from: R26.b, to: C13.a, via: [[51,-1.15],[32.6,-1.15]] }
+  - { from: R26.b, to: R28.a, via: [[53.4,-1.45],[70.8,-1.45]] }
+  - { from: R25.a, to: V3.pin3, via: [[54.6,1.1],[61.42,1.1],[61.42,1.89]] }
+  - { from: R25.a, to: R40.a, via: [[54.2,-0.65],[55.8,-0.65]] }
+  - { from: R25.b, to: [1.45, 54] }
+  - { from: R40.b, to: R41.a, via: [[58.4,-0.95],[43.2,-0.95]] }
+  - { from: R27.b, to: V3.pin5, via: [[62.6,0.58],[63.55,0.58]] }
+  - { from: R27.b, to: C14.a, via: [[61,-2.35],[39.4,-2.35]] }
+  - { from: R27.b, to: R29.b, via: [[63.4,-0.65],[73.6,-0.65]] }
+  - { from: R24.a, to: V3.pin6, via: [[64.6,1.68],[64.58,1.68],[64.58,1.89]] }
+  - { from: R24.a, to: CKD1.a, via: [[64.2,-1.05],[65.8,-1.05]] }
+  - { from: R24.b, to: [1.45, 64] }
+  - { from: CKD1.b, to: [1.45, 66] }
+  - { from: R23.a, to: V3.pin4, via: [[68.6,-0.45],[62.4,-0.45],[62.4,1.32],[62.45,1.32]] }
+  - { from: R23.b, to: [1.45, 68] }
+  - { from: R28.b, to: C11.a, via: [[72.6,-1.05],[75.4,-1.05]] }
+  - { from: C11.b, to: R23.a, via: [[78.4,-1.75],[68.2,-1.75]] }
+  - { from: J5.tip, to: V3.pin1, via: [[69.86,-0.35],[59.2,-0.35],[59.2,2.8],[61.6,2.8]] }
+  - { from: J5.sleeve, to: [1.45, 71.6], via: [[70.14,-0.6],[71.6,-0.6]] }
+  - { from: R22.b, to: V3.pin1, via: [[134.9,-0.85],[128.6,-0.85],[128.6,3.2],[60.2,3.2],[60.2,2.45],[61.1,2.45]] }
+  - { from: R18.b, to: V3.pin1, via: [[186.6,3.55],[58.4,3.55],[58.4,2.98],[61.9,2.98]] }
+
+  # === channel 2 ============================================================
+  # --- V2: input network, first stage, ULTRA switches, volume ---
+  - { from: J3.tip, to: R3.a, via: [[83.2,-0.4]] }
+  - { from: J3.sleeve, to: [1.45, 82.4], via: [[82.4,-0.7]] }
+  - { from: R3.a, to: C2.a, via: [[83.4,0.5],[83.4,1.1]] }
+  - { from: R3.b, to: C2.b, via: [[86.6,0.5],[86.6,1.1]] }
+  - { from: R3.b, to: R6.a, via: [[86.4,-0.75],[91,-0.75]] }
+  - { from: J4.tip, to: R4.a, via: [[87.2,-0.4]] }
+  - { from: J4.sleeve, to: [1.45, 90.6], via: [[90.6,-0.7]] }
+  - { from: R4.b, to: R6.a, via: [[90.2,-1.45],[92.9,-1.45]] }
+  - { from: R6.a, to: V2.pin4, via: [[92.6,1.32],[102.45,1.32]] }
+  - { from: R6.b, to: [1.45, 92] }
+  - { from: R11.b, to: V2.pin5, via: [[96.6,0.58],[103.55,0.58]] }
+  - { from: R11.b, to: C5.a, via: [[96.2,-0.75],[99.4,-0.75]] }
+  - { from: R12.a, to: V2.pin6, via: [[98.6,1.68],[104.58,1.68],[104.58,1.89]] }
+  - { from: R12.b, to: [1.45, 98] }
+  - { from: R14.b, to: [1.45, 106] }
+  - { from: R13.b, to: SW4.a, via: [[103.4,1.55],[100.4,1.55]] }
+  - { from: SW4.b, to: [1.45, 100.4] }
+  - { from: C20.b, to: VR4.lug3, via: [[103.2,-1.65],[112.31,-1.65]] }
+  - { from: C20.b, to: C7.a, via: [[105,-0.65],[105.4,-0.65]] }
+  - { from: C7.b, to: SW3.a, via: [[108.2,-0.45]] }
+  - { from: SW3.b, to: VR4.lug2, via: [[109.6,-1.25],[112,-1.25]] }
+  - { from: VR4.lug2, to: V2.pin1, via: [[112,-0.45],[99.2,-0.45],[99.2,2.8],[101.6,2.8]] }
+  - { from: VR4.lug1, to: [1.45, 109], via: [[111.69,-0.7],[109,-0.7]] }
+  - { from: R19.b, to: V2.pin2, via: [[112.6,1.22],[101.05,1.22],[101.05,2.04]] }
+  - { from: R19.b, to: C8.a, via: [[112.2,-0.75],[115.4,-0.75]] }
+  - { from: R20.a, to: V2.pin3, via: [[114.6,1.1],[101.42,1.1],[101.42,1.89]] }
+  - { from: R20.b, to: [1.45, 114] }
+  # --- the printed tone board -------------------------------------------
+  - { from: CTB3.b, to: VR6.lug3, via: [[118.4,1.62],[127,1.62],[127,-1.65],[128.31,-1.65]] }
+  - { from: RTB1.b, to: VR5.lug3, via: [[120.4,-0.75],[121.31,-0.75]] }
+  - { from: CTB1.b, to: CTB2.b, via: [[120.6,1.72],[123.4,1.72]] }
+  - { from: CTB1.b, to: VR5.lug2, via: [[122.2,1.15],[122.2,-0.55],[121,-0.55]] }
+  - { from: CTB2.a, to: VR5.lug1, via: [[124.2,-0.35],[120.69,-0.35]] }
+  - { from: RTB2.b, to: [1.45, 126] }
+  - { from: CTB1.b, to: R21.a, via: [[120.9,0.55],[129.4,0.55]] }
+  - { from: R21.b, to: VR6.lug2, via: [[132.2,-0.45],[128,-0.45]] }
+  - { from: VR6.lug1, to: CTB4.b, via: [[127.69,-0.25],[129.4,-0.25],[129.4,1.15],[132,1.15]] }
+  - { from: CTB4.a, to: [1.45, 130] }
+
+  # === channel 1 ============================================================
+  # --- V1: input network, first stage, ULTRA switches, volume ---
+  - { from: J1.tip, to: R1.a, via: [[135.2,-0.4]] }
+  - { from: J1.sleeve, to: [1.45, 134.4], via: [[134.4,-0.7]] }
+  - { from: R1.a, to: C1.a, via: [[135.4,0.5],[135.4,1.1]] }
+  - { from: R1.b, to: C1.b, via: [[138.6,0.5],[138.6,1.1]] }
+  - { from: R1.b, to: R5.a, via: [[138.4,-0.75],[143,-0.75]] }
+  - { from: J2.tip, to: R2.a, via: [[139.2,-0.4]] }
+  - { from: J2.sleeve, to: [1.45, 142.6], via: [[142.6,-0.7]] }
+  - { from: R2.b, to: R5.a, via: [[142.2,-1.45],[144.9,-1.45]] }
+  - { from: R5.a, to: V1.pin4, via: [[144.6,1.32],[154.45,1.32]] }
+  - { from: R5.b, to: [1.45, 144] }
+  - { from: R7.b, to: V1.pin5, via: [[148.6,0.58],[155.55,0.58]] }
+  - { from: R7.b, to: C3.a, via: [[148.2,-0.75],[151.4,-0.75]] }
+  - { from: R8.a, to: V1.pin6, via: [[150.6,1.68],[156.58,1.68],[156.58,1.89]] }
+  - { from: R8.b, to: [1.45, 150] }
+  - { from: R10.b, to: [1.45, 158] }
+  - { from: R9.b, to: SW2.a, via: [[155.4,1.55],[152.4,1.55]] }
+  - { from: SW2.b, to: [1.45, 152.4] }
+  - { from: C19.b, to: VR1.lug3, via: [[155.2,-1.65],[164.31,-1.65]] }
+  - { from: C19.b, to: C9.a, via: [[157,-0.65],[157.4,-0.65]] }
+  - { from: C9.b, to: SW1.a, via: [[160.2,-0.45]] }
+  - { from: SW1.b, to: VR1.lug2, via: [[161.6,-1.25],[164,-1.25]] }
+  - { from: VR1.lug2, to: V1.pin1, via: [[164,-0.45],[151.2,-0.45],[151.2,2.8],[153.6,2.8]] }
+  - { from: VR1.lug1, to: [1.45, 161], via: [[163.69,-0.7],[161,-0.7]] }
+  - { from: R15.b, to: V1.pin2, via: [[164.6,1.22],[153.05,1.22],[153.05,2.04]] }
+  - { from: R15.b, to: C10.a, via: [[164.2,-0.75],[167.4,-0.75]] }
+  - { from: R16.a, to: V1.pin3, via: [[166.6,1.1],[153.42,1.1],[153.42,1.89]] }
+  - { from: R16.b, to: [1.45, 166] }
+  # --- the printed tone board -------------------------------------------
+  - { from: CTA3.b, to: VR3.lug3, via: [[170.4,1.62],[179,1.62],[179,-1.65],[180.31,-1.65]] }
+  - { from: RTA1.b, to: VR2.lug3, via: [[172.4,-0.75],[173.31,-0.75]] }
+  - { from: CTA1.b, to: CTA2.b, via: [[172.6,1.72],[175.4,1.72]] }
+  - { from: CTA1.b, to: VR2.lug2, via: [[174.2,1.15],[174.2,-0.55],[173,-0.55]] }
+  - { from: CTA2.a, to: VR2.lug1, via: [[176.2,-0.35],[172.69,-0.35]] }
+  - { from: RTA2.b, to: [1.45, 178] }
+  - { from: CTA1.b, to: R17.a, via: [[172.9,0.55],[181.4,0.55]] }
+  - { from: R17.b, to: VR3.lug2, via: [[184.2,-0.45],[180,-0.45]] }
+  - { from: VR3.lug1, to: CTA4.b, via: [[179.69,-0.25],[181.4,-0.25],[181.4,1.15],[184,1.15]] }
+  - { from: CTA4.a, to: [1.45, 182] }
+
+  # === 6.3 V heater chain (twisted pair) ===================================
+  # Derived, like the rest of this drawing: with no layout sheet the daisy
+  # order is the physical socket order. The 5AR4 is heated from the 5 V
+  # winding (drawn above), so it is off this chain; the pilot is drawn across
+  # the mains primary, so it is off it too. Twisted runs land only on heater
+  # pins — 6L6GC octal 2/7, 6SL7 octal 7/8 — validated against the basing.
+  - { from: T1.green, to: V5.pin2, via: [[-1.2,4.4],[31.05,4.4]], style: twisted }
+  - { from: V5.pin7, to: V4.pin2, via: [[34.95,4.4],[39.05,4.4]], style: twisted }
+  - { from: V4.pin7, to: V3.pin7, via: [[42.95,4.4],[64.95,4.4]], style: twisted }
+  - { from: V3.pin8, to: V2.pin7, via: [[64.4,4.4],[104.95,4.4]], style: twisted }
+  - { from: V2.pin8, to: V1.pin7, via: [[104.4,4.4],[156.95,4.4]], style: twisted }
+  # the hum balance sits across the far end of the heater line, wiper to ground
+  - { from: VR7.lug1, to: V1.pin7, via: [[169.69,1.36],[156.95,1.36],[156.95,2.04]], color: green }
+  - { from: VR7.lug3, to: V1.pin8, via: [[170.31,2.8],[156.4,2.8]], color: green }
+  - { from: VR7.lug2, to: [1.45, 170], via: [[170,1.66]] }
+
+wire_legend:
+  green: "green — the 6.3 V heater line's tails to the VR7 hum balance"
+
+# net_map — reviewable reconciliation of the drawn wiring with the DC netlist
+# (netlist.cir) for pipeline/verify_layout_nets.py. See docs/layout-schema.md.
+net_map:
+  # No excluded_tubes block belongs here. Every signal bottle this circuit
+  # carries — V1, V2 and V3's six 6SL7 sections and the two 6L6GCs — is modelled
+  # in netlist.cir and anchors normally. The only declared-excluded bottle is
+  # V6, the rectifier, which the checker excludes by rule. There is no tremolo
+  # oscillator or other free-running stage to exclude here.
+  anchors:
+    # The netlist omits output-transformer winding DCR, so both 6L6GC plate
+    # leads and the primary centre tap collapse onto the reservoir node BP1 —
+    # which is what makes the centre tap and the plate node one node there.
+    T2.blue: BP1      # OT primary, V5 plate lead
+    T2.brown: BP1     # OT primary, V4 plate lead
+    T2.red: BP1       # OT primary centre tap -> reservoir
+    # The secondary is a DC short to ground, which is why netlist.cir models the
+    # 10 kOhm feedback resistor R40 as a leg from the driver cathode to ground.
+    T2.green: "0"
+    T2.black: "0"
+  netlist_unplaced:
+    RVR1: "channel 1 volume VR1 — the netlist models its DC grid return as one grid-leak (G1B -> 0); the pot itself is a panel control, not a board part"
+    RVR4: "channel 2 volume VR4 — the same, for G2B"
+    RG3B: "the driver grid's DC return, lumped at 1 MOhm (G3B -> 0). It is not a discrete resistor anywhere: the return runs back out through both 270 kOhm mixing resistors, each tone board's 120 kOhm link and bass pot, to that board's 22 kOhm foot"

@@ -1,0 +1,153 @@
+* b15n (Ampeg B-15N Portaflex-style) — DC operating-point netlist
+* Circuit Codex — CC-BY-SA 4.0. Independently drawn from the component values
+* read off the published Ampeg factory drawing whose title block reads
+* "B-15-N / U.S. PATENT 3183305 / TUBES / 6SL7 - 6SL7 - 6SL7 - 6L6GC - 6L6GC -
+* 5AR4 / -472-", PART NO. 591722, drawn BY S.C. 1268, revision block
+* "1/22/74 | C | 591722-2" over "B | 591722-1" (see meta.yaml). The same circuit
+* and the same annotated voltages appear on the Ampeg service-manual sheet
+* headed "MODEL B15N SCHEMATIC DIAGRAM (REV. C)". No drawing is reproduced.
+*
+* Designators are the drawing's own (R1..R42, C1..C20, VR1..VR7, V1..V6, D1)
+* wherever the drawing letters a part. Six parts per channel sit inside the two
+* printed tone boards and are drawn with a value but NO designator; those carry
+* role-coded refs here and in bom.yaml, which is why the parts list reads as a
+* functional one. See bom.yaml.
+*
+* HOW THE SHEET IS READ. A long horizontal ground bus runs across the middle of
+* the drawing and several vertical lines cross it. At working magnification each
+* crossing looks like a junction; at 400 dpi, zoomed to the pixel, each is a
+* HOP-OVER — the small S-jog this draughtsman used for "crosses, does not
+* connect". Reading them as junctions is what makes the supply look unsolvable.
+* Read as hop-overs the sheet resolves cleanly, and the arithmetic below closes
+* on the printed preamp voltages to a few percent.
+*
+* DC conventions (as in the sibling amps). TWO nodes are DRIVEN at values the
+* drawing itself prints, and everything else is derived through the drawing's
+* own droppers:
+*   BP1    = +450 V — the 5AR4 cathode / C17 30 uF reservoir, which is also the
+*            OT-214 primary centre tap and therefore the 6L6GC plate node. The
+*            drawing annotates 450 V at both output plates.
+*   NBIAS  = -50 V — the node the drawing labels "-50V", where the two 270 kOhm
+*            output-grid returns meet.
+* The 5AR4, the PT-108 mains transformer and the whole negative-bias supply
+* (D1 "F-4", R34, R35, R36, R42, C15, CBF2) are NOT modelled — no corpus netlist
+* simulates a supply, and the bias block is an AC-fed half-wave rectifier
+* besides: R36 taps the 5AR4's own plate, which swings below ground on every
+* other half cycle, so D1 conducts toward the bias line. Output-transformer
+* primary DCR is omitted, so both 6L6GC anodes sit on the driven rail.
+*
+* SUPPLY CHAIN, as drawn: BP1 -> R39 1 kOhm 10 W -> BP2, the screen node
+* (chart 445 V, a 5 V drop = about 5 mA of screen current for the pair, which is
+* what a 6L6GC pair idles at). BP2 then splits into two 22 kOhm 1 W droppers
+* that never rejoin: R37 feeds BP3, the four preamp stages of both channels,
+* and R38 feeds BP4, the two 120 kOhm driver anode loads. Each of BP1, BP2, BP3
+* and BP4 carries its own filter can: C17 30 uF, then the three 40 uF sections
+* of the can the sheet letters C16 (listed C16A/C16B/C16C, one per node — a
+* parts list cannot carry one designator on three different nodes).
+*
+* MODELLED CAPS. DC-open caps are modelled where BOTH leads land on a named DC
+* node — the four filter cans, the driver cathode bypass, the paraphase coupler
+* C11 and the two driver->grid couplers C13/C14 — so a coupler on the wrong grid
+* is a wrong-node error in the data. Caps with a lead inside an abstracted
+* network (the input couplers C1/C2, the ULTRA HI/LO shelving networks, the
+* volume pots' bright caps, both tone boards) stay out.
+*
+* NOT MODELLED: heaters and the VR7 100 Ohm hum balance, the six jacks and their
+* switching contacts, the EXT. AMP. jack J5, the speaker, the ext-speaker jack
+* J6, R41 250 Ohm 10 W, the mains switching (SW5..SW7, fuses, AC outlet,
+* C18/C21) and both tone boards' passive networks.
+.include models/6sl7gt.inc
+.include models/6l6gc.inc
+
+VBP1  BP1   0 DC 450
+VBIAS NBIAS 0 DC -50
+
+* --- supply chain: reservoir -> screens -> preamp rail / driver rail ----------
+C17 BP1 0 30u
+R39 BP1 BP2 1k
+C16A BP2 0 40u
+R37 BP2 BP3 22k
+C16B BP3 0 40u
+R38 BP2 BP4 22k
+C16C BP4 0 40u
+
+* --- V1, channel 1 (6SL7, pins 4/5/6 then 1/2/3) -----------------------------
+* First stage: 470 kOhm anode load, 5.6 kOhm cathode with NO bypass can, 5.6
+* MOhm grid leak. The BRIGHT and NORMAL jacks reach that grid through R1 100k
+* (with C1 0.005 uF across it) and R2 47k; both have a lead at a jack, so
+* neither is modelled and the grid sits on its leak alone.
+R7 BP3 P1A 470k
+XV1A P1A G1A K1A 6SL7GT
+R5 G1A 0 5.6meg
+R8 K1A 0 5.6k
+* Second stage: grid off the VR1 volume wiper, 220 kOhm anode load, 2.2 kOhm
+* cathode, again unbypassed. VR1's track is the grid's only DC return; with no
+* grid-current model its value cannot move the operating point.
+XV1B P1B G1B K1B 6SL7GT
+RVR1 G1B 0 1meg
+R15 BP3 P1B 220k
+R16 K1B 0 2.2k
+
+* --- V2, channel 2 — component-for-component identical to channel 1 ----------
+R11 BP3 P2A 470k
+XV2A P2A G2A K2A 6SL7GT
+R6 G2A 0 5.6meg
+R12 K2A 0 5.6k
+XV2B P2B G2B K2B 6SL7GT
+RVR4 G2B 0 1meg
+R19 BP3 P2B 220k
+R20 K2B 0 2.2k
+
+* --- V3, the driver / self-balancing (floating) paraphase inverter -----------
+* Socket units, in the drawing's own pin numbers (6SL7 basing 8BD: 1/2/3 are
+* grid/plate/cathode of unit 2, 4/5/6 the same of unit 1):
+*   V3B = pins 1/2/3 — the DRIVER half. Its grid is the channel mixing bus,
+*         where both channels' 270 kOhm mixing resistors (R18, R22) meet; the
+*         EXT. AMP. jack J5 taps the same node. It has no grid leak of its own:
+*         the DC return runs back out through those mixing resistors, each
+*         channel's 120 kOhm tone-board resistor and bass pot, to the 22 kOhm
+*         foot of that board. Lumped at 1 MOhm below — with no grid current the
+*         value cannot move a DC point.
+*   V3A = pins 4/5/6 — the INVERTED half. Its grid is fed through C11 0.022 uF
+*         from the midpoint of R28 470 kOhm / R29 510 kOhm, a divider strung
+*         ACROSS the two driver anodes. That divider is the whole inverter: the
+*         two plates swing in antiphase, so their weighted midpoint carries the
+*         small residual that drives the second grid and self-balances the pair.
+*         It is a paraphase, not a long-tailed pair — the two cathodes are
+*         separate and differently loaded.
+* R25 220 Ohm on the V3B cathode is the shunt leg of the global negative-
+* feedback divider: R40 10 kOhm comes back from the output transformer's GREEN
+* secondary lead into that node. The secondary is a DC short to ground, so R40
+* is modelled as 10 kOhm to ground; unlike a long-tailed pair's tail foot this
+* is NOT DC-neutral (it trims the effective cathode resistor from 220 to 215
+* Ohm), which is why it is in the deck rather than a comment.
+R26 BP4 P3B 120k
+XV3B P3B G3B K3B 6SL7GT
+RG3B G3B 0 1meg
+R25 K3B 0 220
+R40 K3B 0 10k
+R27 BP4 P3A 120k
+XV3A P3A G3A K3A 6SL7GT
+R23 G3A 0 470k
+R24 K3A 0 1k
+CKD1 K3A 0 25u
+R28 P3B NPP 470k
+R29 NPP P3A 510k
+C11 NPP G3A 0.022u
+
+* --- 6L6GC push-pull output, FIXED bias -------------------------------------
+* Cathodes straight to the ground bus — there is no cathode resistor anywhere in
+* this output stage. Each grid returns to the -50 V line through its own 270
+* kOhm leak and reaches the bottle through a 1 kOhm stopper; the screens hang
+* together off BP2 with no screen stoppers at all. Two distinct bottles.
+R30 NBIAS G5N 270k
+R33 G5N G5 1k
+XV5 BP1 BP2 G5 0 6L6GC
+R31 NBIAS G4N 270k
+R32 G4N G4 1k
+XV4 BP1 BP2 G4 0 6L6GC
+
+* Driver-plate -> output-grid couplers (0.022 uF, DC-open). Modelled so the
+* push-pull phase is machine-checked: V3B drives V5, V3A drives V4.
+C13 P3B G5N 0.022u
+C14 P3A G4N 0.022u

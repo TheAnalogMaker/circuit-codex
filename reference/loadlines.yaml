@@ -740,6 +740,32 @@ stages:
   ot_primary_note: 4 kΩ anode-to-anode primary · 8 Ω / 15 Ω secondary taps — Output transformer (Haddon)
   sim_ip_ma: 47.9413
   sim_ig2_ma: 5.1832
+- amp: 'b15n'
+  name_style: Ampeg B-15N Portaflex-style
+  tube: '6L6GC'
+  tube_lettered: '6L6GC'
+  output_tubes: 2
+  config: push-pull
+  bias: fixed
+  plate_node: BP1
+  plate_v: 450.0
+  screen_node: BP2
+  screen_v: 442.238
+  cathode_node: '0'
+  cathode_v: 0.0
+  rk_total: null
+  rk_per_tube: null
+  grid_node: G5
+  grid_v: -50.0
+  grid_supply_node: null
+  grid_supply_v: null
+  ot_primary_z: null
+  ot_primary_approx: false
+  ot_primary_note: Ampeg OT-214 — Push-pull 6L6GC output, centre-tapped primary (blue/red/brown), tapped
+    secondary (green/yellow/black); the handwritten part number beside it is only partly legible on this
+    scan
+  sim_ip_ma: 28.873
+  sim_ig2_ma: 0.8466
 - amp: 'dr103'
   name_style: Hiwatt Custom 100-style
   tube: 'EL34'

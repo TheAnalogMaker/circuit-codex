@@ -1,0 +1,155 @@
+# Parts list — read from the published Ampeg B-15N drawing, revision C, part
+# 591722 (title block in meta.yaml). Values are the drawing's; its own notice
+# sets ½ W 10% composition resistors and 400 V capacitors unless a part is
+# marked otherwise, so only the marked ratings are repeated here.
+notes: >-
+  DESIGNATORS. This sheet letters most of what it draws — R1…R42, C1…C20,
+  VR1…VR7, SW1…SW7, J1…J6, V1…V6 and D1 — and those numbers are kept exactly.
+  Three groups of parts have no usable factory designator and carry role codes
+  instead, which is why the list as a whole reads as a functional one.
+  (1) The two printed tone boards. Each is drawn inside a dashed outline with a
+  P.E.C. number beside it — the channel-2 board reads 250762-1; the channel-1
+  number is smudged on this scan — and six of the parts inside each outline are
+  drawn with a value and no designator at all, even though R17/R21 and the two
+  pots inside the same outline are lettered. Those twelve get RTA*/CTA* (channel
+  1) and RTB*/CTB* (channel 2).
+  (2) The driver's 25 µF · 25 V cathode bypass, drawn beside R24 with no number:
+  CKD1.
+  (3) TWO CAPACITORS THE SHEET LETTERS C19 A SECOND AND THIRD TIME. The drawing
+  uses the designator C19 for three different parts: channel 1's 0.01 µF coupler
+  into the volume pot, a 10 µF · 100 V electrolytic in the bias supply, and one
+  of the two 0.047 µF · 600 V capacitors across the mains switching. C19 is kept
+  for the first of them, in reading order across the sheet; the other two are
+  listed as CBF2 and CM2, each saying in its role that the factory number is
+  C19. A parts list cannot carry one designator three times, and silently
+  renumbering a factory sheet would hide a fact a builder holding the drawing
+  needs to know.
+  (4) THE THREE-SECTION CAN. The sheet rings three 40 µF · 500 V sections in one
+  dashed outline and letters the outline C16. Its three sections sit on three
+  different nodes — the screen node, the preamp rail and the driver rail — so
+  they are listed as C16A, C16B and C16C, each stating its own section's value
+  with the packaging in its role, per docs/lettering-conventions.md. One
+  designator cannot be carried on three different nodes.
+items:
+  # --- Channel 1 input and first stage (V1, pins 4/5/6) ---
+  - { ref: J1,  part: "Jack socket",           value: "1/4 in",        role: "Channel 1 input, panel-marked BRIGHT" }
+  - { ref: J2,  part: "Jack socket",           value: "1/4 in",        role: "Channel 1 input, panel-marked NORMAL" }
+  - { ref: R1,  part: "Carbon comp resistor",  value: "100 kΩ",        role: "Channel 1 BRIGHT jack series resistor, into V1 pin 4" }
+  - { ref: C1,  part: "Coupling capacitor",    value: "0.005 µF",      role: "Bridges R1 — the BRIGHT jack's high-frequency bypass" }
+  - { ref: R2,  part: "Carbon comp resistor",  value: "47 kΩ",         role: "Channel 1 NORMAL jack series resistor, into the same grid" }
+  - { ref: R5,  part: "Carbon comp resistor",  value: "5.6 MΩ",        role: "Channel 1 input grid leak" }
+  - { ref: R7,  part: "Carbon comp resistor",  value: "470 kΩ",        role: "V1 unit 1 anode load (pin 5)" }
+  - { ref: R8,  part: "Carbon comp resistor",  value: "5.6 kΩ",        role: "V1 unit 1 cathode bias (pin 6) — unbypassed" }
+  - { ref: C3,  part: "Coupling capacitor",    value: "0.1 µF",        role: "V1 unit 1 anode coupler into the channel-1 ULTRA network" }
+  # --- Channel 1 ULTRA LO / ULTRA HI shelving and volume ---
+  - { ref: C4,  part: "Coupling capacitor",    value: "0.02 µF",       role: "Channel 1 ULTRA LO shunt capacitor" }
+  - { ref: R9,  part: "Carbon comp resistor",  value: "39 kΩ",         role: "Channel 1 ULTRA LO series resistor, under C4" }
+  - { ref: R10, part: "Carbon comp resistor",  value: "1 MΩ",          role: "Channel 1 ULTRA LO shunt resistor, shorted out by SW2" }
+  - { ref: SW2, part: "Toggle switch",         value: "SPST",          role: "Channel 1 ULTRA LO — grounds the foot of R9, taking R10 out" }
+  - { ref: C19, part: "Coupling capacitor",    value: "0.01 µF",       role: "Channel 1 coupler into the volume pot. NOTE: the sheet letters two other parts C19 as well — see notes above" }
+  - { ref: VR1, part: "Linear potentiometer",  value: "1 MΩ-L",        role: "Channel 1 volume; also V1 unit 2's only DC grid return" }
+  - { ref: C9,  part: "Mica capacitor",        value: "500 pF",        role: "Channel 1 bright cap, top of VR1 to its wiper through SW1" }
+  - { ref: SW1, part: "Toggle switch",         value: "SPST",          role: "Channel 1 ULTRA HI — switches C9 across the volume pot" }
+  # --- Channel 1 second stage (V1, pins 1/2/3) ---
+  - { ref: R15, part: "Carbon comp resistor",  value: "220 kΩ",        role: "V1 unit 2 anode load (pin 2)" }
+  - { ref: R16, part: "Carbon comp resistor",  value: "2.2 kΩ",        role: "V1 unit 2 cathode bias (pin 3) — unbypassed" }
+  - { ref: C10, part: "Coupling capacitor",    value: "0.1 µF",        role: "V1 unit 2 anode coupler into the channel-1 tone board" }
+  # --- Channel 1 printed tone board (P.E.C., number smudged on this scan) ---
+  - { ref: RTA1, part: "Carbon comp resistor", value: "220 kΩ",        role: "Channel 1 tone board: series resistor from the board input to the bass pot. Unlettered on the drawing" }
+  - { ref: VR2, part: "Audio-taper potentiometer", value: "1 MΩ-A",    role: "Channel 1 bass" }
+  - { ref: CTA1, part: "Mica capacitor",       value: "0.001 µF",      role: "Channel 1 tone board: bass pot top lug to wiper. Unlettered" }
+  - { ref: CTA2, part: "Coupling capacitor",   value: "0.01 µF",       role: "Channel 1 tone board: bass pot bottom lug to wiper. Unlettered" }
+  - { ref: RTA2, part: "Carbon comp resistor", value: "22 kΩ",         role: "Channel 1 tone board: bass pot foot to ground. Unlettered" }
+  - { ref: R17, part: "Carbon comp resistor",  value: "120 kΩ",        role: "Channel 1 tone board link — bass wiper to the treble wiper, which is the board's output" }
+  - { ref: CTA3, part: "Mica capacitor",       value: "470 pF",        role: "Channel 1 tone board: board input to the treble pot top lug. Unlettered" }
+  - { ref: VR3, part: "Audio-taper potentiometer", value: "1 MΩ-A",    role: "Channel 1 treble; its wiper is the board output" }
+  - { ref: CTA4, part: "Coupling capacitor",   value: "0.0047 µF",     role: "Channel 1 tone board: treble pot foot to ground. Unlettered" }
+  - { ref: R18, part: "Carbon comp resistor",  value: "270 kΩ",        role: "Channel 1 mixing resistor into the driver grid" }
+  # --- Channel 2: component-for-component identical to channel 1 ---
+  - { ref: J3,  part: "Jack socket",           value: "1/4 in",        role: "Channel 2 input, panel-marked BRIGHT" }
+  - { ref: J4,  part: "Jack socket",           value: "1/4 in",        role: "Channel 2 input, panel-marked NORMAL" }
+  - { ref: R3,  part: "Carbon comp resistor",  value: "100 kΩ",        role: "Channel 2 BRIGHT jack series resistor" }
+  - { ref: C2,  part: "Coupling capacitor",    value: "0.005 µF",      role: "Bridges R3" }
+  - { ref: R4,  part: "Carbon comp resistor",  value: "47 kΩ",         role: "Channel 2 NORMAL jack series resistor" }
+  - { ref: R6,  part: "Carbon comp resistor",  value: "5.6 MΩ",        role: "Channel 2 input grid leak" }
+  - { ref: R11, part: "Carbon comp resistor",  value: "470 kΩ",        role: "V2 unit 1 anode load" }
+  - { ref: R12, part: "Carbon comp resistor",  value: "5.6 kΩ",        role: "V2 unit 1 cathode bias — unbypassed" }
+  - { ref: C5,  part: "Coupling capacitor",    value: "0.1 µF",        role: "V2 unit 1 anode coupler into the channel-2 ULTRA network" }
+  - { ref: C6,  part: "Coupling capacitor",    value: "0.02 µF",       role: "Channel 2 ULTRA LO shunt capacitor" }
+  - { ref: R13, part: "Carbon comp resistor",  value: "39 kΩ",         role: "Channel 2 ULTRA LO series resistor" }
+  - { ref: R14, part: "Carbon comp resistor",  value: "1 MΩ",          role: "Channel 2 ULTRA LO shunt resistor, shorted out by SW4" }
+  - { ref: SW4, part: "Toggle switch",         value: "SPST",          role: "Channel 2 ULTRA LO" }
+  - { ref: C20, part: "Coupling capacitor",    value: "0.01 µF",       role: "Channel 2 coupler into the volume pot" }
+  - { ref: VR4, part: "Linear potentiometer",  value: "1 MΩ-L",        role: "Channel 2 volume; also V2 unit 2's only DC grid return" }
+  - { ref: C7,  part: "Mica capacitor",        value: "500 pF",        role: "Channel 2 bright cap, through SW3" }
+  - { ref: SW3, part: "Toggle switch",         value: "SPST",          role: "Channel 2 ULTRA HI" }
+  - { ref: R19, part: "Carbon comp resistor",  value: "220 kΩ",        role: "V2 unit 2 anode load" }
+  - { ref: R20, part: "Carbon comp resistor",  value: "2.2 kΩ",        role: "V2 unit 2 cathode bias — unbypassed" }
+  - { ref: C8,  part: "Coupling capacitor",    value: "0.1 µF",        role: "V2 unit 2 anode coupler into the channel-2 tone board" }
+  - { ref: RTB1, part: "Carbon comp resistor", value: "220 kΩ",        role: "Channel 2 tone board (P.E.C. 250762-1): series resistor to the bass pot. Unlettered" }
+  - { ref: VR5, part: "Audio-taper potentiometer", value: "1 MΩ-A",    role: "Channel 2 bass" }
+  - { ref: CTB1, part: "Mica capacitor",       value: "0.001 µF",      role: "Channel 2 tone board: bass pot top lug to wiper. Unlettered" }
+  - { ref: CTB2, part: "Coupling capacitor",   value: "0.01 µF",       role: "Channel 2 tone board: bass pot bottom lug to wiper. Unlettered" }
+  - { ref: RTB2, part: "Carbon comp resistor", value: "22 kΩ",         role: "Channel 2 tone board: bass pot foot to ground. Unlettered" }
+  - { ref: R21, part: "Carbon comp resistor",  value: "120 kΩ",        role: "Channel 2 tone board link — bass wiper to treble wiper" }
+  - { ref: CTB3, part: "Mica capacitor",       value: "470 pF",        role: "Channel 2 tone board: board input to treble pot top lug. Unlettered" }
+  - { ref: VR6, part: "Audio-taper potentiometer", value: "1 MΩ-A",    role: "Channel 2 treble; its wiper is the board output" }
+  - { ref: CTB4, part: "Coupling capacitor",   value: "0.0047 µF",     role: "Channel 2 tone board: treble pot foot to ground. Unlettered" }
+  - { ref: R22, part: "Carbon comp resistor",  value: "270 kΩ",        role: "Channel 2 mixing resistor into the driver grid" }
+  # --- Driver / self-balancing paraphase inverter (V3) ---
+  - { ref: J5,  part: "Jack socket",           value: "1/4 in",        role: "EXT. AMP. output jack, tapping the channel mixing bus at the driver grid" }
+  - { ref: R26, part: "Carbon comp resistor",  value: "120 kΩ",        role: "V3 unit 2 anode load (pin 2) — the driver half" }
+  - { ref: R25, part: "Carbon comp resistor",  value: "220 Ω",         role: "V3 unit 2 cathode (pin 3) — also the shunt leg of the global feedback divider" }
+  - { ref: R40, part: "Carbon comp resistor",  value: "10 kΩ",         role: "Global negative feedback, output transformer green secondary lead back to V3 pin 3" }
+  - { ref: R27, part: "Carbon comp resistor",  value: "120 kΩ",        role: "V3 unit 1 anode load (pin 5) — the inverted half" }
+  - { ref: R24, part: "Carbon comp resistor",  value: "1 kΩ",          role: "V3 unit 1 cathode bias (pin 6)" }
+  - { ref: CKD1, part: "Electrolytic capacitor", value: "25 µF · 25 V", role: "V3 unit 1 cathode bypass, across R24. Unlettered on the drawing" }
+  - { ref: R23, part: "Carbon comp resistor",  value: "470 kΩ",        role: "V3 unit 1 grid leak (pin 4)" }
+  - { ref: R28, part: "Carbon comp resistor",  value: "470 kΩ",        role: "Paraphase divider, V3 pin 2 anode to the tap" }
+  - { ref: R29, part: "Carbon comp resistor",  value: "510 kΩ",        role: "Paraphase divider, tap to V3 pin 5 anode. R28 and R29 span the two driver anodes; their midpoint is the inverter" }
+  - { ref: C11, part: "Coupling capacitor",    value: "0.022 µF",      role: "Paraphase tap to V3 unit 1's grid" }
+  # --- Output stage ---
+  - { ref: C13, part: "Coupling capacitor",    value: "0.022 µF",      role: "V3 pin 2 to V5's grid line" }
+  - { ref: R33, part: "Carbon comp resistor",  value: "1 kΩ",          role: "V5 grid stopper" }
+  - { ref: R30, part: "Carbon comp resistor",  value: "270 kΩ",        role: "V5 grid return to the -50 V bias line" }
+  - { ref: C14, part: "Coupling capacitor",    value: "0.022 µF",      role: "V3 pin 5 to V4's grid line" }
+  - { ref: R32, part: "Carbon comp resistor",  value: "1 kΩ",          role: "V4 grid stopper" }
+  - { ref: R31, part: "Carbon comp resistor",  value: "270 kΩ",        role: "V4 grid return to the -50 V bias line" }
+  - { ref: J6,  part: "Jack socket",           value: "1/4 in",        role: "EXT. SPKR. jack, normalling the internal speaker" }
+  - { ref: R41, part: "Wirewound resistor",    value: "250 Ω · 10 W",  role: "Load resistor across the output-transformer secondary" }
+  # --- Supply ---
+  - { ref: C17, part: "Electrolytic capacitor", value: "30 µF · 600 V", role: "Reservoir — the 5AR4 cathode node, which is also the OT-214 primary centre tap and the 6L6GC anode node" }
+  - { ref: R39, part: "Wirewound resistor",    value: "1 kΩ · 10 W · 5%", role: "Reservoir to the 6L6GC screen node" }
+  - { ref: R37, part: "Carbon comp resistor",  value: "22 kΩ · 1 W",   role: "Screen node to the preamp rail both channels share" }
+  - { ref: R38, part: "Carbon comp resistor",  value: "22 kΩ · 1 W",   role: "Screen node to the driver rail feeding R26 and R27" }
+  - { ref: C16A, part: "Electrolytic capacitor", value: "40 µF · 500 V", role: "Screen-node filter — one section of the three-section can the sheet letters C16" }
+  - { ref: C16B, part: "Electrolytic capacitor", value: "40 µF · 500 V", role: "Preamp-rail filter — the second section of the C16 can" }
+  - { ref: C16C, part: "Electrolytic capacitor", value: "40 µF · 500 V", role: "Driver-rail filter — the third section of the C16 can" }
+  # --- Negative-bias supply (present on the drawing; not modelled — see notes.md) ---
+  - { ref: D1,  part: "Rectifier (bias)",      value: "F-4 (selenium)", role: "Bias-supply rectifier, lettered F-4 on the drawing" }
+  - { ref: R36, part: "Carbon comp resistor",  value: "100 kΩ · 2 W · 5%", role: "Bias-supply feed resistor, between the bias line and the rectifier corner" }
+  - { ref: R34, part: "Carbon comp resistor",  value: "47 kΩ · 5%",    role: "Bias-supply divider" }
+  - { ref: R35, part: "Carbon comp resistor",  value: "56 kΩ · 5%",    role: "Bias-supply divider" }
+  - { ref: R42, part: "Carbon comp resistor",  value: "10 kΩ",         role: "Bias-line decoupling resistor between the two 10 µF cans" }
+  - { ref: C15, part: "Electrolytic capacitor", value: "10 µF · 100 V", role: "Bias-line filter" }
+  - { ref: CBF2, part: "Electrolytic capacitor", value: "10 µF · 100 V", role: "Bias-line filter, the far side of R42. The sheet letters this C19, its second use of that number" }
+  # --- Bottles, iron and mains ---
+  - { ref: V1,  part: "Tube",                  value: "6SL7",          role: "Channel 1, both triode sections" }
+  - { ref: V2,  part: "Tube",                  value: "6SL7",          role: "Channel 2, both triode sections" }
+  - { ref: V3,  part: "Tube",                  value: "6SL7",          role: "Driver and self-balancing paraphase inverter, both sections" }
+  - { ref: V4,  part: "Tube",                  value: "6L6GC",         role: "Output, one half of the push-pull pair" }
+  - { ref: V5,  part: "Tube",                  value: "6L6GC",         role: "Output, the other half" }
+  - { ref: V6,  part: "Rectifier tube",        value: "5AR4",          role: "Full-wave rectifier" }
+  - { ref: T1,  part: "Power transformer",     value: "Ampeg PT-108 (300708-1)", role: "Mains transformer — centre-tapped HT winding, 5 V rectifier winding, 6.3 V heater winding. The drawing prints the part number and no winding voltages" }
+  - { ref: T2,  part: "Output transformer",    value: "Ampeg OT-214",  role: "Push-pull 6L6GC output, centre-tapped primary (blue/red/brown), tapped secondary (green/yellow/black); the handwritten part number beside it is only partly legible on this scan" }
+  - { ref: VR7, part: "Linear potentiometer",  value: "100 Ω-L",       role: "HUM CONT. — heater hum balance across the 6.3 V line" }
+  - { ref: SW5, part: "Toggle switch",         value: "SPST",          role: "STANDBY" }
+  - { ref: SW6, part: "Toggle switch",         value: "SPST",          role: "POWER" }
+  - { ref: SW7, part: "Toggle switch",         value: "SPDT",          role: "POLAR. — mains polarity" }
+  - { ref: C18, part: "Coupling capacitor",    value: "0.047 µF · 600 V", role: "Mains-side capacitor" }
+  - { ref: CM2, part: "Coupling capacitor",    value: "0.047 µF · 600 V", role: "Mains-side capacitor, the pair to C18. The sheet letters this C19 as well, its third use of that number" }
+  - { ref: "—", part: "Speaker",               value: "8 Ω",           role: "Internal speaker (annotation only — the drawing marks it 8 OHMS SPKR. and gives no size)" }
+  - { ref: "—", part: "Pilot lamp",            value: "mains",         role: "Panel pilot, drawn P.L. straight across the power transformer's mains primary, downstream of the POWER switch — not on the 6.3 V heater chain. The sheet gives no lamp type or rating (annotation only)" }
+  - { ref: "—", part: "Fuse",                  value: "3 A",           role: "Mains fuse (annotation only)" }
+  - { ref: "—", part: "Fuse",                  value: "6 A",           role: "Fuse on the switched AC outlet (annotation only)" }
+  - { ref: "—", part: "AC outlet",             value: "120 V · 500 W", role: "Switched convenience outlet on the rear (annotation only)" }
