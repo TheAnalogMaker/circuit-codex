@@ -70,12 +70,14 @@ parts:
   - { ref: RG4A, a: [0, 60], b: [1, 60] }   # 1M V4A grid leak -> tail junction
   - { ref: RG4B, a: [0, 61], b: [1, 61] }   # 1M V4B grid leak -> tail junction
   - { ref: RTAIL, a: [1, 64], b: [1, 66] }  # 820 shared cathode (a=JPI hub, b=KPI near V4)
-  - { ref: RFOOT, a: [1, 62], b: [1, 64] }  # 10k (estimate) tail -> ground, b shares RTAIL.a (JPI)
+  - { ref: RT2,  a: [1, 63], b: [1, 64] }   # 6.8k tail: a=presence/feedback node, b shares RTAIL.a (JPI)
+  - { ref: RPF,  a: [1, 63], b: [1, 62] }   # 4.7k foot -> ground, a shares RT2.a (the feedback node)
+  - { ref: RNFB, a: [0, 69], b: [1, 69] }   # 56k 1W speaker feedback -> the same feedback node
 
   # --- shared driver (V3A/V3B) + Bass channel's own Treble control -----------
   - { ref: RG3A, a: [0, 70], b: [1, 70] }   # 1M (estimate) V3A grid leak — mix node
   - { ref: RL3A, a: [0, 71], b: [0, 72] }   # 100k V3A plate load
-  - { ref: RK3A, a: [1, 71], b: [1, 72] }   # 1500 (estimate) V3A cathode
+  - { ref: RK3A, a: [1, 71], b: [1, 72] }   # 1500 V3A cathode (chart-read +1.2 V)
   - { ref: CDR1, a: [0, 74], b: [0, 76] }   # 0.1 uF V3A plate -> Bass ch. Treble
   - { ref: RG3B, a: [0, 79], b: [1, 79] }   # 1M (estimate) V3B grid leak
   - { ref: RL3B, a: [0, 80], b: [0, 81] }   # 100k V3B plate load
@@ -107,13 +109,10 @@ parts:
   - { ref: RL1A, a: [0, 160], b: [0, 161] } # 220k V1A plate load
   - { ref: RK1A, a: [1, 160], b: [1, 161] } # 2700 V1A cathode
   - { ref: CK1A, a: [0, 162], b: [0, 163] } # 25 uF bypass, shares RK1A.b eyelet (col)
-  - { ref: C0,   a: [0, 165], b: [0, 167] } # 0.1 uF (estimate) interstage coupler
-  - { ref: RG1B, a: [0, 167], b: [1, 167] } # 1M V1B grid leak, shares C0.b eyelet
-  - { ref: RL1B, a: [0, 168], b: [0, 169] } # 220k (estimate) V1B plate load
-  - { ref: RK1B, a: [1, 169], b: [1, 170] } # 100k V1B cathode, unbypassed
-  - { ref: CTN1, a: [0, 172], b: [0, 174] } # 250 pF treble-bleed branch, off V1B plate
+  - { ref: RK1B, a: [1, 169], b: [1, 170] } # 100k V1B cathode-follower load; a is the stage output
+  - { ref: CTN1, a: [0, 172], b: [0, 174] } # 250 pF treble-bleed branch, off V1B cathode
   - { ref: RTN1, a: [0, 174], b: [0, 176] } # 47k treble-bleed slope, shares CTN1.b eyelet
-  - { ref: RTN2, a: [1, 172], b: [1, 174] } # 1M bass-leg branch, off V1B plate
+  - { ref: RTN2, a: [1, 172], b: [1, 174] } # 1M bass-leg branch, off V1B cathode
   - { ref: CTN2, a: [1, 174], b: [1, 176] } # 0.25 uF bridging cap, shares RTN2.b eyelet
   - { ref: CTN3, a: [0, 176], b: [0, 178] } # 0.25 uF bridging cap, shares RTN1.b eyelet
   - { ref: RTN3, a: [0, 178], b: [1, 178] } # 10k dropper, paralleled by VR1, shares CTN3.b eyelet
@@ -130,7 +129,7 @@ offboard:
   - { id: T3,  ref: T3, kind: xfmr, edge: bottom, at: 56,  label: "Output trans" }
   - { id: SPK, kind: jack, edge: bottom, at: 60, label: "Spkr / ext. spkr" }
   - { id: V4,  ref: V4, kind: tube, edge: bottom, at: 66,  label: "V4 · 7025 (PI)" }
-  - { id: VR7, ref: VR7, kind: pot, edge: top, at: 63, label: "Presence" }
+  - { id: VR7, ref: VR7, kind: pot, edge: top, at: 67, label: "Presence" }
   - { id: V3,  ref: V3, kind: tube, edge: bottom, at: 82,  label: "V3 · 7025 (driver)" }
   - { id: VR6, ref: VR6, kind: pot, edge: top, at: 76, label: "Bass ch. Treble" }
   - { id: JN,  kind: jack, edge: top, at: 89, label: "Normal 2/1" }
@@ -181,11 +180,14 @@ runs:
   - { from: C12.a, to: RL4A.a, via: [[33.6, -2.8], [56.4, -2.8]] }
   - { from: RL4A.a, to: RL4B.a, via: [[58.495, -2.8], [58.4, -2.8]] }
 
-  # BP230 deep lane: RL3A -> RL3B -> RL2A -> RL1A -> RL1B (long backbone, y=-3.2)
+  # BP230 deep lane: RL3A -> RL3B -> RL1A -> V1B's plate (long backbone, y=-3.2)
   - { from: RL3A.a, to: RL3B.a, via: [[71.4, -3.2], [80.4, -3.2]] }
-  - { from: RL3B.a, to: RL2A.a, via: [[79.133, -1.803], [81.58, -3.2], [91.97, -3.2]] }
-  - { from: RL2A.a, to: RL1A.a, via: [[94.8, -3.2], [160.4, -3.2], [159.751, -0.36]] }
-  - { from: RL1A.a, to: RL1B.a, via: [[160.6, -3.2], [168.4, -3.2]] }
+  - { from: RL3B.a, to: RL1A.a, via: [[79.133, -1.803], [81.58, -3.2], [160.4, -3.2], [159.751, -0.36]] }
+
+  # BP355 lane: the Normal channel's own two plate loads share it (RL2A's 100k
+  # and RL2B's 220k), matching the drawing's single +355 V lane under that row
+  - { from: RL2A.a, to: RL2B.b, via: [[91.97, -2.4], [108.4, -2.4]] }
+  - { from: RL1A.a, to: V1.pin1, via: [[160.6, -2.6], [168.6, -2.6], [168.6, -0.9], [166.6, -0.9], [166.6, 2.058]] }
 
   # MIXG deep lane: RG3A (driver grid) -> RM1 (Normal ch. mixer out) -> VR2 (Bass ch. Volume wiper)
   - { from: RG3A.a, to: RM1.b, via: [[68.648, -2.373], [70.4, -3.6], [111.19, -3.6]] }
@@ -214,14 +216,16 @@ runs:
   - { from: RL4A.b, to: V4.pin6, via: [[57.6, -0.2], [65.4, -0.2], [65.4, 1.6]] }
   - { from: RL4B.b, to: V4.pin1, via: [[59.847, -0.265], [66.6, 0.19], [66.08, 2.05]] }
   - { from: RG4A.a, to: V4.pin7, via: [[60.4, -0.55], [65.6, -0.55], [65.6, 1.75]] }
-  - { from: RG4A.b, to: RFOOT.b, via: [[60.6, 1.15]] }
+  - { from: RG4A.b, to: RT2.b, via: [[60.6, 1.15]] }
   - { from: RG4B.a, to: V4.pin2, via: [[61.4, 1.05], [66.4, 1.85], [66.4, 1.9]] }
-  - { from: RG4B.b, to: RFOOT.b, via: [[61.6, 1.25], [64, 1.25]] }
-  - { from: VR7.lug3, to: RFOOT.b, via: [[63.38, -0.9], [64, -0.9], [64.1, 1.05]] }
+  - { from: RG4B.b, to: RT2.b, via: [[61.6, 1.25], [64, 1.25]] }
+  - { from: VR7.lug3, to: RNFB.a, via: [[67.4, -1.2], [69, -1.2]] }
   - { from: V4.pin8, to: RTAIL.b, via: [[65.2, 1.5], [67.15, 1.62]] }
   - { from: V4.pin3, to: RTAIL.b, via: [[66.8, 1.3], [66.19, 1.297]] }
-  - { from: RFOOT.a, to: [1.45, 62] }
-  - { from: VR7.lug1, to: [1.45, 63], via: [[63, -0.4], [63, 1.9], [60.945, 1.841]] }
+  - { from: RPF.b, to: [1.45, 62] }
+  - { from: RNFB.a, to: RT2.a, via: [[68.6, -0.7], [63, -0.7], [63, 0.5]] }
+  - { from: RNFB.b, to: SPK, via: [[69.6, 1.3], [71.5, 1.3], [71.5, 3.9], [59.6, 3.9], [59.6, 3.1]] }
+  - { from: VR7.lug1, to: [1.45, 68], via: [[66.8, -0.4], [68, -0.4], [68, 1.2]] }
 
   # --- shared driver (V3A/V3B) + Bass-ch. Treble ---------------------------
   - { from: RG3A.a, to: V3.pin7, via: [[70.6, -1.2], [78.2, -1.2], [78.2, 1.7]] }
@@ -271,13 +275,13 @@ runs:
   - { from: CK2B.a, to: RK2B.a }
   - { from: CK2B.b, to: [1.45, 110] }
   - { from: RK2B.b, to: [1.45, 108] }
-  # RL2B.b (BP355) carries no drawn run to another board part — this rail's
-  # own derivation was not traced from the available scan (see meta.yaml/
-  # netlist.cir header); net_map anchors RL2B.b to BP355 directly, matching
-  # the honest "driven as its own ideal source" convention netlist.cir uses.
+  # The +355 V lane's own derivation (27 kΩ · 1 W down from +410 V) is drawn on
+  # the schematic sheet but not on this board drawing; net_map anchors RL2B.b
+  # to BP355 directly, matching the "driven as its own ideal source"
+  # convention netlist.cir uses for every rail here.
   - { from: RM1.a, to: V2.pin1, via: [[112.4, -0.9], [108.6, -0.9], [108.603, 1.952]] }
 
-  # --- Bass channel: input, V1A, C0, V1B, tone network ---------------------
+  # --- Bass channel: input, V1A, V1B (cathode follower), tone network ------
   - { from: JB, to: R1s.a, via: [[182, -0.7], [160, -0.7], [156.4, -0.4]] }
   - { from: JB, to: R2s.a, via: [[182, -1.5], [159, -1.5], [158.4, -0.4]] }
   - { from: R1s.b, to: V1.pin7, via: [[157.6, -0.4], [160.8, -0.4], [160.657, 1.724]] }
@@ -289,15 +293,11 @@ runs:
   - { from: CK1A.a, to: RK1A.a }
   - { from: CK1A.b, to: [1.45, 163] }
   - { from: RK1A.b, to: [1.45, 162] }
-  - { from: RL1A.b, to: C0.a, via: [[161.6, -0.4], [165.4, -0.4]] }
-  - { from: C0.b, to: RG1B.a, via: [[167.6, -0.4], [167.02, -0.65]] }
-  - { from: RG1B.a, to: V1.pin2, via: [[167.841, -0.358], [166.8, -0.415], [166.757, 1.95]] }
-  - { from: RG1B.b, to: [1.45, 167] }
-  - { from: RL1B.b, to: V1.pin1, via: [[168.4, -0.15], [166.6, -0.15], [166.6, 2.058]] }
+  - { from: RL1A.b, to: V1.pin2, via: [[161.6, -0.4], [166.8, -0.4], [166.757, 1.95]] }
   - { from: RK1B.a, to: V1.pin3, via: [[169.4, 1.5], [166.8, 1.644], [166.579, 1.605]] }
   - { from: RK1B.b, to: [1.45, 170] }
-  - { from: RL1B.b, to: CTN1.a, via: [[169.613, -0.4], [172.4, -0.4]] }
-  - { from: RL1B.b, to: RTN2.a, via: [[169.8, -0.9], [171.4, -0.9], [171.4, 1.4], [172.4, 1.4]] }
+  - { from: RK1B.a, to: RTN2.a, via: [[169.8, 1.15], [172.4, 1.15]] }
+  - { from: RK1B.a, to: CTN1.a, via: [[169.5, 0.55], [171.0, 0.55], [171.0, -0.4], [172.4, -0.4]] }
   - { from: CTN2.b, to: RTN1.b, via: [[176.19, 1.4], [174.791, 1.415], [174.192, -0.4]] }
   - { from: RTN1.b, to: VR2.lug3, via: [[176.19, -3], [157.9, -3], [157.9, -0.9]] }
   - { from: VR1.lug1, to: RTN3.a, via: [[177, -0.75], [178.19, -0.4]] }
@@ -325,7 +325,7 @@ net_map:
     T3.pri_b: BP428
     T3.ct:    BP428
     SPK: "0"          # speaker jack — OT-secondary DCR folded into ground (NFB return)
-    RL2B.b: BP355     # rail not traced to a shared derivation on the available scan (single consumer; see netlist.cir header)
+    RL2B.b: BP355     # +355 V lane — driven as an ideal source (netlist.cir header); RL2A.a shares it by a drawn run
     RS5.a: BP430      # screen rail — not traced to a shared board dropper on the available scan (two consumers, chained to each other only)
     RGL5.b: NBIAS     # bias-supply island (DB1/RB1/RB2/C13) is its own abstracted, unmodelled network — not wired into this anchor (see netlist_unplaced below)
   netlist_unplaced:
@@ -345,4 +345,4 @@ net_map:
     CTN5: "Normal ch. tone-network bass-leg cap — control-network island"
     CTN6: "Normal ch. tone-network foot bypass — control-network island"
     CDR1: "V3A -> Bass ch. Treble coupling cap — control-network island, DC-open"
-    C0: "V1A -> V1B interstage coupler (estimate) — DC-open, moves no operating point"
+    VR7: "Presence pot — its element bridges RPF end to end and its wiper feeds a 0.1 uF cap; pots are not modelled in netlist.cir corpus-wide"

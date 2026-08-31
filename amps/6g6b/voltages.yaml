@@ -1,34 +1,35 @@
 # Printed voltage chart read directly from the published 6G6-B (E-FB) drawing,
 # schematic page. Notice printed on the sheet: "Voltages read to ground with
 # electronic voltmeter. Values shown + or - 20%." Tube pins therefore get 20%;
-# the B+ rails here are each driven directly at their own printed value (see
+# the B+ lanes here are each driven directly at their own printed value (see
 # netlist.cir header on why no dropper chain is asserted between them), so
 # they carry the tighter 8% internal target used for a driven, not derived,
 # node elsewhere in this corpus.
 #
-# Two nodes (P1B's plate load, K3A) are engineering estimates rather than
-# printed figures and are marked chart: null — informational only, never
-# gated. See netlist.cir for why each was estimated.
-source: "Fender 'Bassman' Model 6G6-B drawing (E-FB), schematic page 2 (https://el34world.com/charts/Schematics/Files/Fender/Fender_bassman_6g6b.pdf), printed voltages: +428 (5881 plates), +430 (5881 screens), +410 (phase-inverter plate rail), +355 (Normal-ch. recovery rail), +230 (shared preamp rail, read independently at V1A and V2A), -54 (fixed bias); tube pins +135/+1.1 (V1A plate/cathode), +13.6 (V1B cathode, 100k unbypassed), +1.9 (V2A cathode), +190/+1.8 (V2B plate/cathode), +150/+1.3 (V3B plate/cathode; V3A plate reads the same +150), +300 (V4A plate, 82k), +280 (V4B plate, 100k), +30.0/+28.0 (phase-inverter shared cathode / tail junction, either side of the 820 Ω)"
+# The sheet letters "+230 V." three times: twice on the Bass row's own B+
+# lane (a rail, BP230 below) and once at V2A's plate in the Normal channel,
+# whose 100 kOhm load climbs to that channel's +355 V lane. P2A below is that
+# third reading, gated as a tube pin.
+source: "Fender 'Bassman' Model 6G6-B drawing (E-FB), schematic page 2 (https://el34world.com/charts/Schematics/Files/Fender/Fender_bassman_6g6b.pdf), printed voltages: +428 (5881 plates), +430 (5881 screens), +410 (phase-inverter plate lane), +355 (Normal-ch. B+ lane), +230 (Bass-row B+ lane, lettered twice), -54 (fixed bias); tube pins +135/+1.1 (V1A plate/cathode), +136 (V1B cathode-follower output, 100k load), +230/+1.9 (V2A plate/cathode), +190/+1.8 (V2B plate/cathode), +150/+1.2 (V3A plate/cathode), +150/+1.3 (V3B plate/cathode), +300 (V4A plate, 82k), +280 (V4B plate, 100k), +30/+28 (phase-inverter shared cathode / tail junction, either side of the 820 Ohm)"
 nodes:
   BP428: { chart: 428, tol_pct: 8, note: "5881 plates, driven directly (OT primary DCR omitted)" }
   BP430: { chart: 430, tol_pct: 8, note: "5881 screen tap, driven directly" }
-  BP410: { chart: 410, tol_pct: 8, note: "phase-inverter plate rail, driven directly" }
-  BP355: { chart: 355, tol_pct: 8, note: "Normal-channel recovery-stage rail, driven directly" }
-  BP230: { chart: 230, tol_pct: 8, note: "shared preamp rail — same printed value read independently beside V1A and V2A" }
-  P1A:  { chart: 135, tol_pct: 20, note: "Bass ch. V1A (input) plate, 220 kΩ off BP230" }
+  BP410: { chart: 410, tol_pct: 8, note: "phase-inverter plate lane, driven directly" }
+  BP355: { chart: 355, tol_pct: 8, note: "Normal-channel B+ lane — feeds BOTH that channel's plate loads (V2A's 100 kΩ and V2B's 220 kΩ)" }
+  BP230: { chart: 230, tol_pct: 8, note: "Bass-row B+ lane — lettered twice on that lane, and dropped to it from node B (the post-choke +428 V node) through a 56 kΩ 1 W resistor" }
+  P1A:  { chart: 135, tol_pct: 20, note: "Bass ch. V1A (input) plate, 220 kΩ off BP230 — also V1B's grid, which it drives directly" }
   K1A:  { chart: 1.1, tol_pct: 20, note: "Bass ch. V1A cathode, 2700 Ω" }
-  K1B:  { chart: 13.6, tol_pct: 20, note: "Bass ch. V1B (recovery) cathode, 100 kΩ, unbypassed — no cap drawn. The simulated deck sits far under this printed figure: the plate-load resistor above this cathode is not legible on the drawing and is modelled as an estimate (see netlist.cir), and that estimate sets the current through the 100 kΩ. The gap is the estimate's, not the chart's." }
-  P1B:  { chart: null, note: "Bass ch. V1B plate — not legible on the rendered drawing; modelled with a 220 kΩ load off BP230 (estimate, see netlist.cir), informational only" }
-  K2A:  { chart: 1.9, tol_pct: 20, note: "Normal ch. V2A (input) cathode, 1500 Ω. Every part in this stage is read from the sheet, and the simulated deck still settles about a third below the printed figure. Recorded as a disagreement, not resolved — one of the reasons this entry is a draft." }
+  K1B:  { chart: 136, tol_pct: 20, note: "Bass ch. V1B cathode-follower output: 100 kΩ load to ground, plate straight on BP230, grid taken directly off P1A. The follower rides about a volt above the plate that drives it, so the printed +136 V beside the printed +135 V is the drawing agreeing with itself; 136 V over 100 kΩ is the 1.36 mA that also closes the 56 kΩ rail dropper's arithmetic (see notes.md)" }
+  P2A:  { chart: 230, tol_pct: 20, note: "Normal ch. V2A plate, 100 kΩ climbing to BP355 — the sheet's third '+230 V.' reading, a plate voltage and not a rail. The 125 V across that 100 kΩ is the same 1.25 mA the printed 1.9 V over 1500 Ω implies" }
+  K2A:  { chart: 1.9, tol_pct: 20, note: "Normal ch. V2A (input) cathode, 1500 Ω" }
   P2B:  { chart: 190, tol_pct: 20, note: "Normal ch. V2B (recovery) plate, 220 kΩ off BP355" }
   K2B:  { chart: 1.8, tol_pct: 20, note: "Normal ch. V2B cathode, 2700 Ω" }
-  P3A:  { chart: 150, tol_pct: 20, note: "shared driver V3A plate, 100 kΩ off BP230 — printed the same as V3B's" }
-  K3A:  { chart: null, note: "shared driver V3A cathode — not itself printed; mirrored from V3B's chart-read 1500 Ω / +1.3 V given the identical plate reading, informational only" }
+  P3A:  { chart: 150, tol_pct: 20, note: "shared driver V3A plate, 100 kΩ off BP230" }
+  K3A:  { chart: 1.2, tol_pct: 20, note: "shared driver V3A cathode, 1500 Ω (bypassed) — printed on the sheet beside the stage, not mirrored" }
   P3B:  { chart: 150, tol_pct: 20, note: "shared driver V3B (post-Treble) plate, 100 kΩ off BP230" }
   K3B:  { chart: 1.3, tol_pct: 20, note: "shared driver V3B cathode, 1500 Ω" }
   P4A:  { chart: 300, tol_pct: 20, note: "phase-inverter plate, 82 kΩ (hot) side off BP410" }
   P4B:  { chart: 280, tol_pct: 20, note: "phase-inverter plate, 100 kΩ (cold) side off BP410" }
-  KPI:  { chart: 30.0, tol_pct: 20, note: "phase-inverter joined cathodes, above the 820 Ω" }
-  JPI:  { chart: 28.0, tol_pct: 20, note: "phase-inverter tail junction, below the 820 Ω — grid-leak return for both halves. The drawing prints no value for the resistor carrying JPI to ground (modelled as 10k, an estimate); the two chart figures either side of the 820 Ω are what is gated here" }
+  KPI:  { chart: 30, tol_pct: 20, note: "phase-inverter joined cathodes, above the 820 Ω" }
+  JPI:  { chart: 28, tol_pct: 20, note: "phase-inverter tail junction, below the 820 Ω — grid-leak return for both halves, and the top of the drawn foot (6800 Ω to the feedback node, 4700 Ω from there to ground, the 56 kΩ speaker feedback a second path to ground at the same node)" }
   G5:   { chart: -54, tol_pct: 8, note: "5881 (V5) grid, fixed bias through a 220 kΩ leak from the -54 V supply" }

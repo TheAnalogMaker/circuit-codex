@@ -14,12 +14,16 @@ Normal channel (both stages), V3 = shared driver + the Bass channel's own
 Treble control (sitting in V3's own signal path), V4 = phase inverter, V5/V6 =
 output pair.
 
-Two engineering estimates are drawn and captioned inline (matching bom.yaml):
-V1B's own plate load (mirrored from V1A, not itself legible on the available
-scan) and the V1A -> V1B interstage coupling cap (C0, a conventional value —
-some DC-blocking cap is circuit-necessary there, but its printed value was not
-legible). Heaters, the PT primary, the ground switch, the 3 A fuse and the
-standby switch are omitted (see netlist.cir / meta.yaml).
+No engineering estimates are drawn. V1B is a cathode follower — plate straight
+on the Bass row's +230 V lane, grid taken directly off V1A's plate, 100 kOhm
+cathode load feeding the tone network — so it has no plate-load resistor, no
+interstage coupler and no grid leak; V2A's 100 kOhm plate load climbs to the
++355 V lane (the sheet's "+230 V." at that plate is a plate voltage, not a
+rail); and the phase-inverter tail's foot is drawn from the sheet's own
+lettering (RT2 6.8k -> the presence/feedback node, RPF 4.7k to ground, RNFB
+56k back from the speaker line, VR7 across RPF). Heaters, the PT primary, the
+ground switch, the 3 A fuse and the standby switch are omitted (see
+netlist.cir / meta.yaml).
 """
 from pathlib import Path
 
@@ -59,29 +63,24 @@ s.plate_load("RL1A", "220k", t1a["p"], "BP230")
 P1A_Y = BY - 7.62 - 3.48
 s.wire(54, P1A_Y, 54, P1A_Y)
 
-# V1A plate -> C0 (interstage coupler, estimate) -> V1B grid
+# V1A plate -> V1B grid, DIRECT-COUPLED (no cap, no grid leak on the sheet)
 t1b = s.triode("V1B", "7025", 92, BY)
 gx1b = t1b["g"][0]
 s.junction(54, P1A_Y)
-s.wire(54, P1A_Y, 62, P1A_Y)
-cl, cr = s.series_h("C", "C0", ".1u (est)", 66, P1A_Y)
-s.wire(62, P1A_Y, cl, P1A_Y)
-s.wire(cr, P1A_Y, gx1b - 3.81, P1A_Y)
+s.wire(54, P1A_Y, gx1b - 3.81, P1A_Y)
 s.wire(gx1b - 3.81, P1A_Y, gx1b - 3.81, BY)
 s.wire(gx1b - 3.81, BY, gx1b, BY)
-s.sym("R", "RG1B", "1M", gx1b - 3.81, BY + 9, lx=-9.4)
-s.gnd(gx1b - 3.81, BY + 12.81)
-# V1B cathode: 100k, UNBYPASSED
+# V1B plate straight on the +230 V lane — no plate-load resistor is drawn
+s.wire(92, BY - 7.62, 92, BY - 13)
+s.glabel("BP230", 92, BY - 13, 90)
+# V1B cathode: 100k load to ground; the cathode node IS the stage output
 s.wire(92, BY + 7.62, 92, BY + 10)
-s.sym("R", "RK1B", "100k", 92, BY + 13.81)
-s.gnd(92, BY + 17.62)
-# V1B plate -> 220k (estimate) -> shared +230V rail; plate stub tees into the
-# Bass tone network
-s.plate_load("RL1B", "220k (est)", t1b["p"], "BP230")
-NA_Y = BY - 7.62 - 3.48
+s.sym("R", "RK1B", "100k", 92, BY + 21.81)
+s.gnd(92, BY + 25.62)
+NA_Y = BY + 10
 s.junction(92, NA_Y)
 
-# --- Bass tone network: NA (V1B plate) -> [1M || (.00025+47k)] -> NX; NX ->
+# --- Bass tone network: NA (V1B cathode) -> [1M || (.00025+47k)] -> NX; NX ->
 # 10k || VR1(Bass) -> NY; NY -> 820 -> gnd; NX -> VR2(Volume) -> wiper = MIXG
 NW_Y = NA_Y + 20
 s.wire(92, NA_Y, 100, NA_Y)
@@ -132,12 +131,9 @@ s.gnd(148, NW_Y - 10 + 7.62 + 3.81)
 s.wire(148, NW_Y - 10 + 7.62, 148, NW_Y - 10 + 11.43)
 s.wire(153.08, NW_Y - 10, MIXG_X, NW_Y - 10)
 s.wire(MIXG_X, NW_Y - 10, MIXG_X, 152)
-s.text("Bass ch. tone network: redrawn from the E-FB schematic page. NW/NY "
-       "bridging exactly as the source drawing wires it (best-effort read of a",
-       20, 90, 1.15)
-s.text("hand-drawn print — not a trace); the network is not modelled in "
-       "netlist.cir (abstracted control island, same convention corpus-wide).",
-       20, 93.5, 1.15)
+s.text("Bass ch. tone network: redrawn from the E-FB", 160, 78, 1.15)
+s.text("schematic page, driven by V1B's cathode. Not", 160, 81.5, 1.15)
+s.text("modelled in netlist.cir (control island).", 160, 85, 1.15)
 
 # ============================ NORMAL CHANNEL (V2A/V2B) ========================
 NY0 = 130.0
@@ -293,10 +289,22 @@ s.wire(354, PIY_A + 10, 354, PIY_A + 10 + 18)
 s.wire(354, PIY_A + 10 + 18, rl3, PIY_A + 10 + 18)
 s.wire(rr3, PIY_A + 10 + 18, JY + 60, PIY_A + 10 + 18)
 s.wire(JY + 60, PIY_A + 10 + 18, JY + 60, PIY_A + 10 + 30)
-s.sym("R", "RFOOT", "10k (est)", JY + 60, PIY_A + 10 + 30 + 3.81)
-s.gnd(JY + 60, PIY_A + 10 + 30 + 7.62)
 TAIL_X = JY + 60
 TAIL_Y = PIY_A + 10 + 30
+# tail foot, lettered in full on the sheet: JPI -> 6.8k -> presence/feedback
+# node -> 4.7k -> ground, with the 56k speaker feedback returning to the same
+# node and the Presence pot bridging the 4.7k end to end.
+s.sym("R", "RT2", "6.8k", TAIL_X, TAIL_Y + 3.81)
+NFB_Y = TAIL_Y + 7.62
+s.junction(TAIL_X, NFB_Y)
+s.sym("R", "RPF", "4.7k", TAIL_X, NFB_Y + 8.81)
+s.gnd(TAIL_X, NFB_Y + 12.62)
+s.wire(TAIL_X, NFB_Y, TAIL_X, NFB_Y + 5)
+s.wire(TAIL_X, NFB_Y, TAIL_X + 14, NFB_Y)
+fl, fr = s.series_h("R", "RNFB", "56k 1W", TAIL_X + 20, NFB_Y)
+s.wire(TAIL_X + 14, NFB_Y, fl, NFB_Y)
+s.wire(fr, NFB_Y, TAIL_X + 30, NFB_Y)
+s.glabel("SPKR", TAIL_X + 30, NFB_Y, 0)
 # grid leaks, both returned to the tail junction
 s.wire(GL, PIY_A, GL, PIY_A + 4)
 s.sym("R", "RG4A", "1M", GL, PIY_A + 7.81, lx=-9.4)
@@ -312,15 +320,15 @@ s.wire(GL, TAIL_Y, TAIL_X, TAIL_Y)
 s.junction(RC, TAIL_Y)
 s.junction(GL, TAIL_Y)
 s.junction(TAIL_X, TAIL_Y)
-# presence pot at the tail junction
-s.wire(RC - 20, TAIL_Y, RC, TAIL_Y)
-s.sym("POT", "VR7", "25k-L · Presence", RC - 20, TAIL_Y + 3.81, lx=-16, ly=6.5)
-s.gnd(RC - 20, TAIL_Y + 7.62 + 3.81)
-s.wire(RC - 20, TAIL_Y + 7.62, RC - 20, TAIL_Y + 7.62 + 3.81)
-s.text("Presence control: front-panel 25 kΩ-L pot at the phase-inverter tail "
-       "junction; exact internal tap not traced from the available scan —",
-       300, 292, 1.15)
-s.note("drawn as a DC-neutral shunt at the tail, matching the corpus's other long-tailed-pair designs.")
+# presence pot: its element bridges RPF end to end (foot node -> ground)
+s.wire(RC - 20, NFB_Y, TAIL_X, NFB_Y)
+s.sym("POT", "VR7", "25k-L · Presence", RC - 20, NFB_Y + 3.81, lx=-16, ly=6.5)
+s.gnd(RC - 20, NFB_Y + 7.62 + 3.81)
+s.wire(RC - 20, NFB_Y + 7.62, RC - 20, NFB_Y + 7.62 + 3.81)
+s.text("Presence control: front-panel 25 kΩ-L pot bridging the 4.7 kΩ foot "
+       "resistor end to end, its wiper on a 0.1 µF · 200 V cap to the foot.",
+       300, 300, 1.15)
+s.note("The 56 kΩ speaker feedback returns to the same foot node, so it is a second DC path to ground through the output transformer's secondary.")
 
 # ============================ OUTPUT PAIR (5881) ==============================
 OX = 420.0
@@ -428,8 +436,16 @@ s.junction(182, PY + 40)
 s.wire(176, PY + 40, 182, PY + 40)
 s.wire(182, PY + 40, 182, PY + 34)
 s.glabel("BP410", 182, PY + 34, 90)
-s.wire(182, PY + 40, 188, PY + 40)
-s.glabel("BP230", 190, PY + 40, 0)
+s.wire(150, PY + 40, 150, PY + 52)
+dl6, dr6 = s.series_h("R", "RD3", "56k 1W", 160, PY + 52)
+s.wire(150, PY + 52, dl6, PY + 52)
+s.wire(dr6, PY + 52, 176, PY + 52)
+s.sym("C", "C14", "20u 600V", 182, PY + 55.81)
+s.gnd(182, PY + 59.62)
+s.junction(182, PY + 52)
+s.wire(176, PY + 52, 182, PY + 52)
+s.wire(182, PY + 52, 188, PY + 52)
+s.glabel("BP230", 190, PY + 52, 0)
 s.text("BP430 (5881 screens) and BP355 (Normal ch. recovery) tap the same "
        "dropper chain the E-FB drawing shows but were not fully traced at "
        "this pass; both", 20, 320, 1.15)

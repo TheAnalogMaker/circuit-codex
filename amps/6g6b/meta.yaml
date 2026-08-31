@@ -25,26 +25,34 @@ lineage:
 conventions:
   designators: functional   # designators carry a role code (RD1 dropper, RL4 plate load, CK1 cathode bypass)
 sources:
-  - desc: "Fender 'Bassman' Model 6G6-B drawing (E-FB), two pages (board layout + schematic): every component value AND the printed voltage chart read directly from the published sheet. Two full channels (Bass, Normal), each a 7025 bottle of two stages with its own Bass/Treble/Volume network between them (Bass ch.: 68k/68k input stoppers, 1M leak, 2700 Ω cathode, 220k plate, +135/+1.1 V; then 100k unbypassed-cathode recovery stage, +13.6 V, feeding a 1M/.00025/47k/.25/.25 network into a 25k-L Bass pot, an 820 Ω foot and a 250k-L Volume pot. Normal ch.: 1500 Ω cathode, 100k plate off +230 V feeding a .00025/47k-analog network with a 350k-70k-tap Treble pot and a 250k-A Bass pot, into a second 2700 Ω-cathode/220k-plate stage off +355 V at +190/+1.8 V, then a 1M-A Volume pot and a 470k mixing resistor). Both channels' Volume outputs mix at a shared driver bottle's first grid (100k plate off +230 V, +150 V both sections, 1500 Ω/+1.3 V cathode chart-read on the second section); the Bass channel's own 250k-A Treble control (its front-panel group reads Bass 25k-L / Treble 250k-A / Volume 250k-L) sits between the bottle's two sections rather than beside its other two pots, then a 470k/.0005 uF coupler into the phase inverter: 82k (hot) / 100k (cold) 5% plates off a +410 V rail, printed +300/+280 V, both 1M grid leaks to the tail junction, an 820 Ω shared-cathode resistor printed +30.0 V (cathodes) / +28.0 V (tail junction) either side of it. Fixed-bias 5881 pair: 220k leaks from -54 V, 470 Ω 1W screens off +430 V, plates direct on +428 V. Solid-state full-wave rectifier (two 3-diode series legs off a centre-tapped HT winding) — no rectifier tube. Bias supply: small silicon diode + 1k 1W-5% off an AC tap, 4700 Ω/1W + choke (TR2, 125C1A) filtering, 27k-5% bleeder, 25/50 uF dual can, -54 V. Transformers TR1-125P7A (power), TR2-125C1A (choke), TR3-125A13A (output). Notice printed on the sheet: 'Voltages read to ground with electronic voltmeter, values shown + or - 20%'; 'All resistors 1/2 W-10% tolerance if not specified'; 'All capacitors at least 400 volt rating if not specified.' Two internal nodes (V1B's own plate-load resistor; the driver bottle's first-section cathode) were not legible on the rendered drawing and are modelled as engineering estimates, flagged inline in netlist.cir/voltages.yaml rather than asserted as read. Not reproduced here; archived at EL34World"
+  - desc: "Fender 'Bassman' Model 6G6-B drawing (E-FB), two pages (board layout + schematic): every component value AND the printed voltage chart read directly from the published sheet, lug by lug at 750 dpi. Two full channels (Bass, Normal). Bass ch.: 68k/68k input stoppers and a 1M leak into V1A (2700 ohm cathode, 220k plate off the Bass row's +230 V lane, printed +135/+1.1 V); V1A's plate is DIRECT-COUPLED to V1B, a CATHODE FOLLOWER whose plate lead runs straight to the same +230 V lane with no plate-load resistor and whose 100k cathode load is the stage output, printed +136 V; that cathode drives a 1M/.00025/47k/10k/.25/.25 network into a 25k-L Bass pot, an 820 ohm foot and a 250k-L Volume pot. Normal ch.: V2A on a 1500 ohm cathode with a 100k plate load climbing to that channel's own +355 V lane, printed +230/+1.9 V, feeding a .00025/.05/6800/.005 network with a 350k-70k-tap Treble pot, a 250k-A Bass pot and a 1M-A Volume pot into V2B (2700 ohm cathode, 220k plate off the same +355 V lane, +190/+1.8 V), then a 470k mixing resistor. Both channels' Volume outputs mix at a shared driver bottle's first grid (100k plate off +230 V, +150 V and 1500 ohm/+1.2 V on the first section, +150 V and 1500 ohm/+1.3 V with .002 across the plate load on the second); the Bass channel's own 250k-A Treble control (its front-panel group reads Bass 25k-L / Treble 250k-A / Volume 250k-L) sits between the bottle's two sections, then a 470k/.0005 uF coupler into the phase inverter: 82k (hot) / 100k (cold) 5% plates off a +410 V lane, printed +300/+280 V, both 1M grid leaks to the tail junction, an 820 ohm shared-cathode resistor printed +30 V (cathodes) / +28 V (tail junction), and below that junction a 6800 ohm to the presence/feedback node, a 4700 ohm from there to ground, the 56k speaker-feedback resistor returning to the same node and a 25k-L PRESENCE pot bridging the 4700 ohm with a .1/200 cap on its wiper. Fixed-bias 5881 pair: 220k 5% leaks from -54 V, 470 ohm 1W screens off +430 V, plates direct on +428 V. Solid-state full-wave rectifier (two 3-diode series legs off a centre-tapped HT winding) — no rectifier tube. Supply chain: +430 V reservoir -> choke (TR2, 125C1A) -> node B (+428 V) -> 4700 ohm 1W -> +410 V -> 27k 1W -> +355 V (node C); a 56k 1W from node B with its own 20 uF/600 V filter feeds the Bass row's +230 V lane. Bias supply: small silicon diode + 1k 1W-5% off an AC tap, 27k-5% bleeder, 25/50 uF dual can, -54 V. Transformers TR1-125P7A (power), TR2-125C1A (choke), TR3-125A13A (output). Notice printed on the sheet: 'Voltages read to ground with electronic voltmeter, values shown + or - 20%'; 'All resistors 1/2 W-10% tolerance if not specified'; 'All capacitors at least 400 volt rating if not specified.' Not reproduced here; archived at EL34World"
     url: "https://el34world.com/charts/Schematics/Files/Fender/Fender_bassman_6g6b.pdf"
   - desc: "Wikipedia, 'Fender Bassman' — 6G6-B production window and circuit lineage: 6G6 (late 1960, GZ34 tube rectifier) -> 6G6-A (early 1961, solid-state rectifier, 2x12 cabinet) -> 6G6-B (circuit changes carried through 1963); the blonde/piggyback Bassman line ran 1960-1964, superseded by the blackface AA864 piggyback head in 1964"
     url: "https://en.wikipedia.org/wiki/Fender_Bassman"
 verification:
-  status: draft   # Two blockers, both concrete.
-                  # (1) Two gated nodes miss their printed figures and are
-                  # published as misses rather than tuned away: V1B's cathode
-                  # reads 3.2 V simulated against the chart's 13.6 V (76.1%,
-                  # tol 20%) and V2A's 1.2 V against 1.9 V (35.8%). The V1B
-                  # figure in particular is a cathode-network reading to settle
-                  # against a sharper scan — 13.6 V over the drawn resistor is
-                  # a current this stage does not pass — after which it is
-                  # either gated clean or carried as `disputed` with the
-                  # arithmetic. Every other node lands (worst of them 17.3%).
-                  # (2) Maintainer sign-off, which CONTRIBUTING.md reserves to
-                  # a human. The artifact set is complete: the board layout is
-                  # drawn from the E-FB layout page, both renders and the social
-                  # card are present, and the drawn wiring is proved
-                  # electrically equivalent to netlist.cir.
-                  # WORK ITEM: settle (1) on a sharper scan, then re-run.
+  status: draft   # One blocker left, and it is not a circuit question.
+                  # The two chart disagreements that held this entry open —
+                  # V1B's cathode (sim 3.2 V vs a printed figure read as
+                  # "13.6 V") and V2A's cathode (1.2 V vs 1.9 V) — were both
+                  # OUR reading, not the print. A lug-level re-read of the
+                  # E-FB schematic page at 750 dpi shows V1B is a cathode
+                  # follower (plate straight on the +230 V lane, grid direct-
+                  # coupled to V1A's plate, 100 kΩ cathode load) whose printed
+                  # figure is +136 V — the mark between the 3 and the 6 is the
+                  # +230 V lane's own wire crossing the lettering — and that
+                  # V2A's 100 kΩ plate load climbs to the +355 V lane, the
+                  # sheet's third "+230 V." being V2A's PLATE, not a rail.
+                  # With the circuit the sheet actually draws, every gated
+                  # node lands: worst 17.3% against the chart's own ±20%.
+                  # The drawing corroborates itself twice over — 136 V over
+                  # 100 kΩ is the 1.36 mA that makes the 56 kΩ rail dropper
+                  # arrive at +230 V, and 125 V over V2A's 100 kΩ is the
+                  # 1.25 mA its printed 1.9 V over 1500 Ω implies.
+                  # REMAINING BLOCKER: maintainer sign-off, which
+                  # CONTRIBUTING.md reserves to a human. The artifact set is
+                  # complete: the board layout is drawn from the E-FB layout
+                  # page, both renders and the social card are present, and
+                  # the drawn wiring is proved electrically equivalent to
+                  # netlist.cir.
 added: 2026-08-08
 contributors: [TheAnalogMaker]

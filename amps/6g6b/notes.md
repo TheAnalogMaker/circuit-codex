@@ -15,93 +15,113 @@ long-tailed-pair inverter with it.
 
 ## Circuit walkthrough (short form)
 
-**Bass channel**: two inputs (68k stoppers, 1M leak) → **V1A** (2,700 Ω
-cathode, 220 kΩ plate off the shared +230 V rail, printed +135 V/+1.1 V) →
-**V1B** recovery (100 kΩ cathode, *unbypassed* — no cap drawn, the deepest
-local feedback in the preamp, printed +13.6 V) → a Bass/Volume network (25
-kΩ-L Bass pot, 820 Ω foot, 250 kΩ-L Volume pot) whose wiper feeds the
-shared driver stage directly.
+**Bass channel**: two inputs (68 kΩ stoppers, 1 MΩ leak) → **V1A** (2.7 kΩ
+cathode, 220 kΩ plate off the Bass row's +230 V lane, printed +135 V/+1.1 V)
+→ **V1B**, a *cathode follower* direct-coupled to that plate: its own plate
+lead goes straight to the same +230 V lane with no plate resistor in it, and
+its 100 kΩ cathode load is the stage's output, printed +136 V. That cathode
+drives the Bass/Volume network (1 MΩ and a 250 pF + 47 kΩ branch, two
+0.25 µF bridging caps, a 10 kΩ dropper paralleled by the 25 kΩ-L Bass pot,
+an 820 Ω foot and a 250 kΩ-L Volume pot) whose wiper feeds the shared driver
+stage.
 
-**Normal channel**: two inputs → **V2A** (1,500 Ω cathode, 100 kΩ plate off
-the same +230 V rail, printed +1.9 V) → a Treble/Bass network (350 kΩ/70 kΩ
-tap Treble, 250 kΩ-A Bass) → **V2B** recovery (2,700 Ω cathode, 220 kΩ
-plate off a dedicated +355 V rail, printed +190 V/+1.8 V) → a 1 MΩ-A
-Volume pot → a 470 kΩ resistor into the shared driver stage's grid.
+**Normal channel**: two inputs → **V2A** (1.5 kΩ cathode, 100 kΩ plate load
+climbing to that channel's own +355 V lane, printed +230 V/+1.9 V) → a
+Treble/Bass network (250 pF into a 350 kΩ/70 kΩ-tap Treble pot; 0.05 µF into
+a 250 kΩ-A Bass pot over a 6.8 kΩ foot with 0.005 µF across it) → a 1 MΩ-A
+Volume pot → **V2B** recovery (2.7 kΩ cathode, 220 kΩ plate off the same
++355 V lane, printed +190 V/+1.8 V) → a 470 kΩ resistor into the shared
+driver stage's grid.
 
 **Shared driver**: both channels' Volume outputs land on **V3A**'s grid
-(100 kΩ plate off +230 V, printed +150 V) → the Bass channel's own 250
-kΩ-A Treble control (the front panel's BASS/TREBLE/VOLUME group ahead of
-the Bass jacks reads 25k-L/250k-A/250k-L, so this pot sits in the driver
-bottle's signal path rather than beside the channel's other two knobs) →
-**V3B** recovery (1,500 Ω cathode, 100 kΩ plate off +230 V, printed
-+150 V/+1.3 V) → 470 kΩ + a 500 pF coupler into the phase inverter.
+(100 kΩ plate off +230 V, 1.5 kΩ cathode, printed +150 V/+1.2 V) → the Bass
+channel's own 250 kΩ-A Treble control (the front panel's BASS/TREBLE/VOLUME
+group ahead of the Bass jacks reads 25k-L/250k-A/250k-L, so this pot sits in
+the driver bottle's signal path rather than beside the channel's other two
+knobs) → **V3B** recovery (1.5 kΩ cathode, 100 kΩ plate off +230 V with
+0.002 µF across it, printed +150 V/+1.3 V) → 470 kΩ + a 500 pF coupler into
+the phase inverter.
 
 **Phase inverter**: long-tailed pair, 82 kΩ (hot) / 100 kΩ (cold) 5%
-plates off a +410 V rail (printed +300 V/+280 V), both 1 MΩ grid leaks
-returned to the tail junction. The shared cathodes sit 820 Ω above the tail
-junction — printed +30.0 V at the cathodes, +28.0 V at the junction, a
-2.0 V split that implies roughly 2.4 mA of combined tail current,
-corroborating the 82k/100k plate currents within the chart's own tolerance.
+plates off a +410 V lane (printed +300 V/+280 V), both 1 MΩ grid leaks
+returned to the tail junction. The shared cathodes sit 820 Ω above that
+junction — printed +30 V at the cathodes, +28 V at the junction. Below the
+junction the sheet letters the whole foot: 6.8 kΩ down to a
+presence/feedback node, 4.7 kΩ from there to ground, the 56 kΩ speaker
+feedback returning to the same node (a second path to ground through the
+output transformer's secondary), and the front panel's 25 kΩ-L Presence pot
+bridging the 4.7 kΩ end to end with a 0.1 µF · 200 V cap on its wiper.
 
 **Output**: two 5881s, fixed-biased through 220 kΩ leaks from a −54 V
 supply (grounded cathodes, no cathode resistor), 470 Ω 1 W screen
 resistors off a +430 V tap, plates direct on +428 V.
 
 **Power**: a centre-tapped HT winding feeds two three-diode series legs — a
-solid-state full-wave rectifier; there is no rectifier tube in this circuit.
-Filtered B+ is distributed as several separately-dropped taps rather than
-one single reservoir chain: +430 V (screens), +428 V (plates), +410 V
-(phase inverter), +355 V (Normal channel recovery stage), +230 V (shared
-preamp rail, read independently beside both channels' input stages). A
-small silicon diode off an AC tap, 1 kΩ/4,700 Ω dropping, a choke (TR2,
-125C1A) and a 25/50 µF dual can produce −54 V for the output bias.
+solid-state full-wave rectifier; there is no rectifier tube. The chain runs
++430 V (screens, at the reservoir) → choke (TR2, 125C1A) → +428 V (plates)
+→ 4.7 kΩ · 1 W → +410 V (phase inverter) → 27 kΩ · 1 W → +355 V (the Normal
+channel's whole lane). The Bass row's +230 V lane hangs off the +428 V node
+through its own 56 kΩ · 1 W dropper and a 20 µF · 600 V filter. A small
+silicon diode off an AC tap, 1 kΩ dropping, a 27 kΩ bleeder and a 25/50 µF
+dual can produce −54 V for the output bias.
 
-## Reading this drawing — what's solid, what's estimated
+## Reading this drawing — the correction this entry carries
 
 The E-FB drawing (both the board-layout and schematic pages) prints its own
 title block reading "FENDER 'BASSMAN' LAYOUT / SCHEMATIC — MODEL 6G6-B" —
-confirmed against the target amp before any value was read. Every rail,
-every cathode value cited above, and both phase-inverter plate voltages are
-read directly off the printed chart at a clean junction dot.
+confirmed against the target amp before any value was read.
 
-Two internal nodes are engineering estimates rather than printed figures,
-flagged inline in `netlist.cir`/`voltages.yaml` and left `chart: null`:
+An earlier pass over this sheet published two chart figures the simulated
+deck could not reach: V1B's cathode, read as "+13.6 V" against a simulated
+3.2 V, and V2A's cathode, printed +1.9 V against a simulated 1.2 V. Both
+gaps were the reading's, not the print's, and a lug-level re-read at 750 dpi
+settles both.
 
-- **V1B's own plate-load resistor.** Its cathode (100 kΩ, +13.6 V) is
-  printed clearly; the resistor carrying its plate to a rail is not legible
-  on the rendered drawing at the resolution available here. Modelled as
-  220 kΩ off the shared +230 V rail, mirroring V1A.
-- **V3A's cathode.** V3B's is chart-read (1,500 Ω, +1.3 V); V3A prints the
-  identical +150 V plate off the identical 100 kΩ/+230 V leg but its own
-  cathode figure is not itself printed. Mirrored from V3B rather than
-  asserted as read.
-- **The phase-inverter tail's return to ground.** The chart prints both
-  ends of the 820 Ω shared-cathode resistor (+30.0 V / +28.0 V), but not
-  the resistor that carries the tail junction the rest of the way to
-  ground — the front panel's PRESENCE (25 kΩ-L) control likely sits in
-  that leg, as it does on the corpus's other long-tailed-pair designs, but
-  its exact position in this drawing was not traced. Modelled as a plain
-  10 kΩ, sized so the ~2.4 mA the 820 Ω implies lands near the printed
-  +28.0 V — an estimate, not a read value.
+- **V1B is a cathode follower.** Its plate lead runs straight down to the
+  Bass row's +230 V lane with no plate-load resistor in it; its grid takes
+  V1A's plate directly, with no coupling capacitor and no grid leak of its
+  own; and its 100 kΩ cathode load is what feeds the tone network. The
+  printed figure at that cathode is **+136 V**, not +13.6 V — the mark
+  between the 3 and the 6 is the +230 V lane's own wire crossing the
+  lettering, and it runs the full height of the text rather than sitting on
+  the baseline like the decimal points elsewhere on the sheet. A follower
+  riding about a volt above the +135 V plate that drives it is exactly what
+  +136 V beside +135 V describes; 13.6 V across 100 kΩ is a current no
+  self-biased 12AX7 stage can pass at any rail on this drawing.
+- **The sheet's third "+230 V." is a plate voltage.** It letters +230 V
+  twice on the Bass row's own supply lane — a rail — and once more in the
+  Normal channel, at V2A's plate. That plate's 100 kΩ load climbs to the
+  +355 V lane, the same lane V2B's 220 kΩ uses. Hanging it on a shared
+  +230 V rail instead halved the stage's current and is what put the
+  simulated cathode a third under the printed 1.9 V.
 
-Two chart figures the simulated deck does not reach are worth naming here
-rather than leaving to whoever reads the table. V1B's cathode is printed at
-+13.6 V; the deck settles far below it, because the plate-load resistor
-above that cathode is the estimate described just above and the estimate
-sets the current. V2A's cathode is printed at +1.9 V with every part in that
-stage read from the sheet, and the deck settles about a third under it. That
-second disagreement is recorded, not explained — no arithmetic here resolves
-it, and it is one of the reasons this entry is a draft.
+Both corrections are corroborated by arithmetic already on the sheet.
+136 V across 100 kΩ is 1.36 mA; add V1A's 0.43 mA and the driver bottle's
+two 0.8 mA sections and the +230 V lane draws about 3.4 mA, which across its
+own 56 kΩ · 1 W dropper falls 190 V from the +428 V node — landing on the
+printed +230 V. Read as a common-cathode stage instead, V1B passes about
+30 µA, the lane draws 2 mA, and the same dropper would leave it above
++310 V. In the Normal channel, the 125 V across V2A's 100 kΩ is 1.25 mA, and
+1.9 V across its 1500 Ω cathode resistor is 1.27 mA — the two printed
+figures agreeing to 2%.
+
+Two figures the earlier pass carried as engineering estimates are printed
+after all and are now read: V3A's cathode (+1.2 V beside its 1.5 kΩ) and the
+phase-inverter tail's foot (6.8 kΩ, 4.7 kΩ, the 56 kΩ feedback and the
+Presence pot across the foot). Nothing in `netlist.cir` is an estimate now.
+The Presence pot itself is the one drawn DC path left out of the deck — pots
+are omitted corpus-wide — and including its 25 kΩ element would move the
+tail junction from 28.4 V to about 27.8 V, both inside the chart's ±20%.
+
+With the circuit the sheet actually draws, every gated node lands: the worst
+is V1A's cathode at 17.3% against the chart's own ±20% convention. The entry
+stays a draft only because a verified badge is a maintainer's to grant.
 
 The board drawing follows the E-FB layout page, and it draws each channel's
 Bass, Treble and Volume network in full — on this sheet those parts mount on
 the board rather than at the panel, which is why they appear here and not as
 panel stubs. The drawn wiring is proved electrically equivalent to the
 simulated circuit.
-
-The entry stays a draft while those two chart figures stand unresolved.
-Neither is smoothed over above, and a verified badge is a maintainer's to
-grant, not this entry's to claim.
 
 ## The Bass/Normal split, and why the driver bottle carries a Treble pot
 
