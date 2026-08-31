@@ -1,0 +1,103 @@
+tube: 6sl7gt
+name: 6SL7GT
+also_known_as: ["6SL7", "6SL7-GT", "7F7 (loctal base)", "12SL7GT (12.6 V heater)", "14F7 (loctal, 12.6 V heater)"]
+role: >-
+  High-mu (µ=70) twin triode on an octal base — the octal counterpart of the
+  9-pin 12AX7, and the preamp and phase-inverter bottle of the Ampeg circuits.
+  Tung-Sol states the design intent outright: the tube "combines two independent
+  high-mu triodes in one envelope" and "is designed primarily for phase inverter
+  service." The two units are wired symmetrically around the base — grid, plate
+  and cathode of unit No.2 on pins 1 to 3, the same three for unit No.1 on pins 4
+  to 6 — which is what lets a long-tailed pair share one socket with no crossed
+  leads. A watt of plate dissipation per unit puts it firmly in small-signal
+  service.
+model:
+  file: models/6sl7gt.inc
+  anchor: "Va=250 V, Vg=-2 V → Ia=2.3 mA, gm=1600 µmho, µ=70"
+  anchor_source: "RCA 6SL7-GT data sheet, November 5, 1954 — Amplifier Class A1, characteristics, values for each unit"
+  anchor_source_url: https://frank.pocnet.net/sheets/049/6/6SL7GT.pdf
+  note: >-
+    Single-anchor fit at the one operating point either publisher tabulates: KP
+    and KG1 are solved so the model reproduces plate current and transconductance
+    exactly there, the same treatment the 12AY7, 6AT6 and 12AT7 models get. µ=70
+    is the printed amplification factor, not a substitution — this is a plain
+    triode, so the printed figure is the quantity the model wants, and the
+    sheet's own gm·rp confirms it: 1600 µmho × 44 kΩ = 70.4. EX=1.5 and
+    KVB=300 V² are the project triode defaults per METHODOLOGY.md. A fitted KVB
+    would need a sheet tabulating plate current at two plate voltages at the same
+    grid voltage, as the 6SJ7's does; neither publisher gives one here. RCA
+    prints a single 250 V characteristics column, and Tung-Sol's second table is
+    a resistance-coupled amplifier design chart, which tabulates plate supply
+    voltage through a load resistor rather than a static characteristic.
+  corroboration: >-
+    Two independent publishers print the characteristics block identically —
+    RCA (November 5, 1954) and Tung-Sol (March 1, 1959, plate #5453) both give
+    250 V, −2 V, 2.3 mA, 44 kΩ, 1600 µmho and µ=70 — and their maximum ratings
+    agree line for line as well. Tung-Sol's µ-versus-grid curve at Eb=250 V runs
+    flat at about 70 through the anchor bias, so the printed figure is the
+    tube's behaviour there and not just a spot value.
+  known_limitation: >-
+    Plate resistance at the anchor reads about 37.7 kΩ against the sheet's
+    printed 44 kΩ — 14% low — so the model's effective amplification factor
+    there is 60.3 rather than the printed 70. Plate current and transconductance
+    are exact; it is the plate-voltage slope that falls short. This is a limit
+    of the single-exponent Koren form rather than a defaulted knob left untuned:
+    holding Ia and gm at the anchor, rp moves only from 37.6 kΩ to 37.9 kΩ
+    across the whole plausible KVB range of 1 V² to 1000 V², and would need
+    roughly 25000 V² — far outside anything a knee parameter describes, and with
+    no published data to fit it to — before it reached 44 kΩ. The 7591 model
+    carries the same residual and the same note. Separately, the plate-
+    characteristic family RCA prints alongside the table (92CM-6298, June 16,
+    1941) is deliberately not fitted to, following the finding on RCA plate
+    graphs in reference/studies/12ax7-calibration.md. As with every model here,
+    the fit is accurate near the datasheet operating point; large-signal curve
+    shape is approximate.
+max_ratings:
+  note: >-
+    Design-centre values, each unit. One watt of plate dissipation and a 300 V
+    plate ceiling are the whole envelope — this is a small-signal tube, and the
+    grid must never be driven positive. Both publishers print the same block.
+  items:
+    - { label: "Plate voltage", value: "300 V" }
+    - { label: "Grid voltage, positive bias value", value: "0 V" }
+    - { label: "Plate dissipation", value: "1 W" }
+    - { label: "Peak heater-cathode voltage, heater negative with respect to cathode", value: "90 V" }
+    - { label: "Peak heater-cathode voltage, heater positive with respect to cathode", value: "90 V" }
+  limits:
+    plate_dissipation_w: 1
+    plate_voltage_v: 300
+  rating_system: design-centre
+  source: "RCA 6SL7-GT data sheet, November 5, 1954 — Amplifier Class A1, maximum ratings (design-centre values), values for each unit; identical on the Tung-Sol 6SL7GT sheet, March 1, 1959 (ratings interpreted according to the design centre system)"
+  source_url: https://frank.pocnet.net/sheets/049/6/6SL7GT.pdf
+basing:
+  code: 8BD
+  base: octal
+  view: bottom
+  source: >-
+    RCA 6SL7-GT data sheet, November 5, 1954 — "Basing Designation for BOTTOM
+    VIEW ... 8BD", with the terminal list reproduced below pin for pin. The base
+    is an Intermediate-Shell Octal 8-Pin (JETEC No. B8-6), or the Short
+    Intermediate-Shell Octal 8-Pin (JETEC No. B8-46); the bulb is a T-9.
+    Corroborated by the Tung-Sol 6SL7GT sheet, March 1, 1959, whose bottom-view
+    diagram letters the same 8BD arrangement on an intermediate-shell 8-pin
+    octal. Unlike most octal preamp tubes there is no internal shield pin: every
+    one of the eight pins carries an element.
+  pins:
+    1: { element: grid, unit: 2 }
+    2: { element: plate, unit: 2, hv: true }
+    3: { element: cathode, unit: 2 }
+    4: { element: grid, unit: 1 }
+    5: { element: plate, unit: 1, hv: true }
+    6: { element: cathode, unit: 1 }
+    7: { element: heater }
+    8: { element: heater }
+used_in: []
+datasheets:
+  - publisher: RCA
+    designation: 6SL7-GT
+    url: https://frank.pocnet.net/sheets/049/6/6SL7GT.pdf
+    confidence: high
+  - publisher: Tung-Sol
+    designation: 6SL7GT (plate #5453)
+    url: https://frank.pocnet.net/sheets/127/6/6SL7GT.pdf
+    confidence: high

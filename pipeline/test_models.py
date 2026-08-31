@@ -176,6 +176,12 @@ def main() -> int:
     failures += check("6AT6", "Ia", r["ia0"], 1.0e-3, TOL_I)
     failures += check("6AT6", "gm", (r["ia_hi"] - r["ia_lo"]) / 0.1, 1200e-6, TOL_GM)
 
+    print("6SL7GT @ Va=250, Vg=-2:")
+    r = run_bench(TRIODE_BENCH.format(name="6SL7GT", inc=MODELS / "6sl7gt.inc",
+                                      vp=250, vg=-2, vg_hi=-1.95, vg_lo=-2.05))
+    failures += check("6SL7GT", "Ia", r["ia0"], 2.3e-3, TOL_I)
+    failures += check("6SL7GT", "gm", (r["ia_hi"] - r["ia_lo"]) / 0.1, 1600e-6, TOL_GM)
+
     print("6V6GT @ Va=250, Vg2=250, Vg1=-12.5:")
     r = run_bench(PENTODE_BENCH.format(name="6V6GT", inc=MODELS / "6v6gt.inc",
                                        vp=250, vg2=250, vg1=-12.5,

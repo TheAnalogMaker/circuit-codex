@@ -440,6 +440,39 @@ def main() -> None:
         emit_triode(at7, {"cgk": 2.2, "cgp": 1.5, "cpk": 0.5}, "") + "\n"
     (MODELS_DIR / "12at7.inc").write_text(txt)
 
+    # ---- 6SL7GT: high-mu octal twin triode (mu=70), the octal counterpart of the
+    #      12AX7 and the preamp/phase-inverter bottle of the Ampeg circuits. RCA
+    #      6SL7-GT data sheet (November 5, 1954) prints ONE characteristics block,
+    #      Amplifier Class A1, values for each unit: Va=250 V, Vg=-2 V -> Ia=2.3 mA,
+    #      gm=1600 umho, rp=44000 ohm (approx.), mu=70. Tung-Sol (March 1, 1959,
+    #      plate #5453) prints the identical row. gm*rp = 70.4 confirms the printed
+    #      mu. Single-anchor fit at that point (KP, KG1 solved to Ia+gm), matching
+    #      the 12AY7/6AT6/12AT7 treatment; MU=70, EX=1.5 fixed.
+    #
+    #      KVB stays the project triode default (300 V^2): the measured-KVB rule in
+    #      METHODOLOGY.md needs a sheet that tabulates plate current at two plate
+    #      voltages at the same grid voltage, and neither publisher does — RCA's
+    #      block is a single 250 V column. The sheet's plate-characteristic family
+    #      (92CM-6298) is deliberately not fitted to, per the 12AX7 calibration
+    #      study's finding on RCA plate graphs.
+    sl7 = fit_triode("6SL7GT", mu=70.0, vp=250.0, vg=-2.0, ia=2.3e-3, gm=1600e-6)
+    txt = common_header("6SL7GT high-mu twin triode (one section)",
+                        "Va=250 V, Vg=-2 V -> Ia=2.3 mA, gm=1600 umho, mu=70",
+                        ["Capacitances are RCA's Unit No.1 figures, measured with a",
+                         "close-fitting shield (JETEC No.308) tied to the cathode;",
+                         "Unit No.2 reads 2.8 / 3.4 / 3.2 pF.",
+                         "Known residual: plate resistance reads ~37.7 kohm here against",
+                         "the sheet's printed 44 kohm (14% low), so effective mu at the",
+                         "anchor is 60.3 rather than 70. This is a limit of the",
+                         "single-exponent form, not a defaulted knob: holding Ia and gm",
+                         "at the anchor, rp moves only 37.6->37.9 kohm across KVB 1..1000,",
+                         "and would need KVB ~25000 V^2 to reach 44 kohm. Same residual",
+                         "class the 7591 model documents.",
+                         "Node order: P G K. Basing 8BD (reference/tubes/6sl7gt.yaml)."],
+                        source="RCA 6SL7-GT data sheet, November 5, 1954, tabulated characteristics") + "\n" + \
+        emit_triode(sl7, {"cgk": 3.0, "cgp": 2.8, "cpk": 3.8}, "") + "\n"
+    (MODELS_DIR / "6sl7gt.inc").write_text(txt)
+
     # ---- 6V6GT: Va=250, Vg2=250, Vg1=-12.5 -> Ia=45 mA, Ig2=4.5 mA, gm=4100 umho
     v6 = fit_pentode("6V6GT", mu=9.6, vp=250.0, vg2=250.0, vg1=-12.5,
                      ia=45e-3, ig2=4.5e-3, gm=4100e-6)
@@ -820,6 +853,7 @@ Cak A K 4p
     print(f"  12AU7: MU={au7.mu:g} KP={au7.kp:.6g} KG1={au7.kg1:.6g} EX={au7.ex:g} KVB={au7.kvb:g}")
     print(f"  12AT7: MU={at7.mu:g} KP={at7.kp:.6g} KG1={at7.kg1:.6g} EX={at7.ex:g} KVB={at7.kvb:g}")
     print(f"  6AT6:  MU={at6.mu:g} KP={at6.kp:.6g} KG1={at6.kg1:.6g} EX={at6.ex:g} KVB={at6.kvb:g}")
+    print(f"  6SL7GT: MU={sl7.mu:g} KP={sl7.kp:.6g} KG1={sl7.kg1:.6g} EX={sl7.ex:g} KVB={sl7.kvb:g}")
     print(f"  6V6GT: MU={v6.mu:g} KP={v6.kp:.6g} KG1={v6.kg1:.6g} KG2={v6.kg2:.6g} KVB={v6.kvb:g}")
     print(f"  5Y3GT: PERV={perv:.6g}")
     print(f"  5881:  MU={p5881.mu:g} KP={p5881.kp:.6g} KG1={p5881.kg1:.6g} KG2={p5881.kg2:.6g}")
@@ -835,7 +869,9 @@ Cak A K 4p
     print(f"  GZ34:  PERV={perv_gz:.6g}")
     print(f"  5U4G:  PERV={perv_5u4:.6g}")
     print(f"  83:    VARC={v_arc:g} IREF={i_arc:g} VSOFT={v_soft:g} (mercury-vapour arc)")
-    print(f"wrote 19 models to {MODELS_DIR}")
+    # Counted, not hard-coded: the literal here read "19" while the directory held
+    # 20 .inc files, so it rotted silently every time a tube was added.
+    print(f"wrote {len(list(MODELS_DIR.glob('*.inc')))} models to {MODELS_DIR}")
 
 
 if __name__ == "__main__":
