@@ -104,9 +104,15 @@ def txt(x, y, s, fill, size, *, weight=600, spacing=0.0, anchor="start",
 
 # ---- corpus reading --------------------------------------------------------
 def amp_ids() -> list[str]:
+    """Every published amp gets a card. A layout-backed entry carries a crop of
+    its own board drawing; a data-core entry (no layout.yaml — the s1484 shipped
+    as netlist/voltages/parts-list/story with no drawings) gets the layout-less
+    card: same header, and the opening of its own netlist where the board band
+    would be — so a shared link still previews as the amp page it is, not as
+    the generic brand image."""
     return sorted(d.name for d in AMPS.iterdir()
                   if d.is_dir() and not d.name.startswith("_")
-                  and (d / "layout.yaml").exists() and (d / "meta.yaml").exists())
+                  and (d / "meta.yaml").exists())
 
 
 # A qualified id — `<designation>-<model>`, e.g. `ab763-twin` — marks a designation
@@ -227,6 +233,20 @@ def crop_window(rend: SheetRenderer) -> tuple[float, float, float, float]:
     else:
         cbot = by + bh + 24.0
     ctop, cbot = max(ctop, top_limit), min(cbot, bot_limit)
+    # A bound must not slice type. The sy+84 cap above exists so one long
+    # harness label cannot drag the frame down — but a bottom-edge POT's
+    # staggered name+value pair can extend past it (b15n's "Hum balance /
+    # 100 Ω-L" shipped with the value cut in half at the card edge). If the
+    # computed bottom passes through any caption box, extend it just past
+    # that caption instead of through it.
+    for _ in range(4):
+        hit = [d["box"][3] for d in rend.labels
+               if d["box"][1] - 3.0 < cbot < d["box"][3] + 3.0]
+        if not hit:
+            break
+        cbot = min(max(hit) + 8.0, bot_limit)
+        if cbot >= bot_limit:
+            break
 
     aspect = CARD_W / BAND_H
     crop_w = min((cbot - ctop) * aspect, W - 24.0, CARD_W / MIN_SCALE)
@@ -263,6 +283,19 @@ def crop_window(rend: SheetRenderer) -> tuple[float, float, float, float]:
     else:
         y0 = by + bh / 2.0 - crop_h / 2.0
     y0 = min(max(y0, top_limit), max(top_limit, bot_limit - crop_h))
+    # Last-resort slice guard on the edge the card actually ships: whatever
+    # the band arithmetic above produced, the final window bottom must not
+    # pass through a caption. Lift the window until the edge lands in clear
+    # air (a caption then falls wholly outside rather than half inside).
+    for _ in range(4):
+        edge = y0 + crop_h
+        hit = [d["box"] for d in rend.labels
+               if d["box"][1] - 3.0 < edge < d["box"][3] + 3.0]
+        if not hit:
+            break
+        y0 = max(top_limit, min(b[1] for b in hit) - 3.0 - crop_h)
+        if y0 <= top_limit:
+            break
     return (round(x0, 2), round(y0, 2), round(crop_w, 2), round(crop_h, 2))
 
 
@@ -281,13 +314,22 @@ def sheet_inner(svg_path: Path) -> str:
 def card_svg(amp_id: str) -> str:
     amp_dir = AMPS / amp_id
     meta = yaml.safe_load((amp_dir / "meta.yaml").read_text())
-    layout = yaml.safe_load((amp_dir / "layout.yaml").read_text())
-    rend = SheetRenderer(layout, load_bom(amp_dir), amp_id)
-    rend.render()          # populates the glyph/label boxes the crop measures
-    cx0, cy0, cw, ch = crop_window(rend)
-    s = CARD_W / cw
+    has_layout = (amp_dir / "layout.yaml").exists()
+    layout = yaml.safe_load((amp_dir / "layout.yaml").read_text()) if has_layout else {}
+    if has_layout:
+        rend = SheetRenderer(layout, load_bom(amp_dir), amp_id)
+        rend.render()      # populates the glyph/label boxes the crop measures
+        cx0, cy0, cw, ch = crop_window(rend)
+        s = CARD_W / cw
 
-    did, qual = display_id_parts(amp_id, str(meta.get("name_style", "")))
+    name = str(meta.get("name_style", ""))
+    did, qual = display_id_parts(amp_id, name)
+    # A parenthetical that the style line directly beneath already contains is
+    # the card saying its own name twice in adjacent lines ("AB763 (Super
+    # Reverb-style)" over "Blackface Super Reverb-style") — the style line is
+    # the disambiguation, so the headline keeps the bare designation.
+    if qual and qual.lower() in name.lower():
+        qual = None
     era = meta.get("era") or {}
     v = meta.get("verification") or {}
     verified = v.get("status") == "verified"
@@ -353,7 +395,6 @@ def card_svg(amp_id: str) -> str:
                  f'</g>')
 
     # --- style name + era ---------------------------------------------------
-    name = str(meta.get("name_style", ""))
     yrs = f"{era['start']}–{era.get('end', era['start'])}" if era.get("start") else ""
     era_w = adv(yrs, 32, 3) + 40 if yrs else 0
     name_size = 46
@@ -385,19 +426,47 @@ def card_svg(amp_id: str) -> str:
         e.append(txt(PAD_R, 337, tubes, FAINT, size, weight=600, spacing=sp,
                      anchor="end"))
 
-    # --- the board band -----------------------------------------------------
-    e.append(f'<g clip-path="url(#band)">'
-             f'<rect x="0" y="{BAND_Y}" width="{CARD_W}" height="{BAND_H}" fill="#e9dcba"/>'
-             f'<g transform="translate(0,{BAND_Y}) scale({fmt(s)}) '
-             f'translate({fmt(-cx0)},{fmt(-cy0)})" '
-             f'font-family="{DISP}">{sheet_inner(amp_dir / "layout-sheet.svg")}</g></g>')
+    # --- the board band (or, for a data-core entry, its own netlist) --------
+    if has_layout:
+        e.append(f'<g clip-path="url(#band)">'
+                 f'<rect x="0" y="{BAND_Y}" width="{CARD_W}" height="{BAND_H}" fill="#e9dcba"/>'
+                 f'<g transform="translate(0,{BAND_Y}) scale({fmt(s)}) '
+                 f'translate({fmt(-cx0)},{fmt(-cy0)})" '
+                 f'font-family="{DISP}">{sheet_inner(amp_dir / "layout-sheet.svg")}</g></g>')
+    else:
+        # No board is drawn for this entry, and a card may never show a board
+        # the corpus does not draw — so the band carries the entry's own
+        # netlist, verbatim from the top of the file. A real artifact of the
+        # data core, under the same honesty rule as the board crops.
+        mono = "'SF Mono','Menlo','Consolas','DejaVu Sans Mono',monospace"
+        raw = (amp_dir / "netlist.cir").read_text().splitlines()
+        # Title line, then the deck itself: the header banner is file-keeping
+        # (licence, sibling-file pointers) while the element lines ARE the
+        # circuit — which is the thing the card exists to preview.
+        first = next((i for i, ln in enumerate(raw)
+                      if ln.strip() and not ln.lstrip().startswith("*")), 0)
+        lines = raw[:1] + [""] + raw[first:]
+        body_lines = []
+        ty = BAND_Y + 33.0
+        for ln in lines[:12]:
+            body_lines.append(
+                f'<text x="{PAD_L}" y="{fmt(ty)}" fill="#4a3d2c" font-size="16.5" '
+                f'font-family="{mono}" xml:space="preserve">{esc(ln[:100])}</text>')
+            ty += 20.5
+        e.append(f'<g clip-path="url(#band)">'
+                 f'<rect x="0" y="{BAND_Y}" width="{CARD_W}" height="{BAND_H}" fill="#e9dcba"/>'
+                 + "".join(body_lines) + '</g>')
     # seam: an amber rule where the dark card meets the drafting paper
     e.append(f'<rect x="0" y="{BAND_Y - 4}" width="{CARD_W}" height="4" fill="{AMBER}"/>')
 
-    board = "turret" if "turret" in str((layout.get("board") or {}).get("title", "")).lower() \
-        else "eyelet"
-    alt = (f"{did} — {name}. Circuit Codex card: {spec_bits(meta)[0].lower()}, "
-           f"with a detail of the redrawn {board}-board layout drawing.")
+    if has_layout:
+        board = "turret" if "turret" in str((layout.get("board") or {}).get("title", "")).lower() \
+            else "eyelet"
+        alt = (f"{did} — {name}. Circuit Codex card: {spec_bits(meta)[0].lower()}, "
+               f"with a detail of the redrawn {board}-board layout drawing.")
+    else:
+        alt = (f"{did} — {name}. Circuit Codex card: {spec_bits(meta)[0].lower()}, "
+               f"with the opening lines of the circuit's SPICE netlist.")
     body = "\n".join(e)
     return (f'<svg xmlns="http://www.w3.org/2000/svg" width="{CARD_W}" height="{CARD_H}" '
             f'viewBox="0 0 {CARD_W} {CARD_H}" role="img" aria-label="{esc(alt)}">\n'
@@ -467,6 +536,12 @@ def build(ids: list[str]) -> None:
 # "AB763-TWIN", a designation Fender never printed and no other surface uses — and
 # only a mirror the gate actually executes stops that happening twice. Any new
 # shape of id belongs here on the day it lands.
+#
+# Note the card HEADLINE may still legitimately omit the parenthetical these
+# examples carry: when the style line printed directly beneath it already
+# contains the qualifier ("Blackface Twin Reverb-style" under "AB763"), the
+# headline keeps the bare designation rather than saying the name twice —
+# see card_svg(). The examples gate display_id() the mirror, not the headline.
 DISPLAY_ID_EXAMPLES = [
     # (id, name_style, expected label)
     ("5e3", "Tweed Deluxe-style", "5E3"),
@@ -493,8 +568,11 @@ def check_display_id() -> list[str]:
             meta = yaml.safe_load((AMPS / amp_id / "meta.yaml").read_text())
             _, qual = display_id_parts(amp_id, str(meta.get("name_style", "")))
             if not qual or qual[0].islower():
-                errs.append(f"{amp_id}: model-qualified id renders no qualifier on "
-                            f"its social card")
+                # Without a derivable qualifier the card can disambiguate the
+                # reused designation neither in the headline nor via the style
+                # line (which is where a contained qualifier lives instead).
+                errs.append(f"{amp_id}: model-qualified id derives no usable "
+                            f"qualifier for its social card")
     return errs
 
 
