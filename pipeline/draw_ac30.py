@@ -233,8 +233,8 @@ for tee, cref, gcol, stx, glref, glval, pairs in [
         p = s.pentode(vref, "EL84", TUBE_X, gy, lx=-15.0, ly=5.0)
         s.wire(sr, gy, p["g1"][0], gy)
         # 100 Ohm screen stopper, off the SAME rail as the anodes
-        s.wire(p["g2"][0], p["g2"][1], 292, p["g2"][1])
         c1, c2 = s.series_h("R", scref, "100", 298, p["g2"][1])
+        s.wire(p["g2"][0], p["g2"][1], c1, p["g2"][1])
         s.wire(c2, p["g2"][1], 306, p["g2"][1])
         s.glabel("B+1", 306, p["g2"][1], 0)
         # cathode -> the one shared bias resistor
@@ -262,8 +262,8 @@ s.wire(TUBE_X, 109.745, TUBE_X, 104)
 s.wire(TUBE_X, 104, 336, 104)
 s.wire(TUBE_X, 145.745, TUBE_X, 140)
 s.wire(TUBE_X, 140, 336, 140)
-s.junction(336, 140)
-s.wire(336, 104, 336, 110.08)
+s.wire(336, 104, 336, 140)          # V4 and V6 anodes share the B-phase riser
+s.junction(336, 110.08)
 s.wire(336, 110.08, 343.11, 110.08)
 s.wire(343.11, 105, 340, 105)
 s.wire(340, 105, 340, 88)
@@ -274,7 +274,7 @@ s.jack("JSPK1", "1/4 in", 380, 105, lx=3.0, ly=6.6)
 s.junction(368, 107.54)
 s.wire(368, 107.54, 368, 116)
 s.gnd(368, 116)
-s.text("4 kOhm anode to anode; 8 and 15 Ohm secondary taps", 330, 128, 1.15)
+s.text("4 kOhm anode to anode; 8 and 15 Ohm secondary taps", 340, 148, 1.15)
 
 # ================== VIBRATO / TREMOLO CHANNEL (not asserted) ===============
 s.text('Vibrato/Tremolo channel — ‘Vibravox’', 16, 132, 1.6)

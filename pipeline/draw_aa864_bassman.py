@@ -42,10 +42,10 @@ def input_stage(y, j1, j2, r1, r2, rleak, vref, rload, rk, ck):
     s.glabel(j1, 12, y - d, 180)
     s.glabel(j2, 12, y + d, 180)
     l, r = s.series_h("R", r1, "68k", 22, y - d)
-    s.wire(16, y - d, l, y - d)
+    s.wire(12, y - d, l, y - d)
     s.wire(r, y - d, gb, y - d)
     l, r = s.series_h("R", r2, "68k", 22, y + d)
-    s.wire(16, y + d, l, y + d)
+    s.wire(12, y + d, l, y + d)
     s.wire(r, y + d, gb, y + d)
     s.wire(gb, y - d, gb, y + d)
     s.junction(gb, y)
@@ -257,7 +257,7 @@ s.wire(XPI - 7.62, 74, XPI - 7.62, YPH)
 s.junction(XPI - 7.62, YPH)
 s.glabel("PIMIX", 226, YPH, 180)
 cl, cr = s.series_h("C", "CPI", "500p", 248, YPH)
-s.wire(230, YPH, cl, YPH)
+s.wire(226, YPH, cl, YPH)
 s.wire(cr, YPH, XPI - 7.62, YPH)
 # cold grid: 1M leak to the tail junction, 0.1/200 from the feedback node
 s.sym("R", "RGPB", "1M", 230, 108, lx=-9.4)
@@ -280,7 +280,7 @@ s.sym("R", "RNF", "100", 198, JY + 3.81, lx=-7.6)
 s.gnd(198, JY + 7.62)
 s.glabel("SPKR", 174, 90, 180)
 fl, fr = s.series_h("R", "RNFB", "820", 188, 90)
-s.wire(178, 90, fl, 90)
+s.wire(174, 90, fl, 90)
 s.wire(fr, 90, 204, 90)
 s.wire(204, 90, 204, JY)
 s.text("12AT7 long-tailed pair — the 22 kΩ tail returns into the 100 Ω the global", 60, 112, 1.4)
@@ -301,16 +301,22 @@ s.wire(kr, TPB, 296, TPB)
 s.wire(296, TPB, 296, 152)
 
 XO = 324
+plate: dict[str, tuple] = {}
 s.text("6L6GC (2) — fixed bias, 470 Ω · 1 W screen stoppers", 300, 32, 1.4)
-for y, vref, glref, gsref, sref in [(52, "V5", "RGL1", "RGS1", "RS1"),
-                                    (152, "V6", "RGL2", "RGS2", "RS2")]:
+# The grid leak hangs AWAY from the coupler drop on each row — up for the top
+# valve, down for the bottom one. Hanging both downwards put the top valve's
+# leak inside the wire that brings its coupler up from the inverter, shorting
+# RGL1 out and dragging the -44 V line onto the grid.
+for y, vref, glref, gsref, sref, updn in [(52, "V5", "RGL1", "RGS1", "RS1", -1),
+                                          (152, "V6", "RGL2", "RGS2", "RS2", 1)]:
     s.junction(296, y)
-    s.sym("R", glref, "220k 5%", 296, y + 3.81, lx=-11.0)
-    s.wire(296, y + 7.62, 296, y + 10.16)
-    s.glabel("-44V", 296, y + 10.16, 270)
+    s.sym("R", glref, "220k 5%", 296, y + 3.81 * updn, lx=-11.0)
+    s.wire(296, y + 7.62 * updn, 296, y + 10.16 * updn)
+    s.glabel("-44V", 296, y + 10.16 * updn, 270 if updn > 0 else 90)
     gl, gr = s.series_h("R", gsref, "1.5k", 306, y)
     s.wire(296, y, gl, y)
     pp = s.pentode(vref, "6L6GC", XO, y)
+    plate[vref] = pp["p"]
     s.wire(gr, y, pp["g1"][0], y)
     s.wire(pp["g2"][0], pp["g2"][1], 335.19, pp["g2"][1])
     sl2, sr2 = s.series_h("R", sref, "470 1W", 339, pp["g2"][1])
@@ -318,22 +324,25 @@ for y, vref, glref, gsref, sref in [(52, "V5", "RGL1", "RGS1", "RS1"),
     s.glabel("B+SCR", 348, pp["g2"][1], 0)
     s.gnd(XO, pp["k"][1])
 
-# output transformer TR3
-s.sym("OT_PP", "T3", "125A13A", 372, 102)
-s.wire(XO, 43.745, XO, 38)
-s.wire(XO, 38, 356, 38)
-s.wire(356, 38, 356, 96.92)
-s.wire(356, 96.92, 363.11, 96.92)
-s.wire(XO, 143.745, XO, 168)
-s.wire(XO, 168, 352, 168)
-s.wire(352, 168, 352, 107.08)
-s.wire(352, 107.08, 363.11, 107.08)
-s.wire(363.11, 102, 359, 102)
-s.glabel("B+PL", 359, 102, 180)
-s.wire(380.89, 99.46, 386, 99.46)
-s.glabel("SPKR", 386, 99.46, 0)
-s.wire(380.89, 104.54, 386, 104.54)
-s.gnd(386, 104.54)
+# output transformer TR3. Each anode lead leaves its valve at the TOP of the
+# bottle and goes over the top of it: the old V6 lead ran down the socket's own
+# column and straight through its grounded cathode pin, shorting the plate rail
+# to chassis.
+t3 = s.ot_pp("T3", "125A13A", 372, 102)
+s.wire(*plate["V5"], plate["V5"][0], 38)
+s.wire(plate["V5"][0], 38, 356, 38)
+s.wire(356, 38, 356, t3["pri_a"][1])
+s.wire(356, t3["pri_a"][1], *t3["pri_a"])
+s.wire(*plate["V6"], plate["V6"][0], 138)
+s.wire(plate["V6"][0], 138, 352, 138)
+s.wire(352, 138, 352, t3["pri_b"][1])
+s.wire(352, t3["pri_b"][1], *t3["pri_b"])
+s.wire(*t3["ct"], 359, t3["ct"][1])
+s.glabel("B+PL", 359, t3["ct"][1], 180)
+s.wire(*t3["sec_h"], 386, t3["sec_h"][1])
+s.glabel("SPKR", 386, t3["sec_h"][1], 0)
+s.wire(*t3["sec_c"], 386, t3["sec_c"][1])
+s.gnd(386, t3["sec_c"][1])
 s.text("2×12 cabinet + EXT SPKR jack", 352, 180, 1.3)
 
 # ============================ POWER SUPPLY (bottom) ===================
@@ -342,13 +351,13 @@ s.text("Power supply — TR1 125P7D 305-0-305 (125P7DX export), three series sil
        "125C1A choke; no rectifier tube", 26, 205, 1.4)
 s.pt("T1", "125P7D", 50, YPW)
 s.glabel("AC LINE", 10, YPW - 5.08, 180)
-s.wire(14, YPW - 5.08, 15.92, YPW - 5.08)
+s.wire(10, YPW - 5.08, 15.92, YPW - 5.08)
 fl2, fr2 = s.fuse("FUSE", "2A slo-blo", 21, YPW - 5.08)
 s.wire(fr2, YPW - 5.08, 29.92, YPW - 5.08)
 swl2, swr2 = s.switch("SWAC", "AC", 35, YPW - 5.08)
 s.wire(swr2, YPW - 5.08, 41.11, YPW - 5.08)
 s.glabel("AC LINE", 10, YPW + 5.08, 180)
-s.wire(14, YPW + 5.08, 41.11, YPW + 5.08)
+s.wire(10, YPW + 5.08, 41.11, YPW + 5.08)
 s.wire(58.89, YPW, 63, YPW)
 s.gnd(63, YPW)                                # HT centre tap
 # two three-diode strings
@@ -430,7 +439,7 @@ s.text("Bias supply — off the 305 V HT lead: 470 Ω · 1 W, one diode, a 25 µ
 s.text("then a 10 kΩ-L adjust over a 15 kΩ leg, out at −44 V", 282, 229, 1.3)
 YBS = 250
 s.glabel("HT-A", 282, YBS, 180)
-s.wire(286, YBS, 291.19, YBS)
+s.wire(282, YBS, 291.19, YBS)
 brl, brr = s.series_h("R", "RBIAS", "470 1W", 295, YBS)
 s.wire(brr, YBS, 302.92, YBS)
 s.sym("DIODE_SS", "DBIAS", "Si", 308, YBS, rot=180, lx=-2.0, ly=-5.4, label_rot=0)
@@ -449,7 +458,7 @@ s.glabel("-44V", 340, YBS - 12, 90)
 # ============================ GROUND SWITCH (period) =================
 s.text("Period ground switch + cap (not in modern builds)", 10, 262, 1.1)
 s.glabel("AC LINE", 10, 272, 180)
-s.wire(14, 272, 15.92, 272)
+s.wire(10, 272, 15.92, 272)
 gsl, gsr = s.switch("SWGND", "Ground", 21, 272)
 s.wire(gsr, 272, 30.19, 272)
 cdl, cdr = s.series_h("C", "CDEATH", ".047u 600V", 34, 272)

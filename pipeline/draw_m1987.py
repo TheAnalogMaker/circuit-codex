@@ -72,15 +72,28 @@ for (y, hi, lo, sHi, sLo, gref, pref, plref, kref, kval, cbref, cbval,
     s.sym("POT", vref, "1M vol", 80, ty + 3.81)
     s.wire(80, ty + 7.62, 80, ty + 9.5)
     s.gnd(80, ty + 9.5)
-    # bright network across the volume pot (top -> wiper): cap ‖ resistor
-    s.sym("C", brC, brCval, 80, ty - 4.5, lx=2.4)
-    s.wire(80, ty, 80, ty - 0.7)
-    s.wire(80, ty - 8.3, 88, ty - 8.3)
-    s.wire(88, ty - 8.3, 88, ty + 3.81)
-    s.sym("R", brR, "470k", 84, ty - 8.3, rot=90, lx=-3.2, ly=-6.0)
-    s.junction(85.09, ty + 3.81)
+    # Bright network across the volume pot: the cap and the resistor bridge the
+    # SAME two nodes, the pot's top lug and its wiper, so each gets its own row
+    # between an A-riser at the top lug and a B-riser on the wiper lane. Drawn
+    # on one row, the resistor stood ON the wire that joined those two nodes and
+    # was shorted out of the circuit — 470k and .005u both, on both channels.
+    XA, XB = 80.0, 88.0                      # top-lug riser / wiper-lane riser
+    YC, YR = ty - 4.5, ty - 11.0             # cap row, resistor row
+    s.junction(XA, ty)
+    s.wire(XA, ty, XA, YR)
+    s.wire(XB, ty + 3.81, XB, YR)
+    s.junction(XA, YC)
+    s.junction(XB, YC)
+    s.junction(XB, ty + 3.81)
+    s.sym("C", brC, brCval, 84, YC, rot=90, lx=-3.2, ly=4.8)   # hint; place_labels() settles it
+    s.wire(XA, YC, 80.19, YC)
+    s.wire(87.81, YC, XB, YC)
+    s.sym("R", brR, "470k", 84, YR, rot=90, lx=-3.2, ly=-6.0)
+    s.wire(XA, YR, 80.19, YR)
+    s.wire(87.81, YR, XB, YR)
+    s.junction(85.08, ty + 3.81)
     # wiper -> 470k mixer -> shared V2A grid line
-    s.wire(85.09, ty + 3.81, 88, ty + 3.81)
+    s.wire(85.08, ty + 3.81, XB, ty + 3.81)
     ml, mr = s.series_h("R", mref, "470k", 92, ty + 3.81)
     s.wire(88, ty + 3.81, ml, ty + 3.81)
     s.wire(mr, ty + 3.81, MIXLINE_X, ty + 3.81)
@@ -168,8 +181,8 @@ s.plate_load("RLB", "82k", t3b["p"], "B+3")
 # 47pF plate-to-plate compensation
 s.wire(178, 84.38, 191, 84.38)
 s.junction(178, 84.38)
-s.sym("C", "C12", "47p", 191, 84.38, rot=90, lx=-3.2, ly=-6.2)
-s.wire(191, 88.19, 191, 120.38)
+s.sym("C", "C12", "47p", 191, 88.19, lx=2.4)   # pins 84.38 / 91.99
+s.wire(191, 92.0, 191, 120.38)
 s.wire(178, 120.38, 191, 120.38)
 s.junction(178, 120.38)
 # shared tail: cathodes -> 470 -> J -> 10k -> gnd
@@ -190,13 +203,17 @@ s.junction(170.4, 92)
 s.sym("R", "RGA", "1M", 170.4, 102.81, lx=-9.4)
 s.wire(170.4, 106.62, 170.4, 117.62)
 s.wire(170.4, 117.62, 189, 117.62)
-s.wire(170.4, 128, 170.4, 124)            # bottom grid AC-grounded / DC to J
+s.wire(170.4, 128, 170.4, 125.24)         # bottom grid AC-grounded / DC to J
 s.wire(170.4, 128, t3b["g"][0], 128)
 s.junction(170.4, 128)
-s.sym("R", "RGB", "1M", 170.4, 119.19, lx=-9.4)
+# RGB hangs FROM the tail-bus node: hung 1.57 mm higher, the bus wire ended
+# inside its body and the tail lead teed off out of the middle of the part.
+s.junction(170.4, 117.62)
+s.sym("R", "RGB", "1M", 170.4, 121.43, lx=-9.4)
 s.text("Presence + NFB (27k) join the tail foot at ~0 V DC (annotation)", 150, 148, 1.1)
 
 # ======================= EL34 pair, fixed bias ==============================
+plate: dict[str, tuple] = {}
 for gy, pref, cref, glref in [(88, "V4", "C13", "RGL1"), (140, "V5", "C14", "RGL2")]:
     if gy == 88:
         s.wire(178, 80.9, 196, 80.9)          # V3A plate tee
@@ -213,6 +230,7 @@ for gy, pref, cref, glref in [(88, "V4", "C13", "RGL1"), (140, "V5", "C14", "RGL
         s.wire(cr, 116.9, 209, 116.9)
         s.wire(209, 116.9, 209, gy)
     p = s.pentode(pref, "EL34", 222, gy)
+    plate[pref] = p["p"]
     s.wire(209, gy, p["g1"][0], gy)
     s.junction(209, gy)
     # 220k grid leak to the bias line
@@ -225,39 +243,47 @@ for gy, pref, cref, glref in [(88, "V4", "C13", "RGL1"), (140, "V5", "C14", "RGL
     s.gnd(222, p["k"][1])
 
 # ---- output transformer ----------------------------------------------------
-s.sym("OT_PP", "T1", "OT", 250, 114)
-s.wire(222, 88 - 0.635 - 7.62, 222, 77.5)
-s.wire(222, 77.5, 241, 77.5)
-s.wire(241, 77.5, 241, 108.92)
-s.wire(222, 140 - 0.635 - 7.62, 222, 130.5)
-s.wire(222, 130.5, 236, 130.5)
-s.wire(236, 130.5, 236, 119.08)
-s.wire(236, 119.08, 241, 119.08)
-s.wire(241, 114, 238.5, 114)
+ot = s.ot_pp("T1", "OT", 250, 114)
+XPRI = ot["pri_a"][0]                         # 241.11 — the primary pin column
+s.wire(*plate["V4"], plate["V4"][0], 77.5)
+s.wire(plate["V4"][0], 77.5, XPRI, 77.5)
+s.wire(XPRI, 77.5, *ot["pri_a"])
+s.wire(*plate["V5"], plate["V5"][0], 130.5)
+s.wire(plate["V5"][0], 130.5, 236, 130.5)
+s.wire(236, 130.5, 236, ot["pri_b"][1])
+s.wire(236, ot["pri_b"][1], *ot["pri_b"])
+s.wire(*ot["ct"], 238.5, ot["ct"][1])
 s.wire(238.5, 114, 238.5, 111)
 s.glabel("B+1", 238.5, 111, 90)
-s.wire(258.89, 111.46, 261.4, 111.46)
-s.glabel("SPKR", 261.4, 111.46, 0)
-s.wire(258.89, 116.54, 261.4, 116.54)
-s.glabel("GND", 261.4, 116.54, 0)
+s.wire(*ot["sec_h"], 261.4, ot["sec_h"][1])
+s.glabel("SPKR", 261.4, ot["sec_h"][1], 0)
+s.wire(*ot["sec_c"], 261.4, ot["sec_c"][1])
+s.glabel("GND", 261.4, ot["sec_c"][1], 0)
 
 # ======================= power supply — silicon rectifier ===================
 s.note('Power — universal-primary PT (110/120/200/225/245 V) + HT winding; silicon full-wave rectifier; 50u+80u reservoir; choke; 10k/47k/10k droppers')
 # HT winding (global labels) -> two rectifier diodes -> reservoir B+1
 s.glabel("HT_A", 26, 170, 180)
-s.wire(26, 170, 30, 170)
+s.wire(26, 170, 29.92, 170)
 s.sym("DIODE_SS", "D2", "1N4007", 35, 170, lx=-2.0, ly=-5.4)
 s.glabel("HT_B", 26, 178, 180)
-s.wire(26, 178, 30, 178)
+s.wire(26, 178, 29.92, 178)
 s.sym("DIODE_SS", "D3", "1N4007", 35, 178, lx=-2.0, ly=5.0)
 s.wire(40.08, 170, 44, 170)
 s.wire(40.08, 178, 44, 178)
 s.wire(44, 170, 44, 178)
 s.junction(44, 174)
 s.wire(44, 174, 47, 174)
-# diode snubbers (across each diode, annotated)
-s.sym("C", "C23", ".022u", 35, 165, lx=2.4)
-s.sym("C", "C24", ".022u", 35, 183, lx=2.4)
+# diode snubbers: one across each rectifier diode, anode lead to cathode lead
+for _cref, _dy, _cy, _lx, _ly in [("C23", 170, 163, -3.2, -6.2),
+                                  ("C24", 178, 185, 6.4, 1.2)]:
+    s.sym("C", _cref, ".022u", 35, _cy, rot=90, lx=_lx, ly=_ly)
+    s.wire(29.92, _dy, 29.92, _cy)
+    s.wire(29.92, _cy, 35 - 3.81, _cy)
+    s.wire(35 + 3.81, _cy, 40.08, _cy)
+    s.wire(40.08, _cy, 40.08, _dy)
+    s.junction(29.92, _dy)
+    s.junction(40.08, _dy)
 # reservoir: 50u + 80u to ground, B+1
 s.junction(50, 174)
 s.sym("C", "C17", "50u", 50, 177.81)
@@ -266,10 +292,10 @@ s.junction(53, 174)
 s.sym("C", "C18", "80u", 55, 177.81, lx=2.2)
 s.gnd(55, 181.62)
 s.glabel("B+1", 47, 174, 180)
-s.wire(47, 174, 60, 174)
 # choke -> B+2 (screens)
-s.sym("CHOKE", "L1", "choke", 67.6, 174, lx=-4.0, ly=-6.4)
-s.wire(75.2, 174, 86, 174)
+chl, chr = s.choke("L1", "choke", 67.6, 174)
+s.wire(47, 174, chl, 174)
+s.wire(chr, 174, 86, 174)
 s.junction(80, 174)
 s.glabel("B+2", 80, 171.46, 90)
 s.wire(80, 171.46, 80, 174)

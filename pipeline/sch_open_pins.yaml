@@ -25,4 +25,60 @@
 #         added: YYYY-MM-DD
 
 updated: 2026-09-02
-amps: {}
+amps:
+  ga40:
+    - pin: V2.1
+      reason: "Channel 2's 5879 is declared in layout.yaml net_map.excluded_tubes: its screen is fed through the tremolo's Depth network, which does not resolve on the only published drawing, so no signal pin of this socket is modelled in netlist.cir and the sheet draws the bottle without asserting wiring."
+      added: 2026-09-02
+    - pin: V2.2
+      reason: "Channel 2's 5879 is declared in layout.yaml net_map.excluded_tubes: its screen is fed through the tremolo's Depth network, which does not resolve on the only published drawing, so no signal pin of this socket is modelled in netlist.cir and the sheet draws the bottle without asserting wiring."
+      added: 2026-09-02
+    - pin: V2.3
+      reason: "Channel 2's 5879 is declared in layout.yaml net_map.excluded_tubes: its screen is fed through the tremolo's Depth network, which does not resolve on the only published drawing, so no signal pin of this socket is modelled in netlist.cir and the sheet draws the bottle without asserting wiring."
+      added: 2026-09-02
+    - pin: V2.4
+      reason: "Channel 2's 5879 is declared in layout.yaml net_map.excluded_tubes: its screen is fed through the tremolo's Depth network, which does not resolve on the only published drawing, so no signal pin of this socket is modelled in netlist.cir and the sheet draws the bottle without asserting wiring."
+      added: 2026-09-02
+    - pin: V3.1
+      reason: "The 6SQ7 tremolo oscillator is declared in layout.yaml net_map.excluded_tubes: a phase-shift oscillator with no static operating point, whose Frequency and Depth networks are not lettered on the published drawing, so it is excluded from netlist.cir and drawn without asserted wiring."
+      added: 2026-09-02
+    - pin: V3.2
+      reason: "The 6SQ7 tremolo oscillator is declared in layout.yaml net_map.excluded_tubes: a phase-shift oscillator with no static operating point, whose Frequency and Depth networks are not lettered on the published drawing, so it is excluded from netlist.cir and drawn without asserted wiring."
+      added: 2026-09-02
+    - pin: V3.3
+      reason: "The 6SQ7 tremolo oscillator is declared in layout.yaml net_map.excluded_tubes: a phase-shift oscillator with no static operating point, whose Frequency and Depth networks are not lettered on the published drawing, so it is excluded from netlist.cir and drawn without asserted wiring."
+      added: 2026-09-02
+    - pin: VR3.3
+      reason: "The Tone control is a rheostat — bom.yaml and layout.yaml both wire only its top lug and its wiper, so its far lug is free in the amplifier as well as on the sheet."
+      added: 2026-09-02
+  m1959:
+    - pin: C29.1
+      reason: "The factory drawing prints this HT-winding snubber as an unconnected annotation, and bom.yaml records that; drawing a lead would claim a connection the source does not show."
+      added: 2026-09-02
+    - pin: C29.2
+      reason: "The factory drawing prints this HT-winding snubber as an unconnected annotation, and bom.yaml records that; drawing a lead would claim a connection the source does not show."
+      added: 2026-09-02
+    - pin: C30.1
+      reason: "The factory drawing prints this HT-winding snubber as an unconnected annotation, and bom.yaml records that; drawing a lead would claim a connection the source does not show."
+      added: 2026-09-02
+    - pin: C30.2
+      reason: "The factory drawing prints this HT-winding snubber as an unconnected annotation, and bom.yaml records that; drawing a lead would claim a connection the source does not show."
+      added: 2026-09-02
+    - pin: C31.1
+      reason: "The factory drawing prints this mains-to-chassis capacitor as an unconnected annotation, and bom.yaml records that; the sheet draws no mains side to wire it to."
+      added: 2026-09-02
+    - pin: C31.2
+      reason: "The factory drawing prints this mains-to-chassis capacitor as an unconnected annotation, and bom.yaml records that; the sheet draws no mains side to wire it to."
+      added: 2026-09-02
+
+  5e6a:
+    - pin: VR5.3
+      reason: "Presence is a two-terminal control here: bom.yaml puts its hot lug on the shared presence/NFB bus and takes the wiper through CPR to ground, so the cold lug carries nothing and is drawn with no lead."
+      added: 2026-09-02
+  "6161":            # quoted — bare 6161 parses as an integer key
+    - pin: VR3.3
+      reason: "Tone is a rheostat with its wiper grounded; layout.yaml wires lug 1 and lug 2 only, so the far lug is free in the amplifier as well as on the sheet, which says so in its own annotation."
+      added: 2026-09-02
+    - pin: VR4.3
+      reason: "Tremolo Speed is the same rheostat idiom (RSPD into lug 1, wiper to the ground bus, layout.yaml wiring lug 1 and lug 2 only), so its far lug is free."
+      added: 2026-09-02

@@ -82,9 +82,9 @@ for (y, hi, lo, sHi, sLo, gref, pref, plref, kref, kval, cbref, cbval,
     s.wire(80, ty, 80, ty - 0.69)
     s.wire(80, ty - 8.31, 88, ty - 8.31)
     s.wire(88, ty - 8.31, 88, ty + 3.81)
-    s.junction(85.09, ty + 3.81)
+    s.junction(85.08, ty + 3.81)
     # wiper -> 470k mixer -> shared V2A grid line
-    s.wire(85.09, ty + 3.81, 88, ty + 3.81)
+    s.wire(85.08, ty + 3.81, 88, ty + 3.81)
     ml, mr = s.series_h("R", mref, "470k", 92, ty + 3.81)
     s.wire(88, ty + 3.81, ml, ty + 3.81)
     s.wire(mr, ty + 3.81, MIXLINE_X, ty + 3.81)
@@ -354,7 +354,7 @@ for x0, rref, rval, rail, cA, cB in [
         (158, "RD2", "10k", "B+3", "C25", "C26"),
         (190, "RD3", "10k", "B+4", "C27", "C28")]:
     dl, dr = s.series_h("R", rref, rval, x0, PY)
-    s.wire(dr, PY, x0 + 20, PY)
+    s.wire(dr, PY, x0 + (18 if rref == "RD3" else 20), PY)   # the chain ends on its last can
     s.junction(x0 + 8, PY)
     s.wire(x0 + 8, PY - 3, x0 + 8, PY)
     s.glabel(rail, x0 + 8, PY - 3, 90)
