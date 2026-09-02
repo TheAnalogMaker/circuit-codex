@@ -18,6 +18,8 @@ on the rendered output.
 | Schematic grammar | `pipeline/check_schematics.py` | kiutils round-trip failures, plus KiCanvas-strict tokenization (a raw quote inside a string that kiutils forgives and KiCanvas renders as a blank panel) |
 | Schematic sheet furniture | `pipeline/check_schematics.py` | An empty title block — the corpus shipped 34 sheets whose Title and Date were blank, advertising an unfinished drawing under the `verified` badge. Every sheet now states its own designation, style, revision date and status, read from its `meta.yaml` |
 | Schematic legibility | `pipeline/check_schematics.py` | Lettering printed through live circuitry (a B+ flag over the sheet title, tremolo prose over a phase-shift ladder), drawing content laid into the bottom-right corner where the worksheet prints the title block over it, and a drawing that fills less than 62% of its sheet's drawable area. All three are pure geometry, invisible to a parser and fatal to a reader; the gate reconstructs symbol bodies, pins, property text and labels from the file itself and fails on overlap, intrusion and dilution |
+| Schematic connectivity | `pipeline/check_schematics.py` | A pin the drawing shows connected and the file leaves open. KiCad joins wires at their **endpoints**: a lead that stops 0.64 mm short of a bus, or a pin sitting partway along one, renders as a finished connection and carries nothing. Six sheets shipped a phase inverter whose tail was drawn onto the wrong electrode this way, three of them under a `verified` badge, and no gate in the repo could see it — the netlists were right and the drawings were not. The check runs `sch_nets.Nets.isolated_pins()` over every sheet and requires each symbol pin to share its net with at least one other pin or label, printing the gap a fixer has to close (`--report` lists them all). `pipeline/sch_open_pins.yaml` waives a pin that is open on purpose, one dated entry per pin with a sentence saying why; a waiver whose pin is no longer open is itself an error. **Report-only** while the per-amp drawing repairs land (`--connectivity=error`, or `CX_CONNECTIVITY=error`, gates on it); `--connectivity=selftest` plants an open on a clean 5E3 net and proves the check names it |
+| Schematic drift | `.github/workflows/ci.yml` | A committed `schematic.kicad_sch` that is no longer what `pipeline/draw_<id>.py` draws — the AA864 carried a title block reading `draft` for three weeks after `meta.yaml` said verified. CI regenerates every sheet and diffs, the same drift gate `models/` and `loadlines.yaml` have. This became possible only when element ids stopped being random: they are now `uuid5` over the amp id and emission order, so regenerating an unchanged drawing reproduces its file byte for byte instead of rewriting all 182 uuid lines. The published copies under `site/public/schematics/` are diffed after the build, whose first step syncs them |
 | Layout render + determinism | `pipeline/check_layouts.py` | A `layout.yaml` that fails to render, or a stale committed drawing out of sync with a fresh render — checked for **both** published styles (`layout.svg` and the era `layout-sheet.svg`) |
 | Era value lettering | `pipeline/test_era_values.py` | The sheet style's on-body value shorthand (`4.7K`, `.02-400`, `25MFD`, `250PF`) drifting from the documented convention, or mangling a value it cannot parse — swept over every value in every `bom.yaml` |
 | Social-card staleness | `pipeline/render_og.py --check` | A committed `site/public/og/<id>.png` no longer matching the layout, metadata or renderer it was built from — or hand-edited. Digest-based, so it needs no rasteriser in CI |
@@ -136,6 +138,29 @@ it (which shorts it out — the 6G4's tremolo plate load and its oscillator grid
 leak were both drawn that way), and a ground flag taken off the head of a shunt
 part instead of its foot, so the flag prints down through the body it grounds.
 Neither shows up in a netlist gate, because neither file is the netlist.
+
+### Drawn is not connected
+
+The most expensive thing to know about these files: **KiCad matches connection
+points, not ink.** A wire connects at its two endpoints and nowhere else. A pin
+whose end lands partway along a wire is drawn as a clean T-tap and is
+electrically open; so is a lead that stops a fraction of a millimetre short of
+the bus it points at. Neither is visible at page zoom, in the preview, or in a
+browser screenshot — the picture is the same picture either way.
+
+Eeschema hides this from a human by breaking the wire under the cursor as you
+draw. Generated sheets get the same treatment now: `Sch.write()` cuts every wire
+at each pin, wire end and junction dot that lands inside it, so a sheet this
+pipeline emits is the file eeschema would have saved. Nothing moves on the page
+and no net changes — it is a normalisation, not a repair.
+
+What it cannot normalise is a lead that genuinely stops short, and that is what
+`check_schematics.py --report` prints: every pin whose net holds nothing else,
+with the distance from its own dangling net to the nearest ink that belongs to
+a different one. Read the distance before reaching for a fix. Under 1.5 mm is a
+lead drawn a grid step short and the repair is arithmetic in the draw script;
+around 9 mm on a triode is a lead taken to the wrong electrode and the repair is
+the stage block; 40 mm is a valve nobody wired at all.
 
 ## Social cards — the same rule
 

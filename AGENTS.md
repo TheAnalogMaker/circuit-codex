@@ -46,7 +46,22 @@ python3 pipeline/verify_amps.py         # DC op-point vs chart (draft=warn, veri
                                         #   + reference/op-points.yaml staleness (the
                                         #   simulated volts the amp pages print).
                                         #   Regenerate with --export and commit.
-cd pipeline && python3 check_schematics.py   # kiutils round-trip + sheet furniture/legibility lint
+cd pipeline && python3 check_schematics.py --connectivity=selftest && \
+python3 check_schematics.py   # kiutils round-trip + sheet furniture/legibility
+                              #   lint + the connectivity report: every symbol
+                              #   pin must share its net with another pin or
+                              #   label, because KiCad joins wires at their
+                              #   ENDPOINTS and a lead stopping short of a bus
+                              #   draws as connected and carries nothing.
+                              #   REPORT-ONLY today (--connectivity=error, or
+                              #   CX_CONNECTIVITY=error, gates on it); waivers
+                              #   in pipeline/sch_open_pins.yaml, dated, one
+                              #   reason sentence each.
+cd pipeline && for f in draw_*.py; do python3 "$f" >/dev/null; done && \
+git diff --exit-code -- ../amps   # zero schematic drift: element ids are
+                                  #   content-derived, so regenerating an
+                                  #   unchanged drawing reproduces its file
+                                  #   byte for byte. Same gate as models/.
 cd pipeline && python3 check_tonestack_wiring.py  # drawn tone stack == plotted one
 cd pipeline && python3 check_layouts.py      # BOTH layout renders + collision lint (+waivers)
 python3 pipeline/render_og.py --check        # per-amp social cards match their layouts

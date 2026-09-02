@@ -1,0 +1,28 @@
+# Pins this corpus draws deliberately open.
+#
+# `check_schematics.py --connectivity` asserts that every symbol pin on every
+# sheet shares its net with at least one other pin or label. A pin that does
+# not is a drawing that shows a connection the file does not make — the one
+# defect a reader cannot see, because KiCad joins wires at their endpoints and
+# draws them wherever you put them.
+#
+# A very small number of pins are open on purpose: a tag strip left free, a
+# transformer tap the circuit does not use, an offboard item the sheet names
+# but does not wire. Those go here, one entry per pin, each with a sentence
+# saying why the open end is the truth about the circuit and not an omission.
+# "It has always been like that" is not a reason; if the drawing is wrong, fix
+# the drawing.
+#
+# Entries are dated so a stale waiver is visible as a stale waiver. The gate
+# rejects an entry whose pin is no longer isolated, so a fixed sheet cannot
+# leave its excuse behind.
+#
+# Format:
+#   amps:
+#     <amp id>:
+#       - pin: <REF>.<pin number>
+#         reason: <one sentence>
+#         added: YYYY-MM-DD
+
+updated: 2026-09-02
+amps: {}
