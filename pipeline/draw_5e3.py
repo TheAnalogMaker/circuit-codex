@@ -19,10 +19,12 @@ for ch, (y, jack, gref, pref, plref) in enumerate(
     s.wire(34.29, y, l, y)
     t = s.triode(pref, "12AY7", 53.34, y)
     s.wire(r, y, t["g"][0], y)
-    s.junction(t["g"][0] - 4, y)
-    s.sym("R", gref, "1M", t["g"][0] - 4, y + 3.81 + 0)
-    s.wire(t["g"][0] - 4, y, t["g"][0] - 4, y)
-    s.gnd(t["g"][0] - 4, y + 7.62)
+    # The leak hangs off the stopper's OWN right pin, which is the grid node.
+    # `t["g"][0] - 4` put it 0.19 mm clear of that lead: drawn on it, wired to
+    # nothing.
+    s.junction(r, y)
+    s.sym("R", gref, "1M", r, y + 3.81)
+    s.gnd(r, y + 7.62)
     s.plate_load(plref, "100k", t["p"], "B+3")
 
 # shared cathode bus: both K pins to x=60.96 rail, 820R + 25u to ground
@@ -41,7 +43,7 @@ for y, cref, vref in [(88.38, "C1", "VR1"), (120.38, "C2", "VR2")]:
     l, r = s.series_h("C", cref, ".1u", 69.85, y)
     s.wire(r, y, 78.74, y)
     s.sym("POT", vref, "1M vol", 78.74, y + 3.81)
-    s.gnd(78.74, y + 11.43)
+    s.gnd(78.74, y + 7.62)          # cold lug: pot centre + 3.81, not + 7.62
     # wiper to the shared V2A grid line at x=86.36
     s.wire(83.82, y + 3.81, 86.36, y + 3.81)
     s.wire(86.36, y + 3.81, 86.36, 108)
@@ -55,13 +57,14 @@ s.wire(96.52, t2a["k"][1], 96.52, t2a["k"][1] + 1.5)
 s.plate_load("RL3", "100k", t2a["p"], "B+3")
 
 # ---- tone control then cathodyne PI ------------------------------------
-s.wire(96.52, 92.9, 106.68, 92.9)       # tee off the plate stub
-s.junction(96.52, 92.9)
 l, r = s.series_h("C", "C5", "500p", 110.49, 92.9)
+s.wire(t2a["p"][0], t2a["p"][1], l, t2a["p"][1])   # tee off the plate PIN
+s.junction(t2a["p"][0], t2a["p"][1])
+s.wire(l, t2a["p"][1], l, 92.9)                    # up to the tone-stack row
 s.wire(r, 92.9, 119.38, 92.9)
 s.sym("POT", "VR3", "1M tone", 119.38, 96.71)
 l2, r2 = s.series_h("C", "C6", ".005u", 119.38 - 3.81 - 3.3, 108.14)
-s.wire(119.38, 104.33, 119.38, 108.14)
+s.wire(119.38, 100.52, 119.38, 108.14)  # VR3 cold lug = pot centre + 3.81
 s.wire(119.38, 108.14, r2 + 0, 108.14)
 s.gnd(l2, 108.14)
 # wiper -> PI grid
@@ -74,30 +77,37 @@ s.plate_load("RL4", "56k", tpi["p"], "B+3")
 s.wire(138.43, 119.62, 138.43, 121.92)
 s.sym("R", "RKA", "1.5k", 138.43, 125.73)
 s.junction(138.43, 129.54)
-s.sym("R", "RKB", "56k", 138.43, 133.35)
+s.sym("R", "RKB", "56k", 138.43, 133.35, lx=-9.4, ly=1.0)   # clear of the C8 tap
 s.gnd(138.43, 137.16)
-s.wire(128.27, 112, 128.27, 129.54)     # grid-leak run (shares grid x)
+# The leak run stops at RGPI's own head. Taken all the way to 129.54 it ran
+# through the resistor, shorting it and tying the PI grid to the tail junction.
+s.wire(128.27, 112, 128.27, 121.92)
 s.junction(128.27, 112)
 s.sym("R", "RGPI", "1M", 128.27, 125.73, lx=-9.4)
-s.wire(128.27, 121.92, 128.27, 121.92)
 s.wire(128.27, 129.54, 138.43, 129.54)
 
 # ---- outputs: plate + cathode couplers to the 6V6 pair ------------------
-s.wire(138.43, 104.9, 146.05, 104.9)    # plate-side tap (below plate load tee)
-s.junction(138.43, 104.9)
-l, r = s.series_h("C", "C7", ".1u", 149.86, 104.9)
-s.wire(r, 104.9, 158.75, 104.9)
-s.wire(158.75, 104.9, 158.75, 92)
-s.wire(138.43, 121.92, 146.05, 121.92)  # cathode-side tap
-s.junction(138.43, 121.92)
-l, r = s.series_h("C", "C8", ".1u", 149.86, 121.92)
-s.wire(r, 121.92, 158.75, 121.92)
-s.wire(158.75, 121.92, 158.75, 132)
+pty = tpi["p"][1]                       # the tap must start ON the plate pin
+l, r = s.series_h("C", "C7", ".1u", 149.86, pty)
+s.wire(tpi["p"][0], pty, l, pty)        # plate-side tap
+s.junction(tpi["p"][0], pty)
+s.wire(r, pty, 155, pty)
+s.wire(155, pty, 155, 92)               # own column: up the grid-leak column
+                                        # this lead ran through RG6A's body
+# Cathode-side tap at the 1.5k/56k junction — the balanced point the netlist
+# and notes both name (JPI). It used to be taken off the cathode pin itself.
+s.wire(138.43, 129.54, 146.05, 129.54)
+l, r = s.series_h("C", "C8", ".1u", 149.86, 129.54)
+s.wire(r, 129.54, 155, 129.54)
+s.wire(155, 129.54, 155, 132)
 
+kpin6 = {}
 for y, vref, gl, st in [(92, "V3", "RG6A", "R3s"), (132, "V4", "RG6B", "R4s")]:
     l, r = s.series_h("R", st, "1.5k", 163.83, y)
+    s.wire(155, y, 158.75, y)
     s.wire(158.75, y, l, y)
     p = s.pentode(vref, "6V6GT", 175.26, y)
+    kpin6[vref] = p["k"]
     s.wire(r, y, p["g1"][0], y)
     s.junction(158.75, y)
     s.sym("R", gl, "220k", 158.75, y + 3.81)
@@ -105,31 +115,35 @@ for y, vref, gl, st in [(92, "V3", "RG6A", "R3s"), (132, "V4", "RG6B", "R4s")]:
     s.wire(p["g2"][0], p["g2"][1], p["g2"][0] + 2.54, p["g2"][1])
     s.glabel("B+2", p["g2"][0] + 2.54, p["g2"][1], 0)
 
-# shared 250R/5W cathode
-s.wire(175.26, 98.985, 175.26, 102)
-s.wire(175.26, 102, 182.88, 102)
-s.wire(175.26, 138.985, 175.26, 142)
-s.wire(175.26, 142, 182.88, 142)
-s.wire(182.88, 102, 182.88, 146)
-s.junction(182.88, 142)
-s.shunt_rc("RK66", "250 5W", "C9", "25u", 182.88, 146)
+# Shared 250R/5W cathode. The bus stands clear of the screen pins: run down
+# x=182.88 it passed through V4's own screen pin, tying B+2 to the cathodes.
+KBUS = 191.77
+s.wire(kpin6["V3"][0], kpin6["V3"][1], 175.26, 102)
+s.wire(175.26, 102, KBUS, 102)
+s.wire(kpin6["V4"][0], kpin6["V4"][1], 175.26, 142)
+s.wire(175.26, 142, KBUS, 142)
+s.wire(KBUS, 102, KBUS, 146)
+s.junction(KBUS, 142)
+s.shunt_rc("RK66", "250 5W", "C9", "25u", KBUS, 146)
 
 # ---- output transformer -------------------------------------------------
-s.sym("OT_PP", "T2", "8k:8", 203.2, 112)
+# T2 sits far enough right to leave the cathode bus its own column; every lead
+# starts on the pin the helper returns.
+ot = s.ot_pp("T2", "8k:8", 210.82, 112)
 s.wire(175.26, 83.745, 175.26, 81.28)
-s.wire(175.26, 81.28, 194.31, 81.28)
-s.wire(194.31, 81.28, 194.31, 106.92)   # to PRI_A
+s.wire(175.26, 81.28, ot["pri_a"][0], 81.28)
+s.wire(ot["pri_a"][0], 81.28, ot["pri_a"][0], ot["pri_a"][1])
 s.wire(175.26, 123.745, 175.26, 121.3)  # lower 6V6 plate — route right
-s.wire(175.26, 121.3, 190, 121.3)
-s.wire(190, 121.3, 190, 117.08)
-s.wire(190, 117.08, 194.31, 117.08)     # to PRI_B
-s.wire(194.31, 112, 191.77, 112)
-s.wire(191.77, 112, 191.77, 109)
-s.glabel("B+1", 191.77, 109, 90)        # center tap
-s.wire(212.09, 109.46, 214.63, 109.46)
-s.glabel("SPKR", 214.63, 109.46, 0)
-s.wire(212.09, 114.54, 214.63, 114.54)
-s.glabel("GND", 214.63, 114.54, 0)
+s.wire(175.26, 121.3, 197, 121.3)
+s.wire(197, 121.3, 197, ot["pri_b"][1])
+s.wire(197, ot["pri_b"][1], ot["pri_b"][0], ot["pri_b"][1])
+s.wire(ot["ct"][0], ot["ct"][1], 199.39, 112)
+s.wire(199.39, 112, 199.39, 109)
+s.glabel("B+1", 199.39, 109, 90)        # center tap
+s.wire(ot["sec_h"][0], ot["sec_h"][1], 222.25, ot["sec_h"][1])
+s.glabel("SPKR", 222.25, ot["sec_h"][1], 0)
+s.wire(ot["sec_c"][0], ot["sec_c"][1], 222.25, ot["sec_c"][1])
+s.glabel("GND", 222.25, ot["sec_c"][1], 0)
 
 # ---- power supply -------------------------------------------------------
 s.text("Power supply — 325-0-325 PT secondary, 5Y3GT full-wave", 25, 158, 1.6)

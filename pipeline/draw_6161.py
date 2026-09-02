@@ -177,7 +177,8 @@ s.wire(MIXX + 8, MIXY + 7.62, MIXX + 8, MIXY + 9.19)
 s.sym("POT", "VR3", "500k-A", MIXX + 8, MIXY + 13)
 s.wire(MIXX + 13.08, MIXY + 13, MIXX + 20, MIXY + 13)
 s.glabel("GND", MIXX + 20, MIXY + 13, 0)
-s.wire(MIXX + 8, MIXY + 16.81, MIXX + 8, MIXY + 19)
+# The far lug really is free (layout.yaml wires VR3 lug1 + lug2 only), so it
+# gets no lead at all — the old 2.2 mm stub drew a connection into clear air.
 s.text("Tone — a rheostat: wiper to ground, far lug left free", MIXX - 6, MIXY + 23, 1.2)
 # mixer -> 300 pF -> the inverter's driver grid
 l, r = s.series_h("C", "CPI", "300p", MIXX + 22, MIXY)
@@ -265,7 +266,8 @@ s.wire(310, v4["k"][1], 310, 190)
 s.glabel("KOUT", 310, 190, 270)
 # the pair's entire bias arrangement
 s.glabel("KOUT", 256, 209, 180)
-s.wire(260, 209, 268, 209)
+s.wire(256, 209, 268, 209)   # starts ON the flag anchor; from 260 it carried
+                             # nothing and the cathode RC floated
 s.shunt_rc("RKO", "250 7W", "CKO", "35u", 268, 209)
 
 # ---- output transformer + speakers ----------------------------------
@@ -324,7 +326,8 @@ s.sym("R", "RSPD", "100k", 88, 208.81)
 s.sym("POT", "VR4", "500k-A", 88, 216.43, lx=-11.4, ly=2.4)
 s.wire(93.08, 216.43, 96, 216.43)
 s.wire(96, 216.43, 96, 224)
-s.wire(88, 220.24, 88, 223)
+# Speed is the same rheostat idiom: RSPD -> lug 1, wiper to the ground bus,
+# far lug free (layout.yaml wires lug1 + lug2 only). No lead on lug 3.
 s.text("Speed", 74, 214, 1.3)
 # cathode, and the ladder's common return
 s.wire(150, t3a["k"][1], 150, 216)

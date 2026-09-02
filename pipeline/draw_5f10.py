@@ -44,7 +44,7 @@ cl, cr = s.series_h("C", "C2", ".02u", 67, tee)
 s.wire(63, tee, cl, tee)
 s.wire(cr, tee, 74, tee)       # node A (volume top)
 s.sym("POT", "VR1", "1M vol", 74, tee + 3.81)
-s.gnd(74, tee + 11.43)
+s.gnd(74, tee + 7.62)          # cold lug: pot centre + 3.81, not + 7.62
 # bright cap across the volume: node A -> wiper
 s.wire(74, tee, 74, tee - 4)
 s.wire(74, tee - 4, 82, tee - 4)
@@ -61,7 +61,7 @@ tl, tr = s.series_h("C", "C4", ".005u", 100, tee - 8)
 s.wire(74, tee - 8, tl, tee - 8)
 s.wire(tr, tee - 8, 106, tee - 8)
 s.sym("POT", "VR2", "1M tone", 106, tee - 8 + 3.81)
-s.gnd(106, tee - 8 + 11.43)
+s.gnd(106, tee - 8 + 7.62)     # cold lug: pot centre + 3.81, not + 7.62
 s.wire(111.08, tee - 8 + 3.81, 111.08, tee - 8)   # wiper tied to top (rheostat)
 s.wire(111.08, tee - 8, 106, tee - 8)
 # node W -> 12AX7 driver grid
@@ -99,10 +99,13 @@ s.plate_load("RL3", "56k", t2b["p"], "B+3")
 s.wire(140, 117.62, 140, 120)
 s.sym("R", "RKA", "1.5k", 140, 123.81)
 s.junction(140, 127.62)
-s.sym("R", "RKB", "56k", 140, 131.42)
-s.gnd(140, 135.23)
+s.sym("R", "RKB", "56k", 140, 131.43, lx=-9.4, ly=1.0)  # top pin == RKA's foot
+                                        # at 127.62; lettering clear of the tap
+s.gnd(140, 135.24)
 # grid leak from PI grid down to the junction J (140,127.62)
-s.wire(132.38, 110, 132.38, 127.62)
+# Down to RGPI's head only: taken to 127.62 the run swallowed the resistor,
+# shorting the leak and tying the PI grid to the tail junction.
+s.wire(132.38, 110, 132.38, 120)
 s.junction(132.38, 110)
 # RGPI label moved to the clear gap on the right (was overlapping the 56k NFB R)
 s.sym("R", "RGPI", "1M", 132.38, 123.81)
@@ -117,11 +120,12 @@ al, ar = s.series_h("C", "C6", ".1u", 150, ptee)
 s.wire(ar, ptee, 155, ptee)
 s.wire(155, ptee, 155, 92)
 s.wire(155, 92, 158.75, 92)
-s.wire(140, 120, 146.19, 120)         # cathode-side tap (top of RKA)
-s.junction(140, 120)
-kl, kr = s.series_h("C", "C7", ".1u", 150, 120)
-s.wire(kr, 120, 158.75, 120)
-s.wire(158.75, 120, 158.75, 132)
+# Cathode-side tap at the 1.5k/56k junction (JPI), the balanced point the
+# netlist names — it used to be taken off the cathode pin itself.
+s.wire(140, 127.62, 146.19, 127.62)
+kl, kr = s.series_h("C", "C7", ".1u", 150, 127.62)
+s.wire(kr, 127.62, 158.75, 127.62)
+s.wire(158.75, 127.62, 158.75, 132)
 
 # ---- 6V6GT pair, fixed bias --------------------------------------------
 for y, vref, gl, st in [(92, "V3", "RG1", "Rs1"), (132, "V4", "RG2", "Rs2")]:

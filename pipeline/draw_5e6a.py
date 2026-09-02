@@ -55,7 +55,7 @@ for ch, (y, jack, gref, pref, plref, ccref, rpref, vref) in enumerate([
     s.wire(69, ty, pl, ty)
     s.wire(pr, ty, 81.28, ty)
     s.sym("POT", vref, "1M vol", 81.28, ty + 3.81)
-    s.gnd(81.28, ty + 11.43)
+    s.gnd(81.28, ty + 7.62)         # cold lug: pot centre + 3.81, not + 7.62
     s.wire(86.36, ty + 3.81, 88.9, ty + 3.81)
     ml, mr = s.series_h("R", f"RM{ch + 1}", "270k", 92.71, ty + 3.81)
     s.wire(88.9, ty + 3.81, ml, ty + 3.81)
@@ -89,10 +89,15 @@ s.wire(109.22, 116.62, 109.22, 118)
 s.shunt_rc("RK2", "1.5k", "C2", "25u", 109.22, 118)
 s.plate_load("RL3", "100k", t2["p"], "B+3")
 platetee = 109 - 7.62 - 3.48
-s.wire(109.22, platetee, 109.22, 88)
-s.wire(109.22, 88, 99.06, 88)
-s.wire(99.06, 88, 99.06, 109)
+# The loop tees off the plate RUN, clear of RL3, and stops at RFB's own pins.
+# Taken up x=109.22 it ran through the plate load and out through the 10 MEG,
+# shorting both and tying V2's plate to its grid.
 fl, fr = s.series_h("R", "RFB", "10M", 103.5, 88)
+s.wire(120, platetee, 120, 88)
+s.junction(120, platetee)
+s.wire(fr, 88, 120, 88)
+s.wire(99.06, 88, fl, 88)
+s.junction(99.06, 88)
 s.note('RFB reads as a plate-to-grid loop on the A-EE sheet (light self-bias/NFB); netlist.cir omits it -- negligible at 10 Mohm beside the 100 kohm plate load')
 
 # ---- tone network: bass shelf, presence/NFB bus, treble rheostat ---------
@@ -126,27 +131,38 @@ bl, br = s.series_h("R", "RBS", "220k", ts2 + 6, platetee + 20)
 s.wire(ts2, platetee + 15.81, ts2, platetee + 20)             # VR4 bottom lug -> shelf
 s.wire(ts2, platetee + 20, bl, platetee + 20)
 s.wire(br, platetee + 20, ts2 + 12, platetee + 20)
-s.sym("C", "CBS", ".005u", ts2 + 12, platetee + 24)
-s.gnd(ts2 + 12, platetee + 28)
+s.sym("C", "CBS", ".005u", ts2 + 12, platetee + 23.81)  # head ON the shelf run
+s.gnd(ts2 + 12, platetee + 27.62)
 s.sym("POT", "VR5", "5k pres", ts2 + 22, nfby + 3.81)
 s.wire(ts2, nfby, ts2 + 22, nfby)
 s.wire(ts2 + 27.08, nfby + 3.81, ts2 + 32, nfby + 3.81)
 s.sym("C", "CPR", ".1u 200V", ts2 + 32, nfby + 7.62)
 s.gnd(ts2 + 32, nfby + 11.43)
 nl, nr = s.series_h("R", "RNF", "20k", ts2 + 22, nfby - 8)
-s.wire(ts2 + 22, nfby, ts2 + 22, nfby - 8)
+# The drop rises at RNF's own left pin. At ts2 + 22 it ended in the middle of
+# the resistor body, drawn as a joint and carrying nothing.
+s.wire(nl, nfby, nl, nfby - 8)
+s.junction(nl, nfby)
 s.wire(nr, nfby - 8, ts2 + 42, nfby - 8)
 s.glabel("SPKR", ts2 + 42, nfby - 8, 0)
 s.text("RNF: negative feedback from the speaker node, the family's usual take-off (cf. the 5F6's 27k)", 158, 63, 1.1)
 
-# V2 plate coupling into the treble network: two caps in series, as drawn
+# V2 plate coupling into the treble network: two caps in series, as drawn.
+# The old feed dropped out of clear air at (cx, platetee) — no ink of the V2
+# plate node reaches that far right — and the two caps interleaved by 3 mm,
+# each one's lead drawn through the other's. The stack now hangs off the
+# plate column itself and stands foot-to-head.
 cx = ts2b
-s.wire(cx, platetee, cx, 96)
-s.sym("C", "C3", ".1u 200V", cx, 96 + 3.81)
-s.wire(cx, 96 + 7.62, cx, 100.62)
-s.sym("C", "C4", "250p", cx, 100.62 + 3.81)
-s.wire(cx, 100.62 + 7.62, cx, 108.5)
-s.wire(cx, 108.5, cx + 14, 108.5)
+trow = 108.5
+c3top = trow - 15.24            # the pair stands between V3's grid lead and
+                                # the treble row, foot to head
+s.wire(mx, 86, 170, 86)         # off the plate column, then down clear of the
+s.junction(mx, 86)              # grid lead at y=92
+s.wire(170, 86, 170, c3top)
+s.wire(170, c3top, cx, c3top)
+s.sym("C", "C3", ".1u 200V", cx, c3top + 3.81, lx=-9.5)
+s.sym("C", "C4", "250p", cx, c3top + 11.43, lx=-9.5)   # its head IS C3's foot
+s.wire(cx, trow, cx + 14, trow)
 trl, trr = s.series_h("R", "VR3", "1M treb", cx + 22, 108.5)
 s.wire(cx + 14, 108.5, trl, 108.5)
 s.wire(trr, 108.5, cx + 34, 108.5)
@@ -159,8 +175,14 @@ s.note("VR3 (treble) wired as a rheostat -- the same trick the family's 3-knob l
 # ---- phase inverter: self-biased split-load (cathodyne) V3 ---------------
 # Same shape as the 5F4's V3B (netlist.cir; known to converge sensibly).
 tp = s.triode("V3", "12AX7", 184.15, 92)
-s.wire(cx + 47.81, 108.5, tp["g"][0] - 30, 108.5)
-s.wire(tp["g"][0] - 30, 108.5, tp["g"][0] - 30, 92)
+# The treble network's output returns to the PI grid BELOW the row. Run back
+# along y=108.5 it lay on top of the entire treble row, putting both lugs of
+# VR3 and both leads of C8 on one net — the tone control shorted out.
+s.wire(cx + 47.81, trow, cx + 47.81, 112)
+s.wire(cx + 47.81, 112, 212, 112)          # turn inboard of R6s's lettering
+s.wire(212, 112, 212, 131)
+s.wire(212, 131, tp["g"][0] - 30, 131)
+s.wire(tp["g"][0] - 30, 131, tp["g"][0] - 30, 92)
 s.wire(tp["g"][0] - 30, 92, tp["g"][0], 92)
 s.plate_load("RLA", "56k", tp["p"], "B+2")
 s.wire(184.15, 99.62, 184.15, 102)
@@ -169,8 +191,7 @@ s.sym("R", "RKA", "1.5k", 192.12, 105.81, lx=2.0)
 s.junction(192.12, 109.62)
 s.sym("R", "RKB", "56k", 192.12, 113.43, lx=2.0)
 s.gnd(192.12, 117.24)
-s.wire(tp["g"][0] - 30, 105, tp["g"][0] - 30, 109.62)
-s.junction(tp["g"][0] - 30, 105)
+s.junction(tp["g"][0] - 30, 109.62)
 gbl, gbr = s.series_h("R", "RGPI", "1M", tp["g"][0] - 22, 109.62)
 s.wire(tp["g"][0] - 30, 109.62, gbl, 109.62)
 s.wire(gbr, 109.62, 192.12, 109.62)

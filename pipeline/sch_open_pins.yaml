@@ -82,3 +82,21 @@ amps:
     - pin: VR4.3
       reason: "Tremolo Speed is the same rheostat idiom (RSPD into lug 1, wiper to the ground bus, layout.yaml wiring lug 1 and lug 2 only), so its far lug is free."
       added: 2026-09-02
+
+  6g5:
+    - pin: TR1.4
+      reason: "The 6G5 rectifies with a silicon full-wave bridge across the whole HT winding (netlist.cir header, notes.md), so the power transformer's HT centre tap is taken nowhere in this amplifier and the sheet draws it unwired rather than inventing a return."
+      added: 2026-09-02
+    - pin: JVIB.1
+      reason: "The vibrato-pedal jack's switched terminal: the published sheet shows only a dashed VIBRATO PEDAL box and does not letter what the footswitch shorts, so the drawing grounds the sleeve — a fact — and leaves the tip open rather than assert a connection no source gives."
+      added: 2026-09-02
+  6g6b:
+    - pin: T1.1
+      reason: "The mains side is deliberately outside this drawing (the PT primary, ground switch, fuse and standby switch are omitted per meta.yaml and the sheet's own notes), and netlist.cir models no transformer, so the primary pins carry no lead."
+      added: 2026-09-02
+    - pin: T1.2
+      reason: "The mains side is deliberately outside this drawing (the PT primary, ground switch, fuse and standby switch are omitted per meta.yaml and the sheet's own notes), and netlist.cir models no transformer, so the primary pins carry no lead."
+      added: 2026-09-02
+    - pin: VR7.2
+      reason: "bom.yaml records that the Presence pot's wiper feeds a 0.1 uF/200 V capacitor down to the foot node, but that capacitor carries no reference designator of its own in bom.yaml, so the sheet leaves the wiper open rather than draw a part the parts list does not name."
+      added: 2026-09-02

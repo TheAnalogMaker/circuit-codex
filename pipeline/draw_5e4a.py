@@ -40,7 +40,7 @@ for ch, (y, jack, gref, pref, plref, cref, vref, mref) in enumerate([
     cl, crr = s.series_h("C", cref, ".02u", 64.77, ty)
     s.wire(crr, ty, 73.66, ty)
     s.sym("POT", vref, "1M vol", 73.66, ty + 3.81)
-    s.gnd(73.66, ty + 11.43)
+    s.gnd(73.66, ty + 7.62)         # cold lug: pot centre + 3.81, not + 7.62
     s.wire(78.74, ty + 3.81, 81.28, ty + 3.81)
     ml, mr = s.series_h("R", mref, "270k", 85.09, ty + 3.81)
     s.wire(81.28, ty + 3.81, ml, ty + 3.81)

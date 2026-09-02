@@ -35,7 +35,7 @@ for ch, (y, jack, gref, pref, plref, cref, vref, mref) in enumerate([
     cl, crr = s.series_h("C", cref, ".02u", 64.77, ty)
     s.wire(crr, ty, 73.66, ty)
     s.sym("POT", vref, "1M vol", 73.66, ty + 3.81)
-    s.gnd(73.66, ty + 11.43)
+    s.gnd(73.66, ty + 7.62)         # cold lug: pot centre + 3.81, not + 7.62
     s.wire(78.74, ty + 3.81, 81.28, ty + 3.81)
     ml, mr = s.series_h("R", mref, "270k", 85.09, ty + 3.81)
     s.wire(81.28, ty + 3.81, ml, ty + 3.81)
@@ -59,18 +59,24 @@ s.wire(91.44, 109, t2["g"][0], 109)
 s.wire(101.6, 116.62, 101.6, 118)
 s.shunt_rc("RK2", "1.5k", "C4b", "25u", 101.6, 118)
 s.plate_load("RL3", "100k", t2["p"], "B+4")
-s.sym("R", "RG3", "1M", t2["g"][0] - 3.81, 112.81)
-s.gnd(t2["g"][0] - 3.81, 116.62)
+# The leak hangs off the grid pin itself. At t2["g"][0] - 3.81 its head sat
+# 1.27 mm clear of the grid lead; on the mixer-bus x it would sit inside the
+# second channel's drop and be shorted out.
+s.sym("R", "RG3", "1M", t2["g"][0], 112.81, lx=-8.0)
+s.gnd(t2["g"][0], 116.62)
+s.junction(t2["g"][0], 109)
 
 # RFB1: 100k printed straight across V2's own plate and grid (annotation —
 # excluded from netlist.cir; drawn as wired because it visually exists on
 # the sheet, see notes.md "2026-08-08 re-read").
-fby = 109 - 7.62 - 3.48 - 5
-s.wire(t2["g"][0], fby + 5, t2["g"][0], fby)
-s.wire(101.6, 101.38, 101.6, fby)
+# It taps the plate STUB, between RL3's foot and the plate pin. Drawn at 92.9
+# its right lead landed in the middle of RL3's body, and the column feeding it
+# ran through the resistor and shorted the plate load out.
+fby = 99.5
 fl, fr = s.series_h("R", "RFB1", "100k", (t2["g"][0] + 101.6) / 2, fby)
-s.wire(t2["g"][0], fby, fl, fby)
-s.wire(fr, fby, 101.6, fby)
+s.junction(fr, fby)
+s.wire(91.44, fby, fl, fby)            # left lead onto the mixer bus = V2's grid
+s.junction(91.44, fby)
 
 # ---- James tone network (Bass/Treble) + Presence, into the driver grid ---
 # Illustrative wiring: the pot count (VR3 Bass, VR4 Treble, both 1M; VR5
@@ -80,9 +86,12 @@ s.wire(fr, fby, 101.6, fby)
 # re-verified — see notes.md ("James tone network..."). netlist.cir
 # abstracts the whole network to RG4, a single 1M leak at the driver's grid.
 ty2 = 109 - 7.62 - 3.48
-s.wire(101.6, ty2, 101.6, 84)
-s.wire(101.6, 84, 108, 84)
 tcl, tcr = s.series_h("C", "C7", ".01u 400V", 112, 84)
+# Tee off RL3's foot and rise on C7's own column. Run up x=101.6 this feed
+# went straight through the plate-load resistor.
+s.wire(101.6, ty2, tcl, ty2)
+s.junction(101.6, ty2)
+s.wire(tcl, ty2, tcl, 84)
 s.wire(tcr, 84, 122, 84)
 s.sym("POT", "VR4", "1M treble", 122, 87.81)          # top pin (122, 84)
 s.sym("C", "C8", "500p", 122, 95.43)              # top pin (122, 91.62) == VR4 bottom pin
@@ -99,8 +108,9 @@ s.note('Bass/Treble lug wiring illustrative (James network; not re-verified lug 
 # parallel with the tone/coupling path above (annotation — excluded from
 # netlist.cir, same status as RFB1; see notes.md).
 s.wire(t2["g"][0], fby, t2["g"][0], 68)
-s.wire(t2["g"][0], 68, 180, 68)
 bl, br = s.series_h("R", "RBLEED", "5MEG", 160, 68)
+s.wire(t2["g"][0], 68, bl, 68)         # the run stops at the 5 MEG's own pins:
+s.wire(br, 68, 180, 68)                # drawn straight through, it shorted it
 s.wire(180, 68, 180, 126)
 s.note('RFB1 (100k, V2 plate<->grid) and RBLEED (5MEG, V2 grid -> driver grid) are printed')
 s.note('on the sheet but excluded from netlist.cir — see notes.md "2026-08-08 re-read"')
@@ -114,11 +124,18 @@ pnl, pnr = s.series_h("R", "RNF", "100k", 190, 60)
 s.wire(198, 60, pnr, 60)
 s.wire(pnl, 60, 184, 60)
 s.sym("POT", "VR5", "5k pres", 184, 63.81)
-s.gnd(184, 71.43)
-s.wire(189.08, 63.81, 192, 63.81)
+s.gnd(184, 67.62)                      # cold lug: pot centre + 3.81
 ncl, ncr = s.series_h("C", "C9", ".1u 200V", 196, 63.81)
+s.wire(189.08, 63.81, ncl, 63.81)      # wiper -> C9; `192` stopped 0.19 mm short
 s.wire(ncr, 63.81, 200, 63.81)
-s.wire(200, 63.81, 200, 126)
+# Over the top and down onto the RBLEED run, which carries the driver grid.
+# Taken straight down x=200 this feed went through both triode plates, the
+# cathode, both plate loads and the B+3 flag — the sheet's worst short.
+s.wire(200, 63.81, 209, 63.81)
+s.wire(209, 63.81, 209, 51)
+s.wire(209, 51, 170, 51)
+s.wire(170, 51, 170, 68)
+s.junction(170, 68)
 
 # ---- driver (V3A) + split-load cathodyne (V3B), one 12AX7 ----------------
 bt = s.triode("V3A", "12AX7", 200, 126, lx=8.8)
@@ -157,9 +174,9 @@ s.note("The Presence wiper and the 100k feedback resistor land on V3A's GRID —
 for y, pref, cref, glref, gstop in [(84, "V4", "C2", "RGL1", "R5s"),
                                      (136, "V5", "C3", "RGL2", "R6s")]:
     if y == 84:
-        s.wire(200, 80.9, 218, 80.9)
-        s.junction(200, 80.9)
         cl, crr = s.series_h("C", cref, ".1u", 222, 80.9)
+        s.wire(200, 80.9, cl, 80.9)    # `218` stopped 0.19 mm short of C2
+        s.junction(200, 80.9)
         s.wire(crr, 80.9, 229.5, 80.9)
         s.wire(229.5, 80.9, 229.5, 84)
         gy = 84
@@ -185,20 +202,23 @@ for y, pref, cref, glref, gstop in [(84, "V4", "C2", "RGL1", "R5s"),
     s.gnd(245.3, p["k"][1])
 
 # ---- output transformer ---------------------------------------------------
-s.sym("OT_PP", "T2", "~4.3k:8", 273.2, 110)
+# Every OT lead now starts on the pin the helper returns. The hand-typed
+# 264.3 / 282.1 were 0.01 mm off their pins, which left both 6L6 plates, the
+# centre tap and the speaker jack wired to nothing at all.
+ot = s.ot_pp("T2", "~4.3k:8", 273.2, 110)
 s.wire(245.3, 84 - 0.635 - 7.62, 245.3, 73.5)
-s.wire(245.3, 73.5, 264.3, 73.5)
-s.wire(264.3, 73.5, 264.3, 104.92)
+s.wire(245.3, 73.5, ot["pri_a"][0], 73.5)
+s.wire(ot["pri_a"][0], 73.5, ot["pri_a"][0], ot["pri_a"][1])
 s.wire(245.3, 136 - 0.635 - 7.62, 245.3, 126.5)
 s.wire(245.3, 126.5, 259.4, 126.5)
-s.wire(259.4, 126.5, 259.4, 115.08)
-s.wire(259.4, 115.08, 264.3, 115.08)
-s.wire(264.3, 110, 261.77, 110)
+s.wire(259.4, 126.5, 259.4, ot["pri_b"][1])
+s.wire(259.4, ot["pri_b"][1], ot["pri_b"][0], ot["pri_b"][1])
+s.wire(ot["ct"][0], ot["ct"][1], 261.77, 110)
 s.wire(261.77, 110, 261.77, 107)
 s.glabel("B+1", 261.77, 107, 90)
 jk = s.jack("SPKR", "15in spkr", 291, 110)
-s.wire(282.1, 107.46, jk["tip"][0], jk["tip"][1])
-s.wire(282.1, 112.54, jk["sleeve"][0], jk["sleeve"][1])
+s.wire(ot["sec_h"][0], ot["sec_h"][1], jk["tip"][0], jk["tip"][1])
+s.wire(ot["sec_c"][0], ot["sec_c"][1], jk["sleeve"][0], jk["sleeve"][1])
 s.text("Extra 8-ohm speaker jack (parallel) omitted — annotation only", 250, 122, 1.0)
 
 # ---- power supply + bias ---------------------------------------------------

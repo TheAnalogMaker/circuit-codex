@@ -133,15 +133,19 @@ s.wire(124, 119, 124, 150)
 s.wire(124, 150, t2b["g"][0], 150)
 
 # ---- 6V6GT push-pull pair -------------------------------------------------
+kpin = {}
 for g1y, vref in [(88, "V3"), (150, "V4")]:
     p = s.pentode(vref, "6V6GT", 185, g1y)
+    kpin[vref] = p["k"]
     s.wire(p["g2"][0], p["g2"][1], p["g2"][0] + 2.54, p["g2"][1])
     s.glabel("B+2", p["g2"][0] + 2.54, p["g2"][1], 0)
 
-# shared 250 Ω 5 W cathode, bypassed by 25 µF
-s.wire(185, 95.985, 185, 100)
+# shared 250 Ω 5 W cathode, bypassed by 25 µF.
+# Both drops start on the cathode pin the helper returns — V3's used to start
+# at 95.985, a millimetre below its own pin, and carried nothing.
+s.wire(kpin["V3"][0], kpin["V3"][1], 185, 100)
 s.wire(185, 100, 196, 100)
-s.wire(185, 156.985, 185, 160)
+s.wire(kpin["V4"][0], kpin["V4"][1], 185, 160)
 s.wire(185, 160, 196, 160)
 s.wire(196, 100, 196, 164)
 s.junction(196, 160)
