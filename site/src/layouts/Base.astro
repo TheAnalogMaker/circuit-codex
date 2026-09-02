@@ -165,6 +165,15 @@ const ldBlocks = [
   td{padding:9px 14px;border-bottom:1px solid var(--line-soft);font-family:var(--mono);font-size:12.5px}
   tr:last-child td{border-bottom:0}
   .tbl{overflow-x:auto;border:1px solid var(--line);border-radius:8px}
+  /* A table wider than its box scrolls inside the box, never the page — and it
+     SAYS so: macOS hides overlay scrollbars until something moves, which left a
+     cut-off Note column looking clipped. Same permanent track the board drawing
+     uses. */
+  .tbl{scrollbar-color:var(--amber-dim) var(--well)}
+  .tbl::-webkit-scrollbar{height:11px}
+  .tbl::-webkit-scrollbar-track{background:var(--well);border-top:1px solid var(--line-soft)}
+  .tbl::-webkit-scrollbar-thumb{background:var(--amber-dim);border-radius:99px;border:3px solid var(--well)}
+  .tbl::-webkit-scrollbar-thumb:hover{background:var(--amber)}
 </style>
 </head>
 <body data-pagefind-body data-figure-page={isFigurePage ? '' : undefined}>
