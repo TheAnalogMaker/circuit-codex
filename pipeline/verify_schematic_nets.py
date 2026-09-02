@@ -951,9 +951,9 @@ def main(argv: list[str]) -> int:
         print(f"GATE FAIL (--strict) — sheets with findings: {', '.join(failed_any)}")
         return 1
     if failed_any:
-        print("report-only: no sheet carries sch_map `schematic_claim: verified` yet, "
-              "so nothing above fails CI. A sheet earns the claim by going clean "
-              "first.")
+        print("report-only: the findings above are all on sheets that do not yet carry "
+              "sch_map `schematic_claim: verified`, so nothing fails CI. A sheet earns "
+              "the claim by going clean first.")
     return 0
 
 
