@@ -28,10 +28,10 @@ def input_stage(y, j1, j2, r1, r2, rleak, vref, vval, rload, rk, ck, ckval, rail
     s.glabel(j1, 12, y - 4, 180)
     s.glabel(j2, 12, y + 4, 180)
     l, r = s.series_h("R", r1, "68k", 22, y - 4)
-    s.wire(16, y - 4, l, y - 4)
+    s.wire(12, y - 4, l, y - 4)          # the lead must REACH the jack label
     s.wire(r, y - 4, gb, y - 4)
     l, r = s.series_h("R", r2, "68k", 22, y + 4)
-    s.wire(16, y + 4, l, y + 4)
+    s.wire(12, y + 4, l, y + 4)
     s.wire(r, y + 4, gb, y + 4)
     s.wire(gb, y - 4, gb, y + 4)
     s.junction(gb, y)
@@ -54,7 +54,7 @@ s.note('Heaters, PT primary/mains, pilot lamp omitted here — see netlist.cir, 
 # ============================ NORMAL CHANNEL (top row) ================
 YN = 62
 s.text("Normal channel", 12, 48, 1.6)
-t1 = input_stage(YN, "NORM 1", "NORM 2", "R1n", "R2n", "RGN1", "V1", "12AX7",
+t1 = input_stage(YN, "NORM 1", "NORM 2", "R1n", "R2n", "RGN1", "V1A", "12AX7",
                  "RLN1", "RKN1", "CKN1", "25u", "B+4")
 
 # normal two-knob tone stack + volume, wired as the C-FD sheet draws it — the
@@ -193,18 +193,22 @@ s.text("Reverb driver / recovery / mixer", 60, 138, 1.6)
 # reverb send coupling CRS 500p into paralleled 12AT7 driver grid
 s.glabel("RVSEND", 40, YR, 180)
 rl, rr = s.series_h("C", "CRS", "500p", 50, YR)
-s.wire(44, YR, rl, YR)
+s.wire(40, YR, rl, YR)
 s.wire(rr, YR, 60, YR)
 s.junction(60, YR)
-s.sym("R", "RGRD", "1M", 60, YR + 3.81)       # grid leak
-s.gnd(60, YR + 7.62)
 # V4A + V4B paralleled reverb driver
 t4a = s.triode("V4A", "12AT7", 72, YR)
 t4b = s.triode("V4B", "12AT7", 72, YR + 22)
 s.wire(60, YR, t4a["g"][0], YR)
-s.wire(60, YR, 60, YR + 22)
+s.wire(60, YR, 60, YR + 22)                   # the paralleled grid bus
 s.wire(60, YR + 22, t4b["g"][0], YR + 22)
-s.junction(60, YR)
+# The 1 MOhm leak hangs off the FOOT of the grid bus. Drawn on the bus itself
+# the bus ran through the resistor body and out its far pin, shorting the leak
+# out and tying both driver grids to ground.
+s.junction(60, YR + 22)
+s.wire(60, YR + 22, 52, YR + 22)
+s.sym("R", "RGRD", "1M", 52, YR + 25.81, lx=-9.4)
+s.gnd(52, YR + 29.62)
 # plates tied
 s.wire(72, YR - 7.62, 72, YR - 10)
 s.wire(72, YR + 22 - 7.62, 72, YR + 22 - 10)
@@ -235,7 +239,7 @@ s.gnd(110, YR - 1.46)
 # reverb recovery V3B: tank -> RGR1 220k -> grid; RLR1 100k -> B+3; RKR1 820 || CKR1
 s.glabel("TANK RET", 118, YR - 6, 180)
 gl2, gr2 = s.series_h("R", "RGR1", "220k", 128, YR - 6)
-s.wire(122, YR - 6, gl2, YR - 6)
+s.wire(118, YR - 6, gl2, YR - 6)
 s.wire(gr2, YR - 6, 138, YR - 6)
 s.wire(138, YR - 6, 138, YR)
 t3b = s.triode("V3B", "12AX7", 148, YR)
@@ -250,9 +254,8 @@ s.junction(148, teer)
 cl, cr = s.series_h("C", "CCR1", ".003u", 160, teer)
 s.wire(156, teer, cl, teer)
 s.wire(cr, teer, 168, teer)
-s.wire(168, teer, 168, teer + 3.81 - 3.81)
 s.sym("POT", "VRREV", "100k rev", 168, teer + 3.81)
-s.gnd(168, teer + 11.43)
+s.gnd(168, teer + 7.62)
 s.wire(173.08, teer + 3.81, 178, teer + 3.81)  # reverb wiper -> mix
 ml2, mr2 = s.series_h("R", "RMR", "470k", 182, teer + 3.81)
 s.wire(178, teer + 3.81, ml2, teer + 3.81)
@@ -336,17 +339,24 @@ s.junction(44, YT)
 s.sym("R", "RTOG", "2.2M", 44, YT + 3.81)
 s.gnd(44, YT + 7.62)
 # speed pot VRSPD 3M — tunes the feedback net (across the CTO2 / RTOG3 node)
-s.sym("POT", "VRSPD", "3M speed", 16, 226)
-s.gnd(16, 233.62)
+# Speed control: a 3 MOhm pot used as a RHEOSTAT — wiper strapped back to its
+# hot lug, the idiom the AA1164's own speed control is drawn with. Its bottom
+# lug grounds at its own pin; the flag used to sit 3.81 mm below it.
+s.sym("POT", "VRSPD", "3M speed", 16, 226, lx=-13.0, ly=-3.2)
+s.gnd(16, 229.81)
 s.wire(21.08, 226, 24, 226)
 s.wire(24, 226, 24, 230)
 s.junction(24, 230)
+s.junction(21.08, 226)
+s.wire(21.08, 226, 21.08, 218)
+s.wire(21.08, 218, 16, 218)
+s.wire(16, 218, 16, 222.19)
 # intensity: V5B plate -> VRINT 50k -> RINT 10k -> opto lamp
 s.junction(96, tee5)
 s.wire(96, tee5, 108, tee5)
 s.wire(108, tee5, 108, 202.19)
 s.sym("POT", "VRINT", "50k int", 108, 206)
-s.gnd(108, 213.62)
+s.gnd(108, 209.81)
 il, ir = s.series_h("R", "RINT", "10k", 120, 206)
 s.wire(113.08, 206, il, 206)
 s.wire(ir, 206, 130, 206)
@@ -375,14 +385,20 @@ t6a = s.triode("V6A", "12AT7", XPI, YPH)
 t6b = s.triode("V6B", "12AT7", XPI, YPB)
 s.plate_load("RLPA", "82k 5%", t6a["p"], "B+3")
 s.plate_load("RLPB", "100k 5%", t6b["p"], "B+3")
-# shared tail — cathodes join at a left stub, RTAIL to the tail junction (y=116),
-# RT2 to ground; both grid leaks return to that junction (all clear of the tubes).
+# Shared tail. The cold half's lead is taken from V6B's CATHODE (YPB + 7.62)
+# and routed UNDER the bottle: it drops the common lane to x=244 at y=128, clear
+# of the cold grid's own horizontals, and comes back up into the cathode pin.
+# Until 2026-09-02 it was drawn from YPB - 7.62, which on an upright cx:TRIODE is
+# the PLATE: RTAIL sat on V6B's plate node beside V6A's cathode, C2 with it, and
+# V6B's cathode floated.
 JY = 116
 s.wire(XPI, YPH + 7.62, XPI, YPH + 10)
 s.wire(XPI, YPH + 10, 250, YPH + 10)
-s.wire(XPI, YPB - 7.62, XPI, YPB - 10)
-s.wire(XPI, YPB - 10, 250, YPB - 10)
-s.wire(250, YPH + 10, 250, YPB - 10)           # cathode common (x=250)
+s.wire(250, YPH + 10, 250, 124)                # cathode common (x=250)
+s.wire(250, 124, 244, 124)
+s.wire(244, 124, 244, 146)
+s.wire(244, 146, XPI, 146)
+s.wire(XPI, 146, XPI, YPB + 7.62)
 s.junction(250, JY)
 tl, tr = s.series_h("R", "RTAIL", "470", 244.5, JY)   # 240.69..248.31
 s.wire(250, JY, tr, JY)
@@ -415,13 +431,16 @@ s.wire(cbl, YPB, 224, YPB)
 # NFB from speaker: SPKR -> RNFB 820 -> cold grid node; RNF2 47 to gnd
 s.glabel("SPKR", XPI - 60, YPB + 12, 180)
 nl, nr = s.series_h("R", "RNFB", "820", XPI - 50, YPB + 12)
-s.wire(XPI - 56, YPB + 12, nl, YPB + 12)
-s.wire(nr, YPB + 12, XPI - 34, YPB + 12)
-s.wire(XPI - 34, YPB + 12, XPI - 34, YPB)
+s.wire(XPI - 60, YPB + 12, nl, YPB + 12)
+# The feedback return rises on its OWN column: run up the RNF2 column it was
+# drawn straight through the 47 Ohm's body, which prints a resistor with a wire
+# ruled through it.
+s.wire(nr, YPB + 12, XPI - 40, YPB + 12)
+s.wire(XPI - 40, YPB + 12, XPI - 40, YPB)
+s.wire(XPI - 40, YPB, XPI - 34, YPB)
 s.junction(XPI - 34, YPB)
-s.sym("R", "RNF2", "47", XPI - 34, YPB + 3.81 + 6, lx=-8.0)
-s.gnd(XPI - 34, YPB + 7.62 + 6)
-s.wire(XPI - 34, YPB, XPI - 34, YPB + 6)
+s.sym("R", "RNF2", "47", XPI - 34, YPB + 3.81, lx=2.6, ly=3.2)
+s.gnd(XPI - 34, YPB + 7.62)
 
 # ============================ OUTPUT couplers + 6V6 ==================
 # PI plates -> C1/C2 0.1u -> 6V6 grids
@@ -538,7 +557,7 @@ s.gnd(164, YPW + 11.81 + 3.81)
 YB = YPW - 6
 s.text("Bias supply — off an HT tap → -35 V (25u/50u, 10k hum-balance)", 190, 236, 1.3)
 s.glabel("HT_B", 190, YB, 180)
-s.wire(190, YB, 193.91, YB)
+s.wire(190, YB, 193.92, YB)
 s.sym("DIODE_SS", "DBIAS", "Si", 199, YB, lx=-2.0, ly=-5.4)
 s.wire(204, YB, 208, YB)
 l, r = s.series_h("R", "RBIAS", "470 1W", 212, YB)
@@ -552,17 +571,24 @@ s.sym("C", "CB2", "50u", 224, YB + 3.81)
 s.gnd(224, YB + 7.62)
 # hum-balance divider VRBAL 10k + RBAL 10k -> -35V
 s.wire(224, YB, 230, YB)
-s.sym("POT", "VRBAL", "10k bal", 234, YB, rot=90, lx=-3.2, ly=-6.0)
+# The 10 kOhm balance control is drawn as a two-terminal element in the bias
+# string, so its wiper is strapped to the lug the -35 V line leaves by: without
+# the strap the pot is a floating-wiper fixed 10 k. Its far lug used to stop
+# 0.19 mm short of RBAL's lead, leaving both pins open.
+s.sym("POT", "VRBAL", "10k bal", 234, YB, rot=90, lx=-3.2, ly=6.4)
 s.wire(230, YB, 230.19, YB)
+s.wire(234, YB - 5.08, 237.81, YB - 5.08)
+s.wire(237.81, YB - 5.08, 237.81, YB)
+s.junction(237.81, YB)
 l, r = s.series_h("R", "RBAL", "10k", 244, YB)
-s.wire(238, YB, l, YB)
+s.wire(237.81, YB, l, YB)
 s.wire(r, YB, 254, YB)
 s.glabel("-35V", 254, YB, 0)
 
 # ============================ DEATH CAP =============================
 s.note('Period ground-switch cap (not in modern builds)')
 s.glabel("MAINS", 190, YB + 16, 180)
-s.wire(190, YB + 16, 194, YB + 16)
+s.wire(190, YB + 16, 194.19, YB + 16)
 s.sym("C", "CDEATH", ".047u", 198, YB + 16, rot=90, lx=-3.2, ly=-6.2)
 s.wire(201.81, YB + 16, 206, YB + 16)
 s.gnd(206, YB + 16)

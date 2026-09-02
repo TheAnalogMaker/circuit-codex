@@ -44,10 +44,10 @@ def input_stage(y, j1, j2, r1, r2, rleak, vref, vval, rload, rk, ck, rail, x=52)
     s.glabel(j1, 12, y - 4, 180)
     s.glabel(j2, 12, y + 4, 180)
     l, r = s.series_h("R", r1, "68k", 22, y - 4)
-    s.wire(16, y - 4, l, y - 4)
+    s.wire(12, y - 4, l, y - 4)          # the lead must REACH the jack label
     s.wire(r, y - 4, gb, y - 4)
     l, r = s.series_h("R", r2, "68k", 22, y + 4)
-    s.wire(16, y + 4, l, y + 4)
+    s.wire(12, y + 4, l, y + 4)
     s.wire(r, y + 4, gb, y + 4)
     s.wire(gb, y - 4, gb, y + 4)
     s.junction(gb, y)
@@ -161,7 +161,7 @@ s.glabel("PIG", 246, teeN + 11.1, 0)
 
 # ============================ VIBRATO CHANNEL (second row) =============
 YV = 118
-s.caption("Vibrato channel (reverb + tremolo) — three-knob stack, genuine Middle pot", 12, 96, 1.7)
+s.caption("Vibrato channel (reverb + tremolo) — three-knob stack, genuine Middle pot", 12, 86, 1.7)
 t2 = input_stage(YV, "VIB 1", "VIB 2", "R1v", "R2v", "RGV1", "V2A", "12AX7",
                   "RLV1", "RKV1", "CKV1", "BD")
 teeV = YV - 7.62 - 3.48
@@ -171,44 +171,55 @@ voutx = tone_stack(teeV, "CTV", "RSV", "CBV", "CBV2", "VRTV", "VRBV", "VRVV",
 # V2B second stage: grid fed straight off the volume wiper/bright-cap node —
 # the pot's own ground pin is the DC return (netlist's RGV2 equivalent), no
 # discrete grid-leak part on this drawing (none in bom.yaml).
-t2b = s.triode("V2B", "12AX7", 140, YV)
-s.wire(voutx, teeV + 11.1, voutx, YV)
+# V2B stands to the RIGHT of the stack's output column. Drawn ON that column it
+# shared it with its own 100k plate load, so the volume wiper's lead ran up
+# through RLV2's body and out both its pins: the load was shorted out and the
+# plate sat on the BD rail together with the grid it was supposed to drive.
+XV2B = 152
+t2b = s.triode("V2B", "12AX7", XV2B, YV)
 s.wire(voutx, YV, t2b["g"][0], YV)
 s.plate_load("RLV2", "100k", t2b["p"], "BD")
-s.wire(140, YV + 7.62, 140, YV + 9)
-s.shunt_rc("RKV2", "820", "CKV2", "25u", 140, YV + 9)
+s.wire(XV2B, YV + 7.62, XV2B, YV + 9)
+s.shunt_rc("RKV2", "820", "CKV2", "25u", XV2B, YV + 9)
 # V2B plate tees to two independent couplers: CRS (500p) to the reverb driver
 # grid, and CCV2 (0.02u) to the dry side of the mix node — matching notes.md's
 # "feeds two places" description exactly.
 teeb = YV - 7.62 - 3.48
-s.wire(140, teeb, 148, teeb)
-s.junction(140, teeb)
-cl, cr = s.series_h("C", "CCV2", ".02u", 154, teeb)
-s.wire(148, teeb, cl, teeb)
-s.wire(cr, teeb, 164, teeb)
-s.wire(164, teeb, 164, 150)
-s.glabel("MIXG", 164, 150, 270)
-s.wire(140, teeb, 140, teeb - 10)
-rl, rr = s.series_h("C", "CRS", "500p", 128, teeb - 10)
-s.wire(140, teeb - 10, rr, teeb - 10)
-s.wire(rl, teeb - 10, 40, teeb - 10)
-s.glabel("RVSEND", 40, teeb - 10, 180)
+s.wire(XV2B, teeb, 160, teeb)
+s.junction(XV2B, teeb)
+cl, cr = s.series_h("C", "CCV2", ".02u", 166, teeb)
+s.wire(160, teeb, cl, teeb)
+s.wire(cr, teeb, 176, teeb)
+s.wire(176, teeb, 176, 150)
+s.glabel("MIXG", 176, 150, 270)
+# the reverb send tees off the plate ROW on its own riser, clear of the plate
+# load column and of the rail flag at its head
+s.junction(160, teeb)
+s.wire(160, teeb, 160, teeb - 18)
+rl, rr = s.series_h("C", "CRS", "500p", 128, teeb - 18)
+s.wire(160, teeb - 18, rr, teeb - 18)
+s.wire(rl, teeb - 18, 40, teeb - 18)
+s.glabel("RVSEND", 40, teeb - 18, 180)
 
 # ============================ REVERB + TREMOLO BLOCK (third row) =======
 YR = 168
 s.text("Reverb driver / recovery / mixer", 60, 150, 1.7)
 s.glabel("RVSEND", 40, YR, 180)
-s.wire(44, YR, 60, YR)
+s.wire(40, YR, 60, YR)
 s.junction(60, YR)
-s.sym("R", "RGRD", "1M", 60, YR + 3.81)       # grid leak
-s.gnd(60, YR + 7.62)
 # V4A + V4B paralleled reverb driver (both sections of one 12AT7)
 t4a = s.triode("V4A", "12AT7", 72, YR)
 t4b = s.triode("V4B", "12AT7", 72, YR + 22)
 s.wire(60, YR, t4a["g"][0], YR)
-s.wire(60, YR, 60, YR + 22)
+s.wire(60, YR, 60, YR + 22)                   # the paralleled grid bus
 s.wire(60, YR + 22, t4b["g"][0], YR + 22)
-s.junction(60, YR)
+# The 1 MOhm leak hangs off the FOOT of the grid bus. Drawn on the bus itself
+# the bus ran through the resistor body and out its far pin, shorting the leak
+# and tying both driver grids to ground.
+s.junction(60, YR + 22)
+s.wire(60, YR + 22, 52, YR + 22)
+s.sym("R", "RGRD", "1M", 52, YR + 25.81, lx=-9.4)
+s.gnd(52, YR + 29.62)
 # plates tied
 s.wire(72, YR - 7.62, 72, YR - 10)
 s.wire(72, YR + 22 - 7.62, 72, YR + 22 - 10)
@@ -239,7 +250,7 @@ s.gnd(110, YR - 1.46)
 # reverb recovery V3B: tank return -> RGR1 220k -> grid; RLR1 100k -> BD; cathode
 s.glabel("TANK RET", 118, YR - 6, 180)
 gl2, gr2 = s.series_h("R", "RGR1", "220k", 128, YR - 6)
-s.wire(122, YR - 6, gl2, YR - 6)
+s.wire(118, YR - 6, gl2, YR - 6)
 s.wire(gr2, YR - 6, 138, YR - 6)
 s.wire(138, YR - 6, 138, YR)
 t3b = s.triode("V3B", "12AX7", 148, YR)
@@ -300,9 +311,9 @@ s.glabel("PIG", 250, teem, 0)
 
 # ============================ TREMOLO OSCILLATOR (excluded) ============
 YT = 232
-s.caption('Tremolo oscillator (V5, one 12AX7 half) — excluded from netlist.cir (notes.md)', 26, 214, 1.4)
+s.caption('Tremolo oscillator (V5, one 12AX7 half) — excluded from netlist.cir (notes.md)', 26, 199, 1.4)
 s.note('The tremolo oscillator has no static DC operating point, so it is excluded from netlist.cir (notes.md); its supply taps BP1 directly, a driven node, so excluding it moves no gated node.')
-t5 = s.triode("V5", "12AX7", 60, YT)
+t5 = s.triode("V5", "12AX7", 60, YT, lx=-16.0, ly=-12.0)
 s.plate_load("RTO2", "220k", t5["p"], "BP1")
 s.wire(60, YT + 7.62, 60, YT + 9)
 s.shunt_rc("RKTO1", "2.7k", "CKTO1", "25u", 60, YT + 9)
@@ -313,11 +324,16 @@ cl, cr = s.series_h("C", "CTO1", ".01u", 74, tee5)   # plate -> node N1
 s.wire(60, tee5, cl, tee5)
 s.wire(cr, tee5, 90, tee5)
 s.junction(90, tee5)                                  # N1: speed network
-s.sym("POT", "VRSPD", "3M-RA speed", 96, tee5, rot=90, lx=-4.6, ly=-6.2)
-s.wire(90, tee5, 92.19, tee5)
+# Speed control: a 3 MOhm-RA pot used as a RHEOSTAT, wiper strapped back to
+# its hot lug (the idiom the AA1164's own speed control is drawn with).
+s.sym("POT", "VRSPD", "3M-RA speed", 98, tee5, rot=90, lx=-4.6, ly=-10.0)
+s.wire(90, tee5, 94.19, tee5)
+s.wire(98, tee5 - 5.08, 94.19, tee5 - 5.08)
+s.wire(94.19, tee5 - 5.08, 94.19, tee5)
+s.junction(94.19, tee5)
 sl, sr = s.series_h("R", "RTO1", "100k", 108, tee5)
-s.wire(99.81, tee5, sl, tee5)
-s.gnd(sr, tee5)
+s.wire(101.81, tee5, sl, tee5)
+s.gnd(sr, tee5, rot=0)
 # N1 -> CTO2 -> node N2 -> RTOG 1M to ground -> grid. Routed well clear (in x)
 # of the reverb driver's cathode network (RKRD/CKRD) directly above, so the
 # two blocks' labels never crowd each other.
@@ -331,18 +347,19 @@ s.gnd(38, YT - 20 + 7.62)
 s.wire(38, YT - 20, 38, YT)
 s.wire(38, YT, 52.38, YT)
 s.note('The vibrato footswitch grounds the oscillator grid bus and stops the oscillator (period detail; not modelled here)')
-# intensity: plate node also feeds VRINT 50k-RA -> RINT 27k -> the opto lamp
-s.junction(60, tee5)
-s.wire(60, tee5, 130, tee5)
-s.wire(130, tee5, 130, 208)
-s.sym("POT", "VRINT", "50k-RA int", 130, 212, rot=90, lx=-4.6, ly=-6.4)
-s.wire(130, 208, 130.19, 208)
-il, ir = s.series_h("R", "RINT", "27k", 130, 224)
-s.wire(130, 215.81, 130, 224)
-s.wire(130, 224, il, 224)
-op = s.opto("OPTO", "neon + photocell", 150, 224)
-s.wire(ir, 224, op["l1"][0], 224 - 2.54)
-s.wire(op["l1"][0], op["l1"][1], ir, 224)
+# Intensity: the oscillator's PLATE PIN row (clear of the speed network above
+# it) -> VRINT 50k-RA as a rheostat -> RINT 27k -> the optocoupler's neon lamp.
+YI = t5["p"][1]
+s.junction(60, YI)
+s.wire(60, YI, 120.19, YI)
+s.sym("POT", "VRINT", "50k-RA int", 124, YI, rot=90, lx=-4.6, ly=6.4)
+s.wire(124, YI - 5.08, 120.19, YI - 5.08)
+s.wire(120.19, YI - 5.08, 120.19, YI)
+s.junction(120.19, YI)
+il, ir = s.series_h("R", "RINT", "27k", 136, YI)
+s.wire(127.81, YI, il, YI)
+op = s.opto("OPTO", "neon + photocell", 152, YI + 2.54)
+s.wire(ir, YI, op["l1"][0], op["l1"][1])
 s.wire(op["l2"][0], op["l2"][1], op["l2"][0] - 6, op["l2"][1])
 s.gnd(op["l2"][0] - 6, op["l2"][1])
 s.wire(op["p1"][0], op["p1"][1], op["p1"][0] + 6, op["p1"][1])
@@ -357,18 +374,26 @@ YPB = 132  # cold
 s.text("Long-tailed-pair phase inverter (12AT7)", 270, 70, 1.7)
 s.glabel("PIG", 264, YPH, 180)
 cl, cr = s.series_h("C", "CPIA", ".001u", 272, YPH)
-s.wire(268, YPH, cl, YPH)
+s.wire(264, YPH, cl, YPH)
 s.wire(cr, YPH, XPI - 7.62, YPH)
 t6a = s.triode("V6A", "12AT7", XPI, YPH)
 t6b = s.triode("V6B", "12AT7", XPI, YPB)
 s.plate_load("RLPA", "82k 5%", t6a["p"], "BC")
 s.plate_load("RLPB", "100k 5%", t6b["p"], "BC")
+# Shared tail. The cold half's lead is taken from V6B's CATHODE (YPB + 7.62)
+# and routed UNDER the bottle: the common lane steps to x = XPI - 12 at y = 128,
+# clear of the cold grid's own horizontals, and comes back up into the cathode
+# pin. Until 2026-09-02 it was drawn from YPB - 7.62, which on an upright
+# cx:TRIODE is the PLATE: RTAIL sat on V6B's plate node beside V6A's cathode,
+# C2 with it, and V6B's cathode floated.
 JY = 116
 s.wire(XPI, YPH + 7.62, XPI, YPH + 10)
 s.wire(XPI, YPH + 10, XPI - 8, YPH + 10)
-s.wire(XPI, YPB - 7.62, XPI, YPB - 10)
-s.wire(XPI, YPB - 10, XPI - 8, YPB - 10)
-s.wire(XPI - 8, YPH + 10, XPI - 8, YPB - 10)
+s.wire(XPI - 8, YPH + 10, XPI - 8, 124)
+s.wire(XPI - 8, 124, XPI - 12, 124)
+s.wire(XPI - 12, 124, XPI - 12, 146)
+s.wire(XPI - 12, 146, XPI, 146)
+s.wire(XPI, 146, XPI, YPB + 7.62)
 s.junction(XPI - 8, JY)
 tl, tr = s.series_h("R", "RTAIL", "470", XPI - 13.5, JY)
 s.wire(XPI - 8, JY, tr, JY)
@@ -398,7 +423,7 @@ s.wire(cbl, YPB, XPI - 46, YPB)
 # NFB from speaker: SPKR -> RNFB 820 -> cold grid node
 s.glabel("SPKR", XPI - 68, YPB + 12, 180)
 nl, nr = s.series_h("R", "RNFB", "820", XPI - 58, YPB + 12)
-s.wire(XPI - 64, YPB + 12, nl, YPB + 12)
+s.wire(XPI - 68, YPB + 12, nl, YPB + 12)
 s.wire(nr, YPB + 12, XPI - 46, YPB + 12)
 s.wire(XPI - 46, YPB + 12, XPI - 46, YPB)
 s.junction(XPI - 46, YPB)
@@ -429,6 +454,7 @@ s.wire(XPI + 32, 176 + 7.62, XPI + 32, 188)
 s.glabel("-52V", XPI + 32, 188, 270)
 
 XO = XPI + 90
+VOUT = {}
 for gx, y, vref, stop, screen in [(XPI + 26, 76, "V7", "RST1", "RS1"),
                                     (XPI + 32, 152, "V8", "RST2", "RS2")]:
     s.wire(gx, y, gx + 20, y)
@@ -436,9 +462,10 @@ for gx, y, vref, stop, screen in [(XPI + 26, 76, "V7", "RST1", "RS1"),
     sl, sr = s.series_h("R", stop, "1.5k", gx + 28, y)
     s.wire(gx + 20, y, sl, y)
     p = s.pentode(vref, "6L6GC", XO, y)
+    VOUT[vref] = p
     s.wire(sr, y, XO - 7.62, y)
-    s.wire(p["g2"][0], p["g2"][1], p["g2"][0] + 2, p["g2"][1])
     s2l, s2r = s.series_h("R", screen, "470 1W", p["g2"][0] + 7.81, p["g2"][1])
+    s.wire(p["g2"][0], p["g2"][1], s2l, p["g2"][1])
     s.wire(s2r, p["g2"][1], p["g2"][0] + 15, p["g2"][1])
     s.glabel("BP1", p["g2"][0] + 15, p["g2"][1], 0)
     s.gnd(XO, p["k"][1])
@@ -447,12 +474,12 @@ s.wire(XPI + 32, 176, XPI + 32, 152)
 
 # output transformer T3
 s.sym("OT_PP", "T3", "125A9A", XO + 44, 114)
-s.wire(XO, 68.38, XO, 62)
+s.wire(XO, VOUT["V7"]["p"][1], XO, 62)
 s.wire(XO, 62, XO + 35.11, 62)
 s.wire(XO + 35.11, 62, XO + 35.11, 108.92)     # V7 plate -> PRI_A
-s.wire(XO, 159.62, XO, 166)
-s.wire(XO, 166, XO + 30, 166)
-s.wire(XO + 30, 166, XO + 30, 119.08)
+s.wire(XO, VOUT["V8"]["p"][1], XO, 136)
+s.wire(XO, 136, XO + 30, 136)
+s.wire(XO + 30, 136, XO + 30, 119.08)
 s.wire(XO + 30, 119.08, XO + 35.11, 119.08)    # V8 plate -> PRI_B
 s.wire(XO + 35.11, 114, XO + 32.57, 114)
 s.wire(XO + 32.57, 114, XO + 32.57, 111)
@@ -494,22 +521,18 @@ s.junction(86, YPW + 8)
 s.sym("C", "C10", "70u", 100, YPW + 11.81)
 s.gnd(100, YPW + 11.81 + 3.81)
 s.junction(100, YPW + 8)
-s.sym("R", "RBL1", "220k 1W", 118, YPW + 3.81)
-s.wire(100, YPW + 8, 118, YPW + 8)
-s.wire(118, YPW + 8, 118, YPW + 7.62)
-s.gnd(118, YPW + 7.62)
-s.sym("R", "RBL2", "220k 1W", 130, YPW + 3.81)
-s.wire(118, YPW + 8, 130, YPW + 8)
-s.wire(130, YPW + 8, 130, YPW + 7.62)
-s.gnd(130, YPW + 7.62)
+s.junction(118, YPW + 8)
+s.shunt_r("RBL1", "220k 1W", 118, YPW + 8)
+s.junction(130, YPW + 8)
+s.shunt_r("RBL2", "220k 1W", 130, YPW + 8)
 s.wire(100, YPW + 8, 142, YPW + 8)
 # choke T2 -> BP1 node (screens/plates/reverb driver), filtered by C11
 lch, rch = s.choke("T2", "125C1A", 148.62, YPW + 8, lx=-5.0, ly=-7.4)
 s.wire(142, YPW + 8, lch, YPW + 8)
 s.wire(rch, YPW + 8, 162, YPW + 8)
-s.junction(156, YPW + 8)
-s.glabel("BP1", 156, YPW + 4, 90)
-s.wire(156, YPW + 4, 156, YPW + 8)
+s.junction(159, YPW + 8)
+s.glabel("BP1", 159, YPW + 4, 90)
+s.wire(159, YPW + 4, 159, YPW + 8)
 s.junction(162, YPW + 8)
 s.sym("C", "C11", "20u 525V", 162, YPW + 11.81)
 s.gnd(162, YPW + 11.81 + 3.81)
@@ -535,7 +558,7 @@ s.wire(198, YPW + 4, 198, YPW + 8)
 YB = YPW - 4
 s.text("Bias supply — a dedicated PT tap, silicon-rectified, 25 µF-filtered, through an adjustable 10 kΩ-L pot", 218, 236, 1.4)
 s.glabel("BIAS TAP", 218, YB, 180)
-s.wire(218, YB, 221.91, YB)
+s.wire(218, YB, 221.92, YB)
 s.sym("DIODE_SS", "DBIAS", "Si", 227, YB, lx=-2.0, ly=-5.4)
 s.wire(232, YB, 236, YB)
 l, r = s.series_h("R", "RBIAS", "470", 240, YB)
@@ -544,9 +567,14 @@ s.wire(r, YB, 250, YB)
 s.junction(246, YB)
 s.sym("C", "CBIAS", "25u 50V", 246, YB + 3.81)
 s.gnd(246, YB + 7.62)
-s.wire(250, YB, 258, YB)
-s.sym("POT", "VRBIAS", "10k-L bias", 262, YB, rot=90, lx=-3.8, ly=-6.4)
-s.wire(258, YB, 258.19, YB)
+# The bias pot is drawn as a two-terminal element in the -52 V feed, so its
+# wiper is strapped to its hot lug: an adjustable pot with a floating wiper is
+# a fixed 10 k. (No hum-balance leg on this platform - see the header.)
+s.wire(250, YB, 258.19, YB)
+s.sym("POT", "VRBIAS", "10k-L bias", 262, YB, rot=90, lx=-3.8, ly=6.4)
+s.wire(262, YB - 5.08, 258.19, YB - 5.08)
+s.wire(258.19, YB - 5.08, 258.19, YB)
+s.junction(258.19, YB)
 s.wire(265.81, YB, 274, YB)
 s.glabel("-52V", 274, YB, 0)
 

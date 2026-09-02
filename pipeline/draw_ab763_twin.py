@@ -38,10 +38,10 @@ def input_stage(y, j1, j2, r1, r2, rleak, vref, vval, rload, rk, ck, rail, x=52)
     s.glabel(j1, 12, y - 4, 180)
     s.glabel(j2, 12, y + 4, 180)
     l, r = s.series_h("R", r1, "68k", 22, y - 4)
-    s.wire(16, y - 4, l, y - 4)
+    s.wire(12, y - 4, l, y - 4)          # the lead must REACH the jack label
     s.wire(r, y - 4, gb, y - 4)
     l, r = s.series_h("R", r2, "68k", 22, y + 4)
-    s.wire(16, y + 4, l, y + 4)
+    s.wire(12, y + 4, l, y + 4)
     s.wire(r, y + 4, gb, y + 4)
     s.wire(gb, y - 4, gb, y + 4)
     s.junction(gb, y)
@@ -187,19 +187,24 @@ YR = 196
 s.text("Reverb driver (12AT7, both sections paralleled) · recovery · reverb-and-dry mix", 12, 172, 1.8)
 # mix node -> 500 pF -> the paralleled driver grids
 s.glabel("MIXG", 176, 162, 180)
-s.wire(172, 162, 160, 162)
+s.wire(176, 162, 160, 162)
 cl, cr = s.series_h("C", "CRS", "500p", 148, 162)
 s.wire(160, 162, cr, 162)
 s.wire(cl, 162, 60, 162)
 s.wire(60, 162, 60, YR)
 s.junction(60, YR)
-s.sym("R", "RGRD", "1M", 60, YR + 3.81)
-s.gnd(60, YR + 7.62)
 t3a = s.triode("V3A", "12AT7", 72, YR)
 t3b = s.triode("V3B", "12AT7", 72, YR + 22)
 s.wire(60, YR, t3a["g"][0], YR)
-s.wire(60, YR, 60, YR + 22)
+s.wire(60, YR, 60, YR + 22)                 # the paralleled grid bus
 s.wire(60, YR + 22, t3b["g"][0], YR + 22)
+# The 1 MΩ leak hangs off the FOOT of the grid bus. Drawn on the bus itself the
+# bus ran straight through the resistor body and out its far pin, shorting the
+# leak out and tying both driver grids to ground.
+s.junction(60, YR + 22)
+s.wire(60, YR + 22, 52, YR + 22)
+s.sym("R", "RGRD", "1M", 52, YR + 25.81, lx=-9.4)
+s.gnd(52, YR + 29.62)
 # plates tied and taken to the reverb transformer
 s.wire(72, YR - 7.62, 72, YR - 10)
 s.wire(72, YR + 22 - 7.62, 72, YR + 12)
@@ -229,7 +234,7 @@ s.gnd(112, YR - 1.46)
 # ---- reverb recovery (V4B): tank return -> 220k -> grid; 100k plate load ----
 s.glabel("TANK RET", 150, YR - 6, 180)
 gl, gr = s.series_h("R", "RGR1", "220k", 162, YR - 6)
-s.wire(154, YR - 6, gl, YR - 6)
+s.wire(150, YR - 6, gl, YR - 6)
 s.wire(gr, YR - 6, 172, YR - 6)
 s.wire(172, YR - 6, 172, YR)
 t4b = s.triode("V4B", "12AX7 (7025)", 182, YR)
@@ -286,8 +291,8 @@ s.wire(cr, teeM, 268, teeM)
 ml, mr = s.series_h("R", "RMIXV", "220k", 276, teeM)
 s.wire(268, teeM, ml, teeM)
 s.wire(mr, teeM, 292, teeM)
-s.wire(292, teeM, 292, 150)
-s.glabel("MIXER", 292, 150, 90)
+s.wire(292, teeM, 292, 145)
+s.glabel("MIXER", 292, 145, 90)      # clear of CPIB's value lettering below
 
 # ---- the SHARED recovery / mix-driver cathode network, boxed node [E] -------
 s.text("[E] — the reverb recovery and the mix driver share ONE 820 Ω / 25 µF cathode network",
@@ -311,7 +316,6 @@ s.gnd(60, YT + 15.24)
 s.sym("C", "CKTO1", "25u", 68, YT + 11.43)
 s.wire(60, YT + 7.62, 68, YT + 7.62)
 s.wire(60, YT + 15.24, 68, YT + 15.24)
-s.wire(60, YT + 7.62, 60, YT + 7.62)
 # the three-section phase-shift ladder, read off the sheet:
 #   plate -0.02- N1 [speed 3M + 100k to gnd] -0.01- P [1M] -0.01- Q [1M] -> grid
 tee5 = YT - 7.62 - 3.48
@@ -320,10 +324,16 @@ cl, cr = s.series_h("C", "CTO3", ".02u", 74, tee5)
 s.wire(60, tee5, cl, tee5)
 s.wire(cr, tee5, 90, tee5)                      # N1
 s.junction(90, tee5)
-s.sym("POT", "VRSPD", "3M-RA speed", 96, tee5, rot=90, lx=-4.6, ly=-6.2)
-s.wire(90, tee5, 92.19, tee5)
+# Speed control: a 3 MΩ-RA pot used as a RHEOSTAT, wiper strapped back to its
+# hot lug (the same idiom the AA1164's speed control is drawn with). Without
+# the strap the wiper is a floating third terminal and the part is a fixed 3 M.
+s.sym("POT", "VRSPD", "3M-RA speed", 98, tee5, rot=90, lx=-4.6, ly=6.4)
+s.wire(90, tee5, 94.19, tee5)
+s.wire(98, tee5 - 5.08, 94.19, tee5 - 5.08)
+s.wire(94.19, tee5 - 5.08, 94.19, tee5)
+s.junction(94.19, tee5)
 sl, sr = s.series_h("R", "RTOSP", "100k", 108, tee5)
-s.wire(99.81, tee5, sl, tee5)
+s.wire(101.81, tee5, sl, tee5)
 s.gnd(sr, tee5)
 # N1 also drives the lamp-driver grid
 s.wire(90, tee5, 90, YT)
@@ -362,6 +372,7 @@ s.gnd(122, YT + 15.24)
 s.sym("C", "CKTO2", "25u", 130, YT + 11.43)
 s.wire(122, YT + 7.62, 130, YT + 7.62)
 s.wire(122, YT + 15.24, 130, YT + 15.24)
+s.wire(122, t5b["p"][1], 122, tee5)          # the lamp driver's own plate lead
 s.junction(122, tee5)
 s.wire(122, tee5, 122, tee5 - 6)
 s.sym("R", "RTO10", "10M", 140, tee5 - 6, rot=90, lx=-3.2, ly=-6.0)
@@ -379,9 +390,13 @@ s.wire(ll, op["l2"][1], 140, op["l2"][1])
 s.glabel("B+2", 140, op["l2"][1], 180)
 s.wire(op["p1"][0], op["p1"][1], op["p1"][0] + 8, op["p1"][1])
 s.glabel("MIXG", op["p1"][0] + 8, op["p1"][1], 0)
-s.wire(op["p2"][0], op["p2"][1], 196, op["p2"][1])
-s.sym("POT", "VRINT", "50k-RA int", 200, op["p2"][1], rot=90, lx=-4.6, ly=-6.4)
-s.wire(196, op["p2"][1], 196.19, op["p2"][1])
+s.wire(op["p2"][0], op["p2"][1], 196.19, op["p2"][1])
+# Intensity control: the photocell's return through a 50 kΩ-RA pot used as a
+# rheostat — wiper strapped to its hot lug, as with the Speed control above.
+s.sym("POT", "VRINT", "50k-RA int", 200, op["p2"][1], rot=90, lx=-4.6, ly=6.4)
+s.wire(200, op["p2"][1] - 5.08, 196.19, op["p2"][1] - 5.08)
+s.wire(196.19, op["p2"][1] - 5.08, 196.19, op["p2"][1])
+s.junction(196.19, op["p2"][1])
 s.wire(203.81, op["p2"][1], 210, op["p2"][1])
 s.gnd(210, op["p2"][1])
 
@@ -392,51 +407,60 @@ YPB = 156   # cold
 s.text("Long-tailed-pair phase inverter (12AT7)", 306, 100, 1.8)
 s.glabel("MIXER", 300, YPH, 180)
 cl, cr = s.series_h("C", "CPIA", ".001u", 312, YPH)
-s.wire(304, YPH, cl, YPH)
+s.wire(300, YPH, cl, YPH)
 s.wire(cr, YPH, XPI - 7.62, YPH)
 t6a = s.triode("V6A", "12AT7", XPI, YPH)
 t6b = s.triode("V6B", "12AT7", XPI, YPB)
 s.plate_load("RLPA", "82k 5%", t6a["p"], "B+3")
 s.plate_load("RLPB", "100k 5%", t6b["p"], "B+3")
-# joined cathodes -> 470 -> tail junction -> 22k -> the feedback node
+# Joined cathodes -> 470 -> tail junction -> 22k -> the feedback node.
+#
+# The cold half's tail lead is taken from V6B's CATHODE (YPB + 7.62) and routed
+# under the bottle to the KPI lane at x = 324. Until 2026-09-02 it was drawn
+# from YPB - 7.62, which on an upright cx:TRIODE is the PLATE pin: RTAIL sat on
+# V6B's plate node beside V6A's cathode, and V6B's cathode floated. The lane sits
+# clear of RTAIL's body on one side and of V6B's bottle and grid lead on the
+# other; it crosses the cold grid's two horizontals, which carry no connection.
 JY = 138
+XK = 324
 s.wire(XPI, YPH + 7.62, XPI, YPH + 10)
-s.wire(XPI, YPH + 10, 328, YPH + 10)
-s.wire(XPI, YPB - 7.62, XPI, YPB - 10)
-s.wire(XPI, YPB - 10, 328, YPB - 10)
-s.wire(328, YPH + 10, 328, YPB - 10)
-s.junction(328, JY)
-tl, tr = s.series_h("R", "RTAIL", "470", 322.5, JY)
-s.wire(328, JY, tr, JY)
-s.wire(317, JY, tl, JY)
-s.wire(300, JY, 317, JY)
+s.wire(XPI, YPH + 10, XK, YPH + 10)
+s.wire(XPI, YPB + 7.62, XPI, YPB + 14)
+s.wire(XPI, YPB + 14, XK, YPB + 14)
+s.wire(XK, YPH + 10, XK, YPB + 14)
+s.junction(XK, JY)
+tl, tr = s.series_h("R", "RTAIL", "470", 318, JY)
+s.wire(XK, JY, tr, JY)
+s.junction(306, JY)
 s.junction(310, JY)
-s.junction(314, JY)
-tl, tr = s.series_h("R", "RT22", "22k", 292, JY)
-s.wire(300, JY, tr, JY)
-s.wire(tl, JY, 280, JY)                          # the negative-feedback node
+ml, mr = s.series_h("R", "RT22", "22k", 292, JY)
+s.wire(mr, JY, tl, JY)                           # the tail-junction rail
+s.wire(ml, JY, 280, JY)                          # the negative-feedback node
 s.junction(280, JY)
-s.sym("R", "RFB1", "100", 280, JY + 3.81)
-s.gnd(280, JY + 7.62)
+s.wire(280, JY, 274, JY)
+s.sym("R", "RFB1", "100", 274, JY + 3.81, lx=-8.6)
+s.gnd(274, JY + 7.62)
 s.glabel("SPKR", 250, JY - 10, 180)
 nl, nr = s.series_h("R", "RFB2", "820", 266, JY - 10)
-s.wire(254, JY - 10, nl, JY - 10)
+s.wire(250, JY - 10, nl, JY - 10)
 s.wire(nr, JY - 10, 280, JY - 10)
 s.wire(280, JY - 10, 280, JY)
 # grid leaks returned to the tail junction
-s.sym("R", "RGPA", "1M", 314, JY - 8, lx=-9.4)
-s.wire(314, JY - 4.19, 314, JY)
-s.wire(314, JY - 11.81, 314, YPH - 2)
-s.wire(314, YPH - 2, 328.38, YPH - 2)
+s.sym("R", "RGPA", "1M", 310, JY - 8, lx=-9.4)
+s.wire(310, JY - 4.19, 310, JY)
+s.wire(310, JY - 11.81, 310, YPH - 2)
+s.wire(310, YPH - 2, 328.38, YPH - 2)
 s.wire(328.38, YPH - 2, 328.38, YPH)
 s.junction(328.38, YPH)
-s.sym("R", "RGPB", "1M", 310, JY + 8, lx=-9.4)
-s.wire(310, JY + 4.19, 310, JY)
-s.wire(310, JY + 11.81, 310, YPB + 2)
-s.wire(310, YPB + 2, 328.38, YPB + 2)
+s.sym("R", "RGPB", "1M", 306, JY + 8, lx=-9.4)
+s.wire(306, JY + 4.19, 306, JY)
+s.wire(306, JY + 11.81, 306, YPB + 2)
+s.wire(306, YPB + 2, 328.38, YPB + 2)
 s.wire(328.38, YPB + 2, 328.38, YPB)
 s.junction(328.38, YPB)
-# 0.1/200 from the cold grid to the feedback node
+# 0.1/200 from the cold grid to the feedback node. Its riser is kept OFF the
+# RFB1 column: drawn there it ran through the 100 Ohm's body and out its far
+# pin, shorting the resistor and grounding the whole feedback node.
 cl, cr = s.series_h("C", "CPIB", ".1u 200V", 296, YPB)
 s.wire(328.38, YPB, cr, YPB)
 s.wire(cl, YPB, 280, YPB)
@@ -471,6 +495,7 @@ s.sym("R", "RGL2", "220k 5%", 372, 208 + 3.81)
 s.wire(372, 208 + 7.62, 372, 220)
 s.glabel("-52V", 372, 220, 270)
 
+VOUT = {}
 for gy, y, vref, stop, screen in [(62, 76, "V7", "RST1", "RSC1"),
                                   (62, 106, "V8", "RST2", "RSC2"),
                                   (208, 170, "V9", "RST3", "RSC3"),
@@ -482,9 +507,11 @@ for gy, y, vref, stop, screen in [(62, 76, "V7", "RST1", "RSC1"),
     sl, sr = s.series_h("R", stop, "1.5k", 390, y)
     s.wire(380, y, sl, y)
     p = s.pentode(vref, "6L6GC", XO, y)
+    VOUT[vref] = p
     s.wire(sr, y, XO - 7.62, y)
-    s.wire(p["g2"][0], p["g2"][1], p["g2"][0] + 2, p["g2"][1])
+    # the screen stub must REACH the stopper's own pin, not stop 2 mm short of it
     s2l, s2r = s.series_h("R", screen, "470 1W", p["g2"][0] + 7.81, p["g2"][1])
+    s.wire(p["g2"][0], p["g2"][1], s2l, p["g2"][1])
     s.wire(s2r, p["g2"][1], p["g2"][0] + 15, p["g2"][1])
     s.glabel("B+2", p["g2"][0] + 15, p["g2"][1], 0)
     s.gnd(XO, p["k"][1])
@@ -497,20 +524,24 @@ s.junction(380, 170)
 
 # output transformer T3 (parallel push-pull primary, 4 Ω secondary + feedback tap)
 s.sym("OT_PP", "T3", "125A29A", 470, 138)
-s.wire(XO, 68.38, XO, 60)
+s.wire(XO, VOUT["V7"]["p"][1], XO, 60)
 s.wire(XO, 60, 461.11, 60)
 s.wire(461.11, 60, 461.11, 132.92)              # V7/V8 plates -> PRI_A
-s.wire(XO, 98.38, XO, 94)
+s.wire(XO, VOUT["V8"]["p"][1], XO, 94)
 s.wire(XO, 94, 452, 94)
 s.wire(452, 94, 452, 60)
 s.junction(452, 60)
-s.wire(XO, 192.38, XO, 232)
-s.wire(XO, 232, 461.11, 232)
-s.wire(461.11, 232, 461.11, 143.08)             # V9/V10 plates -> PRI_B
-s.wire(XO, 162.38, XO, 158)
-s.wire(XO, 158, 444, 158)
-s.wire(444, 158, 444, 232)
-s.junction(444, 232)
+# V9/V10 plates -> PRI_B. Each lead now rises clear of its own bottle. The old
+# run dropped from y=192 to y=232 straight down the valve column, THROUGH V10's
+# envelope and out its grounded cathode pin: V9's plate and the transformer's
+# cold primary sat on ground, and V10's plate floated 0.64 mm from its lead.
+s.wire(XO, VOUT["V9"]["p"][1], XO, 158)
+s.wire(XO, 158, 461.11, 158)
+s.wire(461.11, 158, 461.11, 143.08)
+s.wire(XO, VOUT["V10"]["p"][1], XO, 186)
+s.wire(XO, 186, 452, 186)
+s.wire(452, 186, 452, 158)
+s.junction(452, 158)
 s.wire(461.11, 138, 456, 138)
 s.wire(456, 138, 456, 128)
 s.glabel("B+1", 456, 128, 90)
@@ -563,7 +594,6 @@ s.glabel("B+1", 330, YPW - 4, 90)
 s.wire(330, YPW - 4, 330, YPW)
 # choke -> node [B]
 s.sym("CHOKE", "T2", "125C1A", 343.62, YPW, lx=-5.0, ly=-7.4)
-s.wire(336, YPW, 336, YPW)
 s.wire(351.24, YPW, 362, YPW)
 s.junction(356, YPW)
 s.glabel("B+2", 356, YPW - 4, 90)
@@ -596,7 +626,7 @@ YB = YPW
 s.note('Bias supply — the 48 V tap → 470 Ω · 1 W → rectifier → 25 µF · 50 V → the 10 kΩ balance control over a 27 kΩ leg; its wiper sets the −52 V grid line')
 s.glabel("BIAS TAP", 436, YB, 180)
 l, r = s.series_h("R", "RBIAS", "470 1W", 452, YB)
-s.wire(444, YB, l, YB)
+s.wire(436, YB, l, YB)
 s.wire(r, YB, 462, YB)
 s.sym("DIODE_SS", "DBIAS", "Si", 467, YB, lx=-2.0, ly=-5.4)
 s.wire(462, YB, 461.92, YB)
@@ -604,20 +634,22 @@ s.wire(472.08, YB, 480, YB)
 s.junction(480, YB)
 s.sym("C", "CB1", "25u 50V", 480, YB + 3.81)
 s.gnd(480, YB + 7.62)
-s.wire(480, YB, 490, YB)
-s.sym("POT", "VRBAL", "10k-L bal", 494, YB, rot=90, lx=-3.6, ly=-6.2)
-s.wire(490, YB, 490.19, YB)
+s.wire(480, YB, 490.19, YB)
+s.sym("POT", "VRBAL", "10k-L bal", 494, YB, rot=90, lx=-3.6, ly=6.4)
 s.wire(497.81, YB, 506, YB)
 s.sym("R", "RB2", "27k", 506, YB + 3.81)
 s.gnd(506, YB + 7.62)
-s.wire(494, YB + 5.08, 494, YB + 12)
-s.wire(494, YB + 12, 514, YB + 12)
-s.glabel("-52V", 514, YB + 12, 0)
+# The balance control's WIPER is the -52 V grid line (layout.yaml net_map:
+# VRBAL.lug2 -> NBIAS). It is at y - 5.08 on a pot rotated 90 deg; the lead
+# used to leave from y + 5.08, a point on no pin at all.
+s.wire(494, YB - 5.08, 494, YB - 12)
+s.wire(494, YB - 12, 514, YB - 12)
+s.glabel("-52V", 514, YB - 12, 0)
 
 # ============================ DEATH CAP =============================
 s.note('Period ground-switch cap (not in modern builds)')
 s.glabel("MAINS", 246, YB + 52, 180)
-s.wire(246, YB + 52, 252, YB + 52)
+s.wire(246, YB + 52, 252.19, YB + 52)
 s.sym("C", "CDEATH", ".047u 600V", 256, YB + 52, rot=90, lx=-3.6, ly=-6.4)
 s.wire(259.81, YB + 52, 266, YB + 52)
 s.gnd(266, YB + 52)
