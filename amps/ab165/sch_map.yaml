@@ -21,3 +21,7 @@ symbols:
   # socket (V4, a 12AT7).
   PIA: V4A                 # netlist XPIA PPIA GPIA KPI -> the sheet's V4A
   PIB: V4B                 # netlist XPIB PPIB GPIB KPI -> the sheet's V4B
+
+# Hard-gated: verify_schematic_nets.py fails CI on any finding for this sheet.
+# Claimed 2026-09-02 after the drawing went clean against netlist.cir.
+schematic_claim: verified

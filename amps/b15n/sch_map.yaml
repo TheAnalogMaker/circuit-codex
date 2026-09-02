@@ -11,3 +11,7 @@ anchors:
                            # T2.green: '0'.
   T2.5: "0"                # OT secondary cold — same winding, same node;
                            # mirrors layout net_map T2.black: '0'.
+
+# Hard-gated: verify_schematic_nets.py fails CI on any finding for this sheet.
+# Claimed 2026-09-02 after the drawing went clean against netlist.cir.
+schematic_claim: verified

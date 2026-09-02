@@ -53,9 +53,9 @@ python3 check_schematics.py   # kiutils round-trip + sheet furniture/legibility
                               #   label, because KiCad joins wires at their
                               #   ENDPOINTS and a lead stopping short of a bus
                               #   draws as connected and carries nothing.
-                              #   REPORT-ONLY today (--connectivity=error, or
-                              #   CX_CONNECTIVITY=error, gates on it); waivers
-                              #   in pipeline/sch_open_pins.yaml, dated, one
+                              #   BLOCKING since 2026-09-02 (default error;
+                              #   --connectivity=warn to survey); waivers in
+                              #   pipeline/sch_open_pins.yaml, dated, one
                               #   reason sentence each.
 cd pipeline && for f in draw_*.py; do python3 "$f" >/dev/null; done && \
 git diff --exit-code -- ../amps   # zero schematic drift: element ids are
@@ -66,6 +66,12 @@ cd pipeline && python3 check_tonestack_wiring.py  # drawn tone stack == plotted 
 cd pipeline && python3 check_layouts.py      # BOTH layout renders + collision lint (+waivers)
 python3 pipeline/render_og.py --check        # per-amp social cards match their layouts
 python3 pipeline/verify_layout_nets.py       # layout↔netlist equivalence (+--selftest)
+python3 pipeline/verify_schematic_nets.py --selftest && \
+python3 pipeline/verify_schematic_nets.py    # schematic↔netlist equivalence: SHORTED /
+                                             #   MERGED / SPLIT / WRONG TERMINAL are
+                                             #   drawing faults; abstractions are declared
+                                             #   in amps/<id>/sch_map.yaml; a sheet with
+                                             #   schematic_claim: verified hard-fails CI
 python3 pipeline/export_loadlines.py --check # reference/loadlines.yaml vs the netlists
 cd site && npm ci && npm run build      # site must build
 cd site && node scripts/check-loadline-parity.mjs   # browser solver vs. ngspice

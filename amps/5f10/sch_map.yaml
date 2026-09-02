@@ -14,3 +14,7 @@ series_bridge:
   # netlist runs G6A / G6B through them and models no element there.
   Rs1: "1.5 k upper-6V6 grid stopper — netlist node G6A runs through it"
   Rs2: "1.5 k lower-6V6 grid stopper — netlist node G6B runs through it"
+
+# Hard-gated: verify_schematic_nets.py fails CI on any finding for this sheet.
+# Claimed 2026-09-02 after the drawing went clean against netlist.cir.
+schematic_claim: verified

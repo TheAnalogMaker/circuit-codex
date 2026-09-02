@@ -14,3 +14,7 @@ anchors:
   # models. Mirrors layout net_map VR1.lug2 / VR2.lug2: '0'.
   VR1.2: "0"               # Brilliant volume wiper — RM1's return
   VR2.2: "0"               # Normal volume wiper — RM2's return
+
+# Hard-gated: verify_schematic_nets.py fails CI on any finding for this sheet.
+# Claimed 2026-09-02 after the drawing went clean against netlist.cir.
+schematic_claim: verified

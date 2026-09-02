@@ -9,3 +9,7 @@ anchors:
   T3.3: BPL                # OT primary, V6 plate end
   T3.4: "0"                # OT secondary hot — secondary DCR folded into ground
                            # (RNFB's return).
+
+# Hard-gated: verify_schematic_nets.py fails CI on any finding for this sheet.
+# Claimed 2026-09-02 after the drawing went clean against netlist.cir.
+schematic_claim: verified

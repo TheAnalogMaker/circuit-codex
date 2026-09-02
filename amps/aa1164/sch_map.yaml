@@ -18,3 +18,7 @@ element_pins:
   # netlist RTR3 BB PRD 200 is the reverb-transformer primary DCR, not a
   # discrete resistor: it is the TR3 primary winding, B+ lead to plate lead.
   RTR3: [TR3.2, TR3.1]
+
+# Hard-gated: verify_schematic_nets.py fails CI on any finding for this sheet.
+# Claimed 2026-09-02 after the drawing went clean against netlist.cir.
+schematic_claim: verified

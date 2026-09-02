@@ -13,3 +13,7 @@ symbols:
   # calls RCHOKE netlist_unplaced because it is not a board part; on the sheet
   # it IS drawn, so it binds to the symbol instead.)
   RCHOKE: L1
+
+# Hard-gated: verify_schematic_nets.py fails CI on any finding for this sheet.
+# Claimed 2026-09-02 after the drawing went clean against netlist.cir.
+schematic_claim: verified

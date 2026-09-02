@@ -8,3 +8,7 @@ anchors:
   TR2.3: BP1               # OT primary, V4 plate end
   TR2.4: "0"               # OT secondary hot — secondary DCR folded into ground
                            # (RNFB's return); mirrors layout net_map SPK.tip: '0'.
+
+# Hard-gated: verify_schematic_nets.py fails CI on any finding for this sheet.
+# Claimed 2026-09-02 after the drawing went clean against netlist.cir.
+schematic_claim: verified

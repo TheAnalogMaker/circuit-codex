@@ -6,3 +6,7 @@ anchors:
   T1.1: BP1                # OT primary, V3/V5 plate end — primary DCR omitted
   T1.2: BP1                # OT primary centre tap (the <B+1> rail)
   T1.3: BP1                # OT primary, V4/V6 plate end
+
+# Hard-gated: verify_schematic_nets.py fails CI on any finding for this sheet.
+# Claimed 2026-09-02 after the drawing went clean against netlist.cir.
+schematic_claim: verified

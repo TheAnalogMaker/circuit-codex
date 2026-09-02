@@ -7,3 +7,7 @@ anchors:
                            # both plates and the centre tap are the +310 V node
   T2.2: BP310              # OT primary centre tap (the <BP310> rail)
   T2.3: BP310              # OT primary, V6 plate end
+
+# Hard-gated: verify_schematic_nets.py fails CI on any finding for this sheet.
+# Claimed 2026-09-02 after the drawing went clean against netlist.cir.
+schematic_claim: verified

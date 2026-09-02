@@ -14,3 +14,7 @@ series_bridge:
   # name them, but the sheet draws them.
   R3s: "1.5 k V3 grid stopper — no DC grid current, so netlist node G6A runs through it"
   R4s: "1.5 k V4 grid stopper — no DC grid current, so netlist node G6B runs through it"
+
+# Hard-gated: verify_schematic_nets.py fails CI on any finding for this sheet.
+# Claimed 2026-09-02 after the drawing went clean against netlist.cir.
+schematic_claim: verified

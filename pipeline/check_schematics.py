@@ -315,10 +315,10 @@ def lint_sheet(sch: Schematic, boxes) -> list[str]:
 # repairs.
 GAP_NEAR_MM = 1.5          # under this, the break is invisible at page zoom
 
-# Report-only until the per-amp drawing fixes land; the orchestrator flips the
-# default to "error" once the corpus is clean. `--connectivity=<mode>` on the
+# Blocking since 2026-09-02, when the corpus reached zero isolated pins (it had
+# 251 on 26 sheets the day the check was written). `--connectivity=<mode>` on the
 # command line beats CX_CONNECTIVITY in the environment, which beats this.
-CONNECTIVITY_DEFAULT = "warn"
+CONNECTIVITY_DEFAULT = "error"
 ALLOWLIST = Path(__file__).resolve().parent / "sch_open_pins.yaml"
 
 

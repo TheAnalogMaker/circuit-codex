@@ -16,3 +16,7 @@ series_bridge:
   # the coupler. C1 blocks DC, so no current flows through RM2 and netlist node
   # P3B runs through it.
   RM2: "470 k V3B mixing/coupling resistor — C1 blocks DC, so netlist node P3B runs through it"
+
+# Hard-gated: verify_schematic_nets.py fails CI on any finding for this sheet.
+# Claimed 2026-09-02 after the drawing went clean against netlist.cir.
+schematic_claim: verified
