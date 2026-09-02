@@ -536,8 +536,11 @@ def main() -> int:
             word = "FAIL" if mode == "error" else "warn"
             print(f"{word} {amp}: {len(found)} isolated pin(s) — drawn as "
                   f"connected, wired to nothing")
-            shown = found if report else found[:4]
-            for name, mm, has_lead in sorted(shown, key=lambda r: -r[1]):
+            # Worst first: the widest gap is the one that says what went
+            # wrong on the sheet, and it is what a truncated view must show.
+            ranked = sorted(found, key=lambda r: -r[1])
+            shown = ranked if report else ranked[:4]
+            for name, mm, has_lead in shown:
                 print(f"       {name:<12} {describe_gap(mm, has_lead)}")
             if not report and len(found) > len(shown):
                 print(f"       … {len(found) - len(shown)} more (--report)")
