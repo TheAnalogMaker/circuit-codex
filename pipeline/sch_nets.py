@@ -174,9 +174,49 @@ class Nets:
     def isolated_pins(self) -> list:
         """Pins that share their net with nothing else — a dangling connection."""
         bad = []
+        members = self.nets()
         for ref, pinmap in sorted(self.pins.items()):
             for num, p in sorted(pinmap.items()):
-                net = self.dsu.find(p)
-                if len(self.net_members(net)) < 2:
+                if len(members.get(self.dsu.find(p), ())) < 2:
                     bad.append(f"{ref}.{num}")
         return bad
+
+    # ---- whole-sheet views (added for verify_schematic_nets) -------------
+    def nets(self) -> dict:
+        """{net root: sorted member names} for every net carrying a pin or a
+        label — one pass, where repeated `net_members()` calls are O(pins) each.
+
+        Member names are exactly `net_members()`'s: `REF.PIN` for a symbol pin
+        and `<NAME>` for a label anchor. Recomputed on every call, never cached,
+        because `join()` can change membership under a caller."""
+        out: dict = {}
+        for ref, pinmap in self.pins.items():
+            for num, p in pinmap.items():
+                out.setdefault(self.dsu.find(p), []).append(f"{ref}.{num}")
+        for name, anchors in self.labels.items():
+            for a in anchors:
+                out.setdefault(self.dsu.find(a), []).append(f"<{name}>")
+        return {r: sorted(set(m)) for r, m in out.items()}
+
+    def terminal(self, name: str):
+        """Net root for a terminal written as `REF.PIN` or `<LABEL>`; None when
+        the sheet carries no such pin or label (the caller reports that — this
+        never invents a net)."""
+        if name.startswith("<") and name.endswith(">"):
+            anchors = self.labels.get(name[1:-1])
+            return self.dsu.find(anchors[0]) if anchors else None
+        ref, _, num = name.rpartition(".")
+        p = self.pins.get(ref, {}).get(num)
+        return None if p is None else self.dsu.find(p)
+
+    def join(self, a: str, b: str) -> bool:
+        """Union two terminals (`REF.PIN` / `<LABEL>`) — the hook a gate uses to
+        apply a DECLARED contraction (a DC-transparent series part the netlist
+        omits, or a winding whose DCR the netlist collapses). Returns False when
+        either terminal is absent, so a stale declaration is reported, not
+        silently applied."""
+        for t in (a, b):
+            if self.terminal(t) is None:
+                return False
+        self.dsu.union(self.terminal(a), self.terminal(b))
+        return True

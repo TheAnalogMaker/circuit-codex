@@ -76,7 +76,13 @@ jobs:
       # gate catches planted wiring faults (a gate that can't is decoration); the
       # main run hard-fails any amp whose layout.yaml claims wiring_claim: verified
       # but whose drawn wiring is not equivalent to netlist.cir.
-      - run: python pipeline/verify_layout_nets.py --selftest
+      - run: python pipeline/verify_layout_nets.py
+      # Schematic <-> netlist electrical-equivalence gate, the schematic-side twin
+      # of verify_layout_nets. The self-test proves the gate catches planted wiring
+      # faults; the main run hard-fails any sheet whose sch_map.yaml claims
+      # schematic_claim: verified. Report-only until a sheet earns that claim.
+      - run: python pipeline/verify_schematic_nets.py --selftest
+      - run: python pipeline/verify_schematic_nets.py --selftest
       - run: python pipeline/verify_layout_nets.py
       # reference/loadlines.yaml is generated from the netlists and simulated, so it
       # can go stale silently the moment a netlist changes. Same drift gate as models/.
