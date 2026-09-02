@@ -1,0 +1,30 @@
+# amps/ab763-twin/sch_map.yaml — schematic <-> netlist reconciliation.
+# Data, never a guess in code: every line below is a claim a reviewer can check
+# against this sheet and against netlist.cir. See docs/schematic-nets.md.
+
+anchors:
+  T3.1: BP1                # OT primary, V7/V8 plate end — primary DCR omitted
+  T3.2: BP1                # OT primary centre tap (the <B+1> rail)
+  T3.3: BP1                # OT primary, V9/V10 plate end
+  T3.4: "0"                # OT secondary hot — secondary DCR folded into ground
+                           # (RFB1's return); mirrors layout net_map SPK.tip: '0'.
+  T3.5: "0"                # OT secondary cold — same winding, same node;
+                           # mirrors layout net_map SPK.sleeve: '0'.
+  # netlist RGR1 GR1 0 220k: the reverb-recovery grid resistor returns down the
+  # tank's output return lead, which is chassis ground — the same fold the
+  # netlist applies to the OT secondary. (amps/ab763 declares the equivalent
+  # return as layout net_map.netlist_unplaced RGRV; here the resistor is drawn,
+  # so the return needs a node.)
+  "<TANK RET>": "0"        # reverb tank output return — chassis ground
+
+series_bridge:
+  # 220 k load to ground at the reverb/dry mix node. netlist.cir models the mix
+  # driver's grid return as one 3.3 M leak to 0 (RGD1 GD1 0) and omits this
+  # resistor: no DC grid current flows, so it drops nothing and the netlist's
+  # node 0 runs through it.
+  RTOG4: "220 k load to ground at the reverb/dry mix node — no DC grid current, so RGD1's return to node 0 runs through it"
+
+element_pins:
+  # netlist RTR4 BB PRD 200 is the reverb-transformer primary DCR, not a
+  # discrete resistor: it is the T4 primary winding, B+ lead to plate lead.
+  RTR4: [T4.2, T4.1]

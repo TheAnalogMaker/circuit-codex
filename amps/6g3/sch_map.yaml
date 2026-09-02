@@ -1,0 +1,10 @@
+# amps/6g3/sch_map.yaml — schematic <-> netlist reconciliation.
+# Data, never a guess in code: every line below is a claim a reviewer can check
+# against this sheet and against netlist.cir. See docs/schematic-nets.md.
+
+anchors:
+  T2.1: BP                 # OT primary, V4 plate end — primary DCR omitted
+  T2.2: BP                 # OT primary centre tap
+  T2.3: BP                 # OT primary, V5 plate end
+  T2.4: "0"                # OT secondary hot — secondary DCR folded into ground
+                           # (RNFB's return); mirrors layout net_map SPK.tip: '0'.

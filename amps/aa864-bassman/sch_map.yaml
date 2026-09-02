@@ -1,0 +1,11 @@
+# amps/aa864-bassman/sch_map.yaml — schematic <-> netlist reconciliation.
+# Data, never a guess in code: every line below is a claim a reviewer can check
+# against this sheet and against netlist.cir. See docs/schematic-nets.md.
+
+anchors:
+  T3.1: BPL                # OT primary, V5 plate end — primary DCR omitted, so
+                           # both plates and the centre tap are the plate rail
+  T3.2: BPL                # OT primary centre tap (the <B+PL> rail)
+  T3.3: BPL                # OT primary, V6 plate end
+  T3.4: "0"                # OT secondary hot — secondary DCR folded into ground
+                           # (RNFB's return).

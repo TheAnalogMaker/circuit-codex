@@ -1,0 +1,9 @@
+# amps/5c1/sch_map.yaml — schematic <-> netlist reconciliation.
+# Data, never a guess in code: every line below is a claim a reviewer can check
+# against this sheet and against netlist.cir. See docs/schematic-nets.md.
+
+anchors:
+  # netlist: XV2 BP2 BP3 G2 K2 — the 6V6GT plate is BP2, the same node the B+
+  # end of the primary sits on, because primary DCR is omitted.
+  T1.1: BP2                # OT primary, V2 plate end
+  T1.2: BP2                # OT primary, B+ end (the <B+2> rail)

@@ -1,0 +1,18 @@
+# amps/6g6b/sch_map.yaml — schematic <-> netlist reconciliation.
+# Data, never a guess in code: every line below is a claim a reviewer can check
+# against this sheet and against netlist.cir. See docs/schematic-nets.md.
+
+anchors:
+  T3.1: BP428              # OT primary, V5 plate end — primary DCR omitted, so
+                           # both plates and the centre tap are the +428 V node
+  T3.2: BP428              # OT primary centre tap
+  T3.3: BP428              # OT primary, V6 plate end
+  T3.4: "0"                # OT secondary hot — secondary DCR folded into ground;
+                           # mirrors layout net_map SPK: '0'.
+
+series_bridge:
+  # netlist C1 P3B G4A 0.0005u couples the V3B plate node straight to the V4A
+  # grid; the sheet draws the 470 k mixing resistor RM2 between that plate and
+  # the coupler. C1 blocks DC, so no current flows through RM2 and netlist node
+  # P3B runs through it.
+  RM2: "470 k V3B mixing/coupling resistor — C1 blocks DC, so netlist node P3B runs through it"

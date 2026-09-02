@@ -1,0 +1,9 @@
+# amps/ga40/sch_map.yaml — schematic <-> netlist reconciliation.
+# Data, never a guess in code: every line below is a claim a reviewer can check
+# against this sheet and against netlist.cir. See docs/schematic-nets.md.
+
+anchors:
+  T2.1: BP310              # OT primary, V5 plate end — primary DCR omitted, so
+                           # both plates and the centre tap are the +310 V node
+  T2.2: BP310              # OT primary centre tap (the <BP310> rail)
+  T2.3: BP310              # OT primary, V6 plate end

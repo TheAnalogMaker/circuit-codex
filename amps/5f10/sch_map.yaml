@@ -1,0 +1,16 @@
+# amps/5f10/sch_map.yaml — schematic <-> netlist reconciliation.
+# Data, never a guess in code: every line below is a claim a reviewer can check
+# against this sheet and against netlist.cir. See docs/schematic-nets.md.
+
+anchors:
+  T1.1: BP1                # OT primary, V3 plate end — primary DCR omitted
+  T1.2: BP1                # OT primary centre tap (the <B+1> rail)
+  T1.3: BP1                # OT primary, V4 plate end
+  T1.4: "0"                # OT secondary hot — secondary DCR folded into ground
+                           # (RNFB's return); mirrors layout net_map SPK.tip: '0'.
+
+series_bridge:
+  # 1.5 k output grid stoppers at the 6V6 sockets — no DC grid current, so the
+  # netlist runs G6A / G6B through them and models no element there.
+  Rs1: "1.5 k upper-6V6 grid stopper — netlist node G6A runs through it"
+  Rs2: "1.5 k lower-6V6 grid stopper — netlist node G6B runs through it"

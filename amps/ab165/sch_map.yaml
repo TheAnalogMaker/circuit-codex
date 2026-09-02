@@ -1,0 +1,23 @@
+# amps/ab165/sch_map.yaml — schematic <-> netlist reconciliation.
+# Data, never a guess in code: every line below is a claim a reviewer can check
+# against this sheet and against netlist.cir. See docs/schematic-nets.md.
+
+anchors:
+  TR3.1: BP1               # OT primary, V5 plate end — primary DCR omitted
+  TR3.2: BP1               # OT primary centre tap (the <B+1> rail)
+  TR3.3: BP1               # OT primary, V6 plate end
+  TR3.4: "0"               # OT secondary hot — secondary DCR folded into ground
+                           # (RNFB's return); mirrors layout net_map SPK: '0'.
+  # The sheet draws the bias supply's two balanced rails, <-45V A> and <-45V B>,
+  # which meet only inside the bias supply (RBB1/RBB2 -> the balance pot).
+  # netlist.cir replaces that whole supply with one ideal source, VBIAS NBIAS 0,
+  # so both drawn rails ARE node NBIAS; co-anchoring declares the bridge the
+  # netlist collapses. Not a drawing fault: two rails are what the amp has.
+  "<-45V A>": NBIAS        # V5 side of the balanced bias rail
+  "<-45V B>": NBIAS        # V6 side of the balanced bias rail
+
+symbols:
+  # The netlist letters the phase inverter by function; the sheet letters it by
+  # socket (V4, a 12AT7).
+  PIA: V4A                 # netlist XPIA PPIA GPIA KPI -> the sheet's V4A
+  PIB: V4B                 # netlist XPIB PPIB GPIB KPI -> the sheet's V4B

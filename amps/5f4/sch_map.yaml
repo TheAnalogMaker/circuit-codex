@@ -1,0 +1,15 @@
+# amps/5f4/sch_map.yaml — schematic <-> netlist reconciliation.
+# Data, never a guess in code: every line below is a claim a reviewer can check
+# against this sheet and against netlist.cir. See docs/schematic-nets.md.
+
+anchors:
+  T3.1: BP1                # OT primary, V4 plate end — primary DCR omitted
+  T3.2: BP1                # OT primary centre tap (the <B+1> rail)
+  T3.3: BP1                # OT primary, V5 plate end
+
+symbols:
+  # netlist RCHOKE BP1 BP2 130 Ω is the filter choke's winding DCR, not a
+  # discrete resistor: the sheet draws the choke itself as L1. (layout.yaml
+  # calls RCHOKE netlist_unplaced because it is not a board part; on the sheet
+  # it IS drawn, so it binds to the symbol instead.)
+  RCHOKE: L1

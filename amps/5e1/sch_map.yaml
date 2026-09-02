@@ -1,0 +1,19 @@
+# amps/5e1/sch_map.yaml — schematic <-> netlist reconciliation.
+# Data, never a guess in code: every line below is a claim a reviewer can check
+# against this sheet and against netlist.cir. See docs/schematic-nets.md.
+
+anchors:
+  # netlist: XV2 BP2 BP2 G2 K2 — plate and screen both on BP2, and primary DCR
+  # is omitted, so the plate end and the B+ end of the primary are one node.
+  T1.1: BP2                # OT primary, V2 plate end
+  T1.2: BP2                # OT primary, B+ end (the <B+2> rail)
+  T1.3: "0"                # OT secondary hot — secondary DCR folded into ground;
+                           # R11 (22 k NFB, speaker -> V1B cathode) returns here
+                           # and the netlist has it R11 K1B 0.
+
+symbols:
+  # netlist RCHOKE BP1 BP2 350 Ω is the filter choke's winding DCR, not a
+  # discrete resistor: the sheet draws the choke itself as L1. (layout.yaml
+  # calls RCHOKE netlist_unplaced because it is not a board part; on the sheet
+  # it IS drawn, so it binds to the symbol instead.)
+  RCHOKE: L1

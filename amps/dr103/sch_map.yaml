@@ -1,0 +1,16 @@
+# amps/dr103/sch_map.yaml — schematic <-> netlist reconciliation.
+# Data, never a guess in code: every line below is a claim a reviewer can check
+# against this sheet and against netlist.cir. See docs/schematic-nets.md.
+
+anchors:
+  T1.1: BP1                # OT primary, V5/V6 plate end — primary DCR omitted
+  T1.2: BP1                # OT primary centre tap (the <B+1> rail)
+  T1.3: BP1                # OT primary, V7/V8 plate end
+  T1.4: "0"                # OT secondary hot — secondary DCR folded into ground
+                           # (RNFB's return); mirrors layout net_map SPK: '0'.
+  # netlist RM1/RM2 return the V2B grid to ground (RM1 G2B 0, RM2 G2B 0): the
+  # mixers land on the volume-pot wipers and reach ground down the track. No DC
+  # grid current flows, so the wiper sits at 0 V — the abstraction the netlist
+  # models. Mirrors layout net_map VR1.lug2 / VR2.lug2: '0'.
+  VR1.2: "0"               # Brilliant volume wiper — RM1's return
+  VR2.2: "0"               # Normal volume wiper — RM2's return

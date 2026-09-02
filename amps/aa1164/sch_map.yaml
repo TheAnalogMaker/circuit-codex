@@ -1,0 +1,20 @@
+# amps/aa1164/sch_map.yaml — schematic <-> netlist reconciliation.
+# Data, never a guess in code: every line below is a claim a reviewer can check
+# against this sheet and against netlist.cir. See docs/schematic-nets.md.
+
+anchors:
+  TR2.1: BA                # OT primary, V5 plate end — primary DCR omitted
+  TR2.2: BA                # OT primary centre tap (the <B+1> rail)
+  TR2.3: BA                # OT primary, V6 plate end
+  TR2.4: "0"               # OT secondary hot — secondary DCR folded into ground
+                           # (RNFB's return); mirrors layout net_map SPK.tip: '0'.
+  # netlist RMR GD1 0: the reverb mix resistor's return lands on the reverb-level
+  # pot wiper and reaches ground down the track. No DC grid current flows, so the
+  # wiper sits at 0 V — the abstraction the netlist models. Mirrors layout
+  # net_map VRREV.lug2: '0'.
+  VRREV.2: "0"             # Reverb-level wiper — RMR's return
+
+element_pins:
+  # netlist RTR3 BB PRD 200 is the reverb-transformer primary DCR, not a
+  # discrete resistor: it is the TR3 primary winding, B+ lead to plate lead.
+  RTR3: [TR3.2, TR3.1]
