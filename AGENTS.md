@@ -58,7 +58,8 @@ python3 check_schematics.py   # kiutils round-trip + sheet furniture/legibility
                               #   pipeline/sch_open_pins.yaml, dated, one
                               #   reason sentence each.
 cd pipeline && for f in draw_*.py; do python3 "$f" >/dev/null; done && \
-git diff --exit-code -- ../amps   # zero schematic drift: element ids are
+(cd ../site && node scripts/sync-assets.mjs) && \
+git diff --exit-code -- ../amps ../site/public/schematics   # zero schematic drift: ids are
                                   #   content-derived, so regenerating an
                                   #   unchanged drawing reproduces its file
                                   #   byte for byte. Same gate as models/.

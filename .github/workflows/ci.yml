@@ -35,6 +35,11 @@ jobs:
         working-directory: pipeline
       - run: git diff --exit-code -- ../amps
         working-directory: pipeline
+      # The site serves copies of the sheets; regenerate must be followed by the
+      # sync or the copies drift from the corpus (caught here, not after the build).
+      - run: node scripts/sync-assets.mjs
+        working-directory: site
+      - run: git diff --exit-code -- site/public/schematics
       # The tone-stack lab plots a fixed network and fills its values from each
       # amp's BOM by reference designator. This rebuilds the nets the schematic
       # actually draws and fails if a drawing wires those designators into a
