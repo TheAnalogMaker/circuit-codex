@@ -115,6 +115,9 @@ s.junction(63.5, 172.8)
 s.junction(76.2, 172.8)
 s.sym("C", "C5", "8u", 76.2, 176.61)        # reservoir B+1
 s.gnd(76.2, 180.42)
+# The rail flags need a lead down to the chain. Placed 3.56 mm clear of it they
+# named three rails the drawing never actually reached.
+s.wire(76.2, 169.24, 76.2, 172.8)
 s.glabel("B+1", 76.2, 169.24, 90)
 # R7 500 ohm dropper B+1 -> B+2 (no choke on this circuit)
 s.wire(76.2, 172.8, 80, 172.8)
@@ -123,6 +126,7 @@ s.wire(r, 172.8, 92, 172.8)
 s.junction(92, 172.8)
 s.sym("C", "C6", "8u", 92, 176.61)          # filter B+2
 s.gnd(92, 180.42)
+s.wire(92, 169.24, 92, 172.8)
 s.glabel("B+2", 92, 169.24, 90)
 # R8 25k dropper B+2 -> B+3 (feeds the whole 6SJ7 preamp rail AND the 6V6 screen)
 s.wire(92, 172.8, 96, 172.8)
@@ -131,6 +135,7 @@ s.wire(r, 172.8, 108, 172.8)
 s.junction(108, 172.8)
 s.sym("C", "C7", "8u", 108, 176.61)         # filter B+3
 s.gnd(108, 180.42)
+s.wire(108, 169.24, 108, 172.8)
 s.glabel("B+3", 108, 169.24, 90)
 
 s.write(OUT, [

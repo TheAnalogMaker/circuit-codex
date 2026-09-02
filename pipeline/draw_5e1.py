@@ -104,6 +104,9 @@ s.junction(63.5, 172.8)
 s.junction(76.2, 172.8)
 s.sym("C", "C5", "8u", 76.2, 176.61)       # reservoir B+1
 s.gnd(76.2, 180.42)
+# The rail flags need a lead down to the chain. Placed 3.56 mm clear of it they
+# named three rails the drawing never actually reached.
+s.wire(76.2, 169.24, 76.2, 172.8)
 s.glabel("B+1", 76.2, 169.24, 90)
 # choke B+1 -> B+2
 s.wire(76.2, 172.8, 84, 172.8)
@@ -112,6 +115,7 @@ s.wire(99.24, 172.8, 107, 172.8)
 s.junction(107, 172.8)
 s.sym("C", "C6", "8u", 107, 176.61)        # filter B+2
 s.gnd(107, 180.42)
+s.wire(107, 169.24, 107, 172.8)
 s.glabel("B+2", 107, 169.24, 90)
 # 22k dropper B+2 -> B+3
 s.wire(107, 172.8, 111, 172.8)
@@ -120,6 +124,7 @@ s.wire(r, 172.8, 122, 172.8)
 s.junction(122, 172.8)
 s.sym("C", "C7", "8u", 122, 176.61)        # filter B+3
 s.gnd(122, 180.42)
+s.wire(122, 169.24, 122, 172.8)
 s.glabel("B+3", 122, 169.24, 90)
 
 s.write(OUT, [

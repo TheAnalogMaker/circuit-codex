@@ -15,3 +15,7 @@ symbols:
   # a single un-suffixed triode symbol.
   V2A: V2                  # netlist XV2A P2A G2A K2A -> the sheet's V2
   V3A: V3                  # netlist XV3A PPI GPI KPI -> the sheet's V3
+
+# Hard-gated: verify_schematic_nets.py fails CI on any finding for this sheet.
+# Claimed 2026-09-02 after the drawing went clean against netlist.cir.
+schematic_claim: verified

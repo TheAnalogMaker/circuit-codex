@@ -215,14 +215,16 @@ for y, pref, cref, cval, glref, gsref in [
         s.wire(203.62, 102, 203.62, 136)
         s.wire(203.62, 136, 213.36, 136)
         gy = 136
-    s.wire(213.36, gy, 215.9, gy)
-    gl2, gr2 = s.series_h("R", gsref, "1.5k", 219.71, gy)
+    # The 220k leak returns on the GRID side of the stopper. netlist.cir MODELS
+    # the stopper (R5s NG51 G51) and puts the leak on G51; at x=215.9 it sat on
+    # the coupler side, i.e. the wrong node.
     p = s.pentode(pref, "6L6G", 229.22, gy)
-    s.wire(gr2, gy, p["g1"][0], gy)
-    s.junction(215.9, gy)
-    s.sym("R", glref, "220k", 215.9, gy + 3.81)
-    s.wire(215.9, gy + 7.62, 215.9, gy + 10.16)
-    s.glabel("-42V", 215.9, gy + 10.16, 270)
+    gl2, gr2 = s.series_h("R", gsref, "1.5k", p["g1"][0] - 3.81, gy)
+    s.wire(213.36, gy, gl2, gy)
+    s.junction(gr2, gy)
+    s.sym("R", glref, "220k", gr2, gy + 3.81, lx=-9.4, ly=1.0)
+    s.wire(gr2, gy + 7.62, gr2, gy + 10.16)
+    s.glabel("-42V", gr2, gy + 10.16, 270)
     s.wire(p["g2"][0], p["g2"][1], p["g2"][0] + 2.54, p["g2"][1])
     s.glabel("B+1", p["g2"][0] + 2.54, p["g2"][1], 0)
     s.gnd(229.22, p["k"][1] + 0)

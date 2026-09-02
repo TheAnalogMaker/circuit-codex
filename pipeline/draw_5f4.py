@@ -202,15 +202,16 @@ for y, pref, cref, glref in [(84, "V4", "C9", "RGL1"), (136, "V5", "C10", "RGL2"
         s.wire(196, 136, 205.74, 136)
         gy = 136
         gstop = "R6s"
-    # grid stopper 1.5k in series, then 220k grid leak to -40V
-    s.wire(205.74, gy, 208.28, gy)
-    gl2, gr2 = s.series_h("R", gstop, "1.5k", 212.09, gy)
+    # Grid stopper 1.5k in series, then the 220k leak on the GRID side of it.
+    # netlist.cir MODELS the stopper (R5s NG51 G51) and returns the leak to
+    # G51; drawn on the coupler side the leak sat on the wrong node.
     p = s.pentode(pref, "6L6G", 221.6, gy)
-    s.wire(gr2, gy, p["g1"][0], gy)
-    s.junction(208.28, gy)
-    s.sym("R", glref, "220k", 208.28, gy + 3.81)
-    s.wire(208.28, gy + 7.62, 208.28, gy + 10.16)
-    s.glabel("-40V", 208.28, gy + 10.16, 270)
+    gl2, gr2 = s.series_h("R", gstop, "1.5k", p["g1"][0] - 3.81, gy)
+    s.wire(205.74, gy, gl2, gy)
+    s.junction(gr2, gy)
+    s.sym("R", glref, "220k", gr2, gy + 3.81, lx=-9.4, ly=1.0)
+    s.wire(gr2, gy + 7.62, gr2, gy + 10.16)
+    s.glabel("-40V", gr2, gy + 10.16, 270)
     # screen straight to B+2 (no screen resistor on the C-EG drawing)
     s.wire(p["g2"][0], p["g2"][1], p["g2"][0] + 2.54, p["g2"][1])
     s.glabel("B+2", p["g2"][0] + 2.54, p["g2"][1], 0)
