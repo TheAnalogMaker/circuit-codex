@@ -44,8 +44,36 @@ FONT_L = "(effects (font (size 1.27 1.27)) (justify left))"
 _STROKE = '(stroke (width 0.254) (type default)) (fill (type none))'
 
 
+# ---------------------------------------------------------------------------
+# Element ids
+# ---------------------------------------------------------------------------
+# KiCad wants a uuid on every element. Minting them with uuid4 made the drawing
+# irreproducible: two runs of the same unchanged script produced two different
+# files, so a regeneration of the 5E3 rewrote 182 lines, every one of them a
+# uuid. That is why the corpus could never gate the committed sheets against
+# their own generators the way it gates models/ and loadlines.yaml — the drift
+# check would have failed on every run.
+#
+# The ids are now content-derived: uuid5 over the sheet's amp id and the
+# element's emission order, both pure functions of the drawing. Same drawing,
+# same file, byte for byte; a changed drawing moves only the lines that changed.
+# `write()` reseeds per sheet, so ids never depend on what else ran first.
+_UUID_NS = uuid.NAMESPACE_URL
+_uuid_seed = "circuit-codex"
+_uuid_n = 0
+
+
+def _seed_uuids(seed: str) -> None:
+    """Restart the id sequence for one sheet."""
+    global _uuid_seed, _uuid_n
+    _uuid_seed = seed
+    _uuid_n = 0
+
+
 def _u() -> str:
-    return str(uuid.uuid4())
+    global _uuid_n
+    _uuid_n += 1
+    return str(uuid.uuid5(_UUID_NS, f"circuitcodex:{_uuid_seed}:{_uuid_n}"))
 
 
 def _poly(pts: str) -> str:
@@ -387,6 +415,24 @@ def _lib_extents(lib_text: str, pins: bool = True) -> dict[str, tuple[float, flo
 # is legible, and treating the pin box as solid would push it needlessly far.
 SYM_EXTENTS = _lib_extents(LIB)
 SYM_BODY = _lib_extents(LIB, pins=False)
+
+
+def _lib_pin_points(lib_text: str) -> dict[str, list[tuple[float, float]]]:
+    """{symbol name: [(x, y), ...]} — each pin's CONNECTION point in symbol space.
+
+    A KiCad pin's `(at x y angle)` is the end a wire attaches to; the stub is
+    drawn from there back toward the body. That point, and only that point, is
+    what the connectivity engine matches on."""
+    out: dict[str, list[tuple[float, float]]] = {}
+    for chunk in lib_text.split('(symbol "cx:')[1:]:
+        name = chunk[:chunk.index('"')]
+        out[name] = [(float(m.group(1)), float(m.group(2)))
+                     for m in re.finditer(
+                         rf"\(pin \w+ line \(at {_NUM} {_NUM} \d+\)", chunk)]
+    return out
+
+
+SYM_PINS = _lib_pin_points(LIB)
 
 # Renderer-font metrics, measured rather than assumed. KiCanvas ships KiCad's
 # Newstroke font; each glyph's advance is its (right - left) bound over 21,
@@ -807,6 +853,86 @@ class Sch:
         return {"l1": (x - 6.35, y - 2.54), "l2": (x - 6.35, y + 2.54),
                 "p1": (x + 6.35, y - 2.54), "p2": (x + 6.35, y + 2.54)}
 
+    # ---- connectivity normalisation -------------------------------------
+    def pin_points(self) -> set[tuple[float, float]]:
+        """Every placed symbol's pin connection points, in sheet coordinates."""
+        pts: set[tuple[float, float]] = set()
+        for kind, p, extra in self.items:
+            if kind != "sym":
+                continue
+            lib, _, _, rot, _, mirror, _ = extra
+            x, y = p[0]
+            for sx, sy in SYM_PINS.get(lib, ()):
+                dx, dy = _rot_local(sx, sy, rot, mirror)
+                pts.add((round(x + dx, 3), round(y + dy, 3)))
+        return pts
+
+    def join_points(self) -> set[tuple[float, float]]:
+        """Every point at which something is meant to join a wire: a symbol
+        pin, another wire's end, a junction dot."""
+        pts = self.pin_points()
+        for kind, p, _ in self.items:
+            if kind == "wire":
+                pts.add((round(p[0][0], 3), round(p[0][1], 3)))
+                pts.add((round(p[1][0], 3), round(p[1][1], 3)))
+            elif kind == "junction":
+                pts.add((round(p[0][0], 3), round(p[0][1], 3)))
+        return pts
+
+    def split_wires_at_joins(self) -> int:
+        """Cut every wire at each connection point that lands inside it.
+
+        KiCad's connectivity engine matches connection POINTS, not ink: a wire
+        connects at its two endpoints and nowhere else. A pin whose end lands
+        partway along a wire — or a wire that stops partway along another one,
+        the ordinary T-tap — therefore draws as a clean connection and is
+        electrically open. The drawing says one circuit and the file says
+        another, which is the one failure mode a reader cannot see. Eeschema
+        avoids it by breaking the wire under the cursor as you draw; this does
+        the same thing to the emitted sheet, so a generated file is the file
+        eeschema would have saved.
+
+        Purely a normalisation. The segments span exactly the ink the original
+        wire did, so nothing on the sheet moves, and every net is the net the
+        picture already showed. Returns the number of extra segments made.
+        """
+        joins = self.join_points()
+        if not joins:
+            return 0
+        out: list[tuple] = []
+        added = 0
+        for item in self.items:
+            kind, p, extra = item
+            if kind != "wire":
+                out.append(item)
+                continue
+            (x1, y1), (x2, y2) = p
+            dx, dy = x2 - x1, y2 - y1
+            span = (dx * dx + dy * dy) ** 0.5
+            if span < 1e-9:                       # a zero-length wire cuts nowhere
+                out.append(item)
+                continue
+            cuts = []
+            for (px, py) in joins:
+                # perpendicular distance to the line, then position along it
+                if abs((px - x1) * dy - (py - y1) * dx) / span > 1e-3:
+                    continue
+                d = ((px - x1) * dx + (py - y1) * dy) / span
+                if 1e-3 < d < span - 1e-3:        # strictly inside, not an end
+                    cuts.append((d, (px, py)))
+            if not cuts:
+                out.append(item)
+                continue
+            cuts.sort()
+            prev = (x1, y1)
+            for _, q in cuts:
+                out.append(("wire", [prev, q], ()))
+                prev = q
+            out.append(("wire", [prev, (x2, y2)], ()))
+            added += len(cuts)
+        self.items = out
+        return added
+
     # ---- geometry -------------------------------------------------------
     def boxes(self, dx: float = 0.0, dy: float = 0.0) -> list[tuple]:
         """Every drawn element as (label, x0, y0, x1, y1), translated by
@@ -1027,6 +1153,8 @@ class Sch:
         their coordinates are discarded, because a note's whole point is that it
         no longer competes with the circuit for a place on the sheet."""
         path = Path(path)
+        _seed_uuids(path.parent.name)
+        self.split_wires_at_joins()
         queued = list(self.notes)
         for n in notes:
             queued.append(n if isinstance(n, str) else n[0])
