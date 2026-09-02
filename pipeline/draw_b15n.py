@@ -267,10 +267,10 @@ s.gnd(330, 194.62)
 # the divider across the two anodes, and the coupler to the second grid
 s.wire(330, 82, 356, 82)
 s.junction(356, 82)
-s.sym("R", "R28", "470k", 356, 85.81, lx=2.4, ly=-0.8)
+s.sym("R", "R29", "510k", 356, 85.81, lx=2.4, ly=-0.8)   # tap -> V3A anode
 s.wire(356, 89.62, 356, 120)
 s.junction(356, 120)
-s.sym("R", "R29", "510k", 356, 123.81, lx=2.4, ly=-0.8)
+s.sym("R", "R28", "470k", 356, 123.81, lx=2.4, ly=-0.8)  # V3B anode -> tap
 s.wire(356, 127.62, 356, 162)
 s.wire(356, 162, 330, 162)
 s.junction(356, 162)
@@ -411,9 +411,11 @@ s.gnd(348, 287.62)
 s.wire(340, 280, 348, 280)
 s.glabel("BP3", 340, 280, 180)
 l, r = s.series_h("R", "R38", "22k 1W", 362, 294)
-s.wire(380, 280, 380, 294)
-s.wire(380, 294, r, 294)
-s.junction(380, 294)
+# Tapped clear of the C16A column: dropped from x=380 this branch ran through
+# that can's grounded lower pin and shorted BP2 to chassis.
+s.junction(372, 280)
+s.wire(372, 280, 372, 294)
+s.wire(372, 294, r, 294)
 s.wire(l, 294, 348, 294)
 s.junction(348, 294)
 s.sym("C", "C16C", "40u 500V", 348, 297.81, lx=2.4, ly=-0.8)

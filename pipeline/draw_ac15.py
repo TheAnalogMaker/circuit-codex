@@ -347,6 +347,11 @@ s.junction(222, 218)
 s.sym("C", "CR2", "16u", 222, 221.81)
 s.gnd(222, 225.62)
 s.text("+315 V", 228, 212, 1.15)
+# The rail flag the output stage reads: without it the standby switch, the
+# reservoir and the three droppers were a net of their own and B+1 named only
+# the EL84 plates, screens and the OT centre tap.
+s.wire(240, 218, 240, 210)
+s.glabel("B+1", 240, 210, 90)
 
 # three parallel 22k droppers off the +315 V rail — one per channel, one for the PI
 s.junction(240, 218)
