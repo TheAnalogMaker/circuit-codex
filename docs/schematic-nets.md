@@ -154,10 +154,38 @@ schematic_claim: verified   # opt in to HARD gating (see below)
 
 **Terminal syntax**: `REF.PIN` for a symbol pin, `<NAME>` for a label net.
 
-A declaration never widens to bury a failure. An **undeclared** undrawn element
-is a hard finding; a **stale** declaration naming a terminal the sheet does not
-carry is reported and not applied; and `--report` echoes every reconciliation it
-did apply.
+### Declaration hygiene
+
+A declaration never widens to bury a failure, and it never rots unnoticed
+either. An **undeclared** undrawn element is a hard finding, and `--report`
+echoes every reconciliation that was applied.
+
+A declaration in the sheet's own `sch_map.yaml` that names nothing on the sheet
+is a **`STALE DECLARATION`** finding, whichever key it sits under: a `symbols`
+target, an `anchors` terminal, an `element_pins` pair, a `series_bridge`
+designator. It is named as the stale line it is, with the key and the value that
+no longer resolve, and the declaration is not applied.
+
+This matters most for `symbols`, because that key *redirects* the lookup for a
+netlist element. When its target no longer exists the lookup lands nowhere, and
+reporting only "netlist `V1A` has no symbol" points at the wrong thing: the
+element is usually still on the sheet under its own name, and the obsolete
+redirect is what hid it. So the finding names the stale mapping first and adds
+the hint when the netlist designator does letter a symbol:
+
+```
+STALE DECLARATION: sch_map.symbols[V1A] -> V1 names no symbol on this sheet, so
+netlist V1A was looked up and not found. The sheet does letter a symbol 'V1A',
+so the mapping is probably just obsolete — delete it.
+```
+
+The gate never repairs a stale mapping by falling back to the netlist
+designator. A declaration is data a reviewer owns, and silently working around
+a wrong one is how a map rots.
+
+A declaration **reused from `layout.yaml`** that does not apply here is a scope
+line rather than a finding: it was written about a board, and a board part may
+legitimately have no counterpart on a sheet.
 
 ---
 
@@ -177,6 +205,7 @@ per-component views do not repeat each other.
 | `SHORTED` | a modelled element whose two pins are on one drawn net |
 | `UNMAPPED` | a modelled element's lead on a net carrying no netlist node; says explicitly when the pin is **dangling** |
 | `MISSING SYMBOL` | a netlist element with no schematic symbol and no declaration |
+| `STALE DECLARATION` | an `sch_map.yaml` entry that names nothing on this sheet, so it was not applied |
 
 `--report` adds the applied declarations and the coverage narrative: how many
 symbols the netlist models, how many terminals are DC-checked, which tubes are
@@ -194,10 +223,16 @@ switch CI to it once the corpus is green.
 
 `--selftest` plants faults in a temp copy of a real sheet and proves the gate
 fails on them: a wire end moved onto the wrong pin (the phase-inverter fault
-class), a wire deleted (the dangling-pin fault class), and a stale `sch_map`
-declaration. Because no sheet is green yet, each mutation is scored on the
-**delta** — it must add a new finding of the expected class naming the mutated
-designator, and must not lower the total. The same assertions keep holding once
+class) and a wire deleted (the dangling-pin fault class). It then walks the
+declaration-hygiene cases, one per `sch_map` key, including a `symbols` target
+renamed away while the netlist designator still letters a symbol — the case that
+used to degrade into a misleading `MISSING SYMBOL`. It asserts both that the
+stale line is named and that the element is *not* mis-reported as undrawn, and
+that a reused `layout.yaml` declaration is never called stale `sch_map` data.
+Each mutation is scored on the **delta** — it must add a new finding of the
+expected class naming the mutated designator, and must not lower the total,
+which holds whether or not the sheet was clean to begin with. The assertions
+keep holding once
 a sheet does go green.
 
 ## CI

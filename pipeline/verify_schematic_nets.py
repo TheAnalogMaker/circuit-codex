@@ -89,9 +89,15 @@ Two sources, in this order:
                          `netlist_unplaced`.
      `schematic_claim`   `verified` opts the sheet into HARD gating.
 
-A declaration never widens to bury a failure: an UNdeclared undrawn element is a
-hard finding, a stale declaration naming a terminal the sheet does not carry is
-reported, and every applied reconciliation is echoed in `--report`.
+A declaration never widens to bury a failure, and it never rots unnoticed
+either. An UNdeclared undrawn element is a hard finding. A declaration in the
+sheet's own sch_map.yaml that names nothing on the sheet — a `symbols` target,
+an `anchors` terminal, an `element_pins` pair, a `series_bridge` designator — is
+a STALE DECLARATION finding, named as the stale line it is rather than left to
+surface as some downstream element's MISSING SYMBOL. A declaration REUSED from
+layout.yaml that does not apply here is a scope line instead, because it was
+written about a board and may legitimately have no counterpart on a sheet.
+Every reconciliation that WAS applied is echoed in `--report`.
 
 ------------------------------------------------------------------------------
 WHAT IT REPORTS (each line is something a fixer can act on)
@@ -106,6 +112,7 @@ WHAT IT REPORTS (each line is something a fixer can act on)
   SHORTED        a modelled element whose two pins are on ONE drawn net
   UNMAPPED       a modelled element's lead on a net carrying no netlist node
   MISSING SYMBOL a netlist element with no schematic symbol, undeclared
+  STALE DECL.    an sch_map.yaml declaration that names nothing on this sheet
   (coverage)     every schematic symbol with no netlist element is enumerated,
                  tagged "not DC-checked", so what is NOT proven is stated out
                  loud rather than trusted in silence.
@@ -264,8 +271,17 @@ def check_amp(amp_id: str, sch_path: "Path | None" = None,
         bridges[ref] = (why, "sch_map.series_bridge")
     for ref, (why, src) in sorted(bridges.items()):
         if ref not in G.nets.pins:
-            res.scope.append(f"series_bridge {ref} names no symbol on this sheet "
-                             f"(declared in {src}) — nothing bridged")
+            # A declaration the SHEET's own sch_map.yaml makes is stale — it was
+            # written about this drawing and no longer matches it. A declaration
+            # REUSED from layout.yaml may legitimately not apply here (a board
+            # part the sheet abstracts), so that one is scope, not a finding.
+            if src.startswith("sch_map"):
+                _bump(res, "STALE DECLARATION",
+                      f"sch_map.series_bridge[{ref}] names no symbol on this sheet "
+                      f"— nothing bridged. Delete it, or correct the designator.")
+            else:
+                res.scope.append(f"series_bridge {ref} names no symbol on this sheet "
+                                 f"(declared in {src}) — nothing bridged")
             continue
         if G.join(f"{ref}.1", f"{ref}.2"):
             res.info.append(f"bridged {ref} (DC-transparent, {src}): {why}")
@@ -287,8 +303,9 @@ def check_amp(amp_id: str, sch_path: "Path | None" = None,
         by_node["0"] = [f"<{GND_LABEL}>"]
     for term, node in anchors.items():
         if G.term(term) is None:
-            res.scope.append(f"sch_map anchor {term} -> {node} names no pin or "
-                             f"label on this sheet — not applied")
+            _bump(res, "STALE DECLARATION",
+                  f"sch_map.anchors[{term}] -> {node} names no pin or label on "
+                  f"this sheet — not applied. Correct the terminal, or delete it.")
             continue
         by_node.setdefault(node, []).append(term)
     for node, terms in sorted(by_node.items()):
@@ -308,12 +325,37 @@ def check_amp(amp_id: str, sch_path: "Path | None" = None,
     undrawn = dict(sm.get("netlist_undrawn") or {})
     unplaced = dict(net_map.get("netlist_unplaced") or {})
 
+    # A `symbols` entry redirects the lookup for a netlist element to a
+    # differently-lettered symbol. When its TARGET no longer exists the lookup
+    # lands nowhere, and reporting only "netlist X has no symbol" is actively
+    # misleading — the element may well be on the sheet under its own name, and
+    # the stale redirect is what hid it (this cost a debug cycle when a fixer
+    # renamed ab763's V1 to V1A). So the stale mapping is named first, as a
+    # STALE DECLARATION, and the redirected element is then skipped rather than
+    # mis-reported. It is never repaired by falling back to the netlist name:
+    # a declaration is data a reviewer owns, and silently working around a
+    # wrong one is how a map rots unnoticed.
+    stale_symbols: set = set()
+    for src, dst in sorted(symbols.items()):
+        if dst in G.lib:
+            continue
+        stale_symbols.add(src)
+        hint = (f" The sheet does letter a symbol '{src}', so the mapping is "
+                f"probably just obsolete — delete it."
+                if src in G.lib else
+                f" Neither '{dst}' nor '{src}' is on the sheet.")
+        _bump(res, "STALE DECLARATION",
+              f"sch_map.symbols[{src}] -> {dst} names no symbol on this sheet, so "
+              f"netlist {src} was looked up and not found.{hint}")
+
     tube_terms: dict = {}     # netlist X comp -> {role: terminal}
     part_terms: dict = {}     # netlist R/C/L ref -> (terminal_a, terminal_b)
     modelled_terms: set = set()
 
     for c in comps:
         if c.kind == "X":
+            if c.inst in stale_symbols:
+                continue      # already named as a STALE DECLARATION above
             ref = symbols.get(c.inst, c.inst)
             lib = G.lib.get(ref)
             if lib is None:
@@ -341,15 +383,17 @@ def check_amp(amp_id: str, sch_path: "Path | None" = None,
             if c.ref in element_pins:
                 terms = element_pins[c.ref]
                 if len(terms) != 2 or any(G.term(t) is None for t in terms):
-                    _bump(res, "MISSING SYMBOL",
+                    _bump(res, "STALE DECLARATION",
                           f"sch_map.element_pins[{c.ref}] = {terms} does not name "
-                          f"two terminals this sheet carries")
+                          f"two terminals this sheet carries — {c.ref} is unchecked")
                     continue
                 part_terms[c.ref] = (terms[0], terms[1])
                 modelled_terms.update(terms)
                 res.info.append(f"{c.ref} realised by {terms[0]} / {terms[1]} "
                                 f"(sch_map.element_pins)")
                 continue
+            if c.ref in stale_symbols:
+                continue      # already named as a STALE DECLARATION above
             ref = symbols.get(c.ref, c.ref)
             lib = G.lib.get(ref)
             if lib is None:
@@ -814,13 +858,50 @@ def selftest() -> int:
         shutil.rmtree(tmp, ignore_errors=True)
 
     print("=== declaration hygiene ===")
-    # A stale declaration must be reported, never silently applied.
-    r = check_amp("5f1", sch_map={"anchors": {"NOPE.9": "BP1"},
-                                  "series_bridge": {"NOSUCH": "not a real part"}})
-    stale = [s for s in r.scope if "names no" in s]
-    print(f"  stale anchor/bridge reported: {'YES' if len(stale) >= 2 else 'NO'}")
-    if len(stale) < 2:
-        fails.append("a stale sch_map declaration was applied silently")
+    # EVERY kind of sch_map declaration must name its own staleness. Before this
+    # was uniform, a stale `symbols` target degraded into the redirected
+    # element's MISSING SYMBOL, which points at the wrong thing: it says the
+    # element is undrawn when the element is on the sheet under its own name and
+    # the obsolete redirect is what hid it (a fixer renaming ab763's V1 to V1A
+    # lost a debug cycle to exactly this).
+    hygiene = [
+        ("anchors", {"anchors": {"NOPE.9": "BP1"}}, "sch_map.anchors[NOPE.9]"),
+        ("series_bridge", {"series_bridge": {"NOSUCH": "not a real part"}},
+         "sch_map.series_bridge[NOSUCH]"),
+        ("element_pins", {"element_pins": {"R9": ["NOPE.1", "NOPE.2"]}},
+         "sch_map.element_pins[R9]"),
+        ("symbols -> nothing", {"symbols": {"R9": "NOSUCH"}},
+         "sch_map.symbols[R9] -> NOSUCH"),
+        # The reported bug, exactly: the target was renamed away, and the netlist
+        # element IS on the sheet under its own designator.
+        ("symbols -> renamed away", {"symbols": {"V1A": "V1"}},
+         "sch_map.symbols[V1A] -> V1"),
+    ]
+    for label, sm, needle in hygiene:
+        r = check_amp("5f1", sch_map=sm)
+        hit = [e for e in r.errors
+               if e.startswith("STALE DECLARATION") and needle in e]
+        print(f"  stale {label:22s} {'REPORTED' if hit else 'MISSED'}")
+        if hit:
+            print(f"      -> {hit[0][:150]}")
+        else:
+            fails.append(f"a stale sch_map {label} declaration was not reported")
+    # The renamed-away case must ALSO say the element is on the sheet under its
+    # own name, and must NOT mis-report it as an undrawn tube.
+    r = check_amp("5f1", sch_map={"symbols": {"V1A": "V1"}})
+    guided = any("does letter a symbol 'V1A'" in e for e in r.errors)
+    misled = any(e.startswith("MISSING SYMBOL") and "V1A" in e for e in r.errors)
+    print(f"  renamed-away hint given: {'YES' if guided else 'NO'}; "
+          f"mis-reported as MISSING SYMBOL: {'YES' if misled else 'NO'}")
+    if not guided:
+        fails.append("the stale symbols finding does not point at the real symbol")
+    if misled:
+        fails.append("a stale symbols target still degrades to MISSING SYMBOL")
+    # A layout-sourced declaration that does not apply to a sheet is scope, not
+    # a finding: it was written about a board and may have no counterpart here.
+    r = check_amp("5f1")
+    if any(e.startswith("STALE DECLARATION") for e in r.errors):
+        fails.append("a reused layout declaration was reported as stale sch_map data")
 
     for f in fails:
         print(f"  !! {f}")
