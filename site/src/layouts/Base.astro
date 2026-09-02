@@ -111,8 +111,16 @@ const ldBlocks = [
   a{color:var(--amber);text-decoration:none}
   a:hover,a:focus-visible{text-decoration:underline}
   :focus-visible{outline:2px solid var(--amber);outline-offset:2px;border-radius:2px}
-  nav{border-bottom:1px solid var(--line);position:sticky;top:0;background:rgba(23,19,16,.94);backdrop-filter:blur(6px);z-index:9}
-  .nav-in{display:flex;align-items:center;gap:28px;padding:14px 0;flex-wrap:wrap}
+  /* The header is one row on a wide screen and stays pinned there; below 1024px
+     it wraps into brand / links / search rows and is NOT sticky — a pinned
+     three-row header cost a phone a third of every screen. The pinned bar is
+     nearly opaque (.97): at .94 amber headings ghosted through it while the
+     page scrolled underneath. */
+  nav{border-bottom:1px solid var(--line);position:sticky;top:0;background:rgba(23,19,16,.97);backdrop-filter:blur(6px);z-index:9}
+  /* padding-block, not `padding:14px 0`: the shorthand was wiping out .wrap's
+     24px side padding, which is why the brand sat flush against the phone's
+     left edge while the page below it was indented. */
+  .nav-in{display:flex;align-items:center;gap:12px 28px;padding-block:14px;flex-wrap:wrap}
   .brand{font-family:var(--disp);text-transform:uppercase;letter-spacing:.22em;font-size:15px;color:var(--ink)}
   .brand b{color:var(--amber);font-weight:600}
   /* Links plus the search field do not fit one phone-width row: unwrapped, they
@@ -122,13 +130,27 @@ const ldBlocks = [
      shrinks rather than forcing a horizontal page scroll. */
   .nav-links{display:flex;flex-wrap:wrap;align-items:center;gap:8px 20px;margin-left:auto;font-family:var(--disp);text-transform:uppercase;letter-spacing:.14em;font-size:12.5px}
   .nav-links a{color:var(--muted)}
-  .nav-search{flex:0 1 11rem;min-width:0;margin:0}
+  /* The field's width is set on the form, in rems, on purpose. With only a
+     percentage width on the input, the row measured the form at the input's
+     default size but laid it out at its (larger) flex-basis, so the row came
+     out too narrow for its own contents and the field fell onto a second line
+     at every laptop width. A definite width measures and lays out the same. */
+  .nav-search{width:9rem;flex:0 1 auto;min-width:0;margin:0}
   .nav-search input{
     appearance:none;-webkit-appearance:none;box-sizing:border-box;width:100%;min-width:0;
     font-family:var(--body);font-size:13px;letter-spacing:0;text-transform:none;
     color:var(--ink);background:var(--well);border:1px solid var(--line);border-radius:99px;
     padding:4px 12px;
   }
+  @media(max-width:1023px){
+    nav{position:static}
+    .nav-in{padding-block:12px}
+    .nav-links{flex:1 1 100%;margin-left:0}
+    .nav-search{width:auto;flex:1 1 12rem;max-width:22rem}
+  }
+  /* On a phone the field takes a row of its own rather than sitting beside
+     whichever link happened to wrap last. */
+  @media(max-width:599px){.nav-search{flex-basis:100%}}
   .nav-search input::placeholder{color:var(--faint);font-family:var(--disp);font-size:12px;letter-spacing:.1em;text-transform:uppercase}
   .nav-search input:focus{outline:2px solid var(--amber);outline-offset:2px;border-color:var(--amber-dim)}
   h1,h2,h3{font-family:var(--disp);text-transform:uppercase;font-weight:600;letter-spacing:.06em;text-wrap:balance}
