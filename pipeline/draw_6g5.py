@@ -53,9 +53,9 @@ def channel(y, tag, jn2, rjn, rg, vref_a, rl_a, rk_a, ck_a,
     s.glabel(f"{tag} 1", 12, y - 4, 180)
     s.glabel(f"{tag} 2", 12, y + 4, 180)
     l, r = s.series_h("R", rjn, "68k", 22, y + 4)
-    s.wire(16, y + 4, l, y + 4)
+    s.wire(12, y + 4, l, y + 4)
     s.wire(r, y + 4, GB, y + 4)
-    s.wire(16, y - 4, GB, y - 4)              # jack 1: straight to the grid bus
+    s.wire(12, y - 4, GB, y - 4)              # jack 1: straight to the grid bus
     s.wire(GB, y - 4, GB, y + 4)
     s.junction(GB, y)
     s.sym("R", rg, "1M", GB, y + 3.81 + 4)
@@ -86,8 +86,11 @@ def channel(y, tag, jn2, rjn, rg, vref_a, rl_a, rk_a, ck_a,
     bl, br = s.series_h("C", cf, ".01u", 86, tee + 6)
     s.wire(80, tee + 6, bl, tee + 6)
     s.wire(br, tee + 6, 92, tee + 6)
-    s.wire(85.08, tee - 2.19, 92, tee - 2.19)  # treble pot's foot lug
-    s.wire(92, tee - 2.19, 92, tee + 6)
+    # The foot lug is pin 3 at (80, tee + 1.62); the run below was drawn from
+    # the WIPER's x at the wiper's y, so the foot floated and the wiper fed the
+    # bass node instead of the Volume pot.
+    s.wire(80, tee + 1.62, 92, tee + 1.62)     # treble foot lug (pin 3) -> bass node
+    s.wire(92, tee + 1.62, 92, tee + 6)
     s.sym("POT", vrb, "250k-A", 92, tee + 6 + 3.81)
     # bass wired as a rheostat: wiper strapped to its hot lug, foot to ground
     s.wire(97.08, tee + 9.81, 104, tee + 9.81)
@@ -96,8 +99,8 @@ def channel(y, tag, jn2, rjn, rg, vref_a, rl_a, rk_a, ck_a,
     s.junction(92, tee + 6)
     s.gnd(92, tee + 13.62)
     # treble wiper -> volume top lug
-    s.wire(85.08, tee - 6, 112, tee - 6)
-    s.wire(112, tee - 6, 112, tee)
+    s.wire(85.08, tee - 2.19, 112, tee - 2.19)   # treble WIPER (pin 2) = stack out
+    s.wire(112, tee - 2.19, 112, tee)
     s.sym("POT", vrv, "250k-A", 112, tee + 3.81)
     s.gnd(112, tee + 7.62)
     # volume wiper -> V.B grid directly (DC-referred through the pot body —
@@ -151,8 +154,11 @@ s.wire(MX, teeB2, MX, MY)
 s.junction(MX, teeN2)
 s.junction(MX, teeB2)
 s.junction(MX, MY)
-s.sym("R", "RG5", "1M", MX, MY + 3.81, lx=3.2, ly=1.0)
-s.gnd(MX, MY + 7.62)
+# RG5 hangs to the LEFT of the mixing bus: under it, the Bright channel's
+# own run up the bus passed through its lower pin and grounded the node.
+s.wire(MX, MY, 160, MY)
+s.sym("R", "RG5", "1M", 160, MY + 3.81, lx=-9.4, ly=1.0)
+s.gnd(160, MY + 7.62)
 s.note('Channel-mixing node — both channels sum here; the tremolo photocell (below) also shunts it')
 
 # ============================ DRIVER (V5) ==============================
@@ -181,9 +187,10 @@ s.wire(228, teeD - 15.62, 228, teeD - 18)
 s.wire(228, teeD - 18, MX, teeD - 18)
 s.wire(MX, teeD - 18, MX, teeD)
 s.wire(MX, teeD, MX, MY - 0.01)
-s.sym("C", "CFB1", ".0025u", 210, teeD - 8, rot=90, lx=-3.2, ly=5.0)
-s.wire(210, teeD - 3.81, 210, teeD)
+s.sym("C", "CFB1", ".0025u", 210, teeD - 8, lx=2.8, ly=-2.0)
+s.wire(210, teeD - 4.19, 210, teeD)
 s.wire(210, teeD, 216, teeD)
+s.junction(210, teeD)
 s.junction(216, teeD)
 s.wire(210, teeD - 11.81, 210, teeD - 16)
 s.gnd(210, teeD - 16)
@@ -195,7 +202,7 @@ PT_ = YT - 11.1
 # any clear band on this sheet, so it printed across the bias diodes however
 # it was placed. The heading keeps to a headline beside the oscillator; the
 # mechanism sentence is a note, and notes live in the band.
-s.caption('Tremolo — V3 phase-shift oscillator (DC point excluded from netlist.cir)', 122, 227, 1.4)
+s.caption('Tremolo — V3 phase-shift oscillator (DC point excluded from netlist.cir)', 122, 250, 1.4)
 s.note('The tremolo oscillator drives a lamp/photoresistor pair (OPTO) whose photocell shunts the channel-mixing node (notes.md).')
 s.note('Phase-shift ladder values (RTOG1/RTOG2/CTO1-3) are a schematic-only reading, typical of this circuit family — not confidently resolved from the scan (bom.yaml).')
 t3 = s.triode("V3", "7025", 100, YT)
@@ -245,7 +252,9 @@ s.wire(100, PT_, 120, PT_)
 s.sym("POT", "VRINT", "250k-L intens.", 120, PT_ + 3.81)
 s.gnd(120, PT_ + 7.62)
 op = s.opto("OPTO", "optocoupler", 148, PT_)
-s.wire(125.08, PT_, 148 - 6.35, PT_)
+s.wire(125.08, PT_ + 3.81, 134, PT_ + 3.81)   # Intensity WIPER, not its top lug
+s.wire(134, PT_ + 3.81, 134, PT_ - 2.54)
+s.wire(134, PT_ - 2.54, op["l1"][0], op["l1"][1])   # ...to the lamp terminal
 s.wire(op["l2"][0], op["l2"][1], op["l2"][0] - 4, op["l2"][1])
 s.gnd(op["l2"][0] - 4, op["l2"][1])
 s.wire(op["p1"][0], op["p1"][1], op["p1"][0] + 4, op["p1"][1])
@@ -256,7 +265,9 @@ s.glabel("MIXG2", MX + 6, MY, 0)
 s.wire(MX + 6, MY, MX, MY)
 # vibrato footswitch jack shorts the speed/ladder network when engaged (drawn
 # as a simple stub to ground per the drawing's dashed VIBRATO PEDAL box)
-s.jack("JVIB", "vibrato pedal", 16, YT + 30, mirror=False)
+jv = s.jack("JVIB", "vibrato pedal", 16, YT + 30, mirror=False)
+s.wire(jv["sleeve"][0], jv["sleeve"][1], jv["sleeve"][0], YT + 36)
+s.gnd(jv["sleeve"][0], YT + 36)
 s.text("Vibrato pedal", 8, YT + 24, 1.2)
 
 # ============================ PHASE INVERTER (LTP, V6) =================
@@ -273,8 +284,12 @@ s.plate_load("RLA", "82k 5%", t6a["p"], "BP3")
 s.plate_load("RLB", "100k 5%", t6b["p"], "BP3")
 s.wire(XPI, YPH + 7.62, XPI, YPH + 10)
 s.wire(XPI, YPH + 10, 250, YPH + 10)
-s.wire(XPI, YPB - 7.62, XPI, YPB - 10)
-s.wire(XPI, YPB - 10, 250, YPB - 10)
+# ...and the cold half's cathode comes out UNDER its own bottle, left, and up
+# into the same bus (YPB - 7.62 is the PLATE pin on an upright triode, so the
+# tail resistor sat on the cold plate node and V6B's cathode floated).
+s.wire(XPI, YPB + 7.62, 244, YPB + 7.62)
+s.wire(244, YPB + 7.62, 244, YPB - 10)
+s.wire(244, YPB - 10, 250, YPB - 10)
 s.wire(250, YPH + 10, 250, YPB - 10)
 s.junction(250, JY)
 tl, tr = s.series_h("R", "RTAIL", "820", 244.5, JY)
@@ -289,6 +304,11 @@ s.sym("R", "RPRES", "1.6k", 220, JY + 3.81, lx=3.2, ly=2.0)
 s.sym("POT", "VRPRES", "5k-L pres.", 220, JY + 3.81 + 7.62 + 3.81, lx=3.2, ly=2.0)
 s.wire(220, JY + 7.62, 220, JY + 7.62 + 3.81)
 s.gnd(220, JY + 3.81 + 7.62 + 3.81 + 3.81)
+# rheostat: the wiper is strapped to the lug RPRES feeds, the idiom 6G4's
+# own Presence pot uses. Left floating it made the control a fixed 5k.
+s.wire(225.08, JY + 15.24, 225.08, JY + 11.43)
+s.wire(225.08, JY + 11.43, 220, JY + 11.43)
+s.junction(220, JY + 11.43)
 # The feedback resistor is drawn directly (not via series_h) so its lettering
 # can be anchored UNDER the part: series_h's beside-the-body anchor left the
 # block straddling the NFB wire itself. (No label_rot: sym()'s default
@@ -296,7 +316,7 @@ s.gnd(220, JY + 3.81 + 7.62 + 3.81 + 3.81)
 s.sym("R", "RNFB", "56k", 206, JY, rot=90, lx=-2.2, ly=2.4)
 nl, nr = 206 - 3.81, 206 + 3.81
 s.wire(nr, JY, 220, JY)
-s.wire(196, JY, nl, JY)
+s.wire(192, JY, nl, JY)
 s.glabel("SPKR", 192, JY, 180)
 # hot grid leak: JPI -> 1M -> hot grid
 s.sym("R", "RGA", "1M", 238, JY - 8, lx=-9.4)
@@ -312,7 +332,7 @@ s.wire(234, YPB, 250.38, YPB)
 s.junction(234, YPB)
 s.junction(250.38, YPB)
 s.wire(230, YPH, 234, YPH)
-s.wire(234, YPH, 238.38, YPH)
+s.wire(234, YPH, XPI - 7.62, YPH)
 s.junction(234, YPH)
 # PI plate-adjacent damping cap (CPID) across the two plates
 teeA = YPH - 7.62 - 3.48
@@ -361,10 +381,11 @@ s.wire(XO, 151.745, XO, 148)
 s.wire(XO, 148, 338, 148)
 s.wire(338, 148, 338, 125.08)
 s.wire(338, 125.08, 343.11, 125.08)
-s.wire(343.11, 120, 334, 120)
+s.wire(343.11, 120, 330, 120)
 s.glabel("BP1", 330, 120, 180)
 s.wire(360.89, 117.46, 364, 117.46)
 s.glabel("SPKR", 364, 117.46, 0)
+s.wire(364, 117.46, 366.92, 117.46)
 s.wire(360.89, 122.54, 364, 122.54)
 s.jack("JSPK", "spkr", 372, 120)
 s.wire(364, 122.54, 366.92, 122.54)
@@ -402,9 +423,9 @@ s.wire(62, BY, 62, BY - 3.5)
 s.glabel("B_RES", 62, BY - 3.5, 90)
 s.text("+460 V reservoir", 34, BY - 6, 1.1)
 # choke to BP1
-s.wire(62, BY, 68, BY)
+s.wire(62, BY, 70.38, BY)
 s.sym("CHOKE", "L1", "CH.", 78, BY)
-s.wire(88, BY, 94, BY)
+s.wire(85.62, BY, 94, BY)
 s.junction(94, BY)
 s.wire(94, BY, 94, BY - 3.5)
 s.glabel("BP1", 94, BY - 3.5, 90)
@@ -438,15 +459,16 @@ s.wire(r, BY, 142, BY)
 s.junction(142, BY)
 s.sym("C", "CF7", "20u 600V", 142, BY + 3.81)
 s.gnd(142, BY + 7.62)
-s.note('56k/10k dropper — illustrative; BP3/BDRV/BD are driven anchors (see header)')
+s.note('56k/10k dropper — illustrative; BP3/BDRV/BD are driven anchors (see header). The driver rail sits above the reservoir this chain hangs from, so no tap off it is drawn.')
 # anchors, drawn as labelled taps off this illustrative chain
 s.wire(130, BY, 130, BY - 8)
 s.glabel("BP3", 130, BY - 8, 90)
 s.wire(142, BY, 150, BY)
-s.wire(150, BY, 150, BY - 8)
-s.glabel("BDRV", 150, BY - 8, 90)
 s.wire(150, BY, 150, BY + 8)
 s.glabel("BD", 150, BY + 8, 270)
+# No BDRV tap is drawn off this chain. The driver rail sits ABOVE the reservoir
+# this chain hangs from, so no node on it can feed the driver; taken off the
+# same point as BD, the flag drew the two rails as one node.
 
 # mains / AC switch / fuse / pilot lamp
 s.sym("PT", "TR1", "n/a", 40, 224, lx=-6.35, ly=-11.9)
@@ -475,7 +497,7 @@ s.text("Pilot lamp — fed from the 6.3 V heater chain (layout.yaml twisted run)
 s.text("Bias supply — a filtered tap this drawing does not fully resolve; netlist.cir treats -55 V as an ideal source (notes.md)",
        196, 210, 1.3)
 s.glabel("HT_B", 196, 220, 180)
-s.wire(200, 220, 206, 220)
+s.wire(196, 220, 206, 220)
 s.sym("DIODE_SS", "DBIAS", "Si", 210, 220, lx=-2.0, ly=-5.4)
 s.wire(215.08, 220, 222, 220)
 s.junction(222, 220)

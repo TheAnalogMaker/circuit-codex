@@ -49,10 +49,10 @@ def input_stage(y, j1, j2, r1, r2, rleak, vref, rload, rk, ck, rail):
     s.glabel(j1, 12, y - 4, 180)
     s.glabel(j2, 12, y + 4, 180)
     l, r = s.series_h("R", r1, "68k", 22, y - 4)
-    s.wire(16, y - 4, l, y - 4)
+    s.wire(12, y - 4, l, y - 4)
     s.wire(r, y - 4, GB, y - 4)
     l, r = s.series_h("R", r2, "68k", 22, y + 4)
-    s.wire(16, y + 4, l, y + 4)
+    s.wire(12, y + 4, l, y + 4)
     s.wire(r, y + 4, GB, y + 4)
     s.wire(GB, y - 4, GB, y + 4)
     s.junction(GB, y)
@@ -96,10 +96,6 @@ def tone_stack(tee, ct, vrt, rs, vrb, rsl, vrv):
     s.wire(70, by, sl, by)
     s.wire(sr, by, 79, by)
     s.junction(79, by)                            # node B
-    s.wire(79, by, 79, by + 7.62)
-    s.sym("R", rsl, "10k", 79, by + 11.43)
-    s.gnd(79, by + 15.24)
-
     s.wire(88, ty + 3.81, 88, by)                 # treble bottom lug (pin 3) -> node B
     s.wire(79, by, 88, by)                        # tie node B (RS/RSL) to that landing
     bay = by + 7.81                               # bass pot centre y
@@ -110,6 +106,14 @@ def tone_stack(tee, ct, vrt, rs, vrb, rsl, vrv):
     s.junction(88, bay - 3.81)
     s.wire(88, by, 88, bay - 3.81)                # tie the two "node B" landings
     s.junction(88, by)
+    # RSL is this ladder's mid leg and hangs off the bass rheostat's FOOT lug —
+    # drawn from node B instead, the pot bridged nothing at all and its third
+    # lug floated (docs/lettering aside, the corpus's 'ladder' wiring is
+    # documented in check_tonestack_wiring.py: N5 = bass-rheostat foot =
+    # mid-leg top). No bass cap on this stack, so node B is N2 and N4 at once.
+    s.wire(88, bay + 3.81, 79, bay + 3.81)        # bass foot lug -> mid leg
+    s.sym("R", rsl, "10k", 79, bay + 7.62)
+    s.gnd(79, bay + 11.43)
 
     s.wire(93.08, ty, 100.5, ty)                  # treble wiper (pin 2) = stack output
     s.sym("POT", vrv, "500k-L vol", 100.5, ty + 3.81)
@@ -202,8 +206,16 @@ s.junction(196, teeo)                              # N1
 # Anchor the Speed pot's lettering beside its own ground stub, under the
 # wiper: the default anchor sat the value line on the ladder wire and CTO2's
 # left pin, and the placer's alternative dropped it onto the ground stub.
-s.sym("POT", "VRSPD", "4M-RA speed", 196, teeo + 3.81, lx=2.6, ly=2.8)
-s.gnd(196, teeo + 11.43)
+s.sym("POT", "VRSPD", "4M-RA speed", 196, teeo + 3.81, lx=7.0, ly=2.8)
+# Rheostat: foot lug to ground, wiper strapped to it (the idiom 6G3's own VR5
+# uses). Drawn with neither lead, the "Speed" control was a fixed 4M to nowhere.
+# The ground goes out to the LEFT: straight down it would have run through
+# V2B's grid line, which crosses under this whole ladder at y = YT.
+s.wire(196, teeo + 7.62, 190, teeo + 7.62)
+s.gnd(190, teeo + 7.62, 180)
+s.wire(201.08, teeo + 3.81, 201.08, teeo + 7.62)
+s.wire(201.08, teeo + 7.62, 196, teeo + 7.62)
+s.junction(196, teeo + 7.62)
 s.text("Speed", 184, teeo - 6, 1.2)
 cl, cr = s.series_h("C", "CTO2", ".01u", 204, teeo)
 s.wire(196, teeo, cl, teeo)
@@ -226,6 +238,7 @@ s.sym("R", "RINT", "220k", 164, teeo - 13.81)
 s.wire(164, teeo - 17.62, 164, teeo - 21)
 s.sym("POT", "VRINT", "10M-RA intensity", 164, teeo - 24.81)
 s.gnd(164, teeo - 32.43)
+s.wire(164, teeo - 28.62, 164, teeo - 32.43)   # pot lug -> its own ground flag
 s.wire(169.08, teeo - 24.81, 190, teeo - 24.81)
 s.glabel("NBIAS", 190, teeo - 24.81, 0)
 s.text("Intensity", 132, teeo - 26, 1.2)
@@ -253,8 +266,12 @@ s.plate_load("RLPB", "100k 5%", t5b["p"], "BC")
 # cathodes join on a right stub; 820 from there to the tail junction
 s.wire(XPI, YPH + 7.62, XPI, YPH + 10)
 s.wire(XPI, YPH + 10, 250, YPH + 10)
-s.wire(XPI, YPB - 7.62, XPI, YPB - 10)
-s.wire(XPI, YPB - 10, 250, YPB - 10)
+# ...and the cold half's cathode comes out UNDER its own bottle, left, and up
+# into the same bus (YPB - 7.62 is the PLATE pin on an upright triode, so the
+# tail resistor sat on the cold plate node and V5B's cathode floated).
+s.wire(XPI, YPB + 7.62, 246, YPB + 7.62)
+s.wire(246, YPB + 7.62, 246, YPB - 10)
+s.wire(246, YPB - 10, 250, YPB - 10)
 s.wire(250, YPH + 10, 250, YPB - 10)
 s.junction(250, JY)
 tl, tr = s.series_h("R", "RTAIL", "820 5%", 244.5, JY)
@@ -273,8 +290,8 @@ s.sym("R", "RGPB", "1M", 234, JY + 8, lx=2.8)
 s.wire(234, JY + 4.19, 234, JY)
 s.junction(234, JY)
 s.wire(234, JY + 11.81, 234, YPB)
-s.wire(234, YPB, 250.38, YPB)
-s.junction(250.38, YPB)
+s.wire(234, YPB, XPI - 7.62, YPB)
+s.junction(XPI - 7.62, YPB)
 
 # --- tail junction -> 6.8k -> NFB/presence node ------------------------
 tl, tr = s.series_h("R", "RT2", "6.8k", 226, JY)
@@ -283,7 +300,7 @@ s.wire(tl, JY, 216, JY)                            # NFB node
 s.junction(216, JY)
 nl, nr = s.series_h("R", "RNFB", "56k 1W", 202, JY)
 s.wire(nr, JY, 216, JY)
-s.wire(190, JY, nl, JY)
+s.wire(186, JY, nl, JY)
 s.glabel("SPKR", 186, JY, 180)
 # Presence: RPF (1.5k fixed foot) in parallel with VRPRES (5k-L pot, wired
 # as a rheostat — wiper strapped to its grounded lug) — both bridge the NFB
@@ -308,8 +325,11 @@ s.junction(XPI, teec)
 s.wire(XPI, teec, 280, teec)
 cl, cr = s.series_h("C", "C1", ".05u", 288, teea)
 s.wire(280, teea, cl, teea)
-s.wire(cr, teea, 300, teea)
-s.wire(300, teea, 300, 80)
+s.wire(cr, teea, 296, teea)
+# up the 296 lane, not 300: climbing x=300 the run passed through RGL1's
+# lower pin and shorted V7's grid leak end to end.
+s.wire(296, teea, 296, 80)
+s.wire(296, 80, 300, 80)
 cl, cr = s.series_h("C", "C2", ".05u", 288, teec)
 s.wire(280, teec, cl, teec)
 s.wire(cr, teec, 300, teec)
@@ -317,9 +337,11 @@ s.wire(300, teec, 300, 172)
 
 XO = 324
 s.text("Output pair — 6L6GC, fixed bias, screens off BP1 through 470R-1W stoppers each", 300, 62, 1.4)
+plates = {}
 for gy, vref, glref, sref, gnode in [(80, "V7", "RGL1", "RS1", 300), (172, "V8", "RGL2", "RS2", 300)]:
     s.wire(gnode, gy, XO - 7.62, gy)
     p = s.pentode(vref, "6L6GC", XO, gy)
+    plates[vref] = p["p"]
     s.junction(gnode, gy)
     s.sym("R", glref, "220k 5%", gnode, gy + 3.81, lx=3.0, ly=2.4)
     s.wire(gnode, gy + 7.62, gnode, gy + 10.16)
@@ -332,14 +354,17 @@ for gy, vref, glref, sref, gnode in [(80, "V7", "RGL1", "RS1", 300), (172, "V8",
 
 # ---- output transformer ---------------------------------------------
 s.sym("OT_PP", "T2", "45216", 356, 126, lx=-6.35, ly=-14.5)
-s.wire(XO, 71.745, XO, 68)
+s.wire(*plates["V7"], XO, 68)
 s.wire(XO, 68, 347.11, 68)
 s.wire(347.11, 68, 347.11, 120.92)
-s.wire(XO, 179.745, XO, 184)
-s.wire(XO, 184, 342, 184)
-s.wire(342, 184, 342, 131.08)
+# V8's primary lead was drawn from a point 0.76 mm under its GROUNDED cathode,
+# so the plate reached nothing and the OT's lower primary hung off the ground
+# stub. Taken off the plate pin itself, up and over the bottle's own lettering.
+s.wire(*plates["V8"], XO, 158)
+s.wire(XO, 158, 342, 158)
+s.wire(342, 158, 342, 131.08)
 s.wire(342, 131.08, 347.11, 131.08)
-s.wire(347.11, 126, 338, 126)
+s.wire(347.11, 126, 334, 126)
 s.glabel("BP1", 334, 126, 180)
 s.wire(364.89, 123.46, 368, 123.46)
 s.glabel("SPKR", 368, 123.46, 0)
@@ -399,7 +424,7 @@ YBI = 240
 s.text("Bias supply — an HT tap, a rectifier, then a 56k/10k divider with an 8 uF filter, to a fixed -55 V (no trimmer)",
        196, 232, 1.3)
 s.glabel("HT_B", 196, YBI, 180)
-s.wire(200, YBI, 205.08, YBI)
+s.wire(196, YBI, 205.08, YBI)
 s.sym("DIODE_SS", "DBIAS", "Si", 210, YBI, lx=-2.0, ly=-5.4)
 s.wire(215.08, YBI, 220, YBI)
 l, r = s.series_h("R", "RBIAS1", "56k", 224, YBI)
