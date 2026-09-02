@@ -166,9 +166,19 @@ const itemList = {
   h1{font-size:clamp(32px,5.5vw,54px);line-height:1.08;margin:14px 0 18px}
   .lede{max-width:60ch;color:var(--muted);font-size:17px}
   .lede strong{color:var(--ink)}
-  .stats{display:flex;margin:36px 0 8px;border:1px solid var(--line);border-radius:6px;background:var(--panel);overflow-x:auto;width:fit-content}
+  /* The bar is as wide as its four cells want, but never wider than the page:
+     without the max-width, four 110px-minimum cells pushed the whole document
+     to 494px in a 390px viewport and every phone scrolled sideways. Under 600px
+     the cells drop into a 2×2 grid instead, with the dividers redrawn for it. */
+  .stats{display:flex;margin:36px 0 8px;border:1px solid var(--line);border-radius:6px;background:var(--panel);overflow-x:auto;width:fit-content;max-width:100%}
   .stat{padding:16px 26px;border-right:1px solid var(--line-soft);min-width:110px}
   .stat:last-child{border-right:0}
+  @media(max-width:599px){
+    .stats{display:grid;grid-template-columns:1fr 1fr;width:auto;overflow:visible}
+    .stat{min-width:0;padding:14px 18px}
+    .stat:nth-child(even){border-right:0}
+    .stat:nth-child(-n+2){border-bottom:1px solid var(--line-soft)}
+  }
   .stat .n{font-family:var(--disp);font-size:30px;color:var(--amber);font-variant-numeric:tabular-nums}
   .stat .l{font-size:12px;text-transform:uppercase;letter-spacing:.12em;color:var(--faint)}
   h2{font-size:20px;letter-spacing:.14em;margin:24px 0 4px}
