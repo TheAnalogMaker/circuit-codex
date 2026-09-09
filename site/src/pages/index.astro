@@ -36,12 +36,18 @@ const itemList = {
 };
 ---
 <Base title="Circuit Codex — the open archive of classic guitar amp circuits"
-      description="Every classic tube amp circuit — redrawn KiCad schematics, ngspice-verified netlists, and the lineage that connects them. Open, machine-readable, CC-BY-SA."
+      description={`${stats.circuits} classic tube amp circuits — redrawn KiCad schematics, ngspice-verified netlists, and the lineage that connects them. Open, machine-readable, CC-BY-SA.`}
       jsonld={[dataset, itemList]}>
 <div class="wrap">
   <header class="hero">
     <div class="eyebrow">An open, machine-readable archive</div>
-    <h1>Every classic tube amp circuit.<br />Redrawn. Verified. Connected.</h1>
+    {/* The h1 names the subject; the counter bar below states how much of it is
+        here, and the meta description carries the same count. It used to open
+        "Every classic tube amp circuit", which promised a complete corpus on a
+        page documenting a few dozen — the one claim left on this site that its
+        own data could not back. The three-beat second line is unchanged: the
+        site's social card (site/scripts/og-card.svg) sets the same cadence. */}
+    <h1>Classic tube amp circuits.<br />Redrawn. Verified. Connected.</h1>
     <p class="lede">The amplifiers that made electric guitar — as clean KiCad schematics,
       <strong>simulation-checked netlists</strong>, and structured metadata, built in the open.
       No scans: every circuit is redrawn from the underlying facts. A

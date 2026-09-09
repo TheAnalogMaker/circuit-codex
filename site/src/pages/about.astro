@@ -1,11 +1,17 @@
 ---
 import Base from '../layouts/Base.astro';
-import { loadCorpus, datasetJsonLd, GITHUB } from '../lib/corpus.js';
+import { loadCorpus, datasetJsonLd, schematicNetsVerified, GITHUB } from '../lib/corpus.js';
 
 const amps = loadCorpus();
 const nCircuits = amps.length;
 const nVerified = amps.filter((a) => a.meta.verification?.status === 'verified').length;
 const nDraft = nCircuits - nVerified;
+
+// How far the schematic-equivalence check reaches, counted rather than written
+// into the prose: a sheet is hard-gated only where its own sch_map.yaml claims
+// it, so the sentence below has to read the same data the amp pages read.
+const nSheets = amps.filter((a) => a.hasSchematic).length;
+const nSheetsChecked = amps.filter((a) => schematicNetsVerified(a)).length;
 
 // Circuits carrying at least one disputed chart node, counted from the voltage files
 // rather than written into the prose — the number was hardcoded and would go stale the
@@ -61,7 +67,8 @@ const dataset = datasetJsonLd(Astro.site);
     <h2>What's on the site</h2>
     <dl class="map">
       <dt><a href="/#circuits">Circuit pages</a></dt>
-      <dd>One page per circuit: a pan-and-zoom schematic redrawn in KiCad, a board-layout
+      <dd>One page per circuit: a pan-and-zoom schematic redrawn in KiCad and checked
+        against the netlist, a board-layout
         diagram with machine-checked wiring, the simulated operating point compared
         against the published voltage chart with explicit tolerances, a parts list keyed
         to the schematic's reference designators, a circuit story, and the sources every
@@ -117,6 +124,31 @@ const dataset = datasetJsonLd(Astro.site);
       <span class="chip">chart disputed</span> with the arithmetic shown, never silently
       forced to fit. Circuits that haven't completed the chain carry a
       <span class="chip">draft</span> badge.</p>
+
+    {/* The drawing checks are deliberately NOT items in the list above: that list
+        is the chain that earns the badge, and the schematic gate is independent
+        of it — a sheet can be proved equivalent to a netlist whose voltages were
+        never gated, and the reverse. Told once, here, as the distinction it is. */}
+    <h3>Two proofs, and what each one covers</h3>
+    <p>A circuit here can carry two connectivity proofs, and they are worth keeping
+      apart. The badge above is about the <strong>netlist</strong>: it is simulated,
+      and its operating point has to land inside the published chart. The second is
+      about the <strong>drawings</strong>: the redrawn schematic is checked against
+      that same netlist node for node — every component the netlist models with its
+      terminals on the same nodes in both — and the board layout is checked the same
+      way, independently. So the sheet a reader studies and the netlist behind the
+      voltages are provably the same circuit, and neither can be edited away from
+      the other in silence.</p>
+    <p>Both run in CI on every commit, and neither stands in for the other. A drawing
+      can be a faithful picture of a netlist whose voltages were never checked against
+      a chart; a netlist can sit well inside its chart while the sheet printed beside
+      it is drawn wrong. The schematic check's first pass found exactly that — a
+      long-tailed-pair tail taken off the wrong pin, repeated across sheets that had
+      already passed every other gate, three of them carrying a verified badge. Neither
+      proof says the netlist is a faithful reading of the factory drawing; that rests on
+      the cited sources and on the chart comparison above. {nSheetsChecked} of the
+      {nSheets} redrawn sheets currently claim the drawing check; where a sheet does not,
+      its page carries no note at all rather than a softer one.</p>
   </section>
 
   <section id="limitations">
@@ -227,6 +259,9 @@ const dataset = datasetJsonLd(Astro.site);
   section p,section li,section dd{color:var(--ink);font-size:14.5px}
   section p strong,section li strong{color:var(--ink)}
   h2{font-size:19px;border-bottom:1px solid var(--line-soft);padding-bottom:8px}
+  /* A subsection inside a section: clearly subordinate to the h2 above it, and
+     no rule of its own — the h2's rule already divides the sections. */
+  h3{font-size:14.5px;letter-spacing:.14em;margin:26px 0 6px;color:var(--ink)}
   ol,ul{padding-left:22px}
   li{margin:9px 0}
   .map dt{font-family:var(--disp);text-transform:uppercase;letter-spacing:.08em;font-size:13.5px;margin-top:18px}

@@ -137,6 +137,22 @@ export function layoutMinWidth(amp) {
   return units ? Math.round(units * LAYOUT_MIN_SCALE) : null;
 }
 
+// ------------------------------------------------- schematic ↔ netlist claim
+// pipeline/verify_schematic_nets.py proves a sheet's drawn net structure against
+// the circuit's netlist.cir — the schematic twin of the layout wiring gate. A
+// sheet whose amps/<id>/sch_map.yaml carries `schematic_claim: verified` is
+// HARD-gated: any finding on it fails CI. A sheet without the claim is
+// report-only, and its page must therefore say nothing about being checked —
+// the claim in the data is the only thing that makes the check binding, so it is
+// the only thing the page may read. Absent file, absent key, or any other value
+// all mean the same: no claim. See docs/schematic-nets.md.
+export function schematicNetsVerified(amp) {
+  if (!amp?.hasSchematic) return false;
+  const raw = readIfExists(path.join(AMPS_DIR, amp.id, 'sch_map.yaml'));
+  if (!raw) return false;
+  return yaml.load(raw)?.schematic_claim === 'verified';
+}
+
 // ------------------------------------------------- simulated operating points
 // reference/op-points.yaml — written by `pipeline/verify_amps.py --export` from
 // the same ngspice run that gates each circuit against its published chart, and

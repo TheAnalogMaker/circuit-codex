@@ -1,6 +1,6 @@
 ---
 import Base from '../../layouts/Base.astro';
-import { loadCorpus, displayId, ampMetaDescription, layoutAlt, layoutMinWidth, topologyHref, circuitFamilyMap, loadHistory, TOPOLOGY_DIMENSIONS, loadLoadlineStages, toneStackPresetIds, ampOpPoints, designatorScheme, listPhrase, GITHUB } from '../../lib/corpus.js';
+import { loadCorpus, displayId, ampMetaDescription, layoutAlt, layoutMinWidth, topologyHref, circuitFamilyMap, loadHistory, TOPOLOGY_DIMENSIONS, loadLoadlineStages, toneStackPresetIds, ampOpPoints, designatorScheme, schematicNetsVerified, listPhrase, GITHUB } from '../../lib/corpus.js';
 
 export async function getStaticPaths() {
   const stages = new Map(loadLoadlineStages().map((s) => [s.amp, s]));
@@ -15,6 +15,11 @@ const v = m.verification || {};
 const vDate = v.date ? new Date(v.date).toISOString().slice(0, 10) : null;
 const ghDir = `${GITHUB}/tree/main/amps/${amp.id}`;
 const wiringVerified = amp.layout?.wiring_claim === 'verified';
+// Whether this sheet's drawn net structure is hard-gated against the netlist —
+// read from the amp's own sch_map.yaml, never assumed from the sheet's existence.
+// A sheet without the claim is report-only in CI, so its page carries no note at
+// all rather than a softer one. See schematicNetsVerified() in lib/corpus.js.
+const schematicNetsChecked = schematicNetsVerified(amp);
 // Floor width for the board drawing, so a wide board is scrolled rather than
 // scaled down past legibility. See layoutMinWidth() in lib/corpus.js.
 const layoutFloor = layoutMinWidth(amp);
@@ -219,6 +224,31 @@ const styleNoBreak = String(m.name_style).replace(/-/g, '‑');
               every voltage below derives from it.</p>
           </div>
         )}
+        {/* The drawing's own equivalence claim, on the same terms as the board's
+            below: the fact in view, the boundary on demand. Rendered only where
+            the sheet's sch_map.yaml carries the claim that makes the gate binding
+            — a sheet without it is report-only in CI and says nothing here. */}
+        {schematicNetsChecked && (
+          <div class="fig-note">
+            <p><strong>Machine-checked drawing.</strong> This sheet is checked in CI against
+              the netlist the simulation solves: every component the netlist models is proved to
+              have its terminals on the same nodes in this drawing as in that netlist, so the
+              picture and the maths cannot drift apart.</p>
+            <details>
+              <summary>Details</summary>
+              <p>The check compares connectivity, and only as far as the netlist reaches. It
+                does not check component values, and it does not prove the netlist itself a
+                faithful reading of the factory drawing — that rests on the operating-point
+                comparison below and on the cited sources. The netlist is a DC model, so what
+                it leaves out is drawn here but not checked: the supply front end ahead of the
+                first rail, transformer winding resistance, the volume / tone / mixer control
+                networks and the capacitors inside them, and the heater and AC-side wiring.
+                Every abstraction this circuit relies on is declared as reviewable data in its
+                own <a href={`${ghDir}/sch_map.yaml`}>sch_map.yaml</a>, and the CI report
+                enumerates each terminal left unchecked.</p>
+            </details>
+          </div>
+        )}
       </div>
 
       {amp.hasLayout && (
@@ -289,7 +319,7 @@ const styleNoBreak = String(m.name_style).replace(/-/g, '‑');
               where the check stops, and the build warning's reasoning open on
               demand. As one paragraph this ran to ~190 words under every board
               drawing, a wall on a phone before the reader reached the table. */}
-          <div class="layout-note">
+          <div class="fig-note">
             <p>
               {wiringVerified && (
                 <><strong>Machine-checked wiring.</strong> Every modelled part the operating-point
@@ -712,13 +742,13 @@ const styleNoBreak = String(m.name_style).replace(/-/g, '‑');
   .layout-scroll-note{color:var(--faint);font-size:12px;margin:0;padding:0 16px 10px}
   .layout-scroll-note b{color:var(--muted);font-family:var(--mono);font-weight:400}
   .layout-scroll-note [hidden]{display:none}
-  .layout-note{color:var(--muted);font-size:12.5px;line-height:1.55;margin:0;padding:10px 16px 14px;border-top:1px solid var(--line-soft);max-width:90ch}
-  .layout-note p{margin:0}
-  .layout-note details{margin-top:6px}
-  .layout-note summary{cursor:pointer;color:var(--muted);font-family:var(--disp);text-transform:uppercase;letter-spacing:.12em;font-size:10.5px;width:fit-content}
-  .layout-note summary:hover{color:var(--amber)}
-  .layout-note details[open] summary{margin-bottom:6px}
-  .layout-note details p+p{margin-top:6px}
+  .fig-note{color:var(--muted);font-size:12.5px;line-height:1.55;margin:0;padding:10px 16px 14px;border-top:1px solid var(--line-soft);max-width:90ch}
+  .fig-note p{margin:0}
+  .fig-note details{margin-top:6px}
+  .fig-note summary{cursor:pointer;color:var(--muted);font-family:var(--disp);text-transform:uppercase;letter-spacing:.12em;font-size:10.5px;width:fit-content}
+  .fig-note summary:hover{color:var(--amber)}
+  .fig-note details[open] summary{margin-bottom:6px}
+  .fig-note details p+p{margin-top:6px}
   /* The drawing takes the column's width, but never shrinks below the floor the
      page computed for it (layoutMinWidth() in lib/corpus.js, handed down as
      --layout-floor on .viewer.layout). Both styles read the same property, so
@@ -817,6 +847,6 @@ const styleNoBreak = String(m.name_style).replace(/-/g, '‑');
     .layout-canvas img{min-width:0 !important;width:100%}
     .layout-scroll-note{display:none}
     /* Paper gets the whole note, disclosure open or not. */
-    .layout-note details::details-content{content-visibility:visible}
+    .fig-note details::details-content{content-visibility:visible}
   }
 </style>

@@ -2,7 +2,8 @@
 
 > An open, structured archive of vintage guitar tube-amplifier circuits: independently
 > redrawn KiCad schematics, simulation-checked netlists, verified DC operating points,
-> board layouts with machine-checked wiring, CC0 tube SPICE models, and reference guides.
+> schematics and board layouts proved node-for-node equivalent to those netlists in CI,
+> CC0 tube SPICE models, and reference guides.
 > Built and maintained by AI agents under human direction, gated by CI; the claim chain
 > is documented and every fact cites its source.
 
@@ -43,8 +44,12 @@ Source of truth: https://github.com/TheAnalogMaker/circuit-codex
 ## Data layout (repository)
 
 amps/<id>/{meta.yaml, netlist.cir, voltages.yaml, bom.yaml, layout.yaml,
-schematic.kicad_sch, notes.md} · models/*.inc (CC0) · reference/ (sources, tubes,
-glossary, studies) · pipeline/ (validators and renderers; run via python3)
+schematic.kicad_sch, sch_map.yaml, notes.md} · models/*.inc (CC0) · reference/ (sources,
+tubes, glossary, studies) · pipeline/ (validators and renderers; run via python3)
+
+sch_map.yaml declares how a sheet reconciles with its netlist (anchors, series
+bridges, undrawn elements) and, where it carries `schematic_claim: verified`, opts
+that sheet into a hard CI gate on schematic ↔ netlist equivalence.
 
 ## Caution
 
