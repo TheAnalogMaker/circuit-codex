@@ -88,10 +88,11 @@ items:
   - { ref: RT2, part: "Carbon comp resistor", value: "6.8 kΩ · ½ W", role: "PI tail to ground" }
   - { ref: RGA, part: "Carbon comp resistor", value: "1 MΩ · ½ W", role: "PI grid leak (hot), returned to the tail junction" }
   - { ref: RGB, part: "Carbon comp resistor", value: "1 MΩ · ½ W", role: "PI grid leak (cold), returned to the tail junction" }
-  - { ref: RNFB, part: "Carbon comp resistor", value: "56 kΩ · 1 W", role: "Negative-feedback resistor, speaker to PI tail foot (AC-only, not modelled)" }
+  - { ref: RNFB, part: "Carbon comp resistor", value: "22 kΩ · ½ W", role: "Negative-feedback resistor, OT secondary/speaker node to the PI tail foot (not modelled; its DC return runs through the secondary)" }
   - { ref: CPID, part: "Mica capacitor", value: "0.001 µF", role: "PI plate-adjacent network" }
-  - { ref: VRPRES, part: "Potentiometer", value: "5 kΩ-L", role: "Presence — at the phase-inverter tail foot" }
-  - { ref: RPRES, part: "Carbon comp resistor", value: "1.6 kΩ · ½ W", role: "Presence-control series resistor" }
+  - { ref: VRPRES, part: "Potentiometer", value: "5 kΩ-L", role: "Presence — wired as a rheostat, in series with CPRES; that branch parallels RPRES from the phase-inverter tail foot to ground" }
+  - { ref: RPRES, part: "Carbon comp resistor", value: "1.5 kΩ · ½ W", role: "Presence/feedback foot resistor, PI tail foot → ground (the branch's DC path; the schematic sheet letters it 1500)" }
+  - { ref: CPRES, part: "Film capacitor", value: "0.1 µF · 200 V", role: "Presence cap, in series with VRPRES to ground — what makes that branch AC-only" }
   - { ref: C1, part: "Coupling capacitor", value: "0.05 µF · 400 V", role: "PI (hot) → V7 grid" }
   - { ref: C2, part: "Coupling capacitor", value: "0.05 µF · 400 V", role: "PI (cold) → V8 grid" }
   # --- Output stage ---

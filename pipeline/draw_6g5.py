@@ -300,20 +300,42 @@ tl, tr = s.series_h("R", "RT2", "6.8k", 228, JY)
 s.wire(tr, JY, 238, JY)
 s.wire(tl, JY, 220, JY)
 s.junction(220, JY)
-s.sym("R", "RPRES", "1.6k", 220, JY + 3.81, lx=3.2, ly=2.0)
-s.sym("POT", "VRPRES", "5k-L pres.", 220, JY + 3.81 + 7.62 + 3.81, lx=3.2, ly=2.0)
-s.wire(220, JY + 7.62, 220, JY + 7.62 + 3.81)
-s.gnd(220, JY + 3.81 + 7.62 + 3.81 + 3.81)
-# rheostat: the wiper is strapped to the lug RPRES feeds, the idiom 6G4's
-# own Presence pot uses. Left floating it made the control a fixed 5k.
-s.wire(225.08, JY + 15.24, 225.08, JY + 11.43)
-s.wire(225.08, JY + 11.43, 220, JY + 11.43)
-s.junction(220, JY + 11.43)
+# Presence, drawn as the factory sheet draws it: RPRES (1500, a fixed FOOT
+# resistor) runs from the tail foot straight down to ground, and the 5k-L
+# Presence pot in series with CPRES (.1) PARALLELS it. Until 2026-09-08 this
+# sheet drew the pot in SERIES with RPRES, which made the node's only DC path
+# to ground run through both and let the control vary the phase-inverter's own
+# tail — neither of which the drawing shows. CPRES is why the pot branch is
+# AC-only, which is exactly what netlist.cir's header claims about this node.
+# Same parallel-foot idiom as 6G3/6G4, whose sheets carry no cap in the branch.
+TAP = JY + 5.08                      # the pot branch leaves the foot lead here
+FGY = JY + 25.4                      # ground node shared by both legs
+PX = 212                             # pot/cap lane
+s.wire(220, JY, 220, TAP)
+s.sym("R", "RPRES", "1.5k", 220, JY + 8.89, lx=3.2, ly=2.0)
+s.wire(220, JY + 12.7, 220, FGY)
+s.gnd(220, FGY)
+# The branch hangs LEFT of the foot resistor: RGB's run down to the cold grid
+# owns the lane at x=234, where the sheet's own right-hand placement would land.
+# Mirroring it is drafting layout; the topology above is the claim.
+s.junction(220, TAP)
+s.wire(PX, TAP, 220, TAP)
+s.sym("POT", "VRPRES", "5k-L pres.", PX, JY + 8.89, lx=-10.5, ly=2.2)
+s.wire(PX, JY + 12.7, PX, JY + 14.78)
+s.sym("C", "CPRES", ".1u 200V", PX, JY + 18.59, lx=-9.0, ly=2.2)
+s.wire(PX, JY + 22.4, PX, FGY)
+s.wire(PX, FGY, 220, FGY)
+s.junction(220, FGY)
+# rheostat: the wiper is strapped to the lug the tail foot feeds, so the control
+# reads as the two-terminal variable resistance the sheet's glyph (an arrow
+# drawn across the element) means. Left floating it would be a fixed 5k.
+s.wire(PX + 5.08, JY + 8.89, PX + 5.08, TAP)
+s.junction(PX + 5.08, TAP)
 # The feedback resistor is drawn directly (not via series_h) so its lettering
 # can be anchored UNDER the part: series_h's beside-the-body anchor left the
 # block straddling the NFB wire itself. (No label_rot: sym()'s default
 # rotation compensation already letters a rot-90 body horizontally.)
-s.sym("R", "RNFB", "56k", 206, JY, rot=90, lx=-2.2, ly=2.4)
+s.sym("R", "RNFB", "22k", 206, JY, rot=90, lx=-2.2, ly=2.4)
 nl, nr = 206 - 3.81, 206 + 3.81
 s.wire(nr, JY, 220, JY)
 s.wire(192, JY, nl, JY)

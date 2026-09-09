@@ -40,8 +40,13 @@ sources:
       printed - both channels sum at a shared node ahead of the tremolo optocoupler
       and a driver stage (100k plate, +320 V). Long-tailed-pair inverter: 82k /
       100k 5% plate loads off the +315/+310 V rail, 820 Ohm shared cathode into a
-      6.8k tail, with a 56k negative-feedback resistor and a 5k-L Presence pot at
-      the tail foot (both AC-only, DC-neutral, omitted from the DC model). Output:
+      6.8k tail. The tail foot carries a 1500 Ohm resistor straight to ground,
+      with the 5k-L Presence pot (drawn as a rheostat) in series with a 0.1 uF
+      capacitor PARALLELING that foot resistor, and a 22k negative-feedback
+      resistor from the same node back to the OT secondary. The pot branch is
+      AC-only (the cap blocks DC); the 1500 Ohm foot and the feedback return
+      through the secondary are folded into ground as a declared simplification
+      of the DC model (see netlist.cir header and sch_map.yaml). Output:
       two 6L6GC, grounded cathodes, 470 Ohm-1W individual screen stoppers, 220k-5%
       fixed-bias grid leaks. Tremolo: ONE 7025 phase-shift oscillator (Speed on a
       4M-RA control, cathode 1500 Ohm/25+25 uF, plate +120 V) driving a lamp/
@@ -57,6 +62,10 @@ sources:
       sheet: values +/-20% (chart) or +/-20% read to ground with an electronic
       voltmeter; layout sheet separately notes resistors 1/2 W - 10% and capacitors
       >= 400 V unless marked. Not reproduced here; archived at Schematic Heaven.
+      The Presence capacitor's rating is read from that same companion LAYOUT
+      sheet, which letters it .1-200 beside the Presence pot; the schematic page
+      letters only .1, and its blanket notice would default an unmarked
+      condenser to 400 V, so the explicit figure is taken over the default.
       Tube count read from the companion published LAYOUT sheet (same A-FJ, page 2
       of the archived PDF), which draws the physical chassis socket row directly:
       five 7025 sockets plus the two 6L6GC. The schematic page, which places each

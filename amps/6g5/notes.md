@@ -34,8 +34,11 @@ netlist — see "What isn't modelled" below.
 **Phase inverter and output.** A **long-tailed-pair** 12AX7 — 82 kΩ (hot) and
 100 kΩ (cold) 5 % plate loads, printed **+315 V / +310 V**, an 820 Ω shared
 cathode into a 6.8 kΩ tail — drives the **two 6L6GC** output tubes through
-0.05 µF couplers. A 56 kΩ negative-feedback resistor from the speaker and a
-5 kΩ-L Presence control land at the tail foot. The output tubes run **fixed,
+0.05 µF couplers. The tail foot sits on a **1.5 kΩ** resistor to ground, with
+the **5 kΩ-L Presence** control in series with a **0.1 µF** capacitor
+paralleling it — the cap is what makes the control AC-only — and a **22 kΩ**
+negative-feedback resistor returns to that same node from the output
+transformer's secondary. The output tubes run **fixed,
 non-adjustable bias**: grounded cathodes, 220 kΩ · 5 % grid leaks to the bias
 line, and individual 470 Ω · 1 W screen stoppers off a shared 4.7 kΩ · 1 W
 screen dropper.

@@ -76,9 +76,18 @@ XV8 BP1 S72 G72 0 6L6GC
 * 82k (hot, tone-stack/driver-fed side) / 100k (cold) plate loads; 820 Ohm
 * shared cathode into a 6.8k tail to ground; 1M grid leaks to the tail
 * junction (standard corpus value for this topology — the drawing's own grid-
-* leak figure was not legible at this node; flagged in notes.md). The 56k NFB
-* resistor and 5k-L Presence pot at the tail foot are AC-only and DC-neutral,
-* omitted.
+* leak figure was not legible at this node; flagged in notes.md).
+*
+* The tail foot. The drawing hangs three things on it: a 1500 Ohm FOOT resistor
+* to ground, a 5k-L Presence pot in series with a 0.1 uF cap paralleling that
+* foot resistor, and a 22k negative-feedback resistor back to the OT secondary.
+* Only the pot branch is genuinely DC-neutral — the cap blocks DC. The 1500 and
+* the feedback resistor's return through the secondary do carry the tail's DC,
+* so folding them into ground and modelling the tail as a bare 6.8k to node 0
+* is a declared SIMPLIFICATION, not a claim that they are DC-neutral: the real
+* foot is 1500 || ~22k, about 1.4k, which this model omits. Nothing gated turns
+* on it (voltages.yaml reads KPI and JPI as informational, chart: null), and the
+* schematic declares the same abstraction in sch_map.yaml series_bridge.
 RLA BP3 PPIA 82k
 XV6A PPIA GPIA KPI 12AX7
 RGA GPIA JPI 1meg
