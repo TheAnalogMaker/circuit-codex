@@ -92,6 +92,23 @@ about the corpus and must never fail a build. It also skips on local builds — 
 authentication key is public by design and lives in `site/public/<key>.txt`; if that
 file is ever renamed, the `KEY` constant in the script must move with it.
 
+`pipeline/check_source_links.py` is the other one. Every claim here is anchored to a
+published document, so a citation that 404s is a claim a reader cannot check — but
+whether somebody else's web server answers today is not a fact about this corpus, so
+this runs on a human's say-so and never in the gate set. It sorts results into DEAD
+(404/410 — ours to fix) and BLOCKED/FLAKY (403, 429, 5xx, timeouts, TLS failures —
+the far end's, and no evidence the document is gone). Run it every few months, or
+after a source archive reorganises:
+
+    python3 pipeline/check_source_links.py            # report, always exits 0
+    python3 pipeline/check_source_links.py --strict   # exit 1 on DEAD, for a human
+
+Replacing a dead link is not a URL swap. Open the replacement and confirm it carries
+what the citation claims — publisher, edition, and the numbers the description
+quotes. On 2026-09-09 both dead links had an obvious-looking neighbour in the same
+archive directory that turned out to be a differential sheet ("the 6V6 is the same as
+the 6V6GTA except…") carrying none of the model's anchor figures.
+
 ## Lettering conventions (values and designators)
 
 One convention per surface, all of them gated — `docs/lettering-conventions.md`

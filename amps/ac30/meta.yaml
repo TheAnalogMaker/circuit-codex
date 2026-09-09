@@ -37,8 +37,8 @@ sources:
     url: "https://en.wikipedia.org/wiki/Vox_AC30"
   - desc: "Philips/Mullard EL84 data sheet, January 1969 (A.F. Output Pentode) — the datasheet anchor behind the corpus's CC0 EL84 model, which this netlist's four output valves use: Va=250 V, Vg2=250 V, Vg1=-7.3 V -> Ia=48 mA, Ig2=5.5 mA, S=11.3 mA/V, mu(g1-g2)=19"
     url: "https://frank.pocnet.net/sheets/010/e/EL84.pdf"
-  - desc: "RCA Receiving Tube Manual RC-19 (1959), 12AX7 average characteristics — the datasheet anchor behind the corpus's CC0 12AX7 model, which this netlist's first stage and phase inverter use: Va=250 V / Vg=-2 V -> 1.2 mA at 1600 µmho, second point Va=100 V / Vg=-1 V -> 0.5 mA, mu=100"
-    url: "https://frank.pocnet.net/sheets/049/1/12AX7.pdf"
+  - desc: "RCA 12AX7-A data sheet (October 1960), 'Characteristics, Class A1 Amplifier' — a readable copy of the 12AX7 average characteristics that anchor the corpus's CC0 12AX7 model, which this netlist's first stage and phase inverter use: Va=250 V / Vg=-2 V -> 1.2 mA at 1600 µmho, second point Va=100 V / Vg=-1 V -> 0.5 mA, mu=100. The model's stated anchor is RCA's Receiving Tube Manual RC-19 (1959), a printed book with no archived scan; this RCA sheet prints the same two points, so it is what a reader can actually open and check. (The URL this entry carried until 2026-09-09 has 404'd.)"
+    url: "https://frank.pocnet.net/sheets/049/1/12AX7A.pdf"
 verification:
   status: draft   # The operating point agrees closely — every gated node lands
                   # within 11% of its printed figure and most within 2% — but the
