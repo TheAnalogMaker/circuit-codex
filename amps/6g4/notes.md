@@ -34,13 +34,17 @@ not assert a name for either channel.
 ## Phase inverter and output
 
 A 7025 **long-tailed pair** (82 kΩ hot / 100 kΩ cold 5% plate loads off a
-supply derived through the drawing's own 10 kΩ dropper from the 6L6GC plate
+supply derived through the drawing's own 4.7 kΩ · 1 W dropper from the 6L6GC plate
 rail, an 820 Ω shared cathode resistor to a 6.8 kΩ tail, both 1 MΩ grid
 leaks returned to the tail junction) drives the **6L6GC pair**, fixed-biased
 at **−55 V** through 220 kΩ · 5% leaks, with 470 Ω · 1 W screen resistors.
-Presence is a 5 kΩ-linear pot and 1.5 kΩ foot resistor carrying a 56 kΩ
-negative-feedback return from the speaker line — the identical recipe 6G3
-uses, DC-neutral at the tail.
+The tail foot sits on a **1.5 kΩ** resistor to ground, with the **5 kΩ-L
+Presence** control in series with a **0.1 µF** capacitor paralleling it — the
+cap is what makes the control AC-only — and a **10 kΩ** negative-feedback
+resistor returns to that same node from the output transformer's secondary.
+The 6G3 Deluxe shares that foot, a bare 1.5 kΩ to ground with the feedback
+return landing on it, but carries no Presence control at all and takes its
+feedback through 56 kΩ.
 
 ## Tremolo
 
@@ -55,7 +59,7 @@ draw no grid current), so it moves no operating point.
 ## Power
 
 The GZ34 delivers **+456 V** at the 6L6GC plates and screens (470 Ω · 1 W
-stoppers). A 10 kΩ dropper feeds the phase-inverter supply, landing at the
+stoppers). A **4.7 kΩ · 1 W** dropper feeds the phase-inverter supply, landing at the
 printed +315 V (hot plate) / +310 V (cold plate) through the 82k/100k plate
 loads. A separate rectified/filtered bias tap (56 kΩ + 10 kΩ divider, 8 µF ·
 150 V filter) delivers the fixed **−55 V** bias line.

@@ -9,9 +9,6 @@ anchors:
   T3.4: "0"                # OT secondary hot — secondary DCR folded into ground;
                            # mirrors layout net_map SPK: '0'.
 
-symbols:
-  V1A: V1                  # netlist XV1A PN1 GN1 KN1 -> the sheet's un-suffixed V1
-
 element_pins:
   # netlist RTR4 BP1 PRD 200 is the reverb-transformer primary DCR, not a
   # discrete resistor: it is the T4 primary winding, B+ lead to plate lead.

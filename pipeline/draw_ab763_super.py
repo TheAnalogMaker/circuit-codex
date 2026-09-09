@@ -2,13 +2,22 @@
 """Generate amps/ab763-super/schematic.kicad_sch from the stage-template library.
 
 Values per the published "SUPER-REVERB-AMP AB763" drawing (C-FD), cited in
-amps/ab763-super/meta.yaml. Two preamp channel rows at the top (Normal — the
-plain two-knob stack; Vibrato — the genuine three-knob FMV stack, its Middle a
-real pot in place of the Normal channel's fixed bleed resistor), the reverb
+amps/ab763-super/meta.yaml. Two preamp channel rows at the top, each a gain
+stage into its tone stack into a second gain stage (Normal — the plain two-knob
+stack; Vibrato — the genuine three-knob FMV stack, its Middle a real 10 kΩ pot
+in place of the Normal channel's fixed 6.8 kΩ bleed resistor), the reverb
 driver/recovery/mixer block below them, the tremolo oscillator (single triode,
 excluded from netlist.cir — no static DC point) under that, the long-tailed-
 pair phase inverter and the 6L6GC pair on the right, and the rectifier/filter
 and bias supplies along the bottom.
+
+Two cathode networks are SHARED, and the sheet draws each of them once, under
+the boxed letter its source drawing gives it. Node KA (boxed [A]) is one 820 Ω
+/ 25 µF carrying both second stages, Normal and Vibrato; node KE (boxed [E]) is
+one 820 Ω / 25 µF carrying both the mix driver and the reverb recovery. The
+stage that does not carry the parts reaches its network by that global label —
+the drawing's own boxed connection, redrawn as a label rather than invented as
+a second resistor.
 
 Redrawn from circuit facts — never a trace of a factory drawing. Rails, in the
 netlist's own names:
@@ -19,8 +28,8 @@ netlist's own names:
                  BP1 through the printed 1k-1W dropper (RD1) — a check on the
                  chart, not an input to it.
   BD  = +410 V   drawing node [D]: every 100k-loaded preamp triode (both
-                 channel inputs, the vibrato 2nd stage, the mix driver, the
-                 reverb recovery amp). Derived from BC through the printed
+                 channel inputs, both channels' second stages, the mix driver,
+                 the reverb recovery amp). Derived from BC through the printed
                  4.7k-1W dropper (RD2).
   -52 V          the fixed-bias grid line, off the dedicated PT tap's own
                  silicon-rectified, adjustable-pot supply (no hum-balance leg
@@ -145,19 +154,36 @@ s.note('Chart notice: voltages read to ground with an electronic voltmeter, valu
 # ============================ NORMAL CHANNEL (top row) =================
 YN = 64
 s.text("Normal channel (two-knob stack — fixed bleed, no Middle)", 12, 44, 1.7)
-t1 = input_stage(YN, "NORM 1", "NORM 2", "R1n", "R2n", "RGN1", "V1", "12AX7",
+t1 = input_stage(YN, "NORM 1", "NORM 2", "R1n", "R2n", "RGN1", "V1A", "12AX7",
                   "RLN1", "RKN1", "CKN1", "BD")
 teeN = YN - 7.62 - 3.48
 noutx = tone_stack(teeN, "CTN", "RSN", "CBN", "CBN2", "VRTN", "VRBN", "VRVN",
                     "CBRN", "SWBN", "RSLN", "6.8k", False, xT=96, xv=114)
-# stack output (bright-capped treble wiper) -> RMD1 -> the PI-grid bus. The
-# Normal channel has no second gain stage, so this resistor is its whole
-# path onward, exactly mirroring amps/ab763's own RMD1.
-s.wire(noutx, teeN + 11.1, 220, teeN + 11.1)
-ml, mr = s.series_h("R", "RMD1", "220k", 230, teeN + 11.1)
-s.wire(220, teeN + 11.1, ml, teeN + 11.1)
-s.wire(mr, teeN + 11.1, 246, teeN + 11.1)
-s.glabel("PIG", 246, teeN + 11.1, 0)
+
+# V1B second stage: grid fed straight off the volume wiper/bright-cap node, the
+# same idiom the Vibrato channel's own V2B uses below (the pot's ground pin is
+# the DC return — netlist RGN2; no discrete grid-leak part on this drawing).
+# Its cathode carries NO resistor: the drawing boxes that pin [A] and returns it
+# to the 820 Ohm / 25 uF drawn once at V2B, so the label is the connection.
+XV1B = 152
+t1b = s.triode("V1B", "12AX7", XV1B, YN)
+s.wire(noutx, YN, t1b["g"][0], YN)
+s.plate_load("RLN2", "100k", t1b["p"], "BD")
+s.wire(XV1B, YN + 7.62, XV1B, YN + 11)
+s.glabel("KA", XV1B, YN + 11, 270)
+# V1B plate -> CCN2 0.047u -> RMD1 220k -> the PI-grid bus, mirroring
+# amps/ab763's own RMD1.
+s.wire(XV1B, teeN, 196, teeN)
+s.junction(XV1B, teeN)
+cl, cr = s.series_h("C", "CCN2", ".047u", 202, teeN)
+s.wire(196, teeN, cl, teeN)
+s.wire(cr, teeN, 214, teeN)
+s.wire(214, teeN, 214, YN)
+s.wire(214, YN, 220, YN)
+ml, mr = s.series_h("R", "RMD1", "220k", 230, YN)
+s.wire(220, YN, ml, YN)
+s.wire(mr, YN, 246, YN)
+s.glabel("PIG", 246, YN, 0)
 
 # ============================ VIBRATO CHANNEL (second row) =============
 YV = 118
@@ -166,7 +192,7 @@ t2 = input_stage(YV, "VIB 1", "VIB 2", "R1v", "R2v", "RGV1", "V2A", "12AX7",
                   "RLV1", "RKV1", "CKV1", "BD")
 teeV = YV - 7.62 - 3.48
 voutx = tone_stack(teeV, "CTV", "RSV", "CBV", "CBV2", "VRTV", "VRBV", "VRVV",
-                    "CBRV", "SWBV", "VRMV", "250k-A mid", True, xT=96, xv=114)
+                    "CBRV", "SWBV", "VRMV", "10k-A mid", True, xT=96, xv=114)
 
 # V2B second stage: grid fed straight off the volume wiper/bright-cap node —
 # the pot's own ground pin is the DC return (netlist's RGV2 equivalent), no
@@ -180,7 +206,12 @@ t2b = s.triode("V2B", "12AX7", XV2B, YV)
 s.wire(voutx, YV, t2b["g"][0], YV)
 s.plate_load("RLV2", "100k", t2b["p"], "BD")
 s.wire(XV2B, YV + 7.62, XV2B, YV + 9)
-s.shunt_rc("RKV2", "820", "CKV2", "25u", XV2B, YV + 9)
+# Cathode network [A] — drawn HERE, once, and carrying V1B's current too: the
+# label stub is the drawing's boxed [A], not a second network.
+s.shunt_rc("RKA", "820", "CKA", "25u", XV2B, YV + 9)
+s.junction(XV2B, YV + 9)
+s.wire(XV2B, YV + 9, XV2B + 16, YV + 9)
+s.glabel("KA", XV2B + 16, YV + 9, 0)
 # V2B plate tees to two independent couplers: CRS (500p) to the reverb driver
 # grid, and CCV2 (0.02u) to the dry side of the mix node — matching notes.md's
 # "feeds two places" description exactly.
@@ -257,7 +288,11 @@ t3b = s.triode("V3B", "12AX7", 148, YR)
 s.wire(138, YR, t3b["g"][0], YR)
 s.plate_load("RLR1", "100k", t3b["p"], "BD")
 s.wire(148, YR + 7.62, 148, YR + 9)
-s.shunt_rc("RKR1", "820", "CKR1", "25u", 148, YR + 9)
+# Cathode network [E] — drawn HERE, once, and carrying V3A's current too.
+s.shunt_rc("RKE", "820", "CKE", "25u", 148, YR + 9)
+s.junction(148, YR + 9)
+s.wire(148, YR + 9, 134, YR + 9)
+s.glabel("KE", 134, YR + 9, 180)
 # recovery plate -> CCR1 0.003u -> VRREV 100k-L reverb level -> RMR 470k mixer
 teer = YR - 7.62 - 3.48
 s.wire(148, teer, 156, teer)
@@ -276,7 +311,7 @@ s.glabel("MIXG", 196, 150, 90)   # same net as CCV2's dry-side MIXG stub above, 
 
 # mix driver V3a: grid = MIXG (dry Vibrato + recovered reverb); RMR2 220k mix-
 # node reference to ground; RGD1 3.3M grid leak; CBD1 10p bright cap; RLD1
-# 100k -> BD; RKD1 820 || CKD1
+# 100k -> BD; cathode to the shared [E] network by label, no resistor here
 YM = YR + 22
 s.glabel("MIXG", 202, YM, 180)
 s.wire(206, YM, 210, YM)
@@ -296,8 +331,10 @@ s.wire(234, YM - 6, 234, YM - 7.62 - 3.48)
 t3a = s.triode("V3A", "12AX7", 234, YM)
 s.wire(222, YM, t3a["g"][0], YM)
 s.plate_load("RLD1", "100k", t3a["p"], "BD")
-s.wire(234, YM + 7.62, 234, YM + 9)
-s.shunt_rc("RKD1", "820", "CKD1", "25u", 234, YM + 9)
+# Cathode: the drawing boxes this pin [E] and returns it to the 820 Ohm / 25 uF
+# drawn at the reverb recovery. No resistor of its own.
+s.wire(234, YM + 7.62, 234, YM + 11)
+s.glabel("KE", 234, YM + 11, 270)
 # mix-driver plate -> CCD1 0.001u -> PI hot grid line (PIG) — same net as the
 # Normal channel's own PIG stub above (RMD1's output), joined by name alone;
 # no physical wire run between the two, so neither stub is a pass-through.

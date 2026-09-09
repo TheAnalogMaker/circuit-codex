@@ -965,7 +965,7 @@ const TONE_STACK_SPECS = [
   },
   {
     id: 'ab763-super', kind: 'fmv', wiring: 'ladder', channel: 'vibrato',
-    blurb: 'The Super Reverb Vibrato channel\'s three-knob stack — the one AB763-family Middle control in this corpus that is a genuine pot rather than the two-knob channels\' fixed bleed leg — plotted as the Super Reverb sheet wires it: treble-wiper output, bass rheostat, mid capacitor into a 250 kΩ middle pot. The Normal channel keeps the plain two-knob ladder and is gated, not plotted, below.',
+    blurb: 'The Super Reverb Vibrato channel\'s three-knob stack, plotted as the Super Reverb sheet wires it: treble-wiper output, bass rheostat, mid capacitor into a 10 kΩ middle pot — the same Middle value the Twin Reverb preset carries. What is unusual here is not the pot but its neighbour: the Normal channel on this same amp puts a fixed 6.8 kΩ bleed resistor in that leg, so one chassis carries both a three-knob and a two-knob ladder. That Normal channel is gated, not plotted, below.',
     drive: { kind: 'plate', tube: '12ax7', plateLoad: 'RLV1' },
     load: 'VRVV',
     refs: { slope: 'RSV', trebleCap: 'CTV', treblePot: 'VRTV', bassCap: 'CBV', bassPot: 'VRBV', midCap: 'CBV2', midPot: 'VRMV' },

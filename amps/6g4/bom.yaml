@@ -60,11 +60,12 @@ items:
   - { ref: VRINT, part: "Reverse-audio potentiometer", value: "10 MΩ-RA", role: "Tremolo intensity" }
   - { ref: RINT, part: "Carbon comp resistor", value: "220 kΩ · ½ W", role: "Intensity series resistor into the bias line" }
   # --- Presence / negative feedback ---
-  - { ref: VRPRES, part: "Linear potentiometer", value: "5 kΩ-L", role: "Presence" }
-  - { ref: RPF, part: "Carbon comp resistor", value: "1.5 kΩ · ½ W", role: "Presence/feedback foot resistor to ground" }
-  - { ref: RNFB, part: "Carbon comp resistor", value: "56 kΩ · 1 W", role: "Negative feedback, speaker line → PI tail area (DC-neutral)" }
+  - { ref: VRPRES, part: "Linear potentiometer", value: "5 kΩ-L", role: "Presence — wired as a rheostat, in series with CPRES; that branch parallels RPF from the phase-inverter tail foot to ground" }
+  - { ref: RPF, part: "Carbon comp resistor", value: "1.5 kΩ · ½ W", role: "Presence/feedback foot resistor, PI tail foot → ground (the node's DC path; the schematic sheet letters it 1500)" }
+  - { ref: CPRES, part: "Film capacitor", value: "0.1 µF · 200 V", role: "Presence cap, in series with VRPRES to ground — what makes that branch AC-only" }
+  - { ref: RNFB, part: "Carbon comp resistor", value: "10 kΩ · ½ W", role: "Negative feedback, OT secondary hot → the PI tail foot (not modelled; its DC return runs through the secondary)" }
   # --- Phase inverter (7025 LTP) ---
-  - { ref: RD1, part: "Carbon comp resistor", value: "10 kΩ · ½ W", role: "PI supply dropper, BP1 → BC" }
+  - { ref: RD1, part: "Power resistor", value: "4.7 kΩ · 1 W", role: "PI supply dropper, BP1 → BC (the schematic sheet letters it 4700 1W, between the +456 V node at the choke and the +430 V phase-inverter rail)" }
   - { ref: RLPA, part: "Carbon comp resistor", value: "82 kΩ · ½ W · 5%", role: "PI plate load (hot side)" }
   - { ref: RLPB, part: "Carbon comp resistor", value: "100 kΩ · ½ W · 5%", role: "PI plate load (cold side)" }
   - { ref: RGPA, part: "Carbon comp resistor", value: "1 MΩ · ½ W", role: "PI grid leak (hot), returned to the tail junction" }

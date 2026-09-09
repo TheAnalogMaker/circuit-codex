@@ -25,9 +25,23 @@
 * independently rather than assumed symmetric.
 *
 * One rail IS derived from a legible resistor: BC, the phase-inverter plate
-* supply, through the drawing's own 10k dropper off BP1 (visible above the PI
-* in the schematic, feeding down into the +315 V/+310 V plate pair) —
-* modelled carrying only the PI's own current. The printed 5%-tolerance
+* supply, through the drawing's own 4700 1W dropper off BP1 — modelled
+* carrying only the PI's own current.
+*
+* That resistor was mis-identified until 2026-09-09, and the way it was
+* established is worth carrying: this comment used to name "the drawing's own
+* 10k dropper (visible above the PI in the schematic)". The 10K lettered
+* across the top of the sheet is not a dropper at all — it is the NEGATIVE-
+* FEEDBACK resistor, RNFB. Traced end to end, its right end turns down onto
+* the OT secondary hot and its left end runs down the bus to the top of the
+* 1500 Ohm presence foot resistor; nothing on that wire touches the plate
+* rail. The actual dropper into the PI plate-load junction (the node the
+* sheet prints +430 V at, where the 82k and 100k meet) comes off the +456 V
+* node at the choke and is lettered 4700 1W. Two things agree on it: the
+* lettering itself, and the model — at 10k the simulated PI plates landed
+* 309.6 / 300.1 V against the printed 315 / 310, and at 4.7k they land
+* 319.8 / 310.1, moving toward the chart rather than away from it. A wrong
+* value does not do that. The printed 5%-tolerance
 * 82k/100k asymmetric LTP plate loads — the same pair every fixed-bias
 * long-tailed-pair amp in this corpus uses (5f4/6g3/ab763) — split BC's
 * derived ~429 V into the hot/cold pair, landing within a few percent of the
@@ -40,10 +54,23 @@
 * oscillator's AC into this same -55 V line; it carries no DC (the output
 * grids draw no grid current), so it moves no operating point either.
 *
-* The 56k negative-feedback resistor returns from the speaker terminal
-* (~0 V DC through the OT secondary) and parallels the 1500 Ohm Presence
-* foot resistor — same recipe as 6G3 (amps/6g3/netlist.cir) — DC-neutral,
-* omitted. DC-open coupling/bypass caps are MODELLED where both leads land
+* The tail foot. The drawing hangs three things on it: a 1500 Ohm FOOT
+* resistor to ground, a 5k-L Presence pot in series with a 0.1 uF cap
+* paralleling that foot resistor, and a 10k negative-feedback resistor back to
+* the OT secondary hot. Only the pot branch is genuinely DC-neutral — the cap
+* blocks DC. The 1500 and the feedback resistor's return through the secondary
+* both carry the tail's DC, so folding them into ground and modelling the tail
+* as a bare 6.8k to node 0 is a declared SIMPLIFICATION, not a claim that they
+* are DC-neutral: the real foot is 1500 || ~10k, about 1.3k, which this model
+* omits. Nothing gated turns on it (voltages.yaml reads KPI and JPI as
+* informational, chart: null), and layout.yaml's net_map series_bridge
+* declares the same abstraction with the same reason.
+*
+* The 6G3 Deluxe shares this foot — a bare 1500 to ground with the feedback
+* return on the same node — but has no Presence control at all, and its
+* feedback resistor is 56k.
+*
+* DC-open coupling/bypass caps are MODELLED where both leads land
 * on a named DC node (every cathode-bypass can, the PI-plate -> output-grid
 * couplers) so an eventual layout is placement-checked; open at DC they move
 * no operating point. Caps into the abstracted tone-stack / volume / mixing-
@@ -66,9 +93,9 @@ VBE1 BE1 0 DC 284
 VBE2 BE2 0 DC 215
 VBIAS NBIAS 0 DC -55
 
-* PI supply: BP1 -> 10k -> BC (drawing's own dropper; carries only the PI's
-* own current in this model — see DC-conventions note above).
-RD1 BP1 BC 10k
+* PI supply: BP1 -> 4.7k -> BC (drawing's own 4700 1W dropper; carries only
+* the PI's own current in this model — see DC-conventions note above).
+RD1 BP1 BC 4.7k
 
 * --- Channel 1 input stage (V1, 7025): 100k plate off BD, 1.5k cathode (25uF
 *     bypass), grid direct from the two input jacks' 68k stoppers merged at

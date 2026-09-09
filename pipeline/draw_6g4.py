@@ -16,7 +16,7 @@ Redrawn from circuit facts — never a trace of a factory drawing. Rails: BP1
 = +456 (6L6GC plates/screens, OT centre tap), BD = +261 (calibrated — both
 channels' input-stage plates), BE1 = +284 (calibrated — channel 1 recovery
 plate), BE2 = +215 (calibrated — channel 2 recovery plate), BC = BP1 through
-the drawing's own 10k dropper (RD1) feeding the PI plates; NBIAS = -55 V
+the drawing's own 4700 1W dropper (RD1) feeding the PI plates; NBIAS = -55 V
 fixed bias. BD/BE1/BE2 are drawn as labelled rails with no dropping-resistor
 network shown: the drawing's own resistor chain from the 6L6GC-plate rail
 into these three preamp rails was not legible at this scan's resolution (see
@@ -149,7 +149,7 @@ def channel(y, ch, j1, j2, r1, r2, rleak, v_in, v_rec, rload_in, rload_rec,
 
 
 # ============================ TITLE ==================================
-s.note('Rails: BP1 +456 (6L6GC plates/screens, OT CT) · BD +261 (calibrated, both input stages) · BE1 +284 (ch.1 recovery, calibrated) · BE2 +215 (ch.2 recovery, calibrated) · BC = BP1 via 10k (PI plates) · bias -55 V')
+s.note('Rails: BP1 +456 (6L6GC plates/screens, OT CT) · BD +261 (calibrated, both input stages) · BE1 +284 (ch.1 recovery, calibrated) · BE2 +215 (ch.2 recovery, calibrated) · BC = BP1 via 4700 1W (PI plates) · bias -55 V')
 s.note("Heaters, PT primary/mains, pilot lamp and the vibrato-pedal jack's switching are omitted here — see netlist.cir, meta.yaml, layout.yaml. Bottles are 7025, a low-noise 12AX7 (also_known_as).")
 
 # ============================ CHANNEL 1 ================================
@@ -249,12 +249,17 @@ YPH = 100          # hot half (V5A)
 YPB = 150          # cold half (V5B)
 JY = 125           # tail junction
 s.caption("Long-tailed-pair phase inverter (V5)", 244, 82, 1.4)
-s.note("The phase inverter runs off the BC rail — BP1 through the drawing's own 10k dropper, RD1.")
+s.note("The phase inverter runs off the BC rail — BP1 through the drawing's own 4700 1W dropper, RD1.")
 # RD1: the PI's own supply dropper, BP1 -> BC (carries only the PI's own
-# current in the model — see netlist.cir's DC-conventions note).
+# current in the model — see netlist.cir's DC-conventions note). Lettered
+# "4700 1W" on the sheet, between the +456 V node at the choke and the
+# +430 V node where the 82k and 100k plate loads meet. It read 10k here
+# until 2026-09-09: the 10K lettered across the top of the sheet is RNFB,
+# the feedback resistor, whose far end lands on the OT secondary hot and
+# never touches this rail. netlist.cir's header carries the full trace.
 s.glabel("BP1", 300, 60, 180)
 s.wire(300, 60, 300, 63.5)
-s.sym("R", "RD1", "10k", 300, 67.31)
+s.sym("R", "RD1", "4.7k 1W", 300, 67.31)
 s.wire(300, 71.12, 300, 74.5)
 s.glabel("BC", 300, 74.5, 0)
 s.glabel("GPIA", 228.19, YPH, 180)                # bus from both channels' mixers (RM1/RM2)
@@ -298,23 +303,45 @@ tl, tr = s.series_h("R", "RT2", "6.8k", 226, JY)
 s.wire(tr, JY, 238, JY)
 s.wire(tl, JY, 216, JY)                            # NFB node
 s.junction(216, JY)
-nl, nr = s.series_h("R", "RNFB", "56k 1W", 202, JY)
+nl, nr = s.series_h("R", "RNFB", "10k", 202, JY)
 s.wire(nr, JY, 216, JY)
 s.wire(186, JY, nl, JY)
 s.glabel("SPKR", 186, JY, 180)
-# Presence: RPF (1.5k fixed foot) in parallel with VRPRES (5k-L pot, wired
-# as a rheostat — wiper strapped to its grounded lug) — both bridge the NFB
-# node to ground, the drawing's own recipe (identical to 6G3's — see
-# notes.md/meta.yaml sources).
-s.sym("R", "RPF", "1.5k", 216, JY + 3.81, lx=3.2, ly=2.0)
-s.gnd(216, JY + 7.62)
-s.sym("POT", "VRPRES", "5k-L pres", 224, JY + 3.81, lx=3.2, ly=2.0)
-s.wire(224, JY, 216, JY)
-s.junction(216, JY)
-s.wire(224, JY + 7.62, 216, JY + 7.62)
-s.junction(216, JY + 7.62)
-s.wire(229.08, JY + 3.81, 229.08, JY + 7.62)       # wiper strapped to the grounded lug (rheostat)
-s.wire(229.08, JY + 7.62, 224, JY + 7.62)
+# Presence, drawn as the factory sheet draws it: RPF (the 1500 foot resistor)
+# runs from the tail foot straight down to ground, and the 5k-L Presence pot
+# in series with CPRES (.1) PARALLELS it. CPRES was missing from the corpus
+# until 2026-09-09 — it is what makes the pot branch AC-only, which is exactly
+# what netlist.cir claims about this node.
+#
+# What this shares with the 6G3 Deluxe is the tail foot itself: a 1500 foot
+# resistor straight to ground with the negative-feedback return from the OT
+# secondary landing on the same node, under an 820/6.8k long-tailed pair whose
+# two 1M grid leaks both return to the tail junction. The 6G3 has no Presence
+# control at all — no pot, no cap, a bare 1500 to ground — and its feedback
+# resistor is 56k where this one is 10k. The earlier "identical to 6G3's"
+# comment here claimed a Presence recipe the 6G3 sheet does not draw.
+TAP = JY + 5.08                      # the pot branch leaves the foot lead here
+FGY = JY + 22.86                     # ground node shared by both legs
+PX = 224                             # pot/cap lane
+s.wire(216, JY, 216, TAP)
+s.sym("R", "RPF", "1.5k", 216, JY + 8.89, lx=3.2, ly=2.0)
+s.wire(216, JY + 12.7, 216, FGY)
+s.gnd(216, FGY)
+s.junction(216, TAP)
+# The tap lead runs on past the pot to PX + 5.08, where the wiper strap climbs
+# to meet it; the pot's own top lug T-taps it at PX (dotted below).
+s.wire(PX + 5.08, TAP, 216, TAP)
+s.sym("POT", "VRPRES", "5k-L pres", PX, JY + 8.89, lx=3.2, ly=2.2)
+s.junction(PX, TAP)
+s.wire(PX, JY + 12.7, PX, JY + 15.24)
+s.sym("C", "CPRES", ".1u 200V", PX, JY + 19.05, lx=3.2, ly=2.2)
+s.wire(PX, FGY, 216, FGY)
+s.junction(216, FGY)
+# Rheostat: the wiper is strapped to the lug the tail foot feeds, so the control
+# reads as the two-terminal variable resistance the sheet's glyph (an arrow
+# drawn across the element, with neither end lettered) means. Left floating it
+# would be a fixed 5k.
+s.wire(PX + 5.08, JY + 8.89, PX + 5.08, TAP)
 
 # ============================ OUTPUT COUPLERS + 6L6GC ==================
 teea = YPH - 7.62 - 3.48

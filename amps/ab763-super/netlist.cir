@@ -1,10 +1,22 @@
 * AB763 (Blackface Super Reverb-style) — DC operating-point netlist
 * Circuit Codex — CC-BY-SA 4.0. Independently drawn from the published
 * "SUPER-REVERB-AMP AB763" drawing's component values (see meta.yaml); no
-* drawing reproduced. The drawing labels the five preamp bottles 7025/12AX7 —
-* 7025 is an alias for the 12AX7 (reference/tubes/12ax7.yaml also_known_as) —
-* and the reverb driver and phase inverter 12AT7. The output pair is lettered
-* 6L6GC and uses the same clean-room model amps/ab763-twin's quartet does.
+* drawing reproduced. The drawing labels three preamp bottles 7025 — an alias
+* for the 12AX7 (reference/tubes/12ax7.yaml also_known_as) — the tremolo
+* oscillator plain 12AX7, and the reverb driver and phase inverter 12AT7. The
+* output pair is lettered 6L6GC and uses the same clean-room model
+* amps/ab763-twin's quartet does.
+*
+* SHARED CATHODE NETWORKS. The drawing carries boxed letters wherever a lead
+* leaves one part of the sheet and lands on another. Two of them, [A] and [E],
+* are cathode connections, and each ties TWO triodes to ONE 820 Ohm / 25 uF
+* network that the sheet draws once:
+*   [A] = node KA — the Normal channel's 2nd stage and the Vibrato channel's
+*         2nd stage. The network is drawn at the Vibrato stage.
+*   [E] = node KE — the mix driver and the reverb-recovery amp. The network is
+*         drawn at the reverb-recovery stage.
+* Each 820 Ohm therefore carries two triodes' current, which is what the
+* printed +2.1 V and +2.0 V at those pins are read across.
 *
 * DC conventions. One printed rail is DRIVEN at its charted value; the two
 * rails below it are DERIVED through the drawing's own printed droppers, so
@@ -57,6 +69,15 @@ RGN1 GN1 0 1meg
 RKN1 KN1 0 1500
 CKN1 KN1 0 25u
 
+* --- Normal channel 2nd stage V1b (12AX7): 100k plate, grid returns to ground
+*     through the normal volume pot (~0 V DC). Plate rail BD. Its cathode pin
+*     carries the drawing's boxed connection [A] and has NO resistor of its
+*     own: it lands on node KA, the 820 Ohm / 25 uF network drawn once at the
+*     Vibrato 2nd stage below.
+RLN2 BD PN2 100k
+XV1B PN2 GN2 KA 12AX7
+RGN2 GN2 0 1meg
+
 * --- Vibrato channel input V2a (12AX7): identical topology, plate rail BD.
 RLV1 BD PV1 100k
 XV2A PV1 GV1 KV1 12AX7
@@ -64,32 +85,37 @@ RGV1 GV1 0 1meg
 RKV1 KV1 0 1500
 CKV1 KV1 0 25u
 
-* --- Vibrato channel 2nd stage V2b (12AX7): 100k plate, 820 cathode (25uF),
-*     grid returns through the vibrato volume pot (~0 V DC). Plate rail BD.
-*     Own cathode network (drawing box [A]) — not shared with any other stage.
+* --- Vibrato channel 2nd stage V2b (12AX7): 100k plate, grid returns through
+*     the vibrato volume pot (~0 V DC). Plate rail BD. Cathode on node KA.
 RLV2 BD PV2 100k
-XV2B PV2 GV2 KV2 12AX7
+XV2B PV2 GV2 KA 12AX7
 RGV2 GV2 0 1meg
-RKV2 KV2 0 820
-CKV2 KV2 0 25u
 
-* --- Mix driver V3a (12AX7): 100k plate, 820 cathode (25uF); grid carries the
-*     mixed dry+reverb signal, shunted by the tremolo optocoupler (DC-open).
-*     DC grid ~0 via the 3.3M leak. Plate rail BD. Own cathode network.
+* --- Cathode network [A]: ONE 820 Ohm and ONE 25 uF can, carrying BOTH second
+*     stages' current. Drawn at the Vibrato stage; the Normal stage's cathode
+*     returns to it through the boxed [A] connection.
+RKA KA 0 820
+CKA KA 0 25u
+
+* --- Mix driver V3a (12AX7): 100k plate; grid carries the mixed dry+reverb
+*     signal, shunted by the tremolo optocoupler (DC-open). DC grid ~0 via the
+*     3.3M leak. Plate rail BD. Cathode on node KE (boxed [E]) — no resistor of
+*     its own.
 RLD1 BD PD1 100k
-XV3A PD1 GD1 KD1 12AX7
+XV3A PD1 GD1 KE 12AX7
 RGD1 GD1 0 3.3meg
-RKD1 KD1 0 820
-CKD1 KD1 0 25u
 
-* --- Reverb-recovery amp V3b (12AX7): 100k plate, 820 cathode (25uF), grid
-*     from the reverb-tank output through a 220k leak (~0 V DC). Plate rail
-*     BD. Own cathode network — distinct from V3a's and from V2b's.
+* --- Reverb-recovery amp V3b (12AX7): 100k plate, grid from the reverb-tank
+*     output through a 220k leak (~0 V DC). Plate rail BD. Cathode on node KE.
 RLR1 BD PR1 100k
-XV3B PR1 GR1 KR1 12AX7
+XV3B PR1 GR1 KE 12AX7
 RGRV GR1 0 220k
-RKR1 KR1 0 820
-CKR1 KR1 0 25u
+
+* --- Cathode network [E]: ONE 820 Ohm and ONE 25 uF can, carrying BOTH the mix
+*     driver's and the reverb recovery's current. Drawn at the recovery stage;
+*     the mix driver's cathode returns to it through the boxed [E] connection.
+RKE KE 0 820
+CKE KE 0 25u
 
 * --- Reverb driver V4 (12AT7, BOTH sections in parallel): shared 2.2k cathode
 *     (25uF), grids tied through a 1M leak, plates tied and fed from BP1

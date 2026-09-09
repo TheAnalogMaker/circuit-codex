@@ -6,6 +6,11 @@
 # two rails below it are DERIVED through the drawing's own printed droppers
 # (RD1 1k, RD2 4.7k) — see netlist.cir. Their simulated values are therefore a
 # genuine check against the chart's own +450 V / +410 V, not an echo of it.
+#
+# Two cathode readings are printed at both ends of a boxed connection, because
+# the box is the node: +2.1 V at the Normal and Vibrato 2nd stages (boxed [A],
+# node KA) and +2.0 V at the mix driver and the reverb recovery (boxed [E],
+# node KE). Each is one gated node here, not two.
 source: "Fender SUPER-REVERB-AMP AB763 schematic, printed voltages: +460 (6L6GC plates, screens), +465 (OT centre tap, merged with the plate reading — primary DCR omitted), +450 (phase-inverter plates and reverb-driver plate, node [C]), +410 (preamp plate rail, node [D]), +270/+2.0-2.1 (preamp stage plates/cathodes), +230 (PI plates, both branches), +106/+104.5 (PI cathode/tail junction), +450/+8.4 (reverb-driver plate/cathode), -52 (fixed bias, adjustable pot)"
 nodes:
   S61:  { chart: 460, tol_pct: 8,  note: "6L6GC (V7) screen after its 470 Ohm-1W stopper, off the +460 plate rail" }
@@ -16,14 +21,14 @@ nodes:
   KRD:  { chart: 8.4, tol_pct: 20, note: "reverb-driver 12AT7 shared cathode over 2.2k" }
   PN1:  { chart: 270, tol_pct: 20, note: "Normal-channel input plate, 100k from BD" }
   KN1:  { chart: 2.1, tol_pct: 20, note: "Normal-channel input cathode over 1.5k" }
+  PN2:  { chart: 270, tol_pct: 20, note: "Normal-channel 2nd-stage plate, 100k from BD" }
   PV1:  { chart: 270, tol_pct: 20, note: "Vibrato-channel input plate, 100k from BD" }
   KV1:  { chart: 2.1, tol_pct: 20, note: "Vibrato-channel input cathode over 1.5k" }
   PV2:  { chart: 270, tol_pct: 20, note: "Vibrato-channel 2nd-stage plate, 100k from BD" }
-  KV2:  { chart: 2.1, tol_pct: 20, note: "Vibrato-channel 2nd-stage cathode over 820 Ohm (drawing box [A])" }
+  KA:   { chart: 2.1, tol_pct: 20, note: "boxed [A] — the ONE 820 Ohm carrying both second stages, Normal and Vibrato; the chart prints +2.1 V at each end of the box" }
   PD1:  { chart: 270, tol_pct: 20, note: "mix-driver plate, 100k from BD" }
-  KD1:  { chart: 2.0, tol_pct: 20, note: "mix-driver cathode over 820 Ohm" }
   PR1:  { chart: 270, tol_pct: 20, note: "reverb-recovery plate, 100k from BD" }
-  KR1:  { chart: 2.0, tol_pct: 20, note: "reverb-recovery cathode over 820 Ohm" }
+  KE:   { chart: 2.0, tol_pct: 20, note: "boxed [E] — the ONE 820 Ohm carrying both the mix driver and the reverb recovery; the chart prints +2.0 V at each end of the box" }
   PPIA: { chart: 230, tol_pct: 20, note: "PI plate, 82k (hot) side" }
   PPIB: { chart: 230, tol_pct: 20, note: "PI plate, 100k (cold) side — chart prints the same +230 V for both branches despite the unequal plate loads" }
   KPI:  { chart: 106,   tol_pct: 20, note: "PI joined cathodes, above the 470 Ohm" }

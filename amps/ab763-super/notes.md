@@ -18,19 +18,37 @@ labelled plain 12AX7; the reverb driver and phase inverter are **12AT7s**.
 12AX7 stage (100 kΩ plate load, 1.5 kΩ cathode with a 25 µF bypass) → a
 **two-knob** tone stack — Treble and Bass only, the middle leg tied to a fixed
 6.8 kΩ bleed resistor rather than a control — and a 1 MΩ volume with its own
-120 pF bright switch. No reverb, no tremolo.
+120 pF bright switch → a **second 12AX7 stage** (100 kΩ plate; its cathode
+carries no resistor of its own — see *Two cathode networks, four triodes*
+below) → a 0.047 µF coupling cap and a 220 kΩ mixing resistor into the
+phase-inverter grid. No reverb, no tremolo.
 
 **Vibrato channel.** Input stage as above → a **three-knob** tone stack —
 Treble, Bass, **and Middle**, where the Normal channel's fixed bleed resistor
-is replaced by a genuine 250 kΩ-A potentiometer — and its own 120 pF bright
-switch → a second 12AX7 stage (100 kΩ plate, 820 Ω cathode). This stage's
-output feeds two places: a 500 pF cap to the reverb driver, and (through a
-0.02 µF cap) the dry side of the reverb/tremolo mix network.
+is replaced by a genuine 10 kΩ-A potentiometer — and its own 120 pF bright
+switch → a second 12AX7 stage (100 kΩ plate, on the 820 Ω cathode network it
+shares with the Normal channel's second stage). This stage's output feeds two
+places: a 500 pF cap to the reverb driver, and (through a 0.02 µF cap) the dry
+side of the reverb/tremolo mix network.
+
+## Two tone stacks on one chassis
 
 The two tone stacks are not the same circuit with a knob added — the Normal
 channel's middle leg is hard-wired to ground through 6.8 kΩ, full stop, while
 the Vibrato channel's is a control a player turns. This is read directly off
-the schematic, not inferred from the panel layout.
+the schematic, not inferred from the panel layout. The Middle pot itself is an
+ordinary 10 kΩ audio-taper part, the same value the [Twin
+Reverb](/amps/ab763-twin/) fits; what is unusual is having it on one channel
+and a fixed resistor on the other, on one chassis.
+
+That leaves this circuit straddling a distinction the corpus's topology field
+draws in one value. The field names the Vibrato channel — a full FMV stack,
+which is what a player means by a Super Reverb, and which puts this amp beside
+the [Twin](/amps/ab763-twin/) rather than beside the two-knob
+[Deluxe Reverb](/amps/ab763/) on the tone-stack cross-cut. The Normal channel's
+fixed bleed is the exception, and it is documented here rather than averaged
+away. Until 2026-09-09 the field said treble/bass, which contradicted this
+circuit's own parts list.
 
 **Reverb.** The dry Vibrato signal drives a **12AT7 with both triodes in
 parallel** (2.2 kΩ shared cathode) into the 125A20B transformer and the
@@ -85,7 +103,7 @@ reverb/tremolo Vibrato channel and the asymmetric tone-stack pair documented
 above; the Normal channel's simpler two-knob stack is the closer cousin of
 the Deluxe Reverb's own (both channels, in that amp).
 
-## Reading against the printed chart
+## How the chart is read here
 
 The drawing prints a full voltage chart at every preamp, phase-inverter and
 reverb-driver stage, all at the sheet's own ±20 % convention (rails held to a
@@ -114,40 +132,63 @@ drives both of its own two upper rails independently.
   printed rail voltages under the modelled preamp/PI load — a genuine
   cross-check a single-driven-rail model cannot offer.
 
-## Three cathodes the chart and the drawing disagree about
+## Two cathode networks, four triodes
 
-Seventeen of the twenty gated nodes land, several of them tightly: both
-derived rails reproduce their printed values to within half a percent through
-the drawing's own droppers, and both input stages land within one percent at
-plate and cathode alike.
+Four of this amp's gain stages — the Normal channel's second stage, the
+Vibrato channel's second stage, the mix driver and the reverb recovery — are
+each drawn with a **100 kΩ** plate load off the +410 V rail. Only two of them
+are drawn with a cathode resistor. The other two have a small boxed letter at
+the cathode pin instead: **A** on the Normal second stage, **E** on the mix
+driver.
 
-Three do not, and they are the same three stages — the Vibrato channel's
-second stage, the mix driver and the reverb recovery. All three are drawn the
-same way: a **100 kΩ** plate load off the +410 V rail over an **820 Ω**
-cathode resistor. All three miss in the same direction and by about the same
-amount.
+Those boxes are the drawing's way of carrying a lead from one part of a
+crowded sheet to another, and each one lands on a cathode network already
+drawn elsewhere:
+
+| box | drawn at | also carries | network |
+|---|---|---|---|
+| **A** | Vibrato 2nd stage | Normal 2nd stage | 820 Ω · 25 µF |
+| **E** | reverb recovery | mix driver | 820 Ω · 25 µF |
+
+So there are two 820 Ω resistors in this part of the amp, not four, and each
+one passes **two triodes' current**. That is the whole of it, and it is worth
+saying plainly because the alternative reading — one 820 Ω per stage — makes
+the printed chart look impossible. Read that way, 2.1 V across 820 Ω is
+2.6 mA, and 2.6 mA through a 100 kΩ plate load would leave the plate near
++150 V rather than the +270 V printed two pins away. Read the box as the
+connection it is, and the same figures close: about 1.3 mA per triode puts
+each plate at +277 V, and the two currents together put roughly 2.2 V across
+the shared 820 Ω, against a printed +2.1 V and +2.0 V on a ±20 % chart.
+
+The chart prints its reading at **both** ends of each box, which is the tell —
++2.1 V appears at the Normal and the Vibrato second stage alike, +2.0 V at
+the mix driver and the reverb recovery alike, because in each case it is one
+node measured twice.
+
+## The chart, node by node
+
+All twenty gated nodes land inside their tolerances. The tightest are the
+supply rails, which are the real test of the model: both are **derived**
+through the drawing's own printed droppers rather than driven, and both
+reproduce the chart to within half a percent — +447.6 V against a printed
++450 V at node [C], +409.6 V against +410 V at node [D].
 
 | node | printed | simulated | |
 |---|---|---|---|
-| Vibrato 2nd stage cathode | 2.1 V | 1.5 V | **−30.4 %** |
-| mix driver cathode | 2 V | 1.5 V | **−26.9 %** |
-| reverb recovery cathode | 2 V | 1.5 V | **−26.9 %** |
-| their plates (all three) | 270 V | 231 V | −14.4 % |
+| node [C] rail | 450 V | 447.6 V | −0.5 % |
+| node [D] rail | 410 V | 409.6 V | −0.1 % |
+| input-stage plates | 270 V | 271.0 V | +0.4 % |
+| input-stage cathodes | 2.1 V | 2.1 V | +1.0 % |
+| second-stage / mixer plates | 270 V | 277.0 V | +2.6 % |
+| shared cathode **[A]** | 2.1 V | 2.2 V | +3.6 % |
+| shared cathode **[E]** | 2 V | 2.2 V | +8.8 % |
+| reverb-driver cathode | 8.4 V | 9.1 V | +8.5 % |
+| phase-inverter plates | 230 V | 255.6 / 249.1 V | +11.1 / +8.3 % |
+| phase-inverter cathode / tail | 106 / 104.5 V | 97.2 / 95.2 V | −8.3 / −8.9 % |
 
-The chart's own two figures for these stages do not close on each other. Take
-them as printed: 2.1 V across 820 Ω is 2.6 mA, and 2.6 mA through a 100 kΩ
-plate load drops 260 V, which off the +410 V rail would put the plate at
-+150 V — not the +270 V printed two pins away. Run it from the plate instead
-and the +270 V reading implies 1.4 mA, which across 820 Ω is 1.2 V, not the
-2.1 V printed. The simulation sits between the two, self-consistently: 1.8 mA,
-1.5 V at the cathode and 231 V at the plate.
-
-So the deviation is not a stage that fails to solve; it is a printed pair that
-cannot both be right for the parts the sheet draws. Whether the cathode
-figures were read at a shared box serving more than one section, or the plate
-loads on these three stages are not the 100 kΩ read here, is not settled by
-this scan. It is published as the miss it is rather than tuned away, and it is
-the reason this entry is a draft.
+The widest misses left are the phase inverter's, at eight to eleven percent on
+a sheet whose own notice allows twenty — the ordinary distance between a
+clean-room triode model and a meter reading taken on a production chassis.
 
 ## Verification
 
@@ -159,5 +200,4 @@ on the board is electrically the same net the simulated circuit declares,
 within the documented DC scope.
 
 The full artifact set is present: schematic, board layout in both styles, the
-social card, and the family-tier entry. The three cathode nodes above are the
-open question a sign-off pass has to weigh.
+social card, and the family-tier entry.

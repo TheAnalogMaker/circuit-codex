@@ -48,13 +48,13 @@ parts:
   - { ref: RGL2, a: [0, 11], b: [1, 11] }     # 220k-5% V8 grid leak (NBIAS -> G62)
   - { ref: RS2,  a: [0, 13], b: [0, 14] }     # 470R-1W V8 screen stopper (BP1 -> BS2)
   # --- phase-inverter tail (fans exactly as 6G3's proven RTAIL pattern) -----
-  - { ref: RNFB, a: [0, 17], b: [1, 17] }     # 56k-1W negative feedback from the speaker
+  - { ref: RNFB, a: [0, 17], b: [1, 17] }     # 10k negative feedback from the OT secondary hot
   - { ref: RPF,  a: [0, 19], b: [1, 19] }     # 1.5k presence/feedback foot resistor
   - { ref: RT2,  a: [0, 21], b: [0, 23] }     # 6.8k tail (NFB node -> junction)
   - { ref: RGPA, a: [0, 23], b: [1, 23] }     # 1M hot grid leak (JPI -> GPIA)
   - { ref: RTAIL, a: [0, 25], b: [1, 25] }    # 820R-5% inverter cathode resistor
   - { ref: RGPB, a: [0, 27], b: [1, 27] }     # 1M cold grid leak (JPI -> GPIB)
-  - { ref: RD1,  a: [0, 30], b: [0, 32] }     # 10k PI supply dropper (BP1 -> BC)
+  - { ref: RD1,  a: [0, 30], b: [0, 32] }     # 4.7k-1W PI supply dropper (BP1 -> BC)
   - { ref: C10,  a: [0, 34], b: [1, 34] }     # 20uF HT filter (BP1 reservoir)
 
   # --- V2 bottle: channel-1 recovery stage (V2A) ----------------------------
@@ -101,6 +101,8 @@ offboard:
   - { id: SPK, kind: jack, edge: bottom, at: 15,  label: "Spkr" }
   - { id: V5,  ref: V5, kind: tube, edge: bottom, at: 25,  label: "V5 · 12AX7 (7025) PI" }
   - { id: VRPRES, ref: VRPRES, kind: pot, edge: top, at: 19, label: "Presence" }
+  # Chassis-mounted at the Presence pot, as the published layout page draws it.
+  - { id: CPRES, ref: CPRES, kind: part, edge: top, at: 20.9, label: "Presence cap" }
   - { id: V2,  ref: V2, kind: tube, edge: bottom, at: 44,  label: "V2 · 12AX7 (7025) ch.1 recovery + trem" }
   - { id: VRINT, ref: VRINT, kind: pot, edge: top, at: 38, label: "Intensity" }
   - { id: VRSPD, ref: VRSPD, kind: pot, edge: top, at: 41, label: "Speed" }
@@ -152,7 +154,9 @@ runs:
 
   # === PI supply: RD1 (BP1 -> BC) -> the two plate loads (fan clear of RS2)
   - { from: RD1.b, to: RLPA.a, color: red, via: [[32.5, -0.4], [5.4, -0.4]] }
-  - { from: RD1.b, to: RLPB.a, color: red, via: [[32.6, -1.0], [8.4, -1.0]] }
+  # Lane moved out to -1.35 (2026-09-09) so it clears the Presence cap's
+  # chassis terminals, which sit on the -1.0 lane at the top edge.
+  - { from: RD1.b, to: RLPB.a, color: red, via: [[32.6, -1.35], [8.4, -1.35]] }
 
   # === output stage: grids/couplers ==========================================
   # C1.a and RGL1.b share the (row1, col0) eyelet — the coupler and the
@@ -181,16 +185,23 @@ runs:
   - { from: RTAIL.b, to: V5.pin3, via: [[24.4, 1.50], [21.4, 1.50], [21.4, 1.92]] }
   # Presence/NFB node: RT2.a, RPF.a, RNFB.a and VRPRES's hot lug all join
   # here (row0 eyelets, the "signal-carrying" convention this file uses
-  # elsewhere); RPF.b and VRPRES's other lug are the actual ground return
-  # (row1, routed to the bus) — RNFB's OWN row1 end instead carries the
-  # speaker feed. The earlier draft left this node unterminated (no wire
-  # ever reached true ground); fixed here.
+  # elsewhere); RPF.b is the ground return (row1, routed to the bus) and
+  # VRPRES's other lug reaches the bus only through CPRES — RNFB's OWN row1
+  # end instead carries the speaker feed. The earlier draft left this node
+  # unterminated (no wire ever reached true ground); fixed here.
+  #
+  # CPRES is chassis-mounted at the Presence pot, exactly where the published
+  # layout page draws it (lettered .1-200 there, beside the 5K-L). Until
+  # 2026-09-09 the corpus had no presence cap at all and this run went from
+  # the pot's lug straight to the ground bus, which made the control a plain
+  # variable resistance across RPF instead of the AC-only branch it is.
   - { from: RT2.a, to: RPF.a, via: [[21.4, -0.20], [19.6, -0.20]] }
   - { from: RPF.a, to: RNFB.a, via: [[19.4, -0.20], [17.6, -0.20]] }
   - { from: RPF.b, to: [1.45, 19] }
   - { from: RNFB.b, to: SPK.tip, via: [[17.4, 1.55], [13.6, 2.15]] }
   - { from: VRPRES.lug1, to: RT2.a, via: [[19.0, -0.60], [19.4, -0.35]] }
-  - { from: VRPRES.lug2, to: [1.45, 19.4], via: [[19.65, -0.55], [19.65, 1.2]] }
+  - { from: VRPRES.lug2, to: CPRES.a, via: [[19.65, -0.75]] }
+  - { from: CPRES.b, to: [1.45, 20.3], via: [[20.3, -0.55], [20.3, 1.2]] }
 
   # === V2 (channel-1 recovery, V2A) -> mixer -> GPIA =========================
   - { from: RL1D.b, to: V2.pin6, via: [[39.4, 1.6]] }
@@ -260,7 +271,7 @@ net_map:
   # 6L6GC plate leads and the primary centre tap collapse onto the reservoir
   # node BP1 (the chart prints +456 V at both). The speaker terminal is the
   # negative-feedback return: the OT secondary is a short at DC, so the
-  # 56 kΩ feedback resistor's far end reads as ground.
+  # 10 kΩ feedback resistor's far end reads as ground.
   #
   # No excluded_tubes entry belongs here. The tremolo oscillator is the
   # SECOND half of V2, whose first half (V2A) is the modelled channel-1
@@ -277,10 +288,12 @@ net_map:
   # RT2's far end (netlist: "RT2 JPI 0 6800", straight to ground) is drawn
   # reaching true ground through RPF (1.5k) rather than a direct wire — the
   # published circuit's own foot-resistor-to-ground, per meta.yaml's source
-  # note. RPF carries no DC current (a self-bias/NFB node, no grid current
-  # flows there), so it is DC-transparent exactly like a grid stopper.
+  # note. That is a declared DC SIMPLIFICATION, not a claim that the foot is
+  # DC-neutral: the tail's whole current flows through RPF, and RNFB's return
+  # through the OT secondary is a second DC path to ground on the same node.
+  # Only the VRPRES branch is genuinely AC-only, because CPRES blocks DC.
   series_bridge:
-    RPF: "1.5k presence/feedback foot resistor — carries no DC current, so the tail/NFB node it bridges to ground reads as ground exactly as netlist.cir's RT2->0 abstraction models it"
+    RPF: "1.5k presence/feedback foot resistor, PI tail foot -> ground. The published 6G4 sheet draws it straight down to ground with the 5k-L Presence pot and its .1 uF cap paralleling it, and the 10k feedback resistor landing on the same node. netlist.cir folds RPF into ground and models the tail as RT2 JPI 0 6800 — a declared DC simplification: the real DC foot is 1500 in parallel with RNFB's return through the OT secondary (~1.3k), and no gated node depends on it (voltages.yaml reads KPI and JPI as informational, chart: null). Same abstraction 6g5 declares for its own RPRES in sch_map.yaml."
   netlist_unplaced:
     RG1I: "1 MΩ channel-1 input grid leak — mounted at the input jacks, not on the eyelet board"
     RG2I: "1 MΩ channel-2 input grid leak — mounted at the input jacks"
