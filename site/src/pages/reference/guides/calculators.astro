@@ -24,14 +24,18 @@ import Base from '../../../layouts/Base.astro';
         <label class="f"><span>Resistance</span><span class="io"><input id="ol-r" inputmode="text" value="100k" autocomplete="off" /><i>Ω</i></span></label>
         <label class="f"><span>Power</span><span class="io"><input id="ol-p" inputmode="decimal" autocomplete="off" /><i>W</i></span></label>
       </div>
+      <p class="err" id="ol-err" role="status" hidden></p>
       <p class="hint">Resistance accepts shorthand — <span class="k">100k</span>,
-        <span class="k">1M</span>, <span class="k">4k7</span>.</p>
+        <span class="k">1M</span>, <span class="k">4k7</span>. All four are sizes, not
+        polarities: a −55 V bias rail is entered here as <span class="k">55</span>.</p>
     </section>
 
     <section class="calc" aria-label="Voltage divider">
       <h2>Voltage divider</h2>
       <p class="sub">Two resistors from a supply down to ground; the tap sits between
-        them. R1 is the top (supply-side) resistor.</p>
+        them. R1 is the top (supply-side) resistor. A negative supply is entered as it
+        is written — a −55 V bias rail divides to a negative tap — but a resistor is a
+        size.</p>
       <div class="fields">
         <label class="f"><span>Input</span><span class="io"><input id="dv-vin" inputmode="decimal" value="325" autocomplete="off" /><i>V</i></span></label>
         <label class="f"><span>R1 top</span><span class="io"><input id="dv-r1" inputmode="text" value="100k" autocomplete="off" /><i>Ω</i></span></label>
@@ -42,9 +46,11 @@ import Base from '../../../layouts/Base.astro';
 
     <section class="calc" aria-label="Cathode bias">
       <h2>Cathode bias</h2>
-      <p class="sub">With the grid returned to ground, the cathode sits at the bias
-        voltage. Give the target cathode current and that bias voltage to size the
-        cathode resistor.</p>
+      <p class="sub">With the grid returned to ground, the cathode sits as far above
+        ground as the grid sits below it. Give the target cathode current and that bias
+        voltage. Either sign names the same 1.5 V: a datasheet letters the bias
+        grid-to-cathode (<span class="k">−1.5</span>), a meter on the cathode reads it
+        the other way up (<span class="k">1.5</span>).</p>
       <div class="fields">
         <label class="f"><span>Cathode current</span><span class="io"><input id="cb-ik" inputmode="decimal" value="1" autocomplete="off" /><i>mA</i></span></label>
         <label class="f"><span>Grid bias</span><span class="io"><input id="cb-vg" inputmode="decimal" value="1.5" autocomplete="off" /><i>V</i></span></label>
@@ -127,8 +133,40 @@ import Base from '../../../layouts/Base.astro';
   function engR(o) { if (!isFinite(o)) return ''; if (Math.abs(o) >= 1e6) return t(o / 1e6) + 'M'; if (Math.abs(o) >= 1e3) return t(o / 1e3) + 'k'; return t(o); }
   function push(arr, k) { const i = arr.indexOf(k); if (i >= 0) arr.splice(i, 1); arr.unshift(k); }
 
+  // ---- refusing an impossible entry ---------------------------------------
+  // These calculators end in a component recommendation, so an answer they
+  // cannot stand behind must not be printed as one: "−500 Ω · suggest ≥ 0.25 W"
+  // names a resistor nobody can fit. Where a quantity is a size — a resistance,
+  // a capacitance, a dissipation, an impedance — a negative entry is refused in
+  // view rather than clamped, rewritten, or computed with. The one place a sign
+  // is data rather than a mistake is a supply voltage, and the two calculators
+  // that take one say so and carry it through.
+  function flag(input, bad) {
+    input.parentElement.classList.toggle('bad', !!bad);
+    if (bad) input.setAttribute('aria-invalid', 'true');
+    else input.removeAttribute('aria-invalid');
+    return !!bad;
+  }
+  // A refusal replaces the readout it would otherwise have filled, in the same
+  // live region, so a screen reader hears the reason where it heard the answer.
+  function refuse(out, sub, msg) {
+    out.textContent = '—';
+    sub.textContent = msg;
+    sub.classList.add('bad');
+  }
+  function accept(sub) { sub.classList.remove('bad'); }
+  // The other half of the same problem. ohms() and farads() take no sign at all,
+  // so "−100k" does not reach the maths as a negative — it reaches it as
+  // NOTHING, and a filled-in box next to a blank readout reads as a broken page
+  // rather than as a value that was turned away. A field that was typed in and
+  // could not be read says so, whether the cause is the minus sign or "abc".
+  function unread(input, parsed) {
+    return flag(input, String(input.value).trim() !== '' && parsed == null);
+  }
+  const BAD_R = 'A resistance is a size, read as 100k, 1M or 4k7 — a negative or unrecognised entry cannot be used.';
+
   // ---- 1. Ohm's law & power ----------------------------------------------
-  const ol = { V: el('ol-v'), I: el('ol-i'), R: el('ol-r'), P: el('ol-p') };
+  const ol = { V: el('ol-v'), I: el('ol-i'), R: el('ol-r'), P: el('ol-p'), err: el('ol-err') };
   let olOrder = ['R', 'V'];
   function olRead() { const i = num(ol.I.value); return { V: num(ol.V.value), I: i == null ? null : i / 1000, R: ohms(ol.R.value), P: num(ol.P.value) }; }
   function solveOhm(K) {
@@ -149,12 +187,34 @@ import Base from '../../../layouts/Base.astro';
   }
   function olCompute() {
     const si = olRead();
+    // One resistor on the bench, described four ways — all four are magnitudes.
+    // A signed entry here is either a polarity the answer does not depend on
+    // (−250 V across 100 kΩ dissipates the same 0.625 W as +250 V) or a pair
+    // that describes no passive part at all (250 V at −2.5 mA would come back
+    // as −100 kΩ). Neither is worth guessing at, so a negative is refused.
+    let neg = false;
+    ['V', 'I', 'R', 'P'].forEach((k) => { if (flag(ol[k], si[k] != null && si[k] < 0)) neg = true; });
+    // Resistance is the one field here with a shorthand parser, and that parser
+    // takes no sign: "−100k" arrives as nothing at all rather than as a number.
+    const badR = unread(ol.R, si.R);
+    const drv = olOrder.slice(0, 2);
+    if (neg || badR) {
+      // Stale derived numbers beside a refusal would read as the answer.
+      ['V', 'I', 'R', 'P'].forEach((k) => { if (!drv.includes(k)) olSet(k, null); });
+      ol.err.textContent = neg
+        ? 'Enter sizes, not polarities — a negative entry can only produce a negative resistance or a negative power.'
+        : BAD_R;
+      ol.err.hidden = false;
+      return;
+    }
+    ol.err.textContent = '';
+    ol.err.hidden = true;
     const valid = olOrder.filter((k) => si[k] != null && isFinite(si[k]));
     if (valid.length < 2) return;
-    const drv = valid.slice(0, 2);
-    const K = {}; drv.forEach((k) => K[k] = si[k]);
+    const use = valid.slice(0, 2);
+    const K = {}; use.forEach((k) => K[k] = si[k]);
     const r = solveOhm(K);
-    ['V', 'I', 'R', 'P'].forEach((k) => { if (!drv.includes(k)) olSet(k, (r[k] != null && isFinite(r[k])) ? r[k] : null); });
+    ['V', 'I', 'R', 'P'].forEach((k) => { if (!use.includes(k)) olSet(k, (r[k] != null && isFinite(r[k])) ? r[k] : null); });
   }
   ['V', 'I', 'R', 'P'].forEach((k) => ol[k].addEventListener('input', () => { push(olOrder, k); olCompute(); }));
 
@@ -162,6 +222,13 @@ import Base from '../../../layouts/Base.astro';
   const dv = { vin: el('dv-vin'), r1: el('dv-r1'), r2: el('dv-r2'), out: el('dv-out'), sub: el('dv-sub') };
   function dvCompute() {
     const Vin = num(dv.vin.value), R1 = ohms(dv.r1.value), R2 = ohms(dv.r2.value);
+    // Vin keeps its sign — a −55 V bias rail really does divide to a negative
+    // tap, and the readout says so. The resistors carry no sign to keep: a
+    // minus makes them unreadable, which used to blank the readout in silence.
+    const bad1 = unread(dv.r1, R1);
+    const bad2 = unread(dv.r2, R2);
+    if (bad1 || bad2) { refuse(dv.out, dv.sub, BAD_R); return; }
+    accept(dv.sub);
     if (Vin == null || R1 == null || R2 == null || (R1 + R2) <= 0) { dv.out.textContent = '—'; dv.sub.textContent = ''; return; }
     dv.out.textContent = fVv(Vin * R2 / (R1 + R2));
     dv.sub.textContent = 'Divider current ' + fI(Vin / (R1 + R2));
@@ -172,12 +239,30 @@ import Base from '../../../layouts/Base.astro';
   const cb = { ik: el('cb-ik'), vg: el('cb-vg'), rk: el('cb-rk'), sub: el('cb-sub') };
   function cbCompute() {
     const Ik = num(cb.ik.value), Vg = num(cb.vg.value);
-    if (Ik == null || Vg == null || Ik <= 0) { cb.rk.textContent = '—'; cb.sub.textContent = ''; return; }
-    const Ia = Ik / 1000, Rk = Vg / Ia, P = Vg * Ia;
+    // The bias voltage is printed both ways up, and both are the same fact: a
+    // datasheet letters the grid at −1.5 V with respect to the cathode, a meter
+    // on the cathode reads +1.5 V with respect to ground. So a signed entry is
+    // converted, not refused — what the field cannot do is pass the sign
+    // through to the answer, which is how "−20" once produced "−500 Ω ·
+    // dissipation −800 mW · suggest ≥ 0.25 W resistor". The readout names the
+    // cathode voltage it used, so the conversion is visible rather than silent.
+    const Vk = Vg == null ? null : Math.abs(Vg);
+    // A typed zero is a transient on the way to "0.5" and blanks quietly below;
+    // a negative current is not a transient of anything, so it is refused.
+    if (flag(cb.ik, Ik != null && Ik < 0)) {
+      refuse(cb.rk, cb.sub, 'Cathode current is a size — enter 40, not −40.');
+      return;
+    }
+    accept(cb.sub);
+    // A grid-to-cathode bias of zero is a grounded cathode, not a cathode-bias
+    // design: there is no resistor to size, and "0 Ω" is not the answer to give.
+    if (Ik == null || Vk == null || Vk === 0) { cb.rk.textContent = '—'; cb.sub.textContent = ''; return; }
+    const Ia = Ik / 1000, Rk = Vk / Ia, P = Vk * Ia;
     const ratings = [0.25, 0.5, 1, 2, 3, 5];
     const rec = ratings.find((r) => r >= 2 * P);
     cb.rk.textContent = fR(Rk);
-    cb.sub.textContent = 'Dissipation ' + fP(P) + ' · suggest ≥ ' + (rec ? rec + ' W' : '5 W+') + ' resistor';
+    cb.sub.textContent = 'Cathode +' + t(Vk) + ' V · dissipation ' + fP(P)
+      + ' · suggest ≥ ' + (rec ? rec + ' W' : '5 W+') + ' resistor';
   }
   ['ik', 'vg'].forEach((k) => cb[k].addEventListener('input', cbCompute));
 
@@ -185,6 +270,15 @@ import Base from '../../../layouts/Base.astro';
   const cc = { c: el('cc-c'), r: el('cc-r'), f: el('cc-f'), sub: el('cc-sub') };
   function ccCompute() {
     const C = farads(cc.c.value), R = ohms(cc.r.value);
+    // Neither parser takes a sign, so a negative entry here lands as an empty
+    // field: same silent blank as the divider, same fix.
+    const badC = unread(cc.c, C);
+    const badR = unread(cc.r, R);
+    if (badC || badR) {
+      refuse(cc.f, cc.sub, 'A capacitor and a resistor are sizes — 0.02, 22n, 470p and 1M read; a negative does not.');
+      return;
+    }
+    accept(cc.sub);
     if (C == null || R == null || C <= 0 || R <= 0) { cc.f.textContent = '—'; cc.sub.textContent = ''; return; }
     cc.f.textContent = fF(1 / (2 * Math.PI * R * C));
     cc.sub.textContent = '−3 dB corner · below it, bass rolls off at 6 dB/octave';
@@ -196,6 +290,19 @@ import Base from '../../../layouts/Base.astro';
   let otOrder = ['Zp', 'Zs'];
   function otCompute() {
     const si = { Zp: ohms(ot.Zp.value), Zs: ohms(ot.Zs.value), N: num(ot.N.value) };
+    // The impedances go through ohms() and cannot carry a sign; the turns ratio
+    // goes through num() and can. A negative ratio used to be dropped from the
+    // driving set without a word — and then overwritten by the value computed
+    // from the other two, so the reader's own entry vanished as they typed.
+    const badZp = unread(ot.Zp, si.Zp);
+    const badZs = unread(ot.Zs, si.Zs);
+    const negN = flag(ot.N, si.N != null && si.N < 0);
+    if (badZp || badZs) { refuse(ot.out, ot.sub, BAD_R); return; }
+    if (negN) {
+      refuse(ot.out, ot.sub, 'A turns ratio is a size — enter 31.62, not −31.62.');
+      return;
+    }
+    accept(ot.sub);
     const valid = otOrder.filter((k) => si[k] != null && isFinite(si[k]) && si[k] > 0);
     if (valid.length < 2) { ot.out.textContent = '—'; ot.sub.textContent = ''; return; }
     const drv = valid.slice(0, 2);
@@ -241,6 +348,15 @@ import Base from '../../../layouts/Base.astro';
   .rd { margin-top: 15px; background: var(--well); border: 1px solid var(--line-soft); border-radius: 8px; padding: 13px 16px; display: flex; align-items: baseline; gap: 8px 16px; flex-wrap: wrap; }
   .rd b { font-family: var(--disp); font-size: 30px; letter-spacing: .02em; color: var(--amber); line-height: 1; }
   .rd-sub { font-family: var(--mono); font-size: 12px; color: var(--muted); }
+
+  /* A refused entry: the field that caused it is marked, and the reason takes
+     the place of the readout it would have filled. Colour is not the only
+     signal — the message says which quantity and why, and the input carries
+     aria-invalid for anything not reading colour at all. */
+  .io.bad { border-color: var(--oxblood); }
+  .rd-sub.bad { color: var(--oxblood); }
+  .err { color: var(--oxblood); font-size: 12.5px; line-height: 1.5; margin: 12px 0 0; }
+  .err[hidden] { display: none; }
 
   .hint { color: var(--faint); font-size: 12.5px; margin: 12px 0 0; line-height: 1.5; }
   .hint .k, .k { font-family: var(--mono); color: var(--muted); }
