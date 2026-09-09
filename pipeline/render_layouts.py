@@ -78,8 +78,14 @@ runs:
           small house-tuned palette that stays legible on the dark board, and
           shows up in the drawing's colour legend. Uncoloured runs render in
           the neutral hookup-lead tone.
-  style?  optional. "twisted" renders the run as two interleaved sinusoidal
-          strands sharing the run's endpoints — the classic 6.3 V heater idiom.
+  style?  optional. "twisted" renders the run as ONE 6.3 V pair: two interleaved
+          sinusoidal strands along a twisted axis which, at each socket the run
+          lands on, separate and run on to BOTH of that socket's heater pins
+          (octal 2+7, noval 4+5 — never the centre tap). A socket-to-socket hop
+          routes along the socket row, ring to ring, dressed around anything
+          standing in the row; the authored `via` on such a hop described the
+          old deep rail and is not used. A run whose two ends are the same
+          socket — the chain's closing link — is one conductor, not a pair.
           Twisted runs default to the heater green (with green-yellow available
           for a centre-tap lead where a drawing marks one) and earn their own
           legend entry ("6.3 V heaters — twisted pair") instead of a colour
@@ -485,6 +491,33 @@ def load_tube_heater_pins(slug: str) -> set[int] | None:
     return out or None
 
 
+# The centre tap is a THIRD wire, not half of the pair — a pair spans the two
+# heater/filament pins only (noval 4+5, octal 2+7, rectifier filament 2+8).
+_HEATER_PAIR_ELEMENTS = {"heater", "filament"}
+
+
+def load_tube_heater_pair(slug: str) -> tuple[int, int] | None:
+    """The two pins a 6.3 V twisted pair spans at this socket, or None when the
+    basing does not name exactly two (an unknown tube, or a valve whose sheet
+    lists one heater pin). Drives the heater-pair primitive: the pair is ONE
+    conductor pair and lands on BOTH of a socket's heater pins, never on one."""
+    path = ROOT / "reference" / "tubes" / f"{slug}.yaml"
+    if not path.exists():
+        return None
+    data = yaml.safe_load(path.read_text()) or {}
+    pins = ((data.get("basing") or {}).get("pins") or {})
+    out: list[int] = []
+    for k, meta in pins.items():
+        try:
+            num = int(k)
+        except (TypeError, ValueError):
+            continue
+        if isinstance(meta, dict) and \
+                str(meta.get("element", "")).lower() in _HEATER_PAIR_ELEMENTS:
+            out.append(num)
+    return (out[0], out[1]) if len(out) == 2 else None
+
+
 # ---- small SVG element builders --------------------------------------------
 def text(x, y, s, fill, size, *, anchor="middle", font=FONT_DISP, weight=600,
          spacing=None, upper=False, halo=None, halo_width=3.0):
@@ -501,6 +534,32 @@ def text(x, y, s, fill, size, *, anchor="middle", font=FONT_DISP, weight=600,
             f'font-family="{font}" font-weight="{weight}" text-anchor="{anchor}"{ls}'
             f'{halo_attr}>'
             f'{esc(s)}</text>')
+
+
+def text_layers(x, y, s, fill, size, *, anchor="middle", font=FONT_DISP,
+                weight=600, spacing=None, halo=None, halo_width=3.0):
+    """A label as TWO elements — (halo, glyphs) — so the drawing can paint them
+    in different layers.
+
+    An opaque halo drawn immediately behind its own glyphs is what makes a label
+    legible where a lead passes behind it. Drawn on TOP of the drawing it also
+    knocks a hole in whatever it covers: a lead crossing the gap inside "25 µF"
+    was severed above and below the space and read as a broken wire, and a
+    socket caption erased the arc of the rim it sat on. So the halo is painted
+    early — over the board, under every conductor and glyph outline — and only
+    the glyphs stay on top. A wire now runs unbroken behind the type, and the
+    type is still read against its own backing.
+    """
+    ls = f' letter-spacing="{spacing}"' if spacing else ""
+    head = (f'<text x="{fmt(x)}" y="{fmt(y)}" font-size="{size}" '
+            f'font-family="{font}" font-weight="{weight}" text-anchor="{anchor}"{ls}')
+    glyphs = f'{head} fill="{fill}">{esc(s)}</text>'
+    if not halo:
+        return "", glyphs
+    backing = (f'{head} fill="{halo}" stroke="{halo}" '
+               f'stroke-width="{fmt(halo_width)}" stroke-linejoin="round">'
+               f'{esc(s)}</text>')
+    return backing, glyphs
 
 
 # ---- text metrics (label boxes feed the label-collision lint) --------------
@@ -522,6 +581,47 @@ def text_width(s, size, font=FONT_DISP, spacing=None):
             extra = 0.0
     adv = ADV_MONO if font == FONT_MONO else ADV_DISP
     return len(str(s)) * (size * adv + extra)
+
+
+def word_gap_boxes(box, s, size, font=FONT_DISP, spacing=None, inset=1.0,
+                   after_digit_only=True):
+    """The inter-word gaps inside a label's box — the narrow columns of bare
+    ground between its words.
+
+    These are the one place in a label where foreign ink becomes PUNCTUATION.
+    A lead crossing the space in "25 µF" reads as the wire stopping and
+    starting again; a pot's top arc rising into the space in "250 kΩ" reads as
+    "250,kΩ". Nothing may appear in them: not a conductor, not a glyph outline.
+    Positions follow text_width()'s metrics exactly, so a gap box is where the
+    space actually is.
+
+    `after_digit_only` keeps the rule where the damage is: the space between a
+    NUMBER and its unit, which is exactly where stray ink is read as a decimal
+    comma or a thousands separator. A space between two words of prose (a
+    transformer's "push-pull output transformer") has no such reading — a wire
+    crossing it is a wire crossing a caption — and holding prose to the rule
+    would make it unsatisfiable without saying anything true."""
+    s = str(s)
+    if " " not in s:
+        return []
+    extra = 0.0
+    if spacing:
+        try:
+            extra = float(str(spacing).replace("em", "")) * size
+        except ValueError:
+            extra = 0.0
+    ch = size * (ADV_MONO if font == FONT_MONO else ADV_DISP) + extra
+    x0, y0, _x1, y1 = box
+    out = []
+    for i, c in enumerate(s):
+        if c != " ":
+            continue
+        if after_digit_only and not (i and s[i - 1].isdigit()):
+            continue
+        gx = x0 + i * ch
+        if ch > 2 * inset:
+            out.append((gx + inset, y0, gx + ch - inset, y1))
+    return out
 
 
 def text_box(x, y, s, size, *, anchor="middle", font=FONT_DISP, spacing=None):
@@ -619,6 +719,25 @@ def _shrink(box, inset):
     cx, cy = (x0 + x1) / 2, (y0 + y1) / 2
     return (min(x0 + inset, cx), min(y0 + inset, cy),
             max(x1 - inset, cx), max(y1 - inset, cy))
+
+
+def _box_hits_circle(box, circle):
+    """Does a circular glyph put visible ink inside `box`?
+
+    A small disc (a solder blob, a lug pip, a terminal dot, an eyelet) is solid
+    ink, so any intersection counts. A large one (a socket, a pot) is an
+    OUTLINE around its own fill: only its rim is ink, so a box wholly inside it
+    sees the glyph's ground, not a mark."""
+    cx, cy, r = circle
+    nx = min(max(cx, box[0]), box[2])
+    ny = min(max(cy, box[1]), box[3])
+    if math.hypot(nx - cx, ny - cy) > r:
+        return False                       # box entirely outside the disc
+    if r <= 5.0:
+        return True                        # a solid pip
+    corners = ((box[0], box[1]), (box[2], box[1]),
+               (box[0], box[3]), (box[2], box[3]))
+    return not all(math.hypot(x - cx, y - cy) < r for x, y in corners)
 
 
 def _box_overlap(a, b):
@@ -811,15 +930,20 @@ def rounded_path(points, r=11.0):
     return " ".join(d)
 
 
-def twisted_strands(points, amp=3.4, wavelen=15.0, step=3.0):
-    """Two interleaved sinusoidal strand paths through `points` [(x,y),...] that
-    share the polyline's endpoints — the classic twisted-pair (heater) idiom.
-    A half-sine amplitude window forces both strands to meet exactly at the two
-    ends; between them they weave with opposite phase so they read as a twist.
-    Deterministic. Returns (d_strand1, d_strand2)."""
+def twisted_points(points, amp=3.4, wavelen=15.0, step=3.0):
+    """Two interleaved sinusoidal strand POLYLINES through `points` [(x,y),...]
+    that meet at the polyline's two endpoints — the classic twisted-pair
+    (heater) idiom. A half-sine amplitude window forces both strands together at
+    the ends; between them they weave with opposite phase so they read as a
+    twist. Deterministic. Returns (strand1_pts, strand2_pts).
+
+    The pair AXIS is what is twisted. Where the pair lands on a tube socket the
+    strands then separate and each runs on to its own heater pin — see
+    Renderer._heater_forks(). That separation is the whole point: a pair that
+    ends at a single point is a pair drawn shorted."""
     pts = [(float(x), float(y)) for x, y in points]
     if len(pts) < 2:
-        return "", ""
+        return [], []
     # cumulative arc length along the straight polyline
     seg = []
     total = 0.0
@@ -830,7 +954,7 @@ def twisted_strands(points, amp=3.4, wavelen=15.0, step=3.0):
         seg.append((total, d, (dx / d, dy / d)))
         total += d
     if total < 1e-6:
-        return "", ""
+        return [], []
     k = 2 * math.pi / wavelen
     n = max(2, int(total / step))
     s1, s2 = [], []
@@ -851,9 +975,20 @@ def twisted_strands(points, amp=3.4, wavelen=15.0, step=3.0):
         off = env * math.sin(k * s)
         s1.append((px + nx * off, py + ny * off))
         s2.append((px - nx * off, py - ny * off))
-    d1 = "M " + " L ".join(f"{fmt(x)} {fmt(y)}" for x, y in s1)
-    d2 = "M " + " L ".join(f"{fmt(x)} {fmt(y)}" for x, y in s2)
-    return d1, d2
+    return s1, s2
+
+
+def polyline_path(pts) -> str:
+    """A straight-segment SVG path through `pts`; '' for fewer than two."""
+    if len(pts) < 2:
+        return ""
+    return "M " + " L ".join(f"{fmt(x)} {fmt(y)}" for x, y in pts)
+
+
+def twisted_strands(points, amp=3.4, wavelen=15.0, step=3.0):
+    """twisted_points() as two SVG path strings."""
+    s1, s2 = twisted_points(points, amp, wavelen, step)
+    return polyline_path(s1), polyline_path(s2)
 
 
 def hopped_path(points, seg_hops, r=11.0):
@@ -1000,6 +1135,9 @@ class Renderer:
                 it["_pins"] = pins
                 it["_pincount"] = (max(pins) if pins else 8)
                 it["_heater_pins"] = load_tube_heater_pins(slug) if slug else None
+                # the two pins one 6.3 V pair spans at this socket (never the
+                # centre tap) — see _heater_span() and load_tube_heater_pair()
+                it["_heater_pair"] = load_tube_heater_pair(slug) if slug else None
         # Does this board carry a polarised rectifier/diode body? (drives the
         # extra Bodies-legend entry — the legend must name every form drawn.)
         self._has_diode = any(
@@ -1062,13 +1200,20 @@ class Renderer:
         # harness) grows the band so it clears the bottom legend/attribution.
         if self.runs or self.bus:
             deep_row = float(self.rows - 1)
+            # A twisted run's authored waypoints are the deep rail lane the old
+            # heater convention needed; the pair now runs along the socket row,
+            # so its lane is the one the renderer actually draws (HEATER_LANE)
+            # and the band is not reserved for a drop that no longer happens.
+            lane = self._heater_lane_row()
             for spec in (list(self.runs) + list(self.bus)):
+                twisted = str(spec.get("style", "")).lower() == "twisted"
                 for v in (spec.get("via") or []):
                     if isinstance(v, (list, tuple)) and len(v) == 2:
                         try:
-                            deep_row = max(deep_row, float(v[1]))
+                            row = float(v[1])
                         except (TypeError, ValueError):
-                            pass
+                            continue
+                        deep_row = max(deep_row, min(row, lane) if twisted else row)
             # ey() needs board_y (set above); +14 clears the wire + twist amp,
             # and the rest leaves room for the stacked footer lines. That
             # reserve used to be the constant 92 (110 with a twisted-pair note),
@@ -1396,20 +1541,130 @@ class Renderer:
                     # dense board instead of settling on a conductor.
                     (-26, -22), (26, -22), (-26, 22), (26, 22),
                     (-12, -32), (12, -32), (-12, 32), (12, 32),
-                    (-40, 0), (40, 0), (-40, -22), (40, -22), (-40, 22), (40, 22)]
+                    (-40, 0), (40, 0), (-40, -22), (40, -22), (-40, 22), (40, 22),
+                    # Third tier, 2026-09-08, with the false-punctuation check:
+                    # clearing a word gap is often a matter of a few pixels, and
+                    # a ladder stepping in 12s and 18s walked straight over the
+                    # clear air. Appended, not prepended, so every placement the
+                    # older rungs already settle stays exactly where it was —
+                    # these only come into play when nothing earlier was clean.
+                    (0, -5), (0, 5), (-6, 0), (6, 0),
+                    (-8, -6), (8, -6), (-8, 6), (8, 6),
+                    (0, -16), (0, 16), (-22, -6), (22, -6), (-22, 6), (22, 6),
+                    (-14, -16), (14, -16), (-14, 16), (14, 16)]
+    # Deliberately NOT added: rungs filling the vertical jump from 32 to 42.
+    # They exist — the Model 1987's V5 caption has a two-pixel lane at -40
+    # between two harness horizontals — but taking it tucks the caption's
+    # cap-top under the socket's own rim, which the box-based glyph test scores
+    # as a 2 px graze and the eye reads as a caption printed on the socket. A
+    # caption crossed by a lead is the lesser fault, it is the one the m1987
+    # waiver documents, and it is what the sheet style shows there in any case
+    # (its only clear placement is 110 px from the socket it names).
     # Second phase: a label still struck after its whole group has been placed
     # may slide on its own — the measured form of the old hand-authored
     # `value_nudge`. Deliberately short so a value never travels far enough from
     # its ref to be mis-attributed (that was its own review finding).
     LABEL_SOLO_LADDER = [(0, -9), (0, 9), (-14, 0), (14, 0), (0, -14), (0, 14),
                          (-20, -9), (20, -9), (-20, 9), (20, 9),
-                         (0, -21), (0, 21), (-24, -21), (24, -21), (-24, 21), (24, 21)]
+                         (0, -21), (0, 21), (-24, -21), (24, -21), (-24, 21), (24, 21),
+                         # fine tier — see LABEL_LADDER's third tier
+                         (0, -4), (0, 4), (-4, 0), (4, 0),
+                         (-6, -6), (6, -6), (-6, 6), (6, 6),
+                         (-8, -12), (8, -12), (-8, 12), (8, 12),
+                         (-22, -8), (22, -8), (-22, 8), (22, 8),
+                         (0, -17), (0, 17), (-16, -16), (16, -16),
+                         (-16, 16), (16, 16),
+                         # Dense last resort, in order of TRAVEL: a systematic
+                         # small grid out to a reach of 36 px. It is scanned
+                         # only for a label the rungs above leave with a hard
+                         # cost, and it exists because clearing a word gap or a
+                         # neighbour is usually a few-pixel problem that the
+                         # hand-chosen rungs above step straight over.
+                         (-8, 0), (8, 0), (-4, -4), (-4, 4),
+                         (4, -4), (4, 4), (0, -8), (0, 8),
+                         (-12, 0), (12, 0), (-8, -4), (-8, 4),
+                         (8, -4), (8, 4), (-4, -8), (-4, 8),
+                         (4, -8), (4, 8), (0, -12), (0, 12),
+                         (-12, -4), (-12, 4), (12, -4), (12, 4),
+                         (-8, -8), (-8, 8), (8, -8), (8, 8),
+                         (-4, -12), (-4, 12), (4, -12), (4, 12),
+                         (-18, 0), (18, 0), (0, -18), (0, 18),
+                         (-12, -8), (-12, 8), (12, -8), (12, 8),
+                         (-18, -4), (-18, 4), (18, -4), (18, 4),
+                         (-4, -18), (-4, 18), (4, -18), (4, 18),
+                         (-24, 0), (24, 0), (-12, -12), (-12, 12),
+                         (12, -12), (12, 12), (0, -24), (0, 24),
+                         (-18, -8), (-18, 8), (18, -8), (18, 8),
+                         (-8, -18), (-8, 18), (8, -18), (8, 18),
+                         (-24, -4), (-24, 4), (24, -4), (24, 4),
+                         (-4, -24), (-4, 24), (4, -24), (4, 24),
+                         (-30, 0), (30, 0), (-18, -12), (-18, 12),
+                         (18, -12), (18, 12), (-12, -18), (-12, 18),
+                         (12, -18), (12, 18), (0, -30), (0, 30),
+                         (-24, -8), (-24, 8), (24, -8), (24, 8),
+                         (-8, -24), (-8, 24), (8, -24), (8, 24),
+                         (-30, -4), (-30, 4), (30, -4), (30, 4),
+                         (-4, -30), (-4, 30), (4, -30), (4, 30),
+                         (-24, -12), (-24, 12), (24, -12), (24, 12),
+                         (-18, -18), (-18, 18), (18, -18), (18, 18),
+                         (-12, -24), (-12, 24), (12, -24), (12, 24)]
 
-    def _label_cost(self, boxes, placed, wires):
+    def _label_cost(self, items, placed, wires):
         """How many legibility violations a candidate placement of one label
-        group costs — same tests, same thresholds as the lint's checks c/d/e,
+        group costs — same tests, same thresholds as the lint's checks c/d/e/j,
         so a placement the placer accepts is a placement the gate accepts."""
-        return self._label_cost2(boxes, placed, wires)[0]
+        return self._label_cost2(items, placed, wires)[0]
+
+    # (j) FALSE PUNCTUATION. Foreign ink in the space between a label's words
+    # does not read as a crossing; it reads as a mark. "25 µF" with a lead in
+    # the gap is a wire that stops between the words, and "250 kΩ" with the pot
+    # rim through the gap is "250,kΩ" — five instances of the first in one crop
+    # of the 5E3, four of the second on the M1959's control strip. The transversal
+    # -crossing allowance that covers the rest of a label deliberately does NOT
+    # extend here: this is a hard failure, and the placer scores it the same way,
+    # so a value with nowhere clean to sit says so instead of settling.
+    GAP_WIRE_SPAN = 0.5       # any conductor paint at all inside a word gap
+    GAP_INSET = 1.0           # trim each gap box, so paint that merely grazes
+                              # the neighbouring glyph's flank is not counted
+
+    def _gap_intruders(self, box, spec, wires):
+        """Names of the conductors and glyphs putting ink inside a VALUE's
+        number-to-unit gap — empty when the value reads as its own quantity.
+
+        Scoped to values (the brief is "a value's inter-word gap"): a socket
+        caption's "V4 · 6V6GT" carries no unit for stray ink to attach to."""
+        if not spec or not str(spec.get("tag", "")).endswith("value"):
+            return []
+        gaps = word_gap_boxes(box, spec["text"], spec["size"], spec["font"],
+                              spec["spacing"], inset=self.GAP_INSET)
+        if not gaps:
+            return []
+        found: list[str] = []
+        for gap in gaps:
+            gx0, gy0, gx1, gy1 = gap
+            for name, pts, halfw in wires:
+                for k in range(len(pts) - 1):
+                    p, q = pts[k], pts[k + 1]
+                    if (max(p[0], q[0]) < gx0 - halfw or min(p[0], q[0]) > gx1 + halfw
+                            or max(p[1], q[1]) < gy0 - halfw
+                            or min(p[1], q[1]) > gy1 + halfw):
+                        continue                      # nowhere near this gap
+                    if _seg_box_span_painted(p, q, gap, halfw,
+                                             0.0) > self.GAP_WIRE_SPAN:
+                        found.append(name)
+                        break
+                else:
+                    continue
+                break
+            for ob in self.obstacles:
+                bx0, by0, bx1, by1 = ob["box"]
+                if bx1 < gx0 or bx0 > gx1 or by1 < gy0 or by0 > gy1:
+                    continue
+                circle = ob.get("circle")
+                if circle is None or _box_hits_circle(gap, circle):
+                    found.append(ob["tag"])
+                    break
+        return found
 
     # A conductor merely CROSSING a label transversally is not a lint failure —
     # the halo handles it, and demanding otherwise on a dense board would be
@@ -1427,10 +1682,25 @@ class Renderer:
     SOFT_GLYPH = 0.8          # any body/socket/solder-dot contact
     SOFT_GAP = 5.5            # clear space a label PREFERS around itself
 
-    def _label_cost2(self, boxes, placed, wires):
+    # A REF anchors attribution and a VALUE is the half that is meant to move —
+    # that is what `value_nudge` and the solo ladder exist for. So when a group
+    # placement cannot be clean everywhere, a violation left on the ref counts
+    # double: of two placements the gate would fail equally, the one whose debt
+    # sits on the label that can still slide out of it is the better bet, and
+    # the solo pass then usually clears it. `hard` is still ZERO exactly when
+    # the gate is clean, which is the property the placer and the gate share.
+    REF_HARD_WEIGHT = 2
+
+    def _label_cost2(self, items, placed, wires):
+        """`items` are (box, spec) pairs — the spec carries the text metrics the
+        false-punctuation check needs, and may be None where there is none."""
         hard = soft = 0
-        for box in boxes:
+        for box, spec in items:
             width = box[2] - box[0]
+            w_hard = (self.REF_HARD_WEIGHT
+                      if spec and str(spec.get("tag", "")).endswith(" ref") else 1)
+            if self._gap_intruders(box, spec, wires):
+                hard += w_hard
             tbox = _shrink(box, LINT_LABEL_INSET)
             hard_wire = soft_wire = False
             for _name, pts, halfw in wires:
@@ -1443,7 +1713,7 @@ class Renderer:
                     break
                 if span > self.SOFT_WIRE_SPAN:
                     soft_wire = True
-            hard += hard_wire
+            hard += w_hard * hard_wire
             soft += soft_wire
             hard_ob = soft_ob = False
             for ob in self.obstacles:
@@ -1453,7 +1723,7 @@ class Renderer:
                     break
                 if w > self.SOFT_GLYPH and h > self.SOFT_GLYPH:
                     soft_ob = True
-            hard += hard_ob
+            hard += w_hard * hard_ob
             soft += soft_ob
             grown = _shrink(box, -LINT_LABEL_GAP)
             roomy = _shrink(box, -self.SOFT_GAP)
@@ -1466,7 +1736,7 @@ class Renderer:
                 w2, h2 = _box_overlap(roomy, pb)
                 if w2 > LINT_LABEL_W and h2 > LINT_LABEL_H:
                     soft_lb = True
-            hard += hard_lb
+            hard += w_hard * hard_lb
             soft += soft_lb
         return hard, soft
 
@@ -1475,23 +1745,27 @@ class Renderer:
         Groups are placed in queue order — off-board identifications first, then
         the board's ref/value pairs — each one treating the already-placed
         labels as fixed. Deterministic: a fixed ladder, first-best wins,
-        ties broken by ladder order."""
+        ties broken by ladder order.
+
+        Returns (halo_layer, glyph_layer): the drawing paints the halos early,
+        under every conductor and glyph outline, and the type last — see
+        text_layers()."""
         groups: dict = {}
         for spec in self._pending:
             groups.setdefault(spec["group"], []).append(spec)
         placed: list[tuple] = []
-        out: list[str] = []
+        final: list[dict] = []           # {spec, x, y, box, cost}
         for gid, specs in groups.items():
             best, best_cost = (0, 0), None
             for (dx, dy) in self.LABEL_LADDER:
-                boxes = [text_box(sp["x"] + dx, sp["y"] + dy, sp["text"], sp["size"],
-                                  anchor=sp["anchor"], font=sp["font"],
-                                  spacing=sp["spacing"]) for sp in specs]
+                items = [(text_box(sp["x"] + dx, sp["y"] + dy, sp["text"], sp["size"],
+                                   anchor=sp["anchor"], font=sp["font"],
+                                   spacing=sp["spacing"]), sp) for sp in specs]
                 keep = specs[0].get("keep_in")
                 if keep and any(b[0] < keep[0] or b[1] < keep[1] or b[2] > keep[2]
-                                or b[3] > keep[3] for b in boxes):
+                                or b[3] > keep[3] for b, _sp in items):
                     continue
-                cost = self._label_cost2(boxes, placed, wires)
+                cost = self._label_cost2(items, placed, wires)
                 if best_cost is None or cost < best_cost:
                     best, best_cost = (dx, dy), cost
                 if cost == (0, 0):
@@ -1501,31 +1775,66 @@ class Renderer:
                 sx, sy = sp["x"] + dx, sp["y"] + dy
                 box = text_box(sx, sy, sp["text"], sp["size"], anchor=sp["anchor"],
                                font=sp["font"], spacing=sp["spacing"])
-                cur = self._label_cost2([box], placed, wires)
+                cur = self._label_cost2([(box, sp)], placed, wires)
                 if len(specs) > 1 and cur != (0, 0):
-                    keep = sp.get("keep_in")
-                    for (ex, ey_) in self.LABEL_SOLO_LADDER:
-                        cand = text_box(sx + ex, sy + ey_, sp["text"], sp["size"],
-                                        anchor=sp["anchor"], font=sp["font"],
-                                        spacing=sp["spacing"])
-                        if keep and (cand[0] < keep[0] or cand[1] < keep[1]
-                                     or cand[2] > keep[2] or cand[3] > keep[3]):
-                            continue
-                        cand_cost = self._label_cost2([cand], placed, wires)
-                        if cand_cost < cur:
-                            sx, sy, box, cur = sx + ex, sy + ey_, cand, cand_cost
-                            if cur == (0, 0):
-                                break
+                    sx, sy, box, cur = self._slide_solo(sp, sx, sy, box, cur,
+                                                        placed, wires)
                 placed.append(box)
-                self.labels.append({"text": sp["text"], "tag": sp["tag"], "box": box})
-                lead = self._leader(sp.get("owner"), box)
-                if lead:
-                    out.append(lead)   # before the text: the halo cuts it clean
-                out.append(text(sx, sy, sp["text"], sp["fill"], sp["size"],
-                                anchor=sp["anchor"], font=sp["font"],
-                                weight=sp["weight"], spacing=sp["spacing"],
-                                halo=sp["halo"], halo_width=sp["halo_width"]))
-        return "".join(out)
+                final.append({"spec": sp, "x": sx, "y": sy, "box": box, "cost": cur})
+        # SETTLING PASS. Groups are placed in queue order against whatever is
+        # already down, so a label can be squeezed by a neighbour that had not
+        # been placed yet when it chose (the 6G6-B's RT2 and RPF values landed on
+        # each other this way). Every label that ended with a hard cost gets one
+        # more solo attempt, now measured against the FINISHED arrangement.
+        # One pass, in the same order: bounded and deterministic. Every label is
+        # re-scored, not only the ones that recorded a cost when they were
+        # placed — a label placed early was measured against half a drawing.
+        for k, ent in enumerate(final):
+            others = [e["box"] for j, e in enumerate(final) if j != k]
+            sp = ent["spec"]
+            cur = self._label_cost2([(ent["box"], sp)], others, wires)
+            if not cur[0]:
+                continue
+            sx, sy, box, cur = self._slide_solo(sp, ent["x"], ent["y"], ent["box"],
+                                                cur, others, wires)
+            ent.update(x=sx, y=sy, box=box, cost=cur)
+        out: list[str] = []
+        halos: list[str] = []
+        for ent in final:
+            sp, box = ent["spec"], ent["box"]
+            self.labels.append({"text": sp["text"], "tag": sp["tag"], "box": box,
+                                "size": sp["size"], "font": sp["font"],
+                                "spacing": sp["spacing"]})
+            lead = self._leader(sp.get("owner"), box)
+            if lead:
+                out.append(lead)
+            backing, glyphs = text_layers(
+                ent["x"], ent["y"], sp["text"], sp["fill"], sp["size"],
+                anchor=sp["anchor"], font=sp["font"], weight=sp["weight"],
+                spacing=sp["spacing"], halo=sp["halo"],
+                halo_width=sp["halo_width"])
+            halos.append(backing)
+            out.append(glyphs)
+        return "".join(halos), "".join(out)
+
+    def _slide_solo(self, sp, sx, sy, box, cur, placed, wires):
+        """Walk one label along LABEL_SOLO_LADDER, keeping the first strictly
+        better placement it finds and stopping the moment it is clean. Returns
+        (x, y, box, cost) — unchanged when nothing on the ladder is better."""
+        keep = sp.get("keep_in")
+        for (ex, ey_) in self.LABEL_SOLO_LADDER:
+            cand = text_box(sx + ex, sy + ey_, sp["text"], sp["size"],
+                            anchor=sp["anchor"], font=sp["font"],
+                            spacing=sp["spacing"])
+            if keep and (cand[0] < keep[0] or cand[1] < keep[1]
+                         or cand[2] > keep[2] or cand[3] > keep[3]):
+                continue
+            cand_cost = self._label_cost2([(cand, sp)], placed, wires)
+            if cand_cost < cur:
+                sx, sy, box, cur = sx + ex, sy + ey_, cand, cand_cost
+                if cur == (0, 0):
+                    break
+        return sx, sy, box, cur
 
     # A label the placer had to move this far from the body it names gets a
     # LEADER: a hairline from the type back to the part. Without one, a
@@ -1586,7 +1895,10 @@ class Renderer:
                                                    max(x0, x1), max(y0, y1))})
 
     def obst_circle(self, cx, cy, r, tag):
-        self.obstacles.append({"tag": tag, "box": (cx - r, cy - r, cx + r, cy + r)})
+        # the circle itself is kept alongside its box: the false-punctuation
+        # check needs to know whether a gap sees the rim or only the fill
+        self.obstacles.append({"tag": tag, "circle": (cx, cy, r),
+                               "box": (cx - r, cy - r, cx + r, cy + r)})
 
     # ---- off-board label placement -----------------------------------------
     def _label_side(self, item):
@@ -2402,6 +2714,9 @@ class Renderer:
 
     # ---- v2 wiring: routed runs + ground bus -------------------------------
     def _run_points(self, spec, ctx):
+        if str(spec.get("style", "")).lower() == "twisted":
+            geo = self._heater_run(spec, ctx)
+            return geo["axis"] if geo else None
         a = self.resolve(spec.get("from"), ctx + " from")
         b = self.resolve(spec.get("to"), ctx + " to")
         if not a or not b:
@@ -2413,10 +2728,7 @@ class Renderer:
             else:
                 self.errors.append(f"{ctx}: bad via point {v!r}")
         pts.append(b)
-        pts = _clean_polyline(pts)
-        if str(spec.get("style", "")).lower() == "twisted":
-            pts = self._socket_keepout(pts)
-        return pts
+        return _clean_polyline(pts)
 
     # ---- socket keep-out (heater routing) -----------------------------------
     # The 6.3 V pair is the topmost layer by design — it has to show its pin
@@ -2431,13 +2743,24 @@ class Renderer:
     # net) and none to any other run.
     SOCKET_KEEPOUT = 12.0     # clear ring outside the socket's outer circle
 
+    # Since the pair runs ALONG the socket row rather than dropping to a rail,
+    # the row's other hardware is in its way too: a speaker jack between two
+    # bottle positions (the 5E3), a transformer standing in the row. Those get
+    # a keep-out as well, so the harness is dressed around them the way it is
+    # dressed around a socket instead of being drawn through the glyph.
+    _EDGE_KEEPOUT = {"jack": 23.0, "pot": 32.0, "xfmr": 42.0, "choke": 34.0,
+                     "switch": 26.0, "part": 24.0}
+
     def _sockets(self):
         out = []
         for it in self.offboard:
-            if it.get("kind") != "tube":
-                continue
-            cx, cy = self.off_pos(it)
-            out.append((cx, cy, TUBE_R + 5 + self.SOCKET_KEEPOUT))
+            kind = it.get("kind")
+            if kind == "tube":
+                cx, cy = self.off_pos(it)
+                out.append((cx, cy, TUBE_R + 5 + self.SOCKET_KEEPOUT))
+            elif kind in self._EDGE_KEEPOUT and it.get("edge", "bottom") == "bottom":
+                cx, cy = self.off_pos(it)
+                out.append((cx, cy, self._EDGE_KEEPOUT[kind]))
         return out
 
     def _socket_keepout(self, pts):
@@ -2458,6 +2781,225 @@ class Renderer:
             if not changed:
                 break
         return pts
+
+    # ---- the heater pair (D1, 2026-09-08) ----------------------------------
+    # A `style: twisted` run is ONE 6.3 V pair, and the authored chain is the
+    # factory's daisy order: PT green pair -> pilot lamp -> socket to socket.
+    # Two renderer conventions used to misrepresent that correct data:
+    #
+    #   (a) both strands shared the polyline's single endpoint, so a PAIR
+    #       terminated on ONE pin. An EL34 whose pins 2 and 7 each received a
+    #       "twisted pair" showed four heater conductors where two belong.
+    #   (b) every hop was routed down into a deep lane below the sockets and
+    #       back up, so each socket appeared to drop two separate pairs to a
+    #       rail — which reads as a short across its own heater pins — and the
+    #       drop consumed the lower band of every wide sheet.
+    #
+    # The pair now spans BOTH heater pins of each socket it lands on, and a
+    # socket-to-socket hop is routed along the socket row instead of down to a
+    # rail. The AXIS carries the twist and stops on the socket's harness ring;
+    # from there each strand runs on to its own pin, around the socket on the
+    # side away from its caption, exactly as a dressed harness does. Which pins
+    # the run declares is unchanged, so _check_heater_endpoint's guarantee and
+    # the equivalence gate see exactly what they saw before.
+    HEATER_RING = TUBE_R + 5 + SOCKET_KEEPOUT + 1.0   # axis stops here
+    HEATER_WRAP_A = TUBE_R + 8.0    # fork wrap radius at a run's FROM end…
+    HEATER_WRAP_B = TUBE_R + 14.0   # …and at its TO end, so the two pairs that
+                                    # meet at an intermediate socket trace
+                                    # distinct arcs instead of one doubled line
+    HEATER_LANE = 0.55              # rows below the socket row: the harness
+                                    # lane a lead from the lamp or the PT runs
+                                    # in, clear of the socket captions
+
+    def _heater_lane_row(self) -> float:
+        return float(self.rows) + self.HEATER_LANE
+
+    def _tube_endpoint(self, ep):
+        """(item, pin) when `ep` addresses a tube socket pin, else (None, None)."""
+        if not (isinstance(ep, str) and "." in ep):
+            return None, None
+        name, suffix = ep.split(".", 1)
+        it = self.off_by_id.get(name)
+        if not (it and it.get("kind") == "tube"):
+            return None, None
+        digits = "".join(ch for ch in suffix if ch.isdigit())
+        if not digits:
+            return None, None
+        return it, int(digits)
+
+    def _heater_span(self, ep, other):
+        """(socket item, (pin, pin)) when a twisted run's end lands on a socket
+        and the pair should SPAN that socket's two heater pins; None otherwise.
+
+        Three ends are deliberately not spanned: an end that is not a socket (a
+        PT lead, the pilot lamp), an end on a socket's heater CENTRE TAP (a
+        third wire, not half of the pair), and a run whose other end is the
+        SAME socket — the authored 'close the pair at the last socket' jumper,
+        which already names both heater pins itself."""
+        it, pin = self._tube_endpoint(ep)
+        if it is None:
+            return None
+        o_it, _o_pin = self._tube_endpoint(other)
+        if o_it is not None and o_it.get("id") == it.get("id"):
+            return None
+        pair = it.get("_heater_pair")
+        if not pair or pin not in pair:
+            return None
+        return it, tuple(pair)
+
+    # A socket's caption sits in a band on one side of it (see _label_side).
+    # The pair must not arrive across that band — a harness lead run through
+    # the middle of "V3 · 6V6GT" is the same defect as a label painted over a
+    # wire, seen from the other end — so an approach bearing inside this arc of
+    # the caption side is swung round to the nearer flank.
+    HEATER_CAPTION_ARC = math.radians(55.0)
+
+    def _caption_bearing(self, item):
+        """Bearing from a socket's centre toward its caption band."""
+        return (math.pi / 2) if self._label_side(item) > 0 else (-math.pi / 2)
+
+    def _ring_point(self, item, toward, hint=None):
+        """Where the pair's axis stops on a socket's harness ring, aimed at
+        `toward` (the neighbouring socket, or the run's nearest waypoint), and
+        never inside the caption arc — `hint` (the far end of the run) breaks
+        the left/right tie when the approach is dead-on the caption band."""
+        cx, cy = self.off_pos(item)
+        th = math.atan2(toward[1] - cy, toward[0] - cx)
+        th_lab = self._caption_bearing(item)
+        delta = abs((th - th_lab + math.pi) % (2 * math.pi) - math.pi)
+        if delta < self.HEATER_CAPTION_ARC:
+            side = toward[0] - cx
+            if abs(side) < 1.0 and hint is not None:
+                side = hint[0] - cx
+            side = 1.0 if side >= 0 else -1.0
+            cands = (th_lab + self.HEATER_CAPTION_ARC, th_lab - self.HEATER_CAPTION_ARC)
+            th = next((c for c in cands if math.cos(c) * side > 0), cands[0])
+        return (cx + math.cos(th) * self.HEATER_RING,
+                cy + math.sin(th) * self.HEATER_RING)
+
+    @staticmethod
+    def _heater_sweep(th_e, th_p, th_caption):
+        """Signed arc from bearing `th_e` to `th_p` around a socket: the shorter
+        way, unless that way sweeps past `th_caption` (the socket's caption
+        band), in which case the long way round the clear side. Deterministic."""
+        tau = 2 * math.pi
+        fwd = (th_p - th_e) % tau
+        bwd = fwd - tau
+        t = (th_caption - th_e) % tau
+        short, other = (fwd, bwd) if abs(fwd) <= abs(bwd) else (bwd, fwd)
+        crosses = (t <= short + 1e-9) if short >= 0 else ((t - tau) >= short - 1e-9)
+        return other if crosses else short
+
+    def _heater_forks(self, item, pins, entry, r_wrap):
+        """The two strand paths from the pair's axis end `entry` to a socket's
+        two heater pins: in to the wrap radius, around the socket clear of its
+        caption, then radially on to the pin. Nearest pin first, so the two
+        strands do not cross each other at the landing."""
+        cx, cy = self.off_pos(item)
+        th_e = math.atan2(entry[1] - cy, entry[0] - cx)
+        th_cap = self._caption_bearing(item)
+        out = []
+        for pin in pins:
+            px, py = self.tube_pin_pos(item, pin)
+            th_p = math.atan2(py - cy, px - cx)
+            sweep = self._heater_sweep(th_e, th_p, th_cap)
+            pts = [entry, (cx + r_wrap * math.cos(th_e), cy + r_wrap * math.sin(th_e))]
+            n = max(1, int(abs(sweep) / math.radians(9)))
+            for k in range(1, n + 1):
+                th = th_e + sweep * k / n
+                pts.append((cx + r_wrap * math.cos(th), cy + r_wrap * math.sin(th)))
+            pts.append((px, py))
+            out.append((abs(sweep), _clean_polyline(pts, eps=0.5)))
+        out.sort(key=lambda t: t[0])
+        return [p for _s, p in out]
+
+    def _heater_link(self, item, pin_a, pin_b):
+        """One conductor between two pins of the SAME socket, dressed round the
+        flank clear of the caption — the chain's closing link."""
+        cx, cy = self.off_pos(item)
+        pa = self.tube_pin_pos(item, pin_a)
+        pb = self.tube_pin_pos(item, pin_b)
+        th_a = math.atan2(pa[1] - cy, pa[0] - cx)
+        th_b = math.atan2(pb[1] - cy, pb[0] - cx)
+        sweep = self._heater_sweep(th_a, th_b, self._caption_bearing(item))
+        r = self.HEATER_WRAP_A
+        pts = [pa]
+        n = max(1, int(abs(sweep) / math.radians(9)))
+        for k in range(n + 1):
+            th = th_a + sweep * k / n
+            pts.append((cx + r * math.cos(th), cy + r * math.sin(th)))
+        pts.append(pb)
+        return _clean_polyline(pts, eps=0.5)
+
+    def _heater_run(self, spec, ctx):
+        """Resolve a twisted (heater) run to {axis, forks, ends}.
+
+        `axis` is the pair's twisted centreline; `forks` is a 2-list, one entry
+        per axis end, each either None (the pair meets at that single point) or
+        two strand paths on to the socket's two heater pins; `ends` are the
+        points a solder joint is drawn at."""
+        a = self.resolve(spec.get("from"), ctx + " from")
+        b = self.resolve(spec.get("to"), ctx + " to")
+        if not a or not b:
+            return None
+        span_a = self._heater_span(spec.get("from"), spec.get("to"))
+        span_b = self._heater_span(spec.get("to"), spec.get("from"))
+        it_a, pin_a = self._tube_endpoint(spec.get("from"))
+        it_b, pin_b = self._tube_endpoint(spec.get("to"))
+        if it_a is not None and it_b is not None and it_a.get("id") == it_b.get("id"):
+            # The chain's closing link — pin 4 to pin 5 at the last socket, or a
+            # heater to its centre tap. It is ONE wire between two pins of one
+            # socket: there is no pair to twist and nothing to fork, so it draws
+            # as a single conductor dressed round the socket's flank.
+            return {"axis": self._heater_link(it_a, pin_a, pin_b),
+                    "forks": [None, None], "single": True,
+                    "ends": [a, b]}
+        # A socket-to-socket hop runs ALONG the row: the authored waypoints on
+        # these hops are the deep rail lane the old convention needed, and the
+        # keep-out router already takes the pair round anything in the way.
+        socket_hop = (it_a is not None and it_b is not None
+                      and it_a.get("id") != it_b.get("id"))
+        mid: list = []
+        if not socket_hop:
+            lane = self.ey(self._heater_lane_row())
+            for v in (spec.get("via") or []):
+                if isinstance(v, (list, tuple)) and len(v) == 2:
+                    mid.append((self.ex(v[0]), min(self.ey(v[1]), lane)))
+                else:
+                    self.errors.append(f"{ctx}: bad via point {v!r}")
+        aim_a = mid[0] if mid else (self.off_pos(it_b) if span_b else b)
+        aim_b = mid[-1] if mid else (self.off_pos(it_a) if span_a else a)
+        start = self._ring_point(span_a[0], aim_a, hint=b) if span_a else a
+        end = self._ring_point(span_b[0], aim_b, hint=(mid[0] if mid else a)) \
+            if span_b else b
+        axis = self._socket_keepout(_clean_polyline([start] + mid + [end]))
+        forks = [
+            self._heater_forks(span_a[0], span_a[1], axis[0], self.HEATER_WRAP_A)
+            if span_a else None,
+            self._heater_forks(span_b[0], span_b[1], axis[-1], self.HEATER_WRAP_B)
+            if span_b else None,
+        ]
+        ends: list = []
+        for k, fk in ((0, forks[0]), (-1, forks[1])):
+            ends += [f[-1] for f in fk] if fk else [axis[k]]
+        return {"axis": axis, "forks": forks, "ends": ends, "single": False}
+
+    def _socket_rims(self) -> list[str]:
+        """Every tube socket's outline, restruck AFTER the wiring layer.
+
+        A heater strand has to cross the rim to reach a pin, and until 2026-09-08
+        the pair's opaque casing was painted over the ring at each landing, so
+        the M1959's V6/V7 rims were notched out at 3 and 9 o'clock (D10). A
+        conductor may pass BEHIND a glyph outline; it may never leave a hole in
+        one. Paint only — no geometry moves, so both styles keep one geometry."""
+        out = []
+        for it in self.offboard:
+            if it.get("kind") != "tube":
+                continue
+            x, y = self.off_pos(it)
+            out.append(f'<circle cx="{fmt(x)}" cy="{fmt(y)}" r="{fmt(TUBE_R)}" '
+                       f'fill="none" stroke="{AMBER}" stroke-width="1.8"/>')
+        return out
 
     def _endpoint_colour(self, ep):
         """Base colour name if `ep` addresses a transformer lead, else None."""
@@ -2487,7 +3029,26 @@ class Renderer:
                 f"{ctx}: heater (twisted) run onto tube '{name}' pin {pin} is not a "
                 f"heater/filament pin (heater pins: {sorted(heaters)} per reference/tubes basing)")
 
-    def run_wire(self, spec, i, pts, seg_hops=None):
+    def _heater_paths(self, pts, forks, single=False):
+        """(d_strand1, d_strand2) for one heater run: the twisted axis with each
+        end's fork appended, so the pair arrives as a pair and lands as two
+        conductors on two pins. A `single` run — the chain's closing link
+        between two pins of ONE socket — is one conductor, not a pair, so there
+        is nothing to twist and it draws as a single strand."""
+        if single:
+            return polyline_path(pts), ""
+        s1, s2 = twisted_points(pts)
+        fa, fb = (forks or [None, None])[:2]
+        if fa:
+            s1 = list(reversed(fa[0]))[:-1] + s1
+            s2 = list(reversed(fa[1]))[:-1] + s2
+        if fb:
+            s1 = s1 + fb[0][1:]
+            s2 = s2 + fb[1][1:]
+        return polyline_path(s1), polyline_path(s2)
+
+    def run_wire(self, spec, i, pts, seg_hops=None, forks=None, ends=None,
+                 single=False):
         if not pts:
             return "", []
         seg_hops = seg_hops or {}
@@ -2503,16 +3064,20 @@ class Renderer:
             self._has_twisted = True
             base = lead_base(colour) if colour else None
             stroke = HEATER_CT if base == "green-yellow" else HEATER
-            d1, d2 = twisted_strands(pts)
+            d1, d2 = self._heater_paths(pts, forks, single)
             center = rounded_path(pts, r=11)
+            # The casing is the AXIS's alone. Inside a socket's harness ring the
+            # only ink is the socket's own rim and pin numerals, and a 5 px
+            # opaque casing there is what used to notch the rim at every heater
+            # landing (D10); the strands cross the rim as hairlines instead.
             casing = (f'<path d="{center}" fill="none" stroke="{WIRE_CASING}" '
                       f'stroke-width="5.0" stroke-linecap="round" stroke-linejoin="round" '
                       f'opacity="0.6"/>')
-            strands = (f'<path d="{d1}" fill="none" stroke="{stroke}" stroke-width="1.7" '
-                       f'stroke-linecap="round" stroke-linejoin="round"/>'
-                       f'<path d="{d2}" fill="none" stroke="{stroke}" stroke-width="1.7" '
-                       f'stroke-linecap="round" stroke-linejoin="round"/>')
-            return casing + strands, [pts[0], pts[-1]]
+            strands = "".join(
+                f'<path d="{d}" fill="none" stroke="{stroke}" stroke-width="1.7" '
+                f'stroke-linecap="round" stroke-linejoin="round"/>'
+                for d in (d1, d2) if d)
+            return casing + strands, (ends or [pts[0], pts[-1]])
         stroke = colour_hex(colour) if colour else WIRE_NEUTRAL
         if colour:
             key = str(colour).lower()
@@ -2542,13 +3107,39 @@ class Renderer:
         is {j, spec, pts}. `pts` is None when an endpoint fails to resolve."""
         runs = []
         for i, spec in enumerate(self.runs):
-            pts = self._run_points(spec, f"run[{i}]")
-            runs.append({"i": i, "spec": spec, "pts": pts,
-                         "twisted": str(spec.get("style", "")).lower() == "twisted"})
+            twisted = str(spec.get("style", "")).lower() == "twisted"
+            if twisted:
+                geo = self._heater_run(spec, f"run[{i}]")
+                pts = geo["axis"] if geo else None
+                forks = geo["forks"] if geo else None
+                ends = geo["ends"] if geo else None
+                single = bool(geo and geo.get("single"))
+            else:
+                pts, forks, ends = self._run_points(spec, f"run[{i}]"), None, None
+                single = False
+            runs.append({"i": i, "spec": spec, "pts": pts, "twisted": twisted,
+                         "forks": forks, "ends": ends, "single": single})
         bus = []
         for j, spec in enumerate(self.bus):
             bus.append({"j": j, "spec": spec, "pts": self._run_points(spec, f"bus[{j}]")})
         return runs, bus
+
+    def wire_list(self, runs, bus):
+        """Every conductor the label placer and the label lint must measure:
+        each run's polyline, each ground-bus segment-set, and — since the heater
+        pair separates at a socket — each of a twisted run's FORK paths, which
+        are ink on the drawing exactly as its axis is."""
+        wires: list = []
+        for r in runs:
+            if not r["pts"]:
+                continue
+            half = self.TWIST_HALF if r["twisted"] else self.RUN_HALF
+            wires.append((f"run[{r['i']}]", r["pts"], half))
+            for end in (r.get("forks") or []):
+                for k, path in enumerate(end or []):
+                    wires.append((f"run[{r['i']}] fork{k}", path, half))
+        wires += [(f"bus[{b['j']}]", b["pts"], self.BUS_HALF) for b in bus if b["pts"]]
+        return wires
 
     def _hop_map(self, runs, bus):
         """Build the hop map for the plain runs + bus (twisted runs excluded)."""
@@ -2585,6 +3176,13 @@ class Renderer:
         # legacy soft leads (under everything)
         for lead in self.leads:
             els.append(self.lead_run(lead))
+        # LABEL HALO LAYER — reserved here, filled by the final text pass. The
+        # opaque backing every content label carries is painted over the board
+        # and UNDER every conductor and glyph outline, so a halo can no longer
+        # sever a lead or knock a hole in a socket rim; only the glyphs stay on
+        # top. See text_layers().
+        halo_slot = len(els)
+        els.append("")
         # resolve wiring geometry once, then work out the hop-over bridges: at
         # every transversal crossing the later run hops the earlier one; runs
         # hop the ground bus; twisted heater pairs are exempt (topmost layer).
@@ -2621,9 +3219,15 @@ class Renderer:
             els.append(geom)
         # heater twisted pairs, above the sockets
         for r in twisted_runs:
-            svg, tp = self.run_wire(r["spec"], r["i"], r["pts"])
+            svg, tp = self.run_wire(r["spec"], r["i"], r["pts"],
+                                    forks=r.get("forks"), ends=r.get("ends"),
+                                    single=r.get("single", False))
             els.append(svg)
             run_pts += tp
+        # Socket rims, restruck over the wiring: a heater pair that lands on a
+        # pin has to cross the rim to get there, and a conductor must never
+        # leave a hole in a glyph outline (D10). Paint only — same geometry.
+        els += self._socket_rims()
         # ground-rod ends: a plain terminal dot
         for (tx, ty) in bus_pts:
             els.append(term_dot(tx, ty))
@@ -2646,11 +3250,9 @@ class Renderer:
         # the crossings that remain. Placement is resolved here too, against the
         # finished geometry, so a label lands in air by measurement rather than
         # by hand-authored nudge.
-        wires = [(f"run[{r['i']}]", r["pts"],
-                  self.TWIST_HALF if r["twisted"] else self.RUN_HALF)
-                 for r in runs if r["pts"]]
-        wires += [(f"bus[{b['j']}]", b["pts"], self.BUS_HALF) for b in bus if b["pts"]]
-        els.append(self._emit_labels(wires))
+        halo_layer, glyph_layer = self._emit_labels(self.wire_list(runs, bus))
+        els[halo_slot] = halo_layer
+        els.append(glyph_layer)
         # title + attribution
         title = (self.layout.get("board", {}) or {}).get("title") or f"{self.amp_id.upper()} board layout"
         ts = self.cz(17)
@@ -3087,15 +3689,11 @@ class SheetRenderer(Renderer):
     def _fits(self, s, size, avail):
         return text_width(s, size) <= avail
 
-    def _fixed_text(self, x, y, s, size, fill=SH_INK, weight=600, halo=SH_BODY,
-                    rotate=None):
+    def _fixed_text(self, x, y, s, size, fill=SH_INK, weight=600, halo=SH_BODY):
+        # No `rotate`: the sheet style never turns lettering (see
+        # _sheet_body_vertical). A body may stand; its value is read level.
         t = text(x, y, s, fill, size, weight=weight, halo=halo, halo_width=2.6)
         box = text_box(x, y, s, size)
-        if rotate is not None:
-            t = f'<g transform="rotate({fmt(rotate)} {fmt(x)} {fmt(y)})">{t}</g>'
-            # lettered along the body: the box turns with the glyphs
-            box = (x + (box[1] - y), y - (box[2] - x),
-                   x + (box[3] - y), y - (box[0] - x))
         self._fixed.append(t)
         # An on-body value is ink on the drawing exactly as the body under it
         # is, so it is registered as an OBSTACLE: the label placer routes queued
@@ -3104,15 +3702,17 @@ class SheetRenderer(Renderer):
         # never moves, and it sits on its own body by design.)
         self.obst_rect(box[0], box[1], box[2], box[3], f"value '{s}'")
 
-    def _ref_label(self, cx, cy, ref):
+    def _ref_label(self, cx, cy, ref, anchor="middle"):
         self.lab(cx, cy, ref, SH_INK2, 8, weight=700, spacing="0.03em",
+                 anchor=anchor,
                  tag=f"{ref} ref", group=f"ref:{ref}", keep_in=self.board_box(),
                  halo=SH_BOARD, halo_width=2.4, owner=f"{ref} body")
 
-    def _below_value(self, cx, cy, ref, val):
+    def _below_value(self, cx, cy, ref, val, anchor="middle", size=9.5):
         """Fallback for a value that will not fit inside its body: printed just
         below it, queued so the placer keeps it in air (the house behaviour)."""
-        self.lab(cx, cy, val, SH_INK2, 9.5, weight=600, tag=f"{ref} value",
+        self.lab(cx, cy, val, SH_INK2, size, weight=600, tag=f"{ref} value",
+                 anchor=anchor,
                  group=f"ref:{ref}", keep_in=self.board_box(),
                  halo=SH_BOARD, halo_width=2.6, owner=f"{ref} body")
 
@@ -3168,6 +3768,21 @@ class SheetRenderer(Renderer):
         self._fixed_text(cx, cy - 1.5, head, 8.5, weight=700)
         self._fixed_text(cx, cy + 8, tail, 8, fill=SH_INK2)
         return True
+
+    def _val_on_body(self, cx, cy, v1, avail, clear):
+        """_val_inside(), but the lettering must ALSO fit in the clear span
+        between the part's own two terminals.
+
+        An off-board part whose body is wider than its terminal spacing stands
+        on its own dots, and a value lettered right across the body lands on
+        them: the 5F6-A's C16 printed '.1-200' over both and read ':1-200'
+        (D12). `clear` is that span with the dots taken out of it; a value that
+        will not fit inside it goes beside the part instead of on it."""
+        for size, pad in ((9.5, 10.0), (8.5, 6.0), (8.0, 4.0)):
+            if self._fits(v1, size, avail - pad) and self._fits(v1, size, clear):
+                self._fixed_text(cx, cy + size * 0.36, v1, size, weight=700)
+                return True
+        return False
 
     def _val_inside(self, cx, cy, v1, avail):
         """Write a value on a body if any size on the ladder fits its interior
@@ -3283,10 +3898,19 @@ class SheetRenderer(Renderer):
         resistor by shape at all. The vocabulary now matches the horizontal
         bodies: square-cornered rectangle for a film/mica cap, dogbone for a
         resistor, crimped can with a polarity mark for an electrolytic, banded
-        body for a rectifier."""
+        body for a rectifier.
+
+        The BODY turns; the LETTERING never does (2026-09-08). Standing parts
+        used to carry their value rotated 90° up the body — "1.5K", "820", and
+        an electrolytic stacking a rotated "25MFD" beside a rotated "25V" — and
+        no factory sheet rotates lettering: type on a drawing is read with the
+        page the right way up. The house drawing already did this correctly
+        (value horizontal beside the standing body), so the sheet was a
+        regression against its own sibling. Both styles now letter a standing
+        part horizontally beside it, with an electrolytic's capacitance and
+        working voltage on two horizontal lines."""
         h = 40.0
         els: list[str] = []
-        # (body width, lettering centre offset from cy, lettering length budget)
         if cat in ("film", "mica"):
             # SAME square-cornered rectangle the horizontal film cap gets, just
             # standing: the outline is what distinguishes C from R on the sheet.
@@ -3294,10 +3918,8 @@ class SheetRenderer(Renderer):
             x, y = cx - w / 2, cy - h / 2
             els.append(f'<rect x="{fmt(x)}" y="{fmt(y)}" width="{fmt(w)}" height="{fmt(h)}" '
                        f'rx="1.5" fill="{SH_BODY}" stroke="{SH_INK}" stroke-width="1.6"/>')
-            voff, budget, cols = 0.0, h, 1
         elif cat == "electro":
-            # a standing can: crimp ring and its own polarity gutter at the top,
-            # the value lettered up the body below them.
+            # a standing can: crimp ring and its own polarity gutter at the top.
             w = 24.0 if v2 else 19.0
             x, y = cx - w / 2, cy - h / 2
             els.append(f'<rect x="{fmt(x)}" y="{fmt(y)}" width="{fmt(w)}" height="{fmt(h)}" '
@@ -3305,7 +3927,6 @@ class SheetRenderer(Renderer):
             els.append(f'<line x1="{fmt(x)}" y1="{fmt(y + 8.5)}" x2="{fmt(x + w)}" '
                        f'y2="{fmt(y + 8.5)}" stroke="{SH_INK}" stroke-width="0.9"/>')
             els += plus_mark(cx, y + 4.2, 2.8, SH_INK, 1.4)
-            voff, budget, cols = 5.0, h - 12.0, (2 if v2 else 1)
         elif cat == "diode":
             w = 17.0
             x, y = cx - w / 2, cy - h / 2
@@ -3315,32 +3936,26 @@ class SheetRenderer(Renderer):
                 byy = (y + 3.0) if band < 0 else (y + h - 8.0)
                 els.append(f'<rect x="{fmt(x + 1.2)}" y="{fmt(byy)}" width="{fmt(w - 2.4)}" '
                            f'height="5" fill="{SH_INK}"/>')
-            voff, budget, cols = 0.0, h - 10.0, 1
         else:                                    # resistor / other: standing dogbone
             w = 18.6
             x, y = cx - w / 2, cy - h / 2
             els.append(f'<g transform="rotate(-90 {fmt(cx)} {fmt(cy)})">'
                        f'<path d="{dogbone_path(cx, cy, h)}" fill="{SH_BODY}" '
                        f'stroke="{SH_INK}" stroke-width="1.6"/></g>')
-            voff, budget, cols = 0.0, h, 1
         self.obst_rect(x, y, x + w, y + h, f"{ref} body")
-        # lettered ALONG the body, so the size ladder trades against its height
-        # (a standing cap is the narrowest body on the sheet and the one whose
-        # value most wants to end up in the wiring if it is let off the part).
-        col1 = cx + (4.0 if cols > 1 else 0.5)
-        for size, pad in ((9, 8.0), (8.5, 6.0), (8, 4.0)):
-            if self._fits(v1, size, budget - pad):
-                self._fixed_text(col1, cy + voff, v1, size, weight=700, rotate=-90)
-                if cols > 1 and self._fits(v2, 8, budget - pad):
-                    self._fixed_text(cx - 6.0, cy + voff, v2, 8, fill=SH_INK2, rotate=-90)
-                break
-        else:
-            self._below_value(cx, cy + h / 2 + 12, ref, v1)
-        # ref beside the body, flipped near the right board edge (as the house)
+        # Ref and value BESIDE the body, horizontal, stacked — the house
+        # drawing's rule for a standing part, and the factory sheets'. Flipped
+        # to the near side at the right board edge so the pair never overflows.
+        # An electrolytic's working voltage takes the third line rather than a
+        # second rotated column beside the can.
         if cx > self.board_x + self.board_w - 64:
-            self._ref_label(cx - w / 2 - 14, cy - 12, ref)
+            lx, anchor = cx - w / 2 - 6, "end"
         else:
-            self._ref_label(cx + w / 2 + 14, cy - 12, ref)
+            lx, anchor = cx + w / 2 + 6, "start"
+        self._ref_label(lx, cy - 6, ref, anchor=anchor)
+        self._below_value(lx, cy + 5, ref, v1, anchor=anchor, size=9)
+        if v2:
+            self._below_value(lx, cy + 15, ref, v2, anchor=anchor, size=8)
         return els
 
     # ---- off-board glyphs ---------------------------------------------------
@@ -3537,12 +4152,20 @@ class SheetRenderer(Renderer):
         # the lead fan where their own two leads struck them.
         ref = item.get("ref")
         cat = category(self.bom_for(ref)["part"]) if ref else "res"
+        # An off-board part's two TERMINALS stand on the body itself when the
+        # body's minimum width is wider than the terminal span, and a terminal
+        # is ink — see _val_on_body(). `span` is that spacing; each branch turns
+        # it into the clear width between the dots once its body width is known,
+        # and leaves it unbounded where the terminals fall outside the body.
+        span = abs(tb[0] - ta[0]) if horiz else abs(tb[1] - ta[1])
         if horiz:
             bw = max(30.0, abs(tb[0] - ta[0]) - 6)
+            clear = (span - 2 * 3.7) if span <= bw else 1e9
             if cat == "electro":
                 # a chassis filter can is a CAN, crimp and polarity gutter and
                 # all — off the board it was borrowing the resistor dogbone.
                 bw = max(48.0, bw)        # wide enough for the '+' gutter AND the value
+                clear = (span - 2 * 3.7) if span <= bw else 1e9
                 bh2 = 26.0
                 x0, y0 = midx - bw / 2, midy - bh2 / 2
                 els.append(f'<rect x="{fmt(x0)}" y="{fmt(y0)}" width="{fmt(bw)}" '
@@ -3555,8 +4178,8 @@ class SheetRenderer(Renderer):
                 self.obst_rect(x0, y0, x0 + bw, y0 + bh2, f"part {pid} body")
                 top = away[1] < 0
                 gut = PLUS_GUTTER
-                on_body = bool(val) and self._val_inside(
-                    x0 + gut + (bw - gut) / 2, midy + 3.5, val, bw - gut)
+                on_body = bool(val) and self._val_on_body(
+                    x0 + gut + (bw - gut) / 2, midy + 3.5, val, bw - gut, clear)
                 ref_y = (midy - 24) if top else (midy + 26)
                 val_y = (midy - 36) if top else (midy + 38)
                 self.lab(midx, ref_y, label.upper(), SH_INK, 10, weight=700,
@@ -3592,7 +4215,7 @@ class SheetRenderer(Renderer):
                 self.obst_rect(midx - bw / 2, midy - 8.6, midx + bw / 2, midy + 8.6,
                                f"part {pid} body")
             top = away[1] < 0
-            on_body = bool(val) and self._val_inside(midx, midy, val, bw)
+            on_body = bool(val) and self._val_on_body(midx, midy, val, bw, clear)
             ref_y = (midy - 19) if top else (midy + 21)
             val_y = (midy - 31) if top else (midy + 33)
             self.lab(midx, ref_y, label.upper(), SH_INK, 10, weight=700,
@@ -3610,14 +4233,9 @@ class SheetRenderer(Renderer):
                        f'<path d="{dogbone_path(midx, midy, bh)}" fill="{SH_BODY}" '
                        f'stroke="{SH_INK}" stroke-width="1.6"/></g>')
             self.obst_rect(rx, ry, rx + bw, ry + bh, f"part {pid} body")
+            # A standing off-board body letters BESIDE itself, horizontally —
+            # the sheet style never rotates type (see _sheet_body_vertical).
             on_body = False
-            if val:
-                for size, pad in ((9, 8.0), (8.5, 6.0), (8, 4.0)):
-                    if self._fits(val, size, bh - pad):
-                        self._fixed_text(midx + 0.5, midy, val, size, weight=700,
-                                         rotate=-90)
-                        on_body = True
-                        break
             lx = midx + away[0] * 18
             anchor = "end" if away[0] < 0 else "start"
             self.lab(lx, midy - 3, label.upper(), SH_INK, 10, weight=700, anchor=anchor,
@@ -3634,7 +4252,8 @@ class SheetRenderer(Renderer):
         return els, []
 
     # ---- wiring -------------------------------------------------------------
-    def run_wire(self, spec, i, pts, seg_hops=None):
+    def run_wire(self, spec, i, pts, seg_hops=None, forks=None, ends=None,
+                 single=False):
         if not pts:
             return "", []
         seg_hops = seg_hops or {}
@@ -3649,16 +4268,16 @@ class SheetRenderer(Renderer):
             self._has_twisted = True
             base = lead_base(colour) if colour else None
             stroke = SH_HEATER_CT if base == "green-yellow" else SH_HEATER
-            d1, d2 = twisted_strands(pts)
+            d1, d2 = self._heater_paths(pts, forks, single)
             center = rounded_path(pts, r=11)
             casing = (f'<path d="{center}" fill="none" stroke="{SH_PAPER}" '
                       f'stroke-width="5.4" stroke-linecap="round" '
                       f'stroke-linejoin="round"/>')
-            strands = (f'<path d="{d1}" fill="none" stroke="{stroke}" stroke-width="1.5" '
-                       f'stroke-linecap="round" stroke-linejoin="round"/>'
-                       f'<path d="{d2}" fill="none" stroke="{stroke}" stroke-width="1.5" '
-                       f'stroke-linecap="round" stroke-linejoin="round"/>')
-            return casing + strands, [pts[0], pts[-1]]
+            strands = "".join(
+                f'<path d="{d}" fill="none" stroke="{stroke}" stroke-width="1.5" '
+                f'stroke-linecap="round" stroke-linejoin="round"/>'
+                for d in (d1, d2) if d)
+            return casing + strands, (ends or [pts[0], pts[-1]])
         stroke = SHEET_WIRE.get(str(colour).lower(), SH_NEUTRAL) if colour else SH_NEUTRAL
         if colour:
             key = str(colour).lower()
@@ -3667,6 +4286,18 @@ class SheetRenderer(Renderer):
         d = hopped_path(pts, seg_hops, r=11)
         return (f'<path d="{d}" fill="none" stroke="{stroke}" stroke-width="2.0" '
                 f'stroke-linecap="round" stroke-linejoin="round"/>'), [pts[0], pts[-1]]
+
+    def _socket_rims(self) -> list[str]:
+        out = []
+        for it in self.offboard:
+            if it.get("kind") != "tube":
+                continue
+            x, y = self.off_pos(it)
+            out.append(f'<circle cx="{fmt(x)}" cy="{fmt(y)}" r="{fmt(TUBE_R + 5)}" '
+                       f'fill="none" stroke="{SH_INK}" stroke-width="2.0"/>'
+                       f'<circle cx="{fmt(x)}" cy="{fmt(y)}" r="{fmt(TUBE_R)}" '
+                       f'fill="none" stroke="{SH_INK}" stroke-width="1.1"/>')
+        return out
 
     def bus_wire(self, spec, i, pts):
         if not pts:
@@ -3703,6 +4334,8 @@ class SheetRenderer(Renderer):
                            f'stroke="{SH_FAINT}" stroke-width="0.8"/>')
         for lead in self.leads:
             els.append(self.lead_run(lead))
+        halo_slot = len(els)          # see Renderer.render()
+        els.append("")
         runs, bus = self.build_geometry()
         hops = self._hop_map(runs, bus)
         bus_pts: list[tuple[float, float]] = []
@@ -3727,9 +4360,15 @@ class SheetRenderer(Renderer):
             geom, _ = self.part_body(p)
             els.append(geom)
         for r in twisted_runs:
-            svg, tp = self.run_wire(r["spec"], r["i"], r["pts"])
+            svg, tp = self.run_wire(r["spec"], r["i"], r["pts"],
+                                    forks=r.get("forks"), ends=r.get("ends"),
+                                    single=r.get("single", False))
             els.append(svg)
             run_pts += tp
+        # Socket rims, restruck over the wiring: a heater pair that lands on a
+        # pin has to cross the rim to get there, and a conductor must never
+        # leave a hole in a glyph outline (D10). Paint only — same geometry.
+        els += self._socket_rims()
         for (tx, ty) in bus_pts:
             els.append(sheet_term(tx, ty))
         seen: set = set()
@@ -3740,11 +4379,9 @@ class SheetRenderer(Renderer):
             seen.add(key)
             els.append(sheet_solder(tx, ty))
             self.obst_circle(tx, ty, 4.5, "solder joint")
-        wires = [(f"run[{r['i']}]", r["pts"],
-                  self.TWIST_HALF if r["twisted"] else self.RUN_HALF)
-                 for r in runs if r["pts"]]
-        wires += [(f"bus[{b['j']}]", b["pts"], self.BUS_HALF) for b in bus if b["pts"]]
-        els.append(self._emit_labels(wires))
+        halo_layer, glyph_layer = self._emit_labels(self.wire_list(runs, bus))
+        els[halo_slot] = halo_layer
+        els.append(glyph_layer)
         els += self._fixed
         title = ((self.layout.get("board", {}) or {}).get("title")
                  or f"{self.amp_id.upper()} board layout")
@@ -3950,7 +4587,13 @@ def lint_layout(amp_dir: Path, style: str = "house",
           2.5 px in both axes;
       (e) label over a label — two labels' boxes overlapping by more than 2 px
           in both axes (they read as one string, and neither can be attributed
-          to a part).
+          to a part);
+      (j) FALSE PUNCTUATION — a conductor's paint, or a glyph outline, inside a
+          VALUE's number-to-unit gap (the space in "25 µF", "250 kΩ"). Type is
+          the topmost layer, so a conductor crossing a label runs behind the
+          glyphs and reads as a crossing — except in that gap, where there is no
+          glyph to pass behind and the eye reads a mark: "250,kΩ". Hard, and
+          deliberately outside (c)'s transversal-crossing allowance.
 
     Label boxes are estimated from house text metrics and inset (see
     LINT_LABEL_INSET) — a halo'd glyph that merely grazes a wire is fine; a wire
@@ -4068,14 +4711,7 @@ def _lint_labels(rend: "Renderer", runs, bus, amp_id: str,
              for lb in labels]
     fails: list[str] = []
     # (c) label struck by a wire — painted width included, per conductor class
-    wires = []
-    for r in runs:
-        if r["pts"]:
-            wires.append((f"run[{r['i']}]", r["pts"],
-                          rend.TWIST_HALF if r["twisted"] else rend.RUN_HALF))
-    for b in bus:
-        if b["pts"]:
-            wires.append((f"bus[{b['j']}]", b["pts"], rend.BUS_HALF))
+    wires = rend.wire_list(runs, bus)
     for lb, fbox, box, width in boxes:
         for name, pts, halfw in wires:
             span = 0.0
@@ -4088,6 +4724,19 @@ def _lint_labels(rend: "Renderer", runs, bus, amp_id: str,
                     f"crossed by {name} over ~{span:.1f}px at "
                     f"({(box[0]+box[2])/2:.0f},{(box[1]+box[3])/2:.0f})")
                 break
+    # (j) false punctuation — a conductor or a glyph outline inside the gap
+    # between a label's words. See Renderer._gap_intruders(): this is the case
+    # the transversal-crossing allowance does NOT cover, because ink there is
+    # read as a mark and not as a crossing.
+    for lb, _f, box, _w in boxes:
+        intruders = rend._gap_intruders(lb["box"], lb, wires)
+        if intruders:
+            names = ", ".join(sorted(set(intruders))[:3])
+            fails.append(
+                f"{amp_id}: false punctuation — '{lb['text']}' ({lb['tag']}) has "
+                f"{names} inside the gap between its words at "
+                f"({(box[0]+box[2])/2:.0f},{(box[1]+box[3])/2:.0f}); ink in a word "
+                f"gap reads as a mark, not as a crossing")
     # (d) label over a glyph
     for lb, _f, box, _w in boxes:
         for ob in rend.obstacles:

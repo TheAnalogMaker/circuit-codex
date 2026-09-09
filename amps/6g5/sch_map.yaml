@@ -21,3 +21,10 @@ series_bridge:
     secondary (~1.4k), and no gated node depends on it (voltages.yaml reads
     KPI and JPI as informational, chart: null). Same abstraction 6g4 declares
     for its own RPF in layout.yaml net_map."
+
+# Hard-gated: verify_schematic_nets.py fails CI on any finding for this sheet.
+# Claimed 2026-09-09, after the presence network was redrawn from the factory
+# sheet (foot resistor + capacitor-blocked pot branch) and the drawing went
+# clean against netlist.cir. This is the drawing check only; the circuit's
+# verification.status is a separate claim and remains draft.
+schematic_claim: verified

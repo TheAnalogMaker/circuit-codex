@@ -216,6 +216,53 @@ is **validated to land on a heater pin** — a heater lead routed to a signal pi
 fails the render (and CI). The pilot lamp is an `offboard` `kind: part` with a
 `lamp` glyph; the pair enters `PL1.a` and leaves `PL1.b` to the first socket.
 
+##### The heater pair is one object spanning both pins (2026-09-08)
+
+A `style: twisted` run is **one pair**, and the renderer draws it as one. Two
+conventions used to misrepresent correct authored data, and both are gone:
+
+- both strands shared the polyline's single endpoint, so a *pair* terminated on
+  one pin. An EL34 whose pins 2 and 7 each received a "twisted pair" showed
+  **four** heater conductors where two belong;
+- every hop dropped into a deep lane below the sockets and climbed back, so each
+  socket appeared to drop two separate pairs to a rail — which reads as a short
+  across its own heater pins — and the drop owned the lower band of every wide
+  sheet.
+
+The rule now:
+
+1. **The pair spans BOTH heater pins of each socket it lands on.** The named pin
+   identifies the socket and is still validated; the two pins the pair reaches
+   are the socket's two `heater`/`filament` pins from basing (never the
+   `heater-ct` centre tap). The twisted **axis** stops on a harness ring outside
+   the socket, and from there each strand runs on to its own pin — in to the
+   wrap radius, around the socket **clear of its caption band**, then radially
+   to the pin, the way a dressed harness runs. The two pairs that meet at an
+   intermediate socket wrap at different radii, so they read as two conductors
+   rather than one doubled line.
+2. **A socket-to-socket hop routes along the socket row**, ring to ring, and the
+   authored `via` waypoints on such a hop — which existed to describe the old
+   rail — are not used. Anything standing in the row (a speaker jack between two
+   bottle positions, a transformer) is a keep-out the pair is dressed around,
+   exactly as a socket is.
+3. **A hop with a non-socket end** (the PT lead, the pilot lamp) keeps its
+   authored waypoints, with their depth clamped to the heater lane just below
+   the socket captions. The page's bottom band is reserved from that lane, not
+   from the authored row, so the sheet is no longer sized for a drop it does not
+   draw.
+4. **A run whose two ends are the same socket** — the chain's closing link, `pin
+   4` to `pin 5` at the last valve, or a heater to its centre tap — is ONE
+   conductor. There is no pair to twist and nothing to fork: it draws as a
+   single strand dressed round the flank.
+
+Nothing about which pins a run declares changes, so `_check_heater_endpoint()`
+keeps its guarantee and `verify_layout_nets.py` sees exactly the same net (the
+heater layer is excluded from DC equivalence in any case — see *Scope* below).
+
+A heater strand has to cross the socket rim to reach a pin, so the **rim is
+restruck over the wiring layer** and the pair's casing stops at the harness
+ring: a conductor may pass behind a glyph outline, never leave a hole in one.
+
 ### `bus[]` — ground-bus segments
 
 ```yaml
@@ -281,6 +328,7 @@ runs — the checks that catch the two ways a wiring layer turns ambiguous
 | **label struck by wire** | a run, twisted heater pair or bus segment passes through more than half a label's own width (min 12 px) inside its box — a wire running *along* the type, not across it |
 | **label over glyph** | a label's box overlaps a part body, socket, pot, jack, transformer, terminal dot, lug pip or eyelet by more than 2.5 px in both axes |
 | **labels collide** | two labels' boxes come within ~2.2 px of each other (abutting with no gap reads as one string — `100 kΩ` + `250 pF` printed edge to edge reads as `100 kΩ250 pF`) |
+| **false punctuation** | a conductor's paint, or a glyph outline, lies inside a **value's** number-to-unit gap — the space in `25 µF`, `250 kΩ`, `16/8/4 Ω`. Ink there is not read as a crossing; it is read as a mark (`250,kΩ`). A **hard failure**, deliberately outside the transversal-crossing allowance that covers the rest of a label |
 | **ambiguous label** | two off-board items of the same kind carry the same label (two `Volume` pots, two `Ch 2 in` jacks) — the drawing then has controls a reader cannot tell apart even where `bom.yaml` roles or the wiring do distinguish them |
 | **no value** | an off-board `kind: part` carries neither a `bom.yaml` ref nor a `value:` — it renders as a blank body, telling a builder a component goes there and nothing else. (Board parts are already covered: an absent ref fails the render.) |
 
@@ -291,8 +339,13 @@ and the only thing keeping it honest was hand-authored `nudge` / `label_nudge` /
 `value_nudge`, unmeasured. Label boxes are estimated from the house text metrics
 (`text_box()` in `render_layouts.py`) and inset ~1.6 px before testing, because
 every label carries an opaque halo and a wire that merely grazes a box is not a
-legibility defect. A transversal crossing is likewise *not* a failure — the halo
-handles it; a wire lying **along** the type is. Since 2026-08-31 the wire test
+legibility defect. A transversal crossing is likewise *not* a failure — the type
+is the topmost layer and the conductor runs unbroken behind it; a wire lying
+**along** the type is. The one exception, and the reason the allowance is now
+stated as an exception, is a **value's number-to-unit gap**: there is no glyph
+there for the wire to pass behind, so what the reader sees is a mark between the
+number and its unit. That is the false-punctuation check above, and it is hard.
+Since 2026-08-31 the wire test
 measures the conductor's **paint**, not its centreline: the box is grown
 perpendicular to each segment by that conductor class's painted half-width
 (2.4 px for a house run's 4.8 px casing, the bus's own half-width for bus
@@ -350,11 +403,19 @@ Labels are **queued, not drawn**, while the geometry is built, and resolved in a
 single final pass once every wire, body and terminal dot exists. Two properties
 follow:
 
-- **Labels are the topmost layer.** The twisted heater pair draws above the
-  sockets by design (it must show its pin landings), so a socket ID emitted with
-  its glyph was painted over by the heaters however good its halo — a halo can
-  only protect against what is drawn *before* the text. Labels now come after
-  every wire and keep their halos for the crossings that remain.
+- **Type is the topmost layer; its HALO is not (2026-09-08).** The twisted
+  heater pair draws above the sockets by design (it must show its pin landings),
+  so a socket ID emitted with its glyph was painted over by the heaters however
+  good its halo — a halo can only protect against what is drawn *before* the
+  text. Labels are therefore resolved after every wire. But a halo painted on
+  top of the drawing also knocks a hole in whatever it covers: a lead crossing
+  the space inside `25 µF` was severed above and below the gap and read as a
+  broken wire (five instances in one crop of the 5E3), and a socket caption
+  erased the arc of the rim it sat on. Each label is now drawn as **two
+  layers** — the opaque backing early, over the board and *under* every
+  conductor and glyph outline, and the glyphs last. A wire runs unbroken behind
+  the type, the type is still read against its own backing, and no halo can cut
+  a conductor or a rim. See `text_layers()`.
 - **Placement is measured.** Each label group (a ref and its value move
   together) is tried at its authored position first, then along a short
   deterministic ladder of small offsets, scored with the *same* tests and
@@ -364,19 +425,36 @@ follow:
   ref to be mis-attributed. The YAML nudges remain as the authored starting
   point.
 - **Near misses break the ties (2026-08-04).** A conductor merely *crossing* a
-  label transversally is not a lint failure — the halo handles it, and
-  demanding otherwise on a dense board would be unsatisfiable. But it is still
+  label transversally is not a lint failure — it runs behind the type, and
+  demanding otherwise on a dense board would be unsatisfiable (a crossing
+  inside a value's word gap is the exception, and is hard). But it is still
   the second-best placement, and the placer could not tell it apart from clear
   air: it stopped at the first rung with no *failures*, so a designator landed
   on a lead whenever that rung came first, even with untouched board a rung
   further along. Nearly every "label struck by a lead" finding in the
   2026-08-03 vision review was this. Placements are now scored as a
-  **`(hard, soft)`** pair — `hard` is exactly the gate's verdict and still
-  dominates, `soft` counts near misses (any conductor in the box at all, any
-  glyph contact, any crowding of an already-placed label) and breaks ties among
-  placements the gate would accept equally. The gate is unchanged; the drawing
-  simply stops settling. The ladder gained a second tier of reaches to give it
-  somewhere clean to go.
+  **`(hard, soft)`** pair — `hard` is zero exactly when the gate is clean and
+  still dominates, `soft` counts near misses (any conductor in the box at all,
+  any glyph contact, any crowding of an already-placed label) and breaks ties
+  among placements the gate would accept equally. The gate is unchanged; the
+  drawing simply stops settling. The ladder gained a second tier of reaches to
+  give it somewhere clean to go.
+- **A settling pass, and a dense last resort (2026-09-08).** Groups are placed
+  in queue order against whatever is already down, so a label could be squeezed
+  by a neighbour that had not been placed when it chose — the 6G6-B's `RT2` and
+  `RPF` values landed on each other that way. After the first pass every label
+  is **re-scored against the finished arrangement**, and any that still carries
+  a hard cost gets one more solo attempt. One pass, same order: bounded and
+  deterministic. Both ladders also gained a systematic fine grid, ordered by
+  travel and appended rather than prepended so every placement the older rungs
+  already settle stays exactly where it was — clearing a word gap or a
+  neighbour is usually a four-pixel problem that rungs stepping in 12s and 18s
+  walk straight over.
+- **A ref's debt counts double.** A ref anchors attribution; a value is the half
+  that is meant to move (that is what `value_nudge` and the solo ladder are
+  for). Where a group placement cannot be clean everywhere, the placer prefers
+  to leave the violation on the label that can still slide out of it, and the
+  solo pass then usually clears it.
 
 Two placement rules are structural rather than searched:
 
