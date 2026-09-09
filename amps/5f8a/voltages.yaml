@@ -1,0 +1,24 @@
+# Printed voltage chart read directly from the published 5F8-A (I-EG) drawing
+# (2026-09-09). Fender's printed convention, lettered on the sheet itself:
+# "VOLTAGES READ TO GROUND WITH ELECTRONIC VOLTMETER — VALUES SHOWN + OR − 20%".
+# Rails get 8% (the choke's DCR is estimated); tube pins 20%.
+#
+# Every figure below is transcribed from the drawing. Nothing is interpolated:
+# a node the sheet does not print carries chart: null and is informational.
+source: "Fender 'Twin-Amp' Model 5F8-A drawing (I-EG), printed voltages: rails +397/+395/+355/+295, bias −41 V; pins 12AY7 +145/+145 and +2.2 shared cathode, V2A +165 plate and +1 cathode, cathode follower +165, PI grids +19/+20, tail junction +27, PI cathodes +28.5, PI plates +230 (82k side) / +225 (100k side)"
+nodes:
+  BP2:  { chart: 395, tol_pct: 8, note: "screens node after the choke (DCR estimated at 130 Ω)" }
+  BP3:  { chart: 355, tol_pct: 8, note: "PI supply node after the 4.7 kΩ" }
+  BP4:  { chart: 295, tol_pct: 8, note: "preamp node after the 10 kΩ dropper" }
+  PAY1: { chart: 145, tol_pct: 20, note: "12AY7 plate, bright channel" }
+  PAY2: { chart: 145, tol_pct: 20, note: "12AY7 plate, normal channel" }
+  KAY:  { chart: 2.2, tol_pct: 20, note: "shared 12AY7 cathode, 820 Ω" }
+  P2A:  { chart: 165, tol_pct: 20, note: "V2A plate = cathode-follower grid (direct-coupled)" }
+  K2A:  { chart: 1, tol_pct: 20, note: "V2A cathode, 820 Ω unbypassed" }
+  KCF:  { chart: 165, tol_pct: 20, note: "cathode-follower output; the sheet prints +165 on both sides of the direct coupling, so the follower runs at about −1 V grid-to-cathode" }
+  PPIA: { chart: 230, tol_pct: 20, note: "PI plate, 82 kΩ 5% side" }
+  PPIB: { chart: 225, tol_pct: 20, note: "PI plate, 100 kΩ 5% side" }
+  KPI:  { chart: 28.5, tol_pct: 20, note: "PI cathodes above the 470 Ω" }
+  JPI:  { chart: 27, tol_pct: 20, note: "tail junction (grid-leak return)" }
+  GA1:  { chart: -41, tol_pct: 8, note: "fixed bias via the 220 kΩ leaks from the −41 V supply" }
+  SA1:  { chart: null, note: "informational — 5881 screen after its 470 Ω; the sheet prints no screen figure" }

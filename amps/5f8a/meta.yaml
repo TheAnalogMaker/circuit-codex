@@ -1,0 +1,33 @@
+# Circuit Codex metadata — schema: docs/schema.md (v1)
+id: "5f8a"
+name_style: "High-power Tweed Twin-style"
+family: tweed
+era:
+  start: 1958
+  end: 1960
+wattage: 80
+tubes: [12AY7, 12AX7, 12AX7, 5881, 5881, 5881, 5881, GZ34]
+topology:
+  rectifier: { kind: tube, type: "GZ34" }
+  bias: fixed
+  phase_inverter: long-tailed-pair
+  tone_stack: cathode-follower-fmv
+lineage:
+  derived_from: []   # the 5F8 is the direct ancestor; it is not in this corpus, so no edge is drawn
+  influenced: []     # the four-bottle output stage carries into the blonde and blackface Twins; no edge without a dated drawing pair
+conventions:
+  designators: functional   # designators carry a role code (RD1 dropper, RL4 plate load, RGS1 grid stopper)
+  notation: us
+sources:
+  - desc: "Fender 'Twin-Amp' Model 5F8-A schematic, drawing code I-EG: every component value AND the printed voltage chart read directly from the published sheet (2026-09-09). Two channels of two jacks (68 kΩ stoppers, 1 MΩ leaks) into a 12AY7 (100 kΩ plates, shared 820 Ω/250 µF cathode); 1 MΩ volume pots with a 100 pF bright cap; 270 kΩ mixers into a 12AX7 stage (100 kΩ plate, 820 Ω unbypassed cathode) direct-coupled to a cathode follower (100 kΩ load) feeding the treble/middle/bass stack (56 kΩ slope, 250 pF, 2 × 0.02 µF; 250 kΩ/1 MΩ/25 kΩ pots); 12AX7 long-tailed-pair PI (82 kΩ/100 kΩ 5% plates, 470 Ω + 10 kΩ tail, 1 MΩ leaks to the tail junction, 47 pF across the plates, 0.1 µF grid-B AC ground); four 5881s in two parallel pairs, fixed-biased at −41 V through 220 kΩ leaks with a 1500 Ω stopper between each pair's grids and 470 Ω 1 W screen resistors; 56 kΩ feedback from the speaker and a 5 kΩ presence pot at the tail foot; GZ34 rectifier with a standby switch. Rails +397/+395/+355/+295, PT 7993 (300-0-300 V AC), choke 14684, OT 45268. Provenance: this copy carries the sheet as a 1506 × 841 raster, roughly 100 ppi at sheet size. The topology and every component value on this page were read from it and are legible at that resolution; none of the voltage-chart figures were, because its chart digits do not resolve — see the third source. Not reproduced here; archived at Schematic Heaven"
+    url: "https://schematicheaven.net/fenderamps/twin_5f8a_schem.pdf"
+  - desc: "Fender 'Twin-Amp' Model 5F8-A layout drawing (I-EG), page 2 of the same sheet — the source for the board-layout drawing on this page: the order in which parts sit on the eyelet board AND the wiring layer (which eyelet each lead leaves and where it lands on the sockets, pots, jacks and transformers), the pot tapers (5 kΩ lin presence, 25 kΩ lin middle, 1 MΩ aud bass, 250 kΩ lin treble, 1 MΩ aud volumes, the 100 pF bright cap mounted on the bright volume pot), the marked transformer lead colours, and the sheet's own note that all resistors are ½ W 10% unless otherwise marked — which is where the 1 W on both rail droppers is read. Redrawn from the published facts, never traced. Same 1506 × 841 raster as above: part order and lead routing are legible at it, and no voltage was read from it"
+    url: "https://schematicheaven.net/fenderamps/twin_5f8a_schem.pdf"
+  - desc: "The same I-EG schematic and layout as archived at EL34World, captured by the Internet Archive at 693 ppi (6368 × 3218) — about seven times the linear resolution of the Schematic Heaven copy. Provenance: every voltage on this page — the four rails, the bias line and all eleven tube-pin figures in voltages.yaml — was read from this capture and from no other copy. It is not a confirmation of figures read elsewhere: the coarser copy cannot resolve those digits at all, and read from it the two figures either side of the choke come out as +375/+377 where this capture letters +395/+397, and the phase-inverter cathode as +22.5 V where this capture letters +28.5 V. The circuit corroborates the higher-resolution reading: that cathode has to sit above the +27 V tail junction, because its current reaches the junction through the 470 Ω"
+    url: "https://web.archive.org/web/2020id_/https://el34world.com/charts/Schematics/files/Fender/Fender_twin_5f8a.pdf"
+  - desc: "Wikipedia, 'Fender Twin' — the source for the production span and the power rating, neither of which the drawing prints: the Twin was modified in 1957 to four 5881 power tubes with a long-tailed-pair phase inverter for an increase to 80 W, and the 5F8-A was released in 1958 and produced into early 1960"
+    url: "https://en.wikipedia.org/wiki/Fender_Twin"
+verification:
+  status: draft
+added: 2026-09-09
+contributors: [TheAnalogMaker]

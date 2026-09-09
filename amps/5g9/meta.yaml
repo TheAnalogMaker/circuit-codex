@@ -1,0 +1,32 @@
+# Circuit Codex metadata — schema: docs/schema.md (v1)
+id: "5g9"
+name_style: "Tweed Tremolux-style"
+family: tweed
+era:
+  start: 1957
+  end: 1960
+wattage: 18
+tubes: [12AY7, 12AX7, 12AX7, 6V6GT, 6V6GT, 5U4GB]
+topology:
+  rectifier: { kind: tube, type: "5U4GB" }
+  bias: fixed
+  phase_inverter: long-tailed-pair
+  tone_stack: single-knob
+# No lineage edge is drawn. The sheet's own note says late 5E9-A models are
+# similar, and the corpus carries no 5E9-A entry to point at; the preamp's
+# resemblance to the 5E3 is a resemblance, not a documented derivation. The
+# chronological chain lives in history/families/tremolux.yaml, where it belongs.
+conventions:
+  designators: functional   # role codes: RD1 dropper, RL1 plate load, CK1 cathode bypass
+  notation: us
+sources:
+  - desc: "Fender 'Tremolux' Model 5G9 drawing (B-EI), two pages — in THIS copy page 1 is the layout and page 2 the schematic. PROVENANCE: every value and printed voltage recorded here was read from this copy, a CCITT stencil scan whose native rasters are 6518x4128 (701 ppi) and 6376x4450 (777 ppi) — el34world's PDF, reached through the Wayback Machine because el34world.com is unreachable from here. A lower-resolution copy of the same drawing is cited below; it is legible for topology but its native page rasters are only 1064x775 and 1494x976, and a first pass from it misread the tremolo oscillator's cathode resistor. Read at full native resolution: notice 'Voltages read to ground with electronic voltmeter. Values shown + or - 20%'; notes 'Late 5E9-A models are similar to this model' and 'All resistors are 1/2 watt, 10%, unless specified'. Iron block: POWER TRANS. 8160, CHOKE 14684, OUTPUT TRANS. 108; HT winding lettered 300 V AC each side of the centre tap. Printed voltages +370 (reservoir / OT centre tap), +368 (post-choke screen node and the tremolo bottle's plates), +310 (preamp and phase-inverter feed), +175/+175 (12AY7 plates), +2.5 (shared 12AY7 cathode), +210/+200 (phase-inverter plates), +27 (joined inverter cathodes), +25.5 (inverter tail junction), -69 (bias rectifier), -28 (bias divider / grid-leak junction), -27.5/-27.5 (6V6GT grids), and in the tremolo +270 (oscillator plate), +260 (cathode-follower cathode), +1.7 (oscillator cathode). Inputs: two Inst. and two Mic. jacks on 68 kOhm stoppers over a 1 MOhm leak; 12AY7 with 100k plate loads on one shared 820 Ohm / 25-25 cathode; each plate through .1-400 to its OWN volume pot's WIPER, both 1 M pots' remaining ends grounded and joined at the mixing node, with the 1 M Tone pot's wiper on that node (.0005-400 in from the Inst. coupler, .005-400 out to ground); .02-400 from the mixing node to the inverter. Long-tailed pair: 82k-5% and 100k-5% plate loads fed at their junction from +310, 470 Ohm from the joined cathodes to a tail junction, 10k from there to ground, both 1 M grid leaks returned to that junction and .1-200 from the cold grid to ground. Output: .02-400 couplers, 220k-220k grid leaks joined at the -28 V line, 470 Ohm-1W screen resistors, grounded cathodes. Supply: 5U4GB on a 300-0-300 winding, four 20-500 cans (two on +370, one each on +368 and +310), choke, 10k-1W to +310; bias from a selenium rectifier straight off one HT leg with no series feed resistor, two 8-150 cans and an 82k / 56k divider. Tremolo: 12AX7 phase-shift oscillator (100k plate load, 1500 Ohm cathode with 25-25, ladder .03-400 / .01-400 / .01-400 on 1 M returns, 2 M Speed with a 100k end resistor) direct-coupled to a cathode follower (220k cathode resistor) whose .1-400 output feeds a 1 M into the 250k Depth control in the bias line. Not reproduced here"
+    url: "https://web.archive.org/web/20150316142123/http://el34world.com/charts/Schematics/files/fender/Fender_TREMOLUX_5G9.pdf"
+  - desc: "The same Fender 5G9 (B-EI) drawing at Schematic Heaven, page 1 schematic and page 2 layout. Cited because it is the live copy a reader can fetch today, and recorded honestly as the LOWER-RESOLUTION one: its native page rasters are 1064x775 and 1494x976, coarse enough that two chart digits cannot be separated on it. No value in this entry rests on it"
+    url: "https://schematicheaven.net/fenderamps/tremolux_5g9_schem.pdf"
+  - desc: "Mojotone/Ampwares Fender field guide, 'Fender Narrow Panel Tweed Tremolux' — the line 1955-1960 at 18 W with tremolo, its schematics listed as 5E9 (55), 5E9-A (55-56) and 5G9 (57-60); 12AY7 preamp and two 6V6GT throughout, with the 5G9 alone on fixed non-adjustable bias and a 5U4GB rectifier. The production window and the 18 W rating recorded here come from this page; the circuit facts come from the drawing"
+    url: "https://mojotone.com/blogs/fender-field-guide/fender-narrow-panel-tweed-tremolux"
+verification:
+  status: draft
+added: 2026-09-09
+contributors: [TheAnalogMaker]

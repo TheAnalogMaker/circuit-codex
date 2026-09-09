@@ -1,0 +1,34 @@
+# amps/5g9/sch_map.yaml — schematic <-> netlist reconciliation.
+# Data, never a guess in code: every line below is a claim a reviewer can check
+# against this sheet and against netlist.cir. See docs/schematic-nets.md.
+
+anchors:
+  T2.1: BP                 # OT primary, one plate end — primary DCR omitted
+  T2.2: BP                 # OT primary centre tap (the B+1 rail)
+  T2.3: BP                 # OT primary, the other plate end
+  T2.4: "0"                # OT secondary — secondary DCR folded into ground.
+  T2.5: "0"                # Both ends, because this circuit has no feedback
+                           # loop off the secondary: nothing downstream of the
+                           # winding is modelled, so neither end carries a node
+                           # of its own. Mirrors layout net_map SPK.tip/.sleeve.
+
+symbols:
+  # netlist RCHOKE BP BS 130 Ω is the filter choke's winding DCR (an estimate —
+  # see the netlist header), not a discrete resistor: the sheet draws the choke
+  # itself as L1.
+  RCHOKE: L1
+
+series_bridge:
+  # The 250 kΩ-L Depth control sits IN the bias line: its cold end is the -28 V
+  # node the 82k/56k divider makes, and its wiper feeds the joined 220 kΩ output
+  # grid leaks. The output grids draw no grid current, so no DC flows through
+  # the pot and both terminals are the netlist's NBIAS. cx:POT pins 1 and 3 are
+  # the ends and pin 2 the wiper, so bridging pins 1/2 joins exactly the
+  # cold-end-to-wiper section and leaves pin 3 — the tremolo's output feed —
+  # where it belongs. Same claim as layout.yaml net_map's VR5 anchors.
+  VR5: "250 kΩ-L Depth control in the -28 V bias line — the output grids draw no grid current, so its cold end and wiper are one DC node (NBIAS)"
+
+# verification.status is draft and no schematic_claim is made here: the drawing
+# check is the maintainer's to grant, like the circuit's own verification.
+# Reported gate result at the time of writing: verify_schematic_nets.py returns
+# no findings for this sheet.

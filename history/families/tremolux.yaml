@@ -1,0 +1,119 @@
+family: tremolux
+title: "The Tremolux line"
+maker_style: "Fender-style"
+summary: >-
+  The Tremolux is the amplifier Fender built to carry a tremolo. It arrives in 1955
+  as a narrow-panel tweed combo — a 6V6 pair on a 12AY7 front end, with a tremolo
+  circuit and the Depth and Speed controls that go with it — and runs through three
+  tweed revisions in five years, the last of which quietly rebuilds the amplifier
+  around fixed bias and a long-tailed-pair inverter. In 1961 the line moves to a
+  blonde piggyback cabinet and roughly doubles its power, and in 1963 it joins the
+  blackface generation before being dropped in 1966. Tweed-era dating is
+  approximate — Fender did not date-stamp early circuits — so the sub-circuit
+  ranges below are the defensible spans a published source gives, not hard
+  boundaries. No derivation edge is asserted between the rows: this file records
+  the sequence the factory shipped, which is a chronology and not, by itself, a
+  claim about which circuit was drawn from which.
+models:
+  - designation: "5E9"
+    name: "Tremolux 5E9 (narrow-panel tweed)"
+    years: { start: 1955, end: 1955 }
+    wattage: 18
+    output: "push-pull 2x6V6GT"
+    tubes: [12AY7, 6V6GT, 6V6GT, 5Y3GT]
+    key_change: >-
+      The first Tremolux, and the first Fender amplifier built around a tremolo. A
+      12AY7 front end into a cathode-biased 6V6GT pair on a 5Y3GT rectifier, in the
+      narrow-panel tweed cabinet, with Depth and Speed on the panel alongside the
+      volume and tone controls. Speaker and tremolo-footswitch jacks sit on the
+      bottom of the chassis.
+    circuit_ref: null
+    sources:
+      - desc: "Mojotone/Ampwares Fender field guide, 'Fender Narrow Panel Tweed Tremolux' — the line 1955-1960 at 18 W with tremolo; schematics listed as 5E9 (55), 5E9-A (55-56) and 5G9 (57-60); 12AY7 preamp and two 6V6GT throughout, with the 5E9 cathode-biased on a 5Y3GT"
+        url: "https://mojotone.com/blogs/fender-field-guide/fender-narrow-panel-tweed-tremolux"
+  - designation: "5E9-A"
+    name: "Tremolux 5E9-A (narrow-panel tweed)"
+    years: { start: 1955, end: 1956 }
+    wattage: 18
+    output: "push-pull 2x6V6GT"
+    tubes: [12AY7, 6V6GT, 6V6GT, 5U4GA]
+    key_change: >-
+      Still cathode-biased, but the rectifier steps up from the 5Y3GT to a 5U4GA —
+      a higher-current bottle and a stiffer supply. The 5G9 drawing that follows
+      carries a note reading "Late 5E9-A models are similar to this model", which
+      makes this revision the one that shades into its successor; it is a
+      resemblance the factory itself recorded, and not a merger of the two
+      designations.
+    circuit_ref: null
+    sources:
+      - desc: "Mojotone/Ampwares Fender field guide, 'Fender Narrow Panel Tweed Tremolux' — 5E9-A dated 55-56, cathode biased, 5U4GA rectifier"
+        url: "https://mojotone.com/blogs/fender-field-guide/fender-narrow-panel-tweed-tremolux"
+      - desc: "Fender 'Tremolux' Model 5E9-A schematic archived at Schematic Heaven (designation-indexed anchor; the drawing is a separate published sheet from the 5G9's and is not reproduced or read here)"
+        url: "https://schematicheaven.net/fenderamps/tremolux_5e9a_schem.pdf"
+  - designation: "5G9"
+    name: "Tremolux 5G9 (narrow-panel tweed)"
+    years: { start: 1957, end: 1960 }
+    wattage: 18
+    output: "push-pull 2x6V6GT"
+    tubes: [12AY7, 12AX7, 12AX7, 6V6GT, 6V6GT, 5U4GB]
+    key_change: >-
+      The last tweed Tremolux, and a rebuild rather than a revision. Cathode bias
+      gives way to a fixed −28 V supply from its own rectifier, the cathodyne
+      inverter to a 12AX7 long-tailed pair, and the rectifier to a 5U4GB; a choke
+      arrives in the supply, the output tubes get their own screen resistors, and
+      the tremolo becomes a phase-shift oscillator direct-coupled to a cathode
+      follower, driving a Depth control that sits in the bias line itself. Most of
+      what the brown-Tolex amplifiers would be known for is already here, in a
+      tweed cabinet, and without a negative-feedback loop.
+    circuit_ref: "5g9"
+    sources:
+      - desc: "Mojotone/Ampwares Fender field guide, 'Fender Narrow Panel Tweed Tremolux' — 5G9 dated 57-60, 18 W, fixed non-adjustable bias, 5U4GB rectifier"
+        url: "https://mojotone.com/blogs/fender-field-guide/fender-narrow-panel-tweed-tremolux"
+      - desc: "Fender 'Tremolux' Model 5G9 drawing (B-EI), schematic and layout — every component value and printed voltage in this corpus's 5G9 entry was read from this published sheet; the drawing is not reproduced"
+        url: "https://schematicheaven.net/fenderamps/tremolux_5g9_schem.pdf"
+  - designation: "6G9 / 6G9-A / 6G9-B"
+    name: "Tremolux 6G9 series (blonde piggyback)"
+    years: { start: 1961, end: 1963 }
+    wattage: 30
+    output: "push-pull 2x6BQ5 (6G9), then 2x6L6GC"
+    tubes: [7025, 6L6GC, 6L6GC, GZ34]
+    key_change: >-
+      The Tremolux leaves the combo cabinet for a blonde-Tolex piggyback head and
+      roughly doubles its output. The 6G9 runs a pair of 6BQ5; the 6G9-A and 6G9-B
+      move to 6L6GC. Fixed non-adjustable bias and a GZ34 rectifier throughout, a
+      7025 front end, and a two-channel Normal / Bright panel with treble and bass
+      on each — the tweed line's single tone control does not survive the move. The
+      speaker cabinet goes from one 10-inch to a sealed pair.
+    circuit_ref: null
+    era_note: >-
+      One row covers all three 6G9 revisions, so its years span the whole
+      blonde-piggyback run and its wattage is the low end of the field guide's
+      30-35 W range.
+    sources:
+      - desc: "Mojotone/Ampwares Fender field guide, 'Fender Blonde Tremolux' — 1961-1963, 30-35 W, piggyback; schematics 6G9, 6G9-A and 6G9-B; 7025 preamp, 6G9 with two 6BQ5 and the 6G9-A/B with two 6L6GC; fixed non-adjustable bias, GZ34 rectifier; Normal and Bright channels each with volume, treble and bass"
+        url: "https://mojotone.com/blogs/fender-field-guide/fender-blonde-tremolux"
+  - designation: "AA763"
+    name: "Tremolux AA763 (blackface piggyback)"
+    years: { start: 1963, end: 1966 }
+    wattage: 35
+    output: "push-pull 2x6L6GC"
+    tubes: [7025, 6L6GC, 6L6GC]
+    key_change: >-
+      The blackface generation, on the AA763 circuit: 35 W from a 6L6GC pair, a
+      Normal channel and a vibrato channel each with a bright switch and a
+      treble/bass stack, and a standby switch on the back panel. The model is
+      dropped in 1966, and the Tremolux line ends with it.
+    circuit_ref: null
+    sources:
+      - desc: "Mojotone/Ampwares Fender field guide, 'Fender Blackface Tremolux' — 1963-1966, 35 W, piggyback, schematic AA763, 7025 preamp, two 6L6GC, fixed bias; Normal and Vibrato channels with bright switches, standby on the back panel"
+        url: "https://mojotone.com/blogs/fender-field-guide/fender-blackface-tremolux"
+notes: >-
+  Tweed-era sub-circuit dating is approximate: the field guide brackets the whole
+  narrow-panel run to 1955-1960 and dates the three drawings 55, 55-56 and 57-60
+  without firm boundaries, so those ranges are defensible spans rather than hard
+  dates. The 18 W figure is the field guide's rating for the narrow-panel line and
+  is a factory-era number, not a measured output. Only the 5G9 is a documented
+  circuit here; the other rows are history-tier entries. A 5E9-A entry, if one is
+  ever added, belongs to its own published drawing — the 5G9 sheet's note that
+  late 5E9-A models are similar is the factory's remark about a neighbouring
+  revision, not a licence to document one designation from the other's drawing.

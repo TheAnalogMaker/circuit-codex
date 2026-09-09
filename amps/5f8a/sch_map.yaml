@@ -1,0 +1,25 @@
+# amps/5f8a/sch_map.yaml — schematic <-> netlist reconciliation.
+# Data, never a guess in code: every line below is a claim a reviewer can check
+# against this sheet and against netlist.cir. See docs/schematic-nets.md.
+
+anchors:
+  # The netlist omits the output transformer's primary DCR, so BOTH pairs'
+  # plate nodes and the centre tap collapse to one node, B+1. Terminals
+  # anchored to the SAME node declare exactly that collapsed winding — and on
+  # this circuit each primary end carries TWO paralleled bottles, not one.
+  T3.1: BP1                # primary, V4+V5 plate end
+  T3.2: BP1                # primary centre tap (the <B+1> rail)
+  T3.3: BP1                # primary, V6+V7 plate end
+  T3.4: "0"                # secondary hot — the winding's DCR is folded into
+                           # ground, which is the 56 kΩ feedback resistor's
+                           # return; mirrors the layout net_map's SPK: '0'.
+
+symbols:
+  # netlist RCHOKE BP1 BP2 130 Ω is the filter choke's winding DCR, not a
+  # discrete resistor: the sheet draws the choke itself as L1. (layout.yaml
+  # calls RCHOKE netlist_unplaced because it is not a board part; on the sheet
+  # it IS drawn, so it binds to the symbol instead.)
+  RCHOKE: L1
+
+netlist_undrawn:
+  RG3: "V2A's grid return. At DC it is realised through the two 1 MΩ volume pots and their 270 kΩ mixers, all of which the sheet draws — there is no discrete grid-leak resistor on this node to bind to."

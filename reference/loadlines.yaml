@@ -329,6 +329,55 @@ stages:
   ot_primary_note: Fender 45249 · 2 Ω secondary — Push-pull output into four 8 Ω speakers
   sim_ip_ma: 29.5318
   sim_ig2_ma: 0.9644
+- amp: '5f8a'
+  name_style: High-power Tweed Twin-style
+  tube: '5881'
+  tube_lettered: '5881'
+  output_tubes: 4
+  config: push-pull
+  bias: fixed
+  plate_node: BP1
+  plate_v: 397.0
+  screen_node: SA1
+  screen_v: 394.228
+  cathode_node: '0'
+  cathode_v: 0.0
+  rk_total: null
+  rk_per_tube: null
+  grid_node: GA1
+  grid_v: -41.0
+  grid_supply_node: NBIAS
+  grid_supply_v: -41.0
+  ot_primary_z: null
+  ot_primary_approx: false
+  ot_primary_note: Fender 45268 — Push-pull-parallel output into two speakers; the drawing prints no secondary
+    impedance
+  sim_ip_ma: 35.7936
+  sim_ig2_ma: 1.6623
+- amp: '5g9'
+  name_style: Tweed Tremolux-style
+  tube: '6V6GT'
+  tube_lettered: '6V6GT'
+  output_tubes: 2
+  config: push-pull
+  bias: fixed
+  plate_node: BP
+  plate_v: 370.0
+  screen_node: SG1
+  screen_v: 367.116
+  cathode_node: '0'
+  cathode_v: 0.0
+  rk_total: null
+  rk_per_tube: null
+  grid_node: G61
+  grid_v: -28.0
+  grid_supply_node: null
+  grid_supply_v: null
+  ot_primary_z: null
+  ot_primary_approx: false
+  ot_primary_note: Fender 108 — Push-pull output
+  sim_ip_ma: 41.1577
+  sim_ig2_ma: 2.9596
 - amp: '6161'
   name_style: Valco 6161-style
   tube: '6973'

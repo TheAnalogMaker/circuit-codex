@@ -6,8 +6,12 @@ summary: >-
   that spends fifteen years chasing more clean volume than the speakers of the day
   could take. It starts in the tweed era as a 25 W pair of 6L6s, gains a third
   preamp tube and a presence control, then in 1957 doubles its output bottles to four
-  and adopts the long-tailed-pair inverter that carries it to 80 W. The blonde Tolex
-  redesign trades cathode bias for fixed bias and the rectifier tube for silicon, and
+  and adopts the long-tailed-pair inverter that carries it to 80 W. Fixed bias arrives
+  earlier in this line than its literature usually places it: the wide-panel amps run
+  their output pair on a shared cathode resistor, but from the narrow-panel 5E8 of 1955
+  onward every Twin grounds its output cathodes and holds the grids negative from a
+  separate bias supply. What the blonde Tolex redesign changes is the rectifier —
+  silicon in place of the tube — along with a second channel and harmonic vibrato, and
   in 1963 the blackface generation adds spring reverb, tremolo and a middle control
   to produce the Twin Reverb — the amp the whole line is remembered as. Tweed-era
   production dates are approximate — Fender did not date-stamp early circuits — so
@@ -32,7 +36,7 @@ models:
         url: "https://mojotone.com/blogs/fender-field-guide/fender-wide-panel-tweed-twin"
       - desc: "Wikipedia, 'Fender Twin' — the Twin introduced in 1952; the original an all-tube combo with dual 12-inch speakers and two 6L6 tubes rated at 25 W"
         url: "https://en.wikipedia.org/wiki/Fender_Twin"
-      - desc: "Fender 'Twin' 5C8 schematic archived at EL34World (designation-indexed anchor; drawing not reproduced)"
+      - desc: "Fender 'Twin' 5C8 schematic archived at EL34World, read from the Internet Archive's capture of it at about 670 ppi: the output pair shares a 250 Ω 10 W cathode resistor bypassed by 25 µF — cathode bias, and the first link in the chain that dates this line's move to fixed bias. Drawing not reproduced"
         url: "https://el34world.com/charts/Schematics/files/Fender/Fender_twin_5c8.pdf"
   - designation: "5D8"
     name: "Twin 5D8 (wide-panel tweed)"
@@ -50,7 +54,7 @@ models:
     sources:
       - desc: "Mojotone/Ampwares Fender field guide, 'Wide Panel Tweed Twin' — 5D8 preamp three 12AY7, output two 6L6G, two 5Y3GT rectifiers, cathode bias, and a Presence control listed on the 5D8 only"
         url: "https://mojotone.com/blogs/fender-field-guide/fender-wide-panel-tweed-twin"
-      - desc: "Fender 'Twin' 5D8 schematic archived at EL34World (designation-indexed anchor; drawing not reproduced)"
+      - desc: "Fender 'Twin' 5D8 schematic (drawing F-ED) archived at EL34World, read from the Internet Archive's capture of it at about 675 ppi: the two 6L6G share a 250 Ω 10 W cathode resistor bypassed by 25 µF and their grid leaks return to ground — cathode bias, the arrangement the narrow-panel 5E8 drops. Drawing not reproduced"
         url: "https://el34world.com/charts/Schematics/files/Fender/Fender_twin_5d8.pdf"
   - designation: "5E8 / 5E8-A"
     name: "Twin 5E8 and 5E8-A (narrow-panel tweed)"
@@ -62,12 +66,17 @@ models:
       The narrow-panel redesign, and the point at which the Twin's supply stops being
       the limit. The circuit carries twin 5U4 rectifiers — the same arrangement the
       narrow-panel Bassman uses — in Fender's pursuit of a louder, cleaner amplifier,
-      still driving a 6L6 pair. This is the last Twin with two output bottles.
+      still driving a 6L6 pair. It is also where the line leaves cathode bias: where
+      the wide-panel amps sat their output pair on a shared 250 Ω cathode resistor,
+      both narrow-panel drawings ground the output cathodes and hold the grids negative
+      from a separate supply — a selenium rectifier, a series resistor, a 100 µF/25 V
+      reservoir and a 56 kΩ bleeder, with the 5E8-A printing −42 V on that line. Every
+      Twin after this one is fixed-bias. This is the last Twin with two output bottles.
     circuit_ref: null
     sources:
       - desc: "Wikipedia, 'Fender Twin' — the narrow-panel Twin (model 5E8, 1955) with dual 5U4 rectifiers and 6L6 power tubes, twin 12-inch speakers; the dual-rectifier design shared with the Bassman and described as part of Fender's pursuit of a louder, cleaner amplifier"
         url: "https://en.wikipedia.org/wiki/Fender_Twin"
-      - desc: "Fender 'Twin' 5E8 and 5E8-A schematics archived at EL34World (designation-indexed anchors; drawings not reproduced)"
+      - desc: "Fender 'Twin' 5E8 (drawing A-EE) and 5E8-A schematics archived at EL34World, read from the Internet Archive's captures of them at about 700 ppi — the source for the bias reading above. Both ground the two 6L6G cathodes directly and take 220 kΩ grid leaks to a negative supply: selenium rectifier, series resistor (6.8 kΩ on the 5E8, 3.3 kΩ on the 5E8-A), 100 µF/25 V and a 56 kΩ bleeder, the 5E8-A lettering −42 V on that line. Both also carry 1.5 kΩ grid stoppers. Drawings not reproduced"
         url: "https://el34world.com/charts/Schematics/files/Fender/Fender_twin_5e8a.pdf"
   - designation: "5F8 / 5F8-A"
     name: "Twin 5F8 and 5F8-A (high-power tweed)"
@@ -81,8 +90,16 @@ models:
       a jump to 80 W. The 5F8 was briefly rectified by a type 83 mercury-vapour tube
       on a special socket before Fender replaced it with a GZ34 — a change that
       reached the tube chart only on the second production run. The 5F8-A of 1958 ran
-      into early 1960 and is the last tweed Twin.
-    circuit_ref: null
+      into early 1960 and is the last tweed Twin. The output stage keeps the fixed bias
+      the narrow-panel circuits introduced, its printed chart reading −41 V at the
+      grids. The documented circuit at amps/5f8a is the 5F8-A specifically, drawn from
+      the GZ34 drawing and its printed voltage chart.
+    circuit_ref: "5f8a"
+    era_note: >-
+      This row carries the combined 5F8 / 5F8-A designation, so it spans both
+      revisions from the 1957 four-bottle redesign. The documented circuit is the
+      -A, whose own entry takes 1958-1960 — the span this row's own sources give
+      for that revision.
     sources:
       - desc: "Wikipedia, 'Fender Twin' — modified in 1957 to four 5881 power tubes with the more efficient long-tailed pair phase inverter for a power increase to 80 W; the 5F8 briefly rectified with a type 83 mercury-vapour tube on a special socket, superseded by a GZ34; the 5F8-A released 1958 and produced into early 1960"
         url: "https://en.wikipedia.org/wiki/Fender_Twin"
@@ -96,10 +113,14 @@ models:
     tubes: [7025, 7025, 7025, 12AX7, 6L6GC, 6L6GC, 6L6GC, 6L6GC]
     key_change: >-
       The Tolex redesign, and the circuit the blackface Twin Reverb is a revision of
-      rather than a departure from: fixed (non-adjustable) bias replaces cathode bias,
-      a solid-state rectifier replaces the GZ34, and the amp gains Normal and Bright
-      channels with a harmonic vibrato and a presence control. Published output is
-      cited loosely at 80-100 W, so no single figure is recorded here. Twin-Amp
+      rather than a departure from: a solid-state rectifier replaces the GZ34, and the
+      amp gains Normal and Bright channels with a harmonic vibrato and a presence
+      control. The output stage is inherited rather than reworked — four bottles with
+      their cathodes grounded, 220 kΩ grid leaks off a negative supply, 1.5 kΩ
+      stoppers and 470 Ω 1 W screen resistors, into the same 45268 output transformer
+      the tweed 5F8-A uses. The bias is fixed and is not adjustable; the bias pot
+      arrives with the blackface AB763. Published output is cited loosely at 80-100 W,
+      so no single figure is recorded here. Twin-Amp
       production paused in the first months of 1960 and the model reappeared in blonde
       Tolex in mid-1960, which is why the span opens a year before the field guide's.
     circuit_ref: null
@@ -108,7 +129,7 @@ models:
         url: "https://mojotone.com/blogs/fender-field-guide/fender-blonde-twin"
       - desc: "Wikipedia, 'Fender Twin' — Twin-Amp production interrupted in the first months of 1960, the model re-emerging in mid-1960 in blonde Tolex and running to 1963, when it was replaced by the Twin Reverb-Amp"
         url: "https://en.wikipedia.org/wiki/Fender_Twin"
-      - desc: "Fender 'Twin' 6G8 and 6G8-A schematics archived at EL34World (designation-indexed anchors; drawings not reproduced)"
+      - desc: "Fender 'Twin' 6G8 and 6G8-A schematics archived at EL34World, read from the Internet Archive's capture of them at about 670 ppi: the 6G8-A grounds all four 5881 cathodes and takes 220 kΩ grid leaks to a −55 V line off a silicon rectifier with 8 µF/150 V, 56 kΩ and 10 kΩ — fixed bias with no adjustment, the same arrangement in kind as the tweed 5F8-A; 1.5 kΩ grid stoppers, 470 Ω 1 W screen resistors, transformers TR1 125P7A, TR2 125C1A, TR3 45268 (the 5F8-A's output transformer). Drawings not reproduced"
         url: "https://el34world.com/charts/Schematics/files/Fender/Fender_twin_6g8a.pdf"
   - designation: "AB763"
     name: "Twin Reverb AB763 (blackface)"
@@ -131,6 +152,15 @@ models:
       - desc: "Fender 'TWIN REVERB-AMP AB763' schematic and layout sheets archived at EL34World (designation-indexed anchor; component values and the printed voltage chart read from the drawing, not reproduced)"
         url: "https://el34world.com/charts/Schematics/files/Fender/Fender_twin_reverb_ab763.pdf"
 notes: >-
+  This line's move from cathode to fixed bias is dated from the factory drawings rather
+  than from secondary summaries, which commonly place it at the blonde Tolex redesign.
+  The drawings put it five years earlier and hold it there: the wide-panel 5C8 and 5D8
+  sit their output pair on a shared 250 Ω 10 W cathode resistor bypassed by 25 µF,
+  while the narrow-panel 5E8 and 5E8-A, the tweed 5F8-A and the blonde 6G8-A all ground
+  the output cathodes and take 220 kΩ grid leaks to a negative supply of their own
+  (−42 V, −41 V and −55 V respectively where the sheet prints it). Each of those six
+  sheets was read at 664-750 ppi, and at that resolution the bias arrangement is the
+  one thing every one of them letters unambiguously.
   Tweed sub-circuit dating (5C8/5D8/5E8/5F8) is approximate: the field guide brackets
   the wide-panel run 1953-1955 without firm per-circuit boundaries, and the model
   predates the tweed cosmetics, so the ranges above are defensible spans. Wattage is

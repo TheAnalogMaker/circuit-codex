@@ -1,0 +1,114 @@
+* 5G9 (Tweed Tremolux-style) — DC operating-point netlist
+* Circuit Codex — CC-BY-SA 4.0. Independently drawn from the published 5G9
+* (B-EI) drawing's component values (see meta.yaml); no drawing reproduced.
+*
+* TUBE MODEL MAPPING. The drawing's rectifier is a 5U4GB, and that is what the
+* parts list, the schematic and meta.yaml letter. models/5u4g.inc is an explicit
+* 5U4G / 5U4GA / 5U4GB class approximation — one Child's-law diode unit fitted to
+* the RCA 5U4GB sheet — and the file says so in its own header. Nothing in this
+* netlist instantiates it: like every rectifier in this corpus the supply front
+* end (PT + rectifier + reservoir can) is replaced by an ideal source at the
+* first rail, so the mapping costs no accuracy here. It is stated because the
+* archive letters the bottle the drawing prints, not the model file's name.
+*
+* DC conventions. TWO nodes are driven, both at values the sheet prints:
+* BP = +370 V, the reservoir the 5U4GB feeds, which is also the output
+* transformer's centre tap; and NB69 = -69 V, the output of the bias rectifier.
+* Everything below both of them is DERIVED, so the chart's other supply
+* voltages are predictions checked against the printed sheet, not inputs:
+*   BP -> RCHOKE -> BS  (the +368 V screen node, also the tremolo bottle's plates)
+*   BS -> RD1 10k-1W -> BC  (the +310 V preamp and phase-inverter feed)
+*   NB69 -> R11 82k -> NBIAS -> R12 56k -> ground  (the -28 V bias line)
+*
+* APPROXIMATIONS, stated rather than assumed.
+*   RCHOKE — the filter choke is Fender 14684 and the drawing prints no winding
+*   resistance, so its DCR is modelled at 130 Ohm: the same estimate this corpus
+*   already carries for the same choke in amps/5f4, amps/5f6a and amps/5f8a.
+*   It is an estimate, not a read value. It carries only screen current and the
+*   +310 V branch (the output plates sit on the driven node through the OT), so
+*   at the ~14 mA this model draws it costs about 1.8 V — the sheet's own
+*   +370 -> +368 step is 2 V, which is the check available on it.
+*   OT primary DCR is omitted outright, as everywhere in this corpus: both 6V6
+*   plates and the centre tap are one node, BP.
+*   The bias rectifier — a selenium stack on the drawing (a silicon diode in
+*   modern builds) — and its two 8 uF / 150 V cans are AC/ripple hardware, so
+*   they are replaced by the ideal source at the -69 V node the sheet prints.
+*   The divider BELOW it is modelled, not abstracted, so the -28 V line is a
+*   prediction: 82k / 56k off -69 V solves to -28.0 V against a printed -28 V.
+*   The 250 kOhm Depth control sits between the tremolo's output coupler and
+*   that -28 V line, with its wiper feeding the joined 220k grid leaks. The
+*   output grids draw no grid current, so no DC flows through it and the two
+*   leaks are returned straight to NBIAS here (declared in layout.yaml net_map).
+*
+* DC-open caps are MODELLED where BOTH leads land on a named DC node (the shared
+* 12AY7 cathode can, the cold inverter grid's .1 uF to ground, and the two
+* inverter-to-output couplers) so their board placement is layout-checked; open
+* at DC, they move no operating point. Caps whose leads land inside the
+* abstracted volume / tone network are omitted, as are the four 20 uF / 500 V
+* filter cans and the bias filter cans.
+*
+* EXCLUDED — the whole tremolo bottle, V3. Its first half is a running
+* phase-shift oscillator whose printed pins (+270 V plate, +1.7 V cathode) are
+* the average a meter reads while it swings, set by grid-leak detection rather
+* than by a static bias point; its second half is a cathode follower direct-
+* coupled to that swinging plate, so the +260 V printed at its cathode is not a
+* static point either. Both are reported in notes.md rather than fitted. The
+* cost is bounded and stated: the pair draws about 2 mA from BS, so leaving it
+* out raises the simulated +368 V node by roughly a quarter of a volt and
+* changes nothing at all below RD1, whose current is set by the preamp and the
+* phase inverter. A DC pass here says nothing about whether the oscillator runs,
+* at what rate, or how deep the tremolo goes — see notes.md.
+.include models/12ay7.inc
+.include models/12ax7.inc
+.include models/6v6gt.inc
+
+VBP BP 0 DC 370
+VB69 NB69 0 DC -69
+
+* rail chain: reservoir -> choke (DCR estimate) -> screens -> 10k-1W -> preamp/PI
+RCHOKE BP BS 130
+RD1 BS BC 10k
+
+* bias line: -69 V -> 82k -> NBIAS -> 56k -> ground (the drawing's own divider)
+R11 NB69 NBIAS 82k
+R12 NBIAS 0 56k
+
+* --- V1 (12AY7), both channel input stages: 100k plate loads off the +310 V
+*     rail, ONE shared 820 Ohm cathode with a 25 uF / 25 V can, grids returned to
+*     ground through the input jacks' 1M leaks. The 68k jack stoppers carry no
+*     grid current and are DC-transparent (declared as series bridges).
+RL1 BC PAY1 100k
+XV1A PAY1 GAY1 KAY 12AY7
+RG1 GAY1 0 1meg
+RL2 BC PAY2 100k
+XV1B PAY2 GAY2 KAY 12AY7
+RG2 GAY2 0 1meg
+RK1 KAY 0 820
+CK1 KAY 0 25u
+
+* --- V2 phase inverter (12AX7 long-tailed pair): 82k-5% (hot) and 100k-5%
+*     (cold) plate loads, fed at their junction from BC; cathodes joined at KPI,
+*     470 Ohm to the tail junction JPI, 10k from JPI to ground. Both 1M grid
+*     leaks return to JPI. The cold grid's own signal reference is the .1 uF /
+*     200 V to ground (C6) — this circuit has no negative-feedback loop.
+RLA BC PPIA 82k
+XV2A PPIA GPIA KPI 12AX7
+RGA GPIA JPI 1meg
+RLB BC PPIB 100k
+XV2B PPIB GPIB KPI 12AX7
+RGB GPIB JPI 1meg
+RTAIL KPI JPI 470
+RT2 JPI 0 10k
+C6 GPIB 0 0.1u
+
+* --- Output pair 6V6GT (fixed bias): grids to the -28 V line through 220k
+*     leaks, screens fed from BS through their own 470 Ohm - 1W resistors,
+*     cathodes grounded, plates on BP (OT primary DCR omitted).
+RS1 BS SG1 470
+RS2 BS SG2 470
+RG4 NBIAS G61 220k
+RG5 NBIAS G62 220k
+XV4 BP SG1 G61 0 6V6GT
+XV5 BP SG2 G62 0 6V6GT
+C7 PPIA G61 0.02u
+C8 PPIB G62 0.02u

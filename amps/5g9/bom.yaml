@@ -1,0 +1,89 @@
+# Parts list — read from the published 5G9 Tremolux drawing (page 1 schematic,
+# page 2 layout; both carry the same values). Reference designators follow the
+# DC netlist where a part is modelled and are descriptive otherwise; every one
+# of them is cross-checked against the redrawn schematic (schematic.kicad_sch)
+# by pipeline/validate.py, in both directions. The drawing's notice sets
+# ½ W · 10 % resistors unless a part is marked otherwise, and every value below
+# is the drawing's own.
+notes: "The chassis carries two Inst. and two Mic. jacks, each channel's pair on its own two 68 kΩ stoppers over one 1 MΩ leak. The rectifier is lettered 5U4GB, as the drawing prints it; models/5u4g.inc is a 5U4G/5U4GA/5U4GB class approximation and nothing in netlist.cir instantiates it (see the netlist header). The tremolo bottle's parts are listed in full, but neither half's DC operating point is in the netlist (see notes.md). Parts drawn only as annotations — mains cap, fuse, power switch, pilot lamp, jacks — are listed without designators. The transformers are numbered T1 (power) and T2 (output) under the archive's convention; the drawing letters them only by factory number, 8160 and 108, with the choke 14684."
+items:
+  # --- Inst. channel input (V1A) ---
+  - { ref: R1n, part: "Carbon comp resistor", value: "68 kΩ · ½ W",   role: "Inst. input grid stopper (jack 1)" }
+  - { ref: R2n, part: "Carbon comp resistor", value: "68 kΩ · ½ W",   role: "Inst. input grid stopper (jack 2)" }
+  - { ref: RG1, part: "Carbon comp resistor", value: "1 MΩ · ½ W",    role: "Inst. input grid leak" }
+  - { ref: RL1, part: "Carbon comp resistor", value: "100 kΩ · ½ W",  role: "V1A plate load" }
+  # --- Mic. channel input (V1B) ---
+  - { ref: R3n, part: "Carbon comp resistor", value: "68 kΩ · ½ W",   role: "Mic. input grid stopper (jack 1)" }
+  - { ref: R4n, part: "Carbon comp resistor", value: "68 kΩ · ½ W",   role: "Mic. input grid stopper (jack 2)" }
+  - { ref: RG2, part: "Carbon comp resistor", value: "1 MΩ · ½ W",    role: "Mic. input grid leak" }
+  - { ref: RL2, part: "Carbon comp resistor", value: "100 kΩ · ½ W",  role: "V1B plate load" }
+  # --- Shared V1 cathode ---
+  - { ref: RK1, part: "Carbon comp resistor", value: "820 Ω · ½ W",   role: "Shared V1A/V1B cathode bias" }
+  - { ref: CK1, part: "Electrolytic capacitor", value: "25 µF · 25 V", role: "Shared V1A/V1B cathode bypass" }
+  # --- Volume and tone controls ---
+  - { ref: C1,  part: "Coupling capacitor",   value: "0.1 µF · 400 V", role: "V1A plate → the Inst. volume control's WIPER" }
+  - { ref: C2,  part: "Coupling capacitor",   value: "0.1 µF · 400 V", role: "V1B plate → the Mic. volume control's WIPER" }
+  - { ref: VR1, part: "Audio-taper potentiometer", value: "1 MΩ-A",   role: "Inst. volume — signal on the wiper, one end grounded, the other on the mixing node" }
+  - { ref: VR2, part: "Audio-taper potentiometer", value: "1 MΩ-A",   role: "Mic. volume — wired the same way" }
+  - { ref: VR3, part: "Audio-taper potentiometer", value: "1 MΩ-A",   role: "Tone — its wiper feeds the mixing node" }
+  - { ref: C3,  part: "Mica capacitor",       value: "500 pF",        role: "Inst. coupler node → the tone control's hot end. The sheet letters it .0005-400, so the drawing does give it a 400 V rating; house units carry sub-nanofarad parts in picofarads and without a working voltage" }
+  - { ref: C4,  part: "Film capacitor",       value: "0.005 µF · 400 V", role: "Tone control's cold end → ground" }
+  - { ref: C5,  part: "Coupling capacitor",   value: "0.02 µF · 400 V", role: "Mixing node → phase-inverter hot grid" }
+  # --- V2 long-tailed-pair phase inverter ---
+  - { ref: RLA, part: "Carbon comp resistor", value: "82 kΩ · 5 % · ½ W",  role: "V2A plate load (hot side)" }
+  - { ref: RLB, part: "Carbon comp resistor", value: "100 kΩ · 5 % · ½ W", role: "V2B plate load (cold side)" }
+  - { ref: RGA, part: "Carbon comp resistor", value: "1 MΩ · ½ W",    role: "V2A grid leak, returned to the tail junction" }
+  - { ref: RGB, part: "Carbon comp resistor", value: "1 MΩ · ½ W",    role: "V2B grid leak, returned to the tail junction" }
+  - { ref: RTAIL, part: "Carbon comp resistor", value: "470 Ω · ½ W", role: "Inverter cathode resistor (joined cathodes → tail junction)" }
+  - { ref: RT2, part: "Carbon comp resistor", value: "10 kΩ · ½ W",   role: "Inverter tail resistor (junction → ground)" }
+  - { ref: C6,  part: "Film capacitor",       value: "0.1 µF · 200 V", role: "V2B grid to ground — the cold grid's signal reference" }
+  # --- Output stage ---
+  - { ref: C7,  part: "Coupling capacitor",   value: "0.02 µF · 400 V", role: "V2A plate → V4 grid" }
+  - { ref: C8,  part: "Coupling capacitor",   value: "0.02 µF · 400 V", role: "V2B plate → V5 grid" }
+  - { ref: RG4, part: "Carbon comp resistor", value: "220 kΩ · ½ W",  role: "V4 grid leak to the −28 V bias line" }
+  - { ref: RG5, part: "Carbon comp resistor", value: "220 kΩ · ½ W",  role: "V5 grid leak to the −28 V bias line" }
+  - { ref: RS1, part: "Carbon comp resistor", value: "470 Ω · 1 W",   role: "V4 screen resistor" }
+  - { ref: RS2, part: "Carbon comp resistor", value: "470 Ω · 1 W",   role: "V5 screen resistor" }
+  # --- V3 tremolo: phase-shift oscillator (V3A) + cathode follower (V3B) ---
+  - { ref: RL3, part: "Carbon comp resistor", value: "100 kΩ · ½ W",  role: "V3A oscillator plate load (to the +368 V node)" }
+  - { ref: RK3, part: "Carbon comp resistor", value: "1.5 kΩ · ½ W",  role: "V3A oscillator cathode bias" }
+  - { ref: CK3, part: "Electrolytic capacitor", value: "25 µF · 25 V", role: "V3A oscillator cathode bypass" }
+  - { ref: C9,  part: "Film capacitor",       value: "0.03 µF · 400 V", role: "Oscillator phase-shift cap, plate side" }
+  - { ref: C10, part: "Film capacitor",       value: "0.01 µF · 400 V", role: "Oscillator phase-shift cap, middle" }
+  - { ref: C11, part: "Film capacitor",       value: "0.01 µF · 400 V", role: "Oscillator phase-shift cap, grid side" }
+  - { ref: R7,  part: "Carbon comp resistor", value: "1 MΩ · ½ W",    role: "Oscillator grid leak to ground" }
+  - { ref: R8,  part: "Carbon comp resistor", value: "1 MΩ · ½ W",    role: "Oscillator phase-shift return to the cathode" }
+  - { ref: VR4, part: "Potentiometer",        value: "2 MΩ",          role: "Speed (oscillator frequency)" }
+  - { ref: R9,  part: "Carbon comp resistor", value: "100 kΩ · ½ W",  role: "Speed-control end resistor" }
+  - { ref: RK4, part: "Carbon comp resistor", value: "220 kΩ · ½ W",  role: "V3B cathode-follower cathode resistor — the oscillator's output load" }
+  - { ref: C12, part: "Coupling capacitor",   value: "0.1 µF · 400 V", role: "V3B cathode → the Depth control's feed resistor" }
+  - { ref: R10, part: "Carbon comp resistor", value: "1 MΩ · ½ W",    role: "Tremolo output feed into the Depth control" }
+  - { ref: VR5, part: "Linear potentiometer", value: "250 kΩ-L",      role: "Depth — sits in the −28 V bias line, carries no DC" }
+  - { ref: "—", part: "Jack",                 value: "closed-circuit", role: "Tremolo footswitch jack — shorts the oscillator's middle phase-shift node when plugged in and closed (annotation only)" }
+  # --- Power supply ---
+  - { ref: L1,  part: "Filter choke",         value: "Fender 14684",  role: "Reservoir → screen node (+370 V → +368 V)" }
+  - { ref: RD1, part: "Power resistor",       value: "10 kΩ · 1 W",   role: "Rail dropper +368 V → +310 V (preamp and phase inverter)" }
+  - { ref: C15, part: "Electrolytic capacitor", value: "20 µF · 500 V", role: "Reservoir filter, +370 V (condenser box)" }
+  - { ref: C16, part: "Electrolytic capacitor", value: "20 µF · 500 V", role: "Filter, +370 V (condenser box)" }
+  - { ref: C17, part: "Electrolytic capacitor", value: "20 µF · 500 V", role: "Filter, +368 V screen node (condenser box)" }
+  - { ref: C18, part: "Electrolytic capacitor", value: "20 µF · 500 V", role: "Filter, +310 V preamp node (condenser box)" }
+  # --- Bias supply ---
+  - { ref: D1,  part: "Rectifier (bias)",     value: "selenium · silicon diode in modern builds", role: "Bias-supply rectifier" }
+  - { ref: C13, part: "Electrolytic capacitor", value: "8 µF · 150 V", role: "Bias-supply filter, −69 V node" }
+  - { ref: C14, part: "Electrolytic capacitor", value: "8 µF · 150 V", role: "Bias-supply filter, −28 V line" }
+  - { ref: R11, part: "Carbon comp resistor", value: "82 kΩ · ½ W",   role: "Bias divider, upper leg (−69 V → −28 V)" }
+  - { ref: R12, part: "Carbon comp resistor", value: "56 kΩ · ½ W",   role: "Bias divider, lower leg to ground — sets the −28 V line" }
+  # --- Tubes ---
+  - { ref: V1,  part: "Preamp tube",          value: "12AY7",         role: "Both channel input stages (V1A/V1B)" }
+  - { ref: V2,  part: "Preamp tube",          value: "12AX7",         role: "Long-tailed-pair phase inverter (V2A/V2B)" }
+  - { ref: V3,  part: "Preamp tube",          value: "12AX7",         role: "Tremolo oscillator + cathode follower (V3A/V3B)" }
+  - { ref: V4,  part: "Power tube",           value: "6V6GT",         role: "Push-pull output (hot side)" }
+  - { ref: V5,  part: "Power tube",           value: "6V6GT",         role: "Push-pull output (cold side)" }
+  - { ref: V6,  part: "Rectifier tube",       value: "5U4GB",         role: "Full-wave rectifier (V6A/V6B)" }
+  # --- Transformers and chassis hardware ---
+  - { ref: T1,  part: "Power transformer",    value: "Fender 8160 · 300-0-300 V AC", role: "HT + heaters + rectifier filament — the drawing letters the HT winding 300 V AC each side of the centre tap, and the heater windings only as 'to all 6.3 volt heaters and pilot light'" }
+  - { ref: T2,  part: "Output transformer",   value: "Fender 108",    role: "Push-pull output" }
+  - { ref: "—", part: "Fuse",                 value: "2 A",           role: "AC mains fuse (annotation only)" }
+  - { ref: "—", part: "Switch",               value: "SPST",          role: "AC power switch (annotation only)" }
+  - { ref: "—", part: "Film capacitor",       value: "0.05 µF · 600 V", role: "Mains-to-chassis cap (annotation only)" }
+  - { ref: "—", part: "Pilot lamp",           value: "6.3 V",         role: "Pilot light (annotation only)" }

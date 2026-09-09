@@ -1,0 +1,75 @@
+# Parts list — reference designators match schematic.kicad_sch exactly.
+notes: "The sheet's own note reads: all resistors are ½ W 10% unless otherwise marked, so a wattage appears below only where the drawing letters one (470 Ω 1 W screens; 1 W on both rail droppers) and a tolerance only where it letters one (5% on the two phase-inverter plate loads). The drawing shows two jacks on each channel and this schematic draws both, with all four 68 kΩ stoppers. The negative-feedback resistor, the presence pot and its 0.1 µF wiper cap are chassis wiring rather than board wiring, but they carry designators (RNF, VR6, C16) and are drawn. The 100 pF bright cap mounts on the bright volume pot's own lugs, inside the tone/volume network the DC model abstracts, so it is listed without a designator and annotated on the schematic rather than drawn."
+items:
+  - { ref: R1s, part: "Carbon comp resistor", value: "68 kΩ",  role: "Bright channel, jack 1 grid stopper" }
+  - { ref: R2s, part: "Carbon comp resistor", value: "68 kΩ",  role: "Bright channel, jack 2 grid stopper" }
+  - { ref: R3s, part: "Carbon comp resistor", value: "68 kΩ",  role: "Normal channel, jack 1 grid stopper" }
+  - { ref: R4s, part: "Carbon comp resistor", value: "68 kΩ",  role: "Normal channel, jack 2 grid stopper" }
+  - { ref: RG1, part: "Carbon comp resistor", value: "1 MΩ",   role: "Bright input grid leak, at the jacks" }
+  - { ref: RG2, part: "Carbon comp resistor", value: "1 MΩ",   role: "Normal input grid leak, at the jacks" }
+  - { ref: RL1, part: "Carbon comp resistor", value: "100 kΩ", role: "V1A plate load" }
+  - { ref: RL2, part: "Carbon comp resistor", value: "100 kΩ", role: "V1B plate load" }
+  - { ref: RK1, part: "Carbon comp resistor", value: "820 Ω",  role: "Shared 12AY7 cathode bias" }
+  - { ref: C3,  part: "Electrolytic capacitor", value: "250 µF · 6 V", role: "Shared 12AY7 cathode bypass" }
+  - { ref: C1,  part: "Coupling capacitor",   value: "0.02 µF · 400 V", role: "V1A → bright volume" }
+  - { ref: C2,  part: "Coupling capacitor",   value: "0.02 µF · 400 V", role: "V1B → normal volume" }
+  - { ref: VR1, part: "Audio-taper potentiometer", value: "1 MΩ", role: "Bright volume (100 pF bright cap across it)" }
+  - { ref: VR2, part: "Audio-taper potentiometer", value: "1 MΩ", role: "Normal volume" }
+  - { ref: RM1, part: "Carbon comp resistor", value: "270 kΩ", role: "Bright-channel mixer" }
+  - { ref: RM2, part: "Carbon comp resistor", value: "270 kΩ", role: "Normal-channel mixer" }
+  - { ref: RL3, part: "Carbon comp resistor", value: "100 kΩ", role: "V2A plate load" }
+  - { ref: RK2, part: "Carbon comp resistor", value: "820 Ω",  role: "V2A cathode bias, unbypassed" }
+  - { ref: RKCF, part: "Carbon comp resistor", value: "100 kΩ", role: "Cathode-follower load" }
+  - { ref: RSL, part: "Carbon comp resistor", value: "56 kΩ",  role: "Tone-stack slope resistor" }
+  - { ref: C4,  part: "Mica capacitor",       value: "250 pF",  role: "Tone stack — treble" }
+  - { ref: VR3, part: "Linear potentiometer", value: "250 kΩ",  role: "Treble (the factory layout page marks it 250K LIN.)" }
+  - { ref: C5,  part: "Film capacitor",       value: "0.02 µF · 400 V", role: "Tone stack — bass (node B → the treble-lug/bass node)" }
+  - { ref: C5b, part: "Film capacitor",       value: "0.02 µF · 400 V", role: "Tone stack — middle (node B → the middle pot's wiper)" }
+  - { ref: VR4, part: "Audio-taper potentiometer", value: "1 MΩ", role: "Bass (1M AUD. on the layout page); wired as a rheostat down the ladder" }
+  - { ref: VR5, part: "Linear potentiometer", value: "25 kΩ",   role: "Middle (the second 0.02 µF lands on its wiper; its full track stands in the ground leg)" }
+  - { ref: C6,  part: "Coupling capacitor",   value: "0.02 µF · 400 V", role: "Tone stack → phase-inverter grid" }
+  - { ref: RGA, part: "Carbon comp resistor", value: "1 MΩ",   role: "PI grid leak (V3A), returned to the tail junction" }
+  - { ref: RGB, part: "Carbon comp resistor", value: "1 MΩ",   role: "PI grid leak (V3B), returned to the tail junction" }
+  - { ref: RLA, part: "Carbon comp resistor", value: "82 kΩ · 5%",  role: "PI plate load (V3A)" }
+  - { ref: RLB, part: "Carbon comp resistor", value: "100 kΩ · 5%", role: "PI plate load (V3B)" }
+  - { ref: RTAIL, part: "Carbon comp resistor", value: "470 Ω", role: "PI tail bias" }
+  - { ref: RT2, part: "Carbon comp resistor", value: "10 kΩ",  role: "PI tail (junction → foot)" }
+  - { ref: C10, part: "Mica capacitor",       value: "47 pF",   role: "Across the two PI plates" }
+  - { ref: C7,  part: "Film capacitor",       value: "0.1 µF · 200 V", role: "V3B grid AC-ground to the tail foot" }
+  - { ref: RNF, part: "Carbon comp resistor", value: "56 kΩ",  role: "Negative feedback, speaker → the phase-inverter tail foot" }
+  - { ref: VR6, part: "Linear potentiometer", value: "5 kΩ",   role: "Presence — from the tail foot to ground" }
+  - { ref: C16, part: "Film capacitor",       value: "0.1 µF · 200 V", role: "Presence wiper to ground" }
+  - { ref: C8,  part: "Coupling capacitor",   value: "0.1 µF · 400 V", role: "PI (V3A) → the V4/V5 output pair" }
+  - { ref: C9,  part: "Coupling capacitor",   value: "0.1 µF · 400 V", role: "PI (V3B) → the V6/V7 output pair" }
+  - { ref: RGL1, part: "Carbon comp resistor", value: "220 kΩ", role: "Grid leak for the V4/V5 pair, from the −41 V bias line" }
+  - { ref: RGL2, part: "Carbon comp resistor", value: "220 kΩ", role: "Grid leak for the V6/V7 pair, from the −41 V bias line" }
+  - { ref: RGS1, part: "Carbon comp resistor", value: "1.5 kΩ", role: "Grid stopper between the V4 and V5 grids" }
+  - { ref: RGS2, part: "Carbon comp resistor", value: "1.5 kΩ", role: "Grid stopper between the V6 and V7 grids" }
+  - { ref: RS1, part: "Carbon comp resistor", value: "470 Ω · 1 W", role: "V4 screen resistor" }
+  - { ref: RS2, part: "Carbon comp resistor", value: "470 Ω · 1 W", role: "V5 screen resistor" }
+  - { ref: RS3, part: "Carbon comp resistor", value: "470 Ω · 1 W", role: "V6 screen resistor" }
+  - { ref: RS4, part: "Carbon comp resistor", value: "470 Ω · 1 W", role: "V7 screen resistor" }
+  - { ref: RD1, part: "Power resistor",       value: "4.7 kΩ · 1 W", role: "Rail dropper B+2 → B+3" }
+  - { ref: RD2, part: "Power resistor",       value: "10 kΩ · 1 W",  role: "Rail dropper B+3 → B+4" }
+  - { ref: L1,  part: "Filter choke",         value: "Fender 14684", role: "B+1 → B+2 (screens)" }
+  - { ref: C11, part: "Electrolytic capacitor", value: "20 µF · 600 V", role: "Filter, B+1" }
+  - { ref: C11b, part: "Electrolytic capacitor", value: "20 µF · 600 V", role: "Filter, B+1 (the sheet draws two cans on this node)" }
+  - { ref: C12, part: "Electrolytic capacitor", value: "20 µF · 600 V", role: "Filter, B+2" }
+  - { ref: C13, part: "Electrolytic capacitor", value: "20 µF · 600 V", role: "Filter, B+3" }
+  - { ref: C14, part: "Electrolytic capacitor", value: "8 µF · 450 V", role: "Filter, B+4" }
+  - { ref: D1,  part: "Rectifier (bias)",     value: "selenium (silicon diode in modern builds)", role: "Bias supply rectifier" }
+  - { ref: RB1, part: "Carbon comp resistor", value: "15 kΩ",  role: "Bias supply series resistor" }
+  - { ref: RB2, part: "Carbon comp resistor", value: "56 kΩ",  role: "Bias supply bleeder" }
+  - { ref: C15, part: "Electrolytic capacitor", value: "8 µF · 150 V", role: "Bias supply filter, −41 V line" }
+  - { ref: C15b, part: "Electrolytic capacitor", value: "8 µF · 150 V", role: "Bias supply reservoir, rectifier side of the 15 kΩ" }
+  - { ref: V1,  part: "Preamp tube",          value: "12AY7", role: "Both input stages (V1A/V1B)" }
+  - { ref: V2,  part: "Preamp tube",          value: "12AX7", role: "Second stage + cathode follower (V2A/V2B)" }
+  - { ref: V3,  part: "Preamp tube",          value: "12AX7", role: "Long-tailed-pair phase inverter (V3A/V3B)" }
+  - { ref: V4,  part: "Power tube",           value: "5881",  role: "Output, 82 kΩ side of the inverter (paralleled with V5)" }
+  - { ref: V5,  part: "Power tube",           value: "5881",  role: "Output, 82 kΩ side of the inverter (paralleled with V4)" }
+  - { ref: V6,  part: "Power tube",           value: "5881",  role: "Output, 100 kΩ side of the inverter (paralleled with V7)" }
+  - { ref: V7,  part: "Power tube",           value: "5881",  role: "Output, 100 kΩ side of the inverter (paralleled with V6)" }
+  - { ref: V8,  part: "Rectifier tube",       value: "GZ34",  role: "Full-wave rectifier (V8A/V8B)" }
+  - { ref: T3,  part: "Output transformer",   value: "Fender 45268", role: "Push-pull-parallel output into two speakers; the drawing prints no secondary impedance" }
+  - { ref: "—", part: "Power transformer",    value: "Fender 7993 · 300-0-300 V", role: "HT + heaters + rectifier filament" }
+  - { ref: "—", part: "Mica capacitor",       value: "100 pF", role: "Bright cap across VR1, mounted on the pot (annotation only on schematic)" }
