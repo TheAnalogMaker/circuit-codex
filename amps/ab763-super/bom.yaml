@@ -106,7 +106,7 @@ items:
   - { ref: RBL1, part: "Wirewound resistor",  value: "220 kΩ · 1 W",  role: "Reservoir cap balancing bleeder" }
   - { ref: RBL2, part: "Wirewound resistor",  value: "220 kΩ · 1 W",  role: "Reservoir cap balancing bleeder" }
   - { ref: C11, part: "Electrolytic capacitor", value: "20 µF · 525 V", role: "Filter, node B (screens/BP1)" }
-  - { ref: C12, part: "Electrolytic capacitor", value: "20 µF · 525 V", role: "Filter, node C (PI/reverb-driver rail)" }
+  - { ref: C12, part: "Electrolytic capacitor", value: "20 µF · 525 V", role: "Filter, node C (phase-inverter plate rail; the reverb driver is fed from BP1, not this node)" }
   - { ref: RD1, part: "Wirewound resistor",   value: "1 kΩ · 1 W",   role: "Rail dropper B → C" }
   - { ref: RD2, part: "Wirewound resistor",   value: "4.7 kΩ · 1 W", role: "Rail dropper C → D" }
   # --- Bias supply ---

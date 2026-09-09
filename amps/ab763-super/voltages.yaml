@@ -15,7 +15,7 @@ source: "Fender SUPER-REVERB-AMP AB763 schematic, printed voltages: +460 (6L6GC 
 nodes:
   S61:  { chart: 460, tol_pct: 8,  note: "6L6GC (V7) screen after its 470 Ohm-1W stopper, off the +460 plate rail" }
   G61:  { chart: -52, tol_pct: 8,  note: "6L6GC (V7) grid, fixed bias via 220k leak + 1.5k stopper from the -52 V supply" }
-  BC:   { chart: 450, tol_pct: 5,  note: "phase-inverter / reverb-driver plate rail, node [C] — derived from BP1 through the printed 1k-1W dropper (RD1); check against the chart, not an input to it" }
+  BC:   { chart: 450, tol_pct: 5,  note: "phase-inverter plate rail, node [C] — derived from BP1 through the printed 1k-1W dropper (RD1); check against the chart, not an input to it. The reverb driver is NOT on this rail: it is fed from BP1 through the TR4 primary (see PRD)" }
   BD:   { chart: 410, tol_pct: 5,  note: "preamp plate rail, node [D] — derived from BC through the printed 4.7k-1W dropper (RD2); check against the chart" }
   PRD:  { chart: 450, tol_pct: 20, note: "reverb-driver 12AT7 plate (paralleled sections), off BP1 through the TR4 primary DCR" }
   KRD:  { chart: 8.4, tol_pct: 20, note: "reverb-driver 12AT7 shared cathode over 2.2k" }

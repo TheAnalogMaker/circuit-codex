@@ -277,8 +277,16 @@ export function layoutAlt(amp, style = 'current') {
   const drawn = style === 'sheet'
     ? ', drawn in the period layout-sheet style with each value lettered on the part'
     : '';
+  // `derived` records what THIS diagram was built from — the circuit's own
+  // redrawn schematic rather than a published layout drawing. It is not a claim
+  // about what exists in the world, and the alt text said so until 2026-09-09
+  // ("no factory layout sheet exists") on twelve pages. At least one of them was
+  // false: the AB763 Super's own cited archive carries two factory layout copies.
+  // A flag about our sourcing cannot establish a negative about the record, and
+  // alt text is the worst place to assert one, being read aloud and indexed while
+  // invisible to anyone reviewing the page by eye.
   return derived
-    ? `${name} ${board} layout — an original diagram reconstructed from the redrawn schematic (no factory layout sheet exists), showing the principal parts in board order${drawn}.`
+    ? `${name} ${board} layout — an original diagram reconstructed from this circuit's redrawn schematic rather than from a published layout drawing, showing the principal parts in board order${drawn}.`
     : `${name} ${board} layout — an original diagram redrawn from the published layout drawing, showing the principal parts in the order that drawing places them on the board${drawn}.`;
 }
 
