@@ -53,7 +53,10 @@ s.junction(56.13, 137)
 s.shunt_rc("RK1", "820", "C3", "250u", 56.13, 140)
 
 # ---- V2A + DC-coupled cathode follower ---------------------------------
-t2a = s.triode("V2A", "12AX7", 101.6, 109)
+# The factory layout sheet wires this stage to socket pins 1/2/3, so the second
+# gain stage is the valve's unit 2 and the cathode follower it feeds is unit 1 —
+# the reverse of the corpus default. The letters keep signal order.
+t2a = s.triode("V2A", "12AX7", 101.6, 109, unit=2)
 s.wire(91.44, 109, t2a["g"][0], 109)
 s.wire(101.6, 116.62, 101.6, 119)
 s.sym("R", "RK2", "820", 101.6, 122.81)
@@ -66,7 +69,7 @@ s.plate_load("RL3", "100k", t2a["p"], "B+4")
 tee = 109 - 7.62 - 3.48
 s.wire(101.6, tee, 108.9, tee)
 s.junction(101.6, tee)
-tcf = s.triode("V2B", "12AX7 CF", 116.84, 109)
+tcf = s.triode("V2B", "12AX7 CF", 116.84, 109, unit=1)   # the other half of V2A's bottle
 s.wire(108.9, tee, 108.9, 109)
 s.wire(108.9, 109, tcf["g"][0], 109)
 s.wire(116.84, 101.38, 116.84, 98.5)
@@ -137,9 +140,12 @@ s.wire(157.48, 97.81, 157.48, 92)
 ol, orr = s.series_h("C", "C10", ".02u", 162, 92)
 s.wire(157.48, 92, ol, 92)
 s.wire(orr, 92, 168.91, 92)
-tp = s.triode("V3A", "12AX7", 176.53, 92)
+# V3's halves run the opposite way round from the corpus default: the factory
+# layout sheet takes the driven half off socket pins 1/2/3 and the tail half off
+# 6/7/8, so they are units 2 and 1 respectively. Letters stay in signal order.
+tp = s.triode("V3A", "12AX7", 176.53, 92, unit=2)
 s.wire(168.91, 92, tp["g"][0], 92)
-bt = s.triode("V3B", "12AX7", 176.53, 126)
+bt = s.triode("V3B", "12AX7", 176.53, 126, unit=1)
 s.plate_load("RLA", "82k 5%", tp["p"], "B+3")
 s.plate_load("RLB", "100k 5%", bt["p"], "B+3")
 # shared tail: cathodes -> 470 -> J -> 10k -> gnd

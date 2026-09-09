@@ -139,9 +139,13 @@ s.junction(163, 119.5)
 # tone network; its plate couples through C8 0.02 µF into the cathodyne
 # V3B, whose 1M grid leak returns to the 1.5k/56k cathode junction and
 # whose plate and cathode each drive an output grid through 0.1 µF.
-bt = s.triode("V3A", "12AX7", 176.53, 126, lx=8.8)   # driver (drawn below)
+# V3's halves sit the opposite way round from the corpus default: the factory
+# layout sheet takes the driver's plate off socket pin 1 and the cathodyne's off
+# pin 6, so the driver is the valve's unit 2 and the cathodyne its unit 1. The
+# letters stay in signal order (A drives B); only the basing is stated.
+bt = s.triode("V3A", "12AX7", 176.53, 126, lx=8.8, unit=2)   # driver (drawn below)
 s.wire(163, 126, bt["g"][0], 126)
-tp = s.triode("V3B", "12AX7", 176.53, 92)    # cathodyne (drawn above)
+tp = s.triode("V3B", "12AX7", 176.53, 92, unit=1)    # cathodyne (drawn above)
 s.plate_load("RLA", "100k", bt["p"], "B+3")
 s.plate_load("RLB", "56k", tp["p"], "B+3")
 # driver cathode: 1.5k to ground; the 56k NFB + presence land here

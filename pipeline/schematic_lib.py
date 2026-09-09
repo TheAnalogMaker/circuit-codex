@@ -35,13 +35,21 @@ three things no earlier version could:
 """
 from __future__ import annotations
 
+import math
 import re
 import uuid
 from pathlib import Path
 
 FONT = "(effects (font (size 1.27 1.27)))"
 FONT_L = "(effects (font (size 1.27 1.27)) (justify left))"
-_STROKE = '(stroke (width 0.254) (type default)) (fill (type none))'
+
+# Outline weight is decided per SHEET, not per symbol (see `ink_width()`), so
+# the library is built once with a token where the width goes and stamped at
+# emit time. A drawing twice the paper size is fitted into the same viewer box
+# and must carry twice the line to render the same on screen — which is also
+# what ISO 128 says about line groups and paper size.
+_W = "@W@"
+_STROKE = f'(stroke (width {_W}) (type default)) (fill (type none))'
 
 
 # ---------------------------------------------------------------------------
@@ -121,7 +129,7 @@ def _core_v(half_h: float) -> str:
         for x in (-0.762, 0.762))
 
 
-LIB = f"""  (lib_symbols
+_LIB_TEMPLATE = f"""  (lib_symbols
     (symbol "cx:R" (pin_numbers hide) (pin_names hide) (in_bom yes) (on_board yes)
       (property "Reference" "R" (at 2.54 1.27 0) {FONT})
       (property "Value" "R" (at 2.54 -1.27 0) {FONT})
@@ -176,13 +184,15 @@ LIB = f"""  (lib_symbols
       (property "Value" "triode" (at 6.35 2.54 0) {FONT})
       (symbol "TRIODE_0_1"
         (circle (center 0 0) (radius 5.08) {_STROKE})
-        {_poly("(xy -2.54 1.905) (xy 2.54 1.905)")}
+        {_poly("(xy -2.794 1.905) (xy 2.794 1.905)")}
         {_poly("(xy 0 1.905) (xy 0 5.08)")}
         {_poly("(xy -2.286 0) (xy -1.27 0)")}
         {_poly("(xy -0.508 0) (xy 0.508 0)")}
         {_poly("(xy 1.27 0) (xy 2.286 0)")}
-        {_poly("(xy -1.905 -1.905) (xy 1.905 -1.905)")}
-        {_poly("(xy 0 -1.905) (xy 0 -5.08)")})
+        {_poly("(xy -1.651 -1.143) (xy -1.651 -1.905) (xy 1.651 -1.905) (xy 1.651 -1.143)")}
+        {_poly("(xy 0 -1.905) (xy 0 -5.08)")}
+        {_poly("(xy -1.905 -4.064) (xy -0.762 -2.667)")}
+        {_poly("(xy 0.762 -2.667) (xy 1.905 -4.064)")})
       (symbol "TRIODE_1_1"
         {_pin("passive", 0, 7.62, 270, 2.54, "P", "1")}
         {_pin("input", -7.62, 0, 0, 5.334, "G", "2")}
@@ -192,16 +202,19 @@ LIB = f"""  (lib_symbols
       (property "Value" "pentode" (at 6.35 3.81 0) {FONT})
       (symbol "PENTODE_0_1"
         (circle (center 0 0) (radius 5.08) {_STROKE})
-        {_poly("(xy -2.54 2.54) (xy 2.54 2.54)")}
-        {_poly("(xy 0 2.54) (xy 0 5.08)")}
-        {_poly("(xy -2.286 0.635) (xy -1.27 0.635)")}
-        {_poly("(xy -0.508 0.635) (xy 0.508 0.635)")}
-        {_poly("(xy 1.27 0.635) (xy 2.286 0.635)")}
+        {_poly("(xy -2.794 3.048) (xy 2.794 3.048)")}
+        {_poly("(xy 0 3.048) (xy 0 5.08)")}
+        {_poly("(xy -2.286 1.397) (xy -1.27 1.397)")}
+        {_poly("(xy -0.508 1.397) (xy 0.508 1.397)")}
+        {_poly("(xy 1.27 1.397) (xy 2.286 1.397)")}
+        {_poly("(xy 2.286 0.635) (xy 2.286 1.397)")}
         {_poly("(xy -2.286 -0.635) (xy -1.27 -0.635)")}
         {_poly("(xy -0.508 -0.635) (xy 0.508 -0.635)")}
         {_poly("(xy 1.27 -0.635) (xy 2.286 -0.635)")}
-        {_poly("(xy -1.905 -2.54) (xy 1.905 -2.54)")}
-        {_poly("(xy 0 -2.54) (xy 0 -5.08)")})
+        {_poly("(xy -1.651 -2.032) (xy -1.651 -2.794) (xy 1.651 -2.794) (xy 1.651 -2.032)")}
+        {_poly("(xy 0 -2.794) (xy 0 -5.08)")}
+        {_poly("(xy -1.905 -4.572) (xy -0.762 -3.302)")}
+        {_poly("(xy 0.762 -3.302) (xy 1.905 -4.572)")})
       (symbol "PENTODE_1_1"
         {_pin("passive", 0, 7.62, 270, 2.54, "P", "1")}
         {_pin("input", -7.62, -0.635, 0, 5.334, "G1", "2")}
@@ -211,9 +224,7 @@ LIB = f"""  (lib_symbols
       (property "Reference" "V" (at 6.35 5.08 0) {FONT})
       (property "Value" "diode" (at 6.35 2.54 0) {FONT})
       (symbol "DIODE_TUBE_0_1"
-        (circle (center 0 0) (radius 5.08) {_STROKE})
-        {_poly("(xy -2.54 1.905) (xy 2.54 1.905) (xy 0 -0.635) (xy -2.54 1.905)")}
-        {_poly("(xy -2.54 -0.635) (xy 2.54 -0.635)")}
+        {_poly("(xy -2.794 1.905) (xy 2.794 1.905)")}
         {_poly("(xy 0 1.905) (xy 0 5.08)")}
         {_poly("(xy 0 -0.635) (xy 0 -5.08)")})
       (symbol "DIODE_TUBE_1_1"
@@ -363,6 +374,58 @@ LIB = f"""  (lib_symbols
         {_pin("passive", 6.35, 2.54, 180, 2.54, "P1", "3")}
         {_pin("passive", 6.35, -2.54, 180, 2.54, "P2", "4")})))
 """
+
+
+# ---------------------------------------------------------------------------
+# Line weight — decided by the sheet, not by the symbol
+# ---------------------------------------------------------------------------
+# The corpus spans 169 mm to 682 mm of paper and every sheet is fitted into the
+# SAME viewer box, so a fixed millimetre line weight renders 4x lighter on the
+# widest sheet than on the narrowest: the AB763 Twin's outlines came out at
+# 0.40 px and its wiring vanished into a haze while its lettering still read.
+# A sheet therefore states its own line group, scaled so the ink lands at a
+# constant rendered weight — which is also ISO 128's rule (line width follows
+# paper size), not a renderer trick.
+#
+# Two caveats a reader of this file should know:
+#   * KiCanvas draws WIRES at its own fixed 0.1524 mm and ignores the width in
+#     the file (`WirePainter` uses the renderer state, not `wire.stroke`), so
+#     this scales symbol outlines, the tube envelopes and the junction dots —
+#     everything the file is actually allowed to weight. Wire weight is a
+#     viewer setting, not a corpus one.
+#   * text is NOT scaled with it. Lettering is placed against a collision lint
+#     tuned to 1.27 mm; growing type on a wide sheet would move every label in
+#     the corpus. Weighting the ink is the half of the ratio the file owns.
+VIEWER_W, VIEWER_H = 906.0, 725.0   # KiCanvas embed at the published 1440 px width
+INK_TARGET_PX = 1.15                # rendered outline weight every sheet aims at
+INK_MIN, INK_MAX = 0.30, 0.65       # never lighter than the old 0.254, never heavy
+JUNCTION_TARGET_PX = 3.4            # a dot must still read as a dot
+JUNCTION_MIN, JUNCTION_MAX = 1.0, 1.7
+DEFAULT_INK = 0.30
+
+
+def fit_scale(width: float, height: float) -> float:
+    """px per mm the published viewer renders a `width` x `height` sheet at."""
+    return min(VIEWER_W / max(width, 1.0), VIEWER_H / max(height, 1.0))
+
+
+def ink_width(width: float, height: float) -> float:
+    """Symbol-outline weight for a sheet of this paper size, in mm."""
+    return round(min(INK_MAX, max(INK_MIN, INK_TARGET_PX / fit_scale(width, height))), 3)
+
+
+def junction_d(width: float, height: float) -> float:
+    """Junction-dot diameter for a sheet of this paper size, in mm."""
+    return round(min(JUNCTION_MAX,
+                     max(JUNCTION_MIN, JUNCTION_TARGET_PX / fit_scale(width, height))), 3)
+
+
+def lib_text(width: float = DEFAULT_INK) -> str:
+    """The symbol library, stamped with one sheet's outline weight."""
+    return _LIB_TEMPLATE.replace(_W, f"{width:g}")
+
+
+LIB = lib_text()
 
 
 # ---------------------------------------------------------------------------
@@ -647,18 +710,322 @@ def _wrap(text: str, width_chars: int) -> list[str]:
     return lines or [""]
 
 
+# ---------------------------------------------------------------------------
+# Real tube pin numbers
+# ---------------------------------------------------------------------------
+# What a technician puts a probe on is a socket pin number, and until now the
+# corpus published none: both tube symbols carried `(pin_numbers hide)`, and
+# the numbers they were hiding were POSITIONAL (a triode's plate is pin 1, a
+# pentode's screen is pin 3) — true of no valve in the corpus except by
+# coincidence. A 6V6's plate is pin 3. Un-hiding them would have published
+# wrong basing on almost every sheet.
+#
+# The positional numbers stay: they are the pipeline's own pin identity, the
+# handle `sch_nets`, `verify_schematic_nets` and `sch_open_pins.yaml` address a
+# pin by ("V6A.3" is that sheet's cathode whatever valve is in the socket).
+# The REAL number is lettered beside the electrode instead, read from the
+# corpus's own basing data in reference/tubes/<slug>.yaml.
+#
+# Three rules make it per-instance, which it has to be — the same cx:TRIODE is
+# a 12AX7 on one sheet and a 6SL7 on another, and the same 12AX7 is a different
+# half of the bottle on two stages of the same sheet:
+#
+#   1. The valve comes from the symbol's own Value ("12AX7", "ECC83 CF",
+#      "12AX7 (7025)"), resolved through the same alias map the layout
+#      renderer uses (reference/tubes/*.yaml `also_known_as` + supplement), so
+#      a valve printed under its EU name still numbers.
+#   2. The HALF comes from the drawing. A section letter is a designator, not
+#      a basing fact — see SECTION_UNIT_DEFAULT below — so a draw script may
+#      state the datasheet unit it means (`s.triode("V1A", "12AX7", …,
+#      unit=2)`), and where it says nothing the letter maps to the unit of the
+#      same rank (A -> unit 1, B -> unit 2).
+#   3. A number is printed only where the data says one. A valve whose basing
+#      the corpus does not carry, or a sectioned electrode on a bottle whose
+#      designator names no section and whose draw script states no unit (a dual
+#      triode lettered plainly "V1"), prints NOTHING rather than a guess. An
+#      electrode the valve brings out on two pins (a 5Y3's filament, a 7591's
+#      screen) prints both.
+#
+# Heater pins are not lettered: the sheets do not draw heater wiring, and a
+# number with no electrode beside it names nothing.
+_TUBES = ROOT / "reference" / "tubes"
+
+# Symbol pin key -> the basing `element` names that realise it, best first.
+_ELEMENT_ROLES = {
+    "TRIODE": {"p": ("plate",), "g": ("grid",), "k": ("cathode", "filament")},
+    "PENTODE": {"p": ("plate",), "g1": ("grid",), "g2": ("screen-grid",),
+                "k": ("cathode", "filament")},
+    "DIODE_TUBE": {"a": ("diode-plate",), "k": ("cathode", "filament")},
+}
+
+_BASING_CACHE: dict[str, dict | None] = {}
+
+
+def _basing(slug: str) -> dict | None:
+    """reference/tubes/<slug>.yaml `basing.pins`, or None if the corpus has none."""
+    if slug not in _BASING_CACHE:
+        path = _TUBES / f"{slug}.yaml"
+        data = None
+        if path.exists():
+            import yaml
+            doc = yaml.safe_load(path.read_text()) or {}
+            pins = ((doc.get("basing") or {}).get("pins") or {})
+            out: dict[int, dict] = {}
+            for k, v in pins.items():
+                try:
+                    out[int(k)] = v if isinstance(v, dict) else {"element": str(v)}
+                except (TypeError, ValueError):
+                    continue
+            data = out or None
+        _BASING_CACHE[slug] = data
+    return _BASING_CACHE[slug]
+
+
+# A SECTION LETTER IS A DESIGNATOR, NOT A BASING FACT.
+#
+# `V1A` and `V1B` are chosen by whoever drew the sheet, and this corpus's
+# convention — followed in the prose of the 5F4, JTM45, JTM100, 6G6-B and
+# S1484 — is that **A is the first half in signal order**. That is a naming
+# rule about the drawing. Which physical half of the glass a stage actually
+# uses is a separate question, answered only by the factory sheet.
+#
+# The two usually coincide, because a first stage usually sits on the half the
+# datasheet calls unit 1. Sometimes they do not: the AA764's factory schematic
+# prints its own pin numbers and puts the INPUT stage on 1/2/3 (unit 2) and the
+# second stage on 6/7/8 (unit 1). Its input stage is still `V1A`, because that
+# is what a technician writes and what the rest of the corpus reads.
+#
+# So this constant is only the DEFAULT map from letter to unit where the
+# drawing says nothing: the letter of rank n takes the unit of rank n, A -> 1,
+# B -> 2. A draw script that knows better states it — `unit=2` on the symbol —
+# and cites the factory sheet in a comment beside it. Declared data an author
+# can check, not a rule guessed in code.
+#
+# The units themselves are the datasheet's, and they are NOT pin order. RCA's
+# 12AX7-A sheet, the one this corpus cites, prints under "Basing Designation
+# for BOTTOM VIEW ... 9A":
+#
+#     Pin 1 - Plate of Unit No.2      Pin 6 - Plate of Unit No.1
+#     Pin 2 - Grid of Unit No.2       Pin 7 - Grid of Unit No.1
+#     Pin 3 - Cathode of Unit No.2    Pin 8 - Cathode of Unit No.1
+#
+# **Unit No.1 is pins 6/7/8**, which reference/tubes/12ax7.yaml records. A
+# 5Y3's unit 1 is pin 6 while a GZ34's is pin 4 — the same two valves in
+# opposite pin order — which is why nothing positional can stand in for
+# reading the data.
+SECTION_UNIT_DEFAULT = "rank"
+
+
+def _unit_key(unit) -> tuple:
+    """Sort key for a unit token: numeric where it is a number, else by name."""
+    try:
+        return (0, float(unit), "")
+    except (TypeError, ValueError):
+        return (1, 0.0, str(unit))
+
+
+def _section_letters(pins: dict[int, dict]) -> dict:
+    """{unit token: section letter} for a valve, under the DEFAULT map.
+
+    Only consulted when the drawing does not state its unit; the letters here
+    are ranks, not claims about which half a given amp's stage uses."""
+    lowest: dict = {}
+    for num, meta in pins.items():
+        unit = meta.get("unit")
+        if unit is None:
+            continue
+        lowest[unit] = min(num, lowest.get(unit, num))
+    return {unit: chr(ord("A") + i)
+            for i, unit in enumerate(sorted(lowest, key=_unit_key))}
+
+
+def _ref_section(ref: str) -> str | None:
+    """'V1A' -> 'A'; 'V1', 'VR3', 'RTAIL' -> None."""
+    m = re.fullmatch(r"[A-Za-z]+\d+([A-Za-z])", ref)
+    return m.group(1).upper() if m else None
+
+
+def tube_pin_numbers(lib: str, ref: str, value: str,
+                     unit=None) -> dict[str, str]:
+    """{symbol pin key: printed pin number} for one placed valve.
+
+    `unit` is the datasheet unit this symbol draws, as the sheet's author
+    states it. Without it the section letter falls back to the default map
+    (see SECTION_UNIT_DEFAULT). Empty where the corpus cannot say — rule 3."""
+    roles = _ELEMENT_ROLES.get(lib)
+    if not roles:
+        return {}
+    try:
+        from render_layouts import resolve_tube_slug   # one alias map, corpus-wide
+    except ImportError:                                # pragma: no cover
+        return {}
+    pins = _basing(resolve_tube_slug(value))
+    if not pins:
+        return {}
+    if unit is None:
+        letters = _section_letters(pins)
+        want = _ref_section(ref)
+        chosen = next((u for u, ltr in letters.items() if ltr == want), None)
+    else:
+        chosen = unit if unit in {m.get("unit") for m in pins.values()} else None
+        if chosen is None:
+            raise ValueError(
+                f"{ref} ({value}): the drawing states unit {unit!r}, which this "
+                f"valve's basing does not carry "
+                f"(units: {sorted(u for u in {m.get('unit') for m in pins.values()} if u is not None)})")
+    out: dict[str, str] = {}
+    for key, elements in roles.items():
+        for element in elements:
+            hits = sorted(n for n, m in pins.items()
+                          if str(m.get("element", "")).lower() == element)
+            if not hits:
+                continue
+            sectioned = [n for n in hits if pins[n].get("unit") is not None]
+            if sectioned:
+                if chosen is None:
+                    break                              # rule 3: say nothing
+                hits = [n for n in sectioned if pins[n]["unit"] == chosen]
+                if not hits:
+                    break
+            out[key] = ",".join(str(n) for n in hits)
+            break
+    return out
+
+
+PINNUM_SIZE = 1.1       # smaller than a value, as a factory sheet letters them
+PINNUM_CLEAR = 0.4      # air a number keeps around itself, over the lint's floor
+BOTTLE_R = 5.08         # the envelope every valve is drawn in
+BOTTLE_REACH = 20.0     # how far apart two sections may sit and share one bottle
+
+# A rectifier's glass is a schematic graphic, not symbol ink, and the renderer
+# paints those two classes in different colours: left to the theme it came out
+# WHITE among purple bottles, which reads as an annotation box drawn round the
+# valve rather than as the valve. The envelope therefore states the outline
+# colour the viewer gives every other bottle. It is a deliberate coupling to
+# KiCanvas's default theme — if the site ever ships a second theme, this is the
+# line that has to learn about it.
+GLASS_RGBA = "197 163 255 1"
+
+# Which lead each electrode's number stands against: (direction out of the
+# body, the lead's own offset along the other axis), in symbol space.
+_PINNUM_LEAD = {
+    ("TRIODE", "p"): ("up", 0.0),
+    ("TRIODE", "g"): ("left", 0.0),
+    ("TRIODE", "k"): ("down", 0.0),
+    ("PENTODE", "p"): ("up", 0.0),
+    ("PENTODE", "g1"): ("left", -0.635),
+    ("PENTODE", "g2"): ("right", 0.635),
+    ("PENTODE", "k"): ("down", 0.0),
+    ("DIODE_TUBE", "a"): ("up", 0.0),
+    ("DIODE_TUBE", "k"): ("down", 0.0),
+}
+
+
+def _pinnum_candidates(lib: str, key: str, w: float) -> list[tuple[float, float]]:
+    """Where one pin number may stand, nearest its own electrode first.
+
+    Every candidate lies against the lead it names, in the band between the
+    glass and the pin, on one side or the other. The ladder walks outward
+    along the lead rather than away from it, so a displaced number still
+    reads as belonging to that electrode and not to its neighbour."""
+    face, off = _PINNUM_LEAD[(lib, key)]
+    out: list[tuple[float, float]] = []
+    if face in ("up", "down"):
+        s = 1.0 if face == "up" else -1.0
+        for along in (6.35, 7.15, 5.75, 8.05):
+            for sx in (0.85, -0.85 - w):
+                out.append((sx, s * along))
+        for sx in (2.3, -2.3 - w):
+            out.append((sx, s * 6.35))
+    else:
+        s = 1.0 if face == "right" else -1.0
+        for gap in (5.9, 7.4, 9.0):
+            sx = gap if face == "right" else -(gap + w)
+            for dy in (1.4, -1.4, 2.7, -2.7):
+                out.append((sx, off + dy))
+    return out
+
+
+def _cluster(points, reach: float) -> list[list[tuple[float, float]]]:
+    """Group placements that share a row or column and sit within `reach`."""
+    pts = sorted({(round(x, 3), round(y, 3)) for x, y in points})
+    parent = {p: p for p in pts}
+
+    def find(a):
+        while parent[a] != a:
+            parent[a] = parent[parent[a]]
+            a = parent[a]
+        return a
+
+    for i, a in enumerate(pts):
+        for b in pts[i + 1:]:
+            dx, dy = abs(a[0] - b[0]), abs(a[1] - b[1])
+            if (dx < 0.01 or dy < 0.01) and dx <= reach and dy <= reach:
+                ra, rb = find(a), find(b)
+                if ra != rb:
+                    parent[ra] = rb
+    groups: dict = {}
+    for p in pts:
+        groups.setdefault(find(p), []).append(p)
+    return [groups[k] for k in sorted(groups, key=lambda k: min(groups[k]))]
+
+
+def _filament(points, dip: float = 1.6, out: float = 1.9) -> list[tuple[float, float]]:
+    """ONE filament for a cluster, peaking at each section's cathode electrode.
+
+    A 5Y3 has two plates and one filament, and drawing the hairpin inside the
+    symbol gave a two-section bottle two of them. It belongs to the valve, not
+    to the section, so it is drawn with the glass: a single strand running
+    across the bottle, up to each plate's cathode point and down between them,
+    which is how a full-wave rectifier has been drawn since the 1930s."""
+    ye = points[0][1] + 0.635
+    if any(abs(p[1] - points[0][1]) > 0.01 for p in points):   # not one row
+        return []
+    xs = sorted(p[0] for p in points)
+    pts = [(round(xs[0] - out, 3), round(ye + dip, 3))]
+    for i, x in enumerate(xs):
+        pts.append((round(x, 3), round(ye, 3)))
+        if i + 1 < len(xs):
+            pts.append((round((x + xs[i + 1]) / 2, 3), round(ye + dip * 1.3, 3)))
+    pts.append((round(xs[-1] + out, 3), round(ye + dip, 3)))
+    return pts
+
+
+def _bottle(points, r: float, seg: int = 8) -> list[tuple[float, float]]:
+    """A closed glass envelope `r` around every placement in one cluster —
+    a circle over a lone section, a stadium over a pair sharing a bottle."""
+    xs = [p[0] for p in points]
+    ys = [p[1] for p in points]
+    x0, x1, y0, y1 = min(xs), max(xs), min(ys), max(ys)
+    out: list[tuple[float, float]] = []
+    for cx, cy, a0, a1 in ((x1, y0, -90, 0), (x1, y1, 0, 90),
+                           (x0, y1, 90, 180), (x0, y0, 180, 270)):
+        for i in range(seg + 1):
+            a = math.radians(a0 + (a1 - a0) * i / seg)
+            p = (round(cx + r * math.cos(a), 3), round(cy + r * math.sin(a), 3))
+            if not out or p != out[-1]:
+                out.append(p)
+    if out[0] != out[-1]:
+        out.append(out[0])
+    return out
+
+
 class Sch:
     """Schematic builder with amp-idiom composites."""
 
     def __init__(self) -> None:
         self.items: list[tuple] = []
         self.notes: list[str] = []
+        self.ink = DEFAULT_INK      # set from the paper size by write()
+        self.dot = JUNCTION_MIN
+        self._mute: set = set()     # (ref, pin key) numbers a shared bottle owns
+        self._units: dict = {}      # ref -> the datasheet unit the drawing means
 
     # ---- primitives -----------------------------------------------------
     def sym(self, lib: str, ref: str, val: str, x: float, y: float, rot: int = 0,
             lx: float | None = None, ly: float | None = None,
             label_rot: int | None = None,
-            mirror: str = "", spec: str | None = None) -> None:
+            mirror: str = "", spec: str | None = None, unit=None) -> None:
         # Property text follows the symbol's rotation unless `label_rot` pins it —
         # a body placed at 180° still wants its ref/value read left-to-right.
         dlx, dly = LABEL_DEFAULT.get(lib, LABEL_FALLBACK)
@@ -674,6 +1041,14 @@ class Sch:
         # `spec` is the third lettering slot: the turns ratio or impedance of a
         # transformer, the henries of a choke — a quantity that belongs beside
         # the part but is neither its designator nor its catalogue number.
+        #
+        # `unit` is the DATASHEET unit this symbol draws, where the drawing
+        # knows which half of the bottle a stage really uses and the section
+        # letter does not say (see SECTION_UNIT_DEFAULT). It feeds the printed
+        # pin numbers and nothing else — no net, no designator, no geometry —
+        # so it is kept beside the drawing rather than in the element tuple.
+        if unit is not None:
+            self._units[ref] = unit
         self.items.append(("sym", [(x, y), (x + lx, y + ly)],
                            (lib, ref, val, rot, pa, mirror, spec)))
 
@@ -717,21 +1092,23 @@ class Sch:
         self.glabel("GND", x, y, rot)
 
     # ---- tubes ----------------------------------------------------------
+    # `unit` on any of the three: the datasheet unit this bottle-half really
+    # is, where the factory sheet says something the section letter does not.
     def triode(self, ref: str, val: str, x: float, y: float,
-               lx: float = 6.0, ly: float = -6.4) -> dict:
-        self.sym("TRIODE", ref, val, x, y, lx=lx, ly=ly)
+               lx: float = 6.0, ly: float = -6.4, unit=None) -> dict:
+        self.sym("TRIODE", ref, val, x, y, lx=lx, ly=ly, unit=unit)
         return {"p": (x, y - 7.62), "g": (x - 7.62, y), "k": (x, y + 7.62)}
 
     def pentode(self, ref: str, val: str, x: float, g1_y: float,
-                lx: float = 6.2, ly: float = -7.6) -> dict:
+                lx: float = 6.2, ly: float = -7.6, unit=None) -> dict:
         y = g1_y - 0.635
-        self.sym("PENTODE", ref, val, x, y, lx=lx, ly=ly)
+        self.sym("PENTODE", ref, val, x, y, lx=lx, ly=ly, unit=unit)
         return {"p": (x, y - 7.62), "g1": (x - 7.62, g1_y),
                 "g2": (x + 7.62, y - 0.635), "k": (x, y + 7.62)}
 
     def diode_tube(self, ref: str, val: str, x: float, y: float,
-                   lx: float = 6.0, ly: float = -6.4) -> dict:
-        self.sym("DIODE_TUBE", ref, val, x, y, lx=lx, ly=ly)
+                   lx: float = 6.0, ly: float = -6.4, unit=None) -> dict:
+        self.sym("DIODE_TUBE", ref, val, x, y, lx=lx, ly=ly, unit=unit)
         return {"a": (x, y - 7.62), "k": (x, y + 7.62)}
 
     # ---- composites -----------------------------------------------------
@@ -933,6 +1310,128 @@ class Sch:
         self.items = out
         return added
 
+    # ---- valve furniture -------------------------------------------------
+    def add_envelopes(self) -> int:
+        """Draw one bottle around the sections that share a rectifier.
+
+        A 5Y3 is one valve with two plates over one filament, but the sheet
+        places two `cx:DIODE_TUBE` symbols for it, and a circle drawn round
+        each published that valve as two: `V5A` and `V5B` standing side by
+        side like a pair of independent rectifiers, which is not a thing
+        anybody has ever held. So the symbol carries no envelope of its own
+        and the glass is drawn here, around every section lettered off the
+        same designator that sits within a bottle's reach of its partner. A
+        rectifier drawn as a single section still gets its own envelope, so
+        the drawing is the same as before wherever there is nothing to join.
+        """
+        groups: dict[str, list[tuple]] = {}
+        order: list[str] = []
+        for kind, pts, extra in self.items:
+            if kind != "sym" or extra[0] != "DIODE_TUBE":
+                continue
+            base = re.sub(r"([A-Za-z]+\d+)[A-Za-z]$", r"\1", extra[1])
+            if base not in groups:
+                groups[base] = []
+                order.append(base)
+            groups[base].append((pts[0], extra[1], extra[2]))
+        made = 0
+        for base in order:
+            at = {m[0]: m for m in groups[base]}
+            for cluster in _cluster([m[0] for m in groups[base]], BOTTLE_REACH):
+                self.items.append(("envelope", _bottle(cluster, BOTTLE_R), ()))
+                fil = _filament(cluster)
+                if fil:
+                    self.items.append(("envelope", fil, ()))
+                # One filament wants one number. Where the sections of a shared
+                # bottle name the same cathode pins — a 5Y3's 2,8 under both
+                # plates — only the first section letters them, or the strand
+                # reads as though it ran to four pins.
+                members = [at[p] for p in cluster if p in at]
+                ks = [tube_pin_numbers("DIODE_TUBE", ref, val,
+                                       self._units.get(ref)).get("k")
+                      for _, ref, val in members]
+                if fil and len(members) > 1 and len(set(ks)) == 1 and ks[0]:
+                    for _, ref, _v in members[1:]:
+                        self._mute.add((ref, "k"))
+                made += 1
+        return made
+
+    def add_pin_numbers(self) -> int:
+        """Letter the real socket pin number beside every valve electrode.
+
+        Position is meaning here — a number belongs to the electrode it sits
+        against — so these are placed FIRST, against the symbols and the
+        lettering whose coordinates are also load-bearing, and the movable
+        designator blocks are asked to work around them afterwards. A number
+        with nowhere clear to stand is dropped rather than printed through
+        something: an unlettered pin is a smaller lie than an unreadable one.
+        """
+        fixed = self._fixed_boxes()
+        placed: list[tuple] = []
+        made = 0
+        claimed: dict[tuple, str] = {}
+        for kind, pts, extra in list(self.items):
+            if kind != "sym":
+                continue
+            lib, ref, val, rot, _, mirror, _ = extra
+            numbers = tube_pin_numbers(lib, ref, val, self._units.get(ref))
+            if not numbers:
+                continue
+            # Two halves of one bottle cannot be the same unit. Stating the
+            # unit on one half and leaving the other on the default is the way
+            # to get exactly that, and it would publish one half's basing on
+            # both — so it fails here rather than on the page.
+            bottle = re.sub(r"([A-Za-z]+\d+)[A-Za-z]$", r"\1", ref)
+            if bottle != ref and lib in _ELEMENT_ROLES:
+                seat = (bottle, tuple(sorted(numbers.items())))
+                if seat in claimed:
+                    raise ValueError(
+                        f"{ref} and {claimed[seat]} both draw the same half of "
+                        f"{bottle} ({val}): pins {dict(sorted(numbers.items()))}. "
+                        f"State `unit=` on both halves, not one.")
+                claimed[seat] = ref
+            x, y = pts[0]
+            for key in _ELEMENT_ROLES[lib]:
+                num = numbers.get(key)
+                if not num or (ref, key) in self._mute:
+                    continue
+                w = text_w(num, PINNUM_SIZE)
+                for sx, sy in _pinnum_candidates(lib, key, w):
+                    ddx, ddy = _rot_local(sx, sy, rot, mirror)
+                    px, py = x + ddx, y + ddy
+                    box = _true_text_box(num, px, py, PINNUM_SIZE)
+                    # Tested with air around it: the gate tolerates a 0.79 mm
+                    # abutment, and a number that close to a rail flag reads as
+                    # part of the flag ("B+3" + "3" = "B+33").
+                    air = (box[0] - PINNUM_CLEAR, box[1] - PINNUM_CLEAR,
+                           box[2] + PINNUM_CLEAR, box[3] + PINNUM_CLEAR)
+                    if any(_hit(air, o) for o in fixed + placed):
+                        continue
+                    self.items.append(("pinnum", [(px, py)], (num, PINNUM_SIZE)))
+                    placed.append(box)
+                    made += 1
+                    break
+        return made
+
+    def _fixed_boxes(self, skip: tuple = ()) -> list[tuple]:
+        """Everything whose position is meaning: bodies, flags, pinned text."""
+        out: list[tuple] = []
+        for kind, pts, extra in self.items:
+            if kind in skip:
+                continue
+            if kind == "sym":
+                lib, _, _, rot, _, mirror, _ = extra
+                out.append(sym_box(lib, pts[0][0], pts[0][1], rot, mirror, body=True))
+            elif kind == "glabel":
+                out.append(_true_label_box(extra[0], pts[0][0], pts[0][1], extra[1]))
+            elif kind in ("text", "caption"):
+                out.append(_true_text_box(extra[0], pts[0][0], pts[0][1], extra[1]))
+            elif kind == "pinnum":
+                out.append(_true_text_box(extra[0], pts[0][0], pts[0][1], extra[1]))
+            elif kind == "envelope":
+                out.append(_union([(x, y, x, y) for (x, y) in pts]))
+        return out
+
     # ---- geometry -------------------------------------------------------
     def boxes(self, dx: float = 0.0, dy: float = 0.0) -> list[tuple]:
         """Every drawn element as (label, x0, y0, x1, y1), translated by
@@ -959,9 +1458,11 @@ class Sch:
             elif kind == "junction":
                 out.append(("junction", p[0][0] - 0.4, p[0][1] - 0.4,
                             p[0][0] + 0.4, p[0][1] + 0.4))
-            elif kind in ("text", "caption"):
+            elif kind in ("text", "caption", "pinnum"):
                 t, size = extra
                 out.append((f"text {t[:34]!r}", *text_box(t, p[0][0], p[0][1], size)))
+            elif kind == "envelope":
+                out.append(("envelope", *_union([(x, y, x, y) for (x, y) in p])))
         return out
 
     def bbox(self) -> tuple[float, float, float, float]:
@@ -1014,15 +1515,7 @@ class Sch:
         A heading is the one piece of lettering that names a *region* rather
         than a part, so it can move within that region without lying. It tries
         upward first — away from the circuit it heads — then left, then down."""
-        fixed = []
-        for kind, pts, extra in self.items:
-            if kind == "sym":
-                lib, _, _, rot, _, mirror, _ = extra
-                fixed.append(sym_box(lib, pts[0][0], pts[0][1], rot, mirror, body=True))
-            elif kind == "glabel":
-                fixed.append(_true_label_box(extra[0], pts[0][0], pts[0][1], extra[1]))
-            elif kind == "text":
-                fixed.append(_true_text_box(extra[0], pts[0][0], pts[0][1], extra[1]))
+        fixed = self._fixed_boxes(skip=("caption",))
 
         caps = [i for i, it in enumerate(self.items) if it[0] == "caption"]
         boxes = {i: _true_text_box(self.items[i][2][0], *self.items[i][1][0],
@@ -1058,15 +1551,7 @@ class Sch:
         carries no meaning — only its attachment does. So when an authored
         anchor collides, the library moves it rather than asking 34 draw
         scripts to each rediscover a free spot. Returns the number moved."""
-        static: list[tuple] = []
-        for kind, pts, extra in self.items:
-            if kind == "sym":
-                lib, ref, val, rot, _, mirror, _ = extra
-                static.append(sym_box(lib, pts[0][0], pts[0][1], rot, mirror, body=True))
-            elif kind == "glabel":
-                static.append(_true_label_box(extra[0], pts[0][0], pts[0][1], extra[1]))
-            elif kind in ("text", "caption"):
-                static.append(_true_text_box(extra[0], pts[0][0], pts[0][1], extra[1]))
+        static = self._fixed_boxes()
 
         idx = [i for i, it in enumerate(self.items) if it[0] == "sym"]
         blocks = {i: self._label_block(i) for i in idx}
@@ -1139,10 +1624,14 @@ class Sch:
                 out.append(f"""  (global_label "{_esc(name)}" (shape input) (at {p[0][0]:g} {p[0][1]:g} {rot})
     (effects (font (size 1.27 1.27)) (justify {just})) (uuid "{_u()}"))""")
             elif kind == "junction":
-                out.append(f"""  (junction (at {p[0][0]:g} {p[0][1]:g}) (diameter 0) (color 0 0 0 0) (uuid "{_u()}"))""")
-            elif kind in ("text", "caption"):
+                out.append(f"""  (junction (at {p[0][0]:g} {p[0][1]:g}) (diameter {self.dot:g}) (color 0 0 0 0) (uuid "{_u()}"))""")
+            elif kind in ("text", "caption", "pinnum"):
                 t, size = extra
                 out.append(_text_sexpr(t, p[0][0], p[0][1], size))
+            elif kind == "envelope":
+                pts = " ".join(f"(xy {x:g} {y:g})" for x, y in p)
+                out.append(f"""  (polyline (pts {pts})
+    (stroke (width {self.ink:g}) (type default) (color {GLASS_RGBA})) (fill (type none)) (uuid "{_u()}"))""")
         return "\n".join(out)
 
     def write(self, path, notes=(), paper: str | None = None) -> str:
@@ -1159,7 +1648,14 @@ class Sch:
         for n in notes:
             queued.append(n if isinstance(n, str) else n[0])
 
+        # Order is a priority order. The glass is drawn first because
+        # everything else has to clear it; section headings are placed next
+        # because a banner has only a few places it can stand and still name
+        # the right block; pin numbers next, small and with a ladder of their
+        # own; the movable designator blocks last, working around all of it.
+        self.add_envelopes()
         self.place_captions()
+        self.add_pin_numbers()
         self.place_labels()
         cx0, cy0, cx1, cy1 = self.bbox()
         cw, chh = cx1 - cx0, cy1 - cy0
@@ -1187,6 +1683,9 @@ class Sch:
         else:
             paper_sexpr = f'(paper "User" {width:.2f} {height:.2f})'
 
+        # The sheet states its own line group now that it knows its own size.
+        self.ink = ink_width(width, height)
+        self.dot = junction_d(width, height)
         dx, dy = MARGIN - cx0, MARGIN - cy0
         body = self._render(dx, dy)
         ny = MARGIN + chh + GAP + LINE_H * NOTE_SIZE / 2
@@ -1200,7 +1699,7 @@ class Sch:
   (uuid "{_u()}")
   {paper_sexpr}
 {tb}
-{LIB}
+{lib_text(self.ink)}
 {body}
 {note_sexprs}
   (sheet_instances (path "/" (page "1")))

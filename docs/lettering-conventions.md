@@ -179,6 +179,32 @@ iron:
 Nothing is invented: an amp with no `iron:` block letters the part number alone,
 and the gap stays visible.
 
+### Lettering is never rotated (2026-09-08)
+
+**A body may stand; its lettering is always read with the page the right way
+up.** No factory layout sheet turns type through 90°, and until 2026-09-08 this
+one did: a standing resistor carried `1.5K` or `820` rotated up its body, and a
+standing electrolytic stacked a rotated `25MFD` beside a rotated `25V` — the
+AC30's C1 was the worst of them. The house drawing had always done this
+correctly, so the sheet was a regression against its own sibling.
+
+A standing part now letters **horizontally beside the body**, ref over value,
+flipped to the near side at the right board edge; an electrolytic's capacitance
+and working voltage take two horizontal lines rather than two rotated columns.
+The same rule governs a standing off-board `kind: part` glyph. `_fixed_text()`
+has no `rotate` argument any more, which is the enforcement: there is no way to
+letter a rotated string.
+
+### A value goes on the body only where the body is clear
+
+The sheet's promise is *the value is on the part*, and the fallback when it will
+not fit is a placed label beside it. Two things bound "fit": the body's own
+width, and — for an off-board `kind: part`, whose two terminals stand on the
+body when its minimum width exceeds their spacing — the **clear span between
+those terminals** (`_val_on_body()`). The 5F6-A's C16 lettered `.1-200` straight
+across its own two terminal dots and read `:1-200`; it now letters beside the
+part, and every value that does clear its terminals is unchanged.
+
 **Gated by:** `test_era_values.py` (documented cases + a round-trip sweep: every
 lettered value must name the same physical quantity as its house string).
 
@@ -229,6 +255,108 @@ cannot yet be resolved. A waiver is never silent and never open-ended.
 
 ---
 
+## 5. Tube pin numbers on the schematic
+
+A designator says *which* valve. The number beside an electrode says **which
+socket pin to put a probe on**, and it is the one piece of lettering a
+technician uses more than any other. The corpus published none until 2026-09-08,
+because both tube symbols hid their pin numbers — and the numbers they hid were
+*positional* (a triode's plate was pin 1, a pentode's screen pin 3), true of no
+valve in this corpus except by accident. A 6V6's plate is pin 3.
+
+Those positional numbers stay in the symbol library. They are the pipeline's own
+pin identity — the handle `sch_nets`, `verify_schematic_nets` and
+`sch_open_pins.yaml` use to name a pin (`V6A.3` is that sheet's cathode whatever
+valve sits in the socket) — and they are never shown. The **real** number is
+lettered beside the electrode, at 1.1 mm, smaller than a value, from the
+corpus's own basing data in `reference/tubes/<slug>.yaml`.
+
+Three rules, and the third is the one that matters:
+
+1. **The valve comes from the symbol's own value** — `12AX7`, `ECC83 CF`,
+   `12AX7 (7025)` — resolved through the alias map the layout renderer already
+   uses (`render_layouts.resolve_tube_slug`, built from each tube file's
+   `also_known_as` plus a supplement). One resolution rule, corpus-wide: a valve
+   printed under its European name numbers the same as under its American one.
+2. **The half comes from the drawing, because a section letter is a
+   designator and not a basing fact.** `V1A` and `V1B` are chosen by whoever
+   drew the sheet, and this corpus's convention — followed in the prose of the
+   5F4, JTM45, JTM100, 6G6-B and S1484 — is that **A is the first half in
+   signal order**. That is a naming rule. Which physical half of the glass a
+   stage uses is a different question, and only the factory sheet answers it.
+
+   The two usually coincide, because a first stage usually sits on the half
+   the datasheet calls unit 1, and where the drawing says nothing the letter
+   of rank *n* takes the unit of rank *n* (A → unit 1, B → unit 2). Sometimes
+   they do not coincide, and then **the drawing states the unit it means**:
+
+   ```python
+   # The factory schematic prints its own pin numbers on this socket: the input
+   # stage's plate is pin 1 at +200 V and its cathode pin 3 at +1.8 V, so the
+   # input stage is the valve's unit 2 …
+   v1a = s.triode("V1A", "12AX7", 46, 62, unit=2)
+   ```
+
+   Declared data with its source beside it, not a rule guessed in code. The
+   letter never moves: a Champ's input stage stays `V1A`, because that is what
+   a technician writes. Four amps carry such a declaration today — the 5E4-A,
+   5F6, AA764 and AA764-vibro — and stating the unit on one half of a bottle
+   while leaving the other on the default is an error the library raises,
+   since both halves would then claim the same pins.
+
+   **The units themselves are the datasheet's, and they are not pin order.**
+   RCA's 12AX7-A, the sheet this corpus cites, prints under *Basing
+   Designation for BOTTOM VIEW … 9A*:
+
+   > Pin 1 – Plate of Unit No.2  Pin 6 – Plate of Unit No.1
+   > Pin 2 – Grid of Unit No.2   Pin 7 – Grid of Unit No.1
+   > Pin 3 – Cathode of Unit No.2  Pin 8 – Cathode of Unit No.1
+
+   So unit No.1 is pins 6/7/8. A 5Y3's unit 1 is pin 6 while a GZ34's is pin
+   4 — the same two valves in opposite pin order — which is why nothing
+   positional can stand in for reading the data, and why a rule like "the A
+   half is whichever has the lowest pins" (KiCad's own ECC83 symbol) is wrong
+   here: it was tried, and it contradicted this corpus's own layout drawings
+   on the same amp page.
+3. **Silence beats a guess.** A valve whose basing the corpus does not carry
+   prints no number. A *sectioned* electrode on a bottle whose designator names
+   no section and whose drawing states no unit — a dual triode lettered plainly
+   `V1` — prints no number either, because nothing has said which half it is
+   and inventing one would put a wrong pin on a verified sheet. (A `unit=`
+   declaration is enough on its own: it rescues an unlettered bottle.)
+   Unsectioned electrodes on the same
+   bottle still print: a 6AT6's triode plate is pin 7 whatever its diode units
+   do. An electrode the valve brings out on two pins prints both (`2,8` on a
+   5Y3's filament, `4,8` on a 7591's screen).
+
+Heater pins are not lettered: these sheets do not draw heater wiring, and a
+number with no electrode beside it names nothing.
+
+Passives keep their pin numbers hidden. A resistor's designator and value are
+what a reader needs; its pin 1 is an artefact of the symbol.
+
+**Glyphs.** The symbols letter what they can and draw the rest. Plate is a plain
+bar; the cathode is a bracket with a filament hairpin under it, so the two ends
+of a bottle are never confusable; the pentode's screen sits on its own row above
+the control grid, stepped up to its right-hand lead. A rectifier is drawn as
+**one** envelope over however many sections the sheet places for it, with one
+filament strand running the width of the bottle — a 5Y3 is one valve with two
+plates, not two valves. The envelope is a schematic graphic rather than symbol
+ink (the two halves are separate placed symbols), so it states the outline
+colour the viewer gives every other bottle; that is a deliberate coupling to the
+renderer's theme, noted at `schematic_lib.GLASS_RGBA`. On an indirectly heated
+rectifier the strand is the heater-cathode the datasheet ties together.
+
+**Line weight follows paper size.** The corpus spans 169 mm to 682 mm of paper
+and every sheet is fitted into the same viewer box, so one millimetre weight
+renders four times lighter on the widest sheet than on the narrowest. Each sheet
+therefore states its own line group, scaled to land at a constant rendered
+weight (`schematic_lib.ink_width`, `junction_d`) — ISO 128's rule, and the
+reason the AB763 Twin's outlines no longer dissolve. Text is deliberately *not*
+scaled with it: lettering is placed against a collision lint tuned to 1.27 mm.
+
+---
+
 ## Where each rule is enforced
 
 | rule | gate |
@@ -242,3 +370,4 @@ cannot yet be resolved. A waiver is never silent and never open-ended.
 | `iron:` keys name real designators | `pipeline/validate.py` |
 | surfaces agree on the **quantity** | `pipeline/check_value_consistency.py` |
 | drawn value inside the page | `pipeline/check_layouts.py` (lint check h) |
+| tube pin numbers are the valve's real basing | `reference/tubes/*.yaml` is the only source; `pipeline/check_schematics.py` proves the lettering prints over nothing |

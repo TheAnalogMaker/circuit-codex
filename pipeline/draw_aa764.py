@@ -38,7 +38,11 @@ s.junction(GB, 62)
 s.sym("R", "R3", "1M", GB, YL + 3.81)          # grid leak, at the jacks
 s.gnd(GB, YL + 7.62)
 
-v1a = s.triode("V1A", "12AX7", 46, 62)          # p (46,54.38) g (38.38,62) k (46,69.62)
+# The factory schematic prints its own pin numbers on this socket: the input
+# stage's plate is pin 1 at +200 V and its cathode pin 3 at +1.8 V, so the input
+# stage is the valve's unit 2 and the second stage its unit 1. It stays V1A —
+# a Champ's input stage is not called "V1B".
+v1a = s.triode("V1A", "12AX7", 46, 62, unit=2)  # p (46,54.38) g (38.38,62) k (46,69.62)
 s.wire(GB, 62, v1a["g"][0], 62)
 s.plate_load("R4", "100k", v1a["p"], "B+3")     # tee left at (46, 50.9)
 s.wire(46, 69.62, 46, 71)
@@ -81,7 +85,7 @@ s.wire(91.08, 52.19, 105, 52.19)                 # treble wiper → volume top
 s.sym("POT", "VR1", "1M vol", 105, 56)           # lug1 (105,52.19) lug3 (105,59.81)
 s.wire(105, 59.81, 105, 63.62)
 s.gnd(105, 63.62)
-v1b = s.triode("V1B", "12AX7", 124, 70)          # p (124,62.38) g (116.38,70) k (124,77.62)
+v1b = s.triode("V1B", "12AX7", 124, 70, unit=1)  # plate pin 6 at +205 V on the factory sheet
 s.wire(110.08, 56, 113, 56)                      # volume wiper → V1B grid
 s.wire(113, 56, 113, 70)
 s.wire(113, 70, v1b["g"][0], 70)
