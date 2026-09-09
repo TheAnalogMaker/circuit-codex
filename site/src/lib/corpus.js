@@ -998,6 +998,14 @@ const TONE_STACK_SPECS = [
     note: 'The parts list records one 0.02 µF value covering both the bass and the mid position; both are plotted at it. Unlike the 5F6, the middle pot\'s foot runs straight to ground — the presence control moved to the phase-inverter tail.',
   },
   {
+    id: '5f8a', kind: 'fmv', wiring: 'ladder',
+    blurb: 'The Bassman ladder as the high-power tweed Twin draws it — the same network, the same values and the same cathode-follower drive, on four output bottles instead of two.',
+    drive: { kind: 'cathode-follower', tube: '12ax7' },
+    load: 'RGA',
+    refs: { slope: 'RSL', trebleCap: 'C4', treblePot: 'VR3', bassCap: 'C5', bassPot: 'VR4', midCap: 'C5b', midPot: 'VR5' },
+    note: 'Part for part the 5F6-A network, down to the single 0.02 µF value the parts list records for both the bass and the mid position. Like the 5F6-A and unlike the 5F6, the middle pot\'s foot runs straight to ground: this circuit\'s presence control sits at the phase-inverter tail instead.',
+  },
+  {
     id: 'jtm45', kind: 'fmv', wiring: 'ladder',
     blurb: 'The Bassman ladder with a slightly smaller treble cap and a 0.01 µF mid cap, plotted as the Marshall drawing wires it: treble-wiper output, bass rheostat, mid cap into the middle pot\'s wiper.',
     drive: { kind: 'cathode-follower', tube: '12ax7' },
