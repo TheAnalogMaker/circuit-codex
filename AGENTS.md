@@ -74,7 +74,10 @@ python3 pipeline/verify_schematic_nets.py    # schematic↔netlist equivalence: 
                                              #   in amps/<id>/sch_map.yaml; a sheet with
                                              #   schematic_claim: verified hard-fails CI
 python3 pipeline/export_loadlines.py --check # reference/loadlines.yaml vs the netlists
+python3 pipeline/export_layout3d.py --selftest && \
+python3 pipeline/export_layout3d.py --check  # 3D layout data, endpoints and explicit omissions
 cd site && npm ci && npm run build      # site must build
+cd site && node scripts/check-layout3d-geometry.mjs  # 3D crossings, endpoints and bus junctions
 cd site && node scripts/check-loadline-parity.mjs   # browser solver vs. ngspice
 cd site && node scripts/check-tonestack-spice.mjs   # tone-stack solver vs. ngspice + the wiring study's figures
 cd site && node scripts/check-lineage-caption.mjs   # lineage prose names every drawn arrow
