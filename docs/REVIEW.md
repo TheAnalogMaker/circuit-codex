@@ -246,3 +246,43 @@ double duty, public circuit story *and* session work log, and the site
 publishes the whole file under "Circuit story". Until that split exists, the
 discipline is the author's: **a dated heading in `notes.md` is a defect**, and
 so is any sentence whose subject is the project rather than the circuit.
+
+## Reading a value off a scan
+
+Every gate in this project checks the corpus against itself. Not one of them can
+tell you that a figure was misread off the source in the first place — and a
+misread *chart* value is worse than a misread part value, because the simulation
+is then calibrated to it and the page reports agreement.
+
+Two rules, learned the hard way on the same afternoon (2026-09-09).
+
+**1. Check the resolution before you trust the digits.** Schematic Heaven's copy
+of the 5F8-A sheet is 1506 × 841 natively. Read at that size it gives rails of
++377/+375 and a phase-inverter cathode of +22.5 V. The Internet Archive's capture
+of the el34world scan of the same drawing is 6368 × 3218 (693 ppi) and plainly
+reads +397/+395 and +28.5 V. Render at 400 dpi or better, crop, and magnify. If a
+glyph is not unambiguous, find a better copy — the Wayback Machine holds
+el34world's PDFs even while the live site is unreachable — or record the figure as
+unresolved (`chart: null`). Never publish a blurred digit as read. State in the
+source description which copy each figure came from, so a later reader can tell.
+
+**2. Arithmetic can FALSIFY a reading. It cannot ESTABLISH one.** The asymmetry is
+the whole point, and both halves happened here:
+
+* *Falsification worked.* +22.5 V at a cathode sitting below a +27 V junction fed
+  through 470 Ω is not merely unlikely, it is impossible. The circuit refuted the
+  reading before a better scan confirmed it. This is cheap, and it works when no
+  better copy exists.
+* *Establishment failed.* On the 5G9 a blurred cathode resistor read as `1500` or
+  `1800`. The sheet's own printed voltages give 0.98 mA and 1.7 V, so ≈1.74 kΩ,
+  and 1.8 kΩ was published. The drawing letters **1500**. The arithmetic agreed
+  with the wrong answer because a ±20 % chart tolerance is wide enough to swallow
+  the difference.
+
+So: use the circuit to *reject* a figure that cannot be true, and go back to the
+source for the figure that is. A computed value that merely lands inside the
+sheet's tolerance is not evidence of anything — that tolerance is exactly the
+width in which two different components look alike.
+
+When a misread does ship and is later caught, record it where a reader will meet
+it, as `amps/5g9/notes.md` does. A correction nobody can see teaches nobody.
