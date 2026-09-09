@@ -92,6 +92,11 @@ jobs:
       # reference/loadlines.yaml is generated from the netlists and simulated, so it
       # can go stale silently the moment a netlist changes. Same drift gate as models/.
       - run: python pipeline/export_loadlines.py --check
+      # The 3D pilot is derived from the existing layout and BOM. A source edit
+      # must regenerate its data; planted faults prove the export gate rejects
+      # changed endpoints, missing parts and an expanded coverage claim.
+      - run: python pipeline/export_layout3d.py --selftest
+      - run: python pipeline/export_layout3d.py --check
       # The load-line explorer solves the same Koren equations in the browser that
       # ngspice solves here. This runs the page's own module against the simulated
       # operating points and fails if the two ever stop agreeing.
@@ -99,6 +104,10 @@ jobs:
         with:
           node-version: "22"
       - run: npm ci
+        working-directory: site
+      # Check actual 3D wire paths and mesh knots: separate crossings without
+      # moving declared endpoints or detaching grounded bus junctions.
+      - run: node scripts/check-layout3d-geometry.mjs
         working-directory: site
       - run: node scripts/check-loadline-parity.mjs
         working-directory: site

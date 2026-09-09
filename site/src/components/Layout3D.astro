@@ -1,0 +1,134 @@
+---
+import fs from 'node:fs';
+import path from 'node:path';
+import { createHash } from 'node:crypto';
+const { ampId } = Astro.props;
+// Availability is deliberate: another circuit needs its own placement review.
+if (ampId !== '5f1') throw new Error(`No reviewed 3D layout for ${ampId}`);
+const raw = fs.readFileSync(path.resolve('public', 'layouts', `${ampId}-3d.json`), 'utf8');
+const model = JSON.parse(raw);
+const revision = createHash('sha256').update(raw).digest('hex').slice(0, 12);
+const layers = [['board', 'Board'], ['components', 'Components'], ['hardware', 'Off-board parts'],
+  ['wiring', 'Hookup wires'], ['labels', 'Labels']];
+---
+<details class="layout3d" id="layout-3d" data-layout3d data-amp-id={ampId}
+         data-source={`/layouts/${ampId}-3d.json?v=${revision}`}>
+  <summary class="l3d-summary">
+    <span class="l3d-title">Explore the board in 3D</span>
+    <span class="l3d-summary-note">Rotate · separate layers · inspect a part</span>
+    <span class="l3d-chevron" aria-hidden="true">⌄</span>
+  </summary>
+  <div class="l3d-content">
+    <p class="l3d-intro">Follow the component arrangement and wiring from another angle.
+      Separate the layers to reveal the connections beneath the parts.</p>
+    <div class="l3d-controls" data-controls>
+      <fieldset class="l3d-layers" disabled>
+        <legend>Show</legend>
+        {layers.map(([id, label]) => (
+          <label><input type="checkbox" data-layer={id} checked={id !== 'labels'} />{label}</label>
+        ))}
+      </fieldset>
+      <div class="l3d-toolbar">
+        <label class="l3d-explode" for="l3d-explode">
+          <span>Separate layers <output data-explode-output for="l3d-explode">0%</output></span>
+          <input id="l3d-explode" data-explode type="range" min="0" max="100" step="1" value="0" disabled />
+        </label>
+        <div class="l3d-views" role="group" aria-label="Camera view">
+          <button type="button" data-view="perspective" aria-pressed="true" disabled>Angled</button>
+          <button type="button" data-view="top" aria-pressed="false" disabled>Top</button>
+          <button type="button" data-view="bottom" aria-pressed="false" disabled>Underside</button>
+        </div>
+        <div class="l3d-zoom" role="group" aria-label="Zoom">
+          <button type="button" data-zoom="out" aria-label="Zoom out" disabled>−</button>
+          <button type="button" data-zoom="in" aria-label="Zoom in" disabled>+</button>
+        </div>
+        <button type="button" class="l3d-reset" data-reset disabled>Reset view</button>
+      </div>
+    </div>
+    <div class="l3d-stage-wrap">
+      <div class="l3d-stage" data-stage aria-describedby="l3d-gestures"></div>
+      <div class="l3d-loading" data-loading>
+        <span class="l3d-loading-mark" aria-hidden="true">◉</span>
+        <p data-status role="status" aria-live="polite">Open this view to load the interactive board.</p>
+        <button type="button" data-retry hidden>Try loading again</button>
+        <a href="#layout" data-fallback hidden>Use the reference drawing</a>
+      </div>
+    </div>
+    <p class="l3d-gestures" id="l3d-gestures">Drag to rotate · right-drag to pan · scroll or pinch to zoom.
+      With the board focused, use arrow keys to rotate and + / − to zoom.</p>
+    <div class="l3d-inspector">
+      <div class="l3d-part">
+        <label for="l3d-part">Inspect a component</label>
+        <select id="l3d-part" data-component disabled>
+          <option value="">Choose a part, or click it on the board</option>
+          {model.components.map((c) => <option value={c.id}>{c.ref || c.id} · {c.value || c.label}</option>)}
+        </select>
+        <div class="l3d-part-info" data-part-info aria-live="polite" aria-atomic="true">
+          <p data-part-empty>Select a part to see its value, role and attached leads.</p>
+          <div data-part-detail hidden>
+            <p class="l3d-part-value" data-part-value></p>
+            <p data-part-role></p>
+            <p class="l3d-part-links"><a data-bom-link href="#parts">Find in parts list</a>
+              <a href="#schematic">View schematic</a></p>
+          </div>
+        </div>
+      </div>
+      <div class="l3d-leads">
+        <h3>Attached leads</h3>
+        <p data-leads-empty>Choose a component to follow the leads that meet it.</p>
+        <ul data-leads-list hidden></ul>
+        <button type="button" data-clear hidden>Clear selection</button>
+      </div>
+    </div>
+    <div class="l3d-caption">
+      <p><strong>Illustrative 3D arrangement.</strong> Component positions and connections follow
+        the reference layout. Body sizes, heights and wire elevations are illustrative;
+        this view does not establish physical clearances or construction dimensions.</p>
+      <p>The 6.3 V heater wiring is omitted while its socket connections are reviewed.</p>
+      {model.unplacedBOMRefs?.length > 0 && (
+        <p>The reference layout does not place {model.unplacedBOMRefs.join(' and ')}.
+          These parts remain in the <a href="#parts">parts list</a> and schematic.</p>
+      )}
+      <details class="l3d-scope">
+        <summary>Sources and connection coverage</summary>
+        <p><a href={model.source.url}>{model.source.desc}</a></p>
+        <p>Highlighting follows leads in the layout; it does not simulate current or signal flow.
+          The circuit’s electrical checks and their scope are described with the
+          <a href="#layout">reference drawing</a>.</p>
+        {model.scopeNotes?.map((note) => <p>{note}</p>)}
+        <p><a href="https://github.com/TheAnalogMaker/circuit-codex/issues/30">Heater-wiring correction and source evidence</a></p>
+      </details>
+    </div>
+    <noscript>
+      <style is:inline>.layout3d .l3d-controls,.layout3d .l3d-stage-wrap,.layout3d .l3d-gestures,.layout3d .l3d-inspector{display:none!important}</style>
+      <p class="l3d-noscript">The 3D view needs JavaScript. The
+        <a href="#layout">reference drawing</a> and <a href="#parts">parts list</a> remain available.</p>
+    </noscript>
+  </div>
+</details>
+<script>
+  import { initLayout3D } from '../lib/layout3d-controls.js';
+  document.querySelectorAll('[data-layout3d]').forEach(initLayout3D);
+</script>
+<style>
+  .layout3d{border:1px solid var(--line);border-radius:8px;background:var(--well);margin:24px 0;scroll-margin-top:76px;overflow:clip}
+  .l3d-summary{display:flex;align-items:center;gap:10px 18px;padding:17px 18px;cursor:pointer;list-style:none;background:linear-gradient(105deg,#302418,var(--panel))}
+  .l3d-summary::-webkit-details-marker{display:none}.l3d-title{font-family:var(--disp);text-transform:uppercase;letter-spacing:.1em;font-size:14px;color:var(--ink)}
+  .l3d-summary-note{font-size:12px;color:var(--muted)}.l3d-chevron{margin-left:auto;font-size:21px;color:var(--amber);line-height:1}.layout3d[open] .l3d-chevron{transform:rotate(180deg)}
+  .l3d-content{border-top:1px solid var(--line-soft)}.l3d-intro{font-size:14px;color:var(--muted);margin:15px 18px}.l3d-controls{padding:0 18px 14px}
+  .l3d-layers{border:0;display:flex;flex-wrap:wrap;gap:8px 15px;margin:0;padding:0}.l3d-layers legend{float:left;margin-right:16px;font-family:var(--disp);text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-size:11px;padding-top:3px}
+  .l3d-layers label{display:flex;gap:6px;align-items:center;font-size:12px;min-height:28px;cursor:pointer;color:var(--ink)}input[type=checkbox]{accent-color:var(--amber);width:15px;height:15px;margin:0}
+  .l3d-toolbar{display:flex;align-items:center;flex-wrap:wrap;gap:9px 12px;margin-top:14px}.l3d-explode{min-width:180px;flex:1 1 180px;max-width:340px;display:grid;gap:3px}.l3d-explode span{display:flex;justify-content:space-between;font-size:12px;color:var(--muted)}.l3d-explode output{font-family:var(--mono);font-size:11px;color:var(--amber)}.l3d-explode input{width:100%;margin:0;accent-color:var(--amber);height:23px;cursor:pointer}
+  button{font:12px var(--body);color:var(--muted);border:1px solid var(--line);border-radius:5px;background:var(--panel);padding:7px 10px;cursor:pointer;min-height:34px}button:hover:not(:disabled){border-color:var(--amber-dim);color:var(--ink)}button[aria-pressed=true]{color:var(--amber);border-color:var(--amber-dim);background:#372719}button:disabled,fieldset:disabled{opacity:.45;cursor:default}
+  .l3d-views,.l3d-zoom{display:flex;gap:4px}.l3d-zoom button{font-family:var(--mono);font-size:15px;min-width:34px;padding-inline:8px}.l3d-reset{margin-left:auto}
+  .l3d-stage-wrap{position:relative;border-block:1px solid var(--line-soft);background:radial-gradient(ellipse at 50% 40%,#30281f,#100d0a 75%)}.l3d-stage{height:clamp(360px,48vw,550px);width:100%;overflow:hidden}
+  :global(.layout3d .l3d-stage canvas){display:block;width:100%;height:100%;outline-offset:-3px}
+  .l3d-loading{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;text-align:center;padding:24px;gap:12px;color:var(--muted);font-size:14px}.l3d-loading-mark{color:var(--amber-dim);font-size:34px;line-height:1}.l3d-loading p{max-width:420px;margin:0}
+  .l3d-gestures{margin:10px 18px 14px;color:var(--muted);font-size:11.5px;line-height:1.7}.l3d-inspector{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:24px;border-top:1px solid var(--line-soft);padding:17px 18px}
+  .l3d-part>label,.l3d-leads h3{font-family:var(--disp);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);display:block;margin:0 0 8px;font-weight:500}select{width:100%;max-width:100%;min-width:0;background:var(--panel);border:1px solid var(--line);border-radius:5px;color:var(--ink);font:12px var(--body);padding:9px 8px}
+  .l3d-part-info,.l3d-leads{font-size:12px;line-height:1.6;color:var(--muted);min-width:0}.l3d-part-info p,.l3d-leads p{margin:10px 0 0}.l3d-part-value{font-family:var(--mono);color:var(--ink);font-size:13px}.l3d-part-links{display:flex;flex-wrap:wrap;gap:8px 20px}.l3d-leads ul{max-height:135px;overflow:auto;padding-left:18px;margin:8px 0 10px;font-family:var(--mono);font-size:11px;overflow-wrap:anywhere}.l3d-leads li{margin:3px 0}
+  .l3d-caption{padding:13px 18px;background:var(--panel);font-size:12px;line-height:1.65;color:var(--muted);border-top:1px solid var(--line-soft)}.l3d-caption p{margin:0 0 8px}.l3d-caption strong{font-weight:500;color:var(--ink)}.l3d-caption p:last-child{margin-bottom:0}.l3d-scope summary{cursor:pointer;color:var(--amber);margin:7px 0}.l3d-noscript{padding:16px;color:var(--muted);font-size:13px}
+  [hidden]{display:none!important}
+  @media(max-width:620px){.l3d-summary{flex-wrap:wrap;gap:3px 12px}.l3d-summary-note{order:3;flex-basis:100%}.l3d-summary .l3d-chevron{margin-left:auto}.l3d-controls{padding-inline:12px}.l3d-layers{gap:5px 12px}.l3d-toolbar{gap:10px}.l3d-explode{max-width:none;flex-basis:100%}.l3d-stage{height:360px}.l3d-inspector{grid-template-columns:1fr;gap:16px}.l3d-reset{margin-left:0}.l3d-gestures{font-size:11px}.l3d-layers label{min-height:32px}}
+  @media print{.layout3d{display:none}}
+</style>

@@ -1,0 +1,3639 @@
+{
+  "schemaVersion": 1,
+  "id": "5f1",
+  "title": "5F1 · eyelet board layout",
+  "source": {
+    "desc": "Fender 'Champ-Amp' Model 5F1 layout drawing (K-EE), page 2",
+    "url": "https://el34world.com/charts/Schematics/files/Fender/Fender_champ_5f1_schem.pdf"
+  },
+  "scopeNotes": [
+    "Illustrative geometry follows the existing layout; it is not dimensioned chassis or manufacturing data.",
+    "Connections identify layout endpoints, not simulated current flow or complete DC net membership.",
+    "The input jacks retain the existing linked-input simplification; C2 and C4 are in the BOM but not placed in this layout.",
+    "6.3 V heater wiring is not shown while the source layout's heater connections are being corrected; the pilot lamp is shown as hardware only.",
+    "The separate 5 V rectifier filament routes remain shown within the existing drawing's annotation scope."
+  ],
+  "connectivity": {
+    "scope": "layout-endpoints-only",
+    "note": "Crossing paths do not imply a junction. Shared eyelets have identical coordinates; component leads are not shorted together."
+  },
+  "board": {
+    "x": 128,
+    "y": 184,
+    "width": 744,
+    "height": 212
+  },
+  "bounds": {
+    "x": 25.5,
+    "y": 94,
+    "width": 947.5,
+    "height": 461.52
+  },
+  "eyelets": [
+    {
+      "id": "point:0:0",
+      "point": [
+        158.0,
+        240.0
+      ]
+    },
+    {
+      "id": "point:0:1",
+      "point": [
+        194.0,
+        240.0
+      ]
+    },
+    {
+      "id": "point:0:2",
+      "point": [
+        230.0,
+        240.0
+      ]
+    },
+    {
+      "id": "point:0:3",
+      "point": [
+        266.0,
+        240.0
+      ]
+    },
+    {
+      "id": "point:0:4",
+      "point": [
+        302.0,
+        240.0
+      ]
+    },
+    {
+      "id": "point:0:5",
+      "point": [
+        338.0,
+        240.0
+      ]
+    },
+    {
+      "id": "point:0:6",
+      "point": [
+        374.0,
+        240.0
+      ]
+    },
+    {
+      "id": "point:0:7",
+      "point": [
+        410.0,
+        240.0
+      ]
+    },
+    {
+      "id": "point:0:8",
+      "point": [
+        446.0,
+        240.0
+      ]
+    },
+    {
+      "id": "point:0:9",
+      "point": [
+        482.0,
+        240.0
+      ]
+    },
+    {
+      "id": "point:0:10",
+      "point": [
+        518.0,
+        240.0
+      ]
+    },
+    {
+      "id": "point:0:11",
+      "point": [
+        554.0,
+        240.0
+      ]
+    },
+    {
+      "id": "point:0:12",
+      "point": [
+        590.0,
+        240.0
+      ]
+    },
+    {
+      "id": "point:0:13",
+      "point": [
+        626.0,
+        240.0
+      ]
+    },
+    {
+      "id": "point:0:14",
+      "point": [
+        662.0,
+        240.0
+      ]
+    },
+    {
+      "id": "point:0:15",
+      "point": [
+        698.0,
+        240.0
+      ]
+    },
+    {
+      "id": "point:0:16",
+      "point": [
+        734.0,
+        240.0
+      ]
+    },
+    {
+      "id": "point:0:17",
+      "point": [
+        770.0,
+        240.0
+      ]
+    },
+    {
+      "id": "point:0:18",
+      "point": [
+        806.0,
+        240.0
+      ]
+    },
+    {
+      "id": "point:0:19",
+      "point": [
+        842.0,
+        240.0
+      ]
+    },
+    {
+      "id": "point:1:0",
+      "point": [
+        158.0,
+        356.0
+      ]
+    },
+    {
+      "id": "point:1:1",
+      "point": [
+        194.0,
+        356.0
+      ]
+    },
+    {
+      "id": "point:1:2",
+      "point": [
+        230.0,
+        356.0
+      ]
+    },
+    {
+      "id": "point:1:3",
+      "point": [
+        266.0,
+        356.0
+      ]
+    },
+    {
+      "id": "point:1:4",
+      "point": [
+        302.0,
+        356.0
+      ]
+    },
+    {
+      "id": "point:1:5",
+      "point": [
+        338.0,
+        356.0
+      ]
+    },
+    {
+      "id": "point:1:6",
+      "point": [
+        374.0,
+        356.0
+      ]
+    },
+    {
+      "id": "point:1:7",
+      "point": [
+        410.0,
+        356.0
+      ]
+    },
+    {
+      "id": "point:1:8",
+      "point": [
+        446.0,
+        356.0
+      ]
+    },
+    {
+      "id": "point:1:9",
+      "point": [
+        482.0,
+        356.0
+      ]
+    },
+    {
+      "id": "point:1:10",
+      "point": [
+        518.0,
+        356.0
+      ]
+    },
+    {
+      "id": "point:1:11",
+      "point": [
+        554.0,
+        356.0
+      ]
+    },
+    {
+      "id": "point:1:12",
+      "point": [
+        590.0,
+        356.0
+      ]
+    },
+    {
+      "id": "point:1:13",
+      "point": [
+        626.0,
+        356.0
+      ]
+    },
+    {
+      "id": "point:1:14",
+      "point": [
+        662.0,
+        356.0
+      ]
+    },
+    {
+      "id": "point:1:15",
+      "point": [
+        698.0,
+        356.0
+      ]
+    },
+    {
+      "id": "point:1:16",
+      "point": [
+        734.0,
+        356.0
+      ]
+    },
+    {
+      "id": "point:1:17",
+      "point": [
+        770.0,
+        356.0
+      ]
+    },
+    {
+      "id": "point:1:18",
+      "point": [
+        806.0,
+        356.0
+      ]
+    },
+    {
+      "id": "point:1:19",
+      "point": [
+        842.0,
+        356.0
+      ]
+    }
+  ],
+  "components": [
+    {
+      "id": "C5",
+      "ref": "C5",
+      "kind": "part",
+      "mount": "board",
+      "category": "electro",
+      "label": "C5",
+      "value": "16 µF · 450 V",
+      "role": "Filter, B+1",
+      "center": [
+        194.0,
+        240.0
+      ],
+      "terminals": [
+        {
+          "id": "C5.a",
+          "label": "C5.a",
+          "point": [
+            158.0,
+            240.0
+          ],
+          "owner": "C5"
+        },
+        {
+          "id": "C5.b",
+          "label": "C5.b",
+          "point": [
+            230.0,
+            240.0
+          ],
+          "owner": "C5"
+        }
+      ],
+      "a": [
+        158.0,
+        240.0
+      ],
+      "b": [
+        230.0,
+        240.0
+      ]
+    },
+    {
+      "id": "C7",
+      "ref": "C7",
+      "kind": "part",
+      "mount": "board",
+      "category": "electro",
+      "label": "C7",
+      "value": "8 µF · 450 V",
+      "role": "Filter, B+2",
+      "center": [
+        302.0,
+        240.0
+      ],
+      "terminals": [
+        {
+          "id": "C7.a",
+          "label": "C7.a",
+          "point": [
+            266.0,
+            240.0
+          ],
+          "owner": "C7"
+        },
+        {
+          "id": "C7.b",
+          "label": "C7.b",
+          "point": [
+            338.0,
+            240.0
+          ],
+          "owner": "C7"
+        }
+      ],
+      "a": [
+        266.0,
+        240.0
+      ],
+      "b": [
+        338.0,
+        240.0
+      ]
+    },
+    {
+      "id": "C8",
+      "ref": "C8",
+      "kind": "part",
+      "mount": "board",
+      "category": "electro",
+      "label": "C8",
+      "value": "8 µF · 450 V",
+      "role": "Filter, B+3",
+      "center": [
+        410.0,
+        240.0
+      ],
+      "terminals": [
+        {
+          "id": "C8.a",
+          "label": "C8.a",
+          "point": [
+            374.0,
+            240.0
+          ],
+          "owner": "C8"
+        },
+        {
+          "id": "C8.b",
+          "label": "C8.b",
+          "point": [
+            446.0,
+            240.0
+          ],
+          "owner": "C8"
+        }
+      ],
+      "a": [
+        374.0,
+        240.0
+      ],
+      "b": [
+        446.0,
+        240.0
+      ]
+    },
+    {
+      "id": "R13",
+      "ref": "R13",
+      "kind": "part",
+      "mount": "board",
+      "category": "res",
+      "label": "R13",
+      "value": "22 kΩ · ½ W",
+      "role": "Negative feedback, speaker→V1B cathode",
+      "center": [
+        176.0,
+        356.0
+      ],
+      "terminals": [
+        {
+          "id": "R13.a",
+          "label": "R13.a",
+          "point": [
+            158.0,
+            356.0
+          ],
+          "owner": "R13"
+        },
+        {
+          "id": "R13.b",
+          "label": "R13.b",
+          "point": [
+            194.0,
+            356.0
+          ],
+          "owner": "R13"
+        }
+      ],
+      "a": [
+        158.0,
+        356.0
+      ],
+      "b": [
+        194.0,
+        356.0
+      ]
+    },
+    {
+      "id": "R10",
+      "ref": "R10",
+      "kind": "part",
+      "mount": "board",
+      "category": "res",
+      "label": "R10",
+      "value": "10 kΩ · 2 W",
+      "role": "Rail dropper B+1→B+2",
+      "center": [
+        284.0,
+        356.0
+      ],
+      "terminals": [
+        {
+          "id": "R10.a",
+          "label": "R10.a",
+          "point": [
+            266.0,
+            356.0
+          ],
+          "owner": "R10"
+        },
+        {
+          "id": "R10.b",
+          "label": "R10.b",
+          "point": [
+            302.0,
+            356.0
+          ],
+          "owner": "R10"
+        }
+      ],
+      "a": [
+        266.0,
+        356.0
+      ],
+      "b": [
+        302.0,
+        356.0
+      ]
+    },
+    {
+      "id": "R11",
+      "ref": "R11",
+      "kind": "part",
+      "mount": "board",
+      "category": "res",
+      "label": "R11",
+      "value": "22 kΩ · 2 W",
+      "role": "Rail dropper B+2→B+3",
+      "center": [
+        392.0,
+        356.0
+      ],
+      "terminals": [
+        {
+          "id": "R11.a",
+          "label": "R11.a",
+          "point": [
+            374.0,
+            356.0
+          ],
+          "owner": "R11"
+        },
+        {
+          "id": "R11.b",
+          "label": "R11.b",
+          "point": [
+            410.0,
+            356.0
+          ],
+          "owner": "R11"
+        }
+      ],
+      "a": [
+        374.0,
+        356.0
+      ],
+      "b": [
+        410.0,
+        356.0
+      ]
+    },
+    {
+      "id": "R8",
+      "ref": "R8",
+      "kind": "part",
+      "mount": "board",
+      "category": "res",
+      "label": "R8",
+      "value": "470 Ω · 5 W",
+      "role": "6V6 cathode bias",
+      "center": [
+        482.0,
+        298.0
+      ],
+      "terminals": [
+        {
+          "id": "R8.a",
+          "label": "R8.a",
+          "point": [
+            482.0,
+            240.0
+          ],
+          "owner": "R8"
+        },
+        {
+          "id": "R8.b",
+          "label": "R8.b",
+          "point": [
+            482.0,
+            356.0
+          ],
+          "owner": "R8"
+        }
+      ],
+      "a": [
+        482.0,
+        240.0
+      ],
+      "b": [
+        482.0,
+        356.0
+      ]
+    },
+    {
+      "id": "C6",
+      "ref": "C6",
+      "kind": "part",
+      "mount": "board",
+      "category": "electro",
+      "label": "C6",
+      "value": "25 µF · 25 V",
+      "role": "6V6 cathode bypass",
+      "center": [
+        536.0,
+        240.0
+      ],
+      "terminals": [
+        {
+          "id": "C6.a",
+          "label": "C6.a",
+          "point": [
+            518.0,
+            240.0
+          ],
+          "owner": "C6"
+        },
+        {
+          "id": "C6.b",
+          "label": "C6.b",
+          "point": [
+            554.0,
+            240.0
+          ],
+          "owner": "C6"
+        }
+      ],
+      "a": [
+        518.0,
+        240.0
+      ],
+      "b": [
+        554.0,
+        240.0
+      ]
+    },
+    {
+      "id": "R9",
+      "ref": "R9",
+      "kind": "part",
+      "mount": "board",
+      "category": "res",
+      "label": "R9",
+      "value": "220 kΩ · ½ W",
+      "role": "6V6 grid leak",
+      "center": [
+        536.0,
+        356.0
+      ],
+      "terminals": [
+        {
+          "id": "R9.a",
+          "label": "R9.a",
+          "point": [
+            518.0,
+            356.0
+          ],
+          "owner": "R9"
+        },
+        {
+          "id": "R9.b",
+          "label": "R9.b",
+          "point": [
+            554.0,
+            356.0
+          ],
+          "owner": "R9"
+        }
+      ],
+      "a": [
+        518.0,
+        356.0
+      ],
+      "b": [
+        554.0,
+        356.0
+      ]
+    },
+    {
+      "id": "C3",
+      "ref": "C3",
+      "kind": "part",
+      "mount": "board",
+      "category": "film",
+      "label": "C3",
+      "value": "0.02 µF · 600 V",
+      "role": "V1B → 6V6 grid",
+      "center": [
+        662.0,
+        240.0
+      ],
+      "terminals": [
+        {
+          "id": "C3.a",
+          "label": "C3.a",
+          "point": [
+            626.0,
+            240.0
+          ],
+          "owner": "C3"
+        },
+        {
+          "id": "C3.b",
+          "label": "C3.b",
+          "point": [
+            698.0,
+            240.0
+          ],
+          "owner": "C3"
+        }
+      ],
+      "a": [
+        626.0,
+        240.0
+      ],
+      "b": [
+        698.0,
+        240.0
+      ]
+    },
+    {
+      "id": "R7",
+      "ref": "R7",
+      "kind": "part",
+      "mount": "board",
+      "category": "res",
+      "label": "R7",
+      "value": "100 kΩ · ½ W",
+      "role": "V1B plate load",
+      "center": [
+        644.0,
+        356.0
+      ],
+      "terminals": [
+        {
+          "id": "R7.a",
+          "label": "R7.a",
+          "point": [
+            626.0,
+            356.0
+          ],
+          "owner": "R7"
+        },
+        {
+          "id": "R7.b",
+          "label": "R7.b",
+          "point": [
+            662.0,
+            356.0
+          ],
+          "owner": "R7"
+        }
+      ],
+      "a": [
+        626.0,
+        356.0
+      ],
+      "b": [
+        662.0,
+        356.0
+      ]
+    },
+    {
+      "id": "R6",
+      "ref": "R6",
+      "kind": "part",
+      "mount": "board",
+      "category": "res",
+      "label": "R6",
+      "value": "1.5 kΩ · ½ W",
+      "role": "V1B cathode bias",
+      "center": [
+        590.0,
+        298.0
+      ],
+      "terminals": [
+        {
+          "id": "R6.a",
+          "label": "R6.a",
+          "point": [
+            590.0,
+            240.0
+          ],
+          "owner": "R6"
+        },
+        {
+          "id": "R6.b",
+          "label": "R6.b",
+          "point": [
+            590.0,
+            356.0
+          ],
+          "owner": "R6"
+        }
+      ],
+      "a": [
+        590.0,
+        240.0
+      ],
+      "b": [
+        590.0,
+        356.0
+      ]
+    },
+    {
+      "id": "R5",
+      "ref": "R5",
+      "kind": "part",
+      "mount": "board",
+      "category": "res",
+      "label": "R5",
+      "value": "100 kΩ · ½ W",
+      "role": "V1A plate load",
+      "center": [
+        734.0,
+        356.0
+      ],
+      "terminals": [
+        {
+          "id": "R5.a",
+          "label": "R5.a",
+          "point": [
+            698.0,
+            356.0
+          ],
+          "owner": "R5"
+        },
+        {
+          "id": "R5.b",
+          "label": "R5.b",
+          "point": [
+            770.0,
+            356.0
+          ],
+          "owner": "R5"
+        }
+      ],
+      "a": [
+        698.0,
+        356.0
+      ],
+      "b": [
+        770.0,
+        356.0
+      ]
+    },
+    {
+      "id": "R4",
+      "ref": "R4",
+      "kind": "part",
+      "mount": "board",
+      "category": "res",
+      "label": "R4",
+      "value": "1.5 kΩ · ½ W",
+      "role": "V1A cathode bias",
+      "center": [
+        734.0,
+        298.0
+      ],
+      "terminals": [
+        {
+          "id": "R4.a",
+          "label": "R4.a",
+          "point": [
+            734.0,
+            240.0
+          ],
+          "owner": "R4"
+        },
+        {
+          "id": "R4.b",
+          "label": "R4.b",
+          "point": [
+            734.0,
+            356.0
+          ],
+          "owner": "R4"
+        }
+      ],
+      "a": [
+        734.0,
+        240.0
+      ],
+      "b": [
+        734.0,
+        356.0
+      ]
+    },
+    {
+      "id": "C1",
+      "ref": "C1",
+      "kind": "part",
+      "mount": "board",
+      "category": "film",
+      "label": "C1",
+      "value": "0.02 µF · 600 V",
+      "role": "V1A → volume",
+      "center": [
+        806.0,
+        240.0
+      ],
+      "terminals": [
+        {
+          "id": "C1.a",
+          "label": "C1.a",
+          "point": [
+            770.0,
+            240.0
+          ],
+          "owner": "C1"
+        },
+        {
+          "id": "C1.b",
+          "label": "C1.b",
+          "point": [
+            842.0,
+            240.0
+          ],
+          "owner": "C1"
+        }
+      ],
+      "a": [
+        770.0,
+        240.0
+      ],
+      "b": [
+        842.0,
+        240.0
+      ]
+    },
+    {
+      "id": "R3",
+      "ref": "R3",
+      "kind": "part",
+      "mount": "board",
+      "category": "res",
+      "label": "R3",
+      "value": "68 kΩ · ½ W",
+      "role": "Input grid stopper",
+      "center": [
+        824.0,
+        356.0
+      ],
+      "terminals": [
+        {
+          "id": "R3.a",
+          "label": "R3.a",
+          "point": [
+            806.0,
+            356.0
+          ],
+          "owner": "R3"
+        },
+        {
+          "id": "R3.b",
+          "label": "R3.b",
+          "point": [
+            842.0,
+            356.0
+          ],
+          "owner": "R3"
+        }
+      ],
+      "a": [
+        806.0,
+        356.0
+      ],
+      "b": [
+        842.0,
+        356.0
+      ]
+    },
+    {
+      "id": "PT",
+      "kind": "xfmr",
+      "mount": "offboard",
+      "category": "other",
+      "label": "Power trans",
+      "value": "",
+      "role": "",
+      "center": [
+        50.0,
+        298.0
+      ],
+      "terminals": [
+        {
+          "id": "PT.red1",
+          "label": "PT.red1",
+          "point": [
+            89.0,
+            276.0
+          ],
+          "owner": "PT"
+        },
+        {
+          "id": "PT.red2",
+          "label": "PT.red2",
+          "point": [
+            89.0,
+            284.8
+          ],
+          "owner": "PT"
+        },
+        {
+          "id": "PT.red-yellow",
+          "label": "PT.red-yellow",
+          "point": [
+            89.0,
+            293.6
+          ],
+          "owner": "PT"
+        },
+        {
+          "id": "PT.yellow1",
+          "label": "PT.yellow1",
+          "point": [
+            89.0,
+            302.4
+          ],
+          "owner": "PT"
+        },
+        {
+          "id": "PT.yellow2",
+          "label": "PT.yellow2",
+          "point": [
+            89.0,
+            311.2
+          ],
+          "owner": "PT"
+        },
+        {
+          "id": "PT.green",
+          "label": "PT.green",
+          "point": [
+            89.0,
+            320.0
+          ],
+          "owner": "PT"
+        }
+      ]
+    },
+    {
+      "id": "PL1",
+      "kind": "part",
+      "mount": "offboard",
+      "category": "lamp",
+      "label": "Pilot lamp",
+      "value": "",
+      "role": "",
+      "center": [
+        50.0,
+        414.0
+      ],
+      "terminals": [
+        {
+          "id": "PL1.a",
+          "label": "PL1.a",
+          "point": [
+            66.0,
+            400.0
+          ],
+          "owner": "PL1"
+        },
+        {
+          "id": "PL1.b",
+          "label": "PL1.b",
+          "point": [
+            66.0,
+            428.0
+          ],
+          "owner": "PL1"
+        }
+      ],
+      "a": [
+        66.0,
+        400.0
+      ],
+      "b": [
+        66.0,
+        428.0
+      ]
+    },
+    {
+      "id": "V3",
+      "kind": "tube",
+      "mount": "offboard",
+      "category": "tube",
+      "label": "V3 · 5Y3GT",
+      "value": "5Y3GT",
+      "role": "Full-wave rectifier (V3A/V3B)",
+      "center": [
+        230.0,
+        472.0
+      ],
+      "terminals": [
+        {
+          "id": "V3.pin1",
+          "label": "V3.pin1",
+          "point": [
+            213.287522,
+            491.917156
+          ],
+          "owner": "V3"
+        },
+        {
+          "id": "V3.pin2",
+          "label": "V3.pin2",
+          "point": [
+            204.394998,
+            476.514853
+          ],
+          "owner": "V3"
+        },
+        {
+          "id": "V3.pin3",
+          "label": "V3.pin3",
+          "point": [
+            207.48334,
+            459.0
+          ],
+          "owner": "V3"
+        },
+        {
+          "id": "V3.pin4",
+          "label": "V3.pin4",
+          "point": [
+            221.107476,
+            447.567992
+          ],
+          "owner": "V3"
+        },
+        {
+          "id": "V3.pin5",
+          "label": "V3.pin5",
+          "point": [
+            238.892524,
+            447.567992
+          ],
+          "owner": "V3"
+        },
+        {
+          "id": "V3.pin6",
+          "label": "V3.pin6",
+          "point": [
+            252.51666,
+            459.0
+          ],
+          "owner": "V3"
+        },
+        {
+          "id": "V3.pin7",
+          "label": "V3.pin7",
+          "point": [
+            255.605002,
+            476.514853
+          ],
+          "owner": "V3"
+        },
+        {
+          "id": "V3.pin8",
+          "label": "V3.pin8",
+          "point": [
+            246.712478,
+            491.917156
+          ],
+          "owner": "V3"
+        }
+      ],
+      "ref": "V3"
+    },
+    {
+      "id": "V2",
+      "kind": "tube",
+      "mount": "offboard",
+      "category": "tube",
+      "label": "V2 · 6V6GT",
+      "value": "6V6GT",
+      "role": "Single-ended output",
+      "center": [
+        446.0,
+        472.0
+      ],
+      "terminals": [
+        {
+          "id": "V2.pin1",
+          "label": "V2.pin1",
+          "point": [
+            429.287522,
+            491.917156
+          ],
+          "owner": "V2"
+        },
+        {
+          "id": "V2.pin2",
+          "label": "V2.pin2",
+          "point": [
+            420.394998,
+            476.514853
+          ],
+          "owner": "V2"
+        },
+        {
+          "id": "V2.pin3",
+          "label": "V2.pin3",
+          "point": [
+            423.48334,
+            459.0
+          ],
+          "owner": "V2"
+        },
+        {
+          "id": "V2.pin4",
+          "label": "V2.pin4",
+          "point": [
+            437.107476,
+            447.567992
+          ],
+          "owner": "V2"
+        },
+        {
+          "id": "V2.pin5",
+          "label": "V2.pin5",
+          "point": [
+            454.892524,
+            447.567992
+          ],
+          "owner": "V2"
+        },
+        {
+          "id": "V2.pin6",
+          "label": "V2.pin6",
+          "point": [
+            468.51666,
+            459.0
+          ],
+          "owner": "V2"
+        },
+        {
+          "id": "V2.pin7",
+          "label": "V2.pin7",
+          "point": [
+            471.605002,
+            476.514853
+          ],
+          "owner": "V2"
+        },
+        {
+          "id": "V2.pin8",
+          "label": "V2.pin8",
+          "point": [
+            462.712478,
+            491.917156
+          ],
+          "owner": "V2"
+        }
+      ],
+      "ref": "V2"
+    },
+    {
+      "id": "SPK",
+      "kind": "jack",
+      "mount": "offboard",
+      "category": "other",
+      "label": "Spkr jack",
+      "value": "",
+      "role": "",
+      "center": [
+        608.0,
+        472.0
+      ],
+      "terminals": [
+        {
+          "id": "SPK",
+          "label": "SPK",
+          "point": [
+            608.0,
+            472.0
+          ],
+          "owner": "SPK"
+        }
+      ]
+    },
+    {
+      "id": "V1",
+      "kind": "tube",
+      "mount": "offboard",
+      "category": "tube",
+      "label": "V1 · 12AX7",
+      "value": "12AX7",
+      "role": "Both gain stages (V1A/V1B)",
+      "center": [
+        770.0,
+        472.0
+      ],
+      "terminals": [
+        {
+          "id": "V1.pin1",
+          "label": "V1.pin1",
+          "point": [
+            754.717583,
+            493.034442
+          ],
+          "owner": "V1"
+        },
+        {
+          "id": "V1.pin2",
+          "label": "V1.pin2",
+          "point": [
+            745.272531,
+            480.034442
+          ],
+          "owner": "V1"
+        },
+        {
+          "id": "V1.pin3",
+          "label": "V1.pin3",
+          "point": [
+            745.272531,
+            463.965558
+          ],
+          "owner": "V1"
+        },
+        {
+          "id": "V1.pin4",
+          "label": "V1.pin4",
+          "point": [
+            754.717583,
+            450.965558
+          ],
+          "owner": "V1"
+        },
+        {
+          "id": "V1.pin5",
+          "label": "V1.pin5",
+          "point": [
+            770.0,
+            446.0
+          ],
+          "owner": "V1"
+        },
+        {
+          "id": "V1.pin6",
+          "label": "V1.pin6",
+          "point": [
+            785.282417,
+            450.965558
+          ],
+          "owner": "V1"
+        },
+        {
+          "id": "V1.pin7",
+          "label": "V1.pin7",
+          "point": [
+            794.727469,
+            463.965558
+          ],
+          "owner": "V1"
+        },
+        {
+          "id": "V1.pin8",
+          "label": "V1.pin8",
+          "point": [
+            794.727469,
+            480.034442
+          ],
+          "owner": "V1"
+        },
+        {
+          "id": "V1.pin9",
+          "label": "V1.pin9",
+          "point": [
+            785.282417,
+            493.034442
+          ],
+          "owner": "V1"
+        }
+      ],
+      "ref": "V1"
+    },
+    {
+      "id": "VR1",
+      "kind": "pot",
+      "mount": "offboard",
+      "category": "other",
+      "label": "Volume",
+      "value": "1 MΩ",
+      "role": "Volume",
+      "center": [
+        518.0,
+        112.0
+      ],
+      "terminals": [
+        {
+          "id": "VR1.lug1",
+          "label": "VR1.lug1",
+          "point": [
+            507.0,
+            134.0
+          ],
+          "owner": "VR1"
+        },
+        {
+          "id": "VR1.lug2",
+          "label": "VR1.lug2",
+          "point": [
+            518.0,
+            134.0
+          ],
+          "owner": "VR1"
+        },
+        {
+          "id": "VR1.lug3",
+          "label": "VR1.lug3",
+          "point": [
+            529.0,
+            134.0
+          ],
+          "owner": "VR1"
+        }
+      ],
+      "ref": "VR1"
+    },
+    {
+      "id": "J1",
+      "kind": "jack",
+      "mount": "offboard",
+      "category": "other",
+      "label": "In 1",
+      "value": "",
+      "role": "",
+      "center": [
+        734.0,
+        112.0
+      ],
+      "terminals": [
+        {
+          "id": "J1",
+          "label": "J1",
+          "point": [
+            734.0,
+            112.0
+          ],
+          "owner": "J1"
+        }
+      ]
+    },
+    {
+      "id": "J2",
+      "kind": "jack",
+      "mount": "offboard",
+      "category": "other",
+      "label": "In 2",
+      "value": "",
+      "role": "",
+      "center": [
+        806.0,
+        112.0
+      ],
+      "terminals": [
+        {
+          "id": "J2",
+          "label": "J2",
+          "point": [
+            806.0,
+            112.0
+          ],
+          "owner": "J2"
+        }
+      ]
+    },
+    {
+      "id": "R1",
+      "kind": "part",
+      "mount": "offboard",
+      "category": "res",
+      "label": "R1",
+      "value": "1 MΩ · ½ W",
+      "role": "Input grid leak",
+      "center": [
+        852.8,
+        112.0
+      ],
+      "terminals": [
+        {
+          "id": "R1.a",
+          "label": "R1.a",
+          "point": [
+            838.8,
+            128.0
+          ],
+          "owner": "R1"
+        },
+        {
+          "id": "R1.b",
+          "label": "R1.b",
+          "point": [
+            866.8,
+            128.0
+          ],
+          "owner": "R1"
+        }
+      ],
+      "ref": "R1",
+      "a": [
+        838.8,
+        128.0
+      ],
+      "b": [
+        866.8,
+        128.0
+      ]
+    },
+    {
+      "id": "T2",
+      "kind": "xfmr",
+      "mount": "offboard",
+      "category": "xfmr",
+      "label": "Output trans",
+      "value": "≈5 kΩ : 8 Ω",
+      "role": "Single-ended output (impedance not marked on the drawing; typical SE 6V6 load)",
+      "center": [
+        950.0,
+        298.0
+      ],
+      "terminals": [
+        {
+          "id": "T2.blue",
+          "label": "T2.blue",
+          "point": [
+            911.0,
+            291.0
+          ],
+          "owner": "T2"
+        },
+        {
+          "id": "T2.bplus",
+          "label": "T2.bplus",
+          "point": [
+            911.0,
+            305.0
+          ],
+          "owner": "T2"
+        }
+      ],
+      "ref": "T2"
+    }
+  ],
+  "terminals": [
+    {
+      "id": "C5.a",
+      "label": "C5.a",
+      "point": [
+        158.0,
+        240.0
+      ],
+      "owner": "C5"
+    },
+    {
+      "id": "C5.b",
+      "label": "C5.b",
+      "point": [
+        230.0,
+        240.0
+      ],
+      "owner": "C5"
+    },
+    {
+      "id": "C7.a",
+      "label": "C7.a",
+      "point": [
+        266.0,
+        240.0
+      ],
+      "owner": "C7"
+    },
+    {
+      "id": "C7.b",
+      "label": "C7.b",
+      "point": [
+        338.0,
+        240.0
+      ],
+      "owner": "C7"
+    },
+    {
+      "id": "C8.a",
+      "label": "C8.a",
+      "point": [
+        374.0,
+        240.0
+      ],
+      "owner": "C8"
+    },
+    {
+      "id": "C8.b",
+      "label": "C8.b",
+      "point": [
+        446.0,
+        240.0
+      ],
+      "owner": "C8"
+    },
+    {
+      "id": "R13.a",
+      "label": "R13.a",
+      "point": [
+        158.0,
+        356.0
+      ],
+      "owner": "R13"
+    },
+    {
+      "id": "R13.b",
+      "label": "R13.b",
+      "point": [
+        194.0,
+        356.0
+      ],
+      "owner": "R13"
+    },
+    {
+      "id": "R10.a",
+      "label": "R10.a",
+      "point": [
+        266.0,
+        356.0
+      ],
+      "owner": "R10"
+    },
+    {
+      "id": "R10.b",
+      "label": "R10.b",
+      "point": [
+        302.0,
+        356.0
+      ],
+      "owner": "R10"
+    },
+    {
+      "id": "R11.a",
+      "label": "R11.a",
+      "point": [
+        374.0,
+        356.0
+      ],
+      "owner": "R11"
+    },
+    {
+      "id": "R11.b",
+      "label": "R11.b",
+      "point": [
+        410.0,
+        356.0
+      ],
+      "owner": "R11"
+    },
+    {
+      "id": "R8.a",
+      "label": "R8.a",
+      "point": [
+        482.0,
+        240.0
+      ],
+      "owner": "R8"
+    },
+    {
+      "id": "R8.b",
+      "label": "R8.b",
+      "point": [
+        482.0,
+        356.0
+      ],
+      "owner": "R8"
+    },
+    {
+      "id": "C6.a",
+      "label": "C6.a",
+      "point": [
+        518.0,
+        240.0
+      ],
+      "owner": "C6"
+    },
+    {
+      "id": "C6.b",
+      "label": "C6.b",
+      "point": [
+        554.0,
+        240.0
+      ],
+      "owner": "C6"
+    },
+    {
+      "id": "R9.a",
+      "label": "R9.a",
+      "point": [
+        518.0,
+        356.0
+      ],
+      "owner": "R9"
+    },
+    {
+      "id": "R9.b",
+      "label": "R9.b",
+      "point": [
+        554.0,
+        356.0
+      ],
+      "owner": "R9"
+    },
+    {
+      "id": "C3.a",
+      "label": "C3.a",
+      "point": [
+        626.0,
+        240.0
+      ],
+      "owner": "C3"
+    },
+    {
+      "id": "C3.b",
+      "label": "C3.b",
+      "point": [
+        698.0,
+        240.0
+      ],
+      "owner": "C3"
+    },
+    {
+      "id": "R7.a",
+      "label": "R7.a",
+      "point": [
+        626.0,
+        356.0
+      ],
+      "owner": "R7"
+    },
+    {
+      "id": "R7.b",
+      "label": "R7.b",
+      "point": [
+        662.0,
+        356.0
+      ],
+      "owner": "R7"
+    },
+    {
+      "id": "R6.a",
+      "label": "R6.a",
+      "point": [
+        590.0,
+        240.0
+      ],
+      "owner": "R6"
+    },
+    {
+      "id": "R6.b",
+      "label": "R6.b",
+      "point": [
+        590.0,
+        356.0
+      ],
+      "owner": "R6"
+    },
+    {
+      "id": "R5.a",
+      "label": "R5.a",
+      "point": [
+        698.0,
+        356.0
+      ],
+      "owner": "R5"
+    },
+    {
+      "id": "R5.b",
+      "label": "R5.b",
+      "point": [
+        770.0,
+        356.0
+      ],
+      "owner": "R5"
+    },
+    {
+      "id": "R4.a",
+      "label": "R4.a",
+      "point": [
+        734.0,
+        240.0
+      ],
+      "owner": "R4"
+    },
+    {
+      "id": "R4.b",
+      "label": "R4.b",
+      "point": [
+        734.0,
+        356.0
+      ],
+      "owner": "R4"
+    },
+    {
+      "id": "C1.a",
+      "label": "C1.a",
+      "point": [
+        770.0,
+        240.0
+      ],
+      "owner": "C1"
+    },
+    {
+      "id": "C1.b",
+      "label": "C1.b",
+      "point": [
+        842.0,
+        240.0
+      ],
+      "owner": "C1"
+    },
+    {
+      "id": "R3.a",
+      "label": "R3.a",
+      "point": [
+        806.0,
+        356.0
+      ],
+      "owner": "R3"
+    },
+    {
+      "id": "R3.b",
+      "label": "R3.b",
+      "point": [
+        842.0,
+        356.0
+      ],
+      "owner": "R3"
+    },
+    {
+      "id": "PT.red1",
+      "label": "PT.red1",
+      "point": [
+        89.0,
+        276.0
+      ],
+      "owner": "PT"
+    },
+    {
+      "id": "PT.red2",
+      "label": "PT.red2",
+      "point": [
+        89.0,
+        284.8
+      ],
+      "owner": "PT"
+    },
+    {
+      "id": "PT.red-yellow",
+      "label": "PT.red-yellow",
+      "point": [
+        89.0,
+        293.6
+      ],
+      "owner": "PT"
+    },
+    {
+      "id": "PT.yellow1",
+      "label": "PT.yellow1",
+      "point": [
+        89.0,
+        302.4
+      ],
+      "owner": "PT"
+    },
+    {
+      "id": "PT.yellow2",
+      "label": "PT.yellow2",
+      "point": [
+        89.0,
+        311.2
+      ],
+      "owner": "PT"
+    },
+    {
+      "id": "PT.green",
+      "label": "PT.green",
+      "point": [
+        89.0,
+        320.0
+      ],
+      "owner": "PT"
+    },
+    {
+      "id": "PL1.a",
+      "label": "PL1.a",
+      "point": [
+        66.0,
+        400.0
+      ],
+      "owner": "PL1"
+    },
+    {
+      "id": "PL1.b",
+      "label": "PL1.b",
+      "point": [
+        66.0,
+        428.0
+      ],
+      "owner": "PL1"
+    },
+    {
+      "id": "V3.pin1",
+      "label": "V3.pin1",
+      "point": [
+        213.287522,
+        491.917156
+      ],
+      "owner": "V3"
+    },
+    {
+      "id": "V3.pin2",
+      "label": "V3.pin2",
+      "point": [
+        204.394998,
+        476.514853
+      ],
+      "owner": "V3"
+    },
+    {
+      "id": "V3.pin3",
+      "label": "V3.pin3",
+      "point": [
+        207.48334,
+        459.0
+      ],
+      "owner": "V3"
+    },
+    {
+      "id": "V3.pin4",
+      "label": "V3.pin4",
+      "point": [
+        221.107476,
+        447.567992
+      ],
+      "owner": "V3"
+    },
+    {
+      "id": "V3.pin5",
+      "label": "V3.pin5",
+      "point": [
+        238.892524,
+        447.567992
+      ],
+      "owner": "V3"
+    },
+    {
+      "id": "V3.pin6",
+      "label": "V3.pin6",
+      "point": [
+        252.51666,
+        459.0
+      ],
+      "owner": "V3"
+    },
+    {
+      "id": "V3.pin7",
+      "label": "V3.pin7",
+      "point": [
+        255.605002,
+        476.514853
+      ],
+      "owner": "V3"
+    },
+    {
+      "id": "V3.pin8",
+      "label": "V3.pin8",
+      "point": [
+        246.712478,
+        491.917156
+      ],
+      "owner": "V3"
+    },
+    {
+      "id": "V2.pin1",
+      "label": "V2.pin1",
+      "point": [
+        429.287522,
+        491.917156
+      ],
+      "owner": "V2"
+    },
+    {
+      "id": "V2.pin2",
+      "label": "V2.pin2",
+      "point": [
+        420.394998,
+        476.514853
+      ],
+      "owner": "V2"
+    },
+    {
+      "id": "V2.pin3",
+      "label": "V2.pin3",
+      "point": [
+        423.48334,
+        459.0
+      ],
+      "owner": "V2"
+    },
+    {
+      "id": "V2.pin4",
+      "label": "V2.pin4",
+      "point": [
+        437.107476,
+        447.567992
+      ],
+      "owner": "V2"
+    },
+    {
+      "id": "V2.pin5",
+      "label": "V2.pin5",
+      "point": [
+        454.892524,
+        447.567992
+      ],
+      "owner": "V2"
+    },
+    {
+      "id": "V2.pin6",
+      "label": "V2.pin6",
+      "point": [
+        468.51666,
+        459.0
+      ],
+      "owner": "V2"
+    },
+    {
+      "id": "V2.pin7",
+      "label": "V2.pin7",
+      "point": [
+        471.605002,
+        476.514853
+      ],
+      "owner": "V2"
+    },
+    {
+      "id": "V2.pin8",
+      "label": "V2.pin8",
+      "point": [
+        462.712478,
+        491.917156
+      ],
+      "owner": "V2"
+    },
+    {
+      "id": "SPK",
+      "label": "SPK",
+      "point": [
+        608.0,
+        472.0
+      ],
+      "owner": "SPK"
+    },
+    {
+      "id": "V1.pin1",
+      "label": "V1.pin1",
+      "point": [
+        754.717583,
+        493.034442
+      ],
+      "owner": "V1"
+    },
+    {
+      "id": "V1.pin2",
+      "label": "V1.pin2",
+      "point": [
+        745.272531,
+        480.034442
+      ],
+      "owner": "V1"
+    },
+    {
+      "id": "V1.pin3",
+      "label": "V1.pin3",
+      "point": [
+        745.272531,
+        463.965558
+      ],
+      "owner": "V1"
+    },
+    {
+      "id": "V1.pin4",
+      "label": "V1.pin4",
+      "point": [
+        754.717583,
+        450.965558
+      ],
+      "owner": "V1"
+    },
+    {
+      "id": "V1.pin5",
+      "label": "V1.pin5",
+      "point": [
+        770.0,
+        446.0
+      ],
+      "owner": "V1"
+    },
+    {
+      "id": "V1.pin6",
+      "label": "V1.pin6",
+      "point": [
+        785.282417,
+        450.965558
+      ],
+      "owner": "V1"
+    },
+    {
+      "id": "V1.pin7",
+      "label": "V1.pin7",
+      "point": [
+        794.727469,
+        463.965558
+      ],
+      "owner": "V1"
+    },
+    {
+      "id": "V1.pin8",
+      "label": "V1.pin8",
+      "point": [
+        794.727469,
+        480.034442
+      ],
+      "owner": "V1"
+    },
+    {
+      "id": "V1.pin9",
+      "label": "V1.pin9",
+      "point": [
+        785.282417,
+        493.034442
+      ],
+      "owner": "V1"
+    },
+    {
+      "id": "VR1.lug1",
+      "label": "VR1.lug1",
+      "point": [
+        507.0,
+        134.0
+      ],
+      "owner": "VR1"
+    },
+    {
+      "id": "VR1.lug2",
+      "label": "VR1.lug2",
+      "point": [
+        518.0,
+        134.0
+      ],
+      "owner": "VR1"
+    },
+    {
+      "id": "VR1.lug3",
+      "label": "VR1.lug3",
+      "point": [
+        529.0,
+        134.0
+      ],
+      "owner": "VR1"
+    },
+    {
+      "id": "J1",
+      "label": "J1",
+      "point": [
+        734.0,
+        112.0
+      ],
+      "owner": "J1"
+    },
+    {
+      "id": "J2",
+      "label": "J2",
+      "point": [
+        806.0,
+        112.0
+      ],
+      "owner": "J2"
+    },
+    {
+      "id": "R1.a",
+      "label": "R1.a",
+      "point": [
+        838.8,
+        128.0
+      ],
+      "owner": "R1"
+    },
+    {
+      "id": "R1.b",
+      "label": "R1.b",
+      "point": [
+        866.8,
+        128.0
+      ],
+      "owner": "R1"
+    },
+    {
+      "id": "T2.blue",
+      "label": "T2.blue",
+      "point": [
+        911.0,
+        291.0
+      ],
+      "owner": "T2"
+    },
+    {
+      "id": "T2.bplus",
+      "label": "T2.bplus",
+      "point": [
+        911.0,
+        305.0
+      ],
+      "owner": "T2"
+    },
+    {
+      "id": "point:1.45:3",
+      "label": "point:1.45:3",
+      "point": [
+        266.0,
+        408.2
+      ],
+      "owner": null
+    },
+    {
+      "id": "point:1.45:1.4",
+      "label": "point:1.45:1.4",
+      "point": [
+        208.4,
+        408.2
+      ],
+      "owner": null
+    },
+    {
+      "id": "point:1.45:4",
+      "label": "point:1.45:4",
+      "point": [
+        302.0,
+        408.2
+      ],
+      "owner": null
+    },
+    {
+      "id": "point:1.45:7",
+      "label": "point:1.45:7",
+      "point": [
+        410.0,
+        408.2
+      ],
+      "owner": null
+    },
+    {
+      "id": "point:1.45:9.4",
+      "label": "point:1.45:9.4",
+      "point": [
+        496.4,
+        408.2
+      ],
+      "owner": null
+    },
+    {
+      "id": "point:1.45:10.6",
+      "label": "point:1.45:10.6",
+      "point": [
+        539.6,
+        408.2
+      ],
+      "owner": null
+    },
+    {
+      "id": "point:1.45:11",
+      "label": "point:1.45:11",
+      "point": [
+        554.0,
+        408.2
+      ],
+      "owner": null
+    },
+    {
+      "id": "point:1.45:12",
+      "label": "point:1.45:12",
+      "point": [
+        590.0,
+        408.2
+      ],
+      "owner": null
+    },
+    {
+      "id": "point:1.45:9.7",
+      "label": "point:1.45:9.7",
+      "point": [
+        507.2,
+        408.2
+      ],
+      "owner": null
+    },
+    {
+      "id": "point:1.45:19.3",
+      "label": "point:1.45:19.3",
+      "point": [
+        852.8,
+        408.2
+      ],
+      "owner": null
+    },
+    {
+      "id": "point:1.45:16",
+      "label": "point:1.45:16",
+      "point": [
+        734.0,
+        408.2
+      ],
+      "owner": null
+    },
+    {
+      "id": "point:1.45:-0.4",
+      "label": "point:1.45:-0.4",
+      "point": [
+        143.6,
+        408.2
+      ],
+      "owner": null
+    },
+    {
+      "id": "point:1.45:19.4",
+      "label": "point:1.45:19.4",
+      "point": [
+        856.4,
+        408.2
+      ],
+      "owner": null
+    }
+  ],
+  "connections": [
+    {
+      "id": "run:0",
+      "from": "PT.red1",
+      "to": "V3.pin4",
+      "points": [
+        [
+          89.0,
+          276.0
+        ],
+        [
+          208.4,
+          274.8
+        ],
+        [
+          221.107476,
+          447.567992
+        ]
+      ],
+      "kind": "wire",
+      "color": "#d8564a",
+      "sourceRun": "run:0",
+      "sourceFrom": "PT.red1",
+      "sourceTo": "V3.pin4",
+      "fromOwner": "PT",
+      "toOwner": "V3"
+    },
+    {
+      "id": "run:1",
+      "from": "PT.red2",
+      "to": "V3.pin6",
+      "points": [
+        [
+          89.0,
+          284.8
+        ],
+        [
+          240.8,
+          311.92
+        ],
+        [
+          252.51666,
+          459.0
+        ]
+      ],
+      "kind": "wire",
+      "color": "#d8564a",
+      "sourceRun": "run:1",
+      "sourceFrom": "PT.red2",
+      "sourceTo": "V3.pin6",
+      "fromOwner": "PT",
+      "toOwner": "V3"
+    },
+    {
+      "id": "run:2",
+      "from": "PT.red-yellow",
+      "to": "point:1.45:3",
+      "points": [
+        [
+          89.0,
+          293.6
+        ],
+        [
+          201.2,
+          373.4
+        ],
+        [
+          266.0,
+          408.2
+        ]
+      ],
+      "kind": "wire",
+      "color": "#d79a45",
+      "sourceRun": "run:2",
+      "sourceFrom": "PT.red-yellow",
+      "sourceTo": [
+        1.45,
+        3.0
+      ],
+      "fromOwner": "PT",
+      "toOwner": null
+    },
+    {
+      "id": "run:3",
+      "from": "PT.yellow1",
+      "to": "V3.pin2",
+      "points": [
+        [
+          89.0,
+          302.4
+        ],
+        [
+          183.2,
+          385.0
+        ],
+        [
+          204.394998,
+          476.514853
+        ]
+      ],
+      "kind": "wire",
+      "color": "#d8b23c",
+      "sourceRun": "run:3",
+      "sourceFrom": "PT.yellow1",
+      "sourceTo": "V3.pin2",
+      "fromOwner": "PT",
+      "toOwner": "V3"
+    },
+    {
+      "id": "run:4",
+      "from": "PT.yellow2",
+      "to": "V3.pin8",
+      "points": [
+        [
+          89.0,
+          311.2
+        ],
+        [
+          208.4,
+          443.0
+        ],
+        [
+          246.712478,
+          491.917156
+        ]
+      ],
+      "kind": "wire",
+      "color": "#d8b23c",
+      "sourceRun": "run:4",
+      "sourceFrom": "PT.yellow2",
+      "sourceTo": "V3.pin8",
+      "fromOwner": "PT",
+      "toOwner": "V3"
+    },
+    {
+      "id": "run:5",
+      "from": "V3.pin8",
+      "to": "C5.a",
+      "points": [
+        [
+          246.712478,
+          491.917156
+        ],
+        [
+          237.2,
+          414.0
+        ],
+        [
+          158.0,
+          240.0
+        ]
+      ],
+      "kind": "wire",
+      "color": "#d8564a",
+      "sourceRun": "run:5",
+      "sourceFrom": "V3.pin8",
+      "sourceTo": "C5.a",
+      "fromOwner": "V3",
+      "toOwner": "C5"
+    },
+    {
+      "id": "run:6",
+      "from": "C5.a",
+      "to": "R10.a",
+      "points": [
+        [
+          158.0,
+          240.0
+        ],
+        [
+          266.0,
+          356.0
+        ]
+      ],
+      "kind": "wire",
+      "color": "#b7a483",
+      "sourceRun": "run:6",
+      "sourceFrom": "C5.a",
+      "sourceTo": "R10.a",
+      "fromOwner": "C5",
+      "toOwner": "R10"
+    },
+    {
+      "id": "run:7",
+      "from": "R10.b",
+      "to": "C7.a",
+      "points": [
+        [
+          302.0,
+          356.0
+        ],
+        [
+          266.0,
+          240.0
+        ]
+      ],
+      "kind": "wire",
+      "color": "#b7a483",
+      "sourceRun": "run:7",
+      "sourceFrom": "R10.b",
+      "sourceTo": "C7.a",
+      "fromOwner": "R10",
+      "toOwner": "C7"
+    },
+    {
+      "id": "run:8",
+      "from": "C7.a",
+      "to": "R11.a",
+      "points": [
+        [
+          266.0,
+          240.0
+        ],
+        [
+          374.0,
+          356.0
+        ]
+      ],
+      "kind": "wire",
+      "color": "#b7a483",
+      "sourceRun": "run:8",
+      "sourceFrom": "C7.a",
+      "sourceTo": "R11.a",
+      "fromOwner": "C7",
+      "toOwner": "R11"
+    },
+    {
+      "id": "run:9",
+      "from": "R11.b",
+      "to": "C8.a",
+      "points": [
+        [
+          410.0,
+          356.0
+        ],
+        [
+          417.2,
+          303.8
+        ],
+        [
+          374.0,
+          240.0
+        ]
+      ],
+      "kind": "wire",
+      "color": "#b7a483",
+      "sourceRun": "run:9",
+      "sourceFrom": "R11.b",
+      "sourceTo": "C8.a",
+      "fromOwner": "R11",
+      "toOwner": "C8"
+    },
+    {
+      "id": "run:10",
+      "from": "C5.b",
+      "to": "point:1.45:1.4",
+      "points": [
+        [
+          230.0,
+          240.0
+        ],
+        [
+          208.4,
+          408.2
+        ]
+      ],
+      "kind": "wire",
+      "color": "#b7a483",
+      "sourceRun": "run:10",
+      "sourceFrom": "C5.b",
+      "sourceTo": [
+        1.45,
+        1.4
+      ],
+      "fromOwner": "C5",
+      "toOwner": null
+    },
+    {
+      "id": "run:11",
+      "from": "C7.b",
+      "to": "point:1.45:4",
+      "points": [
+        [
+          338.0,
+          240.0
+        ],
+        [
+          302.0,
+          408.2
+        ]
+      ],
+      "kind": "wire",
+      "color": "#b7a483",
+      "sourceRun": "run:11",
+      "sourceFrom": "C7.b",
+      "sourceTo": [
+        1.45,
+        4
+      ],
+      "fromOwner": "C7",
+      "toOwner": null
+    },
+    {
+      "id": "run:12",
+      "from": "C8.b",
+      "to": "point:1.45:7",
+      "points": [
+        [
+          446.0,
+          240.0
+        ],
+        [
+          410.0,
+          408.2
+        ]
+      ],
+      "kind": "wire",
+      "color": "#b7a483",
+      "sourceRun": "run:12",
+      "sourceFrom": "C8.b",
+      "sourceTo": [
+        1.45,
+        7
+      ],
+      "fromOwner": "C8",
+      "toOwner": null
+    },
+    {
+      "id": "run:13",
+      "from": "V2.pin8",
+      "to": "R8.a",
+      "points": [
+        [
+          462.712478,
+          491.917156
+        ],
+        [
+          467.6,
+          414.0
+        ],
+        [
+          482.0,
+          240.0
+        ]
+      ],
+      "kind": "wire",
+      "color": "#b7a483",
+      "sourceRun": "run:13",
+      "sourceFrom": "V2.pin8",
+      "sourceTo": "R8.a",
+      "fromOwner": "V2",
+      "toOwner": "R8"
+    },
+    {
+      "id": "run:14",
+      "from": "R8.b",
+      "to": "point:1.45:9.4",
+      "points": [
+        [
+          482.0,
+          356.0
+        ],
+        [
+          496.4,
+          408.2
+        ]
+      ],
+      "kind": "wire",
+      "color": "#b7a483",
+      "sourceRun": "run:14",
+      "sourceFrom": "R8.b",
+      "sourceTo": [
+        1.45,
+        9.4
+      ],
+      "fromOwner": "R8",
+      "toOwner": null
+    },
+    {
+      "id": "run:15",
+      "from": "C6.a",
+      "to": "R8.a",
+      "points": [
+        [
+          518.0,
+          240.0
+        ],
+        [
+          482.0,
+          240.0
+        ]
+      ],
+      "kind": "wire",
+      "color": "#b7a483",
+      "sourceRun": "run:15",
+      "sourceFrom": "C6.a",
+      "sourceTo": "R8.a",
+      "fromOwner": "C6",
+      "toOwner": "R8"
+    },
+    {
+      "id": "run:16",
+      "from": "C6.b",
+      "to": "point:1.45:10.6",
+      "points": [
+        [
+          554.0,
+          240.0
+        ],
+        [
+          539.6,
+          408.2
+        ]
+      ],
+      "kind": "wire",
+      "color": "#b7a483",
+      "sourceRun": "run:16",
+      "sourceFrom": "C6.b",
+      "sourceTo": [
+        1.45,
+        10.6
+      ],
+      "fromOwner": "C6",
+      "toOwner": null
+    },
+    {
+      "id": "run:17",
+      "from": "V2.pin4",
+      "to": "C7.a",
+      "points": [
+        [
+          437.107476,
+          447.567992
+        ],
+        [
+          460.4,
+          419.8
+        ],
+        [
+          230.0,
+          419.8
+        ],
+        [
+          230.0,
+          298.0
+        ],
+        [
+          266.0,
+          240.0
+        ]
+      ],
+      "kind": "wire",
+      "color": "#b7a483",
+      "sourceRun": "run:17",
+      "sourceFrom": "V2.pin4",
+      "sourceTo": "C7.a",
+      "fromOwner": "V2",
+      "toOwner": "C7"
+    },
+    {
+      "id": "run:18",
+      "from": "V2.pin3",
+      "to": "T2.blue",
+      "points": [
+        [
+          423.48334,
+          459.0
+        ],
+        [
+          460.4,
+          506.8
+        ],
+        [
+          863.6,
+          506.8
+        ],
+        [
+          863.6,
+          291.04
+        ],
+        [
+          911.0,
+          291.0
+        ]
+      ],
+      "kind": "wire",
+      "color": "#4f8fcf",
+      "sourceRun": "run:18",
+      "sourceFrom": "V2.pin3",
+      "sourceTo": "T2.blue",
+      "fromOwner": "V2",
+      "toOwner": "T2"
+    },
+    {
+      "id": "run:19",
+      "from": "T2.bplus",
+      "to": "C5.a",
+      "points": [
+        [
+          911.0,
+          305.0
+        ],
+        [
+          878.0,
+          523.04
+        ],
+        [
+          143.6,
+          523.04
+        ],
+        [
+          143.6,
+          321.2
+        ],
+        [
+          158.0,
+          240.0
+        ]
+      ],
+      "kind": "wire",
+      "color": "#b7a483",
+      "sourceRun": "run:19",
+      "sourceFrom": "T2.bplus",
+      "sourceTo": "C5.a",
+      "fromOwner": "T2",
+      "toOwner": "C5"
+    },
+    {
+      "id": "run:20",
+      "from": "R9.a",
+      "to": "V2.pin5",
+      "points": [
+        [
+          518.0,
+          356.0
+        ],
+        [
+          525.2,
+          414.0
+        ],
+        [
+          454.892524,
+          447.567992
+        ]
+      ],
+      "kind": "wire",
+      "color": "#b7a483",
+      "sourceRun": "run:20",
+      "sourceFrom": "R9.a",
+      "sourceTo": "V2.pin5",
+      "fromOwner": "R9",
+      "toOwner": "V2"
+    },
+    {
+      "id": "run:21",
+      "from": "R9.b",
+      "to": "point:1.45:11",
+      "points": [
+        [
+          554.0,
+          356.0
+        ],
+        [
+          554.0,
+          408.2
+        ]
+      ],
+      "kind": "wire",
+      "color": "#b7a483",
+      "sourceRun": "run:21",
+      "sourceFrom": "R9.b",
+      "sourceTo": [
+        1.45,
+        11
+      ],
+      "fromOwner": "R9",
+      "toOwner": null
+    },
+    {
+      "id": "run:22",
+      "from": "V1.pin1",
+      "to": "R7.a",
+      "points": [
+        [
+          754.717583,
+          493.034442
+        ],
+        [
+          762.8,
+          414.0
+        ],
+        [
+          626.0,
+          356.0
+        ]
+      ],
+      "kind": "wire",
+      "color": "#b7a483",
+      "sourceRun": "run:22",
+      "sourceFrom": "V1.pin1",
+      "sourceTo": "R7.a",
+      "fromOwner": "V1",
+      "toOwner": "R7"
+    },
+    {
+      "id": "run:23",
+      "from": "R7.a",
+      "to": "C3.a",
+      "points": [
+        [
+          626.0,
+          356.0
+        ],
+        [
+          626.0,
+          240.0
+        ]
+      ],
+      "kind": "wire",
+      "color": "#b7a483",
+      "sourceRun": "run:23",
+      "sourceFrom": "R7.a",
+      "sourceTo": "C3.a",
+      "fromOwner": "R7",
+      "toOwner": "C3"
+    },
+    {
+      "id": "run:24",
+      "from": "R7.b",
+      "to": "C8.a",
+      "points": [
+        [
+          662.0,
+          356.0
+        ],
+        [
+          626.0,
+          423.28
+        ],
+        [
+          345.2,
+          423.28
+        ],
+        [
+          334.4,
+          311.92
+        ],
+        [
+          374.0,
+          240.0
+        ]
+      ],
+      "kind": "wire",
+      "color": "#b7a483",
+      "sourceRun": "run:24",
+      "sourceFrom": "R7.b",
+      "sourceTo": "C8.a",
+      "fromOwner": "R7",
+      "toOwner": "C8"
+    },
+    {
+      "id": "run:25",
+      "from": "C3.b",
+      "to": "R9.a",
+      "points": [
+        [
+          698.0,
+          240.0
+        ],
+        [
+          856.4,
+          176.2
+        ],
+        [
+          554.0,
+          176.2
+        ],
+        [
+          518.0,
+          356.0
+        ]
+      ],
+      "kind": "wire",
+      "color": "#b7a483",
+      "sourceRun": "run:25",
+      "sourceFrom": "C3.b",
+      "sourceTo": "R9.a",
+      "fromOwner": "C3",
+      "toOwner": "R9"
+    },
+    {
+      "id": "run:26",
+      "from": "V1.pin3",
+      "to": "R6.a",
+      "points": [
+        [
+          745.272531,
+          463.965558
+        ],
+        [
+          748.4,
+          414.0
+        ],
+        [
+          622.4,
+          414.0
+        ],
+        [
+          590.0,
+          240.0
+        ]
+      ],
+      "kind": "wire",
+      "color": "#b7a483",
+      "sourceRun": "run:26",
+      "sourceFrom": "V1.pin3",
+      "sourceTo": "R6.a",
+      "fromOwner": "V1",
+      "toOwner": "R6"
+    },
+    {
+      "id": "run:27",
+      "from": "R6.b",
+      "to": "point:1.45:12",
+      "points": [
+        [
+          590.0,
+          356.0
+        ],
+        [
+          590.0,
+          408.2
+        ]
+      ],
+      "kind": "wire",
+      "color": "#b7a483",
+      "sourceRun": "run:27",
+      "sourceFrom": "R6.b",
+      "sourceTo": [
+        1.45,
+        12
+      ],
+      "fromOwner": "R6",
+      "toOwner": null
+    },
+    {
+      "id": "run:28",
+      "from": "SPK",
+      "to": "R13.a",
+      "points": [
+        [
+          608.0,
+          472.0
+        ],
+        [
+          608.0,
+          539.28
+        ],
+        [
+          194.0,
+          539.28
+        ],
+        [
+          158.0,
+          356.0
+        ]
+      ],
+      "kind": "wire",
+      "color": "#b7a483",
+      "sourceRun": "run:28",
+      "sourceFrom": "SPK",
+      "sourceTo": "R13.a",
+      "fromOwner": "SPK",
+      "toOwner": "R13"
+    },
+    {
+      "id": "run:29",
+      "from": "R13.b",
+      "to": "R6.a",
+      "points": [
+        [
+          194.0,
+          356.0
+        ],
+        [
+          179.6,
+          555.52
+        ],
+        [
+          572.0,
+          555.52
+        ],
+        [
+          572.0,
+          298.0
+        ],
+        [
+          590.0,
+          240.0
+        ]
+      ],
+      "kind": "wire",
+      "color": "#b7a483",
+      "sourceRun": "run:29",
+      "sourceFrom": "R13.b",
+      "sourceTo": "R6.a",
+      "fromOwner": "R13",
+      "toOwner": "R6"
+    },
+    {
+      "id": "run:30",
+      "from": "VR1.lug2",
+      "to": "V1.pin2",
+      "points": [
+        [
+          518.0,
+          134.0
+        ],
+        [
+          518.0,
+          199.4
+        ],
+        [
+          788.0,
+          205.2
+        ],
+        [
+          791.6,
+          414.0
+        ],
+        [
+          745.272531,
+          480.034442
+        ]
+      ],
+      "kind": "wire",
+      "color": "#b7a483",
+      "sourceRun": "run:30",
+      "sourceFrom": "VR1.lug2",
+      "sourceTo": "V1.pin2",
+      "fromOwner": "VR1",
+      "toOwner": "V1"
+    },
+    {
+      "id": "run:31",
+      "from": "VR1.lug1",
+      "to": "point:1.45:9.7",
+      "points": [
+        [
+          507.0,
+          134.0
+        ],
+        [
+          507.2,
+          408.2
+        ]
+      ],
+      "kind": "wire",
+      "color": "#b7a483",
+      "sourceRun": "run:31",
+      "sourceFrom": "VR1.lug1",
+      "sourceTo": [
+        1.45,
+        9.7
+      ],
+      "fromOwner": "VR1",
+      "toOwner": null
+    },
+    {
+      "id": "run:32",
+      "from": "J1",
+      "to": "R3.a",
+      "points": [
+        [
+          734.0,
+          112.0
+        ],
+        [
+          741.2,
+          193.6
+        ],
+        [
+          878.0,
+          199.4
+        ],
+        [
+          878.0,
+          402.4
+        ],
+        [
+          806.0,
+          356.0
+        ]
+      ],
+      "kind": "wire",
+      "color": "#b7a483",
+      "sourceRun": "run:32",
+      "sourceFrom": "J1",
+      "sourceTo": "R3.a",
+      "fromOwner": "J1",
+      "toOwner": "R3"
+    },
+    {
+      "id": "run:33",
+      "from": "J2",
+      "to": "R3.a",
+      "points": [
+        [
+          806.0,
+          112.0
+        ],
+        [
+          849.2,
+          193.6
+        ],
+        [
+          813.2,
+          309.6
+        ],
+        [
+          806.0,
+          356.0
+        ]
+      ],
+      "kind": "wire",
+      "color": "#b7a483",
+      "sourceRun": "run:33",
+      "sourceFrom": "J2",
+      "sourceTo": "R3.a",
+      "fromOwner": "J2",
+      "toOwner": "R3"
+    },
+    {
+      "id": "run:34",
+      "from": "R1.a",
+      "to": "R3.a",
+      "points": [
+        [
+          838.8,
+          128.0
+        ],
+        [
+          852.8,
+          303.8
+        ],
+        [
+          806.0,
+          356.0
+        ]
+      ],
+      "kind": "wire",
+      "color": "#b7a483",
+      "sourceRun": "run:34",
+      "sourceFrom": "R1.a",
+      "sourceTo": "R3.a",
+      "fromOwner": "R1",
+      "toOwner": "R3"
+    },
+    {
+      "id": "run:35",
+      "from": "R1.b",
+      "to": "point:1.45:19.3",
+      "points": [
+        [
+          866.8,
+          128.0
+        ],
+        [
+          852.8,
+          408.2
+        ]
+      ],
+      "kind": "wire",
+      "color": "#b7a483",
+      "sourceRun": "run:35",
+      "sourceFrom": "R1.b",
+      "sourceTo": [
+        1.45,
+        19.3
+      ],
+      "fromOwner": "R1",
+      "toOwner": null
+    },
+    {
+      "id": "run:36",
+      "from": "R3.b",
+      "to": "V1.pin7",
+      "points": [
+        [
+          842.0,
+          356.0
+        ],
+        [
+          842.0,
+          419.8
+        ],
+        [
+          794.727469,
+          463.965558
+        ]
+      ],
+      "kind": "wire",
+      "color": "#b7a483",
+      "sourceRun": "run:36",
+      "sourceFrom": "R3.b",
+      "sourceTo": "V1.pin7",
+      "fromOwner": "R3",
+      "toOwner": "V1"
+    },
+    {
+      "id": "run:37",
+      "from": "V1.pin6",
+      "to": "R5.a",
+      "points": [
+        [
+          785.282417,
+          450.965558
+        ],
+        [
+          755.6,
+          419.8
+        ],
+        [
+          698.0,
+          356.0
+        ]
+      ],
+      "kind": "wire",
+      "color": "#b7a483",
+      "sourceRun": "run:37",
+      "sourceFrom": "V1.pin6",
+      "sourceTo": "R5.a",
+      "fromOwner": "V1",
+      "toOwner": "R5"
+    },
+    {
+      "id": "run:38",
+      "from": "R5.b",
+      "to": "C8.a",
+      "points": [
+        [
+          770.0,
+          356.0
+        ],
+        [
+          705.2,
+          427.92
+        ],
+        [
+          705.2,
+          530.0
+        ],
+        [
+          302.0,
+          530.0
+        ],
+        [
+          284.0,
+          286.4
+        ],
+        [
+          374.0,
+          240.0
+        ]
+      ],
+      "kind": "wire",
+      "color": "#b7a483",
+      "sourceRun": "run:38",
+      "sourceFrom": "R5.b",
+      "sourceTo": "C8.a",
+      "fromOwner": "R5",
+      "toOwner": "C8"
+    },
+    {
+      "id": "run:39",
+      "from": "V1.pin6",
+      "to": "C1.a",
+      "points": [
+        [
+          785.282417,
+          450.965558
+        ],
+        [
+          788.0,
+          379.2
+        ],
+        [
+          770.0,
+          240.0
+        ]
+      ],
+      "kind": "wire",
+      "color": "#b7a483",
+      "sourceRun": "run:39",
+      "sourceFrom": "V1.pin6",
+      "sourceTo": "C1.a",
+      "fromOwner": "V1",
+      "toOwner": "C1"
+    },
+    {
+      "id": "run:40",
+      "from": "C1.b",
+      "to": "VR1.lug3",
+      "points": [
+        [
+          842.0,
+          240.0
+        ],
+        [
+          698.0,
+          182.0
+        ],
+        [
+          529.0,
+          134.0
+        ]
+      ],
+      "kind": "wire",
+      "color": "#b7a483",
+      "sourceRun": "run:40",
+      "sourceFrom": "C1.b",
+      "sourceTo": "VR1.lug3",
+      "fromOwner": "C1",
+      "toOwner": "VR1"
+    },
+    {
+      "id": "run:41",
+      "from": "V1.pin8",
+      "to": "R4.a",
+      "points": [
+        [
+          794.727469,
+          480.034442
+        ],
+        [
+          820.4,
+          419.8
+        ],
+        [
+          734.0,
+          240.0
+        ]
+      ],
+      "kind": "wire",
+      "color": "#b7a483",
+      "sourceRun": "run:41",
+      "sourceFrom": "V1.pin8",
+      "sourceTo": "R4.a",
+      "fromOwner": "V1",
+      "toOwner": "R4"
+    },
+    {
+      "id": "run:42",
+      "from": "R4.b",
+      "to": "point:1.45:16",
+      "points": [
+        [
+          734.0,
+          356.0
+        ],
+        [
+          734.0,
+          408.2
+        ]
+      ],
+      "kind": "wire",
+      "color": "#b7a483",
+      "sourceRun": "run:42",
+      "sourceFrom": "R4.b",
+      "sourceTo": [
+        1.45,
+        16
+      ],
+      "fromOwner": "R4",
+      "toOwner": null
+    },
+    {
+      "id": "bus:0",
+      "from": "point:1.45:-0.4",
+      "to": "point:1.45:19.4",
+      "points": [
+        [
+          143.6,
+          408.2
+        ],
+        [
+          856.4,
+          408.2
+        ]
+      ],
+      "kind": "bus",
+      "color": "#e6dcc2",
+      "sourceRun": "bus:0",
+      "sourceFrom": [
+        1.45,
+        -0.4
+      ],
+      "sourceTo": [
+        1.45,
+        19.4
+      ],
+      "fromOwner": null,
+      "toOwner": null
+    }
+  ],
+  "omittedConnections": [
+    {
+      "sourceRun": "run:43",
+      "sourceFrom": "PT.green",
+      "sourceTo": "PL1.a",
+      "omittedStrands": 2,
+      "reason": "6.3 V heater wiring is omitted while the source layout's heater connections are being corrected. The 12AX7 needs joined pins 4/5 against pin 9; the current pair expansion omits pin 9.",
+      "reviewedAt": "2026-09-09",
+      "sources": [
+        {
+          "desc": "Fender Champ-Amp 5F1 K-EE factory layout, page 2: joined 12AX7 pins 4/5 and grounded pin 9",
+          "url": "https://schematicheaven.net/fenderamps/champ_5f1_schem.pdf"
+        },
+        {
+          "desc": "RCA 12AX7-A October 1960, pages 1-2: 6.3 V parallel operation and heater basing",
+          "url": "https://frank.pocnet.net/sheets/049/1/12AX7A.pdf"
+        }
+      ]
+    },
+    {
+      "sourceRun": "run:44",
+      "sourceFrom": "PL1.b",
+      "sourceTo": "V2.pin7",
+      "omittedStrands": 2,
+      "reason": "6.3 V heater wiring is omitted while the source layout's heater connections are being corrected. The 12AX7 needs joined pins 4/5 against pin 9; the current pair expansion omits pin 9.",
+      "reviewedAt": "2026-09-09",
+      "sources": [
+        {
+          "desc": "Fender Champ-Amp 5F1 K-EE factory layout, page 2: joined 12AX7 pins 4/5 and grounded pin 9",
+          "url": "https://schematicheaven.net/fenderamps/champ_5f1_schem.pdf"
+        },
+        {
+          "desc": "RCA 12AX7-A October 1960, pages 1-2: 6.3 V parallel operation and heater basing",
+          "url": "https://frank.pocnet.net/sheets/049/1/12AX7A.pdf"
+        }
+      ]
+    },
+    {
+      "sourceRun": "run:45",
+      "sourceFrom": "V2.pin2",
+      "sourceTo": "V1.pin4",
+      "omittedStrands": 2,
+      "reason": "6.3 V heater wiring is omitted while the source layout's heater connections are being corrected. The 12AX7 needs joined pins 4/5 against pin 9; the current pair expansion omits pin 9.",
+      "reviewedAt": "2026-09-09",
+      "sources": [
+        {
+          "desc": "Fender Champ-Amp 5F1 K-EE factory layout, page 2: joined 12AX7 pins 4/5 and grounded pin 9",
+          "url": "https://schematicheaven.net/fenderamps/champ_5f1_schem.pdf"
+        },
+        {
+          "desc": "RCA 12AX7-A October 1960, pages 1-2: 6.3 V parallel operation and heater basing",
+          "url": "https://frank.pocnet.net/sheets/049/1/12AX7A.pdf"
+        }
+      ]
+    },
+    {
+      "sourceRun": "run:46",
+      "sourceFrom": "V1.pin4",
+      "sourceTo": "V1.pin5",
+      "omittedStrands": 1,
+      "reason": "6.3 V heater wiring is omitted while the source layout's heater connections are being corrected. The 12AX7 needs joined pins 4/5 against pin 9; the current pair expansion omits pin 9.",
+      "reviewedAt": "2026-09-09",
+      "sources": [
+        {
+          "desc": "Fender Champ-Amp 5F1 K-EE factory layout, page 2: joined 12AX7 pins 4/5 and grounded pin 9",
+          "url": "https://schematicheaven.net/fenderamps/champ_5f1_schem.pdf"
+        },
+        {
+          "desc": "RCA 12AX7-A October 1960, pages 1-2: 6.3 V parallel operation and heater basing",
+          "url": "https://frank.pocnet.net/sheets/049/1/12AX7A.pdf"
+        }
+      ]
+    }
+  ],
+  "unplacedBOMRefs": [
+    "C2",
+    "C4"
+  ]
+}
