@@ -12,6 +12,10 @@ import { loadHistory, GITHUB } from '../../lib/corpus.js';
 const families = loadHistory();
 const totalModels = families.reduce((n, f) => n + f.models.length, 0);
 const totalDocumented = families.reduce((n, f) => n + f.documentedCount, 0);
+// Documented and verified are separate counts because they are separate claims.
+// Most documented circuits are published as drafts; the tier prose below has to
+// say so rather than describing every linked circuit as verified.
+const totalVerified = families.reduce((n, f) => n + f.verifiedCount, 0);
 
 // A short lede pulled from the family summary — first sentence, so the card stays tight.
 function firstSentence(text) {
@@ -50,8 +54,10 @@ const jsonld = {
       section places each amp in its family — the chain of revisions it came from and the
       ones that followed — as a dated, sourced era timeline. Most entries are
       <strong>history-tier</strong>: the model is placed and cited but its circuit isn't
-      drawn yet. A few link straight to the fully documented circuit page. {families.length}
-      lines, {totalModels} models, {totalDocumented} with a documented circuit.</p>
+      drawn yet. The rest link straight to a circuit page — most of those published as
+      drafts, a smaller number <a href="/about/#verified">verified</a>. {families.length}
+      lines, {totalModels} models, {totalDocumented} with a documented circuit,
+      {totalVerified} of them verified.</p>
   </header>
 
   <section>
@@ -67,7 +73,8 @@ const jsonld = {
               Counts come from the family file tagged against the live corpus, so a
               newly documented circuit moves the number on its own. */}
           {f.documentedCount > 0 && (
-            <div class="cdoc">{f.documentedCount} of {f.models.length} models documented</div>
+            <div class="cdoc">{f.documentedCount} of {f.models.length} models documented{
+              f.verifiedCount > 0 ? ` · ${f.verifiedCount} verified` : ''}</div>
           )}
           <p class="cdesc">{firstSentence(f.summary)}</p>
           <div class="chips">
@@ -81,9 +88,12 @@ const jsonld = {
   </section>
 
   <p class="foot-note">History-tier entries record a model's place, era, tube complement
-    and the change that defined it, with sources — but no redrawn schematic, verified
+    and the change that defined it, with sources — but no redrawn schematic, simulated
     operating point, or parts list yet. Those are the documented circuits, earned one at a
-    time. Want to move an entry from history-tier to documented?
+    time. A documented circuit is not automatically a verified one: it is published as a
+    draft until its operating point has been held against a published voltage chart and a
+    maintainer has signed off, and each family page marks which of its circuits have. Want
+    to move an entry from history-tier to documented?
     <a href="/about/#contribute">Here's how to contribute a circuit.</a></p>
 </div>
 </Base>

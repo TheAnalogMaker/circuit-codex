@@ -1,6 +1,6 @@
 ---
 import Base from '../../layouts/Base.astro';
-import { loadCorpus, displayId, ampMetaDescription, layoutAlt, layoutMinWidth, topologyHref, circuitFamilyMap, loadHistory, TOPOLOGY_DIMENSIONS, loadLoadlineStages, toneStackPresetIds, ampOpPoints, designatorScheme, schematicNetsVerified, listPhrase, GITHUB } from '../../lib/corpus.js';
+import { loadCorpus, displayId, ampMetaDescription, layoutAlt, layoutMinWidth, topologyHref, circuitFamilyMap, loadHistory, TOPOLOGY_DIMENSIONS, loadLoadlineStages, toneStackPresetIds, ampOpPoints, designatorScheme, schematicNetsVerified, listPhrase, correctionUrl, GITHUB } from '../../lib/corpus.js';
 
 export async function getStaticPaths() {
   const stages = new Map(loadLoadlineStages().map((s) => [s.amp, s]));
@@ -14,6 +14,13 @@ const m = amp.meta;
 const v = m.verification || {};
 const vDate = v.date ? new Date(v.date).toISOString().slice(0, 10) : null;
 const ghDir = `${GITHUB}/tree/main/amps/${amp.id}`;
+// Contextual correction route for this circuit — the correction issue form opened
+// with the circuit id and this page's URL already in it. See correctionUrl().
+const correctionHref = correctionUrl({
+  ampId: amp.id,
+  display: displayId(amp.id),
+  pageUrl: new URL(`amps/${amp.id}/`, Astro.site).href,
+});
 const wiringVerified = amp.layout?.wiring_claim === 'verified';
 // Whether this sheet's drawn net structure is hard-gated against the netlist —
 // read from the amp's own sch_map.yaml, never assumed from the sheet's existence.
@@ -519,16 +526,27 @@ const styleNoBreak = String(m.name_style).replace(/-/g, '‑');
     </div>
   </div>
 
-  {m.sources && (
-    <section class="sources">
-      <h2 id="sources">Sources</h2>
+  <section class="sources">
+    <h2 id="sources">Sources</h2>
+    {m.sources && (
       <ul class="src">{m.sources.map((s) => (
         <li>{typeof s === 'string' ? s : (<>
           {s.desc}{s.url && <> — <a href={s.url} rel="external nofollow">{new URL(s.url).hostname}</a></>}
         </>)}</li>
       ))}</ul>
-    </section>
-  )}
+    )}
+    {/* A correction route that knows which circuit the reader is looking at. The
+        footer's general contribution link made them restate the page they came
+        from and pick a template; this opens the project's correction form with the
+        circuit id and this URL already in it. Nothing else is prefilled — what is
+        wrong, and what it was checked against, are the reader's to write, and the
+        link only opens the form: GitHub still requires them to submit it. */}
+    <p class="correct">Found a value, a date or a claim on this page that doesn't match
+      its source? <a href={correctionHref} rel="external nofollow"
+        >Report a correction for {displayId(amp.id)} ↗</a> — the form opens with this page
+      and its circuit id filled in, and asks what you checked it against. Every correction
+      is reviewed before anything changes.</p>
+  </section>
 
   {/* --- related circuits; remove this block to revert --- */}
   {relatedGroups.length > 0 && (
@@ -824,6 +842,7 @@ const styleNoBreak = String(m.name_style).replace(/-/g, '‑');
   .sources{max-width:76ch}
   .src{margin:0;padding-left:16px;font-size:13px;color:var(--faint)}
   .src li{margin-bottom:6px}
+  .correct{margin:14px 0 0;padding-top:12px;border-top:1px dashed var(--line);font-size:12.5px;line-height:1.6;color:var(--faint)}
   /* --- related circuits --- */
   .related{max-width:76ch;margin-top:28px}
   .rel{margin:0;display:grid;grid-template-columns:max-content 1fr;gap:9px 14px;font-size:13.5px}

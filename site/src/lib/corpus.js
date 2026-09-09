@@ -661,28 +661,77 @@ export function shortDesignation(desig) {
   return String(desig).split(/\s+\/\s+/)[0].trim();
 }
 
+// A model's own fragment id, stable against row order. The table used to number
+// rows `m-0`, `m-1` … which meant inserting one newly researched model silently
+// re-pointed every anchor below it — including the ones the lineage graph and any
+// link carried off-site. The identity a model already owns is used instead: its
+// circuit id where one exists (validate.py proves circuit_ref unique across the
+// history tier), otherwise its designation slugged.
+//
+// Designations are NOT unique on their own. Three families list the same one twice
+// — the two AA764 Champs, the two GA-40 Gibsons, the two 6161 Supros — because a
+// factory kept a number across a revision the corpus treats as two models. Where
+// that collides, the model's first production year separates them (`m-6161-1957`),
+// and an ordinal is the last resort.
+function slugDesignation(desig) {
+  return String(desig).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+}
+
+function assignAnchors(models) {
+  const used = new Set();
+  for (const m of models) {
+    if (!m.documented) continue;
+    m.anchor = `m-${m.ampId}`;
+    used.add(m.anchor);
+  }
+  for (const m of models) {
+    if (m.documented) continue;
+    const base = `m-${slugDesignation(m.designation)}`;
+    let a = base;
+    if (used.has(a) && m.years?.start != null) a = `${base}-${m.years.start}`;
+    for (let n = 2; used.has(a); n++) a = `${base}-${n}`;
+    m.anchor = a;
+    used.add(a);
+  }
+  return models;
+}
+
 // Load every family file, tag each model documented/ghost against the live corpus,
 // and attach a slug + era span. Sorted by the first model's start year (oldest lines
 // first) so the /history/ index and lineage lanes read chronologically.
+//
+// Documentation availability and verification are two different facts and are
+// carried as two different fields. `documented` says a circuit directory exists;
+// `verified` is read from that circuit's own meta.verification.status and from
+// nowhere else — never from the directory existing, never from a voltage chart
+// having rows. A family page that inferred one from the other put a verified check
+// mark on four Marshall circuits whose own pages say draft.
 export function loadHistory() {
   if (!fs.existsSync(HISTORY_DIR)) return [];
-  const corpusIds = new Set(loadCorpus().map((a) => a.id));
+  const byId = new Map(loadCorpus().map((a) => [a.id, a]));
   const fams = fs.readdirSync(HISTORY_DIR)
     .filter((f) => f.endsWith('.yaml'))
     .map((f) => {
       const fam = yaml.load(fs.readFileSync(path.join(HISTORY_DIR, f), 'utf8'));
       const slug = f.replace(/\.ya?ml$/, '');
-      const models = (fam.models || []).map((m) => {
+      const models = assignAnchors((fam.models || []).map((m) => {
         const ref = m.circuit_ref ?? null;
-        const documented = !!(ref && corpusIds.has(ref));
+        const documented = !!(ref && byId.has(ref));
+        const verified = documented
+          && byId.get(ref).meta?.verification?.status === 'verified';
         return {
           ...m,
           circuit_ref: ref,
           documented,
+          verified,
+          // One word for the three states the page has to keep apart, so a template
+          // never has to recombine two booleans and get it wrong.
+          tier: documented ? (verified ? 'verified' : 'draft') : 'history',
           ampId: documented ? ref : null,
           shortDesig: shortDesignation(m.designation),
+          sources: m.sources || [],
         };
-      });
+      }));
       const starts = models.map((m) => m.years?.start).filter((y) => y != null);
       const ends = models.map((m) => m.years?.end).filter((y) => y != null);
       return {
@@ -694,12 +743,81 @@ export function loadHistory() {
         notes: (fam.notes || '').trim(),
         models,
         documentedCount: models.filter((m) => m.documented).length,
+        verifiedCount: models.filter((m) => m.verified).length,
         eraStart: starts.length ? Math.min(...starts) : null,
         eraEnd: ends.length ? Math.max(...ends) : null,
       };
     });
   return fams.sort((a, b) =>
     (a.eraStart ?? 9999) - (b.eraStart ?? 9999) || a.slug.localeCompare(b.slug));
+}
+
+// ------------------------------------------------------- contribution routes
+// Context-preserving links into the repository's existing issue forms. GitHub's
+// issue-form prefill fills a field by its `id` in .github/ISSUE_TEMPLATE/*.yml, so
+// these names are a contract with those files: `designation`/`style`/`why`/`sources`
+// on wanted-circuit.yml, `circuit`/`kind`/`claim`/`source` on correction.yml.
+//
+// Two rules bind what may go in a query string here. Nothing is prefilled that is
+// not already printed on the page the reader came from — the link carries page
+// context, never anything the reader has not seen. And the reader's own finding is
+// never written for them: every prefill ends at the blank line where their text
+// starts. A prefill link only opens a form; GitHub still requires the reader to
+// submit it, so ordinary navigation never files anything.
+const ISSUE_NEW = `${GITHUB}/issues/new`;
+
+// GitHub truncates a prefilled form silently past roughly 8 kB of URL. The longest
+// per-model source block in the corpus is about 2 kB of description text, so the
+// budget is generous — but it is enforced rather than assumed, and when it bites,
+// the descriptions drop and the URLs stay, because a bare link is still checkable.
+const PREFILL_BUDGET = 6000;
+
+function sourceBlock(sources) {
+  const full = (sources || []).map((s) => `- ${s.desc} — ${s.url}`).join('\n');
+  if (full.length <= PREFILL_BUDGET) return full;
+  return (sources || []).map((s) => `- ${s.url}`).join('\n');
+}
+
+function issueUrl(template, fields) {
+  const q = new URLSearchParams({ template });
+  for (const [k, v] of Object.entries(fields)) if (v) q.set(k, v);
+  return `${ISSUE_NEW}?${q.toString()}`;
+}
+
+// "Suggest research for <designation>" — a history-tier model with no drawn
+// circuit. Designation, the row's page URL and the citations already printed in
+// that row go in; why it matters and what else to read do not.
+export function wantedCircuitUrl({ designation, pageUrl, sources }) {
+  const cited = sourceBlock(sources);
+  return issueUrl('wanted-circuit.yml', {
+    title: `Wanted: ${designation}`,
+    designation,
+    sources: cited
+      ? `Already cited on ${pageUrl} for this model:\n${cited}\n\nOther published sources you would read from:\n`
+      : `Published sources you would read from:\n`,
+    why: `Requested from the Circuit Codex history page for this model: ${pageUrl}\n\nWhat this circuit adds:\n`,
+  });
+}
+
+// "Report a correction for <circuit>" — a drawn circuit's own page. The circuit id
+// and the page URL are the context; what is wrong and what it was checked against
+// are the reader's to write, and the form's own dropdown stays unset rather than
+// guessing which kind of error brought them here.
+export function correctionUrl({ ampId, display, pageUrl }) {
+  return issueUrl('correction.yml', {
+    title: `Correction: ${display}`,
+    circuit: ampId,
+    claim: `Page: ${pageUrl}\n\nWhat it currently says:\n`,
+  });
+}
+
+// Open issues already mentioning a designation. Offered ahead of the new-request
+// action so a reader joins an existing thread instead of opening its duplicate.
+// The absence of a maintained model→issue mapping is not evidence that no issue
+// exists, so this searches rather than asserting either way.
+export function issueSearchUrl(designation) {
+  const q = new URLSearchParams({ q: `is:issue state:open ${designation}` });
+  return `${GITHUB}/issues?${q.toString()}`;
 }
 
 // Reverse lookup: circuit id → the history family that documents it (title + slug),
