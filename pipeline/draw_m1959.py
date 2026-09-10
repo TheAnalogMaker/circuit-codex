@@ -400,13 +400,11 @@ s.text("Bias supply: 27 k in series from the HT winding end into its own diode, 
 # ---- parts the drawing annotates rather than wires -------------------------
 s.sym("C", "C29", ".22u", 185, 276, lx=-2.8, ly=-5.6)
 s.sym("C", "C30", ".22u", 201, 276, lx=-2.8, ly=-5.6)
-s.sym("C", "C31", ".05u", 217, 276, lx=-2.8, ly=-5.6)
 s.text("Annotated on the drawing and drawn here without connections: C29 / "
-       "C30 0.22 uF snubbers at the HT winding", 20, 278, 1.2)
-s.text("and C31 0.05 uF mains-to-chassis. The 4 A mains fuse, 1 A HT fuse, "
-       "standby switch and pilot lamp", 20, 282, 1.2)
-s.text("are annotations too, and the 6.3 V heater winding is omitted — see "
-       "the netlist and the sources list.", 20, 286, 1.2)
+       "C30 0.22 uF snubbers at the HT winding.", 20, 278, 1.2)
+s.text("The 4 A mains fuse, 1 A HT fuse, standby switch and pilot lamp are "
+       "annotations too, and the 6.3 V heater", 20, 282, 1.2)
+s.text("winding is omitted — see the netlist and the sources list.", 20, 286, 1.2)
 
 s.write(OUT, [
     "Four EL34s in parallel push-pull off a silicon bridge — the 100 W head on the model 1987's front end. Heaters, PT primary and pilot lamp omitted.",

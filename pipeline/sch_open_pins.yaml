@@ -64,12 +64,6 @@ amps:
     - pin: C30.2
       reason: "The factory drawing prints this HT-winding snubber as an unconnected annotation, and bom.yaml records that; drawing a lead would claim a connection the source does not show."
       added: 2026-09-02
-    - pin: C31.1
-      reason: "The factory drawing prints this mains-to-chassis capacitor as an unconnected annotation, and bom.yaml records that; the sheet draws no mains side to wire it to."
-      added: 2026-09-02
-    - pin: C31.2
-      reason: "The factory drawing prints this mains-to-chassis capacitor as an unconnected annotation, and bom.yaml records that; the sheet draws no mains side to wire it to."
-      added: 2026-09-02
 
   5e6a:
     - pin: VR5.3
