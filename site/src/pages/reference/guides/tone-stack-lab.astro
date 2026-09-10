@@ -38,11 +38,27 @@ const otherNetwork = absent.filter((a) => !topCut.includes(a)
   && !gated.includes(a) && !singleKnob.includes(a));
 // The gated group is whatever extras remain without a preset. Split by the
 // circuit's own topology so the sentence does not call a three-knob stack a
-// two-knob ladder.
-const gatedLadder = gated.filter((a) => a.meta.topology.tone_stack === 'tb');
-const gatedOther = gated.filter((a) => !gatedLadder.includes(a));
+// two-knob ladder — and so that the circuits which are neither do not get a
+// claim about their network borrowed from the bucket next door. The third
+// bucket therefore names its members and says only what is true of every gated
+// entry: the wiring gate walks a network only under a kind this lab already
+// solves, so what those circuits wait on is a preset, never a new model.
 const nameList = (list) => list.map((a) => displayId(a.id)).join(', ')
   .replace(/, ([^,]*)$/, ' and $1');
+const gatedLadder = gated.filter((a) => a.meta.topology.tone_stack === 'tb');
+const gatedFmv = gated.filter((a) => ['fmv', 'cathode-follower-fmv']
+  .includes(a.meta.topology.tone_stack));
+const gatedRest = gated.filter((a) => !gatedLadder.includes(a) && !gatedFmv.includes(a));
+const gatedClauses = [
+  gatedLadder.length && `${nameList(gatedLadder)} ${gatedLadder.length === 1 ? 'draws' : 'draw'}`
+    + ' the same two-knob ladder the blackface presets are solved with',
+  gatedFmv.length && `${nameList(gatedFmv)} ${gatedFmv.length === 1 ? 'draws' : 'draw'}`
+    + ' the three-knob network the tweed and British presets are solved with',
+  gatedRest.length && `${nameList(gatedRest)} ${gatedRest.length === 1 ? 'draws a network' : 'draw networks'}`
+    + ' this lab solves for other circuits but has not yet built a preset around',
+].filter(Boolean);
+const gatedSentence = gatedClauses.length < 2 ? gatedClauses[0]
+  : `${gatedClauses.slice(0, -1).join(', ')}, and ${gatedClauses[gatedClauses.length - 1]}`;
 
 // The page ships a real curve in the HTML, drawn by the same code the browser
 // uses, so the figure is there before (and without) any script.
@@ -380,18 +396,16 @@ const description = 'An interactive frequency-response lab for the passive tone 
       {' '}{presets.length} of them are presets here.{absent.length === 0 ? '' : ' '}
       {absent.length > 0 && (<>Of the {absent.length} that are absent,
       {topCut.length > 0 && (<>
-        {' '}{nameList(topCut)} {topCut.length === 1 ? 'is the one' : 'are the ones'} whose
+        {/* A bare space between two adjacent expressions is dropped by the compiler,
+            which is how "AC15 and AC30are the ones" shipped — spaces that matter are
+            written {' '}. */}
+        {' '}{nameList(topCut)}{' '}{topCut.length === 1 ? 'is the one' : 'are the ones'} whose
         network the solver genuinely lacks: the Vox Top Cut sits after the phase inverter,
         bridged across both of its outputs — a differential cut with no counterpart in these
         stacks.
       </>)}
       {gated.length > 0 && (<>
-        {' '}{nameList(gatedLadder)} {gatedLadder.length === 1 ? 'draws' : gatedLadder.length > 1 ? 'draw' : ''}
-        {gatedLadder.length > 0 && <> the same two-knob ladder the blackface presets are solved with</>}
-        {gatedOther.length > 0 && (
-          <>, and {nameList(gatedOther)}{' '}{gatedOther.length === 1 ? 'draws' : 'draw'}
-          {' '}the three-knob network the tweed and British presets are solved with</>
-        )}. {gated.length === 1 ? 'It is' : 'All are'} read at lug level and held by the same
+        {' '}{gatedSentence}. {gated.length === 1 ? 'It is' : 'All are'} read at lug level and held by the same
         wiring gate as the presets here, but not yet built into
         {' '}{gated.length === 1 ? 'a preset' : 'presets'} — {gated.length === 1 ? 'it waits' : 'they wait'}
         {' '}on that step rather than on a new model.

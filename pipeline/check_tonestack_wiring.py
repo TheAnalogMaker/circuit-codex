@@ -60,13 +60,45 @@ cathode follower and recombine at the output:
     N6   bass leg          bass-pot end lug · 0.005 µF to ground; the pot's
                            other end lug is grounded outright
 
+'treble-cut' — the single-knob tweed control (kind 'single-knob'), the network
+tonestack.js models as trebleCutElements: a series capacitor and a rheostat
+bleeding treble from the signal node to ground.
+
+    IN   signal node       cut capacitor's hot end (a plate, a coupler node or
+                           the volume pot's top lug — whatever the amp feeds it
+                           from; the gate asserts only that it is not ground)
+    M    branch middle     cut capacitor · the pot's live lug(s)
+    GND  the pot's other live lug
+
+    Whether the capacitor or the pot sits nearer the signal node is arbitrary in
+    a two-element series branch, and both orders are drawn in this corpus. A
+    third pot lug may be strapped to one of the two nets (the 5F2-A idiom) or
+    left unwired (the 6161/GA-40 idiom, waived in sch_open_pins.yaml). What the
+    gate does insist on is that the WIPER sits on one of those two nets: a wiper
+    on a third live net is a three-terminal blend, not a cut, and that is a
+    different network — it is exactly what separates the 5F2-A from the 5D3,
+    5E3 and 5G9, whose tone pots divide between a treble path and a cut path.
+
+Coverage accounting
+-------------------
+A gate that walks only what it is handed reports zero problems for every
+network nobody declared, which reads as verified and is not. So this file also
+carries UNCHECKED_NETWORKS: one dated entry per drawn tone network this gate
+cannot walk, with the reason. It is not documentation — it is enforced. Every
+circuit whose meta.yaml declares a tone network must either be walked here or
+be named there, and an entry naming a network that IS now walked fails as a
+stale waiver. A new amp cannot land with an unwalked tone network and no entry.
+
 Run from pipeline/:  python3 check_tonestack_wiring.py
 """
 from __future__ import annotations
 
 import re
 import sys
+import textwrap
 from pathlib import Path
+
+import yaml
 
 from sch_nets import Nets
 
@@ -78,13 +110,101 @@ CORPUS_JS = ROOT / "site" / "src" / "lib" / "corpus.js"
 POT_ENDS = ("1", "3")
 POT_WIPER = "2"
 
+# Every tone network this gate does not walk, keyed `<amp id>` or
+# `<amp id>:<channel>`, with the reason it is out of reach. Enforced, not
+# decorative: `audit_coverage()` fails on a circuit that declares a tone network
+# and appears in neither the spec tables nor this one, and on an entry naming a
+# network the spec tables now walk. Where an entry records a disagreement with
+# the amp's own cited sheet it is a defect note, not a licence — the network
+# stays out of the walked set until the drawing is repaired and declared.
+UNCHECKED_NETWORKS = {
+    # --- single-knob blends: the pot divides between a treble path and a cut
+    # path, so its wiper sits on a third live net. tonestack.js models the cut
+    # (trebleCutElements) but not the blend, and the two are different networks.
+    "5d3": "Single-knob blend: the 1 M tone pot divides between a 500 pF treble path "
+           "and a 0.005 uF cut path, with its wiper feeding the next grid. No lab model.",
+    "5e3": "Single-knob blend as the 5D3 draws it, and the control additionally sits "
+           "inside this amp's interactive volume network rather than being fed from one "
+           "stage, so even the drive model the solver assumes does not describe it.",
+    "5g9": "Single-knob blend as the 5D3 draws it (500 pF treble path, 0.005 uF cut), "
+           "wiper on the mixing node. No lab model.",
+    "6g3:normal": "Single-knob blend, one per channel — the 6G3 draws the 5D3 network "
+                  "twice with different cut capacitors. No lab model.",
+    "6g3:bright": "The second of the 6G3's two single-knob blends (0.02 uF cut).",
+
+    # --- networks the lab has no `kind` for at all.
+    "5e5a": "Two cascaded pots: 0.01 uF into the Treble control, whose wiper feeds the "
+            "Bass control's top lug, with a 500 pF shunt off the Treble cold lug and the "
+            "Bass wiper driving the phase inverter. meta.yaml calls it `james`; it is not "
+            "the B-15N's James board and the lab models neither.",
+    "5e6a": "Bass shelf and treble branch never meet in a stack: the Bass control rides "
+            "the shared presence/feedback bus through 220 kOhm with a 220 kOhm/0.005 uF "
+            "shelf under its wiper, while the treble path runs two series capacitors "
+            "(0.1 uF then 250 pF) through a Treble rheostat and into the driver grid "
+            "through 47 pF. No lab model.",
+    "6g6b:bass": "Cathode-follower-fed network with a 1 MOhm bass leg bridged by two "
+                 "0.25 uF capacitors and a 10 kOhm dropper paralleled by a 25 kOhm Bass "
+                 "control, and the channel's Treble control sitting in the shared driver "
+                 "bottle's own signal path. No lab model.",
+    "ac15": "Top Cut is a differential control — 250 kOhm and 0.005 uF across the two "
+            "phase-inverter outputs — not a stack fed from one stage. The Vibrato "
+            "channel's switched TONE I / TONE II voicing network is annotation only. "
+            "A model for either would have to be written first.",
+    "ac30": "The Cut control is the AC15's differential top cut (250 kOhm, 0.0047 uF "
+            "across the phase-inverter outputs). No lab model.",
+    "b15n:channel 1": "A James tone board: 220 kOhm into the Bass pot with 0.001 uF top-"
+                      "to-wiper and 0.01 uF bottom-to-wiper and a 22 kOhm foot, 470 pF "
+                      "into the Treble pot with a 0.0047 uF foot, and a 120 kOhm link "
+                      "joining the two wipers as the board output. No lab model.",
+    "b15n:channel 2": "The B-15N draws its James board twice; this is the second copy "
+                      "(P.E.C. 250762-1), part for part the first.",
+    "s1484": "No schematic.kicad_sch in the corpus, so there is no drawing for this gate "
+             "to read. Its two channels' bass network plus treble-cut rheostat are "
+             "recorded in bom.yaml and netlist.cir only.",
+
+    # --- drawn networks that disagree with the amp's own cited factory sheet.
+    # Read off the sheets on 2026-09-09; the crops are named in the finding.
+    # These cannot be declared until the drawing (and the parts list behind it)
+    # is repaired: declaring them would gate the wrong network.
+    "6g4:channel 1": "DEFECT (2026-09-09): the cited 6G4 sheet feeds the tone network "
+                     "from the input-stage plate through a 0.05 uF coupling capacitor "
+                     "and hangs a 0.01 uF capacitor from the slope foot to the Bass "
+                     "wiper, whose 10 kOhm runs to ground with the pot's own foot "
+                     "grounded. The drawing here has neither capacitor, takes the "
+                     "100 kOhm slope straight off the plate (a DC path to ground through "
+                     "the stack) and straps the Bass pot as a rheostat above the 10 kOhm.",
+    "6g4:channel 2": "The 6G4's second channel is drawn as the mirror of channel 1 and "
+                     "carries the same defect; the sheet draws the two identically.",
+    "6g5:channel 1": "DEFECT (2026-09-09): the cited 6G5 sheet draws the 6G4 network "
+                     "exactly — 0.05 uF coupler, 100 kOhm slope, 0.01 uF to the Bass "
+                     "wiper, 10 kOhm to ground. This drawing has no slope resistor and "
+                     "no coupler at all, and puts the 10 kOhm in series with the 0.01 uF "
+                     "between the plate and the stack, where bom.yaml's own role for it "
+                     "says `tone network foot`.",
+    "6g5:channel 2": "The 6G5's second channel mirrors channel 1 and carries the same "
+                     "defect.",
+    "6g6b:normal": "DEFECT (2026-09-09): the cited 6G6-B sheet draws the blackface "
+                   "ladder — 100 kOhm slope off the plate, 0.1 uF to the tapped Treble "
+                   "pot's 70 kOhm tap, 0.05 uF from the slope foot to the Bass foot, "
+                   "6.8 kOhm to ground, and the Treble pot's own bottom lug bled to "
+                   "ground through 0.005 uF. This drawing has no slope resistor and no "
+                   "0.1 uF, runs the 0.05 uF from the plate instead, and collapses the "
+                   "slope foot, the tap and the Bass foot into one node.",
+}
+
 
 def _parse_table(src: str, name: str) -> list:
     m = re.search(r"const " + name + r" = \[(.*?)\n\];", src, re.S)
     if not m:
         raise SystemExit(f"check_tonestack_wiring: {name} not found in corpus.js")
+    # Whole-line `//` comments first: an entry that opens with one used to fall
+    # out of the block pattern silently, and a spec this gate never parses is a
+    # drawing this gate never walks while the summary still says zero failures.
+    # That is how the 5F2-A — a *plotted* preset — went unwalked from the day it
+    # landed. The count assertion below is what makes the silence impossible.
+    body_src = "\n".join(ln for ln in m.group(1).split("\n") if not ln.lstrip().startswith("//"))
     specs = []
-    for block in re.findall(r"\{\s*\n?\s*id: '([^']+)', kind: '([^']+)',(.*?)\n  \},", m.group(1), re.S):
+    for block in re.findall(r"\{\s*\n?\s*id: '([^']+)', kind: '([^']+)',(.*?)\n  \},", body_src, re.S):
         amp, kind, body = block
         refs = {}
         rm = re.search(r"refs: \{([^}]*)\}", body)
@@ -100,6 +220,11 @@ def _parse_table(src: str, name: str) -> list:
         cm = re.search(r"channel: '([^']+)'", body)
         specs.append({"id": amp, "kind": kind, "refs": refs, "midLeg": mid,
                       "wiring": wiring, "channel": cm.group(1) if cm else None})
+    written = len(re.findall(r"^\s*id: '", body_src, re.M))
+    if written != len(specs):
+        raise SystemExit(f"check_tonestack_wiring: {name} declares {written} entr(ies) but "
+                         f"{len(specs)} parsed — an entry this gate cannot read is a "
+                         "network it silently does not walk. Fix the table's shape.")
     return specs
 
 
@@ -156,6 +281,16 @@ def check_ladder(amp: str, spec: dict) -> list:
 
         # IN / N2 / N3 from the slope resistor and the treble cap.
         node_in, n2, n3 = _pairing(nets, r["slope"], r["trebleCap"], amp)
+        # Some sheets pad the treble control with a resistor between the treble
+        # capacitor and the pot's hot lug (the AA864's Bass Instrument channel
+        # puts 250 kOhm above a 50 kOhm pot). Where a preset declares one, the
+        # stack's N3 is the far side of it.
+        if "trebleSeries" in r:
+            ts = [nets.pin(r["trebleSeries"], "1"), nets.pin(r["trebleSeries"], "2")]
+            if n3 not in ts:
+                raise Fail(f"{amp}: treble series resistor {r['trebleSeries']} is not fed "
+                           f"from the treble cap {r['trebleCap']}")
+            n3 = next(x for x in ts if x != n3)
         # N4 hangs off the bass cap, which must be fed from N2.
         bc = [nets.pin(r["bassCap"], "1"), nets.pin(r["bassCap"], "2")]
         if n2 not in bc:
@@ -291,7 +426,54 @@ def check_split(amp: str, spec: dict) -> list:
     return problems
 
 
+def check_treble_cut(amp: str, spec: dict) -> list:
+    """The single-knob tweed cut: a capacitor and a rheostat in series from the
+    signal node to ground. Either element may sit nearer the signal — a
+    two-element series branch has no order — so the gate finds the branch rather
+    than assuming one."""
+    path = ROOT / "amps" / amp / "schematic.kicad_sch"
+    if not path.exists():
+        return [f"{amp}: no schematic.kicad_sch"]
+    nets = Nets(path)
+    r = spec["refs"]
+    problems = []
+    try:
+        gnd = nets.at(*nets.labels["GND"][0])
+        cap = [nets.pin(r["cutCap"], "1"), nets.pin(r["cutCap"], "2")]
+        pot = {p: nets.pin(r["tonePot"], p) for p in ("1", "2", "3")}
+        live = [n for n in pot.values() if n in cap]
+        if not live:
+            raise Fail(f"{amp}: tone pot {r['tonePot']} does not touch the cut capacitor "
+                       f"{r['cutCap']}")
+        mid = live[0]
+        if gnd in cap:
+            raise Fail(f"{amp}: cut capacitor {r['cutCap']} runs to ground on its own — "
+                       f"the branch must reach ground through {r['tonePot']}")
+        node_in = next(x for x in cap if x != mid)
+        if node_in == gnd:
+            raise Fail(f"{amp}: the cut branch's signal end is grounded")
+        if gnd not in pot.values():
+            raise Fail(f"{amp}: tone pot {r['tonePot']} does not reach ground")
+        if pot[POT_WIPER] not in (mid, gnd):
+            raise Fail(f"{amp}: tone pot {r['tonePot']} wiper is on a third live net — "
+                       "that is a treble/cut blend, not the cut this preset claims")
+        # A third lug may be strapped to either end of the branch or left
+        # unwired (a waived open pin), but never taken anywhere else.
+        stray = [p for p, n in pot.items() if n not in (mid, gnd)
+                 and len(nets.nets().get(n, ())) > 1]
+        if stray:
+            raise Fail(f"{amp}: tone pot {r['tonePot']} lug(s) {', '.join(sorted(stray))} "
+                       "are wired outside the cut branch")
+    except Fail as exc:
+        problems.append(str(exc))
+    except KeyError as exc:
+        problems.append(f"{amp}: reference {exc} is not in the drawing")
+    return problems
+
+
 def check(amp: str, spec: dict) -> list:
+    if spec["kind"] == "single-knob":
+        return check_treble_cut(amp, spec)
     if spec["kind"] == "split":
         return check_split(amp, spec)
     if spec.get("wiring") == "ladder":
@@ -370,8 +552,61 @@ def check(amp: str, spec: dict) -> list:
     return problems
 
 
+WALKED_KINDS = ("fmv", "tb", "split", "single-knob")
+
+
+def _corpus_tone_networks() -> dict:
+    """{amp id: declared topology.tone_stack} for every circuit in amps/."""
+    out = {}
+    for d in sorted((ROOT / "amps").iterdir()):
+        meta = d / "meta.yaml"
+        if d.name.startswith("_") or not meta.is_file():
+            continue
+        doc = yaml.safe_load(meta.read_text(encoding="utf-8")) or {}
+        out[d.name] = ((doc.get("topology") or {}).get("tone_stack"))
+    return out
+
+
+def audit_coverage(specs: list) -> list:
+    """Every circuit that draws a tone network is walked above or named in
+    UNCHECKED_NETWORKS, and nothing is named there that is now walked.
+
+    Without this, the gate's own summary is the misleading number: it counts the
+    networks it was handed and says nothing about the ones nobody declared, so a
+    tone network drawn on a sheet and compared against nothing reads as clean.
+    """
+    problems = []
+    walked = {(s["id"], s.get("channel")) for s in specs}
+    walked_ids = {i for i, _ in walked}
+    declared = _corpus_tone_networks()
+
+    for key in sorted(UNCHECKED_NETWORKS):
+        amp, _, channel = key.partition(":")
+        if amp not in declared:
+            problems.append(f"UNCHECKED_NETWORKS names {key}, which is not a circuit here")
+            continue
+        if declared[amp] in (None, "none"):
+            problems.append(f"UNCHECKED_NETWORKS names {key}, whose meta.yaml declares no "
+                            "tone network — drop the entry")
+            continue
+        if (amp, channel or None) in walked:
+            problems.append(f"UNCHECKED_NETWORKS still names {key}, which the spec tables "
+                            "now walk — stale entry, drop it")
+
+    named = {k.partition(":")[0] for k in UNCHECKED_NETWORKS}
+    for amp, kind in sorted(declared.items()):
+        if kind in (None, "none"):
+            continue
+        if amp not in walked_ids and amp not in named:
+            problems.append(f"{amp} declares tone_stack: {kind} and is neither walked by a "
+                            "spec nor named in UNCHECKED_NETWORKS — its drawn tone network "
+                            "is compared against nothing")
+    return problems
+
+
 def main() -> int:
-    specs = [s for s in load_specs() if s["kind"] in ("fmv", "tb", "split")]
+    specs = [s for s in load_specs() if s["kind"] in WALKED_KINDS]
+    unwalkable = [s for s in load_specs() if s["kind"] not in WALKED_KINDS]
     failures = []
     for spec in specs:
         label = spec["id"] + (f" ({spec['channel']} channel)" if spec.get("channel") else "")
@@ -383,7 +618,24 @@ def main() -> int:
         else:
             print(f"ok   {label}: drawing matches the declared {spec['kind']} "
                   f"network ({spec['wiring']} wiring)")
-    print(f"checked {len(specs)} tone stack(s), {len(failures)} failure(s)")
+    for spec in unwalkable:
+        failures.append(f"{spec['id']}: kind '{spec['kind']}' has no walker in this gate")
+        print(f"FAIL {failures[-1]}")
+
+    for p in audit_coverage(specs):
+        failures.append(p)
+        print(f"FAIL {p}")
+
+    declared = _corpus_tone_networks()
+    no_network = sorted(a for a, k in declared.items() if k in (None, "none"))
+    print(f"\nchecked {len(specs)} tone network(s), {len(failures)} failure(s)")
+    print(f"{len(no_network)} circuit(s) carry no tone control at all: "
+          f"{', '.join(no_network)}")
+    print(f"{len(UNCHECKED_NETWORKS)} drawn tone network(s) remain UNCHECKED — drawn on "
+          "the sheet, compared against nothing:")
+    for key in sorted(UNCHECKED_NETWORKS):
+        for i, line in enumerate(textwrap.wrap(UNCHECKED_NETWORKS[key], 84)):
+            print(f"  - {key}: {line}" if i == 0 else f"    {' ' * len(key)}  {line}")
     return 1 if failures else 0
 
 

@@ -12,20 +12,35 @@ OUT = Path(__file__).resolve().parent.parent / "amps" / "5f10" / "schematic.kica
 s = Sch()
 
 # ---- input: three jacks, each a 68k stopper, merged to the 6AT6 grid ------
-# The chassis has three jacks (1/2/3); the grid returns to ground through the
-# switched jacks — drawn here as jack 1 normalled to ground via its 68k (R1s).
+# The chassis has three jacks (1/2/3) and no grid leak: the sheet returns the
+# 6AT6 grid to ground through jack 1's normalling contact, which closes when
+# nothing is plugged into it, so the DC path is ground -> contact -> jack-1 tip
+# -> R1s -> grid bus. netlist.cir models that state as `RGAT GAT 0 68k`.
+#
+# R1s therefore has to sit between ground and the bus, and it does. What this
+# sheet used to do as well was letter that grounded node IN1 — so the drawing
+# said input jack 1 is shorted to ground, on a page carrying
+# schematic_claim: verified. No gate could see it: the equivalence gate begins
+# at the grid and this corpus's netlists model no input node, so an input label
+# on the ground bus is invisible to it (2026-09-09, the only such case in the
+# corpus). The label is gone; the ground and the resistor are what the sheet
+# draws, and the caption now says which contact closes the path.
 GB = 44          # grid-bus x
-for jack, ref, y in [("IN3", "R3s", 86), ("IN2", "R2s", 96), ("IN1", "R1s", 112)]:
+for jack, ref, y in [("IN3", "R3s", 86), ("IN2", "R2s", 96)]:
     s.glabel(jack, 16, y, 180)
     s.wire(16, y, 20, y)
     l, r = s.series_h("R", ref, "68k", 26, y)
     s.wire(20, y, l, y)
     s.wire(r, y, GB, y)
     s.junction(GB, y)
-s.gnd(20, 116)                 # jack-1 normalling ground (grid DC reference)
+l, r = s.series_h("R", "R1s", "68k", 26, 112)
+s.wire(20, 112, l, 112)
+s.wire(r, 112, GB, 112)
+s.junction(GB, 112)
+s.gnd(20, 116)                 # jack-1 normalling contact, closed: the grid's DC reference
 s.wire(20, 112, 20, 116)
 s.wire(GB, 86, GB, 112)        # grid bus
-s.caption('Inputs 1-3, each via a 68k stopper; grid grounded through the switched jacks', 14, 80, 1.1)
+s.caption('Inputs 2-3 via 68k stoppers; jack 1 unplugged grounds the grid through R1s', 14, 80, 1.1)
 
 # ---- V1 6AT6 first stage ------------------------------------------------
 t1 = s.triode("V1", "6AT6", 54, 100)

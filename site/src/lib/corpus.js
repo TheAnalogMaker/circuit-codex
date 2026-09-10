@@ -1163,6 +1163,50 @@ const TONE_STACK_GATE_EXTRAS = [
     refs: { slope: 'R6', trebleCap: 'C2', treblePot: 'VR2', bassCap: 'C3', bassPot: 'VR3', midCap: 'C4' },
     midLeg: { kind: 'fixed', ref: 'R7' },
   },
+  {
+    id: 'dr103', kind: 'fmv', wiring: 'ladder',
+    refs: { slope: 'RSL', trebleCap: 'C4', treblePot: 'VR3', bassCap: 'C5', bassPot: 'VR4', midCap: 'C6', midPot: 'VR5' },
+  },
+  {
+    id: 'aa864-bassman', kind: 'tb', wiring: 'ladder', channel: 'normal',
+    refs: { slope: 'RSN', trebleCap: 'CTN', treblePot: 'VRTN', bassCap: 'CBN', bassPot: 'VRBN', midCap: 'CBN2' },
+    midLeg: { kind: 'fixed', ref: 'RSLN' },
+  },
+  {
+    id: '5e4a', kind: 'split', wiring: 'split',
+    refs: { trebleCap: 'C5', treblePot: 'VR3', trebleShuntCap: 'C6', bassCoupler: 'C16', bassShunt: 'RSH', bassSeries: 'RSL', bassPot: 'VR4', bassLegCap: 'C7', outSeries: 'RSR' },
+  },
+  {
+    // Wiring-only, and it must stay that way until the solver grows an element
+    // for it: the ladder tonestack.js models has no resistor between the treble
+    // capacitor and the treble pot, and this channel's drawing has one. The
+    // AA864 sheet letters 250 kOhm there, above a 50 kOhm Treble pot.
+    id: 'aa864-bassman', kind: 'tb', wiring: 'ladder', channel: 'bass instrument',
+    refs: { slope: 'RSB1', trebleCap: 'CTB', trebleSeries: 'RTB', treblePot: 'VRTB', bassCap: 'CBB1', bassPot: 'VRBB', midCap: 'CBB2' },
+    midLeg: { kind: 'ground' },
+  },
+  // Single-knob cuts: a capacitor and a rheostat bleeding treble to ground.
+  // 5F2-A is the lab's plotted preset and is walked from TONE_STACK_SPECS; the
+  // four below draw the same branch and are held here at lug level.
+  {
+    id: '5f10', kind: 'single-knob', wiring: 'treble-cut',
+    refs: { tonePot: 'VR2', cutCap: 'C4' },
+  },
+  {
+    id: '6g2', kind: 'single-knob', wiring: 'treble-cut',
+    refs: { tonePot: 'VR1', cutCap: 'C3' },
+  },
+  {
+    // The 6161 hangs a second, fixed 500 pF shunt (CT1) on the same node. The
+    // gate walks the branch the control is in; the fixed cap is a parallel
+    // element of the voicing, not part of the cut.
+    id: '6161', kind: 'single-knob', wiring: 'treble-cut',
+    refs: { tonePot: 'VR3', cutCap: 'CT2' },
+  },
+  {
+    id: 'ga40', kind: 'single-knob', wiring: 'treble-cut',
+    refs: { tonePot: 'VR3', cutCap: 'CT1' },
+  },
 ];
 
 // The gate-extras' own ids. The tone-stack lab's absentee accounting has to
