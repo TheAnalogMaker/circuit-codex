@@ -52,14 +52,17 @@ items:
   - { ref: C10, part: "Electrolytic capacitor", value: "16 µF · 450 V", role: "Filter, BP2 (screens)" }
   - { ref: C11, part: "Electrolytic capacitor", value: "16 µF · 450 V", role: "Filter, BP3 (driver/PI)" }
   - { ref: C12, part: "Electrolytic capacitor", value: "8 µF · 450 V",  role: "Filter, BP4 (preamp)" }
+  - { ref: RB1, part: "Carbon comp resistor", value: "10 kΩ · ½ W", role: "Bias supply series resistor, from the transformer's bias tap into the selenium cell" }
   - { ref: D1, part: "Selenium rectifier", value: "SEL", role: "Bias supply rectifier, HT tap -> -32 V" }
   - { ref: C13, part: "Electrolytic capacitor", value: "100 µF · 25 V", role: "Bias supply filter, -32 V" }
+  - { ref: RB2, part: "Carbon comp resistor", value: "56 kΩ · ½ W", role: "Bias supply bleeder across the 100 µF can" }
   - { ref: V1,  part: "Preamp tube",     value: "12AY7",  role: "Mic + instrument first stage (V1A/V1B)" }
   - { ref: V2,  part: "Preamp tube",     value: "12AY7",  role: "Shared second stage (one triode used)" }
   - { ref: V3,  part: "Preamp tube",     value: "12AX7",  role: "Driver + cathodyne PI (V3A/V3B)" }
   - { ref: V4,  part: "Power tube",      value: "6L6GB",  role: "Push-pull output (upper)" }
   - { ref: V5,  part: "Power tube",      value: "6L6GB",  role: "Push-pull output (lower)" }
   - { ref: V6,  part: "Rectifier tube",  value: "5U4GA",  role: "Full-wave rectifier" }
+  - { ref: T1,  part: "Power transformer", value: "power transformer", role: "HT winding with a centre tap and a bias tap between one end and the centre tap (the layout letters that lead red-blue), 5 V rectifier-filament and 6.3 V heater windings; the bias rectifier is fed through 10 kΩ from the tap, not from a rectifier plate" }
   - { ref: T2,  part: "Output transformer", value: "~4.3 kΩ : 8 Ω (est. for 2x6L6GB into one 15\" speaker)", role: "Push-pull output" }
   - { ref: "—", part: "Power transformer", value: "~330-0-330 V · 6.3 V · 5 V (est.)", role: "HT + heaters + rectifier filament" }
   - { ref: SPKR, part: "Speaker", value: "15\" · 8 Ω", role: "Fixed speaker + external speaker jack" }

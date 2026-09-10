@@ -91,7 +91,10 @@ and the output-transformer centre tap), then 10 kΩ to +300 V for the 12AX7 and
 another 10 kΩ to +250 V for the two 12AY7s, each node with its own can. A
 standby switch sits between the reservoir and the rest. The bias supply is its
 own branch: 18 kΩ — the resistor the sheet's footnote says was 22 kΩ — into a
-selenium cell, then 100 µF with a 56 kΩ bleeder, giving the printed −32 V.
+selenium cell, then 100 µF with a 56 kΩ bleeder, giving the printed −32 V. That
+branch is fed from a dedicated tap on the transformer's high-tension winding,
+between one end and the centre tap — the lead the layout letters red-blue — and
+not from a rectifier plate; the schematic here draws it from that tap.
 
 ## A note on verification
 

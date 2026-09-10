@@ -228,7 +228,7 @@ s.wire(ot["sec_c"][0], ot["sec_c"][1], jk["sleeve"][0], jk["sleeve"][1])
 s.text("Extra 8-ohm speaker jack (parallel) omitted — annotation only", 250, 122, 1.0)
 
 # ---- power supply + bias ---------------------------------------------------
-s.text("Power — 5U4GA rectifier; choke DCR ~110 R (est.); bias: selenium rect -> -32V", 25, 158, 1.4)
+s.text("Power — 5U4GA rectifier; choke DCR ~110 R (est.); bias: 10k + selenium rect, 100uF/56k -> -32V", 25, 158, 1.4)
 lp = s.lamp("PL1", "pilot", 30, 172, lx=-9.5, ly=-1)
 s.glabel("6.3V", lp["hi"][0], lp["hi"][1] - 2.5, 90)
 s.wire(lp["hi"][0], lp["hi"][1] - 2.5, lp["hi"][0], lp["hi"][1])
@@ -268,17 +268,44 @@ s.glabel("B+4", 137.16, 175.26, 90)
 s.wire(137.16, 175.26, 137.16, 177.8)
 s.sym("C", "C12", "8u", 142.24, 181.61)
 s.gnd(142.24, 185.42)
-# bias supply: HT tap -> selenium -> 100uF filter -> -32V node
-s.glabel("HT_B", 150.1, 160.72, 180)
-s.wire(150.1, 160.72, 153.91, 160.72)
-s.sym("DIODE_SS", "D1", "SEL", 158.99, 160.72, lx=-2.0, ly=-5.4)
-s.wire(164.07, 160.72, 167.88, 160.72)
-s.junction(167.88, 160.72)
-s.sym("C", "C13", "100u", 167.88, 164.53)
-s.gnd(167.88, 168.34)
-s.glabel("-32V", 170.42, 160.72, 0)
+# bias supply: winding bias tap -> 10k -> selenium -> 100uF ‖ 56k -> -32V node
+# (the factory sheet: "10 K" from the tap into the cell, "56 K" across the
+# "100-25" can; the rectifier hangs on the tap, not on an HT end / plate)
+s.glabel("HT_TAP", 150.1, 160.72, 180)
+l, r = s.series_h("R", "RB1", "10k", 157, 160.72)
+s.wire(150.1, 160.72, l, 160.72)
+s.wire(r, 160.72, 162.42, 160.72)
+s.sym("DIODE_SS", "D1", "SEL", 167.5, 160.72, lx=-2.0, ly=-5.4)
+s.wire(172.58, 160.72, 183.12, 160.72)
+s.junction(178.04, 160.72)
+s.sym("R", "RB2", "56k", 178.04, 164.53)
+s.gnd(178.04, 168.34)
+s.junction(180.58, 160.72)
+s.sym("C", "C13", "100u", 180.58, 164.53, lx=2.2)
+s.gnd(180.58, 168.34)
+s.glabel("-32V", 183.12, 160.72, 0)
+
+# ---- power transformer ------------------------------------------------
+# The 8087-family transformer brings out a BIAS TAP on the HT winding between
+# one end and the centre tap — the lead the layout letters RED-BLUE — and the
+# factory sheet draws the bias feed from that fourth winding terminal, never
+# from a rectifier plate. Mains switch, fuse and the 5 V / 6.3 V windings are
+# not drawn.
+pt = s.pt("T1", "PT", 205, 176, tap=True)
+s.wire(pt["pri1"][0], pt["pri1"][1], pt["pri1"][0] - 4, pt["pri1"][1])
+s.glabel("MAINS", pt["pri1"][0] - 4, pt["pri1"][1], 180)
+s.wire(pt["pri2"][0], pt["pri2"][1], pt["pri2"][0] - 4, pt["pri2"][1])
+s.glabel("MAINS", pt["pri2"][0] - 4, pt["pri2"][1], 180)
+s.wire(pt["ht_a"][0], pt["ht_a"][1], pt["ht_a"][0] + 12, pt["ht_a"][1])
+s.glabel("HT_A", pt["ht_a"][0] + 12, pt["ht_a"][1], 0)
+s.wire(pt["tap"][0], pt["tap"][1], pt["tap"][0] + 2, pt["tap"][1])
+s.glabel("HT_TAP", pt["tap"][0] + 2, pt["tap"][1], 0)
+s.wire(pt["ht_ct"][0], pt["ht_ct"][1], pt["ht_ct"][0] + 12, pt["ht_ct"][1])
+s.gnd(pt["ht_ct"][0] + 12, pt["ht_ct"][1], 0)
+s.wire(pt["ht_b"][0], pt["ht_b"][1], pt["ht_b"][0] + 4, pt["ht_b"][1])
+s.glabel("HT_B", pt["ht_b"][0] + 4, pt["ht_b"][1], 0)
 
 s.write(OUT, [
-    "Heaters, PT primary and standby omitted — see the netlist and the sources list",
+    "Heaters, mains switch, fuse and standby omitted — see the netlist and the sources list",
 ])
 print(f"wrote {OUT}")

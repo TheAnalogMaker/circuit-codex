@@ -63,6 +63,7 @@ items:
   - { ref: V4,  part: "Power tube",           value: "6V6GT",          role: "Push-pull output (upper)" }
   - { ref: V5,  part: "Power tube",           value: "6V6GT",          role: "Push-pull output (lower)" }
   - { ref: V6,  part: "Rectifier tube",       value: "5U4GA",          role: "Full-wave rectifier (V6A/V6B)" }
+  - { ref: T1,  part: "Power transformer",    value: "power transformer", role: "HT winding with a centre tap and a bias tap between one end and the centre tap (the layout letters that lead red-blue), 5 V rectifier-filament and 6.3 V heater windings; the bias rectifier is fed from the tap, not from a rectifier plate" }
   - { ref: T3,  part: "Output transformer",   value: "push-pull output transformer", role: "Push-pull output into 2 × 10 in speakers, with an external-speaker jack" }
   - { ref: "—", part: "Power transformer",    value: "HT · 6.3 V heaters · 5 V rectifier filament", role: "Mains/HT transformer" }
   - { ref: "—", part: "Mica capacitor",       value: "100 pF",         role: "Bright cap across VR1 (annotation only on the schematic)" }

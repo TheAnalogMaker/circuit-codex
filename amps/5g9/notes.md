@@ -108,7 +108,9 @@ dropper to **+310 V** for the 12AY7 plate loads and the inverter's plate-load
 junction. Four 20 µF · 500 V cans do the filtering: two on the reservoir, one on
 each rail below it, all of them in the condenser box on the back of the chassis.
 
-The bias supply is a rectifier straight off one HT leg into an 8 µF · 150 V can
+The bias supply is a rectifier straight off a dedicated tap on the transformer's
+high-tension winding — a fourth terminal between one end and the centre tap, a
+separate lead on the layout, not a rectifier plate — into an 8 µF · 150 V can
 — no series feed resistor — making **−69 V**, which an 82 kΩ / 56 kΩ divider and
 a second 8 µF can bring to the **−28 V** line. Fixed, with no adjustment
 trimmer.

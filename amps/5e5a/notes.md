@@ -33,7 +33,10 @@ where the 5F4 Super puts the same tap. It is an AC-only path sitting at about
 
 Power: 5U4GA rectifier → **+390 V** (power-tube plates) → choke → **+385 V**
 (screens) → rail dropper → **+300 V** (driver/PI) → rail dropper → **+250 V**
-(preamp). A selenium rectifier supplies the **−32 V** fixed-bias rail.
+(preamp). A selenium rectifier supplies the **−32 V** fixed-bias rail: 10 kΩ from
+a dedicated tap on the transformer's high-tension winding — between one end and
+the centre tap, the red-blue lead on the layout, never a rectifier plate — into
+the cell, then a 100 µF can with a 56 kΩ bleeder across it.
 
 ## Two printed resistors the netlist does not model
 

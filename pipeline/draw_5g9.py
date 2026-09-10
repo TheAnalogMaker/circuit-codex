@@ -345,17 +345,24 @@ YPW = 200
 BY = YPW + 6
 s.text("Power supply — 8160 power transformer, 300-0-300 V, 5U4GB full-wave; 14684 choke; 108 output transformer",
        219, 176, 1.5)
-pt = s.pt("T1", "8160", 232, YPW, lx=-6.35, ly=-12.5)
+# The 8160 brings out a BIAS TAP on the HT winding between one end and the
+# centre tap: the factory sheet (6518×4128) runs the bias rectifier's + straight
+# to that fourth winding terminal, and the layout carries a separate lead to
+# "SEL. RECT. +". Drawn 8 mm further left than before so the tap's label has
+# room between HT_A and the centre tap.
+pt = s.pt("T1", "8160", 224, YPW, lx=-6.35, ly=-12.5, tap=True)
 s.wire(pt["pri1"][0], pt["pri1"][1], pt["pri1"][0] - 4, pt["pri1"][1])
 s.glabel("MAINS", pt["pri1"][0] - 4, pt["pri1"][1], 180)
 s.wire(pt["pri2"][0], pt["pri2"][1], pt["pri2"][0] - 4, pt["pri2"][1])
 s.glabel("MAINS", pt["pri2"][0] - 4, pt["pri2"][1], 180)
-s.wire(pt["ht_a"][0], pt["ht_a"][1], pt["ht_a"][0] + 4, pt["ht_a"][1])
-s.glabel("HT_A", pt["ht_a"][0] + 4, pt["ht_a"][1], 0)
+s.wire(pt["ht_a"][0], pt["ht_a"][1], pt["ht_a"][0] + 10, pt["ht_a"][1])
+s.glabel("HT_A", pt["ht_a"][0] + 10, pt["ht_a"][1], 0)
+s.wire(pt["tap"][0], pt["tap"][1], pt["tap"][0] + 2, pt["tap"][1])
+s.glabel("HT_TAP", pt["tap"][0] + 2, pt["tap"][1], 0)
 s.wire(pt["ht_b"][0], pt["ht_b"][1], pt["ht_b"][0] + 4, pt["ht_b"][1])
 s.glabel("HT_B", pt["ht_b"][0] + 4, pt["ht_b"][1], 0)
-s.wire(pt["ht_ct"][0], pt["ht_ct"][1], pt["ht_ct"][0] + 4, pt["ht_ct"][1])
-s.gnd(pt["ht_ct"][0] + 4, pt["ht_ct"][1], 0)
+s.wire(pt["ht_ct"][0], pt["ht_ct"][1], pt["ht_ct"][0] + 10, pt["ht_ct"][1])
+s.gnd(pt["ht_ct"][0] + 10, pt["ht_ct"][1], 0)
 s.glabel("HT_A", 258, YPW - 14, 90)
 s.wire(258, YPW - 14, 258, YPW - 11.5)
 s.diode_tube("V6A", "5U4GB", 258, YPW - 3.88, lx=-13.4)
@@ -396,9 +403,10 @@ s.glabel("B+3", 348, BY - 3.5, 90)
 
 # ============================ BIAS SUPPLY ============================
 YBI = 250
-s.text("Bias supply — one HT leg into a rectifier and an 8 µF can, then an 82k / 56k divider: a fixed -28 V, no trimmer and no series feed resistor",
+s.text("Bias supply — the winding's bias tap into a rectifier and an 8 µF can, then an 82k / 56k divider: a fixed -28 V; no trimmer, no series feed",
        219, 242, 1.4)
-s.glabel("HT_B", 240, YBI, 180)
+# the rectifier hangs on the winding's bias tap, not on an HT end / plate
+s.glabel("HT_TAP", 240, YBI, 180)
 s.wire(240, YBI, 248.92, YBI)
 s.sym("DIODE_SS", "D1", "selenium", 254, YBI, lx=-3.4, ly=-5.6)
 s.wire(259.08, YBI, 268, YBI)

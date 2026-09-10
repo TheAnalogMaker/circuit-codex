@@ -132,6 +132,19 @@ def _pin(kind: str, x: float, y: float, rot: int, length: float, name: str, num:
 # Iron-core furniture shared by the three transformers: two parallel core
 # laminations between the windings, so a reader can tell a transformer from a
 # relay coil at a glance. Half-gap 0.762 mm, drawn the full winding height.
+# The tweed 8087-family power transformer brings out a BIAS TAP on the HT
+# winding, between one end and the centre tap (the layouts letter that lead
+# RED-BLUE), and the bias rectifier hangs on it — never on a rectifier plate.
+# It is an OPTIONAL pin 6 on cx:PT: a draw script asks for it
+# (`s.pt(..., tap=True)`) and only that sheet's library carries the pin, so a
+# sheet drawn without it is byte-identical to what it was before the pin
+# existed. The contract tables below (SYM_EXTENTS, SYM_PINS) are built WITH
+# it, so the lint and the wire-cutting know every pin a sheet may carry; the
+# tap lies inside the symbol's existing box, so no extent moves.
+PT_TAP_GFX = _poly("(xy 6.35 2.54) (xy 2.286 2.54)")
+PT_TAP_PIN = _pin("passive", 8.89, 2.54, 180, 2.54, "HT_TAP", "6")
+
+
 def _core_v(half_h: float) -> str:
     return "\n        ".join(
         _poly(f"(xy {x:g} {-half_h:g}) (xy {x:g} {half_h:g})")
@@ -305,6 +318,7 @@ _LIB_TEMPLATE = f"""  (lib_symbols
         {_coil_v(-2.286, 5.08, -5.08, 4, -1)}
         {_poly("(xy 6.35 5.08) (xy 2.286 5.08)")}
         {_poly("(xy 6.35 0) (xy 2.286 0)")}
+        @PT_TAP_GFX@
         {_poly("(xy 6.35 -5.08) (xy 2.286 -5.08)")}
         {_coil_v(2.286, 5.08, 0, 2, +1)}
         {_coil_v(2.286, 0, -5.08, 2, +1)})
@@ -313,6 +327,7 @@ _LIB_TEMPLATE = f"""  (lib_symbols
         {_pin("passive", -8.89, -5.08, 0, 2.54, "PRI_2", "2")}
         {_pin("passive", 8.89, 5.08, 180, 2.54, "HT_A", "3")}
         {_pin("passive", 8.89, 0, 180, 2.54, "HT_CT", "4")}
+        @PT_TAP_PIN@
         {_pin("passive", 8.89, -5.08, 180, 2.54, "HT_B", "5")}))
     (symbol "cx:JACK" (pin_numbers hide) (pin_names hide) (in_bom yes) (on_board yes)
       (property "Reference" "J" (at 3.81 5.08 0) {FONT})
@@ -462,14 +477,18 @@ def junction_d(width: float, height: float) -> float:
                      max(JUNCTION_MIN, JUNCTION_TARGET_PX / fit_scale(width, height))), 3)
 
 
-def lib_text(width: float = DEFAULT_INK, extras=()) -> str:
+def lib_text(width: float = DEFAULT_INK, extras=(), pt_tap: bool = False) -> str:
     """The symbol library, stamped with one sheet's outline weight.
 
     `extras` names the library extensions (`_LIB_EXTENSIONS` keys) this sheet
     places; they are appended inside the same `(lib_symbols …)` block, in the
-    table's own order, so a sheet that uses none is byte-for-byte what it was
-    before the extension existed."""
-    base = _LIB_TEMPLATE.rstrip()
+    table's own order. `pt_tap` carries the optional bias-tap pin on cx:PT
+    (PT_TAP_PIN). A sheet that uses neither is byte-for-byte what it was
+    before either existed."""
+    t = _LIB_TEMPLATE
+    t = t.replace("\n        @PT_TAP_GFX@", "\n        " + PT_TAP_GFX if pt_tap else "")
+    t = t.replace("\n        @PT_TAP_PIN@", "\n        " + PT_TAP_PIN if pt_tap else "")
+    base = t.rstrip()
     assert base.endswith(")"), "library template must close (lib_symbols"
     want = [n for n in _LIB_EXTENSIONS if n in set(extras)]
     if want:
@@ -477,7 +496,7 @@ def lib_text(width: float = DEFAULT_INK, extras=()) -> str:
     return (base + "\n").replace(_W, f"{width:g}")
 
 
-LIB = lib_text(extras=tuple(_LIB_EXTENSIONS))
+LIB = lib_text(extras=tuple(_LIB_EXTENSIONS), pt_tap=True)   # every pin a sheet MAY carry, for the tables
 
 
 # ---------------------------------------------------------------------------
@@ -1073,6 +1092,7 @@ class Sch:
         self.dot = JUNCTION_MIN
         self._mute: set = set()     # (ref, pin key) numbers a shared bottle owns
         self._units: dict = {}      # ref -> the datasheet unit the drawing means
+        self._pt_tap = False        # a PT on this sheet wires its bias tap
 
     # ---- primitives -----------------------------------------------------
     def sym(self, lib: str, ref: str, val: str, x: float, y: float, rot: int = 0,
@@ -1197,12 +1217,21 @@ class Sch:
         self.glabel(rail, x, py - gap - 10.16, 90)
 
     def pt(self, ref: str, val: str, x: float, y: float,
-           lx: float = -6.35, ly: float = -11.9, spec: str | None = None) -> dict:
-        """Power transformer: primary (2 pins, left), HT centre-tapped (3, right)."""
+           lx: float = -6.35, ly: float = -11.9, spec: str | None = None,
+           tap: bool = False) -> dict:
+        """Power transformer: primary (2 pins, left), HT centre-tapped (3, right).
+
+        `tap=True` adds the bias tap (pin 6, between HT_A and the centre tap)
+        to this sheet's symbol and returns its point as "tap"; a sheet that
+        asks for it must wire it."""
         self.sym("PT", ref, val, x, y, lx=lx, ly=ly, spec=spec)
-        return {"pri1": (x - 8.89, y - 5.08), "pri2": (x - 8.89, y + 5.08),
+        pins = {"pri1": (x - 8.89, y - 5.08), "pri2": (x - 8.89, y + 5.08),
                 "ht_a": (x + 8.89, y - 5.08), "ht_ct": (x + 8.89, y),
                 "ht_b": (x + 8.89, y + 5.08)}
+        if tap:
+            self._pt_tap = True
+            pins["tap"] = (x + 8.89, y - 2.54)
+        return pins
 
     def ot_se(self, ref: str, val: str, x: float, y: float,
               lx: float = -6.35, ly: float = -9.4, spec: str | None = None) -> dict:
@@ -1760,7 +1789,7 @@ class Sch:
   (uuid "{_u()}")
   {paper_sexpr}
 {tb}
-{lib_text(self.ink, extras=self.libs_used())}
+{lib_text(self.ink, extras=self.libs_used(), pt_tap=self._pt_tap)}
 {body}
 {note_sexprs}
   (sheet_instances (path "/" (page "1")))

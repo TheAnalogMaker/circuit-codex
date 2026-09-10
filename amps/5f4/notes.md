@@ -31,7 +31,9 @@ V3A's cathode, where the 5k presence pot bleeds it to ground through 0.1 µF.
 Power: 5U4G rectifier → **+415 V** reservoir (output plates) → choke (14684) →
 **+410 V** screens → 10k → **+332 V** phase-inverter supply → 10k → **+280 V**
 preamp. A selenium rectifier with a 6.8k/56k network supplies the **−40 V**
-bias.
+bias, fed from a dedicated tap on the 8087's high-tension winding — between one
+end and the centre tap, the lead the layout letters red-blue — and not from a
+rectifier plate; the schematic here draws it from that tap.
 
 The output tubes are lettered **6L6G** on the C-EG sheet; Fender equipped the
 tweed Super with 5881s, the ruggedized 6L6 the Bassman and Twin also used, and
