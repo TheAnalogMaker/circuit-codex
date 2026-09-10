@@ -83,7 +83,7 @@ board:
   rows: 2
   cols: 60
   title: "5F10 · eyelet board layout"
-caption: "Redrawn from the published Fender Harvard 5F10 layout drawing (F-EF) — principal board components, in the order the drawing shows them. The output transformer is not drawn on the source sheet as a discrete symbol; its connections are derived from the schematic and left uncoloured. Grid stoppers mounted at the 6V6 sockets and the tone/bright caps at the pot lugs are omitted for legibility. The 6.3 V heater supply is single-ended — the sheet grounds one green transformer lead with the HT centre tap and runs the other to the pilot lamp's one terminal and on to the heaters — so it is drawn as single green leads, PT → pilot lamp → the two 6V6 output tubes → 12AX7 → 6AT6 in physical socket order (the sheet arrows the chain; the landings — 6V6 pins 7 fed and 2 grounded, 12AX7 pins 4+5 strapped with the centre tap at pin 9 grounded, 6AT6 pin 3 fed and 4 grounded — are the sheet's); the directly-heated 5Y3GT rectifier runs off the 5 V winding, not the 6.3 V chain. Not a trace or a dimensioned reproduction."
+caption: "Redrawn from the published Fender Harvard 5F10 layout drawing (F-EF) — principal board components, in the order the drawing shows them. The output transformer is not drawn on the source sheet as a discrete symbol; its connections are derived from the schematic and left uncoloured. Grid stoppers mounted at the 6V6 sockets and the tone/bright caps at the pot lugs are omitted for legibility. The negative-bias supply takes the power transformer's bias tap — the white lead — onto the 6.8 kΩ, which feeds the selenium rectifier beside the board; the rectifier's other terminal is the bias line to both 6V6 grid leaks, the order the drawing shows. The 6.3 V heater supply is single-ended — the sheet grounds one green transformer lead with the HT centre tap and runs the other to the pilot lamp's one terminal and on to the heaters — so it is drawn as single green leads, PT → pilot lamp → the two 6V6 output tubes → 12AX7 → 6AT6 in physical socket order (the sheet arrows the chain; the landings — 6V6 pins 7 fed and 2 grounded, 12AX7 pins 4+5 strapped with the centre tap at pin 9 grounded, 6AT6 pin 3 fed and 4 grounded — are the sheet's); the directly-heated 5Y3GT rectifier runs off the 5 V winding, not the 6.3 V chain. Not a trace or a dimensioned reproduction."
 source:
   desc: "Fender 'Harvard' Model 5F10 drawing (F-EF), page 1 of 2 (the layout page; page 2 is the schematic this entry redraws)"
   url: "https://el34world.com/charts/Schematics/files/Fender/Fender_harvard_5f10.pdf"
@@ -131,7 +131,18 @@ parts:
 offboard:
   - { id: PT,   kind: xfmr,   edge: left,   at: 0.5,  label: "Power trans" }
   - { id: PL1,  kind: part, glyph: lamp, edge: left, at: 1.6, label: "Pilot lamp" }
-  - { id: SELRECT, ref: D1, kind: rect, edge: top, at: 2, label: "Selenium rect." }
+  # Bias-supply selenium rectifier, a chassis part beside the board: a real
+  # two-terminal part, not a tie point. The F-EF layout page (read at
+  # 6378 x 4525) lands the lead lettered WHITE on the 6800's lower eyelet; the
+  # 6800's upper eyelet takes the rectifier's "+" terminal and its "-" terminal
+  # goes to the 56K's lower end, the negative bias node. The F-EF schematic
+  # page (6378 x 3898) draws the 6800 from the HT winding's own terminal
+  # between the top end and the centre tap, then the rectifier with its bar on
+  # the 6800 side. Band at a: a is the terminal the layout letters "+" (the
+  # cathode, which faces the winding in a negative supply). schematic.kicad_sch
+  # at 1c2d629 draws D1 the other way round and in the other order (HT_B ->
+  # DIODE_SS pin 1 anode -> pin 2 -> RB1).
+  - { id: SELRECT, ref: D1, kind: part, edge: top, at: 2, label: "Selenium rect.", cathode: a }
   - { id: V5,   ref: V5,  kind: tube, edge: bottom, at: 3,   label: "V5 · 5Y3GT" }
   - { id: V3,   ref: V3,  kind: tube, edge: bottom, at: 22,  label: "V3 · 6V6GT", label_nudge: [0, 16] }   # clear of run[21] along the caption band
   - { id: V4,   ref: V4,  kind: tube, edge: bottom, at: 28,  label: "V4 · 6V6GT", label_nudge: [0, 16] }   # clear of run[21] along the caption band
@@ -164,11 +175,11 @@ bus:
 # transformer leads.
 runs:
   # --- power transformer secondary → 5Y3GT rectifier (marked colours) -------
-  - { from: PT.red1, to: V5.pin4, via: [[2.6, 0.5], [3.0, 1.7]] }                    # HT plate 1
-  - { from: PT.red2, to: V5.pin6, via: [[2.6, 0.85], [4.2, 2.0]] }                    # HT plate 2
-  - { from: PT.red-yellow, to: [1.45, 2], via: [[1.2, 1.15]] }             # HT centre tap → ground bus (drawing labels this lead "yellow-red")
-  - { from: PT.yellow1, to: V5.pin2, via: [[1.5, 0.5], [0.6, 2.5], [2.3, 2.75]] }                  # 5 V rectifier filament
-  - { from: PT.yellow2, to: V5.pin8, via: [[3.3, 0.55], [3.3, 2.3]] }                  # 5 V rectifier filament / B+ output
+  - { from: PT.red1, to: V5.pin4, via: [[2.6, 0.5], [3, 1.7]] }   # HT plate 1
+  - { from: PT.red2, to: V5.pin6, via: [[2.6, 0.85], [4.2, 2]] }   # HT plate 2
+  - { from: PT.red-yellow, to: [1.45, 2], via: [[1.2, 1.15]] }   # HT centre tap → ground bus (drawing labels this lead "yellow-red")
+  - { from: PT.yellow1, to: V5.pin2, via: [[1.453, 0.5], [0.525, 2.477], [2.3, 2.75]] }   # 5 V rectifier filament
+  - { from: PT.yellow2, to: V5.pin8, via: [[3.3, 0.55], [3.3, 2.3]] }   # 5 V rectifier filament / B+ output
   - { from: V5.pin8, to: C8.a, color: red, via: [[5.2, 1.55]] }   # B+ out → first filter
 
   # --- B+ filter chain (three 16 µF cans, 470 Ω then 22k droppers) ----------
@@ -180,32 +191,35 @@ runs:
   - { from: C9.b, to: [1.45, 12] }
   - { from: C10.b, to: [1.45, 18] }
 
-  # --- bias supply: selenium rectifier, 6.8k/56k, filter can, -21V feed ----
-  - { from: PT.white, to: SELRECT, via: [[3.3, -0.55]] }     # bias AC tap
-  - { from: PT.green1, to: SELRECT, via: [[0.5, 0.35]] }     # bias AC tap, return
-  - { from: SELRECT, to: RB1.a }
-  - { from: RB1.b, to: RB2.a }                              # junction: the -21 V node
+  # --- bias supply: PT bias tap (white) -> 6.8k -> selenium rectifier -> -21 V ---
+  # (the F-EF layout's order: WHITE onto the 6800's lower eyelet, its upper
+  # eyelet to the rectifier's "+", the rectifier's "-" to the bias node. The
+  # tap returns through the winding's own centre tap, grounded with the
+  # red-yellow lead; no second lead runs to the rectifier.)
+  - { from: PT.white, to: RB1.b, via: [[-1.905, 0.605], [-0.13, 1.3]] }   # bias tap -> 6800's lower eyelet
+  - { from: RB1.a, to: SELRECT.a }   # 6800's upper eyelet -> rectifier "+"
+  - { from: SELRECT.b, to: C11.a }   # rectifier "-" -> the -21 V node
+  - { from: RB2.a, to: C11.a, via: [[0.3, -0.25], [3.7, -0.098]] }   # 56k bleeder across the -21 V node
   - { from: RB2.b, to: [1.45, 0] }
-  - { from: RB1.b, to: C11.a }
   - { from: C11.b, to: [1.45, 4] }
-  - { from: RB1.b, to: RG1.b, via: [[2.6, 1.95], [34, 1.95]] }    # -21 V line → upper 6V6 grid leak (routed under the board)
-  - { from: RB1.b, to: RG2.b, via: [[4.2, 2.35], [36, 2.35]] }      # -21 V line → lower 6V6 grid leak (routed under the board)
+  - { from: C11.a, to: RG1.b, via: [[4.6, 0.344], [4.6, 1.95], [34, 1.95]] }   # -21 V line → upper 6V6 grid leak (routed under the board)
+  - { from: C11.a, to: RG2.b, via: [[4.8, 0.3], [4.8, 2.35], [36, 2.35]] }   # -21 V line → lower 6V6 grid leak (routed under the board)
 
   # --- output stage: OT (derived), screens, grids ---------------------------
-  - { from: C8.a, to: T1.ct, via: [[6.7, 2.55], [59.2, 2.55], [59.2, 0.11]] }        # B+1 → OT primary centre tap
-  - { from: V3.pin3, to: T1.plateA, via: [[19, 2.72], [59.6, 2.72], [59.6, 0.2]] }  # upper 6V6 plate → OT primary (drop left of the V3 label)
-  - { from: V4.pin3, to: T1.plateB, via: [[25, 2.9], [60.0, 2.9], [60.0, 0.3]] }  # lower 6V6 plate → OT primary (drop left of the V4 label)
+  - { from: C8.a, to: T1.ct, via: [[6.844, 2.495], [59.2, 2.55], [59.2, 0.11]] }   # B+1 → OT primary centre tap
+  - { from: V3.pin3, to: T1.plateA, via: [[19, 2.72], [59.6, 2.72], [59.6, 0.2]] }   # upper 6V6 plate → OT primary (drop left of the V3 label)
+  - { from: V4.pin3, to: T1.plateB, via: [[25, 2.9], [60, 2.9], [60, 0.3]] }   # lower 6V6 plate → OT primary (drop left of the V4 label)
   - { from: T1.sec1, to: SPK.tip, via: [[61.4, 0.42], [61.4, 2.98], [35.2, 2.98]] }
-  - { from: T1.sec2, to: SPK.sleeve, via: [[61.8, 0.53], [61.8, 3.42], [36.0, 3.42]] }
-  - { from: V3.pin4, to: C9.a, via: [[20.6, 2.4], [11.0, 2.4], [11.0, 0.2]] }       # upper 6V6 screen → B+2 (drop left of the V3 label)
-  - { from: V4.pin4, to: C9.a, via: [[26.6, 2.5], [12.9, 2.5], [12.9, 0.2]] }       # lower 6V6 screen → B+2 (drop left of the V4 label)
-  - { from: V3.pin8, to: [1.45, 22.7] }                              # upper 6V6 cathode → ground bus
-  - { from: V4.pin8, to: [1.45, 27.6] }                              # lower 6V6 cathode → ground bus
+  - { from: T1.sec2, to: SPK.sleeve, via: [[61.8, 0.53], [61.8, 3.42], [36, 3.42]] }
+  - { from: V3.pin4, to: C9.a, via: [[20.412, 2.798], [11, 2.588], [11, 0.2]] }   # upper 6V6 screen → B+2 (drop left of the V3 label)
+  - { from: V4.pin4, to: C9.a, via: [[26.6, 2.559], [12.9, 2.602], [12.9, 0.2]] }   # lower 6V6 screen → B+2 (drop left of the V4 label)
+  - { from: V3.pin8, to: [1.45, 22.7] }   # upper 6V6 cathode → ground bus
+  - { from: V4.pin8, to: [1.45, 27.6] }   # lower 6V6 cathode → ground bus
 
   # --- cathodyne phase inverter (V2, unit 2 = pins 1/2/3) -------------------
-  - { from: V2.pin1, to: RL3.a, via: [[41.8, 2.4], [39.4, 2.4], [39.4, 0.5]] }      # cathodyne plate → 56k plate load
+  - { from: V2.pin1, to: RL3.a, via: [[41.8, 2.4], [39.4, 2.4], [39.4, 0.5]] }   # cathodyne plate → 56k plate load
   - { from: RL3.b, to: C10.a, via: [[40, 0.18], [18.2, 0.18]] }   # plate load → B+3
-  - { from: V2.pin1, to: C6.a, via: [[40.8, 2.35], [37.8, 2.35], [37.8, 0.55]] }     # cathodyne plate → plate-side coupler
+  - { from: V2.pin1, to: C6.a, via: [[40.8, 2.35], [37.8, 2.35], [37.8, 0.55]] }   # cathodyne plate → plate-side coupler
   - { from: C6.b, to: V3.pin5, via: [[38, 3.12], [24.7, 3.12], [24.7, 1.9]] }   # coupler → upper 6V6 grid (rise right of the V3 label, into pin 5)
   - { from: RG1.a, to: C6.b, via: [[34, 0.93], [37.7, 0.93]] }   # bias grid leak → same grid node
   # These leads all cross the RKA/RK2/RNFB/RGPI standing-resistor row on their
@@ -216,43 +230,43 @@ runs:
   # lanes now sit in the two clear gutters the board actually has, above the
   # standing row (0.18 / 0.28) and below it (0.72 / 0.84), each on its own row
   # so no two read as one doubled wire.
-  - { from: V2.pin3, to: RKA.a, via: [[41.5, 0.28], [20.3, 0.28]] }    # cathodyne cathode → 1.5k
-  - { from: RKA.b, to: RKB.a }                          # junction → 56k cathode load
-  - { from: RKB.b, to: [1.45, 24] }                     # 56k → ground bus
+  - { from: V2.pin3, to: RKA.a, via: [[41.5, 0.28], [20.3, 0.28]] }   # cathodyne cathode → 1.5k
+  - { from: RKA.b, to: RKB.a }   # junction → 56k cathode load
+  - { from: RKB.b, to: [1.45, 24] }   # 56k → ground bus
   - { from: RKA.b, to: C7.a, via: [[20.6, 0.84], [31.7, 0.84]] }   # junction → cathode-side coupler
   - { from: C7.b, to: V4.pin5, via: [[31.6, 3.35], [30, 3.35], [30, 1.95]] }   # coupler → lower 6V6 grid (rise right of the V4 label, into pin 5)
   - { from: RG2.a, to: C7.b, via: [[36, 0.37], [32.3, 0.37]] }   # bias grid leak → same grid node
-  - { from: RGPI.a, to: RKA.b }                         # PI grid leak → junction
-  - { from: RGPI.b, to: V2.pin2, via: [[30, 1.6]] }     # PI grid leak → cathodyne grid
+  - { from: RGPI.a, to: RKA.b }   # PI grid leak → junction
+  - { from: RGPI.b, to: V2.pin2, via: [[30, 1.6]] }   # PI grid leak → cathodyne grid
 
   # --- driver stage (V2, unit 1 = pins 6/7/8) + NFB -------------------------
-  - { from: V2.pin6, to: RL2.a, via: [[41.4, 1.5]] }     # driver plate → 100k plate load
+  - { from: V2.pin6, to: RL2.a, via: [[41.315, 1.585]] }   # driver plate → 100k plate load
   - { from: RL2.b, to: C10.a, via: [[42, 0.72], [17.35, 0.72]] }   # plate load → B+3
-  - { from: V2.pin6, to: C5.a, via: [[42.4, 1.6]] }     # driver plate → coupler
-  - { from: C5.b, to: V2.pin2, via: [[44, 1.7], [41.3, 1.65]] }  # coupler → PI grid (same node as RGPI)
-  - { from: V2.pin8, to: RK2.a, via: [[41.8, 2.45], [26.3, 2.45], [26.3, 0.78]] }    # driver cathode → 1.5k (unbypassed)
-  - { from: V2.pin8, to: RNFB.a, via: [[42.4, 2.62], [28.9, 2.62], [28.9, 0.90]] }    # driver cathode → NFB resistor
-  - { from: RK2.b, to: [1.45, 26] }                      # 1.5k → ground bus
+  - { from: V2.pin6, to: C5.a, via: [[42.4, 1.6]] }   # driver plate → coupler
+  - { from: C5.b, to: V2.pin2, via: [[43.69, 1.59]] }   # coupler → PI grid (same node as RGPI)
+  - { from: V2.pin8, to: RK2.a, via: [[41.8, 2.45], [26.3, 2.45], [26.3, 0.78]] }   # driver cathode → 1.5k (unbypassed)
+  - { from: V2.pin8, to: RNFB.a, via: [[42.4, 2.62], [28.9, 2.62], [28.9, 0.9]] }   # driver cathode → NFB resistor
+  - { from: RK2.b, to: [1.45, 26] }   # 1.5k → ground bus
   - { from: RNFB.b, to: SPK.tip, via: [[27.7, 3.45], [34.3, 3.45], [34.3, 1.9]] }   # NFB → speaker line (rise left of the Spkr-jack label, into the tip)
-  - { from: VR1.lug2, to: V2.pin7, via: [[32, -0.7], [42.2, -0.7], [43.4, 1.5]] }  # volume wiper → driver grid
+  - { from: VR1.lug2, to: V2.pin7, via: [[32, -0.7], [42.25, -0.7], [43.17, 1.55]] }   # volume wiper → driver grid
 
   # --- 6AT6 input stage: three jacks, volume/tone, plate, cathode ----------
   - { from: JI1, to: R1s.a, via: [[48, -0.45]] }
   - { from: JI2, to: R2s.a, via: [[51, -0.45]] }
   - { from: JI3, to: R3s.a, via: [[54, -0.45]] }
-  - { from: R1s.b, to: V1.pin1, via: [[50, 1.6]] }       # grid-stopper junction → 6AT6 grid
+  - { from: R1s.b, to: V1.pin1, via: [[49.376, 1.68]] }   # grid-stopper junction → 6AT6 grid
   - { from: R2s.b, to: R1s.b }
   - { from: R3s.b, to: R1s.b, via: [[53, 1.24], [51, 1.24]] }
-  - { from: V1.pin7, to: RL1.a, via: [[53, 1.6]] }       # 6AT6 plate → 100k load
+  - { from: V1.pin7, to: RL1.a, via: [[53, 1.6]] }   # 6AT6 plate → 100k load
   - { from: RL1.b, to: C10.a, via: [[46, 0.9], [20.3, 0.9]] }   # plate load → B+3
-  - { from: V1.pin7, to: C2.a, via: [[52.4, 1.45]] }     # 6AT6 plate → coupler
+  - { from: V1.pin7, to: C2.a, via: [[52.4, 1.45]] }   # 6AT6 plate → coupler
   - { from: C2.b, to: VR2.lug3, via: [[47.5, -0.5], [24, -0.5]] }   # coupler → tone (first pot after 6AT6)
-  - { from: VR2.lug2, to: VR1.lug3, via: [[24, -0.85], [32, -0.85]] }  # tone wiper → volume input
-  - { from: VR2.lug1, to: [1.45, 23.2], via: [[24.8, 0.85], [23.2, 1.35]] }                    # tone ground
-  - { from: VR1.lug1, to: [1.45, 33.0], via: [[31.0, 0.8], [33.0, 1.35]] }                    # volume ground
-  - { from: V1.pin2, to: RK1.a, via: [[53.4, 1.7]] }     # 6AT6 cathode → 1.5k
-  - { from: RK1.b, to: [1.45, 56] }                       # 1.5k → ground bus
-  - { from: C1.a, to: RK1.a }                             # cathode bypass
+  - { from: VR2.lug2, to: VR1.lug3, via: [[24, -0.85], [32, -0.85]] }   # tone wiper → volume input
+  - { from: VR2.lug1, to: [1.45, 23.2], via: [[24.8, 0.85], [23.2, 1.35]] }   # tone ground
+  - { from: VR1.lug1, to: [1.45, 33], via: [[31, 0.8], [33, 1.35]] }   # volume ground
+  - { from: V1.pin2, to: RK1.a, via: [[53.458, 1.717]] }   # 6AT6 cathode → 1.5k
+  - { from: RK1.b, to: [1.45, 56] }   # 1.5k → ground bus
+  - { from: C1.a, to: RK1.a }   # cathode bypass
   - { from: C1.b, to: [1.45, 58] }
 
   # --- 6.3 V heater circuit (heaters: h63) -----------------------------------
@@ -261,17 +275,17 @@ runs:
   # 6AT6 in physical socket order (the sheet arrows the chain; the landings and
   # returns are the sheet's). Each socket returns to the chassis on its own.
   # The 5Y3GT rectifier is directly heated off the 5 V winding, not this chain.
-  - { from: PT.green1, to: [1.45, 1.2], style: heater, via: [[0.5, 0.35]] }        # grounded 6.3 V leg (tied to the HT centre tap on the sheet)
-  - { from: PT.green2, to: PL1.a, style: heater }                                   # feed → the lamp's one drawn terminal
-  - { from: PL1.a, to: V3.pin7, style: heater, via: [[-1.2, 3.7], [22, 3.7]] }      # ...and on from the same terminal to V3
-  - { from: V3.pin7, to: V4.pin7, style: heater, via: [[22, 3.72], [28, 3.72]] }    # V3 → V4 heater feed
-  - { from: V4.pin7, to: V2.pin4, style: heater, via: [[28, 3.74], [41, 3.74]] }    # V4 → V2 heater feed
-  - { from: V2.pin4, to: V2.pin5, style: heater }                                   # 12AX7 pins 4+5 strapped (the bow on the sheet)
-  - { from: V2.pin4, to: V1.pin3, style: heater, via: [[41, 3.72], [53, 3.72]] }    # V2 → V1 (6AT6) heater feed
-  - { from: V3.pin2, to: [1.45, 21.5], style: heater }                              # 6V6 heater return → ground
-  - { from: V4.pin2, to: [1.45, 27.0], style: heater }                              # 6V6 heater return → ground
-  - { from: V2.pin9, to: [1.45, 41.8], style: heater }                              # 12AX7 heater centre tap → ground
-  - { from: V1.pin4, to: [1.45, 53.6], style: heater }                              # 6AT6 heater return → ground
+  - { from: PT.green1, to: [1.45, 1.2], style: heater, via: [[0.5, 0.35]] }   # grounded 6.3 V leg (tied to the HT centre tap on the sheet)
+  - { from: PT.green2, to: PL1.a, style: heater }   # feed → the lamp's one drawn terminal
+  - { from: PL1.a, to: V3.pin7, style: heater, via: [[-1.2, 3.7], [21.249, 3.7]] }   # ...and on from the same terminal to V3
+  - { from: V3.pin7, to: V4.pin7, style: heater, via: [[22, 3.72], [28, 3.72]] }   # V3 → V4 heater feed
+  - { from: V4.pin7, to: V2.pin4, style: heater, via: [[28, 3.74], [41, 3.74]] }   # V4 → V2 heater feed
+  - { from: V2.pin4, to: V2.pin5, style: heater }   # 12AX7 pins 4+5 strapped (the bow on the sheet)
+  - { from: V2.pin4, to: V1.pin3, style: heater, via: [[41, 3.72], [53, 3.72]] }   # V2 → V1 (6AT6) heater feed
+  - { from: V3.pin2, to: [1.45, 21.5], style: heater }   # 6V6 heater return → ground
+  - { from: V4.pin2, to: [1.45, 27], style: heater }   # 6V6 heater return → ground
+  - { from: V2.pin9, to: [1.45, 41.8], style: heater }   # 12AX7 heater centre tap → ground
+  - { from: V1.pin4, to: [1.45, 53.6], style: heater }   # 6AT6 heater return → ground
   # A pair spans both of a socket's heater pins on its own, so the chain's last
   # hop needs no closing link — one used to be drawn here between V1 pins 3 and
   # 4, which is a short across the supply and is not on the F-EF sheet (which
