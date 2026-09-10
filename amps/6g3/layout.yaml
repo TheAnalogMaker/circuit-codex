@@ -326,3 +326,12 @@ net_map:
     RG1: "1 MΩ Normal-channel input grid leak — mounted at the input jacks, not on the eyelet board"
     RG2: "1 MΩ Bright-channel input grid leak — mounted at the input jacks"
     RG3: "the driver's DC grid return, modelled as one grid leak (G2A → 0); realised through the two 220 kΩ mixing resistors and the channel volume pots"
+
+# Board-scope rules for the sheet ↔ board gate: parts the sheet draws that
+# this board deliberately does not, by designator glob, each with where the
+# cited layout drawing mounts them (2026-09-10).
+scope:
+  not_drawn:
+    - { match: "R[1-4]n", why: "68 kΩ input grid stoppers — the 6G3 layout (I-FA, read at 6428 × 4213) hangs a 68 kΩ pair from each channel's two jacks (Bright, Normal) beside the 1 MΩ leak, at the jacks and not on the eyelet board" }
+    - { match: "C[5-8]", why: "tone capacitors — the 6G3 layout draws them at the controls: the .02 inside the Bright Tone pot's outline and the .01 inside the Normal Tone pot's, and each .0005 strung from the Tone pot to the Volume pot; none is on the eyelet board" }
+    - { match: "C2[1-4]", why: "the 16-16-16-8 µF filter can — not on the eyelet board and not drawn on the 6G3 layout at all: the rail leads (lettered brown, blue, red +375 V, black, yellow, brown) run from the board's left-end eyelets into a chassis grommet to the can-and-dropper housing under the chassis, which this board draws only as the RD1–RD3 stubs" }

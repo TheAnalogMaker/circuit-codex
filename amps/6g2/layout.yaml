@@ -360,3 +360,10 @@ net_map:
   netlist_unplaced:
     RG1: "1 MΩ input grid leak — mounted at the input jacks, not on the eyelet board"
     RG2: "V1B's nominal 1 MΩ grid return — no discrete part on the drawing; the grid returns to ground at the Volume pot's own ground lug (see notes.md)"
+
+# Board-scope rules for the sheet ↔ board gate: parts the sheet draws that
+# this board deliberately does not, by designator glob, each with where the
+# cited layout drawing mounts them (2026-09-10).
+scope:
+  not_drawn:
+    - { match: "R[12]", why: "68 kΩ input grid stoppers — the 6G2 layout (H-FA, read at 6510 × 4752) hangs both from the Instruments jack lugs beside the 1 MΩ leak, at the jacks and not on the eyelet board" }
