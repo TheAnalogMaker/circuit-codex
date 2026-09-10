@@ -381,3 +381,21 @@ net_map:
     RGV2: "vibrato volume pot VRVV — the netlist models its DC grid return as one grid-leak (GV2→0); the pot itself is off-board (top edge)"
     RGN2: "normal volume pot VRVN — the netlist models its DC grid return as one grid-leak (GN2→0); the pot itself is off-board (top edge)"
     RGRV: "reverb-recovery grid return (bom ref RGR1) — mounted off-board at the tank return, not a discrete board part in this derived layout"
+  # Parts the sheet draws that this board neither places nor wires — each
+  # read off the cited layout drawing (sheet ↔ board gate, 2026-09-10).
+  not_on_board:
+    T2: "filter choke — a chassis part; this derived board draws it only as the off-board choke stub (kind: choke), which the sheet ↔ board gate has no two-lead vocabulary for. The Super Reverb AB763 layout sheet (C-FD, the copy read at 2182 × 1394) draws no choke either: its rail eyelets at the board's left end run by dashed leads to chassis holes"
+    RTO1: "100 kΩ speed-network series resistor — the Super Reverb AB763 layout letters '100K' inside the Speed 3.0M-RA pot's outline: mounted at the pot, not on the eyelet board"
+    RSLN: "6.8 kΩ normal-channel bleed — the Super Reverb AB763 layout letters '6800' inside the Normal channel's Bass 250K-A pot outline: mounted on the pot, not on the eyelet board"
+    DBIAS: "bias rectifier diode — the Super Reverb AB763 layout draws it in the small bias sub-box (470-1W → diode → 25|50 cap) beside the pilot light, not on the main eyelet board; this derived board documents the bias supply schematic-only (caption)"
+    RBIAS: "470 Ω bias feed — the '470-1W' in the Super Reverb AB763 layout's bias sub-box, not on the main eyelet board (caption: bias supply schematic-only here)"
+    CBIAS: "bias filter — the '25|50' can in the Super Reverb AB763 layout's bias sub-box, not on the main eyelet board (caption: bias supply schematic-only here)"
+
+# Board-scope rules for the sheet ↔ board gate: parts the sheet draws that
+# this board deliberately does not, by designator glob, each with where the
+# cited layout drawing mounts them (2026-09-10).
+scope:
+  not_drawn:
+    - { match: "CBR[NV]", why: "120 pF bright caps — the Super Reverb AB763 layout letters '120PF' at each channel's BRIGHT switch: at the switch, not on the eyelet board (caption: bright caps and switches schematic-only here)" }
+    - { match: "R[12][nv]", why: "68 kΩ input grid stoppers — the Super Reverb AB763 layout hangs a 68K pair from each channel's jacks beside the 1 MΩ leak: at the jacks, not on the eyelet board" }
+    - { match: "VR[BMT][NV]", why: "Bass, Middle and Treble controls — panel pots in the layout's control row, never board parts; their tone-stack lug wiring is not drawn on this derived board (caption)" }

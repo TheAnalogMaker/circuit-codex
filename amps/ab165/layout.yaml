@@ -270,3 +270,29 @@ net_map:
     RGN1: "1M normal-channel input grid leak — mounted at the input jacks, not on the eyelet board"
     RGB2: "bass-channel volume pot VRVB — the netlist models its DC grid return as one grid-leak (GB2→0)"
     RGN2: "normal-channel volume pot VRVN — the netlist models its DC grid return as one grid-leak (GN2→0)"
+  # Parts the sheet draws that this board neither places nor wires — each
+  # read off the cited layout drawing (sheet ↔ board gate, 2026-09-10).
+  not_on_board:
+    TR2: "filter choke — a chassis part the Bassman AB165 layout (D-FE, read at 2148 × 1578) does not draw: the +425 V and +415 V eyelets at the board's left end run by dashed leads to chassis holes. On this board it is only the off-board choke stub (kind: choke), which the sheet ↔ board gate has no two-lead vocabulary for"
+    VRBAL: "10K-L bias balance — a chassis-mounted pot drawn beside the bias sub-box on the layout (its '-45V' lug lettered, and the sheet's '* reset hum balance' note), not on the eyelet board"
+    RBB3: "15 kΩ bias-divider foot — lettered '15K' inside the 10K-L bias balance pot's outline on the layout: a resistor mounted on the pot, off the board"
+    RSLN: "6.8 kΩ normal-channel bleed — lettered inside the Normal channel's Bass 250K-A pot outline on the layout: mounted on the pot, not on the eyelet board"
+    RSLB: "8.2 kΩ bass-channel bleed — lettered inside the Bass channel's Bass 250K-A pot outline on the layout: mounted on the pot, not on the eyelet board"
+    CBRN: "120 pF bright cap — lettered '120 PF' at the Normal channel's BRIGHT switch on the layout, at the switch and not on the eyelet board"
+    F1: "2 A slo-blo mains fuse — a chassis fuseholder on the layout's mains row, off the board"
+    CDEATH: ".047-600 ground-switch capacitor — drawn at the GROUND SWITCH on the layout's mains row, off the board"
+    DBIAS: "bias rectifier diode — drawn in the layout's bias sub-box (470 1W → diode → 50|50 cap) beside the pilot light, not on the main eyelet board"
+    RBIAS: "470 Ω · 1 W bias feed — the '470 1W' in the layout's bias sub-box, not on the main eyelet board"
+    CB1: "bias filter — one section of the '50|50' can in the layout's bias sub-box, not on the main eyelet board"
+    CB2: "bias filter — the other section of the '50|50' can in the layout's bias sub-box, not on the main eyelet board"
+
+# Board-scope rules for the sheet ↔ board gate: parts the sheet draws that
+# this board deliberately does not, by designator glob, each with where the
+# cited layout drawing mounts them (2026-09-10).
+scope:
+  not_drawn:
+    - { match: "D[12]", why: "the two HT rectifier strings of three silicon diodes — drawn in the layout's sub-box above the bias parts, not on the main eyelet board" }
+    - { match: "RBB[12]", why: "10 kΩ bias-divider ends — the two '10K' the layout draws beside the 10K-L bias balance pot, one to each end lug: mounted at the pot, off the board" }
+    - { match: "R[12][bn]", why: "68 kΩ input grid stoppers — the layout hangs a 68K pair from each channel's Normal and Bass Instrument jacks beside the 1 MΩ leak, at the jacks and not on the eyelet board" }
+    - { match: "C1[0-5]", why: "the filter cans (the 70 µF series pair, the three 20 µF · 525 V and the 8 µF) — not on the eyelet board and not drawn anywhere on the layout sheet: the rail eyelets at the board's left end run by dashed leads to chassis holes" }
+    - { match: "RBAL[12]", why: "220 kΩ · 1 W reservoir balancing resistors — not on the eyelet board and not drawn anywhere on the layout sheet, like the series filter pair they belong with" }

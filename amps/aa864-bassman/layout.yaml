@@ -364,3 +364,7 @@ net_map:
     RGN1: "1 MΩ Normal input grid leak — mounted at the input jacks, not on the eyelet board"
     RGB2: "Bass-channel second-stage grid return — realised through the 250 kΩ volume control, not a discrete board resistor (GB2→0)"
     RGN2: "Normal second-stage grid return — realised through the 1 MΩ volume control, not a discrete board resistor (GN2→0)"
+  # Parts the sheet draws that this board neither places nor wires — each
+  # read off the cited layout drawing (sheet ↔ board gate, 2026-09-10).
+  not_on_board:
+    T2: "filter choke — a chassis part the Bassman AA864 layout (H-FD, read at 2115 × 1548) does not draw: the +422 V and +420 V eyelets at the board's left end run by dashed leads to chassis holes. On this board it is only the off-board choke stub (id TR2, kind: choke), which the sheet ↔ board gate has no two-lead vocabulary for"

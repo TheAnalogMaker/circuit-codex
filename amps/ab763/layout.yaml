@@ -311,3 +311,25 @@ net_map:
     RGV1: "1M vibrato-channel input grid leak — mounted at the input jacks, not on the eyelet board"
     RGV2: "vibrato volume pot VRVV — the netlist models its DC grid return as one grid-leak (GV2→0)"
     RGRV: "reverb-recovery grid return — realised through the reverb-level pot and the tank network to ground, not a discrete board resistor (GR1→0)"
+  # Parts the sheet draws that this board neither places nor wires — each
+  # read off the cited layout drawing (sheet ↔ board gate, 2026-09-10).
+  not_on_board:
+    T2: "filter choke — a chassis part the AB763 Deluxe Reverb layout (C-FD, page 1, read at 6026 × 3650) does not draw: the +420 V and +415 V eyelets at the board's left end run by dashed leads to chassis holes. On this board it is only the off-board choke stub (kind: choke), which the sheet ↔ board gate has no two-lead vocabulary for"
+    CBRV: "47 pF vibrato bright cap — lettered '47PF' inside the Vibrato channel's Volume 1M-A pot outline on the layout: mounted on the pot, not on the eyelet board"
+    RTO1: "100 kΩ speed-network series resistor — lettered '100K' inside the Speed 3.0M-RA pot's outline on the layout: mounted at the pot, not on the eyelet board"
+    CDEATH: ".047-600 ground-switch capacitor — drawn at the GROUND SWITCH on the layout's mains row, off the board"
+    DBIAS: "bias rectifier diode — drawn in the layout's small bias sub-box (470-1W → diode → 25|50 cap), a separate board beside the pilot light, not on the main eyelet board"
+    RBIAS: "470 Ω · 1 W bias feed — the '470-1W' in the layout's bias sub-box, not on the main eyelet board"
+    CB1: "25 µF bias filter — the '25' half of the '25|50' can in the layout's bias sub-box, not on the main eyelet board"
+    CB2: "50 µF bias filter — the '50' half of the '25|50' can in the layout's bias sub-box, not on the main eyelet board"
+    VRBAL: "10K-L bias control — a chassis-mounted pot drawn beside the bias sub-box on the layout (its '-35V' lug lettered), not on the eyelet board"
+    RBAL: "10 kΩ bias-divider leg — lettered '10K' inside the 10K-L bias pot's outline on the layout, the way the Twin's 27K and the AB165's 15K are lettered inside theirs: a resistor mounted on the pot, off the board (the schematic hangs it from the pot's end to ground)"
+
+# Board-scope rules for the sheet ↔ board gate: parts the sheet draws that
+# this board deliberately does not, by designator glob, each with where the
+# cited layout drawing mounts them (2026-09-10).
+scope:
+  not_drawn:
+    - { match: "R[12][nv]", why: "68 kΩ input grid stoppers — the AB763 layout hangs a 68K pair from each channel's Normal and Vibrato jacks beside the 1 MΩ leak, at the jacks and not on the eyelet board" }
+    - { match: "RSL[NV]", why: "6.8 kΩ tone-stack bleeds — lettered '6800' inside each channel's Bass 250K-A pot outline on the layout: mounted on the pots, not on the eyelet board" }
+    - { match: "VR[BT][NV]", why: "Bass and Treble controls of both channels — panel pots in the layout's control row, never board parts; their tone-stack lug wiring is not drawn on this board" }

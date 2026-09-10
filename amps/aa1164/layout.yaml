@@ -258,3 +258,23 @@ net_map:
   netlist_unplaced:
     RTR3: "reverb transformer TR3 primary DCR (~200 Ω) — the winding, not a discrete board resistor; its B+ lead anchors to BB and its plate lead lands on the paralleled V2 plates (PRD)"
     RGN2: "Volume control VRVOL — the netlist models the second preamp stage's DC grid return as one grid-leak (GN2→0)"
+  # Parts the sheet draws that this board neither places nor wires — each
+  # read off the cited layout drawing (sheet ↔ board gate, 2026-09-10).
+  not_on_board:
+    RSL: "6.8 kΩ tone-stack bleed — the AA1164 layout (K-FD, sheet 2 of 2, read at 5734 × 4467) letters '6800' inside the Bass 250K-A pot's outline: mounted on the pot, not on the eyelet board"
+    RSPD: "100 kΩ Speed-network series resistor — lettered '100K' inside the Speed 3.0M-RA pot's outline on the layout: mounted at the pot, not on the eyelet board"
+    F1: "1 A slo-blo mains fuse — a chassis fuseholder on the layout's mains row, off the board"
+    CDEATH: ".047-600 ground-switch capacitor — drawn at the GROUND SWITCH on the layout's mains row, off the board"
+    DB1: "bias rectifier diode — drawn in the layout's small bias sub-box (100K 5% → diode → 25+50 cap, 22K), a separate board beside the pilot light, not on the main eyelet board"
+    RB1: "100 kΩ 5% bias feed — in the layout's bias sub-box with the diode, not on the main eyelet board"
+    RB2: "22 kΩ bias bleeder — in the layout's bias sub-box, not on the main eyelet board"
+    CB3: "25 µF · 50 V bias filter — the '25 + 50' can in the layout's bias sub-box, not on the main eyelet board"
+
+# Board-scope rules for the sheet ↔ board gate: parts the sheet draws that
+# this board deliberately does not, by designator glob, each with where the
+# cited layout drawing mounts them (2026-09-10).
+scope:
+  not_drawn:
+    - { match: "R1[ab]", why: "68 kΩ input grid stoppers — the AA1164 layout hangs both from the Instruments jack lugs beside the 1 MΩ leak, at the jacks and not on the eyelet board" }
+    - { match: "RH[12]", why: "100 Ω heater hum-balance pair — drawn at the pilot light on the layout, one from each heater lead to chassis ground, off the board" }
+    - { match: "VR[BT]", why: "Bass and Treble controls — panel pots in the layout's control row, never board parts; their tone-stack lug wiring is not drawn on this board" }

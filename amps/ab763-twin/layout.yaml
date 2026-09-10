@@ -274,3 +274,25 @@ net_map:
     RGV1: "1 MΩ vibrato-channel input grid leak — mounted at the input jacks, not on the eyelet board"
     RGN2: "normal volume pot VRVN — the netlist models its DC grid return as one grid leak (GN2 → 0)"
     RGV2: "vibrato volume pot VRVV — the netlist models its DC grid return as one grid leak (GV2 → 0)"
+  # Parts the sheet draws that this board neither places nor wires — each
+  # read off the cited layout drawing (sheet ↔ board gate, 2026-09-10).
+  not_on_board:
+    T2: "filter choke — a chassis part the Twin Reverb AB763 layout (C-FD, read at 2157 × 1397) does not draw: the +460 V and +458 V eyelets at the board's left end run by dashed leads to chassis holes. On this board it is only the off-board choke stub (kind: choke), which the sheet ↔ board gate has no two-lead vocabulary for"
+    RB2: "27 kΩ bias-divider leg — lettered '27K' inside the 10K-L bias pot's outline on the layout: a resistor mounted on the pot, off the board"
+    RTOSP: "100 kΩ speed-network series resistor — lettered '100K' inside the Speed 3.0M-RA pot's outline on the layout: mounted at the pot, not on the eyelet board"
+    CDEATH: ".047-600 ground-switch capacitor — drawn at the GROUND SWITCH on the layout's mains row, off the board"
+    DBIAS: "bias rectifier diode — drawn in the layout's bias sub-box (470-1W → diode → 50|50 cap) beside the pilot light, not on the main eyelet board"
+    RBIAS: "470 Ω · 1 W bias feed — the '470-1W' in the layout's bias sub-box, not on the main eyelet board"
+    CB1: "bias filter can — the '50|50' in the layout's bias sub-box, not on the main eyelet board"
+
+# Board-scope rules for the sheet ↔ board gate: parts the sheet draws that
+# this board deliberately does not, by designator glob, each with where the
+# cited layout drawing mounts them (2026-09-10).
+scope:
+  not_drawn:
+    - { match: "DHT[AB]", why: "the two HT rectifier strings of three silicon diodes — drawn in the layout's sub-box above the bias parts, not on the main eyelet board" }
+    - { match: "CBR[NV]", why: "120 pF bright caps — lettered '120 PF' at each channel's BRIGHT switch on the layout, at the switch and not on the eyelet board" }
+    - { match: "R[12][nv]", why: "68 kΩ input grid stoppers — the layout hangs a 68K pair from each channel's Normal and Vibrato jacks beside the 1 MΩ leak, at the jacks and not on the eyelet board" }
+    - { match: "VR[BMT][NV]", why: "Bass, Middle and Treble controls of both channels — panel pots in the layout's control row, never board parts; their tone-stack lug wiring is not drawn on this board" }
+    - { match: "C1[0-4]", why: "the filter cans (the 70 µF series pair and the three 20 µF · 525 V) — not on the eyelet board and not drawn anywhere on the layout sheet: the rail eyelets at the board's left end run by dashed leads to chassis holes" }
+    - { match: "RBAL[12]", why: "220 kΩ · 1 W reservoir balancing resistors — not on the eyelet board and not drawn anywhere on the layout sheet, like the series filter pair they belong with" }
