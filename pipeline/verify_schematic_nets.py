@@ -44,7 +44,8 @@ The mapping is solved, not assumed:
     polarity marks (an electrolytic's + end is not modelled on the sheet or in
     the netlist), so both are matched UNORDERED and resolved by constraint
     propagation from the anchors to one globally consistent whole. If polarity
-    is ever drawn, this is the assumption to revisit.
+    is ever drawn, this is the assumption to revisit. The one polarity the
+    sheets DO draw, a diode's, is checked separately (RECTIFIER POLARITY).
   * ground: the corpus draws every ground return as a global label `GND`, so
     that one net anchors netlist node `0`. A sheet without a `GND` label is a
     hard failure, never a silent skip.
@@ -113,9 +114,35 @@ WHAT IT REPORTS (each line is something a fixer can act on)
   UNMAPPED       a modelled element's lead on a net carrying no netlist node
   MISSING SYMBOL a netlist element with no schematic symbol, undeclared
   STALE DECL.    an sch_map.yaml declaration that names nothing on this sheet
+  REVERSED DIODE a cx:DIODE_SS drawn the wrong way round, judged against the
+                 SIGN the netlist gives the supply it sits on (below)
   (coverage)     every schematic symbol with no netlist element is enumerated,
                  tagged "not DC-checked", so what is NOT proven is stated out
                  loud rather than trusted in silence.
+
+------------------------------------------------------------------------------
+RECTIFIER POLARITY — a physical fact the equivalence proof cannot see
+------------------------------------------------------------------------------
+A diode's orientation is recorded only by its symbol's rotation (`cx:DIODE_SS`
+pin 1 = A, pin 2 = K), and the netlist models no diode, so everything above is
+blind to it: on 2026-09-10, 25 of 68 sheet diodes were drawn backwards under
+clean verdicts. The netlist does fix the SIGN of every supply. Each diode
+terminal whose net carries a modelled node is judged against that node's
+simulated volts by the rule the board gate shares
+(`verify_layout_nets.judge_diode`), and the part is REVERSED if
+  * its cathode sits below -5 V (a negative supply is fed from an ANODE),
+  * its anode sits above +50 V (B+ is taken off a CATHODE), or
+  * both ends are modelled and V(anode) - V(cathode) > 1 V (forward-biased at
+    DC between two nodes the netlist holds apart).
+Volts come from reference/op-points.yaml, else the netlist's own ideal source
+to ground (a rail's simulated voltage IS its source value); node 0 is 0 V. A
+supply's first node often sits behind parts the netlist does not model (a bias
+row's resistor and trim pot, an HT standby switch or choke), so a terminal on
+no modelled node inherits one through `supply_walk`, which crosses only
+POLARITY_WALK_LIBS parts carrying no netlist element, uses what it reaches only
+when those nodes agree in sign, and prints the path. A diode nothing decides is
+listed as "polarity not checked" with its reason, and counted, every run.
+REVERSED DIODE is a finding like any other: it hard-fails a claimed sheet.
 
 ------------------------------------------------------------------------------
 VERDICT + GATE
@@ -142,7 +169,8 @@ from pathlib import Path
 import yaml
 
 from sch_nets import Nets
-from verify_layout_nets import parse_netlist
+from verify_layout_nets import (inherit_node, judge_diode, node_volts,
+                                parse_netlist, supply_walk)
 
 ROOT = Path(__file__).resolve().parent.parent
 AMPS = ROOT / "amps"
@@ -163,6 +191,19 @@ TUBE_ROLE_PINS = {
 TWO_TERM_LIBS = {"cx:R", "cx:C", "cx:CHOKE", "cx:DIODE_SS", "cx:FUSE",
                  "cx:SWITCH", "cx:LAMP"}
 GND_LABEL = "GND"
+# The one POLARISED two-lead symbol: schematic_lib.LIB draws cx:DIODE_SS with
+# pin 1 = A (anode) and pin 2 = K (cathode, the band). Unlike R and C its two
+# ends are NOT interchangeable, and the symbol's rotation is the only place the
+# drawing records which end is which.
+DIODE_LIB = "cx:DIODE_SS"
+DIODE_PINS = {"anode": "1", "cathode": "2"}
+# What a polarity walk may cross from a diode terminal whose net carries no
+# netlist node, to the supply node behind it: parts that conduct DC and carry
+# no netlist element. Every pin of a pot is one DC body (track ends + wiper).
+# Never a capacitor (DC-open), a transformer (a winding is a source), a tube,
+# a lamp, a jack, or another diode.
+POLARITY_WALK_LIBS = {"cx:R", "cx:POT", "cx:POT_TAP", "cx:CHOKE", "cx:FUSE",
+                      "cx:SWITCH"}
 
 
 # ---------------------------------------------------------------------------
@@ -237,6 +278,9 @@ class Result:
         # node -> (drawn modelled terminals, missing fixed, pairs that miss it,
         #          unexpected terminals) — the per-node membership table
         self.node_diff: dict = {}
+        self.polarity: list = []       # judge_diode() verdict per cx:DIODE_SS
+        self.graph = None              # the solved SchGraph and its net root ->
+        self.node_of_root: dict = {}   #   netlist node map (for --analyze / tests)
 
 
 def _bump(res: Result, cls: str, line: str):
@@ -466,6 +510,51 @@ def check_amp(amp_id: str, sch_path: "Path | None" = None,
                 if other is not None:
                     changed |= assign(ra, other, f"through {c.ref}")
 
+    # -- 3b. rectifier polarity ---------------------------------------------
+    # Which way round a diode is drawn is recorded ONLY by its symbol's rotation,
+    # and the DC netlist models no diode, so nothing above can see it: 25 of 68
+    # sheet diodes were backwards on 2026-09-10 under clean verdicts. The
+    # netlist does fix the SIGN of every supply, so each diode terminal whose net
+    # carries a modelled node is judged against that node's simulated volts, by
+    # the one rule both drawing gates share (verify_layout_nets.judge_diode).
+    # A supply's first node often sits behind series parts the netlist does not
+    # model (a bias row's resistor and trim pot, an HT standby switch or choke),
+    # so a terminal on no modelled node inherits one through supply_walk, which
+    # crosses only POLARITY_WALK_LIBS parts that carry no netlist element.
+    res.graph, res.node_of_root = G, M
+    volts = node_volts(amp_id)
+    modelled_refs = {t.rpartition(".")[0] for t in modelled_terms}
+    pol_mem = members_of()
+
+    def neighbours(root):
+        for m in pol_mem.get(root, ()):
+            if m.startswith("<"):
+                continue
+            sref, _, num = m.rpartition(".")
+            if sref in modelled_refs or G.lib.get(sref) not in POLARITY_WALK_LIBS:
+                continue
+            for onum in G.nets.pins.get(sref, {}):
+                if onum != num:
+                    yield sref, G.term(f"{sref}.{onum}")
+
+    def locate(term):
+        root = G.term(term)
+        if root is None or M.get(root) is not None:
+            return (term, M.get(root))
+        found, note = inherit_node(supply_walk(root, M.get, neighbours), volts)
+        return (term, found[0], found[1]) if found else (term, None, (), note)
+
+    for ref in sorted(G.lib):
+        if G.lib[ref] != DIODE_LIB:
+            continue
+        ta, tk = f"{ref}.{DIODE_PINS['anode']}", f"{ref}.{DIODE_PINS['cathode']}"
+        p = judge_diode(ref, locate(ta), locate(tk), volts)
+        res.polarity.append(p)
+        if p["verdict"] == "REVERSED":
+            _bump(res, "REVERSED DIODE",
+                  f"{ref} is drawn the wrong way round: {p['why']}. "
+                  f"[{p['desc']}] Turn the symbol through 180 degrees.")
+
     # -- 4. findings --------------------------------------------------------
     mem = members_of()
 
@@ -601,6 +690,13 @@ def check_amp(amp_id: str, sch_path: "Path | None" = None,
     # -- 5. honest coverage -------------------------------------------------
     _scope(res, G, comps, tube_terms, part_terms, modelled_terms, mem, M,
            net_map, undrawn, unplaced)
+    for p in res.polarity:
+        if p["verdict"] == "confirmed":
+            res.scope.append(f"polarity {p['ref']}: confirmed by the DC model "
+                             f"[{p['desc']}]")
+        elif p["verdict"] == "unchecked":
+            res.scope.append(f"polarity {p['ref']}: NOT CHECKED, {p['why']} "
+                             f"[{p['desc']}]")
     res.ok = not res.errors
     return res
 
@@ -715,6 +811,22 @@ def print_result(res: Result, report: bool = False):
             print(f"    ~ scope: {s}")
 
 
+def _print_polarity_summary(polarity: list):
+    """Every run says how many sheet diodes the DC model decided, and names the
+    ones it did not: a polarity nobody checked is never silent."""
+    by: dict = {"confirmed": [], "REVERSED": [], "unchecked": []}
+    for amp, p in polarity:
+        by[p["verdict"]].append((amp, p))
+    print(f"rectifier polarity: {len(polarity)} sheet diode(s); "
+          f"{len(by['confirmed'])} confirmed by the DC model, "
+          f"{len(by['REVERSED'])} REVERSED, {len(by['unchecked'])} not checked")
+    reasons: dict = {}
+    for amp, p in by["unchecked"]:
+        reasons.setdefault(p["why"], []).append(f"{amp} {p['ref']}")
+    for why, items in sorted(reasons.items()):
+        print(f"  polarity not checked ({why}): {len(items)} — {', '.join(items)}")
+
+
 def analyze(amp_id: str) -> int:
     """Dump the solved node <-> net mapping for one sheet, node by node — the
     view a fixer works from: what the netlist puts on a node, what the drawing
@@ -783,6 +895,49 @@ def _pin_xy(amp_id: str, ref: str, num: str) -> tuple:
     return n.pins[ref][num]
 
 
+_AT_RE = re.compile(r"\(at (-?[\d.]+) (-?[\d.]+)(?: (-?[\d.]+))?\)")
+
+
+def _flip_symbol(text: str, ref: str) -> str:
+    """Turn the placed symbol lettered `ref` through 180 degrees about its own
+    origin, every wire left where it was. A cx:DIODE_SS carries its pins at
+    -5.08 and +5.08 on one axis, so this swaps the points the anode and the
+    cathode land on: exactly the part drawn the other way round, the fault
+    class the polarity check exists for. An edit to the regenerated file."""
+    i = text.find(f'(property "Reference" "{ref}"')
+    if i < 0:
+        raise AssertionError(f"self-test: no symbol lettered {ref}")
+    s = text.rfind("(symbol (lib_id", 0, i)
+    m = _AT_RE.search(text, s, i)
+    ang = (float(m.group(3) or 0) + 180) % 360
+    return text[:m.start()] + f"(at {m.group(1)} {m.group(2)} {ang:g})" + text[m.end():]
+
+
+def _plant_diode(text: str, ref: str, anode_label: str, cathode_label: str,
+                 at: tuple = (900.0, 900.0)) -> str:
+    """Add a cx:DIODE_SS lettered `ref` far off the drawing, its anode pin on a
+    global label `anode_label` and its cathode pin on `cathode_label`: a diode
+    joined to two existing nets by name alone, the way a sheet ties a part to a
+    rail. The sheet must already carry the symbol in lib_symbols."""
+    x, y = at
+
+    def uid(n):
+        return f"00000000-0000-4000-8000-{n:012d}"
+    block = (f'  (symbol (lib_id "{DIODE_LIB}") (at {x:g} {y:g} 0) (unit 1)\n'
+             f'    (in_bom yes) (on_board yes) (uuid "{uid(1)}")\n'
+             f'    (property "Reference" "{ref}" (at {x:g} {y - 3:g} 0) '
+             f'(effects (font (size 1.27 1.27))))\n'
+             f'    (property "Value" "planted" (at {x:g} {y + 3:g} 0) '
+             f'(effects (font (size 1.27 1.27)))))\n')
+    for n, (name, px) in enumerate(((anode_label, x - 5.08),
+                                    (cathode_label, x + 5.08)), 2):
+        block += (f'  (global_label "{name}" (shape input) (at {px:g} {y:g} 0)\n'
+                  f'    (effects (font (size 1.27 1.27)) (justify left)) '
+                  f'(uuid "{uid(n)}"))\n')
+    i = text.index("  (symbol (lib_id")
+    return text[:i] + block + text[i:]
+
+
 def selftest() -> int:
     """A gate that cannot catch a planted fault is decoration.
 
@@ -817,6 +972,7 @@ def selftest() -> int:
          "V1A"),
     ]
     fails: list[str] = []
+    n_cases = 0
     print("=== baselines (the corpus is not green yet — deltas are what count) ===")
     base: dict = {}
     for amp in sorted({c[0] for c in cases}):
@@ -833,6 +989,7 @@ def selftest() -> int:
             dst = tmp / f"{amp}.kicad_sch"
             dst.write_text(text)
             r = check_amp(amp, sch_path=dst)
+            n_cases += 1
             new = set(r.errors) - base[amp]
             # A planted fault must never make the gate say LESS overall. Judged
             # on the TOTAL, not per class and not on exact text: a fault can
@@ -879,6 +1036,7 @@ def selftest() -> int:
     ]
     for label, sm, needle in hygiene:
         r = check_amp("5f1", sch_map=sm)
+        n_cases += 1
         hit = [e for e in r.errors
                if e.startswith("STALE DECLARATION") and needle in e]
         print(f"  stale {label:22s} {'REPORTED' if hit else 'MISSED'}")
@@ -891,6 +1049,7 @@ def selftest() -> int:
     r = check_amp("5f1", sch_map={"symbols": {"V1A": "V1"}})
     guided = any("does letter a symbol 'V1A'" in e for e in r.errors)
     misled = any(e.startswith("MISSING SYMBOL") and "V1A" in e for e in r.errors)
+    n_cases += 2
     print(f"  renamed-away hint given: {'YES' if guided else 'NO'}; "
           f"mis-reported as MISSING SYMBOL: {'YES' if misled else 'NO'}")
     if not guided:
@@ -900,13 +1059,101 @@ def selftest() -> int:
     # A layout-sourced declaration that does not apply to a sheet is scope, not
     # a finding: it was written about a board and may have no counterpart here.
     r = check_amp("5f1")
+    n_cases += 1
     if any(e.startswith("STALE DECLARATION") for e in r.errors):
         fails.append("a reused layout declaration was reported as stale sch_map data")
 
+    n_pol = _selftest_polarity(fails)
+    n_cases += n_pol
     for f in fails:
         print(f"  !! {f}")
-    print(f"self-test: {'PASS' if not fails else 'FAIL'}")
+    print(f"self-test: {'PASS' if not fails else 'FAIL'} ({n_cases} cases, "
+          f"{n_pol} of them rectifier polarity)")
     return 1 if fails else 0
+
+
+def _selftest_polarity(fails: list) -> int:
+    """REVERSED DIODE must bite on the three ways a diode goes wrong, and must
+    confirm, not merely tolerate, diodes drawn right. Returns the case count."""
+    n = 0
+    print("=== rectifier polarity: the rule, one row per clause, both ways ===")
+    rows = [
+        # (anode V, cathode V, expected verdict, label)
+        (None, -40.0, "REVERSED", "cathode on a negative supply"),
+        (-40.0, None, "confirmed", "anode on a negative supply"),
+        (415.0, None, "REVERSED", "anode on B+"),
+        (None, 415.0, "confirmed", "cathode on B+"),
+        (1.5, 0.0, "REVERSED", "forward-biased between two modelled nodes, "
+                               "neither threshold crossed (the third clause alone)"),
+        (0.0, 1.5, "confirmed", "the same pair, reverse-biased"),
+        (0.0, None, "unchecked", "anode on ground, cathode off the model"),
+        (None, None, "unchecked", "no terminal on a modelled node"),
+    ]
+    for va, vk, want, label in rows:
+        vs: dict = {}
+        a, k = ("X.1", None), ("X.2", None)
+        if va is not None:
+            vs["NA"], a = (va, "synthetic"), ("X.1", "NA")
+        if vk is not None:
+            vs["NK"], k = (vk, "synthetic"), ("X.2", "NK")
+        got = judge_diode("X", a, k, vs)["verdict"]
+        n += 1
+        print(f"  {'OK    ' if got == want else 'WRONG '} {label}: {got}")
+        if got != want:
+            fails.append(f"polarity rule: {label} gave {got}, want {want}")
+
+    print("=== rectifier polarity: planted faults (edits to temp copies of the "
+          "regenerated .kicad_sch) ===")
+    planted = [
+        ("5f4", "5F4 bias rectifier D1 turned through 180 degrees, cathode onto "
+                "the -40 V supply", lambda t: _flip_symbol(t, "D1"), "D1",
+         ("cathode on",)),
+        ("ab763-twin", "AB763-Twin HT rectifier DHTA turned through 180 degrees, "
+                       "anode onto B+", lambda t: _flip_symbol(t, "DHTA"), "DHTA",
+         ("anode on",)),
+        ("5f4", "a diode planted forward from <B+1> to <GND>",
+         lambda t: _plant_diode(t, "DPLANT", "B+1", GND_LABEL), "DPLANT",
+         ("anode on", "forward-biased")),
+    ]
+    tmp = Path(tempfile.mkdtemp(prefix="cx-schpol-"))
+    try:
+        for amp, label, mutate, ref, needles in planted:
+            base = check_amp(amp)
+            dst = tmp / f"{amp}.kicad_sch"
+            dst.write_text(mutate((AMPS / amp / "schematic.kicad_sch").read_text()))
+            r = check_amp(amp, sch_path=dst)
+            n += 1
+            new = set(r.errors) - set(base.errors)
+            hit = [e for e in new if e.startswith("REVERSED DIODE")
+                   and f"{ref} is drawn" in e and all(x in e for x in needles)]
+            print(f"  {'CAUGHT' if hit else 'MISSED'}: {label}")
+            if hit:
+                print(f"          -> {hit[0][:170]}")
+            else:
+                fails.append(f"polarity: {label} was not reported REVERSED")
+            if len(r.errors) < len(base.errors):
+                fails.append(f"polarity: {label} REMOVED findings")
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)
+
+    print("=== rectifier polarity: drawn right, and decided by the model ===")
+    for amp, ref, label in (
+            ("aa1164", "DB1", "AA1164 bias rectifier, anode on the -34 V supply"),
+            ("ab165", "D1", "AB165 HT rectifier, cathode on B+ through the "
+                            "standby switch and choke"),
+            ("5f4", "D1", "5F4 bias rectifier as committed (the flip above "
+                          "starts from a confirmed part)"),
+            ("ab763-twin", "DHTA", "AB763-Twin HT rectifier as committed")):
+        r = check_amp(amp)
+        n += 1
+        p = next((q for q in r.polarity if q["ref"] == ref), None)
+        got = p["verdict"] if p else "absent"
+        print(f"  {'OK    ' if got == 'confirmed' else 'WRONG '} {label}: {got}")
+        if p:
+            print(f"          -> {p['desc'][:170]}")
+        if got != "confirmed":
+            fails.append(f"polarity: {amp} {ref} should be confirmed, got {got}")
+    return n
 
 
 # ---------------------------------------------------------------------------
@@ -929,8 +1176,10 @@ def main(argv: list[str]) -> int:
     print("  enumerated below as not DC-checked, never assumed correct.")
     print()
     failed_claimed, failed_any, totals = [], [], {}
+    polarity: list = []
     for amp in ids:
         res = check_amp(amp)
+        polarity.extend((amp, p) for p in res.polarity)
         print_result(res, report=report)
         for k, v in res.classes.items():
             totals[k] = totals.get(k, 0) + v
@@ -944,6 +1193,7 @@ def main(argv: list[str]) -> int:
     if totals:
         print("findings by class: " +
               ", ".join(f"{k}={v}" for k, v in sorted(totals.items())))
+    _print_polarity_summary(polarity)
     if failed_claimed:
         print(f"GATE FAIL — claimed sheets with findings: {', '.join(failed_claimed)}")
         return 1

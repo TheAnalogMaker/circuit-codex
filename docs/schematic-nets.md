@@ -85,7 +85,9 @@ the sheet nor in the netlist. Treating the pair as ordered would flag every part
 a drawing happens to letter the other way up. The orientation is instead
 resolved by **constraint propagation** from the anchors to one globally
 consistent whole, exactly as on the layout side. *If polarity is ever drawn on
-electrolytics, this is the assumption to revisit.*
+electrolytics, this is the assumption to revisit.* The one polarity the sheets
+*do* draw, a diode's, is checked on its own; see
+[Rectifier polarity](#rectifier-polarity).
 
 **Pots, cans and windings need an explicit terminal pick.** A netlist `R`/`C`
 binds without ceremony only to a genuine two-lead passive
@@ -207,12 +209,66 @@ per-component views do not repeat each other.
 | `UNMAPPED` | a modelled element's lead on a net carrying no netlist node; says explicitly when the pin is **dangling** |
 | `MISSING SYMBOL` | a netlist element with no schematic symbol and no declaration |
 | `STALE DECLARATION` | an `sch_map.yaml` entry that names nothing on this sheet, so it was not applied |
+| `REVERSED DIODE` | a `cx:DIODE_SS` drawn the wrong way round, judged against the simulated sign of the supply it sits on ([Rectifier polarity](#rectifier-polarity)) |
 
 `--report` adds the applied declarations and the coverage narrative: how many
 symbols the netlist models, how many terminals are DC-checked, which tubes are
 declared excluded, and — grouped by symbol class — **every** terminal that is
 not DC-checked. `--analyze <amp>` prints the per-node membership table (drawn /
 missing / neither-end / unexpected).
+
+## Rectifier polarity
+
+A diode's direction is recorded in exactly one place on a sheet: the rotation
+of its `cx:DIODE_SS` symbol (pin 1 = A, pin 2 = K, the band). The netlist models
+no diode, so the equivalence proof above is blind to it, and on 2026-09-10 a
+count found 25 of 68 sheet diodes drawn backwards under clean verdicts. What
+the netlist *does* fix is the sign of every supply, and that is what this check
+reads.
+
+For each diode terminal the gate takes the netlist node its net carries and
+that node's simulated voltage: from `reference/op-points.yaml`, or, for a rail
+the export does not list, from the netlist's own ideal source to ground, whose
+simulated voltage *is* the source value. Node `0` is 0 V. The part is
+**`REVERSED DIODE`** when any clause holds:
+
+| clause | why it is backwards |
+|---|---|
+| the cathode sits below −5 V | a negative supply is fed from a rectifier's **anode**; a cathode there would charge the node positive |
+| the anode sits above +50 V | B+ is taken off a rectifier's **cathode** |
+| both ends are modelled and V(anode) − V(cathode) > 1 V | forward-biased at DC between two nodes the netlist holds apart: it would conduct, and the circuit has no such path |
+
+**The walk to the supply node.** A rectifier's own node usually sits behind
+parts the netlist does not model: a bias row's series resistor and trim pot, an
+HT standby switch, fuse or choke. So a terminal whose net carries no netlist
+node walks outward across symbols that conduct DC and carry no netlist element
+(`cx:R`, `cx:POT`, `cx:POT_TAP`, `cx:CHOKE`, `cx:FUSE`, `cx:SWITCH`; every pin of
+a pot is one body), never across a capacitor, a transformer, a tube or another
+diode, and stops at each net that carries a node. A rectifier is the source of
+the supply it feeds, so its node lies at least as far from ground as anything
+it reaches through resistors alone, and on the same side; the terminal
+inherits the reached node nearest ground. Three things decide nothing: ground
+reached through a resistor (a bleeder's or a divider's foot), a reached node
+with no simulated volts, and nodes of both signs. The path prints with the
+verdict. The M1987's bias rectifier at e4e59fa reads
+
+```
+REVERSED DIODE: D1 is drawn the wrong way round: cathode on -48.0 V, and a negative
+supply is fed from a rectifier's ANODE. [anode D1.1 on no modelled node; cathode D1.2
+on NBIAS = -48.0 V (ideal source VBIAS) through RBB, VR6] Turn the symbol through 180 degrees.
+```
+
+**Not checked is said out loud.** A diode the model does not decide is listed
+with its reason in every run's closing summary, and per sheet under `--report`:
+no terminal reaches a modelled node (the inner diodes of a series HT stack), or
+the only node reached is ground (a bridge's low side). *Confirmed* means more
+than "not reversed": the drawn part keeps every clause **and** the same part
+turned round would break one, so the model actually decided it.
+
+The rule lives in `verify_layout_nets.judge_diode`, beside `parse_netlist`, so
+the board gate reads `cathode:` fields by exactly the same clauses (report-only
+there for now; see `docs/layout-schema.md`). Here `REVERSED DIODE` is a finding
+like any other: it hard-fails a sheet that claims `schematic_claim: verified`.
 
 ## The gate
 
@@ -235,6 +291,16 @@ expected class naming the mutated designator, and must not lower the total,
 which holds whether or not the sheet was clean to begin with. The assertions
 keep holding once
 a sheet does go green.
+
+It then proves the polarity check. Each clause is run on synthetic volts both
+ways round, including the forward-bias clause alone, with neither threshold
+crossed. Three planted faults, each an edit to a temp copy of a regenerated
+sheet, must each add a `REVERSED DIODE`: the 5F4's bias rectifier turned
+through 180°, the AB763-Twin's HT rectifier `DHTA` turned through 180°, and a
+diode planted forward from `<B+1>` to `<GND>`. The AA1164's bias rectifier and
+the AB165's HT rectifier, together with the two unflipped parts, must come
+back *confirmed*, not merely unflagged. The run ends by printing its case
+count.
 
 ## CI
 

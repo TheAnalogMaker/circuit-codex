@@ -119,7 +119,10 @@ drawing's **Bodies** legend.
 cathode on, so the drawn body can carry its band the right way round. The
 drawing never infers polarity: an undeclared diode is drawn unbanded rather
 than guessed at, and the field's comment must cite where in
-`schematic.kicad_sch` the orientation was read.
+`schematic.kicad_sch` the orientation was read. A band copied from a
+backwards sheet is still backwards, so `verify_layout_nets.py` also judges every
+declared `cathode:` against the simulated sign of the supply the diode sits on;
+see *Rectifier polarity* under the equivalence gate below.
 
 **Polarity gutter.** An electrolytic's `+` is a placed mark with reserved clear
 space inside the body, and the value reflows into what is left. Set inline (as
@@ -1025,6 +1028,26 @@ sets `wiring_claim: verified` is **hard-gated** (a failure fails CI); an amp
 without the claim is **report-only**. This mirrors `meta.yaml`'s
 `verification.status: verified` gate on the netlist itself.
 
+**Rectifier polarity: report-only until its list is empty.** A board diode's
+direction lives only in its `cathode: a|b` field, and the boards copied theirs
+from sheets on which 25 of 68 diodes turned out to be drawn backwards
+(2026-09-10). Every diode the board draws is judged through this board's own
+node map by the rule the schematic gate applies (`judge_diode`; the clauses and
+the walk to the supply node are in `docs/schematic-nets.md`). That covers
+`parts[]` rows and off-board `kind: part` items whose BOM type is a diode or
+rectifier. A diode is REVERSED when its cathode sits on a node the model holds
+below −5 V, its anode on one above +50 V, or it is forward-biased by more than
+1 V between two modelled nodes. On a board the walk crosses resistors, fuses
+and chokes (board or off-board), every lug of a pot, and a switch with exactly
+two terminals. A diode with no `cathode:` is drawn unbanded and listed as not
+checked. Each run prints every REVERSED diode with its amp, ref and both nodes'
+volts, per amp (`POLAR |`) and again in a closing summary. The findings sit
+apart from the DIFF lines and change no verdict while a board-repair wave
+corrects the copied fields. **The check becomes blocking once that list is
+empty:** set `POLARITY_BLOCKING = True` in `verify_layout_nets.py`, and a
+REVERSED diode then fails a board claiming `wiring_claim: verified` like any
+other DIFF.
+
 `verify_layout_nets.py --selftest` (wired into CI) plants the adversarial audit's
 exact faults — one per proven hole class — and asserts each is caught: two
 endpoints swapped, a run deleted, a run rerouted to a wrong pin; an aliased-valve
@@ -1037,7 +1060,11 @@ adds a **full-path phantom-pin** case (a function-named bottle's correct wiring
 must pass *and* a broken pin on its real socket must be caught) and two
 **enumeration** cases (a mis-lugged pot ground and a bias resistor dropped on a
 live rail must surface in the unchecked-terminal report even though neither is a
-DC short). A gate that can't catch planted faults is decoration.
+DC short). A rectifier-polarity case sets the 5F8-A's bias rectifier to
+`cathode: b` and requires REVERSED, reached through the unmodelled RB1, with an
+unchanged wiring verdict while the list is report-only. It then sets
+`cathode: a` and requires *confirmed*. A gate that can't catch planted faults
+is decoration.
 
 ```
 python3 pipeline/render_layouts.py                 # (re)generate SVGs first

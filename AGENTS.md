@@ -73,6 +73,11 @@ cd pipeline && python3 check_tonestack_wiring.py  # drawn tone stack == plotted 
 cd pipeline && python3 check_layouts.py      # BOTH layout renders + collision lint (+waivers)
 python3 pipeline/render_og.py --check        # per-amp social cards match their layouts
 python3 pipeline/verify_layout_nets.py       # layout↔netlist equivalence (+--selftest)
+                                  #   + rectifier polarity: every board diode's
+                                  #   `cathode:` against the simulated sign of
+                                  #   the supply it sits on. REPORT-ONLY until
+                                  #   the REVERSED list it prints is empty, then
+                                  #   POLARITY_BLOCKING (docs/layout-schema.md)
 python3 pipeline/check_heaters.py --selftest && \
 python3 pipeline/check_heaters.py            # heater wiring vs the amp's own declared
                                   #   supply, connection groups and returns, and
@@ -118,6 +123,10 @@ python3 pipeline/verify_schematic_nets.py    # schematic↔netlist equivalence: 
                                              #   drawing faults; abstractions are declared
                                              #   in amps/<id>/sch_map.yaml; a sheet with
                                              #   schematic_claim: verified hard-fails CI
+                                             #   + REVERSED DIODE: a cx:DIODE_SS whose
+                                             #   rotation contradicts the simulated sign
+                                             #   of the supply it sits on (same gating;
+                                             #   docs/schematic-nets.md#rectifier-polarity)
 python3 pipeline/export_loadlines.py --selftest && \
 python3 pipeline/export_loadlines.py --check # reference/loadlines.yaml vs the netlists,
                                              #   plus grid-supply resolution: a fixed-bias

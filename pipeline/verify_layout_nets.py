@@ -84,6 +84,28 @@ ROUND-2 RE-AUDIT CLOSURE (2026-07-19) — three further escapes:
       netlist.cir (couplers + cathode-bypass, all 8 amps); op point unmoved.
 
 ------------------------------------------------------------------------------
+RECTIFIER POLARITY (2026-09-10) — REPORT-ONLY until its list is empty
+------------------------------------------------------------------------------
+A board diode's orientation lives only in its `cathode: a|b` field, and the
+boards copied theirs from sheets on which 25 of 68 diodes turned out to be
+drawn backwards. Every diode the board draws (parts[] rows, and off-board
+`kind: part` items whose BOM type is a diode or rectifier) is judged through
+this board's node map by judge_diode, the rule the schematic gate applies to
+cx:DIODE_SS: REVERSED if the cathode sits below -5 V, the anode above +50 V, or
+the part is forward-biased by more than 1 V between two modelled nodes; volts
+from reference/op-points.yaml, else the netlist's own ideal source to ground.
+A terminal on no modelled node inherits one through supply_walk (unmodelled
+resistors, fuses, chokes, every lug of a pot, a two-terminal switch; path
+printed; used only when the nodes reached agree in sign). A diode with no
+`cathode:` is listed as not checked. Every REVERSED diode prints with its amp,
+ref and both nodes' volts, per amp and in the closing summary, but the
+verdicts live in res.polarity, not res.errors: they block nothing while a
+board-repair wave corrects the copied `cathode:` fields. The check becomes
+BLOCKING once a default run prints an empty REVERSED list: set
+POLARITY_BLOCKING, and a REVERSED diode then fails a board claiming
+`wiring_claim: verified` like any other DIFF.
+
+------------------------------------------------------------------------------
 VERDICT + GATE
 ------------------------------------------------------------------------------
 Per amp: PASS/FAIL with per-net diffs in builder language (extra connection /
@@ -102,6 +124,7 @@ from __future__ import annotations
 
 import copy
 import math
+import re
 import sys
 from itertools import product
 from pathlib import Path
@@ -387,6 +410,175 @@ def parse_netlist(path: Path) -> tuple[list[Comp], set]:
     return comps, nodes
 
 
+# ============================================================================
+# rectifier polarity — ONE rule, shared by both drawing gates
+# ============================================================================
+# Which way round a diode goes is a physical fact neither drawing states in
+# words: the schematic encodes it only as the rotation of a cx:DIODE_SS symbol,
+# the board only as a part's `cathode: a|b` field. The DC netlist models no
+# diode (the supply front end is an ideal source), so neither equivalence check
+# could see it, and on 2026-09-10 a measurement found 25 of 68 sheet diodes
+# drawn backwards (18 negative-bias rectifiers with the cathode on the negative
+# node, all six 6G6-B HT diodes pointing away from B+), with the boards' bands
+# copied from the sheets. What the netlist DOES fix is the sign of every supply.
+# A diode terminal whose net carries a modelled node has a simulated voltage,
+# and three facts follow from it:
+#   * a cathode on a node below POL_NEG_V is backwards: a negative supply is
+#     charged through a rectifier's ANODE (turned round, the same diode would
+#     charge that node positive);
+#   * an anode on a node above POL_BPLUS_V is backwards: B+ is taken off a
+#     rectifier's CATHODE;
+#   * with both terminals on modelled nodes, V(anode) - V(cathode) above
+#     POL_FWD_V is a diode forward-biased at DC between two nodes the netlist
+#     holds apart: it would conduct, and the circuit has no such path.
+# Volts come from reference/op-points.yaml (what the amp pages print, gated for
+# staleness by verify_amps.py) and, for a node that export does not list, from
+# the netlist's own ideal source to ground (`VBIAS NBIAS 0 DC -41`), whose
+# simulated voltage IS the source value. Node 0 is 0 V. Any other node carries
+# no simulated volts here and decides nothing.
+POL_NEG_V = -5.0
+POL_BPLUS_V = 50.0
+POL_FWD_V = 1.0
+OP_POINTS = ROOT / "reference" / "op-points.yaml"
+_OP_POINTS: dict = {}
+_VSRC_RE = re.compile(
+    r"^\s*(V\S*)\s+(\S+)\s+(\S+)\s+(?:DC\s+)?([-+]?(?:\d+\.?\d*|\.\d+)(?:[eE][-+]?\d+)?)",
+    re.IGNORECASE)
+
+
+def node_volts(amp_id: str, netlist_path: "Path | None" = None) -> dict:
+    """node -> (simulated volts, provenance) for every node the DC model fixes:
+    the op-points export first, then an ideal source to ground, then node 0."""
+    if "amps" not in _OP_POINTS:
+        data = yaml.safe_load(OP_POINTS.read_text()) if OP_POINTS.exists() else None
+        _OP_POINTS["amps"] = (data or {}).get("amps") or {}
+    out: dict = {"0": (0.0, "ground")}
+    for node, v in (_OP_POINTS["amps"].get(amp_id) or {}).items():
+        out[str(node)] = (float(v), "op-points")
+    path = netlist_path or ROOT / "amps" / amp_id / "netlist.cir"
+    for raw in path.read_text().splitlines():
+        m = _VSRC_RE.match(raw)
+        if not m:
+            continue
+        ref, n1, n2, val = m.groups()
+        if n2 == "0" and n1 not in out:
+            out[n1] = (float(val), f"ideal source {ref}")
+        elif n1 == "0" and n2 not in out:
+            out[n2] = (-float(val), f"ideal source {ref}")
+    return out
+
+
+def polarity_violations(va, vk) -> list:
+    """The rules a diode breaks with its anode at `va` and its cathode at `vk`
+    volts; None is a terminal on no node with simulated volts."""
+    out = []
+    if vk is not None and vk < POL_NEG_V:
+        out.append(f"cathode on {vk:+.1f} V, and a negative supply is fed from a "
+                   f"rectifier's ANODE")
+    if va is not None and va > POL_BPLUS_V:
+        out.append(f"anode on {va:+.1f} V, and B+ is taken off a rectifier's CATHODE")
+    if va is not None and vk is not None and va - vk > POL_FWD_V:
+        out.append(f"forward-biased at DC ({va - vk:+.1f} V anode to cathode) "
+                   f"between two nodes the netlist holds apart")
+    return out
+
+
+def supply_walk(start, node_of, neighbours) -> list:
+    """Breadth-first from net `start` across the DC-conducting parts the netlist
+    does not model, to the modelled nets they reach: [(node, [crossed refs])],
+    nearest first. `node_of(net)` is the solved netlist node or None;
+    `neighbours(net)` yields (part ref, net on the part's far side) for each
+    crossable part with a lead on `net`. A modelled net ends its branch: the
+    walk never goes on through a node the netlist already accounts for."""
+    seen, frontier, reached = {start}, [(start, [])], []
+    while frontier:
+        net, path = frontier.pop(0)
+        for ref, nxt in neighbours(net):
+            if nxt is None or nxt in seen:
+                continue
+            seen.add(nxt)
+            node = node_of(nxt)
+            if node is not None:
+                reached.append((node, path + [ref]))
+            else:
+                frontier.append((nxt, path + [ref]))
+    return reached
+
+
+def inherit_node(reached: list, volts: dict) -> tuple:
+    """((node, via), "") for the node a diode terminal inherits from what
+    supply_walk reached, or (None, reason).
+
+    A supply's own first node, the one its rectifier charges, often sits behind
+    series parts the netlist does not model: a bias row's resistor and trim pot,
+    an HT standby switch, fuse or choke. The rectifier is the source of the
+    supply it feeds, so that node lies at least as far from ground as any node
+    it reaches through resistors alone, and on the same side of ground. The
+    terminal inherits the reached node NEAREST ground, the conservative bound.
+    Three things decide nothing: ground (or a node within POL_FWD_V of it)
+    reached through a resistor, which is a bleeder's or a divider's foot; a
+    reached node with no simulated volts, which could be either sign; and
+    nodes of both signs, which break the one-source premise."""
+    live = [(n, p) for n, p in reached if n != "0"]
+    unknown = [n for n, _p in live if n not in volts]
+    if unknown:
+        return None, f"reaches {', '.join(unknown)}, with no simulated volts"
+    signed = [(n, p) for n, p in live if abs(volts[n][0]) >= POL_FWD_V]
+    if not signed:
+        return None, ("reaches only ground, through " + ", ".join(reached[0][1])
+                      if reached else "")
+    if len({volts[n][0] > 0 for n, _p in signed}) > 1:
+        return None, "reaches nodes of both signs: " + ", ".join(
+            f"{n} {volts[n][0]:+.1f} V" for n, _p in signed)
+    return min(signed, key=lambda np_: abs(volts[np_[0]][0])), ""
+
+
+def judge_diode(ref: str, anode: tuple, cathode: tuple, volts: dict) -> dict:
+    """One diode's polarity verdict. `anode` / `cathode` are (terminal, node,
+    via, note): `node` is the netlist node the terminal sits on (None when it
+    reaches none); `via` lists the unmodelled parts a supply_walk crossed to
+    reach it (empty when the terminal's own net carries it); `note` says why no
+    node was inherited. The last two may be omitted.
+
+      REVERSED   the drawn orientation breaks a rule;
+      confirmed  it keeps every rule AND the same part turned round would break
+                 one, so the DC model actually decided the orientation;
+      unchecked  nothing decided it, and `why` says which of three reasons: no
+                 terminal on a modelled node; modelled nodes with no simulated
+                 volts; or volts that decide neither orientation (a terminal on
+                 ground with the other end off the model).
+    """
+    (ta, na, via_a, note_a), (tk, nk, via_k, note_k) = (
+        tuple(t) + ((), "")[len(t) - 2:] for t in (anode, cathode))
+    va = volts[na][0] if na in volts else None
+    vk = volts[nk][0] if nk in volts else None
+
+    def say(term, node, via, note):
+        if node is None:
+            return f"{term} on no modelled node" + (f" ({note})" if note else "")
+        if node not in volts:
+            return f"{term} on {node} (no simulated volts)"
+        v, src = volts[node]
+        through = f" through {', '.join(via)}" if via else ""
+        return f"{term} on {node} = {v:+.1f} V ({src}){through}"
+
+    p = {"ref": ref, "va": va, "vk": vk, "why": "",
+         "desc": f"anode {say(ta, na, via_a, note_a)}; "
+                 f"cathode {say(tk, nk, via_k, note_k)}"}
+    bad = polarity_violations(va, vk)
+    if bad:
+        p.update(verdict="REVERSED", why="; ".join(bad))
+    elif polarity_violations(vk, va):
+        p.update(verdict="confirmed")
+    elif na is None and nk is None:
+        p.update(verdict="unchecked", why="no terminal on a modelled node")
+    elif va is None and vk is None:
+        p.update(verdict="unchecked", why="modelled node(s) with no simulated volts")
+    else:
+        p.update(verdict="unchecked", why="the DC model decides neither orientation")
+    return p
+
+
 def load_basing(slug: str) -> dict | None:
     """pin(int) -> {'role': canonical, 'unit': int|None} for signal pins only."""
     path = TUBES / f"{slug}.yaml"
@@ -482,6 +674,8 @@ class Result:
         self.scope: list[str] = []        # honest coverage lines
         self.info: list[str] = []         # declared reconciliations
         self.anchor_class: dict = {}      # net_map anchor -> CONSTRAINING|REDUNDANT (H8)
+        self.node_of_root: dict = {}      # the solved map: layout net root -> node
+        self.polarity: list = []          # board_polarity() verdicts, report-only
 
 
 def _invert_basing(basing: dict) -> dict:
@@ -732,6 +926,17 @@ def _check_layout(amp_id: str, layout: dict, bom: dict, net_map=None,
         if score == 0:
             break
     res = best[1]
+    # Rectifier polarity, judged once on the winning trial's node map. It lands
+    # in res.polarity, never res.errors, so it cannot sway which half-assignment
+    # trial wins, and it blocks nothing until POLARITY_BLOCKING is set.
+    res.polarity = board_polarity(
+        R, uf, res.node_of_root, node_volts(amp_id, netlist_path),
+        {c.ref for c in comps if c.kind in ("R", "C", "L")})
+    if POLARITY_BLOCKING:
+        for p in res.polarity:
+            if p["verdict"] == "REVERSED":
+                res.errors.append(f"REVERSED DIODE: {p['ref']} (cathode: "
+                                  f"{p['cathode']}): {p['why']} ({p['desc']})")
     res.ok = not res.errors
     return res
 
@@ -931,7 +1136,108 @@ def _solve(amp_id, layout, R, LG, uf, comps, nodes, net_map, part_terms,
     #      that closes the two round-2 HIGH escapes (a non-modelled lead / pot
     #      lug landing on a netlist-carrying net was silently accepted). ------
     _enumerate_unchecked(res, R, uf, M, comps, part_terms, anchoring, node_name)
+    res.node_of_root = M
     return res
+
+
+# Report-only until the board-repair wave has corrected every `cathode:` field
+# the boards copied from backwards sheets. Set it True once a default run prints
+# an empty REVERSED list: each REVERSED diode then joins res.errors and fails a
+# board claiming wiring_claim: verified like any other DIFF.
+POLARITY_BLOCKING = False
+
+
+def board_polarity(R: Renderer, uf: UF, M: dict, volts: dict,
+                   modelled: set) -> list:
+    """Judge every diode the board draws through the board's own node map, with
+    the rule the schematic gate applies to cx:DIODE_SS (judge_diode): parts[]
+    rows, and off-board `kind: part` items, whose BOM part type is a diode or
+    rectifier. `cathode: a|b` names the cathode's terminal; a diode without it
+    is drawn unbanded and listed as not checked, never guessed at.
+
+    A terminal whose net carries no netlist node inherits one through
+    supply_walk, across the DC-conducting parts the netlist does not model
+    (`modelled` holds the refs it does): resistors, fuses and chokes as board or
+    off-board parts, every lug of a pot, and a switch with exactly two
+    terminals. Never across a capacitor, a transformer lead, a tube pin or
+    another diode."""
+    def cat(ref):
+        return category(str((R.bom.get(ref) or {}).get("part", "")))
+
+    items = []
+    for p in R.parts:
+        ref = p.get("ref")
+        if ref and cat(ref) == "diode":
+            items.append((ref, ref, p, "parts[]"))
+    for it in R.offboard:
+        ref = it.get("ref")
+        if it.get("kind") == "part" and ref and it.get("id") and cat(ref) == "diode":
+            items.append((ref, it["id"], it, "offboard"))
+
+    # the DC-conducting bodies a walk may cross: terminal -> (ref, its terminals)
+    by_prefix: dict = {}
+    for term in uf.parent:
+        if isinstance(term, str) and "." in term and not term.startswith("@"):
+            by_prefix.setdefault(term.split(".", 1)[0], []).append(term)
+    body: dict = {}
+
+    def cross(ref, terms):
+        if ref in modelled or len(terms) < 2:
+            return
+        for term in terms:
+            body[term] = (ref, terms)
+
+    def conducts(bom_ref):
+        part = str((R.bom.get(bom_ref) or {}).get("part", "")).lower()
+        return cat(bom_ref) in ("res", "choke") or "fuse" in part
+
+    for p in R.parts:
+        ref = p.get("ref")
+        if ref and conducts(ref):
+            cross(ref, [f"{ref}.a", f"{ref}.b"])
+    for it in R.offboard:
+        oid, kind = it.get("id"), it.get("kind")
+        if not oid:
+            continue
+        terms = sorted(by_prefix.get(oid, []))
+        if kind == "part" and it.get("ref") and conducts(it["ref"]):
+            cross(oid, [f"{oid}.a", f"{oid}.b"])
+        elif kind in ("pot", "choke") or (kind == "switch" and len(terms) == 2):
+            cross(oid, terms)
+
+    members = uf.members()
+
+    def neighbours(root):
+        for term in members.get(root, ()):
+            if term in body:
+                ref, terms = body[term]
+                for other in terms:
+                    if other != term and other in uf.parent:
+                        yield ref, uf.find(other)
+
+    def locate(term):
+        # never uf.find() a terminal no run reaches: find() would ADD it
+        if term not in uf.parent:
+            return (term, None, (), "no run reaches it")
+        root = uf.find(term)
+        if M.get(root) is not None:
+            return (term, M[root])
+        found, note = inherit_node(supply_walk(root, M.get, neighbours), volts)
+        return (term, found[0], found[1]) if found else (term, None, (), note)
+
+    out = []
+    for ref, tid, spec, where in items:
+        end = str(spec.get("cathode", "")).strip().lower()
+        if end not in ("a", "b"):
+            out.append({"ref": ref, "verdict": "unchecked", "va": None, "vk": None,
+                        "why": "no `cathode:` declared, so the body is drawn unbanded",
+                        "desc": f"{where} {tid}", "cathode": None})
+            continue
+        ta, tk = f"{tid}.{'b' if end == 'a' else 'a'}", f"{tid}.{end}"
+        p = judge_diode(ref, locate(ta), locate(tk), volts)
+        p["cathode"] = end
+        out.append(p)
+    return out
 
 
 def _check_twisted_heaters(res, R, sockets: dict):
@@ -1280,6 +1586,18 @@ def _print_result(res: Result):
     else:
         print("  layout wiring is electrically equivalent to the netlist "
               "(within the documented DC scope)")
+    for p in res.polarity:
+        if p["verdict"] == "REVERSED":
+            print(f"  POLAR | REVERSED {p['ref']} (cathode: {p['cathode']}): "
+                  f"{p['why']} [{p['desc']}]"
+                  + ("" if POLARITY_BLOCKING else "  (report-only)"))
+    conf = [p["ref"] for p in res.polarity if p["verdict"] == "confirmed"]
+    if conf:
+        print(f"  polar | orientation confirmed by the DC model: {', '.join(conf)}")
+    for p in res.polarity:
+        if p["verdict"] == "unchecked":
+            print(f"  polar | polarity not checked: {p['ref']}, {p['why']} "
+                  f"[{p['desc']}]")
 
 
 # ============================================================================
@@ -1566,12 +1884,44 @@ def selftest() -> int:
           f"5f10's correct wiring still PASSES: "
           f"{'OK' if h9_fp_ok else 'FAIL ' + str(r10.errors[:2])}")
 
-    unit_ok = all([h2_ok, h2b_ok, h3_ok, h3b_ok, h3c_ok, h3d_ok, h4_ok,
+    # ---- rectifier polarity through the board's own node map. The list is
+    #      report-only, but the rule must still bite: the 5F8-A's bias
+    #      rectifier reaches the -41 V rail only through RB1, so this also
+    #      proves the walk across an unmodelled resistor. ----------------------
+    print("=== rectifier polarity (report-only list; the rule itself must bite) ===")
+    l8a, b8a = _load_layout("5f8a")
+    base8a = _check_layout("5f8a", l8a, b8a)
+    pol_results: list = []
+    for end, want in (("b", "REVERSED"), ("a", "confirmed")):
+        m = copy.deepcopy(l8a)
+        for it in m.get("offboard", []):
+            if it.get("id") == "D1":
+                it["cathode"] = end
+        r = _check_layout("5f8a", m, b8a)
+        got = next((p for p in r.polarity if p["ref"] == "D1"), None)
+        verdict = got["verdict"] if got else "absent"
+        pol_results.append(verdict == want)
+        print(f"  [POL] 5f8a D1 cathode: {end} -> {verdict} (want {want}): "
+              f"{'OK' if verdict == want else 'FAIL'}")
+        if got:
+            print(f"          -> {(got['why'] + ' ') if got['why'] else ''}[{got['desc']}]")
+        if end == "b" and not POLARITY_BLOCKING:
+            same = r.ok == base8a.ok and sorted(r.errors) == sorted(base8a.errors)
+            pol_results.append(same)
+            print(f"  [POL] a REVERSED diode leaves the wiring verdict untouched "
+                  f"while the list is report-only: {'OK' if same else 'FAIL'}")
+
+    unit_checks = [h2_ok, h2b_ok, h3_ok, h3b_ok, h3c_ok, h3d_ok, h4_ok,
                    h8_red_ok, h8_con_ok, pp_base_ok, pp_break_caught,
-                   pot_surfaced, bias_surfaced, h9_fp_ok])
-    all_ok = ok_mut and unit_ok
+                   pot_surfaced, bias_surfaced, h9_fp_ok]
+    unit_ok = all(unit_checks)
+    pol_ok = all(pol_results)
+    all_ok = ok_mut and unit_ok and pol_ok
+    n_cases = n_mut + len(unit_checks) + len(pol_results)
     print(f"\nselftest: {passed}/{n_mut} planted-fault mutations caught; "
-          f"resolver/island/anchor unit checks {'all OK' if unit_ok else 'FAILED'}"
+          f"resolver/island/anchor unit checks {'all OK' if unit_ok else 'FAILED'}; "
+          f"rectifier polarity {sum(pol_results)}/{len(pol_results)} "
+          f"({n_cases} cases)"
           + ("" if all_ok else "  !! GATE IS LEAKY"))
     return 0 if all_ok else 1
 
@@ -1594,10 +1944,12 @@ def main(argv: list[str]) -> int:
     hard_fail = 0
     report_only_fail = 0
     checked = 0
+    polarity: list = []
     for d in amp_dirs:
         if only and d.name != only:
             continue
         res = check_amp(d.name, verbose=True)
+        polarity.extend((d.name, p) for p in res.polarity)
         checked += 1
         if not res.ok:
             if res.claim:
@@ -1610,7 +1962,29 @@ def main(argv: list[str]) -> int:
     if hard_fail:
         print("BLOCKING: an amp claims its wiring is verified but it is not "
               "electrically equivalent to the netlist.")
+    _print_polarity_summary(polarity)
     return 1 if hard_fail else 0
+
+
+def _print_polarity_summary(polarity: list):
+    """Every REVERSED board diode with its amp, ref and both nodes' volts, and
+    the count of those the model did not decide: nothing here is silent."""
+    rev = [(a, p) for a, p in polarity if p["verdict"] == "REVERSED"]
+    unc = [(a, p) for a, p in polarity if p["verdict"] == "unchecked"]
+    n_conf = sum(1 for _a, p in polarity if p["verdict"] == "confirmed")
+    print(f"\nrectifier polarity on the boards: {len(polarity)} diode(s); {n_conf} "
+          f"confirmed by the DC model, {len(rev)} REVERSED, {len(unc)} not checked")
+    print("  " + ("BLOCKING (POLARITY_BLOCKING is set)" if POLARITY_BLOCKING else
+                  "REPORT-ONLY: blocks nothing until the REVERSED list below is "
+                  "empty; then set POLARITY_BLOCKING in verify_layout_nets.py"))
+    for a, p in rev:
+        print(f"  REVERSED {a} {p['ref']} (cathode: {p['cathode']}): {p['why']} "
+              f"[{p['desc']}]")
+    reasons: dict = {}
+    for a, p in unc:
+        reasons.setdefault(p["why"], []).append(f"{a} {p['ref']}")
+    for why, items in sorted(reasons.items()):
+        print(f"  polarity not checked ({why}): {len(items)} — {', '.join(items)}")
 
 
 if __name__ == "__main__":

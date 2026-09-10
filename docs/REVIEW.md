@@ -183,6 +183,28 @@ stops at; `no lead drawn` means the pin was never wired and the repair is to
 draw the lead. The corpus splits 106 stubs to 145 bare pins, and the two are
 different edits to the draw script even where the distance is the same.
 
+### Which way round a diode is drawn
+
+A diode's direction is a physical fact that a sheet records in exactly one
+place: the rotation of its symbol. Nothing else in the file encodes it, the
+netlist models no diode at all, and the boards' `cathode:` fields were copied
+from the sheets, so until 2026-09-10 no gate here could tell a rectifier drawn
+backwards from one drawn right, and a count that day found 25 of 68 sheet
+diodes reversed. Eighteen were negative-bias rectifiers with the cathode on the
+negative node, the arrangement that would charge that node positive. The check
+that now exists reads the one fact the netlist does carry, the simulated sign
+of each supply, and holds every diode to it: a cathode on a node the model
+holds below −5 V, an anode on one above +50 V, or a part forward-biased by more
+than 1 V between two modelled nodes is `REVERSED DIODE` in
+`verify_schematic_nets.py` (blocking on a claimed sheet), and the same rule
+reads each board's `cathode:` in `verify_layout_nets.py` (report-only until its
+list is empty). Where a rectifier's own node sits behind parts the netlist does
+not model, a bias row's resistor and trim pot or an HT standby switch, the
+check walks through them to the node it does model and prints the path. A diode
+nothing decides, like the inner diodes of a series HT stack, is listed as not
+checked on every run, so review the drawn symbol against the source anyway: the
+check knows which side of ground a supply is on, not which lead is the tap.
+
 ## Social cards — the same rule
 
 Each amp page's link preview is a generated card carrying a crop of that amp's
