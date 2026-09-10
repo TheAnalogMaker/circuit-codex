@@ -47,6 +47,41 @@
 # in netlist.cir).
 wiring_claim: verified
 
+heaters:
+  - id: h63
+    volts: 6.3
+    winding: "6.3 V secondary — the transformer's green pair"
+    grounded_leg: return
+    source: >-
+      Fender "VIBRO-CHAMP-AMP AA764" layout page (I-FD), read from the Internet
+      Archive's capture of the el34world PDF at its native 6480 x 4058 (708 ppi);
+      both 12AX7 socket circles were fitted to the drawn rim in pixels (coverage
+      1.00 and 0.97) and their pin bearings measured, rather than read by eye. At
+      the transformer one GREEN lead and the RED-YELLOW HT centre tap meet at a
+      solder point and go to a ground arrow; the other GREEN runs up to the pilot
+      light, whose far terminal goes to a ground triangle and whose fed terminal
+      carries the arrow "TO ALL 6.3V. HEATERS". At both 12AX7 sockets a short bow
+      outside the rim ties pins 4 and 5 together (2386 px of ink at V1, 2065 px at
+      the tremolo bottle V4, nothing else leaving either pin) and pin 9 carries a
+      lead to a ground triangle — the 6.3 V parallel grouping. At the 6V6GT pin 7
+      takes the lead to a ground triangle and heater pin 2 is a bare terminal,
+      the fed leg the arrow stands in for.
+    sockets:
+      V1: { feed: [4, 5], return: [9] }
+      V4: { feed: [4, 5], return: [9] }
+      V2: { feed: [2], return: [7] }
+  - id: h5
+    volts: 5.0
+    winding: "5 V rectifier-filament secondary — the transformer's yellow pair"
+    grounded_leg: none
+    source: >-
+      Same sheet: the two YELLOW leads land on the 5Y3GT's pins 2 and 8, one
+      approaching each flank of the socket, with the "+355V" RED lead leaving pin
+      8 beside the second yellow; nothing joins pins 2 and 8. The filament is the
+      cathode and carries the rectified B+, so neither leg is grounded.
+    sockets:
+      V3: { feed: [2], return: [8] }
+
 board:
   rows: 2
   cols: 50
@@ -56,7 +91,7 @@ board:
 # the drawing's own colour legend instead, so the SVG is self-describing when it
 # is read on its own (it is served standalone at /layouts/aa764-vibro.svg).
 wire_legend:
-  green: "green — 6.3 V heaters (single-ended; one leg grounded)"
+  heater: "green — 6.3 V heaters (single-ended; one leg grounded at the transformer)"
 
 caption: "The audio path (input stoppers, both 12AX7 gain stages, the treble-bass tone stack, the negative-feedback divider and the 6V6GT output stage) reuses amps/aa764's board order and wiring verbatim — the two entries' audio paths are component-for-component identical (notes.md), so the same redrawn arrangement, read from the published Fender 'Champ-Amp AA764' layout drawing (I-FD), is the honest redraw here too. Added for the Vibro Champ: the Vibrato Pedal jack (J1) and its 1 MΩ bleeder (R20) at the top-left margin, the Speed (R24) and Intensity (R27) controls beside them, and the oscillator tube (V4) along the bottom edge beneath. V4's own RC phase-shift network (R21-R23, R25-R26, C15-C16) is not placed on the board — it mounts off the board, at the Speed/Intensity pot lugs and the jack, the same convention amps/ab763 documents for its own dedicated trem-oscillator network; V4 has no static DC operating point and is declared excluded (net_map.excluded_tubes) — only its 6.3 V heater pins are wired, extending the single-ended daisy chain (one green transformer lead grounded, the other feeding the pilot lamp and every heater in turn: 12AX7 V1 pins 4+5 strapped, centre tap at pin 9 to ground; 6V6GT V2 pin 2 fed, pin 7 to ground; 12AX7 V4 pins 4+5 strapped, centre tap at pin 9 to ground). The board's chassis-ground returns are drawn as one ground bus, and the three 20 µF filter sections — a chassis can on the sheet — are drawn in the board row beneath the droppers they filter. The 1 MΩ grid leak sits at the input jack and the 15 kΩ bass leg at the Bass control, as the sheet shows them. Not a trace or a dimensioned reproduction."
 source:
@@ -249,17 +284,17 @@ runs:
   # tube), so this is not a twisted pair: every socket gets a green feed and a
   # grounded return. V4's signal pins carry no run — it is a declared exclusion
   # (net_map.excluded_tubes) with its own RC network off the board.
-  - { from: T1.green1, to: [1.45, -0.35], via: [[-0.85, 0.577], [-0.85, 1.30]] }   # grounded 6.3 V leg
-  - { from: T1.green2, to: PL1.a, color: green, via: [[-1.65, 0.640], [-1.65, -0.55]] }
-  - { from: PL1.b, to: [1.45, -0.45], via: [[-2.05, -0.779], [-2.05, 0.05], [-0.55, 0.05]] }   # pilot lamp return → ground
-  - { from: PL1.a, to: V2.pin2, color: green, via: [[-1.30, -1.10], [10.20, -1.10], [10.20, 3.65], [13.60, 3.65]] }
-  - { from: V2.pin2, to: V1.pin4, color: green, via: [[14.60, 3.42], [42.90, 3.42]] }
-  - { from: V1.pin4, to: V1.pin5, color: green, via: [[43.30, 1.50]] }             # 12AX7 pins 4+5 strapped for 6.3 V
-  - { from: V2.pin7, to: [1.45, 16.85], via: [[16.85, 1.95]] }                      # 6V6 heater return → ground
-  - { from: V1.pin9, to: [1.45, 44.9], via: [[44.90, 2.32]] }                      # 12AX7 heater centre tap → ground
-  - { from: V1.pin5, to: V4.pin4, color: green, via: [[43.30, 3.65], [21.00, 3.65]] }   # daisy chain continues to V4
-  - { from: V4.pin4, to: V4.pin5, color: green, via: [[21.00, 1.50]] }             # 12AX7 pins 4+5 strapped for 6.3 V
-  - { from: V4.pin9, to: [1.45, 22.6], via: [[22.60, 2.32]] }                      # 12AX7 heater centre tap → ground
+  - { from: T1.green1, to: [1.45, -0.35], style: heater, via: [[-0.85, 0.577], [-0.85, 1.30]] }   # grounded 6.3 V leg
+  - { from: T1.green2, to: PL1.a, style: heater, via: [[-1.65, 0.640], [-1.65, -0.55]] }
+  - { from: PL1.b, to: [1.45, -0.45], style: heater, via: [[-2.05, -0.779], [-2.05, 0.05], [-0.55, 0.05]] }   # pilot lamp return → ground
+  - { from: PL1.a, to: V2.pin2, style: heater, via: [[-1.30, -1.10], [10.20, -1.10], [10.20, 3.65], [13.60, 3.65]] }
+  - { from: V2.pin2, to: V1.pin4, style: heater, via: [[14.60, 3.42], [42.90, 3.42]] }
+  - { from: V1.pin4, to: V1.pin5, style: heater, via: [[43.30, 1.50]] }             # 12AX7 pins 4+5 strapped for 6.3 V
+  - { from: V2.pin7, to: [1.45, 16.85], style: heater, via: [[16.85, 1.95]] }                      # 6V6 heater return → ground
+  - { from: V1.pin9, to: [1.45, 44.9], style: heater, via: [[44.90, 2.32]] }                      # 12AX7 heater centre tap → ground
+  - { from: V1.pin5, to: V4.pin4, style: heater, via: [[43.30, 3.65], [21.00, 3.65]] }   # daisy chain continues to V4
+  - { from: V4.pin4, to: V4.pin5, style: heater, via: [[21.00, 1.50]] }             # 12AX7 pins 4+5 strapped for 6.3 V
+  - { from: V4.pin9, to: [1.45, 22.6], style: heater, via: [[22.60, 2.32]] }                      # 12AX7 heater centre tap → ground
 
 # net_map — the reviewable data layer that reconciles the drawn wiring with the
 # DC-operating-point netlist (netlist.cir) for pipeline/verify_layout_nets.py.

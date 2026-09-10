@@ -102,6 +102,11 @@ in which the two heater ends are one leg and the centre tap is the other. At
 both 5881 sockets the two X stubs sit on pins 2 and 7, that valve's only heater
 pins.
 
+The two greens run up to the pilot light, one to each of its terminals, and
+from each terminal an X-marked arrow leaves for the heaters: the lamp sits
+across the pair, and the chain is arrowed from both of its terminals, which is
+how the board draws it.
+
 Because neither leg is grounded, which of the two the drawing calls feed and
 which return carries no claim — it is only a name, and the declaration says so.
 The GZ34 keeps its own 5 V winding, which floats at the rectified B+ with the

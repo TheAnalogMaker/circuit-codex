@@ -18,9 +18,6 @@ board:
 # neither leg is. The automatic "6.3 V heaters — twisted pair" legend entry would
 # not say that, and the single-ended entry other tweeds here use would say the
 # opposite, so name what this drawing's green leads actually are.
-wire_legend:
-  heater: "green — 6.3 V heaters (both legs float; the winding's green-yellow centre tap is grounded)"
-
 # What the heater circuits WIRE, stated as data rather than left to be inferred
 # from pin labels: the same 12AX7/12AY7 pins are grouped one way for 6.3 V
 # parallel and the opposite way for 12.6 V series, and `heater` / `heater-ct`
@@ -31,8 +28,9 @@ wire_legend:
 heaters:
   - id: h63
     volts: 6.3
-    winding: "6.3 V secondary — the transformer's green pair, centre-tapped; the green-yellow tap is grounded at the chassis and neither leg is"
-    grounded_leg: none
+    winding: "6.3 V secondary — the transformer's green pair, centre-tapped on the green-yellow lead, which is grounded at the chassis; neither leg is"
+    grounded_leg: winding-ct
+    winding_ct: PT.green-yellow
     source: >-
       Fender "Bassman" Model 5F6-A layout drawing (I-EG), read from the Internet
       Archive's capture of the el34world PDF at its native 6402 x 3641; every

@@ -26,6 +26,12 @@
 # and docs/layout-schema.md. Heaters, the pilot lamp, and the PT/rectifier AC
 # side are an excluded annotation layer (not modelled in netlist.cir).
 wiring_claim: verified
+heaters_pending: >-
+  The I-FD layout sheet exists, but every located copy is the same 2171 x 1591
+  (200 ppi) JPEG — the el34world PDF and each of its Internet Archive captures
+  from 2016 to 2025 — and it does not resolve the socket pins; the Vibro-Champ
+  page of the same drawing family was read at 708 ppi and declared, and a copy of
+  this sheet at that class of resolution is what clears these sockets.
 
 board:
   rows: 2

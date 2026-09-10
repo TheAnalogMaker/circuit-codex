@@ -67,6 +67,31 @@ negative supply is as plain as it gets: 100 kΩ from the high-voltage winding, a
 silicon diode, a 25 µF · 50 V can with a 27 kΩ bleeder, and out through the
 Intensity control at **−34 V**.
 
+## The heater circuit: a floating pair about a grounded centre tap
+
+The 6.3 V winding is centre-tapped, and the layout drawing grounds it *at the
+tap*: the transformer's green-yellow lead meets the red-yellow HT centre tap at
+a solder point and both go to a ground arrow, while the two green leads run up
+to the pilot light, one to each of its terminals. From each lamp terminal an
+arrow says "to all 6.3 volt heaters" — the chain is arrowed, not routed — so the
+socket order on the board here is a convention, and only the landings are the
+sheet's. Those were read at the drawing's native 777 ppi with each socket's
+circle fitted to its drawn rim and the pin bearings measured: at the 7025 and
+the 12AX7 a short bow outside the rim ties pins 4 and 5 into one leg and pin 9
+is a bare terminal, the 6.3 V parallel arrangement; at both 6V6GT sockets pins
+2 and 7 are bare terminals, the two legs the arrow stands in for. Neither leg
+is grounded, so which is called feed and which return is only a name.
+
+Two earlier readings of this sheet did not survive the measurement. A stroke
+that seemed to join the 7025's pins 8 and 9 at 9× on a 2166 px copy is the
+socket rim: once the circle is fitted, the ink between those pins has the same
+inner and outer edge as every other arc of the same rim and nothing lies
+outside it. And the board used to draw this supply as a twisted pair whose
+hops alternated pins socket to socket — the 12.6 V series picture on a 6.3 V
+amplifier, and unprovable besides, because a pair drawn that way puts one
+socket's return on the next socket's feed. It is drawn now as two green
+conductors, one per leg, with the lamp across them at the transformer end.
+
 ## The tone network, as the drawings wire it
 
 The published AA964 schematic and its factory layout sheet agree: the 250 pF

@@ -90,6 +90,26 @@ loads — the same dropper values the Champ uses, each rail printing a few volts
 lower here, plausibly the tremolo oscillator's added current draw. A 1 A
 slow-blow fuse and an AC switch sit ahead of the primary.
 
+## The heater circuit, read off the Vibro-Champ's own sheet
+
+The Champ AA764 layout sheet exists only as a 2171 px copy that does not
+resolve the socket pins, so the Champ's heater layer stays marked as unread.
+The Vibro-Champ's page of the same drawing family was found at 6480 × 4058
+(708 ppi), and its heater circuit is read from that: one green transformer lead
+meets the red-yellow HT centre tap at a solder point and goes to a ground
+arrow; the other green runs up to the pilot light, whose far terminal goes to a
+ground triangle and whose fed terminal carries the arrow "to all 6.3V.
+heaters". At both 12AX7 sockets — the preamp bottle and the tremolo bottle
+alike — a short bow outside the socket rim ties pins 4 and 5 together and pin 9
+carries a lead to a ground triangle, the 6.3 V parallel arrangement; at the
+6V6GT pin 7 takes the lead to a ground triangle and heater pin 2 is a bare
+terminal, the fed leg the arrow stands in for. Each socket's circle was fitted
+to its drawn rim and the pins measured rather than read by eye; the 4–5 bows
+are the only ink that leaves either pin. A single-ended supply, then, each
+socket returning to chassis on its own, as the board has always drawn it — its
+heater leads are now styled as heater wiring and the circuit is declared and
+checked.
+
 ## Excluded from the DC model: the tremolo oscillator
 
 The tremolo oscillator (V4, both sections) is a running phase-shift

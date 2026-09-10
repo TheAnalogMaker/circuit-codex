@@ -287,17 +287,45 @@ amps:
     findings: []
     fully_established: true
   5f10:
-    centre_tapped_sockets:
-      V2:
-        drawn_on_pins:
-        - 4
-        - 5
-        grouping: opposite-legs
-        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
-        tube: 12ax7
-    declared: false
+    centre_tapped_sockets: {}
+    circuits:
+    - grounded_leg: return
+      id: h63
+      sockets:
+        V1:
+          feed:
+          - 3
+          return:
+          - 4
+        V2:
+          feed:
+          - 4
+          - 5
+          return:
+          - 9
+        V3:
+          feed:
+          - 7
+          return:
+          - 2
+        V4:
+          feed:
+          - 7
+          return:
+          - 2
+      volts: 6.3
+    - grounded_leg: none
+      id: h5
+      sockets:
+        V5:
+          feed:
+          - 2
+          return:
+          - 8
+      volts: 5.0
+    declared: true
     findings: []
-    fully_established: false
+    fully_established: true
   5f2a:
     centre_tapped_sockets: {}
     circuits:
@@ -410,7 +438,7 @@ amps:
   5f6a:
     centre_tapped_sockets: {}
     circuits:
-    - grounded_leg: none
+    - grounded_leg: winding-ct
       id: h63
       sockets:
         V1:
@@ -824,33 +852,47 @@ amps:
       - 5
       socket: V1
     fully_established: false
+    read_pending_because: The I-FD layout sheet exists, but every located copy is the same 2171 x 1591
+      (200 ppi) JPEG — the el34world PDF and each of its Internet Archive captures from 2016 to 2025 —
+      and it does not resolve the socket pins; the Vibro-Champ page of the same drawing family was read
+      at 708 ppi and declared, and a copy of this sheet at that class of resolution is what clears these
+      sockets.
   aa764-vibro:
-    centre_tapped_sockets:
-      V1:
-        drawn_on_pins: []
-        grouping: not-drawn-as-a-pair
-        reading: not read as a pair (the drawing names 0 pin(s))
-        tube: 12ax7
-      V4:
-        drawn_on_pins: []
-        grouping: not-drawn-as-a-pair
-        reading: not read as a pair (the drawing names 0 pin(s))
-        tube: 12ax7
-    declared: false
-    findings:
-    - detail: pins [4, 5] are one leg at 6.3 V and opposite legs at 12.6 V
-      kind: unclassified
-      pins:
-      - 4
-      - 5
-      socket: V1
-    - detail: pins [4, 5] are one leg at 6.3 V and opposite legs at 12.6 V
-      kind: unclassified
-      pins:
-      - 4
-      - 5
-      socket: V4
-    fully_established: false
+    centre_tapped_sockets: {}
+    circuits:
+    - grounded_leg: return
+      id: h63
+      sockets:
+        V1:
+          feed:
+          - 4
+          - 5
+          return:
+          - 9
+        V2:
+          feed:
+          - 2
+          return:
+          - 7
+        V4:
+          feed:
+          - 4
+          - 5
+          return:
+          - 9
+      volts: 6.3
+    - grounded_leg: none
+      id: h5
+      sockets:
+        V3:
+          feed:
+          - 2
+          return:
+          - 8
+      volts: 5.0
+    declared: true
+    findings: []
+    fully_established: true
   aa864-bassman:
     centre_tapped_sockets:
       V1:
@@ -891,30 +933,46 @@ amps:
       socket: V1
     fully_established: false
   aa964:
-    centre_tapped_sockets:
-      V1:
-        drawn_on_pins:
-        - 4
-        - 5
-        grouping: opposite-legs
-        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
-        tube: 12ax7
-      V2:
-        drawn_on_pins:
-        - 4
-        - 5
-        grouping: opposite-legs
-        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
-        tube: 12ax7
-    declared: false
-    findings:
-    - detail: pins [4, 5] are one leg at 6.3 V and opposite legs at 12.6 V
-      kind: unclassified
-      pins:
-      - 4
-      - 5
-      socket: V1
-    fully_established: false
+    centre_tapped_sockets: {}
+    circuits:
+    - grounded_leg: winding-ct
+      id: h63
+      sockets:
+        V1:
+          feed:
+          - 4
+          - 5
+          return:
+          - 9
+        V2:
+          feed:
+          - 4
+          - 5
+          return:
+          - 9
+        V3:
+          feed:
+          - 7
+          return:
+          - 2
+        V4:
+          feed:
+          - 7
+          return:
+          - 2
+      volts: 6.3
+    - grounded_leg: none
+      id: h5
+      sockets:
+        V5:
+          feed:
+          - 2
+          return:
+          - 8
+      volts: 5.0
+    declared: true
+    findings: []
+    fully_established: true
   ab165:
     centre_tapped_sockets:
       V1:
@@ -1454,13 +1512,13 @@ amps:
     no_factory_layout_sheet: No Marshall board-layout sheet was located for the model 2204; this board
       is derived from the factory drawing sheets, so no factory drawing can establish its heater legs.
 summary:
-  declared_and_checked: 12
-  doubtful_sockets: 101
+  declared_and_checked: 15
+  doubtful_sockets: 98
   doubtful_sockets_no_factory_sheet: 37
-  doubtful_sockets_pending_a_read: 64
-  fully_established: 8
+  doubtful_sockets_pending_a_read: 61
+  fully_established: 11
   layouts: 40
   layouts_with_no_factory_layout_sheet: 12
-  links_needing_a_source_read: 28
+  links_needing_a_source_read: 25
   links_that_short_the_supply: 0
-  not_established: 28
+  not_established: 25

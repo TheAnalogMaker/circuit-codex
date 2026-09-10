@@ -51,7 +51,7 @@ The 6AT6 uses a purpose-built, public-domain model fitted to its RCA datasheet
 (triode section only); the two diode units play no part in the amplifier and are
 left unmodeled.
 
-## The heater layer: a link removed, and what the sheet shows
+## The heater layer: what the sheet shows, and a question it answered
 
 The board drawing here used to close its heater chain with a link across the
 6AT6's two heater pins. Nothing on the F-EF sheet joins them, and the 6AT6 has
@@ -60,20 +60,28 @@ and a link between them is a short across it. The link is gone; a drawn pair
 already spans both of a socket's heater pins, so the chain's last hop never
 needed one.
 
-What the layout sheet does show, read at its full published resolution: the
-6AT6's heater pin 4 carries a short lead to a ground symbol, and pin 3 takes the
-feed. The schematic page draws the 6.3 V secondary marked *to all 6.3 volt
-heaters and pilot lite*, which states the connection rather than routing it.
-The 12AX7 is the socket that stops this board being declared, and it is worth
-saying precisely where the reading runs out. Two of its three heater facts are
-plain: pin 9 carries a lead up to a ground hatch, and a short bow outside the
-socket ties pins 4 and 5 together — between them the 6.3 V parallel grouping,
-ends strapped as one leg with the centre tap the other. What is not plain is a
-straight line leaving the pins-4/5 tie point and running right, which either
-lands on the cathode at pin 3 or merely grazes that terminal on its way to the
-6AT6's pin 3 further right. The second reading is the one the circuit wants —
-the 6AT6 has to be fed from somewhere, and a heater leg tied to a cathode with
-the other leg grounded would short the supply — but wanting is not reading, and
-a scan that cannot separate a landing from a crossing cannot settle it. So this
-board keeps its unestablished-heater marker until a copy that resolves that one
-junction turns up.
+What the layout sheet shows, read at its native 6378 × 4525 with the 12AX7's
+socket circle fitted to its drawn rim and the pin bearings measured: one green
+transformer lead meets the yellow-red HT centre tap at a solder point and goes
+to a ground hatch, and the other green runs to the pilot light's single
+terminal and on to the first 6V6GT at pin 7; each 6V6GT takes pin 2 to a
+ground hatch, with the unused pin 1 bowed to it as the tie point; the 6AT6's
+heater pin 4 carries a short lead to a ground symbol and pin 3 takes the feed;
+and at the 12AX7 a short bow outside the socket rim ties pins 4 and 5 together
+while pin 9 carries a lead up to a ground hatch — the 6.3 V parallel grouping,
+ends strapped as one leg with the centre tap the other. A single-ended supply,
+every socket returning to chassis on its own, and the board declares it as
+such and is drawn as single green leads.
+
+Two things about the 12AX7 were open until the socket was measured rather than
+looked at. A stroke that seemed to join pins 8 and 9 at 9× is the socket rim:
+with the circle fitted (coverage 1.00), the ink between those pins has the
+same inner and outer edge as every other arc of the same rim, and nothing lies
+outside it. And a straight line leaves the pins-4/5 tie and runs right past the
+cathode at pin 3 — either landing on that terminal or grazing it on its way to
+the 6AT6. The scan cannot separate a landing from a crossing there, and the
+circuit's own argument (a heater leg tied to a cathode with the other leg
+grounded would short the supply) can reject a reading but not establish one.
+It does not need to: which pins the supply's two legs sit on is settled by the
+bow and the grounded centre tap, and that is all the heater declaration
+states. The collision stays recorded here as what it is.

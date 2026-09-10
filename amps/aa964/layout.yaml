@@ -19,11 +19,58 @@
 # annotation layer (not in netlist.cir).
 wiring_claim: verified
 
+heaters:
+  - id: h63
+    volts: 6.3
+    winding: "6.3 V secondary — the transformer's green pair, centre-tapped on the green-yellow lead, which is grounded at the chassis; neither leg is"
+    grounded_leg: winding-ct
+    winding_ct: TR1.green-yellow
+    source: >-
+      Fender "Princeton-Amp AA964" layout drawing (I-FD), read from the Internet
+      Archive's capture of the el34world PDF at its native 6502 x 4591 (777 ppi);
+      every socket circle was fitted to the drawn rim in pixels (coverage 1.00 at
+      all four bottles) and its pin bearings measured, rather than read by eye.
+      At the transformer the GREEN-YELLOW lead and the RED-YELLOW HT centre tap
+      meet at a solder point and go on to a ground arrow, and the two GREEN leads
+      run up to the pilot light, one to each of its terminals; from each terminal
+      an arrow says "TO ALL 6.3 VOLT HEATERS", so the chain is arrowed from both
+      lamp terminals rather than routed, and the socket order here is this
+      drawing's convention. At both noval bottles a short bow outside the socket
+      rim ties pins 4 and 5 together (3453 px of ink at the 7025, 3186 px at the
+      12AX7, nothing else leaving either pin) and pin 9 is a bare terminal — the
+      6.3 V parallel grouping, the bare centre tap being the leg the arrow stands
+      in for. The rim ink between pins 8 and 9, read as a stroke at 9x on the
+      2166 px copy, measures as the rim alone once the circle is fitted: the
+      ink's inner and outer edges on that arc (0.938 and 1.024 of the radius at
+      the 7025, 0.958 and 1.028 at the 12AX7) are what every other arc of the
+      same rim measures, and no ink lies outside the rim across it. At both
+      6V6GT sockets heater pins 2 and 7 are bare terminals, the two legs the
+      arrow stands in for; which is called feed and which return is this
+      drawing's own choice, since neither is grounded.
+    sockets:
+      V1: { feed: [4, 5], return: [9] }
+      V2: { feed: [4, 5], return: [9] }
+      V3: { feed: [7], return: [2] }
+      V4: { feed: [7], return: [2] }
+  - id: h5
+    volts: 5.0
+    winding: "5 V rectifier-filament secondary — the transformer's yellow pair"
+    grounded_leg: none
+    source: >-
+      Same sheet: of the transformer's fan the two YELLOW leads land on the
+      GZ34's pins 2 and 8, one approaching each flank of the socket, with the RED
+      B+ lead leaving pin 8 beside the second yellow; nothing joins pins 2 and 8
+      (rim fitted at coverage 1.00, no ink component shared between any two
+      pins). The GZ34's cathode is strapped to the heater inside the envelope at
+      pin 8, so the winding floats at B+ and neither leg is grounded.
+    sockets:
+      V5: { feed: [2], return: [8] }
+
 board:
   rows: 2
   cols: 66
   title: "AA964 · eyelet board layout"
-caption: "Redrawn from the published Fender AA964 Princeton-Amp layout drawing — principal board components, in the order the drawing shows them. The four 20 µF · 450 V filter sections and the third 18 kΩ dropper are chassis-mounted at the multi-section can and are drawn as off-board parts; the tone, volume, Speed and Intensity networks mount at their pots; the negative-bias supply sits on its own terminal strip (drawn on the schematic, not here); the 68 kΩ input stoppers and the 1 MΩ grid leak mount at the input jacks. The 6.3 V heater chain (green twisted pair, PT → pilot lamp → the two 6V6GT output tubes → the 12AX7 → the 7025) is drawn in the standard socket order — the sheet marks the pair only as \"to all 6.3 volt heaters\" and does not draw the daisy chain. The GZ34 rectifier is indirectly heated from the 5 V winding and off the 6.3 V chain. The output transformer is not drawn as its own symbol on this sheet (only the power transformer is), so its position here is a placement for legibility; its wiring follows the schematic. Not a trace or a dimensioned reproduction."
+caption: "Redrawn from the published Fender AA964 Princeton-Amp layout drawing — principal board components, in the order the drawing shows them. The four 20 µF · 450 V filter sections and the third 18 kΩ dropper are chassis-mounted at the multi-section can and are drawn as off-board parts; the tone, volume, Speed and Intensity networks mount at their pots; the negative-bias supply sits on its own terminal strip (drawn on the schematic, not here); the 68 kΩ input stoppers and the 1 MΩ grid leak mount at the input jacks. The 6.3 V heater supply floats about its own grounded centre tap — the sheet ties the transformer's green-yellow lead to the HT centre tap and grounds both — with the two green leads landing one on each pilot-lamp terminal and the chain arrowed \"to all 6.3 volt heaters\" from both; it is drawn as two green conductors, one per leg, running PT → pilot lamp → the two 6V6GT output tubes → the 12AX7 → the 7025 in the standard socket order, which is this drawing's convention (the landings — 6V6GT pins 2 and 7, novals with pins 4 and 5 strapped and the centre tap at pin 9 — are the sheet's). The GZ34 rectifier is indirectly heated from the 5 V winding and off the 6.3 V chain. The output transformer is not drawn as its own symbol on this sheet (only the power transformer is), so its position here is a placement for legibility; its wiring follows the schematic. Not a trace or a dimensioned reproduction."
 source:
   desc: "Fender 'Princeton-Amp AA964' layout drawing (L-FD)"
   url: "https://el34world.com/charts/Schematics/files/Fender/Fender_princeton_AA964_layout.pdf"
@@ -211,17 +258,25 @@ runs:
   - { from: RK1A.b, to: [1.45, 62] }
   - { from: CK1A.b, to: [1.45, 64] }
 
-  # === 6.3 V heater chain (green twisted pair) ================================
-  # PT green pair → pilot lamp → V3 → V4 → V2 → V1, in the standard socket order
-  # (the GZ34 is indirectly heated from the 5 V winding and off this chain).
-  # Twisted runs land only on heater pins (6V6/octal 2 and 7; noval 4 and 5).
-  - { from: TR1.green, to: PL1.a, style: twisted }
-  - { from: PL1.b, to: V3.pin7, style: twisted, via: [[-1.2, 4.2], [18.26, 4.2]] }
-  - { from: V3.pin2, to: V4.pin7, style: twisted, via: [[15.74, 4.2], [22.76, 4.2]] }
-  - { from: V4.pin2, to: V2.pin4, style: twisted, via: [[20.24, 4.22], [30.75, 4.22]] }
-  - { from: V2.pin5, to: V1.pin4, style: twisted, via: [[31.5, 4.22], [59.25, 4.22]] }
-  - { from: V1.pin4, to: V1.pin5, style: twisted }
-  - { from: TR1.green-yellow, to: [1.45, -0.2], via: [[-0.15, 0.64]] }    # heater centre tap → ground
+  # === 6.3 V heater circuit (heaters: h63) ====================================
+  # A floating pair whose winding centre tap is grounded: two conductors, one
+  # per leg, socket to socket, the pilot lamp across them at the transformer
+  # end. The sheet arrows the chain from both lamp terminals, so the socket
+  # order (V3 → V4 → V2 → V1) is this drawing's convention; the landings at
+  # every socket are the sheet's. The GZ34 is heated from the 5 V winding.
+  - { from: TR1.green1, to: PL1.a, style: heater }
+  - { from: TR1.green2, to: PL1.b, style: heater }
+  - { from: PL1.a, to: V3.pin7, style: heater, via: [[-1.2, 4.2], [18.26, 4.2]] }
+  - { from: PL1.b, to: V3.pin2, style: heater, via: [[-1.5, 4.5], [15.74, 4.5]] }
+  - { from: V3.pin7, to: V4.pin7, style: heater, via: [[18.26, 4.2], [22.76, 4.2]] }
+  - { from: V3.pin2, to: V4.pin2, style: heater, via: [[15.74, 4.5], [20.24, 4.5]] }
+  - { from: V4.pin7, to: V2.pin4, style: heater, via: [[22.76, 4.2], [30.75, 4.2]] }
+  - { from: V4.pin2, to: V2.pin9, style: heater, via: [[20.24, 4.5], [32.2, 4.5]] }
+  - { from: V2.pin4, to: V2.pin5, style: heater }
+  - { from: V2.pin4, to: V1.pin4, style: heater, via: [[30.75, 4.2], [59.25, 4.2]] }
+  - { from: V2.pin9, to: V1.pin9, style: heater, via: [[32.2, 4.5], [60.7, 4.5]] }
+  - { from: V1.pin4, to: V1.pin5, style: heater }
+  - { from: TR1.green-yellow, to: [1.45, -0.2], via: [[-0.15, 0.64]] }    # heater winding centre tap → ground (tied to the HT centre tap on the sheet)
 
 # net_map — reviewable reconciliation of the drawn wiring with the DC netlist
 # (netlist.cir) for pipeline/verify_layout_nets.py. See docs/layout-schema.md.

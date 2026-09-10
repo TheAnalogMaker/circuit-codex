@@ -91,6 +91,7 @@ items:
   - { ref: "—", part: "Toggle switch", value: "SPST", role: "Vibrato/Tremolo select (annotation only)" }
   - { ref: "—", part: "Footswitch", value: "SPST", role: "Vibrato/Tremolo on/off, remote (annotation only)" }
   - { ref: "—", part: "Jack socket", value: "1/4 in", role: "Footswitch jack (annotation only)" }
+  - { ref: "—", part: "Pilot lamp", value: "not drawn", role: "None on the cited drawing: OS/065 (read at 3600 x 2492) draws no pilot lamp anywhere — the mains transformer's 6.3 V winding is arrowed TO VALVE HEATERS with nothing else across it, and the mains input carries only the on/off switch and the 3 A fuse — so none is drawn on the board (annotation only)" }
   # --- valves ---
   - { ref: V1, part: "Preamp tube", value: "ECC83 (12AX7)", role: "Brilliant and Normal first stages — one half each, on a shared cathode network" }
   - { ref: V2, part: "Preamp tube", value: "ECC83 (12AX7)", role: "Long-tailed-pair phase inverter — all three channels mix here" }

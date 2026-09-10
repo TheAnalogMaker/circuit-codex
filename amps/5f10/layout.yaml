@@ -25,12 +25,65 @@
 # file and docs/layout-schema.md. Heaters, the pilot lamp, and the PT/rectifier
 # AC side are an excluded annotation layer (not modelled in netlist.cir).
 wiring_claim: verified
+wire_legend:
+  heater: "green — 6.3 V heaters (single-ended; one leg grounded at the transformer)"
+
+heaters:
+  - id: h63
+    volts: 6.3
+    winding: "6.3 V secondary — the transformer's green pair"
+    grounded_leg: return
+    pilot:
+      PL1:
+        return: chassis
+        source: >-
+          The F-EF layout page draws the pilot light with ONE terminal, the green
+          feed arriving and the chain leaving on it; the lamp returns through its
+          holder to the chassis, which the sheet does not draw and this board
+          does not draw either.
+    source: >-
+      Fender "Harvard" Model 5F10 drawing (F-EF), layout page, read from the
+      Internet Archive's capture of the el34world PDF at its native 6378 x 4525;
+      the 12AX7's socket circle was fitted to the drawn rim in pixels (coverage
+      1.00, keyway 67.5 degrees) and its pin bearings measured, rather than read
+      by eye. At the transformer one GREEN lead and the YELLOW-RED HT centre tap
+      meet at a solder point and go to a ground hatch; the other GREEN runs up to
+      the pilot light and on from its one terminal to the first 6V6GT at pin 7.
+      At the 12AX7 a short bow outside the socket rim ties pins 4 and 5 together
+      and pin 9 carries a lead up to a ground hatch — the 6.3 V parallel
+      grouping. The rim ink between its pins 8 and 9, read as a stroke at 9x,
+      measures as the rim alone once the circle is fitted: the ink's inner and
+      outer edges on that arc (0.968 and 1.033 of the radius) are what every
+      other arc of the same rim measures, and no ink lies outside the rim across
+      it. At both 6V6GT sockets pin 2 takes the lead to a ground hatch, with the
+      unused pin 1 bowed to it as the tie point, leaving heater pin 7 the fed
+      leg. At the 6AT6 heater pin 4 carries a short lead to a ground hatch and
+      pin 3 takes the feed. The line that leaves the 12AX7's 4-5 tie and runs
+      past its cathode at pin 3 is a drafting collision this scan cannot separate
+      from a landing; it does not bear on which pins the supply's legs sit on,
+      which is all this block states.
+    sockets:
+      V1: { feed: [3], return: [4] }
+      V2: { feed: [4, 5], return: [9] }
+      V3: { feed: [7], return: [2] }
+      V4: { feed: [7], return: [2] }
+  - id: h5
+    volts: 5.0
+    winding: "5 V rectifier-filament secondary — the transformer's yellow pair"
+    grounded_leg: none
+    source: >-
+      Same sheet: the two YELLOW leads land on the 5Y3GT's pins 2 and 8, one
+      approaching each flank of the socket, with the "+305 V" RED lead leaving
+      pin 8 beside the second yellow; nothing joins pins 2 and 8. The filament
+      is the cathode and carries the rectified B+, so neither leg is grounded.
+    sockets:
+      V5: { feed: [2], return: [8] }
 
 board:
   rows: 2
   cols: 60
   title: "5F10 · eyelet board layout"
-caption: "Redrawn from the published Fender Harvard 5F10 layout drawing (F-EF) — principal board components, in the order the drawing shows them. The output transformer is not drawn on the source sheet as a discrete symbol; its connections are derived from the schematic and left uncoloured. Grid stoppers mounted at the 6V6 sockets and the tone/bright caps at the pot lugs are omitted for legibility. The 6.3 V heater chain (green twisted pair, PT → pilot lamp → the two 6V6 output tubes → 12AX7 → 6AT6) follows the sheet's green heater pair through the pilot lamp in physical socket order (standard tweed practice — the sheet shows the pair and lamp but not a fully legible socket-to-socket daisy); the directly-heated 5Y3GT rectifier runs off the 5 V winding, not the 6.3 V chain. Not a trace or a dimensioned reproduction."
+caption: "Redrawn from the published Fender Harvard 5F10 layout drawing (F-EF) — principal board components, in the order the drawing shows them. The output transformer is not drawn on the source sheet as a discrete symbol; its connections are derived from the schematic and left uncoloured. Grid stoppers mounted at the 6V6 sockets and the tone/bright caps at the pot lugs are omitted for legibility. The 6.3 V heater supply is single-ended — the sheet grounds one green transformer lead with the HT centre tap and runs the other to the pilot lamp's one terminal and on to the heaters — so it is drawn as single green leads, PT → pilot lamp → the two 6V6 output tubes → 12AX7 → 6AT6 in physical socket order (the sheet arrows the chain; the landings — 6V6 pins 7 fed and 2 grounded, 12AX7 pins 4+5 strapped with the centre tap at pin 9 grounded, 6AT6 pin 3 fed and 4 grounded — are the sheet's); the directly-heated 5Y3GT rectifier runs off the 5 V winding, not the 6.3 V chain. Not a trace or a dimensioned reproduction."
 source:
   desc: "Fender 'Harvard' Model 5F10 drawing (F-EF), page 1 of 2 (the layout page; page 2 is the schematic this entry redraws)"
   url: "https://el34world.com/charts/Schematics/files/Fender/Fender_harvard_5f10.pdf"
@@ -100,11 +153,11 @@ bus:
 # Wiring — read lead-by-lead from the published 5F10 layout drawing (F-EF).
 # The power-transformer leads carry the colours marked on that drawing;
 # every other lead is bare hookup wire in the neutral tone. The 6.3 V heater
-# winding is the green pair; it feeds the pilot lamp and then daisy-chains
-# socket to socket in physical order (rendered as a green twisted pair,
-# style: twisted) — standard tweed practice, since the sheet shows the green
-# pair and pilot lamp but not a fully legible socket-to-socket daisy. The
-# directly-heated 5Y3GT runs off the 5 V winding and is not on the 6.3 V chain.
+# winding is the green pair, single-ended: one green is grounded at the
+# transformer and the other feeds the pilot lamp and then each socket in
+# physical order, every socket returning to chassis on its own (style: heater,
+# one conductor per lead — the sheet arrows the chain and draws the landings).
+# The directly-heated 5Y3GT runs off the 5 V winding and is not on the 6.3 V chain.
 # Endpoints reference board eyelets (REF.a/REF.b), tube socket pins (Vn.pinN,
 # validated against the reference basing data — heater pins on the twisted
 # runs), pot lugs (VRn.lugN), jacks, off-board 2-lead parts (PL1.a/PL1.b), and
@@ -202,17 +255,23 @@ runs:
   - { from: C1.a, to: RK1.a }                             # cathode bypass
   - { from: C1.b, to: [1.45, 58] }
 
-  # --- 6.3 V heater chain (green twisted pair) ------------------------------
-  # PT green pair → pilot lamp → V3 6V6 → V4 6V6 → V2 12AX7 → V1 6AT6, in
-  # physical socket order (standard tweed practice). The 5Y3GT rectifier is
-  # directly heated off the 5 V winding, so it is not on this chain. Twisted
-  # runs land only on heater pins (6V6 octal 2/7, 12AX7 noval 4/5, 6AT6 7-pin
-  # 3/4); routed in a deep lane below the output harness.
-  - { from: PT.green, to: PL1.a, style: twisted }                                  # 6.3 V → pilot lamp
-  - { from: PL1.b, to: V3.pin7, style: twisted, via: [[-1.2, 3.7], [22, 3.7]] }    # lamp → V3 6V6 heater
-  - { from: V3.pin2, to: V4.pin7, style: twisted, via: [[22, 3.72], [28, 3.72]] }  # V3 → V4 heater
-  - { from: V4.pin2, to: V2.pin4, style: twisted, via: [[28, 3.74], [41, 3.74]] }  # V4 → V2 heater
-  - { from: V2.pin5, to: V1.pin3, style: twisted, via: [[41, 3.72], [53, 3.72]] }  # V2 → V1 (6AT6) heater
+  # --- 6.3 V heater circuit (heaters: h63) -----------------------------------
+  # Single-ended: one green grounded at the transformer with the HT centre tap,
+  # the other feeding the pilot lamp and then V3 6V6 → V4 6V6 → V2 12AX7 → V1
+  # 6AT6 in physical socket order (the sheet arrows the chain; the landings and
+  # returns are the sheet's). Each socket returns to the chassis on its own.
+  # The 5Y3GT rectifier is directly heated off the 5 V winding, not this chain.
+  - { from: PT.green1, to: [1.45, 1.2], style: heater, via: [[0.5, 0.35]] }        # grounded 6.3 V leg (tied to the HT centre tap on the sheet)
+  - { from: PT.green2, to: PL1.a, style: heater }                                   # feed → the lamp's one drawn terminal
+  - { from: PL1.a, to: V3.pin7, style: heater, via: [[-1.2, 3.7], [22, 3.7]] }      # ...and on from the same terminal to V3
+  - { from: V3.pin7, to: V4.pin7, style: heater, via: [[22, 3.72], [28, 3.72]] }    # V3 → V4 heater feed
+  - { from: V4.pin7, to: V2.pin4, style: heater, via: [[28, 3.74], [41, 3.74]] }    # V4 → V2 heater feed
+  - { from: V2.pin4, to: V2.pin5, style: heater }                                   # 12AX7 pins 4+5 strapped (the bow on the sheet)
+  - { from: V2.pin4, to: V1.pin3, style: heater, via: [[41, 3.72], [53, 3.72]] }    # V2 → V1 (6AT6) heater feed
+  - { from: V3.pin2, to: [1.45, 21.5], style: heater }                              # 6V6 heater return → ground
+  - { from: V4.pin2, to: [1.45, 27.0], style: heater }                              # 6V6 heater return → ground
+  - { from: V2.pin9, to: [1.45, 41.8], style: heater }                              # 12AX7 heater centre tap → ground
+  - { from: V1.pin4, to: [1.45, 53.6], style: heater }                              # 6AT6 heater return → ground
   # A pair spans both of a socket's heater pins on its own, so the chain's last
   # hop needs no closing link — one used to be drawn here between V1 pins 3 and
   # 4, which is a short across the supply and is not on the F-EF sheet (which
