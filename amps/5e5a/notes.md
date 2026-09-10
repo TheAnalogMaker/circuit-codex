@@ -89,8 +89,8 @@ the same stage). The James tone network's own component values (1M Bass, 1M Treb
 1M leaks, 100k plates, 820 Ω shared cathode, 270k mixers, 56k cathodyne
 plate, 1.5k+56k cathodyne cathode legs, 220k output grid leaks, 0.1 µF
 output couplers) are also legible and match the values Fender reused across
-this exact tweed lineup (5e3, 5f4 already in this corpus use the identical
-figures for the identical roles).
+this exact tweed lineup (the 5F4 in this corpus uses every one of these figures
+in the same roles; the 5E3, which has no mixing resistors, uses all the rest).
 
 **Not confidently legible**, and therefore carried at this corpus's standard
 value for the identical role rather than guessed digit-by-digit: V2's own
@@ -109,10 +109,12 @@ this circuit is considered for verified status.
 ## Verification
 
 Simulation passes all twelve chart-gated nodes within
-tolerance (worst: BP4 at 8.3% against its 10% rail tolerance — the preamp
-rail furthest from the not-confidently-legible RD1/RD2 dropper estimates;
-next-worst PAY1/PAY2 at 8.0% and P2/K2 at ~10.5%, all against the 20% tube-pin
-tolerance). K3A, the driver cathode, lands within 2.4% of its printed
+tolerance. The largest deviations are V2's pins — K2 at 10.8% and P2 at
+10.4% — then PAY1/PAY2 at 8.0%, all against the 20% tube-pin tolerance. The
+node nearest its own limit is a different one: BP4, the preamp rail furthest
+from the not-confidently-legible RD1/RD2 dropper estimates, sits 8.3% out
+against a 10% rail tolerance, and so uses more of its allowance than any tube
+pin does. K3A, the driver cathode, lands within 2.4% of its printed
 +1.6 V. The cathodyne cathode/junction pair (KPI/JPI) — the two most
 distinctively-shaped printed figures on this chart — land within 1%, the
 strongest single piece of evidence that the driver+cathodyne reading above is

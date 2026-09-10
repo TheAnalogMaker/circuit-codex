@@ -6,9 +6,9 @@ amp tracking the Champ's own revisions through the tweed 5F2-A. The brownface
 6G2 (1961–63) abandons that architecture entirely: a fixed-bias **push-pull**
 pair of 6V6GTs, a cathodyne phase inverter to drive them, and a tremolo — a
 fundamentally different, more powerful power stage, not a revision of the
-single-ended one. `amps/5f2a/notes.md` warns readers not to read its own values
-onto anything from the 6G2 forward, and this page is why: no `lineage.derived_from`
-edge is drawn to the 5F2-A. The line the 6G2 *does* start runs forward to the
+single-ended one. The 5F2-A's own circuit story warns readers not to read its
+values onto anything from the 6G2 forward, and this page is why: no lineage
+arrow is drawn to the 5F2-A. The line the 6G2 *does* start runs forward to the
 blackface **AA964** Princeton, which keeps this circuit's fixed-bias 6V6 pair,
 its cathodyne, and its bias-vary tremolo almost unchanged.
 
@@ -113,13 +113,14 @@ netlist both say it belongs.
 ## Reading against the printed chart
 
 The drawing prints a comprehensive per-pin voltage chart, values ±20 %, read
-to ground with an electronic voltmeter — the same convention as every other
-verified circuit in this corpus, and considerably more complete than the
+to ground with an electronic voltmeter — the notice Fender printed on its
+charts throughout this period — and considerably more complete than the
 5F2-A's undocumented single-ended predecessor or the AC15's five scattered
-annotations. `pipeline/verify_amps.py` reproduces every gated node within 4 %
-of the printed chart (worst nodes: the cathodyne's cathode pin and tail
-junction, 3.9 %; every other node inside 2 %) — tighter than several of this
-corpus's own *verified* entries.
+annotations. The simulation reproduces every gated node, eleven in all, within
+4 % of the printed chart (worst nodes: the cathodyne's cathode pin and tail
+junction, 3.9 %; every other node inside 2 %) — tighter than every other
+*verified* entry in this corpus, all eighteen of which report a worst node
+above 3.9 %.
 
 One component value on this sheet is settled by the chart rather than by the
 ink, and it is worth stating which: the cathodyne's cathode resistor, in the
@@ -143,8 +144,9 @@ own readings to ±20 %.
 
 The tremolo oscillator (the cathodyne bottle's other half) is a running
 phase-shift oscillator with no static operating point — a dynamic average, not
-a DC bias, the same reasoning `amps/6g3` documents for its own oscillator. Its
-plate load taps the driven reservoir node directly, so excluding it from the
+a DC bias, the same reasoning the 6G3's circuit story gives for its own
+oscillator. Its plate load taps the driven reservoir node directly, so
+excluding it from the
 netlist costs nothing downstream. Its own RC ladder's exact tap count is not
 fully resolved from this scan; because the stage is excluded from the gated
 model regardless, that residual uncertainty has no bearing on any gated node.

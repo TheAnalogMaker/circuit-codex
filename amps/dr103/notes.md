@@ -120,8 +120,9 @@ This circuit is a **draft**, and it will stay one until measurements exist for
 it. Three things keep it there.
 
 There is **no valve-voltage chart**. Nothing published for the four-input DR103
-prints an operating point, so every node in `voltages.yaml` carries `chart: null`
-and nothing is gated. One printed figure is worth naming: the later factory
+prints an operating point, so every one of the 25 nodes in the voltage table
+carries no chart figure and nothing is gated. One printed figure is worth
+naming: the later factory
 Issue-4 sheet annotates +160 V at the input valve's plate, on a stage that is
 component-for-component this one — 220 kΩ load, shared 1.5 kΩ cathode resistor,
 100 µF bypass. This circuit simulates 163 V there. That is a good sign and it is
@@ -129,8 +130,9 @@ not a verification, because the rail chain feeding that plate differs between th
 two revisions.
 
 **The supply rail is an assumption.** No DR103 drawing read here prints an HT
-figure, so `netlist.cir` drives HT1 at 480 V and says so; the only published
-Hiwatt HT figure found is the 460 V on the 50-watt DR504's July 1979 supply
+figure, so the netlist drives HT1 at 480 V and its header says so; the only
+published Hiwatt HT figure found is the 460 V on the 50-watt DR504's July 1979
+supply
 sheet, and the DR103's supply is the larger one. Every other rail is derived
 through the drawn dropper chain, so exactly one number is assumed.
 

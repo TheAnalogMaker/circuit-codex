@@ -5,7 +5,7 @@ circuit: a single 6SJ7 sharp-cutoff pentode giving one stage of voltage gain,
 one 1 MΩ volume control, a cathode-biased 6V6 single-ended output, and a
 5Y3GT rectifier — no tone control and no phase inverter. Wide-panel tweed
 cabinet, produced circa 1953–1955. It carries the Champion 600's circuit
-forward under Fender's new "Champ" model name (history/families/champ.yaml)
+forward under Fender's new "Champ" model name (see the Champ family page)
 and is the direct topological ancestor of the 12AX7-based 5E1 that replaces
 it: the wide-panel-to-narrow-panel revision (5D1) that sits between the two
 is a short-lived component revision of this same circuit, not a documented
@@ -25,9 +25,10 @@ returned to ground through the volume pot) → single-ended output transformer
 one either; NFB into the Champ line waits for the 5F1).
 
 Power: a center-tapped HT winding feeds the 5Y3GT full-wave rectifier into a
-reservoir at **+340 V**. Unlike every later Champ in the line, there is no
-choke here — a plain **500 Ω** resistor drops the rail to **+320 V**, which
-supplies only the 6V6 plate (through the output-transformer primary); a
+reservoir at **+340 V**. There is no choke here (the 5E1 that follows adds
+one; the 5F1 and AA764 drop it again) — a plain **500 Ω** resistor drops the
+rail to **+320 V**, which supplies only the 6V6 plate (through the
+output-transformer primary); a
 **25 kΩ** resistor then drops that node further to **+260 V**, and it is
 *this* third rail — not the plate's own +320 V node — that the drawing routes
 to the 6V6 screen, alongside the whole 6SJ7 plate/screen circuit. So the
@@ -40,9 +41,10 @@ through resistors instead of the choke the 5E1 introduces.
 ## The 6SJ7, and why it has no cathode resistor
 
 The 5C1's preamp tube is an octal metal pentode, not the 9-pin 12AX7 twin
-triode every later Champ in the line uses — grid No.1 comes out on a base pin
-rather than a top cap, which is what let Fender mount it flat on a
-chassis-board like everything else (reference/tubes/6sj7.yaml). Fender bias
+triode the line switches to at the 5E1 and keeps from then on (the 5D1 in
+between stays on the 6SJ7) — grid No.1 comes out on a base pin rather than a
+top cap, which is what let Fender mount it flat on a
+chassis-board like everything else (see the 6SJ7 tube page). Fender bias
 this stage the cheapest way available: **grid-leak (contact) bias**. The
 cathode ties straight to ground, and a single 5 MΩ resistor returns the grid
 to ground too — with no cathode resistor anywhere in the stage. A real 6SJ7
@@ -56,16 +58,17 @@ conventional cathode-biased stages.
 ### A documented model limitation, not a circuit claim
 
 The project's tube models are fitted from datasheet anchor points in the
-Koren model form and explicitly carry no grid-current path
-(`models/METHODOLOGY.md`, "No grid-current model (v0)" — confirmed in
-`models/6sj7.inc`'s subcircuit, which ties the grid node only to the
-plate/cathode through AC-only Miller capacitances). Contact bias is exactly
+Koren model form and explicitly carry no grid-current path — a stated
+limitation of the corpus's tube models, and confirmed in the 6SJ7 model's own
+subcircuit, which ties the grid node only to the plate/cathode through AC-only
+Miller capacitances. Contact bias is exactly
 the mechanism that gap can't reach: with nothing but a capacitor and a
 to-ground resistor at the grid, this DC deck has no current path that would
 pull the grid negative, so it settles `Vg1` at 0 V — a real (if small)
 departure from the tube's actual operating point. The 6SJ7 plate node is
-therefore marked `chart: null` in `voltages.yaml` (reported, never gated)
-rather than compared against the printed +130 V, which is honest about what
+therefore carried in the voltage table with no chart figure to compare
+against (reported, never gated) rather than compared against the printed
++130 V, which is honest about what
 the simulation can and cannot show here rather than papering over it with a
 misleading percentage. The B+ rails and the 6V6 stage — which do not depend
 on this mechanism — are fully chart-gated as usual.
@@ -76,8 +79,8 @@ The layout sheet prints a voltage chart (Fender's usual "read to ground with
 an electronic voltmeter, ±20%") giving the two B+ rails downstream of the
 reservoir (+320 V at the 6V6 plate, +260 V at the shared 6V6-screen/6SJ7
 rail), the 6SJ7 plate (+130 V, not chart-gated — see above), and the 6V6
-cathode (+14 V). `pipeline/verify_amps.py` simulates within tolerance on
-every chart-gated node: the 6V6 plate rail 1.4% off (+324.4 V), the shared
+cathode (+14 V). The simulation lands within tolerance on every chart-gated
+node, three in all: the 6V6 plate rail 1.4% off (+324.4 V), the shared
 screen/preamp rail 3.9% off (+249.8 V), and the 6V6 cathode 9.7% off
 (+15.4 V) — all inside Fender's own ±20% convention.
 
@@ -95,7 +98,8 @@ A genuine factory layout page exists for this circuit — page 2 of the same F-D
 sheet — so the board order and the point-to-point wiring here are read from it
 rather than derived. It runs 6SJ7 preamp stage, 6V6GT output, resistor-dropped
 B+ chain, 5Y3GT rectifier, left to right: the reverse of the rectifier-first
-reading order every later Champ in this corpus uses.
+reading order the four later Champs in this corpus (5E1, 5F1, AA764 and the
+Vibro Champ AA764) all use.
 
 The drawn wiring is proved electrically equivalent to the simulated netlist,
 so this board carries a verified wiring claim, and both drawing styles render
@@ -116,9 +120,10 @@ two legs and a link between them is a short across it. The link is gone.
 
 What the sheet shows, read at its full published resolution, is now stated on
 this page as checked data. The schematic page draws the 6.3 V secondary with one lead grounded and
-the other marked *to all 6.3 volt filaments* — the single-ended supply every
-Champ of this era uses. On the layout page each socket returns to chassis at the
-socket: at the 6V6GT a straight lead crosses from heater pin 7 to the base
+the other marked *to all 6.3 volt filaments* — the single-ended supply the
+other two tweed Champs here, the 5E1 and 5F1, declare as well. On the layout
+page each socket returns to chassis at the socket: at the 6V6GT a straight
+lead crosses from heater pin 7 to the base
 sleeve at pin 1, which the sheet grounds, leaving pin 2 the fed side; at the
 6SJ7 a short bow ties heater pin 2 to the suppressor grid at pin 3, which this
 circuit grounds, leaving pin 7 the fed side. The two bottles therefore ground

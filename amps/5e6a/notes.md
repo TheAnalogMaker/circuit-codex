@@ -69,9 +69,10 @@ The title block, tube complement (a dual-5U4GA rectifier and a 2×12AY7/1×12AX7
 preamp split), the rail chain and V1's front end all read consistently off the
 drawing and agree across the two archived copies of the same A-EE sheet. They
 do **not** all agree with the printed chart, and this entry is published as a
-draft for that reason: four of the twelve nodes miss, and they miss as one
-fault rather than four. The preamp rail reads 315 V simulated against the
-chart's 275 V — 14.5% out, against the 8% this corpus holds a rail to — and
+draft for that reason: the voltage table carries twelve nodes, seven of them
+with a chart figure this reading could pin down, and four of those seven miss
+— as one fault rather than four. The preamp rail reads 315 V simulated against
+the chart's 275 V — 14.5% out, against the 8% this corpus holds a rail to — and
 the three nodes it feeds follow it up: both 12AY7 plates at 161 V against a
 printed 130 V (23.8%) and the shared 12AY7 cathode at 2.5 V against 2 V
 (26.2%), both past the chart's own ±20% convention. The two printed 10 kΩ
@@ -104,8 +105,9 @@ All three are draft-status gaps, not disputes: nothing here contradicts the
 drawing. The bias-supply figure's printed **sign** is also
 not clearly legible on the archived scan (magnitude ~42 V is clear); it is
 read as negative for consistency with every other fixed-bias amp in this
-corpus and because the circuit only functions as drawn (a fixed-bias output
-pair) with a negative supply.
+corpus whose sheet prints a bias figure (twenty of them, every one negative)
+and because the circuit only functions as drawn (a fixed-bias output pair)
+with a negative supply.
 
 ## The tone ladder, lug by lug
 
@@ -145,8 +147,10 @@ tweed amps split the screen supply behind a choke.
 The drawn point-to-point wiring is proved electrically equivalent to the
 simulated circuit within the documented DC scope, every valve anchored, with
 the two rectifiers outside the DC model by the same convention every other
-rectifier here follows. The five panel pots sit off the board as the sheet
-draws them, and the primary leads land on chassis switches; the fixed
+circuit here follows (none of the corpus's 41 netlists models its rectifier;
+each drives the reservoir from a source). The five panel pots sit off the
+board as the sheet draws them, and the primary leads land on chassis switches;
+the fixed
 tone-network parts are on the board.
 
 ## Lineage

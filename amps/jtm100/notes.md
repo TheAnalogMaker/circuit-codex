@@ -97,15 +97,16 @@ and it circles six further node voltages on the schematic itself. That is a
 richer measurement basis than any other Marshall sheet in the corpus, and the
 circuit reproduces it well: every rail lands within 4.3% of its circled figure,
 every preamp and inverter plate within 3.5%, and all three hand-meter cathode
-readings within 8%. The worst node is the presence-pot top at 13.1% — a
+readings within 8.1%. The worst node is the presence-pot top at 13.1% — a
 single-digit reading set by tube current rather than by a stiff supply.
 
 The entry is nonetheless published as a **draft**, for two reasons that have
 nothing to do with the chart.
 
-The first is the output stage. The v0 KT66 model is an anchor-point fit taken at
-250 V (models/METHODOLOGY.md); this circuit runs its screens at 559 V, and at
-that operating point the model idles each valve near 72 mA — about 40 W against
+The first is the output stage. The KT66 model is an anchor-point fit taken at
+250 V, a stated limitation of the corpus's tube models; this circuit runs its
+screens at 559 V, and at that operating point the model idles each valve near
+72 mA — about 40 W against
 the KT66's published 25 W rating. Real amplifiers of this type are set far
 colder. Nothing in the gated node set depends on that current (the model draws
 no screen current here at all, so the 1 kΩ stoppers show no drop and the screen

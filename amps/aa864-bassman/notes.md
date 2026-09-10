@@ -50,8 +50,10 @@ than 250 kΩ, and there is no 6.8 kΩ leg: the foot goes straight to ground. A
 The extra stage is where the channel earns its name. V1b's plate hands 0.1 µF to a
 **220 kΩ / 220 kΩ divider** with 0.001 µF across its foot — a deliberate 2:1 pad
 that rolls off above about 1.5 kHz — and that feeds **V3b**, a third 100 kΩ /
-1.5 kΩ stage whose cathode resistor is the only one on the sheet with **no bypass
-capacitor**, and whose plate load carries **0.005 µF straight across it**, a corner
+1.5 kΩ stage whose cathode resistor is the only one of the sheet's five preamp
+cathodes with **no bypass capacitor** (the phase inverter's shared 470 Ω cathode
+resistor is the sheet's other unbypassed one), and whose plate load carries
+**0.005 µF straight across it**, a corner
 near 800 Hz. Attenuate, amplify again with local
 degeneration, then roll the top off at the plate: gain restored without the
 brightness that would come with it. V3b's plate then meets the Normal channel
