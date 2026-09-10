@@ -8,7 +8,7 @@ era:
 wattage: 40
 tubes: [7025, 7025, 7025, 7025, 7025, 6L6GC, 6L6GC]
 topology:
-  rectifier: { kind: solid-state, type: "silicon bridge" }
+  rectifier: { kind: solid-state, type: "silicon, three diodes per leg" }
   bias: fixed
   phase_inverter: long-tailed-pair
   tone_stack: tb
@@ -25,8 +25,8 @@ conventions:
 sources:
   - desc: "Fender 'Pro-Amp' Model 6G5 drawing (A-FJ), schematic + layout: component
       values AND the printed voltage chart read directly from the published sheet.
-      Rails: +460 V reservoir (silicon bridge, 4 diodes off a single HT secondary,
-      no tube rectifier) -> choke -> +456 V (6L6GC plates, OT primary DCR omitted,
+      Rails: +460 V reservoir (silicon full-wave, three diodes in each leg of
+      a centre-tapped HT winding) -> choke -> +456 V (6L6GC plates, OT primary DCR omitted,
       and screens via a shared 4700 Ohm-1W dropper) -> +430 V screens node -> 56k-1W
       + 10k droppers -> phase-inverter/driver supply (+320 V driver plate, +315 V /
       +310 V phase-inverter plates); fixed bias read as -55 V (vertical print beside

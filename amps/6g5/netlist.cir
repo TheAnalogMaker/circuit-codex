@@ -10,7 +10,7 @@
 *
 * DC conventions. B+1 is DRIVEN at the printed +456 V (6L6GC plates, OT primary
 * DCR omitted, and the point the shared screen dropper hangs from) — the
-* silicon-bridge reservoir upstream of the choke is not modelled, exactly as a
+* silicon-rectifier reservoir upstream of the choke is not modelled, exactly as a
 * tube rectifier's own drop is not modelled elsewhere in the corpus. The bias
 * supply (a filtered tap this drawing does not fully resolve — see notes.md) is
 * replaced by an ideal -55 V source, as its AC/ripple-filtering role warrants:

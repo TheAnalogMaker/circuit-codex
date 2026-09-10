@@ -561,7 +561,7 @@ pt = s.pt("T1", "125P34A · 340-0-340 V", 268, YPW, lx=-6.35, ly=-13.5)
 s.wire(pt["pri1"][0], pt["pri1"][1], pt["pri1"][0] - 6, pt["pri1"][1])
 s.glabel("MAINS", pt["pri1"][0] - 6, pt["pri1"][1], 180)
 s.wire(pt["pri2"][0], pt["pri2"][1], pt["pri2"][0] - 6, pt["pri2"][1])
-s.glabel("MAINS", pt["pri2"][0] - 6, pt["pri2"][1], 180)
+s.glabel("MAINS N", pt["pri2"][0] - 6, pt["pri2"][1], 180)
 s.wire(pt["ht_ct"][0], pt["ht_ct"][1], pt["ht_ct"][0] + 4, pt["ht_ct"][1])
 s.gnd(pt["ht_ct"][0] + 4, pt["ht_ct"][1])
 s.text("TR1 also carries the 6.3 V heater winding (centre tap to internal ground) and the "

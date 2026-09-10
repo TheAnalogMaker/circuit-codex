@@ -84,9 +84,6 @@ amps:
       added: 2026-09-02
 
   6g5:
-    - pin: TR1.4
-      reason: "The 6G5 rectifies with a silicon full-wave bridge across the whole HT winding (netlist.cir header, notes.md), so the power transformer's HT centre tap is taken nowhere in this amplifier and the sheet draws it unwired rather than inventing a return."
-      added: 2026-09-02
     - pin: JVIB.1
       reason: "The vibrato-pedal jack's switched terminal: the published sheet shows only a dashed VIBRATO PEDAL box and does not letter what the footswitch shorts, so the drawing grounds the sleeve — a fact — and leaves the tip open rather than assert a connection no source gives."
       added: 2026-09-02

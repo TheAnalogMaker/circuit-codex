@@ -4,7 +4,7 @@ Fender's biggest brown-Tolex combo: a 40-watt, two-channel amplifier built
 around a pair of **6L6GC** output tubes and a single 15-inch speaker, produced
 1960–1963 on the A-FJ drawing. Where the brown Deluxe ([6G3](/amps/6g3/)) is a
 small amp learning fixed bias and a long-tailed-pair inverter, the Pro is the
-same redesign applied to Fender's high-power circuit: **silicon-bridge
+same redesign applied to Fender's high-power circuit: **silicon
 rectification** in place of a tube rectifier, **fixed, non-adjustable bias**,
 and a genuine **tremolo** — read here directly off the drawing as a photocell
 circuit, not the "harmonic vibrato" a secondary field guide labels it (see
@@ -82,7 +82,7 @@ table, without comparing them against the model.
 
 ## Power
 
-A single HT secondary feeds a **silicon full-wave bridge** (four diodes, no
+The centre-tapped HT secondary feeds **two legs of three silicon diodes** (no
 tube rectifier) into a **+460 V** reservoir, filtered through a choke to
 **+456 V** at the 6L6GC plates (output-transformer primary DCR omitted, as
 throughout this corpus) and, through a shared 4.7 kΩ · 1 W dropper, **+430 V**
@@ -163,7 +163,7 @@ unresolved above.
 The 6G5's predecessor is the narrow-panel tweed Pro, the **5E5-A**, which this
 corpus documents — and the metadata carries the derivation edge. The brown
 circuit keeps the tweed Pro's 40 W-class output pair and its Presence control,
-and replaces the tube rectifier with a silicon bridge, the split-load cathodyne
+and replaces the tube rectifier with silicon diodes, the split-load cathodyne
 with a long-tailed pair, and the single channel with two plus tremolo. It is
 the same shape of redesign the 6G3 applies to the tweed Deluxe. Behind the
 5E5-A stand the earlier tweed Pros, the 5C5 and 5D5, which are history-tier

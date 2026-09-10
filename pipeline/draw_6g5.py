@@ -436,37 +436,35 @@ s.jack("JSPK", "spkr", 372, 120)
 s.wire(364, 122.54, 366.92, 122.54)
 
 # ============================ POWER SUPPLY ==============================
-s.text("Power supply — silicon full-wave bridge off a single HT secondary (no tube rectifier); TR1 power, TR2 output (drawing's own designators)",
+s.text("Power supply — silicon full-wave: two legs of three diodes off the centre-tapped HT winding (no tube rectifier); TR1 power, TR2 output (drawing's own designators)",
        196, 180, 1.4)
 BY = 200
-s.text("HT", 22, BY - 10, 1.3)
-s.wire(24, BY - 4, 30, BY - 4)
-s.sym("DIODE_SS", "D1", "1N4007", 34, BY - 4, lx=-2.0, ly=-5.4)
-s.wire(24, BY + 4, 30, BY + 4)
-s.sym("DIODE_SS", "D2", "1N4007", 34, BY + 4, lx=-2.0, ly=5.0)
-s.wire(24, BY - 4, 24, BY + 4)
-s.junction(24, BY)
-s.glabel("HT_A", 18, BY - 4, 180)
-s.glabel("HT_B", 18, BY + 4, 180)
-s.wire(39.08, BY - 4, 44, BY - 4)
-s.sym("DIODE_SS", "D3", "1N4007", 48, BY - 4, lx=-2.0, ly=-5.4)
-s.wire(39.08, BY + 4, 44, BY + 4)
-s.sym("DIODE_SS", "D4", "1N4007", 48, BY + 4, lx=-2.0, ly=5.0)
-s.wire(44, BY - 4, 44, BY + 4)
-s.junction(44, BY)
-s.gnd(44, BY + 10)
-s.wire(44, BY + 4, 44, BY + 10)
-s.wire(53.08, BY - 4, 58, BY - 4)
-s.wire(53.08, BY + 4, 58, BY + 4)
-s.wire(58, BY - 4, 58, BY + 4)
-s.junction(58, BY)
+# A-FJ (Schematic Heaven, 2153x1437, read enlarged): each HT end of TR1 runs
+# through a leg of three silicon diodes, every + (bar, cathode) toward the
+# reservoir; the centre tap is grounded. Until 2026-09-10 this block drew four
+# diodes as a "bridge" whose HT labels stopped 6 mm short of their wires, with
+# D1/D2's anodes on the tremolo's cathode node and D3/D4 running from ground to
+# the reservoir: a rectifier connected to nothing.
+# The legs sit above the reservoir row: the tremolo ladder's return runs left
+# along y=202.9 from RTOG1 and down x=30 to the cathode bus, and a diode drawn
+# on that route is a diode drawn on a wire.
+s.text("HT", 12, BY - 24, 1.3)
+for yy, refs, net, ly in ((BY - 14, ("D1", "D2", "D3"), "HT_A", -5.4),
+                          (BY - 6, ("D4", "D5", "D6"), "HT_B", 5.0)):
+    s.glabel(net, 12, yy, 180)
+    s.wire(12, yy, 16.92, yy)
+    for k, ref in enumerate(refs):
+        s.sym("DIODE_SS", ref, "1N4007", 22 + 10.16 * k, yy, lx=-2.0, ly=ly)
+    s.wire(22 + 10.16 * 2 + 5.08, yy, 58, yy)
+s.wire(58, BY - 14, 58, BY)
+s.junction(58, BY - 6)
 s.wire(58, BY, 62, BY)
 s.junction(62, BY)
 s.sym("C", "CF3", "20u 600V", 62, BY + 3.81)
 s.gnd(62, BY + 7.62)
 s.wire(62, BY, 62, BY - 3.5)
 s.glabel("B_RES", 62, BY - 3.5, 90)
-s.text("+460 V reservoir", 34, BY - 6, 1.1)
+s.text("+460 V reservoir", 40, BY - 24, 1.1)
 # choke to BP1
 s.wire(62, BY, 70.38, BY)
 s.sym("CHOKE", "L1", "CH.", 78, BY)
@@ -516,7 +514,9 @@ s.glabel("BD", 150, BY + 8, 270)
 # same point as BD, the flag drew the two rails as one node.
 
 # mains / AC switch / fuse / pilot lamp
-s.sym("PT", "TR1", "n/a", 40, 224, lx=-6.35, ly=-11.9)
+pt = s.pt("TR1", "n/a", 40, 224, lx=-6.35, ly=-11.9, tap=True)
+s.wire(pt["tap"][0], pt["tap"][1], pt["tap"][0] + 2, pt["tap"][1])
+s.glabel("HT_TAP", pt["tap"][0] + 2, pt["tap"][1], 0)
 sw_l, sw_r = s.switch("SW1", "AC", 20, 224 - 5.08)
 s.wire(8, 224 - 5.08, sw_l, 224 - 5.08)
 s.glabel("MAINS", 8, 224 - 5.08, 180)
@@ -524,12 +524,14 @@ fl, fr = s.fuse("F1", "3A", 30, 224 - 5.08)
 s.wire(sw_r, 224 - 5.08, fl, 224 - 5.08)
 s.wire(fr, 224 - 5.08, 40 - 8.89, 224 - 5.08)
 s.wire(40 - 8.89, 224 + 5.08, 8, 224 + 5.08)
-s.glabel("MAINS", 8, 224 + 5.08, 180)
+s.glabel("MAINS N", 8, 224 + 5.08, 180)
 s.text("Mains cord not drawn — annotation layer (see the board drawing)", 8, 232, 1.1)
 s.wire(40 + 8.89, 224 - 5.08, 52, 224 - 5.08)
 s.glabel("HT_A", 52, 224 - 5.08, 0)
 s.wire(40 + 8.89, 224 + 5.08, 52, 224 + 5.08)
 s.glabel("HT_B", 52, 224 + 5.08, 0)
+s.wire(40 + 8.89, 224, 52, 224)          # the centre tap: grounded on A-FJ, floating here until 2026-09-10
+s.glabel("GND", 52, 224, 0)
 lp = s.lamp("PL1", "pilot", 20, 236)
 s.wire(lp["hi"][0], lp["hi"][1], lp["hi"][0], 231)
 s.glabel("HTR_A", lp["hi"][0], 231, 90)
@@ -537,19 +539,28 @@ s.wire(lp["lo"][0], lp["lo"][1], lp["lo"][0], 241)
 s.glabel("HTR_B", lp["lo"][0], 241, 270)
 s.text("Pilot lamp — fed from the 6.3 V heater chain (the board drawing's twisted pair)", 30, 238, 1.1)
 
-# bias supply — not fully resolved from the scan (notes.md); shown here as an
-# ideal source label only, matching netlist.cir's own treatment.
-s.text("Bias supply — a filtered tap this drawing does not fully resolve; the netlist treats -55 V as an ideal source (see the circuit story)",
+# bias supply, read off A-FJ: TR1's bias tap -> rectifier (+ end toward the tap)
+# -> 8-150 -> 10K -> the -55 V line, which carries a second 8-150 and a 56K
+# bleeder to ground. The netlist drives the -55 V line as an ideal source.
+s.text("Bias supply — TR1's bias tap, a rectifier, 8 uF, 10k, then 8 uF with a 56k bleeder, to -55 V (the netlist drives the -55 V line as an ideal source)",
        196, 210, 1.3)
-s.glabel("HT_B", 196, 220, 180)
-s.wire(196, 220, 206, 220)
+s.glabel("HT_TAP", 196, 220, 180)
+s.wire(196, 220, 204.92, 220)
 s.sym("DIODE_SS", "DBIAS", "Si", 210, 220, lx=-2.0, ly=-5.4, rot=180, label_rot=0)
 s.wire(215.08, 220, 222, 220)
 s.junction(222, 220)
-s.sym("C", "CBIAS", "25u", 222, 223.81)
+s.sym("C", "CBIAS", "8u", 222, 223.81)
 s.gnd(222, 227.62)
-s.wire(222, 220, 230, 220)
-s.glabel("-55V", 230, 220, 0)
+l, r = s.series_h("R", "RBIAS2", "10k", 230, 220)
+s.wire(222, 220, l, 220)
+s.wire(r, 220, 256, 220)
+s.junction(240, 220)
+s.sym("C", "CBIAS2", "8u", 240, 223.81)
+s.gnd(240, 227.62)
+s.junction(247, 220)
+s.sym("R", "RBIAS1", "56k", 247, 223.81)
+s.gnd(247, 227.62)
+s.glabel("-55V", 256, 220, 0)
 
 s.write(OUT)
 print(f"wrote {OUT}")

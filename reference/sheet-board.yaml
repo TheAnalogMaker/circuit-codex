@@ -709,7 +709,7 @@ amps:
       pot_orientation_flipped: 0
       section_swap: 0
       sheet_only_declared: 3
-      sheet_only_undeclared: 33
+      sheet_only_undeclared: 38
       split: 0
       stale_declarations: 0
       two_terminal_checked: 50
@@ -733,6 +733,7 @@ amps:
     - RPRES
     sheet_only_undeclared:
     - CBIAS
+    - CBIAS2
     - CF3
     - CF6
     - CF7
@@ -747,11 +748,15 @@ amps:
     - D2
     - D3
     - D4
+    - D5
+    - D6
     - DBIAS
     - F1
     - L1
     - R1N
     - R2N
+    - RBIAS1
+    - RBIAS2
     - RD1
     - RD2
     - RFB1
@@ -1797,7 +1802,7 @@ summary:
   pot_orientation_flipped: 18
   section_swap: 4
   sheet_only_declared: 233
-  sheet_only_undeclared: 270
+  sheet_only_undeclared: 275
   split: 1
   stale_declarations: 0
   two_terminal_checked: 1807

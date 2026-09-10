@@ -109,10 +109,12 @@ items:
   - { ref: RSC2, part: "Carbon comp resistor", value: "470 Ω · 1 W", role: "V8 screen stopper" }
   - { ref: RDSCR, part: "Carbon comp resistor", value: "4.7 kΩ · 1 W", role: "Shared screen dropper, +456 V plate rail to the +430 V screens node" }
   # --- Power supply ---
-  - { ref: D1, part: "Silicon diode", value: "1N4007-class", role: "Full-wave bridge rectifier, leg 1" }
-  - { ref: D2, part: "Silicon diode", value: "1N4007-class", role: "Full-wave bridge rectifier, leg 2" }
-  - { ref: D3, part: "Silicon diode", value: "1N4007-class", role: "Full-wave bridge rectifier, leg 3" }
-  - { ref: D4, part: "Silicon diode", value: "1N4007-class", role: "Full-wave bridge rectifier, leg 4 — off a single HT secondary, no tube rectifier" }
+  - { ref: D1, part: "Silicon diode", value: "1N4007-class", role: "HT rectifier — the HT_A leg, first of three (cathodes toward the reservoir, A-FJ)" }
+  - { ref: D2, part: "Silicon diode", value: "1N4007-class", role: "HT rectifier — the HT_A leg, second of three" }
+  - { ref: D3, part: "Silicon diode", value: "1N4007-class", role: "HT rectifier — the HT_A leg, third of three" }
+  - { ref: D4, part: "Silicon diode", value: "1N4007-class", role: "HT rectifier — the HT_B leg, first of three" }
+  - { ref: D5, part: "Silicon diode", value: "1N4007-class", role: "HT rectifier — the HT_B leg, second of three" }
+  - { ref: D6, part: "Silicon diode", value: "1N4007-class", role: "HT rectifier — the HT_B leg, third of three (A-FJ draws six diodes, three per leg, off a centre-tapped winding)" }
   - { ref: CF3, part: "Electrolytic capacitor", value: "20 µF · 600 V", role: "B+ reservoir, ahead of the choke (per the drawing's repeated '20-600P' marking)" }
   - { ref: CF4, part: "Electrolytic capacitor", value: "20 µF · 600 V", role: "Filter, BP1 (6L6GC plates, post-choke)" }
   - { ref: CF5, part: "Electrolytic capacitor", value: "20 µF · 600 V", role: "Filter, BP2 (screens)" }
@@ -121,14 +123,17 @@ items:
   - { ref: RD1, part: "Carbon comp resistor", value: "56 kΩ · 1 W", role: "Screens node to phase-inverter/driver supply dropper" }
   - { ref: RD2, part: "Carbon comp resistor", value: "10 kΩ · ½ W", role: "Phase-inverter/driver supply dropper (continues RD1)" }
   - { ref: L1, part: "Choke", value: "CH. · inductance not printed", role: "B+ reservoir to plates/screens filter choke, labelled CH. on the drawing" }
-  - { ref: TR1, part: "Power transformer", value: "HT secondary · 6.3 V heaters", role: "Mains primary + HT/heater secondaries; no part number printed on this sheet" }
+  - { ref: TR1, part: "Power transformer", value: "HT secondary · 6.3 V heaters", role: "Mains primary; centre-tapped HT secondary with a bias tap; heater secondaries — no part number printed on this sheet" }
   - { ref: TR2, part: "Output transformer", value: "push-pull : speaker", role: "Push-pull output into the 15-inch speaker; no part number printed on this sheet" }
   - { ref: F1, part: "Fuse", value: "3 A", role: "Mains fuse" }
   - { ref: SW1, part: "Switch", value: "SPST", role: "AC power switch" }
   - { ref: PL1, part: "Pilot lamp", value: "6.3 V", role: "Pilot lamp, fed from the 6.3 V heater chain" }
   - { ref: JSPK, part: "Jack", value: "speaker", role: "Speaker jack" }
-  - { ref: DBIAS, part: "Silicon diode", value: "1N4007-class (schematic-only)", role: "Bias-supply rectifier — the drawing's own bias derivation was not fully resolved from the scan (see the circuit story); the DC netlist treats -55 V as an ideal source" }
-  - { ref: CBIAS, part: "Electrolytic capacitor", value: "25 µF (schematic-only)", role: "Bias-supply filter — schematic-only, see DBIAS" }
+  - { ref: DBIAS, part: "Silicon diode", value: "1N4007-class (schematic-only)", role: "Bias rectifier — fed from TR1's bias tap, its + (bar) end toward the tap (A-FJ); the DC netlist drives the -55 V line as an ideal source" }
+  - { ref: CBIAS, part: "Electrolytic capacitor", value: "8 µF · 150 V", role: "Bias filter at the rectifier (A-FJ: 8-150)" }
+  - { ref: RBIAS2, part: "Carbon comp resistor", value: "10 kΩ · ½ W", role: "Bias series resistor, rectifier node to the -55 V line (A-FJ)" }
+  - { ref: CBIAS2, part: "Electrolytic capacitor", value: "8 µF · 150 V", role: "Bias filter at the -55 V line (A-FJ: 8-150)" }
+  - { ref: RBIAS1, part: "Carbon comp resistor", value: "56 kΩ · ½ W", role: "Bias bleeder, -55 V line to ground (A-FJ)" }
   # --- Tubes ---
   - { ref: V1, part: "Preamp tube", value: "7025", role: "Channel-1 (Normal), both stages (V1A/V1B)" }
   - { ref: V2, part: "Preamp tube", value: "7025", role: "Channel-2 (Bright), both stages (V2A/V2B)" }
