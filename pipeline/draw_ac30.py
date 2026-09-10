@@ -90,13 +90,16 @@ s.note('Rails: B+1 +320 V · B+N +290 V front end · B+P inverter · B+V vibrato
 # ===================== BRILLIANT + NORMAL CHANNELS — V1 ====================
 s.text('Brilliant channel', 16, 32, 1.6)
 input_pair(["J1", "J2"], ["R1", "R2"], [42, 54], 58, 48, "R3", 50, 58)
-v1a = s.triode("V1A", "ECC83", 76, 48)
+# The JMI OS/065 drawing (3600×2492) prints the Brilliant input's grid lead
+# entering the envelope at "2", its 220k plate at "1" and cathode "3"; the
+# Normal half is 7/6/8 — so V1A is datasheet unit 2 and V1B unit 1.
+v1a = s.triode("V1A", "ECC83", 76, 48, unit=2)
 s.wire(58, 48, v1a["g"][0], 48)
 TEE_BR = plate_load_side("R5", "220k", v1a["p"], "B+N", -10.0)   # 36.9
 
 s.text('Normal channel', 16, 71, 1.6)
 input_pair(["J3", "J4"], ["R12", "R13"], [78, 90], 58, 84, "R14", 58, 94)
-v1b = s.triode("V1B", "ECC83", 76, 84)
+v1b = s.triode("V1B", "ECC83", 76, 84, unit=1)
 s.wire(58, 84, v1b["g"][0], 84)
 TEE_NO = plate_load_side("R6", "220k", v1b["p"], "B+N", -10.0)   # 72.9
 

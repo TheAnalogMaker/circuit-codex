@@ -166,8 +166,8 @@ amps:
       sheet_only_undeclared: 0
       split: 0
       stale_declarations: 0
-      two_terminal_checked: 51
-      unresolved: 0
+      two_terminal_checked: 50
+      unresolved: 1
     merged: []
     misplaced:
     - D1
@@ -180,7 +180,8 @@ amps:
     sheet_only_undeclared: []
     split: []
     stale_declarations: []
-    unresolved: []
+    unresolved:
+    - RB1
   5e5a:
     board_only: []
     claimed: true
@@ -371,8 +372,8 @@ amps:
       sheet_only_undeclared: 0
       split: 0
       stale_declarations: 0
-      two_terminal_checked: 54
-      unresolved: 0
+      two_terminal_checked: 53
+      unresolved: 1
     merged: []
     misplaced:
     - D1
@@ -385,7 +386,8 @@ amps:
     sheet_only_undeclared: []
     split: []
     stale_declarations: []
-    unresolved: []
+    unresolved:
+    - RB1
   5f6:
     board_only: []
     claimed: true
@@ -429,7 +431,7 @@ amps:
       misplaced: 0
       pot_as_resistor: 0
       pot_orientation_flipped: 0
-      section_swap: 1
+      section_swap: 0
       sheet_only_declared: 1
       sheet_only_undeclared: 6
       split: 0
@@ -440,8 +442,7 @@ amps:
     misplaced: []
     pot_as_resistor: []
     pot_orientation_flipped: []
-    section_swap:
-    - V3
+    section_swap: []
     sheet_only_declared:
     - RKCF
     sheet_only_undeclared:
@@ -657,7 +658,7 @@ amps:
       misplaced: 7
       pot_as_resistor: 0
       pot_orientation_flipped: 0
-      section_swap: 1
+      section_swap: 0
       sheet_only_declared: 2
       sheet_only_undeclared: 13
       split: 0
@@ -675,8 +676,7 @@ amps:
     - RT2
     pot_as_resistor: []
     pot_orientation_flipped: []
-    section_swap:
-    - V5
+    section_swap: []
     sheet_only_declared:
     - RG1I
     - RG2I
@@ -996,7 +996,7 @@ amps:
       misplaced: 3
       pot_as_resistor: 0
       pot_orientation_flipped: 2
-      section_swap: 2
+      section_swap: 0
       sheet_only_declared: 1
       sheet_only_undeclared: 8
       split: 0
@@ -1014,9 +1014,7 @@ amps:
     pot_orientation_flipped:
     - VRSPD
     - VRV
-    section_swap:
-    - V1
-    - V2
+    section_swap: []
     sheet_only_declared:
     - RG1A
     sheet_only_undeclared:
@@ -1416,7 +1414,7 @@ amps:
       misplaced: 0
       pot_as_resistor: 0
       pot_orientation_flipped: 0
-      section_swap: 1
+      section_swap: 0
       sheet_only_declared: 0
       sheet_only_undeclared: 9
       split: 0
@@ -1427,8 +1425,7 @@ amps:
     misplaced: []
     pot_as_resistor: []
     pot_orientation_flipped: []
-    section_swap:
-    - V1
+    section_swap: []
     sheet_only_declared: []
     sheet_only_undeclared:
     - C19
@@ -1799,10 +1796,10 @@ summary:
   misplaced: 85
   pot_as_resistor: 1
   pot_orientation_flipped: 18
-  section_swap: 10
+  section_swap: 5
   sheet_only_declared: 233
   sheet_only_undeclared: 269
   split: 1
   stale_declarations: 0
-  two_terminal_checked: 1810
-  unresolved: 9
+  two_terminal_checked: 1808
+  unresolved: 11

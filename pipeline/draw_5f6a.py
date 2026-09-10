@@ -120,9 +120,12 @@ s.wire(157.48, 97.81, 157.48, 92)
 ol, orr = s.series_h("C", "C6", ".02u", 162, 92)
 s.wire(157.48, 92, ol, 92)
 s.wire(orr, 92, 168.91, 92)
-tp = s.triode("V3A", "12AX7", 176.53, 92)
+# The I-EG layout wires the 82k-plate (input) triode on pins 1/2/3 (+235 V -> 1,
+# +22 V -> 2) and the 100k triode on 6/7/8 (crop triage 5f6a-V3-wires-*.png,
+# 6402x3641): V3A is datasheet unit 2, V3B unit 1.
+tp = s.triode("V3A", "12AX7", 176.53, 92, unit=2)
 s.wire(168.91, 92, tp["g"][0], 92)
-bt = s.triode("V3B", "12AX7", 176.53, 126)
+bt = s.triode("V3B", "12AX7", 176.53, 126, unit=1)
 s.plate_load("RLA", "82k 5%", tp["p"], "B+3")
 s.plate_load("RLB", "100k 5%", bt["p"], "B+3")
 # shared tail: cathodes -> 470 -> J -> 10k -> gnd

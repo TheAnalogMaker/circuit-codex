@@ -278,8 +278,11 @@ s.wire(300, 71.12, 300, 74.5)
 s.glabel("BC", 300, 74.5, 0)
 s.glabel("GPIA", 228.19, YPH, 180)                # bus from both channels' mixers (RM1/RM2)
 s.wire(228.19, YPH, XPI - 7.62, YPH)
-t5a = s.triode("V5A", "7025", XPI, YPH)
-t5b = s.triode("V5B", "7025", XPI, YPB)
+# The A-FJ layout wires the 82k-plate (.001-fed) triode on pins 1/2/3 (+315 V ->
+# 1) and the 100k triode on 6/7/8 (+310 V -> 6) (crop triage 6g4-V5-layout-trace
+# .png, 2250x1269, the only copy): V5A is datasheet unit 2, V5B unit 1.
+t5a = s.triode("V5A", "7025", XPI, YPH, unit=2)
+t5b = s.triode("V5B", "7025", XPI, YPB, unit=1)
 s.plate_load("RLPA", "82k 5%", t5a["p"], "BC")
 s.plate_load("RLPB", "100k 5%", t5b["p"], "BC")
 # cathodes join on a right stub; 820 from there to the tail junction

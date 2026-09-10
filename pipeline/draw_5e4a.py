@@ -268,16 +268,17 @@ s.glabel("B+4", 137.16, 175.26, 90)
 s.wire(137.16, 175.26, 137.16, 177.8)
 s.sym("C", "C14", "8u", 142.24, 181.61)
 s.gnd(142.24, 185.42)
-# bias supply: HT tap -> selenium -> 6.8k -> -40V node, 56k bleeder
+# bias supply: HT tap -> 18k -> selenium -> -32V node, 56k bleeder.
+# The G-EE drawing runs the 18K from the winding's bias tap INTO the
+# rectifier's + end (crop triage 5e4a-D1-schem.png, 6232x3528); until
+# 2026-09-10 this row put the rectifier on the tap and the resistor after it.
 # (row lifted 12 mm from y=172.72 so nothing reaches the A4 title-block corner)
-# the rectifier hangs on the winding's bias tap, not on an HT end / plate
 s.glabel("HT_TAP", 150.1, 160.72, 180)
-s.wire(150.1, 160.72, 153.91, 160.72)
-s.sym("DIODE_SS", "D1", "SEL", 158.99, 160.72, lx=-2.0, ly=-5.4)
-s.wire(164.07, 160.72, 167.88, 160.72)
-l, r = s.series_h("R", "RB1", "18k", 171.69, 160.72)
-s.wire(167.88, 160.72, l, 160.72)
-s.wire(r, 160.72, 183.12, 160.72)
+l, r = s.series_h("R", "RB1", "18k", 155.0, 160.72)
+s.wire(150.1, 160.72, l, 160.72)
+s.wire(r, 160.72, 161.92, 160.72)
+s.sym("DIODE_SS", "D1", "SEL", 167.0, 160.72, lx=-2.0, ly=4.6)
+s.wire(172.08, 160.72, 183.12, 160.72)
 s.junction(178.04, 160.72)
 s.sym("R", "RB2", "56k", 178.04, 164.53)
 s.gnd(178.04, 168.34)

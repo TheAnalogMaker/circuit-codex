@@ -41,7 +41,10 @@ s.wire(GB, YN - 4, GB, YN + 4)
 s.junction(GB, YN)
 s.sym("R", "RG1A", "1M", GB, YN + 7.81)        # 1M grid leak at the jacks
 s.gnd(GB, YN + 11.62)
-t1a = s.triode("V1A", "7025", 52, YN)
+# The L-FD drawing prints the input grid "2", plate "1", cathode "3" and the
+# second stage 7/6/8; the PI 7/6/8 and the oscillator 2/1/3 (6322x3926) —
+# so each A section below is datasheet unit 2 and each B unit 1.
+t1a = s.triode("V1A", "7025", 52, YN, unit=2)
 s.wire(GB, YN, t1a["g"][0], YN)
 s.plate_load("RL1A", "100k", t1a["p"], "B+4")
 s.wire(52, YN + 7.62, 52, YN + 9)
@@ -95,7 +98,7 @@ s.wire(126, TEE - 0.38, 126, YN)
 
 # ============================ SECOND STAGE (V1B) ======================
 s.text("Second stage (7025) · 47 Ω feedback tail", 130, 30, 1.6)
-t1b = s.triode("V1B", "7025", 140, YN)
+t1b = s.triode("V1B", "7025", 140, YN, unit=1)
 s.wire(126, YN, t1b["g"][0], YN)
 s.plate_load("RL1B", "100k", t1b["p"], "B+4")
 # cathode: 1.5k || 25u down to the tail junction J1B, then 47R to ground
@@ -123,7 +126,7 @@ s.wire(150, TEEB, cl, TEEB)
 s.wire(cr, TEEB, 170, TEEB)
 s.wire(170, TEEB, 170, YN)
 XPI = 196
-t2b = s.triode("V2B", "12AX7", XPI, YN)
+t2b = s.triode("V2B", "12AX7", XPI, YN, unit=1)
 s.wire(170, YN, t2b["g"][0], YN)
 s.junction(186, YN)
 s.plate_load("RLPI", "56k", t2b["p"], "B+4")
@@ -197,7 +200,7 @@ s.gnd(314, 78)
 YT = 180
 RAILY = 208                                    # phase-shift ladder rail
 s.caption('Tremolo oscillator (½ 12AX7) — a running phase-shift oscillator; its DC point is excluded from the netlist (see the circuit story)', 20, 148, 1.4)
-t2a = s.triode("V2A", "12AX7", 60, YT)
+t2a = s.triode("V2A", "12AX7", 60, YT, unit=2)
 s.plate_load("RTO", "220k", t2a["p"], "B+2")
 s.wire(60, YT + 7.62, 60, YT + 10)
 s.shunt_rc("RKTO", "3.3k", "CKTO", "25u", 52.38, YT + 10)
