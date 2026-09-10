@@ -1251,6 +1251,18 @@ class Renderer:
                 it["_heater_pins"] = load_tube_heater_pins(slug) if slug else None
                 it["_tube_slug"] = slug
                 it["_basing_elements"] = load_tube_basing_elements(slug) if slug else None
+        # A tapped pot is a claim about the part, so the parts list has to make
+        # it too: `tap: true` on a pot whose bom.yaml value says nothing about a
+        # tap is refused, not drawn.
+        for it in self.offboard:
+            if it.get("kind") == "pot" and it.get("tap"):
+                rec = self.bom_for(it["ref"]) if it.get("ref") else None
+                val = str((rec or {}).get("value", ""))
+                if "tap" not in val.lower():
+                    self.errors.append(
+                        f"offboard pot '{it.get('id')}' declares tap: true but its parts-list "
+                        f"value {val!r} states no tap — a tap is a fact about the part, and "
+                        f"the parts list must say so")
         # Does this board carry a polarised rectifier/diode body? (drives the
         # extra Bodies-legend entry — the legend must name every form drawn.)
         self._has_diode = any(
@@ -2256,6 +2268,26 @@ class Renderer:
             return cx - r - 4, cy + (lug - 2) * 11
         return cx + (lug - 2) * 11, cy + r + 4          # top (board below)
 
+    def pot_tap_pos(self, item):
+        """Where a tapped pot's fourth terminal sits: `VRn.lug4`.
+
+        A tap is a fixed connection into the resistance element, brought out
+        as an extra solder lug on the pot's flank — not a fourth member of the
+        1/2/3 fan, whose order and sense are the part's own (pot_lug_pos).
+        Which flank a real tap sits on is a fact about the part this corpus
+        does not carry, so it takes the flank the page reads first: the left
+        flank of a top- or bottom-edge pot, the upper flank of a left- or
+        right-edge one, level with the body's centre. Only a pot the layout
+        declares `tap: true` has one; the endpoint resolver refuses `.lug4` on
+        any other, and the glyph pass refuses `tap: true` on a part whose
+        parts-list value states no tap."""
+        cx, cy = self.off_pos(item)
+        r = 18
+        edge = item.get("edge", "top")
+        if edge in ("left", "right"):
+            return cx, cy - r - 4
+        return cx - r - 4, cy
+
     def part_terminal_pos(self, item, term):
         """The two terminals of a generic off-board 2-lead part (kind: part),
         placed on the board-facing side of the body so runs land cleanly. term
@@ -2398,8 +2430,17 @@ class Renderer:
             return self.tube_pin_pos(it, pin)
         if kind == "pot":
             digits = "".join(ch for ch in suffix if ch.isdigit())
+            if digits == "4":
+                # the tap — only on a pot the layout declares one for
+                if not it.get("tap"):
+                    self.errors.append(
+                        f"{ctx}: pot '{name}' has no tap — lug 4 is the tap terminal and "
+                        f"only a pot declared `tap: true` carries one")
+                    return None
+                return self.pot_tap_pos(it)
             if digits not in ("1", "2", "3"):
-                self.errors.append(f"{ctx}: pot '{name}' lug must be 1|2|3, got '{suffix}'")
+                self.errors.append(f"{ctx}: pot '{name}' lug must be 1|2|3 (or 4, the tap "
+                                   f"of a pot declared `tap: true`), got '{suffix}'")
                 return None
             return self.pot_lug_pos(it, int(digits))
         if kind == "jack":
@@ -2690,6 +2731,14 @@ class Renderer:
                 lx, ly = self.pot_lug_pos(item, lug)
                 els.append(f'<circle cx="{fmt(lx)}" cy="{fmt(ly)}" r="1.9" fill="{MUTED}"/>')
                 self.obst_circle(lx, ly, 1.9, f"lug {item.get('id', '')}.{lug}")
+            if item.get("tap"):
+                # the tap: a fourth pip on the flank, lettered T so it is never
+                # read as one of the three (pot_tap_pos)
+                tx_, ty_ = self.pot_tap_pos(item)
+                els.append(f'<circle cx="{fmt(tx_)}" cy="{fmt(ty_)}" r="1.9" fill="{MUTED}"/>')
+                els.append(text(tx_ - 5.2, ty_ + 2.6, "T", FAINT, 7.5, font=FONT_MONO,
+                                weight=600, anchor="middle"))
+                self.obst_circle(tx_, ty_, 1.9, f"lug {item.get('id', '')}.4")
             self.obst_circle(x, y, r, f"pot {item.get('id', '')}")
             # Name + value sit on the side of the pot AWAY from the board. A
             # top-edge pot's three lugs are on its lower face and every lead it
@@ -4570,6 +4619,22 @@ class SheetRenderer(Renderer):
                 els.append(f'<circle cx="{fmt(lx)}" cy="{fmt(ly)}" r="1.6" fill="none" '
                            f'stroke="{SH_INK}" stroke-width="0.9"/>')
                 self.obst_circle(lx, ly, 1.9, f"lug {item.get('id', '')}.{lug}")
+            if item.get("tap"):
+                # the tap: a fourth tab on the flank, lettered T (pot_tap_pos)
+                tx_, ty_ = self.pot_tap_pos(item)
+                if edge in ("top", "bottom"):
+                    els.append(f'<rect x="{fmt(tx_ - 2.0)}" y="{fmt(ty_ - 3.4)}" width="9.6" '
+                               f'height="6.8" rx="1.6" fill="{SH_PAPER}" '
+                               f'stroke="{SH_INK}" stroke-width="1.1"/>')
+                else:
+                    els.append(f'<rect x="{fmt(tx_ - 3.4)}" y="{fmt(ty_ - 2.0)}" width="6.8" '
+                               f'height="9.6" rx="1.6" fill="{SH_PAPER}" '
+                               f'stroke="{SH_INK}" stroke-width="1.1"/>')
+                els.append(f'<circle cx="{fmt(tx_)}" cy="{fmt(ty_)}" r="1.6" fill="none" '
+                           f'stroke="{SH_INK}" stroke-width="0.9"/>')
+                els.append(text(tx_ - 5.6, ty_ + 2.6, "T", SH_INK2, 7.5, weight=700,
+                                anchor="middle", halo=SH_PAPER, halo_width=2.2))
+                self.obst_circle(tx_, ty_, 1.9, f"lug {item.get('id', '')}.4")
             self.obst_circle(x, y, r, f"pot {item.get('id', '')}")
             lnx, lny = (item.get("label_nudge") or [0, 0])[:2]
             vnx, vny = (item.get("value_nudge") or [0, 0])[:2]

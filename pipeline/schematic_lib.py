@@ -386,6 +386,39 @@ _LIB_TEMPLATE = f"""  (lib_symbols
 
 
 # ---------------------------------------------------------------------------
+# Library extensions — symbols a sheet carries only when it places one
+# ---------------------------------------------------------------------------
+# Every sheet embeds the whole library above, so adding a symbol to it rewrites
+# all forty-odd committed drawings under the drift gate for the sake of the one
+# amp that needs it. A part this corpus draws on one sheet lives here instead,
+# and `write()` appends it only when the drawing places it. The extents and
+# pin tables below are built over BOTH sets, so placement and the lint know an
+# extension symbol exactly as they know a base one.
+#
+# cx:POT_TAP — a potentiometer with a fixed tap on its element, the 6G6-B's
+# Normal-channel Treble control ("350K-70K TAP" on the E-FB sheet). Four
+# connections: 1 and 3 are the track ends as on cx:POT, 2 the wiper (right),
+# and 4 the TAP, brought out on the left below centre — nearer pin 3, which is
+# where a 70 k tap on a 350 k element sits. The lead into the element ends in
+# a short bar so a tap is never mistaken for a second wiper.
+_LIB_EXTENSIONS = {
+    "POT_TAP": f"""    (symbol "cx:POT_TAP" (pin_numbers hide) (pin_names hide) (in_bom yes) (on_board yes)
+      (property "Reference" "VR" (at 2.54 1.27 0) {FONT})
+      (property "Value" "POT" (at 2.54 -1.27 0) {FONT})
+      (symbol "POT_TAP_0_1"
+        (rectangle (start -1.016 -2.54) (end 1.016 2.54) {_STROKE})
+        {_poly("(xy 3.302 0) (xy 1.778 0.762) (xy 1.778 -0.762) (xy 3.302 0)")}
+        {_poly("(xy -3.302 -1.524) (xy -1.016 -1.524)")}
+        {_poly("(xy -1.651 -0.889) (xy -1.651 -2.159)")})
+      (symbol "POT_TAP_1_1"
+        {_pin("passive", 0, 3.81, 270, 1.27, "1", "1")}
+        {_pin("passive", 0, -3.81, 90, 1.27, "3", "3")}
+        {_pin("passive", 5.08, 0, 180, 1.778, "W", "2")}
+        {_pin("passive", -5.08, -1.524, 0, 1.778, "T", "4")}))""",
+}
+
+
+# ---------------------------------------------------------------------------
 # Line weight — decided by the sheet, not by the symbol
 # ---------------------------------------------------------------------------
 # The corpus spans 169 mm to 682 mm of paper and every sheet is fitted into the
@@ -429,12 +462,22 @@ def junction_d(width: float, height: float) -> float:
                      max(JUNCTION_MIN, JUNCTION_TARGET_PX / fit_scale(width, height))), 3)
 
 
-def lib_text(width: float = DEFAULT_INK) -> str:
-    """The symbol library, stamped with one sheet's outline weight."""
-    return _LIB_TEMPLATE.replace(_W, f"{width:g}")
+def lib_text(width: float = DEFAULT_INK, extras=()) -> str:
+    """The symbol library, stamped with one sheet's outline weight.
+
+    `extras` names the library extensions (`_LIB_EXTENSIONS` keys) this sheet
+    places; they are appended inside the same `(lib_symbols …)` block, in the
+    table's own order, so a sheet that uses none is byte-for-byte what it was
+    before the extension existed."""
+    base = _LIB_TEMPLATE.rstrip()
+    assert base.endswith(")"), "library template must close (lib_symbols"
+    want = [n for n in _LIB_EXTENSIONS if n in set(extras)]
+    if want:
+        base = base[:-1].rstrip() + "\n" + "\n".join(_LIB_EXTENSIONS[n] for n in want) + ")"
+    return (base + "\n").replace(_W, f"{width:g}")
 
 
-LIB = lib_text()
+LIB = lib_text(extras=tuple(_LIB_EXTENSIONS))
 
 
 # ---------------------------------------------------------------------------
@@ -567,6 +610,7 @@ LINE_H = 1.4
 # glyph; the fallback still suits R, C and the small two-pin parts.
 LABEL_DEFAULT = {
     "POT": (4.4, -3.2),
+    "POT_TAP": (4.4, -3.2),
     "PT": (-6.35, -11.9),
     "OT_PP": (-6.35, -11.9),
     "OT_SE": (-6.35, -9.4),
@@ -1239,6 +1283,10 @@ class Sch:
         return {"l1": (x - 6.35, y - 2.54), "l2": (x - 6.35, y + 2.54),
                 "p1": (x + 6.35, y - 2.54), "p2": (x + 6.35, y + 2.54)}
 
+    def libs_used(self) -> set[str]:
+        """Every library symbol name this drawing places (`R`, `POT_TAP`, …)."""
+        return {extra[0] for kind, _, extra in self.items if kind == "sym"}
+
     # ---- connectivity normalisation -------------------------------------
     def pin_points(self) -> set[tuple[float, float]]:
         """Every placed symbol's pin connection points, in sheet coordinates."""
@@ -1712,7 +1760,7 @@ class Sch:
   (uuid "{_u()}")
   {paper_sexpr}
 {tb}
-{lib_text(self.ink)}
+{lib_text(self.ink, extras=self.libs_used())}
 {body}
 {note_sexprs}
   (sheet_instances (path "/" (page "1")))

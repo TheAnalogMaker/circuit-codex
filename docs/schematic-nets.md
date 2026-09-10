@@ -90,9 +90,10 @@ electrolytics, this is the assumption to revisit.*
 **Pots, cans and windings need an explicit terminal pick.** A netlist `R`/`C`
 binds without ceremony only to a genuine two-lead passive
 (`cx:R`, `cx:C`, `cx:CHOKE`, `cx:DIODE_SS`, `cx:FUSE`, `cx:SWITCH`, `cx:LAMP`).
-A symbol with three or more pins — `cx:POT` (1/3 ends, 2 wiper), `cx:DUALCAN`,
-`cx:OT_PP`, `cx:PT` — has no unambiguous "two ends", and guessing one is how a
-gate starts lying. Name the two terminals in `sch_map.element_pins`, or declare
+A symbol with three or more pins — `cx:POT` (1/3 ends, 2 wiper), `cx:POT_TAP`
+(the same plus 4, a fixed tap into the element — the 6G6-B's 350 kΩ/70 kΩ-tap
+Treble control), `cx:DUALCAN`, `cx:OT_PP`, `cx:PT` — has no unambiguous "two
+ends", and guessing one is how a gate starts lying. Name the two terminals in `sch_map.element_pins`, or declare
 the element `netlist_undrawn`.
 
 ---

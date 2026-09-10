@@ -1110,9 +1110,12 @@ def _enumerate_unchecked(res, R, uf, M, comps, part_terms, anchoring, node_name)
         if it.get("kind") != "pot":
             continue
         pid = it["id"]
-        lugs = "; ".join(f"lug{n} {netdesc(f'{pid}.lug{n}')}" for n in (1, 2, 3))
+        # a tapped pot (layout `tap: true`) carries a fourth terminal, the tap
+        nums = (1, 2, 3, 4) if it.get("tap") else (1, 2, 3)
+        lugs = "; ".join(f"lug{n}{' (tap)' if n == 4 else ''} {netdesc(f'{pid}.lug{n}')}"
+                         for n in nums)
         groups[_UC_CTRL].append(f"{pid} ({it.get('label', pid)} pot): {lugs}")
-        n_terms += 3
+        n_terms += len(nums)
 
     # annotation-layer runs, counted (their nets are the excluded run tally): the
     # PT/rectifier AC+HT side and the twisted heater pairs.

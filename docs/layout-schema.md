@@ -146,6 +146,7 @@ read as `±25MFD` on every narrow can in the corpus.
 | `value` | Only meaningful on a **ref-less** item, and only for `kind: part`. Values live in `bom.yaml`, keyed by ref, so a layout and the parts list can never disagree — and that stays true for every part the BOM knows. But the annotation layer draws parts the electrical model does not carry (a negative-feedback resistor stated only as a schematic *text note*, so it has no symbol and therefore no BOM ref), and those had no way to state a value at all: they shipped as blank bodies. A ref'd item ignores this field, so the two can never diverge. The value must be sourced in a comment; the lint fails a ref-less `kind: part` that has neither |
 | `cathode` | Only for a `kind: part` whose BOM type is a diode/rectifier — `a` \| `b`, same meaning as on `parts[]` |
 | `label_nudge` / `value_nudge` | For `kind: pot` — `[dx, dy]` px shifts for the name+value pair / the value alone, keeping the label's opaque halo. `kind: tube` accepts `label_nudge` too (the socket caption as one piece), for a caption whose whole natural band is occupied by a routed run. Same status as `parts[]`'s nudges: an authored starting point for the automatic placement pass, not the mechanism |
+| `tap` | Only for `kind: pot` — `true` declares a **tapped** potentiometer: a fixed connection into the resistance element brought out as a fourth solder lug, addressed as `VRn.lug4`. Drawn as a fourth pip lettered `T` on the pot's flank (the left flank of a top/bottom-edge pot, the upper flank of a left/right-edge one), never as a member of the 1/2/3 fan, whose order is the part's own. The render refuses `tap: true` on a pot whose `bom.yaml` value states no tap, and refuses `.lug4` on a pot that does not declare one — a tap is a fact about the part, so both the parts list and the layout have to say it. The 6G6-B's Normal-channel Treble control (`350 kΩ, 70 kΩ tap` on the E-FB sheet) is the corpus's one tapped pot; its tap carries the 0.1 µF from the slope foot, and the schematic draws it on the matching four-pin `cx:POT_TAP` symbol |
 
 Tubes draw their real pin ring with pin numbers; the pin count is read from the
 tube's `reference/tubes/<tube>.yaml` basing data (via the `ref`'s BOM value), so
@@ -186,7 +187,7 @@ Every `runs`/`bus` endpoint is one of:
 | `[row, col]` | a bare board eyelet (or a routing point on the ground bus) |
 | `"REF.a"` / `"REF.b"` | a board part's eyelet (`REF` is a `parts[]` ref), **or** a generic 2-lead off-board part's terminal (`REF` is an `offboard` `kind: part` id) |
 | `"V1.pin3"` | a tube socket pin — **validated** against `reference/tubes/<tube>.yaml` basing; an out-of-range/unknown pin fails the render (and CI). On a `style: twisted` (heater) run a tube endpoint must additionally be a **heater/filament** pin |
-| `"VR1.lug2"` | a potentiometer lug (`1` \| `2` \| `3`; `2` is the wiper) |
+| `"VR1.lug2"` | a potentiometer lug (`1` \| `2` \| `3`; `2` is the wiper). `"VR1.lug4"` is the **tap** of a pot the layout declares `tap: true` (see `offboard[]`); on any other pot it is an error |
 | `"JI"` / `"JI.tip"` / `"JI.sleeve"` | a jack (bare id = body) |
 | `"T2.green"` | a transformer / choke lead by colour name — each distinct colour gets its own stacked, colour-matched pigtail on the board-facing edge |
 
