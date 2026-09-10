@@ -51,6 +51,11 @@ heaters:
     volts: 6.3
     winding: "6.3 V secondary — the transformer's green pair"
     grounded_leg: return
+    pilot:
+      PL1:
+        return: chassis
+        source: >-
+          The F-DH layout page (797 ppi) gives the pilot lite ONE terminal, the feed arriving and the chain leaving on it; the lamp returns through its holder to the chassis, which the sheet does not draw and this board does not draw either.
     source: >-
       Fender "Champ-Amp" Model 5C1 drawing (F-DH), read from the Internet
       Archive's capture of the el34world PDF at its native 6510 x 4718 (797 ppi);

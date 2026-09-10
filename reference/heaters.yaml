@@ -31,7 +31,9 @@
 #
 # CLEARING AN ENTRY. Read that amplifier's own drawing, add a `heaters:` block
 # to its layout.yaml stating what it shows, correct the runs to match, and
-# re-export. The count in `summary` is the size of the job.
+# re-export. The count in `summary` is the size of the job. An entry carrying
+# `read_pending_because` has a factory sheet that no located copy resolves;
+# the string says which copies were tried, so the next attempt starts there.
 amps:
   5c1:
     centre_tapped_sockets: {}

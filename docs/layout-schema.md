@@ -246,8 +246,10 @@ heaters:
   - id: h63
     volts: 6.3
     winding: "6.3 V secondary — the transformer's green pair"
-    grounded_leg: return          # feed | return | none
+    grounded_leg: return          # feed | return | none | humdinger | winding-ct
     source: "…what the cited drawing shows, in a sentence…"
+    pilot:                        # only where the sheet draws ONE lamp terminal
+      PL1: { return: chassis, source: "…the sheet's one dot, in a sentence…" }
     sockets:
       V2: { feed: [7], return: [2] }        # octal: one pin per leg
       V1: { feed: [4, 5], return: [9] }     # noval at 6.3 V: ends strapped,
@@ -265,7 +267,9 @@ heaters:
 | `id` | short name for the circuit, used in gate output |
 | `volts` | the supply voltage the **source** shows. Proved against the valve's own datasheet — see `heater.supplies` in `reference/tubes/<tube>.yaml` |
 | `winding` | prose: which secondary this is |
-| `grounded_leg` | `feed`, `return`, `none`, or `humdinger`. A single-ended supply grounds one leg at the transformer; a floating pair grounds neither, and a rectifier filament sitting at B+ must ground neither. `humdinger` is a floating pair whose return is an ARTIFICIAL centre tap — a hum-balance pot across the two legs with its wiper to chassis, or a pair of fixed resistors doing the same job — and it must name the part in a sibling `humdinger:` key (`humdinger: VR9`, or `humdinger: [R40, R41]`). The gate then proves the named part is drawn, reaches the ground bus, and spans BOTH legs: a grounded part touching one leg is not a centre tap, and "neither leg is grounded" on its own cannot be told apart from a return nobody drew |
+| `grounded_leg` | `feed`, `return`, `none`, `humdinger`, or `winding-ct`. A single-ended supply grounds one leg at the transformer; a floating pair grounds neither, and a rectifier filament sitting at B+ must ground neither. `humdinger` is a floating pair whose return is an ARTIFICIAL centre tap — a hum-balance pot across the two legs with its wiper to chassis, or a pair of fixed resistors doing the same job — and it must name the part in a sibling `humdinger:` key (`humdinger: VR9`, or `humdinger: [R40, R41]`). The gate then proves the named part is drawn, reaches the ground bus, and spans BOTH legs: a grounded part touching one leg is not a centre tap, and "neither leg is grounded" on its own cannot be told apart from a return nobody drew. `winding-ct` is a floating pair whose return is the WINDING'S OWN centre tap — the blackface arrangement, and the 5F6-A's: the transformer's green-yellow lead is tied to the red-yellow HT centre tap and taken to chassis — and it must name that lead in a sibling `winding_ct:` key (`winding_ct: TR1.green-yellow`). The gate proves the named lead is a transformer lead of this board, is drawn, and reaches the ground bus, and that neither leg does |
+| `winding_ct` | with `grounded_leg: winding-ct` only: the transformer lead that is the winding's centre tap, `<xfmr id>.<lead>` |
+| `pilot` | optional, per pilot lamp: `PL1: { return: chassis, source: "…" }`. Declares that the sheet draws the lamp with ONE terminal — the feed arriving and the chain leaving on it — and that its return is the lamp holder's shell to the chassis, which the sheet does not draw and the board therefore does not draw either. Allowed only on a circuit that grounds a leg; see W4 below. The 5C1, 5E1, 5E3, 5F1, 5F2-A, 5F4 and 5F10 sheets all draw the lamp this way |
 | `source` | what the cited drawing shows, so a reader can check the declaration against it |
 | `sockets` | per socket, the **connection group** each pin sits in. `feed` and `return` are the two legs; naming which is which is the drawing's own choice and only matters for `grounded_leg` |
 
@@ -281,6 +285,18 @@ heater run there is drawn as the **single conductor its data names**, and
 `check_heaters.py` prints the amp as `heaters NOT DECLARED` with its
 centre-tapped sockets listed. An octal or rectifier socket keeps its two-pin
 landing, because there the basing leaves no choice.
+
+**A floating pair is drawn as two conductors.** The gate reads a run into nets
+by its two named endpoints, so a `style: twisted` daisy — each hop naming one
+pin at each socket — puts a socket's return pin on the next socket's feed pin and
+cannot be proved. A supply whose both legs run socket to socket (`grounded_leg:
+none`, `winding-ct` or `humdinger`) is therefore drawn as two `style: heater`
+chains, one per leg, each hop naming the same leg's pin at both ends, with the
+pilot lamp's two terminals on the two chains; the 5F6-A and the AA964 are the
+pattern. A single-ended supply draws one chain and returns each socket to the
+bus on its own (the 5E3, 6G2). The legend says which it is: two single
+conductors on a floating supply are lettered "both legs float" with the return
+the circuit declares, so the single-lead idiom cannot read as single-ended.
 
 ##### The marker an unestablished heater layer carries
 
@@ -336,6 +352,14 @@ heaters_unsourced: >-
   summary into `doubtful_sockets_pending_a_read` and
   `doubtful_sockets_no_factory_sheet`, so the number that measures the reading
   job counts only sockets a reader can actually clear.
+
+A third kind of gap has its own key. Where a factory sheet exists but no located
+copy resolves the socket pins, `heaters_pending:` (a reason string) records what
+was tried, and the worklist carries it as `read_pending_because` — so the next
+reader starts from the last attempt rather than from the backlog. The Champ
+AA764 is the case: every capture of its layout PDF is the same 2171 px copy,
+while the Vibro-Champ page of the same drawing family was found at 708 ppi and
+declared.
 
 A layout may hold both: `amps/ab763-super` establishes its 5 V rectifier winding
 from the schematic and leaves the 6.3 V chain unestablished, and the marker then
@@ -631,9 +655,14 @@ entry's own text instead of a colour swatch: the automatic entry says "6.3 V
 heaters — twisted pair" or "— single lead", which names the idiom but not the
 function, and a **single-ended** supply (one transformer lead grounded, the
 other feeding the pilot lamp and every heater, each socket returning to chassis
-on its own — the 5F1 and AA764) is worth saying out loud. The SVGs are served
-standalone (`/layouts/<id>.svg`), so each must say what its colours mean without
-the surrounding page.
+on its own — the 5F1 and AA764) is worth saying out loud. A **floating** supply
+needs no override: where every drawn circuit declares `grounded_leg: none`,
+`winding-ct` or `humdinger`, the automatic entry adds the clause itself ("both
+legs float; the winding's centre tap is grounded" on the 5F6-A and AA964),
+because two single green conductors are that supply's two legs and "single
+lead" alone is the single-ended idiom. The SVGs are served standalone
+(`/layouts/<id>.svg`), so each must say what its colours mean without the
+surrounding page.
 
 ### Self-review (mandatory)
 
@@ -847,7 +876,8 @@ What the heater gate rejects, each with a planted fault in `--selftest`:
 | **D3** | every pin is on a leg but the **grouping** is not one the valve's sheet wires at that voltage |
 | **W1** | a declared terminal that **no drawn conductor reaches** — a missing return |
 | **W2** | the two legs are drawn on one net — a **bridge across the supply** |
-| **W3** | the grounded leg does not reach the ground bus, or a leg reaches it that the declaration says is floating; on a `humdinger` circuit, either leg reaching ground, or the named artificial centre tap missing from the drawing, off the ground bus, or touching only one leg |
+| **W3** | the grounded leg does not reach the ground bus, or a leg reaches it that the declaration says is floating; on a `humdinger` circuit, either leg reaching ground, or the named artificial centre tap missing from the drawing, off the ground bus, or touching only one leg; on a `winding-ct` circuit, either leg reaching ground, or the named centre-tap lead not a transformer lead of this board, not drawn, or off the ground bus |
+| **W4** | the pilot lamp is not ACROSS the supply: a terminal reached by no conductor, both terminals on one leg (a dark lamp — W1–W3 all pass it), or a terminal on a net carrying neither leg (the lamp drawn in series with the chain, which the 5E3 shipped). On a single-ended supply the grounded leg's net is the ground bus, so a return drawn to chassis is on that leg. A declared `pilot: {PL1: {return: chassis}}` is checked as a claim: only on a circuit that grounds a leg, the one drawn terminal on the fed leg, the other drawn to nothing — a declared-undrawn return the board draws anyway is stale and fails. A lamp touching no leg of a circuit is not that circuit's lamp |
 
 A same-socket link joining two heater terminals is a **finding whatever style
 the run carries**. Until 2026-09-09 only heater-styled runs were tested, which

@@ -49,6 +49,11 @@ heaters:
     volts: 6.3
     winding: "6.3 V secondary — the transformer's green pair"
     grounded_leg: return
+    pilot:
+      PL1:
+        return: chassis
+        source: >-
+          The C-EG sheet (6330 x 3228) gives the pilot light ONE terminal, the feed passing through it, as the circuit's source says; the lamp returns through its holder to the chassis, which the sheet does not draw and this board does not draw either.
     source: >-
       Fender "Super-Amp" Model 5F4 layout drawing (C-EG), read from the Internet
       Archive's capture of the el34world PDF at its native 6330 x 3228; every

@@ -108,7 +108,7 @@ runs:
 
 --- heaters: what the heater circuits WIRE -------------------------------------
 heaters:
-  - { id, volts, winding?, grounded_leg: feed|return|none, source?,
+  - { id, volts, winding?, grounded_leg: feed|return|none|humdinger|winding-ct, source?,
       sockets: { <socket id>: { feed: [pins], return: [pins] } } }
 
   The drawing's own statement of its heater wiring: supply voltage, the
@@ -1591,9 +1591,25 @@ class Renderer:
         # transformer leads, not as heater ink — so on a board that declares
         # only that, taking the voltage from the declaration would letter the
         # 6.3 V chain's own key "5 V heaters".
-        volts = {c["volts"] for sid, c in self._heater_decl.items()
-                 if self._heater_pins_named(sid)}
+        drawn = [c for sid, c in self._heater_decl.items()
+                 if self._heater_pins_named(sid)]
+        volts = {c["volts"] for c in drawn}
         label = f"{volts.pop():g} V heaters" if len(volts) == 1 else "6.3 V heaters"
+        # A FLOATING PAIR SAYS SO ON THE KEY. Two single green conductors are
+        # how a floating supply's two legs are drawn (one per leg, socket to
+        # socket), and "single lead" alone is the idiom of a single-ended
+        # supply. Where every drawn circuit declares the same floating return
+        # the key states it; a single-ended circuit keeps the bare idiom, and
+        # a board mixing kinds says nothing rather than something half-true.
+        grounded = {c.get("grounded") for c in drawn}
+        floating = {"none": "both legs float",
+                    "winding-ct": "both legs float; the winding's centre tap is grounded",
+                    "humdinger": "both legs float; the return is an artificial centre tap"}
+        clause = ""
+        if len(grounded) == 1:
+            clause = floating.get(next(iter(grounded)), "")
+        if clause:
+            return f"{label} — {idiom} ({clause})" + self._heater_legend_caveat()
         return f"{label} — {idiom}" + self._heater_legend_caveat()
 
     def _heater_legend_caveat(self) -> str:
@@ -1671,7 +1687,12 @@ class Renderer:
                 if not feed or not ret:
                     continue
                 out[str(sid)] = {"circuit": cid, "volts": volts,
-                                 "legs": [feed, ret]}
+                                 "legs": [feed, ret],
+                                 # what the circuit says about its return, for
+                                 # the legend (heater_legend_label): a floating
+                                 # pair drawn as two single conductors must not
+                                 # be lettered as a single-ended supply
+                                 "grounded": str(circuit.get("grounded_leg", "")).lower()}
         return out
 
     # ---- pre-render scans (data the page size depends on) -------------------

@@ -19,7 +19,9 @@ What a layout declares (see docs/layout-schema.md):
       - id: h63
         volts: 6.3
         winding: "6.3 V secondary - green pair"
-        grounded_leg: return          # feed | return | none | humdinger
+        grounded_leg: return          # feed | return | none | humdinger | winding-ct
+        pilot: { PL1: { return: chassis, source: "..." } }   # only where the
+                                      #   sheet draws one lamp terminal (see W4)
         sockets:
           V2: { feed: [7], return: [2] }        # octal: one pin per leg
           V1: { feed: [4, 5], return: [9] }     # noval at 6.3 V: ends strapped,
@@ -62,7 +64,24 @@ Checks, each with a planted fault in --selftest:
       like any other claim: drawn on this board, reaching the ground bus, and
       spanning both supply legs — a grounded part touching one leg is not a
       centre tap, and "neither leg is grounded" on its own is indistinguishable
-      from a return nobody drew.
+      from a return nobody drew. A circuit declared `grounded_leg: winding-ct`
+      floats both legs too, and grounds the WINDING'S OWN centre tap - the
+      blackface arrangement, where the transformer's green-yellow lead is tied
+      to the red-yellow HT centre tap and taken to chassis. It must NAME that
+      lead (`winding_ct: TR1.green-yellow`), and the named lead is checked: a
+      transformer lead of this board, drawn, and reaching the ground bus.
+  W4  the pilot lamp sits ACROSS the supply: both of its terminals are reached
+      by a drawn conductor and they sit on the two different legs (on a
+      single-ended supply the grounded leg IS the chassis, so a terminal on
+      the ground bus is on that leg). Both terminals on one leg is a dark lamp
+      that W1-W3 cannot see; a terminal on a net carrying neither leg is a
+      lamp drawn in series with the chain. Where a sheet draws the lamp with
+      ONE terminal - the feed arriving and the chain leaving on it, the
+      holder's shell being the chassis return - the circuit says so:
+      `pilot: { PL1: { return: chassis, source: "..." } }`, allowed only on a
+      circuit that grounds a leg, and then the one drawn terminal must sit on
+      the fed leg and the other must be drawn to nothing. A lamp that touches
+      no leg of a circuit is not that circuit's lamp and is not checked by it.
 
 A same-socket link joining two heater terminals is a finding whatever STYLE the
 run carries. It used to be tested only on heater-styled runs, which left the
@@ -167,6 +186,13 @@ class HeaterResult:
         self.straps: list[tuple] = []
         # socket id -> what the drawing lands its pair on, for the worklist
         self.doubtful: dict = {}
+        # (circuit id, lamp id, how it sits across the legs) for every pilot
+        # lamp W4 proved - the positive record, so a selftest can tell "the
+        # lamp passed" from "nothing looked at the lamp".
+        self.lamps: list[tuple] = []
+        # Why an undeclared heater layer is still undeclared, where the answer
+        # is not "no factory sheet" but "no copy that resolves the pins yet".
+        self.pending = ""
 
     @property
     def ok(self) -> bool:
@@ -279,12 +305,14 @@ def check_layout(amp_id: str, layout: dict, bom: dict,
         # the pin labels: print what each one's own runs land on, and what that
         # grouping would mean, so the report is a worklist and not a shrug.
         unsourced = str(layout.get("heaters_unsourced", "") or "").strip()
+        res.pending = str(layout.get("heaters_pending", "") or "").strip()
         report_unestablished(
             f"heaters NOT DECLARED - {twisted} heater run(s). Not checked; this "
             f"drawing claims only what its own runs name."
             + ("  NO FACTORY LAYOUT SHEET EXISTS for this amplifier, so these "
                "sockets are not waiting on a reader: " + unsourced
-               if unsourced else ""))
+               if unsourced else "")
+            + ("  READ PENDING: " + res.pending if res.pending else ""))
         return res
 
     res.declared = True
@@ -301,11 +329,39 @@ def check_layout(amp_id: str, layout: dict, bom: dict,
                               f"must state the supply voltage it wires")
             continue
         grounded = str(circuit.get("grounded_leg", "")).lower()
-        if grounded not in ("feed", "return", "none", "humdinger"):
+        if grounded not in ("feed", "return", "none", "humdinger", "winding-ct"):
             res.errors.append(
-                f"{tag}: grounded_leg must be feed | return | none | humdinger, "
-                f"got {circuit.get('grounded_leg')!r}")
+                f"{tag}: grounded_leg must be feed | return | none | humdinger "
+                f"| winding-ct, got {circuit.get('grounded_leg')!r}")
             continue
+        # `winding-ct` - both legs float and the WINDING'S OWN centre tap is
+        # grounded: the blackface arrangement (green-yellow tied to the
+        # red-yellow HT centre tap and taken to chassis). "Neither leg is
+        # grounded" is again not the whole claim - it is also what a floating
+        # pair with no return looks like - so the circuit NAMES the lead, and
+        # the named lead is checked: a transformer lead of this board, drawn,
+        # and reaching the ground bus.
+        winding_ct = circuit.get("winding_ct")
+        if grounded == "winding-ct" and not winding_ct:
+            res.errors.append(
+                f"{tag}: grounded_leg: winding-ct must name the transformer's "
+                f"centre-tap lead that reaches ground, as "
+                f"`winding_ct: TR1.green-yellow`")
+            continue
+        if grounded != "winding-ct" and winding_ct:
+            res.errors.append(
+                f"{tag}: names winding_ct {winding_ct!r} but grounded_leg is "
+                f"{grounded!r} - only a `winding-ct` circuit has one")
+            continue
+        if winding_ct:
+            winding_ct = str(winding_ct)
+            xf, _, lead = winding_ct.partition(".")
+            xf_it = R.off_by_id.get(xf)
+            if not lead or xf_it is None or xf_it.get("kind") not in ("xfmr", "choke"):
+                res.errors.append(
+                    f"{tag}: winding_ct must name a transformer lead of this "
+                    f"board (`<xfmr id>.<lead>`), got {winding_ct!r}")
+                continue
         # `humdinger` - the supply floats and an ARTIFICIAL CENTRE TAP carries
         # the return: a hum-balance pot across the two legs with its wiper to
         # chassis, or a pair of fixed resistors doing the same job. Neither leg
@@ -462,8 +518,22 @@ def check_layout(amp_id: str, layout: dict, bom: dict,
                 f"{tag}: SUPPLY LEGS BRIDGED - the feed leg {sorted(leg_terms[0])} "
                 f"and the return leg {sorted(leg_terms[1])} are drawn on ONE net; "
                 f"a conductor joins them and shorts the {volts:g} V supply")
-        want_gnd = {"feed": 0, "return": 1, "none": -1, "humdinger": -1}[grounded]
+        want_gnd = {"feed": 0, "return": 1, "none": -1, "humdinger": -1,
+                    "winding-ct": -1}[grounded]
         gnd_root = LG.net(GND) if GND in LG.uf.parent else None
+        if grounded == "winding-ct":
+            # The named centre-tap lead is a claim like any other: drawn on
+            # this board, and reaching the ground bus. (Both legs staying off
+            # the bus is proved below with the other grounded_leg values.)
+            if winding_ct not in LG.uf.parent:
+                res.errors.append(
+                    f"{tag}: the winding centre tap {winding_ct} is declared "
+                    f"grounded, but no drawn conductor leaves that lead")
+            elif gnd_root is None or LG.net(winding_ct) != gnd_root:
+                res.errors.append(
+                    f"{tag}: the winding centre tap {winding_ct} is drawn but "
+                    f"does not reach the ground bus - a centre tap grounded "
+                    f"nowhere leaves the supply floating")
         if grounded == "humdinger":
             # Every terminal the named part(s) put on the drawing.
             terms = [t for t in LG.uf.parent
@@ -497,16 +567,13 @@ def check_layout(amp_id: str, layout: dict, bom: dict,
                     f"{tag}: the {name} leg is declared grounded but no drawn "
                     f"conductor takes it to the ground bus")
             if k != want_gnd and on_gnd:
-                if grounded == "humdinger":
-                    says = (f"floats both legs and returns through the "
-                            f"humdinger {hum_refs}")
-                elif grounded == "none":
-                    says = "grounds neither leg"
-                else:
-                    says = f"grounds the {grounded} leg"
                 res.errors.append(
                     f"{tag}: the {name} leg reaches the ground bus, but this "
-                    f"circuit {says}")
+                    f"circuit {_grounding_says(grounded, hum_refs, winding_ct)}")
+
+        # ---- W4: the pilot lamp sits ACROSS the two legs ------------------
+        _check_pilot_lamps(res, R, LG, tag, cid, circuit, grounded, want_gnd,
+                           nets, gnd_root, hum_refs, winding_ct, verbose)
         if verbose:
             res.notes.append(f"  {cid}: {volts:g} V, grounded leg = {grounded}; "
                              f"feed net {sorted(nets[0])} / return net {sorted(nets[1])}")
@@ -522,6 +589,161 @@ def check_layout(amp_id: str, layout: dict, bom: dict,
             f"{' and '.join(f'{v:g} V' for v in declared_v)} circuit(s) above are "
             f"checked; the rest of this drawing's heater layer is NOT.")
     return res
+
+
+def _grounding_says(grounded: str, hum_refs, winding_ct) -> str:
+    """How a circuit's declaration describes its return, for a message that
+    contrasts what the drawing does with what the declaration says."""
+    if grounded == "humdinger":
+        return f"floats both legs and returns through the humdinger {hum_refs}"
+    if grounded == "winding-ct":
+        return (f"floats both legs and grounds the winding's own centre tap "
+                f"({winding_ct})")
+    if grounded == "none":
+        return "grounds neither leg"
+    return f"grounds the {grounded} leg"
+
+
+def _check_pilot_lamps(res, R, LG, tag, cid, circuit, grounded, want_gnd,
+                       nets, gnd_root, hum_refs, winding_ct, verbose) -> None:
+    """W4 - a pilot lamp on this circuit has both terminals reached, one on
+    each leg. Every other check passes a lamp whose two terminals sit on ONE
+    leg: W1 sees every declared socket pin reached, W2 sees the legs apart, W3
+    sees the right leg grounded - and the lamp is dark. So the lamp is proved
+    on its own terms: it is a two-terminal part, and a two-terminal part is
+    lit by the voltage BETWEEN its terminals.
+
+    "On a leg" is membership of that leg's net; on a single-ended supply the
+    grounded leg's net is the ground bus, so a lamp terminal drawn to chassis
+    is on that leg. A terminal on a net that carries neither leg is a lamp
+    drawn in series with the chain (the fault the 5E3 shipped) or a return
+    drawn to nowhere.
+
+    The escape, `pilot: { PL1: { return: chassis } }`, exists because several
+    factory sheets draw the lamp with ONE terminal - the feed arriving and the
+    chain leaving on it - the holder's shell being the return, which those
+    sheets do not draw and this board therefore does not draw either. It is a
+    declaration and is checked as one: only on a circuit that grounds a leg
+    (a lamp from one leg to chassis on a floating pair sits across half a
+    winding), the one drawn terminal on the FED leg, the other terminal drawn
+    to nothing - a declared-undrawn return that the board then draws anyway is
+    a stale declaration and fails too.
+
+    A lamp that touches no leg of this circuit is not this circuit's lamp (a
+    mains-side neon, a lamp on another winding) and is left to whichever
+    circuit it does touch."""
+    legname = ("feed", "return")
+    pilot = circuit.get("pilot") or {}
+    if not isinstance(pilot, dict):
+        res.errors.append(f"{tag}: pilot must map a lamp id to "
+                          f"{{return: chassis, source: ...}}")
+        pilot = {}
+    lamps = [it for it in R.offboard
+             if it.get("kind") == "part" and it.get("glyph") == "lamp"]
+    lamp_ids = {str(it.get("id")) for it in lamps}
+    for lid in sorted(pilot):
+        if str(lid) not in lamp_ids:
+            res.errors.append(
+                f"{tag}: pilot names {lid}, which is not a pilot-lamp glyph "
+                f"on this board")
+
+    def leg_of(term):
+        """0/1 = on that leg's net; 'off' = reached, on neither leg;
+        None = no drawn conductor reaches it."""
+        if term not in LG.uf.parent:
+            return None
+        root = LG.net(term)
+        on = [k for k in (0, 1) if root in nets[k]]
+        if len(on) == 2:
+            return "both"          # W2 has already reported the bridge
+        return on[0] if on else "off"
+
+    for it in lamps:
+        lid = str(it.get("id"))
+        terms = [f"{lid}.a", f"{lid}.b"]
+        where = {t: leg_of(t) for t in terms}
+        esc = pilot.get(lid)
+        touches = any(w in (0, 1, "both") for w in where.values())
+        if esc is None and not touches:
+            continue
+        if any(w == "both" for w in where.values()):
+            continue                # the bridge is the finding, not the lamp
+        if esc is not None:
+            ret = str((esc or {}).get("return", "")).lower() \
+                if isinstance(esc, dict) else ""
+            if ret != "chassis":
+                res.errors.append(
+                    f"{tag}: pilot.{lid}.return must be `chassis` (the only "
+                    f"undrawn return a sheet shows), got {ret!r}")
+                continue
+            if grounded not in ("feed", "return"):
+                res.errors.append(
+                    f"{tag}: W4 pilot {lid} declares its return at the chassis, "
+                    f"but this circuit {_grounding_says(grounded, hum_refs, winding_ct)} "
+                    f"- a lamp from one leg to chassis on a floating supply sits "
+                    f"across half the winding, not across it")
+                continue
+            hot = 1 - want_gnd
+            reached = [t for t in terms if where[t] is not None]
+            if len(reached) == 2:
+                res.errors.append(
+                    f"{tag}: W4 pilot {lid} declares its return at the chassis "
+                    f"as UNDRAWN, but the drawing wires both {terms[0]} and "
+                    f"{terms[1]} - a stale declaration; drop it or the run")
+            elif not reached:
+                res.errors.append(
+                    f"{tag}: W4 DARK LAMP - no drawn conductor reaches {lid} at "
+                    f"all; a chassis return still needs the feed drawn")
+            elif where[reached[0]] != hot:
+                res.errors.append(
+                    f"{tag}: W4 DARK LAMP - {reached[0]} is the lamp's one drawn "
+                    f"terminal and it is not on the {legname[hot]} leg (the fed "
+                    f"one); with its return at the chassis the lamp must take "
+                    f"its feed from the ungrounded leg")
+            else:
+                how = (f"{reached[0]} on the {legname[hot]} leg, return at the "
+                       f"chassis (declared, undrawn: {str(esc.get('source', '')).strip() or 'no source given'})")
+                res.lamps.append((cid, lid, how))
+                if verbose:
+                    res.notes.append(f"  {cid}: pilot {lid} - {how}")
+            continue
+        # No escape: both terminals drawn, one on each leg.
+        unreached = [t for t in terms if where[t] is None]
+        if unreached:
+            res.errors.append(
+                f"{tag}: W4 DARK LAMP - {unreached[0]} is reached by no drawn "
+                f"conductor; a pilot lamp sits across the supply's two legs. "
+                f"(Where the sheet draws the lamp with one terminal and its "
+                f"return is the holder's shell, declare `pilot: {{{lid}: "
+                f"{{return: chassis, source: ...}}}}`.)")
+            continue
+        off = [t for t in terms if where[t] == "off"]
+        if off:
+            t = off[0]
+            if gnd_root is not None and LG.net(t) == gnd_root:
+                res.errors.append(
+                    f"{tag}: W4 DARK LAMP - {t} returns to the chassis, but this "
+                    f"circuit {_grounding_says(grounded, hum_refs, winding_ct)}; "
+                    f"a lamp from one leg to chassis on a floating supply sits "
+                    f"across half the winding, not across it")
+            else:
+                res.errors.append(
+                    f"{tag}: W4 DARK LAMP - {t} is on a net that carries neither "
+                    f"supply leg: the lamp is drawn IN SERIES with the chain "
+                    f"(its other terminal feeds the heaters) or its return "
+                    f"goes nowhere")
+            continue
+        if where[terms[0]] == where[terms[1]]:
+            res.errors.append(
+                f"{tag}: W4 DARK LAMP - both terminals of {lid} are on the "
+                f"{legname[where[terms[0]]]} leg; a lamp across one leg sees "
+                f"no voltage")
+            continue
+        how = (f"{terms[0]} on the {legname[where[terms[0]]]} leg, {terms[1]} "
+               f"on the {legname[where[terms[1]]]} leg")
+        res.lamps.append((cid, lid, how))
+        if verbose:
+            res.notes.append(f"  {cid}: pilot {lid} - {how}")
 
 
 # ---------------------------------------------------------------------------
@@ -645,7 +867,9 @@ WORKLIST_HEADER = """\
 #
 # CLEARING AN ENTRY. Read that amplifier's own drawing, add a `heaters:` block
 # to its layout.yaml stating what it shows, correct the runs to match, and
-# re-export. The count in `summary` is the size of the job.
+# re-export. The count in `summary` is the size of the job. An entry carrying
+# `read_pending_because` has a factory sheet that no located copy resolves;
+# the string says which copies were tried, so the next attempt starts there.
 """
 
 
@@ -682,6 +906,12 @@ def worklist(results: list | None = None) -> dict:
         unsourced = str(layout.get("heaters_unsourced", "") or "").strip()
         if unsourced and not entry["fully_established"]:
             entry["no_factory_layout_sheet"] = unsourced
+        # A THIRD KIND OF GAP: a factory sheet exists but no copy found so far
+        # resolves the socket pins. Recorded so the next reader starts from
+        # what was tried, not from the vague backlog again.
+        pending = str(layout.get("heaters_pending", "") or "").strip()
+        if pending and not entry["fully_established"]:
+            entry["read_pending_because"] = pending
         entry["centre_tapped_sockets"] = {
             sid: {"tube": d["tube"], "drawn_on_pins": list(d["names"]),
                   "grouping": ("opposite-legs" if d["opposite"] else "not-drawn-as-a-pair"),
@@ -877,14 +1107,111 @@ def selftest() -> int:
                     m["runs"].append({"from": "V3.pin2", "to": "RHUM.a"}),
                     m["runs"].append({"from": "V3.pin8", "to": "RHUM.b"}))),
     ]
-    for hole, label, fn in cases:
+    # ---- `winding-ct` and W4 (2026-09-10) ----------------------------------
+    # The 5F1's transformer has no centre-tap lead and its sheet draws the
+    # lamp with one terminal; the fixtures below give the layout what each
+    # rule needs so that every case fails on the rule under test and not on a
+    # missing endpoint. A transformer lead is a run endpoint like any other,
+    # so a lead the layout never names comes into being by drawing it.
+    def plant_ct(m, to=None):
+        m["runs"].append({"from": "PT.green-yellow", "to": to or [1.45, 3.0]})
+
+    def h5_winding_ct(m, lead="PT.green-yellow"):
+        m["heaters"][1]["grounded_leg"] = "winding-ct"
+        m["heaters"][1]["winding_ct"] = lead
+
+    def drop_escape(m):
+        m["heaters"][0].pop("pilot", None)
+
+    def repoint(m, frm, to, new_frm, new_to):
+        for r in m["runs"]:
+            if r.get("from") == frm and r.get("to") == to:
+                r["from"], r["to"] = new_frm, new_to
+                return
+        raise AssertionError(f"selftest fixture: no run {frm} -> {to}")
+
+    cases += [
+        ("winding-ct names no lead",
+         "a circuit claims a grounded winding centre tap without naming the lead",
+         lambda m: m["heaters"][1].__setitem__("grounded_leg", "winding-ct"),
+         "must name the transformer's centre-tap lead"),
+        ("winding-ct lead not drawn",
+         "the named centre-tap lead is nowhere on the drawing",
+         lambda m: h5_winding_ct(m),
+         "no drawn conductor leaves that lead"),
+        ("winding-ct lead off ground",
+         "the named centre-tap lead is drawn, to a bare eyelet off the bus",
+         lambda m: (h5_winding_ct(m), plant_ct(m, [0.5, 3.0])),
+         "does not reach the ground bus"),
+        ("winding-ct not a xfmr lead",
+         "the centre tap is named on a socket pin",
+         lambda m: h5_winding_ct(m, "V3.pin2"),
+         "must name a transformer lead"),
+        ("winding-ct but leg grounded",
+         "the 6.3 V circuit claims a grounded centre tap while the drawing "
+         "still grounds its return leg",
+         lambda m: (m["heaters"][0].__setitem__("grounded_leg", "winding-ct"),
+                    m["heaters"][0].__setitem__("winding_ct", "PT.green-yellow"),
+                    plant_ct(m)),
+         "grounds the winding's own centre tap"),
+        ("W4 lamp across one leg",
+         "the lamp's second terminal is drawn to the SAME leg as its first",
+         lambda m: (drop_escape(m),
+                    m["runs"].append({"from": "PL1.b", "to": "V2.pin7",
+                                      "style": "heater"})),
+         "both terminals of PL1 are on the feed leg"),
+        ("W4 lamp return undrawn",
+         "one lamp terminal is drawn to nothing and no chassis return is declared",
+         lambda m: drop_escape(m),
+         "reached by no drawn conductor"),
+        ("W4 lamp in series",
+         "the feed enters one lamp terminal and the chain leaves the OTHER "
+         "- the fault the 5E3 shipped",
+         lambda m: (drop_escape(m),
+                    repoint(m, "PL1.a", "V2.pin7", "PL1.b", "V2.pin7")),
+         "IN SERIES"),
+        ("W4 lamp across the return",
+         "both lamp terminals are drawn to the chassis",
+         lambda m: (drop_escape(m),
+                    repoint(m, "PT.green2", "PL1.a", "PT.green2", "V2.pin7"),
+                    repoint(m, "PL1.a", "V2.pin7", "PL1.a", [1.45, 3.0]),
+                    m["runs"].append({"from": "PL1.b", "to": [1.45, 3.4]})),
+         "both terminals of PL1 are on the return leg"),
+        ("W4 escape on floating supply",
+         "a chassis return is declared on a circuit that grounds no leg",
+         lambda m: m["heaters"][1].__setitem__("pilot", m["heaters"][0].pop("pilot")),
+         "grounds neither leg"),
+        ("W4 escape but return drawn",
+         "the return is declared undrawn and the drawing wires it anyway",
+         lambda m: m["runs"].append({"from": "PL1.b", "to": [1.45, 3.0],
+                                     "style": "heater"}),
+         "stale declaration"),
+        ("W4 escape names no lamp",
+         "the declaration names a lamp the board does not have",
+         lambda m: m["heaters"][0].__setitem__(
+             "pilot", {"PLX": {"return": "chassis"}}),
+         "not a pilot-lamp glyph"),
+        ("W4 escape, feed on ground",
+         "with the return declared at the chassis, the one drawn terminal is "
+         "itself on the grounded leg",
+         lambda m: (repoint(m, "PT.green2", "PL1.a", "PT.green2", "V2.pin7"),
+                    repoint(m, "PL1.a", "V2.pin7", "PL1.a", [1.45, 3.0])),
+         "not on the feed leg"),
+    ]
+    for case in cases:
+        hole, label, fn = case[:3]
+        expect = case[3] if len(case) > 3 else None
         res = check_layout(amp, _mutate(layout, fn), bom)
-        if res.errors:
-            print(f"  ok   {hole:<22} CAUGHT  ({label})")
-            print(f"         -> {res.errors[0]}")
+        hit = [e for e in res.errors if expect is None or expect in e]
+        if hit:
+            print(f"  ok   {hole:<26} CAUGHT  ({label})")
+            print(f"         -> {hit[0]}")
         else:
             fails += 1
-            print(f"  FAIL {hole:<22} ESCAPED ({label})")
+            print(f"  FAIL {hole:<26} ESCAPED ({label})"
+                  + (f" - expected {expect!r}" if expect else ""))
+            for e in res.errors[:3]:
+                print(f"         got: {e}")
 
     # A RULE THAT ONLY REJECTS IS USELESS. The point of `humdinger` is to make
     # a floating pair with an artificial centre tap DECLARABLE, so the positive
@@ -912,6 +1239,46 @@ def selftest() -> int:
               f"tap was rejected:")
         for e in res.errors:
             print(f"         {e}")
+
+    # A GROUNDED WINDING CENTRE TAP IS DECLARABLE: name the lead, draw it to
+    # the bus, keep both legs off it - PASSES.
+    def good_winding_ct(m):
+        h5_winding_ct(m)
+        plant_ct(m)
+    res = check_layout(amp, _mutate(layout, good_winding_ct), bom)
+    if res.ok and res.declared:
+        print(f"  ok   {'winding-ct DECLARABLE':<26} a named centre-tap lead drawn "
+              f"to the bus, both legs floating, PASSES")
+    else:
+        fails += 1
+        print(f"  FAIL {'winding-ct DECLARABLE':<26} a correct grounded centre tap "
+              f"was rejected:")
+        for e in res.errors:
+            print(f"         {e}")
+
+    # W4 LOOKED AT THE LAMP. A PASS that never examined the lamp would prove
+    # nothing, so the positive record is asserted: the baseline's declared
+    # chassis return, and a lamp DRAWN across both legs.
+    seen = [l for l in base.lamps if l[1] == "PL1" and "chassis" in l[2]]
+    if seen:
+        print(f"  ok   {'W4 lamp seen (declared)':<26} {seen[0][2][:70]}...")
+    else:
+        fails += 1
+        print(f"  FAIL {'W4 lamp seen (declared)':<26} the baseline's lamp was "
+              f"not examined: {base.lamps!r}")
+
+    def drawn_return(m):
+        drop_escape(m)
+        m["runs"].append({"from": "PL1.b", "to": [1.45, 3.0], "style": "heater"})
+    res = check_layout(amp, _mutate(layout, drawn_return), bom)
+    seen = [l for l in res.lamps if l[1] == "PL1" and "PL1.b on the return leg" in l[2]]
+    if res.ok and seen:
+        print(f"  ok   {'W4 lamp DRAWN across':<26} feed on one terminal, chassis "
+              f"on the other, PASSES: {seen[0][2]}")
+    else:
+        fails += 1
+        print(f"  FAIL {'W4 lamp DRAWN across':<26} a lamp drawn across both legs "
+              f"was rejected or not seen: {res.errors[:2]!r} {res.lamps!r}")
 
     # THE PARTIAL-DECLARATION MARKER. A layout that declares SOME of its heater
     # layer must keep the "not established" markers for the rest — the legend
@@ -964,7 +1331,7 @@ def selftest() -> int:
     else:
         print(f"  ok   {'T1 BASELINE':<22} every tube file's supplies agree with its basing")
 
-    print(f"\nselftest: {len(cases) + 5} case(s), {fails} failure(s)")
+    print(f"\nselftest: {len(cases) + 8} case(s), {fails} failure(s)")
     return 1 if fails else 0
 
 

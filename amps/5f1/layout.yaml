@@ -44,6 +44,11 @@ heaters:
     volts: 6.3
     winding: "6.3 V secondary — the transformer's green pair"
     grounded_leg: return
+    pilot:
+      PL1:
+        return: chassis
+        source: >-
+          Page 2 draws the pilot lite with ONE terminal, the green feed arriving and the chain leaving on it (the published 1306 x 994 copy resolves that much); the lamp returns through its holder to the chassis, which the sheet does not draw and this board does not draw either.
     source: >-
       Fender 'Champ-Amp' 5F1 schematic and layout drawing (K-EE): page 1 grounds
       one lead of the 6.3 V secondary and arrows the other "TO ALL 6.3 VOLT

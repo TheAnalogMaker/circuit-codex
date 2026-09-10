@@ -46,7 +46,10 @@ heaters:
       parallel grouping; at both 5881 sockets the two X stubs sit at pins 2 and
       7, which are that valve's only heater pins. Which leg is called feed and
       which return is this drawing's own choice and carries no claim, since
-      neither is grounded.
+      neither is grounded. The two greens run up to the pilot light, one to
+      each of its terminals, and from each terminal an X-marked arrow leaves for
+      the heaters: the lamp sits across the pair, and the chain is arrowed from
+      both of its terminals.
     sockets:
       V1: { feed: [4, 5], return: [9] }     # 12AY7 at 6.3 V — ends strapped, centre tap the other leg
       V2: { feed: [4, 5], return: [9] }     # 12AX7, same
@@ -348,7 +351,8 @@ runs:
   # centre tap. It runs the same lane a shade deeper: the pair is twisted in the
   # chassis, but with the winding's own centre tap grounded the two legs are
   # separate conductors and the drawing states them as such.
-  - { from: PT.green2, to: V4.pin2, style: heater, via: [[-1.55, 3.95], [6.1, 3.95]] }
+  - { from: PT.green2, to: PL1.b, style: heater, via: [[-1.75, 2.85]] }               # second leg → the lamp's other terminal
+  - { from: PL1.b, to: V4.pin2, style: heater, via: [[-1.55, 3.95], [6.1, 3.95]] }
   - { from: V4.pin2, to: V5.pin2, style: heater, via: [[6.1, 3.97], [10.1, 3.97]] }
   - { from: V5.pin2, to: V3.pin9, style: heater, via: [[10.1, 3.99], [20.6, 3.99]] }
   - { from: V3.pin9, to: V2.pin9, style: heater, via: [[21, 3.95], [31.6, 3.95]] }

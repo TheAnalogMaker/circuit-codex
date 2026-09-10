@@ -75,7 +75,8 @@ python3 pipeline/render_og.py --check        # per-amp social cards match their 
 python3 pipeline/verify_layout_nets.py       # layout↔netlist equivalence (+--selftest)
 python3 pipeline/check_heaters.py --selftest && \
 python3 pipeline/check_heaters.py            # heater wiring vs the amp's own declared
-                                  #   supply, connection groups and returns —
+                                  #   supply, connection groups and returns, and
+                                  #   the pilot lamp ACROSS the two legs (W4) —
                                   #   a SEPARATE claim from the DC equivalence
                                   #   above, which excludes heaters entirely.
                                   #   A layout with no `heaters:` block prints

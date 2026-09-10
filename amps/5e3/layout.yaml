@@ -34,6 +34,11 @@ heaters:
     volts: 6.3
     winding: "6.3 V secondary — the transformer's green pair"
     grounded_leg: return
+    pilot:
+      PL1:
+        return: chassis
+        source: >-
+          F-EE page 1 (6361 x 3988) draws the pilot lite with ONE terminal, the green feed arriving and the chain leaving on it — the feed lands on that terminal and goes on from it, the lamp is not in series with anything; the lamp returns through its holder to the chassis, which the sheet does not draw and this board does not draw either.
     source: >-
       F-EE page 2 (schematic) grounds one lead of the 6.3 V secondary at the
       transformer and arrows the other "TO ALL 6.3 VOLT FILAMENTS AND PILOT
@@ -270,7 +275,7 @@ runs:
   # runs below.
   - { from: PT.green1, to: [1.45, 1.6], style: heater, via: [[0.6, 1.35]] }      # grounded 6.3 V leg
   - { from: PT.green2, to: PL1.a, style: heater, via: [[-0.6, 1.05]] }           # 6.3 V feed → pilot lamp
-  - { from: PL1.b, to: V3.pin7, style: heater, via: [[-1.2, 3.6], [5, 3.6]] }    # feed → V3 heater
+  - { from: PL1.a, to: V3.pin7, style: heater, via: [[-1.2, 3.6], [5, 3.6]] }   # the feed leaves the SAME terminal it arrived on (the sheet's one dot)    # feed → V3 heater
   - { from: V3.pin7, to: V4.pin7, style: heater, via: [[5.4, 3.62], [8.5, 3.62]] }   # V3 → V4 heater
   - { from: V4.pin7, to: V2.pin4, style: heater, via: [[9.0, 3.64], [18, 3.64]] }    # V4 → V2 heater
   - { from: V2.pin4, to: V2.pin5, style: heater }   # 12AX7 ends strapped for 6.3 V parallel

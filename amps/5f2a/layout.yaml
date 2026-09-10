@@ -70,6 +70,11 @@ heaters:
     volts: 6.3
     winding: "6.3 V secondary — the transformer's green pair"
     grounded_leg: return
+    pilot:
+      PL1:
+        return: chassis
+        source: >-
+          The K-EG layout page (4882 x 4648) gives the pilot light ONE terminal, the green feed arriving and the chain leaving on it; the lamp returns through its holder to the chassis, which the sheet does not draw and this board does not draw either.
     source: >-
       Fender "Princeton" Model 5F2-A drawing (K-EG), read at its full published
       resolution; socket circles and pin angles were fitted in pixels rather than

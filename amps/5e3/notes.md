@@ -28,6 +28,16 @@ network's capacitors AC-couple the grid. The stage therefore biases itself:
 simulation puts the cathode at 45.8 V and the junction at 44.6 V — a clean
 −1.2 V bias — with the plate (56k from B+3) at 190 V.
 
+## The pilot lamp, redrawn
+
+The board used to draw the pilot lamp in series with the heater chain — the
+green from the transformer into one terminal, the chain leaving from the other
+— which lights nothing and would blow the lamp. The F-EE layout page draws the
+lamp with one terminal, the feed arriving and the chain leaving on it, and its
+return is the holder's shell to the chassis, which the sheet does not draw; the
+board now draws what the sheet draws and declares the chassis return, and the
+heater gate proves every pilot lamp sits across the supply's two legs.
+
 ## Verification
 
 Every component value comes from the published Fender drawing. The F-EE sheet

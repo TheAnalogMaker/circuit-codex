@@ -40,6 +40,11 @@ heaters:
     volts: 6.3
     winding: "6.3 V secondary — the transformer's green pair"
     grounded_leg: return
+    pilot:
+      PL1:
+        return: chassis
+        source: >-
+          The H-EE layout page (5194 x 4394) draws the pilot lite with ONE terminal, the green from the transformer arriving and the feed leaving on it; the lamp returns through its holder to the chassis, which the sheet does not draw and this board does not draw either.
     source: >-
       Fender "Champ-Amp" Model 5E1 layout drawing (H-EE), read at its full
       published resolution; socket circles and pin angles were fitted in pixels
