@@ -30,15 +30,16 @@ s.wire(44, 94, 44, 106)
 s.junction(44, 94)
 s.junction(44, 106)
 s.junction(44, 100)
-# 1M grid leak drops to ground from the grid tee at x=48
-s.wire(44, 100, 48, 100)
-s.junction(48, 100)
-s.sym("R", "R3", "1M", 48, 103.81)
-s.gnd(48, 107.62)
+# 1M grid leak R3 stands at JACK 1, tip node to ground — the jack side of the
+# 68k stopper, as the factory sheet draws it (and as the board mounts it).
+# Drawn upward off the jack-1 line: the jack-2 line runs 12 mm below it.
+s.junction(26, 94)
+s.sym("R", "R3", "1M", 26, 90.19, lx=-7.4)
+s.gnd(26, 86.38, 90)
 
 # ---- V1A input stage ----------------------------------------------------
 t1a = s.triode("V1A", "12AX7", 62, 100)
-s.wire(48, 100, t1a["g"][0], 100)     # grid tee -> V1A grid
+s.wire(44, 100, t1a["g"][0], 100)     # grid tee -> V1A grid
 # cathode 1.5k bypassed by 25u
 s.wire(62, 107.62, 62, 110)
 s.shunt_rc("R5", "1.5k", "C1", "25u", 62, 110)

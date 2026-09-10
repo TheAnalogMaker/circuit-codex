@@ -29,10 +29,12 @@ s.wire(33, 100, 41.91, 100)
 s.sym("R", "R3", "68k", 45.72, 100, 90, lx=-3.2, ly=-6.0)
 s.wire(49.53, 100, 53.34, 100)
 s.sym("TRIODE", "V1A", "12AX7", 60.96, 100, lx=6.0, ly=-6.4)
-s.junction(53.34, 100)
-s.sym("R", "R1", "1M", 53.34, 110.49)
-s.wire(53.34, 100, 53.34, 106.68)
-s.gnd(53.34, 114.3)
+# 1M grid leak R1 hangs from the INPUT jack's tip node, jack side of the 68k
+# stopper, as the factory sheet draws it (jack 1 tip -> 1 MEG -> ground).
+s.junction(37.5, 100)
+s.wire(37.5, 100, 37.5, 106.68)
+s.sym("R", "R1", "1M", 37.5, 110.49)
+s.gnd(37.5, 114.3)
 # cathode
 s.wire(60.96, 107.62, 60.96, 111.76)
 s.junction(60.96, 111.76)

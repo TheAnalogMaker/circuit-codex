@@ -35,8 +35,13 @@ s.wire(8, YL, l, YL)
 s.wire(r, YL, GB, YL)
 s.wire(GB, YH, GB, YL)
 s.junction(GB, 62)
-s.sym("R", "R3", "1M", GB, YL + 3.81)          # grid leak, at the jacks
-s.gnd(GB, YL + 7.62)
+# R3 1M grid leak stands at JACK 1: tip node to ground, the jack side of the
+# 68k stopper, as the factory sheet draws it (jack 1 tip -> 1 MEG -> ground,
+# the 68k pair to the grid). Drawn upward off the IN 1 line: IN 2 runs 8 mm
+# below it.
+s.junction(11.1, YH)
+s.sym("R", "R3", "1M", 11.1, YH - 3.81, lx=-6.8)
+s.gnd(11.1, YH - 7.62, 90)
 
 # The factory schematic prints its own pin numbers on this socket: the input
 # stage's plate is pin 1 at +200 V and its cathode pin 3 at +1.8 V, so the input

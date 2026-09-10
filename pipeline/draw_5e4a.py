@@ -29,9 +29,13 @@ for ch, (y, jack, gref, pref, plref, cref, vref, mref) in enumerate([
     s.wire(30.48, y, l, y)
     t = s.triode(pref, "12AY7", 49.53, y)
     s.wire(r, y, t["g"][0], y)
-    s.junction(t["g"][0] - 3.81, y)
-    s.sym("R", gref, "1M", t["g"][0] - 3.81, y + 3.81)
-    s.gnd(t["g"][0] - 3.81, y + 7.62)
+    # The 1M grid leak hangs from the JACK-1 tip node, jack side of the 68k
+    # stopper, as the factory sheet draws it (jack 1 tip -> 1 MEG -> ground;
+    # the stoppers run from the jack tips to the grid). The stopper carries
+    # no DC, so the netlist sees one node either way.
+    s.junction(l, y)
+    s.sym("R", gref, "1M", l, y + 3.81, lx=2.2, ly=0.0)
+    s.gnd(l, y + 7.62)
     s.plate_load(plref, "100k", t["p"], "B+4")
     # coupler -> volume pot -> 270k mixer into the shared V2A grid line
     ty = y - 7.62 - 3.48                # plate stub tee
