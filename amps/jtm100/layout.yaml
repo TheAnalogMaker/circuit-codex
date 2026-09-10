@@ -348,3 +348,16 @@ net_map:
     RG2: "channel II grid leak — 1 MΩ chassis-mounted at the input jacks, off the board"
     RG3: "V3A grid return — realised through the volume pots (VR1/VR2) and the 270 kΩ channel mixers (RM1/RM2) to ground, not a discrete board resistor"
     RPRES: "the 5 kΩ presence pot VR7, chassis-mounted in series in the phase-inverter tail"
+  # Parts the sheet draws that this board neither places nor wires — each
+  # read off the cited layout drawing (sheet ↔ board gate, 2026-09-10).
+  not_on_board:
+    L1: "20 H choke — a chassis part (caption): the 1959T drawing (read at 1068 × 759) draws it at the far right beside the HT reservoir. This derived board draws it only as the off-board choke stub (kind: choke), which the sheet ↔ board gate has no two-lead vocabulary for"
+    C11: "0.1 µF presence capacitor — drawn from the 5 kΩ presence pot's wiper to ground on the 1959T drawing; mounted at the presence pot on this derived board (caption)"
+    C23: "100 pF bright cap — drawn across the channel II 1 MΩ volume on the 1959T drawing; mounted across that control on this derived board (caption)"
+
+# Board-scope rules for the sheet ↔ board gate: parts the sheet draws that
+# this board deliberately does not, by designator glob, each with where the
+# cited layout drawing mounts them (2026-09-10).
+scope:
+  not_drawn:
+    - { match: "R[12]s", why: "68 kΩ input grid stoppers — drawn one per jack at the four input jacks on the 1959T drawing; at the jacks, off this derived board (caption)" }

@@ -300,3 +300,13 @@ net_map:
     RG1: "V1A grid leak — 1 MΩ chassis-mounted at the bright input jack, off the board"
     RG2: "V1B grid leak — 1 MΩ chassis-mounted at the normal input jack, off the board"
     RGMIX: "V2A grid return — realised through the volume pots (VR1/VR2) and 470k channel mixers (RM1/RM2) to ground, not a discrete board resistor"
+
+# Board-scope rules for the sheet ↔ board gate: parts the sheet draws that
+# this board deliberately does not, by designator glob, each with where the
+# cited layout drawing mounts them (2026-09-10).
+scope:
+  not_drawn:
+    - { match: "R[1-4]s", why: "68 kΩ input grid stoppers — drawn one per jack at the four input jacks on the Unicord 70-19-11 drawing (read at 2023 × 1304) beside the 1M leaks; at the jacks, off this derived board (caption)" }
+    - { match: "C[56]", why: "bright caps (.005 across channel I's 1 MΩ volume, 500 pF across channel II's) — drawn across the volume pots on the Unicord 70-19-11 drawing; mounted at those controls on this derived board (caption)" }
+    - { match: "RB[12]", why: "470 kΩ bright-network resistors — drawn in series with each bright cap across the 1 MΩ volume pots on the Unicord 70-19-11 drawing; mounted at those controls on this derived board (caption)" }
+    - { match: "C2[34]", why: ".22 µF rectifier snubbers — drawn across the two halves of the HT secondary at the diode strings on the Unicord 70-19-11 drawing; at the rectifier, off this derived board (caption)" }

@@ -246,3 +246,7 @@ net_map:
   # coverage, never a failure (their nodes still have to check out):
   netlist_unplaced:
     RMIX: "the inverter's DC grid return, modelled as one 470 kΩ from the driver grid to ground. On the board it is the 470 kΩ mixing resistor RM1 in series with the 1 MΩ channel-1 volume VR1 — no grid current flows, so neither the pot's setting nor channel 2's own 100 kΩ mixing leg moves this operating point"
+  # Parts the sheet draws that this board neither places nor wires — each
+  # read off the cited layout drawing (sheet ↔ board gate, 2026-09-10).
+  not_on_board:
+    L1: "3 H smoothing choke — a chassis part: the GA-40 drawing (read at 1022 × 758, the only copy) draws it between the two filter cans beside the 5Y3GT. This derived board draws it only as the off-board choke stub (kind: choke, per the caption), which the sheet ↔ board gate has no two-lead vocabulary for"

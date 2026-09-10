@@ -310,3 +310,14 @@ net_map:
     RG1: "V1A grid leak — 1 MΩ chassis-mounted at the bright input jack, off the board"
     RG2: "V1B grid leak — 1 MΩ chassis-mounted at the normal input jack, off the board"
     RG3: "V3A grid return — realised through the volume pots (VR1/VR2) and 270k channel mixers to ground, not a discrete board resistor"
+  # Parts the sheet draws that this board neither places nor wires — each
+  # read off the cited layout drawing (sheet ↔ board gate, 2026-09-10).
+  not_on_board:
+    L1: "20 H choke — a chassis part: the JTM45 drawing (read at 2194 × 1539) draws it at the top right above the KT66 pair, lettered 20H. This derived board draws it only as the off-board choke stub (kind: choke), which the sheet ↔ board gate has no two-lead vocabulary for"
+
+# Board-scope rules for the sheet ↔ board gate: parts the sheet draws that
+# this board deliberately does not, by designator glob, each with where the
+# cited layout drawing mounts them (2026-09-10).
+scope:
+  not_drawn:
+    - { match: "R[12]s", why: "68 kΩ input grid stoppers — drawn one per jack at the four input jacks on the JTM45 drawing beside the 1M leaks; at the jacks, off this derived board (caption)" }

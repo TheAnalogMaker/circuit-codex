@@ -378,3 +378,8 @@ net_map:
     RVR1: "channel 1 volume VR1 — the netlist models its DC grid return as one grid-leak (G1B -> 0); the pot itself is a panel control, not a board part"
     RVR4: "channel 2 volume VR4 — the same, for G2B"
     RG3B: "the driver grid's DC return, lumped at 1 MOhm (G3B -> 0). It is not a discrete resistor anywhere: the return runs back out through both 270 kOhm mixing resistors, each tone board's 120 kOhm link and bass pot, to that board's 22 kOhm foot"
+  # Parts the sheet draws that this board neither places nor wires — each
+  # read off the cited layout drawing (sheet ↔ board gate, 2026-09-10).
+  not_on_board:
+    C18: "0.047 µF · 600 V mains-side capacitor — the Ampeg 591722 rev C drawing (read at 3328 × 5080) hangs it at the switched AC outlet / POLAR. SW. on the mains side of the transformer primary; this derived board draws nothing beyond the primary (caption)"
+    CM2: "0.047 µF · 600 V mains-side capacitor, the pair to C18 (the drawing's second C19) — at the switched AC outlet / POLAR. SW. on the Ampeg 591722 drawing; this derived board draws nothing beyond the transformer primary (caption)"

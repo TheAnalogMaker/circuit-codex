@@ -328,3 +328,18 @@ net_map:
     RCHOKE: "filter choke T3, chassis-mounted; the netlist models only its DC resistance"
     R2: "V1a grid leak — 1 MΩ mounted at the input jacks, off the board"
     RGV1: "V1b grid return — realised through the 1 MΩ preamp volume VR1, not a discrete board resistor"
+  # Parts the sheet draws that this board neither places nor wires — each
+  # read off the cited layout drawing (sheet ↔ board gate, 2026-09-10).
+  not_on_board:
+    T3: "choke — the 2204PWR.DGM sheet (read at 2051 × 1408) draws 'T3 Choke' in the HT line between the reservoir and the HT fuse; a chassis part, drawn on this derived board only as the off-board choke stub (kind: choke), which the sheet ↔ board gate has no two-lead vocabulary for"
+    C17: "0.1 µF presence capacitor — drawn from the feedback node to the VR6 22k presence pot on the 2204PWR.DGM sheet; mounted at the presence control on this derived board (caption)"
+    R14: "the panel link the 2204PRE.DGM sheet letters link 'R14', from the Treble pot's wiper to the Master Volume — a wire at the controls, not a board part (caption)"
+
+# Board-scope rules for the sheet ↔ board gate: parts the sheet draws that
+# this board deliberately does not, by designator glob, each with where the
+# cited layout drawing mounts them (2026-09-10).
+scope:
+  not_drawn:
+    - { match: "C[45]", why: "peaking caps (C4 470p across R5, C5 1n0 across the preamp volume's upper section) — drawn at VR1 on the 2204PRE.DGM sheet (read at 2071 × 1436); mounted at that control on this derived board (caption)" }
+    - { match: "F[12]", why: "the T2A mains fuse F1 at the mains inlet and the T500mA HT fuse F2 in the HT line after the choke, on the 2204PWR.DGM sheet — chassis fuseholders (caption: fuses and switches are chassis hardware)" }
+    - { match: "R3[567]", why: "D.I. attenuator (R35 2k2, R36 100R, R37 560R) — drawn at the D.I. jack J5 off the output-transformer secondary on the 2204PWR.DGM sheet; at its own jack, off this derived board (caption)" }

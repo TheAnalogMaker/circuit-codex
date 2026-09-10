@@ -367,3 +367,17 @@ net_map:
     RG1: "V1A grid leak — 1 MΩ chassis-mounted at the channel I input jacks, off the board"
     RG2: "V1B grid leak — 1 MΩ chassis-mounted at the channel II input jacks, off the board"
     RGMIX: "V2A grid return — realised through the volume pots (VR1/VR2) and the 470k channel mixers (RM1/RM2) to ground, not a discrete board resistor"
+  # Parts the sheet draws that this board neither places nor wires — each
+  # read off the cited layout drawing (sheet ↔ board gate, 2026-09-10).
+  not_on_board:
+    C13: "0.1 µF presence capacitor — drawn from the 5 kΩ presence pot's wiper to ground on the Unicord 70-6-11 drawing (read at 1377 × 904); mounted at the presence pot on this derived board (caption)"
+    C29: "0.22 µF HT snubber — drawn across one half of the HT secondary at the transformer on the Unicord 70-6-11 drawing, on the winding side of the bridge; a transformer-side part this derived board does not place (it draws the winding as transformer leads)"
+    C30: "0.22 µF HT snubber — drawn across the other half of the HT secondary at the transformer on the Unicord 70-6-11 drawing; a transformer-side part this derived board does not place"
+
+# Board-scope rules for the sheet ↔ board gate: parts the sheet draws that
+# this board deliberately does not, by designator glob, each with where the
+# cited layout drawing mounts them (2026-09-10).
+scope:
+  not_drawn:
+    - { match: "R[1-4]s", why: "68 kΩ input grid stoppers — drawn one per jack at the four input jacks on the Unicord 70-6-11 drawing beside the 1M leaks; at the jacks, off this derived board (caption)" }
+    - { match: "C[56]", why: "bright caps (.005 across channel I's 1 MΩ volume, 500 pF across channel II's) — drawn across the volume pots on the Unicord 70-6-11 drawing; mounted at those controls on this derived board (caption)" }

@@ -411,3 +411,10 @@ net_map:
     RG1: "V1A grid leak — 1 MΩ chassis-mounted at the Brilliant input jacks, off the board"
     RG2: "V1B grid leak — 1 MΩ chassis-mounted at the Normal input jacks, off the board"
     RMV: "V3 driver grid return — realised through the master volume (VR6), which is the only DC path down from that grid, not a discrete board resistor"
+
+# Board-scope rules for the sheet ↔ board gate: parts the sheet draws that
+# this board deliberately does not, by designator glob, each with where the
+# cited layout drawing mounts them (2026-09-10).
+scope:
+  not_drawn:
+    - { match: "R[1-4]s", why: "68 kΩ input grid stoppers — both cited drawings hang one from each of the four input jacks (the Huss DR103 wiring diagram, read at 2417 × 1795, draws each 68k on its jack at the chassis' left edge beside the 1M leak); at the jacks, off this derived board (caption)" }
