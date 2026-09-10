@@ -16,7 +16,7 @@ board:
   rows: 2
   cols: 186
   title: "6G6-B · eyelet board layout"
-caption: "Redrawn from the published Fender 'Bassman' Model 6G6-B (E-FB) layout drawing — principal board components, in the order the drawing shows them. Each channel's Bass/Treble/Volume tone network is drawn in full: the Normal channel's 100 kΩ slope and its three capacitors stand on the board, while its 6.8 kΩ foot and 0.005 µF bleed hang at the Bass and Treble pots, as the sheet draws them; the Treble pot is the tapped 350 kΩ/70 kΩ part, its tap carrying the 0.1 µF. (The Bass channel's own Treble control sits in the shared driver bottle's own signal path, per the front-panel silkscreen order.) The 6.3 V heater chain (green twisted pair, PT -> pilot lamp -> the two 5881 outputs -> the phase-inverter 7025 -> the Normal-channel 7025 -> the driver 7025 -> the Bass-channel 7025) is routed in the drawing's own socket order. Not a trace or a dimensioned reproduction."
+caption: "Redrawn from the published Fender 'Bassman' Model 6G6-B (E-FB) layout drawing — principal board components, in the order the drawing shows them. Each channel's Bass/Treble/Volume tone network is drawn in full: the Normal channel's 100 kΩ slope and its three capacitors stand on the board, while its 6.8 kΩ foot and 0.005 µF bleed hang at the Bass and Treble pots, as the sheet draws them; the Treble pot is the tapped 350 kΩ/70 kΩ part, its tap carrying the 0.1 µF. (The Bass channel's own Treble control sits in the shared driver bottle's own signal path, per the front-panel silkscreen order.) The negative-bias supply, which the drawing boxes as a small sub-board, takes the power transformer's own bias tap — the red-blue lead — through the 1 kΩ · 1 W to the bias rectifier; the rectifier's other end is the −54 V line, with the 25/50 µF can and the 27 kΩ bleeder returning it to ground. The 6.3 V heater chain (green twisted pair, PT -> pilot lamp -> the two 5881 outputs -> the phase-inverter 7025 -> the Normal-channel 7025 -> the driver 7025 -> the Bass-channel 7025) is routed in the drawing's own socket order. Not a trace or a dimensioned reproduction."
 source:
   desc: "Fender 'Bassman' Model 6G6-B drawing (E-FB), board-layout page"
   url: "https://el34world.com/charts/Schematics/Files/Fender/Fender_bassman_6g6b.pdf"
@@ -34,10 +34,22 @@ wiring_claim: verified
 
 parts:
   # --- bias supply (far left) -------------------------------------------------
-  - { ref: DB1, a: [1, 0], b: [1, 1] }      # bias rectifier diode, off the AC tap
-  - { ref: RB1, a: [1, 2], b: [1, 3] }      # 1k 1W series
-  - { ref: C13, a: [0, 3], b: [1, 3] }      # 25/50 uF dual can, shares RB1.b eyelet
-  - { ref: RB2, a: [1, 4], b: [1, 5] }      # 27k 1W bleeder
+  # The E-FB layout page (read at 6366 x 4380) boxes the bias supply as a small
+  # sub-board: the transformer lead lettered RED-BLUE lands on the 1000 1W-5%,
+  # whose other end takes the bias rectifier's "+" terminal; the rectifier's
+  # "-" terminal goes to the -54 V node, where the 25-50 can's "-" and the 27K
+  # 1W bleeder meet, their other ends returning to ground. The schematic page
+  # draws that lead from its own winding terminal between the HT top end and
+  # the centre tap — a bias tap, not an HT end. So the 1k sits BEFORE the
+  # rectifier, and the rectifier's far end, not the 1k's, is the -54 V node
+  # the can shares an eyelet with.
+  - { ref: RB1, a: [1, 0], b: [1, 1] }      # 1k 1W series, on the bias tap
+  # Band at a: a is the end the E-FB layout letters "+" (the cathode, facing the
+  # winding), which is also where schematic.kicad_sch puts DB1's cathode
+  # (DIODE_SS drawn rot=180, pin 2 K toward the transformer side).
+  - { ref: DB1, a: [1, 2], b: [1, 3], cathode: a }   # bias rectifier, "+" on the 1k
+  - { ref: C13, a: [0, 3], b: [1, 3] }      # 25/50 uF dual can: lower lead on the -54 V node (shares DB1.b), upper lead to ground
+  - { ref: RB2, a: [1, 4], b: [1, 5] }      # 27k 1W bleeder across the -54 V node
 
   # --- silicon HT bridge + reservoir (B+1) ------------------------------------
   - { ref: DR1, a: [1, 8],  b: [1, 9] }     # leg A upper
@@ -158,13 +170,14 @@ bus:
   - { from: [1.45, -0.4], to: [1.45, 185.4] }
 
 runs:
-  # --- bias supply -------------------------------------------------------
-  - { from: PT.ht2, to: DB1.a, via: [[-2, -0.9], [-0.5, -0.9]] }
-  - { from: DB1.b, to: RB1.a, via: [[1.5, 0.6]] }
-  - { from: RB1.b, to: RB2.a, via: [[3.6, 1.2]] }
-  - { from: C13.a, to: RB1.b }
-  - { from: C13.b, to: [1.45, 3.3] }
+  # --- bias supply: PT bias tap (red-blue) -> 1k 1W -> rectifier -> -54 V ----
+  - { from: PT.red-blue, to: RB1.a, via: [[-2, -0.9], [-0.5, -0.9]] }
+  - { from: RB1.b, to: DB1.a, via: [[1.5, 0.6]] }
+  - { from: DB1.b, to: RB2.a, via: [[3.5, 1.22]] }
+  - { from: C13.a, to: [1.45, 3.62], via: [[3.62, -0.3]] }
   - { from: RB2.b, to: [1.45, 5.3], via: [[5.3, 1.2]] }
+  # the -54 V line out to the two output grid leaks (RGL5.b carries it on to RGL6.b)
+  - { from: RB2.a, to: RGL5.b, via: [[4.4, 1.85], [38.6, 1.85]] }
 
   # --- silicon HT bridge -------------------------------------------------
   - { from: PT.ht1, to: DR1.a, via: [[-2.426, 0.675], [-2.4, 1.7], [8.2, 1.7], [8.4, 1.62]] }
@@ -341,7 +354,7 @@ net_map:
     SPK: "0"          # speaker jack — OT-secondary DCR folded into ground (NFB return)
     RL2B.b: BP355     # +355 V lane — driven as an ideal source (netlist.cir header); RL2A.a shares it by a drawn run
     RS5.a: BP430      # screen rail — not traced to a shared board dropper on the available scan (two consumers, chained to each other only)
-    RGL5.b: NBIAS     # bias-supply island (DB1/RB1/RB2/C13) is its own abstracted, unmodelled network — not wired into this anchor (see netlist_unplaced below)
+    RGL5.b: NBIAS     # the -54 V line: the bias supply (RB1/DB1/C13/RB2) lands here from RB2.a; the netlist abstracts that supply to the ideal NBIAS source
   netlist_unplaced:
     R1s: "Bass ch. jack-2 stopper — chassis-mounted at the jacks, ahead of RG1A; no DC grid current so it moves no operating point"
     R2s: "Bass ch. jack-1 stopper — as R1s"
