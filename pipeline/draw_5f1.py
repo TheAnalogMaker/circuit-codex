@@ -52,13 +52,17 @@ s.wire(60.96, 88.9, 68.58, 88.9)
 s.sym("C", "C1", ".02u", 72.39, 88.9, 90, lx=-3.2, ly=-6.2)
 s.wire(76.2, 88.9, 81.28, 88.9)
 s.wire(81.28, 88.9, 81.28, 100)
-s.junction(81.28, 100)
-s.sym("R", "VR1", "1M vol", 81.28, 103.81)
+# VR1 is a potentiometer: C1 lands on its top lug, the wiper feeds V1B's grid,
+# the bottom lug is grounded. Until 2026-09-10 this sheet drew it as a plain
+# 1 M resistor from the grid node to ground with C1 tied straight to the grid
+# — a "volume" that could not attenuate. The board drawing had it right.
+s.sym("POT", "VR1", "1M vol", 81.28, 103.81, lx=3.0, ly=3.0)
 s.wire(81.28, 107.62, 81.28, 110.16)
 s.gnd(81.28, 110.16)
 
 # V1B driver stage ----------------------------------------------------
-s.wire(81.28, 100, 99.06, 100)
+s.wire(86.36, 103.81, 99.06, 103.81)      # wiper -> grid
+s.wire(99.06, 103.81, 99.06, 100)
 s.sym("TRIODE", "V1B", "12AX7", 106.68, 100, lx=6.0, ly=-6.4)
 s.wire(106.68, 107.62, 106.68, 111.76)
 s.junction(106.68, 111.76)
@@ -108,12 +112,10 @@ s.gnd(137.16, 119.38)
 s.wire(137.16, 93.015, 137.16, 87.63)
 s.wire(137.16, 87.63, 148.59, 87.63)
 s.sym("OT_SE", "T2", "SE 5k:8", 157.48, 90.17)
-s.wire(148.59, 87.63, 148.59, 87.63)
-s.wire(148.59, 87.63, 148.59, 87.63)
-s.wire(148.59, 87.63, 148.59, 87.63)
-s.wire(148.59, 87.63, 148.59, 92.71)
-s.wire(148.59, 92.71, 148.59, 87.63)
-# OT pins: pri_p at (148.59, 87.63), pri_b at (148.59, 92.71)
+# OT pins: pri_p at (148.59, 87.63), pri_b at (148.59, 92.71). The plate lead
+# ends on pri_p; B+1 reaches pri_b below. Nothing joins the two — five stray
+# wire calls here (three of zero length, two spanning the pins) drew the
+# primary as a short from the sheet's first commit until 2026-09-10.
 s.wire(148.59, 92.71, 146.05, 92.71)
 s.wire(146.05, 92.71, 146.05, 95.25)
 s.glabel("B+1", 146.05, 95.25, 270)
