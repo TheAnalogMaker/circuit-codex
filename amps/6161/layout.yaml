@@ -307,3 +307,12 @@ net_map:
     T2.ct: BP1        # OT primary centre tap -> reservoir
     T2.pa: BP1     # OT primary, V4 plate lead (winding DCR omitted)
     T2.pb: BP1     # OT primary, V5 plate lead (winding DCR omitted)
+
+# Board-scope rules for the sheet ↔ board gate: parts the sheet draws that
+# this board deliberately does not, by designator glob, each with where the
+# cited layout drawing mounts them (2026-09-10).
+scope:
+  not_drawn:
+    - { match: "CIN[12]", why: "derived board (Valco published no layout sheet): the .005 input coupler of each channel's Treble jack — drawn at the jack on the Valco 6161 circuit drawing (read at 2901 × 1908) and mounted at the jack by this board's stated convention (caption)" }
+    - { match: "RMX[12]", why: "derived board: the 100 kΩ mixing resistor of each channel's Bass jack — drawn at the jack on the Valco 6161 circuit drawing and mounted at the jack by this board's stated convention (caption)" }
+    - { match: "CB[12]", why: "derived board: the .0005 bright cap across each channel's 500 kΩ volume control (top lug to wiper on the Valco drawing) — mounted at the control by this board's stated convention (caption)" }
