@@ -80,7 +80,12 @@ python3 pipeline/verify_schematic_nets.py    # schematic↔netlist equivalence: 
                                              #   drawing faults; abstractions are declared
                                              #   in amps/<id>/sch_map.yaml; a sheet with
                                              #   schematic_claim: verified hard-fails CI
-python3 pipeline/export_loadlines.py --check # reference/loadlines.yaml vs the netlists
+python3 pipeline/export_loadlines.py --selftest && \
+python3 pipeline/export_loadlines.py --check # reference/loadlines.yaml vs the netlists,
+                                             #   plus grid-supply resolution: a fixed-bias
+                                             #   stage resolves a rail or states why not,
+                                             #   and the rail must equal the grid node's
+                                             #   own simulated level
 cd site && npm ci && npm run build      # site must build
 cd site && node scripts/check-loadline-parity.mjs   # browser solver vs. ngspice
 cd site && node scripts/check-tonestack-spice.mjs   # tone-stack solver vs. ngspice + the wiring study's figures

@@ -27,17 +27,31 @@ netlist only within one build, and across builds (Homebrew macOS vs the CI runne
 apt ngspice) the last rounded digit of a node can flip — solver provenance, not
 corpus drift.
 
+Consistency gate: drift alone cannot see a field that is *consistently* wrong, because
+a fresh export reproduces the same wrong value and the comparison passes forever. That
+is exactly how eleven fixed-bias circuits shipped a null `grid_supply_node` — the old
+resolver only looked one resistor out from the first output tube's grid, so it found
+the rail whenever the netlist put the grid leak on the grid pin and missed it whenever
+a grid stopper stood in between. So `--check` also asserts the file's internal
+contract: every fixed-bias stage names a bias rail or says in words why it cannot, and
+the rail it names carries the voltage the grid node actually sits at.
+`--selftest` plants each fault class on the committed file and proves the assertion
+fires; `--check` runs it too, so the proof travels with the gate.
+
 Usage:
     python3 pipeline/export_loadlines.py            # regenerate reference/loadlines.yaml
     python3 pipeline/export_loadlines.py --check     # fail if the checked-in file drifts
+    python3 pipeline/export_loadlines.py --selftest  # prove the consistency gate fires
 """
 from __future__ import annotations
 
+import copy
 import re
 import shutil
 import subprocess
 import sys
 import tempfile
+from collections import deque
 from pathlib import Path
 
 import yaml
@@ -82,6 +96,20 @@ HEADER = """\
 # pipeline/verify_amps.py. Where a drawing prints no output-transformer primary
 # impedance, ot_primary_z is null and ot_primary_note repeats the parts list's
 # own wording rather than inventing a figure.
+#
+# grid_supply_basis says what kind of answer grid_supply_node/_v are, so a null
+# never has to be guessed at:
+#
+#   cathode-bias  the stage biases itself across its cathode resistor; no
+#                 negative supply exists to name, and node and volts are null.
+#   source        the rail is a DC source in the netlist, and grid_supply_v is
+#                 the value that source statement carries — nothing derived.
+#   network       the rail is a node the netlist derives from a DC source
+#                 through its own resistive network, and grid_supply_v is that
+#                 node's simulated DC level. grid_supply_note names the source.
+#   unresolved    the netlist holds a fixed-bias stage whose rail this script
+#                 could not follow. grid_supply_note says what it looked for and
+#                 what it found. This is a defect to fix, never a resting state.
 """
 
 
@@ -157,19 +185,122 @@ def dc_sources(rows: list[list[str]]) -> dict[str, float]:
     return out
 
 
-def grid_bias_node(rows: list[list[str]], grid: str, supplies: dict[str, float]) -> tuple[str | None, float | None]:
-    """A fixed-bias grid returns through its grid leak to a negative supply node.
-    Returns (node, volts) when the grid leak lands on a DC source, else (None, None)."""
+def resistor_graph(rows: list[list[str]]) -> dict[str, set[str]]:
+    """Node adjacency over resistors only. Caps are DC-open and the tube models draw
+    no grid current, so at DC the grid-return path is made of resistors and nothing
+    else — which is what makes a resistive walk the right way to find the bias rail."""
+    adj: dict[str, set[str]] = {}
     for t in rows:
         if not t[0].upper().startswith("R") or len(t) < 4:
             continue
-        a, b = t[1], t[2]
-        if grid not in (a, b):
+        if parse_value(t[3]) is None:
             continue
-        other = b if a == grid else a
-        if other in supplies:
-            return other, supplies[other]
-    return None, None
+        adj.setdefault(t[1], set()).add(t[2])
+        adj.setdefault(t[2], set()).add(t[1])
+    return adj
+
+
+def _resistive_hops(adj: dict[str, set[str]], start: str) -> dict[str, int]:
+    """Nodes reachable from `start` over resistors, with hop counts. Ground is never
+    entered: every rail sits above it through something, so a walk allowed through
+    ground would leave the bias network and come back somewhere unrelated."""
+    dist = {start: 0}
+    queue = deque([start])
+    while queue:
+        node = queue.popleft()
+        for nxt in adj.get(node, ()):
+            if nxt == "0" or nxt in dist:
+                continue
+            dist[nxt] = dist[node] + 1
+            queue.append(nxt)
+    return dist
+
+
+def grid_supply_rail(rows: list[list[str]], stage: dict,
+                     supplies: dict[str, float]) -> dict:
+    """Find the negative bias rail a fixed-bias output stage's grids return to.
+
+    The rail is the nearest node reachable from *every* output grid through
+    resistors that is either a negative DC source or a node the netlist derives
+    from one. Both halves of that sentence are load-bearing, and each of them is
+    a bug this function has already had:
+
+    * *Every* grid, not the first one. A netlist is free to put the grid leak on
+      the tube's grid pin (`RGL1 NBIAS G51`) or on the far side of the grid
+      stopper (`RGS1 G51 N51` + `RGL1 NBIAS N51`) — the same physical circuit,
+      drawn the same way, written down in two orders. A resolver that looked one
+      resistor out from the first grid found the rail in the first spelling and
+      nothing at all in the second, which is why 11 of the corpus's 29 fixed-bias
+      circuits shipped a null rail while 18 resolved. Requiring the node to be
+      common to all the grids finds the meeting point rather than a way-station:
+      a stopper node belongs to one bottle, the rail belongs to all of them.
+    * *Derived from* a source, not only a source. The 5G9's grids hang on the
+      junction of an 82k/56k divider off its −69 V bias rectifier. The stage sits
+      at −28 V; the deck's only negative source says −69. Walking to the first
+      source it can see would have named a rail the stage never sits on, so the
+      nearer node wins and is reported as `network` — the raw source is named in
+      the note, not in the number.
+
+    A candidate must be a *terminus* of the bias network, which is what keeps a
+    single-tube stage (where "common to every grid" is vacuous) from settling on
+    its own grid stopper: either the node is the negative source itself, or it
+    stands between that source and ground. A grid stopper's far end is neither.
+
+    Returns {node, basis, volts, note}; `volts` is filled here only for a source
+    rail, where the value is what the source statement says. A `network` rail's
+    voltage is read out of the operating point by the caller, like every other
+    voltage in this file.
+    """
+    negative = {n for n, v in supplies.items() if v < 0}
+    if not negative:
+        return {"node": None, "basis": "unresolved", "volts": None,
+                "note": "the netlist declares no negative DC source, so this stage "
+                        "has no bias rail to name — check whether it is fixed-bias "
+                        "at all."}
+
+    adj = resistor_graph(rows)
+    # A node the stage uses as an electrode is not the rail it returns to. On the
+    # JTM100 this is not hypothetical: it writes two bottles' grids straight onto
+    # the nodes their neighbours reach through a stopper, so G5, G8, NGA and NGB
+    # all land in the set common to every grid. None of them qualifies below and
+    # the distance rule would reject them anyway, so this changes no answer in
+    # today's corpus — it is here so the rule never has to rely on distance to
+    # keep a grid node out. A rail that *is* a negative source stays eligible even
+    # if a grid sits directly on it, so the guard can never manufacture a false
+    # "unresolved" out of a netlist that omits a grid leak.
+    electrodes = ({stage["plate"], stage["cathode"]}
+                  | set(stage["grids"]) | set(stage["screens"])) - negative
+    hops = [_resistive_hops(adj, g) for g in dict.fromkeys(stage["grids"])]
+    common = set(hops[0]).intersection(*(set(h) for h in hops[1:]))
+
+    candidates = []
+    for node in sorted(common - electrodes - {"0"}):
+        near = adj.get(node, set())
+        if node in negative:
+            kind = "source"
+        elif (near & negative) and "0" in near:
+            kind = "network"
+        else:
+            continue
+        # Nearest to the grids wins: the divider's output sits between them and the
+        # raw supply, and it is the one the stage actually sits on.
+        candidates.append((max(h[node] for h in hops),
+                           sum(h[node] for h in hops), node, kind))
+    if not candidates:
+        named = ", ".join(f"{n} ({supplies[n]:.1f} V)" for n in sorted(negative))
+        return {"node": None, "basis": "unresolved", "volts": None,
+                "note": f"no node reachable from every output grid through resistors "
+                        f"is a negative DC source or a node between one and ground; "
+                        f"the deck's negative source(s): {named}."}
+
+    _, _, node, kind = min(candidates)
+    if kind == "source":
+        return {"node": node, "basis": "source", "volts": supplies[node], "note": None}
+    src = sorted(adj.get(node, set()) & negative)[0]
+    return {"node": node, "basis": "network", "volts": None,
+            "note": f"{node} is not itself a source: the netlist derives it from "
+                    f"{src} ({supplies[src]:.1f} V) through a resistive network to "
+                    f"ground, and grid_supply_v is that node's simulated DC level."}
 
 
 # ------------------------------------------------------------------- simulate
@@ -273,14 +404,18 @@ def build() -> dict:
 
         supplies = dc_sources(rows)
         rk_total = cathode_resistor(rows, stage["cathode"])
-        bias_node, bias_v = (None, None)
-        if rk_total is None:
-            bias_node, bias_v = grid_bias_node(rows, stage["grids"][0], supplies)
+        if rk_total is not None:
+            rail = {"node": None, "basis": "cathode-bias", "volts": None, "note": None}
+        else:
+            rail = grid_supply_rail(rows, stage, supplies)
 
-        # Nodes worth reading: plate, every distinct screen node, cathode, first grid.
+        # Nodes worth reading: plate, every distinct screen node, cathode, first grid —
+        # plus the bias rail itself where the netlist derives it rather than stating it.
         screens = list(dict.fromkeys(stage["screens"]))
         nodes = [n for n in [stage["plate"], *screens, stage["cathode"],
                              stage["grids"][0]] if n != "0"]
+        if rail["basis"] == "network" and rail["node"] not in nodes:
+            nodes.append(rail["node"])
         first_ref = stage["tubes"][0]["ref"].lower()
         probes = [f"@b.{first_ref}.bp[i]", f"@b.{first_ref}.bg2[i]"]
         sim = simulate(netlist, nodes, probes)
@@ -317,8 +452,13 @@ def build() -> dict:
             # the bias supply while grid current is zero (the v0 models carry no grid-
             # current term), but reading the node keeps the preset honest if that changes.
             "grid_v": volts(stage["grids"][0]),
-            "grid_supply_node": bias_node,
-            "grid_supply_v": bias_v,
+            "grid_supply_node": rail["node"],
+            # A source rail reports what the source statement says; a derived one
+            # reports the node's own simulated level. See grid_supply_basis.
+            "grid_supply_v": (volts(rail["node"]) if rail["basis"] == "network"
+                              else rail["volts"]),
+            "grid_supply_basis": rail["basis"],
+            "grid_supply_note": rail["note"],
             "ot_primary_z": ot_z,
             "ot_primary_approx": ot_approx,
             "ot_primary_note": ot_note,
@@ -334,12 +474,162 @@ def build() -> dict:
     return {"stages": stages}
 
 
+# ------------------------------------------------------------------ consistency
+BASES = ("cathode-bias", "source", "network", "unresolved")
+
+# The grid sits on the rail through a leak carrying no DC current, so the two
+# voltages are the same number. This is the assertion that turns "the resolver
+# found *a* node" into "the resolver found *the* node": naming the 5G9's −69 V
+# rectifier instead of its −28 V divider output is arithmetically loud even
+# though both are real nodes in the deck. The tolerance is wide enough for
+# solver provenance (numeric_drift's own atol is 5 mV) and nowhere near wide
+# enough to swallow a wrong node.
+RAIL_TOL_V = 0.5
+
+
+def consistency_problems(data: dict) -> list[str]:
+    """What this generated file must say about itself, independent of drift.
+
+    A drift gate compares a fresh export against the committed one, so a field
+    that is wrong the same way every run passes for as long as it exists. These
+    rules execute the grid-supply contract instead: a fixed-bias stage names its
+    rail or says why it cannot, and a null always carries a reason a reader can
+    tell apart from every other null.
+    """
+    problems: list[str] = []
+    for s in data.get("stages") or []:
+        amp = s.get("amp", "?")
+        basis, node = s.get("grid_supply_basis"), s.get("grid_supply_node")
+        volts, note = s.get("grid_supply_v"), s.get("grid_supply_note")
+
+        if basis not in BASES:
+            problems.append(f"{amp}: grid_supply_basis {basis!r} is not one of {BASES}")
+            continue
+        if s.get("bias") == "cathode":
+            if basis != "cathode-bias":
+                problems.append(f"{amp}: cathode-biased stage claims grid_supply_basis "
+                                f"{basis!r}")
+            if node is not None or volts is not None:
+                problems.append(f"{amp}: cathode-biased stage names a grid supply "
+                                f"({node} / {volts}) — it biases itself across rk")
+            continue
+
+        if basis == "cathode-bias":
+            problems.append(f"{amp}: fixed-bias stage claims grid_supply_basis "
+                            f"'cathode-bias'")
+        elif basis == "unresolved":
+            if node is not None or volts is not None:
+                problems.append(f"{amp}: unresolved rail still names {node} / {volts}")
+            if not isinstance(note, str) or len(note.strip()) < 20:
+                problems.append(f"{amp}: fixed-bias stage resolves no grid supply and "
+                                f"gives no reason — an unresolved rail must say in "
+                                f"words what was looked for and what was found")
+        else:  # source | network
+            if not node:
+                problems.append(f"{amp}: grid_supply_basis {basis!r} names no node")
+            if not isinstance(volts, (int, float)) or isinstance(volts, bool):
+                problems.append(f"{amp}: grid_supply_basis {basis!r} carries no voltage")
+            elif volts >= 0:
+                problems.append(f"{amp}: grid supply {volts} V is not negative — a "
+                                f"fixed-bias grid returns to a negative rail")
+            elif isinstance(s.get("grid_v"), (int, float)):
+                gap = abs(s["grid_v"] - volts)
+                if gap > RAIL_TOL_V:
+                    problems.append(
+                        f"{amp}: grid_supply_v {volts} V is not the voltage the grid "
+                        f"node sits at ({s['grid_v']} V, gap {gap:.3f} V) — the rail "
+                        f"named is not the rail the stage returns to")
+            if basis == "network" and not (isinstance(note, str) and note.strip()):
+                problems.append(f"{amp}: a derived rail must name the source it comes "
+                                f"from in grid_supply_note")
+    return problems
+
+
+def _plant(data: dict, amp: str, **fields) -> dict:
+    """A copy of `data` with one stage's fields overwritten — for the selftest."""
+    out = copy.deepcopy(data)
+    for s in out["stages"]:
+        if s["amp"] == amp:
+            s.update(fields)
+            return out
+    raise SystemExit(f"selftest: no stage {amp!r} in the committed export")
+
+
+def selftest() -> int:
+    """Plant each fault class the consistency gate exists to catch, and prove it
+    fires. Runs against the committed file rather than a fresh export, so it needs
+    no ngspice and exercises exactly the shapes the gate protects."""
+    if not OUT.exists():
+        print(f"FAIL {OUT.relative_to(ROOT)} missing — nothing to selftest against")
+        return 1
+    data = yaml.safe_load(OUT.read_text())
+    clean = consistency_problems(data)
+    if clean:
+        print("FAIL selftest baseline: the committed file is already inconsistent —")
+        for line in clean:
+            print(f"  {line}")
+        return 1
+
+    fixed = next(s for s in data["stages"] if s["bias"] == "fixed")
+    cathode = next(s for s in data["stages"] if s["bias"] == "cathode")
+    faults = [
+        ("a fixed-bias rail silently nulled",
+         _plant(data, fixed["amp"], grid_supply_node=None, grid_supply_v=None,
+                grid_supply_basis="unresolved", grid_supply_note=None)),
+        ("an unresolved rail with a reason too thin to act on",
+         _plant(data, fixed["amp"], grid_supply_node=None, grid_supply_v=None,
+                grid_supply_basis="unresolved", grid_supply_note="n/a")),
+        ("a rail the grid node does not sit on",
+         _plant(data, fixed["amp"], grid_supply_v=fixed["grid_v"] - 21.0)),
+        ("a positive grid supply",
+         _plant(data, fixed["amp"], grid_supply_v=48.0)),
+        ("a derived rail that names no source",
+         _plant(data, fixed["amp"], grid_supply_basis="network",
+                grid_supply_note=None)),
+        ("a cathode-biased stage handed a bias rail",
+         _plant(data, cathode["amp"], grid_supply_node="NBIAS",
+                grid_supply_v=-48.0, grid_supply_basis="source")),
+        ("a basis outside the vocabulary",
+         _plant(data, fixed["amp"], grid_supply_basis="probably")),
+    ]
+    ok = True
+    for label, planted in faults:
+        found = consistency_problems(planted)
+        print(f"  {'caught' if found else 'MISSED'}  {label}"
+              + (f" — {found[0]}" if found else ""))
+        ok = ok and bool(found)
+    if not ok:
+        print("FAIL export_loadlines --selftest: the consistency gate missed a "
+              "planted fault")
+        return 1
+    print(f"ok export_loadlines --selftest: {len(faults)} planted fault(s) caught, "
+          f"committed file clean ({len(data['stages'])} stage(s))")
+    return 0
+
+
 def main() -> int:
+    if "--selftest" in sys.argv:
+        return selftest()
     data = build()
+    bad = consistency_problems(data)
+    if bad:
+        print("FAIL export_loadlines: the export contradicts its own grid-supply "
+              "contract —")
+        for line in bad:
+            print(f"  {line}")
+        return 1
     text = HEADER + yaml.safe_dump(data, sort_keys=False, allow_unicode=True, width=100)
     if "--check" in sys.argv:
         if not OUT.exists():
             print(f"FAIL {OUT.relative_to(ROOT)} missing — run pipeline/export_loadlines.py")
+            return 1
+        committed = yaml.safe_load(OUT.read_text())
+        stale = consistency_problems(committed)
+        if stale:
+            print(f"FAIL {OUT.relative_to(ROOT)} contradicts its own grid-supply "
+                  f"contract —")
+            for line in stale:
+                print(f"  {line}")
             return 1
         drift = numeric_drift(OUT.read_text(), text)
         if drift:
@@ -347,14 +637,26 @@ def main() -> int:
             for line in drift:
                 print(f"  {line}")
             return 1
+        # The consistency rules are only worth their exit code if they can fail, and
+        # a gate whose proof lives in a separate command is a gate somebody forgets
+        # to wire up. It costs no simulation, so it rides along here.
+        if selftest() != 0:
+            return 1
         print(f"ok {OUT.relative_to(ROOT)} matches the netlists ({len(data['stages'])} stage(s))")
         return 0
     OUT.write_text(text)
     print(f"wrote {OUT.relative_to(ROOT)} — {len(data['stages'])} output stage(s)")
     for s in data["stages"]:
-        print(f"  {s['amp']:6s} {s['tube']:6s} x{s['output_tubes']} {s['bias']:8s} "
+        if s["bias"] == "cathode":
+            rail = f"rk {s['rk_total']:g} Ω"
+        elif s["grid_supply_node"]:
+            rail = (f"rail {s['grid_supply_node']} {s['grid_supply_v']:g} V "
+                    f"[{s['grid_supply_basis']}]")
+        else:
+            rail = "rail UNRESOLVED"
+        print(f"  {s['amp']:14s} {s['tube']:6s} x{s['output_tubes']} {s['bias']:8s} "
               f"B+ {s['plate_v']:.1f} V  screen {s['screen_v']:.1f} V  "
-              f"cathode {s['cathode_v']:.2f} V  Ip {s['sim_ip_ma']:.2f} mA")
+              f"cathode {s['cathode_v']:.2f} V  Ip {s['sim_ip_ma']:.2f} mA  {rail}")
     return 0
 
 

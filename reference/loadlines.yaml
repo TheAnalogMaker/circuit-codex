@@ -9,6 +9,20 @@
 # pipeline/verify_amps.py. Where a drawing prints no output-transformer primary
 # impedance, ot_primary_z is null and ot_primary_note repeats the parts list's
 # own wording rather than inventing a figure.
+#
+# grid_supply_basis says what kind of answer grid_supply_node/_v are, so a null
+# never has to be guessed at:
+#
+#   cathode-bias  the stage biases itself across its cathode resistor; no
+#                 negative supply exists to name, and node and volts are null.
+#   source        the rail is a DC source in the netlist, and grid_supply_v is
+#                 the value that source statement carries — nothing derived.
+#   network       the rail is a node the netlist derives from a DC source
+#                 through its own resistive network, and grid_supply_v is that
+#                 node's simulated DC level. grid_supply_note names the source.
+#   unresolved    the netlist holds a fixed-bias stage whose rail this script
+#                 could not follow. grid_supply_note says what it looked for and
+#                 what it found. This is a defect to fix, never a resting state.
 stages:
 - amp: '5c1'
   name_style: Wide-panel Champ-style
@@ -29,6 +43,8 @@ stages:
   grid_v: 0.0
   grid_supply_node: null
   grid_supply_v: null
+  grid_supply_basis: cathode-bias
+  grid_supply_note: null
   ot_primary_z: 5000.0
   ot_primary_approx: true
   ot_primary_note: '≈5 kΩ : 8 Ω — Single-ended output (impedance not marked on the drawing; typical SE
@@ -54,6 +70,8 @@ stages:
   grid_v: 0.0
   grid_supply_node: null
   grid_supply_v: null
+  grid_supply_basis: cathode-bias
+  grid_supply_note: null
   ot_primary_z: null
   ot_primary_approx: false
   ot_primary_note: 'push-pull : 8 Ω — Push-pull output, with a second 8 Ω jack for an extra speaker; the
@@ -79,6 +97,8 @@ stages:
   grid_v: 0.0
   grid_supply_node: null
   grid_supply_v: null
+  grid_supply_basis: cathode-bias
+  grid_supply_note: null
   ot_primary_z: 5000.0
   ot_primary_approx: true
   ot_primary_note: '≈5 kΩ : 8 Ω — Single-ended output (impedance not marked on the drawing; typical SE
@@ -104,6 +124,8 @@ stages:
   grid_v: 0.0
   grid_supply_node: null
   grid_supply_v: null
+  grid_supply_basis: cathode-bias
+  grid_supply_note: null
   ot_primary_z: 8000.0
   ot_primary_approx: false
   ot_primary_note: '8 kΩ : 8 Ω — Push-pull output'
@@ -128,6 +150,8 @@ stages:
   grid_v: -32.0
   grid_supply_node: NBIAS
   grid_supply_v: -32.0
+  grid_supply_basis: source
+  grid_supply_note: null
   ot_primary_z: null
   ot_primary_approx: false
   ot_primary_note: push-pull output transformer — Push-pull output into 2 × 10 in speakers, with an external-speaker
@@ -153,6 +177,8 @@ stages:
   grid_v: -32.0
   grid_supply_node: NBIAS
   grid_supply_v: -32.0
+  grid_supply_basis: source
+  grid_supply_note: null
   ot_primary_z: 4300.0
   ot_primary_approx: true
   ot_primary_note: '~4.3 kΩ : 8 Ω (est. for 2x6L6GB into one 15" speaker) — Push-pull output'
@@ -177,6 +203,8 @@ stages:
   grid_v: -42.0
   grid_supply_node: NBIAS
   grid_supply_v: -42.0
+  grid_supply_basis: source
+  grid_supply_note: null
   ot_primary_z: null
   ot_primary_approx: false
   ot_primary_note: Fender part number not legible on this scan — Push-pull output into four 10-inch speakers
@@ -201,6 +229,8 @@ stages:
   grid_v: 0.0
   grid_supply_node: null
   grid_supply_v: null
+  grid_supply_basis: cathode-bias
+  grid_supply_note: null
   ot_primary_z: 5000.0
   ot_primary_approx: true
   ot_primary_note: '≈5 kΩ : 8 Ω — Single-ended output (impedance not marked on the drawing; typical SE
@@ -226,6 +256,8 @@ stages:
   grid_v: -21.0
   grid_supply_node: NBIAS
   grid_supply_v: -21.0
+  grid_supply_basis: source
+  grid_supply_note: null
   ot_primary_z: null
   ot_primary_approx: false
   ot_primary_note: Push-pull (impedance ratio not printed on the drawing) — Push-pull output into the
@@ -251,6 +283,8 @@ stages:
   grid_v: 0.0
   grid_supply_node: null
   grid_supply_v: null
+  grid_supply_basis: cathode-bias
+  grid_supply_note: null
   ot_primary_z: 5000.0
   ot_primary_approx: true
   ot_primary_note: '≈ 5 kΩ : 8 Ω — Single-ended output (part 265; impedance not marked on the drawing;
@@ -276,6 +310,8 @@ stages:
   grid_v: -40.0
   grid_supply_node: NBIAS
   grid_supply_v: -40.0
+  grid_supply_basis: source
+  grid_supply_note: null
   ot_primary_z: null
   ot_primary_approx: false
   ot_primary_note: Fender 45216 — Push-pull output into 2 × 10 in speakers
@@ -298,8 +334,10 @@ stages:
   rk_per_tube: null
   grid_node: G51
   grid_v: -48.0
-  grid_supply_node: null
-  grid_supply_v: null
+  grid_supply_node: NBIAS
+  grid_supply_v: -48.0
+  grid_supply_basis: source
+  grid_supply_note: null
   ot_primary_z: null
   ot_primary_approx: false
   ot_primary_note: Fender 45249 · 2 Ω secondary — Push-pull output into four 8 Ω speakers
@@ -324,6 +362,8 @@ stages:
   grid_v: -48.0
   grid_supply_node: NBIAS
   grid_supply_v: -48.0
+  grid_supply_basis: source
+  grid_supply_note: null
   ot_primary_z: null
   ot_primary_approx: false
   ot_primary_note: Fender 45249 · 2 Ω secondary — Push-pull output into four 8 Ω speakers
@@ -348,6 +388,8 @@ stages:
   grid_v: -41.0
   grid_supply_node: NBIAS
   grid_supply_v: -41.0
+  grid_supply_basis: source
+  grid_supply_note: null
   ot_primary_z: null
   ot_primary_approx: false
   ot_primary_note: Fender 45268 — Push-pull-parallel output into two speakers; the drawing prints no secondary
@@ -371,8 +413,11 @@ stages:
   rk_per_tube: null
   grid_node: G61
   grid_v: -28.0
-  grid_supply_node: null
-  grid_supply_v: null
+  grid_supply_node: NBIAS
+  grid_supply_v: -28.0
+  grid_supply_basis: network
+  grid_supply_note: 'NBIAS is not itself a source: the netlist derives it from NB69 (-69.0 V) through
+    a resistive network to ground, and grid_supply_v is that node''s simulated DC level.'
   ot_primary_z: null
   ot_primary_approx: false
   ot_primary_note: Fender 108 — Push-pull output
@@ -397,6 +442,8 @@ stages:
   grid_v: 0.0
   grid_supply_node: null
   grid_supply_v: null
+  grid_supply_basis: cathode-bias
+  grid_supply_note: null
   ot_primary_z: null
   ot_primary_approx: false
   ot_primary_note: Valco 340-6 — Output transformer, centre-tapped primary; the centre tap is the reservoir
@@ -422,6 +469,8 @@ stages:
   grid_v: -35.0
   grid_supply_node: NBIAS
   grid_supply_v: -35.0
+  grid_supply_basis: source
+  grid_supply_note: null
   ot_primary_z: null
   ot_primary_approx: false
   ot_primary_note: 125A10B — Push-pull output, centre-tapped primary
@@ -446,6 +495,8 @@ stages:
   grid_v: -26.0
   grid_supply_node: NBIAS
   grid_supply_v: -26.0
+  grid_supply_basis: source
+  grid_supply_note: null
   ot_primary_z: null
   ot_primary_approx: false
   ot_primary_note: 125A1A — Push-pull output
@@ -470,6 +521,8 @@ stages:
   grid_v: -55.0
   grid_supply_node: NBIAS
   grid_supply_v: -55.0
+  grid_supply_basis: source
+  grid_supply_note: null
   ot_primary_z: null
   ot_primary_approx: false
   ot_primary_note: Fender 45216 — Push-pull 6L6GC output
@@ -494,6 +547,8 @@ stages:
   grid_v: -55.0
   grid_supply_node: NBIAS
   grid_supply_v: -55.0
+  grid_supply_basis: source
+  grid_supply_note: null
   ot_primary_z: null
   ot_primary_approx: false
   ot_primary_note: 'push-pull : speaker — Push-pull output into the 15-inch speaker; no part number printed
@@ -519,6 +574,8 @@ stages:
   grid_v: -54.0
   grid_supply_node: NBIAS
   grid_supply_v: -54.0
+  grid_supply_basis: source
+  grid_supply_note: null
   ot_primary_z: null
   ot_primary_approx: false
   ot_primary_note: Fender 125A13A — Push-pull output
@@ -543,6 +600,8 @@ stages:
   grid_v: -34.0
   grid_supply_node: NBIAS
   grid_supply_v: -34.0
+  grid_supply_basis: source
+  grid_supply_note: null
   ot_primary_z: null
   ot_primary_approx: false
   ot_primary_note: Fender 125A10B — Push-pull 6V6 output
@@ -567,6 +626,8 @@ stages:
   grid_v: 0.0
   grid_supply_node: null
   grid_supply_v: null
+  grid_supply_basis: cathode-bias
+  grid_supply_note: null
   ot_primary_z: null
   ot_primary_approx: false
   ot_primary_note: Fender 125A35A — Single-ended output (impedance ratio not marked on the drawing)
@@ -591,6 +652,8 @@ stages:
   grid_v: 0.0
   grid_supply_node: null
   grid_supply_v: null
+  grid_supply_basis: cathode-bias
+  grid_supply_note: null
   ot_primary_z: null
   ot_primary_approx: false
   ot_primary_note: Fender 125A35A — Single-ended output (impedance ratio not marked on the drawing)
@@ -613,8 +676,10 @@ stages:
   rk_per_tube: null
   grid_node: G61
   grid_v: -44.0
-  grid_supply_node: null
-  grid_supply_v: null
+  grid_supply_node: NBIAS
+  grid_supply_v: -44.0
+  grid_supply_basis: source
+  grid_supply_note: null
   ot_primary_z: null
   ot_primary_approx: false
   ot_primary_note: Fender 125A13A — Push-pull 6L6GC output, into the 2x12 cabinet + EXT SPKR jack
@@ -639,6 +704,8 @@ stages:
   grid_v: -34.0
   grid_supply_node: NBIAS
   grid_supply_v: -34.0
+  grid_supply_basis: source
+  grid_supply_note: null
   ot_primary_z: null
   ot_primary_approx: false
   ot_primary_note: Fender 125A10B — Push-pull 6V6 output
@@ -661,8 +728,10 @@ stages:
   rk_per_tube: null
   grid_node: GG1
   grid_v: -45.0
-  grid_supply_node: null
-  grid_supply_v: null
+  grid_supply_node: NBIAS
+  grid_supply_v: -45.0
+  grid_supply_basis: source
+  grid_supply_note: null
   ot_primary_z: null
   ot_primary_approx: false
   ot_primary_note: Fender 125A13A — Push-pull 6L6GC output
@@ -687,6 +756,8 @@ stages:
   grid_v: -35.0
   grid_supply_node: NBIAS
   grid_supply_v: -35.0
+  grid_supply_basis: source
+  grid_supply_note: null
   ot_primary_z: null
   ot_primary_approx: false
   ot_primary_note: Fender 125A1A — Push-pull 6V6 output
@@ -709,8 +780,10 @@ stages:
   rk_per_tube: null
   grid_node: G61
   grid_v: -52.0
-  grid_supply_node: null
-  grid_supply_v: null
+  grid_supply_node: NBIAS
+  grid_supply_v: -52.0
+  grid_supply_basis: source
+  grid_supply_note: null
   ot_primary_z: null
   ot_primary_approx: false
   ot_primary_note: Fender 125A9A — Push-pull 6L6GC output
@@ -733,8 +806,10 @@ stages:
   rk_per_tube: null
   grid_node: G61
   grid_v: -52.0
-  grid_supply_node: null
-  grid_supply_v: null
+  grid_supply_node: NBIAS
+  grid_supply_v: -52.0
+  grid_supply_basis: source
+  grid_supply_note: null
   ot_primary_z: null
   ot_primary_approx: false
   ot_primary_note: Fender 125A29A — Parallel push-pull primary for four 6L6GC; 4 Ω secondary into two
@@ -760,6 +835,8 @@ stages:
   grid_v: 0.0
   grid_supply_node: null
   grid_supply_v: null
+  grid_supply_basis: cathode-bias
+  grid_supply_note: null
   ot_primary_z: null
   ot_primary_approx: false
   ot_primary_note: Haddon OA 063 · push-pull EL84 primary · 8 Ω / 15 Ω secondary taps — Output transformer
@@ -784,6 +861,8 @@ stages:
   grid_v: 0.0
   grid_supply_node: null
   grid_supply_v: null
+  grid_supply_basis: cathode-bias
+  grid_supply_note: null
   ot_primary_z: null
   ot_primary_approx: false
   ot_primary_note: 4 kΩ anode-to-anode primary · 8 Ω / 15 Ω secondary taps — Output transformer (Haddon)
@@ -806,8 +885,10 @@ stages:
   rk_per_tube: null
   grid_node: G5
   grid_v: -50.0
-  grid_supply_node: null
-  grid_supply_v: null
+  grid_supply_node: NBIAS
+  grid_supply_v: -50.0
+  grid_supply_basis: source
+  grid_supply_note: null
   ot_primary_z: null
   ot_primary_approx: false
   ot_primary_note: Ampeg OT-214 — Push-pull 6L6GC output, centre-tapped primary (blue/red/brown), tapped
@@ -832,8 +913,10 @@ stages:
   rk_per_tube: null
   grid_node: G5
   grid_v: -38.0
-  grid_supply_node: null
-  grid_supply_v: null
+  grid_supply_node: NBIAS
+  grid_supply_v: -38.0
+  grid_supply_basis: source
+  grid_supply_note: null
   ot_primary_z: null
   ot_primary_approx: false
   ot_primary_note: Hiwatt TH7549/2 · 4/8/16 Ω taps — Output transformer, feedback from the 16 Ω tap; the
@@ -860,6 +943,8 @@ stages:
   grid_v: 0.0
   grid_supply_node: null
   grid_supply_v: null
+  grid_supply_basis: cathode-bias
+  grid_supply_note: null
   ot_primary_z: null
   ot_primary_approx: false
   ot_primary_note: Gibson (no number printed) — Output transformer, centre-tapped primary; the centre
@@ -883,8 +968,10 @@ stages:
   rk_per_tube: null
   grid_node: G5
   grid_v: -65.0
-  grid_supply_node: null
-  grid_supply_v: null
+  grid_supply_node: NBIAS
+  grid_supply_v: -65.0
+  grid_supply_basis: source
+  grid_supply_note: null
   ot_primary_z: null
   ot_primary_approx: false
   ot_primary_note: Push-pull, 4x KT66 primary — Output to the speaker; secondary leads lettered on the
@@ -910,6 +997,8 @@ stages:
   grid_v: -50.0
   grid_supply_node: NBIAS
   grid_supply_v: -50.0
+  grid_supply_basis: source
+  grid_supply_note: null
   ot_primary_z: null
   ot_primary_approx: false
   ot_primary_note: Push-pull, KT66 primary — Push-pull output to the speaker
@@ -932,8 +1021,10 @@ stages:
   rk_per_tube: null
   grid_node: G4
   grid_v: -46.0
-  grid_supply_node: null
-  grid_supply_v: null
+  grid_supply_node: NBIAS
+  grid_supply_v: -46.0
+  grid_supply_basis: source
+  grid_supply_note: null
   ot_primary_z: null
   ot_primary_approx: false
   ot_primary_note: 16/8/4 Ω taps — Output transformer — parallel push-pull primary for four EL34s, 16/8/4
@@ -959,6 +1050,8 @@ stages:
   grid_v: -48.0
   grid_supply_node: NBIAS
   grid_supply_v: -48.0
+  grid_supply_basis: source
+  grid_supply_note: null
   ot_primary_z: null
   ot_primary_approx: false
   ot_primary_note: Push-pull EL34 primary, 16/8/4 Ω secondary — Output transformer
@@ -981,8 +1074,10 @@ stages:
   rk_per_tube: null
   grid_node: G4
   grid_v: -47.0
-  grid_supply_node: null
-  grid_supply_v: null
+  grid_supply_node: NBIAS
+  grid_supply_v: -47.0
+  grid_supply_basis: source
+  grid_supply_note: null
   ot_primary_z: null
   ot_primary_approx: false
   ot_primary_note: Marshall 789-139 · 16/8/4 Ω taps — Push-pull EL34 output transformer
@@ -1007,6 +1102,8 @@ stages:
   grid_v: -36.0
   grid_supply_node: NBIAS
   grid_supply_v: -36.0
+  grid_supply_basis: source
+  grid_supply_note: null
   ot_primary_z: null
   ot_primary_approx: false
   ot_primary_note: Sears O50 — Output transformer, centre-tapped primary; the drawing prints 85 Ω for
