@@ -42,7 +42,7 @@ heaters_unsourced: >-
   derived from the preamp drawing, so no factory drawing can establish its
   heater legs.
 
-caption: "Layout derived from the schematic. A published DR103 wiring diagram exists and is cited below — it is the source for this entry's output stage, supply and control complement — but its preamp board carries a different value set from the four-input S/N 903 drawing this entry's netlist follows (separate 2.2 kΩ input cathodes against one shared 1.5 kΩ, a 22 nF Normal coupler against 10 nF, a 1 MΩ/560 kΩ driver divider against 1.8 MΩ/1 MΩ, and board parts this circuit does not carry), so its board order is not transcribed here. Board order and point-to-point wiring are reconstructed from schematic.kicad_sch / netlist.cir. All hookup and transformer leads are drawn in the neutral tone: the published sheet's own lead colours belong to its board order, not to this derived one. Parts drawn off the board: the tone-stack capacitors (C4 100 pF, C5 and C6 47 nF) mount at the tone controls, the input grid stoppers (68 kΩ) and 1 MΩ grid leaks sit at the four input jacks as the published sheet draws them, and the negative-feedback resistor (RNFB) hangs between the speaker jacks and the inverter tail. The EL34 screen stoppers are drawn on the board; the published sheet mounts them at the socket pins. The panel indicator is a mains neon across the primary, not a 6.3 V pilot lamp, so it is drawn at the transformer and stands outside the heater chain — and that chain (green twisted pair, PT → the four EL34s → the ECC81 inverter → the V3 driver → the V2 second stage → the ECC83 input) is derived too: with no factory heater routing read, its daisy order is the physical socket order and the twisted-pair green is the house heater idiom, not a sourced wire colour. Not a trace or a dimensioned reproduction."
+caption: "Layout derived from the schematic. A published DR103 wiring diagram exists and is cited below — it is the source for this entry's output stage, supply and control complement — but its preamp board carries a different value set from the four-input S/N 903 drawing this entry's netlist follows (separate 2.2 kΩ input cathodes against one shared 1.5 kΩ, a 22 nF Normal coupler against 10 nF, a 1 MΩ/560 kΩ driver divider against 1.8 MΩ/1 MΩ, and board parts this circuit does not carry), so its board order is not transcribed here. Board order and point-to-point wiring are reconstructed from schematic.kicad_sch / netlist.cir. All hookup and transformer leads are drawn in the neutral tone: the published sheet's own lead colours belong to its board order, not to this derived one. The three tone-stack capacitors sit on the board beside the 100 kΩ slope resistor, each under its own control, and are wired as the drawings wire them: C4 100 pF from the cathode-follower output to the treble control's top lug, C5 47 nF from the slope's foot to the treble-bottom / bass node, and C6 47 nF from the slope's foot into the middle control's wiper. Parts drawn off the board: the input grid stoppers (68 kΩ) and 1 MΩ grid leaks sit at the four input jacks as the published sheet draws them, and the negative-feedback resistor (RNFB) hangs between the speaker jacks and the inverter tail. The EL34 screen stoppers are drawn on the board; the published sheet mounts them at the socket pins. The panel indicator is a mains neon across the primary, not a 6.3 V pilot lamp, so it is drawn at the transformer and stands outside the heater chain — and that chain (green twisted pair, PT → the four EL34s → the ECC81 inverter → the V3 driver → the V2 second stage → the ECC83 input) is derived too: with no factory heater routing read, its daisy order is the physical socket order and the twisted-pair green is the house heater idiom, not a sourced wire colour. Not a trace or a dimensioned reproduction."
 source:
   desc: "Four-input DR103 preamp drawing from serial number 903 ('HIWATT / Late 60s Four-Input Preamp / Preamp from DR103 S/N 903 / Drawing rev. 1.0 - Mark Huss') and the published early-1970s DR103 wiring diagram ('HIWATT DR103 LAYOUT, EARLY 1970'S', Mark Huss with updates from Jukka K., and Brian Haberman, 2007) — the board order here is derived from the circuit those two drawings between them state, because the wiring diagram's own board is a different value set (see the caption)"
   url: "https://hiwatt.org/Layouts/DR103hiwattlayout.pdf"
@@ -128,7 +128,10 @@ parts:
   - { ref: RL4,  a: [1, 115], b: [1, 116] } # 100k driver plate load
   # --- tone-stack output + V2 second stage / cathode follower ---------------
   - { ref: RTM,  a: [1, 118], b: [1, 119] } # 220k treble wiper -> master volume
-  - { ref: RSL,  a: [1, 124], b: [1, 125] } # 100k tone-stack slope resistor
+  - { ref: RSL,  a: [1, 124], b: [1, 125] } # 100k tone-stack slope resistor (a = CF output, b = the slope foot)
+  - { ref: C4,   a: [0, 122], b: [0, 121] } # 100 pF treble cap: CF output -> treble pot's top lug
+  - { ref: C5,   a: [0, 124], b: [0, 123] } # 47 nF bass cap: slope foot -> treble-bottom / bass node
+  - { ref: C6,   a: [0, 124], b: [0, 125] } # 47 nF middle cap: slope foot -> the middle pot's WIPER
   - { ref: RKCF, a: [0, 126], b: [1, 126] } # 120k 2W cathode-follower load
   - { ref: RM1,  a: [1, 127], b: [1, 128] } # 470k Brilliant mixing resistor
   - { ref: RM2,  a: [1, 129], b: [1, 130] } # 470k Normal mixing resistor
@@ -316,18 +319,20 @@ runs:
   - { from: RGB.b, to: V4.pin7, via: [[100.4, 1.3], [97.4, 1.3], [96.9, 1.5]] }
   - { from: C11.a, to: RL4.b, via: [[80.0, 1.6], [80.0, 4.16], [116.8, 4.16], [116.8, 1.2], [116.3, 1.02]] }  # presence tap (deep lane)
 
-  # --- master volume + tone stack (C4 / C5 / C6 mount at the tone controls) --
+  # --- master volume + tone stack (C4 / C5 / C6 on the board) ---------------
   - { from: VR6.lug2, to: V3.pin7, via: [[116.0, -0.6], [112.35, -0.6], [112.35, 1.35], [111.4, 1.68]] }
   - { from: VR6.lug1, to: [1.45, 117.4], via: [[115.6, -0.85], [117.4, -0.85], [117.4, 1.9]] }
   - { from: RTM.b, to: VR6.lug3, via: [[119.4, 0.55], [119.4, -0.35], [116.4, -0.35]] }
   - { from: VR3.lug2, to: RTM.a, via: [[121.0, -0.55], [118.4, -0.55], [118.0, 0.55]] }  # treble wiper alone
   - { from: V2.pin3, to: RSL.a, via: [[127.2, 1.75], [124.4, 1.6]] }             # CF cathode -> slope
-  - { from: RSL.a, to: VR3.lug3, via: [[121.6, 0.4], [121.3, -0.5]] }            # node A -> 100 pF -> treble top
-  - { from: RSL.b, to: VR4.lug3, via: [[124.0, 0.35], [123.3, -0.5]] }           # slope foot -> 47 nF -> bass node
+  - { from: RSL.a, to: C4.a, via: [[123.2, 0.5]] }                             # node A (CF output) -> 100 pF treble cap
+  - { from: C4.b, to: VR3.lug3 }                                               # 100 pF -> treble top
+  - { from: RSL.b, to: C5.a }                                                  # slope foot (node B) -> the bass and middle caps' shared eyelet
+  - { from: C5.b, to: VR4.lug3 }                                               # 47 nF bass cap -> bass node
   - { from: VR3.lug1, to: VR4.lug3, via: [[121.0, -0.72], [123.0, -0.72]] }      # treble bottom -> bass node
   - { from: VR4.lug2, to: VR4.lug3, via: [[123.15, -0.66], [123.15, -0.95], [123.56, -0.95]] }  # rheostat strap
   - { from: VR4.lug1, to: VR5.lug3, via: [[122.9, -0.55], [125.6, -0.55]] }      # bass foot -> middle top
-  - { from: RSL.b, to: VR5.lug2, via: [[124.6, 0.35], [124.6, -0.85], [125.5, -0.85]] }  # slope foot -> 47 nF -> middle wiper
+  - { from: C6.b, to: VR5.lug2 }                                               # 47 nF middle cap -> middle wiper
   - { from: VR5.lug1, to: [1.45, 125.5], via: [[125.5, -0.4], [125.5, 1.9]] }
 
   # --- V2 second stage + cathode follower ---------------------------------
