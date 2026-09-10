@@ -294,7 +294,7 @@ amps:
       anchors: 22
       board_only: 0
       merged: 0
-      misplaced: 2
+      misplaced: 3
       pot_as_resistor: 0
       pot_orientation_flipped: 0
       section_swap: 0
@@ -307,6 +307,7 @@ amps:
     merged: []
     misplaced:
     - R1s
+    - RB1
     - VR2#ends
     pot_as_resistor: []
     pot_orientation_flipped: []
@@ -669,7 +670,7 @@ amps:
     board_only: []
     claimed: true
     counts:
-      anchors: 21
+      anchors: 28
       board_only: 0
       merged: 0
       misplaced: 7
@@ -677,11 +678,11 @@ amps:
       pot_orientation_flipped: 0
       section_swap: 1
       sheet_only_declared: 2
-      sheet_only_undeclared: 25
+      sheet_only_undeclared: 13
       split: 0
       stale_declarations: 0
-      two_terminal_checked: 35
-      unresolved: 2
+      two_terminal_checked: 55
+      unresolved: 0
     merged: []
     misplaced:
     - C10
@@ -700,8 +701,6 @@ amps:
     - RG2I
     sheet_only_undeclared:
     - CH1
-    - CT1
-    - CT2
     - CTO1
     - CTO2
     - CTOFB
@@ -710,30 +709,18 @@ amps:
     - R2a
     - R2b
     - RINT
-    - RS1T
-    - RS2T
-    - RSL1
-    - RSL2
     - RTO1
     - RTOFB
-    - VRB1
-    - VRB2
     - VRINT
     - VRSPD
-    - VRT1
-    - VRT2
-    - VRV1
-    - VRV2
     split: []
     stale_declarations: []
-    unresolved:
-    - RL1I
-    - RL2I
+    unresolved: []
   6g5:
     board_only: []
     claimed: true
     counts:
-      anchors: 33
+      anchors: 37
       board_only: 0
       merged: 1
       misplaced: 2
@@ -741,16 +728,18 @@ amps:
       pot_orientation_flipped: 0
       section_swap: 0
       sheet_only_declared: 3
-      sheet_only_undeclared: 43
-      split: 1
+      sheet_only_undeclared: 33
+      split: 0
       stale_declarations: 0
-      two_terminal_checked: 32
+      two_terminal_checked: 50
       unresolved: 1
     merged:
     - - - GND
+        - JVIB.sleeve
         - V7.pin8
         - V8.pin8
       - - JSPK.sleeve
+      - - JVIB.tip
     misplaced:
     - CF4
     - CF5
@@ -763,16 +752,12 @@ amps:
     - RPRES
     sheet_only_undeclared:
     - CBIAS
-    - CF1
-    - CF2
     - CF3
     - CF6
     - CF7
     - CFB1
     - CPID
     - CPRES
-    - CT1
-    - CT2
     - CTO1
     - CTO2
     - CTO3
@@ -788,8 +773,6 @@ amps:
     - R2N
     - RD1
     - RD2
-    - RF1
-    - RF2
     - RFB1
     - RFB2
     - RFB3
@@ -798,18 +781,10 @@ amps:
     - RTOG2
     - RTOK
     - RTOP
-    - VRB1
-    - VRB2
     - VRINT
     - VRPRES
     - VRSPD
-    - VRT1
-    - VRT2
-    split:
-    - - - GND
-        - V7.pin8
-        - V8.pin8
-      - - JVIB.sleeve
+    split: []
     stale_declarations: []
     unresolved:
     - RL5
@@ -828,7 +803,7 @@ amps:
       sheet_only_undeclared: 2
       split: 0
       stale_declarations: 0
-      two_terminal_checked: 74
+      two_terminal_checked: 75
       unresolved: 1
     merged: []
     misplaced:
@@ -1850,17 +1825,17 @@ amps:
 summary:
   amps: 40
   amps_with_findings: 37
-  anchors: 1247
+  anchors: 1258
   board_only: 5
   claimed_amps_with_findings: 35
   merged: 18
-  misplaced: 98
+  misplaced: 99
   pot_as_resistor: 1
   pot_orientation_flipped: 18
   section_swap: 25
   sheet_only_declared: 233
-  sheet_only_undeclared: 289
-  split: 4
+  sheet_only_undeclared: 267
+  split: 3
   stale_declarations: 0
-  two_terminal_checked: 1771
-  unresolved: 11
+  two_terminal_checked: 1810
+  unresolved: 9
