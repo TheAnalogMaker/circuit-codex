@@ -146,9 +146,12 @@ s.wire(157.48, 97.81, 157.48, 92)
 ol, orr = s.series_h("C", "C6", ".02u", 162, 92)
 s.wire(157.48, 92, ol, 92)
 s.wire(orr, 92, 168.91, 92)
-tp = s.triode("V3A", "12AX7", 176.53, 92)
+# Socket basing from the factory layout (6368×3218): the 82k half's +230 V
+# plate lands on pin 1 (+19 V grid on 2), the 100k half's +225 V on pin 6
+# (+20 V on 7), +28.5 V tail on 8 — V3A is unit 2, V3B unit 1.
+tp = s.triode("V3A", "12AX7", 176.53, 92, unit=2)
 s.wire(168.91, 92, tp["g"][0], 92)
-bt = s.triode("V3B", "12AX7", 176.53, 126)
+bt = s.triode("V3B", "12AX7", 176.53, 126, unit=1)
 s.plate_load("RLA", "82k 5%", tp["p"], "B+3")
 s.plate_load("RLB", "100k 5%", bt["p"], "B+3")
 # shared tail: cathodes -> 470 -> J -> 10k -> gnd

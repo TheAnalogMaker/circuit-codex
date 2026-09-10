@@ -31,7 +31,7 @@ s = Sch()
 
 
 def input_stage(y, j1, j2, r1, r2, rleak, vref, rload, rk, ck, rail,
-                shunt_ref=None, shunt_val=None):
+                shunt_ref=None, shunt_val=None, unit=None):
     """Two-jack channel input: 68 kΩ stoppers → grid (1 MΩ leak) → 12AX7 with a
     100 kΩ plate load to `rail` and a 1.5 kΩ ‖ 25 µF cathode. `shunt_ref` adds
     the bass channel's capacitor straight across the plate load. Returns the
@@ -51,7 +51,7 @@ def input_stage(y, j1, j2, r1, r2, rleak, vref, rload, rk, ck, rail,
     s.junction(gb, y)
     s.sym("R", rleak, "1M", gb, y + 3.81 + 4)
     s.gnd(gb, y + 7.62 + 4)
-    t = s.triode(vref, "12AX7 (7025)", 52, y)
+    t = s.triode(vref, "12AX7 (7025)", 52, y, unit=unit)
     s.wire(gb, y, t["g"][0], y)
     s.plate_load(rload, "100k", t["p"], rail)
     if shunt_ref:
@@ -123,7 +123,7 @@ def tone_stack(tee, ct_ref, ct_val, rs_ref, cb_ref, cb_val, cb2_ref, cb2_val,
     return (87, tee + 13.62), (119.08, tee + 3.81)
 
 
-def second_stage(y, vref, rload, rk, ck, rail, wiper, mix_ref):
+def second_stage(y, vref, rload, rk, ck, rail, wiper, mix_ref, unit=None):
     """Channel second stage: volume wiper → 12AX7 grid, 100 kΩ plate load to
     `rail`, 1.5 kΩ ‖ 25 µF cathode, plate out through the 220 kΩ mixing
     resistor to the shared MIX node."""
@@ -131,7 +131,7 @@ def second_stage(y, vref, rload, rk, ck, rail, wiper, mix_ref):
     s.wire(wx, wy, 124, wy)
     s.junction(wx, wy)
     s.wire(124, wy, 124, y)
-    t = s.triode(vref, "12AX7 (7025)", 136, y)
+    t = s.triode(vref, "12AX7 (7025)", 136, y, unit=unit)
     s.wire(124, y, t["g"][0], y)
     s.plate_load(rload, "100k", t["p"], rail)
     s.wire(136, y + 7.62, 136, y + 9)
@@ -152,9 +152,11 @@ s.note('Heaters, pilot lamp and the PT primary beyond the drawn switch/fuse are 
 # ============================ BASS INSTRUMENT CHANNEL (top row) =======
 YB = 62
 s.text("Bass Instrument channel", 12, 44, 1.6)
+# The factory schematic (7087×4274) prints its own pin numbers: each channel's
+# input stage on 2/1/3 (unit 2) and its second stage on 7/6/8 (unit 1).
 t1a = input_stage(YB, "BASS 1", "BASS 2", "R1b", "R2b", "RGB1", "V1A",
                   "RLB1", "RKB1", "CKB1", "B+4",
-                  shunt_ref="CLB1", shunt_val=".01u")
+                  shunt_ref="CLB1", shunt_val=".01u", unit=2)
 teeB = YB - 7.62 - 3.48
 n2b, wipB = tone_stack(teeB, "CTB", "390p", "RSB", "CBB", ".1u", "CBB2", ".1u",
                        "RSLB", "8.2k", "VRTB", "VRBB", "VRVB")
@@ -167,13 +169,13 @@ l, r = s.switch("SWDEEP", "DEEP", 76, n2b[1] + 13)
 s.wire(70, n2b[1] + 13, l, n2b[1] + 13)
 s.wire(r, n2b[1] + 13, 86, n2b[1] + 13)
 s.gnd(86, n2b[1] + 13)
-t1b = second_stage(YB, "V1B", "RLB2", "RKB2", "CKB2", "B+4", wipB, "RMXB")
+t1b = second_stage(YB, "V1B", "RLB2", "RKB2", "CKB2", "B+4", wipB, "RMXB", unit=1)
 
 # ============================ NORMAL CHANNEL (second row) ============
 YN = 116
 s.text("Normal channel", 12, 98, 1.6)
 t2a = input_stage(YN, "NORM 1", "NORM 2", "R1n", "R2n", "RGN1", "V2A",
-                  "RLN1", "RKN1", "CKN1", "B+4")
+                  "RLN1", "RKN1", "CKN1", "B+4", unit=2)
 teeN = YN - 7.62 - 3.48
 n2n, wipN = tone_stack(teeN, "CTN", "250p", "RSN", "CBN", ".1u", "CBN2", ".047u",
                        "RSLN", "6.8k", "VRTN", "VRBN", "VRVN")
@@ -187,7 +189,7 @@ s.wire(cr, teeN - 17, l, teeN - 17)
 s.wire(r, teeN - 17, 142, teeN - 17)
 s.wire(142, teeN - 17, 142, teeN + 3.81)
 s.wire(142, teeN + 3.81, 124, teeN + 3.81)
-t2b = second_stage(YN, "V2B", "RLN2", "RKN2", "CKN2", "B+3", wipN, "RMXN")
+t2b = second_stage(YN, "V2B", "RLN2", "RKN2", "CKN2", "B+3", wipN, "RMXN", unit=1)
 
 # ============================ MIXER / DRIVER (V3B) ===================
 YM = 89
@@ -244,8 +246,10 @@ s.glabel("PIG", 222, YPH, 180)
 s.wire(222, YPH, 230, YPH)
 s.junction(230, YPH)
 s.wire(230, YPH, 250.38, YPH)
-t4a = s.triode("V4A", "12AT7", XPI, YPH)
-t4b = s.triode("V4B", "12AT7", XPI, YPB)
+# The factory schematic prints the 47k-feedback-junction half on 2/1/3 and the
+# other on 7/6/8 — V4A unit 2, V4B unit 1.
+t4a = s.triode("V4A", "12AT7", XPI, YPH, unit=2)
+t4b = s.triode("V4B", "12AT7", XPI, YPB, unit=1)
 s.plate_load("RLPA", "100k 5%", t4a["p"], "B+2")
 s.plate_load("RLPB", "100k 5%", t4b["p"], "B+2")
 # grid leaks: both returned to the tail junction, drawn as one column

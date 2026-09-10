@@ -258,7 +258,10 @@ s.text("Bias-vary tremolo — V3A phase-shift oscillator, DIRECT-COUPLED to the 
        26, 176, 1.5)
 s.text("Neither half has a static operating point, so both are excluded from the netlist — a DC pass says nothing about oscillation, rate or depth (see the circuit story)",
        26, 181, 1.3)
-t3a = s.triode("V3A", "12AX7", 100, YT)
+# The factory schematic (6518×4128) puts the oscillator on 1/2/3 — its 100k
+# plate load runs across the socket from pin 1 to the follower's pin 6, and a
+# strap ties pin 7 to pin 1 — so V3A is unit 2 and the follower V3B unit 1.
+t3a = s.triode("V3A", "12AX7", 100, YT, unit=2)
 s.wire(100, YT - 7.62, 100, PT_)
 s.sym("R", "RL3", "100k", 100, PT_ - 3.81)
 s.wire(100, PT_ - 7.62, 100, PT_ - 10.16)
@@ -310,7 +313,7 @@ cathode_rc("RK3", "1.5k", "CK3", "25u", 100, YT + 11)
 # V3A plate -> V3B grid, direct
 s.wire(100, PT_, 118, PT_)
 s.wire(118, PT_, 118, YT)
-t3b = s.triode("V3B", "12AX7", 140, YT)
+t3b = s.triode("V3B", "12AX7", 140, YT, unit=1)
 s.wire(118, YT, t3b["g"][0], YT)
 s.wire(140, YT - 7.62, 140, 196)
 s.glabel("B+2", 140, 196, 90)

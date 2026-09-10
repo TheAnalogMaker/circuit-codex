@@ -46,7 +46,8 @@ OUT = Path(__file__).resolve().parent.parent / "amps" / "ab763-super" / "schemat
 s = Sch()
 
 
-def input_stage(y, j1, j2, r1, r2, rleak, vref, vval, rload, rk, ck, rail, x=52):
+def input_stage(y, j1, j2, r1, r2, rleak, vref, vval, rload, rk, ck, rail, x=52,
+                unit=None):
     """Two-jack input: 68k stoppers -> grid (1M leak) -> triode -> plate load +
     RC cathode. Returns the triode pin dict."""
     gb = 40  # grid-bus x
@@ -62,7 +63,7 @@ def input_stage(y, j1, j2, r1, r2, rleak, vref, vval, rload, rk, ck, rail, x=52)
     s.junction(gb, y)
     s.sym("R", rleak, "1M", gb, y + 3.81 + 4)
     s.gnd(gb, y + 7.62 + 4)
-    t = s.triode(vref, vval, x, y)
+    t = s.triode(vref, vval, x, y, unit=unit)
     s.wire(gb, y, t["g"][0], y)
     s.plate_load(rload, "100k", t["p"], rail)
     s.wire(x, y + 7.62, x, y + 9)
@@ -154,8 +155,11 @@ s.note('Chart notice: voltages read to ground with an electronic voltmeter, valu
 # ============================ NORMAL CHANNEL (top row) =================
 YN = 64
 s.text("Normal channel (two-knob stack — fixed bleed, no Middle)", 12, 44, 1.7)
+# Socket basing from the factory layout (3299×2551): on each channel's 7025 the
+# input stage's +270 V plate (100k slope) lands on pin 1 and the second stage's
+# (.047 coupler) on pin 6 — V1A/V2A unit 2, V1B/V2B unit 1.
 t1 = input_stage(YN, "NORM 1", "NORM 2", "R1n", "R2n", "RGN1", "V1A", "12AX7",
-                  "RLN1", "RKN1", "CKN1", "BD")
+                  "RLN1", "RKN1", "CKN1", "BD", unit=2)
 teeN = YN - 7.62 - 3.48
 noutx = tone_stack(teeN, "CTN", "RSN", "CBN", "CBN2", "VRTN", "VRBN", "VRVN",
                     "CBRN", "SWBN", "RSLN", "6.8k", False, xT=96, xv=114)
@@ -166,7 +170,7 @@ noutx = tone_stack(teeN, "CTN", "RSN", "CBN", "CBN2", "VRTN", "VRBN", "VRVN",
 # Its cathode carries NO resistor: the drawing boxes that pin [A] and returns it
 # to the 820 Ohm / 25 uF drawn once at V2B, so the label is the connection.
 XV1B = 152
-t1b = s.triode("V1B", "12AX7", XV1B, YN)
+t1b = s.triode("V1B", "12AX7", XV1B, YN, unit=1)
 s.wire(noutx, YN, t1b["g"][0], YN)
 s.plate_load("RLN2", "100k", t1b["p"], "BD")
 s.wire(XV1B, YN + 7.62, XV1B, YN + 11)
@@ -189,7 +193,7 @@ s.glabel("PIG", 246, YN, 0)
 YV = 118
 s.caption("Vibrato channel (reverb + tremolo) — three-knob stack, genuine Middle pot", 12, 86, 1.7)
 t2 = input_stage(YV, "VIB 1", "VIB 2", "R1v", "R2v", "RGV1", "V2A", "12AX7",
-                  "RLV1", "RKV1", "CKV1", "BD")
+                  "RLV1", "RKV1", "CKV1", "BD", unit=2)
 teeV = YV - 7.62 - 3.48
 voutx = tone_stack(teeV, "CTV", "RSV", "CBV", "CBV2", "VRTV", "VRBV", "VRVV",
                     "CBRV", "SWBV", "VRMV", "10k-A mid", True, xT=96, xv=114)
@@ -202,7 +206,7 @@ voutx = tone_stack(teeV, "CTV", "RSV", "CBV", "CBV2", "VRTV", "VRBV", "VRVV",
 # through RLV2's body and out both its pins: the load was shorted out and the
 # plate sat on the BD rail together with the grid it was supposed to drive.
 XV2B = 152
-t2b = s.triode("V2B", "12AX7", XV2B, YV)
+t2b = s.triode("V2B", "12AX7", XV2B, YV, unit=1)
 s.wire(voutx, YV, t2b["g"][0], YV)
 s.plate_load("RLV2", "100k", t2b["p"], "BD")
 s.wire(XV2B, YV + 7.62, XV2B, YV + 9)

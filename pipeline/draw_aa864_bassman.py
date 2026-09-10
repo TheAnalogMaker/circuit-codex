@@ -35,7 +35,7 @@ XWIP = 135     # volume-wiper lane
 XV2 = 158      # second triode
 
 
-def input_stage(y, j1, j2, r1, r2, rleak, vref, rload, rk, ck):
+def input_stage(y, j1, j2, r1, r2, rleak, vref, rload, rk, ck, unit=None):
     """Two-jack input: 68k stoppers -> grid (1M leak) -> 7025 -> 100k plate load
     off the preamp rail + 1.5k/25u cathode RC. Returns the triode pin dict."""
     gb, d = 40, 5.5                          # grid-bus x, jack-row spacing
@@ -51,7 +51,7 @@ def input_stage(y, j1, j2, r1, r2, rleak, vref, rload, rk, ck):
     s.junction(gb, y)
     s.sym("R", rleak, "1M", gb, y + 3.81 + d)
     s.gnd(gb, y + 7.62 + d)
-    t = s.triode(vref, "7025", XV1, y)
+    t = s.triode(vref, "7025", XV1, y, unit=unit)
     s.wire(gb, y, t["g"][0], y)
     s.plate_load(rload, "100k", t["p"], "B+PRE")
     s.wire(XV1, y + 7.62, XV1, y + 9)
@@ -59,9 +59,9 @@ def input_stage(y, j1, j2, r1, r2, rleak, vref, rload, rk, ck):
     return t
 
 
-def second_stage(y, vref, rload, rk, ck):
+def second_stage(y, vref, rload, rk, ck, unit=None):
     """Volume wiper -> second 7025 half (100k / 1.5k / 25u), grid fed at XWIP."""
-    t = s.triode(vref, "7025", XV2, y)
+    t = s.triode(vref, "7025", XV2, y, unit=unit)
     s.wire(XWIP, y, t["g"][0], y)
     s.plate_load(rload, "100k", t["p"], "B+PRE")
     s.wire(XV2, y + 7.62, XV2, y + 9)
@@ -84,7 +84,10 @@ s.note("Heaters, pilot lamp and the PT's 6.3 V winding omitted here — see the 
 YB = 62
 TB = YB - 11.1                       # plate-tee / tone-stack input line
 s.text("Bass Instrument channel — three gain stages", 12, 32, 1.6)
-input_stage(YB, "BASS 2", "BASS 1", "R1b", "R2b", "RGB1", "V1A", "RLB1", "RKB1", "CKB1")
+# The factory schematic (6061×3777) prints its own pin numbers: each channel's
+# input stage on 2/1/3 (unit 2) and its second stage on 7/6/8 (unit 1).
+input_stage(YB, "BASS 2", "BASS 1", "R1b", "R2b", "RGB1", "V1A", "RLB1", "RKB1", "CKB1",
+            unit=2)
 
 # --- Bass tone stack. 250 pF off the plate into a 250k series resistor above a
 #     50k treble pot; ONE 100k slope resistor down to the ladder node; and three
@@ -132,7 +135,7 @@ s.sym("SWITCH", "SWDEEP", "Deep", XPOT, TB + 29.08, rot=90, lx=3.6, ly=-1.0)
 s.gnd(XPOT, TB + 34.16)
 volume(TB, "VRVB", "250k vol")
 s.wire(XWIP, TB + 1.62, XWIP, YB)
-second_stage(YB, "V1B", "RLB2", "RKB2", "CKB2")
+second_stage(YB, "V1B", "RLB2", "RKB2", "CKB2", unit=1)
 
 # --- V1B plate -> 0.1 uF -> 220k/220k divider (0.001 uF across the foot) -> V3B
 XDIV = 184
@@ -177,7 +180,8 @@ s.glabel("PIMIX", 244, TB, 0)
 YN = 180
 TN = YN - 11.1
 s.text("Normal channel — the blackface two-knob stack", 12, 143, 1.6)
-input_stage(YN, "NORM 2", "NORM 1", "R1n", "R2n", "RGN1", "V2A", "RLN1", "RKN1", "CKN1")
+input_stage(YN, "NORM 2", "NORM 1", "R1n", "R2n", "RGN1", "V2A", "RLN1", "RKN1", "CKN1",
+            unit=2)
 s.wire(XV1, TN, 78, TN)
 s.junction(XV1, TN)
 tl, tr = s.series_h("C", "CTN", "250p", 94, TN - 6)
@@ -221,7 +225,7 @@ s.wire(154, TN - 18, 154, TN + 1.62)
 s.wire(154, TN + 1.62, XWIP, TN + 1.62)
 s.junction(XWIP, TN + 1.62)
 s.wire(XWIP, TN + 1.62, XWIP, YN)
-second_stage(YN, "V2B", "RLN2", "RKN2", "CKN2")
+second_stage(YN, "V2B", "RLN2", "RKN2", "CKN2", unit=1)
 s.wire(XV2, TN, 172, TN)
 s.junction(XV2, TN)
 nl, nr = s.series_h("R", "RMXN", "220k", 178, TN)
@@ -232,8 +236,10 @@ s.glabel("PIMIX", 244, TN, 0)
 # ============================ PHASE INVERTER (LTP) ====================
 XPI, YPH, YPB, JY, XK = 266, 80, 120, 100, 252
 TPA, TPB = YPH - 11.1, YPB - 11.1
-s.triode("V4A", "12AT7", XPI, YPH)
-s.triode("V4B", "12AT7", XPI, YPB)
+# The factory schematic prints the .1/500 pF-fed (82k) triode on 2/1/3 and the
+# 100k half on 7/6/8 — V4A unit 2, V4B unit 1.
+s.triode("V4A", "12AT7", XPI, YPH, unit=2)
+s.triode("V4B", "12AT7", XPI, YPB, unit=1)
 s.plate_load("RLPA", "82k 5%", (XPI, YPH - 7.62), "B+PI")
 s.plate_load("RLPB", "100k 5%", (XPI, YPB - 7.62), "B+PI")
 # joined cathodes, taken down the left flank to the tail rail

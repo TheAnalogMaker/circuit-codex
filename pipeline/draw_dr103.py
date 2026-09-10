@@ -100,7 +100,10 @@ s.junction(MIXLINE_X, 96.71)
 s.junction(MIXLINE_X, V2_Y)
 
 # ================== V2B second stage + V2A cathode follower =================
-t2b = s.triode("V2B", "ECC83", 120, V2_Y)
+# Basing from the hiwatt.org sheet (Mark Huss redraw rev 1.0, 4400×3400 — not a
+# factory print): the gain stage is 6/7/8 and the cathode follower 1/2/3, so
+# V2B is unit 1 and V2A (the follower) unit 2; V3 the same.
+t2b = s.triode("V2B", "ECC83", 120, V2_Y, unit=1)
 s.wire(MIXLINE_X, V2_Y, t2b["g"][0], V2_Y)
 s.plate_load("RL3", "220k", t2b["p"], "B+4")
 s.wire(120, V2_Y + 7.62, 120, V2_Y + 10)
@@ -110,7 +113,7 @@ s.gnd(126, V2_Y + 17.62)
 tee = V2_Y - 7.62 - 3.48
 s.wire(120, tee, 128, tee)
 s.junction(120, tee)
-t2a = s.triode("V2A", "ECC83 CF", 136, V2_Y)
+t2a = s.triode("V2A", "ECC83 CF", 136, V2_Y, unit=2)
 s.wire(128, tee, 128, V2_Y)
 s.wire(128, V2_Y, t2a["g"][0], V2_Y)
 s.wire(136, V2_Y - 7.62, 136, V2_Y - 10.5)
@@ -170,7 +173,7 @@ s.sym("POT", "VR6", "470k-A master", 190, 133.81, lx=2.4, ly=-8.0)
 s.gnd(190, 137.62)
 
 # ================= V3B driver + V3A second cathode follower =================
-t3b = s.triode("V3B", "ECC83", 210, V2_Y)
+t3b = s.triode("V3B", "ECC83", 210, V2_Y, unit=1)
 s.wire(195.08, 133.81, 199, 133.81)
 s.wire(199, 133.81, 199, V2_Y)
 s.wire(199, V2_Y, t3b["g"][0], V2_Y)
@@ -195,7 +198,7 @@ s.wire(r18r, 131, 229, 131)
 s.wire(229, 131, 229, PT_Y)
 s.junction(229, PT_Y)
 s.wire(229, PT_Y, 229, V2_Y)
-t3a = s.triode("V3A", "ECC83 CF", 240, V2_Y)
+t3a = s.triode("V3A", "ECC83 CF", 240, V2_Y, unit=2)
 s.wire(229, V2_Y, t3a["g"][0], V2_Y)
 s.junction(229, V2_Y)
 s.wire(229, V2_Y, 229, V2_Y + 2)

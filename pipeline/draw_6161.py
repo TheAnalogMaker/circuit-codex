@@ -96,7 +96,9 @@ s.note("The two stubs lettered A are the sheet's own markers on the two output-g
 Y1 = 62
 s.caption('Channel 1 — 2.2 kΩ cathode left UNBYPASSED, and no grid stopper', 12, 46, 1.6)
 input_pair(Y1, "CH1 TREBLE", "CH1 BASS", "CIN1", "RMX1", "RG1")
-t1a = s.triode("V1A", "12AX7", 54, Y1)
+# The Valco sheet (2901×1908) prints 1/2/3 on the channel-1 half (470k leak,
+# unbypassed 2.2k) — V1A is unit 2, and channel 2 (V1B) takes 6/7/8, unit 1.
+t1a = s.triode("V1A", "12AX7", 54, Y1, unit=2)
 s.wire(GB, Y1, t1a["g"][0], Y1)
 # plate -> 270k load -> channel-1 supply node -> 100k dropper -> B1
 TEE1 = 50.9
@@ -126,7 +128,7 @@ Y2 = 120
 s.caption('Channel 2 — 2.2 kΩ grid stopper, 1.5 kΩ cathode bypassed by 35 µF', 12, 90, 1.6)
 s.note("Channel 2 also carries a 500 pF cut on its plate, and its cathode is node C — shared with the tremolo follower.")
 input_pair(Y2, "CH2 TREBLE", "CH2 BASS", "CIN2", "RMX2", "RG2")
-t1b = s.triode("V1B", "12AX7", 60, Y2)
+t1b = s.triode("V1B", "12AX7", 60, Y2, unit=1)
 l, r = s.series_h("R", "RGS1", "2.2k", 46, Y2)
 s.wire(GB, Y2, l, Y2)
 s.wire(r, Y2, t1b["g"][0], Y2)
@@ -193,7 +195,9 @@ s.text("Paraphase phase inverter — no shared cathode, no tail, no feedback: th
        196, 48, 1.5)
 s.text("and its own 3.9 kΩ cathode is left unbypassed to hold its gain down to what that divider asks for. The 12 kΩ sets the balance of the whole output stage on its own.",
        196, 52, 1.3)
-t2a = s.triode("V2A", "12AX7", 210, 87)
+# The Valco sheet prints 1/2/3 on the 1 MEG-grid / 2.2k-cathode half and
+# 6/7/8 on the paraphase (3.9k) half — V2A unit 2, V2B unit 1.
+t2a = s.triode("V2A", "12AX7", 210, 87, unit=2)
 s.wire(192, MIXY, t2a["g"][0], 87)
 TEEA = 75.9
 s.wire(210, t2a["p"][1], 210, TEEA)
@@ -204,7 +208,7 @@ s.glabel("B1", 210, 65, 90)
 s.wire(210, t2a["k"][1], 210, 96)
 s.shunt_rc("RK3", "2.2k", "CK3", ".05u", 210, 96)
 
-t2b = s.triode("V2B", "12AX7", 210, 140)
+t2b = s.triode("V2B", "12AX7", 210, 140, unit=1)
 TEEB = 128.9
 s.wire(210, t2b["p"][1], 210, TEEB)
 s.junction(210, TEEB)

@@ -169,8 +169,11 @@ s.text("Long-tailed-pair phase inverter", 196, 86, 1.6)
 s.sym("C", "C9", ".01u", 232, YPH, rot=90, lx=-3.2, ly=-6.2)
 s.wire(186, YPH, 228.19, YPH)
 s.wire(235.81, YPH, 250.38, YPH)
-t3a = s.triode("V3A", "12AX7", XPI, YPH)
-t3b = s.triode("V3B", "12AX7", XPI, YPB)
+# Socket basing from the factory layout (6428×4213): the 82k half's +230 V
+# plate lands on pin 1 with the .01/1M input at pin 2; the 100k half's
+# +225 V on pin 6 with the feedback eyelet at 7 — V3A unit 2, V3B unit 1.
+t3a = s.triode("V3A", "12AX7", XPI, YPH, unit=2)
+t3b = s.triode("V3B", "12AX7", XPI, YPB, unit=1)
 s.plate_load("RLA", "82k 5%", t3a["p"], "B+3")
 s.plate_load("RLB", "100k 5%", t3b["p"], "B+3")
 # cathodes join on a left stub; 820 from there to the tail junction

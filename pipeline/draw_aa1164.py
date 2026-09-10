@@ -251,7 +251,9 @@ s.gnd(114, tk["out_c"][1])
 # recovery stage V3A: tank hot -> grid, 220k leak to ground
 s.wire(tk["out_h"][0], tk["out_h"][1], 124, tk["out_h"][1])
 s.wire(124, tk["out_h"][1], 124, YR)
-t3a = s.triode("V3A", "12AX7", 136, YR)
+# The factory schematic (5554×4346) prints the recovery stage on 1/2/3 and
+# the mixer on 6/7/8 — V3A unit 2, V3B unit 1.
+t3a = s.triode("V3A", "12AX7", 136, YR, unit=2)
 s.wire(124, YR, t3a["g"][0], YR)
 s.junction(124, YR)
 s.sym("R", "RGR1", "220k", 124, YR + 3.81, ly=0.8)
@@ -340,7 +342,7 @@ s.glabel("MIXG", 12, YM, 180)
 s.wire(12, YM, 36, YM)
 s.wire(36, YM - 10, 36, YM)
 s.junction(36, YM)
-t3b = s.triode("V3B", "12AX7", 52, YM)
+t3b = s.triode("V3B", "12AX7", 52, YM, unit=1)
 s.wire(36, YM, t3b["g"][0], YM)
 s.plate_load("RLD1", "100k", t3b["p"], "B+4")
 # cathode: 1.5k bypassed by 25u, sitting on the unbypassed 47 ohm the loop closes on
