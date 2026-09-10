@@ -66,70 +66,84 @@ def input_stage(y, j1, j2, r1, r2, rleak, vref, rload, rk, ck, rail):
     return t
 
 
-def tone_stack(tee, ct, vrt, rs, vrb, rsl, vrv):
-    """Bass/Treble two-knob passive network, fed directly from the plate tee
-    (no coupling cap ahead of it — the drawing's own printed values give this
-    stack only one blocking cap, CT, unlike the corpus's other tb/ladder
-    stacks). Node A (the plate tee) feeds CT (250 pF) to the treble pot's top
-    lug and RS (100k) down to node B; node B bleeds to ground through RSL and
-    also carries the bass pot, wired as a rheostat (wiper strapped to its hot
-    lug) and tied at its foot to the treble pot's bottom lug. The treble wiper
-    is the stack's output, feeding the volume pot. Returns the volume pot's
-    wiper (x, y) for the next (recovery) stage's grid.
+def tone_stack(tee, cc, ct, vrt, rs, vrb, cb, rsl, vrv, cbr):
+    """Bass/Treble two-knob network as the A-FJ sheet draws it. The plate tee
+    feeds the stack through CC (.05) to the stack input T. From T: CT (250MM)
+    to the Treble pot's hot lug (pin 1) and RS (100k) down to node A, the
+    slope foot, which also carries the Treble pot's cold lug (pin 3) and the
+    Bass pot's hot lug. The Bass control is a DIVIDER from A to ground: CB
+    (.01) bridges its upper section (A to the wiper, node B) and RSL (10k)
+    bridges its lower (B to ground); the pot's foot lug is grounded. The
+    Treble wiper is the stack's output, into the Volume pot, with CBR (47MM)
+    from the Volume pot's hot lug to its wiper. Returns the Volume wiper (x, y)
+    for the recovery stage's grid.
+
+    Until 2026-09-10 this function drew neither capacitor, took the slope
+    straight off the plate (a DC path to ground through the stack) and
+    strapped the Bass pot as a rheostat above the 10k.
 
     POT pin geometry (cx:POT, rot 0): pin 1 (top) = center_y - 3.81,
-    pin 3 (bottom) = center_y + 3.81, pin 2 (wiper) = (center_x + 5.08, center_y)."""
+    pin 3 (bottom) = center_y + 3.81, pin 2 (wiper) = (center_x + 5.08,
+    center_y); mirror="y" puts the wiper at center_x - 5.08."""
     s.junction(VX, tee)
-    s.wire(VX, tee, 70, tee)                     # node A
+    s.wire(VX, tee, 56.19, tee)
+    s.series_h("C", cc, ".05u", 60, tee)             # coupler: plate tee -> T
+    s.wire(63.81, tee, 70, tee)                      # node T (stack input)
 
-    ty = tee - 12                                 # treble pot centre y
+    ty = tee - 12                                    # treble pot centre y
     tl, tr = s.series_h("C", ct, "250p", 76, ty - 3.81)
     s.wire(70, tee, 70, ty - 3.81)
     s.wire(70, ty - 3.81, tl, ty - 3.81)
-    s.wire(tr, ty - 3.81, 88, ty - 3.81)          # -> treble pot top lug (pin 1)
-    s.sym("POT", vrt, "250k-L treb", 88, ty)
+    s.wire(tr, ty - 3.81, 88, ty - 3.81)             # -> treble pot hot lug (pin 1)
+    s.sym("POT", vrt, "250k-L treb", 88, ty, lx=2.4, ly=-9.2)
 
-    by = tee + 8                                  # node B (slope foot) y
-    sl, sr = s.series_h("R", rs, "100k", 75, by)
-    s.wire(70, tee, 70, by)
+    ay = tee + 8                                     # node A (slope foot) y
+    sl, sr = s.series_h("R", rs, "100k", 75, ay)
+    s.wire(70, tee, 70, ay)
     s.junction(70, tee)
-    s.wire(70, by, sl, by)
-    s.wire(sr, by, 79, by)
-    s.junction(79, by)                            # node B
-    s.wire(88, ty + 3.81, 88, by)                 # treble bottom lug (pin 3) -> node B
-    s.wire(79, by, 88, by)                        # tie node B (RS/RSL) to that landing
-    bay = by + 7.81                               # bass pot centre y
-    s.sym("POT", vrb, "250k-A bass", 88, bay)
-    s.wire(93.08, bay, 100, bay)                  # bass wiper (pin 2) -> hot lug (pin 1), rheostat
-    s.wire(100, bay, 100, bay - 3.81)
-    s.wire(100, bay - 3.81, 88, bay - 3.81)
-    s.junction(88, bay - 3.81)
-    s.wire(88, by, 88, bay - 3.81)                # tie the two "node B" landings
-    s.junction(88, by)
-    # RSL is this ladder's mid leg and hangs off the bass rheostat's FOOT lug —
-    # drawn from node B instead, the pot bridged nothing at all and its third
-    # lug floated (docs/lettering aside, the corpus's 'ladder' wiring is
-    # documented in check_tonestack_wiring.py: N5 = bass-rheostat foot =
-    # mid-leg top). No bass cap on this stack, so node B is N2 and N4 at once.
-    s.wire(88, bay + 3.81, 79, bay + 3.81)        # bass foot lug -> mid leg
-    s.sym("R", rsl, "10k", 79, bay + 7.62)
-    s.gnd(79, bay + 11.43)
+    s.wire(70, ay, sl, ay)
+    s.wire(sr, ay, 79, ay)
+    s.junction(79, ay)                               # node A
+    s.wire(79, ay, 88, ay)
+    s.wire(88, ty + 3.81, 88, ay)                    # treble cold lug (pin 3) -> node A
+    s.junction(88, ay)
+    # Bass pot, mirrored so its wiper faces the capacitor and the foot: pin 1
+    # (hot) on node A, pin 3 (foot) grounded, wiper = node B.
+    bay = ay + 7.62                                  # bass pot centre y
+    s.sym("POT", vrb, "250k-A bass", 88, bay, mirror="y", lx=2.4, ly=-1.5)
+    s.wire(88, ay, 88, bay - 3.81)                   # node A -> bass hot lug (pin 1)
+    s.gnd(88, bay + 3.81)                            # bass foot lug (pin 3) -> ground
+    s.sym("C", cb, ".01u", 79, ay + 3.81, lx=-8.6, ly=0.0)   # CB: node A -> node B
+    s.wire(79, ay + 7.62, 82.92, ay + 7.62)          # node B -> bass WIPER (mirrored, left)
+    s.junction(79, ay + 7.62)
+    s.sym("R", rsl, "10k", 79, ay + 7.62 + 3.81, lx=-9.4)   # RSL: node B -> ground
+    s.gnd(79, ay + 15.24)
 
-    s.wire(93.08, ty, 100.5, ty)                  # treble wiper (pin 2) = stack output
-    s.sym("POT", vrv, "500k-L vol", 100.5, ty + 3.81)
+    # treble wiper (pin 2) = stack output -> Volume pot hot lug (pin 1)
+    s.wire(93.08, ty, 100.5, ty)
+    s.sym("POT", vrv, "500k-L vol", 100.5, ty + 3.81, lx=-11.6, ly=-10.4)
     s.gnd(100.5, ty + 7.62)
+    # bright cap: Volume hot lug -> wiper, drawn over the pot
+    s.junction(100.5, ty)
+    s.wire(100.5, ty, 100.5, ty - 6)
+    bl, br = s.series_h("C", cbr, "47p", 106, ty - 6)
+    s.wire(100.5, ty - 6, bl, ty - 6)
+    s.wire(br, ty - 6, 112, ty - 6)
+    s.wire(112, ty - 6, 112, ty + 3.81)
+    s.wire(105.58, ty + 3.81, 112, ty + 3.81)
+    s.junction(105.58, ty + 3.81)
     return (105.58, ty + 3.81)
 
 
 def channel(y, ch, j1, j2, r1, r2, rleak, v_in, v_rec, rload_in, rload_rec,
-            rk_in, ck_in, rk_rec, ck_rec, ct, vrt, rs, vrb, rsl, vrv,
+            rk_in, ck_in, rk_rec, ck_rec, cc_t, ct, vrt, rs, vrb, cb_t, rsl, vrv, cbr,
             cc, mixer, mixer_val, rail_in, rail_rec, y_rec):
     """One full channel: input stage -> tone stack -> recovery stage ->
     coupler -> mixing resistor -> the shared GPIA bus."""
     s.text(f"Channel {ch}", 12, y - 14, 1.6)
     t_in = input_stage(y, j1, j2, r1, r2, rleak, v_in, rload_in, rk_in, ck_in, rail_in)
     tee = y - 7.62 - 3.48
-    wiper = tone_stack(tee, ct, vrt, rs, vrb, rsl, vrv)
+    wiper = tone_stack(tee, cc_t, ct, vrt, rs, vrb, cb_t, rsl, vrv, cbr)
     t_rec = s.triode(v_rec, "7025", 116, y_rec)
     s.wire(wiper[0], wiper[1], wiper[0], y_rec)
     s.wire(wiper[0], y_rec, t_rec["g"][0], y_rec)
@@ -150,14 +164,14 @@ def channel(y, ch, j1, j2, r1, r2, rleak, v_in, v_rec, rload_in, rload_rec,
 
 # ============================ TITLE ==================================
 s.note('Rails: BP1 +456 (6L6GC plates/screens, OT CT) · BD +261 (calibrated, both input stages) · BE1 +284 (ch.1 recovery, calibrated) · BE2 +215 (ch.2 recovery, calibrated) · BC = BP1 via 4700 1W (PI plates) · bias -55 V')
-s.note("Heaters, PT primary/mains, pilot lamp and the vibrato-pedal jack's switching are omitted here — see netlist.cir, meta.yaml, layout.yaml. Bottles are 7025, a low-noise 12AX7 (also_known_as).")
+s.note("Heaters, PT primary/mains, pilot lamp and the vibrato-pedal jack's switching are omitted here — see the netlist, the sources list and the board drawing. Bottles are 7025, a low-noise 12AX7 (an alias of the same valve).")
 
 # ============================ CHANNEL 1 ================================
 YN = 62
 YN_REC = 66
 channel(YN, 1, "CH1 IN 1", "CH1 IN 2", "R1a", "R2a", "RG1I", "V1", "V2A",
         "RL1I", "RL1D", "RK1I", "CK1I", "RK1D", "CK1D",
-        "CT1", "VRT1", "RS1T", "VRB1", "RSL1", "VRV1",
+        "CC1T", "CT1", "VRT1", "RS1T", "VRB1", "CB1T", "RSL1", "VRV1", "CBR1",
         "CC1D", "RM1", "6.8k", "BD", "BE1", YN_REC)
 
 # ============================ CHANNEL 2 ================================
@@ -165,7 +179,7 @@ YB = 128
 YB_REC = 132
 channel(YB, 2, "CH2 IN 1", "CH2 IN 2", "R1b", "R2b", "RG2I", "V3", "V4",
         "RL2I", "RL2D", "RK2I", "CK2I", "RK2D", "CK2D",
-        "CT2", "VRT2", "RS2T", "VRB2", "RSL2", "VRV2",
+        "CC2T", "CT2", "VRT2", "RS2T", "VRB2", "CB2T", "RSL2", "VRV2", "CBR2",
         "CC2D", "RM2", "220k", "BD", "BE2", YB_REC)
 
 
@@ -192,7 +206,7 @@ s.glabel("GPIA", 148, 178, 0)
 # oscillator limiting mechanism.
 YT = 100
 s.caption("Tremolo oscillator (V2B, shares V2's bottle with channel 1's recovery stage) — three-stage RC phase-shift ladder", 160, 82, 1.4)
-s.note('Excluded from netlist.cir — a running oscillator has no static operating point (notes.md)')
+s.note('Excluded from the netlist — a running oscillator has no static operating point (see the circuit story)')
 t2b = s.triode("V2B", "7025", 176, YT, lx=6.0, ly=8.0)
 s.plate_load("RTO1", "100k", t2b["p"], "BP1")
 s.gnd(176, YT + 7.62)
@@ -429,7 +443,7 @@ s.gnd(262, BY + 7.62)
 s.wire(268, BY - 3.5, 268, BY)
 s.glabel("BP1", 268, BY - 3.5, 90)
 s.junction(268, BY)
-s.note("C10 stands for the drawing's several HT filter cans; per-node values were not fully resolved at this scan's resolution (see bom.yaml)")
+s.note("C10 stands for the drawing's several HT filter cans; per-node values were not fully resolved at this scan's resolution (see the parts list)")
 
 # BD/BE1/BE2: labelled rails only — the drawing's own dropping-resistor
 # chain from BP1 into these three preamp rails was not legible at this
@@ -438,7 +452,7 @@ s.note("C10 stands for the drawing's several HT filter cans; per-node values wer
 # feeding BD; BE1/BE2 have no discrete bom.yaml part and are left as plain
 # labels — nothing else is invented here. netlist.cir drives each rail
 # independently.
-s.note("BD/BE1/BE2 (preamp rails) are calibrated ideal sources in netlist.cir — the drawing's own dropper chain into them was not legible (notes.md); only CH1 is a named bom.yaml part.")
+s.note("BD/BE1/BE2 (preamp rails) are calibrated ideal sources in the netlist — the drawing's own dropper chain into them was not legible (see the circuit story); only CH1 is a named part in the parts list.")
 s.wire(268, BY, 280, BY)
 s.sym("CHOKE", "CH1", "125C1A", 287.62, BY, lx=-4.0, ly=-6.4)
 s.wire(295.24, BY, 300, BY)

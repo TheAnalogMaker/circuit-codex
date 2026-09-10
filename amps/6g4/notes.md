@@ -18,9 +18,25 @@ Each channel runs the same recipe, wired independently rather than sharing a
 tone stack: two inputs (68 kΩ stoppers merged into a 1 MΩ leak, no coupling
 cap — the jack-merge node is the first stage's grid directly) → a 7025 input
 stage (100 kΩ plate, 1.5 kΩ cathode) off the shared +170 V input-stage rail →
-a Bass/Treble two-knob tone ladder (250 pF treble cap, 100 kΩ slope, a 10 kΩ
-bleed) → a Volume pot → a second 7025 recovery stage (100 kΩ plate, 820 Ω
-cathode) → a mixing resistor into the phase inverter. The two channels'
+a 0.05 µF coupling capacitor into a Bass/Treble two-knob network → a 500 kΩ-L
+Volume pot with a 47 pF bright capacitor from its hot lug to its wiper → a
+second 7025 recovery stage (100 kΩ plate, 820 Ω cathode) → a mixing resistor
+into the phase inverter.
+
+The tone network is not the blackface ladder, though it shares the ladder's
+front half. From the coupler, a 250 pF treble capacitor feeds the hot lug of
+a 250 kΩ-L Treble pot and a 100 kΩ slope resistor drops to the slope foot,
+where the Treble pot's cold lug also sits — so far as the AB763 draws it. The
+Bass control is different: a 250 kΩ-A pot wired as a **divider** from the
+slope foot to ground, with the 0.01 µF bass capacitor across its upper
+section (hot lug to wiper) and a 10 kΩ foot resistor across its lower (wiper
+to ground). Turned up, the wiper shorts the capacitor out and the slope foot
+sees the 10 kΩ; turned down, the capacitor goes straight to ground and the
+lows go with it. The Treble wiper alone is the network's output. The brown
+Pro ([6G5](/amps/6g5/)) draws the same network part for part. An earlier
+drawing here left out both capacitors, took the slope straight off the plate
+and strapped the Bass pot as a rheostat above the 10 kΩ; the sheet was
+re-read lug by lug and the network redrawn. The two channels'
 recovery stages sit on **different** rails, though — channel 1's plate prints
 +160 V and channel 2's +120 V — so this circuit, unlike its siblings, is not
 simulated as perfectly symmetric between channels; each recovery rail is

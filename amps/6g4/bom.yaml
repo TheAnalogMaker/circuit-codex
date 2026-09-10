@@ -8,7 +8,7 @@
 # per-stage grouping. Which physical bottle holds which pair of triode
 # sections is set out in the "Tubes" section below: the oscillator shares
 # channel 1's recovery-stage bottle (V2A/V2B), and the phase inverter is V5.
-notes: "The oscillator's own resistor/cap network (Speed ladder, Intensity feed) is listed but its DC point is excluded from the netlist — see the circuit story. The tone-stack and volume-pot networks between the input and recovery stages carry no DC path in this model and are listed for completeness."
+notes: "The oscillator's own resistor/cap network (Speed ladder, Intensity feed) is listed but its DC point is excluded from the netlist — see the circuit story. The tone-stack and volume-pot networks between the input and recovery stages carry no DC path in this model and are listed for completeness: each channel's stack is fed through a 0.05 µF coupling capacitor and runs a 100 kΩ slope, a 250 pF treble capacitor, a 0.01 µF bass capacitor on the Bass pot's wiper and a 10 kΩ foot, with a 47 pF bright capacitor across the Volume pot — every value as the drawing letters it."
 items:
   # --- Channel 1 input stage ---
   - { ref: R1a, part: "Carbon comp resistor", value: "68 kΩ · ½ W", role: "Channel-1 input grid stopper (jack 1)" }
@@ -17,13 +17,16 @@ items:
   - { ref: RL1I, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "Channel-1 input-stage plate load" }
   - { ref: RK1I, part: "Carbon comp resistor", value: "1.5 kΩ · ½ W", role: "Channel-1 input-stage cathode bias" }
   - { ref: CK1I, part: "Dual electrolytic capacitor", value: "25 µF", role: "Channel-1 input-stage cathode bypass — one 25 µF section of a dual 25/25 µF can" }
-  # --- Channel 1 tone stack + volume ---
-  - { ref: CT1, part: "Mica capacitor", value: "250 pF", role: "Channel-1 treble cap (250MM on the drawing)" }
-  - { ref: VRT1, part: "Potentiometer", value: "250 kΩ-L", role: "Channel-1 treble" }
-  - { ref: RS1T, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "Channel-1 tone-stack slope resistor" }
-  - { ref: VRB1, part: "Potentiometer", value: "250 kΩ-A", role: "Channel-1 bass" }
-  - { ref: RSL1, part: "Carbon comp resistor", value: "10 kΩ · ½ W", role: "Channel-1 tone-stack bleed resistor" }
-  - { ref: VRV1, part: "Potentiometer", value: "500 kΩ-L", role: "Channel-1 volume" }
+  # --- Channel 1 tone stack + volume (the drawing mounts these at the pots) ---
+  - { ref: CC1T, part: "Coupling capacitor", value: "0.05 µF", role: "Channel-1 input-stage plate into the tone network — the stack's coupling capacitor, lettered .05 on the drawing and mounted on the board beside the plate load" }
+  - { ref: CT1, part: "Mica capacitor", value: "250 pF", role: "Channel-1 treble cap (250MM on the drawing), stack input to the Treble pot's hot lug; mounts at the Treble pot" }
+  - { ref: VRT1, part: "Potentiometer", value: "250 kΩ-L", role: "Channel-1 treble — hot lug on the 250 pF, cold lug on the slope foot, wiper to the Volume pot" }
+  - { ref: RS1T, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "Channel-1 tone-stack slope resistor, stack input to the slope foot; mounts at the Treble pot" }
+  - { ref: VRB1, part: "Potentiometer", value: "250 kΩ-A", role: "Channel-1 bass — a divider from the slope foot to ground: the 0.01 µF across its upper section (hot lug to wiper), the 10 kΩ foot across its lower (wiper to ground)" }
+  - { ref: CB1T, part: "Film capacitor", value: "0.01 µF", role: "Channel-1 bass capacitor, slope foot to the Bass pot's wiper; mounts at the Bass pot" }
+  - { ref: RSL1, part: "Carbon comp resistor", value: "10 kΩ · ½ W", role: "Channel-1 bass foot resistor, the Bass pot's wiper to ground; mounts at the Bass pot" }
+  - { ref: VRV1, part: "Potentiometer", value: "500 kΩ-L", role: "Channel-1 volume, fed from the Treble wiper; its own wiper is the recovery stage's grid" }
+  - { ref: CBR1, part: "Mica capacitor", value: "47 pF", role: "Channel-1 bright capacitor across the Volume pot, hot lug to wiper (47MM on the drawing); mounts at the Volume pot" }
   # --- Channel 1 recovery/2nd stage ---
   - { ref: RL1D, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "Channel-1 recovery-stage plate load" }
   - { ref: RK1D, part: "Carbon comp resistor", value: "820 Ω · ½ W", role: "Channel-1 recovery-stage cathode bias" }
@@ -37,13 +40,16 @@ items:
   - { ref: RL2I, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "Channel-2 input-stage plate load" }
   - { ref: RK2I, part: "Carbon comp resistor", value: "1.5 kΩ · ½ W", role: "Channel-2 input-stage cathode bias" }
   - { ref: CK2I, part: "Dual electrolytic capacitor", value: "25 µF", role: "Channel-2 input-stage cathode bypass — one 25 µF section of a dual 25/25 µF can" }
-  # --- Channel 2 tone stack + volume ---
-  - { ref: CT2, part: "Mica capacitor", value: "250 pF", role: "Channel-2 treble cap" }
-  - { ref: VRT2, part: "Potentiometer", value: "250 kΩ-L", role: "Channel-2 treble" }
-  - { ref: RS2T, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "Channel-2 tone-stack slope resistor" }
-  - { ref: VRB2, part: "Potentiometer", value: "250 kΩ-A", role: "Channel-2 bass" }
-  - { ref: RSL2, part: "Carbon comp resistor", value: "10 kΩ · ½ W", role: "Channel-2 tone-stack bleed resistor" }
-  - { ref: VRV2, part: "Potentiometer", value: "500 kΩ-L", role: "Channel-2 volume" }
+  # --- Channel 2 tone stack + volume (mirrors channel 1, part for part) ---
+  - { ref: CC2T, part: "Coupling capacitor", value: "0.05 µF", role: "Channel-2 input-stage plate into the tone network — as CC1T" }
+  - { ref: CT2, part: "Mica capacitor", value: "250 pF", role: "Channel-2 treble cap — as CT1" }
+  - { ref: VRT2, part: "Potentiometer", value: "250 kΩ-L", role: "Channel-2 treble — as VRT1" }
+  - { ref: RS2T, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "Channel-2 tone-stack slope resistor — as RS1T" }
+  - { ref: VRB2, part: "Potentiometer", value: "250 kΩ-A", role: "Channel-2 bass — a divider from the slope foot to ground, as VRB1" }
+  - { ref: CB2T, part: "Film capacitor", value: "0.01 µF", role: "Channel-2 bass capacitor — as CB1T" }
+  - { ref: RSL2, part: "Carbon comp resistor", value: "10 kΩ · ½ W", role: "Channel-2 bass foot resistor — as RSL1" }
+  - { ref: VRV2, part: "Potentiometer", value: "500 kΩ-L", role: "Channel-2 volume — as VRV1" }
+  - { ref: CBR2, part: "Mica capacitor", value: "47 pF", role: "Channel-2 bright capacitor across the Volume pot — as CBR1" }
   # --- Channel 2 recovery/2nd stage ---
   - { ref: RL2D, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "Channel-2 recovery-stage plate load" }
   - { ref: RK2D, part: "Carbon comp resistor", value: "820 Ω · ½ W", role: "Channel-2 recovery-stage cathode bias" }
