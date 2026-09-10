@@ -31,7 +31,7 @@ heaters_unsourced: >-
   derived from the factory schematic, so no factory drawing can establish its
   heater legs.
 
-caption: "Layout derived from the schematic — no factory layout sheet located. The Marshall JTM45 was a turret-board amp with no Fender-style published layout drawing; Dr. Tube (the schematic source) and a web/browser probe were checked on 2026-07-18 and served none. Board order and point-to-point wiring are reconstructed from schematic.kicad_sch / netlist.cir and follow the Fender 5F6-A layout this circuit copies. All hookup and transformer leads are drawn in the neutral tone: with no layout sheet, no lead colours are asserted (Marshall/Drake colour codes cannot be sourced here). The TMB tone-stack caps (C4/C5/C6) mount at the tone pots; the input grid stoppers (R1s/R2s 68k) and grid leaks (RG1/RG2 1M) sit at the input jacks; the 27k negative-feedback resistor and 5k presence control (with its 0.01µF cap) join the phase-inverter tail foot off-board. The 6.3 V heater chain (green twisted pair, PT → pilot lamp → the two KT66 outputs → the ECC83 phase inverter → the ECC83 driver → the ECC83 input, skipping the directly-heated GZ34) is likewise derived: with no layout sheet its daisy order is the physical socket order and the twisted-pair green is the house heater idiom, not a sourced wire colour (no winding centre-tap arrangement is asserted). Not a trace or a dimensioned reproduction."
+caption: "Layout derived from the schematic — no factory layout sheet located. The Marshall JTM45 was a turret-board amp with no Fender-style published layout drawing; Dr. Tube (the schematic source) and a web/browser probe were checked on 2026-07-18 and served none. Board order and point-to-point wiring are reconstructed from schematic.kicad_sch / netlist.cir and follow the Fender 5F6-A layout this circuit copies. All hookup and transformer leads are drawn in the neutral tone: with no layout sheet, no lead colours are asserted (Marshall/Drake colour codes cannot be sourced here). The three TMB tone-stack caps sit on the board beside the 56 kΩ slope resistor and are wired as the drawing wires them: the 270 pF from the cathode-follower output to the treble pot's top lug, the 0.02 µF from the slope's foot to the treble-bottom / bass node, and the third from the slope's foot into the middle pot's wiper. the input grid stoppers (R1s/R2s 68k) and grid leaks (RG1/RG2 1M) sit at the input jacks; the 27k negative-feedback resistor and 5k presence control (with its 0.01µF cap) join the phase-inverter tail foot off-board. The 6.3 V heater chain (green twisted pair, PT → pilot lamp → the two KT66 outputs → the ECC83 phase inverter → the ECC83 driver → the ECC83 input, skipping the directly-heated GZ34) is likewise derived: with no layout sheet its daisy order is the physical socket order and the twisted-pair green is the house heater idiom, not a sourced wire colour (no winding centre-tap arrangement is asserted). Not a trace or a dimensioned reproduction."
 source:
   desc: "Marshall JTM45 factory schematic ('Basic schematic for Marshall trem amps, types 1961, 1962, 1987/T') — layout derived from this schematic; no factory layout sheet located"
   url: "https://www.drtube.com/schematics/marshall/jtm45tr.gif"
@@ -81,10 +81,13 @@ parts:
   - { ref: C8,   a: [0, 35], b: [0, 36] }   # 0.1 µF V4B grid AC-ground to tail jct
   - { ref: RGA,  a: [1, 36], b: [1, 37] }   # 1M V4A grid leak -> tail junction
   - { ref: RGB,  a: [1, 38], b: [1, 39] }   # 1M V4B grid leak -> tail junction
-  - { ref: RTAIL, a: [0, 41], b: [1, 41] }  # 470 PI tail (vertical)
+  - { ref: RTAIL, a: [1, 41], b: [1, 42], nudge: [0, -16] }  # 470 PI tail along the lower row; its foot shares RT2's eyelet (the tail junction)
   - { ref: RT2,  a: [1, 42], b: [1, 43] }   # 10k tail junction -> ground
-  # --- cathode-follower TMB tone stack (slope + CF load; caps at the pots) -----
-  - { ref: RSL,  a: [1, 45], b: [1, 46] }   # 56k tone-stack slope
+  # --- cathode-follower TMB tone stack: slope, CF load and the three tone caps --
+  - { ref: RSL,  a: [1, 45], b: [1, 46] }   # 56k tone-stack slope (a = CF output, b = the slope foot)
+  - { ref: C4,   a: [0, 43], b: [0, 42] }   # 270 pF treble cap: CF output -> treble pot's top lug
+  - { ref: C5,   a: [0, 45], b: [0, 44] }   # 0.02 µF bass cap: slope foot -> treble-bottom / bass node
+  - { ref: C6,   a: [0, 45], b: [0, 46] }   # middle cap: slope foot -> the middle pot's WIPER
   - { ref: RKCF, a: [0, 47], b: [1, 47] }   # 100k cathode-follower load (vertical)
   # --- channel mixers + V3A second stage --------------------------------------
   - { ref: RM1,  a: [1, 48], b: [1, 49] }   # 270k bright-channel mixer
@@ -209,12 +212,11 @@ runs:
   - { from: RGB.b, to: RT2.a, via: [[39, 1.7], [41.3, 1.7]] }   # 1M grid leak -> tail junction (own lane; approaches RT2.a from lower-left, clear of the NFB return)
   - { from: C8.a, to: RT2.a }                      # V4B grid AC-ground cap -> tail jct
   - { from: C8.b, to: V4.pin2, via: [[35.6, 2.07]] }             # -> V4B grid (drops left of RGA.a, lands V4.pin2 horizontally from the far/left side, clear of pin3)
-  - { from: V4.pin8, to: RTAIL.a, via: [[40.3, 1.2]] }         # V4A cathode -> tail top (higher lane, clear of the presence-ground drop; approaches RTAIL.a from lower-left)
-  - { from: V4.pin3, to: RTAIL.a, via: [[38, 0.7], [41.5, 0.9]] }       # V4B cathode -> tail top (rises steeply left of V4.pin6, high lane clear of RGB.b, then approaches RTAIL.a from the right)
-  - { from: RTAIL.b, to: RT2.a }                   # tail -> junction
+  - { from: V4.pin8, to: RTAIL.a, via: [[40.3, 1.25]] }         # V4A cathode -> tail top (higher lane, clear of the presence-ground drop; approaches RTAIL.a from lower-left)
+  - { from: V4.pin3, to: RTAIL.a, via: [[38, 0.7], [40.6, 0.7]] }       # V4B cathode -> tail top (rises steeply left of V4.pin6, high lane clear of RGB.b, then approaches RTAIL.a from the right)
   - { from: RT2.b, to: [1.45, 43] }                # 10k tail -> ground bus
 
-  # --- cathode-follower TMB tone stack (C4/C5/C6 mount at the pots) -----------
+  # --- cathode-follower TMB tone stack (C4/C5/C6 on the board) --------------
   - { from: V3.pin3, to: RKCF.a, via: [[46.6, 1.5]] }           # CF cathode -> 100k load (approaches RKCF.a from lower-left, clear of RKCF.b / its ground drop)
   - { from: RKCF.b, to: [1.45, 47] }               # CF load -> ground bus
   - { from: V3.pin3, to: RSL.a, via: [[46, 1.72]] }          # CF cathode -> 56k slope
@@ -224,13 +226,15 @@ runs:
   # is a rheostat (the drawing loops its wiper to the foot lug), the mid cap
   # feeds the MIDDLE POT'S WIPER, and the stack's output is the treble wiper
   # alone.
-  - { from: RSL.a, to: VR3.lug3, via: [[43.5, 0.4], [43.3, -0.5]] }   # node A (CF output, the slope's input side) -> 270 pF (at the pot) -> treble top
-  - { from: RSL.b, to: VR4.lug3, via: [[46, 0.3], [45.3, -0.5]] } # slope foot -> 0.02 µF (at the pot) -> bass-cap node
+  - { from: RSL.a, to: C4.a, via: [[44.2, 0.5]] }                     # node A (CF output) -> 270 pF treble cap
+  - { from: C4.b, to: VR3.lug3 }                                      # 270 pF -> treble top
+  - { from: RSL.b, to: C5.a }                                         # slope foot (node B) -> the bass and middle caps' shared eyelet
+  - { from: C5.b, to: VR4.lug3, via: [[45.3, -0.3]] }                  # 0.02 µF bass cap -> bass-cap node (rises straight into the lug)
   - { from: VR3.lug1, to: VR4.lug3, via: [[43, -0.72], [45, -0.72]] } # treble bottom -> bass-cap node
   - { from: VR3.lug2, to: C7.a, via: [[43, -0.55], [33, -0.55]] }  # treble wiper (the stack's output, alone) -> PI coupler
   - { from: VR4.lug2, to: VR4.lug1, via: [[45.15, -0.66], [45.15, -0.95], [44.44, -0.95]] }  # bass wiper looped to its foot lug (rheostat), as the drawing shows
   - { from: VR4.lug1, to: VR5.lug3, via: [[44.9, -0.55], [47.6, -0.55]] }   # bass foot -> middle top (dips below the lug row, clear of the intervening lugs)
-  - { from: RSL.b, to: VR5.lug2, via: [[46.4, 0.35], [46.4, -0.85], [47.5, -0.85]] }  # slope foot -> 0.01 µF (at the pot) -> the middle pot's WIPER
+  - { from: C6.b, to: VR5.lug2 }                                      # middle cap -> the middle pot's WIPER
   - { from: VR5.lug1, to: [1.45, 48] }             # middle bottom -> ground
 
   # --- V3A second stage + V3B cathode follower + mixers ----------------------
@@ -267,7 +271,7 @@ runs:
   - { from: C3.b, to: [1.45, 63] }
 
   # --- presence control (5k, off-board) at the phase-inverter tail foot -------
-  - { from: VRP.lug3, to: RT2.a, via: [[40, -0.78], [42.5, -0.78]] } # presence -> tail junction
+  - { from: VRP.lug3, to: RT2.a, via: [[41.0, 0.8], [42.0, 0.8]] }  # presence -> tail junction, left of the treble cap
   - { from: VRP.lug1, to: [1.45, 40] }             # presence ground
 
   # --- 6.3 V heater chain (green twisted pair, standard-practice / derived) ---
