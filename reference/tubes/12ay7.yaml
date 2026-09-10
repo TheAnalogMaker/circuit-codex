@@ -44,6 +44,32 @@ basing:
     7: { element: grid, unit: 1 }
     8: { element: cathode, unit: 1 }
     9: { element: heater-ct }
+# Centre-tapped, so the same valve runs from either supply — and the two
+# supplies wire the SAME three pins into different connection groups. A layout's
+# `heaters:` block declares which one its source shows, and
+# pipeline/check_heaters.py proves it against this block. Each `legs` entry is
+# one leg of the supply, as pin numbers.
+heater:
+  supplies:
+    - volts: 6.3
+      current_a: 0.3
+      legs: [[4, 5], [9]]
+      note: >-
+        Parallel: the two heater ends are strapped together as one leg and the
+        centre tap is the other. Both halves then sit across 6.3 V.
+    - volts: 12.6
+      current_a: 0.15
+      legs: [[4], [5]]
+      unused: [9]
+      note: >-
+        Series: the two ends are the supply legs and the halves sit in series
+        across 12.6 V. The centre tap carries no supply leg (a drawing may
+        still take a hum-balance or elevation reference off it).
+  source: >-
+    RCA 12AY7 data sheet, General Data — "Heater Arrangement: Series /
+    Parallel", 12.6 / 6.3 V AC or DC at 0.15 / 0.3 A, on the 9A basing whose
+    heater spans pins 4 and 5 with the centre tap at pin 9.
+  source_url: https://frank.pocnet.net/sheets/049/1/12AY7.pdf
 used_in: ["5d3", "5e3", "5e4a", "5e5a", "5e6a", "5f4", "5f6", "5f6a", "5f8a", "5g9"]
 datasheets:
   - publisher: RCA

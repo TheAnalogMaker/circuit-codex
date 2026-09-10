@@ -20,7 +20,49 @@ board:
   rows: 2
   cols: 20
   title: "5F1 · eyelet board layout"
-caption: "Redrawn from the published Fender 5F1 layout drawing (K-EE), page 2 — principal board components and point-to-point wiring, in the order and connections the drawing shows. The drawing's two-jack \"linked input\" pad (two 68k resistors + jack-normalling contacts converging on one node) is represented through the single 68k (R3) already modelled in this entry's parts list and schematic, matching that simplification. The 6.3 V heater chain (green twisted pair, PT → pilot lamp → 6V6 → 12AX7) and the chassis-mounted 1 MΩ grid leak (R1) at the input jacks are routed as the published sheet shows them. Not a trace or a dimensioned reproduction."
+
+# The heaters here are single-ended rather than a twisted pair, so the automatic
+# "6.3 V heaters — twisted pair" entry would say the wrong thing. Name what this
+# drawing's green heater leads actually are, so the SVG is self-describing when
+# it is read on its own (it is served standalone at /layouts/5f1.svg).
+wire_legend:
+  heater: "green — 6.3 V heaters (single-ended; one leg grounded at the transformer)"
+
+# What the heater circuits WIRE, stated as data rather than left to be inferred
+# from pin labels. Each entry names the supply voltage the source shows, the
+# connection group every socket pin sits in, and which leg the drawing grounds.
+# A centre-tapped valve needs this: the same 12AX7 pins are grouped one way for
+# 6.3 V parallel and the opposite way for 12.6 V series, and `heater` /
+# `heater-ct` cannot tell those apart. pipeline/check_heaters.py proves each
+# declaration against the valve's datasheet (reference/tubes/<tube>.yaml
+# `heater.supplies`) and against the runs drawn below — supply voltage,
+# series-vs-parallel grouping, return completeness and leg separation. That is
+# a separate claim from the netlist equivalence `wiring_claim` makes: heaters
+# are not in netlist.cir and are excluded from that comparison.
+heaters:
+  - id: h63
+    volts: 6.3
+    winding: "6.3 V secondary — the transformer's green pair"
+    grounded_leg: return
+    source: >-
+      Fender 'Champ-Amp' 5F1 schematic and layout drawing (K-EE): page 1 grounds
+      one lead of the 6.3 V secondary and arrows the other "TO ALL 6.3 VOLT
+      FILAMENTS AND PILOT LITE"; page 2 straps the 12AX7's pins 4 and 5, grounds
+      its pin 9, feeds the 6V6GT at pin 7 and grounds its pin 2.
+    sockets:
+      V2: { feed: [7], return: [2] }        # 6V6GT — fed at pin 7, returned at pin 2
+      V1: { feed: [4, 5], return: [9] }     # 12AX7 at 6.3 V — ends strapped, centre tap to ground
+  - id: h5
+    volts: 5.0
+    winding: "5 V rectifier-filament secondary — the transformer's yellow pair"
+    grounded_leg: none
+    source: >-
+      Same sheet: the 5Y3GT sits on its own 5 V winding, drawn as the yellow
+      pair straight to pins 2 and 8. The filament is the cathode and carries the
+      rectified B+, so neither leg is grounded and it is never on the 6.3 V chain.
+    sockets:
+      V3: { feed: [2], return: [8] }        # 5Y3GT directly-heated filament
+caption: "Redrawn from the published Fender 5F1 layout drawing (K-EE), page 2 — principal board components and point-to-point wiring, in the order and connections the drawing shows. The drawing's two-jack \"linked input\" pad (two 68k resistors + jack-normalling contacts converging on one node) is represented through the single 68k (R3) already modelled in this entry's parts list and schematic, matching that simplification. The 6.3 V heater supply is single-ended: one green transformer lead is grounded and the other feeds the pilot lamp and both heaters, so each socket carries a green feed and a grounded return (12AX7 pins 4+5 strapped for 6.3 V parallel, centre tap at pin 9 to ground; 6V6GT fed at pin 7, pin 2 to ground). The 5Y3GT keeps its own 5 V filament winding. The pilot lamp is drawn with the single terminal the sheet gives it, the feed passing through on its way to the heaters; its return is the lamp's own shell to the chassis. The chassis-mounted 1 MΩ grid leak (R1) at the input jacks is routed as the published sheet shows it. Not a trace or a dimensioned reproduction."
 source:
   desc: "Fender 'Champ-Amp' Model 5F1 layout drawing (K-EE), page 2"
   url: "https://el34world.com/charts/Schematics/files/Fender/Fender_champ_5f1_schem.pdf"
@@ -75,10 +117,12 @@ bus:
 
 # Wiring — read lead-by-lead from the published 5F1 layout drawing (K-EE,
 # page 2). The power-transformer secondary leads carry the colours marked on
-# that drawing. The 6.3 V heater winding is the green pair; it feeds the pilot
-# lamp and then daisy-chains socket to socket (rendered as a green twisted pair,
-# style: twisted). The 5Y3GT is directly heated from the 5 V winding and so is
-# not on the 6.3 V chain. The output transformer's plate lead is legibly marked
+# that drawing. The 6.3 V heater winding is the green pair: one green lead is
+# grounded at the transformer and the other feeds the pilot lamp and then the
+# heaters, each socket returning to chassis ground on its own — see the heater
+# block below and `heaters:` at the head of this file. The 5Y3GT is directly
+# heated from the 5 V winding and so is not on the 6.3 V chain. The output
+# transformer's plate lead is legibly marked
 # "BLUE" on the drawing; its other primary lead and both secondary leads aren't
 # legibly coloured on this scan, so they stay in the neutral hookup tone rather
 # than guessing. Endpoints reference board eyelets (REF.a/REF.b), tube socket
@@ -92,7 +136,7 @@ runs:
   - { from: PT.red1, to: V3.pin4, via: [[1.4, 0.3]] }        # HT plate 1
   - { from: PT.red2, to: V3.pin6, via: [[2.3, 0.62]] }       # HT plate 2
   - { from: PT.red-yellow, to: [1.45, 3.0], via: [[1.2, 1.15]] }  # HT centre tap → ground bus
-  - { from: PT.yellow1, to: V3.pin2, via: [[0.7, 1.25]] }    # 5 V rectifier filament
+  - { from: PT.yellow1, to: V3.pin2, via: [[0.72, 1.36]] }   # 5 V rectifier filament
   - { from: PT.yellow2, to: V3.pin8, via: [[1.4, 1.75]] }    # 5 V rectifier filament / B+
   - { from: V3.pin8, to: C5.a, color: red, via: [[2.2, 1.5]] }   # B+ out → first filter
 
@@ -147,14 +191,36 @@ runs:
   - { from: V1.pin8, to: R4.a, via: [[18.4, 1.55]] }     # V1A cathode → 1.5k (clear of pin 7)
   - { from: R4.b, to: [1.45, 16] }                        # 1.5k → ground bus
 
-  # --- 6.3 V heater chain (green twisted pair) ------------------------------
-  # PT green pair → pilot lamp → 6V6 heater → 12AX7 heater, in the drawing's
-  # daisy order. Twisted runs land only on heater pins (6V6 octal 2/7, 12AX7
-  # noval 4/5); routed in the deepest lane, below the output harness.
-  - { from: PT.green, to: PL1.a, style: twisted }                         # 6.3 V → pilot lamp
-  - { from: PL1.b, to: V2.pin7, style: twisted, via: [[-1.2, 2.9], [8, 2.9]] }   # lamp → 6V6 heater
-  - { from: V2.pin2, to: V1.pin4, style: twisted, via: [[8, 2.92], [17, 2.92]] } # 6V6 → 12AX7 heater
-  - { from: V1.pin4, to: V1.pin5, style: twisted } # close the pair at the last socket
+  # --- 6.3 V heaters — single-ended, one green leg grounded ------------------
+  # Read off the same sheet, both pages. Page 1 draws the 6.3 V secondary with
+  # one lead grounded at the transformer and the other arrowed "TO ALL 6.3 VOLT
+  # FILAMENTS AND PILOT LITE": one wire feeds everything, and the chassis is the
+  # return. Page 2 wires that: the two green leads leave the transformer, one to
+  # the chassis-ground point beside the red-yellow HT centre tap and one to the
+  # pilot lamp, and from the lamp a single green lead runs to the 6V6GT's pin 7
+  # and on to the 12AX7's pin 4. Each socket then returns to chassis ground on
+  # its own — the 6V6GT at pin 2, the 12AX7 at pin 9 — so this is not a twisted
+  # pair and earns no twisted-pair legend entry; see wire_legend above.
+  #
+  # The 12AX7 runs 6.3 V PARALLEL: pins 4 and 5 are strapped as the fed leg (the
+  # sheet draws the strap as a short bow between the two pin dots, the same
+  # idiom it uses at the 6V6GT's pins 1 and 2) and the centre tap at pin 9 is
+  # the grounded leg. The `heaters:` block at the foot of this file states that
+  # configuration as data; pipeline/check_heaters.py proves it against the GE
+  # 12AX7 sheet's own 6.3 V parallel grouping and against the wiring below.
+  #
+  # One reading is stated as read: the pin-9 ground lead comes in across the top
+  # of the socket, and at the resolution of the published copy its left end is
+  # not separable from the pin-8 landing beside it. Pin 8 is the V1A cathode the
+  # same sheet letters +1.5 V, which a grounded pin cannot be, so the lead is
+  # read as landing on pin 9 alone and pin 8 keeps its cathode lead to R4.
+  - { from: PT.green1, to: [1.45, 2.1], style: heater, via: [[0.75, 1.3]] }    # grounded 6.3 V leg
+  - { from: PT.green2, to: PL1.a, style: heater, via: [[-0.55, 1.04]] }        # 6.3 V feed → pilot lamp
+  - { from: PL1.a, to: V2.pin7, style: heater, via: [[-0.85, 2.5], [9.4, 2.5]] }   # feed → 6V6 heater
+  - { from: V2.pin7, to: V1.pin4, style: heater }                              # 6V6 → 12AX7 heater
+  - { from: V1.pin4, to: V1.pin5, style: heater }                              # 12AX7 ends strapped for 6.3 V
+  - { from: V2.pin2, to: [1.45, 6.4], style: heater }                          # 6V6 heater return → ground
+  - { from: V1.pin9, to: [1.45, 18.5], style: heater }                         # 12AX7 centre tap → ground
 
 # net_map — the reviewable data layer that reconciles the drawn wiring with the
 # DC-operating-point netlist (netlist.cir) for pipeline/verify_layout_nets.py.

@@ -111,6 +111,7 @@ import yaml
 from render_layouts import (
     Renderer,
     category,
+    is_heater_run,
     load_bom,
     load_tube_heater_pins,
     primary_value,
@@ -934,12 +935,18 @@ def _solve(amp_id, layout, R, LG, uf, comps, nodes, net_map, part_terms,
 
 
 def _check_twisted_heaters(res, R, sockets: dict):
-    """A style:twisted run is EXCLUDED from equivalence checking as a heater run;
-    validate that self-declaration (H7) — every tube endpoint of a twisted run
-    must be a heater/filament pin. A signal pin on a twisted run is a hard error
-    (a signal run cannot be hidden from the gate by relabelling it 'twisted')."""
+    """A heater-styled run (style: twisted, a pair; or style: heater, one
+    conductor) is EXCLUDED from equivalence checking as heater wiring; validate
+    that self-declaration (H7) — every tube endpoint of such a run must be a
+    heater/filament pin. A signal pin on one is a hard error (a signal run
+    cannot be hidden from the gate by relabelling it heater wiring).
+
+    What this does NOT do is check the heater wiring itself: supply voltage,
+    series-vs-parallel grouping, return completeness and leg separation are
+    pipeline/check_heaters.py's claim, not this one.
+    """
     for i, spec in enumerate(R.runs):
-        if str(spec.get("style", "")).lower() != "twisted":
+        if not is_heater_run(spec):
             continue
         for key in ("from", "to"):
             ep = spec.get(key)
@@ -980,7 +987,7 @@ def _declare_island(res, R, LG, uf, M, anchoring=None):
     annot_ids |= {sid for sid, _why in anchoring.get("excluded_sockets", [])}
     twisted_roots: set = set()
     for spec in R.runs:
-        if str(spec.get("style", "")).lower() == "twisted":
+        if is_heater_run(spec):
             for key in ("from", "to"):
                 t = LG.term(spec.get(key), "")
                 if t is not None:
@@ -1030,7 +1037,7 @@ _UC_CTRL = "control networks (pots / mixers / tone-stack resistors)"
 _UC_DCOPEN = "DC-open parts (coupling / bypass / tone / filter caps)"
 _UC_BIAS = "abstracted bias supply (negative-grid front end: RB*/C15/D1 class)"
 _UC_PTAC = "PT-AC / rectifier / pilot (annotation layer, abstracted to the rail)"
-_UC_HEAT = "heaters (twisted 6.3 V pairs, annotation layer)"
+_UC_HEAT = "heaters (annotation layer — see check_heaters.py)"
 
 
 def _enumerate_unchecked(res, R, uf, M, comps, part_terms, anchoring, node_name):
@@ -1109,11 +1116,12 @@ def _enumerate_unchecked(res, R, uf, M, comps, part_terms, anchoring, node_name)
 
     # annotation-layer runs, counted (their nets are the excluded run tally): the
     # PT/rectifier AC+HT side and the twisted heater pairs.
-    n_twist = sum(1 for s in R.runs if str(s.get("style", "")).lower() == "twisted")
+    n_twist = sum(1 for s in R.runs if is_heater_run(s))
     if n_twist:
         groups[_UC_HEAT].append(
-            f"{n_twist} twisted heater run(s) — validated onto heater/filament "
-            f"pins (H7), excluded from DC equivalence")
+            f"{n_twist} heater run(s) — validated onto heater/filament "
+            f"pins (H7), excluded from DC equivalence; the heater wiring itself "
+            f"is checked separately by check_heaters.py")
     pt_ids = sorted(it["id"] for it in R.offboard if it.get("kind") in ("xfmr", "choke"))
     rect_ids = sorted(sid for sid, _why in anchoring.get("excluded_sockets", []))
     if pt_ids or rect_ids:
@@ -1165,12 +1173,12 @@ def _scope_report(res, R, LG, uf, M, comps, basing_inv, part_terms, modelled_ref
     pt_ids = {it["id"] for it in R.offboard if it.get("kind") in ("xfmr", "choke")}
 
     checked = 0
-    excl = {"heater (twisted 6.3 V pair)": 0, "pilot lamp": 0,
+    excl = {"heater wiring (pair or single lead)": 0, "pilot lamp": 0,
             "power transformer / rectifier (AC + HT, abstracted to the rail)": 0,
             "out-of-DC-scope node (coupling-cap far side / speaker)": 0}
     for i, spec in enumerate(R.runs):
-        if str(spec.get("style", "")).lower() == "twisted":
-            excl["heater (twisted 6.3 V pair)"] += 1
+        if is_heater_run(spec):
+            excl["heater wiring (pair or single lead)"] += 1
             continue
         names = _run_terminal_names(R, spec)
         base_ids = {n.split(".")[0] for n in names}

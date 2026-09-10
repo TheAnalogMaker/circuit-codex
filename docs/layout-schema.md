@@ -202,19 +202,120 @@ runs:
 |---|---|
 | `from` / `to` | endpoints (grammar above) |
 | `color` | optional era wire-colour **name** (`red`, `green`, `yellow`, `blue`, `brown`, `black`, `red-yellow`, …). Mapped to a house-tuned palette that stays legible on the dark board and shown in the drawing's colour legend. A run onto a transformer lead inherits that lead's colour automatically. Uncoloured runs render in the neutral hookup-lead tone. |
-| `style` | optional. `twisted` draws the run as two interleaved sinusoidal strands sharing its endpoints — the classic **6.3 V heater** idiom. Twisted runs render in the heater green (`green-yellow` gives the centre-tap strand where a drawing marks one) and get a dedicated legend entry ("6.3 V heaters — twisted pair") rather than a colour swatch. |
+| `style` | optional, and two values say "this conductor is heater wiring": `twisted` draws the run as a **pair** — two interleaved sinusoidal strands, the supply's two legs running together, the classic 6.3 V idiom; `heater` draws **one** conductor, which is what a single-ended supply has (one leg grounded at the transformer, each socket returning to chassis on its own — the 5F1 and AA764 sheets). Both render in the heater green (`green-yellow` gives the centre-tap strand where a drawing marks one), draw on the top layer dressed round each socket's flank, and get a dedicated legend entry rather than a colour swatch. |
 | `via` | optional routing waypoints in **grid** units `[x, y]` where `x` = column axis, `y` = row axis (note this is horizontal-first — the opposite order from a part's `[row, col]`). `y < 0` routes above the board, `y > rows-1` below it (fractions allowed). Runs bend through these with rounded elbows; a couple of waypoints keep a lead in a clean lane clear of its neighbours. A deep lane (e.g. the twisted heater bus below the output harness) grows the drawing's bottom band automatically so it clears the legend. |
 
-#### Heater chains (twisted pairs)
+#### Heater chains
 
-The 6.3 V filament wiring is drawn as a `style: twisted` chain in the drawing's
-daisy order: **PT green pair → pilot lamp → socket to socket**. Heater/filament
-socket pins are read from `reference/tubes/<tube>.yaml` basing (noval 4/5 with
-9 the centre tap; octal power tubes 2/7; directly-heated rectifiers 2/8 —
-those sit on the 5 V winding, not the 6.3 V chain). A twisted run onto a tube
-is **validated to land on a heater pin** — a heater lead routed to a signal pin
-fails the render (and CI). The pilot lamp is an `offboard` `kind: part` with a
-`lamp` glyph; the pair enters `PL1.a` and leaves `PL1.b` to the first socket.
+The heater/filament wiring is drawn as a heater-styled chain in the drawing's
+daisy order: **transformer winding → pilot lamp → socket to socket**.
+Heater/filament socket pins are read from `reference/tubes/<tube>.yaml` basing
+(noval 4/5 with 9 the centre tap; octal power tubes 2/7; directly-heated
+rectifiers 2/8 — those sit on the 5 V winding, not the 6.3 V chain). A heater
+run onto a tube is **validated to land on a heater pin** — a heater lead routed
+to a signal pin fails the render (and CI). The pilot lamp is an `offboard`
+`kind: part` with a `lamp` glyph.
+
+##### The `heaters:` block — the wiring is data, not an inference (2026-09-09)
+
+Which two pins a supply's legs land on is a fact about the **amplifier**, not
+about the valve, and for the corpus's commonest bottle the pin labels cannot
+settle it. A centre-tapped heater wires the same three pins two ways:
+
+| supply | connection groups | what the drawing shows |
+|---|---|---|
+| **6.3 V parallel** | `[4, 5]` and `[9]` | the two heater ends strapped together as one leg; the centre tap is the other leg |
+| **12.6 V series** | `[4]` and `[5]` | the ends are the two legs; the centre tap carries no supply leg |
+
+Until 2026-09-09 the renderer inferred a two-pin connection from the labels
+`heater` and `heater-ct` alone, and always picked the second row. On an octal
+6V6 (pins 2 and 7, no centre tap) that is right and there is no other answer.
+On a 12AX7, 12AY7, 12AT7 or 12AU7 running 6.3 V — nearly every preamp bottle
+here — it is backwards: it draws series wiring on a parallel amplifier, joins
+what the sheet strapped as **one** leg across **both** legs, and leaves the
+centre tap unwired. The 5F1 shipped exactly that (issue #30).
+
+So the amplifier states its own configuration, in a `heaters:` block at the head
+of `layout.yaml`, in the `net_map` idiom — reviewable data the gate reads rather
+than code that guesses:
+
+```yaml
+heaters:
+  - id: h63
+    volts: 6.3
+    winding: "6.3 V secondary — the transformer's green pair"
+    grounded_leg: return          # feed | return | none
+    source: "…what the cited drawing shows, in a sentence…"
+    sockets:
+      V2: { feed: [7], return: [2] }        # octal: one pin per leg
+      V1: { feed: [4, 5], return: [9] }     # noval at 6.3 V: ends strapped,
+                                            #   centre tap the other leg
+  - id: h5
+    volts: 5.0
+    winding: "5 V rectifier-filament secondary — the yellow pair"
+    grounded_leg: none
+    sockets:
+      V3: { feed: [2], return: [8] }        # directly-heated rectifier
+```
+
+| Field | Means |
+|---|---|
+| `id` | short name for the circuit, used in gate output |
+| `volts` | the supply voltage the **source** shows. Proved against the valve's own datasheet — see `heater.supplies` in `reference/tubes/<tube>.yaml` |
+| `winding` | prose: which secondary this is |
+| `grounded_leg` | `feed`, `return`, or `none`. A single-ended supply grounds one leg at the transformer; a floating pair grounds neither, and a rectifier filament sitting at B+ must ground neither |
+| `source` | what the cited drawing shows, so a reader can check the declaration against it |
+| `sockets` | per socket, the **connection group** each pin sits in. `feed` and `return` are the two legs; naming which is which is the drawing's own choice and only matters for `grounded_leg` |
+
+`pipeline/check_heaters.py` proves each declaration against the valve's
+datasheet **and** against the runs actually drawn: supply voltage,
+series-versus-parallel grouping, every heater pin accounted for, both legs
+reached by a conductor, the two legs kept apart, and the grounded leg actually
+grounded. See *Heater wiring is its own claim* below.
+
+**A layout with no `heaters:` block is not checked, and its drawing says so.**
+The renderer no longer invents the second landing for a centre-tapped socket: a
+heater run there is drawn as the **single conductor its data names**, and
+`check_heaters.py` prints the amp as `heaters NOT DECLARED` with its
+centre-tapped sockets listed. An octal or rectifier socket keeps its two-pin
+landing, because there the basing leaves no choice.
+
+##### The marker an unestablished heater layer carries
+
+Silence is printed to the gate, never counted as coverage — but a *visitor* does
+not read the gate, and a drawing with nothing on it reads as settled. So every
+layout whose heater circuit is not declared prints two markers, in both board
+styles:
+
+- the **legend key** for the heater ink gains `(leg grouping not established)`
+  wherever a centre-tapped socket is drawn on an unestablished grouping — the
+  legend is where a reader goes to learn what the green means, so it is where
+  the caveat belongs;
+- a **footer line** states what is actually in doubt and what is not: that the
+  heater layer is the one part of the board not established against the
+  amplifier's own drawing, that at the named centre-tapped valves it shows the
+  two heater pins on opposite supply legs (the 12.6 V arrangement, against which
+  a 6.3 V supply straps them into one leg and returns on the centre tap), and
+  that **which sockets sit on the chain and the order it reaches them in are not
+  affected**. Where a drawing carries a same-socket link that shorts the supply
+  whatever the amplifier runs, that link is named too.
+
+Flagged rather than suppressed, deliberately: the daisy order and the sockets on
+the chain are still right, and deleting the layer would destroy correct
+information to hide doubtful information. `Renderer.heater_provenance_note()`
+composes the line; a declared circuit prints neither marker.
+
+##### The worklist is committed (`reference/heaters.yaml`)
+
+`check_heaters.py --export` writes the corpus-wide state — per layout, whether it
+declares a circuit, which centre-tapped sockets are drawn on an unestablished
+grouping, and every same-socket link classified `shorted` (opposite legs at every
+supply the valve's sheet lists) or `unclassified` (one leg at one supply and
+opposite legs at another). A normal run **fails if the committed file is not what
+a fresh run produces**, the same drift gate `reference/op-points.yaml` and
+`reference/loadlines.yaml` carry: a worklist that misstates the size of its own
+job is worse than none. Clearing an entry means reading that amplifier's own
+drawing, declaring what it shows, correcting the runs, and re-exporting.
 
 ##### The heater pair is one object spanning both pins (2026-09-08)
 
@@ -231,10 +332,13 @@ conventions used to misrepresent correct authored data, and both are gone:
 
 The rule now:
 
-1. **The pair spans BOTH heater pins of each socket it lands on.** The named pin
-   identifies the socket and is still validated; the two pins the pair reaches
-   are the socket's two `heater`/`filament` pins from basing (never the
-   `heater-ct` centre tap). The twisted **axis** stops on a harness ring outside
+1. **The pair spans BOTH supply legs at each socket it lands on.** The named pin
+   identifies the socket and is still validated; the pin the pair's other strand
+   reaches is the socket's **opposite leg** — from the `heaters:` block where the
+   layout declares one, else the socket's two `heater`/`filament` pins where the
+   basing leaves no choice (an octal 2/7, a rectifier filament 2/8). Where
+   neither settles it, the run is drawn as the one conductor its data names, not
+   as a pair with an invented landing. The twisted **axis** stops on a harness ring outside
    the socket, and from there each strand runs on to its own pin — in to the
    wrap radius, around the socket **clear of its caption band**, then radially
    to the pin, the way a dressed harness runs. The two pairs that meet at an
@@ -250,10 +354,14 @@ The rule now:
    the socket captions. The page's bottom band is reserved from that lane, not
    from the authored row, so the sheet is no longer sized for a drop it does not
    draw.
-4. **A run whose two ends are the same socket** — the chain's closing link, `pin
-   4` to `pin 5` at the last valve, or a heater to its centre tap — is ONE
-   conductor. There is no pair to twist and nothing to fork: it draws as a
-   single strand dressed round the flank.
+4. **A run whose two ends are the same socket** — a strap tying two pins into one
+   leg, `pin 4` to `pin 5` for 6.3 V parallel — is ONE conductor. There is no
+   pair to twist and nothing to fork: it draws as a single strand dressed round
+   the flank. Note what such a run *claims*: it joins those two pins. On a
+   centre-tapped noval at 6.3 V that is the strap the sheet shows; between an
+   octal's two heater pins, or between a heater end and its own centre tap, it
+   is a **short across the supply**, and `check_heaters.py` says so wherever the
+   amp declares its configuration.
 
 Nothing about which pins a run declares changes, so `_check_heater_endpoint()`
 keeps its guarantee and `verify_layout_nets.py` sees exactly the same net (the
@@ -473,15 +581,17 @@ Two placement rules are structural rather than searched:
 ```yaml
 wire_legend:
   green: "green — 6.3 V heaters (single-ended; one leg grounded)"
+  heater: "green — 6.3 V heaters (single-ended; one leg grounded at the transformer)"
 ```
 
 Replaces a colour's bare swatch label in the drawing's wiring legend. Use it
 where a colour carries a documented **function** in that drawing which the
-automatic legend cannot infer. The case it was built for: the AA764's 6.3 V
-heater supply is single-ended (one green PT lead grounded, the other feeding the
-pilot lamp and both heaters), so it renders as plain green runs and earns no
-"6.3 V heaters — twisted pair" entry — leaving the only drawing in the corpus
-whose heater run was unidentified in its own legend. The SVGs are served
+automatic legend cannot infer. The reserved key `heater` replaces the heater
+entry's own text instead of a colour swatch: the automatic entry says "6.3 V
+heaters — twisted pair" or "— single lead", which names the idiom but not the
+function, and a **single-ended** supply (one transformer lead grounded, the
+other feeding the pilot lamp and every heater, each socket returning to chassis
+on its own — the 5F1 and AA764) is worth saying out loud. The SVGs are served
 standalone (`/layouts/<id>.svg`), so each must say what its colours mean without
 the surrounding page.
 
@@ -671,10 +781,47 @@ yields a consistent solve, all of a section's pins must land on the **same** one
 `aa1164` also joins the `--selftest` baseline set, so the mutation means
 something.
 
+### Heater wiring is its own claim (`check_heaters.py`)
+
+Two claims, kept apart on purpose, because a green PASS on one says nothing
+whatever about the other:
+
+| claim | tool | what it proves |
+|---|---|---|
+| **DC equivalence** | `verify_layout_nets.py` | the drawn *signal* wiring is electrically equivalent to `netlist.cir` |
+| **Heater wiring** | `check_heaters.py` | the drawn *heater* wiring is the supply, connection groups and returns the amp declares — and those are what its valve's datasheet permits |
+
+Heaters are not in `netlist.cir` and are excluded from the DC comparison by
+explicit rule, so until 2026-09-09 **no gate in this repository had ever looked
+at a heater lead**. That is how the 5F1 shipped a drawing that joined its 12AX7's
+two supply legs and left the centre tap unwired, under a `wiring_claim: verified`
+badge that was, and remains, true about the thing it claims.
+
+What the heater gate rejects, each with a planted fault in `--selftest`:
+
+| Check | Trips when |
+|---|---|
+| **D1** | a declared pin is not a heater-class pin of that socket's valve |
+| **D2** | a pin is declared on **both** legs, or a leg is empty |
+| **D4** | the declared grouping leaves a heater pin on no leg — the 6.3 V/12.6 V configuration mismatch, which strands the centre tap |
+| **D3** | every pin is on a leg but the **grouping** is not one the valve's sheet wires at that voltage |
+| **W1** | a declared terminal that **no drawn conductor reaches** — a missing return |
+| **W2** | the two legs are drawn on one net — a **bridge across the supply** |
+| **W3** | the grounded leg does not reach the ground bus, or a leg reaches it that the declaration says is floating |
+
+D1–D4 read `heater.supplies` in `reference/tubes/<tube>.yaml` — the voltages the
+datasheet permits and the pin grouping each uses, cited to the sheet like every
+other fact here. W1–W3 read the `runs` and `bus` the SVG is generated from, into
+nets exactly as `render_layouts` resolves them.
+
+An amp with no `heaters:` block prints `heaters NOT DECLARED`, lists its
+centre-tapped sockets, and is **not checked** — and its drawing correspondingly
+claims only the conductors its data names.
+
 ### Scope, printed honestly every run
 
-Heaters (twisted runs), the pilot lamp, and the PT / rectifier AC side are **not**
-in `netlist.cir`; they are an annotation layer excluded by **explicit rules** —
+Heaters (heater-styled runs), the pilot lamp, and the PT / rectifier AC side are
+**not** in `netlist.cir`; they are an annotation layer excluded by **explicit rules** —
 never by widening an exclusion to bury a failure. The checker prints how many runs
 it checked and how many it excluded and why, and which netlist elements have no
 board part. It **enumerates every non-DC-checked terminal** — each non-modelled

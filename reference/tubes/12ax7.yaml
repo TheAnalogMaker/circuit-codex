@@ -47,6 +47,35 @@ basing:
     7: { element: grid, unit: 1 }
     8: { element: cathode, unit: 1 }
     9: { element: heater-ct }
+# The heater supplies the sheet permits, and the CONNECTION GROUPS each one
+# uses. This valve is the reason the grouping has to be data: a centre-tapped
+# heater wires the same three pins two different ways, and the pin labels
+# cannot tell them apart. A layout's `heaters:` block declares which supply its
+# source shows and pipeline/check_heaters.py proves it against this block.
+# Each `legs` entry is one leg of the supply, as pin numbers.
+heater:
+  supplies:
+    - volts: 6.3
+      current_a: 0.3
+      legs: [[4, 5], [9]]
+      note: >-
+        Parallel: the two heater ends are strapped together as one leg and the
+        centre tap is the other. Both halves then sit across 6.3 V.
+    - volts: 12.6
+      current_a: 0.15
+      legs: [[4], [5]]
+      unused: [9]
+      note: >-
+        Series: the two ends are the supply legs and the halves sit in series
+        across 12.6 V. The centre tap carries no supply leg (a drawing may
+        still take a hum-balance or elevation reference off it).
+  source: >-
+    GE 12AX7 data sheet ET-T509B (June 1953), page 1 — "A center-tapped heater
+    permits operation of the tube from either a 6.3-volt or a 12.6-volt heater
+    supply"; heater voltage 12.6 series / 6.3 parallel at 0.15 / 0.3 A, with
+    the RETMA 9A basing diagram showing the heater across pins 4 and 5 tapped
+    at pin 9. Cross-checked against the RCA 12AX7-A sheet.
+  source_url: https://frank.pocnet.net/sheets/093/1/12AX7.pdf
 used_in: ["5d3", "5e1", "5e3", "5e4a", "5e5a", "5e6a", "5f1", "5f10", "5f2a", "5f4", "5f6", "5f6a", "5f8a", "5g9", "6161", "6g2", "6g3", "6g4", "6g5", "6g6b", "aa1164", "aa764", "aa764-vibro", "aa864-bassman", "aa964", "ab165", "ab763", "ab763-super", "ab763-twin", "ac15", "ac30", "dr103", "ga40", "jtm100", "jtm45", "m1959", "m1987", "m2204", "s1484"]
 datasheets:
   - publisher: RCA

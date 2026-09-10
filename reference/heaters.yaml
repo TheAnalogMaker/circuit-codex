@@ -1,0 +1,1233 @@
+# GENERATED - pipeline/check_heaters.py --export. Do not hand-edit; a run that
+# disagrees with this file fails the gate, the same way reference/op-points.yaml
+# and reference/loadlines.yaml are held to what a fresh run produces.
+#
+# WHAT THIS IS. The heater layer of a board drawing is a separate claim from the
+# DC equivalence `wiring_claim: verified` makes, and until 2026-09-09 nothing
+# checked it at all (see docs/layout-schema.md, "Heater wiring is its own
+# claim"). One circuit - the 5F1 - has since been read against its own factory
+# sheet and declares its supply, connection groups and grounded return, which
+# the gate proves. Every other layout draws a heater layer that has NOT been
+# established, and this file is the standing worklist of exactly what is
+# unestablished on each, so the work is tractable rather than a vague backlog.
+#
+# HOW TO READ IT. `doubtful_sockets` are centre-tapped valves whose drawing puts
+# the two heater pins on OPPOSITE supply legs - the 12.6 V series arrangement.
+# On a 6.3 V amplifier those two pins are ONE leg and the centre tap is the
+# other, so each entry is a socket whose grouping turns on a fact only that
+# amplifier's own drawing carries. `findings` are same-socket links: `shorted`
+# joins two pins the valve's own sheet puts on opposite legs at every supply it
+# lists (wrong whatever the amplifier runs), `unclassified` joins two pins that
+# are one leg at one supply and opposite legs at another.
+#
+# CLEARING AN ENTRY. Read that amplifier's own drawing, add a `heaters:` block
+# to its layout.yaml stating what it shows, correct the runs to match, and
+# re-export. The count in `summary` is the size of the job.
+amps:
+  5c1:
+    centre_tapped_sockets: {}
+    declared: false
+    findings:
+    - detail: the 6sj7 has two heater pins and no centre tap, so pins [2, 7] are its two supply legs
+      kind: shorted
+      pins:
+      - 7
+      - 2
+      socket: V1
+  5d3:
+    centre_tapped_sockets:
+      V1:
+        drawn_on_pins:
+        - 4
+        - 5
+        grouping: opposite-legs
+        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
+        tube: 12ay7
+      V2:
+        drawn_on_pins:
+        - 4
+        - 5
+        grouping: opposite-legs
+        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
+        tube: 12ax7
+    declared: false
+    findings:
+    - detail: pins [4, 5] are one leg at 6.3 V and opposite legs at 12.6 V
+      kind: unclassified
+      pins:
+      - 4
+      - 5
+      socket: V1
+  5e1:
+    centre_tapped_sockets:
+      V1:
+        drawn_on_pins:
+        - 4
+        - 5
+        grouping: opposite-legs
+        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
+        tube: 12ax7
+    declared: false
+    findings:
+    - detail: pins [4, 5] are one leg at 6.3 V and opposite legs at 12.6 V
+      kind: unclassified
+      pins:
+      - 4
+      - 5
+      socket: V1
+  5e3:
+    centre_tapped_sockets:
+      V1:
+        drawn_on_pins:
+        - 4
+        - 5
+        grouping: opposite-legs
+        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
+        tube: 12ay7
+      V2:
+        drawn_on_pins:
+        - 4
+        - 5
+        grouping: opposite-legs
+        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
+        tube: 12ax7
+    declared: false
+    findings:
+    - detail: pins [4, 5] are one leg at 6.3 V and opposite legs at 12.6 V
+      kind: unclassified
+      pins:
+      - 4
+      - 5
+      socket: V1
+  5e4a:
+    centre_tapped_sockets:
+      V1:
+        drawn_on_pins:
+        - 4
+        - 5
+        grouping: opposite-legs
+        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
+        tube: 12ay7
+      V2:
+        drawn_on_pins:
+        - 4
+        - 5
+        grouping: opposite-legs
+        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
+        tube: 12ay7
+      V3:
+        drawn_on_pins:
+        - 4
+        - 5
+        grouping: opposite-legs
+        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
+        tube: 12ax7
+    declared: false
+    findings:
+    - detail: pins [4, 5] are one leg at 6.3 V and opposite legs at 12.6 V
+      kind: unclassified
+      pins:
+      - 4
+      - 5
+      socket: V1
+  5e5a:
+    centre_tapped_sockets:
+      V1:
+        drawn_on_pins:
+        - 4
+        - 5
+        grouping: opposite-legs
+        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
+        tube: 12ay7
+      V2:
+        drawn_on_pins:
+        - 4
+        - 5
+        grouping: opposite-legs
+        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
+        tube: 12ay7
+      V3:
+        drawn_on_pins:
+        - 4
+        - 5
+        grouping: opposite-legs
+        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
+        tube: 12ax7
+    declared: false
+    findings:
+    - detail: pins [4, 5] are one leg at 6.3 V and opposite legs at 12.6 V
+      kind: unclassified
+      pins:
+      - 4
+      - 5
+      socket: V1
+  5e6a:
+    centre_tapped_sockets:
+      V1:
+        drawn_on_pins:
+        - 4
+        - 5
+        grouping: opposite-legs
+        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
+        tube: 12ay7
+      V2:
+        drawn_on_pins:
+        - 4
+        - 5
+        grouping: opposite-legs
+        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
+        tube: 12ay7
+      V3:
+        drawn_on_pins:
+        - 4
+        - 5
+        grouping: opposite-legs
+        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
+        tube: 12ax7
+    declared: false
+    findings:
+    - detail: pins [4, 5] are one leg at 6.3 V and opposite legs at 12.6 V
+      kind: unclassified
+      pins:
+      - 4
+      - 5
+      socket: V1
+  5f1:
+    circuits:
+    - grounded_leg: return
+      id: h63
+      sockets:
+        V1:
+          feed:
+          - 4
+          - 5
+          return:
+          - 9
+        V2:
+          feed:
+          - 7
+          return:
+          - 2
+      volts: 6.3
+    - grounded_leg: none
+      id: h5
+      sockets:
+        V3:
+          feed:
+          - 2
+          return:
+          - 8
+      volts: 5.0
+    declared: true
+  5f10:
+    centre_tapped_sockets:
+      V2:
+        drawn_on_pins:
+        - 4
+        - 5
+        grouping: opposite-legs
+        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
+        tube: 12ax7
+    declared: false
+    findings:
+    - detail: the 6at6 has two heater pins and no centre tap, so pins [3, 4] are its two supply legs
+      kind: shorted
+      pins:
+      - 3
+      - 4
+      socket: V1
+  5f2a:
+    centre_tapped_sockets:
+      V1:
+        drawn_on_pins:
+        - 4
+        - 5
+        grouping: opposite-legs
+        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
+        tube: 12ax7
+    declared: false
+    findings:
+    - detail: pins [4, 5] are one leg at 6.3 V and opposite legs at 12.6 V
+      kind: unclassified
+      pins:
+      - 4
+      - 5
+      socket: V1
+  5f4:
+    centre_tapped_sockets:
+      V1:
+        drawn_on_pins:
+        - 4
+        - 5
+        grouping: opposite-legs
+        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
+        tube: 12ay7
+      V2:
+        drawn_on_pins:
+        - 4
+        - 5
+        grouping: opposite-legs
+        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
+        tube: 12ax7
+      V3:
+        drawn_on_pins:
+        - 4
+        - 5
+        grouping: opposite-legs
+        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
+        tube: 12ax7
+    declared: false
+    findings:
+    - detail: pins [4, 5] are one leg at 6.3 V and opposite legs at 12.6 V
+      kind: unclassified
+      pins:
+      - 4
+      - 5
+      socket: V1
+  5f6:
+    centre_tapped_sockets:
+      V1:
+        drawn_on_pins:
+        - 4
+        - 5
+        grouping: opposite-legs
+        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
+        tube: 12ay7
+      V2:
+        drawn_on_pins:
+        - 4
+        - 5
+        grouping: opposite-legs
+        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
+        tube: 12ax7
+      V3:
+        drawn_on_pins:
+        - 4
+        - 5
+        grouping: opposite-legs
+        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
+        tube: 12ax7
+    declared: false
+    findings:
+    - detail: pins [4, 5] are one leg at 6.3 V and opposite legs at 12.6 V
+      kind: unclassified
+      pins:
+      - 4
+      - 5
+      socket: V1
+  5f6a:
+    centre_tapped_sockets:
+      V1:
+        drawn_on_pins:
+        - 4
+        - 5
+        grouping: opposite-legs
+        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
+        tube: 12ay7
+      V2:
+        drawn_on_pins:
+        - 4
+        - 5
+        grouping: opposite-legs
+        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
+        tube: 12ax7
+      V3:
+        drawn_on_pins:
+        - 4
+        - 5
+        grouping: opposite-legs
+        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
+        tube: 12ax7
+    declared: false
+    findings:
+    - detail: pins [4, 5] are one leg at 6.3 V and opposite legs at 12.6 V
+      kind: unclassified
+      pins:
+      - 4
+      - 5
+      socket: V1
+  5f8a:
+    centre_tapped_sockets:
+      V1:
+        drawn_on_pins:
+        - 4
+        - 5
+        grouping: opposite-legs
+        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
+        tube: 12ay7
+      V2:
+        drawn_on_pins:
+        - 4
+        - 5
+        grouping: opposite-legs
+        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
+        tube: 12ax7
+      V3:
+        drawn_on_pins:
+        - 4
+        - 5
+        grouping: opposite-legs
+        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
+        tube: 12ax7
+    declared: false
+    findings:
+    - detail: pins [4, 5] are one leg at 6.3 V and opposite legs at 12.6 V
+      kind: unclassified
+      pins:
+      - 4
+      - 5
+      socket: V1
+  5g9:
+    centre_tapped_sockets:
+      V1:
+        drawn_on_pins:
+        - 4
+        - 5
+        grouping: opposite-legs
+        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
+        tube: 12ay7
+      V2:
+        drawn_on_pins:
+        - 4
+        - 5
+        grouping: opposite-legs
+        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
+        tube: 12ax7
+      V3:
+        drawn_on_pins:
+        - 4
+        - 5
+        grouping: opposite-legs
+        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
+        tube: 12ax7
+    declared: false
+    findings:
+    - detail: pins [4, 5] are one leg at 6.3 V and opposite legs at 12.6 V
+      kind: unclassified
+      pins:
+      - 4
+      - 5
+      socket: V1
+  '6161':
+    centre_tapped_sockets:
+      V1:
+        drawn_on_pins:
+        - 4
+        grouping: not-drawn-as-a-pair
+        reading: not read as a pair (the drawing names 1 pin(s))
+        tube: 12ax7
+      V2:
+        drawn_on_pins:
+        - 4
+        - 5
+        grouping: opposite-legs
+        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
+        tube: 12ax7
+      V3:
+        drawn_on_pins:
+        - 4
+        - 5
+        grouping: opposite-legs
+        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
+        tube: 12ax7
+    declared: false
+    findings: []
+  6g2:
+    centre_tapped_sockets:
+      V1:
+        drawn_on_pins:
+        - 4
+        - 5
+        - 9
+        grouping: not-drawn-as-a-pair
+        reading: not read as a pair (the drawing names 3 pin(s))
+        tube: 12ax7
+      V2:
+        drawn_on_pins:
+        - 4
+        - 5
+        grouping: opposite-legs
+        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
+        tube: 12ax7
+    declared: false
+    findings:
+    - detail: every supply the 12ax7 sheet lists puts pins [5, 9] on opposite legs
+      kind: shorted
+      pins:
+      - 5
+      - 9
+      socket: V1
+  6g3:
+    centre_tapped_sockets:
+      V1:
+        drawn_on_pins:
+        - 4
+        - 5
+        grouping: opposite-legs
+        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
+        tube: 12ax7
+      V2:
+        drawn_on_pins:
+        - 4
+        - 5
+        grouping: opposite-legs
+        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
+        tube: 12ax7
+      V3:
+        drawn_on_pins:
+        - 4
+        - 5
+        grouping: opposite-legs
+        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
+        tube: 12ax7
+    declared: false
+    findings:
+    - detail: pins [4, 5] are one leg at 6.3 V and opposite legs at 12.6 V
+      kind: unclassified
+      pins:
+      - 4
+      - 5
+      socket: V1
+  6g4:
+    centre_tapped_sockets:
+      V1:
+        drawn_on_pins:
+        - 4
+        - 5
+        grouping: opposite-legs
+        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
+        tube: 12ax7
+      V2:
+        drawn_on_pins:
+        - 4
+        - 5
+        grouping: opposite-legs
+        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
+        tube: 12ax7
+      V3:
+        drawn_on_pins:
+        - 4
+        - 5
+        grouping: opposite-legs
+        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
+        tube: 12ax7
+      V4:
+        drawn_on_pins:
+        - 4
+        - 5
+        grouping: opposite-legs
+        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
+        tube: 12ax7
+      V5:
+        drawn_on_pins:
+        - 4
+        - 5
+        grouping: opposite-legs
+        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
+        tube: 12ax7
+    declared: false
+    findings:
+    - detail: pins [4, 5] are one leg at 6.3 V and opposite legs at 12.6 V
+      kind: unclassified
+      pins:
+      - 4
+      - 5
+      socket: V3
+  6g5:
+    centre_tapped_sockets:
+      V1:
+        drawn_on_pins:
+        - 4
+        - 5
+        grouping: opposite-legs
+        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
+        tube: 12ax7
+      V2:
+        drawn_on_pins:
+        - 4
+        - 5
+        grouping: opposite-legs
+        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
+        tube: 12ax7
+      V3:
+        drawn_on_pins:
+        - 4
+        - 5
+        grouping: opposite-legs
+        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
+        tube: 12ax7
+      V5:
+        drawn_on_pins:
+        - 4
+        - 5
+        grouping: opposite-legs
+        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
+        tube: 12ax7
+      V6:
+        drawn_on_pins:
+        - 4
+        - 5
+        grouping: opposite-legs
+        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
+        tube: 12ax7
+    declared: false
+    findings:
+    - detail: pins [4, 5] are one leg at 6.3 V and opposite legs at 12.6 V
+      kind: unclassified
+      pins:
+      - 4
+      - 5
+      socket: V2
+  6g6b:
+    centre_tapped_sockets:
+      V1:
+        drawn_on_pins:
+        - 4
+        - 5
+        grouping: opposite-legs
+        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
+        tube: 12ax7
+      V2:
+        drawn_on_pins:
+        - 4
+        - 5
+        grouping: opposite-legs
+        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
+        tube: 12ax7
+      V3:
+        drawn_on_pins:
+        - 4
+        - 5
+        grouping: opposite-legs
+        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
+        tube: 12ax7
+      V4:
+        drawn_on_pins:
+        - 4
+        - 5
+        grouping: opposite-legs
+        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
+        tube: 12ax7
+    declared: false
+    findings:
+    - detail: pins [4, 5] are one leg at 6.3 V and opposite legs at 12.6 V
+      kind: unclassified
+      pins:
+      - 4
+      - 5
+      socket: V1
+  aa1164:
+    centre_tapped_sockets:
+      V1:
+        drawn_on_pins:
+        - 4
+        - 5
+        grouping: opposite-legs
+        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
+        tube: 12ax7
+      V2:
+        drawn_on_pins:
+        - 4
+        - 5
+        grouping: opposite-legs
+        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
+        tube: 12at7
+      V3:
+        drawn_on_pins:
+        - 4
+        - 5
+        grouping: opposite-legs
+        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
+        tube: 12ax7
+      V4:
+        drawn_on_pins:
+        - 4
+        - 5
+        grouping: opposite-legs
+        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
+        tube: 12ax7
+    declared: false
+    findings:
+    - detail: pins [4, 5] are one leg at 6.3 V and opposite legs at 12.6 V
+      kind: unclassified
+      pins:
+      - 4
+      - 5
+      socket: V1
+  aa764:
+    centre_tapped_sockets:
+      V1:
+        drawn_on_pins: []
+        grouping: not-drawn-as-a-pair
+        reading: not read as a pair (the drawing names 0 pin(s))
+        tube: 12ax7
+    declared: false
+    findings: []
+  aa764-vibro:
+    centre_tapped_sockets:
+      V1:
+        drawn_on_pins: []
+        grouping: not-drawn-as-a-pair
+        reading: not read as a pair (the drawing names 0 pin(s))
+        tube: 12ax7
+      V4:
+        drawn_on_pins: []
+        grouping: not-drawn-as-a-pair
+        reading: not read as a pair (the drawing names 0 pin(s))
+        tube: 12ax7
+    declared: false
+    findings: []
+  aa864-bassman:
+    centre_tapped_sockets:
+      V1:
+        drawn_on_pins:
+        - 4
+        - 5
+        grouping: opposite-legs
+        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
+        tube: 12ax7
+      V2:
+        drawn_on_pins:
+        - 4
+        - 5
+        grouping: opposite-legs
+        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
+        tube: 12ax7
+      V3:
+        drawn_on_pins:
+        - 4
+        - 5
+        grouping: opposite-legs
+        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
+        tube: 12ax7
+      V4:
+        drawn_on_pins:
+        - 4
+        - 5
+        grouping: opposite-legs
+        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
+        tube: 12at7
+    declared: false
+    findings:
+    - detail: pins [4, 5] are one leg at 6.3 V and opposite legs at 12.6 V
+      kind: unclassified
+      pins:
+      - 4
+      - 5
+      socket: V1
+  aa964:
+    centre_tapped_sockets:
+      V1:
+        drawn_on_pins:
+        - 4
+        - 5
+        grouping: opposite-legs
+        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
+        tube: 12ax7
+      V2:
+        drawn_on_pins:
+        - 4
+        - 5
+        grouping: opposite-legs
+        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
+        tube: 12ax7
+    declared: false
+    findings:
+    - detail: pins [4, 5] are one leg at 6.3 V and opposite legs at 12.6 V
+      kind: unclassified
+      pins:
+      - 4
+      - 5
+      socket: V1
+  ab165:
+    centre_tapped_sockets:
+      V1:
+        drawn_on_pins:
+        - 4
+        - 5
+        grouping: opposite-legs
+        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
+        tube: 12ax7
+      V2:
+        drawn_on_pins:
+        - 4
+        - 5
+        grouping: opposite-legs
+        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
+        tube: 12ax7
+      V3:
+        drawn_on_pins:
+        - 4
+        - 5
+        grouping: opposite-legs
+        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
+        tube: 12ax7
+      V4:
+        drawn_on_pins:
+        - 4
+        - 5
+        grouping: opposite-legs
+        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
+        tube: 12at7
+    declared: false
+    findings:
+    - detail: pins [4, 5] are one leg at 6.3 V and opposite legs at 12.6 V
+      kind: unclassified
+      pins:
+      - 4
+      - 5
+      socket: V1
+  ab763:
+    centre_tapped_sockets:
+      V1:
+        drawn_on_pins:
+        - 4
+        - 5
+        grouping: opposite-legs
+        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
+        tube: 12ax7
+      V2:
+        drawn_on_pins:
+        - 4
+        - 5
+        grouping: opposite-legs
+        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
+        tube: 12ax7
+      V3:
+        drawn_on_pins:
+        - 4
+        - 5
+        grouping: opposite-legs
+        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
+        tube: 12ax7
+      V4:
+        drawn_on_pins:
+        - 4
+        - 5
+        grouping: opposite-legs
+        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
+        tube: 12at7
+      V5:
+        drawn_on_pins:
+        - 4
+        - 5
+        grouping: opposite-legs
+        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
+        tube: 12ax7
+      V6:
+        drawn_on_pins:
+        - 4
+        - 5
+        grouping: opposite-legs
+        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
+        tube: 12at7
+    declared: false
+    findings:
+    - detail: pins [4, 5] are one leg at 6.3 V and opposite legs at 12.6 V
+      kind: unclassified
+      pins:
+      - 4
+      - 5
+      socket: V1
+  ab763-super:
+    centre_tapped_sockets:
+      V1:
+        drawn_on_pins:
+        - 4
+        - 5
+        grouping: opposite-legs
+        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
+        tube: 12ax7
+      V2:
+        drawn_on_pins:
+        - 4
+        - 5
+        grouping: opposite-legs
+        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
+        tube: 12ax7
+      V3:
+        drawn_on_pins:
+        - 4
+        - 5
+        grouping: opposite-legs
+        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
+        tube: 12ax7
+      V4:
+        drawn_on_pins:
+        - 4
+        - 5
+        grouping: opposite-legs
+        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
+        tube: 12at7
+      V5:
+        drawn_on_pins:
+        - 4
+        - 5
+        grouping: opposite-legs
+        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
+        tube: 12ax7
+      V6:
+        drawn_on_pins:
+        - 4
+        - 5
+        grouping: opposite-legs
+        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
+        tube: 12at7
+    declared: false
+    findings:
+    - detail: pins [4, 5] are one leg at 6.3 V and opposite legs at 12.6 V
+      kind: unclassified
+      pins:
+      - 4
+      - 5
+      socket: V1
+  ab763-twin:
+    centre_tapped_sockets:
+      V1:
+        drawn_on_pins:
+        - 4
+        - 5
+        grouping: opposite-legs
+        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
+        tube: 12ax7
+      V2:
+        drawn_on_pins:
+        - 4
+        - 5
+        grouping: opposite-legs
+        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
+        tube: 12ax7
+      V3:
+        drawn_on_pins:
+        - 4
+        - 5
+        grouping: opposite-legs
+        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
+        tube: 12at7
+      V4:
+        drawn_on_pins:
+        - 4
+        - 5
+        grouping: opposite-legs
+        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
+        tube: 12ax7
+      V5:
+        drawn_on_pins:
+        - 4
+        - 5
+        grouping: opposite-legs
+        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
+        tube: 12ax7
+      V6:
+        drawn_on_pins:
+        - 4
+        - 5
+        grouping: opposite-legs
+        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
+        tube: 12at7
+    declared: false
+    findings:
+    - detail: pins [4, 5] are one leg at 6.3 V and opposite legs at 12.6 V
+      kind: unclassified
+      pins:
+      - 4
+      - 5
+      socket: V1
+  ac15:
+    centre_tapped_sockets:
+      V2:
+        drawn_on_pins:
+        - 4
+        - 5
+        grouping: opposite-legs
+        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
+        tube: 12ax7
+      V5:
+        drawn_on_pins:
+        - 4
+        - 5
+        grouping: opposite-legs
+        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
+        tube: 12ax7
+      V6:
+        drawn_on_pins:
+        - 4
+        - 5
+        grouping: opposite-legs
+        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
+        tube: 12au7
+      V7:
+        drawn_on_pins:
+        - 4
+        - 5
+        grouping: opposite-legs
+        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
+        tube: 12ax7
+    declared: false
+    findings:
+    - detail: the ef86 has two heater pins and no centre tap, so pins [4, 5] are its two supply legs
+      kind: shorted
+      pins:
+      - 4
+      - 5
+      socket: V1
+  ac30:
+    centre_tapped_sockets:
+      V1:
+        drawn_on_pins:
+        - 4
+        - 5
+        grouping: opposite-legs
+        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
+        tube: 12ax7
+      V2:
+        drawn_on_pins:
+        - 4
+        - 5
+        grouping: opposite-legs
+        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
+        tube: 12ax7
+      V7:
+        drawn_on_pins:
+        - 4
+        - 5
+        grouping: opposite-legs
+        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
+        tube: 12ax7
+      V8:
+        drawn_on_pins:
+        - 4
+        - 5
+        grouping: opposite-legs
+        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
+        tube: 12au7
+      V9:
+        drawn_on_pins:
+        - 4
+        - 5
+        grouping: opposite-legs
+        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
+        tube: 12ax7
+    declared: false
+    findings:
+    - detail: pins [4, 5] are one leg at 6.3 V and opposite legs at 12.6 V
+      kind: unclassified
+      pins:
+      - 4
+      - 5
+      socket: V1
+  b15n:
+    centre_tapped_sockets: {}
+    declared: false
+    findings: []
+  dr103:
+    centre_tapped_sockets:
+      V1:
+        drawn_on_pins:
+        - 4
+        - 5
+        grouping: opposite-legs
+        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
+        tube: 12ax7
+      V2:
+        drawn_on_pins:
+        - 4
+        - 5
+        grouping: opposite-legs
+        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
+        tube: 12ax7
+      V3:
+        drawn_on_pins:
+        - 4
+        - 5
+        grouping: opposite-legs
+        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
+        tube: 12ax7
+      V4:
+        drawn_on_pins:
+        - 4
+        - 5
+        grouping: opposite-legs
+        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
+        tube: 12at7
+    declared: false
+    findings:
+    - detail: pins [4, 5] are one leg at 6.3 V and opposite legs at 12.6 V
+      kind: unclassified
+      pins:
+      - 4
+      - 5
+      socket: V1
+  ga40:
+    centre_tapped_sockets:
+      V4:
+        drawn_on_pins:
+        - 4
+        - 5
+        grouping: opposite-legs
+        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
+        tube: 12ax7
+    declared: false
+    findings: []
+  jtm100:
+    centre_tapped_sockets:
+      V1:
+        drawn_on_pins:
+        - 4
+        - 5
+        grouping: opposite-legs
+        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
+        tube: 12ax7
+      V3:
+        drawn_on_pins:
+        - 4
+        - 5
+        grouping: opposite-legs
+        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
+        tube: 12ax7
+      V4:
+        drawn_on_pins:
+        - 4
+        - 5
+        grouping: opposite-legs
+        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
+        tube: 12ax7
+    declared: false
+    findings:
+    - detail: pins [4, 5] are one leg at 6.3 V and opposite legs at 12.6 V
+      kind: unclassified
+      pins:
+      - 4
+      - 5
+      socket: V1
+  jtm45:
+    centre_tapped_sockets:
+      V1:
+        drawn_on_pins:
+        - 4
+        - 5
+        grouping: opposite-legs
+        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
+        tube: 12ax7
+      V3:
+        drawn_on_pins:
+        - 4
+        - 5
+        grouping: opposite-legs
+        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
+        tube: 12ax7
+      V4:
+        drawn_on_pins:
+        - 4
+        - 5
+        grouping: opposite-legs
+        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
+        tube: 12ax7
+    declared: false
+    findings:
+    - detail: pins [4, 5] are one leg at 6.3 V and opposite legs at 12.6 V
+      kind: unclassified
+      pins:
+      - 4
+      - 5
+      socket: V1
+  m1959:
+    centre_tapped_sockets:
+      V1:
+        drawn_on_pins:
+        - 4
+        - 5
+        grouping: opposite-legs
+        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
+        tube: 12ax7
+      V2:
+        drawn_on_pins:
+        - 4
+        - 5
+        grouping: opposite-legs
+        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
+        tube: 12ax7
+      V3:
+        drawn_on_pins:
+        - 4
+        - 5
+        grouping: opposite-legs
+        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
+        tube: 12ax7
+    declared: false
+    findings:
+    - detail: pins [4, 5] are one leg at 6.3 V and opposite legs at 12.6 V
+      kind: unclassified
+      pins:
+      - 4
+      - 5
+      socket: V1
+  m1987:
+    centre_tapped_sockets:
+      V1:
+        drawn_on_pins:
+        - 4
+        - 5
+        grouping: opposite-legs
+        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
+        tube: 12ax7
+      V2:
+        drawn_on_pins:
+        - 4
+        - 5
+        grouping: opposite-legs
+        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
+        tube: 12ax7
+      V3:
+        drawn_on_pins:
+        - 4
+        - 5
+        grouping: opposite-legs
+        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
+        tube: 12ax7
+    declared: false
+    findings:
+    - detail: pins [4, 5] are one leg at 6.3 V and opposite legs at 12.6 V
+      kind: unclassified
+      pins:
+      - 4
+      - 5
+      socket: V1
+  m2204:
+    centre_tapped_sockets:
+      V1:
+        drawn_on_pins:
+        - 4
+        - 5
+        grouping: opposite-legs
+        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
+        tube: 12ax7
+      V2:
+        drawn_on_pins:
+        - 4
+        - 5
+        grouping: opposite-legs
+        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
+        tube: 12ax7
+      V3:
+        drawn_on_pins:
+        - 4
+        - 5
+        grouping: opposite-legs
+        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
+        tube: 12ax7
+    declared: false
+    findings:
+    - detail: pins [4, 5] are one leg at 6.3 V and opposite legs at 12.6 V
+      kind: unclassified
+      pins:
+      - 4
+      - 5
+      socket: V1
+summary:
+  declared_and_checked: 1
+  doubtful_sockets: 112
+  layouts: 40
+  links_needing_a_source_read: 30
+  links_that_short_the_supply: 4
+  not_established: 39

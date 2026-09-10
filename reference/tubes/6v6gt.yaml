@@ -49,6 +49,17 @@ basing:
     6: { element: nc }
     7: { element: heater }
     8: { element: cathode }
+# One heater, one supply: with no centre tap the two heater pins ARE the two
+# supply legs, and no drawing has a second way to wire them.
+heater:
+  supplies:
+    - volts: 6.3
+      current_a: 0.45
+      legs: [[2], [7]]
+  source: >-
+    GE 6V6-GT data sheet ET-T914 (March 1955), page 1 — heater voltage 6.3 V
+    AC or DC at 0.45 A; terminal connections pin 2 heater, pin 7 heater.
+  source_url: https://frank.pocnet.net/sheets/093/6/6V6GT.pdf
 used_in: ["5c1", "5d3", "5e1", "5e3", "5e4a", "5f1", "5f10", "5f2a", "5g9", "6g2", "6g3", "aa1164", "aa764", "aa764-vibro", "aa964", "ab763", "ga40"]
 datasheets:
   - publisher: RCA

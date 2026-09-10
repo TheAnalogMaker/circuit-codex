@@ -36,6 +36,37 @@ With 22k, the downstream stage voltages fall into line as well.
 this circuit get wrong — and the schematic's printed 22K marking confirms
 it.
 
+## A correction: the heater wiring this entry drew, and what the sheet shows
+
+The board drawing on this page shipped its 6.3 V heater wiring wrong, and the
+correction is recorded here rather than quietly made.
+
+The 12AX7 has a centre-tapped heater, which lets one valve run from either
+supply: at **12.6 V** the two heater ends sit on opposite legs and the centre
+tap carries none, while at **6.3 V** the two ends are strapped together as one
+leg and the centre tap is the other. Both arrangements use the same three pins,
+so the pin names alone cannot say which an amplifier wires — and the drawing
+was built by a rule that read the pin names and always chose the series form.
+On this circuit that produced a lead to each heater end and then a link joining
+them, which reads as a short across the supply, with the centre tap left
+unwired.
+
+The factory drawing shows the parallel arrangement, and shows the supply it
+belongs to. The schematic draws the 6.3 V secondary with one lead grounded at
+the transformer and the other marked *to all 6.3 volt filaments and pilot lite*
+— a single-ended supply, one wire out and the chassis back. The layout wires
+exactly that: one green transformer lead to the chassis-ground point beside the
+high-tension centre tap, the other to the pilot lamp and on to the 6V6GT's
+heater, then to the 12AX7; the 12AX7's two heater ends strapped together and its
+centre tap taken to ground; the 6V6GT's other heater pin taken to ground on its
+own. The 5Y3GT keeps its separate 5 V filament winding, which floats at the
+rectified B+ and is grounded nowhere.
+
+What the drawing now states, it states as data: this circuit's supply voltage,
+the connection group each socket pin belongs to and which leg returns to ground
+are declared in the layout and checked — against the valve's own datasheet
+grouping, and against the leads the drawing draws.
+
 ## Verification
 
 Simulation is checked against the drawing's full printed voltage chart: the

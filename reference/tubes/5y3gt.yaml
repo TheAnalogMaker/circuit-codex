@@ -27,6 +27,22 @@ basing:
     6: { element: diode-plate, unit: 1, hv: true }
     7: { element: nc }
     8: { element: filament, hv: true, note: "also the cathode — B+ output" }
+# A directly-heated rectifier sits on its own 5 V winding, never on the 6.3 V
+# heater chain, and the winding floats at B+ because the filament IS the
+# cathode. The two filament pins are the two supply legs.
+heater:
+  supplies:
+    - volts: 5.0
+      current_a: 2.0
+      legs: [[2], [8]]
+      note: >-
+        Its own 5 V secondary. Both legs sit at the rectified B+, so neither
+        may be grounded — the winding floats with the filament.
+  source: >-
+    GE 5Y3-GT data sheet ET-T965 (October 1955), page 1 — filament voltage
+    5.0 V AC or DC at 2.0 A; terminal connections pin 2 filament, pin 8
+    filament (RETMA 5T).
+  source_url: https://frank.pocnet.net/sheets/093/5/5Y3GT.pdf
 used_in: ["5c1", "5d3", "5e1", "5e3", "5f1", "5f10", "5f2a", "6161", "6g2", "aa764", "aa764-vibro", "ga40"]
 datasheets:
   - publisher: RCA

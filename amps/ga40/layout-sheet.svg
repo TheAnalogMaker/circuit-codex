@@ -1,7 +1,7 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3052 947" role="img" aria-label="GA-40 · BOARD LAYOUT (DERIVED) — redrawn board layout diagram, layout-sheet drafting style" width="100%" font-family="'Avenir Next Condensed','Arial Narrow','Helvetica Neue',Arial,sans-serif">
-<rect x="0" y="0" width="3052" height="947" fill="#e9dcba"/>
-<rect x="6" y="6" width="3040" height="935" fill="none" stroke="#211c13" stroke-width="1.6"/>
-<rect x="11" y="11" width="3030" height="925" fill="none" stroke="#211c13" stroke-width="0.6"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3052 1006" role="img" aria-label="GA-40 · BOARD LAYOUT (DERIVED) — redrawn board layout diagram, layout-sheet drafting style" width="100%" font-family="'Avenir Next Condensed','Arial Narrow','Helvetica Neue',Arial,sans-serif">
+<rect x="0" y="0" width="3052" height="1006" fill="#e9dcba"/>
+<rect x="6" y="6" width="3040" height="994" fill="none" stroke="#211c13" stroke-width="1.6"/>
+<rect x="11" y="11" width="3030" height="984" fill="none" stroke="#211c13" stroke-width="0.6"/>
 <rect x="128" y="225" width="2796" height="212" rx="2" fill="#e2d2a9" stroke="#211c13" stroke-width="3.0"/>
 <rect x="133" y="230" width="2786" height="202" rx="1" fill="none" stroke="#211c13" stroke-width="1.0"/>
 <circle cx="158" cy="281" r="2.1" fill="none" stroke="#8d7f63" stroke-width="0.8"/>
@@ -429,29 +429,31 @@
 <text x="2714" y="400.4" fill="#211c13" font-size="9.5" font-family="'Avenir Next Condensed','Arial Narrow','Helvetica Neue',Arial,sans-serif" font-weight="700" text-anchor="middle" stroke="#f0e6c8" stroke-width="2.6" stroke-linejoin="round" paint-order="stroke">51K</text>
 <text x="128" y="49.2" fill="#211c13" font-size="29.16" font-family="'Avenir Next Condensed','Arial Narrow','Helvetica Neue',Arial,sans-serif" font-weight="700" text-anchor="start" letter-spacing="0.14em">GA-40 · BOARD LAYOUT (DERIVED)</text>
 <line x1="128" y1="56.7" x2="643.8" y2="56.7" stroke="#211c13" stroke-width="1.9"/>
-<text x="128" y="739.6" fill="#8d7f63" font-size="17.01" font-family="'SF Mono',Menlo,Consolas,monospace" font-weight="500" text-anchor="start">Redrawn from Gibson factory drawing, title block "GA-40" with the "Les Paul" signature at the lower left — layout DERIVED from that circuit drawing; Gibson published no board-layout sheet for this chassis and none was located — not a trace</text>
-<text x="128" y="768.8" fill="#8d7f63" font-size="15.39" font-family="'SF Mono',Menlo,Consolas,monospace" font-weight="500" text-anchor="start">T1 — Gibson (no number printed)</text>
-<text x="128" y="798" fill="#8d7f63" font-size="15.39" font-family="'SF Mono',Menlo,Consolas,monospace" font-weight="500" text-anchor="start">T2 — Gibson (no number printed)</text>
-<text x="128" y="827.1" fill="#8d7f63" font-size="15.39" font-family="'SF Mono',Menlo,Consolas,monospace" font-weight="500" text-anchor="start">Note: the 6.3 V heater twisted pair always routes on the top layer and never joins another run — its crossings are not hop-overs.</text>
-<text x="128" y="856.3" fill="#8d7f63" font-size="17.01" font-family="'SF Mono',Menlo,Consolas,monospace" font-weight="500" text-anchor="start">Wiring:</text>
-<line x1="222" y1="851.4" x2="251.1" y2="851.4" stroke="#57503f" stroke-width="3.2" stroke-linecap="round"/>
-<text x="260.8" y="856.3" fill="#4c4132" font-size="17.01" font-family="'SF Mono',Menlo,Consolas,monospace" font-weight="500" text-anchor="start">lead (uncoloured)</text>
-<line x1="463.2" y1="851.4" x2="492.3" y2="851.4" stroke="#211c13" stroke-width="6.5" stroke-linecap="round"/><line x1="464.8" y1="851.4" x2="490.7" y2="851.4" stroke="#d9c99e" stroke-width="2.9" stroke-linecap="round"/>
-<text x="502" y="856.3" fill="#4c4132" font-size="17.01" font-family="'SF Mono',Menlo,Consolas,monospace" font-weight="500" text-anchor="start">ground bus</text>
-<path d="M 631.7 851.4 L 635 852.7 L 638.2 851.4 L 641.4 848 L 644.7 851.4 L 647.9 855.6 L 651.2 851.4 L 654.4 848 L 657.6 851.4 L 660.9 852.7 L 664.1 851.4" fill="none" stroke="#3c672f" stroke-width="2.4" stroke-linecap="round"/><path d="M 631.7 851.4 L 635 850.1 L 638.2 851.4 L 641.4 854.8 L 644.7 851.4 L 647.9 847.2 L 651.2 851.4 L 654.4 854.8 L 657.6 851.4 L 660.9 850.1 L 664.1 851.4" fill="none" stroke="#3c672f" stroke-width="2.4" stroke-linecap="round"/>
-<text x="673.8" y="856.3" fill="#4c4132" font-size="17.01" font-family="'SF Mono',Menlo,Consolas,monospace" font-weight="500" text-anchor="start">6.3 V heaters — twisted pair</text>
-<text x="128" y="885.4" fill="#8d7f63" font-size="17.01" font-family="'SF Mono',Menlo,Consolas,monospace" font-weight="500" text-anchor="start">Joints:</text>
-<circle cx="228.4" cy="880.6" r="4.5" fill="none" stroke="#211c13" stroke-width="1.0"/><circle cx="228.4" cy="880.6" r="2.9" fill="#211c13"/>
-<text x="243" y="885.4" fill="#4c4132" font-size="17.01" font-family="'SF Mono',Menlo,Consolas,monospace" font-weight="500" text-anchor="start">wire end (solder joint)</text>
-<path d="M 507.6 880.6 L 529.5 880.6 A 5.7 5.7 0 0 1 540.8 880.6 L 562.7 880.6" fill="none" stroke="#57503f" stroke-width="3.7" stroke-linecap="round" stroke-linejoin="round"/>
-<text x="572.4" y="885.4" fill="#4c4132" font-size="17.01" font-family="'SF Mono',Menlo,Consolas,monospace" font-weight="500" text-anchor="start">cross-over (no connect)</text>
-<text x="128" y="914.6" fill="#8d7f63" font-size="17.01" font-family="'SF Mono',Menlo,Consolas,monospace" font-weight="500" text-anchor="start">Bodies:</text>
-<path d="M 234.4 904.2 L 238.6 904.2 A 7.1 7.1 0 1 1 238.6 913.6 L 234.4 913.6 A 7.1 7.1 0 1 1 234.4 904.2 Z" fill="#f0e6c8" stroke="#211c13" stroke-width="1.0"/>
-<text x="259.2" y="914.6" fill="#4c4132" font-size="17.01" font-family="'SF Mono',Menlo,Consolas,monospace" font-weight="500" text-anchor="start">resistor</text>
-<rect x="368.1" y="900" width="22.7" height="16.2" rx="1.6" fill="#f0e6c8" stroke="#211c13" stroke-width="1.0"/>
-<text x="398.9" y="914.6" fill="#4c4132" font-size="17.01" font-family="'SF Mono',Menlo,Consolas,monospace" font-weight="500" text-anchor="start">film / coupling cap</text>
-<rect x="622" y="898.4" width="19.4" height="17.8" rx="2.4" fill="#f0e6c8" stroke="#211c13" stroke-width="1.0"/><line x1="622" y1="902.5" x2="641.4" y2="902.5" stroke="#211c13" stroke-width="0.7"/>
-<text x="649.5" y="914.6" fill="#4c4132" font-size="17.01" font-family="'SF Mono',Menlo,Consolas,monospace" font-weight="500" text-anchor="start">electrolytic (+ = positive end)</text>
-<rect x="997.1" y="901.6" width="22.7" height="13" rx="1.6" fill="#f0e6c8" stroke="#211c13" stroke-width="1.0"/>
-<text x="1027.9" y="914.6" fill="#4c4132" font-size="17.01" font-family="'SF Mono',Menlo,Consolas,monospace" font-weight="500" text-anchor="start">mica</text>
+<text x="128" y="740.3" fill="#8d7f63" font-size="17.01" font-family="'SF Mono',Menlo,Consolas,monospace" font-weight="500" text-anchor="start">Redrawn from Gibson factory drawing, title block "GA-40" with the "Les Paul" signature at the lower left — layout DERIVED from that circuit drawing; Gibson published no board-layout sheet for this chassis and none was located — not a trace</text>
+<text x="128" y="769.5" fill="#8d7f63" font-size="15.39" font-family="'SF Mono',Menlo,Consolas,monospace" font-weight="500" text-anchor="start">T1 — Gibson (no number printed)</text>
+<text x="128" y="798.6" fill="#8d7f63" font-size="15.39" font-family="'SF Mono',Menlo,Consolas,monospace" font-weight="500" text-anchor="start">T2 — Gibson (no number printed)</text>
+<text x="128" y="827.8" fill="#8d7f63" font-size="15.39" font-family="'SF Mono',Menlo,Consolas,monospace" font-weight="500" text-anchor="start">Heater layer: the one part of this board not established against the amplifier's own drawing. At the centre-tapped valve (V4) it shows the two heater pins on opposite supply legs — the 12.6 V series arrangement; a 6.3 V supply straps them into one leg and returns on the centre tap. Which sockets sit on the</text>
+<text x="128" y="857" fill="#8d7f63" font-size="15.39" font-family="'SF Mono',Menlo,Consolas,monospace" font-weight="500" text-anchor="start">chain, and the order it reaches them in, are not affected.</text>
+<text x="128" y="886.1" fill="#8d7f63" font-size="15.39" font-family="'SF Mono',Menlo,Consolas,monospace" font-weight="500" text-anchor="start">Note: the 6.3 V heater twisted pair always routes on the top layer and never joins another run — its crossings are not hop-overs.</text>
+<text x="128" y="915.3" fill="#8d7f63" font-size="17.01" font-family="'SF Mono',Menlo,Consolas,monospace" font-weight="500" text-anchor="start">Wiring:</text>
+<line x1="222" y1="910.4" x2="251.1" y2="910.4" stroke="#57503f" stroke-width="3.2" stroke-linecap="round"/>
+<text x="260.8" y="915.3" fill="#4c4132" font-size="17.01" font-family="'SF Mono',Menlo,Consolas,monospace" font-weight="500" text-anchor="start">lead (uncoloured)</text>
+<line x1="463.2" y1="910.4" x2="492.3" y2="910.4" stroke="#211c13" stroke-width="6.5" stroke-linecap="round"/><line x1="464.8" y1="910.4" x2="490.7" y2="910.4" stroke="#d9c99e" stroke-width="2.9" stroke-linecap="round"/>
+<text x="502" y="915.3" fill="#4c4132" font-size="17.01" font-family="'SF Mono',Menlo,Consolas,monospace" font-weight="500" text-anchor="start">ground bus</text>
+<path d="M 631.7 910.4 L 635 911.7 L 638.2 910.4 L 641.4 907 L 644.7 910.4 L 647.9 914.6 L 651.2 910.4 L 654.4 907 L 657.6 910.4 L 660.9 911.7 L 664.1 910.4" fill="none" stroke="#3c672f" stroke-width="2.4" stroke-linecap="round"/><path d="M 631.7 910.4 L 635 909.1 L 638.2 910.4 L 641.4 913.8 L 644.7 910.4 L 647.9 906.2 L 651.2 910.4 L 654.4 913.8 L 657.6 910.4 L 660.9 909.1 L 664.1 910.4" fill="none" stroke="#3c672f" stroke-width="2.4" stroke-linecap="round"/>
+<text x="673.8" y="915.3" fill="#4c4132" font-size="17.01" font-family="'SF Mono',Menlo,Consolas,monospace" font-weight="500" text-anchor="start">6.3 V heaters — twisted pair (leg grouping not established)</text>
+<text x="128" y="944.4" fill="#8d7f63" font-size="17.01" font-family="'SF Mono',Menlo,Consolas,monospace" font-weight="500" text-anchor="start">Joints:</text>
+<circle cx="228.4" cy="939.6" r="4.5" fill="none" stroke="#211c13" stroke-width="1.0"/><circle cx="228.4" cy="939.6" r="2.9" fill="#211c13"/>
+<text x="243" y="944.4" fill="#4c4132" font-size="17.01" font-family="'SF Mono',Menlo,Consolas,monospace" font-weight="500" text-anchor="start">wire end (solder joint)</text>
+<path d="M 507.6 939.6 L 529.5 939.6 A 5.7 5.7 0 0 1 540.8 939.6 L 562.7 939.6" fill="none" stroke="#57503f" stroke-width="3.7" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="572.4" y="944.4" fill="#4c4132" font-size="17.01" font-family="'SF Mono',Menlo,Consolas,monospace" font-weight="500" text-anchor="start">cross-over (no connect)</text>
+<text x="128" y="973.6" fill="#8d7f63" font-size="17.01" font-family="'SF Mono',Menlo,Consolas,monospace" font-weight="500" text-anchor="start">Bodies:</text>
+<path d="M 234.4 963.2 L 238.6 963.2 A 7.1 7.1 0 1 1 238.6 972.6 L 234.4 972.6 A 7.1 7.1 0 1 1 234.4 963.2 Z" fill="#f0e6c8" stroke="#211c13" stroke-width="1.0"/>
+<text x="259.2" y="973.6" fill="#4c4132" font-size="17.01" font-family="'SF Mono',Menlo,Consolas,monospace" font-weight="500" text-anchor="start">resistor</text>
+<rect x="368.1" y="959" width="22.7" height="16.2" rx="1.6" fill="#f0e6c8" stroke="#211c13" stroke-width="1.0"/>
+<text x="398.9" y="973.6" fill="#4c4132" font-size="17.01" font-family="'SF Mono',Menlo,Consolas,monospace" font-weight="500" text-anchor="start">film / coupling cap</text>
+<rect x="622" y="957.4" width="19.4" height="17.8" rx="2.4" fill="#f0e6c8" stroke="#211c13" stroke-width="1.0"/><line x1="622" y1="961.5" x2="641.4" y2="961.5" stroke="#211c13" stroke-width="0.7"/>
+<text x="649.5" y="973.6" fill="#4c4132" font-size="17.01" font-family="'SF Mono',Menlo,Consolas,monospace" font-weight="500" text-anchor="start">electrolytic (+ = positive end)</text>
+<rect x="997.1" y="960.6" width="22.7" height="13" rx="1.6" fill="#f0e6c8" stroke="#211c13" stroke-width="1.0"/>
+<text x="1027.9" y="973.6" fill="#4c4132" font-size="17.01" font-family="'SF Mono',Menlo,Consolas,monospace" font-weight="500" text-anchor="start">mica</text>
 </svg>

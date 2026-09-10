@@ -98,6 +98,14 @@ jobs:
       # was a second copy of the main run, so nothing in CI proved this gate
       # could still fail — the quietest way for a gate to rot.
       - run: python pipeline/verify_layout_nets.py --selftest
+      # The heater layer is a claim of its own, separate from DC equivalence,
+      # and until 2026-09-10 nothing checked it: the renderer inferred a pin
+      # grouping from labels that was right for an octal 6V6 and wrong for a
+      # centre-tapped 12AX7, on 36 of 41 boards. The gate proves a declared
+      # heater circuit; reference/heaters.yaml is its exported worklist and
+      # must match a fresh run, like op-points.yaml and loadlines.yaml.
+      - run: python pipeline/check_heaters.py --selftest
+      - run: python pipeline/check_heaters.py
       # reference/loadlines.yaml is generated from the netlists and simulated, so it
       # can go stale silently the moment a netlist changes. Same drift gate as models/.
       - run: python pipeline/export_loadlines.py --check

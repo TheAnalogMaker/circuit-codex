@@ -78,19 +78,27 @@ runs:
           small house-tuned palette that stays legible on the dark board, and
           shows up in the drawing's colour legend. Uncoloured runs render in
           the neutral hookup-lead tone.
-  style?  optional. "twisted" renders the run as ONE 6.3 V pair: two interleaved
-          sinusoidal strands along a twisted axis which, at each socket the run
-          lands on, separate and run on to BOTH of that socket's heater pins
-          (octal 2+7, noval 4+5 — never the centre tap). A socket-to-socket hop
-          routes along the socket row, ring to ring, dressed around anything
-          standing in the row; the authored `via` on such a hop described the
-          old deep rail and is not used. A run whose two ends are the same
-          socket — the chain's closing link — is one conductor, not a pair.
-          Twisted runs default to the heater green (with green-yellow available
-          for a centre-tap lead where a drawing marks one) and earn their own
-          legend entry ("6.3 V heaters — twisted pair") instead of a colour
-          swatch. Use for the filament/heater chain: PT green pair → pilot
-          lamp → socket to socket in the drawing's daisy order.
+  style?  optional. Two values mark a run as HEATER WIRING, and they differ in
+          what the drawing claims:
+            "twisted" — a PAIR: two interleaved sinusoidal strands along a
+              twisted axis which, at each socket, separate and land one strand
+              on each of that socket's two SUPPLY LEGS. Which pins those are
+              comes from the layout's `heaters:` block, else from a basing that
+              leaves no choice (octal 2+7, rectifier filament 2+8). On a
+              centre-tapped valve with no declaration it cannot be known — 6.3 V
+              parallel straps 4+5 against the tap at 9, 12.6 V series puts 4 and
+              5 on opposite legs — so the run is drawn as the ONE conductor its
+              data names rather than as a pair with an invented landing.
+            "heater" — ONE conductor. A single-ended supply (one leg grounded at
+              the transformer, each socket returning to chassis on its own —
+              the 5F1, the AA764) has no pair to draw.
+          A socket-to-socket hop routes along the socket row, ring to ring,
+          dressed around anything standing in the row; the authored `via` on
+          such a hop described the old deep rail and is not used. A run whose
+          two ends are the same socket — a strap tying two pins into one leg —
+          is one conductor. Heater runs default to the heater green (with
+          green-yellow available for a centre-tap lead where a drawing marks
+          one) and earn their own legend entry instead of a colour swatch.
   via?    optional routing waypoints, in GRID units [x, y] where x = column
           axis and y = row axis (same axes as eyelets, but note the [x, y]
           order is the drawing's, i.e. horizontal-first — the opposite of a
@@ -98,16 +106,32 @@ runs:
           below it. Fractions allowed. Runs bend through these with rounded
           elbows, so a couple of waypoints keep a lead off its neighbours.
 
+--- heaters: what the heater circuits WIRE -------------------------------------
+heaters:
+  - { id, volts, winding?, grounded_leg: feed|return|none, source?,
+      sockets: { <socket id>: { feed: [pins], return: [pins] } } }
+
+  The drawing's own statement of its heater wiring: supply voltage, the
+  CONNECTION GROUP every socket pin sits in, and which leg (if either) returns
+  to ground. It exists because pin labels cannot say it — a centre-tapped
+  12AX7 wires the same three pins as [4,5]|[9] at 6.3 V and [4]|[5] at 12.6 V,
+  and inferring the second on a 6.3 V amplifier draws a short across the supply
+  with the centre tap left unwired (issue #30, the 5F1). Proved by
+  pipeline/check_heaters.py against the valve's own datasheet grouping
+  (reference/tubes/<tube>.yaml `heater.supplies`) and against the drawn runs.
+  A layout without the block is not checked and claims nothing.
+
 --- wire_legend: colour-swatch overrides ---------------------------------------
-wire_legend:  { <colour name>: "<legend entry>" }
+wire_legend:  { <colour name> | "heater": "<legend entry>" }
 
   Replaces a colour's bare swatch label in the drawing's wiring legend. Use it
   where a colour carries a documented FUNCTION in that drawing which the
-  automatic legend cannot infer — e.g. the AA764's 6.3 V heater supply is
-  single-ended (one green PT lead grounded, the other feeding pilot lamp and
-  both heaters) and so renders as plain green runs, earning no "6.3 V heaters —
-  twisted pair" entry. The SVG is served standalone, so it must say what green
-  means on its own.
+  automatic legend cannot infer. The reserved key "heater" replaces the heater
+  entry's own text: the automatic wording names the idiom (twisted pair /
+  single lead) but not the function, and a single-ended supply — one PT lead
+  grounded, the other feeding pilot lamp and every heater, each socket
+  returning to chassis on its own (the 5F1, the AA764) — is worth saying. The
+  SVG is served standalone, so it must say what green means on its own.
 
 --- bus: ground-bus segments --------------------------------------------------
 bus:
@@ -491,31 +515,75 @@ def load_tube_heater_pins(slug: str) -> set[int] | None:
     return out or None
 
 
-# The centre tap is a THIRD wire, not half of the pair — a pair spans the two
-# heater/filament pins only (noval 4+5, octal 2+7, rectifier filament 2+8).
-_HEATER_PAIR_ELEMENTS = {"heater", "filament"}
+# A twisted pair is the SUPPLY's two legs, and which pins those legs land on is
+# a fact about the AMPLIFIER, not about the valve — so nothing here reads it off
+# a basing's element labels. The same 12AX7 runs 6.3 V parallel (pins 4 and 5
+# strapped as one leg, the centre tap 9 the other) or 12.6 V series (4 and 5 on
+# opposite legs, 9 carrying no supply leg); a rule that picked "the two `heater`
+# pins, never the `heater-ct`" therefore drew series wiring on parallel
+# amplifiers (issue #30). The landings come from the layout's own `heaters:`
+# block, or failing that from the pins its own heater runs name at that socket
+# — see Renderer.heater_legs_for().
+
+# The two run styles that say "this conductor is heater wiring". Both are drawn
+# in the heater green, ON TOP of the socket glyphs (a heater lead has to show
+# its pin landing, and a plain run crossing a socket disc reads as landing on
+# whichever pin the rim hides it at), dressed round the socket flank instead of
+# through it, exempt from hop-over arcs, and excluded from the DC-equivalence
+# comparison. They differ in what they claim:
+#
+#   twisted  a PAIR — the supply's two legs running together, separating at
+#            each socket on to one pin of each leg. The classic 6.3 V idiom.
+#   heater   ONE conductor. A single-ended supply (one leg grounded at the
+#            transformer, each socket returning to chassis on its own) has no
+#            pair to draw: the 5F1 and AA764 sheets both wire it this way.
+HEATER_STYLES = {"twisted", "heater"}
 
 
-def load_tube_heater_pair(slug: str) -> tuple[int, int] | None:
-    """The two pins a 6.3 V twisted pair spans at this socket, or None when the
-    basing does not name exactly two (an unknown tube, or a valve whose sheet
-    lists one heater pin). Drives the heater-pair primitive: the pair is ONE
-    conductor pair and lands on BOTH of a socket's heater pins, never on one."""
+def run_style(spec) -> str:
+    return str((spec or {}).get("style", "")).lower()
+
+
+def is_heater_run(spec) -> bool:
+    """Is this run heater wiring — either idiom?"""
+    return run_style(spec) in HEATER_STYLES
+
+
+def load_tube_basing_elements(slug: str) -> dict | None:
+    """{pin number: element} from reference/tubes/<slug>.yaml basing."""
     path = ROOT / "reference" / "tubes" / f"{slug}.yaml"
     if not path.exists():
         return None
     data = yaml.safe_load(path.read_text()) or {}
     pins = ((data.get("basing") or {}).get("pins") or {})
-    out: list[int] = []
+    out: dict = {}
     for k, meta in pins.items():
         try:
-            num = int(k)
+            out[int(k)] = str((meta or {}).get("element", "")).lower()
         except (TypeError, ValueError):
             continue
-        if isinstance(meta, dict) and \
-                str(meta.get("element", "")).lower() in _HEATER_PAIR_ELEMENTS:
-            out.append(num)
-    return (out[0], out[1]) if len(out) == 2 else None
+    return out or None
+
+
+def load_tube_heater_supplies(slug: str) -> list[dict] | None:
+    """The heater supplies a valve's datasheet permits, from its
+    `heater.supplies` block: [{volts, legs: [[pins], [pins]], unused: [pins]}].
+    None when the tube file declares none. Read by the heater gate to prove a
+    layout's declared connection groups against the valve's own sheet."""
+    path = ROOT / "reference" / "tubes" / f"{slug}.yaml"
+    if not path.exists():
+        return None
+    data = yaml.safe_load(path.read_text()) or {}
+    sup = ((data.get("heater") or {}).get("supplies") or [])
+    out = []
+    for s in sup:
+        if not isinstance(s, dict):
+            continue
+        legs = [[int(p) for p in leg] for leg in (s.get("legs") or [])]
+        out.append({"volts": float(s.get("volts", 0)), "legs": legs,
+                    "unused": [int(p) for p in (s.get("unused") or [])],
+                    "note": str(s.get("note", ""))})
+    return out or None
 
 
 # ---- small SVG element builders --------------------------------------------
@@ -1101,6 +1169,17 @@ class Renderer:
         self.wire_legend = {str(k).lower(): str(v)
                             for k, v in (layout.get("wire_legend") or {}).items()}
         self.bus = layout.get("bus", []) or []               # v2 ground bus
+        # Optional `heaters:` block — the drawing's OWN statement of what its
+        # heater/filament circuits wire: supply voltage, the connection group
+        # each socket pin sits in, and which leg (if either) returns to ground.
+        # Without it the renderer knows only which pins are heater pins, which
+        # on a centre-tapped valve does not say whether the sheet runs it in
+        # 6.3 V parallel (ends strapped, centre tap the other leg) or 12.6 V
+        # series (ends on opposite legs). See heater_legs_for() and
+        # docs/layout-schema.md.
+        self.heaters = layout.get("heaters", []) or []
+        self._heater_decl = self._index_heaters()
+        self._heater_named_cache: dict = {}
         self.errors: list[str] = []
         # label / obstacle registries — every piece of drawing-content type goes
         # through self.lab(), every glyph body through obst_*(). The
@@ -1135,9 +1214,8 @@ class Renderer:
                 it["_pins"] = pins
                 it["_pincount"] = (max(pins) if pins else 8)
                 it["_heater_pins"] = load_tube_heater_pins(slug) if slug else None
-                # the two pins one 6.3 V pair spans at this socket (never the
-                # centre tap) — see _heater_span() and load_tube_heater_pair()
-                it["_heater_pair"] = load_tube_heater_pair(slug) if slug else None
+                it["_tube_slug"] = slug
+                it["_basing_elements"] = load_tube_basing_elements(slug) if slug else None
         # Does this board carry a polarised rectifier/diode body? (drives the
         # extra Bodies-legend entry — the legend must name every form drawn.)
         self._has_diode = any(
@@ -1149,12 +1227,18 @@ class Renderer:
         self._assign_xfmr_leads()
         self._colours_used: list[str] = []
         self._has_twisted = False
+        # Twisted runs split into two idioms, and the legend must name both:
+        # a PAIR (the supply's two legs running together, separating on to each
+        # socket's two legs) and a SINGLE conductor (a strap, or a run whose
+        # landings the drawing has not established as a pair).
+        self._has_heater_pair = False
+        self._has_heater_single = False
         # known ahead of the geometry pass (needed for the footer-height math
         # below): does this layout's raw wiring carry a twisted heater run at
         # all? If so the legend earns an extra note line (see _legend), which
         # needs its own reserved row in the footer band.
         self._layout_has_twisted = any(
-            str(r.get("style", "")).lower() == "twisted" for r in self.runs)
+            is_heater_run(r) for r in self.runs)
         # The wiring legend's swatch row and the drawing's footnotes are page
         # chrome whose LENGTH is data-dependent, so both are resolved here,
         # before the page is sized — see _footer_stack().
@@ -1206,7 +1290,7 @@ class Renderer:
             # and the band is not reserved for a drop that no longer happens.
             lane = self._heater_lane_row()
             for spec in (list(self.runs) + list(self.bus)):
-                twisted = str(spec.get("style", "")).lower() == "twisted"
+                twisted = is_heater_run(spec)
                 for v in (spec.get("via") or []):
                     if isinstance(v, (list, tuple)) and len(v) == 2:
                         try:
@@ -1268,9 +1352,21 @@ class Renderer:
     CHROME_RIGHT_PAD = 24.0
     FOOT_INDENT = 58.0        # x of the first entry after a row's caption word
     FOOT_GUTTER = 16.0        # clear space after an entry, before the next
+    # The heater layer is the drawing's top wiring layer and is exempt from
+    # hop-over arcs, so the page says so. The wording follows what is actually
+    # drawn: "twisted pair" where every heater run is a pair, "heater wiring"
+    # where the drawing also carries single conductors (a single-ended supply's
+    # feed and returns, as on the 5F1).
     TWISTED_NOTE = ("Note: the 6.3 V heater twisted pair always routes on the "
                     "top layer and never joins another run — its crossings are "
                     "not hop-overs.")
+    HEATER_NOTE = ("Note: the heater wiring always routes on the top layer and "
+                   "never joins another run — its crossings are not hop-overs.")
+
+    def heater_note(self) -> str:
+        return (self.TWISTED_NOTE
+                if self._has_heater_pair and not self._has_heater_single
+                else self.HEATER_NOTE)
 
     def chrome_width(self):
         return self.width - self.board_x - self.CHROME_RIGHT_PAD
@@ -1353,8 +1449,11 @@ class Renderer:
             for chunk in reversed(self._chunk_entries(self._wiring_entries(fs), avail)):
                 rows.append(("entries", "Wiring:", chunk, fs))
         if self._has_twisted:
-            for line in reversed(self._wrap(self.TWISTED_NOTE, ns, avail)):
+            for line in reversed(self._wrap(self.heater_note(), ns, avail)):
                 rows.append(("line", line, ns, "faint"))
+            for line in reversed(self._wrap(self.heater_provenance_note(), ns, avail)):
+                if line:
+                    rows.append(("line", line, ns, "faint"))
         for note in reversed(self.footnotes):
             for line in reversed(self._wrap(note, ns, avail)):
                 rows.append(("line", line, ns, "faint"))
@@ -1420,10 +1519,37 @@ class Renderer:
         if self.bus:
             out.append(self._entry("ground bus", 24.0,
                                    lambda cx, y, s: self._rule(cx, y, s, BUS_CORE, 3.4), fs))
-        if self._has_twisted:
-            out.append(self._entry("6.3 V heaters — twisted pair", 26.0,
-                                   self._twist_swatch, fs))
+        if self._has_heater_pair:
+            out.append(self._entry(self.heater_legend_label("twisted pair"),
+                                   26.0, self._twist_swatch, fs))
+        if self._has_heater_single:
+            out.append(self._entry(self.heater_legend_label("single lead"),
+                                   24.0,
+                                   lambda cx, y, s: self._rule(cx, y, s, HEATER, 2.0),
+                                   fs))
         return out
+
+    def heater_legend_label(self, idiom: str) -> str:
+        """The heater legend entry: "6.3 V heaters — twisted pair", with the
+        voltage taken from this layout's `heaters:` block where it declares one
+        (a 12.6 V series chain is not a 6.3 V one and the legend must not say it
+        is), or the layout's own `wire_legend: { heater: ... }` line where a
+        drawing's heater supply carries a function the legend cannot infer —
+        the 5F1's and AA764's single-ended feed, say."""
+        custom = self.wire_legend.get("heater")
+        if custom and not (self._has_heater_pair and self._has_heater_single):
+            return custom + self._heater_legend_caveat()
+        volts = {c["volts"] for c in self._heater_decl.values()}
+        label = f"{volts.pop():g} V heaters" if len(volts) == 1 else "6.3 V heaters"
+        return f"{label} — {idiom}" + self._heater_legend_caveat()
+
+    def _heater_legend_caveat(self) -> str:
+        """The legend is where a reader goes to learn what the green ink means,
+        so it is where an unestablished leg grouping has to be said. The footer
+        note carries the detail; this is the marker on the key itself."""
+        if self.heater_declared:
+            return ""
+        return " (leg grouping not established)" if self.heater_doubtful_sockets() else ""
 
     def _twist_swatch(self, cx, y, s, colour=None):
         colour = colour or HEATER
@@ -1462,6 +1588,37 @@ class Renderer:
                 f'stroke="{BOARD_EDGE}" stroke-width="0.6"/>'), fs)
             for fill, lab in items]
 
+    # ---- the `heaters:` declaration -----------------------------------------
+    def _index_heaters(self) -> dict:
+        """socket id -> {circuit, volts, legs} from the layout's `heaters:`
+        block. `legs` is a 2-list of pin lists — the supply's two legs as this
+        drawing's source shows them wired at that socket (a 6.3 V parallel
+        12AX7 gives [[4, 5], [9]]; a 12.6 V series one gives [[4], [5]]).
+        Malformed entries are dropped here and reported by the heater gate,
+        which is where a declaration is proved against the valve's datasheet."""
+        out: dict = {}
+        for circuit in self.heaters:
+            if not isinstance(circuit, dict):
+                continue
+            cid = str(circuit.get("id", ""))
+            try:
+                volts = float(circuit.get("volts"))
+            except (TypeError, ValueError):
+                continue
+            for sid, groups in (circuit.get("sockets") or {}).items():
+                if not isinstance(groups, dict):
+                    continue
+                try:
+                    feed = [int(p) for p in (groups.get("feed") or [])]
+                    ret = [int(p) for p in (groups.get("return") or [])]
+                except (TypeError, ValueError):
+                    continue
+                if not feed or not ret:
+                    continue
+                out[str(sid)] = {"circuit": cid, "volts": volts,
+                                 "legs": [feed, ret]}
+        return out
+
     # ---- pre-render scans (data the page size depends on) -------------------
     def _prescan_wiring(self):
         """Resolve which colour swatches and which twisted-pair note the legend
@@ -1469,8 +1626,16 @@ class Renderer:
         constructor, because the footer's height depends on it and the page is
         sized before anything is drawn."""
         for spec in self.runs:
-            if str(spec.get("style", "")).lower() == "twisted":
+            if is_heater_run(spec):
                 self._has_twisted = True
+                if self.heater_run_is_pair(spec):
+                    self._has_heater_pair = True
+                elif not self._is_heater_strap(spec):
+                    # A strap between two pins of ONE socket is part of the
+                    # wiring the pair entry already covers and is unmistakable
+                    # on the page; a single conductor running socket to socket
+                    # is a different idiom and the legend has to name it.
+                    self._has_heater_single = True
                 continue
             colour = spec.get("color") or self._endpoint_colour(spec.get("from")) \
                 or self._endpoint_colour(spec.get("to"))
@@ -2714,7 +2879,7 @@ class Renderer:
 
     # ---- v2 wiring: routed runs + ground bus -------------------------------
     def _run_points(self, spec, ctx):
-        if str(spec.get("style", "")).lower() == "twisted":
+        if is_heater_run(spec):
             geo = self._heater_run(spec, ctx)
             return geo["axis"] if geo else None
         a = self.resolve(spec.get("from"), ctx + " from")
@@ -2827,25 +2992,243 @@ class Renderer:
             return None, None
         return it, int(digits)
 
-    def _heater_span(self, ep, other):
-        """(socket item, (pin, pin)) when a twisted run's end lands on a socket
-        and the pair should SPAN that socket's two heater pins; None otherwise.
+    def heater_legs_for(self, item):
+        """The two supply legs at a socket, as pin lists, or None.
 
-        Three ends are deliberately not spanned: an end that is not a socket (a
-        PT lead, the pilot lamp), an end on a socket's heater CENTRE TAP (a
-        third wire, not half of the pair), and a run whose other end is the
-        SAME socket — the authored 'close the pair at the last socket' jumper,
-        which already names both heater pins itself."""
+        Two sources, and the valve's pin LABELS are not one of them. First the
+        layout's own `heaters:` declaration. Failing that, the pins this
+        drawing's own heater runs name at that socket: where they name exactly
+        two, those two are what the drawing says the supply lands on, and the
+        pair separates onto them. Where they name one — or three, which only a
+        declared circuit does — there is nothing to separate onto and the run is
+        the single conductor its data names.
+
+        What used to happen here was the fault in issue #30: the landings were
+        read off the basing as "the two `heater` pins, never the `heater-ct`",
+        which on a centre-tapped valve is the 12.6 V SERIES grouping and was
+        drawn on 6.3 V amplifiers, joining a leg to itself and leaving the
+        centre tap unwired. Which pins the legs land on is a fact about the
+        amplifier; only the amplifier's own data can say it."""
+        decl = self._heater_decl.get(item.get("id"))
+        if decl:
+            return decl["legs"]
+        named = self._heater_pins_named(item.get("id"))
+        if len(named) == 2:
+            return [[named[0]], [named[1]]]
+        # Last resort, and only where there is nothing to get wrong: a valve
+        # with exactly two heater/filament pins and NO centre tap can be wired
+        # one way and one way only, so those two pins are the two legs whatever
+        # the supply. A centre-tapped valve never reaches this line.
+        pair = self._uncentre_tapped_pair(item)
+        return [[pair[0]], [pair[1]]] if pair else None
+
+    def _uncentre_tapped_pair(self, item):
+        """(pin, pin) for a valve whose basing names exactly two heater/filament
+        pins and no centre tap; None for anything else."""
+        pins = item.get("_basing_elements")
+        if not pins:
+            return None
+        heaters = []
+        for num, elem in sorted(pins.items()):
+            if elem == "heater-ct":
+                return None
+            if elem in ("heater", "filament"):
+                heaters.append(num)
+        return (heaters[0], heaters[1]) if len(heaters) == 2 else None
+
+    def _heater_pins_named(self, sid) -> list[int]:
+        """Every socket pin this layout's heater runs name at `sid`, in order."""
+        if sid in self._heater_named_cache:
+            return self._heater_named_cache[sid]
+        out: list[int] = []
+        for spec in self.runs:
+            if not is_heater_run(spec):
+                continue
+            for key in ("from", "to"):
+                it, pin = self._tube_endpoint(spec.get(key))
+                if it is not None and it.get("id") == sid and pin not in out:
+                    out.append(pin)
+        self._heater_named_cache[sid] = out
+        return out
+
+    def _heater_span(self, ep, other):
+        """(socket item, (named pin, opposite-leg pin)) when a twisted run's end
+        lands on a socket whose two supply legs are known, so the pair can
+        separate and land one strand on each leg. `None` otherwise, and the
+        caller then knows the landing is not established.
+
+        Ends deliberately not spanned: one that is not a socket (a PT lead, the
+        pilot lamp), and a run whose other end is the SAME socket — the authored
+        strap or closing link, which names both of its own pins.
+
+        Ends that CANNOT be spanned: a socket whose valve is centre-tapped and
+        whose layout declares no `heaters:` configuration (6.3 V parallel and
+        12.6 V series land the same pair on different pins), and a named pin
+        that sits on neither declared leg."""
         it, pin = self._tube_endpoint(ep)
         if it is None:
             return None
         o_it, _o_pin = self._tube_endpoint(other)
         if o_it is not None and o_it.get("id") == it.get("id"):
             return None
-        pair = it.get("_heater_pair")
-        if not pair or pin not in pair:
+        legs = self.heater_legs_for(it)
+        if not legs or len(legs) != 2:
             return None
-        return it, tuple(pair)
+        here = next((leg for leg in legs if pin in leg), None)
+        if here is None:
+            return None
+        far = next(leg for leg in legs if leg is not here)
+        if not far:
+            return None
+        return it, (pin, far[0])
+
+    def _heater_end_kind(self, ep, other):
+        """How a twisted run's end can be drawn: 'point' (not a socket — both
+        strands meet there), 'span' (the pair separates onto the socket's two
+        legs), 'same' (both ends are one socket: a strap, one conductor), or
+        'unstated' (a socket whose legs the drawing has not established)."""
+        it, _pin = self._tube_endpoint(ep)
+        if it is None:
+            return "point"
+        o_it, _o = self._tube_endpoint(other)
+        if o_it is not None and o_it.get("id") == it.get("id"):
+            return "same"
+        return "span" if self._heater_span(ep, other) else "unstated"
+
+    # ---- what this drawing's heater layer is, and is not, established as ----
+    @property
+    def heater_declared(self) -> bool:
+        """Does this layout state its heater circuits in a `heaters:` block?
+        Only a declared circuit is checked by pipeline/check_heaters.py; an
+        undeclared one is drawn but not established, and says so on the page."""
+        return bool(self._heater_decl)
+
+    def heater_doubtful_sockets(self) -> list:
+        """Sockets whose supply legs this drawing cannot be trusted about:
+        a CENTRE-TAPPED valve whose heater runs name exactly two pins, which the
+        drawing therefore renders on opposite legs. That is the 12.6 V series
+        arrangement, and on a 6.3 V amplifier the same two pins are ONE leg with
+        the centre tap the other — the fault issue #30 found on the 5F1. Which
+        of the two an amplifier wires can only come from its own drawing."""
+        out = []
+        for sid in sorted(self.off_by_id):
+            it = self.off_by_id[sid]
+            if it.get("kind") != "tube" or sid in self._heater_decl:
+                continue
+            elems = it.get("_basing_elements") or {}
+            if "heater-ct" not in elems.values():
+                continue
+            if len(self._heater_pins_named(sid)) == 2:
+                out.append(sid)
+        return out
+
+    def heater_strap_findings(self) -> list:
+        """Same-socket heater runs that join two pins, classified against the
+        valve's own datasheet groupings (reference/tubes/<tube>.yaml
+        `heater.supplies`):
+
+          shorted       every supply the sheet lists puts those two pins on
+                        OPPOSITE legs — or the valve has two heater pins and no
+                        centre tap, so they ARE the two legs. Joining them
+                        shorts the supply, whatever this amplifier runs.
+          unclassified  one listed supply groups them together (the 6.3 V strap)
+                        and another splits them: which this amplifier is takes a
+                        read of its own sheet.
+
+        Returns [(socket, pin, pin, kind, detail)]. A strap inside a DECLARED
+        circuit is not reported here — check_heaters proves those directly."""
+        out = []
+        for spec in self.runs:
+            if not (is_heater_run(spec) and self._is_heater_strap(spec)):
+                continue
+            it, pin_a = self._tube_endpoint(spec.get("from"))
+            _o, pin_b = self._tube_endpoint(spec.get("to"))
+            sid = it.get("id")
+            if sid in self._heater_decl or pin_a is None or pin_b is None:
+                continue
+            slug = it.get("_tube_slug") or ""
+            pair = {pin_a, pin_b}
+            if self._uncentre_tapped_pair(it):
+                out.append((sid, pin_a, pin_b, "shorted",
+                            f"the {slug} has two heater pins and no centre tap, "
+                            f"so pins {sorted(pair)} are its two supply legs"))
+                continue
+            supplies = load_tube_heater_supplies(slug) or []
+            if not supplies:
+                out.append((sid, pin_a, pin_b, "unclassified",
+                            f"reference/tubes/{slug}.yaml declares no heater "
+                            f"supplies to classify pins {sorted(pair)} against"))
+                continue
+            same = [s for s in supplies
+                    if any(pair <= set(leg) for leg in s["legs"])]
+            split = [s for s in supplies
+                     if any(pin_a in leg for leg in s["legs"])
+                     and any(pin_b in leg for leg in s["legs"])
+                     and not any(pair <= set(leg) for leg in s["legs"])]
+            if same:
+                out.append((sid, pin_a, pin_b, "unclassified",
+                            f"pins {sorted(pair)} are one leg at "
+                            + ", ".join(f"{s['volts']:g} V" for s in same)
+                            + (" and opposite legs at "
+                               + ", ".join(f"{s['volts']:g} V" for s in split)
+                               if split else "")))
+            else:
+                out.append((sid, pin_a, pin_b, "shorted",
+                            f"every supply the {slug} sheet lists puts pins "
+                            f"{sorted(pair)} on opposite legs"))
+        return out
+
+    def heater_provenance_note(self) -> str:
+        """The page's own statement about how far its heater layer is
+        established — drawn on every layout whose heater circuit is not
+        declared. It names what is actually in doubt (the supply legs at a
+        centre-tapped valve) and what is not, because a reader given no marker
+        at all reads a drawing as settled."""
+        if self.heater_declared or not self._has_twisted:
+            return ""
+        # The contrast is only honest where the rest of the board has actually
+        # been proved against the netlist (wiring_claim: verified).
+        bits = ["Heater layer: the one part of this board not established "
+                "against the amplifier's own drawing."
+                if str(self.layout.get("wiring_claim", "")).lower() == "verified"
+                else "Heater layer: not established against the amplifier's "
+                     "own drawing."]
+        doubt = self.heater_doubtful_sockets()
+        if doubt:
+            names = ", ".join(doubt)
+            bits.append(
+                f"At the centre-tapped valve{'s' if len(doubt) > 1 else ''} "
+                f"({names}) it shows the two heater pins on opposite supply "
+                f"legs — the 12.6 V series arrangement; a 6.3 V supply straps "
+                f"them into one leg and returns on the centre tap.")
+        shorted = [f for f in self.heater_strap_findings() if f[3] == "shorted"]
+        if shorted:
+            listed = "; ".join(f"{sid} pins {a} and {b}" for sid, a, b, _k, _d in shorted)
+            bits.append(f"The link drawn between {listed} joins the supply's two "
+                        f"legs and cannot be right either way.")
+        bits.append("Which sockets sit on the chain, and the order it reaches "
+                    "them in, are not affected.")
+        return " ".join(bits)
+
+    def _is_heater_strap(self, spec) -> bool:
+        """Both ends on ONE socket — a strap tying two pins into a single leg."""
+        it_a, _ = self._tube_endpoint(spec.get("from"))
+        it_b, _ = self._tube_endpoint(spec.get("to"))
+        return (it_a is not None and it_b is not None
+                and it_a.get("id") == it_b.get("id"))
+
+    def heater_run_is_pair(self, spec) -> bool:
+        """Is this heater run drawn as a PAIR (two conductors, the supply's two
+        legs), or as the single conductor its data names? `style: heater` says
+        one conductor outright. A `style: twisted` pair additionally needs both
+        of its landings established: a strap across one socket, or an end whose
+        socket has not stated which pins its legs land on, is one conductor and
+        is drawn as one. A drawing states what it wires."""
+        if run_style(spec) != "twisted":
+            return False
+        a, b = spec.get("from"), spec.get("to")
+        ka, kb = self._heater_end_kind(a, b), self._heater_end_kind(b, a)
+        return "same" not in (ka, kb) and "unstated" not in (ka, kb)
 
     # A socket's caption sits in a band on one side of it (see _label_side).
     # The pair must not arrive across that band — a harness lead run through
@@ -2931,32 +3314,52 @@ class Renderer:
         pts.append(pb)
         return _clean_polyline(pts, eps=0.5)
 
-    def _heater_run(self, spec, ctx):
-        """Resolve a twisted (heater) run to {axis, forks, ends}.
+    def _heater_landing(self, ep, other, pair: bool):
+        """(socket item, [pins the conductor(s) land on]) for one end of a
+        heater run, or None where the end is not a socket. Two pins when the run
+        is a PAIR separating onto the socket's two supply legs; ONE — the pin the
+        run names — for a single conductor, or where the drawing has not
+        established the second leg."""
+        span = self._heater_span(ep, other) if pair else None
+        if span:
+            return span[0], list(span[1])
+        it, pin = self._tube_endpoint(ep)
+        if it is None:
+            return None
+        o_it, _o = self._tube_endpoint(other)
+        if o_it is not None and o_it.get("id") == it.get("id"):
+            return None                       # strap: handled by _heater_link
+        return it, [pin]
 
-        `axis` is the pair's twisted centreline; `forks` is a 2-list, one entry
-        per axis end, each either None (the pair meets at that single point) or
-        two strand paths on to the socket's two heater pins; `ends` are the
-        points a solder joint is drawn at."""
+    def _heater_run(self, spec, ctx):
+        """Resolve a twisted (heater) run to {axis, forks, ends, single}.
+
+        `axis` is the run's centreline — twisted where the run is a PAIR (the
+        supply's two legs running together), plain where it is the one conductor
+        its data names. `forks` is a 2-list, one entry per axis end, each either
+        None (the run meets at that single point) or the strand paths on to the
+        socket's pins — two for a pair, one for a single conductor. `ends` are
+        the points a solder joint is drawn at."""
         a = self.resolve(spec.get("from"), ctx + " from")
         b = self.resolve(spec.get("to"), ctx + " to")
         if not a or not b:
             return None
-        span_a = self._heater_span(spec.get("from"), spec.get("to"))
-        span_b = self._heater_span(spec.get("to"), spec.get("from"))
         it_a, pin_a = self._tube_endpoint(spec.get("from"))
         it_b, pin_b = self._tube_endpoint(spec.get("to"))
         if it_a is not None and it_b is not None and it_a.get("id") == it_b.get("id"):
-            # The chain's closing link — pin 4 to pin 5 at the last socket, or a
-            # heater to its centre tap. It is ONE wire between two pins of one
-            # socket: there is no pair to twist and nothing to fork, so it draws
-            # as a single conductor dressed round the socket's flank.
+            # A strap or closing link — pins 4 and 5 of one socket tied for
+            # 6.3 V parallel, or the chain's last jumper. It is ONE wire between
+            # two pins of one socket: there is no pair to twist and nothing to
+            # fork, so it draws as a single conductor round the socket's flank.
             return {"axis": self._heater_link(it_a, pin_a, pin_b),
                     "forks": [None, None], "single": True,
                     "ends": [a, b]}
+        pair = self.heater_run_is_pair(spec)
+        land_a = self._heater_landing(spec.get("from"), spec.get("to"), pair)
+        land_b = self._heater_landing(spec.get("to"), spec.get("from"), pair)
         # A socket-to-socket hop runs ALONG the row: the authored waypoints on
         # these hops are the deep rail lane the old convention needed, and the
-        # keep-out router already takes the pair round anything in the way.
+        # keep-out router already takes the run round anything in the way.
         socket_hop = (it_a is not None and it_b is not None
                       and it_a.get("id") != it_b.get("id"))
         mid: list = []
@@ -2967,22 +3370,22 @@ class Renderer:
                     mid.append((self.ex(v[0]), min(self.ey(v[1]), lane)))
                 else:
                     self.errors.append(f"{ctx}: bad via point {v!r}")
-        aim_a = mid[0] if mid else (self.off_pos(it_b) if span_b else b)
-        aim_b = mid[-1] if mid else (self.off_pos(it_a) if span_a else a)
-        start = self._ring_point(span_a[0], aim_a, hint=b) if span_a else a
-        end = self._ring_point(span_b[0], aim_b, hint=(mid[0] if mid else a)) \
-            if span_b else b
+        aim_a = mid[0] if mid else (self.off_pos(it_b) if land_b else b)
+        aim_b = mid[-1] if mid else (self.off_pos(it_a) if land_a else a)
+        start = self._ring_point(land_a[0], aim_a, hint=b) if land_a else a
+        end = self._ring_point(land_b[0], aim_b, hint=(mid[0] if mid else a)) \
+            if land_b else b
         axis = self._socket_keepout(_clean_polyline([start] + mid + [end]))
         forks = [
-            self._heater_forks(span_a[0], span_a[1], axis[0], self.HEATER_WRAP_A)
-            if span_a else None,
-            self._heater_forks(span_b[0], span_b[1], axis[-1], self.HEATER_WRAP_B)
-            if span_b else None,
+            self._heater_forks(land_a[0], land_a[1], axis[0], self.HEATER_WRAP_A)
+            if land_a else None,
+            self._heater_forks(land_b[0], land_b[1], axis[-1], self.HEATER_WRAP_B)
+            if land_b else None,
         ]
         ends: list = []
         for k, fk in ((0, forks[0]), (-1, forks[1])):
             ends += [f[-1] for f in fk] if fk else [axis[k]]
-        return {"axis": axis, "forks": forks, "ends": ends, "single": False}
+        return {"axis": axis, "forks": forks, "ends": ends, "single": not pair}
 
     def _socket_rims(self) -> list[str]:
         """Every tube socket's outline, restruck AFTER the wiring layer.
@@ -3032,11 +3435,18 @@ class Renderer:
     def _heater_paths(self, pts, forks, single=False):
         """(d_strand1, d_strand2) for one heater run: the twisted axis with each
         end's fork appended, so the pair arrives as a pair and lands as two
-        conductors on two pins. A `single` run — the chain's closing link
-        between two pins of ONE socket — is one conductor, not a pair, so there
-        is nothing to twist and it draws as a single strand."""
+        conductors on two pins. A `single` run is ONE conductor — a strap
+        between two pins of one socket, or a run whose landings the drawing has
+        not established as a pair — so there is nothing to twist and nothing to
+        fork: it draws as one strand, dressed on to the pin it names."""
         if single:
-            return polyline_path(pts), ""
+            s = list(pts)
+            fa, fb = (forks or [None, None])[:2]
+            if fa:
+                s = list(reversed(fa[0]))[:-1] + s
+            if fb:
+                s = s + fb[0][1:]
+            return polyline_path(s), ""
         s1, s2 = twisted_points(pts)
         fa, fb = (forks or [None, None])[:2]
         if fa:
@@ -3052,7 +3462,7 @@ class Renderer:
         if not pts:
             return "", []
         seg_hops = seg_hops or {}
-        twisted = str(spec.get("style", "")).lower() == "twisted"
+        twisted = is_heater_run(spec)
         colour = spec.get("color")
         if not colour:
             colour = self._endpoint_colour(spec.get("from")) or self._endpoint_colour(spec.get("to"))
@@ -3107,7 +3517,7 @@ class Renderer:
         is {j, spec, pts}. `pts` is None when an endpoint fails to resolve."""
         runs = []
         for i, spec in enumerate(self.runs):
-            twisted = str(spec.get("style", "")).lower() == "twisted"
+            twisted = is_heater_run(spec)
             if twisted:
                 geo = self._heater_run(spec, f"run[{i}]")
                 pts = geo["axis"] if geo else None
@@ -4257,7 +4667,7 @@ class SheetRenderer(Renderer):
         if not pts:
             return "", []
         seg_hops = seg_hops or {}
-        twisted = str(spec.get("style", "")).lower() == "twisted"
+        twisted = is_heater_run(spec)
         colour = spec.get("color")
         if not colour:
             colour = self._endpoint_colour(spec.get("from")) or \
@@ -4424,10 +4834,14 @@ class SheetRenderer(Renderer):
                 lambda cx, y, s: (self._rule(cx, y, s, SH_INK, 4.0)
                                   + self._rule(cx + 1 * s, y, s, SH_BUS_CORE, 1.8, 16.0)),
                 fs))
-        if self._has_twisted:
+        if self._has_heater_pair:
             out.append(self._entry(
-                "6.3 V heaters — twisted pair", 26.0,
+                self.heater_legend_label("twisted pair"), 26.0,
                 lambda cx, y, s: self._twist_swatch(cx, y, s, SH_HEATER), fs))
+        if self._has_heater_single:
+            out.append(self._entry(
+                self.heater_legend_label("single lead"), 24.0,
+                lambda cx, y, s: self._rule(cx, y, s, SH_HEATER, 1.8), fs))
         return out
 
     def _joints_entries(self, fs):
