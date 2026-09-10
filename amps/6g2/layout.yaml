@@ -156,7 +156,10 @@ offboard:
   - { id: C13, ref: C13, kind: part, edge: top, at: 12, label: "C13" }
   # --- bias supply: sits in the sheet's own small sub-box --------------------
   - { id: R5, ref: R5, kind: part, edge: top, at: 15, label: "R5" }
-  - { id: D1, ref: D1, kind: part, edge: top, at: 17.5, label: "D1" }
+  # Band at a, the end R5 feeds: the H-FA schematic draws the bias rectifier's
+  # bar, its + end, beside the 100K-5% that comes off the HT winding, which a
+  # negative supply needs, and schematic.kicad_sch now points it the same way.
+  - { id: D1, ref: D1, kind: part, edge: top, at: 17.5, label: "D1", cathode: a }
   - { id: C14, ref: C14, kind: part, edge: top, at: 20, label: "C14" }
   - { id: R6, ref: R6, kind: part, edge: top, at: 22.5, label: "R6" }
   # --- front-panel controls, left to right (Intensity · Speed · Tone ·
