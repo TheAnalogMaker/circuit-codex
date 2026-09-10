@@ -36,7 +36,13 @@ sources:
       story).
       Preamp: two mirrored channels (Normal, Bright), each two 7025 stages -
       first stage 100k plate / 820 Ohm cathode (25+25 uF split bypass) reading
-      +170 V / +1.4 V, into a Bass-Treble tone stack and a Volume pot, into a
+      +170 V / +1.4 V, through a .05 uF coupling capacitor into a Bass-Treble
+      two-knob network (100k slope, 250 uuF treble capacitor into a 250 kOhm-L
+      Treble pot whose cold lug sits on the slope foot, a 250 kOhm-A Bass pot
+      wired as a divider from the slope foot to ground with .01 uF across its
+      upper section and 10 kOhm across its lower) and a 500 kOhm-L Volume pot
+      with a 47 uuF bright capacitor from its hot lug to its wiper — the pot
+      values as lettered on both the schematic and the layout page — into a
       second 100k-plate stage reading +160 V (channel 1) / +120 V (channel 2) as
       printed - both channels sum at a shared node ahead of the tremolo optocoupler
       and a driver stage (100k plate, +320 V). Long-tailed-pair inverter: 82k /

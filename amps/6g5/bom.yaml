@@ -31,13 +31,17 @@ items:
   - { ref: RL1A, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "V1A plate load" }
   - { ref: RK1A, part: "Carbon comp resistor", value: "820 Ω · ½ W", role: "V1A cathode bias" }
   - { ref: CK1A, part: "Electrolytic capacitor", value: "25 µF + 25 µF", role: "V1A cathode bypass — the drawing draws a split 25/25 µF can" }
-  # --- Channel 1 tone stack + volume (abstracted network, not in netlist) ---
-  - { ref: VRB1, part: "Potentiometer", value: "250 kΩ-A", role: "Channel-1 Bass" }
-  - { ref: VRT1, part: "Potentiometer", value: "250 kΩ-A", role: "Channel-1 Treble" }
-  - { ref: CT1, part: "Mica capacitor", value: "250 pF", role: "Channel-1 tone network" }
-  - { ref: CF1, part: "Film capacitor", value: "0.01 µF", role: "Channel-1 tone network" }
-  - { ref: RF1, part: "Carbon comp resistor", value: "10 kΩ · ½ W", role: "Channel-1 tone network foot" }
-  - { ref: VRV1, part: "Audio-taper potentiometer", value: "250 kΩ-A", role: "Channel-1 Volume — the drawing marks two candidate tapers at this position (100 kΩ-V / 250 kΩ-A); the audio taper is drawn" }
+  # --- Channel 1 tone stack + volume (abstracted network, not in netlist;
+  #     the drawing mounts the caps and resistors at the pots) ---
+  - { ref: CC1T, part: "Coupling capacitor", value: "0.05 µF", role: "Channel-1 first-stage plate into the tone network — the stack's coupling capacitor, lettered .05 on the drawing and mounted on the board beside the plate load" }
+  - { ref: RS1T, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "Channel-1 tone-stack slope resistor, stack input to the slope foot; mounts at the Treble pot" }
+  - { ref: CT1, part: "Mica capacitor", value: "250 pF", role: "Channel-1 treble capacitor (250MM on the drawing), stack input to the Treble pot's hot lug; mounts at the Treble pot" }
+  - { ref: VRT1, part: "Linear potentiometer", value: "250 kΩ-L", role: "Channel-1 Treble (250K-L on both pages of the drawing) — hot lug on the 250 pF, cold lug on the slope foot, wiper to the Volume pot" }
+  - { ref: VRB1, part: "Audio-taper potentiometer", value: "250 kΩ-A", role: "Channel-1 Bass — a divider from the slope foot to ground: the 0.01 µF across its upper section (hot lug to wiper), the 10 kΩ foot across its lower (wiper to ground)" }
+  - { ref: CF1, part: "Film capacitor", value: "0.01 µF", role: "Channel-1 bass capacitor, slope foot to the Bass pot's wiper; mounts at the Bass pot" }
+  - { ref: RF1, part: "Carbon comp resistor", value: "10 kΩ · ½ W", role: "Channel-1 bass foot resistor, the Bass pot's wiper to ground; mounts at the Bass pot" }
+  - { ref: VRV1, part: "Linear potentiometer", value: "500 kΩ-L", role: "Channel-1 Volume (500K-L on both pages of the drawing), fed from the Treble wiper; its own wiper is the second stage's grid" }
+  - { ref: CBR1, part: "Mica capacitor", value: "47 pF", role: "Channel-1 bright capacitor across the Volume pot, hot lug to wiper (47MM on the drawing); mounts at the Volume pot" }
   # --- Channel 1, second stage V1B ---
   - { ref: RL1B, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "V1B plate load" }
   - { ref: RK1B, part: "Carbon comp resistor", value: "1.5 kΩ · ½ W (informational)", role: "V1B cathode bias — printed but not legible at this node in the scan; matches the DC netlist's informational placeholder" }
@@ -48,12 +52,15 @@ items:
   - { ref: RL2A, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "V2A plate load" }
   - { ref: RK2A, part: "Carbon comp resistor", value: "820 Ω · ½ W", role: "V2A cathode bias" }
   - { ref: CK2A, part: "Electrolytic capacitor", value: "25 µF + 25 µF", role: "V2A cathode bypass" }
-  - { ref: VRB2, part: "Potentiometer", value: "250 kΩ-A", role: "Channel-2 Bass" }
-  - { ref: VRT2, part: "Potentiometer", value: "250 kΩ-A", role: "Channel-2 Treble" }
-  - { ref: CT2, part: "Mica capacitor", value: "250 pF", role: "Channel-2 tone network" }
-  - { ref: CF2, part: "Film capacitor", value: "0.01 µF", role: "Channel-2 tone network" }
-  - { ref: RF2, part: "Carbon comp resistor", value: "10 kΩ · ½ W", role: "Channel-2 tone network foot" }
-  - { ref: VRV2, part: "Audio-taper potentiometer", value: "250 kΩ-A", role: "Channel-2 Volume" }
+  - { ref: CC2T, part: "Coupling capacitor", value: "0.05 µF", role: "Channel-2 first-stage plate into the tone network — as CC1T" }
+  - { ref: RS2T, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "Channel-2 tone-stack slope resistor — as RS1T" }
+  - { ref: CT2, part: "Mica capacitor", value: "250 pF", role: "Channel-2 treble capacitor — as CT1" }
+  - { ref: VRT2, part: "Linear potentiometer", value: "250 kΩ-L", role: "Channel-2 Treble — as VRT1" }
+  - { ref: VRB2, part: "Audio-taper potentiometer", value: "250 kΩ-A", role: "Channel-2 Bass — a divider from the slope foot to ground, as VRB1" }
+  - { ref: CF2, part: "Film capacitor", value: "0.01 µF", role: "Channel-2 bass capacitor — as CF1" }
+  - { ref: RF2, part: "Carbon comp resistor", value: "10 kΩ · ½ W", role: "Channel-2 bass foot resistor — as RF1" }
+  - { ref: VRV2, part: "Linear potentiometer", value: "500 kΩ-L", role: "Channel-2 Volume — as VRV1" }
+  - { ref: CBR2, part: "Mica capacitor", value: "47 pF", role: "Channel-2 bright capacitor across the Volume pot — as CBR1" }
   - { ref: RL2B, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "V2B plate load" }
   - { ref: RK2B, part: "Carbon comp resistor", value: "1.5 kΩ · ½ W (informational)", role: "V2B cathode bias — mirrors RK1B" }
   - { ref: CK2B, part: "Electrolytic capacitor", value: "25 µF (informational)", role: "V2B cathode bypass — mirrors CK1B" }

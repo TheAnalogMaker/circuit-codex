@@ -16,13 +16,29 @@ selected version of the 12AX7.
 **Two full channels.** Normal and Bright are drawn as mirror images, each with
 two input jacks (a 68 kΩ stopper apiece, over a shared 1 MΩ leak) into a first
 12AX7 stage — 100 kΩ plate load, 820 Ω cathode with a split 25 + 25 µF bypass,
-printed **+170 V / +1.4 V** on both channels. From there each channel runs its
-own **Bass/Treble** tone stack and Volume control into a **second** 12AX7
-stage (100 kΩ plate load) before the two channels sum at a shared node — the
+printed **+170 V / +1.4 V** on both channels. From there each channel runs
+through a 0.05 µF coupling capacitor into its own **Bass/Treble** network and
+a 500 kΩ-L Volume control (with a 47 pF bright capacitor from its hot lug to
+its wiper) into a **second** 12AX7 stage (100 kΩ plate load) before the two
+channels sum at a shared node — the
 printed plate reads **+160 V** on channel 1 and **+120 V** on channel 2; the
 drawing gives no reason for the asymmetry (different bias points on nominally
 identical stages happen on hand-built amps of this era) and this archive
 reports both rather than forcing them to match.
+
+**The tone network** is the one the brown Super ([6G4](/amps/6g4/)) draws,
+part for part. From the coupler, a 250 pF treble capacitor feeds the hot lug
+of a 250 kΩ-L Treble pot and a 100 kΩ slope resistor drops to the slope foot,
+where the Treble pot's cold lug also sits. The Bass control is a 250 kΩ-A pot
+wired as a divider from the slope foot to ground, with the 0.01 µF bass
+capacitor across its upper section (hot lug to wiper) and a 10 kΩ foot
+resistor across its lower (wiper to ground); the Treble wiper alone is the
+output. The pot values are what both pages of the drawing letter — Treble
+250K-L, Bass 250K-A, Volume 500K-L. An earlier reading here gave the Treble
+and Volume controls as 250 kΩ audio-taper parts, and the drawing that went
+with it had no slope resistor and no coupler and put the 10 kΩ in series with
+the 0.01 µF ahead of the network; the sheet was re-read lug by lug and both
+the parts list and the drawing corrected.
 
 **The mixing/tremolo node.** Both channels' second stages land on one node
 carrying the tremolo optocoupler (below) before a **driver** 12AX7 stage
@@ -61,8 +77,8 @@ are used, its circuit-type label is not.
 Electrically, an oscillator like this has no static operating point — it swings
 around whatever its printed pins describe. This entry excludes it from the DC
 netlist exactly as [ab763](/amps/ab763/) excludes its own tremolo oscillator,
-and reports the printed pins for the record only (`voltages.yaml`, both
-`chart: null`).
+and reports the printed pins for the record only, in the operating-point
+table, without comparing them against the model.
 
 ## Power
 
@@ -76,7 +92,7 @@ stages). Fixed bias reads **−55 V** off a tight, rotated hand-lettered label
 beside the two output-stage 220 kΩ grid leaks — the sheet carries no separate
 bias test point the way the rail voltages are individually called out, so this
 figure is read with a wider margin than the horizontal prints (flagged in
-`voltages.yaml`).
+the operating-point table).
 
 ## What isn't modelled, and why this entry is draft
 
@@ -93,7 +109,7 @@ entry from earning `verified`:
   printed value: real Fender dropper chains this narrow only carry one or two
   light taps, not five stages' combined current, so the drawing's tap
   structure past the screens must fan out in a way this scan didn't resolve.
-  `netlist.cir` therefore DRIVES the phase-inverter supply (BP3), the driver
+  The netlist therefore DRIVES the phase-inverter supply (BP3), the driver
   supply (BDRV) and the shared preamp rail (BD) directly, each chosen to land
   its own stage near its printed plate reading — anchors, not derivations, in
   the same spirit as `ab763` driving its BC node directly rather than deriving
@@ -131,13 +147,16 @@ from the DC model), V5 the driver and V6 the phase inverter.
 The board diagram's wiring is proved electrically equivalent to the simulated
 netlist within the documented DC scope, so this entry's layout carries a
 verified wiring claim. Outside that scope, by declaration: the driven BP3 /
-BDRV / BD anchors, both channels' tone stacks, the oscillator's own
-phase-shift ladder and the driver's local feedback network. Those three
-networks are drawn on the schematic but not placed on the board diagram —
-schematic-only, the same convention this corpus's other two-knob entries
-follow. None of that lifts the entry past **draft**: a wiring-equivalence
-proof is a claim about connectivity, not about the supply topology and
-component values still unresolved above.
+BDRV / BD anchors, both channels' tone networks, the oscillator's own
+phase-shift ladder and the driver's local feedback network. The tone
+networks are drawn on the board diagram where the layout page mounts them —
+the coupler on the board beside each channel's plate load, the capacitors
+and resistors at the pots — and wired lug to lug, but no gate checks them
+against the netlist, which does not model them. The oscillator's ladder and
+the driver's feedback network stay schematic-only. None of that lifts the
+entry past **draft**: a wiring-equivalence proof is a claim about
+connectivity, not about the supply topology and component values still
+unresolved above.
 
 ## Lineage
 

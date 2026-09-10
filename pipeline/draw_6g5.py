@@ -47,9 +47,22 @@ def cathode_split_rc(rref, rval, cref, cval, x, ytop, dx=7.62):
 
 
 def channel(y, tag, jn2, rjn, rg, vref_a, rl_a, rk_a, ck_a,
-            vrb, vrt, ct, cf, rf, vrv, rl_b, rk_b, ck_b, rail):
-    """One full channel row: jack -> stopper -> V.A -> Bass/Treble tone stack
-    + Volume -> V.B. Returns V.B's triode pin dict and its plate-tee y."""
+            cc, rs, vrb, vrt, ct, cf, rf, vrv, cbr, rl_b, rk_b, ck_b, rail):
+    """One full channel row: jack -> stopper -> V.A -> coupler -> Bass/Treble
+    tone network + Volume -> V.B. Returns V.B's triode pin dict and its
+    plate-tee y.
+
+    The tone network as the A-FJ sheet draws it (the 6G4's, part for part):
+    the plate feeds the stack through CC (.05) to the stack input T; from T,
+    CT (250MM) to the Treble pot's hot lug and RS (100k) down to node A, the
+    slope foot, which also carries the Treble pot's cold lug and the Bass
+    pot's hot lug. The Bass control is a DIVIDER from A to ground: CF (.01)
+    bridges its upper section (A to the wiper, node B) and RF (10k) bridges
+    its lower (B to ground). Treble wiper -> Volume hot lug, CBR (47MM) from
+    that lug to the Volume wiper, which is V.B's grid.
+
+    Until 2026-09-10 this function drew no slope resistor and no coupler and
+    put the 10k in series with the .01 between the plate and the stack."""
     s.glabel(f"{tag} 1", 12, y - 4, 180)
     s.glabel(f"{tag} 2", 12, y + 4, 180)
     l, r = s.series_h("R", rjn, "68k", 22, y + 4)
@@ -66,49 +79,57 @@ def channel(y, tag, jn2, rjn, rg, vref_a, rl_a, rk_a, ck_a,
     s.wire(VX, y + 7.62, VX, y + 9)
     s.shunt_rc(rk_a, "820", ck_a, "25u+25u", VX, y + 9)
 
-    tee = y - 7.62 - 3.48                     # node A: plate of the first stage
+    tee = y - 7.62 - 3.48                     # the first stage's plate tee
     s.junction(VX, tee)
-    s.wire(VX, tee, 62, tee)
-    # treble path: node A -> CT 250p -> VRT, wiper is the stack's treble output
-    tl, tr = s.series_h("C", ct, "250p", 68, tee - 6)
-    s.wire(62, tee, 62, tee - 6)
-    s.wire(62, tee - 6, tl, tee - 6)
-    s.wire(tr, tee - 6, 80, tee - 6)
-    s.sym("POT", vrt, "250k-A", 80, tee - 6 + 3.81)
-    # slope: node A -> RF 10k -> node B (bass foot)
-    sl, sr = s.series_h("R", rf, "10k", 67, tee + 6)
-    s.wire(62, tee, 62, tee + 6)
-    s.junction(62, tee)
-    s.wire(62, tee + 6, sl, tee + 6)
-    s.wire(sr, tee + 6, 80, tee + 6)
-    s.junction(80, tee + 6)                   # node B
-    # node B -> CF .01u -> bass node (shared with the treble pot's foot lug)
-    bl, br = s.series_h("C", cf, ".01u", 86, tee + 6)
-    s.wire(80, tee + 6, bl, tee + 6)
-    s.wire(br, tee + 6, 92, tee + 6)
-    # The foot lug is pin 3 at (80, tee + 1.62); the run below was drawn from
-    # the WIPER's x at the wiper's y, so the foot floated and the wiper fed the
-    # bass node instead of the Volume pot.
-    s.wire(80, tee + 1.62, 92, tee + 1.62)     # treble foot lug (pin 3) -> bass node
-    s.wire(92, tee + 1.62, 92, tee + 6)
-    s.sym("POT", vrb, "250k-A", 92, tee + 6 + 3.81)
-    # bass wired as a rheostat: wiper strapped to its hot lug, foot to ground
-    s.wire(97.08, tee + 9.81, 104, tee + 9.81)
-    s.wire(104, tee + 9.81, 104, tee + 6)
-    s.wire(104, tee + 6, 92, tee + 6)
-    s.junction(92, tee + 6)
-    s.gnd(92, tee + 13.62)
-    # treble wiper -> volume top lug
-    s.wire(85.08, tee - 2.19, 112, tee - 2.19)   # treble WIPER (pin 2) = stack out
-    s.wire(112, tee - 2.19, 112, tee)
-    s.sym("POT", vrv, "250k-A", 112, tee + 3.81)
-    s.gnd(112, tee + 7.62)
+    s.wire(VX, tee, 56.19, tee)
+    s.series_h("C", cc, ".05u", 60, tee)      # coupler: plate tee -> T
+    s.wire(63.81, tee, 70, tee)               # node T (stack input)
+    ty = tee - 12                             # treble pot centre y
+    tl, tr = s.series_h("C", ct, "250p", 76, ty - 3.81)
+    s.wire(70, tee, 70, ty - 3.81)
+    s.wire(70, ty - 3.81, tl, ty - 3.81)
+    s.wire(tr, ty - 3.81, 88, ty - 3.81)      # -> treble pot hot lug (pin 1)
+    s.sym("POT", vrt, "250k-L", 88, ty, lx=2.4, ly=-9.2)
+    ay = tee + 8                              # node A (slope foot) y
+    sl, sr = s.series_h("R", rs, "100k", 75, ay)
+    s.wire(70, tee, 70, ay)
+    s.junction(70, tee)
+    s.wire(70, ay, sl, ay)
+    s.wire(sr, ay, 79, ay)
+    s.junction(79, ay)                        # node A
+    s.wire(79, ay, 88, ay)
+    s.wire(88, ty + 3.81, 88, ay)             # treble cold lug (pin 3) -> node A
+    s.junction(88, ay)
+    # Bass pot, mirrored so its wiper faces the capacitor and the foot: pin 1
+    # (hot) on node A, pin 3 (foot) grounded, wiper = node B.
+    bay = ay + 7.62
+    s.sym("POT", vrb, "250k-A", 88, bay, mirror="y", lx=2.4, ly=-1.5)
+    s.wire(88, ay, 88, bay - 3.81)
+    s.gnd(88, bay + 3.81)
+    s.sym("C", cf, ".01u", 79, ay + 3.81, lx=-8.6, ly=0.0)   # CF: node A -> node B
+    s.wire(79, ay + 7.62, 82.92, ay + 7.62)   # node B -> bass WIPER (mirrored, left)
+    s.junction(79, ay + 7.62)
+    s.sym("R", rf, "10k", 79, ay + 11.43, lx=-9.4)   # RF: node B -> ground
+    s.gnd(79, ay + 15.24)
+    # treble wiper (pin 2) = stack output -> Volume pot hot lug (pin 1)
+    s.wire(93.08, ty, 100.5, ty)
+    s.sym("POT", vrv, "500k-L", 100.5, ty + 3.81, lx=-11.6, ly=-10.4)
+    s.gnd(100.5, ty + 7.62)
+    # bright cap: Volume hot lug -> wiper, drawn over the pot
+    s.junction(100.5, ty)
+    s.wire(100.5, ty, 100.5, ty - 6)
+    bl, br = s.series_h("C", cbr, "47p", 106, ty - 6)
+    s.wire(100.5, ty - 6, bl, ty - 6)
+    s.wire(br, ty - 6, 112, ty - 6)
+    s.wire(112, ty - 6, 112, ty + 3.81)
+    s.wire(105.58, ty + 3.81, 112, ty + 3.81)
+    s.junction(105.58, ty + 3.81)
     # volume wiper -> V.B grid directly (DC-referred through the pot body —
-    # netlist.cir's RG1B/RG2B model this without a separate physical leak)
-    s.wire(117.08, tee + 3.81, 126, tee + 3.81)
+    # the netlist's RG1B/RG2B model this without a separate physical leak)
+    s.wire(112, ty + 3.81, 126, ty + 3.81)
     tb = s.triode(vref_a[:-1] + "B" if vref_a.endswith("A") else vref_a, "7025",
                   138, y, lx=6.0, ly=-6.4)
-    s.wire(126, tee + 3.81, 126, y)
+    s.wire(126, ty + 3.81, 126, y)
     s.wire(126, y, tb["g"][0], y)
     s.plate_load(rl_b, "100k", tb["p"], rail)
     s.wire(138, y + 7.62, 138, y + 9)
@@ -122,19 +143,21 @@ def channel(y, tag, jn2, rjn, rg, vref_a, rl_a, rk_a, ck_a,
 
 # ============================ TITLE ==================================
 s.note('Rails: BP1 +456 (post-choke) · BP2 +430 screens · BP3 +410 (PI, driven anchor) · BDRV +480 (driver, driven anchor) · BD +300 (preamp, driven anchor) · bias -55 V')
-s.note('Heaters, PT primary/mains, pilot lamp and chassis switches are omitted here — see netlist.cir, meta.yaml, layout.yaml. BP3/BDRV/BD are DRIVEN anchors, not derived through the dropper chain shown (notes.md).')
+s.note('Heaters, PT primary/mains, pilot lamp and chassis switches are omitted here — see the netlist, the sources list and the board drawing. BP3/BDRV/BD are DRIVEN anchors, not derived through the dropper chain shown (see the circuit story).')
 
 # ============================ NORMAL CHANNEL (top) ====================
 YN = 62
 s.caption('Normal channel — V1 (both stages share one 7025)', 12, 48, 1.6)
 t1b, teeN2 = channel(YN, "NORM", "NORM2", "R1N", "RG1A", "V1A", "RL1A", "RK1A", "CK1A",
-                      "VRB1", "VRT1", "CT1", "CF1", "RF1", "VRV1", "RL1B", "RK1B", "CK1B", "BD")
+                      "CC1T", "RS1T", "VRB1", "VRT1", "CT1", "CF1", "RF1", "VRV1", "CBR1",
+                      "RL1B", "RK1B", "CK1B", "BD")
 
 # ============================ BRIGHT CHANNEL (bottom) ==================
 YB = 160
 s.caption('Bright channel — V2 (both stages share one 7025)', 12, 146, 1.6)
 t2b, teeB2 = channel(YB, "BRT", "BRT2", "R2N", "RG2A", "V2A", "RL2A", "RK2A", "CK2A",
-                      "VRB2", "VRT2", "CT2", "CF2", "RF2", "VRV2", "RL2B", "RK2B", "CK2B", "BD")
+                      "CC2T", "RS2T", "VRB2", "VRT2", "CT2", "CF2", "RF2", "VRV2", "CBR2",
+                      "RL2B", "RK2B", "CK2B", "BD")
 
 # ============================ CHANNEL-MIXING NODE ======================
 # Each channel's 2nd-stage plate feeds the shared mixing node through a DC-open
@@ -170,7 +193,7 @@ s.wire(XD, MY + 7.62, XD, MY + 9)
 s.shunt_rc("RK5", "820", "CK5", "25u", XD, MY + 9)
 teeD = MY - 7.62 - 3.48
 s.junction(XD, teeD)
-s.note('Driver — local feedback network read from the drawing but not confidently resolved (schematic-only; see notes.md, bom.yaml)')
+s.note('Driver — local feedback network read from the drawing but not confidently resolved (schematic-only; see the circuit story and the parts list)')
 # local feedback network: plate -> RFB1 470k -> node -> RFB2/RFB3 220k each,
 # one to ground, one back toward the mixing node; CFB1 2500p bridges the plate
 # tee to ground. Drawn for the record; not part of the DC model.
@@ -202,9 +225,9 @@ PT_ = YT - 11.1
 # any clear band on this sheet, so it printed across the bias diodes however
 # it was placed. The heading keeps to a headline beside the oscillator; the
 # mechanism sentence is a note, and notes live in the band.
-s.caption('Tremolo — V3 phase-shift oscillator (DC point excluded from netlist.cir)', 122, 250, 1.4)
-s.note('The tremolo oscillator drives a lamp/photoresistor pair (OPTO) whose photocell shunts the channel-mixing node (notes.md).')
-s.note('Phase-shift ladder values (RTOG1/RTOG2/CTO1-3) are a schematic-only reading, typical of this circuit family — not confidently resolved from the scan (bom.yaml).')
+s.caption('Tremolo — V3 phase-shift oscillator (DC point excluded from the netlist)', 122, 250, 1.4)
+s.note('The tremolo oscillator drives a lamp/photoresistor pair (OPTO) whose photocell shunts the channel-mixing node (see the circuit story).')
+s.note('Phase-shift ladder values (RTOG1/RTOG2/CTO1-3) are a schematic-only reading, typical of this circuit family — not confidently resolved from the scan (see the parts list).')
 t3 = s.triode("V3", "7025", 100, YT)
 s.wire(100, YT - 7.62, 100, PT_)
 s.sym("R", "RTOP", "100k", 100, PT_ - 3.81)
@@ -502,7 +525,7 @@ s.wire(sw_r, 224 - 5.08, fl, 224 - 5.08)
 s.wire(fr, 224 - 5.08, 40 - 8.89, 224 - 5.08)
 s.wire(40 - 8.89, 224 + 5.08, 8, 224 + 5.08)
 s.glabel("MAINS", 8, 224 + 5.08, 180)
-s.text("Mains cord not drawn — annotation layer (layout.yaml)", 8, 232, 1.1)
+s.text("Mains cord not drawn — annotation layer (see the board drawing)", 8, 232, 1.1)
 s.wire(40 + 8.89, 224 - 5.08, 52, 224 - 5.08)
 s.glabel("HT_A", 52, 224 - 5.08, 0)
 s.wire(40 + 8.89, 224 + 5.08, 52, 224 + 5.08)
@@ -512,11 +535,11 @@ s.wire(lp["hi"][0], lp["hi"][1], lp["hi"][0], 231)
 s.glabel("HTR_A", lp["hi"][0], 231, 90)
 s.wire(lp["lo"][0], lp["lo"][1], lp["lo"][0], 241)
 s.glabel("HTR_B", lp["lo"][0], 241, 270)
-s.text("Pilot lamp — fed from the 6.3 V heater chain (layout.yaml twisted run)", 30, 238, 1.1)
+s.text("Pilot lamp — fed from the 6.3 V heater chain (the board drawing's twisted pair)", 30, 238, 1.1)
 
 # bias supply — not fully resolved from the scan (notes.md); shown here as an
 # ideal source label only, matching netlist.cir's own treatment.
-s.text("Bias supply — a filtered tap this drawing does not fully resolve; netlist.cir treats -55 V as an ideal source (notes.md)",
+s.text("Bias supply — a filtered tap this drawing does not fully resolve; the netlist treats -55 V as an ideal source (see the circuit story)",
        196, 210, 1.3)
 s.glabel("HT_B", 196, 220, 180)
 s.wire(196, 220, 206, 220)

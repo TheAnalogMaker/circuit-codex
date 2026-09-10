@@ -19,10 +19,13 @@
 # for the same reason netlist.cir doesn't model them: their real fan-out
 # could not be resolved from the scan (see notes.md), and drawing them tied
 # into BP3/BDRV/BD here would assert a physical bridge the DC model
-# explicitly does not carry. The channel tone stacks (Bass/Treble pots, the
-# mica/film caps, the foot resistor) and the driver's local feedback network
-# are likewise schematic-only, matching this corpus's other "tb"-stack
-# entries (see amps/ab763/layout.yaml).
+# explicitly does not carry. Each channel's tone network is drawn where the
+# published sheet mounts it: the .05 coupler on the board beside the
+# first-stage plate load, and the 250MM treble cap and 100K slope at the
+# Treble pot, the .01 and 10K at the Bass pot, the 47MM bright cap at the
+# Volume pot — chassis-mounted parts on the panel row, wired lug to lug as
+# the sheet draws them (none of them carries a DC node the netlist checks).
+# The driver's local feedback network stays schematic-only.
 #
 # Machine-checked equivalence: the point-to-point wiring drawn below has been
 # verified electrically equivalent to the simulated netlist (netlist.cir) by
@@ -33,9 +36,9 @@ wiring_claim: verified
 
 board:
   rows: 2
-  cols: 45
+  cols: 51
   title: "6G5 · eyelet board layout"
-caption: "Redrawn from the published Fender Pro-Amp Model 6G5 layout drawing — principal DC-relevant board components, in the same left-to-right shape the published sheet shows (power/output toward one end, the preamp row continuing across). The bridge rectifier, reservoir and choke mount on their own small sub-board on the real chassis (a separate box on the published sheet) and are not drawn here; BP1 is this board's own starting point. The channel tone stacks and the driver's local feedback network mount on the board on the published sheet but are documented schematic-only, matching this corpus's other two-knob 'tb' entries. Not a trace or a dimensioned reproduction."
+caption: "Redrawn from the published Fender Pro-Amp Model 6G5 layout drawing — principal DC-relevant board components, in the same left-to-right shape the published sheet shows (power/output toward one end, the preamp row continuing across). The bridge rectifier, reservoir and choke mount on their own small sub-board on the real chassis (a separate box on the published sheet) and are not drawn here; BP1 is this board's own starting point. Each channel's tone network is drawn where the published sheet mounts it — the 0.05 µF coupler on the board beside the first-stage plate load, the 250 pF and 100 kΩ at the Treble pot, the 0.01 µF and 10 kΩ at the Bass pot, the 47 pF bright capacitor at the Volume pot — none of it carrying a DC node the netlist checks. The driver's local feedback network is documented schematic-only. Not a trace or a dimensioned reproduction."
 source:
   desc: "Fender 'Pro-Amp' Model 6G5 layout drawing (A-FJ), page 2 of the archived PDF"
   url: "https://schematicheaven.net/fenderamps/pro_6g5_schem.pdf"
@@ -69,6 +72,7 @@ parts:
   - { ref: RG5, a: [0, 25], b: [1, 25] }    # 1M mixing-node leak (MIXG -> 0), also V5's grid leak
   # --- channel 1 (Normal, V1) ---
   - { ref: RL1A, a: [0, 26], b: [0, 27] }   # 100k plate load, 1st stage (BD -> P1A)
+  - { ref: CC1T, a: [0, 26], b: [1, 26] }   # .05 coupler standing at the P1A eyelet, foot -> the tone network
   - { ref: CK1A, a: [0, 28], b: [1, 28] }   # 25+25 uF cathode bypass, parallel to RK1A (K1A -> 0)
   - { ref: RK1A, a: [0, 29], b: [1, 29] }   # 820R cathode (K1A -> 0)
   - { ref: RL1B, a: [0, 30], b: [0, 31] }   # 100k plate load, 2nd stage (BD -> P1B)
@@ -76,6 +80,7 @@ parts:
   - { ref: RK1B, a: [0, 33], b: [1, 33] }   # 1.5k cathode, informational (K1B -> 0)
   # --- channel 2 (Bright, V2) — mirrors channel 1 ---
   - { ref: RL2A, a: [0, 34], b: [0, 35] }
+  - { ref: CC2T, a: [0, 34], b: [1, 34] }   # .05 coupler standing at the P2A eyelet, as CC1T
   - { ref: CK2A, a: [0, 36], b: [1, 36] }
   - { ref: RK2A, a: [0, 37], b: [1, 37] }
   - { ref: RL2B, a: [0, 38], b: [0, 39] }
@@ -91,20 +96,36 @@ offboard:
   - { id: JSPK, ref: JSPK, kind: jack, edge: bottom, at: 2.6, label: "Spkr" }
   - { id: V6, ref: V6, kind: tube, edge: bottom, at: 15, label: "V6 · 7025 PI" }
   - { id: V5, ref: V5, kind: tube, edge: bottom, at: 20.5, label: "V5 · 7025 drv" }
-  - { id: JVIB, ref: JVIB, kind: jack, edge: top, at: 43.5, label: "Vibrato pedal" }
+  - { id: JVIB, ref: JVIB, kind: jack, edge: top, at: 49.6, label: "Vibrato pedal" }
   - { id: VRSPD, ref: VRSPD, kind: pot, edge: top, at: 22, label: "Speed" }
   - { id: V3, ref: V3, kind: tube, edge: bottom, at: 24.5, label: "V3 · 7025 trem" }
   - { id: VRINT, ref: VRINT, kind: pot, edge: top, at: 25, label: "Intensity" }
   - { id: V1, ref: V1, kind: tube, edge: bottom, at: 29.5, label: "V1 · 7025 norm" }
-  - { id: VRV1, ref: VRV1, kind: pot, edge: top, at: 29, label: "Normal vol" }
-  - { id: JN1, kind: jack, edge: top, at: 33, label: "Normal in" }
+  # Normal-channel controls in the panel's own order (Volume, Treble, Bass,
+  # jacks), with the tone parts the sheet mounts at each pot beside it.
+  - { id: CBR1, ref: CBR1, kind: part, edge: top, at: 26.2, label: "Normal bright" }
+  - { id: VRV1, ref: VRV1, kind: pot, edge: top, at: 27.4, label: "Normal vol" }
+  - { id: CT1,  ref: CT1,  kind: part, edge: top, at: 28.7, label: "Normal treble cap" }
+  - { id: VRT1, ref: VRT1, kind: pot, edge: top, at: 30, label: "Normal treble", label_nudge: [0, -10] }
+  - { id: RS1T, ref: RS1T, kind: part, edge: top, at: 31.3, label: "Normal slope" }
+  - { id: VRB1, ref: VRB1, kind: pot, edge: top, at: 32.6, label: "Normal bass" }
+  - { id: CF1,  ref: CF1,  kind: part, edge: top, at: 33.9, label: "Normal bass cap" }
+  - { id: JN1, kind: jack, edge: top, at: 35.2, label: "Normal in" }
+  - { id: RF1,  ref: RF1,  kind: part, edge: top, at: 36.4, label: "Normal bass foot" }
   - { id: V2, ref: V2, kind: tube, edge: bottom, at: 37.5, label: "V2 · 7025 brt" }
-  - { id: VRV2, ref: VRV2, kind: pot, edge: top, at: 37, label: "Bright vol" }
-  - { id: JN2, kind: jack, edge: top, at: 41, label: "Bright in" }
+  - { id: CBR2, ref: CBR2, kind: part, edge: top, at: 37.6, label: "Bright ch. bright cap" }
+  - { id: VRV2, ref: VRV2, kind: pot, edge: top, at: 38.8, label: "Bright vol" }
+  - { id: CT2,  ref: CT2,  kind: part, edge: top, at: 40.1, label: "Bright treble cap" }
+  - { id: VRT2, ref: VRT2, kind: pot, edge: top, at: 41.4, label: "Bright treble" }
+  - { id: RS2T, ref: RS2T, kind: part, edge: top, at: 42.7, label: "Bright slope" }
+  - { id: VRB2, ref: VRB2, kind: pot, edge: top, at: 44, label: "Bright bass" }
+  - { id: CF2,  ref: CF2,  kind: part, edge: top, at: 45.3, label: "Bright bass cap" }
+  - { id: JN2, kind: jack, edge: top, at: 46.6, label: "Bright in" }
+  - { id: RF2,  ref: RF2,  kind: part, edge: top, at: 47.8, label: "Bright bass foot" }
 
 # Ground bus — the bare rail just below the bottom eyelet row.
 bus:
-  - { from: [1.45, -0.5], to: [1.45, 41.5] }
+  - { from: [1.45, -0.5], to: [1.45, 50.5] }
 
 # Wiring — read lead-by-lead from the published layout drawing where the
 # board order is legible; the exact eyelet-level routing (via waypoints) is
@@ -118,11 +139,11 @@ runs:
   # === BP1: reservoir/choke (off-board) arrives here; feeds the screen
   # dropper and the OT primary (anchored below). ================================
   - { from: CF4.a, to: RDSCR.a }
-  - { from: TR2.red, to: CF4.a, color: red, via: [[9.4, -1.2], [0.4, -1.2]] }   # OT centre tap -> BP1
-  - { from: TR2.blue, to: V7.pin3, via: [[7.2, -0.5]] }                        # OT primary -> V7 plate
-  - { from: TR2.brown, to: V8.pin3, via: [[11, -1.3], [8.9, -1.3], [8.9, -0.2], [8.4, 1.35]] }  # OT primary -> V8 plate, approaches from the left, clear of the screen lead on the right
-  - { from: TR2.green, to: JSPK.tip, via: [[8.5, -1.9], [2.6, -1.9], [2.6, 0.9]] }  # OT secondary -> speaker, top lane above red's, clear of the V8 socket entirely
-  - { from: JSPK.sleeve, to: [1.45, 2.1] }                                     # NFB return reads as ground at DC
+  - { from: TR2.red, to: CF4.a, color: red, via: [[9.4, -1.2], [0.4, -1.2]] }
+  - { from: TR2.blue, to: V7.pin3, via: [[7.2, -0.5]] }
+  - { from: TR2.brown, to: V8.pin3, via: [[10.725, -1.3], [8.9, -1.3], [8.863, -0.2], [8.4, 1.35]] }
+  - { from: TR2.green, to: JSPK.tip, via: [[8.5, -1.9], [2.6, -1.9], [2.6, 0.9]] }
+  - { from: JSPK.sleeve, to: [1.45, 2.1] }
 
   # === BP2 (screens): dropper output feeds both output tubes' screens ===========
   - { from: RDSCR.b, to: RSC1.a, via: [[2.6, 0.3], [4.4, 0.3]] }
@@ -131,85 +152,127 @@ runs:
 
   # === output stage: screens, grids (G71/G72), cathodes =========================
   - { from: RSC1.b, to: V7.pin4, via: [[5.9, 1.6]] }
-  - { from: RSC2.b, to: V8.pin4, via: [[10.9, 1.9]] }
+  - { from: RSC2.b, to: V8.pin4, via: [[10.57, 1.47]] }
   - { from: C1.b, to: V7.pin5, via: [[7.9, 1.5]] }
   - { from: C2.b, to: V8.pin5, via: [[11.7, 1.55]] }
-  - { from: V7.pin8, to: [1.45, 6.3], via: [[6.4, 1.7]] }
-  - { from: V8.pin8, to: [1.45, 10.3], via: [[10.4, 1.5]] }
-  - { from: RGL1.b, to: RGL2.b, via: [[7.4, 1.15], [11.4, 1.15]] }             # -55V bias line
+  - { from: V7.pin8, to: [1.45, 6.3], via: [[6.472, 1.663]] }
+  - { from: V8.pin8, to: [1.45, 10.3], via: [[10.5, 1.77]] }
+  - { from: RGL1.b, to: RGL2.b, via: [[7.4, 1.15], [11.4, 1.15]] }
 
   # === PI plates (BP3), grids, cathode tail =====================================
-  - { from: C1.a, to: V6.pin6, via: [[7, 3.15], [13.3, 3.15]] }                # PPIA -> hot plate coupler, deep lane clear of the tail pins
+  - { from: C1.a, to: V6.pin6, via: [[7.22, 3.15], [13.3, 3.15]] }
   - { from: RLA.a, to: V6.pin6, via: [[13, 1.62]] }
-  - { from: RLA.b, to: RLB.b, via: [[13.5, 0.4], [14.5, 0.4]] }                # BP3 backbone
-  - { from: C2.a, to: V6.pin1, via: [[11, 2.65], [14.7, 2.65]] }               # PPIB -> cold plate coupler
+  - { from: RLA.b, to: RLB.b, via: [[13.5, 0.4], [14.5, 0.4]] }
+  - { from: C2.a, to: V6.pin1, via: [[11, 2.65], [14.7, 2.65]] }
   - { from: RLB.a, to: V6.pin1, via: [[15.3, 1.7]] }
-  - { from: RGA.a, to: V6.pin7, via: [[16.3, 1.55]] }                          # hot grid leak (GPIA)
-  - { from: RGB.a, to: V6.pin2, via: [[17.5, 1.5]] }                          # cold grid leak (GPIB)
-  - { from: V6.pin8, to: RTAIL.a, via: [[15.4, 2.35], [12.8, 2.35], [12.8, 1.2]] }  # cathode(u1) -> tail (KPI), swing left
-  - { from: V6.pin3, to: RTAIL.a, via: [[14.3, 1.3]] }                        # cathode(u2) -> tail (KPI), short direct
-  - { from: RTAIL.b, to: RT2.b, via: [[14.5, 1.4], [15.5, 1.3], [17.5, 1.3]] } # tail -> junction (JPI), flat mid row-1 approach
-  - { from: RGA.b, to: RT2.b, via: [[16.5, 0.7]] }                             # hot grid leak -> junction, upper row-1 approach
-  - { from: RGB.b, to: RT2.b, via: [[17.6, 2.0]] }                             # cold grid leak -> junction, lower row-1 approach
-  - { from: RT2.a, to: [1.45, 19] }                                            # tail 6.8k -> ground, sidestep col18's cluster
+  - { from: RGA.a, to: V6.pin7, via: [[16.3, 1.55]] }
+  - { from: RGB.a, to: V6.pin2, via: [[17.5, 1.565]] }
+  - { from: V6.pin8, to: RTAIL.a, via: [[15.4, 2.35], [12.8, 2.35], [12.8, 1.2]] }
+  - { from: V6.pin3, to: RTAIL.a, via: [[14.3, 1.3]] }
+  - { from: RTAIL.b, to: RT2.b, via: [[14.5, 1.4], [15.5, 1.3], [17.5, 1.3]] }
+  - { from: RGA.b, to: RT2.b, via: [[16.5, 0.7]] }
+  - { from: RGB.b, to: RT2.b, via: [[17.6, 2]] }
+  - { from: RT2.a, to: [1.45, 19] }
 
   # === driver (V5), off BDRV ====================================================
-  - { from: RL5.a, to: V5.pin6, via: [[19.9, 1.62]] }                          # plate load -> V5 plate (P5)
-  - { from: V5.pin8, to: CK5.a, via: [[20.3, 1.62]] }                          # cathode -> bypass (K5)
-  - { from: CK5.a, to: RK5.a }                                                 # bypass parallel to the cathode resistor (K5 side)
-  - { from: CK5.b, to: [1.45, 21] }                                            # bypass -> ground
+  - { from: RL5.a, to: V5.pin6, via: [[19.9, 1.62]] }
+  - { from: V5.pin8, to: CK5.a, via: [[20.3, 1.62]] }
+  - { from: CK5.a, to: RK5.a }
+  - { from: CK5.b, to: [1.45, 21] }
   - { from: RK5.b, to: [1.45, 22] }
-  - { from: V5.pin7, to: RG5.a, via: [[19.3, -0.6], [25, -0.6]] }              # grid -> mixing-node leak (MIXG), left of CK5's own column
+  - { from: V5.pin7, to: RG5.a, via: [[19.3, -0.6], [25, -0.6]] }
 
   # === channel-mixing node: both channels' 2nd-stage plates + driver grid =======
-  - { from: RL1B.a, to: CMIX1.a, via: [[30.05, 0.05], [24, 0.3]] }            # nearly-flat top lane, clear of the plate-load hop below
-  - { from: CMIX1.b, to: RG5.a, via: [[24.7, 0.3]] }                          # flat, upper approach into the mixing node
-  - { from: RL2B.a, to: CMIX2.a, via: [[38.05, -0.05], [22.7, -0.3], [22.7, 1.2]] }  # nearly-flat, above run 34's lane, drops clear of CMIX1's own eyelet
-  - { from: CMIX2.b, to: RG5.a, via: [[24.7, 1.3]] }                          # lower, steeper approach into the mixing node
+  - { from: RL1B.a, to: CMIX1.a, via: [[30.05, 0.05], [24, 0.3]] }
+  - { from: CMIX1.b, to: RG5.a, via: [[24.7, 0.3]] }
+  - { from: RL2B.a, to: CMIX2.a, via: [[38.05, -0.05], [22.7, -0.3], [22.7, 1.2]] }
+  - { from: CMIX2.b, to: RG5.a, via: [[24.7, 1.3]] }
   - { from: RG5.b, to: [1.45, 25] }
 
   # === channel 1 (Normal, V1) — 1st stage ========================================
-  - { from: RL1A.a, to: V1.pin6, via: [[27.4, 2.2]] }                          # plate load -> V1 plate (P1A), deeper approach clear of the grid lead
-  - { from: RL1A.b, to: RL1B.b, via: [[27.5, 0.4], [30.5, 0.4]] }              # BD backbone (this channel's own hop)
-  - { from: JN1.tip, to: V1.pin7, via: [[33, -1.4], [29.4, -1.4]] }           # jack (+ off-board stopper/leak) -> V1 grid (G1A), drops in from directly above the socket
-  - { from: V1.pin8, to: CK1A.a, via: [[27.6, 2.5], [27.6, 0.6]] }            # cathode -> bypass (K1A), approaches from the left, clear of CK1A.b
-  - { from: CK1A.a, to: RK1A.a }                                              # bypass parallel to the cathode resistor (K1A side)
-  - { from: CK1A.b, to: [1.45, 27.3] }                                        # bypass -> ground
+  - { from: RL1A.a, to: V1.pin6, via: [[26.55, 0.2], [27.1, 0.6], [27, 1.55], [29.6, 1.55]] }
+  - { from: RL1A.b, to: RL1B.b, via: [[27.5, 0.4], [30.5, 0.4]] }
+  - { from: JN1.tip, to: V1.pin7, via: [[35.2, -1.4], [29.4, -1.256]] }
+  - { from: V1.pin8, to: CK1A.a, via: [[27.6, 2.5], [27.6, 0.6]] }
+  - { from: CK1A.a, to: RK1A.a }
+  - { from: CK1A.b, to: [1.45, 27.3] }
   - { from: RK1A.b, to: [1.45, 29] }
 
   # === channel 1 — 2nd stage =====================================================
-  - { from: RL1B.a, to: V1.pin1, via: [[31.4, 2.3]] }                         # plate load -> V1 plate (P1B), deeper, clear of the grid lead
-  - { from: VRV1.lug2, to: V1.pin2, via: [[29, -0.55], [29.5, -0.55], [29.7, 1.9]] }  # volume wiper -> V1 grid (G1B)
-  - { from: VRV1.lug1, to: [1.45, 28.6] }                                     # pot body -> ground (models RG1B, G1B -> 0)
-  - { from: V1.pin3, to: CK1B.a, via: [[32.3, 2.6], [32.5, 1.8]] }            # cathode -> bypass (K1B), deep lane
-  - { from: CK1B.a, to: RK1B.a }                                              # bypass parallel to the cathode resistor (K1B side)
-  - { from: CK1B.b, to: [1.45, 32] }                                          # bypass -> ground
+  - { from: RL1B.a, to: V1.pin1, via: [[31.4, 2.3]] }
+  - { from: VRV1.lug2, to: V1.pin2, via: [[27.4, -0.44], [26.7, -0.12], [26.7, 0.9], [28.3, 1.75]] }
+  - { from: VRV1.lug1, to: [1.45, 25.75], via: [[27.09, -0.15], [25.75, -0.15]] }
+  - { from: V1.pin3, to: CK1B.a, via: [[32.3, 2.6], [32.5, 1.8]] }
+  - { from: CK1B.a, to: RK1B.a }
+  - { from: CK1B.b, to: [1.45, 32] }
   - { from: RK1B.b, to: [1.45, 33] }
 
   # === channel 2 (Bright, V2) — 1st stage ========================================
-  - { from: RL2A.a, to: V2.pin6, via: [[35.4, 2.2]] }
+  - { from: RL2A.a, to: V2.pin6, via: [[34.55, 0.2], [35.1, 0.6], [35, 1.55], [37.6, 1.55]] }
   - { from: RL2A.b, to: RL2B.b, via: [[35.5, 0.4], [38.5, 0.4]] }
-  - { from: JN2.tip, to: V2.pin7, via: [[41, -1.4], [37.4, -1.4]] }           # drops in from directly above the socket
-  - { from: V2.pin8, to: CK2A.a, via: [[35.6, 2.5], [35.6, 0.6]] }            # approaches from the left, clear of CK2A.b
-  - { from: CK2A.a, to: RK2A.a }                                              # bypass parallel to the cathode resistor (K2A side)
-  - { from: CK2A.b, to: [1.45, 35.3] }                                        # bypass -> ground
+  - { from: JN2.tip, to: V2.pin7, via: [[46.6, -1.4], [37.4, -1.4]] }
+  - { from: V2.pin8, to: CK2A.a, via: [[35.6, 2.5], [35.6, 0.6]] }
+  - { from: CK2A.a, to: RK2A.a }
+  - { from: CK2A.b, to: [1.45, 35.3] }
   - { from: RK2A.b, to: [1.45, 37] }
 
   # === channel 2 — 2nd stage =====================================================
   - { from: RL2B.a, to: V2.pin1, via: [[39.4, 2.3]] }
-  - { from: VRV2.lug2, to: V2.pin2, via: [[37, -0.55], [37.5, -0.55], [37.7, 1.9]] }
-  - { from: VRV2.lug1, to: [1.45, 36.6] }
+  - { from: VRV2.lug2, to: V2.pin2, via: [[38.8, -0.44], [39.5, -0.12], [39.5, 1.68], [36.2, 1.68], [36.3, 2.07]] }
+  - { from: VRV2.lug1, to: [1.45, 42.6], via: [[38.49, -0.15], [42.6, -0.15]] }
   - { from: V2.pin3, to: CK2B.a, via: [[40.3, 2.6], [40.5, 1.8]] }
-  - { from: CK2B.a, to: RK2B.a }                                              # bypass parallel to the cathode resistor (K2B side)
-  - { from: CK2B.b, to: [1.45, 40] }                                          # bypass -> ground
+  - { from: CK2B.a, to: RK2B.a }
+  - { from: CK2B.b, to: [1.45, 40] }
   - { from: RK2B.b, to: [1.45, 41] }
+
+  # === Normal-channel tone network, as the A-FJ sheet mounts it ==================
+  # The .05 coupler's foot leaves the board for the Treble pot, where the
+  # 250MM and the 100K meet it (the stack input). The 100K's far end is the
+  # slope foot: the Treble pot's cold lug and the Bass pot's hot lug. The Bass
+  # pot is a divider to ground — .01 across its upper section (hot lug to
+  # wiper), 10K across the lower (wiper to ground). Treble wiper -> Volume hot
+  # lug, 47MM from that lug to the Volume wiper, which is the next grid.
+  - { from: CC1T.b, to: RS1T.a, via: [[25.45, 0.9], [25.45, -0.34], [30.91, -0.34]] }
+  - { from: RS1T.a, to: CT1.a, via: [[30.61, -0.72], [28.61, -0.72]] }
+  - { from: CT1.b, to: VRT1.lug3, via: [[29.09, -0.62], [30.31, -0.62]] }
+  - { from: RS1T.b, to: VRT1.lug1, via: [[31.69, -0.5], [29.69, -0.5]] }
+  - { from: VRT1.lug1, to: VRB1.lug3, via: [[30.15, -0.55], [30.59, -0.28], [32.91, -0.28]] }
+  - { from: VRB1.lug3, to: CF1.a, via: [[33.35, -0.62], [33.51, -0.62]] }
+  - { from: CF1.b, to: RF1.a, via: [[34.29, -0.75], [35.66, -0.75]] }
+  - { from: VRB1.lug2, to: RF1.a, via: [[32.6, -0.45], [36.01, -0.45]] }
+  - { from: RF1.b, to: [1.45, 36.5], via: [[36.79, -0.5], [36.5, -0.5]] }
+  - { from: VRB1.lug1, to: [1.45, 31.5], via: [[32.29, -0.2], [31.5, -0.2]] }
+  - { from: VRT1.lug2, to: VRV1.lug3, via: [[30, -0.4], [27.71, -0.4]] }
+  - { from: VRV1.lug3, to: CBR1.a, via: [[27.35, -0.62], [25.81, -0.62]] }
+  - { from: CBR1.b, to: VRV1.lug2, via: [[26.59, -0.5], [26.9, -0.55]] }
+
+  # === Bright-channel tone network, as the A-FJ sheet mounts it ==================
+  # The .05 coupler's foot leaves the board for the Treble pot, where the
+  # 250MM and the 100K meet it (the stack input). The 100K's far end is the
+  # slope foot: the Treble pot's cold lug and the Bass pot's hot lug. The Bass
+  # pot is a divider to ground — .01 across its upper section (hot lug to
+  # wiper), 10K across the lower (wiper to ground). Treble wiper -> Volume hot
+  # lug, 47MM from that lug to the Volume wiper, which is the next grid.
+  - { from: CC2T.b, to: RS2T.a, via: [[33.45, 0.9], [33.45, -0.34], [42.31, -0.34]] }
+  - { from: RS2T.a, to: CT2.a, via: [[42.01, -0.72], [40.01, -0.72]] }
+  - { from: CT2.b, to: VRT2.lug3, via: [[40.49, -0.62], [41.71, -0.62]] }
+  - { from: RS2T.b, to: VRT2.lug1, via: [[43.09, -0.5], [41.09, -0.5]] }
+  - { from: VRT2.lug1, to: VRB2.lug3, via: [[41.55, -0.55], [41.99, -0.28], [44.31, -0.28]] }
+  - { from: VRB2.lug3, to: CF2.a, via: [[44.75, -0.62], [44.91, -0.62]] }
+  - { from: CF2.b, to: RF2.a, via: [[45.69, -0.75], [47.06, -0.75]] }
+  - { from: VRB2.lug2, to: RF2.a, via: [[44, -0.45], [47.41, -0.45]] }
+  - { from: RF2.b, to: [1.45, 48.4], via: [[48.19, -0.5], [48.4, -0.5]] }
+  - { from: VRB2.lug1, to: [1.45, 43], via: [[43.69, -0.2], [43, -0.2]] }
+  - { from: VRT2.lug2, to: VRV2.lug3, via: [[41.4, -0.4], [39.11, -0.4]] }
+  - { from: VRV2.lug3, to: CBR2.a, via: [[38.75, -0.62], [37.21, -0.62]] }
+  - { from: CBR2.b, to: VRV2.lug2, via: [[37.99, -0.5], [38.3, -0.55]] }
 
   # === BD backbone: ties channel 1 and channel 2's B+ taps into one node ========
   - { from: RL1B.b, to: RL2A.b, via: [[31.5, 0.4], [34.5, 0.4]] }
 
   # === vibrato pedal jack — footswitch, DC-inert (V3 fully excluded) ============
-  - { from: JVIB.tip, to: [1.45, 43.2] }
-  - { from: JVIB.sleeve, to: [1.45, 43.8] }
+  - { from: JVIB.tip, to: [1.45, 49.3] }
+  - { from: JVIB.sleeve, to: [1.45, 49.9] }
 
   # === 6.3 V heater chain (twisted pair) =========================================
   # PT green pair -> pilot lamp -> V7 -> V8 -> V6 -> V5 -> V3 -> V1 -> V2, the
