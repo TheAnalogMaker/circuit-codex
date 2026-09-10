@@ -362,7 +362,7 @@ fl2, fr2 = s.fuse("FUSE", "2A slo-blo", 21, YPW - 5.08)
 s.wire(fr2, YPW - 5.08, 29.92, YPW - 5.08)
 swl2, swr2 = s.switch("SWAC", "AC", 35, YPW - 5.08)
 s.wire(swr2, YPW - 5.08, 41.11, YPW - 5.08)
-s.glabel("AC LINE", 10, YPW + 5.08, 180)
+s.glabel("AC LINE N", 10, YPW + 5.08, 180)
 s.wire(10, YPW + 5.08, 41.11, YPW + 5.08)
 s.wire(58.89, YPW, 63, YPW)
 s.gnd(63, YPW)                                # HT centre tap

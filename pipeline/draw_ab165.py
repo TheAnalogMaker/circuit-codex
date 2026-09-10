@@ -363,7 +363,7 @@ s.wire(4, YPW - 5.08, fl3, YPW - 5.08)
 sl3, sr3 = s.switch("SWAC", "AC", 33, YPW - 5.08)
 s.wire(fr3, YPW - 5.08, sl3, YPW - 5.08)
 s.wire(sr3, YPW - 5.08, pt["pri1"][0], YPW - 5.08)
-s.glabel("MAINS", 4, YPW + 5.08, 180)
+s.glabel("MAINS N", 4, YPW + 5.08, 180)
 s.wire(4, YPW + 5.08, pt["pri2"][0], YPW + 5.08)
 # period ground switch + capacitor off the mains
 s.junction(20, YPW + 5.08)
