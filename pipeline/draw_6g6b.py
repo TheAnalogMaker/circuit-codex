@@ -24,6 +24,11 @@ lettering (RT2 6.8k -> the presence/feedback node, RPF 4.7k to ground, RNFB
 56k back from the speaker line, VR7 across RPF). Heaters, the PT primary, the
 ground switch, the 3 A fuse and the standby switch are omitted (see
 netlist.cir / meta.yaml).
+
+Normal-channel tone network re-read from the E-FB schematic page on
+2026-09-10: it is the blackface ladder on a tapped Treble pot (100k slope,
+.00025 treble, .1 to the pot's 70k tap, .05 to the Bass foot, 6800 foot,
+.005 bleed on the Treble cold lug), drawn on the four-terminal cx:POT_TAP.
 """
 from pathlib import Path
 
@@ -137,7 +142,7 @@ s.wire(153.08, NW_Y - 10 + 3.81, MIXG_X, NW_Y - 10 + 3.81)   # WIPER, not lug 1
 s.wire(MIXG_X, NW_Y - 10 + 3.81, MIXG_X, 152)
 s.text("Bass ch. tone network: redrawn from the E-FB", 160, 78, 1.15)
 s.text("schematic page, driven by V1B's cathode. Not", 160, 81.5, 1.15)
-s.text("modelled in netlist.cir (control island).", 160, 85, 1.15)
+s.text("modelled in the netlist (control island).", 160, 85, 1.15)
 
 # ============================ NORMAL CHANNEL (V2A/V2B) ========================
 NY0 = 130.0
@@ -166,58 +171,81 @@ s.plate_load("RL2A", "100k", t2a["p"], "BP355")
 P2A_Y = NY0 - 7.62 - 3.48
 s.junction(54, P2A_Y)
 
-# --- Normal tone network: P2A -> CTN4(250p) -> Treble pot top (350k/70k tap);
-# P2A -> CTN5(.05u) -> Bass-leg node NB -> RTN4(6.8k)+VR4(Bass) -> gnd;
-# Treble bottom lug -> NB; Treble wiper -> Volume top; Volume wiper -> V2B grid
+# --- Normal tone network, as the E-FB schematic page draws it: the blackface
+# ladder on a TAPPED Treble pot. From the V2A plate node (IN): RTN5 100k slope
+# down to node A; CTN4 .00025 to the Treble pot's hot lug. From A: CTN7 .1 to
+# node B, which is the Treble pot's 70k TAP and the Bass pot's hot lug; CTN5
+# .05 to node C, the Bass pot's foot, with RTN4 6800 from C to ground. The Bass
+# pot is a rheostat (wiper strapped to its foot lug). The Treble pot's cold
+# lug is bled to ground through CTN6 .005 — it is NOT node B. Wiper -> Volume.
+#
+# Until 2026-09-10 this sheet had no slope resistor and no .1, ran the .05
+# from the plate, and collapsed the slope foot, the tap and the Bass foot
+# into one node; the parts list was missing RTN5 and CTN7.
+TB_Y = P2A_Y - 8                  # treble branch
+A_Y = P2A_Y + 9.62                # node A: the slope foot
+C_Y = A_Y + 7.62                  # node C: the Bass foot
 s.wire(54, P2A_Y, 100, P2A_Y)
-cl3, cr3 = s.series_h("C", "CTN4", "250p", 108, P2A_Y - 12)
-s.wire(100, P2A_Y, 100, P2A_Y - 12)
-s.wire(100, P2A_Y - 12, cl3, P2A_Y - 12)
-s.sym("POT", "VR3", "350k-70k", 128, P2A_Y - 12 + 3.81, lx=2.4, ly=-1.5)
-s.wire(cr3, P2A_Y - 12, 128, P2A_Y - 12)
-s.wire(54, P2A_Y, 54, P2A_Y + 15)
-cl4, cr4 = s.series_h("C", "CTN5", ".05u", 100, P2A_Y + 15)
-s.wire(54, P2A_Y + 15, cl4, P2A_Y + 15)
-NB = (128, P2A_Y + 15)
-s.wire(cr4, P2A_Y + 15, 128, P2A_Y + 15)
-s.wire(128, P2A_Y + 15, 128, P2A_Y - 12 + 3.81 + 3.81)   # NB -> Treble FOOT lug
-s.sym("R", "RTN4", "6.8k", 128, P2A_Y + 15 + 12.19)
-s.gnd(128, P2A_Y + 15 + 16)
-s.sym("C", "CTN6", ".005u", 118, P2A_Y + 15 + 12.19, lx=-8.0, ly=3.0)
-s.wire(118, P2A_Y + 15 + 8.38, 128, P2A_Y + 15 + 8.38)
-s.wire(128, P2A_Y + 15, 128, P2A_Y + 15 + 8.38)   # NB -> the 6.8k foot
-s.junction(128, P2A_Y + 15)
-s.gnd(118, P2A_Y + 15 + 16.0)
-s.sym("POT", "VR4", "250k-A", 140, P2A_Y + 15, lx=2.4, ly=-1.5)
-s.wire(128, P2A_Y + 15, 134, P2A_Y + 15)
-s.wire(134, P2A_Y + 15, 134, P2A_Y + 11.19)
-s.wire(134, P2A_Y + 11.19, 140, P2A_Y + 11.19)      # NB -> pot lug 1
-s.wire(145.08, P2A_Y + 15, 152, P2A_Y + 15)         # wiper -> ground
-s.gnd(152, P2A_Y + 15)
-s.wire(140, P2A_Y + 18.81, 148, P2A_Y + 18.81)      # lug 3 strapped to it
-s.wire(148, P2A_Y + 18.81, 148, P2A_Y + 15)
-s.junction(148, P2A_Y + 15)
-s.text("Normal ch. tone network: redrawn from the E-FB schematic page — a "
-       "treble-bleed + bass-leg network feeding a Volume pot ahead of V2B.",
-       20, 200, 1.15)
+s.junction(100, P2A_Y)
+s.wire(100, P2A_Y, 100, TB_Y)
+cl3, cr3 = s.series_h("C", "CTN4", "250p", 108, TB_Y)
+s.wire(100, TB_Y, cl3, TB_Y)
+# Treble pot: cx:POT_TAP — pin 1 hot (top), 2 wiper (right), 3 cold (bottom),
+# 4 the tap (left, below centre). Centre so that pin 1 sits on the treble branch.
+VR3_CY = TB_Y + 3.81
+s.sym("POT_TAP", "VR3", "350k-70k tap", 140, VR3_CY, lx=2.4, ly=-1.5)
+s.wire(cr3, TB_Y, 140, TB_Y)                     # -> pin 1 (hot lug)
+TAP_Y = VR3_CY + 1.524                           # pin 4, at (134.92, TAP_Y)
+# slope: IN -> RTN5 -> node A
+s.wire(100, P2A_Y, 100, P2A_Y + 2)
+s.sym("R", "RTN5", "100k", 100, P2A_Y + 5.81, lx=-9.4)
+s.wire(100, A_Y, 108, A_Y)                       # node A line, out to the .05 and the .1
+s.junction(108, A_Y)
+s.wire(108, A_Y, 114.19, A_Y)
+cl7, cr7 = s.series_h("C", "CTN7", ".1u", 118, A_Y)
+s.wire(cr7, A_Y, 126, A_Y)                       # -> node B: Bass pot pin 1 (hot lug)
+s.junction(124, A_Y)
+s.wire(124, A_Y, 124, TAP_Y)                     # node B riser to the Treble TAP
+s.wire(124, TAP_Y, 134.92, TAP_Y)
+# .05: node A -> node C
+s.sym("C", "CTN5", ".05u", 108, A_Y + 3.81, lx=-8.6, ly=0.0)
+# Bass pot (rheostat): pin 1 on B, pin 3 on C, wiper strapped to pin 3
+VR4_CY = A_Y + 3.81
+s.sym("POT", "VR4", "250k-A", 126, VR4_CY, lx=2.4, ly=-1.5)
+s.wire(131.08, VR4_CY, 134, VR4_CY)
+s.wire(134, VR4_CY, 134, C_Y)
+s.wire(134, C_Y, 126, C_Y)
+s.junction(126, C_Y)
+s.wire(108, C_Y, 126, C_Y)                       # node C line
+s.junction(116, C_Y)
+s.sym("R", "RTN4", "6.8k", 116, C_Y + 3.81, lx=2.4, ly=1.0)
+s.gnd(116, C_Y + 7.62)
+# Treble cold lug (pin 3) -> CTN6 .005 -> ground
+s.wire(140, VR3_CY + 3.81, 140, P2A_Y + 2)
+s.sym("C", "CTN6", ".005u", 140, P2A_Y + 5.81, lx=2.4, ly=0.0)
+s.gnd(140, A_Y)
+s.note("Normal ch. tone network: 100 kΩ slope; 250 pF into the hot lug of a 350 kΩ "
+       "Treble pot with a 70 kΩ tap; 0.1 µF from the slope foot to that tap, where the "
+       "250 kΩ-A Bass rheostat hangs; 0.05 µF from the slope foot to the Bass foot and "
+       "6.8 kΩ from there to ground; the Treble pot's cold lug bled to ground through "
+       "0.005 µF. Wiper into a 1 MΩ-A Volume pot ahead of V2B. Not modelled in the "
+       "netlist (control island).")
 # Treble wiper -> Volume pot top; Volume wiper -> V2B grid
 t2b = s.triode("V2B", "7025", 190, NY0)
 gx2b = t2b["g"][0]
-s.wire(133.08, P2A_Y - 12 + 3.81, 160, P2A_Y - 12 + 3.81)
-s.sym("POT", "VR5", "1M-A", 168, P2A_Y - 12 + 3.81 + 3.81, lx=2.4, ly=-1.5)
-s.wire(160, P2A_Y - 12 + 3.81, 168, P2A_Y - 12 + 3.81)
-s.gnd(168, P2A_Y - 12 + 3.81 + 11.43)
-s.wire(168, P2A_Y - 12 + 3.81 + 7.62, 168, P2A_Y - 12 + 3.81 + 11.43)
-s.wire(173.08, P2A_Y - 12 + 3.81 + 3.81, 180, P2A_Y - 12 + 3.81 + 3.81)
-s.wire(180, P2A_Y - 12 + 3.81 + 3.81, 180, NY0)
-s.wire(180, NY0, gx2b, NY0)
+W_Y = VR3_CY                                     # the Treble wiper's y
+s.wire(145.08, W_Y, 168, W_Y)                    # -> Volume pin 1
+VR5_CY = W_Y + 3.81
+s.sym("POT", "VR5", "1M-A", 168, VR5_CY, lx=2.4, ly=-1.5)
+s.wire(168, VR5_CY + 3.81, 168, VR5_CY + 7.5)
+s.gnd(168, VR5_CY + 7.5)
+s.wire(173.08, VR5_CY, gx2b - 3.81, VR5_CY)      # wiper -> the grid riser
+s.wire(gx2b - 3.81, VR5_CY, gx2b - 3.81, NY0)
+s.wire(gx2b - 3.81, NY0, gx2b, NY0)
+s.junction(gx2b - 3.81, NY0)
 s.sym("R", "RG2B", "1M (est)", gx2b - 3.81, NY0 + 9, lx=-9.4)
 s.gnd(gx2b - 3.81, NY0 + 12.81)
 s.wire(gx2b - 3.81, NY0, gx2b - 3.81, NY0 + 5.19)   # grid node -> its leak
-s.wire(gx2b - 3.81, NY0, gx2b - 3.81, NY0 - 3)
-s.wire(gx2b - 3.81, NY0 - 3, 180, NY0 - 3)
-s.wire(180, NY0 - 3, 180, P2A_Y - 12 + 3.81 + 3.81 - 3)
-s.junction(180, NY0)
 # V2B cathode + plate off dedicated +355V rail
 s.wire(190, NY0 + 7.62, 190, NY0 + 10)
 s.wire(190, NY0 + 10, 196, NY0 + 10)
@@ -460,8 +488,8 @@ s.glabel("BP230", 190, PY + 52, 0)
 s.text("BP430 (5881 screens) and BP355 (Normal ch. recovery) tap the same "
        "dropper chain the E-FB drawing shows but were not fully traced at "
        "this pass; both", 20, 320, 1.15)
-s.text("are driven directly as ideal sources in netlist.cir, printed at "
-       "their own chart values (see meta.yaml).", 20, 323.5, 1.15)
+s.text("are driven directly as ideal sources in the netlist, printed at "
+       "their own chart values (see the sources list).", 20, 323.5, 1.15)
 s.glabel("BP430", 30, 340, 0)
 s.glabel("BP355", 30, 346, 0)
 

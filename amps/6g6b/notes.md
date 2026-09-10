@@ -27,8 +27,11 @@ stage.
 
 **Normal channel**: two inputs → **V2A** (1.5 kΩ cathode, 100 kΩ plate load
 climbing to that channel's own +355 V lane, printed +230 V/+1.9 V) → a
-Treble/Bass network (250 pF into a 350 kΩ/70 kΩ-tap Treble pot; 0.05 µF into
-a 250 kΩ-A Bass pot over a 6.8 kΩ foot with 0.005 µF across it) → a 1 MΩ-A
+two-knob ladder on a tapped Treble pot (100 kΩ slope; 250 pF into the hot
+lug of a 350 kΩ Treble pot with a 70 kΩ tap; 0.1 µF from the slope foot to
+that tap, where the 250 kΩ-A Bass rheostat also hangs; 0.05 µF from the
+slope foot to the Bass foot and 6.8 kΩ from there to ground; the Treble
+pot's cold lug bled to ground through 0.005 µF) → a 1 MΩ-A
 Volume pot → **V2B** recovery (2.7 kΩ cathode, 220 kΩ plate off the same
 +355 V lane, printed +190 V/+1.8 V) → a 470 kΩ resistor into the shared
 driver stage's grid.
@@ -94,6 +97,20 @@ look at high magnification.
   third under the printed 1.9 V — the sheet's own figures rule that reading
   out.
 
+- **The Normal channel's tone network is the blackface ladder, on a pot
+  with a tap.** The Treble control is lettered 350K-70K TAP and has four
+  connections: the 250 pF on its hot lug, the wiper to the Volume pot, the
+  0.1 µF from the 100 kΩ slope's foot landing on the *tap*, and the cold lug
+  going to ground through 0.005 µF. The Bass control is a rheostat from that
+  tap node down to the 6.8 kΩ foot, with the 0.05 µF from the slope foot
+  landing on the same foot — the same six-part shape the AB763 amplifiers
+  draw, except that the AB763's bass capacitor lands on the Treble pot's
+  cold lug and this one lands on a tap part-way up the element, with the
+  cold lug bled separately. An earlier drawing here ran the 0.05 µF from the
+  plate, had no slope resistor and no 0.1 µF, and tied the tap, the slope
+  foot and the Bass foot into one node; the sheet was re-read lug by lug and
+  the network redrawn with all six parts.
+
 Both readings are corroborated by arithmetic already on the sheet.
 136 V across 100 kΩ is 1.36 mA; add V1A's 0.43 mA and the driver bottle's
 two 0.8 mA sections and the +230 V lane draws about 3.4 mA, which across its
@@ -117,10 +134,11 @@ is V1A's cathode at 17.3% against the chart's own ±20% convention. The entry
 stays a draft only because a verified badge is a maintainer's to grant.
 
 The board drawing follows the E-FB layout page, and it draws each channel's
-Bass, Treble and Volume network in full — on this sheet those parts mount on
-the board rather than at the panel, which is why they appear here and not as
-panel stubs. The drawn wiring is proved electrically equivalent to the
-simulated circuit.
+Bass, Treble and Volume network in full. The Normal channel's slope resistor
+and its three capacitors stand on the board; its 6.8 kΩ foot and 0.005 µF
+bleed hang at the Bass and Treble pots, which is where the layout page puts
+them, and the Treble pot is drawn with its fourth, tap terminal. The drawn
+wiring is proved electrically equivalent to the simulated circuit.
 
 ## The Bass/Normal split, and why the driver bottle carries a Treble pot
 

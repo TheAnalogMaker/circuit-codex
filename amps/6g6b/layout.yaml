@@ -16,7 +16,7 @@ board:
   rows: 2
   cols: 186
   title: "6G6-B · eyelet board layout"
-caption: "Redrawn from the published Fender 'Bassman' Model 6G6-B (E-FB) layout drawing — principal board components, in the order the drawing shows them. Each channel's Bass/Treble/Volume tone network mounts on the board on the published sheet and is drawn here in full (the Bass channel's own Treble control sits in the shared driver bottle's own signal path, per the front-panel silkscreen order). The 6.3 V heater chain (green twisted pair, PT -> pilot lamp -> the two 5881 outputs -> the phase-inverter 7025 -> the Normal-channel 7025 -> the driver 7025 -> the Bass-channel 7025) is routed in the drawing's own socket order. Not a trace or a dimensioned reproduction."
+caption: "Redrawn from the published Fender 'Bassman' Model 6G6-B (E-FB) layout drawing — principal board components, in the order the drawing shows them. Each channel's Bass/Treble/Volume tone network is drawn in full: the Normal channel's 100 kΩ slope and its three capacitors stand on the board, while its 6.8 kΩ foot and 0.005 µF bleed hang at the Bass and Treble pots, as the sheet draws them; the Treble pot is the tapped 350 kΩ/70 kΩ part, its tap carrying the 0.1 µF. (The Bass channel's own Treble control sits in the shared driver bottle's own signal path, per the front-panel silkscreen order.) The 6.3 V heater chain (green twisted pair, PT -> pilot lamp -> the two 5881 outputs -> the phase-inverter 7025 -> the Normal-channel 7025 -> the driver 7025 -> the Bass-channel 7025) is routed in the drawing's own socket order. Not a trace or a dimensioned reproduction."
 source:
   desc: "Fender 'Bassman' Model 6G6-B drawing (E-FB), board-layout page"
   url: "https://el34world.com/charts/Schematics/Files/Fender/Fender_bassman_6g6b.pdf"
@@ -91,10 +91,16 @@ parts:
   - { ref: RL2A, a: [0, 92], b: [0, 93] }   # 100k V2A plate load
   - { ref: RK2A, a: [1, 93], b: [1, 94] }   # 1500 V2A cathode
   - { ref: CK2A, a: [0, 94], b: [0, 95] }   # 25 uF bypass, shares RK2A.b eyelet (col)
-  - { ref: CTN4, a: [0, 97], b: [0, 99] }   # 250 pF treble branch, off V2A plate
-  - { ref: CTN5, a: [1, 97], b: [1, 101] }  # 0.05 uF bass-leg branch, off V2A plate, shares RTN4.a eyelet
-  - { ref: RTN4, a: [1, 101], b: [1, 102] } # 6800 tone-network foot
-  - { ref: CTN6, a: [0, 101], b: [0, 102] } # 0.005 uF foot bypass
+  # Normal-channel tone network, as the E-FB layout page places it: the three
+  # capacitors stand between the rows with the 100k slope along the bottom
+  # row under them — the .00025's foot on the plate node, the slope from that
+  # eyelet to the .05's foot, and the .1's foot brought to the same slope-foot
+  # node by a short lead. The 6800 foot and the .005 bleed do NOT mount here:
+  # the sheet hangs them at the Bass and Treble pots (offboard, below).
+  - { ref: CTN4, a: [0, 97], b: [1, 97] }   # .00025 standing: top -> Treble hot lug, foot on the V2A plate node
+  - { ref: RTN5, a: [1, 97], b: [1, 99] }   # 100k slope along the bottom row, plate eyelet -> slope foot
+  - { ref: CTN5, a: [0, 99], b: [1, 99] }   # .05 standing: foot shares the slope-foot eyelet, top -> Bass foot lug
+  - { ref: CTN7, a: [0, 101], b: [1, 101] } # .1 standing: foot -> slope foot (lead), top -> Treble TAP / Bass hot lug
   - { ref: RG2B, a: [0, 106], b: [1, 106] } # 1M (estimate) V2B grid leak
   - { ref: RL2B, a: [0, 107], b: [0, 108] } # 220k V2B plate load, off +355 V
   - { ref: RK2B, a: [1, 107], b: [1, 108] } # 2700 V2B cathode
@@ -133,8 +139,12 @@ offboard:
   - { id: V3,  ref: V3, kind: tube, edge: bottom, at: 82,  label: "V3 · 7025 (driver)" }
   - { id: VR6, ref: VR6, kind: pot, edge: top, at: 76, label: "Bass ch. · Treble" }
   - { id: JN,  kind: jack, edge: top, at: 89, label: "Normal 2/1" }
-  - { id: VR3, ref: VR3, kind: pot, edge: top, at: 98, label: "Normal ch. · Treble" }
+  # The Treble pot is tapped (350K-70K TAP on the sheet): `tap: true` gives it
+  # a fourth terminal, VR3.lug4, which the .1 lands on.
+  - { id: VR3, ref: VR3, kind: pot, edge: top, at: 98, tap: true, label: "Normal ch. · Treble" }
+  - { id: CTN6, ref: CTN6, kind: part, edge: top, at: 95.8, label: "Treble bleed" }   # .005 at the Treble pot, cold lug -> chassis
   - { id: VR4, ref: VR4, kind: pot, edge: top, at: 102, label: "Normal ch. · Bass" }
+  - { id: RTN4, ref: RTN4, kind: part, edge: top, at: 104.4, label: "Bass foot" }     # 6800 at the Bass pot, foot lug -> chassis
   - { id: VR5, ref: VR5, kind: pot, edge: top, at: 108, label: "Normal ch. · Volume" }
   - { id: V2,  ref: V2, kind: tube, edge: bottom, at: 108, label: "V2 · 7025 (Normal)" }
   - { id: V1,  ref: V1, kind: tube, edge: bottom, at: 165, label: "V1 · 7025 (Bass)" }
@@ -256,15 +266,19 @@ runs:
   - { from: CK2A.a, to: RK2A.a }
   - { from: CK2A.b, to: [1.45, 95] }
   - { from: RK2A.b, to: [1.45, 94] }
-  - { from: RL2A.b, to: CTN4.a, via: [[93.6, -0.4], [96.94, -0.4]] }
-  - { from: CTN4.a, to: CTN5.a, via: [[97.19, -0.02]] }
-  - { from: CTN4.b, to: VR3.lug3, via: [[99.6, -0.4], [98, -0.75]] }
-  - { from: CTN5.b, to: VR3.lug1, via: [[101.19, 1.4], [98, 1.55], [98, -0.6]] }
-  - { from: RTN4.b, to: [1.45, 102] }
-  - { from: CTN6.a, to: RTN4.a, via: [[100.404, 0.42]] }
-  - { from: CTN6.b, to: RTN4.b, via: [[101.9, -0.15], [101.077, 0.316]] }
-  - { from: VR4.lug3, to: RTN4.a, via: [[102, -0.75], [101.4, -0.15]] }
-  - { from: VR4.lug1, to: RTN4.b, via: [[101.896, -0.6], [101.6, 1.55], [100.746, 1.519]] }
+  # Normal-channel tone network (the .00025's foot shares the plate eyelet
+  # with the slope's head; the .05's foot shares the slope-foot eyelet).
+  - { from: RL2A.b, to: CTN4.b, via: [[93.5, 0.25], [96.7, 0.55], [96.9, 1.2]] }  # plate node -> .00025 foot / slope head
+  - { from: CTN4.a, to: VR3.lug3, via: [[97, -0.4], [98.4, -0.75]] }              # .00025 top -> Treble hot lug
+  - { from: CTN7.b, to: CTN5.b, via: [[100.6, 1.4], [99.4, 1.4]] }                # .1 foot -> the slope foot
+  - { from: CTN7.a, to: VR3.lug4, via: [[100.6, -0.3], [97.2, -0.3], [97.2, -1.02]] }   # .1 top -> Treble TAP (node B)
+  - { from: VR4.lug3, to: CTN7.a, via: [[102.4, -0.75], [101.4, -0.45]] }         # Bass hot lug -> node B
+  - { from: CTN5.a, to: VR4.lug1, via: [[99.4, -0.5], [101.6, -0.5]] }            # .05 top -> Bass foot lug (node C)
+  - { from: VR4.lug2, to: VR4.lug1, via: [[102, -0.88]] }                         # wiper strapped to the foot lug
+  - { from: RTN4.a, to: VR4.lug1, via: [[104, -0.7], [102.2, -0.7]] }             # 6800 at the pot: foot lug ...
+  - { from: RTN4.b, to: [1.45, 104.8], via: [[104.8, -0.4]] }                     # ... -> chassis ground
+  - { from: CTN6.b, to: VR3.lug1, via: [[96.2, -0.7], [97.4, -0.7]] }             # .005 at the pot: Treble cold lug ...
+  - { from: CTN6.a, to: [1.45, 95.4], via: [[95.4, -0.4]] }                       # ... -> chassis ground
   - { from: VR3.lug2, to: VR5.lug3, via: [[98, -0.6], [108, -0.6], [108, -0.75]] }
   - { from: VR5.lug1, to: [1.45, 111], via: [[108, -0.4], [111, -0.4], [109.097, 1.848], [111, 1.9]] }
   - { from: VR5.lug2, to: V2.pin2, via: [[107.888, -0.56], [107.78, 0.376], [107.8, 1.95]] }
@@ -337,12 +351,14 @@ net_map:
     RTN2: "Bass ch. tone-network bass-leg resistor — control-network island"
     RTN3: "Bass ch. tone-network dropper, paralleled by VR1 — control-network island"
     RBF: "Bass ch. tone-network foot — control-network island"
-    RTN4: "Normal ch. tone-network foot — control-network island"
+    RTN4: "Normal ch. tone-network foot (6800 at the Bass pot) — control-network island"
+    RTN5: "Normal ch. tone-network slope resistor — control-network island"
     CTN1: "Bass ch. tone-network treble-bleed cap — control-network island"
     CTN2: "Bass ch. tone-network bridging cap — control-network island"
     CTN3: "Bass ch. tone-network bridging cap — control-network island"
     CTN4: "Normal ch. tone-network treble cap — control-network island"
-    CTN5: "Normal ch. tone-network bass-leg cap — control-network island"
-    CTN6: "Normal ch. tone-network foot bypass — control-network island"
+    CTN5: "Normal ch. tone-network mid-position cap (slope foot to the Bass foot) — control-network island"
+    CTN6: "Normal ch. tone-network Treble cold-lug bleed (.005 at the Treble pot) — control-network island"
+    CTN7: "Normal ch. tone-network bass-position cap (slope foot to the Treble tap) — control-network island"
     CDR1: "V3A -> Bass ch. Treble coupling cap — control-network island, DC-open"
     VR7: "Presence pot — its element bridges RPF end to end and its wiper feeds a 0.1 uF cap; pots are not modelled in netlist.cir corpus-wide"

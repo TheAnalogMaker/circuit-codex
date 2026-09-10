@@ -31,12 +31,14 @@ items:
   - { ref: RL2A, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "V2A plate load, climbing to the Normal channel's +355 V lane" }
   - { ref: RK2A, part: "Carbon comp resistor", value: "1.5 kΩ · ½ W", role: "V2A cathode bias" }
   - { ref: CK2A, part: "Electrolytic capacitor", value: "25 µF (dual-can pair)", role: "V2A cathode bypass" }
-  - { ref: CTN4, part: "Mica capacitor", value: "250 pF (.00025 µF)", role: "Normal ch. tone network: treble branch, off V2A's plate, feeding the Treble pot" }
-  - { ref: VR3, part: "Audio-taper potentiometer", value: "350 kΩ, 70 kΩ tap", role: "Normal ch. Treble control" }
-  - { ref: CTN5, part: "Film capacitor", value: "0.05 µF", role: "Normal ch. tone network: bass-leg coupling, off V2A's plate" }
-  - { ref: VR4, part: "Audio-taper potentiometer (rheostat)", value: "250 kΩ-A", role: "Normal ch. Bass control" }
-  - { ref: RTN4, part: "Carbon comp resistor", value: "6.8 kΩ · ½ W", role: "Normal ch. tone-network foot, to ground" }
-  - { ref: CTN6, part: "Film capacitor", value: "0.005 µF", role: "Normal ch. tone network: foot bypass, to ground" }
+  - { ref: RTN5, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "Normal ch. tone network: slope resistor, V2A's plate to the slope foot" }
+  - { ref: CTN4, part: "Mica capacitor", value: "250 pF (.00025 µF)", role: "Normal ch. tone network: treble capacitor, V2A's plate to the Treble pot's hot lug" }
+  - { ref: VR3, part: "Audio-taper potentiometer (tapped)", value: "350 kΩ, 70 kΩ tap", role: "Normal ch. Treble control — a tapped pot with four connections: hot lug from CTN4, wiper to the Volume pot, the 70 kΩ tap carrying CTN7 from the slope foot (and the Bass pot's hot lug), cold lug bled to ground through CTN6" }
+  - { ref: CTN7, part: "Film capacitor", value: "0.1 µF", role: "Normal ch. tone network: slope foot to the Treble pot's 70 kΩ tap — the ladder's bass-capacitor position" }
+  - { ref: CTN5, part: "Film capacitor", value: "0.05 µF", role: "Normal ch. tone network: slope foot to the Bass pot's foot lug — the ladder's mid-capacitor position" }
+  - { ref: VR4, part: "Audio-taper potentiometer (rheostat)", value: "250 kΩ-A", role: "Normal ch. Bass control, a rheostat from the Treble tap node down to the 6.8 kΩ foot; wiper strapped to its foot lug" }
+  - { ref: RTN4, part: "Carbon comp resistor", value: "6.8 kΩ · ½ W", role: "Normal ch. tone-network foot, the Bass pot's foot lug to ground; mounts at the Bass pot on the layout page" }
+  - { ref: CTN6, part: "Film capacitor", value: "0.005 µF", role: "Normal ch. tone network: the Treble pot's cold lug to ground; mounts at the Treble pot on the layout page" }
   - { ref: VR5, part: "Audio-taper potentiometer", value: "1 MΩ-A", role: "Normal ch. Volume control; top fed from the Treble wiper, wiper feeds V2B's grid" }
   - { ref: RG2B, part: "Carbon comp resistor", value: "1 MΩ · ½ W (estimate)", role: "V2B grid leak — return path off the Volume wiper" }
   - { ref: RL2B, part: "Carbon comp resistor", value: "220 kΩ · ½ W", role: "V2B plate load, off the same +355 V lane" }
