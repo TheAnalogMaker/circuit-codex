@@ -74,7 +74,7 @@ offboard:
   # than on the eyelet board, so they are not drawn here (see the caption); the
   # rail they sit on is still routed, choke and droppers included.
   # The selenium bias rectifier is a chassis part on this sheet.
-  - { id: D1,   ref: D1, kind: part, edge: bottom, at: 0.8, label: "Bias rect", cathode: b }
+  - { id: D1,   ref: D1, kind: part, edge: bottom, at: 0.8, label: "Bias rect", cathode: a }   # the + / bar end faces the PT.red-blue tap; the - end the bias node (I-EG)
   - { id: V8,   ref: V8, kind: tube, edge: bottom, at: 3.2,  label: "V8 · GZ34" }
   - { id: V4,   ref: V4, kind: tube, edge: bottom, at: 8.0,    label: "V4 · 5881" }
   - { id: V5,   ref: V5, kind: tube, edge: bottom, at: 12.0,   label: "V5 · 5881" }

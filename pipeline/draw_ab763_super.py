@@ -600,7 +600,7 @@ YB = YPW - 4
 s.text("Bias supply — a dedicated PT tap, silicon-rectified, 25 µF-filtered, through an adjustable 10 kΩ-L pot", 218, 236, 1.4)
 s.glabel("BIAS TAP", 218, YB, 180)
 s.wire(218, YB, 221.92, YB)
-s.sym("DIODE_SS", "DBIAS", "Si", 227, YB, lx=-2.0, ly=-5.4)
+s.sym("DIODE_SS", "DBIAS", "Si", 227, YB, lx=-2.0, ly=-5.4, rot=180, label_rot=0)
 s.wire(232, YB, 236, YB)
 l, r = s.series_h("R", "RBIAS", "470", 240, YB)
 s.wire(236, YB, l, YB)

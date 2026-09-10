@@ -1090,7 +1090,7 @@
     (stroke (width 0) (type default)) (uuid "997d0fdc-daca-5a55-b13c-cff0aceb04de"))
   (wire (pts (xy 248.51 235.738) (xy 254.62 235.738))
     (stroke (width 0) (type default)) (uuid "5d01385a-65f5-5a58-9ca4-95e8ce805107"))
-  (symbol (lib_id "cx:DIODE_SS") (at 259.7 235.738 0) (unit 1)
+  (symbol (lib_id "cx:DIODE_SS") (at 259.7 235.738 180) (unit 1)
     (in_bom yes) (on_board yes) (uuid "05a94772-9398-5854-97b6-3d1b30a2dcd3")
     (property "Reference" "D1" (at 256.3 230.138 0) (effects (font (size 1.27 1.27)) (justify left)))
     (property "Value" "selenium" (at 256.3 232.538 0) (effects (font (size 1.27 1.27)) (justify left))))

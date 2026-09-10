@@ -693,7 +693,7 @@
     (effects (font (size 1.27 1.27)) (justify right)) (uuid "4ddb00e0-c4db-5b9c-94ad-b7bcb463b5ec"))
   (wire (pts (xy 139.018 106.889) (xy 142.928 106.889))
     (stroke (width 0) (type default)) (uuid "5b69bd9e-9e4e-5062-8594-ec4a343b348f"))
-  (symbol (lib_id "cx:DIODE_SS") (at 148.008 106.889 0) (unit 1)
+  (symbol (lib_id "cx:DIODE_SS") (at 148.008 106.889 180) (unit 1)
     (in_bom yes) (on_board yes) (uuid "4b404c2c-253d-552a-bbfb-24b06366d7f0")
     (property "Reference" "D1" (at 146.008 101.489 0) (effects (font (size 1.27 1.27)) (justify left)))
     (property "Value" "SEL" (at 146.008 103.889 0) (effects (font (size 1.27 1.27)) (justify left))))

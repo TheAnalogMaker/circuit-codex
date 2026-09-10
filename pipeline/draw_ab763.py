@@ -558,7 +558,7 @@ YB = YPW - 6
 s.text("Bias supply — off an HT tap → -35 V (25u/50u, 10k hum-balance)", 190, 236, 1.3)
 s.glabel("HT_B", 190, YB, 180)
 s.wire(190, YB, 193.92, YB)
-s.sym("DIODE_SS", "DBIAS", "Si", 199, YB, lx=-2.0, ly=-5.4)
+s.sym("DIODE_SS", "DBIAS", "Si", 199, YB, lx=-2.0, ly=-5.4, rot=180, label_rot=0)
 s.wire(204, YB, 208, YB)
 l, r = s.series_h("R", "RBIAS", "470 1W", 212, YB)
 s.wire(208, YB, l, YB)

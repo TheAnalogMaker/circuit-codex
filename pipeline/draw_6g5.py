@@ -543,7 +543,7 @@ s.text("Bias supply — a filtered tap this drawing does not fully resolve; the 
        196, 210, 1.3)
 s.glabel("HT_B", 196, 220, 180)
 s.wire(196, 220, 206, 220)
-s.sym("DIODE_SS", "DBIAS", "Si", 210, 220, lx=-2.0, ly=-5.4)
+s.sym("DIODE_SS", "DBIAS", "Si", 210, 220, lx=-2.0, ly=-5.4, rot=180, label_rot=0)
 s.wire(215.08, 220, 222, 220)
 s.junction(222, 220)
 s.sym("C", "CBIAS", "25u", 222, 223.81)

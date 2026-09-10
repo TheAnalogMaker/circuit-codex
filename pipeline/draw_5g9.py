@@ -412,7 +412,7 @@ s.text("Bias supply — the winding's bias tap into a rectifier and an 8 µF can
 # the rectifier hangs on the winding's bias tap, not on an HT end / plate
 s.glabel("HT_TAP", 240, YBI, 180)
 s.wire(240, YBI, 248.92, YBI)
-s.sym("DIODE_SS", "D1", "selenium", 254, YBI, lx=-3.4, ly=-5.6)
+s.sym("DIODE_SS", "D1", "selenium", 254, YBI, lx=-3.4, ly=-5.6, rot=180, label_rot=0)
 s.wire(259.08, YBI, 268, YBI)
 s.junction(268, YBI)
 s.sym("C", "C13", "8u 150V", 268, YBI + 3.81)

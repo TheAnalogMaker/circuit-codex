@@ -92,9 +92,10 @@ items:
   - { ref: C10, part: "Electrolytic capacitor", value: "20 µF · 600 V", role: "HT filter, lettered 20-600 on the drawing and repeated at several rail nodes (the per-node count is not resolved at this scan's resolution)" }
   # --- Bias supply ---
   - { ref: DBIAS, part: "Rectifier (bias)", value: "silicon diode", role: "Bias-supply rectifier" }
-  - { ref: RBIAS1, part: "Carbon comp resistor", value: "56 kΩ · ½ W", role: "Bias-supply series resistor" }
+  - { ref: RBIAS1, part: "Carbon comp resistor", value: "56 kΩ · ½ W", role: "Bias bleeder — from the -55 V node to ground (A-FJ)" }
   - { ref: RBIAS2, part: "Carbon comp resistor", value: "10 kΩ · ½ W", role: "Bias-supply series resistor" }
   - { ref: CBIAS, part: "Electrolytic capacitor", value: "8 µF · 150 V", role: "Bias-supply filter" }
+  - { ref: CBIAS2, part: "Electrolytic capacitor", value: "8 µF · 150 V", role: "Bias output filter — the second 8 µF at the -55 V node, beside the 56 kΩ bleeder (A-FJ)" }
   # --- Tubes ---
   # The published layout page shows exactly FIVE 7025 sockets, matching
   # meta.yaml's 5x 12AX7 tube count. The oscillator therefore cannot have a

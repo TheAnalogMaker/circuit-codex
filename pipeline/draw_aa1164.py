@@ -369,7 +369,10 @@ s.wire(60, teem, cl, teem)
 s.wire(cr, teem, 78, teem)
 s.wire(78, teem, 78, YM)
 # split-load (cathodyne) inverter V4B
-t4b = s.triode("V4B", "12AX7", 92, YM)
+# The K-FD sheet prints the cathodyne PI grid "7", plate "6", cathode "8" and the
+# tremolo oscillator grid "2", plate "1", cathode "3" (5554x4346): V4B (PI) is
+# datasheet unit 1, V4A (oscillator) unit 2.
+t4b = s.triode("V4B", "12AX7", 92, YM, unit=1)
 s.junction(78, YM)
 s.wire(78, YM, t4b["g"][0], YM)
 s.plate_load("RLPI", "56k", t4b["p"], "B+4")
@@ -435,7 +438,7 @@ YT = 246
 s.text("Tremolo oscillator (V4A) — a running phase-shift oscillator:", 12, 230, 1.4)
 s.text("its printed pins are dynamic averages, not a static DC point,", 12, 234, 1.4)
 s.text("so it is a documented netlist exclusion (see the circuit story).", 12, 238, 1.4)
-t4a = s.triode("V4A", "12AX7", 76, YT)
+t4a = s.triode("V4A", "12AX7", 76, YT, unit=2)
 s.plate_load("RTOP", "220k", t4a["p"], "B+2")
 # cathode: 3.3k || 25u, with the phase-shift ladder's last resistor returning here
 s.wire(76, YT + 7.62, 76, YT + 9)

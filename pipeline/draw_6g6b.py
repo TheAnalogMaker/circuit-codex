@@ -421,7 +421,9 @@ s.text("16 / 8 ohm secondary taps.", 440, 246, 1.4)
 
 # ============================ POWER SUPPLY (solid-state bridge) ==============
 PY = 320.0
-pt = s.pt("T1", "125P7A", 22, PY - 20, lx=-6.35, ly=-11.9)
+pt = s.pt("T1", "125P7A", 22, PY - 20, lx=-6.35, ly=-11.9, tap=True)
+s.wire(pt["tap"][0], pt["tap"][1], pt["tap"][0] + 2, pt["tap"][1])
+s.glabel("HT_TAP", pt["tap"][0] + 2, pt["tap"][1], 0)
 s.wire(pt["ht_ct"][0], pt["ht_ct"][1], pt["ht_ct"][0] + 4, pt["ht_ct"][1])
 s.gnd(pt["ht_ct"][0] + 4, pt["ht_ct"][1])
 s.wire(pt["ht_a"][0], pt["ht_a"][1], pt["ht_a"][0] + 3, pt["ht_a"][1])
@@ -432,11 +434,14 @@ s.note('Power — universal power transformer (TR1, 125P7A), centre-tapped HT wi
 # Each leg: HT_A (or HT_B) at top -> 3 series diodes -> joins the other leg's
 # output at the bottom = B+1 (first filter node). The PT's HT centre tap
 # (grounded) is the rectifier's return path, not the diode string itself.
+# Each leg's three diodes point from its HT lead DOWN to the reservoir: E-FB
+# draws "- |>+ - |>+ - |>+" with every + (bar, cathode) toward the +430 V node.
+# Until 2026-09-10 the six were drawn cathode-up, toward the HT leads.
 for x, dU, dM, dL, lab in [(44, "DR1", "DR2", "DR3", "HT_A"),
                             (64, "DR4", "DR5", "DR6", "HT_B")]:
-    s.sym("DIODE_SS", dU, "1N4007", x, PY + 6, rot=90, lx=2.6, ly=-1.2)
-    s.sym("DIODE_SS", dM, "1N4007", x, PY + 16, rot=90, lx=2.6, ly=-1.2)
-    s.sym("DIODE_SS", dL, "1N4007", x, PY + 26, rot=90, lx=2.6, ly=-1.2)
+    s.sym("DIODE_SS", dU, "1N4007", x, PY + 6, rot=270, lx=2.6, ly=-1.2, label_rot=0)
+    s.sym("DIODE_SS", dM, "1N4007", x, PY + 16, rot=270, lx=2.6, ly=-1.2, label_rot=0)
+    s.sym("DIODE_SS", dL, "1N4007", x, PY + 26, rot=270, lx=2.6, ly=-1.2, label_rot=0)
     s.wire(x, PY, x, PY + 2.175)
     s.wire(x, PY + 9.825, x, PY + 12.175)
     s.wire(x, PY + 19.825, x, PY + 22.175)
@@ -495,13 +500,16 @@ s.glabel("BP355", 30, 346, 0)
 
 # ============================ BIAS SUPPLY =====================================
 BSY = 300.0
-s.glabel("HT_B", 220, BSY, 180)
-s.wire(220, BSY, 227.92, BSY)
-s.sym("DIODE_SS", "DB1", "1N4148", 233, BSY, rot=180, lx=-2.4, ly=-5.4, label_rot=0)
-s.wire(238.08, BSY, 250, BSY)
-dl4, dr4 = s.series_h("R", "RB1", "1k 1W 5%", 258, BSY)
-s.wire(250, BSY, dl4, BSY)
-s.wire(dr4, BSY, 270, BSY)
+# E-FB (6431x3364): the 1K 1W-5% rises from TR1's SECOND secondary terminal — a
+# bias tap between the upper HT end and the grounded centre tap, not the HT end —
+# to the diode's + (cathode) end; the diode's - end is the -54 V node. Until
+# 2026-09-10 this row fed the diode from the HT end with the 1K after it.
+s.glabel("HT_TAP", 220, BSY, 180)
+dl4, dr4 = s.series_h("R", "RB1", "1k 1W 5%", 226, BSY)
+s.wire(220, BSY, dl4, BSY)
+s.wire(dr4, BSY, 239.92, BSY)
+s.sym("DIODE_SS", "DB1", "1N4148", 245, BSY, rot=180, lx=-2.4, ly=-5.4, label_rot=0)
+s.wire(250.08, BSY, 270, BSY)
 s.junction(270, BSY)
 s.sym("C", "C13", "25/50u", 270, BSY + 3.81, lx=2.2)
 s.gnd(270, BSY + 7.62)

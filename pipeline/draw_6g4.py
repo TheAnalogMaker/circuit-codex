@@ -419,7 +419,9 @@ s.glabel("GND", 368, 128.54, 0)
 YPW = 210
 BY = YPW + 6
 s.note('Power supply — TR1 8087, GZ34 full-wave, CH-125C1A choke; TR2 45216 output transformer')
-pt = s.pt("T1", "8087", 212, YPW, lx=-6.35, ly=-12.5)
+pt = s.pt("T1", "8087", 212, YPW, lx=-6.35, ly=-12.5, tap=True)
+s.wire(pt["tap"][0], pt["tap"][1], pt["tap"][0] + 2, pt["tap"][1])
+s.glabel("HT_TAP", pt["tap"][0] + 2, pt["tap"][1], 0)
 s.wire(pt["pri1"][0], pt["pri1"][1], pt["pri1"][0] - 4, pt["pri1"][1])
 s.glabel("MAINS", pt["pri1"][0] - 4, pt["pri1"][1], 180)
 s.wire(pt["pri2"][0], pt["pri2"][1], pt["pri2"][0] - 4, pt["pri2"][1])
@@ -465,22 +467,31 @@ s.glabel("BE2", 300, BY + 12, 0)
 
 # ============================ BIAS SUPPLY ===============================
 YBI = 240
-s.text("Bias supply — an HT tap, a rectifier, then a 56k/10k divider with an 8 uF filter, to a fixed -55 V (no trimmer)",
+s.text("Bias supply — the transformer's bias tap, a rectifier, 8 uF, 10k, then 8 uF with a 56k bleeder: a fixed -55 V (no trimmer)",
        196, 232, 1.3)
-s.glabel("HT_B", 196, YBI, 180)
+# A-FJ (the only copy, read natively): the transformer's bias tap feeds the
+# rectifier's + (bar) end; its - end is node N with an 8-150 to ground; a 10K
+# runs from N to the output node, which carries a second 8-150 to ground and
+# the 56K to ground (a bleeder, not a series element) and is the -55 V line.
+# Until 2026-09-10 this row fed the rectifier from an HT end, drew the 56K in
+# series and carried one capacitor.
+s.glabel("HT_TAP", 196, YBI, 180)
 s.wire(196, YBI, 205.08, YBI)
-s.sym("DIODE_SS", "DBIAS", "Si", 210, YBI, lx=-2.0, ly=-5.4)
-s.wire(215.08, YBI, 220, YBI)
-l, r = s.series_h("R", "RBIAS1", "56k", 224, YBI)
-s.wire(220, YBI, l, YBI)
-s.wire(r, YBI, 232, YBI)
-s.junction(232, YBI)
-s.sym("C", "CBIAS", "8u", 232, YBI + 3.81)
-s.gnd(232, YBI + 7.62)
-l, r = s.series_h("R", "RBIAS2", "10k", 240, YBI)
-s.wire(232, YBI, l, YBI)
-s.wire(r, YBI, 248, YBI)
-s.glabel("NBIAS", 248, YBI, 0)
+s.sym("DIODE_SS", "DBIAS", "Si", 210, YBI, lx=-2.0, ly=-5.4, rot=180, label_rot=0)
+s.wire(215.08, YBI, 222, YBI)
+s.junction(222, YBI)
+s.sym("C", "CBIAS", "8u", 222, YBI + 3.81)
+s.gnd(222, YBI + 7.62)
+l, r = s.series_h("R", "RBIAS2", "10k", 230, YBI)
+s.wire(222, YBI, l, YBI)
+s.wire(r, YBI, 254, YBI)
+s.junction(240, YBI)
+s.sym("C", "CBIAS2", "8u", 240, YBI + 3.81)
+s.gnd(240, YBI + 7.62)
+s.junction(247, YBI)
+s.sym("R", "RBIAS1", "56k", 247, YBI + 3.81)
+s.gnd(247, YBI + 7.62)
+s.glabel("NBIAS", 254, YBI, 0)
 
 s.write(OUT)
 print(f"wrote {OUT}")

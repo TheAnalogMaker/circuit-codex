@@ -1495,7 +1495,7 @@
     (effects (font (size 1.27 1.27)) (justify right)) (uuid "a52dfbb8-caf2-56ce-bf6b-e20d0d68019f"))
   (wire (pts (xy 225.609 233.889) (xy 229.529 233.889))
     (stroke (width 0) (type default)) (uuid "a2681141-cd69-5b92-8db6-584e9b7a31c5"))
-  (symbol (lib_id "cx:DIODE_SS") (at 234.609 233.889 0) (unit 1)
+  (symbol (lib_id "cx:DIODE_SS") (at 234.609 233.889 180) (unit 1)
     (in_bom yes) (on_board yes) (uuid "d4bb6141-3f50-5504-8038-4922f046a412")
     (property "Reference" "DBIAS" (at 232.609 228.489 0) (effects (font (size 1.27 1.27)) (justify left)))
     (property "Value" "Si" (at 232.609 230.889 0) (effects (font (size 1.27 1.27)) (justify left))))

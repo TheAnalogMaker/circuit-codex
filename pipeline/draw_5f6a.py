@@ -267,7 +267,7 @@ s.gnd(142.24, 185.42)
 # bias supply (compact): HT tap -> diode -> 15k -> -48V node, 56k bleeder
 s.glabel("HT_B", 138.1, 196.0, 180)
 s.wire(138.1, 196.0, 141.91, 196.0)
-s.sym("DIODE_SS", "D1", "SEL", 146.99, 196.0, lx=-2.0, ly=-5.4)
+s.sym("DIODE_SS", "D1", "SEL", 146.99, 196.0, lx=-2.0, ly=-5.4, rot=180, label_rot=0)
 s.wire(152.07, 196.0, 155.88, 196.0)
 s.junction(154.5, 196.0)
 s.sym("C", "C15b", "8u", 154.5, 199.81)

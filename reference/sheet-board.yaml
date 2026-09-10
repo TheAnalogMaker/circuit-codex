@@ -655,12 +655,12 @@ amps:
       anchors: 28
       board_only: 0
       merged: 0
-      misplaced: 7
+      misplaced: 6
       pot_as_resistor: 0
       pot_orientation_flipped: 0
       section_swap: 0
       sheet_only_declared: 2
-      sheet_only_undeclared: 13
+      sheet_only_undeclared: 14
       split: 0
       stale_declarations: 0
       two_terminal_checked: 55
@@ -669,7 +669,6 @@ amps:
     misplaced:
     - C10
     - CPRES
-    - DBIAS
     - RBIAS1
     - RNFB
     - RPF
@@ -681,6 +680,7 @@ amps:
     - RG1I
     - RG2I
     sheet_only_undeclared:
+    - CBIAS2
     - CH1
     - CTO1
     - CTO2
@@ -776,7 +776,7 @@ amps:
       anchors: 37
       board_only: 0
       merged: 0
-      misplaced: 6
+      misplaced: 5
       pot_as_resistor: 0
       pot_orientation_flipped: 0
       section_swap: 0
@@ -784,14 +784,13 @@ amps:
       sheet_only_undeclared: 2
       split: 0
       stale_declarations: 0
-      two_terminal_checked: 75
-      unresolved: 1
+      two_terminal_checked: 74
+      unresolved: 2
     merged: []
     misplaced:
     - C13
     - CTN2
     - CTN3
-    - DB1
     - RB2
     - RM2
     pot_as_resistor: []
@@ -804,6 +803,7 @@ amps:
     split: []
     stale_declarations: []
     unresolved:
+    - DB1
     - RB1
   aa1164:
     board_only: []
@@ -815,7 +815,7 @@ amps:
       misplaced: 0
       pot_as_resistor: 0
       pot_orientation_flipped: 0
-      section_swap: 1
+      section_swap: 0
       sheet_only_declared: 14
       sheet_only_undeclared: 20
       split: 0
@@ -826,8 +826,7 @@ amps:
     misplaced: []
     pot_as_resistor: []
     pot_orientation_flipped: []
-    section_swap:
-    - V4
+    section_swap: []
     sheet_only_declared:
     - CB3
     - CDEATH
@@ -1793,13 +1792,13 @@ summary:
   board_only: 5
   claimed_amps_with_findings: 34
   merged: 18
-  misplaced: 85
+  misplaced: 83
   pot_as_resistor: 1
   pot_orientation_flipped: 18
-  section_swap: 5
+  section_swap: 4
   sheet_only_declared: 233
-  sheet_only_undeclared: 269
+  sheet_only_undeclared: 270
   split: 1
   stale_declarations: 0
-  two_terminal_checked: 1808
-  unresolved: 11
+  two_terminal_checked: 1807
+  unresolved: 12
