@@ -127,6 +127,10 @@ python3 pipeline/verify_schematic_nets.py    # schematic↔netlist equivalence: 
                                              #   rotation contradicts the simulated sign
                                              #   of the supply it sits on (same gating;
                                              #   docs/schematic-nets.md#rectifier-polarity)
+                                             #   + SHORTED WINDING: a winding's two ends
+                                             #   on one drawn net (a wire, one label name
+                                             #   on both leads, a fuse-and-switch loop),
+                                             #   read BEFORE any sch_map contraction
 python3 pipeline/export_loadlines.py --selftest && \
 python3 pipeline/export_loadlines.py --check # reference/loadlines.yaml vs the netlists,
                                              #   plus grid-supply resolution: a fixed-bias

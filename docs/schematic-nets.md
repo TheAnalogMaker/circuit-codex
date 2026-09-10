@@ -210,12 +210,45 @@ per-component views do not repeat each other.
 | `MISSING SYMBOL` | a netlist element with no schematic symbol and no declaration |
 | `STALE DECLARATION` | an `sch_map.yaml` entry that names nothing on this sheet, so it was not applied |
 | `REVERSED DIODE` | a `cx:DIODE_SS` drawn the wrong way round, judged against the simulated sign of the supply it sits on ([Rectifier polarity](#rectifier-polarity)) |
+| `SHORTED WINDING` | a winding whose two ends the drawing puts on one net, read on the nets as drawn ([Shorted windings](#shorted-windings)) |
 
 `--report` adds the applied declarations and the coverage narrative: how many
 symbols the netlist models, how many terminals are DC-checked, which tubes are
 declared excluded, and — grouped by symbol class — **every** terminal that is
 not DC-checked. `--analyze <amp>` prints the per-node membership table (drawn /
 missing / neither-end / unexpected).
+
+## Shorted windings
+
+The netlist models no winding, and this gate joins what it is told to: an
+`sch_map` anchor that puts both OT primary ends on `BP1` merges them on
+purpose, because the DC model omits the winding's resistance. So a drawing
+that shorts a winding used to pass. On 2026-09-10 the 5F1 was found drawing
+its output transformer's primary as a wire from `PRI_P` to `PRI_B`, and 16 of
+24 power transformers had their mains primary shorted because a global label
+named `MAINS` lettered both leads. Two labels with one name are one net.
+
+`SHORTED WINDING` reads every winding by its symbol's own pin names, resolved
+to numbers through the sheet's `lib_symbols`, on the nets **as drawn**: before
+any declared contraction.
+
+| symbol | windings (end, end) |
+|---|---|
+| `cx:PT` | primary `PRI_1`/`PRI_2`; HT secondary `HT_A`/`HT_B` |
+| `cx:OT_SE` | primary `PRI_P`/`PRI_B`; secondary `SEC_H`/`SEC_C` |
+| `cx:OT_PP` | primary `PRI_A`/`PRI_B`; secondary `SEC_H`/`SEC_C` |
+| `cx:TANK` | input coil `IN_H`/`IN_C`; output coil `OUT_H`/`OUT_C` |
+| `cx:CHOKE` | `1`/`2`, when no netlist element is drawn as it (a modelled choke's short is `SHORTED`'s) |
+
+A winding fails when its two ends are one net: joined by a wire, by two global
+labels of one name, or through a fuse or a switch in its drawn position. The
+last is how the 6G5's primary closed on itself, from one `MAINS` label through
+switch, fuse and winding back to the same name. The finding says which: a
+label is blamed only when one name letters both sides on the wires-only graph,
+otherwise the wire is. **A centre tap is not an end.** CT to ground and CT to
+B+ are how a winding is used and are never a finding. A CT on one net with an
+end shorts half the winding, and is named as that half (`primary's A half`,
+`HT secondary's B half`) unless the whole winding is already named.
 
 ## Rectifier polarity
 
@@ -299,8 +332,18 @@ sheet, must each add a `REVERSED DIODE`: the 5F4's bias rectifier turned
 through 180°, the AB763-Twin's HT rectifier `DHTA` turned through 180°, and a
 diode planted forward from `<B+1>` to `<GND>`. The AA1164's bias rectifier and
 the AB165's HT rectifier, together with the two unflipped parts, must come
-back *confirmed*, not merely unflagged. The run ends by printing its case
-count.
+back *confirmed*, not merely unflagged.
+
+The shorted-winding cases plant four faults, and each must add a
+`SHORTED WINDING`:
+- a wire across the 5E3's OT primary;
+- a wire from its centre tap to one plate end, which must be named as the half;
+- the AC15's neutral label renamed to its line label's name, so the loop closes
+  through the power switch and fuse;
+- both of the 5F4's primary labels lettered `MAINS`.
+
+The same three sheets as committed must add none. The run ends by printing its
+case count, split by class.
 
 ## CI
 

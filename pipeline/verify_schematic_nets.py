@@ -116,9 +116,28 @@ WHAT IT REPORTS (each line is something a fixer can act on)
   STALE DECL.    an sch_map.yaml declaration that names nothing on this sheet
   REVERSED DIODE a cx:DIODE_SS drawn the wrong way round, judged against the
                  SIGN the netlist gives the supply it sits on (below)
+  SHORTED WINDING a winding whose two ends the drawing puts on one net, read
+                 on the nets AS DRAWN, before any declared contraction (below)
   (coverage)     every schematic symbol with no netlist element is enumerated,
                  tagged "not DC-checked", so what is NOT proven is stated out
                  loud rather than trusted in silence.
+
+------------------------------------------------------------------------------
+SHORTED WINDINGS — read on the nets AS DRAWN
+------------------------------------------------------------------------------
+The netlist models no winding, and this gate joins what it is told to: an
+sch_map anchor that puts both OT primary ends on BP1 merges them ON PURPOSE
+(the DC model omits the winding's resistance). So a drawing that shorts a
+winding passed: on 2026-09-10 the 5F1 drew its OT primary as a wire from PRI_P
+to PRI_B, and 16 of 24 power transformers had their mains primary shorted by a
+global label lettered MAINS on both leads. SHORTED WINDING reads each winding
+in WINDINGS by the symbol's own pin names, on the nets as drawn and before any
+contraction, and fails when its two ends are one net: joined by a wire, by two
+labels of one name, or through a fuse or a switch in its drawn position (the
+6G5's primary closed on itself from one MAINS label through switch, fuse and
+winding back to the same name). A centre tap is not an end: CT to ground or to
+B+ is how a winding is used. A CT on one net with an end shorts half the
+winding and is named as that half. Hard-fails a claimed sheet.
 
 ------------------------------------------------------------------------------
 RECTIFIER POLARITY — a physical fact the equivalence proof cannot see
@@ -168,7 +187,7 @@ from pathlib import Path
 
 import yaml
 
-from sch_nets import Nets
+from sch_nets import Nets, _key, _on_segment
 from verify_layout_nets import (inherit_node, judge_diode, node_volts,
                                 parse_netlist, supply_walk)
 
@@ -204,6 +223,31 @@ DIODE_PINS = {"anode": "1", "cathode": "2"}
 # a lamp, a jack, or another diode.
 POLARITY_WALK_LIBS = {"cx:R", "cx:POT", "cx:POT_TAP", "cx:CHOKE", "cx:FUSE",
                       "cx:SWITCH"}
+# Every winding a transformer-type symbol draws, by the symbol's own pin NAMES
+# (schematic_lib.LIB), as (winding, end, end, the winding this is half of). A
+# centre tap is not an end: CT to ground or CT to B+ is how a winding is used,
+# never a finding, while a CT on one net with an END shorts half the winding.
+# Names resolve to numbers through the sheet's own lib_symbols, so a
+# renumbered symbol cannot quietly aim this table at the wrong pins.
+WINDINGS = {
+    "cx:PT": [("primary", "PRI_1", "PRI_2", None),
+              ("HT secondary", "HT_A", "HT_B", None),
+              ("HT secondary's A half", "HT_A", "HT_CT", "HT secondary"),
+              ("HT secondary's B half", "HT_B", "HT_CT", "HT secondary")],
+    "cx:OT_SE": [("primary", "PRI_P", "PRI_B", None),
+                 ("secondary", "SEC_H", "SEC_C", None)],
+    "cx:OT_PP": [("primary", "PRI_A", "PRI_B", None),
+                 ("primary's A half", "PRI_A", "CT", "primary"),
+                 ("primary's B half", "PRI_B", "CT", "primary"),
+                 ("secondary", "SEC_H", "SEC_C", None)],
+    "cx:TANK": [("input coil", "IN_H", "IN_C", None),
+                ("output coil", "OUT_H", "OUT_C", None)],
+    "cx:CHOKE": [("winding", "1", "2", None)],
+}
+# Parts that close a loop at DC with no drop, so a winding's two ends joined
+# THROUGH them are still one node: a fuse, and a switch in the position the
+# sheet draws it (the DC netlist models the amp in play).
+WINDING_CLOSERS = {"cx:FUSE", "cx:SWITCH"}
 
 
 # ---------------------------------------------------------------------------
@@ -305,6 +349,13 @@ def check_amp(amp_id: str, sch_path: "Path | None" = None,
 
     G = SchGraph(sch_path or amp_dir / "schematic.kicad_sch")
     members_of = G.members
+
+    # -- 0. shorted windings, on the nets AS DRAWN --------------------------
+    # Before any contraction below: an anchor that co-locates both OT primary
+    # ends on BP1 JOINS them, which is how the 5F1's shorted primary passed.
+    sym_map = {str(k): str(v) for k, v in (sm.get("symbols") or {}).items()}
+    _check_windings(res, G, {sym_map.get(c.ref, c.ref) for c in comps
+                             if c.kind in ("R", "C", "L")})
 
     # -- 1. declared contractions ------------------------------------------
     # DC-transparent series parts: the netlist node runs THROUGH them.
@@ -701,6 +752,138 @@ def check_amp(amp_id: str, sch_path: "Path | None" = None,
     return res
 
 
+def _pin_numbers(G: "SchGraph") -> dict:
+    """lib_id -> {pin name: pin number}, read from the sheet's own lib_symbols."""
+    out: dict = {}
+    for ls in G.nets.sch.libSymbols:
+        names: dict = {}
+        for unit in ls.units:
+            for pin in unit.pins:
+                names.setdefault(pin.name, pin.number)
+        out[ls.libId] = names
+    return out
+
+
+def _closer_path(G: "SchGraph", mem: dict, start, goal) -> "list | None":
+    """The WINDING_CLOSERS parts (fuses, switches) whose chain joins net `start`
+    to net `goal`, nearest first; None when no such chain exists."""
+    seen, frontier = {start}, [(start, [])]
+    while frontier:
+        net, path = frontier.pop(0)
+        for m in mem.get(net, ()):
+            if m.startswith("<"):
+                continue
+            ref, _, num = m.rpartition(".")
+            if G.lib.get(ref) not in WINDING_CLOSERS:
+                continue
+            for other in G.nets.pins.get(ref, {}):
+                nxt = G.term(f"{ref}.{other}")
+                if other == num or nxt in seen:
+                    continue
+                if nxt == goal:
+                    return path + [ref]
+                seen.add(nxt)
+                frontier.append((nxt, path + [ref]))
+    return None
+
+
+def _wire_only(G: "SchGraph"):
+    """find(point) -> root over the sheet's connectivity from wires, T-taps and
+    junction dots ALONE, without the joins global labels make by name
+    (sch_nets.Nets builds this same graph and then ties same-named labels
+    together). Lets SHORTED WINDING say whether a wire or a label did it."""
+    sch = G.nets.sch
+    segs = [(_key(w.points[0].X, w.points[0].Y), _key(w.points[1].X, w.points[1].Y))
+            for w in sch.graphicalItems if getattr(w, "type", None) == "wire"]
+    parent: dict = {}
+
+    def find(x):
+        parent.setdefault(x, x)
+        while parent[x] != x:
+            parent[x] = parent[parent[x]]
+            x = parent[x]
+        return x
+
+    def union(a, b):
+        ra, rb = find(a), find(b)
+        if ra != rb:
+            parent[ra] = rb
+
+    points: set = set()
+    for a, b in segs:
+        union(a, b)
+        points.update((a, b))
+    points.update(_key(j.position.X, j.position.Y) for j in sch.junctions)
+    for pinmap in G.nets.pins.values():
+        points.update(pinmap.values())
+    for anchors in G.nets.labels.values():
+        points.update(anchors)
+    for p in points:
+        for a, b in segs:
+            if _on_segment(p, a, b):
+                union(p, a)
+    return find
+
+
+def _check_windings(res: Result, G: "SchGraph", bound: set):
+    """SHORTED WINDING: a winding whose two ends the drawing puts on one net, by
+    a wire, by two global labels of one name, or through a fuse or a switch in
+    its drawn position. Must run on the nets AS DRAWN, before any sch_map
+    contraction. `bound` holds the symbols a netlist element is drawn as: a
+    modelled choke's short is SHORTED's to report, not this class's."""
+    names = _pin_numbers(G)
+    mem = G.members()
+    wires = None                      # built only when a winding is shorted
+    for ref in sorted(G.lib):
+        lib = G.lib[ref]
+        if lib == "cx:CHOKE" and ref in bound:
+            continue
+        shorted: set = set()
+        for winding, ea, eb, half_of in WINDINGS.get(lib, ()):
+            if half_of in shorted:
+                continue              # the whole winding is already named
+            na, nb = names.get(lib, {}).get(ea), names.get(lib, {}).get(eb)
+            if na is None or nb is None:
+                res.scope.append(f"winding check: {ref} ({lib}) carries no pin "
+                                 f"named {ea if na is None else eb}, so its "
+                                 f"{winding} is not checked")
+                continue
+            ta, tb = f"{ref}.{na}", f"{ref}.{nb}"
+            ra, rb = G.term(ta), G.term(tb)
+            if ra is None or rb is None:
+                continue
+            if ra == rb:
+                wires = wires or _wire_only(G)
+                ca = wires(G.nets.pins[ref][na])
+                cb = wires(G.nets.pins[ref][nb])
+                if ca == cb:
+                    how = "one net: a wire joins them"
+                else:
+                    # a label is to blame only if one name letters both sides
+                    both = sorted(n for n, anchors in G.nets.labels.items()
+                                  if any(wires(x) == ca for x in anchors)
+                                  and any(wires(x) == cb for x in anchors))
+                    via = both or sorted({m[1:-1] for m in mem.get(ra, ())
+                                          if m.startswith("<")})
+                    how = (f"one net, joined by the global label"
+                           f"{'s' if len(via) > 1 else ''} "
+                           f"{' and '.join(repr(n) for n in via)}, one name "
+                           f"lettered on both sides: give each lead its own name")
+            else:
+                path = _closer_path(G, mem, ra, rb)
+                if path is None:
+                    continue
+                how = (f"one net through {', '.join(path)}: the loop runs from one "
+                       f"end, through {'that part' if len(path) == 1 else 'those parts'}"
+                       f", back to the other")
+            shorted.add(winding)
+            show = mem.get(ra, [])
+            _bump(res, "SHORTED WINDING",
+                  f"{ref}'s {winding} is shorted: its ends {ta} ({ea}) and {tb} "
+                  f"({eb}) are {how}. Net {{{', '.join(show[:6])}"
+                  f"{'' if len(show) <= 6 else f', +{len(show) - 6} more'}}}")
+
+
 def _missing(res: Result, ref: str, comp, undrawn: dict, unplaced: dict, kind: str):
     """A netlist element with no symbol: declared (report) or a finding."""
     ends = f"{comp.nodes[0]}<->{comp.nodes[1]}" if comp.kind != "X" else \
@@ -1064,12 +1247,98 @@ def selftest() -> int:
         fails.append("a reused layout declaration was reported as stale sch_map data")
 
     n_pol = _selftest_polarity(fails)
-    n_cases += n_pol
+    n_win = _selftest_windings(fails)
+    n_cases += n_pol + n_win
     for f in fails:
         print(f"  !! {f}")
-    print(f"self-test: {'PASS' if not fails else 'FAIL'} ({n_cases} cases, "
-          f"{n_pol} of them rectifier polarity)")
+    print(f"self-test: {'PASS' if not fails else 'FAIL'} ({n_cases} cases: "
+          f"{n_pol} rectifier polarity, {n_win} shorted winding)")
     return 1 if fails else 0
+
+
+def _add_wire(text: str, a: tuple, b: tuple) -> str:
+    """Add one wire from point `a` to point `b`: the 'a wire joins a winding's
+    two ends' fault (the 5F1's OT primary, 2026-09-10)."""
+    w = (f'  (wire (pts (xy {a[0]:g} {a[1]:g}) (xy {b[0]:g} {b[1]:g}))\n'
+         f'    (stroke (width 0) (type default)) '
+         f'(uuid "00000000-0000-4000-8000-0000000000aa"))\n')
+    i = text.index("  (symbol (lib_id")
+    return text[:i] + w + text[i:]
+
+
+def _rename_label(text: str, old: str, new: str) -> str:
+    """Letter every global label `old` as `new`: two leads given one name are
+    one net, the fault 16 power transformers carried on 2026-09-10."""
+    if f'(global_label "{old}"' not in text:
+        raise AssertionError(f"self-test: no global label {old!r}")
+    return text.replace(f'(global_label "{old}"', f'(global_label "{new}"')
+
+
+def _winding_pin(amp: str, lib: str, name: str) -> tuple:
+    """(ref, point) of the pin called `name` on the first `lib` symbol."""
+    G = SchGraph(AMPS / amp / "schematic.kicad_sch")
+    ref = sorted(r for r, lid in G.lib.items() if lid == lib)[0]
+    return ref, G.nets.pins[ref][_pin_numbers(G)[lib][name]]
+
+
+def _selftest_windings(fails: list) -> int:
+    """SHORTED WINDING must bite on a wire across a winding, a wire from a
+    centre tap to one end, and two leads lettered alike (directly, and through
+    a switch and fuse), and must stay quiet on the same sheets as committed.
+    Returns the case count."""
+    n = 0
+    print("=== shorted windings: planted faults (edits to temp copies of the "
+          "regenerated .kicad_sch) ===")
+    ot, pa = _winding_pin("5e3", "cx:OT_PP", "PRI_A")
+    _r, pb = _winding_pin("5e3", "cx:OT_PP", "PRI_B")
+    _r, ct = _winding_pin("5e3", "cx:OT_PP", "CT")
+    planted = [
+        ("5e3", f"5E3 OT {ot}: a wire from one primary end to the other "
+                f"(the 5F1's fault)", lambda t: _add_wire(t, pa, pb),
+         f"{ot}'s primary is shorted"),
+        ("5e3", f"5E3 OT {ot}: a wire from the centre tap to one plate end",
+         lambda t: _add_wire(t, ct, pa), f"{ot}'s primary's A half is shorted"),
+        ("ac15", "AC15: the neutral's label lettered MAINS L like the line's (the "
+                 "loop closes through the power switch and fuse)",
+         lambda t: _rename_label(t, "MAINS N", "MAINS L"), "T1's primary is shorted"),
+        ("5f4", "5F4: both primary leads lettered MAINS (the fault of 2026-09-10)",
+         lambda t: _rename_label(t, "MAINS N", "MAINS"), "T1's primary is shorted"),
+    ]
+    tmp = Path(tempfile.mkdtemp(prefix="cx-schwind-"))
+    try:
+        for amp, label, mutate, needle in planted:
+            base = check_amp(amp)
+            dst = tmp / f"{amp}.kicad_sch"
+            dst.write_text(mutate((AMPS / amp / "schematic.kicad_sch").read_text()))
+            r = check_amp(amp, sch_path=dst)
+            n += 1
+            new = set(r.errors) - set(base.errors)
+            hit = [e for e in new if e.startswith("SHORTED WINDING") and needle in e]
+            print(f"  {'CAUGHT' if hit else 'MISSED'}: {label}")
+            if hit:
+                print(f"          -> {hit[0][:170]}")
+            else:
+                fails.append(f"shorted winding: {label} was not reported")
+                for e in sorted(new)[:3]:
+                    print(f"          (new, not matched) {e[:140]}")
+            if len(r.errors) < len(base.errors):
+                fails.append(f"shorted winding: {label} REMOVED findings")
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)
+
+    print("=== shorted windings: drawn right ===")
+    for amp, label in (
+            ("5e3", "5E3 as committed: OT centre tap on B+ between two plate ends"),
+            ("ac15", "AC15 as committed: MAINS L and MAINS N, through switch and fuse"),
+            ("5f4", "5F4 as committed: MAINS and MAINS N, HT centre tap on ground")):
+        r = check_amp(amp)
+        n += 1
+        bad = [e for e in r.errors if e.startswith("SHORTED WINDING")]
+        print(f"  {'OK    ' if not bad else 'WRONG '} {label}"
+              + (f": {bad[0][:120]}" if bad else ""))
+        if bad:
+            fails.append(f"shorted winding: {amp} as committed was flagged")
+    return n
 
 
 def _selftest_polarity(fails: list) -> int:

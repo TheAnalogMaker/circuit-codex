@@ -183,6 +183,22 @@ stops at; `no lead drawn` means the pin was never wired and the repair is to
 draw the lead. The corpus splits 106 stubs to 145 bare pins, and the two are
 different edits to the draw script even where the distance is the same.
 
+### A label's name is a wire
+
+Two global labels with one name are one net, wherever they sit on the page. On
+2026-09-10, 16 of 24 power transformers had their mains primary shorted
+because a label named `MAINS` lettered both leads. The 6G5's primary closed on
+itself from one `MAINS` label, through its switch, fuse and winding, back to
+the same name. The same day the 5F1 was found drawing its output primary as a
+wire across the winding. The equivalence gate saw none of it: the netlist
+models no winding, and an `sch_map` anchor that puts both ends of an OT
+primary on B+ joins them on purpose. `SHORTED WINDING` in
+`verify_schematic_nets.py` now reads every winding on the nets as drawn,
+before any declared contraction, and says whether a wire, a label name or a
+fuse-and-switch loop did the joining. Give each lead of a winding a name of
+its own (`MAINS` / `MAINS N`), and letter two points alike only when they are
+one conductor.
+
 ### Which way round a diode is drawn
 
 A diode's direction is a physical fact that a sheet records in exactly one
