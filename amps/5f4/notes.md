@@ -72,6 +72,27 @@ output, one not, which is the whole job. The 56k feedback resistor and the 5k
 presence pot land on V3A's cathode: cathode-injected feedback, with the
 presence control varying how much of it the 0.1 µF bleeds to ground.
 
+## The heater circuit, as the sheet draws it
+
+The 6.3 V supply is single-ended. At the transformer one green lead meets the
+red-yellow high-tension centre tap at a solder point and goes to a ground hatch;
+the other green runs to the pilot light — which the sheet gives a single
+terminal, the feed passing through it — and on to the heaters. Each socket then
+returns to chassis on its own. At all three nine-pin bottles a short bow outside
+the socket ties pins 4 and 5 together and pin 9 carries a lead up to a ground
+hatch: the 6.3 V parallel arrangement, in which the two heater ends are *one* leg
+and the centre tap is the other. At each 6L6G a bow ties heater pin 2 to the base
+sleeve at pin 1 and a second bow carries pin 1 on to the cathode at pin 8 — this
+circuit takes fixed bias off its selenium rectifier, so that cathode is grounded
+— and pin 2 takes the lead out to a ground hatch, leaving heater pin 7 the fed
+leg.
+
+One detail there is worth naming, because it looks alarming and is not: at the
+noval sockets the grounded centre tap doubles as the tie point for the cathode at
+pin 8. A wire between a heater pin and a cathode is exactly the kind of thing
+that reads as a fault, and on a floating supply it would be one; here the centre
+tap is grounded at the socket, so it is simply the nearest ground lug.
+
 ## Verification — and what the chart gets wrong
 
 The rails, the 12AY7 front end, all five phase-inverter values, and the 6L6

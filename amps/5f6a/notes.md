@@ -83,6 +83,30 @@ revision drops — the 25 µF on V2A's cathode and the 47 pF across the
 phase-inverter plates — so the C run diverges from C4 onward and the same
 number names a different part on each page. Compare capacitors by role.
 
+## The heater circuit, and a supply that grounds neither leg
+
+This is the first amplifier in the archive whose 6.3 V winding is centre-tapped
+and grounded *at the tap*. The tweeds either side of it run a single-ended
+supply — one green lead grounded at the transformer, the other feeding
+everything, each socket returning to chassis on its own. Here the green-yellow
+lead goes to the chassis and the two greens float about it, half a supply either
+side of ground. Nothing is grounded at a socket at all.
+
+The sheet does not route the heater leads. Instead it names each socket's
+landings with a short stub marked X, which is a stronger statement than the
+"to all 6.3 volt heaters" arrow the blackface drawings use, because it says
+*which pins* even though it does not say by what path. At all three nine-pin
+bottles a bow outside the socket rim ties pins 4 and 5 together and carries one
+X, with the second X at the centre tap on pin 9: the 6.3 V parallel arrangement,
+in which the two heater ends are one leg and the centre tap is the other. At
+both 5881 sockets the two X stubs sit on pins 2 and 7, that valve's only heater
+pins.
+
+Because neither leg is grounded, which of the two the drawing calls feed and
+which return carries no claim — it is only a name, and the declaration says so.
+The GZ34 keeps its own 5 V winding, which floats at the rectified B+ with the
+cathode strapped to the heater inside the envelope at pin 8.
+
 ## Verification — against the printed factory chart
 
 The I-EG drawing prints a full voltage chart, and simulation matches all 13
