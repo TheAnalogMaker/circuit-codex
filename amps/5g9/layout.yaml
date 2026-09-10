@@ -26,7 +26,7 @@ board:
   rows: 2
   cols: 90
   title: "5G9 · eyelet board layout"
-caption: "Redrawn from the published Fender 5G9 'Tremolux' drawing (B-EI), page 2 — the factory layout sheet — showing the principal board components and their hookup in the order that drawing shows them. Off the board: the four 20 µF · 500 V filter cans sit in the condenser box on the back of the chassis and the bias rectifier in its own small housing, both drawn here as stubs so every supply rail stays traceable; the tone capacitors and the Speed control's 100 kΩ end resistor mount at their pots. The 68 kΩ grid stoppers and the two 1 MΩ input grid leaks mount at the jacks (the chassis carries two jacks per channel; one is drawn per channel). The 6.3 V heater chain (green twisted pair, PT → pilot lamp → the two 6V6GT output tubes → the three small bottles) is drawn in the conventional daisy order: the sheet annotates it \"to all 6.3 volt heaters and pilot light\" rather than routing it. The 5U4GB is off that chain — it takes the 5 V winding. Not a trace or a dimensioned reproduction."
+caption: "Redrawn from the published Fender 5G9 'Tremolux' drawing (B-EI), page 2 — the factory layout sheet — showing the principal board components and their hookup in the order that drawing shows them. Off the board: the four 20 µF · 500 V filter cans sit in the condenser box on the back of the chassis and the bias rectifier in its own small housing, both drawn here as stubs so every supply rail stays traceable; the tone capacitors and the Speed control's 100 kΩ end resistor mount at their pots. The four 68 kΩ grid stoppers sit on the board's right end, one pair per channel, each pair running from that channel's two jacks to one eyelet that feeds the 12AY7 grid; only the two 1 MΩ input grid leaks mount at the jacks. The bias rectifier takes a lead of its own from the power transformer — the tap between an HT end and the centre tap — straight to its \"+\" terminal. In the tremolo bottle the oscillator sits on pins 1–3 and the cathode follower on pins 6–8, with the 100 kΩ plate load between the two plates and the follower's grid strapped to the oscillator's plate. The 6.3 V heater chain (green twisted pair, PT → pilot lamp → the two 6V6GT output tubes → the three small bottles) is drawn in the conventional daisy order: the sheet annotates it \"to all 6.3 volt heaters and pilot light\" rather than routing it. The 5U4GB is off that chain — it takes the 5 V winding. Not a trace or a dimensioned reproduction."
 source:
   desc: "Fender 'Tremolux' Model 5G9 drawing (B-EI) — the factory LAYOUT page (page 1 of the el34world copy; the schematic page is the one redrawn in this amp's schematic.kicad_sch). This board order is read from that layout page, not derived from the schematic. Read at its native 6518 x 4128 raster (701 ppi) via the Wayback Machine, el34world.com being unreachable"
   url: "https://web.archive.org/web/20150316142123/http://el34world.com/charts/Schematics/files/fender/Fender_TREMOLUX_5G9.pdf"
@@ -71,6 +71,15 @@ parts:
   - { ref: C1, a: [1, 74], b: [1, 77] }     # 0.1 µF Inst. plate → volume WIPER
   - { ref: RL2, a: [0, 79], b: [1, 79] }    # 100k Mic. plate load (+310 → PAY2)
   - { ref: C2, a: [1, 79], b: [1, 82] }     # 0.1 µF Mic. plate → volume WIPER
+  # --- the four 68k grid stoppers. B-EI (6518 x 4128) puts them on the board's
+  # right end, not at the jacks: a pair per channel, each pair running from
+  # that channel's two jacks to one eyelet that feeds the 12AY7 grid, in the
+  # order .1 (Inst.) coupler, the Inst. pair, .1 (Mic.) coupler, the Mic. pair,
+  # then the 820 / 25 cathode pair. Only the two 1 MΩ leaks sit on the jacks.
+  - { ref: R1n, a: [0, 75], b: [0, 76] }    # 68k, Inst. jack 1 → Inst. grid eyelet
+  - { ref: R2n, a: [0, 77], b: [0, 76] }    # 68k, Inst. jack 2 → the same eyelet
+  - { ref: R3n, a: [0, 80], b: [0, 81] }    # 68k, Mic. jack 1 → Mic. grid eyelet
+  - { ref: R4n, a: [0, 82], b: [0, 81] }    # 68k, Mic. jack 2 → the same eyelet
   - { ref: RK1, a: [0, 85], b: [1, 85] }    # 820 Ω shared 12AY7 cathode
   - { ref: CK1, a: [0, 87], b: [1, 87] }    # 25 µF shared cathode bypass
 
@@ -78,7 +87,10 @@ offboard:
   # --- chassis iron, the rectifier housing and the filter can box ----------
   - { id: T1, ref: T1, kind: xfmr, edge: left, at: 0.45, label: "Power trans" }
   - { id: PL1, kind: part, glyph: lamp, edge: left, at: 2.6, label: "Pilot lamp" }
-  - { id: D1, ref: D1, kind: part, edge: top, at: 1.6, label: "D1", cathode: b }
+  # Bias rectifier in its own small housing. Band at a: a takes the transformer
+  # tap and is the terminal B-EI letters "+" (the cathode, which faces the
+  # winding in a negative supply); its "-" terminal feeds the -69 V node.
+  - { id: D1, ref: D1, kind: part, edge: top, at: 1.6, label: "D1", cathode: a }
   - { id: L1, ref: L1, kind: choke, edge: top, at: 9.6, label: "Choke" }
   - { id: C15, ref: C15, kind: part, edge: top, at: 5.2, label: "C15" }
   - { id: C16, ref: C16, kind: part, edge: top, at: 8.4, label: "C16" }
@@ -103,8 +115,11 @@ offboard:
   - { id: C4, ref: C4, kind: part, edge: top, at: 74.6, label: "C4" }
   - { id: VR1, ref: VR1, kind: pot, edge: top, at: 78, label: "Inst. volume" }
   - { id: VR2, ref: VR2, kind: pot, edge: top, at: 82, label: "Mic. volume" }
-  - { id: JI, kind: jack, edge: top, at: 85.5, label: "Inst. in" }
-  - { id: JM, kind: jack, edge: top, at: 88.5, label: "Mic. in" }
+  # both jacks of each channel, as B-EI draws them (jack 1 above jack 2)
+  - { id: JI, kind: jack, edge: top, at: 84.4, label: "Inst. 1" }
+  - { id: JI2, kind: jack, edge: top, at: 85.9, label: "Inst. 2" }
+  - { id: JM, kind: jack, edge: top, at: 87.4, label: "Mic. 1" }
+  - { id: JM2, kind: jack, edge: top, at: 88.9, label: "Mic. 2" }
 
 # Ground bus — the bare rail just below the bottom eyelet row; cathode, filter,
 # grid-leak and pot grounds tie to it.
@@ -127,41 +142,45 @@ runs:
   - { from: C16.a, to: T2.red, color: red, via: [[8.011, -0.474], [20.056, -0.474], [20.056, 1.509], [18.417, 1.509]] }
   # === B+2 (+368 V): post-choke — screens, the dropper, the tremolo bottle ==
   - { from: L1.lo, to: C17.a, color: red, via: [[9.794, -0.612], [11.211, -0.612]] }
-  - { from: C17.a, to: RD1.a, color: red, via: [[10.611, -0.405], [10.0, -0.405]] }
-  - { from: RD1.a, to: RS1.a, color: red, via: [[11.167, -0.267], [16.0, -0.267]] }
+  - { from: C17.a, to: RD1.a, color: red, via: [[10.611, -0.405], [10, -0.405]] }
+  - { from: RD1.a, to: RS1.a, color: red, via: [[11.167, -0.267], [16, -0.267]] }
   - { from: RS1.a, to: RS2.a, color: red }
-  - { from: RS2.a, to: RL3.a, color: red, via: [[18.0, -0.164], [50.0, -0.164]] }
-  - { from: RL3.a, to: V3.pin1, via: [[49.222, -0.405], [60.611, -0.405], [60.611, 2.336], [57.536, 2.336]] }
+  - { from: RS2.a, to: RL3.a, color: red, via: [[18, -0.164], [50, -0.164]] }
+  - { from: RL3.a, to: V3.pin6, via: [[49.222, -0.405], [60.611, -0.405], [60.611, 2.2], [58.526, 2.251]] }
   # === B+3 (+310 V): the inverter plate loads and both channel plate loads ==
-  - { from: RD1.b, to: C18.a, color: red, via: [[13.0, -0.06], [14.411, -0.06]] }
-  - { from: RD1.b, to: RLA.a, color: red, via: [[13.944, -0.129], [32.0, -0.129]] }
+  - { from: RD1.b, to: C18.a, color: red, via: [[13, -0.06], [14.411, -0.06]] }
+  - { from: RD1.b, to: RLA.a, color: red, via: [[13.944, -0.129], [32, -0.129]] }
   - { from: RLA.a, to: RLB.a, color: red }
-  - { from: RLB.a, to: RL1.a, color: red, via: [[34.0, -0.129], [74.0, -0.129]] }
-  - { from: RL1.a, to: RL2.a, color: red }
+  - { from: RLB.a, to: RL1.a, color: red, via: [[34, -0.129], [74, -0.129]] }
+  - { from: RL1.a, to: RL2.a, color: red, via: [[74.3, -0.12], [78.7, -0.12]] }
   # --- the four condenser-box cans return to the ground bus ---
   - { from: C15.b, to: [1.45, 5.9], via: [[5.589, -0.612], [5.9, -0.612]] }
-  - { from: C16.b, to: [1.45, 11.0], via: [[8.789, -0.543], [11.0, -0.543]] }
+  - { from: C16.b, to: [1.45, 11], via: [[8.789, -0.543], [11, -0.543]] }
   - { from: C17.b, to: [1.45, 12.2], via: [[11.989, -0.543], [12.2, -0.543]] }
   - { from: C18.b, to: [1.45, 15.4], via: [[15.189, -0.543], [15.4, -0.543]] }
-  # === bias supply: one HT leg -> rectifier -> 8 uF -> 82k / 56k -> -28 V ===
-  - { from: T1.red2, to: D1.a, via: [[-1.472, 0.147], [-1.472, -1.043], [1.211, -1.043]] }
-  - { from: D1.b, to: R11.a, via: [[1.989, -0.75], [1.0, -0.75]] }
+  # === bias supply: the bias tap -> rectifier -> 8 uF -> 82k / 56k -> -28 V ===
+  # B-EI draws a lead of its own from the transformer straight to SEL. RECT.
+  # "+", unlettered; it is named here by its place on the winding (the tap
+  # between an HT end and the centre tap, the schematic's HT_TAP), not by a
+  # guessed colour.
+  - { from: T1.ht_tap, to: D1.a, via: [[-1.472, 0.357], [-1.472, -1.043], [1.211, -1.043]] }
+  - { from: D1.b, to: R11.a, via: [[1.989, -0.75], [1, -0.75]] }
   - { from: R11.a, to: C13.a }
   - { from: C13.b, to: [1.45, 3] }
-  - { from: R11.b, to: R12.a, via: [[2.444, 1.181], [2.444, -0.112], [5.0, -0.112]] }
+  - { from: R11.b, to: R12.a, via: [[2.444, 1.181], [2.444, -0.112], [5, -0.112]] }
   - { from: R12.a, to: C14.a }
   - { from: R12.b, to: [1.45, 5] }
   - { from: C14.b, to: [1.45, 7] }
   # === the Depth control sits in the bias line ==========================
   - { from: C14.a, to: VR5.lug1, color: yellow, via: [[7.556, -0.336], [23.194, -0.336]] }
   - { from: R10.b, to: VR5.lug3, color: brown, via: [[71.722, -0.302], [23.806, -0.302]] }
-  - { from: VR5.lug2, to: RG4.a, color: yellow, via: [[23.5, -0.612], [21.0, -0.612]] }
+  - { from: VR5.lug2, to: RG4.a, color: yellow, via: [[23.5, -0.612], [21, -0.612]] }
   - { from: RG4.a, to: RG5.a, color: yellow }
   # === output stage: screens, grids, plates, cathodes ====================
-  - { from: RS1.b, to: V4.pin4, via: [[16.0, 1.233], [8.753, 1.233]] }
-  - { from: RS2.b, to: V5.pin4, via: [[18.0, 1.302], [13.753, 1.302]] }
-  - { from: RG4.b, to: V4.pin5, via: [[21.0, 1.371], [9.247, 1.371]] }
-  - { from: RG5.b, to: V5.pin5, via: [[26.0, 1.095], [14.247, 1.095]] }
+  - { from: RS1.b, to: V4.pin4, via: [[16, 1.233], [8.753, 1.233]] }
+  - { from: RS2.b, to: V5.pin4, via: [[18, 1.302], [13.753, 1.302]] }
+  - { from: RG4.b, to: V4.pin5, via: [[21, 1.371], [9.247, 1.371]] }
+  - { from: RG5.b, to: V5.pin5, via: [[26, 1.095], [14.247, 1.095]] }
   - { from: V4.pin8, to: [1.45, 9.463] }
   - { from: V5.pin8, to: [1.45, 14.463] }
   - { from: T2.blue, to: V4.pin3, via: [[18.806, 2.241], [7.278, 2.241]] }
@@ -169,63 +188,74 @@ runs:
   - { from: T2.green, to: SPK.tip, via: [[19.583, 1.81], [23.361, 1.81]] }
   - { from: SPK.sleeve, to: [1.45, 23.9], via: [[23.639, 1.81], [23.9, 1.81]] }
   # === phase inverter: plates, grids, cathodes, tail =====================
-  - { from: RLA.b, to: C7.b, via: [[32.0, 1.198], [24.0, 1.198]] }
+  - { from: RLA.b, to: C7.b, via: [[32, 1.198], [24, 1.198]] }
   - { from: RLA.b, to: V2.pin6, via: [[32.833, 1.267], [40.625, 1.267]] }
-  - { from: RLB.b, to: C8.b, via: [[34.0, 1.336], [29.0, 1.336]] }
+  - { from: RLB.b, to: C8.b, via: [[34, 1.336], [29, 1.336]] }
   - { from: RLB.b, to: V2.pin1, via: [[34.833, 1.388], [37.833, 1.388], [37.833, 2.328], [39.536, 2.328]] }
-  - { from: C5.b, to: RGA.a, via: [[37.0, 1.147], [38.0, 1.147], [38.0, -0.06], [39.0, -0.06]] }
+  - { from: C5.b, to: RGA.a, via: [[37, 1.147], [38, 1.147], [38, -0.06], [39, -0.06]] }
   - { from: RGA.a, to: V2.pin7, via: [[40.056, -0.06], [42.278, -0.06], [42.278, 2.198]] }
   - { from: RGA.b, to: RTAIL.b }
-  - { from: RTAIL.b, to: RT2.a, via: [[41.722, 1.147], [43.944, 1.147], [43.944, -0.06], [43.0, -0.06]] }
+  - { from: RTAIL.b, to: RT2.a, via: [[41.722, 1.147], [43.944, 1.147], [43.944, -0.06], [43, -0.06]] }
   - { from: RT2.a, to: RGB.b }
   - { from: RT2.b, to: [1.45, 43] }
   - { from: RTAIL.a, to: V2.pin8, via: [[40.333, -0.267], [38.5, -0.267], [38.5, 2.802], [40.464, 2.802]] }
   - { from: V2.pin8, to: V2.pin3, via: [[39.5, 2.612], [38.111, 2.612], [38.111, 2.371]] }
   - { from: RGB.a, to: C6.a }
-  - { from: RGB.a, to: V2.pin2, via: [[44.222, -0.095], [35.889, -0.095], [35.889, 2.716], [39.289, 2.716]] }
+  - { from: RGB.a, to: V2.pin2, via: [[42.43, -0.682], [35.889, -0.095], [35.889, 2.716], [39.029, 2.716]] }
   - { from: C6.b, to: [1.45, 47] }
   # === tremolo oscillator and its cathode follower (annotation layer) =====
-  - { from: RL3.b, to: V3.pin6, via: [[50.889, 1.147], [58.625, 1.147]] }
-  - { from: C9.b, to: VR4.lug1, color: blue, via: [[53.0, -0.474], [53.694, -0.474]] }
+  # B-EI (6518 x 4128): the oscillator sits on pins 1/2/3 and the cathode
+  # follower on 6/7/8. The 100K is drawn across the socket from pin 6 (the
+  # follower plate, on +368 V) to pin 1 (the oscillator plate), and a strap
+  # runs from pin 7 (the follower grid) to pin 1 — the direct coupling the
+  # circuit is built around, which the board had left out.
+  - { from: RL3.b, to: V3.pin1, via: [[50.889, 1.147], [56.9, 1.147], [56.9, 2.6]] }
+  - { from: V3.pin7, to: V3.pin1, via: [[59.784, 2.576], [59.2, 2.95], [57.07, 2.95]] }
+  - { from: C9.b, to: VR4.lug1, color: blue, via: [[53, -0.474], [53.694, -0.474]] }
   - { from: VR4.lug3, to: [1.45, 52.4], via: [[54.306, -0.543], [52.4, -0.543]] }
-  - { from: VR4.lug2, to: R9.a, via: [[54.0, -0.612], [57.611, -0.612]] }
+  - { from: VR4.lug2, to: R9.a, via: [[54, -0.612], [57.611, -0.612]] }
   - { from: R9.b, to: [1.45, 59.9], via: [[58.389, -0.681], [59.9, -0.681]] }
-  - { from: R8.a, to: RK3.a, via: [[56.0, -0.06], [61.0, -0.06]] }
-  - { from: C11.b, to: V3.pin7, via: [[59.0, 1.302], [62.278, 1.302], [62.278, 2.371], [59.778, 2.371]] }
+  - { from: R8.a, to: RK3.a, via: [[56, -0.06], [61, -0.06]] }
+  - { from: C11.b, to: V3.pin2, via: [[59, 1.302], [56.6, 1.302], [56.6, 2.5]] }
   - { from: R7.a, to: [1.45, 58.333], via: [[58.333, -0.06]] }
-  - { from: JTR.tip, to: C10.b, via: [[47.361, 2.543], [55.056, 2.543], [55.056, 1.198], [56.0, 1.198]] }
+  - { from: JTR.tip, to: C10.b, via: [[47.361, 2.543], [55.056, 2.543], [55.056, 1.198], [56, 1.198]] }
   - { from: JTR.sleeve, to: [1.45, 47.6] }
   - { from: RK3.a, to: CK3.a }
-  - { from: RK3.a, to: V3.pin8, via: [[61.722, -0.06], [64.222, -0.06], [64.222, 2.612], [58.464, 2.612]] }
+  - { from: RK3.a, to: V3.pin3, via: [[61.722, -0.363], [56.3, -0.06], [56.3, 2.3]] }
   - { from: RK3.b, to: [1.45, 61] }
   - { from: CK3.b, to: [1.45, 63] }
-  - { from: RK4.a, to: V3.pin3, via: [[65.889, -0.164], [65.889, 2.241], [55.889, 2.241]] }
+  - { from: RK4.a, to: V3.pin8, via: [[65.889, -0.164], [65.889, 2.6], [58.8, 2.6]] }
   - { from: RK4.b, to: [1.45, 65] }
   # === channel input stages ==============================================
   - { from: RL1.b, to: V1.pin6, via: [[74.778, 1.147], [83.625, 1.147]] }
   - { from: RL2.b, to: V1.pin1, via: [[79.778, 1.267], [81.167, 1.267], [81.167, 2.371], [82.536, 2.371]] }
   - { from: RK1.a, to: CK1.a }
-  - { from: RK1.a, to: V1.pin8, via: [[85.0, -0.112], [85.889, -0.112], [85.889, 2.543], [83.464, 2.543]] }
+  - { from: RK1.a, to: V1.pin8, via: [[85, -0.112], [85.889, -0.112], [85.889, 2.543], [83.464, 2.543]] }
   - { from: V1.pin8, to: V1.pin3, via: [[84.5, 2.672], [80.611, 2.672], [80.611, 1.957], [82.833, 1.957]] }
   - { from: RK1.b, to: [1.45, 85] }
   - { from: CK1.b, to: [1.45, 87] }
-  - { from: JI.tip, to: V1.pin7, via: [[85.361, -0.422], [88.111, -0.422], [88.111, 2.198], [85.333, 2.198]] }
-  - { from: JM.tip, to: V1.pin2, via: [[88.361, -0.336], [88.944, -0.336], [88.944, 2.974], [82.289, 2.974]] }
+  # each channel's two jacks -> its pair of 68k stoppers -> one eyelet -> grid
+  - { from: JI.tip, to: R1n.a, via: [[84.4, -0.55], [75.3, -0.55]] }
+  - { from: JI2.tip, to: R2n.a, via: [[85.9, -0.64], [77.3, -0.64]] }
+  - { from: R1n.b, to: V1.pin7, via: [[76.3, 0.35], [78, 0.5], [78, 2.02], [84.4, 2.343], [84.4, 2.35]] }
+  - { from: JM.tip, to: R3n.a, via: [[87.4, -0.3], [80.3, -0.3]] }
+  - { from: JM2.tip, to: R4n.a, via: [[88.9, -0.4], [82.3, -0.4]] }
+  - { from: R3n.b, to: V1.pin2, via: [[81.3, 0.35], [83.77, 0.5], [83.6, 1.12], [81.8, 1.92], [81.8, 2.6]] }
   # === volume and tone controls =========================================
   # Each coupler lands on its pot's WIPER; one end of each volume pot is
   # grounded and the other joins the shared mixing node, which the tone
   # control's wiper also sits on and which feeds C5.
-  - { from: C1.b, to: VR1.lug2, via: [[77.0, -0.267], [78.0, -0.267]] }
-  - { from: C3.a, to: C1.b, via: [[70.611, -0.681], [70.611, 1.095], [77.0, 1.095]] }
-  - { from: C2.b, to: VR2.lug2 }
+  - { from: C1.b, to: VR1.lug2, via: [[77.5, 0.55], [77.5, -0.3], [78, -0.3]] }
+  - { from: C3.a, to: C1.b, via: [[70.611, -0.681], [70.611, 1.095], [77, 1.095]] }
+  - { from: C2.b, to: VR2.lug2, via: [[82.5, 0.55], [82.5, -0.4]] }
   - { from: VR1.lug1, to: [1.45, 76.6], via: [[77.694, -0.474], [76.6, -0.474]] }
-  - { from: VR2.lug1, to: [1.45, 80.8], via: [[81.694, -0.543], [80.8, -0.543]] }
+  - { from: VR2.lug1, to: [1.45, 80.8], via: [[81.694, -0.543], [80.8, -0.458]] }
   - { from: VR1.lug3, to: VR2.lug3, via: [[78.306, -0.405], [82.306, -0.405]] }
-  - { from: VR1.lug3, to: C5.a, via: [[78.806, -0.336], [37.0, -0.336]] }
-  - { from: VR3.lug2, to: C5.a, via: [[67.556, -0.216], [36.167, -0.216], [36.167, 0.0]] }
+  - { from: VR1.lug3, to: C5.a, via: [[78.806, -0.336], [36.995, -0.339]] }
+  - { from: VR3.lug2, to: C5.a, via: [[67.556, -0.216], [36.167, -0.216], [36.167, 0]] }
   - { from: VR3.lug3, to: C3.b, via: [[68.306, -0.75], [71.889, -0.75]] }
   - { from: VR3.lug1, to: C4.a, via: [[67.694, -0.474], [74.211, -0.474]] }
-  - { from: C4.b, to: [1.45, 75.6], via: [[74.989, -0.543], [75.6, -0.543]] }
+  - { from: C4.b, to: [1.45, 75.6], via: [[74.989, -0.582], [75.6, -0.543]] }
   # === 6.3 V heater chain (green twisted pair) ===========================
   # PT green pair -> pilot lamp -> V4 -> V5 -> V2 -> V3 -> V1. The sheet
   # annotates this chain ("to all 6.3 volt heaters and pilot light") rather
@@ -272,3 +302,8 @@ net_map:
   # read off the cited layout drawing (sheet ↔ board gate, 2026-09-10).
   not_on_board:
     L1: "filter choke — a chassis part the 5G9 layout (B-EI, read at 6518 × 4128) does not draw: the +370 V and +368 V leads (lettered BLACK, BLACK) leave the board's lower-left corner through a chassis grommet to it. On this board it is only the off-board choke stub (kind: choke, leads hi/lo), which the sheet ↔ board gate has no two-lead vocabulary for"
+  # Sheet terminal -> board terminal: the sheet numbers the transformer's bias
+  # tap as T1 pin 6 (label HT_TAP); the board names that lead by its place on
+  # the winding, since B-EI letters no colour on it.
+  leads:
+    T1.6: T1.ht_tap
