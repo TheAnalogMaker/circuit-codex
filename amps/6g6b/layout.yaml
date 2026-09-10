@@ -52,12 +52,16 @@ parts:
   - { ref: RB2, a: [1, 4], b: [1, 5] }      # 27k 1W bleeder across the -54 V node
 
   # --- silicon HT bridge + reservoir (B+1) ------------------------------------
-  - { ref: DR1, a: [1, 8],  b: [1, 9] }     # leg A upper
-  - { ref: DR2, a: [1, 9],  b: [1, 10] }    # leg A middle
-  - { ref: DR3, a: [1, 10], b: [1, 11] }    # leg A lower -> B+1
-  - { ref: DR4, a: [1, 13], b: [1, 14] }    # leg B upper
-  - { ref: DR5, a: [1, 14], b: [1, 15] }    # leg B middle
-  - { ref: DR6, a: [1, 15], b: [1, 16] }    # leg B lower -> B+1
+  # Each leg runs from its HT lead at a to the reservoir side at b. E-FB draws
+  # every one of the six "- |>+" with its + (bar, cathode) toward the +430 V
+  # node, and schematic.kicad_sch now points them the same way, so every band
+  # sits at b.
+  - { ref: DR1, a: [1, 8],  b: [1, 9],  cathode: b }    # leg A upper
+  - { ref: DR2, a: [1, 9],  b: [1, 10], cathode: b }    # leg A middle
+  - { ref: DR3, a: [1, 10], b: [1, 11], cathode: b }    # leg A lower -> B+1
+  - { ref: DR4, a: [1, 13], b: [1, 14], cathode: b }    # leg B upper
+  - { ref: DR5, a: [1, 14], b: [1, 15], cathode: b }    # leg B middle
+  - { ref: DR6, a: [1, 15], b: [1, 16], cathode: b }    # leg B lower -> B+1
   - { ref: C10, a: [0, 17], b: [1, 17] }    # 20 uF, first B+ node
 
   # --- dropper chain: 4.7k -> choke -> 20uF -> 27k -> 20uF(dual) -------------
