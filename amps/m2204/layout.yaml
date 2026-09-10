@@ -30,7 +30,7 @@ heaters_unsourced: >-
   is derived from the factory drawing sheets, so no factory drawing can
   establish its heater legs.
 
-caption: "A derived layout: Marshall published no board-layout drawing for the model 2204, and the amplifier is not a hand-wired board amp — both 2204 STD sheets note the JM80 printed board. The arrangement below is the Circuit Codex's own, laying this circuit's parts out in signal order along the chassis on the house eyelet grid, with the board order and point-to-point wiring reconstructed from schematic.kicad_sch / netlist.cir. From the phase inverter rightwards it follows the model 1987's order, the circuit the two heads share. All hookup leads are drawn in the neutral tone: with no layout sheet, no lead colours are asserted for the board wiring. Parts drawn off the board here: the tone-stack capacitors (C10 470 pF, C11 and C12 0.022 µF) mount at the tone controls; the peaking capacitors across the preamp volume (C4 470 pF, C5 0.001 µF) mount at that control; the presence capacitor (C17 0.1 µF) mounts at the presence control; the 68 kΩ grid stopper (R3) and 1 MΩ grid leak (R2) sit at the input jacks; the panel link the drawing carries in the R14 position runs from the treble wiper to the master volume; the D.I. network (R35 2.2 kΩ, R36 100 Ω, R37 560 Ω) sits at its own jack; and the fuses, the mains and standby switches and the two selector switches are chassis hardware. The three dual 50 µF + 50 µF cans are each drawn as one body between the rail they filter and the ground bus; C21's second section filters the input-stage rail on the far side of R8, as the drawing's dual can straddles that dropper. The drawing carries an undesignated indicator lamp across the mains primary — not on the heater chain — and it is drawn here across the mains inlet, with the fuse, switch and voltage selector between them left undrawn along with the rest of the mains hardware. The 6.3 V heater chain (green twisted pair, mains transformer, the two EL34 outputs, the ECC83 phase inverter, the ECC83 third stage and follower, the ECC83 input pair) is likewise derived: with no layout sheet its daisy order is the physical socket order and the twisted-pair green is the house heater idiom, not a sourced wire colour. The winding's own centre tap is earthed on the drawing rather than run to the sockets, so it is not drawn. Not a trace or a dimensioned reproduction."
+caption: "A derived layout: Marshall published no board-layout drawing for the model 2204, and the amplifier is not a hand-wired board amp — both 2204 STD sheets note the JM80 printed board. The arrangement below is the Circuit Codex's own, laying this circuit's parts out in signal order along the chassis on the house eyelet grid, with the board order and point-to-point wiring reconstructed from schematic.kicad_sch / netlist.cir. From the phase inverter rightwards it follows the model 1987's order, the circuit the two heads share. All hookup leads are drawn in the neutral tone: with no layout sheet, no lead colours are asserted for the board wiring. The three tone-stack capacitors sit on the board beside the 33 kΩ slope resistor and are wired as the 2204PRE.DGM sheet wires them: C10 470 pF from the cathode-follower output to the treble control's top lug, C11 0.022 µF from the slope's foot to the treble-bottom / bass node, and C12 0.022 µF from the slope's foot into the middle control's wiper — C11 and C12 stand upright side by side. Parts drawn off the board here: the peaking capacitors across the preamp volume (C4 470 pF, C5 0.001 µF) mount at that control; the presence capacitor (C17 0.1 µF) mounts at the presence control; the 68 kΩ grid stopper (R3) and 1 MΩ grid leak (R2) sit at the input jacks; the panel link the drawing carries in the R14 position runs from the treble wiper to the master volume; the D.I. network (R35 2.2 kΩ, R36 100 Ω, R37 560 Ω) sits at its own jack; and the fuses, the mains and standby switches and the two selector switches are chassis hardware. The three dual 50 µF + 50 µF cans are each drawn as one body between the rail they filter and the ground bus; C21's second section filters the input-stage rail on the far side of R8, as the drawing's dual can straddles that dropper. The drawing carries an undesignated indicator lamp across the mains primary — not on the heater chain — and it is drawn here across the mains inlet, with the fuse, switch and voltage selector between them left undrawn along with the rest of the mains hardware. The 6.3 V heater chain (green twisted pair, mains transformer, the two EL34 outputs, the ECC83 phase inverter, the ECC83 third stage and follower, the ECC83 input pair) is likewise derived: with no layout sheet its daisy order is the physical socket order and the twisted-pair green is the house heater idiom, not a sourced wire colour. The winding's own centre tap is earthed on the drawing rather than run to the sockets, so it is not drawn. Not a trace or a dimensioned reproduction."
 source:
   desc: "Marshall model 2204 STD factory drawing, sheets 2204PRE.DGM (iss 4, 19-5-88) and 2204PWR.DGM (iss 2, 18-6-89) — layout derived from these schematics; no factory layout drawing located, and the circuit is built on the JM80 printed board"
   url: "https://www.drtube.com/schematics/marshall/2204pwrm.gif"
@@ -91,8 +91,11 @@ parts:
   - { ref: R23, a: [1, 66], b: [1, 67] }    # 4.7k feedback node -> ground
   - { ref: R22, a: [1, 68], b: [1, 69] }    # 100k negative feedback from the speaker
   # --- tone-stack slope + cathode-follower load --------------------------------
-  - { ref: R15, a: [1, 71], b: [1, 72] }    # 33k tone-stack slope
-  - { ref: R13, a: [0, 74], b: [1, 74], value_nudge: [-40, 0] }  # 100k cathode-follower load (vertical)
+  - { ref: R15, a: [1, 71], b: [1, 72] }    # 33k tone-stack slope (a = CF output, b = the slope foot)
+  - { ref: C10, a: [0, 72], b: [0, 71] }    # 470 pF treble cap: CF output -> treble pot's top lug
+  - { ref: C11, a: [1, 73], b: [0, 73] }    # 0.022 µF bass cap, standing: slope foot -> treble-bottom / bass node
+  - { ref: C12, a: [1, 74], b: [0, 74] }    # 0.022 µF middle cap, standing: slope foot -> the middle pot's WIPER
+  - { ref: R13, a: [0, 75], b: [1, 75] }    # 100k cathode-follower load (vertical)
   # --- V2 third gain stage ------------------------------------------------------
   - { ref: R9,  a: [0, 76], b: [1, 76] }    # 820 V2a cathode, unbypassed (vertical)
   - { ref: R12, a: [1, 78], b: [1, 79] }    # 100k V2a plate load
@@ -153,7 +156,7 @@ runs:
   - { from: PL1.b, to: MS1.sleeve, via: [[5.5, 2.52], [1.6, 2.52]] }
 
   # --- negative-bias supply ---------------------------------------------------
-  - { from: T1.bias, to: R30.a, via: [[0.30, 0.74], [0.75, 0.98]] }    # HT tap (PT-AC)
+  - { from: T1.ht2, to: R30.a }                                        # lower HT lead, transformer side of the standby switch -> 220k (PT-AC)
   - { from: R30.b, to: D1.a, via: [[3.2, 1.16]] }
   - { from: D1.b, to: C20.a, via: [[5.4, 0.62]] }
   - { from: C20.b, to: [1.45, 5.4], via: [[5.4, 0.66]] }
@@ -238,21 +241,24 @@ runs:
   - { from: VR6.lug2, to: VR6.lug1, via: [[62.9, -0.42], [61.2, -0.42]] }   # wiper strapped
   - { from: VR6.lug1, to: [1.45, 60.6], via: [[61.6, -0.08], [60.6, -0.08]] }
 
-  # --- tone stack (C10 / C11 / C12 mount at the controls) ----------------------
-  - { from: V2.pin3, to: R13.a, via: [[74.9, 1.44]] }
-  - { from: R13.b, to: [1.45, 74] }
+  # --- tone stack (C10 / C11 / C12 on the board) -------------------------------
+  - { from: V2.pin3, to: R13.a, via: [[75.3, 1.44]] }
+  - { from: R13.b, to: [1.45, 75] }
   - { from: V2.pin3, to: R15.a, via: [[75.4, 1.86], [72.3, 1.62]] }
   # Tone-network wiring per the 2204 STD sheet: the 470 pF hangs off node A (the
   # cathode-follower output), the treble pot's lower lug sits on the far side of
   # the bass cap, the bass pot is a rheostat (wiper strapped to its hot lug), the
   # mid cap feeds the MIDDLE POT'S WIPER, and the stack's output is the treble
   # wiper alone, taken to the master volume through the panel link 'R14'.
-  - { from: R15.a, to: VR3.lug3, via: [[70.7, 0.36], [70.9, -0.48]] }
-  - { from: R15.b, to: VR5.lug3, via: [[72.5, 0.28], [73.3, -0.48]] }
+  - { from: R15.a, to: C10.a }                                         # node A (CF output) -> 470 pF treble cap
+  - { from: C10.b, to: VR3.lug3 }                                      # 470 pF -> treble top
+  - { from: R15.b, to: C11.a }                                         # slope foot (node B) -> bass cap
+  - { from: C11.b, to: VR5.lug3 }                                      # 0.022 µF bass cap -> bass-cap node
   - { from: VR3.lug1, to: VR5.lug3, via: [[71.1, -0.74], [73.1, -0.74]] }
   - { from: VR5.lug2, to: VR5.lug3, via: [[73.95, -0.70], [73.95, -1.02], [73.15, -1.02]] }
   - { from: VR5.lug1, to: VR4.lug3, via: [[73.35, -0.52], [75.6, -0.52]] }
-  - { from: R15.b, to: VR4.lug2, via: [[73.0, 0.46], [77.1, 0.46], [77.1, -0.90], [76.25, -0.90]] }
+  - { from: C11.a, to: C12.a }                                         # node B -> middle cap
+  - { from: C12.b, to: VR4.lug2 }                                      # 0.022 µF middle cap -> the middle pot's WIPER
   - { from: VR4.lug1, to: [1.45, 72.6], via: [[75.5, -0.28], [72.6, -0.28], [72.6, 1.16]] }
   - { from: VR3.lug2, to: VR2.lug3, via: [[71.4, -1.00], [68.1, -1.00]] }
   - { from: VR2.lug1, to: [1.45, 68.8], via: [[68.5, -0.30], [68.8, -0.30]] }
