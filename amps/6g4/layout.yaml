@@ -35,6 +35,13 @@ board:
   cols: 82
   title: "6G4 · eyelet board layout"
 
+# The bias-tap lead is lettered BLUE-RED on A-FJ, a colour the drawing
+# palette has no swatch for, so it draws in the blue the output transformer's
+# V7 plate lead also uses. Say so on the swatch, so the two cannot be taken
+# for one lead.
+wire_legend:
+  blue: "blue — the output transformer's V7 plate lead, and the bias-tap lead the drawing letters blue-red"
+
 # The heater circuits this drawing establishes against the amplifier's own
 # sheet — the 5 V rectifier filament only. The A-FJ sheet draws that winding
 # lead by lead (two YELLOW leads from TR1 to the GZ34 socket) but only ARROWS
@@ -59,7 +66,7 @@ heaters:
       schematic page's topology confirms them independently.
     sockets:
       V9: { feed: [2], return: [8] }   # GZ34 — 5 V across the two heater pins, B+ out of 8
-caption: "Redrawn from the published Fender 6G4 'Super-Amp' layout drawing (A-FJ), page 2 of the two-page factory sheet — principal board components and their hookup, in the order the drawing shows them: output/phase-inverter parts nearest the GZ34/6L6GC row, then V2 (channel 1's recovery stage, sharing its bottle with the tremolo oscillator V2B), V1 (channel 1 input), V4 (channel 2 recovery), V3 (channel 2 input). Each channel's tone network is drawn where the sheet mounts it — the 0.05 µF coupler on the board beside the input-stage plate load, the 250 pF and 100 kΩ at the Treble pot, the 0.01 µF and 10 kΩ at the Bass pot, the 47 pF bright capacitor at the Volume pot — none of it carrying a DC node the netlist checks. Off the board: the tremolo oscillator's own resistor/cap ladder and its Intensity feed into the bias line (excluded from netlist.cir — see notes.md; the -55 V bias line itself is drawn reaching the two output grid leaks directly), the input grid stoppers and leaks (mounted at the jacks), and the bias-supply group, drawn as the small sub-board the sheet boxes separately. The GZ34's own 5 V filament winding is drawn as the sheet letters it — two yellow transformer leads to the rectifier's heater pins 2 and 8, the B+ leaving pin 8 beside them (the cathode is strapped to the heater inside the envelope). The 6.3 V heater chain (green twisted pair, PT -> pilot lamp -> the two 6L6GCs -> the five 7025s) is drawn in the conventional daisy order and is NOT established: the sheet's own \"TO ALL HEATERS AND PILOT LIGHT\" annotation implies it rather than routing it. Not a trace or a dimensioned reproduction."
+caption: "Redrawn from the published Fender 6G4 'Super-Amp' layout drawing (A-FJ), page 2 of the two-page factory sheet — principal board components and their hookup, in the order the drawing shows them: output/phase-inverter parts nearest the GZ34/6L6GC row, then V2 (channel 1's recovery stage, sharing its bottle with the tremolo oscillator V2B), V1 (channel 1 input), V4 (channel 2 recovery), V3 (channel 2 input). Each channel's tone network is drawn where the sheet mounts it — the 0.05 µF coupler on the board beside the input-stage plate load, the 250 pF and 100 kΩ at the Treble pot, the 0.01 µF and 10 kΩ at the Bass pot, the 47 pF bright capacitor at the Volume pot — none of it carrying a DC node the netlist checks. Off the board: the tremolo oscillator's own resistor/cap ladder and its Intensity feed into the bias line (excluded from netlist.cir — see notes.md; the -55 V bias line itself is drawn reaching the two output grid leaks directly), the input grid stoppers and leaks (mounted at the jacks), and the bias-supply group, drawn as the small sub-board the sheet boxes separately. That group takes the power transformer's own bias tap — the blue-red lead — to the rectifier's + terminal; the rectifier's other end carries an 8 µF can and the 10 kΩ, whose far end is the −55 V line with the second 8 µF can and the 56 kΩ bleeder to ground. The GZ34's own 5 V filament winding is drawn as the sheet letters it — two yellow transformer leads to the rectifier's heater pins 2 and 8, the B+ leaving pin 8 beside them (the cathode is strapped to the heater inside the envelope). The 6.3 V heater chain (green twisted pair, PT -> pilot lamp -> the two 6L6GCs -> the five 7025s) is drawn in the conventional daisy order and is NOT established: the sheet's own \"TO ALL HEATERS AND PILOT LIGHT\" annotation implies it rather than routing it. Not a trace or a dimensioned reproduction."
 source:
   desc: "Fender 'Super-Amp' Layout, Model 6G4 (A-FJ), page 2 of the two-page factory sheet (page 1 is the schematic)"
   url: "https://el34world.com/charts/Schematics/files/Fender/Fender_super_6g4_schem.pdf"
@@ -113,19 +120,23 @@ parts:
   - { ref: CK2I, a: [0, 72], b: [0, 73] }     # 25/25uF input-stage cathode bypass
   - { ref: RK2I, a: [0, 73], b: [1, 73] }     # 1.5k input-stage cathode (shares CK2I's far eyelet)
 
-  # --- bias supply (small sub-board, drawn as off-board stubs) --------------
-  - { ref: RBIAS1, a: [0, 74], b: [0, 75] }
-  # DBIAS is drawn UNBANDED, deliberately: cathode_side() refuses to guess and
-  # the only copy of A-FJ in circulation (2250 x 1269 for the layout page,
-  # 2179 x 1437 for the schematic) does not resolve which end of the bias
-  # rectifier carries the bar. At 5x the symbol reads as a triangle with its
-  # bar on the RIGHT, which is the opposite hand from the 6G3's own I-FA box
-  # at 750 ppi — the two circuits are otherwise identical, so one reading is
-  # wrong and this scan cannot say which. Needs a better copy of A-FJ (or a
-  # 6G4-A/K-FJ cross-read) before a polarity is declared here.
-  - { ref: DBIAS,  a: [0, 76], b: [0, 77] }
-  - { ref: CBIAS,  a: [0, 77], b: [1, 77] }
-  - { ref: RBIAS2, a: [0, 78], b: [1, 78] }
+  # --- bias supply ----------------------------------------------------------
+  # A-FJ boxes the bias supply as a small sub-board (layout page 2250 x 1269,
+  # the only copy): the transformer lead lettered BLUE-RED lands, by a dashed
+  # underside lead, on the rectifier's "+" terminal; its "-" terminal is node
+  # N, with an 8-150 to ground and the 10K on to the output node, which
+  # carries the second 8-150 and the 56K to ground and is the -55 V line. The
+  # schematic page draws the same: tap, rectifier, 8 uF, 10K, then 8 uF with
+  # the 56K as a bleeder, not a series element.
+  - { ref: RBIAS1, a: [0, 74], b: [0, 75] }   # 56k bleeder: ground (a), the -55 V line (b)
+  # Band at a: the "+" end A-FJ letters on the rectifier (the cathode, facing
+  # the winding in a negative supply) and where schematic.kicad_sch puts
+  # DBIAS's cathode (DIODE_SS drawn rot=180, pin 2 K toward HT_TAP). The 5x
+  # read that once left this unbanded took the triangle for the bar.
+  - { ref: DBIAS,  a: [0, 76], b: [0, 77], cathode: a }   # tap (a) -> node N (b)
+  - { ref: CBIAS,  a: [0, 77], b: [1, 77] }   # 8 uF, node N -> ground
+  - { ref: RBIAS2, a: [0, 78], b: [1, 78] }   # 10k, node N -> the -55 V line
+  - { ref: CBIAS2, a: [0, 79], b: [1, 79] }   # 8 uF, the -55 V line -> ground
 
 offboard:
   # --- chassis iron and the tube row, in the sheet's own left-to-right order
@@ -192,9 +203,9 @@ runs:
   # with no filament supply. See the `heaters:` block at the head of the file.
   - { from: T1.red1, to: V9.pin4, via: [[1, 0.32]] }
   - { from: T1.red2, to: V9.pin6, via: [[2, 0.58]] }
-  - { from: T1.red-yellow, to: [1.45, 0.2], via: [[-0.3, 0.9]] }
-  - { from: T1.yellow1, to: V9.pin2, via: [[0.35, 1.25], [0.5, 2.05]] }
-  - { from: T1.yellow2, to: V9.pin8, via: [[0.05, 1.55], [0.15, 2.62], [2.5, 2.62]] }
+  - { from: T1.red-yellow, to: [1.45, 0.2], via: [[0.5, 0.95]] }
+  - { from: T1.yellow1, to: V9.pin2, via: [[0.3, 0.96], [0.55, 1.74]] }
+  - { from: T1.yellow2, to: V9.pin8, via: [[-1.57, 0.497], [0.1, 1.78], [0.9, 2.62]] }
   - { from: V9.pin8, to: C10.a, color: red, via: [[1.4, 2.3], [33, 2.3], [33.5, 0.3]] }
 
   # === BP1 (+456V): 6L6GC plates and screens, PI dropper, OT centre tap ====
@@ -202,7 +213,7 @@ runs:
   - { from: RS1.a, to: RD1.a, color: red, via: [[2.6, -0.85], [30.5, -0.85]] }
   - { from: RS1.a, to: RS2.a, color: red, via: [[4.5, -1.2], [13.5, -1.2]] }
   - { from: T2.red, to: C10.a, color: red, via: [[16.4, 0.6], [35, 0.6], [34.5, 0.05]] }
-  - { from: T2.blue, to: V7.pin3, via: [[15.9, 0.3], [15.4, 2.6], [4.7, 2.6]] }
+  - { from: T2.blue, to: V7.pin3, via: [[15.9, -0.22], [15.4, 2.6], [4.7, 2.6]] }
   - { from: T2.brown, to: V8.pin3, via: [[16.9, 0.3], [16.7, 2.7], [11.4, 2.7]] }
   - { from: T2.green, to: SPK.tip, via: [[16.4, 0.3], [14.86, 1.75]] }
   - { from: SPK.sleeve, to: [1.45, 29.5], via: [[15.14, 2.8], [29.5, 2.8]] }
@@ -221,13 +232,13 @@ runs:
   # that shared point to the tube pin suffices; RGL1.a (the OTHER end, row0)
   # is the NBIAS side, wired separately in the bias-supply section below.
   - { from: C1.a, to: V7.pin5, via: [[0.6, 0.55], [4.3, 0.55], [4.6, 1.4]] }
-  - { from: V7.pin8, to: [1.45, 4.2], via: [[4.4, 1.7]] }
+  - { from: V7.pin8, to: [1.45, 4.2], via: [[4.465, 1.7]] }
   # C2.b and RGL2.b share the (row1, col11) eyelet — same idiom for V8's grid.
   - { from: C2.b, to: V8.pin5, via: [[10.6, 1], [10.7, 1], [10.4, 1.4]] }
   - { from: V8.pin8, to: [1.45, 10], via: [[9.8, 2.2]] }
 
   # === phase inverter: plates (fanned clear of each other) ===================
-  - { from: RLPA.b, to: V5.pin1, via: [[5.4, 1.55], [21.5, 1.55]] }
+  - { from: RLPA.b, to: V5.pin1, via: [[5.4, 1.55], [21.469, 1.581]] }
   - { from: C1.b, to: RLPA.b, via: [[3, 0.6], [4, 0.75]] }
   - { from: RLPB.b, to: V5.pin6, via: [[8.4, 3], [28.5, 3], [28.5, -0.3], [26.3, 0.9]] }
 
@@ -273,7 +284,7 @@ runs:
   - { from: V1.pin3, to: CK1I.b, via: [[51.5, 2.35], [52.127, 1.5]] }
   - { from: CK1I.a, to: [1.45, 51.6], via: [[51.6, 1.4]] }
   - { from: RK1I.b, to: [1.45, 53.6] }
-  - { from: J1.tip, to: V1.pin2, via: [[55.715, -0.4], [50.662, 2.044]] }
+  - { from: J1.tip, to: V1.pin2, via: [[55.687, -0.427], [50.662, 2.044]] }
 
   # === channel-1 tone network, as the A-FJ sheet mounts it ===================
   # The .05 coupler leaves the plate eyelet for the Treble pot, where the 250MM
@@ -285,14 +296,14 @@ runs:
   - { from: CC1T.b, to: CT1.a, via: [[51.4, -0.55], [48.8, -0.55], [48.11, -0.75]] }
   - { from: CT1.a, to: RS1T.a, via: [[48.5, -1.05], [51.1, -1.05]] }
   - { from: CT1.b, to: VRT1.lug3, via: [[49.4, -0.62]] }
-  - { from: RS1T.b, to: VRT1.lug1, via: [[51.6, -0.62], [49.597, -0.498]] }
+  - { from: RS1T.b, to: VRT1.lug1, via: [[51.6, -0.62], [50.147, -0.498]] }
   - { from: VRT1.lug1, to: VRB1.lug3, via: [[50.9, -0.62], [52.4, -0.62]] }
   - { from: VRB1.lug3, to: CB1T.a, via: [[53.6, -1.1], [54, -1.1]] }
   - { from: CB1T.b, to: VRB1.lug2, via: [[54.8, -0.62], [53.6, -0.62]] }
   - { from: VRB1.lug2, to: RSL1.a, via: [[53, -0.4], [56.4, -0.4]] }
   - { from: RSL1.b, to: [1.45, 57.6], via: [[57.2, -0.5], [57.6, -0.5]] }
   - { from: VRB1.lug1, to: [1.45, 52.6], via: [[52.4, -0.5], [52.6, -0.5]] }
-  - { from: VRT1.lug2, to: VRV1.lug3, via: [[50, -0.9], [48.64, -0.731]] }
+  - { from: VRT1.lug2, to: VRV1.lug3, via: [[50, -0.86], [48.64, -0.731]] }
   - { from: VRV1.lug3, to: CBR1.a, via: [[47.2, -0.75], [45.2, -0.75]] }
   - { from: CBR1.b, to: VRV1.lug2, via: [[46, -0.5], [47, -0.5]] }
   - { from: VRV1.lug2, to: V2.pin7, via: [[47.376, -0.3], [46.6, 0.777], [44.178, 1.322], [44.647, 1.75]] }
@@ -329,21 +340,23 @@ runs:
   - { from: VRB2.lug2, to: RSL2.a, via: [[70, -0.4], [73.4, -0.4]] }
   - { from: RSL2.b, to: [1.45, 74.6], via: [[74.2, -0.5], [74.6, -0.5]] }
   - { from: VRB2.lug1, to: [1.45, 69.6], via: [[69.4, -0.5], [69.6, -0.5]] }
-  - { from: VRT2.lug2, to: VRV2.lug3, via: [[66.912, -0.862], [64.468, -0.903]] }
+  - { from: VRT2.lug2, to: VRV2.lug3, via: [[66.904, -0.82], [64.468, -0.903]] }
   - { from: VRV2.lug3, to: CBR2.a, via: [[64.2, -0.75], [62.2, -0.75]] }
   - { from: CBR2.b, to: VRV2.lug2, via: [[63, -0.5], [64.221, -0.5]] }
   - { from: VRV2.lug2, to: V4.pin7, via: [[63.95, -0.3], [63.15, 0.8], [62.77, 1.75]] }
   - { from: VRV2.lug1, to: [1.45, 64.4], via: [[63.7, -0.4], [64.4, -0.4]] }
 
-  # === bias supply: an HT leg -> 56k -> rectifier -> 8uF/10k -> -55V =========
-  - { from: V9.pin6, to: RBIAS1.a, via: [[2.2, 2.9], [74.4, 2.9]] }
-  - { from: RBIAS1.b, to: DBIAS.a, via: [[75.4, -0.3], [76.4, -0.3]] }
-  - { from: DBIAS.b, to: CBIAS.a, via: [[77.4, -0.3], [77.6, -0.15]] }
+  # === bias supply: the bias tap -> rectifier -> 8 uF, 10k -> 8 uF / 56k -> -55 V ===
+  - { from: T1.blue-red, to: DBIAS.a, via: [[-0.779, 1.2], [-0.6, 2.9], [75.6, 2.9], [75.6, 0.4]] }
   - { from: CBIAS.a, to: RBIAS2.a, via: [[77.6, -0.05], [78.4, -0.05]] }
   - { from: CBIAS.b, to: [1.45, 77.6], via: [[77.6, 1.5]] }
+  - { from: RBIAS2.b, to: CBIAS2.a, via: [[78.6, 0.5]] }
+  - { from: CBIAS2.b, to: [1.45, 79] }
+  - { from: RBIAS1.b, to: CBIAS2.a, via: [[75.2, -0.45], [78.8, -0.45]] }
+  - { from: RBIAS1.a, to: [1.45, 74] }
   # -55V distribution: RBIAS2.b -> RGL1.a -> RGL2.a (daisy chain), the same
   # pattern 6G3's own RG4.a -> RG5.a bias-rail chain uses.
-  - { from: RBIAS2.b, to: RGL1.a, color: yellow, via: [[78.4, -1.6], [1.2, -1.6], [1.2, -0.6], [0.4, -0.3]] }
+  - { from: RBIAS2.b, to: RGL1.a, color: yellow, via: [[78.587, -1.6], [1.285, -1.6], [1.2, -0.6], [0.4, -0.3]] }
   - { from: RGL1.a, to: RGL2.a, color: yellow, via: [[0.5, -2], [11.4, -2]] }
 
   # === 6.3V heater chain (green twisted pair) ================================
@@ -396,3 +409,7 @@ net_map:
     RG2I: "1 MΩ channel-2 input grid leak — mounted at the input jacks"
     RG1D: "channel-1 recovery-stage grid return, modelled as one grid leak (G1D -> 0); realised through the Volume pot VRV1, whose wiper is drawn to the grid and whose cold lug is drawn to ground — a pot, so not a netlist device"
     RG2D: "channel-2 recovery-stage grid return, modelled as one grid leak (G2D -> 0); realised through the Volume pot VRV2, as RG1D"
+  # Sheet terminal -> board terminal: the sheet numbers the transformer's bias
+  # tap as T1 pin 6 (label HT_TAP); A-FJ letters that lead BLUE-RED.
+  leads:
+    T1.6: T1.blue-red
