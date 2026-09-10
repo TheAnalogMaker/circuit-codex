@@ -398,7 +398,7 @@ s.text("Primary taps 115 / 160 / 205 / 225 / 245 V; SW4 breaks both mains "
        "poles", 200, 254, 1.15)
 s.text("T2 also carries the 6.3 V / 6 A heater winding and the GZ34's own "
        "5 V / 2 A winding", 200, 258, 1.15)
-s.text("(heaters not drawn — see layout.yaml). OS/065 shows no pilot lamp, "
+s.text("(heaters not drawn — see the board drawing). OS/065 shows no pilot lamp, "
        "so none is drawn.", 200, 262, 1.15)
 
 for x, ref, ht in [(314, "V10A", "HT_A"), (332, "V10B", "HT_B")]:
