@@ -374,7 +374,7 @@ s.text("drawn on the sheet but are not resolved as values and interconnection, "
        "so this drawing names", 8, 286, 1.15)
 s.text("the interfaces each valve works into and asserts nothing further. The "
        "phase-shift vibrato", 8, 290, 1.15)
-s.text("bends pitch rather than gating level — see notes.md.", 8, 294, 1.15)
+s.text("bends pitch rather than gating level — see the circuit story.", 8, 294, 1.15)
 
 # ======================= POWER SUPPLY — GZ34 rectifier =====================
 s.text("Power — Haddon mains transformer (280-0-280 V, 160 mA HT), GZ34 "

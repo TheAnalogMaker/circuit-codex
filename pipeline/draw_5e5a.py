@@ -113,7 +113,7 @@ s.wire(t2["g"][0], 68, bl, 68)         # the run stops at the 5 MEG's own pins:
 s.wire(br, 68, 180, 68)                # drawn straight through, it shorted it
 s.wire(180, 68, 180, 126)
 s.note('RFB1 (100k, V2 plate<->grid) and RBLEED (5MEG, V2 grid -> driver grid) are printed')
-s.note('on the sheet but excluded from netlist.cir — see notes.md "2026-08-08 re-read"')
+s.note('on the sheet but excluded from the netlist — see the circuit story')
 
 # Presence + negative feedback: speaker/OT-secondary node -> RNF 100k ->
 # VR5 (Presence, 5k, other lug grounded) -> wiper -> C9 .1u/200V -> driver
@@ -275,6 +275,6 @@ s.gnd(167.88, 168.34)
 s.glabel("-32V", 170.42, 160.72, 0)
 
 s.write(OUT, [
-    "Heaters, PT primary and standby omitted — see netlist.cir and meta.yaml",
+    "Heaters, PT primary and standby omitted — see the netlist and the sources list",
 ])
 print(f"wrote {OUT}")

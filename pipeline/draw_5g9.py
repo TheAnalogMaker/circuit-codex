@@ -84,7 +84,7 @@ def input_stage(y, j1, j2, r1, r2, rleak, vref, vval):
 # ============================ TITLE ==================================
 s.note('Rails: B+1 +370 (reservoir · OT centre tap) · B+2 +368 (post-choke: 6V6 screens through their own 470 Ω · 1 W, and both halves of the tremolo bottle) · B+3 +310 (12AY7 plate loads · phase-inverter plate-load junction) · bias line -28 V off a -69 V rectifier')
 s.note('Each volume control is driven at its WIPER, one end grounded and the other on the shared mixing node — the drawing\'s own arrangement, on both its pages. The tone control\'s wiper sits on that same node.')
-s.note('Heaters, PT primary/mains, fuse, pilot lamp, the mains capacitor and the tremolo footswitch jack are omitted here — see netlist.cir, meta.yaml, layout.yaml. The tremolo bottle IS drawn; only its DC operating point is excluded from netlist.cir (notes.md).')
+s.note('Heaters, PT primary/mains, fuse, pilot lamp, the mains capacitor and the tremolo footswitch jack are omitted here — see the netlist, the sources list and the board drawing. The tremolo bottle IS drawn; only its DC operating point is excluded from the netlist (see the circuit story).')
 
 # ============================ INST. CHANNEL ==========================
 YI = 62
@@ -256,7 +256,7 @@ PT_ = YT - 11.1                                    # oscillator plate tee
 GRAIL = PT_ - 16                                   # the ladder's ground rail
 s.text("Bias-vary tremolo — V3A phase-shift oscillator, DIRECT-COUPLED to the V3B cathode follower; the Depth control sits in the -28 V bias line itself",
        26, 176, 1.5)
-s.text("Neither half has a static operating point, so both are excluded from netlist.cir — a DC pass says nothing about oscillation, rate or depth (notes.md)",
+s.text("Neither half has a static operating point, so both are excluded from the netlist — a DC pass says nothing about oscillation, rate or depth (see the circuit story)",
        26, 181, 1.3)
 t3a = s.triode("V3A", "12AX7", 100, YT)
 s.wire(100, YT - 7.62, 100, PT_)

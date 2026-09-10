@@ -270,6 +270,6 @@ s.glabel("-50V", 183.12, 160.72, 0)
 s.note('standby switch between reservoir and B+1 (omitted)')
 
 s.write(OUT, [
-    "Heaters, PT primary, standby and the tremolo section omitted — see netlist.cir and meta.yaml",
+    "Heaters, PT primary, standby and the tremolo section omitted — see the netlist and the sources list",
 ])
 print(f"wrote {OUT}")

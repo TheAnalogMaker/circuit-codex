@@ -334,6 +334,6 @@ s.write(OUT, [
     "plates and common cathodes, with the 1500 Ω stopper between the pair's grids",
     "47 pF across the phase-inverter plates is drawn; the 100 pF bright cap "
     "across VR1 is annotated, being inside the abstracted volume network",
-    "Heaters, PT primary and standby omitted — see netlist.cir and meta.yaml",
+    "Heaters, PT primary and standby omitted — see the netlist and the sources list",
 ])
 print(f"wrote {OUT}")

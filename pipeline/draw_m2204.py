@@ -484,10 +484,10 @@ s.note("S2 is a two-pole standby switch: the drawing breaks both HT legs, and on
        "pole is drawn here. T1 also carries the 6.3 V heater winding — black and "
        "orange leads with an earthed green centre tap — which is not drawn; nor is "
        "the mains indicator lamp the drawing shows across the primary, which carries "
-       "no reference designator. See netlist.cir and meta.yaml.")
+       "no reference designator. See the netlist and the sources list.")
 
 s.write(OUT, [
     "The 50 W lead head with the input triodes in series and a master volume after the tone stack — the circuit repackaged in 1981 as the JCM800.",
-    "Values from the Marshall 2204 STD factory drawing, both sheets. Heaters, the mains indicator and the PT's heater winding are annotations — see netlist.cir and meta.yaml.",
+    "Values from the Marshall 2204 STD factory drawing, both sheets. Heaters, the mains indicator and the PT's heater winding are annotations — see the netlist and the sources list.",
 ])
 print(f"wrote {OUT}")

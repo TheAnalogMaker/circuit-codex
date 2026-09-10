@@ -139,6 +139,6 @@ s.wire(108, 169.24, 108, 172.8)
 s.glabel("B+3", 108, 169.24, 90)
 
 s.write(OUT, [
-    "Heaters and PT primary omitted — see netlist.cir and meta.yaml",
+    "Heaters and PT primary omitted — see the netlist and the sources list",
 ])
 print(f"wrote {OUT}")

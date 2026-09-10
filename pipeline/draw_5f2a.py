@@ -134,7 +134,7 @@ s.wire(190.89, 92.54, 195, 92.54)     # SEC_C -> gnd
 s.glabel("GND", 195, 92.54, 0)
 
 # ---- power supply -------------------------------------------------------
-s.note('Power supply — 66079 PT, 5Y3GT full-wave. Heaters, PT primary, fuse and switch omitted — see netlist.cir and meta.yaml')
+s.note('Power supply — 66079 PT, 5Y3GT full-wave. Heaters, PT primary, fuse and switch omitted — see the netlist and the sources list')
 # 0.05 uF line cap (C11) to chassis after the fuse/switch
 s.glabel("AC", 32, 156, 90)
 s.wire(32, 156, 32, 159)
@@ -174,6 +174,6 @@ s.sym("C", "C10", "8u", 130.54, 177.81)
 s.gnd(130.54, 181.62)
 
 s.write(OUT, [
-    "Single-ended 6V6; tone control + speaker-to-V1B-cathode feedback. Heaters and PT primary omitted — see netlist.cir and meta.yaml",
+    "Single-ended 6V6; tone control + speaker-to-V1B-cathode feedback. Heaters and PT primary omitted — see the netlist and the sources list",
 ])
 print(f"wrote {OUT}")

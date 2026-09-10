@@ -221,6 +221,6 @@ s.gnd(168.58, 175.62)
 s.glabel("-21V", 171.12, 168, 0)
 
 s.write(OUT, [
-    "Heaters, PT primary, AC switch/fuse/pilot omitted — see netlist.cir and meta.yaml",
+    "Heaters, PT primary, AC switch/fuse/pilot omitted — see the netlist and the sources list",
 ])
 print(f"wrote {OUT}")

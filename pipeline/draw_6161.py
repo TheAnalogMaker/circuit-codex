@@ -89,7 +89,7 @@ def volume(vtop, y, vref, cbref, rmref, feed_y):
 
 # ============================ TITLE ==================================
 s.note('Rails: BP1 reservoir · OT centre tap · 6973 plates — BP2 6973 screens, on their OWN supply node (not tapped on the transformer primary) — B1 preamp and inverter rail. The drawing prints no voltages of any kind.')
-s.note('Heaters, the mains side beyond the transformer (2 A fuse, switch, mains capacitor, line-reverse arrangement), the neon pilot, the input and footswitch jacks and the two 10-inch speakers are omitted here — see netlist.cir, bom.yaml, layout.yaml.')
+s.note('Heaters, the mains side beyond the transformer (2 A fuse, switch, mains capacitor, line-reverse arrangement), the neon pilot, the input and footswitch jacks and the two 10-inch speakers are omitted here — see the netlist, the parts list, the board drawing.')
 s.note("The two stubs lettered A are the sheet's own markers on the two output-grid nodes; they are two separate nodes, not one, and the published redraw of the Supro-badged sibling bridges them with a silencing switch.")
 
 # ============================ CHANNEL 1 ==============================
@@ -288,7 +288,7 @@ s.wire(378.89, 124.54, 386, 124.54)
 s.glabel("GND", 386, 124.54, 0)
 
 # ============================ TREMOLO OSCILLATOR =====================
-s.text("Tremolo — a phase-shift oscillator on V3A with Speed wired as a rheostat. Its DC point alone is excluded from netlist.cir: a running oscillator has no static operating point (notes.md).",
+s.text("Tremolo — a phase-shift oscillator on V3A with Speed wired as a rheostat. Its DC point alone is excluded from the netlist: a running oscillator has no static operating point (see the circuit story).",
        24, 182, 1.5)
 t3a = s.triode("V3A", "12AX7", 150, 205)
 PT_ = 193                                    # the oscillator's plate line

@@ -98,7 +98,7 @@ s.junction(120, platetee)
 s.wire(fr, 88, 120, 88)
 s.wire(99.06, 88, fl, 88)
 s.junction(99.06, 88)
-s.note('RFB reads as a plate-to-grid loop on the A-EE sheet (light self-bias/NFB); netlist.cir omits it -- negligible at 10 Mohm beside the 100 kohm plate load')
+s.note('RFB reads as a plate-to-grid loop on the A-EE sheet (light self-bias/NFB); the netlist omits it -- negligible at 10 Mohm beside the 100 kohm plate load')
 
 # ---- tone network: bass shelf, presence/NFB bus, treble rheostat ---------
 # Read off the Schematic Heaven A-EE scan this pass (2026-08-08). Node M is
@@ -298,6 +298,6 @@ s.gnd(180.58, 168.34)
 s.glabel("-42V", 183.12, 160.72, 0)
 
 s.write(OUT, [
-    "Heaters, PT primary and standby omitted -- see netlist.cir and meta.yaml",
+    "Heaters, PT primary and standby omitted -- see the netlist and the sources list",
 ])
 print(f"wrote {OUT}")

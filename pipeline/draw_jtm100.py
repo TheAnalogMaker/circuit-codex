@@ -82,7 +82,7 @@ for (y, jack, sref, gref, vtube, plref, cpref, vref, mref, brC) in [
 s.junction(MIXLINE_X, 88.71)
 s.junction(MIXLINE_X, V3_Y)
 s.text("A capacitor of illegible value parallels the channel II mixer on the "
-       "sheet; it is listed in bom.yaml and not drawn.", 20, 128, 1.15)
+       "sheet; it is listed in the parts list and not drawn.", 20, 128, 1.15)
 
 # shared input cathode: one 820 R with a 25 uF bypass under both triodes
 s.wire(54, 67.62, 54, 71)
@@ -322,7 +322,7 @@ s.text("a 20 H choke to the KT66 screen node, then 8.2 k and 10 k rail "
        "droppers. The mains lead carries a 2 A slow-blow fuse and the HT centre "
        "tap a 1 A slow-blow; a standby switch sits between", 20, 212.5, 1.4)
 s.text("the diode bank and the reservoir. Fuses, switch, mains transformer, "
-       "heater winding and pilot lamp are omitted here — see netlist.cir.",
+       "heater winding and pilot lamp are omitted here — see the netlist.",
        20, 217, 1.4)
 for arm_y, ht, dr in [(230, "HT_A", ("D1", "D2", "D3")),
                       (244, "HT_B", ("D4", "D5", "D6"))]:

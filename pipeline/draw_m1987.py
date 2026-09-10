@@ -365,6 +365,6 @@ s.sym("C", "C16", "8u", 197, BY + 7.62, lx=2.2)  # top pin at the -BIAS node
 s.gnd(197, BY + 11.43)
 
 s.write(OUT, [
-    "EL34 evolution of the JTM45 — silicon rectifier, dual EL34 output. Heaters, PT primary and pilot lamp omitted — see netlist.cir and meta.yaml",
+    "EL34 evolution of the JTM45 — silicon rectifier, dual EL34 output. Heaters, PT primary and pilot lamp omitted — see the netlist and the sources list",
 ])
 print(f"wrote {OUT}")

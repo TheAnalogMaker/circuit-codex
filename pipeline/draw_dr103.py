@@ -465,6 +465,6 @@ s.text("the two 100 k grid leaks return the output grids to this line as it "
 
 s.write(OUT, [
     "Four inputs across two channels into a shared-cathode ECC83, a cathode-follower FMV stack with a master volume, a second cathode follower, an ECC81 long-tailed pair and four EL34s.",
-    "Heaters, the mains transformer, the standby switch, the fuses, the mains neon and the speaker impedance selector are omitted — see netlist.cir and meta.yaml.",
+    "Heaters, the mains transformer, the standby switch, the fuses, the mains neon and the speaker impedance selector are omitted — see the netlist and the sources list.",
 ])
 print(f"wrote {OUT}")

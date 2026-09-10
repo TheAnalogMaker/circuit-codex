@@ -21,7 +21,7 @@ OUT = Path(__file__).resolve().parent.parent / "amps" / "aa764" / "schematic.kic
 s = Sch()
 
 # ============================ TITLE ==================================
-s.note('Heaters (6.3 V, one leg grounded), pilot lamp, AC switch and fuse omitted here — see netlist.cir, notes.md, layout.yaml. Rails: B+1 +360 · B+2 +350 screen · B+3 +330 preamp')
+s.note('Heaters (6.3 V, one leg grounded), pilot lamp, AC switch and fuse omitted here — see the netlist, the circuit story and the board drawing. Rails: B+1 +360 · B+2 +350 screen · B+3 +330 preamp')
 
 # ============================ INPUT + V1A ============================
 YH, YL, GB = 58.0, 66.0, 34.0          # high jack, low jack, grid bus

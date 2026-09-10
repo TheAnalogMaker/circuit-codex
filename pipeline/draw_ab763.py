@@ -49,7 +49,7 @@ def input_stage(y, j1, j2, r1, r2, rleak, vref, vval, rload, rk, ck, ckval, rail
 
 
 # ============================ TITLE ==================================
-s.note('Heaters, PT primary/mains, pilot lamp omitted here — see netlist.cir, meta.yaml, layout.yaml. Rails: B+1 +415 · B+2 +415 screens · B+3 +325 · B+4 +180 · bias -35 V')
+s.note('Heaters, PT primary/mains, pilot lamp omitted here — see the netlist, the sources list and the board drawing. Rails: B+1 +415 · B+2 +415 screens · B+3 +325 · B+4 +180 · bias -35 V')
 
 # ============================ NORMAL CHANNEL (top row) ================
 YN = 62
@@ -294,7 +294,7 @@ s.glabel("PIG", 232, YM - 20, 0)
 
 # ============================ TREMOLO OSCILLATOR (excluded) ==========
 YT = 210
-s.caption('Tremolo oscillator (V5) + optocoupler — dynamic; DC point excluded from netlist (notes.md)', 26, 198, 1.4)
+s.caption('Tremolo oscillator (V5) + optocoupler — dynamic; DC point excluded from netlist (see the circuit story)', 26, 198, 1.4)
 # V5A = phase-shift oscillator; V5B = intensity driver into the optocoupler.
 t5a = s.triode("V5A", "12AX7", 56, YT)
 t5b = s.triode("V5B", "12AX7", 96, YT)

@@ -403,7 +403,7 @@ s.text("Annotated on the drawing and drawn here without connections: C29 / "
 s.text("and C31 0.05 uF mains-to-chassis. The 4 A mains fuse, 1 A HT fuse, "
        "standby switch and pilot lamp", 20, 282, 1.2)
 s.text("are annotations too, and the 6.3 V heater winding is omitted — see "
-       "netlist.cir and meta.yaml.", 20, 286, 1.2)
+       "the netlist and the sources list.", 20, 286, 1.2)
 
 s.write(OUT, [
     "Four EL34s in parallel push-pull off a silicon bridge — the 100 W head on the model 1987's front end. Heaters, PT primary and pilot lamp omitted.",

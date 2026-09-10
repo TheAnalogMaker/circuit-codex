@@ -78,7 +78,7 @@ def volume(y, ref, val):
 
 
 # ============================ TITLE ==================================
-s.note("Heaters, pilot lamp and the PT's 6.3 V winding omitted here — see netlist.cir, meta.yaml, layout.yaml. Rails: B+PL +422 (OT centre tap) · B+SCR +420 screens · B+PI +410 · B+PRE +380 preamp · bias −44 V")
+s.note("Heaters, pilot lamp and the PT's 6.3 V winding omitted here — see the netlist, the sources list and the board drawing. Rails: B+PL +422 (OT centre tap) · B+SCR +420 screens · B+PI +410 · B+PRE +380 preamp · bias −44 V")
 
 # ============================ BASS INSTRUMENT CHANNEL (top row) =======
 YB = 62

@@ -26,7 +26,7 @@ OUT = Path(__file__).resolve().parent.parent / "amps" / "aa1164" / "schematic.ki
 s = Sch()
 
 # ============================ TITLE ==================================
-s.note('Rails: B+1 +420 (reservoir / OT centre tap) · B+2 +400 (screens, reverb driver, tremolo) · B+3 +320 · B+4 +240 · bias -34 V. Heater chain and pilot lamp are shown on the board layout (layout.yaml).')
+s.note('Rails: B+1 +420 (reservoir / OT centre tap) · B+2 +400 (screens, reverb driver, tremolo) · B+3 +320 · B+4 +240 · bias -34 V. Heater chain and pilot lamp are shown on the board layout (the board drawing).')
 
 # ============================ PREAMP (band 1, left) ==================
 YN = 56
@@ -432,7 +432,7 @@ s.note("125A10B secondary drives the speaker and the parallel external-speaker j
 YT = 246
 s.text("Tremolo oscillator (V4A) — a running phase-shift oscillator:", 12, 230, 1.4)
 s.text("its printed pins are dynamic averages, not a static DC point,", 12, 234, 1.4)
-s.text("so it is a documented netlist exclusion (see notes.md).", 12, 238, 1.4)
+s.text("so it is a documented netlist exclusion (see the circuit story).", 12, 238, 1.4)
 t4a = s.triode("V4A", "12AX7", 76, YT)
 s.plate_load("RTOP", "220k", t4a["p"], "B+2")
 # cathode: 3.3k || 25u, with the phase-shift ladder's last resistor returning here

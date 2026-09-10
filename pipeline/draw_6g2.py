@@ -43,7 +43,7 @@ def plate_rl(ref: str, val: str, plate: tuple, rail: str, gap: float = 3.48) -> 
 
 # ============================ TITLE ==================================
 s.note('Rails: BP +315 (reservoir · OT centre tap · oscillator plate) · BS +312 screens · BD +280 preamp/PI · bias -35 V (Intensity rides this line)')
-s.note('Heaters, PT primary/mains, pilot lamp and chassis switches are omitted here — see netlist.cir, meta.yaml, layout.yaml. The drawing prints the first bottle 7025, a low-noise 12AX7.')
+s.note('Heaters, PT primary/mains, pilot lamp and chassis switches are omitted here — see the netlist, the sources list and the board drawing. The drawing prints the first bottle 7025, a low-noise 12AX7.')
 
 # ============================ INPUT + V1A =============================
 s.text("Input — two jacks share a 68k stopper each into a common 1M leak", 12, 46, 1.5)
@@ -117,7 +117,7 @@ s.sym("R", "RG2", "1M*", t1b["g"][0], 73.62, lx=3.0)
 s.gnd(t1b["g"][0], 77.43)
 s.text("* RG2: nominal only — no discrete resistor on this sheet; the grid",
        t1b["g"][0] + 4, 71.5, 1.0)
-s.text("  returns to ground at the Volume pot's own ground lug (notes.md)",
+s.text("  returns to ground at the Volume pot's own ground lug (see the circuit story)",
        t1b["g"][0] + 4, 74.2, 1.0)
 
 s.wire(122, 73.62, 122, 76)
@@ -212,9 +212,9 @@ s.text("No negative-feedback resistor found on the published drawing — open lo
 # ============================ TREMOLO OSCILLATOR =========================
 YT = 150
 s.caption("Bias-vary tremolo — V2B phase-shift oscillator (the other half of the cathodyne's own 12AX7 bottle)", 20, 130, 1.5)
-s.note('Its DC point alone is excluded from netlist.cir — a running oscillator has no static operating point (notes.md)')
-s.note('The phase-shift RC ladder between grid/cathode and the Speed tap is NOT resolved from this scan (bom.yaml):')
-s.note('its interfaces are named below and nothing further is asserted about their interconnection — cf. amps/ac15.')
+s.note('Its DC point alone is excluded from the netlist — a running oscillator has no static operating point (see the circuit story)')
+s.note('The phase-shift RC ladder between grid/cathode and the Speed tap is NOT resolved from this scan (see the parts list):')
+s.note('its interfaces are named below and nothing further is asserted about their interconnection — compare the AC15.')
 
 t2b = s.triode("V2B", "12AX7", 70, YT)
 # Plate: RL4 (56k) straight to BP (the driven reservoir, not the derived BD

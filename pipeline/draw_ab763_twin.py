@@ -124,7 +124,7 @@ def tone_stack(tee, ct, rs, cb, cm, vrt, vrb, vrm, vrv, cbr, x2, xv=118):
 
 
 # ============================ TITLE ==================================
-s.note('Heaters, pilot lamp and mains switching omitted here — see netlist.cir, meta.yaml, layout.yaml. Rails: B+1 +460 (plates, OT centre tap) · B+2 +458 node [B] (screens, reverb transformer, tremolo) · B+3 +450 node [C] (PI plates) · B+4 +410 node [D] (all six preamp plate loads) · bias -52 V')
+s.note('Heaters, pilot lamp and mains switching omitted here — see the netlist, the sources list and the board drawing. Rails: B+1 +460 (plates, OT centre tap) · B+2 +458 node [B] (screens, reverb transformer, tremolo) · B+3 +450 node [C] (PI plates) · B+4 +410 node [D] (all six preamp plate loads) · bias -52 V')
 s.note('Chart notice: voltages read to ground with an electronic voltmeter, values ±20%. Resistors ½ W 10% and capacitors at least 400 V unless marked.')
 
 # ============================ NORMAL CHANNEL (top row) ================
@@ -307,7 +307,7 @@ s.junction(251.62, 250)
 
 # ============================ TREMOLO OSCILLATOR (excluded) ==========
 YT = 300
-s.caption('Tremolo oscillator (V5) + optocoupler — dynamic; neither half has a static DC operating point, so both are excluded from netlist.cir (notes.md)', 12, 278, 1.5)
+s.caption('Tremolo oscillator (V5) + optocoupler — dynamic; neither half has a static DC operating point, so both are excluded from the netlist (see the circuit story)', 12, 278, 1.5)
 t5a = s.triode("V5A", "12AX7", 60, YT)
 t5b = s.triode("V5B", "12AX7", 122, YT)
 s.plate_load("RTO1", "220k", t5a["p"], "B+2")

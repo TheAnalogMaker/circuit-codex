@@ -46,7 +46,7 @@ s.note("Rails, lettered from the factory chart's own E(B+) column: BP310 is the 
        "screens sit on it, and this circuit has no screen resistors at all; "
        "BP280 is the inverter rail one 10 kΩ dropper below it; BP265 the "
        "channel-preamp rail one more below that. Because those droppers also "
-       "carry channel 2 and the tremolo, netlist.cir drives all three rails at "
+       "carry channel 2 and the tremolo, the netlist drives all three rails at "
        "the printed figures rather than deriving a chain missing half its load.")
 s.note("Channel 2's 5879 and the 6SQ7 tremolo oscillator are lettered as bottles "
        "and left undrawn. Channel 2's screen is fed through the tremolo's Depth "
@@ -54,7 +54,7 @@ s.note("Channel 2's 5879 and the 6SQ7 tremolo oscillator are lettered as bottles
        "and neither the network nor the channel-2 screen dropper resolves on the "
        "only published drawing of this revision. The chart says the same thing "
        "loudly: +32 V on that screen against +95 V on channel 1's, off the same "
-       "+265 V rail. What is legible of both is written out in notes.md.")
+       "+265 V rail. What is legible of both is written out in the circuit story.")
 s.note("A published restoration records the supply-can complement as "
        "20/10/10/10 µF at 450 WVDC. Three of the four are lettered here; the "
        "fourth most likely sits on the +280 V inverter rail, where this reading "
@@ -62,8 +62,8 @@ s.note("A published restoration records the supply-can complement as "
 s.note("Heaters, the transformer's 5 V and 6.3 V windings, the pilot lamp, the "
        "input and speaker jacks and the mains side beyond the transformer "
        "(3 A fuse, on/off switch, and the 0.02 µF capacitor the polarity switch "
-       "grounds onto one line leg or the other) are omitted here — see bom.yaml "
-       "and layout.yaml. Do not build that mains side as the factory sheet draws "
+       "grounds onto one line leg or the other) are omitted here — see the parts list "
+       "and the board drawing. Do not build that mains side as the factory sheet draws "
        "it; it predates grounded three-wire practice.")
 s.note("The factory drawing letters no reference designators — not on the "
        "bottles, not on the passives — so the designators on this sheet are this "

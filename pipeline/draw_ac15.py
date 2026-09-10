@@ -61,7 +61,7 @@ def input_network(jrefs, srefs, svals, ys, leakref, gbx, gy):
 
 # ============================== TITLE ======================================
 s.note('No tone stack · no bias supply · no negative feedback. Both channels mix INSIDE the phase inverter, at opposite grids. Rails: B+1 +315 V · B+N Normal · B+P inverter · B+V vibrato')
-s.note('Heaters, the 6.3 V winding and the pilot-lamp wiring are an annotation layer — see netlist.cir, bom.yaml and layout.yaml.')
+s.note('Heaters, the 6.3 V winding and the pilot-lamp wiring are an annotation layer — see the netlist, the parts list and the board drawing.')
 
 # ====================== NORMAL CHANNEL — EF86 preamp =======================
 s.text('Normal channel', 16, 27.5, 1.6)
@@ -174,10 +174,10 @@ s.text("→ Vibrato/Tremolo networks", 185, 148.5, 1.1)
 
 s.note("The two-position TONE network, the five-section phase-shift ladder, the ECC82 "
        "modulator network and the ECC83 oscillator network (with Depth, Speed, the "
-       "fast/slow switch and the footswitch jack) are listed part by part in bom.yaml. "
+       "fast/slow switch and the footswitch jack) are listed part by part in the parts list. "
        "The published drawing resolves their VALUES but not their interconnection, so "
        "this sheet names the interfaces and asserts nothing further. The phase-shift "
-       "vibrato bends pitch rather than gating level — see notes.md.")
+       "vibrato bends pitch rather than gating level — see the circuit story.")
 
 # ================= PHASE INVERTER — ECC83 long-tailed pair =================
 s.text("Phase inverter — long-tailed pair; both channels enter, at opposite grids",

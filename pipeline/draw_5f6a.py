@@ -286,6 +286,6 @@ s.gnd(168.58, 203.62)
 s.glabel("-48V", 171.12, 196.0, 0)
 
 s.write(OUT, [
-    "Heaters, PT primary and standby omitted — see netlist.cir and meta.yaml",
+    "Heaters, PT primary and standby omitted — see the netlist and the sources list",
 ])
 print(f"wrote {OUT}")

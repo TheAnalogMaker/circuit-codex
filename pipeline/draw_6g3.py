@@ -118,7 +118,7 @@ def tone_volume(tee, cc, cval, vrv, vrt, ccut, cutval, cbright, mixer):
 
 # ============================ TITLE ==================================
 s.note('Rails: B+1 +375 (reservoir · OT centre tap · tremolo oscillator) · B+2 +365 screens · B+3 +325 phase inverter · B+4 +270 preamp · bias -26 V')
-s.note('Heaters, PT primary/mains, pilot lamp, chassis switches and the tremolo footswitch jack are omitted here — see netlist.cir, meta.yaml, layout.yaml. The drawing prints the first bottle 7025, a low-noise 12AX7.')
+s.note('Heaters, PT primary/mains, pilot lamp, chassis switches and the tremolo footswitch jack are omitted here — see the netlist, the sources list and the board drawing. The drawing prints the first bottle 7025, a low-noise 12AX7.')
 
 # ============================ NORMAL CHANNEL =========================
 YN = 62
@@ -275,7 +275,7 @@ YT = 215
 PT_ = YT - 11.1                                    # plate tee (y = 203.9)
 s.text("Bias-vary tremolo — V2B phase-shift oscillator; the Intensity control sits in the -26 V bias line itself",
        26, 174, 1.5)
-s.text("Its DC point alone is excluded from netlist.cir — a running oscillator has no static operating point (notes.md)",
+s.text("Its DC point alone is excluded from the netlist — a running oscillator has no static operating point (see the circuit story)",
        26, 179, 1.3)
 t2b = s.triode("V2B", "12AX7", 100, YT)
 s.wire(100, YT - 7.62, 100, PT_)

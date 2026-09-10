@@ -148,7 +148,7 @@ def tone_stack(tee, ct, rs, cb, cm, vrt, vrb, vrv, cbr, sw, mid_ref, mid_val,
 
 
 # ============================ TITLE ==================================
-s.note('Heaters, PT primary/mains and the pilot lamp omitted here — see netlist.cir, meta.yaml, layout.yaml. Rails: BP1 +460 (6L6GC plates, screens, reverb driver, tremolo osc.) · BC +450 node [C] (PI plates) · BD +410 node [D] (every 100k preamp stage) · bias -52 V')
+s.note('Heaters, PT primary/mains and the pilot lamp omitted here — see the netlist, the sources list and the board drawing. Rails: BP1 +460 (6L6GC plates, screens, reverb driver, tremolo osc.) · BC +450 node [C] (PI plates) · BD +410 node [D] (every 100k preamp stage) · bias -52 V')
 s.note('Chart notice: voltages read to ground with an electronic voltmeter, values ±20%. Resistors ½ W 10% and capacitors at least 400 V unless marked.')
 
 # ============================ NORMAL CHANNEL (top row) =================
@@ -348,8 +348,8 @@ s.glabel("PIG", 250, teem, 0)
 
 # ============================ TREMOLO OSCILLATOR (excluded) ============
 YT = 232
-s.caption('Tremolo oscillator (V5, one 12AX7 half) — excluded from netlist.cir (notes.md)', 26, 199, 1.4)
-s.note('The tremolo oscillator has no static DC operating point, so it is excluded from netlist.cir (notes.md); its supply taps BP1 directly, a driven node, so excluding it moves no gated node.')
+s.caption('Tremolo oscillator (V5, one 12AX7 half) — excluded from the netlist (see the circuit story)', 26, 199, 1.4)
+s.note('The tremolo oscillator has no static DC operating point, so it is excluded from the netlist (see the circuit story); its supply taps BP1 directly, a driven node, so excluding it moves no gated node.')
 t5 = s.triode("V5", "12AX7", 60, YT, lx=-16.0, ly=-12.0)
 s.plate_load("RTO2", "220k", t5["p"], "BP1")
 s.wire(60, YT + 7.62, 60, YT + 9)

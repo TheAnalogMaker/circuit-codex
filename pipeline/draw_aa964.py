@@ -23,7 +23,7 @@ OUT = Path(__file__).resolve().parent.parent / "amps" / "aa964" / "schematic.kic
 s = Sch()
 
 # ============================ TITLE ==================================
-s.note('Heaters and pilot lamp omitted here — see netlist.cir, meta.yaml, layout.yaml.  Rails: B+1 +420 · B+2 +415 screens · B+3 +370 · B+4 +290 · bias -34 V')
+s.note('Heaters and pilot lamp omitted here — see the netlist, the sources list and the board drawing.  Rails: B+1 +420 · B+2 +415 screens · B+3 +370 · B+4 +290 · bias -34 V')
 
 # ============================ INPUT + FIRST STAGE (V1A) ===============
 YN = 62
@@ -196,7 +196,7 @@ s.gnd(314, 78)
 # ============================ TREMOLO OSCILLATOR (V2A) ================
 YT = 180
 RAILY = 208                                    # phase-shift ladder rail
-s.caption('Tremolo oscillator (½ 12AX7) — a running phase-shift oscillator; its DC point is excluded from netlist.cir (see notes.md)', 20, 148, 1.4)
+s.caption('Tremolo oscillator (½ 12AX7) — a running phase-shift oscillator; its DC point is excluded from the netlist (see the circuit story)', 20, 148, 1.4)
 t2a = s.triode("V2A", "12AX7", 60, YT)
 s.plate_load("RTO", "220k", t2a["p"], "B+2")
 s.wire(60, YT + 7.62, 60, YT + 10)

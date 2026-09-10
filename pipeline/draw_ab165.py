@@ -147,7 +147,7 @@ def second_stage(y, vref, rload, rk, ck, rail, wiper, mix_ref):
 
 
 # ============================ TITLE ==================================
-s.note('Heaters, pilot lamp and the PT primary beyond the drawn switch/fuse are omitted here — see netlist.cir, meta.yaml, layout.yaml. Rails: B+1 +425 · B+2 +415 · B+3 +390 · B+4 +320 · bias -45 V')
+s.note('Heaters, pilot lamp and the PT primary beyond the drawn switch/fuse are omitted here — see the netlist, the sources list and the board drawing. Rails: B+1 +425 · B+2 +415 · B+3 +390 · B+4 +320 · bias -45 V')
 
 # ============================ BASS INSTRUMENT CHANNEL (top row) =======
 YB = 62

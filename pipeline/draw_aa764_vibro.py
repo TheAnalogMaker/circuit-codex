@@ -32,7 +32,7 @@ OUT = Path(__file__).resolve().parent.parent / "amps" / "aa764-vibro" / "schemat
 s = Sch()
 
 # ============================ TITLE ==================================
-s.note('Heaters (6.3 V, one leg grounded), pilot lamp, AC switch and fuse omitted here — see netlist.cir, notes.md, layout.yaml. Rails: B+1 +355 · B+2 +340 screen · B+3 +320 preamp. Audio path is component-for-component amps/aa764 (below); the tremolo oscillator (V4, bottom) is new and excluded from netlist.cir — no static DC operating point.')
+s.note('Heaters (6.3 V, one leg grounded), pilot lamp, AC switch and fuse omitted here — see the netlist, the circuit story and the board drawing. Rails: B+1 +355 · B+2 +340 screen · B+3 +320 preamp. Audio path is component-for-component the AA764 (below); the tremolo oscillator (V4, bottom) is new and excluded from the netlist — no static DC operating point.')
 
 # ============================ INPUT + V1A ============================
 YH, YL, GB = 58.0, 66.0, 34.0          # high jack, low jack, grid bus
@@ -160,7 +160,7 @@ s.glabel("GND", 209, 61.08, 0)
 # node) — the bias-vary mechanism. Dynamic; no static DC point (notes.md);
 # excluded from netlist.cir, the same category of exclusion as amps/ab763's V5.
 YT = 220
-s.caption('Tremolo oscillator (V4) — bias-vary; dynamic, DC point excluded from netlist (notes.md)', 8, YT - 24, 1.4)
+s.caption('Tremolo oscillator (V4) — bias-vary; dynamic, DC point excluded from netlist (see the circuit story)', 8, YT - 24, 1.4)
 
 # --- Vibrato Pedal jack + bleeder + line coupler ----------------------
 j1 = s.jack("J1", "vibrato pedal", 8, YT - 4)
