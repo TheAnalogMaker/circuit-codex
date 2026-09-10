@@ -1207,7 +1207,46 @@ const TONE_STACK_GATE_EXTRAS = [
     id: 'ga40', kind: 'single-knob', wiring: 'treble-cut',
     refs: { tonePot: 'VR3', cutCap: 'CT1' },
   },
+  // Two-knob networks the wiring gate walks lug for lug but this lab has NO
+  // model for as drawn (TONE_STACK_UNMODELLED_WIRINGS). Declared so the drawings
+  // are compared against their factory sheets; never plotted as the blackface
+  // ladder, which they are not.
+  {
+    // The 6G6-B Normal channel: a blackface-shaped ladder on a Treble pot with
+    // a 70 kΩ TAP. The E-FB sheet lands the 0.1 µF on the tap, not on the
+    // pot's cold end lug, and bleeds that lug to ground through 0.005 µF.
+    id: '6g6b', kind: 'tb', wiring: 'tapped-ladder', channel: 'normal',
+    refs: { slope: 'RTN5', trebleCap: 'CTN4', treblePot: 'VR3', bassCap: 'CTN7', bassPot: 'VR4', midCap: 'CTN5', trebleBleedCap: 'CTN6' },
+    midLeg: { kind: 'fixed', ref: 'RTN4' },
+  },
+  {
+    // The brown-Tolex 6G4/6G5 network: a 0.05 µF coupler from the plate into
+    // the stack, the Treble pot across the treble-cap output and the slope
+    // foot, and a Bass DIVIDER from the slope foot to ground — 0.01 µF across
+    // its upper section, 10 kΩ across its lower one, the wiper between them.
+    id: '6g4', kind: 'tb', wiring: 'bass-divider', channel: 'channel 1',
+    refs: { coupler: 'CC1T', slope: 'RS1T', trebleCap: 'CT1', treblePot: 'VRT1', bassCap: 'CB1T', bassPot: 'VRB1', bassFoot: 'RSL1' },
+  },
+  {
+    id: '6g4', kind: 'tb', wiring: 'bass-divider', channel: 'channel 2',
+    refs: { coupler: 'CC2T', slope: 'RS2T', trebleCap: 'CT2', treblePot: 'VRT2', bassCap: 'CB2T', bassPot: 'VRB2', bassFoot: 'RSL2' },
+  },
+  {
+    id: '6g5', kind: 'tb', wiring: 'bass-divider', channel: 'channel 1',
+    refs: { coupler: 'CC1T', slope: 'RS1T', trebleCap: 'CT1', treblePot: 'VRT1', bassCap: 'CF1', bassPot: 'VRB1', bassFoot: 'RF1' },
+  },
+  {
+    id: '6g5', kind: 'tb', wiring: 'bass-divider', channel: 'channel 2',
+    refs: { coupler: 'CC2T', slope: 'RS2T', trebleCap: 'CT2', treblePot: 'VRT2', bassCap: 'CF2', bassPot: 'VRB2', bassFoot: 'RF2' },
+  },
 ];
+
+// Wirings the gate walks that tonestack.js has no element list for: a drawing
+// declared under one of these is read at lug level and compared against its
+// sheet, but cannot be plotted until the solver grows the network.
+export const TONE_STACK_UNMODELLED_WIRINGS = ['tapped-ladder', 'bass-divider'];
+export const TONE_STACK_GATE_ONLY_IDS = [...new Set(TONE_STACK_GATE_EXTRAS
+  .filter((e) => TONE_STACK_UNMODELLED_WIRINGS.includes(e.wiring)).map((e) => e.id))];
 
 // The gate-extras' own ids. The tone-stack lab's absentee accounting has to
 // separate "read at lug level, held by the wiring gate, simply not built into a

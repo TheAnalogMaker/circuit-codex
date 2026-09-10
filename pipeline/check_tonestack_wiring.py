@@ -60,6 +60,35 @@ cathode follower and recombine at the output:
     N6   bass leg          bass-pot end lug · 0.005 µF to ground; the pot's
                            other end lug is grounded outright
 
+'tapped-ladder' — the ladder as the 6G6-B's Normal channel draws it, on a
+Treble pot with a fixed TAP (cx:POT_TAP; pin 4 is the tap). The bass capacitor
+lands on the tap instead of on the pot's cold end lug, and that end lug is
+bled to ground through its own capacitor:
+
+    IN   stack input        slope resistor · treble cap
+    N2   slope foot         slope resistor · bass cap · mid cap
+    N3   treble-cap output  treble cap · treble-pot end lug
+    OUT  stack output       treble-pot WIPER, alone
+    N4   bass-cap output    bass cap · treble-pot TAP · bass-rheostat hot lug
+    N5   bass-rheostat foot mid cap · fixed mid leg (to ground)
+    COLD treble cold lug    treble-pot other end lug · treble bleed cap (to ground)
+
+'bass-divider' — the two-knob network the brown-Tolex 6G4 and 6G5 sheets draw,
+fed through a coupling capacitor from the plate. The treble pot spans the
+treble-cap output and the slope foot as in the joined wiring, but the Bass
+control is a DIVIDER from the slope foot to ground, not a rheostat in a ladder:
+the bass capacitor bridges its upper section (slope foot to wiper) and a fixed
+foot resistor bridges its lower section (wiper to ground):
+
+    PLATE                   coupler's far end (not ground, not a stack node)
+    IN   stack input        coupler · slope resistor · treble cap
+    N2   slope foot         slope resistor · treble-pot end lug · bass cap
+                            · bass-pot end lug
+    N3   treble-cap output  treble cap · treble-pot other end lug
+    OUT  stack output       treble-pot WIPER, alone
+    N4   bass-cap output    bass cap · bass-pot WIPER · bass foot resistor
+    GND                     bass-pot other end lug · bass foot resistor
+
 'treble-cut' — the single-knob tweed control (kind 'single-knob'), the network
 tonestack.js models as trebleCutElements: a series capacitor and a rheostat
 bleeding treble from the signal node to ground.
@@ -90,15 +119,18 @@ be named there, and an entry naming a network that IS now walked fails as a
 stale waiver. A new amp cannot land with an unwalked tone network and no entry.
 
 Run from pipeline/:  python3 check_tonestack_wiring.py
+                     python3 check_tonestack_wiring.py --selftest   # planted faults
 """
 from __future__ import annotations
 
 import re
 import sys
+import tempfile
 import textwrap
 from pathlib import Path
 
 import yaml
+from kiutils.schematic import Schematic
 
 from sch_nets import Nets
 
@@ -109,6 +141,7 @@ CORPUS_JS = ROOT / "site" / "src" / "lib" / "corpus.js"
 # 2 is the wiper.
 POT_ENDS = ("1", "3")
 POT_WIPER = "2"
+POT_TAP = "4"          # cx:POT_TAP only: the fixed tap into the element
 
 # Every tone network this gate does not walk, keyed `<amp id>` or
 # `<amp id>:<channel>`, with the reason it is out of reach. Enforced, not
@@ -161,35 +194,6 @@ UNCHECKED_NETWORKS = {
     "s1484": "No schematic.kicad_sch in the corpus, so there is no drawing for this gate "
              "to read. Its two channels' bass network plus treble-cut rheostat are "
              "recorded in bom.yaml and netlist.cir only.",
-
-    # --- drawn networks that disagree with the amp's own cited factory sheet.
-    # Read off the sheets on 2026-09-09; the crops are named in the finding.
-    # These cannot be declared until the drawing (and the parts list behind it)
-    # is repaired: declaring them would gate the wrong network.
-    "6g4:channel 1": "DEFECT (2026-09-09): the cited 6G4 sheet feeds the tone network "
-                     "from the input-stage plate through a 0.05 uF coupling capacitor "
-                     "and hangs a 0.01 uF capacitor from the slope foot to the Bass "
-                     "wiper, whose 10 kOhm runs to ground with the pot's own foot "
-                     "grounded. The drawing here has neither capacitor, takes the "
-                     "100 kOhm slope straight off the plate (a DC path to ground through "
-                     "the stack) and straps the Bass pot as a rheostat above the 10 kOhm.",
-    "6g4:channel 2": "The 6G4's second channel is drawn as the mirror of channel 1 and "
-                     "carries the same defect; the sheet draws the two identically.",
-    "6g5:channel 1": "DEFECT (2026-09-09): the cited 6G5 sheet draws the 6G4 network "
-                     "exactly — 0.05 uF coupler, 100 kOhm slope, 0.01 uF to the Bass "
-                     "wiper, 10 kOhm to ground. This drawing has no slope resistor and "
-                     "no coupler at all, and puts the 10 kOhm in series with the 0.01 uF "
-                     "between the plate and the stack, where bom.yaml's own role for it "
-                     "says `tone network foot`.",
-    "6g5:channel 2": "The 6G5's second channel mirrors channel 1 and carries the same "
-                     "defect.",
-    "6g6b:normal": "DEFECT (2026-09-09): the cited 6G6-B sheet draws the blackface "
-                   "ladder — 100 kOhm slope off the plate, 0.1 uF to the tapped Treble "
-                   "pot's 70 kOhm tap, 0.05 uF from the slope foot to the Bass foot, "
-                   "6.8 kOhm to ground, and the Treble pot's own bottom lug bled to "
-                   "ground through 0.005 uF. This drawing has no slope resistor and no "
-                   "0.1 uF, runs the 0.05 uF from the plate instead, and collapses the "
-                   "slope foot, the tap and the Bass foot into one node.",
 }
 
 
@@ -267,10 +271,16 @@ def _pot(nets, ref, want_ends, wiper_net, label):
         raise Fail(f"{label}: {ref} wiper is not on the stack output net")
 
 
-def check_ladder(amp: str, spec: dict) -> list:
+def _sheet(amp: str, path=None) -> Path:
+    """The sheet a walker reads: the amp's own, or an override (the self-test
+    hands in a planted-fault copy)."""
+    return Path(path) if path else ROOT / "amps" / amp / "schematic.kicad_sch"
+
+
+def check_ladder(amp: str, spec: dict, path=None) -> list:
     """The published-sheet wiring: treble-wiper-only output, bass rheostat,
     mid cap into the mid pot's wiper (or onto the fixed leg's top)."""
-    path = ROOT / "amps" / amp / "schematic.kicad_sch"
+    path = _sheet(amp, path)
     if not path.exists():
         return [f"{amp}: no schematic.kicad_sch"]
     nets = Nets(path)
@@ -363,9 +373,141 @@ def check_ladder(amp: str, spec: dict) -> list:
     return problems
 
 
-def check_split(amp: str, spec: dict) -> list:
+def check_tapped_ladder(amp: str, spec: dict, path=None) -> list:
+    """The 6G6-B Normal channel: a ladder whose bass capacitor lands on the
+    treble pot's TAP (cx:POT_TAP pin 4), the pot's cold end lug bled to ground
+    through its own capacitor, a bass rheostat down to a fixed mid leg."""
+    path = _sheet(amp, path)
+    if not path.exists():
+        return [f"{amp}: no schematic.kicad_sch"]
+    nets = Nets(path)
+    r = spec["refs"]
+    problems = []
+    try:
+        gnd = nets.at(*nets.labels["GND"][0])
+        node_in, n2, n3 = _pairing(nets, r["slope"], r["trebleCap"], amp)
+        bc = [nets.pin(r["bassCap"], "1"), nets.pin(r["bassCap"], "2")]
+        if n2 not in bc:
+            raise Fail(f"{amp}: bass cap {r['bassCap']} is not fed from the slope foot")
+        n4 = next(x for x in bc if x != n2)
+
+        tp = r["treblePot"]
+        if POT_TAP not in nets.pins.get(tp, {}):
+            raise Fail(f"{amp}: treble pot {tp} has no tap pin — a tapped ladder needs the "
+                       "four-terminal cx:POT_TAP symbol")
+        ends = {nets.pin(tp, p) for p in POT_ENDS}
+        out = nets.pin(tp, POT_WIPER)
+        tap = nets.pin(tp, POT_TAP)
+        if n3 not in ends:
+            raise Fail(f"{amp}: treble pot {tp} has no end lug on the treble cap")
+        cold = next(x for x in ends if x != n3)
+        if tap != n4:
+            raise Fail(f"{amp}: treble pot {tp} TAP is not on the bass-cap node — the sheet "
+                       "lands the bass capacitor on the tap, not on an end lug")
+        if cold in (node_in, n2, n3, n4, out, gnd):
+            raise Fail(f"{amp}: treble pot {tp} cold end lug is not its own node — the sheet "
+                       "bleeds it to ground through a capacitor, it is not tied to the stack")
+        bleed = [nets.pin(r["trebleBleedCap"], "1"), nets.pin(r["trebleBleedCap"], "2")]
+        if set(bleed) != {cold, gnd}:
+            raise Fail(f"{amp}: treble bleed cap {r['trebleBleedCap']} does not run from "
+                       f"{tp}'s cold end lug to ground")
+
+        # Bass pot: a rheostat from N4 down to N5, wiper strapped to an end lug.
+        bends = {nets.pin(r["bassPot"], p) for p in POT_ENDS}
+        if n4 not in bends:
+            raise Fail(f"{amp}: bass pot {r['bassPot']} does not sit on the bass-cap node")
+        n5 = next(x for x in bends if x != n4)
+        bwiper = nets.pin(r["bassPot"], POT_WIPER)
+        if bwiper not in (n4, n5):
+            raise Fail(f"{amp}: bass pot {r['bassPot']} wiper is not strapped — the "
+                       "sheet draws a rheostat, so the wiper ties to one end of its track")
+        if bwiper == out:
+            raise Fail(f"{amp}: bass pot {r['bassPot']} wiper reaches the output")
+
+        mc = [nets.pin(r["midCap"], "1"), nets.pin(r["midCap"], "2")]
+        if {n2, n5} != set(mc):
+            raise Fail(f"{amp}: mid cap {r['midCap']} does not run from the slope foot to "
+                       "the bass-rheostat foot")
+        kind, ref = spec["midLeg"] or ("", "")
+        if kind != "fixed":
+            raise Fail(f"{amp}: a tapped ladder declares a fixed mid leg")
+        legs = {nets.pin(ref, "1"), nets.pin(ref, "2")}
+        if legs != {n5, gnd}:
+            raise Fail(f"{amp}: mid-leg resistor {ref} does not run from the bass-rheostat "
+                       "foot to ground")
+
+        distinct = [node_in, n2, n3, out, n4, n5, cold]
+        if gnd in distinct:
+            raise Fail(f"{amp}: a tone-stack node is grounded")
+        if len(set(distinct)) != len(distinct):
+            raise Fail(f"{amp}: two tone-stack nodes are shorted together")
+    except Fail as exc:
+        problems.append(str(exc))
+    except KeyError as exc:
+        problems.append(f"{amp}: reference {exc} is not in the drawing")
+    return problems
+
+
+def check_bass_divider(amp: str, spec: dict, path=None) -> list:
+    """The brown-Tolex 6G4/6G5 two-knob network: coupler into the stack, treble
+    pot across the treble-cap output and the slope foot, the Bass control a
+    divider from the slope foot to ground with the bass capacitor across its
+    upper section and a fixed foot resistor across its lower one."""
+    path = _sheet(amp, path)
+    if not path.exists():
+        return [f"{amp}: no schematic.kicad_sch"]
+    nets = Nets(path)
+    r = spec["refs"]
+    problems = []
+    try:
+        gnd = nets.at(*nets.labels["GND"][0])
+        node_in, n2, n3 = _pairing(nets, r["slope"], r["trebleCap"], amp)
+        if "coupler" in r:
+            cp = [nets.pin(r["coupler"], "1"), nets.pin(r["coupler"], "2")]
+            if node_in not in cp:
+                raise Fail(f"{amp}: coupler {r['coupler']} does not feed the stack input")
+            plate = next(x for x in cp if x != node_in)
+            if plate == gnd:
+                raise Fail(f"{amp}: coupler {r['coupler']} is grounded on its far side")
+            if plate in (n2, n3):
+                raise Fail(f"{amp}: coupler {r['coupler']} is shorted across the stack")
+            if len(nets.nets().get(plate, ())) < 2:
+                raise Fail(f"{amp}: coupler {r['coupler']} reaches nothing on its far side")
+        bc = [nets.pin(r["bassCap"], "1"), nets.pin(r["bassCap"], "2")]
+        if n2 not in bc:
+            raise Fail(f"{amp}: bass cap {r['bassCap']} is not fed from the slope foot")
+        n4 = next(x for x in bc if x != n2)
+
+        out = nets.pin(r["treblePot"], POT_WIPER)
+        _pot(nets, r["treblePot"], (n3, n2), out, amp)
+
+        bends = {nets.pin(r["bassPot"], p) for p in POT_ENDS}
+        if bends != {n2, gnd}:
+            raise Fail(f"{amp}: bass pot {r['bassPot']} does not run from the slope foot "
+                       "to ground — the sheet draws it as a divider, one end lug on each")
+        if nets.pin(r["bassPot"], POT_WIPER) != n4:
+            raise Fail(f"{amp}: bass pot {r['bassPot']} wiper is not on the bass cap's "
+                       "far end — the sheet hangs the bass capacitor on the wiper")
+        foot = {nets.pin(r["bassFoot"], "1"), nets.pin(r["bassFoot"], "2")}
+        if foot != {n4, gnd}:
+            raise Fail(f"{amp}: bass foot resistor {r['bassFoot']} does not run from the "
+                       "bass wiper to ground")
+
+        distinct = [node_in, n2, n3, out, n4]
+        if gnd in distinct:
+            raise Fail(f"{amp}: a tone-stack node is grounded")
+        if len(set(distinct)) != len(distinct):
+            raise Fail(f"{amp}: two tone-stack nodes are shorted together")
+    except Fail as exc:
+        problems.append(str(exc))
+    except KeyError as exc:
+        problems.append(f"{amp}: reference {exc} is not in the drawing")
+    return problems
+
+
+def check_split(amp: str, spec: dict, path=None) -> list:
     """The 5F4's split network: two branches off the follower, recombined."""
-    path = ROOT / "amps" / amp / "schematic.kicad_sch"
+    path = _sheet(amp, path)
     if not path.exists():
         return [f"{amp}: no schematic.kicad_sch"]
     nets = Nets(path)
@@ -426,12 +568,12 @@ def check_split(amp: str, spec: dict) -> list:
     return problems
 
 
-def check_treble_cut(amp: str, spec: dict) -> list:
+def check_treble_cut(amp: str, spec: dict, path=None) -> list:
     """The single-knob tweed cut: a capacitor and a rheostat in series from the
     signal node to ground. Either element may sit nearer the signal — a
     two-element series branch has no order — so the gate finds the branch rather
     than assuming one."""
-    path = ROOT / "amps" / amp / "schematic.kicad_sch"
+    path = _sheet(amp, path)
     if not path.exists():
         return [f"{amp}: no schematic.kicad_sch"]
     nets = Nets(path)
@@ -471,14 +613,18 @@ def check_treble_cut(amp: str, spec: dict) -> list:
     return problems
 
 
-def check(amp: str, spec: dict) -> list:
+def check(amp: str, spec: dict, path=None) -> list:
     if spec["kind"] == "single-knob":
-        return check_treble_cut(amp, spec)
+        return check_treble_cut(amp, spec, path)
     if spec["kind"] == "split":
-        return check_split(amp, spec)
+        return check_split(amp, spec, path)
     if spec.get("wiring") == "ladder":
-        return check_ladder(amp, spec)
-    path = ROOT / "amps" / amp / "schematic.kicad_sch"
+        return check_ladder(amp, spec, path)
+    if spec.get("wiring") == "tapped-ladder":
+        return check_tapped_ladder(amp, spec, path)
+    if spec.get("wiring") == "bass-divider":
+        return check_bass_divider(amp, spec, path)
+    path = _sheet(amp, path)
     if not path.exists():
         return [f"{amp}: no schematic.kicad_sch"]
     nets = Nets(path)
@@ -604,7 +750,102 @@ def audit_coverage(specs: list) -> list:
     return problems
 
 
+def _pin_xy(amp: str, ref: str, num: str) -> tuple:
+    return Nets(ROOT / "amps" / amp / "schematic.kicad_sch").pins[ref][num]
+
+
+def _mutated(amp: str, edit) -> Path:
+    """A copy of the amp's sheet with `edit(schematic)` applied, in a temp dir."""
+    sch = Schematic.from_file(str(ROOT / "amps" / amp / "schematic.kicad_sch"))
+    edit(sch)
+    out = Path(tempfile.mkdtemp(prefix="cx-tonestack-")) / "schematic.kicad_sch"
+    sch.to_file(str(out))
+    return out
+
+
+def _wires_at(sch, xy):
+    for w in sch.graphicalItems:
+        if getattr(w, "type", None) != "wire":
+            continue
+        for pt in w.points:
+            if (round(pt.X, 3), round(pt.Y, 3)) == xy:
+                yield w, pt
+
+
+def _move_wire_end(sch, src, dst) -> int:
+    n = 0
+    for _, pt in list(_wires_at(sch, src)):
+        pt.X, pt.Y = dst
+        n += 1
+    return n
+
+
+def _delete_wires_at(sch, xy) -> int:
+    hit = {id(w) for w, _ in _wires_at(sch, xy)}
+    sch.graphicalItems = [g for g in sch.graphicalItems if id(g) not in hit]
+    return len(hit)
+
+
+def selftest() -> int:
+    """A walker that cannot catch a planted fault is decoration. Each case
+    mutates a copy of a sheet the gate passes today and requires the walker to
+    fail naming the mutated part — and the unmutated sheet to keep passing."""
+    specs = {(s["id"], s.get("channel")): s for s in load_specs()}
+    cases = [
+        # (amp, channel, label, mutation, ref the failure must name)
+        ("6g6b", "normal",
+         "the 0.1 uF moved off the Treble pot's TAP onto its cold end lug — the "
+         "very collapse the drawing shipped with",
+         lambda sch: _move_wire_end(sch, _pin_xy("6g6b", "VR3", POT_TAP),
+                                    _pin_xy("6g6b", "VR3", "3")),
+         "VR3"),
+        ("6g6b", "normal",
+         "the 0.005 uF bleed deleted from the Treble pot's cold end lug",
+         lambda sch: _delete_wires_at(sch, _pin_xy("6g6b", "CTN6", "1")),
+         "CTN6"),
+        ("6g4", "channel 1",
+         "the Bass pot's wiper lead deleted (a rheostat, not the divider the sheet draws)",
+         lambda sch: _delete_wires_at(sch, _pin_xy("6g4", "VRB1", POT_WIPER)),
+         "VRB1"),
+        ("6g5", "channel 2",
+         "the coupler's stack-side lead moved onto the slope foot (a short across "
+         "the slope resistor)",
+         lambda sch: _move_wire_end(sch, _pin_xy("6g5", "CC2T", "2"),
+                                    _pin_xy("6g5", "RS2T", "2")),
+         "RS2T"),
+        ("6g5", "channel 1",
+         "the coupler's plate-side lead deleted (a coupler reaching nothing)",
+         lambda sch: _delete_wires_at(sch, _pin_xy("6g5", "CC1T", "1")),
+         "CC1T"),
+    ]
+    fails = []
+    for amp, channel, label, edit, ref in cases:
+        spec = specs.get((amp, channel))
+        if spec is None:
+            fails.append(f"{amp} ({channel}): no spec in corpus.js to walk")
+            print(f"FAIL {fails[-1]}")
+            continue
+        if check(amp, spec):
+            fails.append(f"{amp} ({channel}): baseline sheet does not pass")
+            print(f"FAIL {fails[-1]}")
+            continue
+        problems = check(amp, spec, _mutated(amp, edit))
+        if not problems:
+            fails.append(f"{amp} ({channel}): {label} — NOT CAUGHT")
+            print(f"FAIL {fails[-1]}")
+        elif not any(ref in p for p in problems):
+            fails.append(f"{amp} ({channel}): {label} — caught, but the finding does not "
+                         f"name {ref}: {problems}")
+            print(f"FAIL {fails[-1]}")
+        else:
+            print(f"ok   {amp} ({channel}): {label} -> {problems[0]}")
+    print(f"\nselftest: {len(cases)} planted fault(s), {len(fails)} escape(s)")
+    return 1 if fails else 0
+
+
 def main() -> int:
+    if "--selftest" in sys.argv[1:]:
+        return selftest()
     specs = [s for s in load_specs() if s["kind"] in WALKED_KINDS]
     unwalkable = [s for s in load_specs() if s["kind"] not in WALKED_KINDS]
     failures = []

@@ -1,7 +1,7 @@
 ---
 import Base from '../../../layouts/Base.astro';
 import {
-  loadCorpus, toneStackPresets, TONE_STACK_KINDS, TONE_STACK_GATED_IDS, displayId,
+  loadCorpus, toneStackPresets, TONE_STACK_KINDS, TONE_STACK_GATED_IDS, TONE_STACK_GATE_ONLY_IDS, displayId,
 } from '../../../lib/corpus.js';
 import {
   PLOT, plotX, plotY, curvePath, gridFrequencies, dbGridLines, hzLabel,
@@ -45,10 +45,17 @@ const otherNetwork = absent.filter((a) => !topCut.includes(a)
 // solves, so what those circuits wait on is a preset, never a new model.
 const nameList = (list) => list.map((a) => displayId(a.id)).join(', ')
   .replace(/, ([^,]*)$/, ' and $1');
-const gatedLadder = gated.filter((a) => a.meta.topology.tone_stack === 'tb');
+// A fourth bucket for the drawings the gate walks under a wiring this lab has
+// no model for at all (TONE_STACK_GATE_ONLY_IDS): a two-knob network that is
+// not the ladder — a tapped Treble pot, a Bass divider — must not be described
+// as the ladder, and what it waits on is a model, not a preset.
+const gatedOnly = gated.filter((a) => inGroup(a, TONE_STACK_GATE_ONLY_IDS));
+const gatedLadder = gated.filter((a) => a.meta.topology.tone_stack === 'tb'
+  && !gatedOnly.includes(a));
 const gatedFmv = gated.filter((a) => ['fmv', 'cathode-follower-fmv']
-  .includes(a.meta.topology.tone_stack));
-const gatedRest = gated.filter((a) => !gatedLadder.includes(a) && !gatedFmv.includes(a));
+  .includes(a.meta.topology.tone_stack) && !gatedOnly.includes(a));
+const gatedRest = gated.filter((a) => !gatedLadder.includes(a) && !gatedFmv.includes(a)
+  && !gatedOnly.includes(a));
 const gatedClauses = [
   gatedLadder.length && `${nameList(gatedLadder)} ${gatedLadder.length === 1 ? 'draws' : 'draw'}`
     + ' the same two-knob ladder the blackface presets are solved with',
@@ -56,6 +63,10 @@ const gatedClauses = [
     + ' the three-knob network the tweed and British presets are solved with',
   gatedRest.length && `${nameList(gatedRest)} ${gatedRest.length === 1 ? 'draws a network' : 'draw networks'}`
     + ' this lab solves for other circuits but has not yet built a preset around',
+  gatedOnly.length && `${nameList(gatedOnly)} ${gatedOnly.length === 1 ? 'draws a two-knob network' : 'draw two-knob networks'}`
+    + ' the gate reads lug for lug against the factory sheet but this lab has no model for'
+    + ' — a Treble pot with a fixed tap, and a Bass control wired as a divider rather than'
+    + ' a rheostat in the ladder',
 ].filter(Boolean);
 const gatedSentence = gatedClauses.length < 2 ? gatedClauses[0]
   : `${gatedClauses.slice(0, -1).join(', ')}, and ${gatedClauses[gatedClauses.length - 1]}`;
@@ -407,8 +418,13 @@ const description = 'An interactive frequency-response lab for the passive tone 
       {gated.length > 0 && (<>
         {' '}{gatedSentence}. {gated.length === 1 ? 'It is' : 'All are'} read at lug level and held by the same
         wiring gate as the presets here, but not yet built into
-        {' '}{gated.length === 1 ? 'a preset' : 'presets'} — {gated.length === 1 ? 'it waits' : 'they wait'}
-        {' '}on that step rather than on a new model.
+        {' '}{gated.length === 1 ? 'a preset' : 'presets'}
+        {gatedOnly.length === 0 ? (<> — {gated.length === 1 ? 'it waits' : 'they wait'}
+        {' '}on that step rather than on a new model.</>) : (<> — {gatedOnly.length === gated.length
+          ? (gated.length === 1 ? 'it waits' : 'they wait')
+          : `all but ${nameList(gatedOnly)} wait`}
+        {' '}on that step rather than on a new model{gatedOnly.length === gated.length ? '' : `; ${nameList(gatedOnly)}
+        ${gatedOnly.length === 1 ? 'waits' : 'wait'} on the model`}.</>)}
       </>)}
       {singleKnob.length > 0 && (<>
         {' '}The single tone controls of {nameList(singleKnob)} are simply not built as presets yet.
