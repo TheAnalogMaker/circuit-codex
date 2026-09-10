@@ -268,7 +268,7 @@ amps:
       pot_orientation_flipped: 0
       section_swap: 0
       sheet_only_declared: 0
-      sheet_only_undeclared: 2
+      sheet_only_undeclared: 0
       split: 0
       stale_declarations: 0
       two_terminal_checked: 18
@@ -279,9 +279,7 @@ amps:
     pot_orientation_flipped: []
     section_swap: []
     sheet_only_declared: []
-    sheet_only_undeclared:
-    - C2
-    - C4
+    sheet_only_undeclared: []
     split: []
     stale_declarations: []
     unresolved: []
@@ -1792,17 +1790,17 @@ amps:
     - D4
 summary:
   amps: 40
-  amps_with_findings: 36
+  amps_with_findings: 35
   anchors: 1258
   board_only: 5
-  claimed_amps_with_findings: 34
+  claimed_amps_with_findings: 33
   merged: 18
   misplaced: 83
   pot_as_resistor: 1
   pot_orientation_flipped: 18
   section_swap: 4
   sheet_only_declared: 233
-  sheet_only_undeclared: 275
+  sheet_only_undeclared: 273
   split: 1
   stale_declarations: 0
   two_terminal_checked: 1807

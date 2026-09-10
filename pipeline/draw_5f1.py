@@ -36,12 +36,12 @@ s.wire(37.5, 100, 37.5, 106.68)
 s.sym("R", "R1", "1M", 37.5, 110.49)
 s.gnd(37.5, 114.3)
 # cathode
+# K-EE (1306x994, the only copy in circulation) draws both 12AX7 cathodes as a
+# bare 1500 to ground; the one bypass on the sheet is the 25-25 across the
+# 6V6's 470. Until 2026-09-10 this sheet drew a 25u across each 1500 (C2, C4)
+# that the drawing does not have; the netlist never carried them.
 s.wire(60.96, 107.62, 60.96, 111.76)
-s.junction(60.96, 111.76)
 s.sym("R", "R4", "1.5k", 60.96, 115.57)
-s.wire(60.96, 111.76, 68.58, 111.76)
-s.sym("C", "C2", "25u", 68.58, 115.57)
-s.wire(60.96, 119.38, 68.58, 119.38)
 s.gnd(60.96, 119.38)
 # plate + supply
 s.wire(60.96, 92.38, 60.96, 88.9)
@@ -69,9 +69,6 @@ s.sym("TRIODE", "V1B", "12AX7", 106.68, 100, lx=6.0, ly=-6.4)
 s.wire(106.68, 107.62, 106.68, 111.76)
 s.junction(106.68, 111.76)
 s.sym("R", "R6", "1.5k", 106.68, 115.57)
-s.wire(106.68, 111.76, 99.06, 111.76)
-s.sym("C", "C4", "25u", 99.06, 115.57)
-s.wire(99.06, 119.38, 106.68, 119.38)
 s.gnd(106.68, 119.38)
 # NFB from speaker into V1B cathode
 s.wire(106.68, 111.76, 114.3, 111.76)
