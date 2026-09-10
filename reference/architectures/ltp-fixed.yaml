@@ -1,0 +1,45 @@
+slug: ltp-fixed
+title: "Long-tailed pair, fixed bias"
+order: 1
+summary: >-
+  The architecture most of the corpus's louder amplifiers share, and the one the
+  British and blackface American makers arrive at independently. A long-tailed
+  pair splits the signal into two opposed halves, and the output bottles run with
+  their cathodes grounded and their grids held below ground by a supply of their
+  own. Because the bias no longer comes from a cathode resistor, the output stage
+  can be pushed harder and the chassis has to carry a second, negative rail to do
+  it. Everything downstream of the inverter is symmetrical, which is why the
+  section boundaries fall where they do.
+predicate:
+  phase_inverter: long-tailed-pair
+  bias: fixed
+sections:
+  - id: input
+    label: "Input and first stage"
+    holds: >-
+      The jacks, their grid stoppers and the first gain stage. Channel count varies
+      across the class and is not part of the architecture.
+  - id: tone
+    label: "Tone network"
+    holds: >-
+      The tone stack and its volume control. This is the part of the class that
+      varies most — the corpus holds cathode-follower and directly driven networks
+      under this same architecture — so the model shows where it sits, not what it is.
+  - id: inverter
+    label: "Long-tailed pair"
+    holds: >-
+      The two halves of one bottle sharing a cathode resistor to a tail, with the
+      feedback return landing at the tail foot where the circuit uses one.
+  - id: output
+    label: "Push-pull output stage"
+    holds: >-
+      Two or four bottles in opposed pairs, cathodes grounded, screens fed through
+      their own stoppers, into the output transformer's primary.
+  - id: supply
+    label: "Supply, HT and bias"
+    holds: >-
+      The rectifier and filter chain feeding the plate rails, and the separate
+      negative supply that holds the output grids below ground.
+requires:
+  output_stage: push-pull
+  negative_bias_supply: true

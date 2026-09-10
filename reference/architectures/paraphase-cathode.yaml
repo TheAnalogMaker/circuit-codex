@@ -1,0 +1,34 @@
+slug: paraphase-cathode
+title: "Paraphase inverter, cathode bias"
+order: 4
+summary: >-
+  An older way to split the signal, and one the corpus finds outside Fender as
+  often as within it. A first triode amplifies, and a second is fed from a divider
+  off the first's output to produce the opposite phase — so the two halves are
+  matched by choosing resistors rather than by a shared tail. The output pair is
+  cathode-biased, so the chassis carries no negative rail.
+predicate:
+  phase_inverter: paraphase
+  bias: cathode
+sections:
+  - id: input
+    label: "Input and first stage"
+    holds: "The jacks, their stoppers and the first gain stage."
+  - id: tone
+    label: "Tone network"
+    holds: "The tone control and volume, where the circuit carries them."
+  - id: inverter
+    label: "Paraphase"
+    holds: >-
+      Two triodes, the second driven from a divider off the first, with the
+      division ratio setting how well the halves match.
+  - id: output
+    label: "Push-pull output stage"
+    holds: >-
+      An opposed pair sharing a cathode resistor, into the output transformer.
+  - id: supply
+    label: "Supply and HT"
+    holds: "Rectifier and filter chain. No bias supply."
+requires:
+  output_stage: push-pull
+  negative_bias_supply: false

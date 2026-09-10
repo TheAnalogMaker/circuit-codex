@@ -1,0 +1,30 @@
+slug: paraphase-fixed
+title: "Paraphase inverter, fixed bias"
+order: 7
+summary: >-
+  The paraphase split with a fixed-biased output stage, which puts a negative rail
+  on a chassis whose inverter belongs to an older generation. The corpus documents
+  one circuit here, and the combination is worth showing precisely because it cuts
+  across the usual pairing of inverter type with bias arrangement.
+predicate:
+  phase_inverter: paraphase
+  bias: fixed
+sections:
+  - id: input
+    label: "Input and first stage"
+    holds: "The jacks, their stoppers and the first gain stage."
+  - id: tone
+    label: "Tone network"
+    holds: "The tone control and volume."
+  - id: inverter
+    label: "Paraphase"
+    holds: "Two triodes, the second driven from a divider off the first."
+  - id: output
+    label: "Push-pull output stage"
+    holds: "An opposed pair, cathodes grounded, into the output transformer."
+  - id: supply
+    label: "Supply, HT and bias"
+    holds: "Rectifier, filter chain and the separate negative grid supply."
+requires:
+  output_stage: push-pull
+  negative_bias_supply: true

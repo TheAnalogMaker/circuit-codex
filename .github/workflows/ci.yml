@@ -82,13 +82,22 @@ jobs:
       # main run hard-fails any amp whose layout.yaml claims wiring_claim: verified
       # but whose drawn wiring is not equivalent to netlist.cir.
       - run: python pipeline/verify_layout_nets.py
+      # The reference architectures partition the corpus by chassis architecture.
+      # Their predicates select on meta.topology; their claims are checked against
+      # netlist.cir and the netlist-derived load-line data, so a disagreement means
+      # either the architecture or the circuit's metadata is wrong.
+      - run: python pipeline/check_architectures.py --selftest
+      - run: python pipeline/check_architectures.py
       # Schematic <-> netlist electrical-equivalence gate, the schematic-side twin
       # of verify_layout_nets. The self-test proves the gate catches planted wiring
       # faults; the main run hard-fails any sheet whose sch_map.yaml claims
       # schematic_claim: verified. Report-only until a sheet earns that claim.
       - run: python pipeline/verify_schematic_nets.py --selftest
-      - run: python pipeline/verify_schematic_nets.py --selftest
-      - run: python pipeline/verify_layout_nets.py
+      - run: python pipeline/verify_schematic_nets.py
+      # The layout gate's own planted-fault proof. Until 2026-09-09 this line
+      # was a second copy of the main run, so nothing in CI proved this gate
+      # could still fail — the quietest way for a gate to rot.
+      - run: python pipeline/verify_layout_nets.py --selftest
       # reference/loadlines.yaml is generated from the netlists and simulated, so it
       # can go stale silently the moment a netlist changes. Same drift gate as models/.
       - run: python pipeline/export_loadlines.py --check

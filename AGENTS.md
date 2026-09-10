@@ -67,6 +67,13 @@ cd pipeline && python3 check_tonestack_wiring.py  # drawn tone stack == plotted 
 cd pipeline && python3 check_layouts.py      # BOTH layout renders + collision lint (+waivers)
 python3 pipeline/render_og.py --check        # per-amp social cards match their layouts
 python3 pipeline/verify_layout_nets.py       # layout↔netlist equivalence (+--selftest)
+python3 pipeline/check_architectures.py --selftest && \
+python3 pipeline/check_architectures.py     # reference architectures partition the
+                                            #   corpus; each one's claims checked
+                                            #   against netlist.cir and loadlines,
+                                            #   not against the metadata its own
+                                            #   predicate selects on. See
+                                            #   docs/architecture-schema.md
 python3 pipeline/verify_schematic_nets.py --selftest && \
 python3 pipeline/verify_schematic_nets.py    # schematic↔netlist equivalence: SHORTED /
                                              #   MERGED / SPLIT / WRONG TERMINAL are

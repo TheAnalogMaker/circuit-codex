@@ -1,0 +1,38 @@
+slug: cathodyne-fixed
+title: "Cathodyne inverter, fixed bias"
+order: 2
+summary: >-
+  A cheaper split than the long-tailed pair and a smaller chassis for it: one
+  triode produces the two opposed halves across its own plate and cathode loads,
+  so the inverter costs half a bottle rather than a whole one. The output stage is
+  still fixed-biased, so the supply section still carries a negative rail. This is
+  the mid-sized American combo of the late tweed and brown years.
+predicate:
+  phase_inverter: cathodyne
+  bias: fixed
+sections:
+  - id: input
+    label: "Input and first stage"
+    holds: "The jacks, their stoppers and the first gain stage."
+  - id: tone
+    label: "Tone network"
+    holds: "The tone control and volume, ahead of the driver."
+  - id: driver
+    label: "Driver"
+    holds: >-
+      The gain stage feeding the inverter. It is a section of its own here because
+      a cathodyne has no gain: whatever drives it sets the output stage's headroom.
+  - id: inverter
+    label: "Cathodyne"
+    holds: >-
+      One triode with matched plate and cathode loads, taking its two outputs from
+      opposite ends of the same bottle.
+  - id: output
+    label: "Push-pull output stage"
+    holds: "An opposed pair, cathodes grounded, into the output transformer."
+  - id: supply
+    label: "Supply, HT and bias"
+    holds: "Rectifier, filter chain and the separate negative grid supply."
+requires:
+  output_stage: push-pull
+  negative_bias_supply: true

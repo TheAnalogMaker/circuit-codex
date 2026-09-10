@@ -1,0 +1,34 @@
+slug: se-cathode
+title: "Single-ended, cathode bias"
+order: 3
+summary: >-
+  The simplest architecture the corpus documents, and the one a first amplifier is
+  usually built to. There is no inverter at all, because there is nothing to split
+  for: a single output bottle drives the transformer on its own, and it sets its own
+  operating point by the voltage its cathode resistor develops. No negative rail is
+  needed anywhere on the chassis. Small student and practice amps live here.
+predicate:
+  phase_inverter: none
+  bias: cathode
+sections:
+  - id: input
+    label: "Input and first stage"
+    holds: "The jack, its stopper and the single preamp triode."
+  - id: tone
+    label: "Tone control"
+    holds: >-
+      Where the circuit has one. Several members of this class have a single tone
+      capacitor or none at all, which is part of what makes them small.
+  - id: output
+    label: "Single-ended output stage"
+    holds: >-
+      One bottle, its cathode resistor and bypass capacitor setting the bias, into
+      a single-ended output transformer.
+  - id: supply
+    label: "Supply and HT"
+    holds: >-
+      Rectifier and filter chain only. There is no bias supply on this chassis,
+      which is the clearest visible difference from every fixed-bias architecture.
+requires:
+  output_stage: single-ended
+  negative_bias_supply: false

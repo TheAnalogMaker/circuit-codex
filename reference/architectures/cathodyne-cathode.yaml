@@ -1,0 +1,32 @@
+slug: cathodyne-cathode
+title: "Cathodyne inverter, cathode bias"
+order: 6
+summary: >-
+  The smallest push-pull arrangement in the corpus: a cathodyne split feeding a
+  cathode-biased pair, so neither the inverter nor the output stage needs a supply
+  of its own. It is the architecture of the small tweed combo that a great deal of
+  later design is measured against.
+predicate:
+  phase_inverter: cathodyne
+  bias: cathode
+sections:
+  - id: input
+    label: "Input and first stage"
+    holds: "The jacks, their stoppers and the first gain stage."
+  - id: tone
+    label: "Tone control"
+    holds: "A single tone control in this class rather than a stack."
+  - id: inverter
+    label: "Cathodyne"
+    holds: >-
+      One triode with matched plate and cathode loads, its grid returned into the
+      cathode network below it.
+  - id: output
+    label: "Push-pull output stage"
+    holds: "An opposed pair on a shared cathode resistor."
+  - id: supply
+    label: "Supply and HT"
+    holds: "Rectifier and filter chain. No bias supply."
+requires:
+  output_stage: push-pull
+  negative_bias_supply: false

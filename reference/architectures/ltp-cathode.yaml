@@ -1,0 +1,35 @@
+slug: ltp-cathode
+title: "Long-tailed pair, cathode bias"
+order: 5
+summary: >-
+  The long-tailed pair's symmetry with the simpler bias arrangement kept: the
+  output bottles still share a cathode resistor and set their own operating point,
+  so no negative rail crosses the chassis. The British class-A combos are the
+  corpus's members, and the combination is the reason they behave as they do when
+  driven hard.
+predicate:
+  phase_inverter: long-tailed-pair
+  bias: cathode
+sections:
+  - id: input
+    label: "Input and first stage"
+    holds: "The jacks, their stoppers and the first gain stage."
+  - id: tone
+    label: "Tone network"
+    holds: >-
+      The tone arrangement, which in this class is often a cut control rather than
+      a stack.
+  - id: inverter
+    label: "Long-tailed pair"
+    holds: "Two halves of one bottle sharing a tail resistor."
+  - id: output
+    label: "Push-pull output stage"
+    holds: >-
+      An opposed pair or quartet on a shared cathode resistor, into the output
+      transformer.
+  - id: supply
+    label: "Supply and HT"
+    holds: "Rectifier and filter chain. No bias supply."
+requires:
+  output_stage: push-pull
+  negative_bias_supply: false
