@@ -375,3 +375,7 @@ net_map:
     CTN7: "Normal ch. tone-network bass-position cap (slope foot to the Treble tap) — control-network island"
     CDR1: "V3A -> Bass ch. Treble coupling cap — control-network island, DC-open"
     VR7: "Presence pot — its element bridges RPF end to end and its wiper feeds a 0.1 uF cap; pots are not modelled in netlist.cir corpus-wide"
+  # Sheet terminal -> board terminal: the sheet numbers the transformer's bias
+  # tap as T1 pin 6 (label HT_TAP); E-FB letters that lead RED-BLUE.
+  leads:
+    T1.6: PT.red-blue
