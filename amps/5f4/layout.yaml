@@ -88,7 +88,7 @@ heaters:
       chain.
     sockets:
       V6: { feed: [2], return: [8] }        # 5U4G directly-heated filament
-caption: "Redrawn from the published Fender 5F4 'Super-Amp' layout drawing (C-EG), page 1 — principal board components and their hookup, in the order the drawing shows them. The chassis has four input jacks (two per channel); the drawing's four 68 kΩ grid stoppers collapse to the two the schematic/BOM model (R1s, R2s), and the two 1 MΩ input grid leaks (RG1, RG2) mount at the channel jacks as the sheet shows. The tone network is wired as the sheet draws it: the 250 pF treble cap, 0.1 µF bass coupler and its 220 kΩ leak sit on the board; the 0.01 µF (C6) hangs at the treble pot and the 0.005 µF (C7) at the bass pot, whose other end lug is grounded to its case; the bass branch lands on the bass pot's WIPER, and the second 220 kΩ (RSR) is strung pot-to-pot from the bass wiper to the treble wiper, whose lead alone carries the output to the phase inverter. The presence pot and the 56 kΩ negative-feedback resistor both land at the driver's cathode: they are chassis wiring rather than board wiring, so they are drawn at the chassis edge — the feedback resistor as a discrete part, because a bare lead from the speaker jack to that cathode would draw a short the amplifier does not have. The 0.1 µF on the presence wiper is drawn at the chassis edge beside the pot. The 100 pF bright cap and the two AC-line caps are chassis parts too and are left off this drawing; the schematic carries them. The power-transformer primary (black) lands on chassis switches, off the board; the 6.3 V heater supply is single-ended — one green transformer lead is grounded alongside the red-yellow HT centre tap and the other feeds the pilot light and every heater, so each socket carries a green feed and a grounded return (all three noval bottles have pins 4+5 strapped for 6.3 V parallel with the centre tap at pin 9 to ground; each 6L6G is fed at pin 7 and returned at pin 2, bowed to the base sleeve at pin 1 and on to the fixed-bias grounded cathode at pin 8). Those landings are the drawing's own; the daisy order the feed takes (pilot light → the two 6L6G output tubes → 12AX7 phase inverter → 12AX7 → 12AY7) follows the sheet's own physical order. The directly-heated 5U4G rectifier runs off the 5 V winding, the transformer's yellow pair, not the 6.3 V chain. Not a trace or a dimensioned reproduction."
+caption: "Redrawn from the published Fender 5F4 'Super-Amp' layout drawing (C-EG), page 1 — principal board components and their hookup, in the order the drawing shows them. The chassis has four input jacks (two per channel); the drawing's four 68 kΩ grid stoppers collapse to the two the schematic/BOM model (R1s, R2s), and the two 1 MΩ input grid leaks (RG1, RG2) mount at the channel jacks as the sheet shows. The tone network is wired as the sheet draws it: the 250 pF treble cap, 0.1 µF bass coupler and its 220 kΩ leak sit on the board; the 0.01 µF (C6) hangs at the treble pot and the 0.005 µF (C7) at the bass pot, whose other end lug is grounded to its case; the bass branch lands on the bass pot's WIPER, and the second 220 kΩ (RSR) is strung pot-to-pot from the bass wiper to the treble wiper, whose lead alone carries the output to the phase inverter. The presence pot and the 56 kΩ negative-feedback resistor both land at the driver's cathode: they are chassis wiring rather than board wiring, so they are drawn at the chassis edge — the feedback resistor as a discrete part, because a bare lead from the speaker jack to that cathode would draw a short the amplifier does not have. The 0.1 µF on the presence wiper is drawn at the chassis edge beside the pot. The 100 pF bright cap and the two AC-line caps are chassis parts too and are left off this drawing; the schematic carries them. The negative-bias supply takes the power transformer's own bias tap — the red-blue lead — onto the 6.8 kΩ, which feeds the selenium rectifier beside the board; the rectifier's other terminal is the −40 V line, the order the drawing shows. The power-transformer primary (black) lands on chassis switches, off the board; the 6.3 V heater supply is single-ended — one green transformer lead is grounded alongside the red-yellow HT centre tap and the other feeds the pilot light and every heater, so each socket carries a green feed and a grounded return (all three noval bottles have pins 4+5 strapped for 6.3 V parallel with the centre tap at pin 9 to ground; each 6L6G is fed at pin 7 and returned at pin 2, bowed to the base sleeve at pin 1 and on to the fixed-bias grounded cathode at pin 8). Those landings are the drawing's own; the daisy order the feed takes (pilot light → the two 6L6G output tubes → 12AX7 phase inverter → 12AX7 → 12AY7) follows the sheet's own physical order. The directly-heated 5U4G rectifier runs off the 5 V winding, the transformer's yellow pair, not the 6.3 V chain. Not a trace or a dimensioned reproduction."
 source:
   desc: "Fender 'Super-Amp' Model 5F4 layout drawing (C-EG), page 1"
   url: "https://el34world.com/charts/Schematics/files/Fender/Fender_super_5f4.pdf"
@@ -165,14 +165,16 @@ offboard:
   - { id: V3,  ref: V3, kind: tube, edge: bottom, at: 20,   label: "V3 · 12AX7 (PI)" }
   - { id: V2,  ref: V2, kind: tube, edge: bottom, at: 33,   label: "V2 · 12AX7" }
   - { id: V1,  ref: V1, kind: tube, edge: bottom, at: 44,   label: "V1 · 12AY7" }
-  # Bias-supply rectifier. It had been narrated in prose ("a chassis part
-  # feeding RB1 off the board") and left undrawn, so RB1's outer eyelet was
-  # the one node on the sheet with no joint on it — a resistor with an end
-  # going nowhere. It is drawn now, as the 5F10 and 6G3 sheets draw theirs.
-  # Band at b: schematic.kicad_sch wires HT_B to the DIODE_SS anode pin and
-  # the 6.8 k (RB1) to its cathode. The HT winding is symmetric and the
-  # schematic names only "HT_B" for its tap, so the drawing takes the nearer
-  # of the two red HT leads; which end carries the tap is not a circuit claim.
+  # Bias-supply selenium rectifier, a chassis part beside the board's power
+  # end. The C-EG layout (read at 6330 x 3228) feeds it from the transformer's
+  # own bias tap, never from a rectifier plate: the lead lettered RED-BLUE
+  # lands on the lower eyelet of the 6800, the 6800's upper eyelet takes the
+  # rectifier's "+" terminal, and its "-" terminal goes to the -40 V node (56K,
+  # the 100 MFD 25 V can, the two 220K grid leaks). The C-EG schematic draws
+  # the same order — tap, 6800, rectifier, -40 V. Band at b: b is the terminal
+  # the layout letters "+" (the rectifier's cathode, which faces the winding in
+  # a negative supply) — read off the factory layout, where schematic.kicad_sch
+  # at cdc5afd draws D1 with its anode (DIODE_SS pin 1) on HT_TAP instead.
   - { id: D1, ref: D1, kind: part, edge: top, at: 0.5, label: "D1", cathode: b }
   - { id: VR6, ref: VR6, kind: pot, edge: top, at: 4,  label: "Presence" }
   - { id: C17, ref: C17, kind: part, edge: top, at: 6.4, label: "C17" }
@@ -213,8 +215,9 @@ bus:
 # the head of this file. The directly-heated 5U4G runs off the 5 V winding and
 # is not on the 6.3 V chain. The two 1 MΩ input
 # grid leaks (RG1, RG2) mount at the channel jacks as generic 2-lead off-board
-# parts (kind: part). The bias-supply selenium rectifier is a chassis part
-# feeding RB1 off the board. Endpoints reference board eyelets (REF.a/REF.b),
+# parts (kind: part). The bias supply takes the transformer's own bias tap —
+# the RED-BLUE lead — onto the 6.8k, which feeds the selenium rectifier, a
+# chassis part beside the board. Endpoints reference board eyelets (REF.a/REF.b),
 # tube socket pins (Vn.pinN, validated against reference/tubes basing — heater
 # pins on the twisted runs), pot lugs (VRn.lugN), jacks, off-board 2-lead parts
 # (RG1.a/RG1.b, PL1.a/PL1.b), choke/transformer leads (by colour). `via`
@@ -222,10 +225,10 @@ bus:
 runs:
   # --- power transformer secondary -> 5U4G rectifier (marked colours) --------
   - { from: PT.red1, to: V6.pin4, via: [[2.1, 0.5], [2.5, 1.7]] }
-  - { from: PT.red2, to: V6.pin6, via: [[2, 0.85], [3.6, 1.62]] }
+  - { from: PT.red2, to: V6.pin6, via: [[2.095, 0.85], [3.6, 1.62]] }
   - { from: PT.red-yellow, to: [1.45, 2], via: [[0.35, 0.55]] }
-  - { from: PT.yellow1, to: V6.pin2, via: [[0.892, 0.7], [0.518, 2.5], [1.8, 2.75]] }
-  - { from: PT.yellow2, to: V6.pin8, via: [[2.7, 0.55], [2.7, 2.3]] }
+  - { from: PT.yellow1, to: V6.pin2, via: [[0.878, 0.7], [0.532, 2.5], [1.8, 2.75]] }
+  - { from: PT.yellow2, to: V6.pin8, via: [[2.7, 0.563], [2.7, 2.3]] }
   - { from: V6.pin8, to: C11.a, color: red, via: [[4.35, 2.68], [4.35, 0.4]] }
 
   # --- filtered B+ rail: choke, then two 10k droppers ------------------------
@@ -240,17 +243,17 @@ runs:
   - { from: C13.b, to: [1.45, 10.7], via: [[10.6, 1]] }
   - { from: C14.b, to: [1.45, 36.7], via: [[36.7, 1.1]] }
 
-  # --- bias supply: selenium rect (off-board) -> RB1 -> -40 V ----------------
-  - { from: D1.a, to: PT.red2, via: [[0.1, -0.62], [-0.5, -0.2]] }
+  # --- bias supply: PT bias tap (red-blue) -> 6.8k -> selenium rect -> -40 V --
+  # (the C-EG layout's order: RED-BLUE onto the 6800's lower eyelet, its upper
+  # eyelet to the rectifier's "+", the rectifier's "-" to the -40 V node)
+  - { from: PT.red-blue, to: RB1.a, via: [[-1.5, 0.37]] }
   - { from: D1.b, to: RB1.b, via: [[0.95, -0.35]] }
-  - { from: RB1.a, to: C15.a }
+  - { from: D1.a, to: C15.a }
   - { from: C15.b, to: [1.45, 0.5], via: [[0.615, 1.1]] }
-  # bows below RB1.b — that eyelet now carries the selenium cathode, and a
-  # run passing straight over a live joint reads as landing on it
-  - { from: RB2.a, to: RB1.a, via: [[1, 1.19]] }
+  - { from: RB2.a, to: C15.a, via: [[1.6, 0.5]] }
   - { from: RB2.b, to: [1.45, 3] }
-  - { from: RGL1.b, to: RB1.a, via: [[9, 1.62], [1.2, 1.62]] }
-  - { from: RGL2.b, to: RB1.a, via: [[12.312, 1.52], [-0.4, 1.54], [-0.4, 1]] }
+  - { from: RGL1.b, to: RB2.a, via: [[9, 1.62], [2.3, 1.62]] }
+  - { from: RGL2.b, to: RB2.a, via: [[12.312, 1.52], [2.8, 1.52]] }
 
   # --- 6L6G output: grids, screens, plates, cathodes, OT ---------------------
   # OT primary / B+ / plate leads run in a harness band below the sockets.
@@ -270,18 +273,18 @@ runs:
   - { from: T3.sec1, to: SPK, via: [[48.5, 0.63], [48.5, 3.05], [15.8, 3.05], [15.05, 1.9]] }
   - { from: T3.sec2, to: SPK, via: [[48.8, 0.74], [48.8, 3.2], [17.3, 3.2], [16.5, 1.8]] }
   - { from: SPK, to: RNF.a, via: [[15.269, 2.55], [17, 2.55]] }
-  - { from: RNF.b, to: RK3.a, via: [[18.2, 2.7], [18.2, 3.35], [20.16, 3.35], [19.9, 1.35]] }
+  - { from: RNF.b, to: RK3.a, via: [[18.2, 2.739], [18.2, 3.35], [20.137, 3.35], [19.727, 1.389]] }
 
   # --- phase inverter: driver (V3A) + split-load cathodyne (V3B) -------------
   - { from: RLA.a, to: C13.a, via: [[16, 0.55], [9, 0.55]] }
-  - { from: RLA.b, to: V3.pin1, via: [[17, 1.6], [20, 1.6]] }
+  - { from: RLA.b, to: V3.pin1, via: [[17, 1.6], [19.96, 1.6]] }
   - { from: RLB.a, to: C13.a, via: [[18, 0.8], [9.6, 0.8]] }
-  - { from: RLB.b, to: V3.pin6, via: [[19, 1.72], [20.4, 1.72]] }
-  - { from: V3.pin1, to: C8.a, via: [[19.5, 1.65], [24.7, 1.75], [24.7, 0.45]] }
-  - { from: V3.pin6, to: C9.a, via: [[20.633, 1.818], [16.203, 1.778], [16.345, 0.55]] }
+  - { from: RLB.b, to: V3.pin6, via: [[19, 1.591], [20.312, 1.72]] }
+  - { from: V3.pin1, to: C8.a, via: [[19.5, 2.015], [24.7, 1.198], [24.7, 0.45]] }
+  - { from: V3.pin6, to: C9.a, via: [[20.683, 1.718], [16.203, 1.778], [16.345, 0.55]] }
   - { from: C8.b, to: V3.pin7, via: [[26.648, 1.3], [20.8, 1.3], [20.8, 2]] }
   - { from: RGB.a, to: V3.pin7, via: [[22, 1.9], [20, 1.9]] }
-  - { from: V3.pin3, to: RK3.a, via: [[20, 1.68], [19.6, 1.68], [19.6, 1.05]] }
+  - { from: V3.pin3, to: RK3.a, via: [[19.36, 1.68], [19.6, 1.68], [19.6, 1.05]] }
   - { from: RK3.b, to: [1.45, 20.3], via: [[20.3, 1.15]] }
   - { from: V3.pin8, to: RKA.a, via: [[21, 2.35], [24.3, 2.35], [24.3, 0.55]] }
   - { from: C10.a, to: RKA.a, via: [[19, -0.35], [24, -0.35]] }
@@ -293,12 +296,12 @@ runs:
   - { from: RL3.a, to: C14.a }
   - { from: RL3.b, to: V2.pin6, via: [[37, 1.542], [34.566, 1.5]] }
   - { from: V2.pin6, to: V2.pin2, via: [[33.2, 2.4], [32.4, 2.4]] }
-  - { from: V2.pin1, to: C14.a, via: [[33, 1.65], [35.76, 1.65]] }
-  - { from: V2.pin8, to: RK2.a, via: [[34.5, 2.3], [34.2, 2.3], [34.2, 0.35]] }
+  - { from: V2.pin1, to: C14.a, via: [[32.95, 1.75], [35.76, 1.65]] }
+  - { from: V2.pin8, to: RK2.a, via: [[35.112, 2.3], [34.88, 1.977], [34.2, 0.35]] }
   - { from: RK2.b, to: [1.45, 34.4] }
   # C4's + lead shares RK2's top eyelet (an eyelet is one solder point)
   - { from: C4.b, to: [1.45, 33.8], via: [[33.5, 0.6]] }
-  - { from: RF1.b, to: V2.pin7, via: [[31.5, 2], [33, 2]] }
+  - { from: RF1.b, to: V2.pin7, via: [[32.05, 1.19], [33, 2]] }
 
   # --- split treble/bass tone network, as the C-EG sheet wires it -------------
   # (250 pF + 0.1 coupler + 220k leak on the board; 0.01 at the treble pot and
@@ -336,21 +339,21 @@ runs:
   - { from: JI, to: R1s.b, via: [[46, -0.45], [45, -0.4]] }
   - { from: RG1.a, to: R1s.b, via: [[44.8, 1.85]] }
   - { from: RG1.b, to: [1.45, 45.5] }
-  - { from: R1s.a, to: V1.pin7, via: [[44, 1.95], [44.8, 1.95]] }
-  - { from: V1.pin6, to: RL1.b, via: [[43.5, 1.7], [40, 1.7]] }
+  - { from: R1s.a, to: V1.pin7, via: [[44.022, 1.585], [44.376, 1.95]] }
+  - { from: V1.pin6, to: RL1.b, via: [[43.888, 1.68], [40, 1.7]] }
   - { from: RL1.a, to: C14.a, via: [[39, 0.55], [37, 0.55]] }
-  - { from: V1.pin6, to: C1.a, via: [[44.2, 1.85], [38.3, 1.85], [38.3, 0.4]] }
+  - { from: V1.pin6, to: C1.a, via: [[43.914, 1.867], [38.3, 1.85], [38.3, 0.4]] }
   - { from: C1.b, to: VR1.lug3, via: [[40, -0.4], [39, -0.4]] }
   - { from: JM, to: R2s.b, via: [[47.6, 0.45], [47.6, 1]] }
   - { from: RG2.a, to: R2s.b, via: [[48.9, -0.2], [48.6, 0.65]] }
   - { from: RG2.b, to: [1.45, 46.6], via: [[46.7, 0.5]] }
-  - { from: R2s.a, to: V1.pin2, via: [[47, 1.7], [44.03, 1.7]] }
+  - { from: R2s.a, to: V1.pin2, via: [[47, 1.7], [45.63, 1.7]] }
   - { from: V1.pin1, to: RL2.b, via: [[42.5, 2.05], [42, 1.6]] }
   - { from: RL2.a, to: C14.a, via: [[41, 0.34], [37.3, 0.34]] }
   - { from: V1.pin1, to: C2.a, via: [[45.3, 2.18], [41.3, 2.18], [41.3, 0.4]] }
   - { from: C2.b, to: VR2.lug3, via: [[43, -0.42], [43.05, -0.42]] }
   - { from: V1.pin8, to: RK1.a, via: [[44.6, 2.35], [45.796, 2.35], [45.715, 0.55]] }
-  - { from: V1.pin3, to: RK1.a, via: [[45.5, 2.3], [46.4, 2.3], [46.4, 0.6]] }
+  - { from: V1.pin3, to: RK1.a, via: [[45.5, 2.3], [46.345, 2.3], [46.4, 0.6]] }
   - { from: RK1.b, to: [1.45, 46] }
   - { from: C3.a, to: RK1.a }
   - { from: C3.b, to: [1.45, 48.25], via: [[48.25, 0.9]] }
@@ -367,8 +370,8 @@ runs:
   # directly heated off the 5 V winding, so it is not on this chain. Twisted
   # runs land only on heater pins (6L6 octal 2/7, noval 4/5); routed in a deep
   # lane below the output harness.
-  - { from: PT.green1, to: [1.45, 1.4], style: heater, via: [[-1.5, 1.05]] }        # grounded 6.3 V leg
-  - { from: PT.green2, to: PL1.a, style: heater, via: [[-1.7, 2.35]] }              # 6.3 V feed -> pilot light
+  - { from: PT.green1, to: [1.45, 1.4], style: heater, via: [[-1.73, 0.35], [-1.695, 1.003]] }   # grounded 6.3 V leg
+  - { from: PT.green2, to: PL1.a, style: heater, via: [[-1.604, 2.331]] }                        # 6.3 V feed -> pilot light
   - { from: PL1.a, to: V4.pin7, style: heater, via: [[-1.2, 3.7], [6.5, 3.7]] }     # feed -> V4 6L6G heater
   - { from: V4.pin7, to: V5.pin7, style: heater, via: [[6.5, 3.72], [10.5, 3.72]] } # V4 -> V5 heater
   - { from: V5.pin7, to: V3.pin4, style: heater, via: [[10.5, 3.74], [20, 3.74]] }  # V5 -> V3 heater
@@ -383,7 +386,7 @@ runs:
   # cathode at pin 8 (this circuit is fixed-bias, so that cathode is grounded),
   # and at every noval the centre tap at pin 9 goes straight up to a ground
   # hatch, which the drawing also uses as the tie point for the cathode at pin 8.
-  - { from: V4.pin2, to: [1.45, 6.1], style: heater }
+  - { from: V4.pin2, to: [1.45, 6.1], style: heater, via: [[5.43, 1.591]] }
   - { from: V5.pin2, to: [1.45, 10.1], style: heater }
   - { from: V3.pin9, to: [1.45, 20.6], style: heater }
   - { from: V2.pin9, to: [1.45, 33.6], style: heater }
@@ -422,3 +425,8 @@ net_map:
   # read off the cited layout drawing (sheet ↔ board gate, 2026-09-10).
   not_on_board:
     L1: "filter choke — a chassis part the 5F4 layout (C-EG, read at 6330 × 3228) does not draw: the +415 V and +410 V leads from the first two 16 µF cans leave the board's lower edge through a chassis grommet to it. On this board it is only the off-board choke stub (kind: choke, leads hi/lo), which the sheet ↔ board gate has no two-lead vocabulary for"
+  # Sheet terminal -> board terminal, for what no name can match: the sheet
+  # numbers the power transformer's bias tap as T1 pin 6 (label HT_TAP); the
+  # C-EG layout letters that same winding terminal's lead RED-BLUE.
+  leads:
+    T1.6: PT.red-blue
