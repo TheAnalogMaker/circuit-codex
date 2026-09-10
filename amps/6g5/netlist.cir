@@ -13,8 +13,11 @@
 * silicon-bridge reservoir upstream of the choke is not modelled, exactly as a
 * tube rectifier's own drop is not modelled elsewhere in the corpus. The bias
 * supply (a filtered tap this drawing does not fully resolve — see notes.md) is
-* replaced by an ideal -55 V source, as its AC/ripple-filtering role warrants
-* everywhere else in this corpus.
+* replaced by an ideal -55 V source, as its AC/ripple-filtering role warrants:
+* all 29 fixed-bias circuits documented here drive their bias supply from an
+* ideal source instead of modelling the rectifier, 28 at the bias line itself
+* and the 5G9 one node upstream, at the rectifier output, deriving its line
+* through the drawing's own 82k/56k divider.
 *
 * One dropper downstream of B+1 is READ from the drawing (a 4700 Ohm-1W shared
 * screen dropper) and MODELLED as a real resistor, so the screens' loaded
@@ -42,8 +45,18 @@
 *
 * DC-open caps outside the checked wiring are not modelled; the tone stacks,
 * volume pots, tremolo photocell and the PI-tail NFB/Presence network are
-* abstracted networks that carry ~0 V DC and are omitted, matching every other
-* amp in the corpus.
+* abstracted networks that carry ~0 V DC and are omitted here. The first three
+* do match every other amp in the corpus: no netlist here models a tone-stack
+* network or a tremolo photocell, and a volume control reaches a netlist only
+* as the leak resistor standing for the grid below it (RG1B and RG2B here).
+* The NFB/Presence network is the exception, and omitting it is this circuit's
+* own choice rather than a house rule: nine of the 41 documented circuits
+* model part of a feedback or presence network as real resistors — the 6G3,
+* 6G6-B, AB763 Twin, AA864, JTM100 and DR103 hang it on a long-tailed-pair
+* tail, the 5F10, AA964 and AA1164 on a cathodyne cathode. Here the two nodes
+* it would move — the shared PI cathode KPI and the tail junction JPI — are
+* reported informational (chart: null) rather than gated, so leaving it out
+* costs nothing that is checked.
 .include models/12ax7.inc
 .include models/6l6gc.inc
 

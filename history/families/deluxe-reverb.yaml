@@ -6,9 +6,9 @@ summary: >-
   the Deluxe went blackface in 1963, Fender added an outboard-style spring reverb and a
   tube-driven vibrato to the 6V6 platform, producing a 22 W combo that became one of
   the most recorded amps ever made. This short family file covers the blackface reverb
-  circuits (AA763 then the definitive AB763) and notes the later AB868 revision; it
-  owns the corpus's amps/ab763 entry, while the plain non-reverb Deluxe and the moment
-  of the split are documented in the deluxe family file.
+  circuits (AA763 then the definitive AB763) and notes the later AB868 revision; the
+  AB763 circuit entry belongs to this line, while the plain non-reverb Deluxe and the
+  moment of the split are documented with the Deluxe line.
 models:
   - designation: "AA763"
     name: "Deluxe Reverb AA763 (blackface)"
@@ -39,7 +39,7 @@ models:
       at 22 W; the preamp runs Normal and Vibrato channels, each with volume, treble,
       and bass, plus reverb and speed/intensity controls. A 12AT7 drives the reverb
       tank and a second 12AT7 forms the long-tailed-pair phase inverter. This is the
-      circuit documented in the corpus at amps/ab763, where the printed AB763 voltage
+      AB763 circuit this corpus documents in full, and where the printed AB763 voltage
       chart is DC-verified.
     circuit_ref: "ab763"
     sources:
@@ -52,5 +52,5 @@ notes: >-
   reverb circuits, with the AB868 revision noted on the AB763 entry rather than split
   out. The reverb line continued into the silverface era (out of scope here). The
   moment the Deluxe forked into reverb and non-reverb branches, and the plain
-  blackface Deluxe, live in history/families/deluxe.yaml to avoid duplicating the
-  shared amps/ab763 circuit_ref, which belongs to this file.
+  blackface Deluxe, are told on the Deluxe line's page; the AB763 circuit entry
+  itself belongs here, so that only one line claims it.

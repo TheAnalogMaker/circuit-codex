@@ -4,7 +4,7 @@
 # schematic (schematic.kicad_sch) by pipeline/validate.py, in both directions.
 # Values are the drawing's; the notice sets 1/2 W / 10% resistors and 400 V caps
 # unless noted.
-notes: "The drawing shows one jack per channel input pair; the chassis carries two per channel. Tremolo-oscillator and reverb-tank interconnect parts are listed but the oscillator's DC point is excluded from the netlist (see notes.md)."
+notes: "The drawing shows one jack per channel input pair; the chassis carries two per channel. Tremolo-oscillator and reverb-tank interconnect parts are listed but the oscillator's DC point is excluded from the netlist (see the circuit story)."
 items:
   # --- Normal channel input (V1a) ---
   - { ref: R1n, part: "Carbon comp resistor", value: "68 kΩ · ½ W",  role: "Normal input grid stopper (jack 1)" }

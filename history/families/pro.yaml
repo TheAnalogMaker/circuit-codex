@@ -107,7 +107,7 @@ models:
     tubes: [12AY7, 12AY7, 12AX7, 6L6GB, 6L6GB, 5U4G]
     key_change: >-
       The narrow-panel cabinet revision, one year ahead of the 5E5-A this
-      corpus documents in full (amps/5e5a/). Circuit-wise it is close to a
+      corpus documents in full. Circuit-wise it is close to a
       scaled-up 5E3 Deluxe: the phase inverter moves from the 5D5's paraphase
       arrangement to the split-load (cathodyne) topology the 5E5-A keeps, but
       the power section stays cathode-biased and the negative-feedback loop
@@ -130,8 +130,8 @@ models:
     output: "push-pull 2x6L6GB"
     tubes: [12AY7, 12AY7, 12AX7, 6L6GB, 6L6GB, 5U4GA]
     key_change: >-
-      The definitive tweed Pro, documented in full in this corpus
-      (amps/5e5a/). Fixed bias returns, paired with a restored
+      The definitive tweed Pro, and the circuit this corpus documents in full
+      for the line. Fixed bias returns, paired with a restored
       negative-feedback loop and the line's first Presence control, over the
       same driver + split-load cathodyne phase inverter the 5E5 introduced.
       The passive James tone network (separate Bass and Treble pots, no
@@ -140,7 +140,7 @@ models:
       6G5 use it in this exact two-knob form.
     circuit_ref: "5e5a"
     sources:
-      - desc: "Fender 'Pro-Amp' Model 5E5-A schematic and layout (J-EE) — see amps/5e5a/meta.yaml for the full component-level citation"
+      - desc: "Fender 'Pro-Amp' Model 5E5-A schematic and layout (J-EE) — the 5E5-A's own page carries the full component-level citation"
         url: "https://schematicheaven.net/fenderamps/pro_5e5a_schem.pdf"
       - desc: "Mojotone Fender Field Guide, 'Fender Narrow Panel Tweed Pro' — 5E5-A (1956-1960), fixed/nonadjustable bias via a selenium bias rectifier, negative-feedback loop restored with the addition of a Presence control"
         url: "https://mojotone.com/blogs/fender-field-guide/fender-narrow-panel-tweed-pro"
@@ -170,7 +170,7 @@ models:
       carries.
     circuit_ref: "6g5"
     sources:
-      - desc: "Fender 'Pro-Amp' Model 6G5 drawing (A-FJ), schematic + layout — see amps/6g5/meta.yaml for the full component-level citation. The drawing's own layout page shows five 7025 sockets and the two 6L6GC, and draws a lamp/photoresistor tremolo in the audio path rather than the phase-mixed harmonic vibrato a secondary field guide names"
+      - desc: "Fender 'Pro-Amp' Model 6G5 drawing (A-FJ), schematic + layout — the 6G5's own page carries the full component-level citation. The drawing's own layout page shows five 7025 sockets and the two 6L6GC, and draws a lamp/photoresistor tremolo in the audio path rather than the phase-mixed harmonic vibrato a secondary field guide names"
         url: "https://schematicheaven.net/fenderamps/pro_6g5_schem.pdf"
       - desc: "Mojotone Fender Field Guide, 'Fender Brownface Pro' — 6G5/6G5-A (1960-1963), 40 W, 1x15\" combo, Normal/Bright channels each one 7025, long-tailed-pair phase inverter (one 7025), 6G5 tremolo on two 7025s, 6L6GC output (6G5-A: 5881), solid-state rectifier, fixed/nonadjustable bias, Presence control, no reverb"
         url: "https://mojotone.com/blogs/fender-field-guide/fender-brownface-pro"
@@ -189,10 +189,9 @@ notes: >-
   guide as a running change to the 6G5, and the row above carries the pair's
   shared 1960-1963 window under a combined designation — the same treatment
   the Super line's 6G4 / 6G4-A row gets. A contributor drawing the -A should
-  split it into a row of its own here, not a new family. Two circuits in this line have documented
-  entries in the corpus — the 5E5-A (amps/5e5a/) and the brown 6G5
-  (amps/6g5/), which is where the line's tremolo type is settled: the
-  drawing wires a lamp and photoresistor into the audio path, so this file
-  calls it an optical tremolo rather than following the field guide's
-  "harmonic vibrato" label. Every other row is history-tier
-  (circuit_ref: null) until one is built.
+  split it into a row of its own here, not a new family. Two circuits in this
+  line have full entries — the 5E5-A and the brown 6G5, which is where the
+  line's tremolo type is settled: the drawing wires a lamp and photoresistor
+  into the audio path, so it is called an optical tremolo here rather than
+  following the field guide's "harmonic vibrato" label. Every other row is
+  history only, until the circuit behind it is drawn.

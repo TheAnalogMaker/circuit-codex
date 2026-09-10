@@ -36,8 +36,8 @@ sources:
       0.1uF cathodyne-to-output couplers. Some rail-dropper and V2 (second
       12AY7 stage) values were not confidently legible in this copy and are
       carried at this corpus's standard values for the identical role elsewhere
-      in the tweed lineup (5e3, 5f4) rather than guessed digit-by-digit — see
-      notes.md. Not reproduced here; archived at Schematic Heaven"
+      in the tweed lineup (5E3, 5F4) rather than guessed digit-by-digit — see
+      the circuit story. Not reproduced here; archived at Schematic Heaven"
     url: "https://schematicheaven.net/fenderamps/pro_5e5a_schem.pdf"
   - desc: "Fender 'Pro-Amp' Model 5E5-A layout drawing (J-EE), same sheet set —
       corroborates the tube complement (5U4GA, 2x6L6GB, 12AX7, 2x12AY7), the
@@ -49,10 +49,11 @@ sources:
       the title block ('FENDER PRO-AMP SCHEMATIC/LAYOUT MODEL 5E5-A', J-EE),
       V2's own plate and cathode voltages (+130/+1.9, both gated), the
       driver's cathode (+1.6), a 100k resistor across V2's own plate and grid
-      and a 5 MEG resistor from V2's grid to the driver's grid (bom.yaml
-      RFB1/RBLEED — carried as parts, not modelled; see notes.md), and the
-      negative-feedback + Presence tap landing on the driver's GRID rather
-      than its cathode. The source for schematic.kicad_sch. Not reproduced
+      and a 5 MEG resistor from V2's grid to the driver's grid (RFB1 and
+      RBLEED in the parts list — carried as parts, not modelled; see the
+      circuit story), and the negative-feedback + Presence tap landing on the
+      driver's GRID rather than its cathode. The source the schematic on this
+      page is drawn from. Not reproduced
       here; archived at Schematic Heaven"
     url: "https://schematicheaven.net/fenderamps/pro_5e5a_schem.pdf"
   - desc: "Mojotone Fender Field Guide, 'Fender Narrow Panel Tweed Pro' — 5E5

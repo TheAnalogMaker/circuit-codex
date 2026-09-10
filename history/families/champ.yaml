@@ -139,9 +139,9 @@ models:
       dedicated 12AX7 running a bias-vary tremolo oscillator (Speed and Intensity
       controls) ahead of the same output stage. Fender's own drawing prints
       "VIBRO-CHAMP AA764" — the identical designation the plain Champ sheet
-      carries, so this circuit lands in the corpus under the qualified id
-      amps/aa764-vibro rather than colliding with amps/aa764 (docs/schema.md,
-      "Ids and colliding designations").
+      carries, so the two circuits are filed apart by model: the plain Champ
+      under the bare AA764, the Vibro Champ under an AA764 qualified by the
+      model name.
     circuit_ref: "aa764-vibro"
     sources:
       - desc: "EL34World schematic archive, Fender Vibro Champ AA764 sheet (indexed by designation; two print runs exist under Fender Electric Instrument Company and later CBS-era letterheads, both AA764 and both read for this entry)"
@@ -151,11 +151,11 @@ models:
       - desc: "Wikipedia, Fender Champ — blackface AA764 / Vibro Champ tremolo introduction"
         url: "https://en.wikipedia.org/wiki/Fender_Champ"
 notes: >
-  The AA764 designation covers two drawings in this family: the plain Champ
-  (amps/aa764, landed first, keeps the bare id) and its tremolo-equipped Vibro
-  Champ sibling (amps/aa764-vibro, the qualified id — its own drawing prints
-  the identical AA764 designation). Both rows above share that designation
-  deliberately; it is not a data-entry duplicate.
+  The AA764 designation covers two drawings in this family: the plain Champ,
+  which keeps the bare designation, and its tremolo-equipped Vibro Champ
+  sibling, whose own drawing prints the identical AA764 and which is therefore
+  filed under a designation qualified by the model name. Both rows above share
+  that designation deliberately; it is not a duplicate.
   Tweed-era production dates (5B1 through 5D1) are fuzzy and overlap between
   revisions; the ranges given are the defensible spans, not firm year-by-year
   boundaries. Wattage figures for the pre-5E1 Champions were never formally

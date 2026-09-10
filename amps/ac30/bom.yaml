@@ -12,7 +12,7 @@
 # No wattages are listed. OS/065 prints none for its resistors and carries no
 # blanket "all resistors ½ W" note, so stating one would be an assertion the
 # drawing does not make; only the values it letters are recorded here.
-notes: "Coupling and cathode-bypass capacitor VALUES are open at DC and do not enter the operating-point netlist; they are listed for completeness. Parts belonging to the Vibrato/Tremolo channel are marked — that channel is outside the DC netlist's scope (see notes.md), so its values are read from the drawing but not simulated, and the parts whose interconnection the published scan does not resolve carry no designator. The blue negative-feedback loop drawn across this copy is a later hand addition by a previous owner and is not a part of this circuit. Two capacitor values on the sheet were silently modernised between issues — the 1961/62 printing specifies 0.05 and 0.005 µF where later sheets, this one included, print 0.047 and 0.0047 µF for the same parts; the values recorded here are the ones OS/065 letters."
+notes: "Coupling and cathode-bypass capacitor VALUES are open at DC and do not enter the operating-point netlist; they are listed for completeness. Parts belonging to the Vibrato/Tremolo channel are marked — that channel is outside the DC netlist's scope (see the circuit story), so its values are read from the drawing but not simulated, and the parts whose interconnection the published scan does not resolve carry no designator. The blue negative-feedback loop drawn across this copy is a later hand addition by a previous owner and is not a part of this circuit. Two capacitor values on the sheet were silently modernised between issues — the 1961/62 printing specifies 0.05 and 0.005 µF where later sheets, this one included, print 0.047 and 0.0047 µF for the same parts; the values recorded here are the ones OS/065 letters."
 items:
   # --- inputs (three channels, six jacks) ---
   - { ref: J1, part: "Jack socket", value: "1/4 in", role: "Brilliant channel input 2" }
@@ -45,7 +45,7 @@ items:
   - { ref: R11, part: "Power resistor", value: "22 kΩ", role: "Rail dropper, +320 V → phase-inverter supply" }
   - { ref: C8, part: "Electrolytic capacitor", value: "8 µF", role: "Phase-inverter supply smoothing" }
   - { ref: R18, part: "Carbon comp resistor", value: "100 kΩ", role: "Phase-inverter anode load, side A (Brilliant + Normal)" }
-  - { ref: R19, part: "Carbon comp resistor", value: "100 kΩ", role: "Phase-inverter anode load, side B (Vibrato/Tremolo) — the one value whose multiplier glyph this copy leaves ambiguous; see notes.md" }
+  - { ref: R19, part: "Carbon comp resistor", value: "100 kΩ", role: "Phase-inverter anode load, side B (Vibrato/Tremolo) — the one value whose multiplier glyph this copy leaves ambiguous; see the circuit story" }
   - { ref: R8, part: "Carbon comp resistor", value: "1 MΩ", role: "Phase-inverter grid leak, side A, returned to the tail junction" }
   - { ref: R17, part: "Carbon comp resistor", value: "1 MΩ", role: "Phase-inverter grid leak, side B, returned to the tail junction" }
   - { ref: R16, part: "Carbon comp resistor", value: "1.2 kΩ", role: "Phase-inverter shared cathode resistor" }

@@ -99,7 +99,7 @@ items:
   - { ref: RD1, part: "Wirewound resistor",   value: "1 kΩ · 1 W",    role: "Rail dropper, screens → phase-inverter rail" }
   - { ref: C13, part: "Electrolytic capacitor", value: "20 µF · 525 V", role: "Filter, phase-inverter rail (+410 V)" }
   - { ref: RD2, part: "Wirewound resistor",   value: "4.7 kΩ · 1 W",  role: "Rail dropper, phase-inverter rail → preamp rail" }
-  - { ref: C14, part: "Electrolytic capacitor", value: "20 µF · 525 V", role: "Filter, preamp rail (+380 V on the layout sheet — see voltages.yaml)" }
+  - { ref: C14, part: "Electrolytic capacitor", value: "20 µF · 525 V", role: "Filter, preamp rail (+380 V on the layout sheet — see the operating-point table)" }
   # --- Bias supply ---
   - { ref: RBIAS, part: "Wirewound resistor", value: "470 Ω · 1 W",   role: "Bias-supply series resistor, off the 305 V AC tap" }
   - { ref: DBIAS, part: "Rectifier diode",    value: "silicon",       role: "Bias-supply rectifier" }

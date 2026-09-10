@@ -34,7 +34,13 @@ time (Cloudflare Workers Builds on push to main → circuitcodex.com). Tube mode
 ## Gates (all must pass before any push)
 
 ```
+python3 pipeline/validate.py --selftest && \
 python3 pipeline/validate.py            # schema, lineage, sources, BOM↔schematic refs
+                                        #   + history rows vs the circuit each links:
+                                        #   years, wattage and the tube complement,
+                                        #   canonicalised through reference/tubes so
+                                        #   7025 and 12AX7 are one bottle. era_note on
+                                        #   the row is the documented waiver.
 python3 pipeline/fit_models.py && git diff --exit-code models/   # zero model drift
 python3 pipeline/test_models.py         # ngspice datasheet-anchor checks
 python3 pipeline/test_era_values.py     # era lettering + house/schematic surface conventions
@@ -149,10 +155,25 @@ only.
 ## Editorial voice (public pages)
 
 Site pages are **visitor documentation**, never working notes: no process narration,
-no internal version names (v0/v1), no repo paths in prose, no "our secondary sources
-disagree" — instead state the fact and cite. House units style: `470 Ω`, `4.7 kΩ`,
-`0.02 µF · 400 V`. Tolerances: tube pins ±20% (the era's printed convention), rails
-tighter internal targets — label them as such.
+no internal version names (v0/v1), no repo paths or YAML field names in prose, no
+"our secondary sources disagree" — instead state the fact and cite. House units
+style: `470 Ω`, `4.7 kΩ`, `0.02 µF · 400 V`. Tolerances: tube pins ±20% (the era's
+printed convention), rails tighter internal targets — label them as such.
+
+**A corpus-scope claim names its count.** When prose says "every X in this corpus",
+"the only", or "identical to", it states the number the claim covers, or the query it
+rests on, so a reader — and the next author — can check it. Such a sentence is a
+claim about circuits its author did not have open, and it is written from memory
+unless a query says otherwise: on 2026-09-09 an audit found three of them wrong in
+one week's prose, all the same bug. "The same pair every fixed-bias long-tailed-pair
+amp in this corpus uses (5f4/6g3/ab763)" was true of the three circuits its author
+had open and false of the corpus — there are 19 such circuits, two of them use a
+different pair, and the 5F4 is a cathodyne, not a long-tailed pair at all. No gate
+reads a sentence, so this convention is most of what stands behind one: grep the
+prose you are shipping for "the only", "every", "identical to" and "in this corpus",
+and answer each hit with a query before pushing. Where a claim *can* be gated it is —
+the same audit found two family rows listing fewer preamp bottles than the circuits
+they link, which is why `validate.py` now cross-checks the tube complement.
 
 ## Figures need eyes
 

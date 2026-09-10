@@ -64,9 +64,10 @@ models:
     tubes: [12AY7, 12AX7, 6L6, 6L6, 5U4G, 5U4G]
     key_change: >-
       The narrow-panel redesign, and the point at which the Twin's supply stops being
-      the limit. The circuit carries twin 5U4 rectifiers — the same arrangement the
-      narrow-panel Bassman uses — in Fender's pursuit of a louder, cleaner amplifier,
-      still driving a 6L6 pair. It is also where the line leaves cathode bias: where
+      the limit. The circuit carries twin 5U4 rectifiers — the same arrangement its
+      exact contemporary the 5E6/5E6-A Bassman uses, though not the later
+      narrow-panel 5F6-A, which rectifies on one GZ34 — in Fender's pursuit of a
+      louder, cleaner amplifier, still driving a 6L6 pair. It is also where the line leaves cathode bias: where
       the wide-panel amps sat their output pair on a shared 250 Ω cathode resistor,
       both narrow-panel drawings ground the output cathodes and hold the grids negative
       from a separate supply — a selenium rectifier, a series resistor, a 100 µF/25 V
@@ -92,8 +93,8 @@ models:
       reached the tube chart only on the second production run. The 5F8-A of 1958 ran
       into early 1960 and is the last tweed Twin. The output stage keeps the fixed bias
       the narrow-panel circuits introduced, its printed chart reading −41 V at the
-      grids. The documented circuit at amps/5f8a is the 5F8-A specifically, drawn from
-      the GZ34 drawing and its printed voltage chart.
+      grids. The circuit documented in full for this row is the 5F8-A specifically,
+      drawn from the GZ34 drawing and its printed voltage chart.
     circuit_ref: "5f8a"
     era_note: >-
       This row carries the combined 5F8 / 5F8-A designation, so it spans both
@@ -143,8 +144,8 @@ models:
       reverb driven by a 12AT7 and recovered by its own stage, a tube tremolo working
       through an optocoupler, and a middle control that turns both channels' tone
       stacks into the three-knob network. Rated 85 W into two 12-inch speakers, with
-      an adjustable bias pot. This is the circuit documented in the corpus at
-      amps/ab763-twin, where the printed AB763 voltage chart is read and simulated.
+      an adjustable bias pot. This is the Twin Reverb's own AB763, documented in full
+      here, where the printed AB763 voltage chart is read and simulated.
     circuit_ref: "ab763-twin"
     sources:
       - desc: "Mojotone/Ampwares Fender field guide, 'Blackface Twin Reverb' — schematic AB763, 1963-1967, 85 W, four 6L6GC, 7025 preamp, fixed bias with an adjustment pot, solid-state rectifier, 2 x 12 in at 4 Ohms; Normal and Vibrato channels each with Bright switch, Volume, Treble, Middle and Bass, plus Reverb, Speed and Intensity"
@@ -165,9 +166,9 @@ notes: >-
   the wide-panel run 1953-1955 without firm per-circuit boundaries, and the model
   predates the tweed cosmetics, so the ranges above are defensible spans. Wattage is
   left null where only a loose published range exists. Fender used the AB763
-  designation on more than one drawing: the blackface Deluxe Reverb carries it too,
-  and lives in history/families/deluxe-reverb.yaml, which owns the corpus's amps/ab763
-  circuit entry. This file owns amps/ab763-twin. The two are contemporaries on the
-  same blackface platform rather than parent and child, so neither family file claims
-  the other's circuit and the archive draws no derivation arrow between them. The
+  designation on more than one drawing: the blackface Deluxe Reverb carries it too and
+  is documented with its own line, which is where that AB763 circuit entry lives; the
+  Twin Reverb's AB763 is the one documented here. The two are contemporaries on the
+  same blackface platform rather than parent and child, so neither line claims the
+  other's circuit and the archive draws no derivation arrow between them. The
   silverface Twin Reverb circuits that follow AB763 are out of scope here.

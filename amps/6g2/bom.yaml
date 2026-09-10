@@ -5,7 +5,7 @@
 # value below is the drawing's own — except the two flagged in their own role
 # line, which lean on the sibling 5F10/AA964 cathodyne family pattern where
 # this sheet's own scan is faint (see meta.yaml sources).
-notes: "Both input jacks share one 68 kΩ stopper each into a common 1 MΩ leak. The tremolo oscillator's own parts are listed for the record; its DC operating point is excluded from the netlist (see notes.md). Parts drawn only as annotations — mains cap, fuse, switches, pilot lamp — are listed without designators. The two transformers are numbered T1 (power) and T2 (output) under the archive's convention; the drawing's own labels are TR1 and TR2."
+notes: "Both input jacks share one 68 kΩ stopper each into a common 1 MΩ leak. The tremolo oscillator's own parts are listed for the record; its DC operating point is excluded from the netlist (see the circuit story). Parts drawn only as annotations — mains cap, fuse, switches, pilot lamp — are listed without designators. The two transformers are numbered T1 (power) and T2 (output) under the archive's convention; the drawing's own labels are TR1 and TR2."
 items:
   # --- Input (V1A) ---
   - { ref: R1,  part: "Carbon comp resistor", value: "68 kΩ · ½ W",    role: "Input grid stopper (jack 1)" }
@@ -21,7 +21,7 @@ items:
   - { ref: VR2, part: "Audio-taper potentiometer", value: "1 MΩ-A",    role: "Volume" }
   - { ref: C4,  part: "Coupling capacitor",   value: "0.02 µF · 400 V", role: "Volume wiper → V1B grid" }
   # --- V1B second stage ---
-  - { ref: RG2, part: "—",                    value: "—",              role: "V1B grid returns to ground through the Volume pot's own body — no discrete leak resistor; modelled in netlist.cir as a nominal 1 MΩ, since no grid current flows and the pot's own value is not load-bearing" }
+  - { ref: RG2, part: "—",                    value: "—",              role: "V1B grid returns to ground through the Volume pot's own body — no discrete leak resistor; modelled in the DC netlist as a nominal 1 MΩ, since no grid current flows and the pot's own value is not load-bearing" }
   - { ref: RL2, part: "Carbon comp resistor", value: "100 kΩ · ½ W",   role: "V1B plate load" }
   - { ref: RK2, part: "Carbon comp resistor", value: "1.5 kΩ · ½ W",   role: "V1B cathode bias" }
   - { ref: C5,  part: "Electrolytic capacitor", value: "25 µF · 25 V", role: "V1B cathode bypass" }
@@ -35,12 +35,12 @@ items:
   - { ref: C8,   part: "Coupling capacitor",  value: "0.1 µF · 400 V", role: "Cathodyne tail junction → V4 grid" }
   # --- V2B tremolo oscillator (excluded from the DC netlist — see notes.md) ---
   - { ref: RL4, part: "Carbon comp resistor", value: "56 kΩ · ½ W",    role: "Oscillator plate load, off the driven reservoir (BP), killed at the tremolo-pedal jack" }
-  - { ref: —,   part: "Phase-shift RC ladder", value: "≈0.01–0.02 µF / 1 MΩ sections", role: "Oscillator frequency-setting network — component count and exact taps not fully resolved on this scan; excluded from the gated netlist regardless (see notes.md)" }
+  - { ref: —,   part: "Phase-shift RC ladder", value: "≈0.01–0.02 µF / 1 MΩ sections", role: "Oscillator frequency-setting network — component count and exact taps not fully resolved on this scan; excluded from the gated netlist regardless (see the circuit story)" }
   - { ref: VR3, part: "Reverse-audio potentiometer", value: "3 MΩ-RA", role: "Speed (oscillator frequency)" }
   - { ref: R3,  part: "Carbon comp resistor", value: "100 kΩ · ½ W",   role: "Speed-control end resistor" }
   - { ref: R4,  part: "Carbon comp resistor", value: "220 kΩ · ½ W",   role: "Oscillator output feed to the Intensity control" }
   - { ref: C9,  part: "Coupling capacitor",   value: "0.1 µF · 400 V", role: "Oscillator output coupling to the Intensity control" }
-  - { ref: VR4, part: "Linear potentiometer", value: "250 kΩ-L",       role: "Intensity — sits directly in the -35 V bias line feeding both 6V6 grids; carries no DC (see netlist.cir header)" }
+  - { ref: VR4, part: "Linear potentiometer", value: "250 kΩ-L",       role: "Intensity — sits directly in the -35 V bias line feeding both 6V6 grids; carries no DC (see the DC netlist header)" }
   - { ref: C10, part: "Film capacitor",       value: "0.05 µF · 200 V", role: "Intensity wiper to ground" }
   - { ref: —,   part: "Jack",                 value: "closed-circuit", role: "Tremolo footswitch pedal jack (shorts the oscillator's plate supply)" }
   # --- Output stage ---

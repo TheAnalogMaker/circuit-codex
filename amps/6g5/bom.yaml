@@ -11,16 +11,16 @@
 # from netlist.cir — see notes.md); V5 = driver (its own bottle, one section
 # used); V6 = phase inverter (V6A/V6B share one bottle). V7/V8 = 6L6GC output.
 notes: "The tremolo oscillator's parts are listed in full for the record, but
-  its DC operating point is excluded from the netlist (see notes.md) — it is a
+  its DC operating point is excluded from the netlist (see the circuit story) — it is a
   running phase-shift oscillator, not a quiescent stage; its phase-shift ladder
   values (CTO1-3, RTOG1-2) were not confidently resolved from the scan and are
   drawn as a typical example of this circuit family (schematic-only, excluded
   from every DC/electrical gate regardless of their value). The driver stage's
   local feedback network (RFB1/RFB2/RFB3/CFB1, 470k/220k/220k/2500pF) is read
-  from the drawing but not modelled in netlist.cir (see meta.yaml sources); its
+  from the drawing but not modelled in the DC netlist (see the sources on this page); its
   exact topology beyond the values themselves is a schematic-only reading. V1B
   and V2B's own cathode components (RK1B/CK1B, RK2B/CK2B) are informational
-  placeholders matching what netlist.cir already assumes (see its header) — the
+  placeholders matching what the DC netlist already assumes (see its header) — the
   drawing's own second-stage cathode print was not legible in the scan. The two
   transformers keep the drawing's own designators, TR1 (power) and TR2
   (output)."
@@ -40,8 +40,8 @@ items:
   - { ref: VRV1, part: "Audio-taper potentiometer", value: "250 kΩ-A", role: "Channel-1 Volume — the drawing marks two candidate tapers at this position (100 kΩ-V / 250 kΩ-A); the audio taper is drawn" }
   # --- Channel 1, second stage V1B ---
   - { ref: RL1B, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "V1B plate load" }
-  - { ref: RK1B, part: "Carbon comp resistor", value: "1.5 kΩ · ½ W (informational)", role: "V1B cathode bias — printed but not legible at this node in the scan; matches netlist.cir's informational placeholder" }
-  - { ref: CK1B, part: "Electrolytic capacitor", value: "25 µF (informational)", role: "V1B cathode bypass — netlist.cir models this bypass; not independently legible in the scan" }
+  - { ref: RK1B, part: "Carbon comp resistor", value: "1.5 kΩ · ½ W (informational)", role: "V1B cathode bias — printed but not legible at this node in the scan; matches the DC netlist's informational placeholder" }
+  - { ref: CK1B, part: "Electrolytic capacitor", value: "25 µF (informational)", role: "V1B cathode bypass — the DC netlist models this bypass; not independently legible in the scan" }
   # --- Channel 2 (Bright) — mirrors channel 1 ---
   - { ref: R2N, part: "Carbon comp resistor", value: "68 kΩ · ½ W", role: "Channel-2 input grid stopper (jack 2)" }
   - { ref: RG2A, part: "Carbon comp resistor", value: "1 MΩ · ½ W", role: "Channel-2 input grid leak" }
@@ -58,9 +58,9 @@ items:
   - { ref: RK2B, part: "Carbon comp resistor", value: "1.5 kΩ · ½ W (informational)", role: "V2B cathode bias — mirrors RK1B" }
   - { ref: CK2B, part: "Electrolytic capacitor", value: "25 µF (informational)", role: "V2B cathode bypass — mirrors CK1B" }
   # --- Tremolo oscillator V3 (excluded from netlist — see notes.md) ---
-  - { ref: CMIX1, part: "Coupling capacitor", value: "0.05 µF (schematic-only)", role: "V1B plate to the channel-mixing node — netlist.cir treats this node as DC-open past the plate (see its header); value not independently confirmed from the scan, matched to the amp's other .05 µF couplers" }
+  - { ref: CMIX1, part: "Coupling capacitor", value: "0.05 µF (schematic-only)", role: "V1B plate to the channel-mixing node — the DC netlist treats this node as DC-open past the plate (see its header); value not independently confirmed from the scan, matched to the amp's other .05 µF couplers" }
   - { ref: CMIX2, part: "Coupling capacitor", value: "0.05 µF (schematic-only)", role: "V2B plate to the channel-mixing node — mirrors CMIX1" }
-  - { ref: RG5, part: "Carbon comp resistor", value: "1 MΩ · ½ W", role: "Channel-mixing node grid leak, referenced by netlist.cir's RG5 (driver grid returns to ground through it)" }
+  - { ref: RG5, part: "Carbon comp resistor", value: "1 MΩ · ½ W", role: "Channel-mixing node grid leak, referenced by the DC netlist's RG5 (driver grid returns to ground through it)" }
   - { ref: RTOP, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "Oscillator plate load" }
   - { ref: RTOK, part: "Carbon comp resistor", value: "1.5 kΩ · ½ W", role: "Oscillator cathode bias" }
   - { ref: CTOK, part: "Electrolytic capacitor", value: "25 µF + 25 µF", role: "Oscillator cathode bypass" }
@@ -120,12 +120,12 @@ items:
   - { ref: SW1, part: "Switch", value: "SPST", role: "AC power switch" }
   - { ref: PL1, part: "Pilot lamp", value: "6.3 V", role: "Pilot lamp, fed from the 6.3 V heater chain" }
   - { ref: JSPK, part: "Jack", value: "speaker", role: "Speaker jack" }
-  - { ref: DBIAS, part: "Silicon diode", value: "1N4007-class (schematic-only)", role: "Bias-supply rectifier — the drawing's own bias derivation was not fully resolved from the scan (see notes.md); netlist.cir treats -55 V as an ideal source" }
+  - { ref: DBIAS, part: "Silicon diode", value: "1N4007-class (schematic-only)", role: "Bias-supply rectifier — the drawing's own bias derivation was not fully resolved from the scan (see the circuit story); the DC netlist treats -55 V as an ideal source" }
   - { ref: CBIAS, part: "Electrolytic capacitor", value: "25 µF (schematic-only)", role: "Bias-supply filter — schematic-only, see DBIAS" }
   # --- Tubes ---
   - { ref: V1, part: "Preamp tube", value: "7025", role: "Channel-1 (Normal), both stages (V1A/V1B)" }
   - { ref: V2, part: "Preamp tube", value: "7025", role: "Channel-2 (Bright), both stages (V2A/V2B)" }
-  - { ref: V3, part: "Preamp tube", value: "7025", role: "Tremolo phase-shift oscillator — DC point excluded from netlist.cir (see notes.md)" }
+  - { ref: V3, part: "Preamp tube", value: "7025", role: "Tremolo phase-shift oscillator — DC point excluded from the netlist (see the circuit story)" }
   - { ref: V5, part: "Preamp tube", value: "7025", role: "Driver" }
   - { ref: V6, part: "Preamp tube", value: "7025", role: "Long-tailed-pair phase inverter (V6A/V6B)" }
   - { ref: V7, part: "Power tube", value: "6L6GC", role: "Push-pull output (hot side)" }

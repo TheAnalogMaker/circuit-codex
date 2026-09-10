@@ -32,7 +32,8 @@ sources:
       +310 V phase-inverter plates); fixed bias read as -55 V (vertical print beside
       the two 220k-5% output-grid leaks — a tight, hand-lettered rotated label; the
       sheet gives no separate bias test point, so this reading carries a wider
-      margin than the horizontally-printed rail values, flagged in notes.md).
+      margin than the horizontally-printed rail values, flagged in the circuit
+      story).
       Preamp: two mirrored channels (Normal, Bright), each two 7025 stages -
       first stage 100k plate / 820 Ohm cathode (25+25 uF split bypass) reading
       +170 V / +1.4 V, into a Bass-Treble tone stack and a Volume pot, into a
@@ -46,14 +47,14 @@ sources:
       resistor from the same node back to the OT secondary. The pot branch is
       AC-only (the cap blocks DC); the 1500 Ohm foot and the feedback return
       through the secondary are folded into ground as a declared simplification
-      of the DC model (see netlist.cir header and sch_map.yaml). Output:
+      of the DC model, declared again as an abstraction on the schematic. Output:
       two 6L6GC, grounded cathodes, 470 Ohm-1W individual screen stoppers, 220k-5%
       fixed-bias grid leaks. Tremolo: ONE 7025 phase-shift oscillator (Speed on a
       4M-RA control, cathode 1500 Ohm/25+25 uF, plate +120 V) driving a lamp/
       photoresistor pair (Intensity control) that shunts the channel-mixing node to
       ground - a running oscillator with no static DC operating point, excluded
       from the netlist exactly as the corpus's other photocell/phase-shift trem
-      circuits are (see amps/ab763). This reading is a photocell (optical) tremolo,
+      circuits are (the AB763 among them). This reading is a photocell (optical) tremolo,
       NOT harmonic vibrato — the drawing shows a lamp-and-photoresistor pair wired
       in the audio path, the classic Fender optocoupler circuit, not the phase-
       mixed dual-triode network 'harmonic vibrato' names; a secondary field guide's

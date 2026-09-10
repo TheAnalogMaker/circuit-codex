@@ -82,7 +82,7 @@ models:
     years: { start: 1954, end: 1955 }
     wattage: 12
     output: "push-pull 2x6V6"
-    tubes: [12AY7, 12AX7, 6V6, 6V6, 5Y3]
+    tubes: [12AY7, 12AX7, 6V6, 6V6, 5Y3GT]
     key_change: >-
       Matches the 5C3 but drops the negative-feedback loop again, returning to the
       more open, feedback-free voicing that the following narrow-panel circuit keeps.
@@ -119,7 +119,7 @@ models:
     years: { start: 1961, end: 1963 }
     wattage: 15
     output: "push-pull 2x6V6"
-    tubes: [7025, 12AX7, 6V6GT, 6V6GT, GZ34]
+    tubes: [7025, 12AX7, 12AX7, 6V6GT, 6V6GT, GZ34]
     key_change: >-
       The brown-Tolex redesign is a clean break from the tweed circuit: fixed
       (non-adjustable) bias replaces cathode bias, a GZ34 replaces the 5Y3, and the
@@ -144,9 +144,9 @@ models:
       long-tailed-pair inverter, fixed bias with an adjustable trim, GZ34 rectifier,
       and a Normal channel plus a vibrato channel with treble/bass. Alongside it Fender
       launched a reverb-equipped sibling on the AB763 platform — the Deluxe Reverb —
-      which outlived and out-sold the bare Deluxe. The reverb branch is documented in
-      the deluxe-reverb family file, which owns the corpus's amps/ab763 circuit entry
-      (that entry is specifically the Deluxe Reverb). The plain non-reverb blackface
+      which outlived and out-sold the bare Deluxe. The reverb branch is documented with
+      the Deluxe Reverb line, and the AB763 circuit entry belongs there, since that
+      drawing is specifically the Deluxe Reverb. The plain non-reverb blackface
       Deluxe described here is not yet a documented circuit, so this is a history-tier
       entry only.
     circuit_ref: null
@@ -160,6 +160,6 @@ notes: >-
   the wide-panel trio to 1953-1955 without firm per-circuit boundaries, so the ranges
   above are defensible spans. Early published power figures (~10-14 W) are loose
   factory-era ratings, not measured output; wattage is left null where only such
-  figures exist. The AA763/AB763 entry deliberately covers only the non-reverb Deluxe
-  and the moment of the reverb split — see history/families/deluxe-reverb.yaml for the
-  reverb line, which owns the amps/ab763 circuit_ref.
+  figures exist. The AA763/AB763 row deliberately covers only the non-reverb Deluxe
+  and the moment of the reverb split — the Deluxe Reverb line's own page carries the
+  reverb branch, and the AB763 circuit entry with it.

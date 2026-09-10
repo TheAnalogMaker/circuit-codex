@@ -70,9 +70,9 @@ models:
       the three-knob tone stack. The 5E6-A's only documented change from the
       plain 5E6 is a bias-supply resistor swap (recorded as a handwritten
       correction on the 5E6 drawing) that deepens the 6L6 bias to run the
-      plates cooler; see amps/5e6a/notes.md. The tube complement and
-      rectifier count above were corrected from the placeholder (12AY7,
-      12AX7, 12AX7; no rectifier) once amps/5e6a read them off the drawing.
+      plates cooler; the 5E6-A's own page tells that story. The tube complement
+      and rectifier count above were corrected from the placeholder (12AY7,
+      12AX7, 12AX7; no rectifier) once that entry read them off the drawing.
     circuit_ref: "5e6a"
     sources:
       - desc: "El34World schematic archive, Fender Bassman 5E6 drawing (designation-indexed; the drawing prints model + values)"
@@ -110,8 +110,8 @@ models:
     output: "push-pull 2x5881"
     tubes: [12AY7, 12AX7, 12AX7, 5881, 5881, GZ34]
     key_change: >-
-      The definitive tweed Bassman and the corpus's fully documented reference
-      circuit. It refined the 5F6 mainly in the power supply and presence
+      The definitive tweed Bassman, and one of the six circuits in this line
+      documented in full. It refined the 5F6 mainly in the power supply and presence
       circuit, adopting the GZ34 rectifier in place of the 83. Its combination
       of the 4x10 cab, cathode-follower tone stack, long-tailed-pair inverter
       and fixed-bias 5881 pair became a reference point for guitar tone — and
@@ -222,7 +222,7 @@ notes: >-
   through 5F6-A) and the 1960s piggyback heads (6G6 brown/blonde, then blackface
   AA864/AB165) are essentially two different amplifiers that share the Bassman
   name: the former became a guitar classic and the template for Marshall's
-  JTM45; the latter was Fender's return to a purpose-built bass head. Cross-family
-  influence on the JTM45 is documented in this corpus (amps/5f6a lineage
-  'influenced: jtm45') and lives in the marshall-lead family file; it is noted
-  here only as the well-attested succession point, not claimed as a Bassman model.
+  JTM45; the latter was Fender's return to a purpose-built bass head. The 5F6-A's
+  influence on the JTM45 is recorded on both circuits' pages and told in full on
+  the Marshall lead line's page; it is noted here only as the well-attested
+  succession point, not claimed as a Bassman model.

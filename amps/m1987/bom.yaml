@@ -3,7 +3,7 @@
 # 3x ECC83 + 2x EL34, silicon rectifier. No schematic.kicad_sch is shipped with
 # this DRAFT, so designators are the drawing's functional labels (V1/V2/V3 preamp,
 # V4/V5 output); parts drawn only as annotations are listed without designators.
-notes: "Cathode-bypass and coupling capacitor VALUES are open at DC and do not enter the operating-point netlist; they are listed for completeness. The Joe Piazza redraw prints the V1B/V2A bypass caps as 68 µF where this factory drawing reads 0.68 µF — the factory value is used (see meta.yaml)."
+notes: "Cathode-bypass and coupling capacitor VALUES are open at DC and do not enter the operating-point netlist; they are listed for completeness. The Joe Piazza redraw prints the V1B/V2A bypass caps as 68 µF where this factory drawing reads 0.68 µF — the factory value is used (see the sources on this page)."
 items:
   # --- input stage (V1) ---
   - { ref: R1s, part: "Carbon comp resistor", value: "68 kΩ · ½ W", role: "Channel I high-treble input grid stopper" }

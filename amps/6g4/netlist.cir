@@ -42,10 +42,14 @@
 * 309.6 / 300.1 V against the printed 315 / 310, and at 4.7k they land
 * 319.8 / 310.1, moving toward the chart rather than away from it. A wrong
 * value does not do that. The printed 5%-tolerance
-* 82k/100k asymmetric LTP plate loads — the same pair every fixed-bias
-* long-tailed-pair amp in this corpus uses (5f4/6g3/ab763) — split BC's
-* derived ~429 V into the hot/cold pair, landing within a few percent of the
-* printed 315/310 (see voltages.yaml) without being tuned to it.
+* 82k/100k asymmetric LTP plate loads split BC's derived ~429 V into the
+* hot/cold pair, landing within a few percent of the printed 315/310 (see
+* voltages.yaml) without being tuned to it. That pair is this corpus's usual
+* choice and not its universal one: of the 19 documented circuits that run a
+* fixed-bias long-tailed pair, 17 letter 82k/100k, the AB165 letters
+* 100k/100k, and the DR103 letters 82k/91k — which its own parts list calls
+* deliberately unequal. The 5F4 Super this circuit replaces is not one of the
+* 19 at all: its inverter is a cathodyne, not a long-tailed pair.
 *
 * Fixed-bias supply (a rectified/filtered tap through a 56k/10k divider,
 * 8 uF/150 V filter) is replaced by an ideal -55 V source, printed directly
@@ -110,8 +114,9 @@ CK1I K1I 0 25u
 * --- Channel 1 recovery/2nd stage (V2, 7025): 100k plate off BE1, 820 Ohm
 *     cathode (25uF bypass). Grid returns through the tone stack and 1M-A
 *     volume pot, which carry no DC path to anything but ground; modeled as
-*     a single 1M leak, same abstraction every other amp in the corpus uses
-*     for a post-tone-stack grid.
+*     a single 1M leak — this corpus's standard stand-in for a stack-and-pot
+*     network whose only DC path is to ground, the value taken from the
+*     drawing's own pot.
 RL1D BE1 P1D 100k
 XV2A P1D G1D K1D 12AX7
 RG1D G1D 0 1meg

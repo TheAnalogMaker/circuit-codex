@@ -1,10 +1,18 @@
 #!/usr/bin/env python3
 """Validate every amps/<id>/meta.yaml against schema v1 (docs/schema.md).
 
-Phase-0 stub: structural checks only. Grows alongside the schema — kicad_sch
-round-trip (kiutils) and ngspice operating-point checks land with the pilot amps.
+Structural checks, plus the history tier: a family row and the circuit it links
+must agree on every fact they both state — years, wattage, and the tube
+complement, canonicalised through reference/tubes/*.yaml so a row that letters
+the sheet's 7025 and a circuit whose meta says 12AX7 are one claim.
+
+    python3 pipeline/validate.py             # report + exit 1 on any error
+    python3 pipeline/validate.py --selftest  # planted faults for the cross-checks
 """
+import argparse
+import collections
 import datetime
+import functools
 import re
 import sys
 from pathlib import Path
@@ -393,16 +401,90 @@ def validate_history(root: Path) -> list[str]:
     return errors
 
 
+def _designation_token(s) -> str:
+    """One bottle name, punctuation and parentheticals stripped.
+
+    Same rule as pipeline/check_tube_used_in.py and site/src/lib/corpus.js
+    designationToken — keep the three in lockstep."""
+    text = str(s or "").split("(", 1)[0].split("·", 1)[0]
+    return re.sub(r"[^A-Za-z0-9]", "", text).upper()
+
+
+@functools.lru_cache(maxsize=None)
+def _tube_classes(tubes_dir: str) -> dict:
+    """token -> canonical bottle name, straight off reference/tubes/*.yaml.
+
+    The corpus already states its own equivalences: each tube page's `name`,
+    slug and `also_known_as` are one bottle under several designations, so
+    7025, ECC83 and 12AX7A all canonicalise to 12AX7. Nothing is inferred from
+    the shape of a designation — 6L6GB is a 6L6G because 6l6g.yaml says so,
+    while 6L6GC keeps its own page and therefore its own class.
+    """
+    classes: dict[str, str] = {}
+    for path in sorted(Path(tubes_dir).glob("*.yaml")):
+        try:
+            tube = yaml.safe_load(path.read_text()) or {}
+        except yaml.YAMLError:
+            continue           # a malformed reference file is not this gate's finding
+        canon = str(tube.get("name") or tube.get("tube") or path.stem)
+        names = {_designation_token(tube.get("name")),
+                 _designation_token(tube.get("tube")),
+                 _designation_token(path.stem)}
+        names |= {_designation_token(a) for a in (tube.get("also_known_as") or [])}
+        names.discard("")
+        for n in names:
+            classes.setdefault(n, canon)
+    return classes
+
+
+def _canon_tubes(root: Path, tubes) -> list[str]:
+    classes = _tube_classes(str(root / "reference" / "tubes"))
+    out = []
+    for t in tubes or []:
+        tok = _designation_token(t)
+        out.append(classes.get(tok, tok or str(t)))
+    return sorted(out)
+
+
+def _tube_complement_diff(root: Path, row_val, meta_val) -> str | None:
+    """The bottles a row lists vs the bottles the circuit lists, as multisets.
+
+    Counts matter: a row two preamp bottles short of its circuit is the drift
+    this exists to catch (it is how the 6G4 and 6G3 rows shipped wrong). Names
+    are canonicalised first, so a row that letters the sheet's 7025 and a
+    circuit whose meta says 12AX7 are the same claim, not a finding.
+    """
+    if not row_val or not meta_val:
+        return None            # an empty list says nothing, like a missing field
+    row = collections.Counter(_canon_tubes(root, row_val))
+    circuit = collections.Counter(_canon_tubes(root, meta_val))
+    if row == circuit:
+        return None
+    only_row = sorted((row - circuit).elements())
+    only_circuit = sorted((circuit - row).elements())
+    parts = []
+    if only_row:
+        parts.append(f"row lists {only_row} the circuit does not")
+    if only_circuit:
+        parts.append(f"circuit lists {only_circuit} the row does not")
+    return (f"tube complement — {'; '.join(parts)} "
+            f"({sum(row.values())} bottle(s) in the row, "
+            f"{sum(circuit.values())} in the circuit)")
+
+
 # Facts both tiers state, and where each keeps them. Only these are cross-checked:
 # a family row is a one-paragraph summary of a *line*, not a second copy of the
 # circuit's metadata, so it is free to say nothing — but not to say something else.
+# The fifth slot is a comparator for facts a `!=` cannot judge; None means equality.
 _CROSS_FIELDS = (
     ("years.start", lambda m: (m.get("years") or {}).get("start"),
-     lambda meta: (meta.get("era") or {}).get("start"), "era.start"),
+     lambda meta: (meta.get("era") or {}).get("start"), "era.start", None),
     ("years.end", lambda m: (m.get("years") or {}).get("end"),
-     lambda meta: (meta.get("era") or {}).get("end"), "era.end"),
+     lambda meta: (meta.get("era") or {}).get("end"), "era.end", None),
     ("wattage", lambda m: m.get("wattage"),
-     lambda meta: meta.get("wattage"), "wattage"),
+     lambda meta: meta.get("wattage"), "wattage", None),
+    ("tubes", lambda m: m.get("tubes"),
+     lambda meta: meta.get("tubes"), "tubes", _tube_complement_diff),
 )
 
 
@@ -426,10 +508,16 @@ def _cross_check_row(root: Path, where: str, model: dict, ref: str,
         return []          # validate() reports the parse failure on its own pass
     note = str(model.get("era_note") or "").strip()
     diffs = []
-    for label, row_get, meta_get, meta_label in _CROSS_FIELDS:
+    for label, row_get, meta_get, meta_label, differ in _CROSS_FIELDS:
         row_val, meta_val = row_get(model), meta_get(meta)
         if row_val is None or meta_val is None:
             continue       # a row need not state everything the circuit does
+        if differ is not None:
+            detail = differ(root, row_val, meta_val)
+            if detail:
+                diffs.append(f"{label}: {detail} — amps/{ref}/meta.yaml "
+                             f"{meta_label} {list(meta_val)}")
+            continue
         if row_val != meta_val:
             diffs.append(f"{label} {row_val} != amps/{ref}/meta.yaml {meta_label} "
                          f"{meta_val}")
@@ -477,8 +565,59 @@ def validate_loadlines(root: Path) -> list[str]:
     return errors
 
 
+def selftest(root: Path) -> int:
+    """A gate that cannot fail proves nothing.
+
+    Plant the drift the tube cross-check exists to catch — it is how the 6G4 row
+    (three preamp bottles against the circuit's five) and the 6G3 row (two
+    against three) shipped — and the equivalences it must NOT call drift. The
+    alias table is the corpus's own reference/tubes/*.yaml, so this also proves
+    the resolution against real files rather than a stub.
+    """
+    cases = (
+        ("6G4 row two preamp bottles short",
+         ["7025", "7025", "12AX7", "6L6GC", "6L6GC", "GZ34"],
+         ["12AX7", "12AX7", "12AX7", "12AX7", "12AX7", "6L6GC", "6L6GC", "GZ34"],
+         True),
+        ("6G3 row one preamp bottle short",
+         ["7025", "12AX7", "6V6GT", "6V6GT", "GZ34"],
+         ["12AX7", "12AX7", "12AX7", "6V6GT", "6V6GT", "GZ34"], True),
+        ("7025 / ECC83 / 12AX7 are one bottle",
+         ["7025", "ECC83", "12AX7A"], ["12AX7", "12AX7", "12AX7"], False),
+        ("6V6 and 5Y3GT letter the same bottles as 6V6GT and 5Y3GT",
+         ["12AY7", "12AX7", "6V6", "6V6", "5Y3GT"],
+         ["12AY7", "12AX7", "6V6GT", "6V6GT", "5Y3GT"], False),
+        ("6L6GB is a 6L6G", ["6L6GB", "6L6GB"], ["6L6G", "6L6G"], False),
+        ("6L6GC is not a 6L6G", ["6L6GC", "6L6GC"], ["6L6G", "6L6G"], True),
+        ("a 5881 pair is not a 6L6GC pair", ["6L6GC", "6L6GC"],
+         ["5881", "5881"], True),
+        ("same bottles, different order", ["GZ34", "6L6GC", "12AX7", "6L6GC"],
+         ["12AX7", "6L6GC", "6L6GC", "GZ34"], False),
+    )
+    failures = 0
+    for name, row, circuit, should_fire in cases:
+        fired = _tube_complement_diff(root, row, circuit) is not None
+        if fired != should_fire:
+            print(f"FAIL selftest: {name} — expected "
+                  f"{'a finding' if should_fire else 'no finding'}, got the other")
+            failures += 1
+    # A row is free to say nothing; only saying something else is an error.
+    if _tube_complement_diff(root, [], ["12AX7"]) is not None:
+        print("FAIL selftest: an empty tubes list must not be a finding")
+        failures += 1
+    if failures == 0:
+        print(f"validate selftest: {len(cases) + 1} planted cases passed")
+    return failures
+
+
 def main() -> int:
+    ap = argparse.ArgumentParser(description=__doc__)
+    ap.add_argument("--selftest", action="store_true",
+                    help="run the planted-fault cases for the cross-checks")
+    args = ap.parse_args()
     root = Path(__file__).resolve().parent.parent
+    if args.selftest:
+        return selftest(root)
     metas = sorted(p for p in (root / "amps").glob("*/meta.yaml")
                    if p.parent.name != "_template")
     all_errors = []

@@ -3,7 +3,7 @@
 # a part is modelled and are descriptive otherwise. Values are the drawing's; its
 # notice sets ½ W / 10% resistors and 400 V capacitors unless a part says
 # otherwise.
-notes: "The schematic draws one jack per channel input pair; the chassis carries two per channel. Two cathode networks are SHARED between stages and appear once here, under the boxed node letter the drawing gives them: RKA/CKA ([A], the two channels' second stages) and RKE/CKE ([E], reverb recovery and mix driver). The tremolo tube's parts are listed, but neither of its halves has a static DC point, so both are excluded from the netlist (see notes.md). The main rectifier is silicon: two three-diode strings off the 340-0-340 V winding."
+notes: "The schematic draws one jack per channel input pair; the chassis carries two per channel. Two cathode networks are SHARED between stages and appear once here, under the boxed node letter the drawing gives them: RKA/CKA ([A], the two channels' second stages) and RKE/CKE ([E], reverb recovery and mix driver). The tremolo tube's parts are listed, but neither of its halves has a static DC point, so both are excluded from the netlist (see the circuit story). The main rectifier is silicon: two three-diode strings off the 340-0-340 V winding."
 items:
   # --- Normal channel input ---
   - { ref: R1n, part: "Carbon comp resistor", value: "68 kΩ · ½ W",  role: "Normal input grid stopper (jack 1)" }

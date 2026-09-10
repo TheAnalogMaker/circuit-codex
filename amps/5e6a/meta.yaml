@@ -27,12 +27,12 @@ sources:
       single-section 12AY7 gain stage (100 kΩ plate → +130 V, 1.5 kΩ/25 µF
       cathode); a Presence(5k)/Bass/Treble network (220 kΩ, .005 µF, 1 MEG,
       .01-400 legible; one lug of the ladder unresolved —
-      see notes.md) feeds a single-section 12AX7 self-biased split-load
+      see the circuit story) feeds a single-section 12AX7 self-biased split-load
       (cathodyne) phase inverter — 56 kΩ plate, cathode split 1.5 kΩ (junction,
       where the 1 MEG grid leak returns) + 56 kΩ (cathode pin), the same shape
       as the 5F4's V3B (a printed pin-voltage cluster near +210/+72/+1.7 exists
       on the sheet but not confidently assignable node-by-node at this resolution —
-      see voltages.yaml) — driving a fixed-bias 6L6G pair (220 kΩ leaks, 1.5 kΩ
+      see the operating-point table) — driving a fixed-bias 6L6G pair (220 kΩ leaks, 1.5 kΩ
       output grid stoppers, no screen resistors) from two 5U4GA rectifier tubes wired
       in parallel (no choke: +420/+410/+405 V all read at the same
       undropped node) through two 10 kΩ droppers to +335 V (PI) and +275 V
