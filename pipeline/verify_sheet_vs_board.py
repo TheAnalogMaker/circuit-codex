@@ -95,6 +95,10 @@ WHAT IT REPORTS (one line per item, each a thing a fixer can act on)
                   declared (net_map.netlist_unplaced / series_bridge /
                   not_on_board, or a scope.not_drawn rule) or UNDECLARED
   BOARD-ONLY      a part the board places that has no symbol on the sheet
+  POT-AS-RESISTOR a control the sheet draws with the resistor symbol (cx:R on
+                  a VR/RV designator, or on a reference the board places as a
+                  pot) — the sheet has no wiper to anchor, so the control is
+                  not compared until it is drawn as the pot it is
   STALE DECL.     a not_on_board entry, not_drawn rule or leads entry that
                   covers nothing
   POT-ORIENTATION information only: a pot whose CW end (lug 3) the sheet draws
@@ -317,6 +321,7 @@ class Result:
         self.sheet_only_undeclared: list = []   # [(ref, line)]
         self.sheet_only_declared: list = []     # [(ref, line)]
         self.board_only: list = []      # [(ref, line)]
+        self.pot_as_r: list = []        # [(ref, line)]
         self.stale: list = []           # [line]
         self.pot_flipped: list = []     # [pot]
         self.scope: list = []
@@ -341,6 +346,7 @@ class Result:
         out += [("UNRESOLVED", ln) for _k, ln in self.unresolved]
         out += [("SHEET-ONLY", ln) for _r, ln in self.sheet_only_undeclared]
         out += [("BOARD-ONLY", ln) for _r, ln in self.board_only]
+        out += [("POT-AS-RESISTOR", ln) for _r, ln in self.pot_as_r]
         out += [("STALE DECLARATION", ln) for ln in self.stale]
         return out
 
@@ -359,7 +365,8 @@ class Result:
             "unresolved": len(self.unresolved),
             "sheet_only_undeclared": len(self.sheet_only_undeclared),
             "sheet_only_declared": len(self.sheet_only_declared),
-            "board_only": len(self.board_only), "stale_declarations": len(self.stale),
+            "board_only": len(self.board_only), "pot_as_resistor": len(self.pot_as_r),
+            "stale_declarations": len(self.stale),
             "pot_orientation_flipped": len(self.pot_flipped),
             "anchors": self.anchors, "two_terminal_checked": self.checked,
         }
@@ -414,6 +421,7 @@ def sheet_terminals(sh: Sheet, bd: Board, swap: frozenset = frozenset()):
     pots: dict = {}
     absent: list = []
     partial: list = []
+    pot_as_r: list = []     # controls drawn with cx:R
     unmatched: dict = collections.defaultdict(list)
     unnumbered: list = []
     stale: list = []
@@ -480,6 +488,11 @@ def sheet_terminals(sh: Sheet, bd: Board, swap: frozenset = frozenset()):
             if set(pins) != {"1", "2"}:
                 unmatched[lib].append(ref)
                 continue
+            bid = bd.id_of_ref.get(ref, ref)
+            if lib == "cx:R" and (bd.kind_of_id.get(bid) == "pot"
+                                  or re.match(r"^(VR|RV)\w*$", ref)):
+                pot_as_r.append((ref, bd.kind_of_id.get(bid) == "pot"))
+                continue
             bt = bd.part_terms(ref)
             if ref in sh.bridged:
                 absent.append((ref, "on the sheet, not placed on the board; declared "
@@ -535,7 +548,8 @@ def sheet_terminals(sh: Sheet, bd: Board, swap: frozenset = frozenset()):
         notes.append(f"declared lead: sheet {skey} is board {bterm} (net_map.leads)")
 
     return {"anchors": anchors, "canon_of": canon_of, "soft": soft, "twoterm": twoterm,
-            "pots": pots, "absent": absent, "partial": partial, "unmatched": dict(unmatched),
+            "pots": pots, "absent": absent, "partial": partial, "pot_as_r": pot_as_r,
+            "unmatched": dict(unmatched),
             "unnumbered": unnumbered, "stale": stale, "notes": notes}
 
 
@@ -739,6 +753,14 @@ def compare(sh: Sheet, bd: Board, swap: frozenset = frozenset()) -> Result:
     # --- 3. sheet-only / board-only, against the declarations -----------------
     S["_sheet_refs"] = set(sh.G.lib)
     _declarations(res, bd, S)
+    for ref, placed in sorted(S["pot_as_r"]):
+        res.pot_as_r.append((ref, f"{ref}: the sheet draws this control with the resistor "
+                                  f"symbol (cx:R); "
+                                  + ("the board places it as a pot, and a resistor has no wiper "
+                                     "to anchor — not compared until the sheet draws the pot"
+                                     if placed else
+                                     "the board does not place it either — a VR/RV designator "
+                                     "names a control, so draw the pot")))
 
     # --- 4. scope ---------------------------------------------------------------
     res.scope += S["notes"]
@@ -926,7 +948,9 @@ WORKLIST_HEADER = """\
 # neither places nor wires, with no declaration saying why (net_map.not_on_board
 # or a scope.not_drawn rule in layout.yaml); `sheet_only_declared` are the ones
 # that are explained. `unresolved` are parts neither surface anchors, so they
-# are NOT checked. `pot_orientation_flipped` is information only.
+# are NOT checked. `pot_as_resistor` names a control the sheet draws with the
+# resistor symbol (no wiper to anchor). `pot_orientation_flipped` is
+# information only.
 #
 # CLEARING AN ENTRY. Read the amplifier's own sheet, correct the surface that is
 # wrong (draw_<id>.py or layout.yaml), regenerate, and re-export. The `summary`
@@ -955,11 +979,12 @@ def worklist(results: list) -> dict:
             "sheet_only_undeclared": [k for k, _l in r.sheet_only_undeclared],
             "sheet_only_declared": [k for k, _l in r.sheet_only_declared],
             "board_only": [k for k, _l in r.board_only],
+            "pot_as_resistor": [k for k, _l in r.pot_as_r],
             "stale_declarations": list(r.stale),
             "pot_orientation_flipped": list(r.pot_flipped),
         }
     keys = ("section_swap", "split", "merged", "misplaced", "unresolved",
-            "sheet_only_undeclared", "sheet_only_declared", "board_only",
+            "sheet_only_undeclared", "sheet_only_declared", "board_only", "pot_as_resistor",
             "stale_declarations", "pot_orientation_flipped", "anchors", "two_terminal_checked")
     summary = {k: sum(a["counts"][k] for a in amps.values()) for k in keys}
     summary["amps"] = len(amps)
@@ -1146,6 +1171,13 @@ def selftest() -> int:
             "scope", {"not_drawn": [{"match": "VR*", "why": "selftest: dead rule"}]}))
         case("STALE RULE    5c1 scope.not_drawn rule matching nothing",
              "STALE DECLARATION", check_amp("5c1", d), "VR*")
+
+        d = _copy_amp(tmp, "5c1")
+        p = d / "schematic.kicad_sch"
+        p.write_text(p.read_text().replace('(property "Reference" "R3"',
+                                           '(property "Reference" "VR3"'))
+        case("POT-AS-R      5c1 grid leak R3 relettered VR3 (a control drawn as a resistor)",
+             "POT-AS-RESISTOR", check_amp("5c1", d), "VR3", absent="SHEET-ONLY")
 
         # net_map.leads: the OT primary declared right, wrong, and stale
         d = _copy_amp(tmp, "5c1")

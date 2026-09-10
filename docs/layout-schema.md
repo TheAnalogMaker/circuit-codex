@@ -943,9 +943,10 @@ majority of parts on a sheet net land on a board net that already realises
 another), `MISPLACED` (a part whose pair of nets differs, both surfaces' nets
 printed in canonical names, a dangling board lead named as such), `UNRESOLVED`
 (neither of a part's nets reaches an anchor — *not checked*), `SHEET-ONLY`
-(declared / UNDECLARED), `BOARD-ONLY`, `STALE DECLARATION`, and
-`POT-ORIENTATION` as information (a pot whose CW end the sheet draws at the
-bottom of its symbol).
+(declared / UNDECLARED), `BOARD-ONLY`, `POT-AS-RESISTOR` (a control the sheet
+draws with the resistor symbol — no wiper to anchor, so it is not compared until
+the sheet draws the pot), `STALE DECLARATION`, and `POT-ORIENTATION` as
+information (a pot whose CW end the sheet draws at the bottom of its symbol).
 
 **Worklist and gate.** `--export` writes `reference/sheet-board.yaml` — per amp,
 the counts per class and the item lists — and a normal run **fails if that file
@@ -959,9 +960,9 @@ is clean for those amps. `--selftest` plants, on temp copies of the 5C1 and 5D3
 (both clean at HEAD), a section swap (by swapped references and by a
 `Basing_unit` property), a cap lead moved to another eyelet, bridged pot wipers,
 a cut ground return, a deleted board part first undeclared, then declared per
-part, then covered by a rule, a stale declaration and a dead rule, and a `leads`
-map declared right, crossed and stale — and requires each caught and each clean
-case passing.
+part, then covered by a rule, a stale declaration and a dead rule, a grid leak
+relettered as a control, and a `leads` map declared right, crossed and stale —
+and requires each caught and each clean case passing.
 
 ```
 python3 pipeline/verify_sheet_vs_board.py            # every amp + worklist drift gate
