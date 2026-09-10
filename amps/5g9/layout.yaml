@@ -268,3 +268,7 @@ net_map:
     RCHOKE: "filter choke DCR (an estimate, 130 Ω BP→BS — see the netlist header) — realised as the off-board chassis choke L1 (leads hi/lo, kind: choke), not a board 2-lead part; its two rails are anchored independently (BP by the reservoir can and the OT centre tap, BS by the screen resistors and RD1)"
     RG1: "1 MΩ Inst.-channel input grid leak — mounted at the input jacks, not on the eyelet board"
     RG2: "1 MΩ Mic.-channel input grid leak — mounted at the input jacks"
+  # Parts the sheet draws that this board neither places nor wires — each
+  # read off the cited layout drawing (sheet ↔ board gate, 2026-09-10).
+  not_on_board:
+    L1: "filter choke — a chassis part the 5G9 layout (B-EI, read at 6518 × 4128) does not draw: the +370 V and +368 V leads (lettered BLACK, BLACK) leave the board's lower-left corner through a chassis grommet to it. On this board it is only the off-board choke stub (kind: choke, leads hi/lo), which the sheet ↔ board gate has no two-lead vocabulary for"

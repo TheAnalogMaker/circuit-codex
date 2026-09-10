@@ -281,3 +281,14 @@ net_map:
   netlist_unplaced:
     RCHOKE: "filter choke L1 is chassis-mounted (B+1 → B+2); the netlist models its ~130 Ω DCR as RCHOKE"
     RG3: "V2A grid return — realised through the volume pots (VR1/VR2) and the 270k channel mixers to ground, not a discrete board resistor"
+  # Parts the sheet draws that this board neither places nor wires — each
+  # read off the cited layout drawing (sheet ↔ board gate, 2026-09-10).
+  not_on_board:
+    L1: "filter choke — a chassis part the 5F6 layout (F-EG, read at 6286 × 3564) does not draw: the +432 V and +430 V leads (both lettered BLACK) leave the board's left end through a chassis grommet to it. On this board it is only the off-board choke stub (kind: choke, leads hi/lo), which the sheet ↔ board gate has no two-lead vocabulary for"
+
+# Board-scope rules for the sheet ↔ board gate: parts the sheet draws that
+# this board deliberately does not, by designator glob, each with where the
+# cited layout drawing mounts them (2026-09-10).
+scope:
+  not_drawn:
+    - { match: "C1[4-7]", why: "the four 20 µF · 600 V filter cans (C14–C17) are not on the eyelet board: the 5F6 layout (F-EG) draws no filter can at all — the board carries only the two 8 µF · 150 V bias caps — and the +432 V, +430 V and 4700 Ω-node leads pass through the grommet at the board's left end to the cans mounted on the chassis" }

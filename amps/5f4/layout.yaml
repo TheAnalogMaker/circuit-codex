@@ -418,3 +418,7 @@ net_map:
     RCHOKE: "filter choke DCR (130 Ω BP1→BP2) — realised as the off-board chassis choke L1 (leads hi/lo, kind: choke), not a board 2-lead part; its two rails are anchored independently (BP1 by the 6L6G plates, BP2 by the screens/RD1)"
     RG3:    "V2A grid reference — the netlist's single 4.7 M leak-to-ground abstraction of the real grid network (RF1 4.7 M returned to the tone network's bass-branch node, itself held at ≈0 V DC by the 220 k leak, plus the 270 k mixers RM1/RM2 reaching ground through the volume pots); no single board part corresponds"
     RGPI:   "the driver grid's DC reference — the netlist's single 470 k leak abstraction of the tone network's own path to ground (RSR 220 k + the bass track); no discrete part corresponds"
+  # Parts the sheet draws that this board neither places nor wires — each
+  # read off the cited layout drawing (sheet ↔ board gate, 2026-09-10).
+  not_on_board:
+    L1: "filter choke — a chassis part the 5F4 layout (C-EG, read at 6330 × 3228) does not draw: the +415 V and +410 V leads from the first two 16 µF cans leave the board's lower edge through a chassis grommet to it. On this board it is only the off-board choke stub (kind: choke, leads hi/lo), which the sheet ↔ board gate has no two-lead vocabulary for"

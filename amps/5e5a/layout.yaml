@@ -306,3 +306,9 @@ net_map:
   # notes.md), so the equivalence check neither anchors nor bridges them —
   # they are inert as far as the DC graph verify_layout_nets builds, exactly
   # like the tone network's own passive parts.
+  # Parts the sheet draws that this board neither places nor wires — each
+  # read off the cited layout drawing (sheet ↔ board gate, 2026-09-10).
+  not_on_board:
+    VR5: "Presence control, 5 kΩ — a panel pot in the control row of the 5E5-A layout (J-EE, 1506 × 864, the only copy), not on the eyelet board; the layout's control-row wiring for it is not drawn on this board (see the caption)"
+    C9: "0.1 µF · 200 V presence capacitor — the layout draws it beside the Presence 5 kΩ pot in the control row, its lower lead to chassis ground, not on the eyelet board"
+    RFB1: "100 kΩ — the layout solders it directly across the V2 12AY7 socket (the 5E4-A twin of this drawing, G-EE at 6210 × 3501, letters its ends at pins 1 and 6), not on the eyelet board; the sheet draws it bridging V2's own leads and its coupling is unresolved (notes.md)"
