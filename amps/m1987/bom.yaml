@@ -58,7 +58,7 @@ items:
   - { ref: RGL2, part: "Carbon comp resistor", value: "220 kΩ · ½ W", role: "V5 grid leak, from the bias line" }
   # --- fixed-bias supply ---
   - { ref: D1,  part: "Rectifier (bias)", value: "silicon diode", role: "Bias-supply rectifier" }
-  - { ref: RBA, part: "Carbon comp resistor", value: "220 kΩ · ½ W", role: "Bias-supply divider/series resistor" }
+  - { ref: RBA, part: "Carbon comp resistor", value: "220 kΩ · ½ W", role: "Bias-supply series resistor, HT winding end → diode" }
   - { ref: RBB, part: "Carbon comp resistor", value: "15 kΩ · ½ W", role: "Bias-supply series resistor" }
   - { ref: VR6, part: "Trim potentiometer", value: "25 kΩ", role: "Bias adjust" }
   - { ref: RBC, part: "Carbon comp resistor", value: "47 kΩ · ½ W", role: "Bias-supply resistor" }

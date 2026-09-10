@@ -333,18 +333,22 @@ s.sym("C", "C22", "50u", 129, 177.81)
 s.gnd(129, 181.62)
 
 # ======================= negative-bias supply ===============================
-# HT tap -> D1 -> 220k(RBA) -> supply node (C15 8u filter); the 15k(RBB) / 25k
+# HT winding end -> 220k(RBA) -> D1 -> supply node (C15 8u filter); the 15k(RBB) / 25k
 # trim(VR6) / 47k(RBC) divider bleeds that node to ground and the trim wiper sets
 # -BIAS (C16 8u). Drawn as a shallow horizontal row — like the JTM45 / 5F4 bias
 # rows — so nothing drops into the A4 title block in the bottom-right corner.
 BY = 160.72
+# The Unicord 70-19-11 sheet runs the HT winding's end through the 220k IN
+# SERIES into the diode, and the first 8 µF and the 15k hang on the diode's
+# output — RBA and RBB are not one node. It was drawn here with the diode
+# first and the 220k after it. No PT is drawn on this sheet, so the winding
+# end is the HT_B label the rectifier uses.
 s.glabel("HT_B", 150.1, BY, 180)
-s.wire(150.1, BY, 153.91, BY)
-s.sym("DIODE_SS", "D1", "1N4007", 158.99, BY, lx=-2.0, ly=-5.4)
-s.wire(164.07, BY, 167.88, BY)
-l, r = s.series_h("R", "RBA", "220k", 171.69, BY)
-s.wire(167.88, BY, l, BY)
-s.wire(r, BY, 178.04, BY)
+l, r = s.series_h("R", "RBA", "220k", 155.5, BY)
+s.wire(150.1, BY, l, BY)
+s.wire(r, BY, 160.32, BY)
+s.sym("DIODE_SS", "D1", "1N4007", 165.4, BY, lx=-2.0, ly=-5.4)
+s.wire(170.48, BY, 178.04, BY)
 s.junction(178.04, BY)
 # supply-node filter (one cap dropped to ground, like the JTM45 bias row)
 s.sym("C", "C15", "8u", 178.04, BY + 3.81)

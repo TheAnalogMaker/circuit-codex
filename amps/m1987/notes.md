@@ -32,8 +32,8 @@ Power: a universal-primary mains transformer (110/120/200/225/245 V taps) and a
 silicon full-wave rectifier feed a 50 µF + 80 µF reservoir; a filter choke and a
 chain of 10 kΩ / 1 W droppers (with a 47 kΩ dropper to the phase-inverter/second-
 stage supply) step the rail down for the screens, phase inverter and preamp. The
-negative grid bias comes from a diode, a 220 kΩ / 15 kΩ / 25 kΩ network and 8 µF
-filters.
+negative grid bias comes from one end of the HT winding through 220 kΩ into a
+diode, then a 15 kΩ / 25 kΩ network and 8 µF filters.
 
 ## Lineage
 

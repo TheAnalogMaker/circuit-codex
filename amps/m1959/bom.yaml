@@ -70,7 +70,7 @@ items:
   - { ref: RSC7, part: "Carbon comp resistor", value: "1 kΩ", role: "V7 screen-grid stopper" }
   # --- fixed-bias supply ---
   - { ref: D1,  part: "Silicon rectifier diode", value: "1008", role: "Bias-supply rectifier — its own HT-tap diode" }
-  - { ref: RBA, part: "Carbon comp resistor", value: "27 kΩ · ½ W", role: "Bias-supply shunt at the diode (drawing annotates a 22 kΩ variant)" }
+  - { ref: RBA, part: "Carbon comp resistor", value: "27 kΩ · ½ W", role: "Bias-supply series resistor, HT winding end → diode (drawing annotates a 22 kΩ variant)" }
   - { ref: RBB, part: "Carbon comp resistor", value: "15 kΩ · ½ W", role: "Bias-supply series resistor between the two 8 µF filters" }
   - { ref: RBC, part: "Carbon comp resistor", value: "47 kΩ · ½ W", role: "Bias-adjust divider, upper leg" }
   - { ref: VR7, part: "Trim potentiometer", value: "27 kΩ", role: "Bias adjust" }

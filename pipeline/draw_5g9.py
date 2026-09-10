@@ -299,10 +299,14 @@ s.wire(60, PT_ - 7.62, 60, PT_ - 12)
 s.wire(60, PT_ - 12, 30, PT_ - 12)
 s.wire(30, PT_ - 12, 30, YT + 11)
 s.wire(30, YT + 11, 100, YT + 11)
-# N2: 1M grid leak to ground, then on to the grid
+# N2: 1M grid leak to ground, then on to the grid. Its ground flag used to
+# stand at (40, PT_-12) — ON the wire above that returns R8 to the cathode —
+# which grounded the cathode: the sheet drew 1.5k ‖ 25 µF and the 1M all
+# shorted to ground where the factory prints +1.7 V. The flag now points
+# left from a shorter stub, clear of that wire.
 s.sym("R", "R7", "1M", 40, PT_ - 3.81)
-s.wire(40, PT_ - 7.62, 40, PT_ - 12)
-s.gnd(40, PT_ - 12, 90)
+s.wire(40, PT_ - 7.62, 40, PT_ - 10)
+s.gnd(40, PT_ - 10, 180)
 s.wire(40, PT_, 36, PT_)
 s.wire(36, PT_, 36, YT)
 s.wire(36, YT, t3a["g"][0], YT)

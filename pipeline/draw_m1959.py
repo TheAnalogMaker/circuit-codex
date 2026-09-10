@@ -367,13 +367,16 @@ for x0, rref, rval, rail, cA, cB in [
 
 # ======================= negative-bias supply ===============================
 BY = 252.0
+# The Unicord 70-6-11 sheet runs the HT winding's end through the 27k (22k
+# annotated) IN SERIES into the 1008 diode; the first 8 µF hangs on the
+# diode's output. It was drawn here as a shunt at the diode. No PT is drawn
+# on this sheet, so the winding end is the HT_B label the bridge uses.
 s.glabel("HT_B", 116, BY, 180)
-s.wire(116, BY, 123.92, BY)
-s.sym("DIODE_SS", "D1", "1008", 129, BY, rot=180, lx=-2.4, ly=-5.4, label_rot=0)
-s.wire(134.08, BY, 146, BY)
-s.junction(140, BY)
-s.sym("R", "RBA", "27k", 140, BY + 3.81)
-s.gnd(140, BY + 7.62)
+ba_l, ba_r = s.series_h("R", "RBA", "27k", 121.5, BY)
+s.wire(116, BY, ba_l, BY)
+s.wire(ba_r, BY, 125.92, BY)
+s.sym("DIODE_SS", "D1", "1008", 131, BY, rot=180, lx=-2.4, ly=-5.4, label_rot=0)
+s.wire(136.08, BY, 146, BY)
 s.junction(146, BY)
 s.sym("C", "C17", "8u", 146, BY + 3.81, lx=2.2)
 s.gnd(146, BY + 7.62)
@@ -390,9 +393,9 @@ s.sym("POT", "VR7", "27k bias adj", 186, BY + 3.81, lx=6.0, ly=-5.6)
 s.gnd(186, BY + 7.62)
 s.wire(191.08, BY + 3.81, 205, BY + 3.81)
 s.glabel("-BIAS", 205, BY + 3.81, 0)
-s.text("Bias supply: its own HT-tap diode, a 27 k bleeder and 15 k between "
-       "the two 8 uF filters, then the 47 k / 27 k-trimmer divider that sets "
-       "the grid bias.", 116, 266, 1.15)
+s.text("Bias supply: 27 k in series from the HT winding end into its own diode, "
+       "15 k between the two 8 uF filters, then the 47 k / 27 k-trimmer divider "
+       "that sets the grid bias.", 116, 266, 1.15)
 
 # ---- parts the drawing annotates rather than wires -------------------------
 s.sym("C", "C29", ".22u", 185, 276, lx=-2.8, ly=-5.6)

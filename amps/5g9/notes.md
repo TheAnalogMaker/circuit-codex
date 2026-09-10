@@ -64,8 +64,9 @@ The second 12AX7 is a **phase-shift oscillator direct-coupled to a cathode
 follower**, which is more machinery than the brown-era tremolos use for the same
 job. The oscillator half takes a 100 kΩ plate load from the +368 V node and a
 1.5 kΩ cathode resistor with a 25 µF bypass, and swings through a three-section
-0.03 µF / 0.01 µF / 0.01 µF ladder on 1 MΩ returns with a 2 MΩ **Speed** control
-(and its own 100 kΩ end resistor) setting the rate. Its plate is wired straight
+0.03 µF / 0.01 µF / 0.01 µF ladder — its two 1 MΩ returns land one on ground and
+one on that +1.7 V cathode node, not both on ground — with a 2 MΩ **Speed**
+control (and its own 100 kΩ end resistor) setting the rate. Its plate is wired straight
 to the second half's grid; that half's plate sits on the same +368 V node as the
 6V6 screens and its 220 kΩ cathode resistor is the load the 0.1 µF output
 coupler is taken from.

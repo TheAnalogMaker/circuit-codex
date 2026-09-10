@@ -424,9 +424,12 @@ s.wire(340, 294, 348, 294)
 s.glabel("BP4", 340, 294, 180)
 
 # ============================ BIAS SUPPLY ============================
-s.caption('Negative-bias supply — R36 taps the 5AR4 plate, which swings below ground on every other half cycle, so D1 conducts toward the bias line. R34 and R35 sit either side of it and R42 separates the two 10 uF cans.', 452, 236, 1.4)
-s.wire(404, 246.76, 452, 246.76)
-s.junction(404, 246.76)
+s.caption('Negative-bias supply — R36 taps the pin-4 5AR4 plate, one HT end, which swings below ground every other half cycle so D1 conducts toward the bias line. R34 and R35 flank it, R42 parts the two 10 uF cans.', 452, 236, 1.4)
+# R36 hangs on the pin-4 plate node (HTA, one END of the HT winding — the
+# Ampeg 591722 sheet). It used to be fed by a wire drawn from V6A's plate
+# stub straight across the top of V6B's, which joined the two winding ends
+# into one net; it now takes the HTA label on its own.
+s.glabel("HTA", 452, 246.76, 180)
 l, r = s.series_h("R", "R36", "100k 2W 5%", 470, 246.76)
 s.wire(452, 246.76, l, 246.76)
 s.wire(r, 246.76, 492, 246.76)

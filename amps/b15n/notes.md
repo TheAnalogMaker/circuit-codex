@@ -182,7 +182,8 @@ misread as tapping a DC node too positive for the diode ahead of it to
 conduct. Read at the pixel, on both sheets, that corner resolves: the
 line from R36 drops past the two yellow 5 V leads — **hopping over both**, in
 the same S-jog convention the rest of the drawing uses — and joins the red HT
-lead at **V6 pin 4, the 5AR4's own plate**. That is not a DC node. A rectifier
+lead at **V6 pin 4, the 5AR4's own plate** — the end the schematic on this page
+feeds R36 from, and only that end. That is not a DC node. A rectifier
 plate swings to roughly −450 V on the half cycle its own diode is not
 conducting, and D1 faces it cathode-first, so on that half cycle D1 conducts
 *toward* the bias line and charges the two cans negative. R35 sits on the
