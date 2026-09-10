@@ -213,7 +213,10 @@ runs:
   - { from: V3.pin2, to: V4.pin7, style: twisted, via: [[22, 3.72], [28, 3.72]] }  # V3 → V4 heater
   - { from: V4.pin2, to: V2.pin4, style: twisted, via: [[28, 3.74], [41, 3.74]] }  # V4 → V2 heater
   - { from: V2.pin5, to: V1.pin3, style: twisted, via: [[41, 3.72], [53, 3.72]] }  # V2 → V1 (6AT6) heater
-  - { from: V1.pin3, to: V1.pin4, style: twisted } # close the pair at the last socket
+  # A pair spans both of a socket's heater pins on its own, so the chain's last
+  # hop needs no closing link — one used to be drawn here between V1 pins 3 and
+  # 4, which is a short across the supply and is not on the F-EF sheet (which
+  # grounds pin 4 and feeds pin 3); removed 2026-09-09, see notes.md.
 
 # net_map — the reviewable data layer reconciling the drawn wiring with the
 # DC-operating-point netlist (netlist.cir) for pipeline/verify_layout_nets.py.

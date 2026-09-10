@@ -60,6 +60,18 @@ basing:
     6: { element: nc }
     7: { element: heater }
     8: { element: cathode }
+# One heater, one supply: with no centre tap the two heater pins ARE the two
+# supply legs, and a drawing has no second way to wire them. A layout's
+# `heaters:` block still has to declare which leg it grounds, and
+# pipeline/check_heaters.py proves the declaration against this block.
+heater:
+  supplies:
+    - volts: 6.3
+      current_a: 1.5
+      legs: [[2], [7]]
+  source: >-
+    Mullard / Philips EL34 data sheet — "HEATING: Indirect by A.C. or D.C.;\n    parallel supply", heater voltage Vf 6.3 V, heater current If 1.5 A. The two\n    heater pins are this file's own basing block (octal 2 and 7); the valve has\n    no heater centre tap.
+  source_url: https://frank.pocnet.net/sheets/010/e/EL34.pdf
 used_in: [dr103, m1959, m1987, m2204]
 datasheets:
   - publisher: Mullard / Philips

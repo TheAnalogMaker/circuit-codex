@@ -23,6 +23,18 @@ board:
   rows: 2
   cols: 58
   title: "AC15 · board layout (derived)"
+# No factory board-layout drawing exists for this amplifier (see `source`
+# above): the board here is derived from the circuit drawing. Its heater legs
+# therefore cannot be read off a factory sheet by anyone, which is a different
+# gap from one nobody has read yet — the drawing says which, and the heater
+# worklist counts it separately instead of carrying it as work a better scan
+# would clear. Replace this with a `heaters:` block if the circuit drawing
+# itself turns out to establish the wiring.
+heaters_unsourced: >-
+  JMI published no board-layout sheet for the AC15 and none was located; this
+  board is the Circuit Codex's own arrangement, so no factory drawing can
+  establish its heater legs.
+
 caption: "A derived layout: JMI published no board-layout drawing for the AC15, so the arrangement below is the Circuit Codex's own — this circuit's parts laid out in signal order along the chassis and drawn on the house eyelet grid, not a record of the factory's tag-strip construction. Every value comes from the parts list, which is read from JMI drawing OA/031. The Vibrato/Tremolo channel is not drawn: its tone, phase-shift, modulator and oscillator networks and their supply dropper mount on that channel's own tag strip at the Depth and Speed controls, so only its three valve sockets and their heaters appear here, with its volume control feeding the phase inverter's second grid. The Brilliance switch and its 250 pF cap, the standby switch and the mains selector are panel-mounted and are not drawn. The 6.3 V heater chain (green twisted pair — mains transformer, pilot lamp, EZ81, the two EL84s, the phase inverter, the three vibrato valves, the EF86) runs in the order a builder would wire it; the EZ81 is indirectly heated and sits on the same 6.3 V winding as the rest. Not a trace or a reproduction of any drawing."
 source:
   desc: "JMI drawing OA/031, \"VOX AC.15 amplifier circuit No. 3\" (29-4-60) — layout DERIVED from that circuit drawing; JMI published no board-layout sheet for the AC15 and none was located"
@@ -202,7 +214,13 @@ runs:
   - { from: V7.pin5, to: V6.pin4, style: twisted, via: [[39, 4.1], [43, 4.1]] }
   - { from: V6.pin5, to: V5.pin4, style: twisted, via: [[43, 4.12], [47, 4.12]] }
   - { from: V5.pin5, to: V1.pin4, style: twisted, via: [[47, 4.14], [51.6, 4.14]] }
-  - { from: V1.pin4, to: V1.pin5, style: twisted }
+  # A pair spans both of a socket's heater pins on its own, so the chain's last
+  # hop needs no closing link — one used to be drawn here between V1 pins 4 and
+  # 5. The EF86 has two heater pins and no centre tap, so those two pins ARE the
+  # supply's two legs and joining them shorts it at every voltage the valve
+  # permits. There is no factory layout drawing to appeal to (this layout is
+  # derived), so nothing established it in the first place; removed 2026-09-09,
+  # see notes.md.
 
 # net_map — reviewable reconciliation of the drawn wiring with the DC netlist
 # (netlist.cir) for pipeline/verify_layout_nets.py. See docs/layout-schema.md.

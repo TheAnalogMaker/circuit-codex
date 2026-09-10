@@ -33,9 +33,47 @@ board:
   rows: 2
   cols: 71
   title: "AB763 Super Reverb-style · eyelet board layout (derived)"
-caption: "Derived from the published SUPER-REVERB-AMP AB763 schematic (meta.yaml) — no factory eyelet-board layout sheet is cited for this circuit, so the board order below follows the circuit's own signal path, matching the tube row amps/ab763 and amps/ab763-twin draw for the same platform. Both channels' tone-stack parts (slope resistors, treble/bass/middle caps and pots, bright caps and switches), the reverb-mix resistors, the tremolo-oscillator network, and the bias-supply parts are documented schematic-only and not placed here, matching amps/ab763's own convention for this platform; small grid stoppers on the output pair ARE drawn, since this drawing carries them and amps/ab763's 6V6GT stage does not. The 6.3 V heater chain (green twisted pair, PT → pilot lamp → the two 6L6GC output tubes → 12AT7 PI → 12AT7 reverb driver → 12AX7 tremolo → the two 12AX7 mix/recovery and vibrato/normal preamp tubes) is routed in the same daisy order the sibling entries use; the GZ34 rectifier is indirectly heated from the 5 V winding and off the 6.3 V chain. Not a trace or a dimensioned reproduction."
+
+# The heater circuits this drawing establishes against the amplifier's own
+# sheet — the 5 V rectifier filament only. No factory layout sheet is cited for
+# this circuit (see the caption), so the source here is the SUPER-REVERB-AMP
+# AB763 schematic, which draws the 5 V winding as an explicit two-terminal
+# secondary landing on the rectifier while it only ARROWS the 6.3 V chain, "TO
+# ALL 6.3V HEATERS AND PILOT LIGHT". The 6.3 V daisy below therefore stays
+# undeclared and the drawing keeps its "not established" markers for it.
+# No factory board-layout sheet was located for this circuit (its own source
+# field says so): the 6.3 V heater chain below is drawn in the house order and
+# cannot be established against a factory drawing. The 5 V rectifier circuit IS
+# declared, from the circuit drawing, which shows that winding. Replace this key
+# with a full `heaters:` declaration if a factory layout sheet turns up.
+heaters_unsourced: >-
+  No factory board-layout sheet for the Super Reverb AB763 was located; this
+  board is derived from the factory schematic, so no factory drawing can
+  establish its 6.3 V heater legs. The 5 V rectifier circuit is declared from
+  the circuit drawing, which draws that winding.
+
+heaters:
+  - id: h5
+    volts: 5.0
+    winding: "5 V rectifier-filament secondary"
+    grounded_leg: none
+    source: >-
+      SUPER-REVERB-AMP AB763 schematic (C-FD): TR1's topmost secondary is a
+      two-terminal winding whose ends are the GZ34's two heater connections,
+      with +465 V taken from the end carrying the cathode (the 470 Ω 1 W bias
+      tap leaves the same node). The GZ34's cathode is strapped to the heater
+      at pin 8 inside the envelope — Mullard letters that pin "h,k", GE prints
+      "Pin 8 — Heater and Cathode" — so the winding lands on pins 2 and 8, the
+      B+ leaves on 8, and neither leg is grounded because the winding floats at
+      B+ with the cathode. The sibling Deluxe Reverb's own layout page (C-FD)
+      letters exactly this pair YELLOW to pins 2 and 8, which is how the
+      platform is built; the pin identities here rest on the valve's datasheet
+      and this amplifier's own schematic, not on that sibling sheet.
+    sockets:
+      V9: { feed: [2], return: [8] }   # GZ34 — 5 V across the two heater pins, B+ out of 8
+caption: "Derived from the published SUPER-REVERB-AMP AB763 schematic (meta.yaml) — no factory eyelet-board layout sheet is cited for this circuit, so the board order below follows the circuit's own signal path, matching the tube row amps/ab763 and amps/ab763-twin draw for the same platform. Both channels' tone-stack parts (slope resistors, treble/bass/middle caps and pots, bright caps and switches), the reverb-mix resistors, the tremolo-oscillator network, and the bias-supply parts are documented schematic-only and not placed here, matching amps/ab763's own convention for this platform; small grid stoppers on the output pair ARE drawn, since this drawing carries them and amps/ab763's 6V6GT stage does not. The GZ34's own 5 V filament winding is drawn as the schematic shows it — a two-terminal secondary landing on the rectifier's heater pins 2 and 8, the B+ leaving pin 8 beside it (the rectifier is indirectly heated, but its cathode is strapped to the heater inside the envelope). The 6.3 V heater chain (green twisted pair, PT → pilot lamp → the two 6L6GC output tubes → 12AT7 PI → 12AT7 reverb driver → 12AX7 tremolo → the two 12AX7 mix/recovery and vibrato/normal preamp tubes) is drawn in the same daisy order the sibling entries use and is NOT established: the schematic arrows it \"TO ALL 6.3V HEATERS AND PILOT LIGHT\". Not a trace or a dimensioned reproduction."
 source:
-  desc: "Fender 'SUPER-REVERB-AMP AB763' schematic (drawing code C-FD, cited in meta.yaml) — layout DERIVED from that circuit drawing; no factory board-layout sheet for this circuit was located"
+  desc: "Fender 'SUPER-REVERB-AMP AB763' schematic (drawing code C-FD, cited in this circuit's sources) — layout DERIVED from that circuit drawing; no factory board-layout sheet for this circuit was located"
   url: "https://el34world.com/charts/Schematics/Files/Fender/Fender_super_reverb_ab763_schematic.pdf"
 
 parts:
@@ -136,9 +174,16 @@ bus:
 # leads.
 runs:
   # === power transformer HT → GZ34 rectifier → reservoir (annotation layer) ===
+  # The two YELLOW leads are the 5 V rectifier-filament winding. The GZ34 is
+  # indirectly heated but its cathode is strapped to the heater at pin 8, so the
+  # winding lands on pins 2 and 8 and the B+ lead leaves pin 8 beside it. Until
+  # 2026-09-09 neither was drawn and this socket carried one run — a rectifier
+  # with no filament supply. See the `heaters:` block at the head of the file.
   - { from: T1.red1, to: V9.pin4, via: [[1.5, 0.32]] }
   - { from: T1.red2, to: V9.pin6, via: [[2.7, 0.58]] }
   - { from: T1.red-yellow, to: [1.45, 1.4], via: [[0.5, 1.25]] }  # HT centre tap → ground
+  - { from: T1.yellow1, to: V9.pin2, via: [[0.55, 1.45], [1.1, 2.15]] }
+  - { from: T1.yellow2, to: V9.pin8, via: [[-0.15, 1.85], [0.5, 2.68], [3.1, 2.68]] }
   - { from: V9.pin8, to: C10.a, color: red, via: [[1.6, 1.2]] }   # B+ out → reservoir
 
   # === reservoir bleeders + choke → BP1 (node [B], post-choke) ================

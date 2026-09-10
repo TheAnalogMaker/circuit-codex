@@ -26,6 +26,18 @@ board:
   rows: 2
   cols: 188
   title: "B-15N · board layout (derived)"
+# No factory board-layout drawing exists for this amplifier (see `source`
+# above): the board here is derived from the circuit drawing. Its heater legs
+# therefore cannot be read off a factory sheet by anyone, which is a different
+# gap from one nobody has read yet — the drawing says which, and the heater
+# worklist counts it separately instead of carrying it as work a better scan
+# would clear. Replace this with a `heaters:` block if the circuit drawing
+# itself turns out to establish the wiring.
+heaters_unsourced: >-
+  No Ampeg board-layout sheet for the B-15-N was located; this board is
+  derived from the factory schematic, so no factory drawing can establish its
+  heater legs.
+
 caption: "A derived layout: Ampeg published no board-layout drawing for this chassis, so the arrangement below is the Circuit Codex's own — this circuit's parts laid out in signal order along the chassis and drawn on the house eyelet grid, not a record of the factory's own construction, which put each channel's Bass and Treble network on its own printed board (P.E.C.). Every value comes from the parts list, which is read from the Ampeg drawing whose title block reads \"B-15-N / U.S. PATENT 3183305\", part 591722, revision C. Transformer lead colours are the drawing's own: PT-108 red HT pair with a red-white centre tap, yellow 5 V rectifier winding, green 6.3 V heater winding; OT-214 blue and brown to the two 6L6GC plates with a red centre tap, and a green/black secondary. The OT secondary's yellow tap, the EXT. SPKR. jack J6 that normals the internal 8 ohm speaker, and the whole mains side beyond the transformer primary (POWER and POLAR. switches, the 3 A and 6 A fuses, the switched AC outlet and its two 0.047 uF capacitors) are outside this drawing. The panel pilot is drawn as the panel item it is and carries no lead here: this circuit puts P.L. straight across the transformer's mains primary, not on the heater chain, and that side of the circuit is out of scope. The 6.3 V heater chain (twisted pair, transformer to the two 6L6GCs, then the driver, then the two channel valves, with the VR7 hum balance across the line at the far end) is likewise derived: with no layout sheet its daisy order is the physical socket order. The 5AR4 is indirectly heated from the 5 V winding, off that chain. Not a trace or a dimensioned reproduction."
 source:
   desc: "Ampeg factory schematic, engineering issue, title block \"B-15-N / U.S. PATENT 3183305 / TUBES / 6SL7 - 6SL7 - 6SL7 - 6L6GC - 6L6GC - 5AR4 / -472-\", PART NO. 591722, revision C of 1/22/74 — layout DERIVED from that circuit drawing; Ampeg published no board-layout sheet for this chassis and none was located"

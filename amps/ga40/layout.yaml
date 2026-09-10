@@ -33,6 +33,18 @@ board:
   rows: 2
   cols: 77
   title: "GA-40 · board layout (derived)"
+# No factory board-layout drawing exists for this amplifier (see `source`
+# above): the board here is derived from the circuit drawing. Its heater legs
+# therefore cannot be read off a factory sheet by anyone, which is a different
+# gap from one nobody has read yet — the drawing says which, and the heater
+# worklist counts it separately instead of carrying it as work a better scan
+# would clear. Replace this with a `heaters:` block if the circuit drawing
+# itself turns out to establish the wiring.
+heaters_unsourced: >-
+  Gibson published no board-layout sheet for the GA-40 and none was located;
+  this board is derived from the factory circuit drawing, so no factory
+  drawing can establish its heater legs.
+
 caption: "A derived layout: Gibson published no board-layout drawing for this chassis, so the arrangement below is the Circuit Codex's own — this circuit's parts laid out in signal order along the chassis and drawn on the house eyelet grid, not a record of the factory's own construction. Every value comes from the parts list, which is read from the drawing whose title block reads \"GA-40\". Two sockets deliberately carry no board parts: channel 2's 5879 and the 6SQ7 tremolo oscillator are read on that drawing but not lettered, because channel 2's screen is fed through the tremolo's Depth network and neither the network nor the channel-2 screen dropper resolves on the only published scan. Both bottles are drawn because both are in the amplifier and both sit on the heater chain. Parts drawn off the board: the choke, the volume and tone controls, the pilot lamp and the input and speaker jacks. The 6.3 V heater chain (twisted pair, transformer → pilot lamp → the two 6V6GTs → the inverter → the tremolo triode → both 5879s) is likewise derived: with no layout sheet its daisy order is the physical socket order and the twisted-pair green is the house heater idiom, not a sourced wire colour — as is every other lead here, which is why all hookup and transformer leads are drawn in the neutral tone and the transformer pigtails are lettered by function. The 5Y3GT is directly heated and takes the 5 V winding, off that chain. Not a trace or a dimensioned reproduction."
 source:
   desc: "Gibson factory drawing, title block \"GA-40\" with the \"Les Paul\" signature at the lower left — layout DERIVED from that circuit drawing; Gibson published no board-layout sheet for this chassis and none was located"

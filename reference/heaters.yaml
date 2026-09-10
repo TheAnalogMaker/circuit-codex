@@ -11,6 +11,15 @@
 # established, and this file is the standing worklist of exactly what is
 # unestablished on each, so the work is tractable rather than a vague backlog.
 #
+# A LAYOUT CAN BE PART-WAY. `declared` says a layout states at least one heater
+# circuit; `fully_established` says nothing is left over. They differ, and the
+# difference is the point: the 6G3, 6G4, AB763 and AB763 Super sheets draw their
+# 5 V rectifier-filament winding lead by lead but only ARROW their 6.3 V chain
+# ("to all 6.3 volt heaters"), so each of those declares its 5 V circuit, has it
+# proved, and still carries centre-tapped preamp sockets nothing has
+# established. Both halves are recorded on every entry; read `fully_established`
+# for the size of the job, never `declared`.
+#
 # HOW TO READ IT. `doubtful_sockets` are centre-tapped valves whose drawing puts
 # the two heater pins on OPPOSITE supply legs - the 12.6 V series arrangement.
 # On a 6.3 V amplifier those two pins are ONE leg and the centre tap is the
@@ -26,14 +35,33 @@
 amps:
   5c1:
     centre_tapped_sockets: {}
-    declared: false
-    findings:
-    - detail: the 6sj7 has two heater pins and no centre tap, so pins [2, 7] are its two supply legs
-      kind: shorted
-      pins:
-      - 7
-      - 2
-      socket: V1
+    circuits:
+    - grounded_leg: return
+      id: h63
+      sockets:
+        V1:
+          feed:
+          - 7
+          return:
+          - 2
+        V2:
+          feed:
+          - 2
+          return:
+          - 7
+      volts: 6.3
+    - grounded_leg: none
+      id: h5
+      sockets:
+        V3:
+          feed:
+          - 2
+          return:
+          - 8
+      volts: 5.0
+    declared: true
+    findings: []
+    fully_established: true
   5d3:
     centre_tapped_sockets:
       V1:
@@ -58,47 +86,78 @@ amps:
       - 4
       - 5
       socket: V1
+    fully_established: false
   5e1:
-    centre_tapped_sockets:
-      V1:
-        drawn_on_pins:
-        - 4
-        - 5
-        grouping: opposite-legs
-        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
-        tube: 12ax7
-    declared: false
-    findings:
-    - detail: pins [4, 5] are one leg at 6.3 V and opposite legs at 12.6 V
-      kind: unclassified
-      pins:
-      - 4
-      - 5
-      socket: V1
+    centre_tapped_sockets: {}
+    circuits:
+    - grounded_leg: return
+      id: h63
+      sockets:
+        V1:
+          feed:
+          - 4
+          - 5
+          return:
+          - 9
+        V2:
+          feed:
+          - 7
+          return:
+          - 2
+      volts: 6.3
+    - grounded_leg: none
+      id: h5
+      sockets:
+        V3:
+          feed:
+          - 2
+          return:
+          - 8
+      volts: 5.0
+    declared: true
+    findings: []
+    fully_established: true
   5e3:
-    centre_tapped_sockets:
-      V1:
-        drawn_on_pins:
-        - 4
-        - 5
-        grouping: opposite-legs
-        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
-        tube: 12ay7
-      V2:
-        drawn_on_pins:
-        - 4
-        - 5
-        grouping: opposite-legs
-        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
-        tube: 12ax7
-    declared: false
-    findings:
-    - detail: pins [4, 5] are one leg at 6.3 V and opposite legs at 12.6 V
-      kind: unclassified
-      pins:
-      - 4
-      - 5
-      socket: V1
+    centre_tapped_sockets: {}
+    circuits:
+    - grounded_leg: return
+      id: h63
+      sockets:
+        V1:
+          feed:
+          - 4
+          - 5
+          return:
+          - 9
+        V2:
+          feed:
+          - 4
+          - 5
+          return:
+          - 9
+        V3:
+          feed:
+          - 7
+          return:
+          - 2
+        V4:
+          feed:
+          - 7
+          return:
+          - 2
+      volts: 6.3
+    - grounded_leg: none
+      id: h5
+      sockets:
+        V5:
+          feed:
+          - 2
+          return:
+          - 8
+      volts: 5.0
+    declared: true
+    findings: []
+    fully_established: true
   5e4a:
     centre_tapped_sockets:
       V1:
@@ -130,6 +189,7 @@ amps:
       - 4
       - 5
       socket: V1
+    fully_established: false
   5e5a:
     centre_tapped_sockets:
       V1:
@@ -161,6 +221,7 @@ amps:
       - 4
       - 5
       socket: V1
+    fully_established: false
   5e6a:
     centre_tapped_sockets:
       V1:
@@ -192,7 +253,9 @@ amps:
       - 4
       - 5
       socket: V1
+    fully_established: false
   5f1:
+    centre_tapped_sockets: {}
     circuits:
     - grounded_leg: return
       id: h63
@@ -219,6 +282,8 @@ amps:
           - 8
       volts: 5.0
     declared: true
+    findings: []
+    fully_established: true
   5f10:
     centre_tapped_sockets:
       V2:
@@ -229,30 +294,38 @@ amps:
         reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
         tube: 12ax7
     declared: false
-    findings:
-    - detail: the 6at6 has two heater pins and no centre tap, so pins [3, 4] are its two supply legs
-      kind: shorted
-      pins:
-      - 3
-      - 4
-      socket: V1
+    findings: []
+    fully_established: false
   5f2a:
-    centre_tapped_sockets:
-      V1:
-        drawn_on_pins:
-        - 4
-        - 5
-        grouping: opposite-legs
-        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
-        tube: 12ax7
-    declared: false
-    findings:
-    - detail: pins [4, 5] are one leg at 6.3 V and opposite legs at 12.6 V
-      kind: unclassified
-      pins:
-      - 4
-      - 5
-      socket: V1
+    centre_tapped_sockets: {}
+    circuits:
+    - grounded_leg: return
+      id: h63
+      sockets:
+        V1:
+          feed:
+          - 4
+          - 5
+          return:
+          - 9
+        V2:
+          feed:
+          - 7
+          return:
+          - 2
+      volts: 6.3
+    - grounded_leg: none
+      id: h5
+      sockets:
+        V3:
+          feed:
+          - 2
+          return:
+          - 8
+      volts: 5.0
+    declared: true
+    findings: []
+    fully_established: true
   5f4:
     centre_tapped_sockets:
       V1:
@@ -284,6 +357,7 @@ amps:
       - 4
       - 5
       socket: V1
+    fully_established: false
   5f6:
     centre_tapped_sockets:
       V1:
@@ -315,6 +389,7 @@ amps:
       - 4
       - 5
       socket: V1
+    fully_established: false
   5f6a:
     centre_tapped_sockets:
       V1:
@@ -346,6 +421,7 @@ amps:
       - 4
       - 5
       socket: V1
+    fully_established: false
   5f8a:
     centre_tapped_sockets:
       V1:
@@ -377,6 +453,7 @@ amps:
       - 4
       - 5
       socket: V1
+    fully_established: false
   5g9:
     centre_tapped_sockets:
       V1:
@@ -408,6 +485,7 @@ amps:
       - 4
       - 5
       socket: V1
+    fully_established: false
   '6161':
     centre_tapped_sockets:
       V1:
@@ -432,31 +510,50 @@ amps:
         tube: 12ax7
     declared: false
     findings: []
+    fully_established: false
+    no_factory_layout_sheet: Valco published no board-layout sheet for the 6161 and none was located;
+      this board is derived from the circuit drawing, so no factory drawing can establish its heater legs.
   6g2:
-    centre_tapped_sockets:
-      V1:
-        drawn_on_pins:
-        - 4
-        - 5
-        - 9
-        grouping: not-drawn-as-a-pair
-        reading: not read as a pair (the drawing names 3 pin(s))
-        tube: 12ax7
-      V2:
-        drawn_on_pins:
-        - 4
-        - 5
-        grouping: opposite-legs
-        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
-        tube: 12ax7
-    declared: false
-    findings:
-    - detail: every supply the 12ax7 sheet lists puts pins [5, 9] on opposite legs
-      kind: shorted
-      pins:
-      - 5
-      - 9
-      socket: V1
+    centre_tapped_sockets: {}
+    circuits:
+    - grounded_leg: return
+      id: h63
+      sockets:
+        V1:
+          feed:
+          - 4
+          - 5
+          return:
+          - 9
+        V2:
+          feed:
+          - 4
+          - 5
+          return:
+          - 9
+        V3:
+          feed:
+          - 2
+          return:
+          - 7
+        V4:
+          feed:
+          - 2
+          return:
+          - 7
+      volts: 6.3
+    - grounded_leg: none
+      id: h5
+      sockets:
+        V5:
+          feed:
+          - 2
+          return:
+          - 8
+      volts: 5.0
+    declared: true
+    findings: []
+    fully_established: true
   6g3:
     centre_tapped_sockets:
       V1:
@@ -480,7 +577,17 @@ amps:
         grouping: opposite-legs
         reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
         tube: 12ax7
-    declared: false
+    circuits:
+    - grounded_leg: none
+      id: h5
+      sockets:
+        V6:
+          feed:
+          - 2
+          return:
+          - 8
+      volts: 5.0
+    declared: true
     findings:
     - detail: pins [4, 5] are one leg at 6.3 V and opposite legs at 12.6 V
       kind: unclassified
@@ -488,6 +595,7 @@ amps:
       - 4
       - 5
       socket: V1
+    fully_established: false
   6g4:
     centre_tapped_sockets:
       V1:
@@ -525,7 +633,17 @@ amps:
         grouping: opposite-legs
         reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
         tube: 12ax7
-    declared: false
+    circuits:
+    - grounded_leg: none
+      id: h5
+      sockets:
+        V9:
+          feed:
+          - 2
+          return:
+          - 8
+      volts: 5.0
+    declared: true
     findings:
     - detail: pins [4, 5] are one leg at 6.3 V and opposite legs at 12.6 V
       kind: unclassified
@@ -533,6 +651,7 @@ amps:
       - 4
       - 5
       socket: V3
+    fully_established: false
   6g5:
     centre_tapped_sockets:
       V1:
@@ -578,6 +697,7 @@ amps:
       - 4
       - 5
       socket: V2
+    fully_established: false
   6g6b:
     centre_tapped_sockets:
       V1:
@@ -616,6 +736,7 @@ amps:
       - 4
       - 5
       socket: V1
+    fully_established: false
   aa1164:
     centre_tapped_sockets:
       V1:
@@ -654,6 +775,7 @@ amps:
       - 4
       - 5
       socket: V1
+    fully_established: false
   aa764:
     centre_tapped_sockets:
       V1:
@@ -662,7 +784,14 @@ amps:
         reading: not read as a pair (the drawing names 0 pin(s))
         tube: 12ax7
     declared: false
-    findings: []
+    findings:
+    - detail: pins [4, 5] are one leg at 6.3 V and opposite legs at 12.6 V
+      kind: unclassified
+      pins:
+      - 4
+      - 5
+      socket: V1
+    fully_established: false
   aa764-vibro:
     centre_tapped_sockets:
       V1:
@@ -676,7 +805,20 @@ amps:
         reading: not read as a pair (the drawing names 0 pin(s))
         tube: 12ax7
     declared: false
-    findings: []
+    findings:
+    - detail: pins [4, 5] are one leg at 6.3 V and opposite legs at 12.6 V
+      kind: unclassified
+      pins:
+      - 4
+      - 5
+      socket: V1
+    - detail: pins [4, 5] are one leg at 6.3 V and opposite legs at 12.6 V
+      kind: unclassified
+      pins:
+      - 4
+      - 5
+      socket: V4
+    fully_established: false
   aa864-bassman:
     centre_tapped_sockets:
       V1:
@@ -715,6 +857,7 @@ amps:
       - 4
       - 5
       socket: V1
+    fully_established: false
   aa964:
     centre_tapped_sockets:
       V1:
@@ -739,6 +882,7 @@ amps:
       - 4
       - 5
       socket: V1
+    fully_established: false
   ab165:
     centre_tapped_sockets:
       V1:
@@ -777,6 +921,7 @@ amps:
       - 4
       - 5
       socket: V1
+    fully_established: false
   ab763:
     centre_tapped_sockets:
       V1:
@@ -821,7 +966,17 @@ amps:
         grouping: opposite-legs
         reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
         tube: 12at7
-    declared: false
+    circuits:
+    - grounded_leg: none
+      id: h5
+      sockets:
+        V9:
+          feed:
+          - 2
+          return:
+          - 8
+      volts: 5.0
+    declared: true
     findings:
     - detail: pins [4, 5] are one leg at 6.3 V and opposite legs at 12.6 V
       kind: unclassified
@@ -829,6 +984,7 @@ amps:
       - 4
       - 5
       socket: V1
+    fully_established: false
   ab763-super:
     centre_tapped_sockets:
       V1:
@@ -873,7 +1029,17 @@ amps:
         grouping: opposite-legs
         reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
         tube: 12at7
-    declared: false
+    circuits:
+    - grounded_leg: none
+      id: h5
+      sockets:
+        V9:
+          feed:
+          - 2
+          return:
+          - 8
+      volts: 5.0
+    declared: true
     findings:
     - detail: pins [4, 5] are one leg at 6.3 V and opposite legs at 12.6 V
       kind: unclassified
@@ -881,6 +1047,10 @@ amps:
       - 4
       - 5
       socket: V1
+    fully_established: false
+    no_factory_layout_sheet: No factory board-layout sheet for the Super Reverb AB763 was located; this
+      board is derived from the factory schematic, so no factory drawing can establish its 6.3 V heater
+      legs. The 5 V rectifier circuit is declared from the circuit drawing, which draws that winding.
   ab763-twin:
     centre_tapped_sockets:
       V1:
@@ -933,6 +1103,7 @@ amps:
       - 4
       - 5
       socket: V1
+    fully_established: false
   ac15:
     centre_tapped_sockets:
       V2:
@@ -964,13 +1135,10 @@ amps:
         reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
         tube: 12ax7
     declared: false
-    findings:
-    - detail: the ef86 has two heater pins and no centre tap, so pins [4, 5] are its two supply legs
-      kind: shorted
-      pins:
-      - 4
-      - 5
-      socket: V1
+    findings: []
+    fully_established: false
+    no_factory_layout_sheet: JMI published no board-layout sheet for the AC15 and none was located; this
+      board is the Circuit Codex's own arrangement, so no factory drawing can establish its heater legs.
   ac30:
     centre_tapped_sockets:
       V1:
@@ -1016,10 +1184,16 @@ amps:
       - 4
       - 5
       socket: V1
+    fully_established: false
+    no_factory_layout_sheet: JMI published no board-layout sheet for the AC30 and none was located; this
+      board is derived from the circuit drawing, so no factory drawing can establish its heater legs.
   b15n:
     centre_tapped_sockets: {}
     declared: false
     findings: []
+    fully_established: false
+    no_factory_layout_sheet: No Ampeg board-layout sheet for the B-15-N was located; this board is derived
+      from the factory schematic, so no factory drawing can establish its heater legs.
   dr103:
     centre_tapped_sockets:
       V1:
@@ -1058,6 +1232,9 @@ amps:
       - 4
       - 5
       socket: V1
+    fully_established: false
+    no_factory_layout_sheet: No Hiwatt board-layout sheet was located for this DR103; the board is derived
+      from the preamp drawing, so no factory drawing can establish its heater legs.
   ga40:
     centre_tapped_sockets:
       V4:
@@ -1069,6 +1246,10 @@ amps:
         tube: 12ax7
     declared: false
     findings: []
+    fully_established: false
+    no_factory_layout_sheet: Gibson published no board-layout sheet for the GA-40 and none was located;
+      this board is derived from the factory circuit drawing, so no factory drawing can establish its
+      heater legs.
   jtm100:
     centre_tapped_sockets:
       V1:
@@ -1100,6 +1281,10 @@ amps:
       - 4
       - 5
       socket: V1
+    fully_established: false
+    no_factory_layout_sheet: No Marshall board-layout sheet was located for the 100-watt Super amplifier;
+      this board is derived from the factory schematic, so no factory drawing can establish its heater
+      legs.
   jtm45:
     centre_tapped_sockets:
       V1:
@@ -1131,6 +1316,9 @@ amps:
       - 4
       - 5
       socket: V1
+    fully_established: false
+    no_factory_layout_sheet: No Marshall board-layout sheet was located for the JTM45; this board is derived
+      from the factory schematic, so no factory drawing can establish its heater legs.
   m1959:
     centre_tapped_sockets:
       V1:
@@ -1162,6 +1350,9 @@ amps:
       - 4
       - 5
       socket: V1
+    fully_established: false
+    no_factory_layout_sheet: No Marshall board-layout sheet was located for the model 1959; this board
+      is derived from the factory drawing, so no factory drawing can establish its heater legs.
   m1987:
     centre_tapped_sockets:
       V1:
@@ -1193,6 +1384,9 @@ amps:
       - 4
       - 5
       socket: V1
+    fully_established: false
+    no_factory_layout_sheet: No Marshall board-layout sheet was located for the model 1987; this board
+      is derived from the factory drawing, so no factory drawing can establish its heater legs.
   m2204:
     centre_tapped_sockets:
       V1:
@@ -1224,10 +1418,17 @@ amps:
       - 4
       - 5
       socket: V1
+    fully_established: false
+    no_factory_layout_sheet: No Marshall board-layout sheet was located for the model 2204; this board
+      is derived from the factory drawing sheets, so no factory drawing can establish its heater legs.
 summary:
-  declared_and_checked: 1
-  doubtful_sockets: 112
+  declared_and_checked: 10
+  doubtful_sockets: 107
+  doubtful_sockets_no_factory_sheet: 37
+  doubtful_sockets_pending_a_read: 70
+  fully_established: 6
   layouts: 40
+  layouts_with_no_factory_layout_sheet: 12
   links_needing_a_source_read: 30
-  links_that_short_the_supply: 4
-  not_established: 39
+  links_that_short_the_supply: 0
+  not_established: 30

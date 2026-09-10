@@ -27,6 +27,18 @@ board:
   rows: 2
   cols: 99
   title: "AC30/6 · board layout (derived)"
+# No factory board-layout drawing exists for this amplifier (see `source`
+# above): the board here is derived from the circuit drawing. Its heater legs
+# therefore cannot be read off a factory sheet by anyone, which is a different
+# gap from one nobody has read yet — the drawing says which, and the heater
+# worklist counts it separately instead of carrying it as work a better scan
+# would clear. Replace this with a `heaters:` block if the circuit drawing
+# itself turns out to establish the wiring.
+heaters_unsourced: >-
+  JMI published no board-layout sheet for the AC30 and none was located; this
+  board is derived from the circuit drawing, so no factory drawing can
+  establish its heater legs.
+
 caption: "A derived layout: JMI published no board-layout drawing for the AC30/6, so the arrangement below is the Circuit Codex's own — this circuit's parts laid out in signal order along the chassis and drawn on the house eyelet grid, not a record of the factory's tag-strip construction. Every value comes from the parts list, which is read from JMI drawing OS/065. One ECC83 (V1) serves both the Brilliant and the Normal channel from a single shared cathode network, and both volume controls mix through 220 kΩ resistors into one grid of the phase inverter; the Vibrato/Tremolo volume drives the other. The Vibrato/Tremolo generator is not drawn: its voicing, phase-shift, modulator and oscillator networks are not resolved by the published drawing, so only its three valve sockets and their heaters appear here, with its volume control feeding the inverter's second grid. The mains switch, fuse and voltage selector are panel-mounted and are not drawn, and the drawing shows no pilot lamp. The 6.3 V heater chain (green twisted pair — mains transformer, the four EL84s, the phase inverter, the three vibrato valves, the shared first stage) runs in the order a builder would wire it; the GZ34 sits on its own 5 V winding instead, drawn as the pair of leads onto its filament and cathode pins. Not a trace or a reproduction of any drawing."
 source:
   desc: "JMI drawing OS/065, \"VOX A.C.30.36 AMPLIFIER CIRCUIT / NORMAL\" (title-block date 29-4-60, main body as amended to Issue 4 of 11-9-64) — layout DERIVED from that circuit drawing; JMI published no board-layout sheet for the AC30/6 and none was located"

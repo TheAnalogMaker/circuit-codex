@@ -53,6 +53,23 @@ basing:
     2: { element: diode-plate, unit: 2, hv: true }
     3: { element: diode-plate, unit: 1, hv: true }
     4: { element: filament, hv: true, note: "directly heated — the filament is the cathode and sits at B+" }
+# A four-pin base, so the filament is on pins 1 and 4 rather than the octal
+# 2 and 8 — the only rectifier in this corpus whose 5 V winding does not land
+# on 2 and 8, and the reason a checker must read the pins from the valve's own
+# file and never assume the octal pair.
+heater:
+  supplies:
+    - volts: 5.0
+      current_a: 3.0
+      legs: [[1], [4]]
+      note: >-
+        Its own 5 V secondary. Both legs sit at the rectified B+, so neither
+        may be grounded — the winding floats with the filament.
+  source: >-
+    RCA type 83 data sheet (DATA 7-63), page 1 — "Filament, Coated: Voltage
+    (AC or DC) 5.0 volts, Current 3.000 amp"; terminal connections "Pin 1 —
+    Filament", "Pin 4 — Filament" on the 4C bottom-view basing diagram.
+  source_url: https://frank.pocnet.net/sheets/049/8/83.pdf
 used_in: ["5f6"]
 datasheets:
   - publisher: RCA

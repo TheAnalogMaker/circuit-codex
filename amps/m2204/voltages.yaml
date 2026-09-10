@@ -33,5 +33,5 @@ nodes:
   KPI:  { chart: null, note: "phase-inverter shared cathode over the 470 Ω cathode resistor" }
   JPI:  { chart: null, note: "phase-inverter tail junction — both 1 MΩ grid leaks return here, above the 10 kΩ tail" }
   NNFB: { chart: null, note: "negative-feedback node at the foot of the tail: 4.7 kΩ to ground, 100 kΩ back to the output-transformer secondary, presence leg capacitor-blocked" }
-  SG4:  { chart: null, note: "V4 screen grid, through its 1.5 kΩ screen resistor (the v0 EL34 fit draws no screen current at this bias, so the drop reads as zero — see notes.md)" }
+  SG4:  { chart: null, note: "V4 screen grid, through its 1.5 kΩ screen resistor (the corpus's EL34 fit draws no screen current at this bias, so the drop reads as zero — see the circuit story)" }
   SG5:  { chart: null, note: "V5 screen grid, through its 1.5 kΩ screen resistor" }

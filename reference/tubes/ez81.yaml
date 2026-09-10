@@ -48,6 +48,26 @@ basing:
     7: { element: diode-plate, unit: 2, hv: true }
     8: { element: nc }
     9: { element: nc }
+# The one INDIRECTLY heated rectifier here that shares the 6.3 V chain: its
+# heater is a plain two-pin heater with no centre tap, so pins 4 and 5 are the
+# two supply legs and there is no second way to wire them. The cathode (pin 3)
+# is a separate electrode sitting at B+ — unlike the GZ34, nothing is strapped
+# to a heater pin, so no heater pin is hidden behind another label here.
+heater:
+  supplies:
+    - volts: 6.3
+      current_a: 1.0
+      legs: [[4], [5]]
+      note: >-
+        Shares the amplifier's 6.3 V heater chain. The cathode is a separate
+        electrode, so neither heater leg carries B+ and the drawing's own
+        supply decides which leg (if either) is grounded.
+  source: >-
+    Philips EZ81 data sheet, January 1970, page 1 — "HEATING: Indirect by
+    A.C.; parallel supply", heater voltage Vf 6.3 V, heater current If 1 A;
+    the bottom-view connections diagram (figure 7Z06071) letters pins 4 and 5
+    "f".
+  source_url: https://frank.pocnet.net/sheets/010/e/EZ81.pdf
 used_in: [ac15]
 datasheets:
   - publisher: Philips / Mullard

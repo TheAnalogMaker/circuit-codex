@@ -25,9 +25,9 @@ source: >-
   the same undropped node), +335, +275; 12AY7 (V1) plates +130, cathode +2;
   a 12AX7 (V3, cathodyne) pin figure set near "+210", "+72" and "+1.7" that
   this pass could not self-consistently assign to PPI/KPI/JPI (see
-  netlist.cir) and is not carried into the nodes below; bias supply output
+  the netlist's header) and is not carried into the nodes below; bias supply output
   printed near "3300" in the -A revision (magnitude ~42 V, sign not clearly
-  legible — see meta.yaml sources).
+  legible — see the sources cited on this page).
 nodes:
   BP1:  { chart: 420, tol_pct: 8, note: "first-filter node — plates, screens and OT centre tap all land here directly (no choke); the drawing also reads 410/405 V at nearby points on this same node" }
   BP2:  { chart: 335, tol_pct: 8, note: "PI supply node after the first 10 kΩ dropper" }
@@ -40,4 +40,4 @@ nodes:
   PPI:  { chart: null, note: "V3 (cathodyne) plate, 56 kΩ load — a printed figure near +210 V exists on the sheet but this pass could not confidently pin it to this node; simulated value only" }
   KPI:  { chart: null, note: "V3 cathode pin, above the 1.5k+56k split — same caveat as PPI" }
   JPI:  { chart: null, note: "1.5k/56k cathode-split junction — the cathodyne grid's DC reference through the 1 MΩ leak; same caveat as PPI" }
-  G51:  { chart: -42, tol_pct: 8, note: "6L6G fixed bias via 220k from the bias supply; printed magnitude ~42 V, sign inferred negative (see meta.yaml sources)" }
+  G51:  { chart: -42, tol_pct: 8, note: "6L6G fixed bias via 220k from the bias supply; printed magnitude ~42 V, sign inferred negative (see the sources cited on this page)" }

@@ -89,6 +89,18 @@ basing:
     7: { element: cathode, note: "k and g3 — the suppressor is tied to the cathode internally" }
     8: { element: screen-grid, hv: true, note: "g2 — also on pin 1" }
     9: { element: plate, hv: true }
+# One heater, one supply: with no centre tap the two heater pins ARE the two
+# supply legs, and a drawing has no second way to wire them. A layout's
+# `heaters:` block still has to declare which leg it grounds, and
+# pipeline/check_heaters.py proves the declaration against this block.
+heater:
+  supplies:
+    - volts: 6.3
+      current_a: 0.45
+      legs: [[4], [5]]
+  source: >-
+    RCA 6973 data sheet, General Data — "Heater, for Unipotential Cathode:\n    Voltage (AC or DC) 6.3 ± 10% volts, Current at 6.3 volts 0.45 amp". The two\n    heater pins are this file's own basing block (noval 4 and 5); pin 9 is a\n    plate connection, not a heater centre tap.
+  source_url: https://frank.pocnet.net/sheets/049/6/6973.pdf
 used_in: ["6161"]
 datasheets:
   - publisher: RCA

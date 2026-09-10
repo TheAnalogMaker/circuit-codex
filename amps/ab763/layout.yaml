@@ -20,7 +20,30 @@ board:
   rows: 2
   cols: 62
   title: "AB763 · eyelet board layout"
-caption: "Redrawn from the published Fender AB763 Deluxe Reverb-Amp layout drawing — principal board components, in the order the drawing shows them. Both channels' tone-stack parts (slope resistors, 250 pF, 0.1 µF and 0.047 µF capacitors, 6.8 kΩ legs) mount on the board on the published sheet but are not drawn here — the stack internals are documented schematic-only; the reverb-mix, tremolo-oscillator and bias-supply networks are likewise drawn minimally, and small grid stoppers are omitted. The 6.3 V heater chain (green twisted pair, PT → pilot lamp → the two 6V6 output tubes → 12AT7 PI → 12AT7 reverb driver → 12AX7 tremolo → the three 12AX7 preamp tubes) is routed as the published sheet shows it; the GZ34 rectifier is indirectly heated from the 5 V winding and off the 6.3 V chain. Not a trace or a dimensioned reproduction."
+
+# The heater circuits this drawing establishes against the amplifier's own
+# sheet — the 5 V rectifier filament only. The C-FD layout page draws that
+# winding lead by lead (two YELLOW leads from TR1 to the GZ34 socket) but only
+# ARROWS the 6.3 V chain, "TO ALL 6.3 V. HEATERS AND PILOT LIGHT", and its
+# 6V6GT sockets carry no heater lead at all — so the 6.3 V daisy below stays
+# undeclared and the drawing keeps its "not established" markers for it.
+heaters:
+  - id: h5
+    volts: 5.0
+    winding: "5 V rectifier-filament secondary — the transformer's yellow pair"
+    grounded_leg: none
+    source: >-
+      C-FD layout page: TR1's leads fan to the GZ34 socket lettered YELLOW to
+      pin 2, RED 330 V AC to pin 4, RED 330 V AC to pin 6, YELLOW to pin 8,
+      with the RED B+ lead leaving pin 8 alongside the second yellow. The
+      schematic page draws the same winding as a two-terminal secondary whose
+      ends are the rectifier's two heater connections, +420 V taken from the
+      end carrying the cathode. The GZ34's cathode is strapped to the heater at
+      pin 8 inside the envelope (Mullard letters that pin "h,k"), so the
+      winding floats at B+ and neither leg is grounded.
+    sockets:
+      V9: { feed: [2], return: [8] }   # GZ34 — 5 V across the two heater pins, B+ out of 8
+caption: "Redrawn from the published Fender AB763 Deluxe Reverb-Amp layout drawing — principal board components, in the order the drawing shows them. Both channels' tone-stack parts (slope resistors, 250 pF, 0.1 µF and 0.047 µF capacitors, 6.8 kΩ legs) mount on the board on the published sheet but are not drawn here — the stack internals are documented schematic-only; the reverb-mix, tremolo-oscillator and bias-supply networks are likewise drawn minimally, and small grid stoppers are omitted. The GZ34's own 5 V filament winding is drawn as the sheet letters it — two yellow transformer leads to the rectifier's heater pins 2 and 8, the B+ leaving pin 8 beside them (the rectifier is indirectly heated, but its cathode is strapped to the heater inside the envelope). The 6.3 V heater chain (green twisted pair, PT → pilot lamp → the two 6V6 output tubes → 12AT7 PI → 12AT7 reverb driver → 12AX7 tremolo → the three 12AX7 preamp tubes) is drawn in the conventional daisy order and is NOT established: the sheet arrows it \"TO ALL 6.3 V. HEATERS AND PILOT LIGHT\" and draws no heater lead at any socket. Not a trace or a dimensioned reproduction."
 source:
   desc: "Fender 'Deluxe Reverb-Amp AB763' layout drawing (C-FD), page 1"
   url: "https://el34world.com/charts/Schematics/files/Fender/Fender_deluxe_reverb_ab763.pdf"
@@ -111,9 +134,16 @@ bus:
 # (PL1.a/PL1.b), and transformer leads.
 runs:
   # === power transformer HT → GZ34 rectifier → reservoir (annotation layer) ====
+  # The two YELLOW leads are the 5 V rectifier-filament winding. The GZ34 is
+  # indirectly heated but its cathode is strapped to the heater at pin 8, so the
+  # winding lands on pins 2 and 8 and the B+ lead leaves pin 8 beside it. Until
+  # 2026-09-09 neither was drawn and this socket carried one run — a rectifier
+  # with no filament supply. See the `heaters:` block at the head of the file.
   - { from: T1.red1, to: V9.pin4, via: [[1.5, 0.32]] }
   - { from: T1.red2, to: V9.pin6, via: [[2.7, 0.58]] }
   - { from: T1.red-yellow, to: [1.45, 1.4], via: [[0.5, 1.25]] }   # HT centre tap → ground (clear of the C10.b drop)
+  - { from: T1.yellow1, to: V9.pin2, via: [[0.55, 1.45], [1.1, 2.15]] }
+  - { from: T1.yellow2, to: V9.pin8, via: [[-0.15, 1.85], [0.5, 2.68], [3.1, 2.68]] }
   - { from: V9.pin8, to: C10.a, color: red, via: [[1.6, 1.2]] }    # B+ out → reservoir
 
   # === B+1 net: spread across the reservoir (C10.a) and screen (C11.a) eyelets,

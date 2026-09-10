@@ -18,7 +18,49 @@ board:
   rows: 2
   cols: 30
   title: "5E3 · eyelet board layout"
-caption: "Redrawn from the published Fender 5E3 layout drawing (F-EE) — principal board components, in the order the drawing shows them. A few small grid stoppers are omitted for legibility; the tone capacitors mount at the tone pot. The 6.3 V heater chain (green twisted pair, PT → pilot lamp → the two 6V6 output tubes → 12AX7 → 12AY7) is routed as the published sheet shows it; the 5Y3GT rectifier is directly heated from the 5 V winding and off the 6.3 V chain. Not a trace or a dimensioned reproduction."
+
+# The heater supply is single-ended, so the green leads are not a twisted pair
+# and the generic "6.3 V heaters — twisted pair" legend entry would say the
+# wrong thing. Name what this drawing's green heater leads actually are.
+wire_legend:
+  heater: "green — 6.3 V heaters (single-ended; one leg grounded at the transformer)"
+
+# The heater circuits this drawing establishes against the amplifier's own
+# sheet — both of them. Unlike its brownface and blackface cousins, the F-EE
+# sheet does not leave the 6.3 V chain to an arrow: page 1 wires every socket's
+# heater pins, so the grouping is read rather than assumed.
+heaters:
+  - id: h63
+    volts: 6.3
+    winding: "6.3 V secondary — the transformer's green pair"
+    grounded_leg: return
+    source: >-
+      F-EE page 2 (schematic) grounds one lead of the 6.3 V secondary at the
+      transformer and arrows the other "TO ALL 6.3 VOLT FILAMENTS AND PILOT
+      LITE" — a single-ended supply. Page 1 (layout) wires it: each 6V6GT takes
+      its pin 2 to a chassis-ground hatch (with the unused pin 1 strapped to it
+      as the tie point) and passes the feed on at pin 7; both noval sockets
+      carry the short bow strapping pins 4 and 5 into one leg, with the centre
+      tap at pin 9 taken to chassis. Read at 6361 x 3988 (678 ppi) on the
+      Internet Archive's capture of the el34world scan; Schematic Heaven's copy
+      does not resolve the pin numerals.
+    sockets:
+      V3: { feed: [7], return: [2] }        # 6V6GT — fed at pin 7, returned at pin 2
+      V4: { feed: [7], return: [2] }        # 6V6GT — fed at pin 7, returned at pin 2
+      V2: { feed: [4, 5], return: [9] }     # 12AX7 at 6.3 V — ends strapped, centre tap to ground
+      V1: { feed: [4, 5], return: [9] }     # 12AY7 at 6.3 V — ends strapped, centre tap to ground
+  - id: h5
+    volts: 5.0
+    winding: "5 V rectifier-filament secondary — the transformer's yellow pair"
+    grounded_leg: none
+    source: >-
+      Same sheet: the 5Y3GT sits on its own 5 V winding, drawn as the yellow
+      pair straight to pins 2 and 8. The filament is the cathode and carries the
+      rectified B+, so neither leg is grounded and it is never on the 6.3 V
+      chain.
+    sockets:
+      V5: { feed: [2], return: [8] }        # 5Y3GT directly-heated filament
+caption: "Redrawn from the published Fender 5E3 layout drawing (F-EE) — principal board components, in the order the drawing shows them. A few small grid stoppers are omitted for legibility; the tone capacitors mount at the tone pot. The 6.3 V heater supply is single-ended, as both pages of the sheet show: one green transformer lead is grounded and the other feeds the pilot lamp and then the heaters, so each socket carries a green feed and a grounded return (6V6GT fed at pin 7, pin 2 to chassis; 12AX7 and 12AY7 pins 4+5 strapped for 6.3 V parallel with the centre tap at pin 9 to chassis). It is therefore drawn as single green leads, not as a twisted pair. The 5Y3GT rectifier is directly heated from its own 5 V winding and off the 6.3 V chain. The output transformer's secondary is drawn to the speaker jacks — the sheet brings one lead through a chassis grommet to the jack tip and links the two jacks there, and the schematic grounds the secondary's other end. Not a trace or a dimensioned reproduction."
 source:
   desc: "Fender 'Deluxe' Model 5E3 layout drawing (F-EE), page 1"
   url: "https://el34world.com/charts/Schematics/files/Fender/Fender_deluxe_5e3.pdf"
@@ -94,7 +136,11 @@ runs:
   - { from: PT.red1, to: V5.pin4, via: [[1.4, 0.3]] }        # HT plate 1
   - { from: PT.red2, to: V5.pin6, via: [[2.3, 0.62]] }       # HT plate 2
   - { from: PT.red-yellow, to: [1.45, 3.5], via: [[1.2, 1.15]] }  # HT centre tap → ground bus
-  - { from: PT.yellow1, to: V5.pin2, via: [[0.7, 1.25]] }    # 5 V rectifier filament
+  # Re-pitched 2026-09-09: the 6.3 V winding is now drawn as the two leads the
+  # sheet gives it (one grounded at the transformer, one feeding), so the PT
+  # carries one more pigtail and the whole fan sits at a new spacing. This
+  # lead needed a second waypoint to stay clear of RK66's board terminal.
+  - { from: PT.yellow1, to: V5.pin2, via: [[0.35, 1.18], [0.95, 1.5]] }    # 5 V rectifier filament
   - { from: PT.yellow2, to: V5.pin8, via: [[1.4, 1.75]] }    # 5 V rectifier filament / B+
   - { from: V5.pin8, to: C11.a, color: red, via: [[1.6, 1.2]] }   # B+ out → first filter (from lower-left)
 
@@ -115,9 +161,30 @@ runs:
   # up to each socket from the side that keeps its label clear.
   - { from: V4.pin8, to: RK66.a, via: [[13.4, 2.4], [0.6, 2.4], [0.6, 0.5]] }   # V4 cathode → shared 250 Ω (from right)
   - { from: V3.pin8, to: RK66.a, via: [[9.7, 2.5], [-0.3, 2.5], [-0.3, 0.5]] }  # V3 cathode → shared 250 Ω (from left)
+  # Dropped INSIDE the board's right edge, left of the three primary leads'
+  # lanes: the terminal names ("SEC H", "SEC C") are lettered beside their own
+  # pigtails, and that lane has to stay clear of a conductor — the same
+  # arrangement amps/5f2a uses for the identical pair of leads.
+  - { from: T2.sec_c, to: [1.45, 27.2], via: [[27.6, 0.86], [27.6, 3.35]] }  # OT secondary common → ground bus
+  - { from: T2.sec_h, to: SPK, via: [[29.55, 0.74], [29.55, 3.05]] }   # OT secondary hot → speaker jacks
   - { from: C11.a, to: T2.red, via: [[3, 2.6], [30.2, 2.6], [30.2, 0.38]] }    # B+1 → OT centre tap (drop col 30.2)
   - { from: T2.blue, to: V3.pin3, via: [[30.5, 0.5], [30.5, 2.72], [4, 2.72]] }    # OT primary → V3 plate (drop col 30.5)
   - { from: T2.brown, to: V4.pin3, via: [[30.7, 0.62], [30.7, 2.84], [7.4, 2.84]] } # OT primary → V4 plate (drop col 30.7)
+
+  # --- output transformer secondary → speaker jacks --------------------------
+  # The speaker jack was PLACED and never wired: of the corpus's forty boards
+  # this was the last one carrying an off-board item no conductor reached. The
+  # equivalence gate could not ask for it, because the OT secondary is not in
+  # netlist.cir (its DCR is folded into ground — see the net_map note below), so
+  # the one drawing that omitted the lead looked exactly like the ones that
+  # didn't.
+  #
+  # F-EE page 1 (layout) brings ONE lead down through a chassis grommet just
+  # below the board and into the SPKR JACK tip, and links that tip across to the
+  # EXTRA SPKR jack beside it — the two jacks are one node, drawn here as the
+  # single `SPK` item labelled "Spkr jacks". Page 2 (schematic) supplies the end
+  # the layout page leaves to the chassis: the secondary's other lead goes
+  # straight to ground, and the jack sleeves are grounded with it.
   # The 6V6 screens tie to the B+2 rail (the 5 kΩ-dropper output, RD2.a = C12.a
   # node) — the screen supply per the schematic; routed in the deep harness band.
   - { from: RD1.b, to: V3.pin4, via: [[4.4, 2.55]] }   # B+2 rail (dropper output) → V3 screen (own lane, clear of the pin-5 grid feed)
@@ -178,17 +245,42 @@ runs:
   - { from: C10.a, to: RK1.a }                       # cathode bypass
   - { from: C10.b, to: [1.45, 29] }
 
-  # --- 6.3 V heater chain (green twisted pair) ------------------------------
-  # PT green pair → pilot lamp → V3 6V6 → V4 6V6 → V2 12AX7 → V1 12AY7, in the
-  # drawing's daisy order (the 5Y3GT rectifier is directly heated off the 5 V
-  # winding, so it is not on this chain). Twisted runs land only on heater pins
-  # (6V6 octal 2/7, noval 4/5); routed in a deep lane below the output harness.
-  - { from: PT.green, to: PL1.a, style: twisted }                              # 6.3 V → pilot lamp
-  - { from: PL1.b, to: V3.pin7, style: twisted, via: [[-1.2, 3.6], [5, 3.6]] } # lamp → V3 heater
-  - { from: V3.pin2, to: V4.pin7, style: twisted, via: [[5, 3.62], [8.5, 3.62]] }   # V3 → V4 heater
-  - { from: V4.pin2, to: V2.pin4, style: twisted, via: [[8.5, 3.64], [18, 3.64]] }  # V4 → V2 heater
-  - { from: V2.pin5, to: V1.pin4, style: twisted, via: [[18, 3.6], [25, 3.6]] }     # V2 → V1 heater
-  - { from: V1.pin4, to: V1.pin5, style: twisted } # close the pair at the last socket
+  # --- 6.3 V heaters — single-ended, one green leg grounded -----------------
+  # CORRECTED 2026-09-09, and the correction is the same class as issue #30:
+  # the chain used to be drawn as a twisted PAIR daisy-chained pin 2 → pin 7
+  # between octals and pin 5 → pin 4 between novals, which asserts that the two
+  # heater pins of each socket sit on OPPOSITE supply legs. That is the 12.6 V
+  # series arrangement. This amplifier is not wired that way and its own sheet
+  # says so on both pages.
+  #
+  # F-EE page 2 (schematic) draws the 6.3 V secondary with ONE lead taken
+  # straight to ground at the transformer and the other arrowed "TO ALL 6.3
+  # VOLT FILAMENTS AND PILOT LITE" — a single-ended supply, one wire feeding
+  # everything and the chassis as the return, exactly as the 5F1's K-EE sheet
+  # draws it. Page 1 (layout) wires it socket by socket: each 6V6GT has its
+  # pin 2 taken to a chassis-ground hatch (with the adjacent unused pin 1
+  # strapped to it as the tie point) and its pin 7 carrying the feed on to the
+  # next socket; and BOTH noval sockets carry the short bow strapping pins 4
+  # and 5 together — the 6.3 V PARALLEL grouping — with the centre tap at pin 9
+  # taken away to chassis. So each socket has a green feed and a grounded
+  # return: there is no pair to twist, and these are `style: heater` single
+  # conductors. The `heaters:` block at the head of this file states the
+  # configuration as data and pipeline/check_heaters.py proves it, against the
+  # GE 12AX7 / RCA 12AY7 sheets' own 6.3 V parallel grouping and against the
+  # runs below.
+  - { from: PT.green1, to: [1.45, 1.6], style: heater, via: [[0.6, 1.35]] }      # grounded 6.3 V leg
+  - { from: PT.green2, to: PL1.a, style: heater, via: [[-0.6, 1.05]] }           # 6.3 V feed → pilot lamp
+  - { from: PL1.b, to: V3.pin7, style: heater, via: [[-1.2, 3.6], [5, 3.6]] }    # feed → V3 heater
+  - { from: V3.pin7, to: V4.pin7, style: heater, via: [[5.4, 3.62], [8.5, 3.62]] }   # V3 → V4 heater
+  - { from: V4.pin7, to: V2.pin4, style: heater, via: [[9.0, 3.64], [18, 3.64]] }    # V4 → V2 heater
+  - { from: V2.pin4, to: V2.pin5, style: heater }   # 12AX7 ends strapped for 6.3 V parallel
+  - { from: V2.pin4, to: V1.pin4, style: heater, via: [[18.4, 3.72], [25, 3.72]] }   # V2 → V1 heater
+  - { from: V1.pin4, to: V1.pin5, style: heater }   # 12AY7 ends strapped for 6.3 V parallel
+  # Returns: each socket to chassis on its own, as the sheet draws them.
+  - { from: V3.pin2, to: [1.45, 4.6], style: heater }     # V3 6V6 heater return → ground
+  - { from: V4.pin2, to: [1.45, 8.2], style: heater }     # V4 6V6 heater return → ground
+  - { from: V2.pin9, to: [1.45, 17.2], style: heater }    # 12AX7 centre tap → ground
+  - { from: V1.pin9, to: [1.45, 24.2], style: heater }    # 12AY7 centre tap → ground
 
 # net_map — reviewable reconciliation of the drawn wiring with the DC netlist
 # (netlist.cir) for pipeline/verify_layout_nets.py. See docs/layout-schema.md.
@@ -200,6 +292,9 @@ net_map:
     T2.red:   BP1    # OT primary centre tap (B+ feed)
     T2.blue:  BP1    # OT primary, V3 plate lead
     T2.brown: BP1    # OT primary, V4 plate lead
+    SPK: "0"         # speaker jacks — the netlist folds the OT-secondary DCR (~0 Ω)
+                     #   into ground, so the drawn secondary hot sits on node 0
+    T2.sec_c: "0"    # OT secondary common — grounded on the schematic page
   # DC-transparent grid stoppers the netlist omits (no DC grid current):
   series_bridge:
     R1s: "68 k instrument-channel grid stopper — omitted from netlist (grid == input node at DC)"

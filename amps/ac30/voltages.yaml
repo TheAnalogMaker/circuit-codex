@@ -31,7 +31,7 @@ nodes:
   KV1:  { chart: 1.6, tol_pct: 20, note: "V1's SHARED cathode (pins 3 and 8 tied), 1.5 kΩ R4 with a 25 µF bypass — one bias network for both channels' first stages, which is why neither half can be solved alone" }
   BPPI: { chart: null, note: "phase-inverter supply node, after its own 22 kΩ dropper R11 from the +320 V rail (8 µF C8) — the drawing annotates the anodes, not this node" }
   PPIA: { chart: 230, tol_pct: 20, note: "phase-inverter anode, Brilliant/Normal side (100 kΩ load R18). Annotation revised from 285 V at ISS.3, 11-10-63" }
-  PPIB: { chart: 230, tol_pct: 20, note: "phase-inverter anode, Vibrato/Tremolo side (100 kΩ load R19) — the drawing prints one figure for the pair. R19's multiplier glyph is the one value on this copy that does not resolve cleanly; see notes.md" }
+  PPIB: { chart: 230, tol_pct: 20, note: "phase-inverter anode, Vibrato/Tremolo side (100 kΩ load R19) — the drawing prints one figure for the pair. R19's multiplier glyph is the one value on this copy that does not resolve cleanly; see the circuit story" }
   KPI:  { chart: null, note: "phase-inverter shared cathode, above the 1.2 kΩ R16" }
   JPI:  { chart: 55, tol_pct: 20, note: "tail junction over the 47 kΩ R15 — the return for both 1 MΩ grid leaks, and the drawing's one annotated figure inside the inverter's cathode circuit" }
   NGA:  { chart: null, note: "EL84 grid-drive line, side A (V3 + V5), returned to ground through R20 220 kΩ — 0 V by construction" }

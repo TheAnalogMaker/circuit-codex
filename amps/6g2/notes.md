@@ -80,6 +80,36 @@ tap and the oscillator's own plate load sit on. From there: 1000 Ω · 1 W to
 and cathodyne rail. A separate 100 kΩ · 5 % feed, a rectifier, a 25 µF · 50 V
 can and a 30 kΩ · 5 % bleeder make the **-35 V** fixed bias.
 
+## The heater circuit, and a correction to the transformer leads
+
+The 6.3 V supply is single-ended. The layout sheet grounds one green
+transformer lead together with the red-yellow high-tension centre tap, and runs
+the other to the pilot light, whose far terminal goes to chassis; from that same
+terminal the sheet's arrow reads *to all 6.3 volt htrs.* — it states the
+connection rather than routing the wire. Every heater return is drawn, and each
+one goes to chassis on its own: at both nine-pin bottles a short bow outside the
+socket ties pins 4 and 5 together and pin 9 goes up to a ground symbol, which is
+the 6.3 V parallel arrangement; at each 6V6GT the sheet bows heater pin 7 to the
+cathode at pin 8 and pin 8 on to the base sleeve at pin 1, which carries the
+ground arrow, leaving heater pin 2 a bare terminal — the fed side the arrow
+stands in for. The board drawing on this page now states that circuit as data
+and it is machine-checked, both against the valves' own datasheet groupings and
+against the leads drawn.
+
+The same read settles two things this entry had recorded as unresolved. The
+transformer's six-lead fan letters, left to right, **yellow · red · red ·
+yellow · black · black**: the reds go to the 5Y3GT's plates, the *yellows* are
+the rectifier's own 5 V filament winding at pins 2 and 8, and the blacks are the
+mains primary running off to the fuse and the AC switch. The rectifier filament
+had been drawn as the black pair and the second yellow pair left unasserted; the
+drawing now letters them as the sheet does. And nothing on the sheet joins the
+5Y3GT's two filament pins — a link between them had been drawn here, which is a
+short across the 5 V winding, invisible to the equivalence check because that
+winding is not in the simulated netlist. It is gone, and the bias supply's
+100 kΩ feed, which had reached its node only through that link, is now drawn
+from the high-tension leg at plate pin 4, where this entry's parts list and
+netlist both say it belongs.
+
 ## Reading against the printed chart
 
 The drawing prints a comprehensive per-pin voltage chart, values ±20 %, read

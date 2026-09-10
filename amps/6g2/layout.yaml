@@ -16,14 +16,18 @@
 # netlist.cir's RD1/RD2 exactly) and the bias supply (100k-5%/rectifier/
 # 25µF/30k-5%) are read off it directly and drawn as off-board stubs, the
 # same treatment amps/6g3 gives its own filter housing and bias sub-board.
-# The PT's four-wire HT group (the sheet letters it "yellow/red/red/yellow")
-# is not fully resolved lead-by-lead from this scan; the topology it draws —
-# two HT legs to the 5Y3GT's plates, a centre tap returning to ground — is
-# the standard, unambiguous configuration for this rectifier family, so that
-# is what is drawn, with the PT leads coloured "red" (the two HT legs, the
-# dominant, legible colour on the sheet) and "black" (the rectifier's own
-# filament winding, per the sheet's own callout); the ambiguous second
-# "yellow" pair is not asserted onto specific terminals.
+# The PT's lead fan IS resolved, at 800 ppi (the Internet Archive's capture of
+# the el34world PDF renders 6510 x 4752; the fan reads, left to right, YELLOW ·
+# RED · RED · YELLOW · BLACK · BLACK, with GREEN and RED-YELLOW leaving the
+# other face). The two reds land on the 5Y3GT's plates at pins 4 and 6; the two
+# yellows are the rectifier's own 5 V filament winding, landing on pins 2 and 8;
+# the two blacks run off to the fuse and AC switch and are the mains primary;
+# the red-yellow HT centre tap and one green are tied together and taken to
+# ground; the other green feeds the pilot light and, by the sheet's own arrow,
+# "TO ALL 6.3 VOLT HTRS." An earlier reading of this scan called the rectifier
+# filament winding "black" and left the second yellow pair unasserted; the
+# higher-resolution copy settles it, and the leads are lettered accordingly
+# below. `meta.yaml`'s source description still carries the older reading.
 #
 # Machine-checked equivalence: the point-to-point wiring drawn below has been
 # verified electrically equivalent to the simulated netlist (netlist.cir) by
@@ -37,7 +41,63 @@ board:
   rows: 2
   cols: 75
   title: "6G2 · eyelet board layout"
-caption: "Redrawn from the published Fender \"Princeton\" Model 6G2 layout drawing (H-FA) — principal board components and their hookup, in the order the drawing shows them. Off the board: the two 68 kΩ input grid stoppers and the 1 MΩ input grid leak mount at the jacks (the sheet's own \"Instruments\" jacks carry a resistor right at the lug); the Tone cut cap and the Intensity wiper-to-ground cap mount at their own pots; the rail-dropper chain (RD1/RD2 + the three filter caps) and the bias-supply group (R5/D1/C14/R6) each sit in the sheet's own small sub-boxes rather than on the eyelet strip, drawn here as off-board stubs so every rail stays traceable. The 6.3 V heater chain (green twisted pair, PT → pilot lamp → the two 6V6 output tubes → the 12AX7 → the 7025; the 5Y3GT rectifier is directly heated and sits on its own 5 V winding, off this chain) is drawn in the conventional daisy order the sheet's own \"to all 6.3 volt htrs\" arrow implies rather than routes. Not a trace or a dimensioned reproduction."
+
+# The 6.3 V supply here is single-ended rather than a twisted pair, so the
+# automatic "6.3 V heaters — twisted pair" legend entry would say the wrong
+# thing. Name what this drawing's green heater leads actually are, so the SVG
+# is self-describing when it is read on its own (it is served standalone at
+# /layouts/6g2.svg).
+wire_legend:
+  heater: "green — 6.3 V heaters (single-ended; one leg grounded at the transformer)"
+
+# What the heater circuits WIRE, stated as data rather than left to be inferred
+# from pin labels. Each entry names the supply voltage the source shows, the
+# connection group every socket pin sits in, and which leg the drawing grounds.
+# A centre-tapped valve needs this: the same 12AX7/7025 pins are grouped one way
+# for 6.3 V parallel and the opposite way for 12.6 V series, and `heater` /
+# `heater-ct` cannot tell those apart. pipeline/check_heaters.py proves each
+# declaration against the valve's datasheet (reference/tubes/<tube>.yaml
+# `heater.supplies`) and against the runs drawn below. That is a separate claim
+# from the netlist equivalence `wiring_claim` makes: heaters are not in
+# netlist.cir and are excluded from that comparison.
+heaters:
+  - id: h63
+    volts: 6.3
+    winding: "6.3 V secondary — the transformer's green pair"
+    grounded_leg: return
+    source: >-
+      Fender "Princeton" Model 6G2 layout drawing (H-FA), read from the Internet
+      Archive's capture of the el34world PDF at its native 6510 x 4752 (800 ppi);
+      socket circles and pin angles were fitted in pixels rather than read by
+      eye. The sheet ties one green transformer lead to the red-yellow HT centre
+      tap and takes both to ground, and runs the other green to the pilot light,
+      whose far terminal goes to a ground triangle and whose feed side carries
+      the arrow "TO ALL 6.3 VOLT HTRS." (the feed's routing is arrowed, not
+      drawn). At both noval bottles the sheet bows pins 4 and 5 together outside
+      the socket rim and takes pin 9 up to a ground triangle — the 6.3 V parallel
+      grouping. At each 6V6GT it bows pin 7 to the cathode at pin 8 and pin 8 on
+      to the shell at pin 1, which carries the ground arrow; pin 2 is drawn as a
+      bare terminal with no conductor, which is the fed leg the arrow stands in
+      for.
+    sockets:
+      V1: { feed: [4, 5], return: [9] }     # 7025 at 6.3 V — ends strapped, centre tap to ground
+      V2: { feed: [4, 5], return: [9] }     # 12AX7, same
+      V3: { feed: [2], return: [7] }        # 6V6GT — pin 7 to cathode/shell and ground
+      V4: { feed: [2], return: [7] }        # 6V6GT, same
+  - id: h5
+    volts: 5.0
+    winding: "5 V rectifier-filament secondary — the transformer's yellow pair"
+    grounded_leg: none
+    source: >-
+      Same sheet: of the PT's six-lead fan (YELLOW · RED · RED · YELLOW · BLACK ·
+      BLACK) the two reds land on the 5Y3GT's plates at pins 4 and 6 and the two
+      yellows on its filament at pins 2 and 8, one approaching each side of the
+      socket. Nothing joins pins 2 and 8 on the drawing. The filament is the
+      cathode and carries the rectified B+, so neither leg is grounded and it is
+      never on the 6.3 V chain.
+    sockets:
+      V5: { feed: [2], return: [8] }        # 5Y3GT directly-heated filament
+caption: "Redrawn from the published Fender \"Princeton\" Model 6G2 layout drawing (H-FA) — principal board components and their hookup, in the order the drawing shows them. Off the board: the two 68 kΩ input grid stoppers and the 1 MΩ input grid leak mount at the jacks (the sheet's own \"Instruments\" jacks carry a resistor right at the lug); the Tone cut cap and the Intensity wiper-to-ground cap mount at their own pots; the rail-dropper chain (RD1/RD2 + the three filter caps) and the bias-supply group (R5/D1/C14/R6) each sit in the sheet's own small sub-boxes rather than on the eyelet strip, drawn here as off-board stubs so every rail stays traceable. The 6.3 V heater supply is single-ended: one green transformer lead is grounded alongside the red-yellow HT centre tap, and the other feeds the pilot light and every heater, so each socket carries a green feed and a grounded return (7025 and 12AX7 pins 4+5 strapped for 6.3 V parallel with the centre tap at pin 9 to ground; each 6V6GT fed at pin 2 and returned at pin 7, which the sheet takes to the cathode at pin 8, the shell at pin 1, and ground). Those landings are the drawing's own; the feed's daisy order (pilot light → the two 6V6 output tubes → the 12AX7 → the 7025) is the conventional reading of the sheet's \"to all 6.3 volt htrs\" arrow, which states the connection rather than routing it. The 5Y3GT rectifier is directly heated and keeps its own 5 V winding, the transformer's yellow pair, off this chain. Not a trace or a dimensioned reproduction."
 source:
   desc: "Fender \"Princeton\" Model 6G2 layout drawing (H-FA) — title block reads \"FENDER 'PRINCETON' LAYOUT MODEL 6G2 H-FA\", matching the schematic's own H-FA drawing number"
   url: "https://el34world.com/charts/Schematics/files/Fender/Fender_princeton_6g2.pdf"
@@ -131,10 +191,9 @@ runs:
   # === power transformer -> 5Y3GT -> reservoir (annotation layer) =========
   - { from: T1.red1, to: V5.pin4, via: [[0.8, 0.35], [1.6, 1.30]] }
   - { from: T1.red2, to: V5.pin6, via: [[1.1, 0.58], [2.3, 1.36]] }
-  - { from: T1.yellow_ct, to: [1.45, 0.4], via: [[0.15, 0.92]] }
-  - { from: T1.black1, to: V5.pin2, via: [[0.3, 0.62], [0.9, 2.10]] }
-  - { from: T1.black2, to: V5.pin8, via: [[0.9, 0.95], [2.9, 2.50]] }
-  - { from: V5.pin2, to: V5.pin8, via: [[1.4, 2.95], [2.6, 2.95]] }
+  - { from: T1.red-yellow, to: [1.45, 0.4], via: [[0.15, 0.92]] }   # HT centre tap → ground bus
+  - { from: T1.yellow1, to: V5.pin2, via: [[0.3, 0.62], [0.9, 2.10]] }   # 5 V rectifier filament
+  - { from: T1.yellow2, to: V5.pin8, via: [[0.9, 0.95], [2.9, 2.50]] }   # 5 V rectifier filament / B+
   - { from: V5.pin8, to: RD1.a, color: red, via: [[3.3, 2.20], [3.3, -0.15]] }
 
   # === BP/BS/BD rail chain + bias supply — shelf plan =======================
@@ -148,7 +207,7 @@ runs:
   # terminal row (y -0.15..-0.90), on its own shelf so none of the seven
   # long-haul rails ever runs parallel to another over a shared column range:
   #   -0.15  RD1.a -> T2.red (BP short-haul, x3-13.9)
-  #   -0.30  V5.pin8 -> R5.a (bias feed, x1.2-15, wraps the left edge)
+  #   -0.30  V5.pin4 -> R5.a (bias feed, x1.2-15, wraps the left edge)
   #   -0.45  RD1.a -> RL4.a (BP long-haul, x3.5-33.1)
   #   -0.60  RG4.a -> RG3.a, yellow (x2.5-22)
   #   -0.75  RD2.b -> RL2.a (BD long-haul, x9.5-48.4)
@@ -174,10 +233,15 @@ runs:
   - { from: RL2.a, to: RL1.a, color: red, via: [[48.6, -0.15], [61.4, -0.15]] }
 
   # === bias supply: an HT leg -> 100k -> rectifier -> 25 uF / 30k -> -35V ===
-  # V5.pin8 -> R5.a wraps the board's left edge (x~1.2, the same manoeuvre
+  # V5.pin4 -> R5.a wraps the board's left edge (x~1.2, the same manoeuvre
   # V5.pin8 -> RD1.a uses) onto its own shelf; the rest are adjacent local
-  # hops at the natural terminal height.
-  - { from: V5.pin2, to: R5.a, color: red, via: [[3.8, 2.15], [3.8, -0.30], [15.0, -0.30]] }
+  # hops at the natural terminal height. The feed is drawn off the HT leg at
+  # the 5Y3GT's plate pin 4, which is what this entry's bom.yaml ("bias-supply
+  # feed from the HT winding") and netlist.cir header both state. It used to be
+  # drawn from pin 2 and reached the same node only through a link across the
+  # rectifier's own filament pins — a short across the 5 V winding that the
+  # sheet does not draw, removed 2026-09-09 with the heater read; see notes.md.
+  - { from: V5.pin4, to: R5.a, color: red, via: [[1.15, 1.62], [1.15, -0.30], [15.0, -0.30]] }
   - { from: R5.b, to: D1.a }
   - { from: D1.b, to: C14.a }
   - { from: C14.a, to: R6.a, via: [[21.2, -0.85]] }
@@ -251,16 +315,33 @@ runs:
   - { from: VR2.lug1, to: [1.45, 59.8] }
   - { from: VR2.lug2, to: C4.a, via: [[59.2, -0.42]] }
 
-  # === 6.3 V heater chain (green twisted pair) ================================
-  # PT green pair → pilot lamp → V3 → V4 → V2 → V1. The 5Y3GT rectifier takes
-  # its own 5 V winding and is off this chain. Twisted runs land only on
-  # heater pins (octal 2/7, noval 4/5, with 9 the noval centre tap).
-  - { from: T1.green, to: PL1.a, style: twisted }
-  - { from: PL1.b, to: V3.pin2, style: twisted, via: [[-1.2, 3.56], [5.0, 3.56]] }
-  - { from: V3.pin7, to: V4.pin2, style: twisted, via: [[6.9, 3.56], [9.0, 3.56]] }
-  - { from: V4.pin7, to: V2.pin4, style: twisted, via: [[10.9, 3.60], [19.4, 3.60]] }
-  - { from: V2.pin5, to: V1.pin4, style: twisted, via: [[20.6, 3.60], [63.4, 3.60]] }
-  - { from: V1.pin5, to: V1.pin9, style: twisted }
+  # === 6.3 V heaters — single-ended, one green leg grounded ==================
+  # Read pin by pin off the H-FA sheet at 800 ppi; the configuration is stated
+  # as data in the `heaters:` block at the head of this file and proved by
+  # pipeline/check_heaters.py. One green transformer lead is grounded (with the
+  # red-yellow HT centre tap); the other feeds the pilot light and, by the
+  # sheet's own arrow, every 6.3 V heater. So this is NOT a twisted pair: each
+  # socket takes a green feed and returns to chassis on its own, and earns no
+  # twisted-pair legend entry — see wire_legend above.
+  #
+  # The feed's ROUTING is the one thing the sheet arrows rather than draws, so
+  # the daisy order below (pilot lamp → V3 → V4 → V2 → V1) is the conventional
+  # reading of that arrow, not a lead traced off the drawing. Every LANDING is
+  # the drawing's own: 4+5 bowed together with 9 to ground at each noval, pin 7
+  # to cathode/shell/ground with pin 2 bare at each 6V6GT.
+  - { from: T1.green1, to: [1.45, 1.1], style: heater, via: [[0.45, 1.18]] }   # grounded 6.3 V leg
+  - { from: T1.green2, to: PL1.a, style: heater, via: [[-0.55, 1.30]] }        # 6.3 V feed → pilot lamp
+  - { from: PL1.b, to: [1.45, 2.6], style: heater, via: [[-0.35, 1.95]] }      # lamp's own return → ground
+  - { from: PL1.a, to: V3.pin2, style: heater, via: [[-1.2, 3.56], [5.0, 3.56]] }
+  - { from: V3.pin2, to: V4.pin2, style: heater, via: [[6.9, 3.56], [9.0, 3.56]] }
+  - { from: V4.pin2, to: V2.pin4, style: heater, via: [[10.9, 3.60], [19.4, 3.60]] }
+  - { from: V2.pin4, to: V2.pin5, style: heater }        # 12AX7 ends strapped for 6.3 V
+  - { from: V2.pin4, to: V1.pin4, style: heater, via: [[20.8, 3.66], [63.4, 3.66]] }
+  - { from: V1.pin4, to: V1.pin5, style: heater }        # 7025 ends strapped for 6.3 V
+  - { from: V3.pin7, to: [1.45, 6.9], style: heater }    # 6V6 heater return → ground
+  - { from: V4.pin7, to: [1.45, 10.9], style: heater }   # 6V6 heater return → ground
+  - { from: V2.pin9, to: [1.45, 20.9], style: heater }   # 12AX7 centre tap → ground
+  - { from: V1.pin9, to: [1.45, 64.9], style: heater }   # 7025 centre tap → ground
 
 # net_map — reviewable reconciliation of the drawn wiring with the DC
 # netlist (netlist.cir) for pipeline/verify_layout_nets.py. See

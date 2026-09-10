@@ -41,6 +41,26 @@ model estimates it from the chart itself: a +320 → +305 V drop carrying the
 roughly 43 mA the printed pin voltages imply works out to about 350 Ω, and the
 simulation settles on the same 42 mA self-consistently.
 
+## The heater circuit, as the sheet draws it
+
+The 6.3 V supply is single-ended. The layout sheet takes one green transformer
+lead and the red-yellow high-tension centre tap to a common solder point and on
+to a chassis-ground mark; the other green runs to the pilot lite — which the
+sheet gives a single terminal, the feed passing through it — and on to the
+heaters. Each socket then returns to chassis on its own. At the 12AX7 a short
+bow outside the socket ties pins 4 and 5 together and pin 9 goes straight up to
+a ground mark: the 6.3 V parallel arrangement, in which the two heater ends are
+*one* leg and the centre tap is the other. At the 6V6GT a bow ties heater pin 2
+to the base sleeve at pin 1, and pin 2 carries the lead out to ground, leaving
+heater pin 7 the fed leg.
+
+That is worth stating because the pin labels cannot supply it. The same 12AX7
+pins wire two ways — ends strapped with the tap grounded at 6.3 V, ends on
+opposite legs at 12.6 V — and only this amplifier's own drawing says which. The
+board drawing on this page now states the circuit as data and it is
+machine-checked, both against the valves' datasheet groupings and against the
+leads drawn.
+
 ## Verification
 
 The drawing prints a full voltage chart (Fender's usual "read to ground with an

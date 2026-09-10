@@ -494,11 +494,33 @@ _HEATER_ELEMENTS = {"heater", "heater-ct", "filament"}
 
 
 def load_tube_heater_pins(slug: str) -> set[int] | None:
-    """Heater / filament pin numbers for a tube (element in {heater, heater-ct,
-    filament}) from reference/tubes/<slug>.yaml basing, or None if unknown.
-    Noval dual-triodes: 4/5 heater + 9 heater-ct; octal power tubes: 2/7;
-    directly-heated rectifiers: 2/8 filament. A style:twisted (heater) run is
-    validated against this set so a heater lead can't land on a signal pin."""
+    """Every pin of a valve that is a HEATER TERMINAL, from
+    reference/tubes/<slug>.yaml, or None if the valve is unknown. Noval
+    dual-triodes: 4/5 heater + 9 heater-ct; octal power tubes: 2/7;
+    directly-heated rectifiers: 2/8 filament. A heater-styled run is validated
+    against this set so a heater lead can't land on a signal pin, and the
+    heater gate reads it for D1 (a declared pin is a heater pin) and D4 (every
+    heater pin is on some leg).
+
+    TWO SOURCES, UNIONED, because ONE PIN CAN CARRY TWO ROLES and `element:`
+    is one word. The GZ34 is indirectly heated with its cathode strapped to the
+    heater INSIDE the envelope, both brought out on pin 8: the 5 V winding
+    lands on pins 2 AND 8, and the B+ leaves on 8. Its pin 8 is labelled
+    `cathode` — correctly, since that is the role schematic_lib.py's DIODE_TUBE
+    mapping and the site's pinout colouring need, and re-lettering it `heater`
+    would pull the rectifier's B+ pin out of the DC signal check — so reading
+    the labels alone returned a ONE-PIN heater, {2}. A declaration of the real
+    circuit was then rejected by the gate's own D1, and no drawing could state
+    the winding.
+
+    The second source is `heater.shared_pins`: the valve file's own list of
+    pins that carry a heater end while lettered as something else, each stating
+    the element it is lettered as. It is not inferred from the supply legs —
+    check_heaters' T1 proves every entry against the basing AND requires a
+    supply leg to use it, so an exception is reviewed rather than guessed, and
+    a supply leg that names an undeclared signal pin is a FILE error rather
+    than a pin quietly promoted to heater-class here. A valve that declares no
+    shared pins is unchanged: labels alone."""
     path = ROOT / "reference" / "tubes" / f"{slug}.yaml"
     if not path.exists():
         return None
@@ -512,6 +534,11 @@ def load_tube_heater_pins(slug: str) -> set[int] | None:
             continue
         if isinstance(meta, dict) and str(meta.get("element", "")).lower() in _HEATER_ELEMENTS:
             out.add(num)
+    for k in ((data.get("heater") or {}).get("shared_pins") or {}):
+        try:
+            out.add(int(k))
+        except (TypeError, ValueError):
+            continue
     return out or None
 
 
@@ -1178,6 +1205,14 @@ class Renderer:
         # series (ends on opposite legs). See heater_legs_for() and
         # docs/layout-schema.md.
         self.heaters = layout.get("heaters", []) or []
+        # Why an undeclared heater layer is undeclared, where the answer is not
+        # "nobody has read the sheet yet": some amplifiers HAVE no factory
+        # board-layout sheet — the board here is derived from the circuit
+        # drawing — so no scan can ever establish their per-socket leg grouping.
+        # Saying "not established against the amplifier's own drawing" of one of
+        # those implies a drawing exists to check it against. See
+        # heater_provenance_note() and docs/layout-schema.md.
+        self.heaters_unsourced = str(layout.get("heaters_unsourced", "") or "").strip()
         self._heater_decl = self._index_heaters()
         self._heater_named_cache: dict = {}
         self.errors: list[str] = []
@@ -1539,16 +1574,24 @@ class Renderer:
         custom = self.wire_legend.get("heater")
         if custom and not (self._has_heater_pair and self._has_heater_single):
             return custom + self._heater_legend_caveat()
-        volts = {c["volts"] for c in self._heater_decl.values()}
+        # Only circuits the GREEN INK actually draws may name the legend. A
+        # rectifier's 5 V winding is declared but drawn as two plain coloured
+        # transformer leads, not as heater ink — so on a board that declares
+        # only that, taking the voltage from the declaration would letter the
+        # 6.3 V chain's own key "5 V heaters".
+        volts = {c["volts"] for sid, c in self._heater_decl.items()
+                 if self._heater_pins_named(sid)}
         label = f"{volts.pop():g} V heaters" if len(volts) == 1 else "6.3 V heaters"
         return f"{label} — {idiom}" + self._heater_legend_caveat()
 
     def _heater_legend_caveat(self) -> str:
         """The legend is where a reader goes to learn what the green ink means,
         so it is where an unestablished leg grouping has to be said. The footer
-        note carries the detail; this is the marker on the key itself."""
-        if self.heater_declared:
-            return ""
+        note carries the detail; this is the marker on the key itself.
+
+        Per socket, not per layout: a drawing that declares its 5 V rectifier
+        filament and not its 6.3 V chain still has centre-tapped sockets whose
+        grouping nothing has established, and the key must still say so."""
         return " (leg grouping not established)" if self.heater_doubtful_sockets() else ""
 
     def _twist_swatch(self, cx, y, s, colour=None):
@@ -3023,8 +3066,25 @@ class Renderer:
         return [[pair[0]], [pair[1]]] if pair else None
 
     def _uncentre_tapped_pair(self, item):
-        """(pin, pin) for a valve whose basing names exactly two heater/filament
-        pins and no centre tap; None for anything else."""
+        """(pin, pin) for a valve that can be wired ONE way and one way only —
+        the datasheet lists a single supply and that supply's two legs are one
+        pin each — so those two pins are the two legs whatever the amplifier
+        runs. None for anything the amplifier's own drawing has to settle.
+
+        The valve's `heater.supplies` is asked first and the basing labels are
+        the fallback, for the reason load_tube_heater_pins() spells out: the
+        GZ34's pin 8 carries the heater AND the cathode and is labelled for the
+        cathode, so the labels alone find one heater pin at that socket and
+        leave the pair unestablished. Its sheet lists exactly one supply,
+        5 V on [[2], [8]], and there is nothing left to get wrong."""
+        supplies = load_tube_heater_supplies(item.get("_tube_slug") or "")
+        if supplies is not None:
+            if len(supplies) != 1:
+                return None            # more than one arrangement — the amp says
+            legs = supplies[0]["legs"]
+            if len(legs) == 2 and all(len(leg) == 1 for leg in legs):
+                return (legs[0][0], legs[1][0])
+            return None
         pins = item.get("_basing_elements")
         if not pins:
             return None
@@ -3103,6 +3163,32 @@ class Renderer:
         undeclared one is drawn but not established, and says so on the page."""
         return bool(self._heater_decl)
 
+    @property
+    def heater_fully_declared(self) -> bool:
+        """Is there nothing LEFT unestablished in this drawing's heater layer?
+
+        A LAYOUT CAN DECLARE ONE CIRCUIT AND NOT ANOTHER, and until the
+        rectifier work of 2026-09-09 nothing here allowed for it: every marker
+        was gated on `heater_declared`, so a layout that declared its 5 V
+        rectifier-filament winding — a circuit its factory sheet draws in full
+        — silently lost the "leg grouping not established" caveat from its
+        6.3 V chain, which the same sheet only ARROWS ("to all 6.3 volt
+        heaters") and does not establish at all. A partial claim would have
+        read as a whole one: the same class of fault as issue #30, one level up.
+
+        So: every socket this drawing's heater ink lands on is covered by a
+        declaration, and no same-socket link is left unread.
+
+        DECLARED, not merely unambiguous. A board whose sockets are all octal —
+        where the basing leaves no choice about the landing and nothing is in
+        doubt — has still never been read against its own sheet, and its note
+        has to stay. Only a cited declaration retires it."""
+        if not self._heater_decl:
+            return False
+        touched = {sid for sid, it in self.off_by_id.items()
+                   if it.get("kind") == "tube" and self._heater_pins_named(sid)}
+        return touched <= set(self._heater_decl) and not self.heater_strap_findings()
+
     def heater_doubtful_sockets(self) -> list:
         """Sockets whose supply legs this drawing cannot be trusted about:
         a CENTRE-TAPPED valve whose heater runs name exactly two pins, which the
@@ -3136,10 +3222,21 @@ class Renderer:
                         read of its own sheet.
 
         Returns [(socket, pin, pin, kind, detail)]. A strap inside a DECLARED
-        circuit is not reported here — check_heaters proves those directly."""
+        circuit is not reported here — check_heaters proves those directly (a
+        conductor joining that socket's two legs is a W2 bridge).
+
+        ANY RUN, WHATEVER ITS STYLE. This used to look only at heater-styled
+        runs, and that left the worst version of the fault invisible: the 6G2
+        drew `V5.pin2 -> V5.pin8` — a plain conductor straight across its
+        rectifier's own 5 V filament — and neither gate objected. Not this one,
+        because the run was not heater-styled; not the DC gate, which excludes
+        the rectifier socket by rule. A short across a filament is a short
+        whatever colour the wire is drawn in, so the test is now what the run
+        JOINS, not how it is painted: both ends on one socket, both pins heater
+        terminals of that valve."""
         out = []
         for spec in self.runs:
-            if not (is_heater_run(spec) and self._is_heater_strap(spec)):
+            if not self._is_heater_strap(spec):
                 continue
             it, pin_a = self._tube_endpoint(spec.get("from"))
             _o, pin_b = self._tube_endpoint(spec.get("to"))
@@ -3180,19 +3277,44 @@ class Renderer:
 
     def heater_provenance_note(self) -> str:
         """The page's own statement about how far its heater layer is
-        established — drawn on every layout whose heater circuit is not
-        declared. It names what is actually in doubt (the supply legs at a
-        centre-tapped valve) and what is not, because a reader given no marker
-        at all reads a drawing as settled."""
-        if self.heater_declared or not self._has_twisted:
+        established — drawn on every layout with something left unestablished.
+        It names what is actually in doubt (the supply legs at a centre-tapped
+        valve) and what is not, because a reader given no marker at all reads a
+        drawing as settled.
+
+        A PARTIAL DECLARATION GETS A PARTIAL NOTE. Where the amplifier's sheet
+        draws its 5 V rectifier winding lead by lead but only arrows its 6.3 V
+        chain, the layout declares the one and not the other, and this line has
+        to say precisely that — "the one part of this board not established"
+        would then be false, and dropping the line entirely would be worse."""
+        if self.heater_fully_declared or not self._has_twisted:
             return ""
-        # The contrast is only honest where the rest of the board has actually
-        # been proved against the netlist (wiring_claim: verified).
-        bits = ["Heater layer: the one part of this board not established "
-                "against the amplifier's own drawing."
-                if str(self.layout.get("wiring_claim", "")).lower() == "verified"
-                else "Heater layer: not established against the amplifier's "
-                     "own drawing."]
+        if self._heater_decl:
+            declared = sorted({c["volts"] for c in self._heater_decl.values()})
+            named = " and ".join(f"{v:g} V" for v in declared)
+            bits = [f"Heater layer: this drawing establishes its {named} "
+                    f"circuit against the amplifier's own sheet; the rest of "
+                    f"the heater wiring it does not."]
+            if self.heaters_unsourced:
+                # Both facts matter: what IS established, and that the rest
+                # cannot be, because no factory board-layout sheet exists.
+                bits.append("There is no factory board-layout drawing for the "
+                            "rest to be read off.")
+        elif self.heaters_unsourced:
+            # No factory board-layout sheet exists for this amplifier at all, so
+            # "not established against its own drawing" would name the wrong
+            # kind of gap — it implies a drawing somebody has yet to read.
+            bits = ["Heater layer: no factory board-layout drawing exists for "
+                    "this amplifier, so its heater wiring cannot be read off "
+                    "one."]
+        else:
+            # The contrast is only honest where the rest of the board has
+            # actually been proved against the netlist (wiring_claim: verified).
+            bits = ["Heater layer: the one part of this board not established "
+                    "against the amplifier's own drawing."
+                    if str(self.layout.get("wiring_claim", "")).lower() == "verified"
+                    else "Heater layer: not established against the amplifier's "
+                         "own drawing."]
         doubt = self.heater_doubtful_sockets()
         if doubt:
             names = ", ".join(doubt)
@@ -3206,16 +3328,32 @@ class Renderer:
             listed = "; ".join(f"{sid} pins {a} and {b}" for sid, a, b, _k, _d in shorted)
             bits.append(f"The link drawn between {listed} joins the supply's two "
                         f"legs and cannot be right either way.")
-        bits.append("Which sockets sit on the chain, and the order it reaches "
-                    "them in, are not affected.")
+        bits.append(
+            "The valves on the chain are this circuit's own; the order the "
+            "chain reaches them in is this drawing's convention."
+            if self.heaters_unsourced else
+            "Which sockets sit on the chain, and the order it reaches them in, "
+            "are not affected.")
         return " ".join(bits)
 
     def _is_heater_strap(self, spec) -> bool:
-        """Both ends on ONE socket — a strap tying two pins into a single leg."""
-        it_a, _ = self._tube_endpoint(spec.get("from"))
-        it_b, _ = self._tube_endpoint(spec.get("to"))
-        return (it_a is not None and it_b is not None
-                and it_a.get("id") == it_b.get("id"))
+        """Does this run join two HEATER TERMINALS of one socket?
+
+        Both ends on the same socket, and both pins heater terminals of that
+        valve — a strap tying two pins into one leg, or a short across the
+        supply. Deliberately style-blind (see heater_strap_findings): a plain
+        conductor across a rectifier's filament pins is the same fault as a
+        green one. The pin test is what keeps that honest — a run from a
+        cathode to a plate on one socket is not a heater strap and is the DC
+        gate's business, not this one's."""
+        it_a, pin_a = self._tube_endpoint(spec.get("from"))
+        it_b, pin_b = self._tube_endpoint(spec.get("to"))
+        if it_a is None or it_b is None or it_a.get("id") != it_b.get("id"):
+            return False
+        if pin_a is None or pin_b is None or pin_a == pin_b:
+            return False
+        heaters = it_a.get("_heater_pins") or set()
+        return pin_a in heaters and pin_b in heaters
 
     def heater_run_is_pair(self, spec) -> bool:
         """Is this heater run drawn as a PAIR (two conductors, the supply's two

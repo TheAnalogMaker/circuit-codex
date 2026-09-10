@@ -23,7 +23,7 @@
 # turns that 10% into roughly a quarter of the anode voltage. It is a v0 tube-fit
 # limitation (models/METHODOLOGY.md), stated rather than tuned away, and it is
 # one of the two reasons this circuit is published as a draft.
-source: "JMI drawing OA/031, 'VOX AC.15 amplifier circuit No. 3', 29-4-60 — working voltages annotated beside the circuit: +325 V reservoir, +315 V rail, +90 V EF86 anode, +220 V phase-inverter anode, +310 V EL84 anodes. No tabulated valve-voltage chart is printed. Cross-checked against the same figures on a published redrawn AC15 schematic (see meta.yaml)."
+source: "JMI drawing OA/031, 'VOX AC.15 amplifier circuit No. 3', 29-4-60 — working voltages annotated beside the circuit: +325 V reservoir, +315 V rail, +90 V EF86 anode, +220 V phase-inverter anode, +310 V EL84 anodes. No tabulated valve-voltage chart is printed. Cross-checked against the same figures on a published redrawn AC15 schematic (see the sources cited on this page)."
 nodes:
   BPN:  { chart: null, note: "Normal-channel supply node, after the 22 kΩ dropper from the +315 V rail (8 µF smoothed)" }
   BPPI: { chart: null, note: "phase-inverter supply node, after its own 22 kΩ dropper from the +315 V rail (8 µF smoothed)" }

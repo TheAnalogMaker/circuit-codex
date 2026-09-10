@@ -63,6 +63,18 @@ basing:
     7: { element: grid, unit: 1 }
     8: { element: cathode, unit: 1 }
     9: { element: shield, note: "internal shield" }
+# One heater, one supply: with no centre tap the two heater pins ARE the two
+# supply legs, and a drawing has no second way to wire them. A layout's
+# `heaters:` block still has to declare which leg it grounds, and
+# pipeline/check_heaters.py proves the declaration against this block.
+heater:
+  supplies:
+    - volts: 6.3
+      current_a: 0.6
+      legs: [[4], [5]]
+  source: >-
+    Tung-Sol 6CG7 data sheet — "HEATER 6.3 ± 10% VOLTS 0.6 AMP. AC OR DC", with\n    the bottom-view 9AJ basing diagram lettering the two heater pins "H". Unlike\n    the 12A_7 family on the neighbouring 9A basing, this valve has no heater\n    centre tap: its pin 9 is an internal shield. The sheet's note about a\n    "single series-connected heater string" describes a television set's chain\n    of different valves, not a tapped heater.
+  source_url: https://frank.pocnet.net/sheets/127/6/6CG7.pdf
 used_in: ["s1484"]
 datasheets:
   - publisher: RCA

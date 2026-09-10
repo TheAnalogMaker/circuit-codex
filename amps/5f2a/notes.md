@@ -47,6 +47,24 @@ network are invisible to a DC meter, so the 5F2-A idles exactly like a Champ.
 The one visible fingerprint of the feedback loop is that V1B's cathode sits a
 hair lower than V1A's — the 22 kΩ quietly parallels its 1.5 kΩ to ground.
 
+## The heater circuit, as the sheet draws it
+
+The 6.3 V supply is single-ended: the schematic page grounds one lead of the
+winding and arrows the other *to all 6.3 volt htrs. and pilot light*, and the
+layout page gives the pilot light a single terminal with the feed passing
+through it. Each socket then returns to chassis on its own. At the 12AX7 a short
+bow outside the socket ties pins 4 and 5 together and pin 9 goes up to a ground
+mark: the 6.3 V parallel arrangement, in which the two heater ends are *one* leg
+and the centre tap is the other. At the 6V6GT a bow ties heater pin 2 to the base
+sleeve at pin 1, and pin 2 carries the lead out to ground, leaving heater pin 7
+the fed leg.
+
+The pin labels cannot supply that. The same 12AX7 pins wire two ways — ends
+strapped with the tap grounded at 6.3 V, ends on opposite legs at 12.6 V — and
+only this amplifier's own drawing says which. The board drawing on this page now
+states the circuit as data and it is machine-checked, both against the valves'
+datasheet groupings and against the leads drawn.
+
 ## Verification
 
 The published K-EG drawing supplies every component value but prints no voltage

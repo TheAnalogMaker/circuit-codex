@@ -1,7 +1,7 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3844 1125" role="img" aria-label="AC30/6 · BOARD LAYOUT (DERIVED) — redrawn board layout diagram, layout-sheet drafting style" width="100%" font-family="'Avenir Next Condensed','Arial Narrow','Helvetica Neue',Arial,sans-serif">
-<rect x="0" y="0" width="3844" height="1125" fill="#e9dcba"/>
-<rect x="6" y="6" width="3832" height="1113" fill="none" stroke="#211c13" stroke-width="1.6"/>
-<rect x="11" y="11" width="3822" height="1103" fill="none" stroke="#211c13" stroke-width="0.6"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3844 1154" role="img" aria-label="AC30/6 · BOARD LAYOUT (DERIVED) — redrawn board layout diagram, layout-sheet drafting style" width="100%" font-family="'Avenir Next Condensed','Arial Narrow','Helvetica Neue',Arial,sans-serif">
+<rect x="0" y="0" width="3844" height="1154" fill="#e9dcba"/>
+<rect x="6" y="6" width="3832" height="1142" fill="none" stroke="#211c13" stroke-width="1.6"/>
+<rect x="11" y="11" width="3822" height="1132" fill="none" stroke="#211c13" stroke-width="0.6"/>
 <rect x="128" y="301" width="3588" height="212" rx="2" fill="#e2d2a9" stroke="#211c13" stroke-width="3.0"/>
 <rect x="133" y="306" width="3578" height="202" rx="1" fill="none" stroke="#211c13" stroke-width="1.0"/>
 <circle cx="158" cy="357" r="2.1" fill="none" stroke="#8d7f63" stroke-width="0.8"/>
@@ -615,43 +615,44 @@
 <text x="3236" y="360.1" fill="#211c13" font-size="8.5" font-family="'Avenir Next Condensed','Arial Narrow','Helvetica Neue',Arial,sans-serif" font-weight="700" text-anchor="middle" stroke="#f0e6c8" stroke-width="2.6" stroke-linejoin="round" paint-order="stroke">220K</text>
 <text x="128" y="49.2" fill="#211c13" font-size="29.16" font-family="'Avenir Next Condensed','Arial Narrow','Helvetica Neue',Arial,sans-serif" font-weight="700" text-anchor="start" letter-spacing="0.14em">AC30/6 · BOARD LAYOUT (DERIVED)</text>
 <line x1="128" y1="56.7" x2="661" y2="56.7" stroke="#211c13" stroke-width="1.9"/>
-<text x="128" y="859.3" fill="#8d7f63" font-size="17.01" font-family="'SF Mono',Menlo,Consolas,monospace" font-weight="500" text-anchor="start">Redrawn from JMI drawing OS/065, "VOX A.C.30.36 AMPLIFIER CIRCUIT / NORMAL" (title-block date 29-4-60, main body as amended to Issue 4 of 11-9-64) — layout DERIVED from that circuit drawing; JMI published no board-layout sheet for the AC30/6 and none was located — not a trace</text>
-<text x="128" y="888.5" fill="#8d7f63" font-size="15.39" font-family="'SF Mono',Menlo,Consolas,monospace" font-weight="500" text-anchor="start">T2 — HT secondary 280-0-280 V at 160 mA · 6.3 V, 6 A heater winding · 5 V, 2 A rectifier winding · primary taps 115/160/205/225/245 V</text>
-<text x="128" y="917.6" fill="#8d7f63" font-size="15.39" font-family="'SF Mono',Menlo,Consolas,monospace" font-weight="500" text-anchor="start">CH1 — 10–20 H · 100 mA DC</text>
-<text x="128" y="946.8" fill="#8d7f63" font-size="15.39" font-family="'SF Mono',Menlo,Consolas,monospace" font-weight="500" text-anchor="start">T1 — 4 kΩ anode-to-anode primary · 8 Ω / 15 Ω secondary taps</text>
-<text x="128" y="976" fill="#8d7f63" font-size="15.39" font-family="'SF Mono',Menlo,Consolas,monospace" font-weight="500" text-anchor="start">Heater layer: the one part of this board not established against the amplifier's own drawing. At the centre-tapped valves (V1, V2, V7, V8, V9) it shows the two heater pins on opposite supply legs — the 12.6 V series arrangement; a 6.3 V supply straps them into one leg and returns on the centre tap. Which sockets sit on the chain, and the order it reaches them in, are not affected.</text>
-<text x="128" y="1005.1" fill="#8d7f63" font-size="15.39" font-family="'SF Mono',Menlo,Consolas,monospace" font-weight="500" text-anchor="start">Note: the 6.3 V heater twisted pair always routes on the top layer and never joins another run — its crossings are not hop-overs.</text>
-<text x="128" y="1034.3" fill="#8d7f63" font-size="17.01" font-family="'SF Mono',Menlo,Consolas,monospace" font-weight="500" text-anchor="start">Wiring:</text>
-<line x1="222" y1="1029.4" x2="251.1" y2="1029.4" stroke="#57503f" stroke-width="3.2" stroke-linecap="round"/>
-<text x="260.8" y="1034.3" fill="#4c4132" font-size="17.01" font-family="'SF Mono',Menlo,Consolas,monospace" font-weight="500" text-anchor="start">lead (uncoloured)</text>
-<line x1="463.2" y1="1029.4" x2="492.3" y2="1029.4" stroke="#9c2f23" stroke-width="3.2" stroke-linecap="round"/>
-<text x="502" y="1034.3" fill="#4c4132" font-size="17.01" font-family="'SF Mono',Menlo,Consolas,monospace" font-weight="500" text-anchor="start">red</text>
-<line x1="559.1" y1="1029.4" x2="588.2" y2="1029.4" stroke="#9c5a1e" stroke-width="3.2" stroke-linecap="round"/>
-<text x="598" y="1034.3" fill="#4c4132" font-size="17.01" font-family="'SF Mono',Menlo,Consolas,monospace" font-weight="500" text-anchor="start">red-yellow</text>
-<line x1="727.6" y1="1029.4" x2="756.8" y2="1029.4" stroke="#8a6d10" stroke-width="3.2" stroke-linecap="round"/>
-<text x="766.5" y="1034.3" fill="#4c4132" font-size="17.01" font-family="'SF Mono',Menlo,Consolas,monospace" font-weight="500" text-anchor="start">yellow</text>
-<line x1="854.7" y1="1029.4" x2="883.9" y2="1029.4" stroke="#2d5787" stroke-width="3.2" stroke-linecap="round"/>
-<text x="893.6" y="1034.3" fill="#4c4132" font-size="17.01" font-family="'SF Mono',Menlo,Consolas,monospace" font-weight="500" text-anchor="start">blue</text>
-<line x1="961" y1="1029.4" x2="990.2" y2="1029.4" stroke="#5f4126" stroke-width="3.2" stroke-linecap="round"/>
-<text x="999.9" y="1034.3" fill="#4c4132" font-size="17.01" font-family="'SF Mono',Menlo,Consolas,monospace" font-weight="500" text-anchor="start">brown</text>
-<line x1="1077.7" y1="1029.4" x2="1106.8" y2="1029.4" stroke="#2f6b30" stroke-width="3.2" stroke-linecap="round"/>
-<text x="1116.6" y="1034.3" fill="#4c4132" font-size="17.01" font-family="'SF Mono',Menlo,Consolas,monospace" font-weight="500" text-anchor="start">green</text>
-<line x1="1194.4" y1="1029.4" x2="1223.5" y2="1029.4" stroke="#211c13" stroke-width="6.5" stroke-linecap="round"/><line x1="1196" y1="1029.4" x2="1221.9" y2="1029.4" stroke="#d9c99e" stroke-width="2.9" stroke-linecap="round"/>
-<text x="1233.2" y="1034.3" fill="#4c4132" font-size="17.01" font-family="'SF Mono',Menlo,Consolas,monospace" font-weight="500" text-anchor="start">ground bus</text>
-<path d="M 1362.9 1029.4 L 1366.2 1030.7 L 1369.4 1029.4 L 1372.6 1026 L 1375.9 1029.4 L 1379.1 1033.6 L 1382.4 1029.4 L 1385.6 1026 L 1388.8 1029.4 L 1392.1 1030.7 L 1395.3 1029.4" fill="none" stroke="#3c672f" stroke-width="2.4" stroke-linecap="round"/><path d="M 1362.9 1029.4 L 1366.2 1028.1 L 1369.4 1029.4 L 1372.6 1032.8 L 1375.9 1029.4 L 1379.1 1025.2 L 1382.4 1029.4 L 1385.6 1032.8 L 1388.8 1029.4 L 1392.1 1028.1 L 1395.3 1029.4" fill="none" stroke="#3c672f" stroke-width="2.4" stroke-linecap="round"/>
-<text x="1405" y="1034.3" fill="#4c4132" font-size="17.01" font-family="'SF Mono',Menlo,Consolas,monospace" font-weight="500" text-anchor="start">6.3 V heaters — twisted pair (leg grouping not established)</text>
-<text x="128" y="1063.4" fill="#8d7f63" font-size="17.01" font-family="'SF Mono',Menlo,Consolas,monospace" font-weight="500" text-anchor="start">Joints:</text>
-<circle cx="228.4" cy="1058.6" r="4.5" fill="none" stroke="#211c13" stroke-width="1.0"/><circle cx="228.4" cy="1058.6" r="2.9" fill="#211c13"/>
-<text x="243" y="1063.4" fill="#4c4132" font-size="17.01" font-family="'SF Mono',Menlo,Consolas,monospace" font-weight="500" text-anchor="start">wire end (solder joint)</text>
-<path d="M 507.6 1058.6 L 529.5 1058.6 A 5.7 5.7 0 0 1 540.8 1058.6 L 562.7 1058.6" fill="none" stroke="#57503f" stroke-width="3.7" stroke-linecap="round" stroke-linejoin="round"/>
-<text x="572.4" y="1063.4" fill="#4c4132" font-size="17.01" font-family="'SF Mono',Menlo,Consolas,monospace" font-weight="500" text-anchor="start">cross-over (no connect)</text>
-<text x="128" y="1092.6" fill="#8d7f63" font-size="17.01" font-family="'SF Mono',Menlo,Consolas,monospace" font-weight="500" text-anchor="start">Bodies:</text>
-<path d="M 234.4 1082.2 L 238.6 1082.2 A 7.1 7.1 0 1 1 238.6 1091.6 L 234.4 1091.6 A 7.1 7.1 0 1 1 234.4 1082.2 Z" fill="#f0e6c8" stroke="#211c13" stroke-width="1.0"/>
-<text x="259.2" y="1092.6" fill="#4c4132" font-size="17.01" font-family="'SF Mono',Menlo,Consolas,monospace" font-weight="500" text-anchor="start">resistor</text>
-<rect x="368.1" y="1078" width="22.7" height="16.2" rx="1.6" fill="#f0e6c8" stroke="#211c13" stroke-width="1.0"/>
-<text x="398.9" y="1092.6" fill="#4c4132" font-size="17.01" font-family="'SF Mono',Menlo,Consolas,monospace" font-weight="500" text-anchor="start">film / coupling cap</text>
-<rect x="622" y="1076.4" width="19.4" height="17.8" rx="2.4" fill="#f0e6c8" stroke="#211c13" stroke-width="1.0"/><line x1="622" y1="1080.4" x2="641.4" y2="1080.4" stroke="#211c13" stroke-width="0.7"/>
-<text x="649.5" y="1092.6" fill="#4c4132" font-size="17.01" font-family="'SF Mono',Menlo,Consolas,monospace" font-weight="500" text-anchor="start">electrolytic (+ = positive end)</text>
-<rect x="997.1" y="1079.6" width="22.7" height="13" rx="1.6" fill="#f0e6c8" stroke="#211c13" stroke-width="1.0"/>
-<text x="1027.9" y="1092.6" fill="#4c4132" font-size="17.01" font-family="'SF Mono',Menlo,Consolas,monospace" font-weight="500" text-anchor="start">mica</text>
+<text x="128" y="859.2" fill="#8d7f63" font-size="17.01" font-family="'SF Mono',Menlo,Consolas,monospace" font-weight="500" text-anchor="start">Redrawn from JMI drawing OS/065, "VOX A.C.30.36 AMPLIFIER CIRCUIT / NORMAL" (title-block date 29-4-60, main body as amended to Issue 4 of 11-9-64) — layout DERIVED from that circuit drawing; JMI published no board-layout sheet for the AC30/6 and none was located — not a trace</text>
+<text x="128" y="888.3" fill="#8d7f63" font-size="15.39" font-family="'SF Mono',Menlo,Consolas,monospace" font-weight="500" text-anchor="start">T2 — HT secondary 280-0-280 V at 160 mA · 6.3 V, 6 A heater winding · 5 V, 2 A rectifier winding · primary taps 115/160/205/225/245 V</text>
+<text x="128" y="917.5" fill="#8d7f63" font-size="15.39" font-family="'SF Mono',Menlo,Consolas,monospace" font-weight="500" text-anchor="start">CH1 — 10–20 H · 100 mA DC</text>
+<text x="128" y="946.6" fill="#8d7f63" font-size="15.39" font-family="'SF Mono',Menlo,Consolas,monospace" font-weight="500" text-anchor="start">T1 — 4 kΩ anode-to-anode primary · 8 Ω / 15 Ω secondary taps</text>
+<text x="128" y="975.8" fill="#8d7f63" font-size="15.39" font-family="'SF Mono',Menlo,Consolas,monospace" font-weight="500" text-anchor="start">Heater layer: no factory board-layout drawing exists for this amplifier, so its heater wiring cannot be read off one. At the centre-tapped valves (V1, V2, V7, V8, V9) it shows the two heater pins on opposite supply legs — the 12.6 V series arrangement; a 6.3 V supply straps them into one leg and returns on the centre tap. The valves on the chain are this circuit's own; the order the chain</text>
+<text x="128" y="1005" fill="#8d7f63" font-size="15.39" font-family="'SF Mono',Menlo,Consolas,monospace" font-weight="500" text-anchor="start">reaches them in is this drawing's convention.</text>
+<text x="128" y="1034.1" fill="#8d7f63" font-size="15.39" font-family="'SF Mono',Menlo,Consolas,monospace" font-weight="500" text-anchor="start">Note: the 6.3 V heater twisted pair always routes on the top layer and never joins another run — its crossings are not hop-overs.</text>
+<text x="128" y="1063.3" fill="#8d7f63" font-size="17.01" font-family="'SF Mono',Menlo,Consolas,monospace" font-weight="500" text-anchor="start">Wiring:</text>
+<line x1="222" y1="1058.4" x2="251.1" y2="1058.4" stroke="#57503f" stroke-width="3.2" stroke-linecap="round"/>
+<text x="260.8" y="1063.3" fill="#4c4132" font-size="17.01" font-family="'SF Mono',Menlo,Consolas,monospace" font-weight="500" text-anchor="start">lead (uncoloured)</text>
+<line x1="463.2" y1="1058.4" x2="492.3" y2="1058.4" stroke="#9c2f23" stroke-width="3.2" stroke-linecap="round"/>
+<text x="502" y="1063.3" fill="#4c4132" font-size="17.01" font-family="'SF Mono',Menlo,Consolas,monospace" font-weight="500" text-anchor="start">red</text>
+<line x1="559.1" y1="1058.4" x2="588.2" y2="1058.4" stroke="#9c5a1e" stroke-width="3.2" stroke-linecap="round"/>
+<text x="598" y="1063.3" fill="#4c4132" font-size="17.01" font-family="'SF Mono',Menlo,Consolas,monospace" font-weight="500" text-anchor="start">red-yellow</text>
+<line x1="727.6" y1="1058.4" x2="756.8" y2="1058.4" stroke="#8a6d10" stroke-width="3.2" stroke-linecap="round"/>
+<text x="766.5" y="1063.3" fill="#4c4132" font-size="17.01" font-family="'SF Mono',Menlo,Consolas,monospace" font-weight="500" text-anchor="start">yellow</text>
+<line x1="854.7" y1="1058.4" x2="883.9" y2="1058.4" stroke="#2d5787" stroke-width="3.2" stroke-linecap="round"/>
+<text x="893.6" y="1063.3" fill="#4c4132" font-size="17.01" font-family="'SF Mono',Menlo,Consolas,monospace" font-weight="500" text-anchor="start">blue</text>
+<line x1="961" y1="1058.4" x2="990.2" y2="1058.4" stroke="#5f4126" stroke-width="3.2" stroke-linecap="round"/>
+<text x="999.9" y="1063.3" fill="#4c4132" font-size="17.01" font-family="'SF Mono',Menlo,Consolas,monospace" font-weight="500" text-anchor="start">brown</text>
+<line x1="1077.7" y1="1058.4" x2="1106.8" y2="1058.4" stroke="#2f6b30" stroke-width="3.2" stroke-linecap="round"/>
+<text x="1116.6" y="1063.3" fill="#4c4132" font-size="17.01" font-family="'SF Mono',Menlo,Consolas,monospace" font-weight="500" text-anchor="start">green</text>
+<line x1="1194.4" y1="1058.4" x2="1223.5" y2="1058.4" stroke="#211c13" stroke-width="6.5" stroke-linecap="round"/><line x1="1196" y1="1058.4" x2="1221.9" y2="1058.4" stroke="#d9c99e" stroke-width="2.9" stroke-linecap="round"/>
+<text x="1233.2" y="1063.3" fill="#4c4132" font-size="17.01" font-family="'SF Mono',Menlo,Consolas,monospace" font-weight="500" text-anchor="start">ground bus</text>
+<path d="M 1362.9 1058.4 L 1366.2 1059.7 L 1369.4 1058.4 L 1372.6 1055 L 1375.9 1058.4 L 1379.1 1062.6 L 1382.4 1058.4 L 1385.6 1055 L 1388.8 1058.4 L 1392.1 1059.7 L 1395.3 1058.4" fill="none" stroke="#3c672f" stroke-width="2.4" stroke-linecap="round"/><path d="M 1362.9 1058.4 L 1366.2 1057.1 L 1369.4 1058.4 L 1372.6 1061.8 L 1375.9 1058.4 L 1379.1 1054.2 L 1382.4 1058.4 L 1385.6 1061.8 L 1388.8 1058.4 L 1392.1 1057.1 L 1395.3 1058.4" fill="none" stroke="#3c672f" stroke-width="2.4" stroke-linecap="round"/>
+<text x="1405" y="1063.3" fill="#4c4132" font-size="17.01" font-family="'SF Mono',Menlo,Consolas,monospace" font-weight="500" text-anchor="start">6.3 V heaters — twisted pair (leg grouping not established)</text>
+<text x="128" y="1092.4" fill="#8d7f63" font-size="17.01" font-family="'SF Mono',Menlo,Consolas,monospace" font-weight="500" text-anchor="start">Joints:</text>
+<circle cx="228.4" cy="1087.6" r="4.5" fill="none" stroke="#211c13" stroke-width="1.0"/><circle cx="228.4" cy="1087.6" r="2.9" fill="#211c13"/>
+<text x="243" y="1092.4" fill="#4c4132" font-size="17.01" font-family="'SF Mono',Menlo,Consolas,monospace" font-weight="500" text-anchor="start">wire end (solder joint)</text>
+<path d="M 507.6 1087.6 L 529.5 1087.6 A 5.7 5.7 0 0 1 540.8 1087.6 L 562.7 1087.6" fill="none" stroke="#57503f" stroke-width="3.7" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="572.4" y="1092.4" fill="#4c4132" font-size="17.01" font-family="'SF Mono',Menlo,Consolas,monospace" font-weight="500" text-anchor="start">cross-over (no connect)</text>
+<text x="128" y="1121.6" fill="#8d7f63" font-size="17.01" font-family="'SF Mono',Menlo,Consolas,monospace" font-weight="500" text-anchor="start">Bodies:</text>
+<path d="M 234.4 1111.2 L 238.6 1111.2 A 7.1 7.1 0 1 1 238.6 1120.6 L 234.4 1120.6 A 7.1 7.1 0 1 1 234.4 1111.2 Z" fill="#f0e6c8" stroke="#211c13" stroke-width="1.0"/>
+<text x="259.2" y="1121.6" fill="#4c4132" font-size="17.01" font-family="'SF Mono',Menlo,Consolas,monospace" font-weight="500" text-anchor="start">resistor</text>
+<rect x="368.1" y="1107" width="22.7" height="16.2" rx="1.6" fill="#f0e6c8" stroke="#211c13" stroke-width="1.0"/>
+<text x="398.9" y="1121.6" fill="#4c4132" font-size="17.01" font-family="'SF Mono',Menlo,Consolas,monospace" font-weight="500" text-anchor="start">film / coupling cap</text>
+<rect x="622" y="1105.4" width="19.4" height="17.8" rx="2.4" fill="#f0e6c8" stroke="#211c13" stroke-width="1.0"/><line x1="622" y1="1109.4" x2="641.4" y2="1109.4" stroke="#211c13" stroke-width="0.7"/>
+<text x="649.5" y="1121.6" fill="#4c4132" font-size="17.01" font-family="'SF Mono',Menlo,Consolas,monospace" font-weight="500" text-anchor="start">electrolytic (+ = positive end)</text>
+<rect x="997.1" y="1108.6" width="22.7" height="13" rx="1.6" fill="#f0e6c8" stroke="#211c13" stroke-width="1.0"/>
+<text x="1027.9" y="1121.6" fill="#4c4132" font-size="17.01" font-family="'SF Mono',Menlo,Consolas,monospace" font-weight="500" text-anchor="start">mica</text>
 </svg>

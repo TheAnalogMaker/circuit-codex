@@ -89,6 +89,18 @@ basing:
     6: { element: screen-grid, hv: true, note: "g2 — fed through a dropper, rated 125 V" }
     7: { element: heater }
     8: { element: plate, hv: true }
+# One heater, one supply: with no centre tap the two heater pins ARE the two
+# supply legs, and a drawing has no second way to wire them. A layout's
+# `heaters:` block still has to declare which leg it grounds, and
+# pipeline/check_heaters.py proves the declaration against this block.
+heater:
+  supplies:
+    - volts: 6.3
+      current_a: 0.3
+      legs: [[2], [7]]
+  source: >-
+    GE 6SJ7 / 12SJ7 data sheet ET-T1400 (November 1956), page 1 — "Heater\n    Voltage, AC or DC 6.3 (12SJ7: 12.6) Volts, Heater Current 0.3 (0.15)\n    Amperes", on the RETMA 8N basing. The two heater pins are this file's own\n    basing block (octal 2 and 7); the valve has no heater centre tap. The 12SJ7\n    differs in heater rating only.
+  source_url: https://frank.pocnet.net/sheets/093/6/6SJ7.pdf
 used_in: ["5c1"]
 datasheets:
   - publisher: RCA

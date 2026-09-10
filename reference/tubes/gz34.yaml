@@ -17,7 +17,12 @@ basing:
   source: >-
     Mullard and Philips GZ34 data sheets (octal base, viewed from underside);
     the EIA 5DA arrangement is confirmed on the GE 5AR4 sheet. Indirectly heated,
-    but the cathode is tied to the heater at pin 8, which sits at B+.
+    but the cathode is tied to the heater at pin 8, which sits at B+. Mullard
+    letters that pin "h,k" and Philips "f,k"; GE prints it in words —
+    "Pin 8 — Heater and Cathode". Mullard and Philips number the anode units the
+    other way round from GE (a' on pin 4, a'' on pin 6, against GE's "Pin 4 —
+    Plate Number 2"); the units are interchangeable and this file follows the
+    Mullard/Philips lettering it is drawn from.
   pins:
     1: { element: internal-connection }
     2: { element: heater }
@@ -26,7 +31,51 @@ basing:
     5: { element: nc }
     6: { element: diode-plate, unit: 2, hv: true }
     7: { element: nc }
-    8: { element: cathode, hv: true, note: "tied to the heater" }
+    8: { element: cathode, hv: true, note: "the heater's other end is brought out here too — the cathode is strapped to it inside the envelope, and the rectified B+ leaves on this pin" }
+# PIN 8 IS TWO THINGS AT ONCE, and one `element:` word can only name one of
+# them. It names `cathode`, because that is the role the schematic symbol
+# mapping and the pinout page need — but pin 8 is also one END OF THE 5 V
+# HEATER, and a tool that reads heater pins off the element labels alone sees a
+# heater with ONE pin. That is not a labelling slip to be papered over with a
+# third element name: the labels are a signal-role vocabulary shared with
+# pipeline/schematic_lib.py and the site's pinout colouring, and a valve's
+# heater terminals are a datasheet fact in their own right. So the supplies
+# block below is the AUTHORITY on which pins carry the supply, and
+# render_layouts.load_tube_heater_pins() unions it with the labels.
+#
+# Compare the 5Y3GT and 5U4G, where the same physical fact is labelled the
+# other way round: those are DIRECTLY heated, the filament IS the cathode, and
+# both pins are lettered `filament` with the cathode role in a note. Either
+# label loses half the truth; only the supplies block carries all of it.
+heater:
+  # Pin 8 carries the heater's other end AND the cathode, strapped together
+  # inside the envelope. The basing letters it `cathode` because that is the
+  # element the DC netlist must see — the rectified B+ leaves the amplifier on
+  # this pin — so the heater leg that lands there is declared as sharing it,
+  # and the pin-agreement check reviews the exception instead of guessing at it.
+  shared_pins:
+    8: cathode
+  supplies:
+    - volts: 5.0
+      current_a: 1.9
+      legs: [[2], [8]]
+      note: >-
+        Its own 5 V rectifier-filament secondary — never the 6.3 V chain. The
+        cathode is strapped to the heater at pin 8 and sits at the rectified
+        B+, so neither leg may be grounded: the winding floats at B+ with the
+        cathode, and the B+ lead leaves the amplifier's rectifier socket on
+        pin 8 alongside one leg of the winding.
+  source: >-
+    Mullard GZ34 data sheet, Issue 2 — page 1 "HEATER: Vh 5.0 V, Ih 1.9 A";
+    page 2's octal base diagram (socket 5305, bottom view) letters pin 2 "h"
+    and pin 8 "h,k", with pin 1 "IC" and pins 3, 5 and 7 "NP". The Philips
+    GZ34 sheet (January 1970) prints "HEATING: Indirect by A.C.; parallel
+    supply", Vf 5 V / If 1.9 A, and letters the same two pins "f" and "f,k".
+    The GE 5AR4 sheet states it in words — heater voltage 5.0 V ±10 %, heater
+    current 1.9 A, "Pin 2 — Heater", "Pin 8 — Heater and Cathode" — and its
+    EIA 5DA basing diagram draws the cathode sleeve joining the heater's pin-8
+    end at a junction dot.
+  source_url: https://frank.pocnet.net/sheets/129/g/GZ34_Mullard.pdf
 used_in: ["5f6a", "5f8a", "6g3", "6g4", "aa964", "ab763", "ab763-super", "ac30", "b15n", "jtm45"]
 datasheets:
   - publisher: Mullard
@@ -36,4 +85,8 @@ datasheets:
   - publisher: Philips
     designation: GZ34
     url: https://frank.pocnet.net/sheets/010/g/GZ34.pdf
+    confidence: high
+  - publisher: General Electric
+    designation: 5AR4
+    url: https://frank.pocnet.net/sheets/093/5/5AR4.pdf
     confidence: high

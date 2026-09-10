@@ -77,6 +77,18 @@ basing:
     7: { element: internal-connection, note: "internal screen (shield) — grounded in use" }
     8: { element: suppressor-grid, note: "g3 — strapped to the cathode in this corpus's circuits" }
     9: { element: grid, note: "g1" }
+# One heater, one supply: with no centre tap the two heater pins ARE the two
+# supply legs, and a drawing has no second way to wire them. A layout's
+# `heaters:` block still has to declare which leg it grounds, and
+# pipeline/check_heaters.py proves the declaration against this block.
+heater:
+  supplies:
+    - volts: 6.3
+      current_a: 0.2
+      legs: [[4], [5]]
+  source: >-
+    Philips / Mullard EF86 data sheet — "HEATING: Indirect by A.C. or D.C.;\n    series or parallel supply", heater voltage Vf 6.3 V, heater current If\n    200 mA. "Series or parallel" there describes a receiver's chain of different\n    valves, not a tapped heater: the two heater pins are this file's own basing\n    block (noval 4 and 5) and the valve has no centre tap — its pin 9 is a grid\n    connection.
+  source_url: https://frank.pocnet.net/sheets/010/e/EF86.pdf
 used_in: [ac15]
 datasheets:
   - publisher: Philips / Mullard

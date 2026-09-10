@@ -19,7 +19,7 @@
 # deep the tremolo goes. See notes.md.
 source: "Fender 'Tremolux' Model 5G9 drawing (B-EI), printed voltages: +370 (reservoir / OT centre tap, driven), +368 (post-choke screen node), +310 (preamp and phase-inverter feed), +175/+175 (12AY7 plates), +2.5 (shared 12AY7 cathode), +210/+200 (phase-inverter plates), +27 (joined inverter cathodes), +25.5 (inverter tail junction), -69 (bias rectifier, driven), -28 (bias divider and grid-leak junction), -27.5/-27.5 (6V6GT grids), and in the excluded tremolo bottle +270 (oscillator plate), +1.7 (oscillator cathode), +260 (cathode-follower cathode)"
 nodes:
-  BS:   { chart: 368, tol_pct: 8,  note: "post-choke node — the 6V6 screen feed and the tremolo bottle's plate supply. Solved through the 14684 choke's ESTIMATED 130 Ω DCR (netlist.cir), so this is the one node whose prediction rests on an estimate rather than a printed value; internal target, tighter than the drawing's ±20%" }
+  BS:   { chart: 368, tol_pct: 8,  note: "post-choke node — the 6V6 screen feed and the tremolo bottle's plate supply. Solved through the 14684 choke's ESTIMATED 130 Ω DCR (stated in the netlist's header), so this is the one node whose prediction rests on an estimate rather than a printed value; internal target, tighter than the drawing's ±20%" }
   BC:   { chart: 310, tol_pct: 8,  note: "preamp and phase-inverter feed, one printed 10 kΩ · 1 W dropper below the screen node — internal target" }
   PAY1: { chart: 175, tol_pct: 20, note: "Inst.-channel 12AY7 plate, 100 kΩ from +310 V" }
   PAY2: { chart: 175, tol_pct: 20, note: "Mic.-channel 12AY7 plate, 100 kΩ from +310 V" }
@@ -27,7 +27,7 @@ nodes:
   PPIA: { chart: 210, tol_pct: 20, note: "phase-inverter plate, 82 kΩ · 5 % (hot) side" }
   PPIB: { chart: 200, tol_pct: 20, note: "phase-inverter plate, 100 kΩ · 5 % (cold) side" }
   KPI:  { chart: 27,  tol_pct: 20, note: "joined inverter cathodes, above the 470 Ω" }
-  JPI:  { chart: 25.5, tol_pct: 20, note: "inverter tail junction (470 Ω / 10 kΩ), the return for both 1 MΩ grid leaks. '25.5' and '255' cannot be told apart on the low-resolution copy of this drawing; read unambiguously as +25.5 V at 777 ppi (see meta.yaml sources), which is also what the printed +27 V cathode one 470 Ω away requires" }
+  JPI:  { chart: 25.5, tol_pct: 20, note: "inverter tail junction (470 Ω / 10 kΩ), the return for both 1 MΩ grid leaks. '25.5' and '255' cannot be told apart on the low-resolution copy of this drawing; read unambiguously as +25.5 V at 777 ppi (see the sources cited on this page), which is also what the printed +27 V cathode one 470 Ω away requires" }
   G61:  { chart: -27.5, tol_pct: 20, note: "V4 grid, fixed bias through a 220 kΩ leak from the −28 V line" }
   G62:  { chart: -27.5, tol_pct: 20, note: "V5 grid, fixed bias through a 220 kΩ leak from the −28 V line" }
   NBIAS: { chart: -28, tol_pct: 8,  note: "bias line — solved through the drawing's own 82 kΩ / 56 kΩ divider off the printed −69 V, not abstracted. The joined 220 kΩ grid leaks and the Depth control's cold end sit here; no DC flows through the Depth pot — internal target" }

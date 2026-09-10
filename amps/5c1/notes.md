@@ -106,3 +106,24 @@ that bridges plate to grid short-circuits past the control the drawing routes
 it through. It makes no difference to any simulated voltage — SPICE treats a
 coupling cap as open at DC either way — and every difference to whether the
 equivalence proof means anything.
+
+## The heater layer: a link removed, and what the sheet shows
+
+The board drawing here used to close its heater chain with a link across the
+last socket's two heater pins. Nothing on the F-DH sheet joins them, and the
+6SJ7 has two heater pins and no centre tap, so those two pins *are* the supply's
+two legs and a link between them is a short across it. The link is gone.
+
+What the sheet shows, read at its full published resolution, is now stated on
+this page as checked data. The schematic page draws the 6.3 V secondary with one lead grounded and
+the other marked *to all 6.3 volt filaments* — the single-ended supply every
+Champ of this era uses. On the layout page each socket returns to chassis at the
+socket: at the 6V6GT a straight lead crosses from heater pin 7 to the base
+sleeve at pin 1, which the sheet grounds, leaving pin 2 the fed side; at the
+6SJ7 a short bow ties heater pin 2 to the suppressor grid at pin 3, which this
+circuit grounds, leaving pin 7 the fed side. The two bottles therefore ground
+*opposite* heater pins, which is exactly the kind of fact no pin label can
+supply and only the amplifier's own drawing carries. Both bottles are octal with
+two heater pins and no centre tap, so the grouping itself was never in doubt
+here — only which of the two each socket returns on, and that is now declared
+and machine-checked against the leads drawn.

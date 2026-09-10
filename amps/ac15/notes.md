@@ -120,3 +120,19 @@ construction, which is what the amplifier actually used. Its point-to-point
 wiring is nonetheless machine-checked: every part the operating-point netlist
 models is verified in CI, terminal for terminal, to sit on the same nets the
 simulation solves.
+
+## The heater layer: a link removed
+
+This board drawing used to close its heater chain with a link across the EF86's
+two heater pins. The EF86 has two heater pins and no centre tap, so those two
+pins *are* the supply's two legs, and a link between them is a short across the
+supply at every voltage the valve permits. It was a drawing device — a drawn
+pair already spans both of a socket's heater pins, so the chain's last hop never
+needed one — and there is no factory board drawing to appeal to here in any
+case, since this layout is derived. The link is gone.
+
+The rest of the heater layer stays flagged as unestablished, and for a reason
+worth stating plainly: with no JMI layout sheet in existence, the leg grouping at
+the four centre-tapped bottles is not something a better scan could settle. What
+the drawing asserts is the order a builder would wire the chain in, and it says
+so.

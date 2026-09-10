@@ -53,6 +53,18 @@ basing:
     6: { element: nc }
     7: { element: heater }
     8: { element: cathode }
+# One heater, one supply: with no centre tap the two heater pins ARE the two
+# supply legs, and a drawing has no second way to wire them. A layout's
+# `heaters:` block still has to declare which leg it grounds, and
+# pipeline/check_heaters.py proves the declaration against this block.
+heater:
+  supplies:
+    - volts: 6.3
+      current_a: 0.9
+      legs: [[2], [7]]
+  source: >-
+    Tung-Sol 5881 data sheet — "HEATER 6.3 VOLTS 900 MA. AC OR DC", with the\n    bottom-view JEDEC 7AC basing diagram lettering pins 2 and 7 "H" (pin 1 NC,\n    3 P, 4 G2, 5 G1, 8 K/G3). The sheet states the type is the electrical\n    equivalent of the 6L6 and 6L6G with ratings raised about 20 percent.
+  source_url: https://frank.pocnet.net/sheets/127/5/5881.pdf
 used_in: ["5f6", "5f6a", "5f8a", "6g6b"]
 datasheets:
   - publisher: RCA

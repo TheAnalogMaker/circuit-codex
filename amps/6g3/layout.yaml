@@ -22,7 +22,34 @@ board:
   rows: 2
   cols: 76
   title: "6G3 · eyelet board layout"
-caption: "Redrawn from the published Fender 6G3 'Deluxe' layout drawing (I-FA), page 1 — principal board components and their hookup, in the order the drawing shows them. Off the board: the tone capacitors, the Speed control's 100 kΩ end resistor and the Intensity control's 0.05 µF mount at their pots, and the bias-supply group is the small sub-board the sheet draws in its own box. The 68 kΩ grid stoppers and the two 1 MΩ input grid leaks mount at the jacks (the chassis carries two jacks per channel; one is drawn per channel). The three dropping resistors sit with the 16-16-16-8 µF filter can in the filter housing rather than on the eyelet board — they are drawn here as off-board stubs so every supply rail stays traceable, and the can itself is not drawn. The 6.3 V heater chain (green twisted pair, PT → pilot lamp → the two 6V6 output tubes → the three small bottles) is drawn in the conventional daisy order: the sheet annotates it \"to all 6.3 volt heaters\" rather than routing it. The GZ34 is off that chain — it takes the 5 V winding. Not a trace or a dimensioned reproduction."
+
+# The heater circuits this drawing establishes against the amplifier's own
+# sheet. ONE of the two is here, deliberately: the I-FA sheet draws the 5 V
+# rectifier-filament winding lead by lead — two YELLOW leads from TR1, one to
+# each of the GZ34's heater pins — but it does NOT route the 6.3 V chain at
+# all; it arrows one winding "TO ALL 6.3 VOLT HEATERS" and leaves the reader to
+# it. The 6V6GT sockets on that page carry no heater lead whatever. So the
+# 6.3 V chain below is drawn in the conventional daisy order and stays
+# UNDECLARED, and the drawing keeps its "not established" markers for it. See
+# docs/layout-schema.md, "Heater wiring is its own claim".
+heaters:
+  - id: h5
+    volts: 5.0
+    winding: "5 V rectifier-filament secondary — the transformer's yellow pair"
+    grounded_leg: none
+    source: >-
+      I-FA page 1 (layout) fans TR1's leads to the GZ34 socket and letters each
+      one: YELLOW to pin 2, RED-333 V AC to pin 4, RED-333 V AC to pin 6,
+      YELLOW to pin 8, and the B+ lead leaves pin 8 alongside the second
+      yellow. Page 2 (schematic) draws the same winding as a two-terminal
+      secondary whose ends are the rectifier's two heater connections, with
+      +375 V taken from the end that carries the cathode. The GZ34's cathode is
+      strapped to the heater at pin 8 inside the envelope (Mullard letters that
+      pin "h,k"), so that end is pin 8 and the winding floats at B+ — neither
+      leg is grounded, and it is never on the 6.3 V chain.
+    sockets:
+      V6: { feed: [2], return: [8] }   # GZ34 — 5 V across the two heater pins, B+ out of 8
+caption: "Redrawn from the published Fender 6G3 'Deluxe' layout drawing (I-FA), page 1 — principal board components and their hookup, in the order the drawing shows them. Off the board: the tone capacitors, the Speed control's 100 kΩ end resistor and the Intensity control's 0.05 µF mount at their pots, and the bias-supply group is the small sub-board the sheet draws in its own box. The 68 kΩ grid stoppers and the two 1 MΩ input grid leaks mount at the jacks (the chassis carries two jacks per channel; one is drawn per channel). The three dropping resistors sit with the 16-16-16-8 µF filter can in the filter housing rather than on the eyelet board — they are drawn here as off-board stubs so every supply rail stays traceable, and the can itself is not drawn. The GZ34's own 5 V filament winding is drawn as the sheet letters it — two yellow transformer leads to the rectifier's heater pins 2 and 8, the B+ leaving pin 8 beside them (the cathode is strapped to the heater inside the envelope). The 6.3 V heater chain (green twisted pair, PT → pilot lamp → the two 6V6 output tubes → the three small bottles) is drawn in the conventional daisy order and is NOT established: the sheet annotates it \"to all 6.3 volt heaters\" rather than routing it, and its output sockets carry no heater lead at all. Not a trace or a dimensioned reproduction."
 source:
   desc: "Fender 'Deluxe' Model 6G3 drawing (I-FA), page 1 of 2 (layout; page 2 is the schematic redrawn in this amp's schematic.kicad_sch)"
   url: "https://el34world.com/charts/Schematics/files/Fender/Fender_deluxe_6g3.pdf"
@@ -91,7 +118,15 @@ offboard:
   - { id: RD3, ref: RD3, kind: part, edge: top, at: 10.0, label: "RD3" }
   # --- bias-supply sub-board (the sheet draws it in its own box) -----------
   - { id: R11, ref: R11, kind: part, edge: top, at: 15.0, label: "R11" }
-  - { id: D1, ref: D1, kind: part, edge: top, at: 18.0, label: "D1" }
+  # cathode at terminal a — the 100 kΩ / HT side. Read off I-FA page 1, whose
+  # bias sub-board box draws the rectifier with its bar toward the 100 kΩ and
+  # letters that end "+", the 25 µF's own "+" plate facing the 22 kΩ and
+  # ground and its "−" plate facing the diode and the −26 V output. NOTE: an
+  # OFF-BOARD body is drawn unbanded whatever this says — render_layouts only
+  # consults cathode_side() for board parts — so this is data the drawing
+  # cannot yet show. Declared anyway, as amps/5e4a, 5e5a, 5f4, 5f8a and 5g9
+  # already do, so the fact is recorded where the fix will read it.
+  - { id: D1, ref: D1, kind: part, edge: top, at: 18.0, label: "D1", cathode: a }
   - { id: C25, ref: C25, kind: part, edge: top, at: 21.0, label: "C25" }
   - { id: R12, ref: R12, kind: part, edge: top, at: 24.0, label: "R12" }
   # --- front-panel controls and jacks --------------------------------------
@@ -119,9 +154,19 @@ bus:
 # off-board 2-lead parts and transformer leads.
 runs:
   # === power transformer → GZ34 → the rail chain (annotation layer) ========
+  # Five secondary leads reach this socket on the sheet and all five are drawn,
+  # each in its own lane. The two YELLOW ones are the 5 V rectifier-filament
+  # winding: the GZ34 is indirectly heated but its cathode is strapped to the
+  # heater at pin 8, so the winding lands on pins 2 and 8 and the B+ lead
+  # leaves pin 8 beside it. Until 2026-09-09 neither yellow was drawn and this
+  # socket carried one run — a rectifier with no filament supply at all. The
+  # equivalence gate could not see the hole, because it excludes the PT and
+  # rectifier AC side by rule; see the `heaters:` block at the head of the file.
   - { from: T1.red1, to: V6.pin4, via: [[0.9, 0.35], [1.5, 1.30]] }
   - { from: T1.red2, to: V6.pin6, via: [[1.2, 0.58], [2.2, 1.36]] }
   - { from: T1.red-yellow, to: [1.45, 0.4], via: [[0.15, 0.92]] }
+  - { from: T1.yellow1, to: V6.pin2, via: [[0.45, 1.28], [0.95, 2.05]] }
+  - { from: T1.yellow2, to: V6.pin8, via: [[0.18, 1.55], [0.62, 2.62], [3.0, 2.62]] }
   - { from: V6.pin8, to: RD1.a, color: red, via: [[1.0, 2.45], [1.0, -0.55]] }
 
   # === B+1 (+375 V): reservoir node — OT centre tap and oscillator plate ===

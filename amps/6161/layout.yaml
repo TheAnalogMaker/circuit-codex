@@ -24,6 +24,18 @@ board:
   rows: 2
   cols: 122
   title: "6161 · board layout (derived)"
+# No factory board-layout drawing exists for this amplifier (see `source`
+# above): the board here is derived from the circuit drawing. Its heater legs
+# therefore cannot be read off a factory sheet by anyone, which is a different
+# gap from one nobody has read yet — the drawing says which, and the heater
+# worklist counts it separately instead of carrying it as work a better scan
+# would clear. Replace this with a `heaters:` block if the circuit drawing
+# itself turns out to establish the wiring.
+heaters_unsourced: >-
+  Valco published no board-layout sheet for the 6161 and none was located;
+  this board is derived from the circuit drawing, so no factory drawing can
+  establish its heater legs.
+
 caption: "A derived layout: Valco published no board-layout drawing for this chassis, so the arrangement below is the Circuit Codex's own — this circuit's parts laid out in signal order along the chassis and drawn on the house eyelet grid, not a record of the factory's terminal-strip construction. Every value comes from the parts list, which is read from the drawing whose title block reads \"Valco Model 6161\". Parts drawn off the board: the two 500 pF bright caps mount across the volume controls, the input couplers and the Bass-jack mixing resistors at the input jacks, and the tremolo on/off switch and the footswitch jack on the chassis. The pilot is a neon on the MAINS side of the power transformer, not a 6.3 V bulb on the heater chain, so it is drawn as the panel item it is and carries no lead here: one side goes to the primary's cold end and the other to the line-reverse switch, and that whole side of the circuit is outside this drawing's scope. The 6.3 V heater chain (twisted pair, transformer → the two 6973s → the inverter → the tremolo valve → the preamp valve) is likewise derived: with no layout sheet its daisy order is the physical socket order and the twisted-pair green is the house heater idiom, not a sourced wire colour — as is every other lead here, which is why all hookup and transformer leads are drawn in the neutral tone and the transformer pigtails are lettered by function. The 5Y3-GT is directly heated and takes the 5 V winding, off that chain. Not a trace or a dimensioned reproduction."
 source:
   desc: "Valco factory drawing, title block \"Valco Model 6161\" — layout DERIVED from that circuit drawing; Valco published no board-layout sheet for this chassis and none was located"

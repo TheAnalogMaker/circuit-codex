@@ -19,7 +19,7 @@ What a layout declares (see docs/layout-schema.md):
       - id: h63
         volts: 6.3
         winding: "6.3 V secondary - green pair"
-        grounded_leg: return          # feed | return | none
+        grounded_leg: return          # feed | return | none | humdinger
         sockets:
           V2: { feed: [7], return: [2] }        # octal: one pin per leg
           V1: { feed: [4, 5], return: [9] }     # noval at 6.3 V: ends strapped,
@@ -55,7 +55,20 @@ Checks, each with a planted fault in --selftest:
       ACROSS THE SUPPLY, the fault a renderer that strapped 4 to 5 while calling
       them opposite legs would draw
   W3  the grounded leg reaches the ground bus and the other leg does not; a
-      circuit declared `grounded_leg: none` keeps both legs off it
+      circuit declared `grounded_leg: none` keeps both legs off it; and a
+      circuit declared `grounded_leg: humdinger` floats BOTH legs and returns
+      through an artificial centre tap, which it must NAME (`humdinger: VR9`,
+      or a list for the two-resistor arrangement). The named part is checked
+      like any other claim: drawn on this board, reaching the ground bus, and
+      spanning both supply legs — a grounded part touching one leg is not a
+      centre tap, and "neither leg is grounded" on its own is indistinguishable
+      from a return nobody drew.
+
+A same-socket link joining two heater terminals is a finding whatever STYLE the
+run carries. It used to be tested only on heater-styled runs, which left the
+worst case invisible: the 6G2 drew a plain conductor across its rectifier's own
+5 V filament pins and neither gate objected — not this one, because the run was
+not green; not the DC gate, which excludes the rectifier socket by rule.
 
 An amp with no `heaters:` block is reported as NOT DECLARED and is not checked -
 silence is printed, never counted as coverage. Its twisted runs are drawn as the
@@ -77,6 +90,7 @@ import yaml
 from render_layouts import (
     Renderer,
     is_heater_run,
+    load_tube_heater_pins,
     load_tube_heater_supplies,
     resolve_tube_slug,
     primary_value,
@@ -86,6 +100,15 @@ from verify_layout_nets import GND, LayoutGraph
 ROOT = Path(__file__).resolve().parent.parent
 
 # Basing elements that belong to the heater/filament circuit and nothing else.
+# NOT the whole answer to "is this a heater pin", and D1/D4 must not use it as
+# though it were: a pin can carry a heater AND something else, and then it is
+# labelled for the other role. The GZ34's pin 8 is the heater's far end and the
+# cathode, labelled `cathode`; reading these labels alone made its 5 V winding
+# look like a one-pin heater and made the true circuit unstateable — D1 threw
+# out the pin the sheet puts the winding on. load_tube_heater_pins() unions
+# these labels with the valve's own `heater.shared_pins` — the reviewed list of
+# pins carrying a heater end under another element's name, which T1 below proves
+# against the basing — and that union is the single authority both checks use.
 HEATER_ELEMENTS = {"heater", "heater-ct", "filament"}
 
 
@@ -130,6 +153,13 @@ class HeaterResult:
     def __init__(self, amp_id: str):
         self.amp_id = amp_id
         self.declared = False
+        # The DRAWING's own verdict, from render_layouts.heater_fully_declared:
+        # every socket the heater ink lands on is covered by a declaration. Not
+        # the same as "nothing is ambiguous" — a board of octal sockets has no
+        # ambiguity and still has never been read against its sheet — and not
+        # the same as `declared`, which is true of a layout that has stated one
+        # circuit of two. This is the field that measures the job.
+        self.fully_declared = False
         self.errors: list[str] = []
         self.notes: list[str] = []
         # (socket, pin, pin, kind, detail) for every same-socket heater link on
@@ -159,74 +189,102 @@ def check_layout(amp_id: str, layout: dict, bom: dict,
                  verbose: bool = False) -> HeaterResult:
     res = HeaterResult(amp_id)
     R = Renderer(layout, bom, amp_id)
+    res.fully_declared = R.heater_fully_declared
     circuits = layout.get("heaters") or []
     twisted = sum(1 for s in R.runs if is_heater_run(s))
+
+    # WHAT IS STILL UNESTABLISHED - surveyed for EVERY layout, declared or not.
+    #
+    # This used to run only when a layout declared nothing, which was fine while
+    # a layout either declared its whole heater layer or none of it. It stopped
+    # being fine the moment a drawing could declare ONE circuit and not another:
+    # the 6G3, 6G4, AB763 and AB763 Super sheets draw their 5 V rectifier
+    # winding lead by lead but only ARROW their 6.3 V chain ("to all 6.3 volt
+    # heaters"), so those four declare the one and not the other. Surveying only
+    # undeclared layouts would have dropped twelve centre-tapped sockets out of
+    # reference/heaters.yaml the moment the 5 V circuits landed - the worklist
+    # quietly shrinking because a DIFFERENT circuit on the same board got read.
+    # A worklist that misstates the size of its own job is worse than none.
+    #
+    # Sockets a circuit does declare are skipped: those are proved below.
+    ct = []
+    for sid in sorted(R.off_by_id):
+        it = R.off_by_id[sid]
+        if it.get("kind") != "tube" or sid in R._heater_decl:
+            continue
+        slug, basing = socket_basing(R, sid)
+        if not any(e == "heater-ct" for e in basing.values()):
+            continue
+        named = sorted(R._heater_pins_named(sid))
+        supplies = load_tube_heater_supplies(slug) or []
+        reading = "not read as a pair (the drawing names %d pin(s))" % len(named)
+        if len(named) == 2 and not supplies:
+            reading = (f"pins {named} drawn on opposite legs; "
+                       f"reference/tubes/{slug}.yaml declares no heater "
+                       f"supplies, so what that grouping means is unrecorded")
+        elif len(named) == 2:
+            same_leg = [f"{s['volts']:g} V" for s in supplies
+                        if any(_pinset(leg) == frozenset(named)
+                               for leg in s["legs"])]
+            split = [f"{s['volts']:g} V" for s in supplies
+                     if {frozenset(leg) for leg in s["legs"]}
+                     == {frozenset([named[0]]), frozenset([named[1]])}]
+            if split and same_leg:
+                reading = (f"pins {named} drawn on opposite legs — the "
+                           f"{', '.join(split)} grouping; at "
+                           f"{', '.join(same_leg)} they are ONE leg instead")
+            elif split:
+                reading = (f"pins {named} drawn on opposite legs — the "
+                           f"{', '.join(split)} grouping")
+            elif same_leg:
+                reading = (f"pins {named} drawn on opposite legs, but the "
+                           f"{slug} sheet puts them on ONE leg at "
+                           f"{', '.join(same_leg)}")
+            else:
+                reading = (f"pins {named} drawn on opposite legs — no "
+                           f"{slug} supply groups them either way")
+        ct.append(f"{sid} [{slug}] names {named or '[]'}: {reading}")
+        res.doubtful[sid] = {"tube": slug, "names": named, "reading": reading,
+                             "opposite": sid in R.heater_doubtful_sockets()}
+
+    # Same-socket links, classified against the valve's own sheet. These are
+    # findings, not failures: the gate cannot fix a drawing whose source has
+    # not been read, but it can refuse to let one sit here unnamed. (Straps
+    # inside a declared circuit are proved below and never appear here.)
+    strap_notes = []
+    for sid, a, b, kind, detail in R.heater_strap_findings():
+        res.straps.append((sid, a, b, kind, detail))
+        if kind == "shorted":
+            strap_notes.append(
+                f"  FINDING - SHORTS THE SUPPLY: the drawing links {sid} "
+                f"pin {a} to pin {b}, and {detail}. Needs a read of this "
+                f"amplifier's own sheet before it can be corrected.")
+        else:
+            strap_notes.append(
+                f"  FINDING - needs a source read: the drawing links {sid} "
+                f"pin {a} to pin {b}; {detail}.")
+
+    def report_unestablished(headline: str):
+        res.notes.append(headline)
+        for line in ct:
+            res.notes.append(f"  centre-tapped socket {line}")
+        if not ct:
+            res.notes.append("  no centre-tapped socket on the heater chain")
+        res.notes.extend(strap_notes)
+
     if not circuits:
         # Not a failure - an undeclared heater layer is an UNVERIFIED one, and
         # saying so is the point. The sockets that matter are the centre-tapped
         # ones, because those are exactly where the drawing cannot be read off
         # the pin labels: print what each one's own runs land on, and what that
         # grouping would mean, so the report is a worklist and not a shrug.
-        ct = []
-        for sid in sorted(R.off_by_id):
-            it = R.off_by_id[sid]
-            if it.get("kind") != "tube":
-                continue
-            slug, basing = socket_basing(R, sid)
-            if not any(e == "heater-ct" for e in basing.values()):
-                continue
-            named = sorted(R._heater_pins_named(sid))
-            supplies = load_tube_heater_supplies(slug) or []
-            reading = "not read as a pair (the drawing names %d pin(s))" % len(named)
-            if len(named) == 2 and not supplies:
-                reading = (f"pins {named} drawn on opposite legs; "
-                           f"reference/tubes/{slug}.yaml declares no heater "
-                           f"supplies, so what that grouping means is unrecorded")
-            elif len(named) == 2:
-                same_leg = [f"{s['volts']:g} V" for s in supplies
-                            if any(_pinset(leg) == frozenset(named)
-                                   for leg in s["legs"])]
-                split = [f"{s['volts']:g} V" for s in supplies
-                         if {frozenset(leg) for leg in s["legs"]}
-                         == {frozenset([named[0]]), frozenset([named[1]])}]
-                if split and same_leg:
-                    reading = (f"pins {named} drawn on opposite legs — the "
-                               f"{', '.join(split)} grouping; at "
-                               f"{', '.join(same_leg)} they are ONE leg instead")
-                elif split:
-                    reading = (f"pins {named} drawn on opposite legs — the "
-                               f"{', '.join(split)} grouping")
-                elif same_leg:
-                    reading = (f"pins {named} drawn on opposite legs, but the "
-                               f"{slug} sheet puts them on ONE leg at "
-                               f"{', '.join(same_leg)}")
-                else:
-                    reading = (f"pins {named} drawn on opposite legs — no "
-                               f"{slug} supply groups them either way")
-            ct.append(f"{sid} [{slug}] names {named or '[]'}: {reading}")
-            res.doubtful[sid] = {"tube": slug, "names": named, "reading": reading,
-                                 "opposite": sid in R.heater_doubtful_sockets()}
-        res.notes.append(
+        unsourced = str(layout.get("heaters_unsourced", "") or "").strip()
+        report_unestablished(
             f"heaters NOT DECLARED - {twisted} heater run(s). Not checked; this "
-            f"drawing claims only what its own runs name.")
-        for line in ct:
-            res.notes.append(f"  centre-tapped socket {line}")
-        if not ct:
-            res.notes.append("  no centre-tapped socket on the heater chain")
-        # Same-socket links, classified against the valve's own sheet. These are
-        # findings, not failures: the gate cannot fix a drawing whose source has
-        # not been read, but it can refuse to let one sit here unnamed.
-        for sid, a, b, kind, detail in R.heater_strap_findings():
-            res.straps.append((sid, a, b, kind, detail))
-            if kind == "shorted":
-                res.notes.append(
-                    f"  FINDING - SHORTS THE SUPPLY: the drawing links {sid} "
-                    f"pin {a} to pin {b}, and {detail}. Needs a read of this "
-                    f"amplifier's own sheet before it can be corrected.")
-            else:
-                res.notes.append(
-                    f"  FINDING - needs a source read: the drawing links {sid} "
-                    f"pin {a} to pin {b}; {detail}.")
+            f"drawing claims only what its own runs name."
+            + ("  NO FACTORY LAYOUT SHEET EXISTS for this amplifier, so these "
+               "sockets are not waiting on a reader: " + unsourced
+               if unsourced else ""))
         return res
 
     res.declared = True
@@ -243,10 +301,31 @@ def check_layout(amp_id: str, layout: dict, bom: dict,
                               f"must state the supply voltage it wires")
             continue
         grounded = str(circuit.get("grounded_leg", "")).lower()
-        if grounded not in ("feed", "return", "none"):
+        if grounded not in ("feed", "return", "none", "humdinger"):
             res.errors.append(
-                f"{tag}: grounded_leg must be feed | return | none, got "
-                f"{circuit.get('grounded_leg')!r}")
+                f"{tag}: grounded_leg must be feed | return | none | humdinger, "
+                f"got {circuit.get('grounded_leg')!r}")
+            continue
+        # `humdinger` - the supply floats and an ARTIFICIAL CENTRE TAP carries
+        # the return: a hum-balance pot across the two legs with its wiper to
+        # chassis, or a pair of fixed resistors doing the same job. Neither leg
+        # is grounded (so W3 treats it as `none`), but "neither leg is grounded"
+        # is not the whole claim, and a circuit that stopped there would be
+        # indistinguishable from a supply whose return nobody drew. So the
+        # declaration NAMES the part, and the named part is checked: it is on
+        # this board, it reaches ground, and its terminals span BOTH legs.
+        humdinger = circuit.get("humdinger")
+        hum_refs = ([humdinger] if isinstance(humdinger, str)
+                    else [str(x) for x in (humdinger or [])])
+        if grounded == "humdinger" and not hum_refs:
+            res.errors.append(
+                f"{tag}: grounded_leg: humdinger must name the part that "
+                f"reaches ground, as `humdinger: VR9` or `humdinger: [R40, R41]`")
+            continue
+        if grounded != "humdinger" and hum_refs:
+            res.errors.append(
+                f"{tag}: names humdinger {hum_refs} but grounded_leg is "
+                f"{grounded!r} - only a `humdinger` circuit has one")
             continue
         sockets = circuit.get("sockets") or {}
         if not sockets:
@@ -286,9 +365,12 @@ def check_layout(amp_id: str, layout: dict, bom: dict,
                     f"- that is a short across the supply, not a connection group")
                 continue
 
-            # D1 - declared pins are heater-class pins of this valve
-            stray = sorted(p for leg in legs for p in leg
-                           if basing.get(p) not in HEATER_ELEMENTS)
+            # D1 - declared pins are heater terminals of this valve. The set is
+            # the basing labels UNIONED with the valve's own declared supplies,
+            # so a pin that carries the heater and something else (a rectifier
+            # whose cathode is strapped to a heater pin) still counts.
+            heater_pins = load_tube_heater_pins(slug) or set()
+            stray = sorted(p for leg in legs for p in leg if p not in heater_pins)
             if stray:
                 what = ", ".join(f"pin {p} is {basing.get(p, 'not on this basing')}"
                                  for p in stray)
@@ -322,7 +404,6 @@ def check_layout(amp_id: str, layout: dict, bom: dict,
             # 5F1 fault needed: wiring a centre-tapped valve as though it were
             # in series leaves the centre tap on no leg at all, and an unwired
             # heater terminal is a hole in the drawing, not a silence.
-            heater_pins = {p for p, e in basing.items() if e in HEATER_ELEMENTS}
             allowed_unused = set()
             for s in at_volts:
                 allowed_unused |= _pinset(s["unused"])
@@ -381,8 +462,34 @@ def check_layout(amp_id: str, layout: dict, bom: dict,
                 f"{tag}: SUPPLY LEGS BRIDGED - the feed leg {sorted(leg_terms[0])} "
                 f"and the return leg {sorted(leg_terms[1])} are drawn on ONE net; "
                 f"a conductor joins them and shorts the {volts:g} V supply")
-        want_gnd = {"feed": 0, "return": 1, "none": -1}[grounded]
+        want_gnd = {"feed": 0, "return": 1, "none": -1, "humdinger": -1}[grounded]
         gnd_root = LG.net(GND) if GND in LG.uf.parent else None
+        if grounded == "humdinger":
+            # Every terminal the named part(s) put on the drawing.
+            terms = [t for t in LG.uf.parent
+                     if any(t.startswith(f"{r}.") for r in hum_refs)]
+            if not terms:
+                res.errors.append(
+                    f"{tag}: the humdinger {hum_refs} is declared as this "
+                    f"circuit's return, but no drawn conductor reaches it")
+            elif gnd_root is None or not any(LG.net(t) == gnd_root for t in terms):
+                res.errors.append(
+                    f"{tag}: the humdinger {hum_refs} does not reach the ground "
+                    f"bus - a floating supply with a floating hum balance has "
+                    f"no return at all")
+            else:
+                # An artificial centre tap sits ACROSS the supply. A grounded
+                # part touching one leg (or neither) is not one, and saying so
+                # is the whole point of naming it.
+                touched = {k for k in (0, 1)
+                           if any(LG.net(t) in nets[k] for t in terms)}
+                if touched != {0, 1}:
+                    missed = ", ".join(("feed", "return")[k]
+                                       for k in (0, 1) if k not in touched)
+                    res.errors.append(
+                        f"{tag}: the humdinger {hum_refs} does not reach the "
+                        f"{missed} leg - an artificial centre tap has to span "
+                        f"BOTH legs to be one")
         for k, name in ((0, "feed"), (1, "return")):
             on_gnd = gnd_root is not None and gnd_root in nets[k]
             if k == want_gnd and not on_gnd:
@@ -390,14 +497,113 @@ def check_layout(amp_id: str, layout: dict, bom: dict,
                     f"{tag}: the {name} leg is declared grounded but no drawn "
                     f"conductor takes it to the ground bus")
             if k != want_gnd and on_gnd:
+                if grounded == "humdinger":
+                    says = (f"floats both legs and returns through the "
+                            f"humdinger {hum_refs}")
+                elif grounded == "none":
+                    says = "grounds neither leg"
+                else:
+                    says = f"grounds the {grounded} leg"
                 res.errors.append(
                     f"{tag}: the {name} leg reaches the ground bus, but this "
-                    f"circuit grounds "
-                    f"{'the ' + grounded + ' leg' if grounded != 'none' else 'neither leg'}")
+                    f"circuit {says}")
         if verbose:
             res.notes.append(f"  {cid}: {volts:g} V, grounded leg = {grounded}; "
                              f"feed net {sorted(nets[0])} / return net {sorted(nets[1])}")
+
+    # A PARTIAL DECLARATION IS SAID OUT LOUD. Proving one circuit says nothing
+    # about a socket no circuit names, and a report that fell silent about the
+    # rest would read as coverage. Same rule as the drawing's own footer marker
+    # (render_layouts.heater_provenance_note).
+    if ct or res.straps:
+        declared_v = sorted({c["volts"] for c in R._heater_decl.values()})
+        report_unestablished(
+            f"heaters PARTLY DECLARED - the "
+            f"{' and '.join(f'{v:g} V' for v in declared_v)} circuit(s) above are "
+            f"checked; the rest of this drawing's heater layer is NOT.")
     return res
+
+
+# ---------------------------------------------------------------------------
+# T1 - a tube file's declared supplies must agree with its own basing
+# ---------------------------------------------------------------------------
+def _check_one_tube_file(path, root) -> list[str]:
+    """T1 for a single reference/tubes/<slug>.yaml."""
+    errs: list[str] = []
+    data = yaml.safe_load(path.read_text()) or {}
+    supplies = (data.get("heater") or {}).get("supplies") or []
+    if not supplies:
+        return errs
+    basing = ((data.get("basing") or {}).get("pins") or {})
+    heater_pins, elements = set(), {}
+    for k, meta in basing.items():
+        elem = str((meta or {}).get("element", "")).lower()
+        elements[int(k)] = elem
+        if elem in HEATER_ELEMENTS:
+            heater_pins.add(int(k))
+    try:
+        rel = path.relative_to(root)
+    except ValueError:
+        rel = path.name
+    if not heater_pins:
+        return [f"{rel}: declares heater.supplies but its basing names no "
+                f"heater/filament pin"]
+    # A pin may carry a heater end AND something the basing letters instead,
+    # because the basing element is what the DC netlist must see: the GZ34's
+    # pin 8 is the heater's other end strapped to the cathode, and the rectified
+    # B+ leaves on it. Such a pin is DECLARED, with the element it is lettered
+    # as, so the exception is reviewed rather than guessed.
+    shared = {int(k): str(v).lower() for k, v
+              in ((data.get("heater") or {}).get("shared_pins") or {}).items()}
+    for pin, elem in sorted(shared.items()):
+        if pin not in elements:
+            errs.append(f"{rel}: heater.shared_pins names pin {pin}, which is "
+                        f"not on this valve's basing")
+        elif elements[pin] != elem:
+            errs.append(f"{rel}: heater.shared_pins says pin {pin} is '{elem}', "
+                        f"but the basing letters it '{elements[pin]}'")
+    used = {int(x) for sup in supplies for leg in (sup.get("legs") or [])
+            for x in leg}
+    for pin in sorted(set(shared) - used):
+        errs.append(f"{rel}: heater.shared_pins declares pin {pin}, which no "
+                    f"supply leg uses — an exception nothing needs")
+    for sup in supplies:
+        volts = sup.get("volts")
+        legs = [[int(x) for x in leg] for leg in (sup.get("legs") or [])]
+        unused = {int(x) for x in (sup.get("unused") or [])}
+        if len(legs) != 2 or not all(legs):
+            errs.append(f"{rel}: the {volts} V supply must have two non-empty "
+                        f"legs, got {legs}")
+            continue
+        named = set(legs[0]) | set(legs[1])
+        stray = sorted((named | unused) - heater_pins - set(shared))
+        if stray:
+            lettered = ", ".join(f"pin {x} is {elements.get(x, 'not on this basing')}"
+                                 for x in stray)
+            errs.append(f"{rel}: the {volts} V supply names pin(s) {stray}, which "
+                        f"are not heater pins of this valve ({lettered})")
+        both = sorted(set(legs[0]) & set(legs[1]))
+        if both:
+            errs.append(f"{rel}: the {volts} V supply puts pin(s) {both} on both legs")
+        missing = sorted(heater_pins - named - unused)
+        if missing:
+            errs.append(f"{rel}: the {volts} V supply accounts for heater pin(s) "
+                        f"{missing} on neither leg nor `unused`")
+    return errs
+
+
+def check_tube_supplies(slugs: list[str] | None = None) -> list[str]:
+    """Every `heater.supplies` leg must name heater-class pins of that valve's
+    own basing, and between them the legs plus `unused` must account for all of
+    them. A datasheet citation proves the VOLTAGE; nothing but this proves the
+    pin list was typed correctly, and a wrong leg here would be believed by
+    every layout that declares against it."""
+    errs: list[str] = []
+    for path in sorted((ROOT / "reference" / "tubes").glob("*.yaml")):
+        if slugs and path.stem not in slugs:
+            continue
+        errs += _check_one_tube_file(path, ROOT)
+    return errs
 
 
 # ---------------------------------------------------------------------------
@@ -418,6 +624,15 @@ WORKLIST_HEADER = """\
 # the gate proves. Every other layout draws a heater layer that has NOT been
 # established, and this file is the standing worklist of exactly what is
 # unestablished on each, so the work is tractable rather than a vague backlog.
+#
+# A LAYOUT CAN BE PART-WAY. `declared` says a layout states at least one heater
+# circuit; `fully_established` says nothing is left over. They differ, and the
+# difference is the point: the 6G3, 6G4, AB763 and AB763 Super sheets draw their
+# 5 V rectifier-filament winding lead by lead but only ARROW their 6.3 V chain
+# ("to all 6.3 volt heaters"), so each of those declares its 5 V circuit, has it
+# proved, and still carries centre-tapped preamp sockets nothing has
+# established. Both halves are recorded on every entry; read `fully_established`
+# for the size of the job, never `declared`.
 #
 # HOW TO READ IT. `doubtful_sockets` are centre-tapped valves whose drawing puts
 # the two heater pins on OPPOSITE supply legs - the 12.6 V series arrangement.
@@ -444,6 +659,12 @@ def worklist(results: list | None = None) -> dict:
     for amp_id in ids:
         layout, bom = load_amp(amp_id)
         res = by_id.get(amp_id) or check_layout(amp_id, layout, bom)
+        # BOTH HALVES, ALWAYS. `declared` is no longer all-or-nothing: a layout
+        # can prove its 5 V rectifier winding off a sheet that only arrows its
+        # 6.3 V chain, and then it has circuits AND unestablished sockets. The
+        # worklist has to carry both, or reading one field would understate the
+        # job — the entry would look cleared because a different circuit on the
+        # same board got read.
         entry: dict = {"declared": bool(res.declared)}
         if res.declared:
             entry["circuits"] = [
@@ -453,26 +674,49 @@ def worklist(results: list | None = None) -> dict:
                                       "return": [int(p) for p in (v or {}).get("return", [])]}
                              for k, v in (c.get("sockets") or {}).items()}}
                 for c in (layout.get("heaters") or [])]
-        else:
-            entry["centre_tapped_sockets"] = {
-                sid: {"tube": d["tube"], "drawn_on_pins": list(d["names"]),
-                      "grouping": ("opposite-legs" if d["opposite"] else "not-drawn-as-a-pair"),
-                      "reading": d["reading"]}
-                for sid, d in sorted(res.doubtful.items())}
-            entry["findings"] = [
-                {"socket": sid, "pins": [a, b], "kind": kind, "detail": detail}
-                for sid, a, b, kind, detail in res.straps]
+        entry["fully_established"] = bool(res.fully_declared)
+        # WHICH KIND OF GAP. Some amplifiers have no factory board-layout sheet
+        # at all — the board is derived from the circuit drawing — so their
+        # sockets can never be cleared by a better scan. Counting those with the
+        # unread ones would overstate the job and misdirect the reading effort.
+        unsourced = str(layout.get("heaters_unsourced", "") or "").strip()
+        if unsourced and not entry["fully_established"]:
+            entry["no_factory_layout_sheet"] = unsourced
+        entry["centre_tapped_sockets"] = {
+            sid: {"tube": d["tube"], "drawn_on_pins": list(d["names"]),
+                  "grouping": ("opposite-legs" if d["opposite"] else "not-drawn-as-a-pair"),
+                  "reading": d["reading"]}
+            for sid, d in sorted(res.doubtful.items())}
+        entry["findings"] = [
+            {"socket": sid, "pins": [a, b], "kind": kind, "detail": detail}
+            for sid, a, b, kind, detail in res.straps]
         amps[amp_id] = entry
-    n_doubt = sum(1 for a in amps.values()
-                  for sock in (a.get("centre_tapped_sockets") or {}).values()
-                  if sock["grouping"] == "opposite-legs")
+    def _doubt(entry) -> int:
+        return sum(1 for sock in (entry.get("centre_tapped_sockets") or {}).values()
+                   if sock["grouping"] == "opposite-legs")
+
+    n_doubt = sum(_doubt(a) for a in amps.values())
+    n_doubt_nosheet = sum(_doubt(a) for a in amps.values()
+                          if a.get("no_factory_layout_sheet"))
     findings = [f for a in amps.values() for f in (a.get("findings") or [])]
     return {
         "summary": {
             "layouts": len(amps),
             "declared_and_checked": sum(1 for a in amps.values() if a["declared"]),
+            # The number that actually measures the job: a layout with NOTHING
+            # left unestablished. `declared_and_checked` counts a layout that
+            # declares one circuit of two, so on its own it would overstate.
+            "fully_established": sum(1 for a in amps.values()
+                                     if a["fully_established"]),
             "not_established": sum(1 for a in amps.values() if not a["declared"]),
             "doubtful_sockets": n_doubt,
+            # Of those, the ones on amplifiers with no factory board-layout
+            # sheet: they are not waiting on a reader, and no scan will clear
+            # them. Everything else is work a source read finishes.
+            "doubtful_sockets_no_factory_sheet": n_doubt_nosheet,
+            "doubtful_sockets_pending_a_read": n_doubt - n_doubt_nosheet,
+            "layouts_with_no_factory_layout_sheet": sum(
+                1 for a in amps.values() if a.get("no_factory_layout_sheet")),
             "links_that_short_the_supply": sum(1 for f in findings
                                                if f["kind"] == "shorted"),
             "links_needing_a_source_read": sum(1 for f in findings
@@ -518,6 +762,15 @@ def check_worklist(results: list | None = None) -> list[str]:
 # ---------------------------------------------------------------------------
 # self-test - a gate that cannot catch planted faults is decoration
 # ---------------------------------------------------------------------------
+def _plant_humdinger(m: dict, pid: str = "RHUM", at: float = 15) -> None:
+    """Put a hum-balance part on the mutated layout so the humdinger cases test
+    the rule and not a missing endpoint. An off-board `kind: part` carrying a
+    `value:` needs no bom entry, so the fixture stays inside the test."""
+    m.setdefault("offboard", []).append(
+        {"id": pid, "kind": "part", "edge": "bottom", "at": at,
+         "label": "Hum balance", "value": "100 Ω"})
+
+
 def _mutate(layout: dict, fn) -> dict:
     m = copy.deepcopy(layout)
     fn(m)
@@ -573,12 +826,56 @@ def selftest() -> int:
         ("D1 not a heater pin",
          "the return leg is declared on the 6V6's cathode",
          lambda m: sockets(m).__setitem__("V2", {"feed": [7], "return": [8]})),
+        # D1 reads the basing labels UNIONED with the valve's declared
+        # supplies, so that a rectifier pin carrying both the heater and the
+        # cathode counts as a heater pin. That union must not have widened into
+        # "any pin will do": a diode plate is still not a heater terminal.
+        ("D1 union not a blank cheque",
+         "the rectifier's 5 V winding is declared on a diode plate",
+         lambda m: m["heaters"][1]["sockets"].__setitem__(
+             "V3", {"feed": [2], "return": [4]})),
         ("W3 grounded leg not grounded",
          "the circuit claims a floating supply while the drawing grounds a leg",
          lambda m: m["heaters"][0].__setitem__("grounded_leg", "none")),
         ("D2 pin on both legs",
          "one pin is declared on both supply legs",
          lambda m: sockets(m).__setitem__("V1", {"feed": [4, 5], "return": [5, 9]})),
+        # A SHORT ACROSS A FILAMENT IS A SHORT WHATEVER COLOUR IT IS DRAWN IN.
+        # The 6G2 shipped a plain conductor from its rectifier's pin 2 to pin 8
+        # — straight across the 5 V winding — and neither gate objected: this
+        # one looked only at heater-styled runs, and the DC gate excludes the
+        # rectifier socket by rule. heater_strap_findings() is style-blind now,
+        # and W2 catches it once the circuit is declared. Both halves planted.
+        ("W2 plain run shorts a filament",
+         "an UNCOLOURED conductor is drawn across the 5Y3GT's two filament "
+         "pins — the fault the 6G2 shipped",
+         lambda m: m["runs"].append({"from": "V3.pin2", "to": "V3.pin8"})),
+        # `grounded_leg: humdinger` - a floating pair whose return is an
+        # ARTIFICIAL centre tap (a hum-balance pot across the legs, wiper to
+        # chassis; or a pair of fixed resistors). Planted on h5, the 5Y3GT's
+        # 5 V winding, because that circuit genuinely floats - so each case
+        # fails on the humdinger rule under test and not on W3 first.
+        ("humdinger must name its part",
+         "a floating supply claims an artificial centre tap without naming it",
+         lambda m: m["heaters"][1].__setitem__("grounded_leg", "humdinger")),
+        ("humdinger must be drawn",
+         "the named hum-balance part is nowhere on the drawing",
+         lambda m: (m["heaters"][1].__setitem__("grounded_leg", "humdinger"),
+                    m["heaters"][1].__setitem__("humdinger", "RHUM"))),
+        ("humdinger must span both legs",
+         "the named part reaches ground but touches only one of the two legs",
+         lambda m: (m["heaters"][1].__setitem__("grounded_leg", "humdinger"),
+                    m["heaters"][1].__setitem__("humdinger", "RHUM"),
+                    _plant_humdinger(m),
+                    m["runs"].append({"from": "V3.pin2", "to": "RHUM.a"}),
+                    m["runs"].append({"from": "RHUM.b", "to": [1.45, 3.0]}))),
+        ("humdinger must reach ground",
+         "the named part spans both legs but never reaches the chassis",
+         lambda m: (m["heaters"][1].__setitem__("grounded_leg", "humdinger"),
+                    m["heaters"][1].__setitem__("humdinger", "RHUM"),
+                    _plant_humdinger(m),
+                    m["runs"].append({"from": "V3.pin2", "to": "RHUM.a"}),
+                    m["runs"].append({"from": "V3.pin8", "to": "RHUM.b"}))),
     ]
     for hole, label, fn in cases:
         res = check_layout(amp, _mutate(layout, fn), bom)
@@ -589,7 +886,85 @@ def selftest() -> int:
             fails += 1
             print(f"  FAIL {hole:<22} ESCAPED ({label})")
 
-    print(f"\nselftest: {len(cases) + 1} case(s), {fails} failure(s)")
+    # A RULE THAT ONLY REJECTS IS USELESS. The point of `humdinger` is to make
+    # a floating pair with an artificial centre tap DECLARABLE, so the positive
+    # path is proved too: part across both legs, wiper to chassis, PASSES.
+    def good_humdinger(m):
+        # The real arrangement: a resistor from EACH leg to chassis. A part is
+        # not a short in the layout graph, so the legs themselves stay off
+        # ground — which is exactly the physical claim, and exactly what W3
+        # still demands.
+        m["heaters"][1]["grounded_leg"] = "humdinger"
+        m["heaters"][1]["humdinger"] = ["RH1", "RH2"]
+        _plant_humdinger(m, "RH1", 14)
+        _plant_humdinger(m, "RH2", 16)
+        m["runs"] += [{"from": "V3.pin2", "to": "RH1.a"},
+                      {"from": "RH1.b", "to": [1.45, 3.0]},
+                      {"from": "V3.pin8", "to": "RH2.a"},
+                      {"from": "RH2.b", "to": [1.45, 3.4]}]
+    res = check_layout(amp, _mutate(layout, good_humdinger), bom)
+    if res.ok and res.declared:
+        print(f"  ok   {'humdinger DECLARABLE':<22} a hum-balance part across "
+              f"both legs with a chassis return PASSES")
+    else:
+        fails += 1
+        print(f"  FAIL {'humdinger DECLARABLE':<22} a correct artificial centre "
+              f"tap was rejected:")
+        for e in res.errors:
+            print(f"         {e}")
+
+    # THE PARTIAL-DECLARATION MARKER. A layout that declares SOME of its heater
+    # layer must keep the "not established" markers for the rest — the legend
+    # key and the footer line — or a partial claim reads as a whole one. Proved
+    # on the drawing itself, because that is where the claim is made: strip the
+    # 5F1's 6.3 V circuit, leaving only the rectifier's 5 V one declared, and
+    # its 12AX7 must still be named as unestablished.
+    def half_declare(m):
+        m["heaters"].pop(0)                      # drop the 6.3 V circuit
+        # ...and take away the 12AX7's centre-tap return, so its heater runs
+        # name only pins 4 and 5 — the drawing then shows the two heater pins
+        # on opposite legs, which is precisely the state the marker exists to
+        # report. (With pin 9 still drawn there is nothing doubtful about it.)
+        m["runs"] = [r for r in m["runs"] if "V1.pin9" not in (r.get("from"), r.get("to"))]
+
+    half = _mutate(layout, half_declare)
+    R = Renderer(half, bom, amp)
+    note = R.heater_provenance_note()
+    caveat = R._heater_legend_caveat()
+    if (not R.heater_fully_declared and "V1" in note
+            and "5 V" in note and "not established" in caveat):
+        print(f"  ok   {'PARTIAL marker kept':<22} declaring one circuit of two "
+              f"leaves the other's marker on the drawing")
+        print(f"         -> {note[:96]}...")
+    else:
+        fails += 1
+        print(f"  FAIL {'PARTIAL marker kept':<22} a half-declared layout lost "
+              f"its marker: note={note!r} caveat={caveat!r}")
+
+    # T1 - the tube-file pin-agreement check, planted in a copy of a real file
+    import tempfile
+    tube = yaml.safe_load((ROOT / "reference" / "tubes" / "12ax7.yaml").read_text())
+    tube["heater"]["supplies"][0]["legs"] = [[4, 5], [3]]      # pin 3 is a cathode
+    with tempfile.TemporaryDirectory() as tmp:
+        d = Path(tmp) / "reference" / "tubes"
+        d.mkdir(parents=True)
+        (d / "12ax7.yaml").write_text(yaml.safe_dump(tube))
+        errs = _check_one_tube_file(d / "12ax7.yaml", Path(tmp))
+    if errs:
+        print(f"  ok   {'T1 leg on a signal pin':<22} CAUGHT  (a supply leg is "
+              f"declared on the 12AX7's pin 3, a cathode)")
+        print(f"         -> {errs[0]}")
+    else:
+        fails += 1
+        print(f"  FAIL {'T1 leg on a signal pin':<22} ESCAPED")
+    if check_tube_supplies():
+        fails += 1
+        print("  FAIL T1 baseline           the corpus's own tube files do not agree "
+              "with their basings")
+    else:
+        print(f"  ok   {'T1 BASELINE':<22} every tube file's supplies agree with its basing")
+
+    print(f"\nselftest: {len(cases) + 5} case(s), {fails} failure(s)")
     return 1 if fails else 0
 
 
@@ -632,6 +1007,10 @@ def main(argv: list[str]) -> int:
         print(f"  {len(shorted)} link(s) SHORT THE SUPPLY as drawn and need a "
               f"source read: {'; '.join(shorted)}")
     if not only:
+        tube_errs = check_tube_supplies()
+        for e in tube_errs:
+            print(f"FAIL {e}")
+        errors += tube_errs
         # The worklist is committed, so a run that disagrees with it fails —
         # a stale worklist misstates the size of the job it exists to measure.
         stale = check_worklist(results)

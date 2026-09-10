@@ -16,6 +16,18 @@ board:
   rows: 2
   cols: 81
   title: "Model 1987 · turret board layout (derived)"
+# No factory board-layout drawing exists for this amplifier (see `source`
+# above): the board here is derived from the circuit drawing. Its heater legs
+# therefore cannot be read off a factory sheet by anyone, which is a different
+# gap from one nobody has read yet — the drawing says which, and the heater
+# worklist counts it separately instead of carrying it as work a better scan
+# would clear. Replace this with a `heaters:` block if the circuit drawing
+# itself turns out to establish the wiring.
+heaters_unsourced: >-
+  No Marshall board-layout sheet was located for the model 1987; this board
+  is derived from the factory drawing, so no factory drawing can establish
+  its heater legs.
+
 caption: "Layout derived from the schematic — no factory layout sheet located. The Marshall model 1987 was a turret-board amp, documented by the factory as a schematic (Unicord 70-19-11, cited in meta.yaml), not a Fender-style dimensioned layout drawing. Board order and point-to-point wiring are reconstructed from schematic.kicad_sch / netlist.cir. All hookup and transformer leads are drawn in the neutral tone: with no layout sheet, no Marshall/Drake lead colours are asserted. The two input channels are unmatched by design — the high-treble channel (V1A) runs an 820 Ω cathode fully bypassed by 320 µF, the normal channel (V1B) a colder 2.7 kΩ with a 0.68 µF partial bypass. Parts drawn off the board here: the TMB tone-stack caps (C8/C9/C10) mount at the tone pots; the bright caps (C5/C6) and their 470 kΩ resistors (RB1/RB2) mount across the volume pots; the input grid stoppers (68 kΩ) and 1 MΩ grid leaks (RG1/RG2) sit at the input jacks; the rectifier snubbers (C23/C24) sit across the diodes; and the 15 kΩ / 25 kΩ-trim / 47 kΩ bias divider (RBB/VR6/RBC) sets the negative-bias level at the bias supply. The 6.3 V heater chain (green twisted pair, PT → pilot lamp → the two EL34 outputs → the ECC83 phase inverter → the ECC83 second stage → the ECC83 input) is likewise derived: with no layout sheet its daisy order is the physical socket order and the twisted-pair green is the house heater idiom, not a sourced wire colour. Not a trace or a dimensioned reproduction."
 source:
   desc: "Marshall model 1987 factory drawing (Unicord 70-19-11, July 1970) — layout derived from this schematic; no factory layout sheet located"

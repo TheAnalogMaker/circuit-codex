@@ -41,6 +41,18 @@ basing:
     5: { element: diode-plate, unit: 2 }
     6: { element: diode-plate, unit: 1 }
     7: { element: plate, hv: true }
+# One heater, one supply: with no centre tap the two heater pins ARE the two
+# supply legs, and a drawing has no second way to wire them. A layout's
+# `heaters:` block still has to declare which leg it grounds, and
+# pipeline/check_heaters.py proves the declaration against this block.
+heater:
+  supplies:
+    - volts: 6.3
+      current_a: 0.3
+      legs: [[3], [4]]
+  source: >-
+    GE 6AT6 / 12AT6 data sheet ET-T1447 (February 1957), page 1 — "Heater\n    Voltage, AC or DC 6.3 (12AT6: 12.6) Volts, Heater Current 0.3 (0.15)\n    Ampere", on the RETMA 7BT basing. The two heater pins are this file's own\n    basing block (7-pin miniature 3 and 4); the valve has no heater centre tap.\n    The 12AT6 differs from the 6AT6 in heater rating only, and this corpus\n    letters the 6AT6.
+  source_url: https://frank.pocnet.net/sheets/093/6/6AT6.pdf
 used_in: [5f10]
 datasheets:
   - publisher: RCA

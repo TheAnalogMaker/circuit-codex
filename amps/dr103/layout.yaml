@@ -30,6 +30,18 @@ board:
   rows: 2
   cols: 151
   title: "DR103 · turret board layout (derived)"
+# No factory board-layout drawing exists for this amplifier (see `source`
+# above): the board here is derived from the circuit drawing. Its heater legs
+# therefore cannot be read off a factory sheet by anyone, which is a different
+# gap from one nobody has read yet — the drawing says which, and the heater
+# worklist counts it separately instead of carrying it as work a better scan
+# would clear. Replace this with a `heaters:` block if the circuit drawing
+# itself turns out to establish the wiring.
+heaters_unsourced: >-
+  No Hiwatt board-layout sheet was located for this DR103; the board is
+  derived from the preamp drawing, so no factory drawing can establish its
+  heater legs.
+
 caption: "Layout derived from the schematic. A published DR103 wiring diagram exists and is cited below — it is the source for this entry's output stage, supply and control complement — but its preamp board carries a different value set from the four-input S/N 903 drawing this entry's netlist follows (separate 2.2 kΩ input cathodes against one shared 1.5 kΩ, a 22 nF Normal coupler against 10 nF, a 1 MΩ/560 kΩ driver divider against 1.8 MΩ/1 MΩ, and board parts this circuit does not carry), so its board order is not transcribed here. Board order and point-to-point wiring are reconstructed from schematic.kicad_sch / netlist.cir. All hookup and transformer leads are drawn in the neutral tone: the published sheet's own lead colours belong to its board order, not to this derived one. Parts drawn off the board: the tone-stack capacitors (C4 100 pF, C5 and C6 47 nF) mount at the tone controls, the input grid stoppers (68 kΩ) and 1 MΩ grid leaks sit at the four input jacks as the published sheet draws them, and the negative-feedback resistor (RNFB) hangs between the speaker jacks and the inverter tail. The EL34 screen stoppers are drawn on the board; the published sheet mounts them at the socket pins. The panel indicator is a mains neon across the primary, not a 6.3 V pilot lamp, so it is drawn at the transformer and stands outside the heater chain — and that chain (green twisted pair, PT → the four EL34s → the ECC81 inverter → the V3 driver → the V2 second stage → the ECC83 input) is derived too: with no factory heater routing read, its daisy order is the physical socket order and the twisted-pair green is the house heater idiom, not a sourced wire colour. Not a trace or a dimensioned reproduction."
 source:
   desc: "Four-input DR103 preamp drawing from serial number 903 ('HIWATT / Late 60s Four-Input Preamp / Preamp from DR103 S/N 903 / Drawing rev. 1.0 - Mark Huss') and the published early-1970s DR103 wiring diagram ('HIWATT DR103 LAYOUT, EARLY 1970'S', Mark Huss with updates from Jukka K., and Brian Haberman, 2007) — the board order here is derived from the circuit those two drawings between them state, because the wiring diagram's own board is a different value set (see the caption)"

@@ -61,6 +61,18 @@ max_ratings:
     Design-Center Values — TRIODE UNIT"; Tung-Sol 6SQ7, 6SQ7GT sheet,
     Dec. 1 1947, "RATINGS (interpreted according to RMA standard M8-210)".
   source_url: https://frank.pocnet.net/sheets/049/6/6SQ7.pdf
+# One heater, one supply: with no centre tap the two heater pins ARE the two
+# supply legs, and a drawing has no second way to wire them. A layout's
+# `heaters:` block still has to declare which leg it grounds, and
+# pipeline/check_heaters.py proves the declaration against this block.
+heater:
+  supplies:
+    - volts: 6.3
+      current_a: 0.3
+      legs: [[7], [8]]
+  source: >-
+    RCA 6SQ7 / 6SQ7-GT/G data sheet — "Heater, Coated Unipotential Cathode:\n    Voltage 6.3 a-c or d-c volts, Current 0.3 amp"; its terminal connections\n    letter "Pin 7 — Heater" and "Pin 8 — Heater" on the octal 8Q basing.
+  source_url: https://frank.pocnet.net/sheets/049/6/6SQ7.pdf
 used_in: ["ga40"]
 datasheets:
   - publisher: RCA

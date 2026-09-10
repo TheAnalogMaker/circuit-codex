@@ -24,12 +24,12 @@ nodes:
   G71:  { chart: -55, tol_pct: 8, note: "6L6GC (V7) grid, fixed bias via 220k from the -55 V supply" }
   S72:  { chart: null, note: "6L6GC (V8) screen after its own 470 Ohm-1W stopper — informational, printed value shared with BP2" }
   G72:  { chart: -55, tol_pct: 8, note: "6L6GC (V8) grid, fixed bias via 220k from the -55 V supply" }
-  PPIA: { chart: 315, tol_pct: 20, note: "PI plate, 82k (hot) side, off the driven BP3 anchor (see netlist.cir header — BP3 is chosen to fit, not read)" }
+  PPIA: { chart: 315, tol_pct: 20, note: "PI plate, 82k (hot) side, off the driven BP3 anchor (see the netlist's header — BP3 is chosen to fit, not read)" }
   PPIB: { chart: 310, tol_pct: 20, note: "PI plate, 100k (cold) side, off the driven BP3 anchor" }
   KPI:  { chart: null, note: "PI shared cathode over 820 Ohm — informational; the drawing's exact tail split (820/6.8k) was read but not the cathode figure itself" }
   JPI:  { chart: null, note: "PI tail junction (820 Ohm / 6.8k) — informational, same reason as KPI" }
   P5:   { chart: 320, tol_pct: 25, note: "driver-stage plate — the supply feeding it (BDRV, a driven anchor, not read) is chosen to fit, and the drawing's local feedback network around this stage is not modelled; wider tolerance reflects that, not the printed figure itself" }
-  P1A:  { chart: null, note: "channel-1 (Normal) first-stage plate — printed +170 V. Informational: the preamp rail BD is a driven anchor chosen to fit (see netlist.cir header), not derived from a read dropper" }
+  P1A:  { chart: null, note: "channel-1 (Normal) first-stage plate — printed +170 V. Informational: the preamp rail BD is a driven anchor chosen to fit (see the netlist's header), not derived from a read dropper" }
   K1A:  { chart: null, note: "channel-1 first-stage cathode over 820 Ohm — printed +1.4 V (informational, same shared-rail reason)" }
   P1B:  { chart: null, note: "channel-1 second-stage plate — printed +160 V (informational; cathode network not resolved from the scan)" }
   P2A:  { chart: null, note: "channel-2 (Bright) first-stage plate — printed +170 V (informational, mirrors P1A)" }

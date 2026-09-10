@@ -263,7 +263,7 @@ heaters:
 | `id` | short name for the circuit, used in gate output |
 | `volts` | the supply voltage the **source** shows. Proved against the valve's own datasheet — see `heater.supplies` in `reference/tubes/<tube>.yaml` |
 | `winding` | prose: which secondary this is |
-| `grounded_leg` | `feed`, `return`, or `none`. A single-ended supply grounds one leg at the transformer; a floating pair grounds neither, and a rectifier filament sitting at B+ must ground neither |
+| `grounded_leg` | `feed`, `return`, `none`, or `humdinger`. A single-ended supply grounds one leg at the transformer; a floating pair grounds neither, and a rectifier filament sitting at B+ must ground neither. `humdinger` is a floating pair whose return is an ARTIFICIAL centre tap — a hum-balance pot across the two legs with its wiper to chassis, or a pair of fixed resistors doing the same job — and it must name the part in a sibling `humdinger:` key (`humdinger: VR9`, or `humdinger: [R40, R41]`). The gate then proves the named part is drawn, reaches the ground bus, and spans BOTH legs: a grounded part touching one leg is not a centre tap, and "neither leg is grounded" on its own cannot be told apart from a return nobody drew |
 | `source` | what the cited drawing shows, so a reader can check the declaration against it |
 | `sockets` | per socket, the **connection group** each pin sits in. `feed` and `return` are the two legs; naming which is which is the drawing's own choice and only matters for `grounded_leg` |
 
@@ -304,6 +304,44 @@ Flagged rather than suppressed, deliberately: the daisy order and the sockets on
 the chain are still right, and deleting the layer would destroy correct
 information to hide doubtful information. `Renderer.heater_provenance_note()`
 composes the line; a declared circuit prints neither marker.
+
+##### `heaters_unsourced` — when no factory sheet exists to read
+
+Twelve boards in this corpus are **derived**: the amplifier's documentation is a
+circuit drawing and no factory board-layout sheet was published or located, so
+the placement and routing are the Codex's own (each says so in its `source` and
+its caption). Their heater legs cannot be established from a factory drawing by
+anybody, ever — which is a different gap from one nobody has read yet, and the
+marker must not blur them. "Not established against the amplifier's own drawing"
+implies a drawing is waiting to be read.
+
+So such a layout declares the reason, and the drawing and the worklist both
+change what they say:
+
+```yaml
+heaters_unsourced: >-
+  JMI published no board-layout sheet for the AC15 and none was located; this
+  board is the Circuit Codex's own arrangement, so no factory drawing can
+  establish its heater legs.
+```
+
+- the **footer marker** opens "Heater layer: no factory board-layout drawing
+  exists for this amplifier, so its heater wiring cannot be read off one", and
+  closes by saying the valves on the chain are the circuit's own while the order
+  is the drawing's convention — because on a derived board that order is not a
+  factory fact either;
+- the **worklist** carries `no_factory_layout_sheet` on the amp and splits its
+  summary into `doubtful_sockets_pending_a_read` and
+  `doubtful_sockets_no_factory_sheet`, so the number that measures the reading
+  job counts only sockets a reader can actually clear.
+
+A layout may hold both: `amps/ab763-super` establishes its 5 V rectifier winding
+from the schematic and leaves the 6.3 V chain unestablished, and the marker then
+states what was established, that the rest was not, and that there is no factory
+board-layout drawing for the rest to be read off. Replace the key with a
+`heaters:` block if the circuit drawing itself turns out to establish the wiring
+— the AB763 Super's does for its 5 V winding, and does not for its 6.3 V chain,
+which it only arrows.
 
 ##### The worklist is committed (`reference/heaters.yaml`)
 
@@ -807,7 +845,15 @@ What the heater gate rejects, each with a planted fault in `--selftest`:
 | **D3** | every pin is on a leg but the **grouping** is not one the valve's sheet wires at that voltage |
 | **W1** | a declared terminal that **no drawn conductor reaches** — a missing return |
 | **W2** | the two legs are drawn on one net — a **bridge across the supply** |
-| **W3** | the grounded leg does not reach the ground bus, or a leg reaches it that the declaration says is floating |
+| **W3** | the grounded leg does not reach the ground bus, or a leg reaches it that the declaration says is floating; on a `humdinger` circuit, either leg reaching ground, or the named artificial centre tap missing from the drawing, off the ground bus, or touching only one leg |
+
+A same-socket link joining two heater terminals is a **finding whatever style
+the run carries**. Until 2026-09-09 only heater-styled runs were tested, which
+left the worst case invisible: the 6G2 drew a plain conductor straight across
+its rectifier's own 5 V filament pins, and neither gate objected — not the
+heater gate, because the run was not green; not the DC gate, which excludes the
+rectifier socket by rule. A short across a filament is a short whatever colour
+it is drawn in, so the test is what a run *joins*, not how it is painted.
 
 D1–D4 read `heater.supplies` in `reference/tubes/<tube>.yaml` — the voltages the
 datasheet permits and the pin grouping each uses, cited to the sheet like every

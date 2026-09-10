@@ -75,6 +75,18 @@ basing:
     7: { element: plate, hv: true }
     8: { element: internal-connection }
     9: { element: screen-grid, hv: true }
+# One heater, one supply: with no centre tap the two heater pins ARE the two
+# supply legs, and a drawing has no second way to wire them. A layout's
+# `heaters:` block still has to declare which leg it grounds, and
+# pipeline/check_heaters.py proves the declaration against this block.
+heater:
+  supplies:
+    - volts: 6.3
+      current_a: 0.76
+      legs: [[4], [5]]
+  source: >-
+    Philips / Mullard EL84 data sheet — "HEATING: Indirect by A.C. or D.C.;\n    parallel supply", heater voltage Vf 6.3 V, heater current If 760 mA. The two\n    heater pins are this file's own basing block (noval 4 and 5); pin 9 is the\n    screen grid, not a heater centre tap.
+  source_url: https://frank.pocnet.net/sheets/010/e/EL84.pdf
 used_in: ["ac15", "ac30"]
 datasheets:
   - publisher: Philips / Mullard

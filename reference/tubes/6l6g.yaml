@@ -38,6 +38,18 @@ basing:
     6: { element: nc }
     7: { element: heater }
     8: { element: cathode, note: "internally tied to the beam-forming plates" }
+# One heater, one supply: with no centre tap the two heater pins ARE the two
+# supply legs, and a drawing has no second way to wire them. A layout's
+# `heaters:` block still has to declare which leg it grounds, and
+# pipeline/check_heaters.py proves the declaration against this block.
+heater:
+  supplies:
+    - volts: 6.3
+      current_a: 0.9
+      legs: [[2], [7]]
+  source: >-
+    RCA 6L6 / 6L6-G data sheet, General Data — "Heater, for Unipotential\n    Cathode: Voltage 6.3 ac or dc volts, Current 0.9 amp". The two heater pins\n    are this file's own basing block (octal 2 and 7); the valve has no heater\n    centre tap.
+  source_url: https://frank.pocnet.net/sheets/049/6/6L6.pdf
 used_in: ["5e5a", "5e6a", "5f4"]
 datasheets:
   - publisher: RCA

@@ -50,3 +50,30 @@ other pin lands within 7.8 %. Nothing is disputed and nothing is excluded.
 The 6AT6 uses a purpose-built, public-domain model fitted to its RCA datasheet
 (triode section only); the two diode units play no part in the amplifier and are
 left unmodeled.
+
+## The heater layer: a link removed, and what the sheet shows
+
+The board drawing here used to close its heater chain with a link across the
+6AT6's two heater pins. Nothing on the F-EF sheet joins them, and the 6AT6 has
+two heater pins and no centre tap, so those two pins *are* the supply's two legs
+and a link between them is a short across it. The link is gone; a drawn pair
+already spans both of a socket's heater pins, so the chain's last hop never
+needed one.
+
+What the layout sheet does show, read at its full published resolution: the
+6AT6's heater pin 4 carries a short lead to a ground symbol, and pin 3 takes the
+feed. The schematic page draws the 6.3 V secondary marked *to all 6.3 volt
+heaters and pilot lite*, which states the connection rather than routing it.
+The 12AX7 is the socket that stops this board being declared, and it is worth
+saying precisely where the reading runs out. Two of its three heater facts are
+plain: pin 9 carries a lead up to a ground hatch, and a short bow outside the
+socket ties pins 4 and 5 together — between them the 6.3 V parallel grouping,
+ends strapped as one leg with the centre tap the other. What is not plain is a
+straight line leaving the pins-4/5 tie point and running right, which either
+lands on the cathode at pin 3 or merely grazes that terminal on its way to the
+6AT6's pin 3 further right. The second reading is the one the circuit wants —
+the 6AT6 has to be fed from somewhere, and a heater leg tied to a cathode with
+the other leg grounded would short the supply — but wanting is not reading, and
+a scan that cannot separate a landing from a crossing cannot settle it. So this
+board keeps its unestablished-heater marker until a copy that resolves that one
+junction turns up.
