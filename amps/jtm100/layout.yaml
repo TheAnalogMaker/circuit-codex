@@ -33,7 +33,7 @@ heaters_unsourced: >-
   amplifier; this board is derived from the factory schematic, so no factory
   drawing can establish its heater legs.
 
-caption: "Layout derived from the schematic — no factory layout sheet located. Marshall built the 100-watt heads on a turret board and documented them with a schematic (the 100 W drawing cited in meta.yaml), not a Fender-style dimensioned layout drawing. Board order and point-to-point wiring are reconstructed from schematic.kicad_sch / netlist.cir. All hookup leads are drawn in the neutral tone: with no layout sheet, no Marshall/Drake lead colours are asserted for the chassis wiring — the only lead colours the source states are the output transformer's secondary tags (blue 100 V line, white 16 Ω, yellow 8 Ω, orange common), and those are lettered at the transformer. The output quartet is drawn as the sheet wires it: two KT66s per phase, each valve with its own 1 kΩ · 5 W screen stopper, one 220 kΩ grid leak per pair, and a 15 kΩ grid stopper on only ONE valve of each pair (V5 and V8) while the other valve's grid taps the phase node directly. The HT supply is drawn the same way: two arms of three series silicon diodes and a reservoir of three series 32 µF pairs, with the 20 H choke feeding the screen node. Parts drawn off the board here: the tone-stack caps (C4/C5/C6) mount at the tone pots; the bright cap (C23) mounts across the channel II volume; the presence cap (C11) mounts at the presence pot; the input grid stoppers (68 kΩ) and 1 MΩ grid leaks (RG1/RG2) sit at the input jacks; the bias trimmer (VR6) is chassis-mounted across the 150 kΩ at the bias supply; the 20 H choke (L1) is a chassis part; and the negative-feedback resistor (RNFB) hangs between the speaker jacks and the presence node. The 6.3 V heater chain (green twisted pair, PT → pilot lamp → the four KT66 outputs → the ECC83 phase inverter → the ECC83 second stage → the ECC83 input) is likewise derived: with no layout sheet its daisy order is the physical socket order and the twisted-pair green is the house heater idiom, not a sourced wire colour. Not a trace or a dimensioned reproduction."
+caption: "Layout derived from the schematic — no factory layout sheet located. Marshall built the 100-watt heads on a turret board and documented them with a schematic (the 100 W drawing cited in meta.yaml), not a Fender-style dimensioned layout drawing. Board order and point-to-point wiring are reconstructed from schematic.kicad_sch / netlist.cir. All hookup leads are drawn in the neutral tone: with no layout sheet, no Marshall/Drake lead colours are asserted for the chassis wiring — the only lead colours the source states are the output transformer's secondary tags (blue 100 V line, white 16 Ω, yellow 8 Ω, orange common), and those are lettered at the transformer. The output quartet is drawn as the sheet wires it: two KT66s per phase, each valve with its own 1 kΩ · 5 W screen stopper, one 220 kΩ grid leak per pair, and a 15 kΩ grid stopper on only ONE valve of each pair (V5 and V8) while the other valve's grid taps the phase node directly. The HT supply is drawn the same way: two arms of three series silicon diodes and a reservoir of three series 32 µF pairs, with the 20 H choke feeding the screen node. The three tone-stack caps sit on the board beside the 56 kΩ slope resistor, each under its own control, and are wired as the drawing wires them: the 270 pF from the cathode-follower output to the treble pot's top lug, one 0.02 µF from the slope's foot to the treble-bottom / bass node, the other from the slope's foot into the middle pot's wiper. Parts drawn off the board here: the bright cap (C23) mounts across the channel II volume; the presence cap (C11) mounts at the presence pot; the input grid stoppers (68 kΩ) and 1 MΩ grid leaks (RG1/RG2) sit at the input jacks; the bias trimmer (VR6) is chassis-mounted across the 150 kΩ at the bias supply; the 20 H choke (L1) is a chassis part; and the negative-feedback resistor (RNFB) hangs between the speaker jacks and the presence node. The 6.3 V heater chain (green twisted pair, PT → pilot lamp → the four KT66 outputs → the ECC83 phase inverter → the ECC83 second stage → the ECC83 input) is likewise derived: with no layout sheet its daisy order is the physical socket order and the twisted-pair green is the house heater idiom, not a sourced wire colour. Not a trace or a dimensioned reproduction."
 source:
   desc: "Marshall 100-watt factory drawing, title block \"BASIC SCHEMATIC FOR MARSHALL 100 WATT SUPER TREM AMP / TYPE 1959T\" — layout derived from this schematic; no factory layout sheet located"
   url: "https://www.drtube.com/schematics/marshall/1959t-66.gif"
@@ -106,10 +106,13 @@ parts:
   - { ref: RGA,  a: [1, 80], b: [1, 81] }   # 1M PI(A) grid leak -> tail junction
   - { ref: C8,   a: [0, 81], b: [0, 83] }   # 0.1 µF PI(B) grid -> presence node
   - { ref: RGB,  a: [1, 82], b: [1, 83] }   # 1M PI(B) grid leak -> tail junction
-  - { ref: RTAIL, a: [0, 85], b: [1, 85] }  # 470 PI tail (vertical)
+  - { ref: RTAIL, a: [1, 85], b: [1, 86] }  # 470 PI tail along the lower row; its foot shares RT2's eyelet (the tail junction)
   - { ref: RT2,  a: [1, 86], b: [1, 87] }   # 10k tail junction -> presence-pot top
   # --- cathode-follower tone stack (slope + CF load; caps at the pots) -------
-  - { ref: RSL,  a: [1, 88], b: [1, 89] }   # 56k tone-stack slope
+  - { ref: RSL,  a: [1, 88], b: [1, 89] }   # 56k tone-stack slope (a = CF output, b = the slope foot)
+  - { ref: C4,   a: [0, 86], b: [0, 85] }   # 270 pF treble cap: CF output -> treble pot's top lug
+  - { ref: C5,   a: [0, 88], b: [0, 87] }   # 0.02 µF bass cap: slope foot -> treble-bottom / bass node
+  - { ref: C6,   a: [0, 88], b: [0, 89] }   # 0.02 µF middle cap: slope foot -> the middle pot's WIPER
   - { ref: RKCF, a: [0, 90], b: [1, 90] }   # 100k cathode-follower load (vertical)
   # --- channel mixers + V3 second stage --------------------------------------
   - { ref: RM1,  a: [1, 91], b: [1, 92] }   # 270k channel-I mixer
@@ -251,9 +254,8 @@ runs:
   - { from: RGB.a, to: V4.pin2, via: [[81.8, 1.6], [78.6, 2.0]] }     # 1M grid leak -> V4B grid
   - { from: RGB.b, to: RT2.a, via: [[82.6, 1.52], [85.7, 1.52]] }     # 1M grid leak -> tail junction
   - { from: C8.a, to: RGB.a, via: [[81.4, 0.62]] }                    # 0.1 µF -> V4B grid
-  - { from: V4.pin8, to: RTAIL.a, via: [[80.4, 1.5], [80.4, 0.68], [84.6, 0.68]] } # V4A cathode -> tail top
-  - { from: V4.pin3, to: RTAIL.a, via: [[77.8, 1.3], [77.8, 0.5], [84.4, 0.5]] }   # V4B cathode -> tail top
-  - { from: RTAIL.b, to: RT2.a, via: [[85.5, 1.05]] }                 # tail (JPI) -> junction
+  - { from: V4.pin8, to: RTAIL.a, via: [[80.4, 1.5], [80.4, 0.68], [84.5, 0.68]] } # V4A cathode -> tail top
+  - { from: V4.pin3, to: RTAIL.a, via: [[77.8, 1.3], [77.8, 0.5], [84.8, 0.5]] }   # V4B cathode -> tail top
   # The presence node: the 10k's far end, the 0.1 uF to the V4B grid, the 27k
   # feedback return and the top of the presence pot all meet here, and the pot
   # completes the tail's path to ground.
@@ -261,7 +263,7 @@ runs:
   - { from: VR7.lug3, to: C8.b, via: [[83.2, -0.42]] }
   - { from: VR7.lug1, to: [1.45, 84.2], via: [[83.9, -0.28], [84.2, 0.6]] }   # presence pot -> ground
 
-  # --- cathode-follower tone stack (C4/C5/C6 mount at the pots) -------------
+  # --- cathode-follower tone stack (C4/C5/C6 on the board) ------------------
   - { from: V3.pin3, to: RKCF.a, via: [[90.8, 1.5]] }         # CF cathode (KCF) -> 100k load
   - { from: RKCF.b, to: [1.45, 90] }                          # CF load -> ground
   - { from: V3.pin3, to: RSL.a, via: [[91.2, 1.75], [88.4, 1.6]] }   # CF cathode -> 56k slope
@@ -271,13 +273,15 @@ runs:
   # a rheostat (arrow-through-body on the drawing; wiper strapped here), the mid
   # cap feeds the MIDDLE POT'S WIPER, and the stack's output is the treble wiper
   # alone.
-  - { from: RSL.a, to: VR3.lug3, via: [[85.6, 0.4], [85.3, -0.5]] }   # node A -> 270 pF (at the pot) -> treble top
-  - { from: RSL.b, to: VR4.lug3, via: [[88.0, 0.35], [87.3, -0.5]] }  # slope foot -> 0.02 µF (at the pot) -> bass-cap node
+  - { from: RSL.a, to: C4.a, via: [[87.2, 0.5]] }                     # node A (CF output) -> 270 pF treble cap
+  - { from: C4.b, to: VR3.lug3 }                                      # 270 pF -> treble top
+  - { from: RSL.b, to: C5.a }                                         # slope foot (node B) -> the bass and middle caps' shared eyelet
+  - { from: C5.b, to: VR4.lug3 }                                      # 0.02 µF bass cap -> bass-cap node
   - { from: VR3.lug1, to: VR4.lug3, via: [[85.0, -0.72], [87.0, -0.72]] }  # treble bottom -> bass-cap node
   - { from: VR3.lug2, to: C7.a, via: [[85.0, -0.55], [74.5, -0.55]] }      # treble wiper (the output, alone) -> PI coupler
   - { from: VR4.lug2, to: VR4.lug3, via: [[87.15, -0.66], [87.15, -0.95], [87.56, -0.95]] }  # bass wiper strapped (rheostat)
   - { from: VR4.lug1, to: VR5.lug3, via: [[86.9, -0.55], [89.6, -0.55]] }  # bass foot -> middle top
-  - { from: RSL.b, to: VR5.lug2, via: [[88.6, 0.35], [88.6, -0.85], [89.5, -0.85]] }  # slope foot -> 0.02 µF (at the pot) -> the middle pot's WIPER
+  - { from: C6.b, to: VR5.lug2 }                                      # 0.02 µF middle cap -> the middle pot's WIPER
   - { from: VR5.lug1, to: [1.45, 89.5], via: [[89.5, -0.4], [89.5, 1.9]] } # middle ground
 
   # --- V3A second stage + V3B cathode follower + channel mixers ------------
