@@ -77,6 +77,7 @@ pages, BOMs, the house drawing — is house units style, unchanged.**
 | `bus` | list | — | **v2 wiring layer** — ground-bus segments (below) |
 | `net_map` | map | — | **v3** — reviewable data reconciling the drawn wiring with the DC netlist for the equivalence gate (below) |
 | `wiring_claim` | string | — | **v3** — set to `verified` to hard-gate the equivalence check in CI (below) |
+| `scope` | map | — | **v3** — board-scope declarations for the sheet ↔ board gate: `scope.not_drawn` rules naming, by glob, the parts this board does not draw and why (below) |
 | `wire_legend` | map | — | Overrides a colour's swatch label in the drawing's wiring legend (below) |
 | `leads` | list | — | Legacy soft visual leads (superseded by `runs`; kept for back-compat) |
 
@@ -863,6 +864,113 @@ nets exactly as `render_layouts` resolves them.
 An amp with no `heaters:` block prints `heaters NOT DECLARED`, lists its
 centre-tapped sockets, and is **not checked** — and its drawing correspondingly
 claims only the conductors its data names.
+
+### The sheet and the board are each other's gate (`verify_sheet_vs_board.py`)
+
+Both equivalence gates above are bounded by what `netlist.cir` models, and the
+netlist is a DC model: **1,280 of the corpus's ~2,300 BOM passives have no netlist
+element** — every cap with a lead inside an abstracted control network, every pot
+end, the bias front end, the reverb and tremolo networks — so both gates skip them
+by construction and say so in their scope lines. Nothing checked those parts
+until 2026-09-10.
+
+The schematic (`pipeline/draw_<id>.py`) and the board (`layout.yaml`) are
+authored independently, so their net partitions are each other's witness: two
+drawings of one circuit that disagree are wrong at least once, and the
+disagreement names the part. `pipeline/verify_sheet_vs_board.py` builds both net
+graphs, solves the mapping between them from the terminals both surfaces name,
+and reports every part on which the partitions differ. It needs no netlist.
+Nothing it prints says *which* surface is right — that is a source read — but it
+says exactly where to read.
+
+**Anchors** (terminals with one identity on both surfaces): the sheet's `<GND>`
+label ↔ the ground bus; a section's electrode ↔ a socket pin, through
+`reference/tubes` basing and the datasheet unit the sheet states for that
+section; pot wipers (`VRn.2` ↔ `VRn.lug2`); jack contacts (`cx:JACK` pin 1 ↔
+`J.tip`, pin 2 ↔ `J.sleeve`, for a sheet jack whose reference is a board jack id
+— a board that wires only the jack *body* anchors the sheet's tip to it softly
+and says so); and whatever `net_map.leads` declares (below). Two-terminal parts
+and pot ends are unordered pairs resolved from the anchors by majority voting, so
+a lone dissenter is the misplaced part and not the poisoner of everything on its
+net. A section ↔ unit swap is searched for on every dual-section socket, and
+reported once as `SECTION-SWAP` when exchanging the units removes at least two
+findings. Heater and filament pins and the pilot lamp are excluded —
+`check_heaters.py` owns them.
+
+**The datasheet unit lives on the sheet.** A draw script that states which half
+of the bottle a section draws (`s.triode("V1A", "12AX7", …, unit=2)`) now emits
+it as a hidden symbol property, `Basing_unit`, so the gate reads the sheet and
+not the script that drew it (the script is the fallback for a sheet not yet
+regenerated to carry it, and the scope line says which was used). A sheet drawn
+without `unit=` carries no such property and is byte-identical to before.
+
+**What the board declares** — four ways a part on the sheet may legitimately be
+absent from the board, each reviewable data, none inferred:
+
+```yaml
+net_map:
+  netlist_unplaced:   # reused: a netlist element realised off the board
+    RG1: "1 MΩ grid leak mounted at the input jack"
+  series_bridge:      # reused (layout net_map, or the sheet's sch_map.yaml): a
+                      # DC-transparent part the board does not place — its two
+                      # sheet nets are ONE board net, the conductor runs through
+    R1s: "68k grid stopper soldered at the socket lug"
+  not_on_board:       # per part: on the sheet, neither placed nor wired here
+    C4: "treble cap mounted at the pot, chassis side"
+  leads:              # sheet terminal -> board terminal, for what no name can
+                      # match: transformer pins are numbers on the sheet and
+                      # colours on the board; a label may be a key too
+    T2.1: T2.blue
+    T2.2: T2.red
+    "<TANK RET>": JTKO.tip
+scope:
+  not_drawn:          # board-scope rule, glob on the designator
+    - { match: "VR*", why: "control-panel wiring is not on the eyelet board" }
+```
+
+A part on the sheet that the board neither places nor wires and that none of
+these covers is `SHEET-ONLY … UNDECLARED`, a finding. A `not_on_board` entry
+naming a part the board wires, a `not_drawn` rule matching nothing, or a `leads`
+entry naming a terminal either surface lacks is a `STALE DECLARATION` finding —
+a declaration never rots unnoticed. A declaration never widens to bury a
+disagreement: a part the board *does* place is compared as a part whatever the
+declarations say.
+
+**Report classes**, one line each with the reason: `SECTION-SWAP` (per socket),
+`SPLIT` (anchored terminals on one sheet net drawn as >1 board net), `MERGED`
+(one board net carrying >1 sheet net — among anchors, or inferred when the
+majority of parts on a sheet net land on a board net that already realises
+another), `MISPLACED` (a part whose pair of nets differs, both surfaces' nets
+printed in canonical names, a dangling board lead named as such), `UNRESOLVED`
+(neither of a part's nets reaches an anchor — *not checked*), `SHEET-ONLY`
+(declared / UNDECLARED), `BOARD-ONLY`, `STALE DECLARATION`, and
+`POT-ORIENTATION` as information (a pot whose CW end the sheet draws at the
+bottom of its symbol).
+
+**Worklist and gate.** `--export` writes `reference/sheet-board.yaml` — per amp,
+the counts per class and the item lists — and a normal run **fails if that file
+is not what a fresh run produces**, the same drift gate `heaters.yaml`,
+`op-points.yaml` and `loadlines.yaml` carry. Findings themselves do not fail the
+build yet: the corpus was surveyed, not cleaned, when the gate landed (see the
+`summary` block of the worklist for the size of the job). `--strict` exits 1 on
+any finding on an amp whose `sch_map.yaml` `schematic_claim` **and**
+`layout.yaml` `wiring_claim` are both `verified`, and enters CI once the worklist
+is clean for those amps. `--selftest` plants, on temp copies of the 5C1 and 5D3
+(both clean at HEAD), a section swap (by swapped references and by a
+`Basing_unit` property), a cap lead moved to another eyelet, bridged pot wipers,
+a cut ground return, a deleted board part first undeclared, then declared per
+part, then covered by a rule, a stale declaration and a dead rule, and a `leads`
+map declared right, crossed and stale — and requires each caught and each clean
+case passing.
+
+```
+python3 pipeline/verify_sheet_vs_board.py            # every amp + worklist drift gate
+python3 pipeline/verify_sheet_vs_board.py 5f6a       # one amp, with reasons
+python3 pipeline/verify_sheet_vs_board.py --report   # + scope lines
+python3 pipeline/verify_sheet_vs_board.py --strict   # exit 1 on findings on claimed amps
+python3 pipeline/verify_sheet_vs_board.py --export   # rewrite reference/sheet-board.yaml
+python3 pipeline/verify_sheet_vs_board.py --selftest # planted-fault mutation test
+```
 
 ### Scope, printed honestly every run
 

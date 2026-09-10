@@ -84,6 +84,26 @@ python3 pipeline/check_heaters.py            # heater wiring vs the amp's own de
                                   #   saying so. Also gates the committed
                                   #   worklist reference/heaters.yaml against a
                                   #   fresh run; regenerate with --export.
+python3 pipeline/verify_sheet_vs_board.py --selftest && \
+python3 pipeline/verify_sheet_vs_board.py    # sheet<->board net equivalence over EVERY
+                                  #   part, no netlist: the two drawings are
+                                  #   authored independently and are each
+                                  #   other's witness over the ~1,280 passives
+                                  #   the DC netlist does not model (which both
+                                  #   equivalence gates skip by construction).
+                                  #   Tube pins, pot wipers, jack contacts and
+                                  #   <GND> anchor the two partitions; parts
+                                  #   resolve by majority vote; section<->unit
+                                  #   swaps are searched for. EXCLUDES heaters
+                                  #   and the pilot lamp (check_heaters owns
+                                  #   them) and lists what it could not anchor.
+                                  #   Findings are report-only: the worklist
+                                  #   reference/sheet-board.yaml is gated for
+                                  #   drift (regenerate with --export), and
+                                  #   --strict (exit 1 on findings on amps whose
+                                  #   sheet AND board claim verified) enters CI
+                                  #   once that worklist is clean for them.
+                                  #   Declarations: docs/layout-schema.md.
 python3 pipeline/check_architectures.py --selftest && \
 python3 pipeline/check_architectures.py     # reference architectures partition the
                                             #   corpus; each one's claims checked

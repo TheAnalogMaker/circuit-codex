@@ -42,6 +42,15 @@ from pathlib import Path
 
 FONT = "(effects (font (size 1.27 1.27)))"
 FONT_L = "(effects (font (size 1.27 1.27)) (justify left))"
+FONT_HIDDEN = "(effects (font (size 1.27 1.27)) hide)"
+# The symbol property a valve carries when its draw script states the datasheet
+# unit the section draws (`s.triode("V1A", "12AX7", …, unit=2)`). It is data
+# about the DRAWING — which half of the bottle this symbol is — and a gate
+# that compares the sheet to the board (verify_sheet_vs_board.py) needs it
+# from the sheet, not from the script that drew it. Hidden, so it renders
+# nowhere; a sheet drawn without `unit=` carries no such property and is
+# byte-identical to what it was before this existed.
+UNIT_PROPERTY = "Basing_unit"
 
 # Outline weight is decided per SHEET, not per symbol (see `ink_width()`), so
 # the library is built once with a token where the width goes and stamped at
@@ -1599,10 +1608,14 @@ class Sch:
                 lib, ref, val, rot, pa, mirror, spec = extra
                 mir = f" (mirror {mirror})" if mirror else ""
                 (x, y), (px, py) = p
+                unit = self._units.get(ref) if lib in _ELEMENT_ROLES else None
+                unit_prop = "" if unit is None else (
+                    f'\n    (property "{UNIT_PROPERTY}" "{_esc(str(unit))}" '
+                    f'(at {px:g} {py + 4.8:g} {pa}) {FONT_HIDDEN})')
                 out.append(f"""  (symbol (lib_id "cx:{lib}") (at {x:g} {y:g} {rot}){mir} (unit 1)
     (in_bom yes) (on_board yes) (uuid "{_u()}")
     (property "Reference" "{_esc(ref)}" (at {px:g} {py:g} {pa}) {FONT_L})
-    (property "Value" "{_esc(val)}" (at {px:g} {py + 2.4:g} {pa}) {FONT_L}))""")
+    (property "Value" "{_esc(val)}" (at {px:g} {py + 2.4:g} {pa}) {FONT_L}){unit_prop})""")
                 if spec:
                     out.append(_text_sexpr(spec, px, py + 4.8, 1.1))
             elif kind == "wire":

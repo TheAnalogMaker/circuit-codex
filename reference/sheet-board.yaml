@@ -1,0 +1,1783 @@
+# GENERATED - pipeline/verify_sheet_vs_board.py --export. Do not hand-edit; a
+# run that disagrees with this file fails the gate, the same way
+# reference/heaters.yaml, op-points.yaml and loadlines.yaml are held to what a
+# fresh run produces.
+#
+# WHAT THIS IS. The schematic and the board layout of each amplifier are two
+# independent drawings of one circuit, and over the ~1,280 passives the DC
+# netlist does not model they were compared by nothing until this gate landed.
+# This file is the standing list of every part on which the two drawings
+# DISAGREE, per amplifier and per class (see the gate's docstring for the
+# classes). Nothing here says which drawing is right: each entry needs a read of
+# that amplifier's own source before either surface is edited.
+#
+# HOW TO READ IT. `section_swap` names a socket whose sections the sheet letters
+# on the opposite datasheet unit to the board. `split` / `merged` are anchored
+# terminals (tube pins, pot wipers, jack contacts, ground) grouped as one net on
+# one surface and more than one on the other. `misplaced` are two-terminal
+# parts (and pot end pairs, `VRn#ends`) whose pair of nets differs between the
+# surfaces. `sheet_only_undeclared` are parts the sheet draws and the board
+# neither places nor wires, with no declaration saying why (net_map.not_on_board
+# or a scope.not_drawn rule in layout.yaml); `sheet_only_declared` are the ones
+# that are explained. `unresolved` are parts neither surface anchors, so they
+# are NOT checked. `pot_orientation_flipped` is information only.
+#
+# CLEARING AN ENTRY. Read the amplifier's own sheet, correct the surface that is
+# wrong (draw_<id>.py or layout.yaml), regenerate, and re-export. The `summary`
+# is the size of the job; `--strict` enters CI once it is clean for every amp
+# whose sheet and board both claim verified.
+amps:
+  5c1:
+    board_only: []
+    claimed: true
+    counts:
+      anchors: 12
+      board_only: 0
+      merged: 0
+      misplaced: 0
+      pot_orientation_flipped: 0
+      section_swap: 0
+      sheet_only_declared: 0
+      sheet_only_undeclared: 0
+      split: 0
+      stale_declarations: 0
+      two_terminal_checked: 16
+      unresolved: 0
+    merged: []
+    misplaced: []
+    pot_orientation_flipped: []
+    section_swap: []
+    sheet_only_declared: []
+    sheet_only_undeclared: []
+    split: []
+    stale_declarations: []
+    unresolved: []
+  5d3:
+    board_only: []
+    claimed: true
+    counts:
+      anchors: 26
+      board_only: 0
+      merged: 0
+      misplaced: 0
+      pot_orientation_flipped: 1
+      section_swap: 0
+      sheet_only_declared: 3
+      sheet_only_undeclared: 0
+      split: 0
+      stale_declarations: 0
+      two_terminal_checked: 31
+      unresolved: 0
+    merged: []
+    misplaced: []
+    pot_orientation_flipped:
+    - VR2
+    section_swap: []
+    sheet_only_declared:
+    - RG1
+    - RG2
+    - RG3
+    sheet_only_undeclared: []
+    split: []
+    stale_declarations: []
+    unresolved: []
+  5e1:
+    board_only: []
+    claimed: true
+    counts:
+      anchors: 14
+      board_only: 0
+      merged: 0
+      misplaced: 1
+      pot_orientation_flipped: 0
+      section_swap: 0
+      sheet_only_declared: 0
+      sheet_only_undeclared: 1
+      split: 0
+      stale_declarations: 0
+      two_terminal_checked: 19
+      unresolved: 0
+    merged: []
+    misplaced:
+    - R11
+    pot_orientation_flipped: []
+    section_swap: []
+    sheet_only_declared: []
+    sheet_only_undeclared:
+    - L1
+    split: []
+    stale_declarations: []
+    unresolved: []
+  5e3:
+    board_only: []
+    claimed: true
+    counts:
+      anchors: 26
+      board_only: 0
+      merged: 0
+      misplaced: 0
+      pot_orientation_flipped: 0
+      section_swap: 0
+      sheet_only_declared: 4
+      sheet_only_undeclared: 2
+      split: 0
+      stale_declarations: 0
+      two_terminal_checked: 28
+      unresolved: 1
+    merged: []
+    misplaced: []
+    pot_orientation_flipped: []
+    section_swap: []
+    sheet_only_declared:
+    - R3s
+    - R4s
+    - RG1
+    - RG2
+    sheet_only_undeclared:
+    - C5
+    - C6
+    split: []
+    stale_declarations: []
+    unresolved:
+    - VR3#ends
+  5e4a:
+    board_only:
+    - VRP
+    claimed: true
+    counts:
+      anchors: 33
+      board_only: 1
+      merged: 0
+      misplaced: 3
+      pot_orientation_flipped: 1
+      section_swap: 0
+      sheet_only_declared: 0
+      sheet_only_undeclared: 1
+      split: 0
+      stale_declarations: 0
+      two_terminal_checked: 51
+      unresolved: 0
+    merged: []
+    misplaced:
+    - D1
+    - RG1
+    - RG2
+    pot_orientation_flipped:
+    - VR4
+    section_swap: []
+    sheet_only_declared: []
+    sheet_only_undeclared:
+    - L1
+    split: []
+    stale_declarations: []
+    unresolved: []
+  5e5a:
+    board_only: []
+    claimed: true
+    counts:
+      anchors: 26
+      board_only: 0
+      merged: 1
+      misplaced: 4
+      pot_orientation_flipped: 0
+      section_swap: 1
+      sheet_only_declared: 1
+      sheet_only_undeclared: 5
+      split: 0
+      stale_declarations: 0
+      two_terminal_checked: 42
+      unresolved: 0
+    merged:
+    - - - V3.pin7
+      - - VR3.lug2
+      - - VR4.lug2
+    misplaced:
+    - D1
+    - RG1
+    - RG2
+    - VR3#ends
+    pot_orientation_flipped: []
+    section_swap:
+    - V3
+    sheet_only_declared:
+    - RCHOKE
+    sheet_only_undeclared:
+    - C9
+    - RBLEED
+    - RFB1
+    - RNF
+    - VR5
+    split: []
+    stale_declarations: []
+    unresolved: []
+  5e6a:
+    board_only: []
+    claimed: true
+    counts:
+      anchors: 19
+      board_only: 0
+      merged: 0
+      misplaced: 4
+      pot_orientation_flipped: 0
+      section_swap: 0
+      sheet_only_declared: 0
+      sheet_only_undeclared: 2
+      split: 0
+      stale_declarations: 0
+      two_terminal_checked: 50
+      unresolved: 0
+    merged: []
+    misplaced:
+    - C14
+    - C4
+    - RNF
+    - VR4#ends
+    pot_orientation_flipped: []
+    section_swap: []
+    sheet_only_declared: []
+    sheet_only_undeclared:
+    - CPR
+    - VR3
+    split: []
+    stale_declarations: []
+    unresolved: []
+  5f1:
+    board_only: []
+    claimed: true
+    counts:
+      anchors: 14
+      board_only: 0
+      merged: 0
+      misplaced: 1
+      pot_orientation_flipped: 0
+      section_swap: 0
+      sheet_only_declared: 0
+      sheet_only_undeclared: 2
+      split: 0
+      stale_declarations: 0
+      two_terminal_checked: 18
+      unresolved: 0
+    merged: []
+    misplaced:
+    - R1
+    pot_orientation_flipped: []
+    section_swap: []
+    sheet_only_declared: []
+    sheet_only_undeclared:
+    - C2
+    - C4
+    split: []
+    stale_declarations: []
+    unresolved: []
+  5f10:
+    board_only: []
+    claimed: true
+    counts:
+      anchors: 22
+      board_only: 0
+      merged: 0
+      misplaced: 2
+      pot_orientation_flipped: 0
+      section_swap: 0
+      sheet_only_declared: 2
+      sheet_only_undeclared: 3
+      split: 0
+      stale_declarations: 0
+      two_terminal_checked: 29
+      unresolved: 0
+    merged: []
+    misplaced:
+    - R1s
+    - VR2#ends
+    pot_orientation_flipped: []
+    section_swap: []
+    sheet_only_declared:
+    - Rs1
+    - Rs2
+    sheet_only_undeclared:
+    - C3
+    - C4
+    - D1
+    split: []
+    stale_declarations: []
+    unresolved: []
+  5f2a:
+    board_only: []
+    claimed: true
+    counts:
+      anchors: 15
+      board_only: 0
+      merged: 2
+      misplaced: 1
+      pot_orientation_flipped: 2
+      section_swap: 0
+      sheet_only_declared: 0
+      sheet_only_undeclared: 3
+      split: 0
+      stale_declarations: 0
+      two_terminal_checked: 22
+      unresolved: 0
+    merged:
+    - - - V1.pin2
+        - VR1.lug2
+      - - VR2.lug2
+    - - C2
+      - VR1#ends
+    misplaced:
+    - R3
+    pot_orientation_flipped:
+    - VR1
+    - VR2
+    section_swap: []
+    sheet_only_declared: []
+    sheet_only_undeclared:
+    - C11
+    - C3
+    - C4
+    split: []
+    stale_declarations: []
+    unresolved: []
+  5f4:
+    board_only: []
+    claimed: true
+    counts:
+      anchors: 34
+      board_only: 0
+      merged: 0
+      misplaced: 3
+      pot_orientation_flipped: 1
+      section_swap: 1
+      sheet_only_declared: 0
+      sheet_only_undeclared: 1
+      split: 0
+      stale_declarations: 0
+      two_terminal_checked: 54
+      unresolved: 0
+    merged: []
+    misplaced:
+    - D1
+    - RG1
+    - RG2
+    pot_orientation_flipped:
+    - VR4
+    section_swap:
+    - V3
+    sheet_only_declared: []
+    sheet_only_undeclared:
+    - L1
+    split: []
+    stale_declarations: []
+    unresolved: []
+  5f6:
+    board_only: []
+    claimed: true
+    counts:
+      anchors: 35
+      board_only: 0
+      merged: 0
+      misplaced: 3
+      pot_orientation_flipped: 0
+      section_swap: 0
+      sheet_only_declared: 0
+      sheet_only_undeclared: 5
+      split: 0
+      stale_declarations: 0
+      two_terminal_checked: 53
+      unresolved: 0
+    merged: []
+    misplaced:
+    - D1
+    - RG1
+    - RG2
+    pot_orientation_flipped: []
+    section_swap: []
+    sheet_only_declared: []
+    sheet_only_undeclared:
+    - C14
+    - C15
+    - C16
+    - C17
+    - L1
+    split: []
+    stale_declarations: []
+    unresolved: []
+  5f6a:
+    board_only: []
+    claimed: true
+    counts:
+      anchors: 36
+      board_only: 0
+      merged: 0
+      misplaced: 0
+      pot_orientation_flipped: 0
+      section_swap: 1
+      sheet_only_declared: 1
+      sheet_only_undeclared: 6
+      split: 0
+      stale_declarations: 0
+      two_terminal_checked: 46
+      unresolved: 0
+    merged: []
+    misplaced: []
+    pot_orientation_flipped: []
+    section_swap:
+    - V3
+    sheet_only_declared:
+    - RKCF
+    sheet_only_undeclared:
+    - C15b
+    - C7
+    - D1
+    - L1
+    - R1s
+    - R2s
+    split: []
+    stale_declarations: []
+    unresolved: []
+  5f8a:
+    board_only: []
+    claimed: false
+    counts:
+      anchors: 44
+      board_only: 0
+      merged: 0
+      misplaced: 6
+      pot_orientation_flipped: 0
+      section_swap: 1
+      sheet_only_declared: 1
+      sheet_only_undeclared: 5
+      split: 0
+      stale_declarations: 0
+      two_terminal_checked: 55
+      unresolved: 0
+    merged: []
+    misplaced:
+    - C14
+    - C7
+    - D1
+    - RNF
+    - RT2
+    - VR6#ends
+    pot_orientation_flipped: []
+    section_swap:
+    - V3
+    sheet_only_declared:
+    - RKCF
+    sheet_only_undeclared:
+    - C11
+    - C11b
+    - C12
+    - C13
+    - L1
+    split: []
+    stale_declarations: []
+    unresolved: []
+  5g9:
+    board_only: []
+    claimed: false
+    counts:
+      anchors: 33
+      board_only: 0
+      merged: 0
+      misplaced: 8
+      pot_orientation_flipped: 1
+      section_swap: 0
+      sheet_only_declared: 2
+      sheet_only_undeclared: 5
+      split: 1
+      stale_declarations: 0
+      two_terminal_checked: 49
+      unresolved: 0
+    merged: []
+    misplaced:
+    - C14
+    - CK3
+    - D1
+    - R11
+    - R12
+    - R8
+    - RK3
+    - VR5#ends
+    pot_orientation_flipped:
+    - VR2
+    section_swap: []
+    sheet_only_declared:
+    - RG1
+    - RG2
+    sheet_only_undeclared:
+    - L1
+    - R1n
+    - R2n
+    - R3n
+    - R4n
+    split:
+    - - - GND
+        - V4.pin8
+        - V5.pin8
+      - - V3.pin8
+    stale_declarations: []
+    unresolved: []
+  '6161':
+    board_only: []
+    claimed: true
+    counts:
+      anchors: 29
+      board_only: 0
+      merged: 0
+      misplaced: 0
+      pot_orientation_flipped: 0
+      section_swap: 2
+      sheet_only_declared: 0
+      sheet_only_undeclared: 6
+      split: 0
+      stale_declarations: 0
+      two_terminal_checked: 59
+      unresolved: 0
+    merged: []
+    misplaced: []
+    pot_orientation_flipped: []
+    section_swap:
+    - V1
+    - V2
+    sheet_only_declared: []
+    sheet_only_undeclared:
+    - CB1
+    - CB2
+    - CIN1
+    - CIN2
+    - RMX1
+    - RMX2
+    split: []
+    stale_declarations: []
+    unresolved: []
+  6g2:
+    board_only: []
+    claimed: true
+    counts:
+      anchors: 25
+      board_only: 0
+      merged: 0
+      misplaced: 0
+      pot_orientation_flipped: 2
+      section_swap: 0
+      sheet_only_declared: 2
+      sheet_only_undeclared: 2
+      split: 0
+      stale_declarations: 0
+      two_terminal_checked: 35
+      unresolved: 0
+    merged: []
+    misplaced: []
+    pot_orientation_flipped:
+    - VR1
+    - VR4
+    section_swap: []
+    sheet_only_declared:
+    - RG1
+    - RG2
+    sheet_only_undeclared:
+    - R1
+    - R2
+    split: []
+    stale_declarations: []
+    unresolved: []
+  6g3:
+    board_only: []
+    claimed: true
+    counts:
+      anchors: 36
+      board_only: 0
+      merged: 1
+      misplaced: 4
+      pot_orientation_flipped: 0
+      section_swap: 1
+      sheet_only_declared: 2
+      sheet_only_undeclared: 12
+      split: 0
+      stale_declarations: 0
+      two_terminal_checked: 51
+      unresolved: 0
+    merged:
+    - - C16
+      - C17
+    misplaced:
+    - R9
+    - RG4
+    - RG5
+    - VR5#ends
+    pot_orientation_flipped: []
+    section_swap:
+    - V3
+    sheet_only_declared:
+    - RG1
+    - RG2
+    sheet_only_undeclared:
+    - C21
+    - C22
+    - C23
+    - C24
+    - C5
+    - C6
+    - C7
+    - C8
+    - R1n
+    - R2n
+    - R3n
+    - R4n
+    split: []
+    stale_declarations: []
+    unresolved: []
+  6g4:
+    board_only: []
+    claimed: true
+    counts:
+      anchors: 21
+      board_only: 0
+      merged: 0
+      misplaced: 7
+      pot_orientation_flipped: 0
+      section_swap: 1
+      sheet_only_declared: 2
+      sheet_only_undeclared: 25
+      split: 0
+      stale_declarations: 0
+      two_terminal_checked: 35
+      unresolved: 2
+    merged: []
+    misplaced:
+    - C10
+    - CPRES
+    - DBIAS
+    - RBIAS1
+    - RNFB
+    - RPF
+    - RT2
+    pot_orientation_flipped: []
+    section_swap:
+    - V5
+    sheet_only_declared:
+    - RG1I
+    - RG2I
+    sheet_only_undeclared:
+    - CH1
+    - CT1
+    - CT2
+    - CTO1
+    - CTO2
+    - CTOFB
+    - R1a
+    - R1b
+    - R2a
+    - R2b
+    - RINT
+    - RS1T
+    - RS2T
+    - RSL1
+    - RSL2
+    - RTO1
+    - RTOFB
+    - VRB1
+    - VRB2
+    - VRINT
+    - VRSPD
+    - VRT1
+    - VRT2
+    - VRV1
+    - VRV2
+    split: []
+    stale_declarations: []
+    unresolved:
+    - RL1I
+    - RL2I
+  6g5:
+    board_only: []
+    claimed: true
+    counts:
+      anchors: 33
+      board_only: 0
+      merged: 1
+      misplaced: 2
+      pot_orientation_flipped: 0
+      section_swap: 0
+      sheet_only_declared: 3
+      sheet_only_undeclared: 43
+      split: 1
+      stale_declarations: 0
+      two_terminal_checked: 32
+      unresolved: 1
+    merged:
+    - - - GND
+        - V7.pin8
+        - V8.pin8
+      - - JSPK.sleeve
+    misplaced:
+    - CF4
+    - CF5
+    pot_orientation_flipped: []
+    section_swap: []
+    sheet_only_declared:
+    - RG1A
+    - RG2A
+    - RPRES
+    sheet_only_undeclared:
+    - CBIAS
+    - CF1
+    - CF2
+    - CF3
+    - CF6
+    - CF7
+    - CFB1
+    - CPID
+    - CPRES
+    - CT1
+    - CT2
+    - CTO1
+    - CTO2
+    - CTO3
+    - CTOK
+    - D1
+    - D2
+    - D3
+    - D4
+    - DBIAS
+    - F1
+    - L1
+    - R1N
+    - R2N
+    - RD1
+    - RD2
+    - RF1
+    - RF2
+    - RFB1
+    - RFB2
+    - RFB3
+    - RNFB
+    - RTOG1
+    - RTOG2
+    - RTOK
+    - RTOP
+    - VRB1
+    - VRB2
+    - VRINT
+    - VRPRES
+    - VRSPD
+    - VRT1
+    - VRT2
+    split:
+    - - - GND
+        - V7.pin8
+        - V8.pin8
+      - - JVIB.sleeve
+    stale_declarations: []
+    unresolved:
+    - RL5
+  6g6b:
+    board_only: []
+    claimed: true
+    counts:
+      anchors: 37
+      board_only: 0
+      merged: 0
+      misplaced: 6
+      pot_orientation_flipped: 0
+      section_swap: 0
+      sheet_only_declared: 0
+      sheet_only_undeclared: 2
+      split: 0
+      stale_declarations: 0
+      two_terminal_checked: 74
+      unresolved: 1
+    merged: []
+    misplaced:
+    - C13
+    - CTN2
+    - CTN3
+    - DB1
+    - RB2
+    - RM2
+    pot_orientation_flipped: []
+    section_swap: []
+    sheet_only_declared: []
+    sheet_only_undeclared:
+    - C14
+    - RD3
+    split: []
+    stale_declarations: []
+    unresolved:
+    - RB1
+  aa1164:
+    board_only: []
+    claimed: true
+    counts:
+      anchors: 34
+      board_only: 0
+      merged: 0
+      misplaced: 0
+      pot_orientation_flipped: 0
+      section_swap: 2
+      sheet_only_declared: 0
+      sheet_only_undeclared: 34
+      split: 0
+      stale_declarations: 0
+      two_terminal_checked: 38
+      unresolved: 0
+    merged: []
+    misplaced: []
+    pot_orientation_flipped: []
+    section_swap:
+    - V3
+    - V4
+    sheet_only_declared: []
+    sheet_only_undeclared:
+    - CB1
+    - CB2
+    - CB3
+    - CC2
+    - CCR1
+    - CDEATH
+    - CINT
+    - CKTO
+    - CMIX
+    - CT
+    - CTO1
+    - CTO2
+    - CTO3
+    - CTO4
+    - DB1
+    - F1
+    - R1a
+    - R1b
+    - RB1
+    - RB2
+    - RH1
+    - RH2
+    - RKTO
+    - RS
+    - RSL
+    - RSPD
+    - RTO1
+    - RTO2
+    - RTOP
+    - RTOUT
+    - VRB
+    - VRINT
+    - VRSPD
+    - VRT
+    split: []
+    stale_declarations: []
+    unresolved: []
+  aa764:
+    board_only: []
+    claimed: true
+    counts:
+      anchors: 16
+      board_only: 0
+      merged: 0
+      misplaced: 3
+      pot_orientation_flipped: 2
+      section_swap: 0
+      sheet_only_declared: 0
+      sheet_only_undeclared: 1
+      split: 0
+      stale_declarations: 0
+      two_terminal_checked: 28
+      unresolved: 0
+    merged: []
+    misplaced:
+    - C3
+    - R3
+    - VR3#ends
+    pot_orientation_flipped:
+    - VR1
+    - VR2
+    section_swap: []
+    sheet_only_declared: []
+    sheet_only_undeclared:
+    - C11
+    split: []
+    stale_declarations: []
+    unresolved: []
+  aa764-vibro:
+    board_only: []
+    claimed: true
+    counts:
+      anchors: 18
+      board_only: 0
+      merged: 0
+      misplaced: 3
+      pot_orientation_flipped: 2
+      section_swap: 0
+      sheet_only_declared: 0
+      sheet_only_undeclared: 10
+      split: 0
+      stale_declarations: 0
+      two_terminal_checked: 29
+      unresolved: 0
+    merged: []
+    misplaced:
+    - C3
+    - R3
+    - VR3#ends
+    pot_orientation_flipped:
+    - VR1
+    - VR2
+    section_swap: []
+    sheet_only_declared: []
+    sheet_only_undeclared:
+    - C11
+    - C15
+    - C16
+    - R21
+    - R22
+    - R23
+    - R24
+    - R25
+    - R26
+    - R27
+    split: []
+    stale_declarations: []
+    unresolved: []
+  aa864-bassman:
+    board_only: []
+    claimed: true
+    counts:
+      anchors: 34
+      board_only: 0
+      merged: 2
+      misplaced: 8
+      pot_orientation_flipped: 3
+      section_swap: 3
+      sheet_only_declared: 0
+      sheet_only_undeclared: 1
+      split: 0
+      stale_declarations: 0
+      two_terminal_checked: 84
+      unresolved: 1
+    merged:
+    - - - GND
+        - V5.pin8
+        - V6.pin8
+      - - VRBB.lug2
+    - - CBN2
+      - RSLN
+    misplaced:
+    - CBB1
+    - CBB3
+    - CBN
+    - CBRN
+    - VRBB#ends
+    - VRBN#ends
+    - VRTB#ends
+    - VRTN#ends
+    pot_orientation_flipped:
+    - VRBIAS
+    - VRVB
+    - VRVN
+    section_swap:
+    - V1
+    - V2
+    - V4
+    sheet_only_declared: []
+    sheet_only_undeclared:
+    - T2
+    split: []
+    stale_declarations: []
+    unresolved:
+    - FUSE
+  aa964:
+    board_only: []
+    claimed: true
+    counts:
+      anchors: 33
+      board_only: 0
+      merged: 1
+      misplaced: 3
+      pot_orientation_flipped: 2
+      section_swap: 2
+      sheet_only_declared: 1
+      sheet_only_undeclared: 8
+      split: 0
+      stale_declarations: 0
+      two_terminal_checked: 45
+      unresolved: 0
+    merged:
+    - - CB2
+      - RBL
+    misplaced:
+    - CB1
+    - VRB#ends
+    - VRT#ends
+    pot_orientation_flipped:
+    - VRSPD
+    - VRV
+    section_swap:
+    - V1
+    - V2
+    sheet_only_declared:
+    - RG1A
+    sheet_only_undeclared:
+    - CBIAS
+    - CDEATH
+    - DBIAS
+    - FUSE
+    - R1n
+    - R2n
+    - RB
+    - RBF
+    split: []
+    stale_declarations: []
+    unresolved: []
+  ab165:
+    board_only: []
+    claimed: true
+    counts:
+      anchors: 29
+      board_only: 0
+      merged: 0
+      misplaced: 0
+      pot_orientation_flipped: 0
+      section_swap: 3
+      sheet_only_declared: 2
+      sheet_only_undeclared: 41
+      split: 0
+      stale_declarations: 0
+      two_terminal_checked: 44
+      unresolved: 0
+    merged: []
+    misplaced: []
+    pot_orientation_flipped: []
+    section_swap:
+    - V1
+    - V2
+    - V4
+    sheet_only_declared:
+    - RGB1
+    - RGN1
+    sheet_only_undeclared:
+    - C10
+    - C11
+    - C12
+    - C13
+    - C14
+    - C15
+    - CB1
+    - CB2
+    - CBB
+    - CBB2
+    - CBN
+    - CBN2
+    - CBRN
+    - CDEATH
+    - CDEEP
+    - CTB
+    - CTN
+    - D1
+    - D2
+    - DBIAS
+    - F1
+    - R1b
+    - R1n
+    - R2b
+    - R2n
+    - RBAL1
+    - RBAL2
+    - RBB1
+    - RBB2
+    - RBB3
+    - RBIAS
+    - RSB
+    - RSLB
+    - RSLN
+    - RSN
+    - TR2
+    - VRBAL
+    - VRBB
+    - VRBN
+    - VRTB
+    - VRTN
+    split: []
+    stale_declarations: []
+    unresolved: []
+  ab763:
+    board_only: []
+    claimed: true
+    counts:
+      anchors: 41
+      board_only: 0
+      merged: 2
+      misplaced: 0
+      pot_orientation_flipped: 0
+      section_swap: 1
+      sheet_only_declared: 2
+      sheet_only_undeclared: 53
+      split: 0
+      stale_declarations: 0
+      two_terminal_checked: 37
+      unresolved: 0
+    merged:
+    - - - V3.pin7
+      - - VRREV.lug2
+    - - C11
+      - RS1
+      - RS2
+    misplaced: []
+    pot_orientation_flipped: []
+    section_swap:
+    - V3
+    sheet_only_declared:
+    - RGN1
+    - RGV1
+    sheet_only_undeclared:
+    - CB1
+    - CB2
+    - CBD1
+    - CBN
+    - CBN2
+    - CBRV
+    - CBV
+    - CBV2
+    - CCD1
+    - CCR1
+    - CCV2
+    - CDEATH
+    - CPIA
+    - CPIB
+    - CRS
+    - CTN
+    - CTO1
+    - CTO2
+    - CTO3
+    - CTV
+    - DBIAS
+    - R1n
+    - R1v
+    - R2n
+    - R2v
+    - RBAL
+    - RBIAS
+    - RGR1
+    - RINT
+    - RKTO1
+    - RKTO2
+    - RMD1
+    - RMR
+    - RNF2
+    - RNFB
+    - RSLN
+    - RSLV
+    - RSN
+    - RSV
+    - RTO1
+    - RTO10
+    - RTO2
+    - RTOG
+    - RTOG2
+    - RTOG3
+    - T2
+    - VRBAL
+    - VRBN
+    - VRBV
+    - VRINT
+    - VRSPD
+    - VRTN
+    - VRTV
+    split: []
+    stale_declarations: []
+    unresolved: []
+  ab763-super:
+    board_only: []
+    claimed: true
+    counts:
+      anchors: 46
+      board_only: 0
+      merged: 2
+      misplaced: 2
+      pot_orientation_flipped: 0
+      section_swap: 2
+      sheet_only_declared: 2
+      sheet_only_undeclared: 47
+      split: 0
+      stale_declarations: 0
+      two_terminal_checked: 39
+      unresolved: 0
+    merged:
+    - - - V3.pin2
+      - - VRREV.lug2
+    - - RGL1
+      - RGL2
+    misplaced:
+    - RBL1
+    - RBL2
+    pot_orientation_flipped: []
+    section_swap:
+    - V1
+    - V2
+    sheet_only_declared:
+    - RGN1
+    - RGV1
+    sheet_only_undeclared:
+    - CBD1
+    - CBIAS
+    - CBN
+    - CBN2
+    - CBRN
+    - CBRV
+    - CBV
+    - CBV2
+    - CCD1
+    - CCN2
+    - CCR1
+    - CCV2
+    - CKTO1
+    - CPIA
+    - CPIB
+    - CRS
+    - CTN
+    - CTO1
+    - CTO2
+    - CTV
+    - DBIAS
+    - R1n
+    - R1v
+    - R2n
+    - R2v
+    - RBIAS
+    - RGR1
+    - RINT
+    - RKTO1
+    - RMD1
+    - RMR
+    - RMR2
+    - RNFB
+    - RSLN
+    - RSN
+    - RSV
+    - RTO1
+    - RTO2
+    - RTOG
+    - T2
+    - VRBN
+    - VRBV
+    - VRINT
+    - VRMV
+    - VRSPD
+    - VRTN
+    - VRTV
+    split: []
+    stale_declarations: []
+    unresolved: []
+  ab763-twin:
+    board_only: []
+    claimed: true
+    counts:
+      anchors: 50
+      board_only: 0
+      merged: 0
+      misplaced: 1
+      pot_orientation_flipped: 0
+      section_swap: 1
+      sheet_only_declared: 3
+      sheet_only_undeclared: 60
+      split: 0
+      stale_declarations: 0
+      two_terminal_checked: 41
+      unresolved: 0
+    merged: []
+    misplaced:
+    - RGR1
+    pot_orientation_flipped: []
+    section_swap:
+    - V4
+    sheet_only_declared:
+    - RGN1
+    - RGV1
+    - RTOG4
+    sheet_only_undeclared:
+    - C10
+    - C11
+    - C12
+    - C13
+    - C14
+    - CB1
+    - CBD1
+    - CBN
+    - CBN2
+    - CBRN
+    - CBRV
+    - CBV
+    - CBV2
+    - CCD1
+    - CCN2
+    - CCR1
+    - CCV2
+    - CDEATH
+    - CKTO1
+    - CKTO2
+    - CPIA
+    - CPIB
+    - CRS
+    - CTN
+    - CTO1
+    - CTO2
+    - CTO3
+    - CTV
+    - DBIAS
+    - DHTA
+    - DHTB
+    - R1n
+    - R1v
+    - R2n
+    - R2v
+    - RB2
+    - RBAL1
+    - RBAL2
+    - RBIAS
+    - RKTO1
+    - RKTO2
+    - RLAMP
+    - RMIXN
+    - RMIXV
+    - RMR
+    - RSN
+    - RSV
+    - RTO1
+    - RTO10
+    - RTOG1
+    - RTOG2
+    - RTOG3
+    - RTOSP
+    - T2
+    - VRBN
+    - VRBV
+    - VRMN
+    - VRMV
+    - VRTN
+    - VRTV
+    split: []
+    stale_declarations: []
+    unresolved: []
+  ac15:
+    board_only: []
+    claimed: true
+    counts:
+      anchors: 29
+      board_only: 0
+      merged: 0
+      misplaced: 0
+      pot_orientation_flipped: 0
+      section_swap: 0
+      sheet_only_declared: 0
+      sheet_only_undeclared: 16
+      split: 0
+      stale_declarations: 0
+      two_terminal_checked: 35
+      unresolved: 0
+    merged: []
+    misplaced: []
+    pot_orientation_flipped: []
+    section_swap: []
+    sheet_only_declared: []
+    sheet_only_undeclared:
+    - CBR
+    - CF3
+    - CH1
+    - CKV1
+    - CVC
+    - F1
+    - RD3
+    - RG2
+    - RGS2
+    - RGV
+    - RIN1
+    - RIN2
+    - RIN3
+    - RIN4
+    - RKV1
+    - RKV2
+    split: []
+    stale_declarations: []
+    unresolved: []
+  ac30:
+    board_only: []
+    claimed: true
+    counts:
+      anchors: 46
+      board_only: 0
+      merged: 0
+      misplaced: 0
+      pot_orientation_flipped: 0
+      section_swap: 1
+      sheet_only_declared: 0
+      sheet_only_undeclared: 9
+      split: 0
+      stale_declarations: 0
+      two_terminal_checked: 46
+      unresolved: 0
+    merged: []
+    misplaced: []
+    pot_orientation_flipped: []
+    section_swap:
+    - V1
+    sheet_only_declared: []
+    sheet_only_undeclared:
+    - C19
+    - C41
+    - CH1
+    - F1
+    - R40
+    - R41
+    - R42
+    - R43
+    - R44
+    split: []
+    stale_declarations: []
+    unresolved: []
+  b15n:
+    board_only: []
+    claimed: true
+    counts:
+      anchors: 47
+      board_only: 0
+      merged: 0
+      misplaced: 0
+      pot_orientation_flipped: 0
+      section_swap: 0
+      sheet_only_declared: 0
+      sheet_only_undeclared: 2
+      split: 1
+      stale_declarations: 0
+      two_terminal_checked: 83
+      unresolved: 1
+    merged: []
+    misplaced: []
+    pot_orientation_flipped: []
+    section_swap: []
+    sheet_only_declared: []
+    sheet_only_undeclared:
+    - C18
+    - CM2
+    split:
+    - - - V6.pin4
+      - - V6.pin6
+    stale_declarations: []
+    unresolved:
+    - VR7#ends
+  dr103:
+    board_only: []
+    claimed: true
+    counts:
+      anchors: 48
+      board_only: 0
+      merged: 1
+      misplaced: 2
+      pot_orientation_flipped: 1
+      section_swap: 2
+      sheet_only_declared: 2
+      sheet_only_undeclared: 7
+      split: 0
+      stale_declarations: 0
+      two_terminal_checked: 75
+      unresolved: 0
+    merged:
+    - - - VR4.lug2
+      - - VR5.lug2
+    misplaced:
+    - RSL
+    - VR3#ends
+    pot_orientation_flipped:
+    - VR7
+    section_swap:
+    - V2
+    - V3
+    sheet_only_declared:
+    - RG1
+    - RG2
+    sheet_only_undeclared:
+    - C4
+    - C5
+    - C6
+    - R1s
+    - R2s
+    - R3s
+    - R4s
+    split: []
+    stale_declarations: []
+    unresolved: []
+  ga40:
+    board_only: []
+    claimed: true
+    counts:
+      anchors: 23
+      board_only: 0
+      merged: 0
+      misplaced: 4
+      pot_orientation_flipped: 0
+      section_swap: 0
+      sheet_only_declared: 0
+      sheet_only_undeclared: 1
+      split: 0
+      stale_declarations: 0
+      two_terminal_checked: 28
+      unresolved: 0
+    merged: []
+    misplaced:
+    - CF3
+    - RD2
+    - RL1
+    - RS1
+    pot_orientation_flipped: []
+    section_swap: []
+    sheet_only_declared: []
+    sheet_only_undeclared:
+    - L1
+    split: []
+    stale_declarations: []
+    unresolved: []
+  jtm100:
+    board_only: []
+    claimed: true
+    counts:
+      anchors: 41
+      board_only: 0
+      merged: 1
+      misplaced: 3
+      pot_orientation_flipped: 0
+      section_swap: 0
+      sheet_only_declared: 2
+      sheet_only_undeclared: 8
+      split: 0
+      stale_declarations: 0
+      two_terminal_checked: 61
+      unresolved: 0
+    merged:
+    - - - VR4.lug2
+      - - VR5.lug2
+    misplaced:
+    - D1
+    - RSL
+    - VR3#ends
+    pot_orientation_flipped: []
+    section_swap: []
+    sheet_only_declared:
+    - RG1
+    - RG2
+    sheet_only_undeclared:
+    - C11
+    - C23
+    - C4
+    - C5
+    - C6
+    - L1
+    - R1s
+    - R2s
+    split: []
+    stale_declarations: []
+    unresolved: []
+  jtm45:
+    board_only:
+    - RNFB
+    - VRP
+    claimed: true
+    counts:
+      anchors: 35
+      board_only: 2
+      merged: 0
+      misplaced: 2
+      pot_orientation_flipped: 0
+      section_swap: 0
+      sheet_only_declared: 2
+      sheet_only_undeclared: 6
+      split: 0
+      stale_declarations: 0
+      two_terminal_checked: 42
+      unresolved: 1
+    merged: []
+    misplaced:
+    - RSL
+    - VR4#ends
+    pot_orientation_flipped: []
+    section_swap: []
+    sheet_only_declared:
+    - RG1
+    - RG2
+    sheet_only_undeclared:
+    - C4
+    - C5
+    - C6
+    - L1
+    - R1s
+    - R2s
+    split: []
+    stale_declarations: []
+    unresolved:
+    - VR3#ends
+  m1959:
+    board_only: []
+    claimed: true
+    counts:
+      anchors: 41
+      board_only: 0
+      merged: 1
+      misplaced: 4
+      pot_orientation_flipped: 0
+      section_swap: 0
+      sheet_only_declared: 2
+      sheet_only_undeclared: 13
+      split: 0
+      stale_declarations: 0
+      two_terminal_checked: 69
+      unresolved: 0
+    merged:
+    - - - VR4.lug2
+      - - VR5.lug2
+    misplaced:
+    - D1
+    - RSL
+    - VR3#ends
+    - VR6#ends
+    pot_orientation_flipped: []
+    section_swap: []
+    sheet_only_declared:
+    - RG1
+    - RG2
+    sheet_only_undeclared:
+    - C10
+    - C13
+    - C29
+    - C30
+    - C31
+    - C5
+    - C6
+    - C8
+    - C9
+    - R1s
+    - R2s
+    - R3s
+    - R4s
+    split: []
+    stale_declarations: []
+    unresolved: []
+  m1987:
+    board_only:
+    - RNFB
+    - VRP
+    claimed: true
+    counts:
+      anchors: 32
+      board_only: 2
+      merged: 1
+      misplaced: 3
+      pot_orientation_flipped: 0
+      section_swap: 0
+      sheet_only_declared: 2
+      sheet_only_undeclared: 17
+      split: 0
+      stale_declarations: 0
+      two_terminal_checked: 47
+      unresolved: 0
+    merged:
+    - - - VR4.lug2
+      - - VR5.lug2
+    misplaced:
+    - D1
+    - RSL
+    - VR3#ends
+    pot_orientation_flipped: []
+    section_swap: []
+    sheet_only_declared:
+    - RG1
+    - RG2
+    sheet_only_undeclared:
+    - C10
+    - C23
+    - C24
+    - C5
+    - C6
+    - C8
+    - C9
+    - L1
+    - R1s
+    - R2s
+    - R3s
+    - R4s
+    - RB1
+    - RB2
+    - RBB
+    - RBC
+    - VR6
+    split: []
+    stale_declarations: []
+    unresolved: []
+  m2204:
+    board_only: []
+    claimed: true
+    counts:
+      anchors: 34
+      board_only: 0
+      merged: 2
+      misplaced: 5
+      pot_orientation_flipped: 0
+      section_swap: 0
+      sheet_only_declared: 2
+      sheet_only_undeclared: 13
+      split: 1
+      stale_declarations: 0
+      two_terminal_checked: 51
+      unresolved: 3
+    merged:
+    - - - VR4.lug2
+      - - VR5.lug2
+    - - R26
+      - RV1#ends
+    misplaced:
+    - D5
+    - R15
+    - R22
+    - VR2#ends
+    - VR3#ends
+    pot_orientation_flipped: []
+    section_swap: []
+    sheet_only_declared:
+    - R2
+    - R3
+    sheet_only_undeclared:
+    - C10
+    - C11
+    - C12
+    - C17
+    - C4
+    - C5
+    - F1
+    - F2
+    - R14
+    - R35
+    - R36
+    - R37
+    - T3
+    split:
+    - - - GND
+        - V4.pin8
+        - V5.pin8
+        - VR6.lug2
+      - - RV1.lug2
+    stale_declarations: []
+    unresolved:
+    - D2
+    - D3
+    - D4
+summary:
+  amps: 40
+  amps_with_findings: 38
+  anchors: 1247
+  board_only: 5
+  claimed_amps_with_findings: 36
+  merged: 18
+  misplaced: 98
+  pot_orientation_flipped: 18
+  section_swap: 25
+  sheet_only_declared: 45
+  sheet_only_undeclared: 478
+  split: 4
+  stale_declarations: 0
+  two_terminal_checked: 1771
+  unresolved: 11

@@ -110,6 +110,17 @@ jobs:
       # must match a fresh run, like op-points.yaml and loadlines.yaml.
       - run: python pipeline/check_heaters.py --selftest
       - run: python pipeline/check_heaters.py
+      # The sheet and the board are each other's gate over every part the DC
+      # netlist does not model (1,280 passives both equivalence gates above
+      # skip by construction): tube pins, pot wipers, jack contacts and <GND>
+      # anchor the two net partitions, parts resolve by majority vote, and a
+      # section<->unit swap is searched for on every dual-section socket. The
+      # self-test plants a swap, a moved cap lead, bridged wipers, a cut ground
+      # return and an undeclared deletion on temp copies of two clean amps; the
+      # main run gates reference/sheet-board.yaml (the worklist) against a
+      # fresh run. Findings are report-only until --strict enters CI.
+      - run: python pipeline/verify_sheet_vs_board.py --selftest
+      - run: python pipeline/verify_sheet_vs_board.py
       # reference/loadlines.yaml is generated from the netlists and simulated, so it
       # can go stale silently the moment a netlist changes. Same drift gate as models/.
       - run: python pipeline/export_loadlines.py --check
