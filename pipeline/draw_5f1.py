@@ -158,6 +158,6 @@ s.sym("C", "C8", "8u", 129.54, 163.83)
 s.gnd(129.54, 167.64)
 
 s.write(OUT, [
-    "Heaters and PT primary omitted — see netlist.cir and meta.yaml",
+    "Heaters and PT primary omitted — see the board drawing and the sources cited on this page",
 ])
 print(f"wrote {OUT}")
