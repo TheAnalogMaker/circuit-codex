@@ -41,3 +41,6 @@ verification:
   max_deviation_pct: 19.7   # worst gated node (PPIB, the 12AT7 inverter's cold plate, tol 20%; PPIA is 17.0%) — inside the sheet's own convention but with little margin, so re-check this pair after any 12AT7 model refit. Every other gated node is inside 17%, the rails inside 4.4%, and the bias line exact
 added: 2026-08-08
 contributors: [TheAnalogMaker]
+
+sections:   # valve sections the tube complement supplies that the netlist does not instantiate (pipeline/check_sections.py)
+  V3A: "not drawn — the D-FE schematic draws only V3B, the mixer/driver stage"

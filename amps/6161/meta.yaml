@@ -55,3 +55,6 @@ verification:
 # pubDate for a draft; production builds are shallow clones and cannot ask git.
 added: 2026-08-08
 contributors: [TheAnalogMaker]
+
+sections:   # valve sections the tube complement supplies that the netlist does not instantiate (pipeline/check_sections.py)
+  V3A: "excluded — the tremolo's phase-shift oscillator: a running oscillator shifted by grid-leak detection has no static operating point; its missing plate current reads B1 and every node below it a few volts high, so those nodes are informational"

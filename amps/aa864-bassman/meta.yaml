@@ -75,3 +75,6 @@ verification:
   max_deviation_pct: 11.6
 added: 2026-08-08
 contributors: [TheAnalogMaker]
+
+sections:   # valve sections the tube complement supplies that the netlist does not instantiate (pipeline/check_sections.py)
+  V3A: "not drawn — the H-FD schematic draws only V3B, the bass channel's third stage"

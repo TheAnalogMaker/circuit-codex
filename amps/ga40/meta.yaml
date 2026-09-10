@@ -64,3 +64,7 @@ verification:
 # pubDate for a draft; production builds are shallow clones and cannot ask git.
 added: 2026-08-30
 contributors: [TheAnalogMaker]
+
+sections:   # valve sections the tube complement supplies that the netlist does not instantiate (pipeline/check_sections.py)
+  V2: "excluded — channel 2's 5879: its screen is fed through the tremolo's Depth network, and neither that network nor the channel-2 screen dropper resolves on the only published drawing of this revision"
+  V3: "excluded — the 6SQ7 tremolo oscillator: a running phase-shift oscillator has no static operating point; its plate load taps a driven rail"

@@ -49,3 +49,6 @@ verification:
   date: 2026-08-02
   max_deviation_pct: 11.5   # worst gated node (JPI, the cathodyne tail junction, tol 20%); all three rails inside 3.2%, and all seventeen charted nodes land. The tremolo oscillator sharing V4 is a documented exclusion, reported not gated
 contributors: [TheAnalogMaker]
+
+sections:   # valve sections the tube complement supplies that the netlist does not instantiate (pipeline/check_sections.py)
+  V4A: "excluded — the tremolo's phase-shift oscillator: a running oscillator has no static operating point; its missing ~0.6 mA reads BB, BC and BD about half a volt high"

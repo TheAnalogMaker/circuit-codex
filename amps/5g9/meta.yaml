@@ -30,3 +30,6 @@ verification:
   status: draft
 added: 2026-09-09
 contributors: [TheAnalogMaker]
+
+sections:   # valve sections the tube complement supplies that the netlist does not instantiate (pipeline/check_sections.py)
+  V3: "excluded — the tremolo bottle: a running phase-shift oscillator (V3A) and the cathode follower direct-coupled to its swinging plate (V3B); neither has a static operating point, and the netlist header states the ~2 mA the pair would draw"

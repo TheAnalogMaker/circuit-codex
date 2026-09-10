@@ -114,6 +114,16 @@ python3 pipeline/verify_sheet_vs_board.py    # sheet<->board net equivalence ove
                                   #   swaps are searched for. EXCLUDES heaters
                                   #   and the pilot lamp (check_heaters owns
                                   #   them) and lists what it could not anchor.
+python3 pipeline/check_sections.py --selftest && \
+python3 pipeline/check_sections.py           # every valve section the tube complement
+                                  #   supplies (counted from the tube's own
+                                  #   basing, never its name) is instantiated
+                                  #   in netlist.cir or declared in meta.yaml
+                                  #   `sections:` as "excluded —", "not drawn —"
+                                  #   or "unused —". A stage missing from both
+                                  #   the netlist and the sheet is invisible to
+                                  #   every equivalence gate; this is where the
+                                  #   omission has to be said.
                                   #   Findings are report-only: the worklist
                                   #   reference/sheet-board.yaml is gated for
                                   #   drift (regenerate with --export), and

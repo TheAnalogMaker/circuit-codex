@@ -60,3 +60,8 @@ verification:
 # pubDate for a draft; production builds are shallow clones and cannot ask git.
 added: 2026-08-08
 contributors: [TheAnalogMaker]
+
+sections:   # valve sections the tube complement supplies that the netlist does not instantiate (pipeline/check_sections.py)
+  V7: "excluded — the Vibrato/Tremolo channel's first stage, left out with the whole channel: its dropper chain does not resolve back to a named rail on the available scan"
+  V8: "excluded — the Vibrato/Tremolo modulator, left out with the whole channel (see V7)"
+  V9: "excluded — the Vibrato/Tremolo phase-shift oscillator: a running oscillator has no static operating point"

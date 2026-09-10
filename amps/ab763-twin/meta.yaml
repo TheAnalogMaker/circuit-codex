@@ -52,3 +52,6 @@ verification:
   max_deviation_pct: 14.9   # worst gated node (PV2, the vibrato channel's second-stage plate, tol 20%) — one end of a shared 820 Ohm cathode the chart prints two different plate voltages against, so the gap is the chart's own asymmetry, not a modelling one; both solved rails land inside 1%. The tremolo tube, both halves, is a documented exclusion (see notes.md), reported not gated
 added: 2026-08-08
 contributors: [TheAnalogMaker]
+
+sections:   # valve sections the tube complement supplies that the netlist does not instantiate (pipeline/check_sections.py)
+  V5: "excluded — the tremolo bottle: a running phase-shift oscillator and the neon-lamp driver inside the optocoupler; neither has a static operating point, and both tap the driven node BB"

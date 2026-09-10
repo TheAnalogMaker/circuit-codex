@@ -121,6 +121,15 @@ jobs:
       # fresh run. Findings are report-only until --strict enters CI.
       - run: python pipeline/verify_sheet_vs_board.py --selftest
       - run: python pipeline/verify_sheet_vs_board.py
+      # A netlist can leave a valve stage out, and when the sheet is drawn from the
+      # netlist nothing else notices: on 2026-09-10 five circuits were missing
+      # whole stages (5E5-A, 5E6-A, 6G4, 6G5, AB763). Every section a circuit's
+      # tube complement supplies — counted from the tube's own basing, never its
+      # name — must be instantiated in netlist.cir or declared in meta.yaml
+      # `sections:` (excluded / not drawn / unused); a declaration over an
+      # instantiated section is stale and fails too.
+      - run: python pipeline/check_sections.py --selftest
+      - run: python pipeline/check_sections.py
       # reference/loadlines.yaml is generated from the netlists and simulated, so it
       # can go stale silently the moment a netlist changes. Same drift gate as models/.
       - run: python pipeline/export_loadlines.py --check

@@ -42,3 +42,6 @@ verification:
                   # electrically equivalent to netlist.cir.
 added: 2026-08-30
 contributors: [TheAnalogMaker]
+
+sections:   # valve sections the tube complement supplies that the netlist does not instantiate (pipeline/check_sections.py)
+  V4: "excluded — the vibrato bottle: a running RC phase-shift oscillator (V4A) and the cathode-follower buffer into Intensity (V4B); neither has a static operating point"

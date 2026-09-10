@@ -48,3 +48,6 @@ verification:
 # Day the circuit landed in the corpus (git history, amps/6g2/).
 added: 2026-08-08
 contributors: [TheAnalogMaker]
+
+sections:   # valve sections the tube complement supplies that the netlist does not instantiate (pipeline/check_sections.py)
+  V2B: "excluded — the tremolo's phase-shift oscillator: a running oscillator has no static operating point; its 56k plate load taps the driven node BP, so nothing downstream moves"

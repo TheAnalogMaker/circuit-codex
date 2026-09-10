@@ -62,3 +62,8 @@ verification:
 # pubDate for a draft; production builds are shallow clones and cannot ask git.
 added: 2026-08-30
 contributors: [TheAnalogMaker]
+
+sections:   # valve sections the tube complement supplies that the netlist does not instantiate (pipeline/check_sections.py)
+  V4: "excluded — the reverb recovery bottle: the drawing prints no plate voltage this entry can place on V4's second half (the unplaced 55 V in the voltage table)"
+  V5: "excluded — the 6CG7 reverb driver, left out with the recovery bottle for the same reason (see V4)"
+  V6: "excluded — the tremolo's phase-shift oscillator and its neon/photocell modulator (306-2H): a running oscillator has no static operating point"

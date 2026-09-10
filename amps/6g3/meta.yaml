@@ -27,3 +27,6 @@ verification:
   date: 2026-08-02
   max_deviation_pct: 5.6   # worst gated node (KPI, the joined inverter cathodes, tol 20%); the tremolo oscillator's own two nodes are documented exclusions (see notes.md), reported not gated
 contributors: [TheAnalogMaker]
+
+sections:   # valve sections the tube complement supplies that the netlist does not instantiate (pipeline/check_sections.py)
+  V2B: "excluded — the tremolo's phase-shift oscillator: a running oscillator has no static operating point; its 220k plate load taps the driven node BP, so nothing downstream moves"
