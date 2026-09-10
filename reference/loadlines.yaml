@@ -191,10 +191,10 @@ stages:
   output_tubes: 2
   config: push-pull
   bias: fixed
-  plate_node: BP1
-  plate_v: 420.0
-  screen_node: BP1
-  screen_v: 420.0
+  plate_node: BP2
+  plate_v: 409.829
+  screen_node: BP2
+  screen_v: 409.829
   cathode_node: '0'
   cathode_v: 0.0
   rk_total: null
@@ -208,8 +208,8 @@ stages:
   ot_primary_z: null
   ot_primary_approx: false
   ot_primary_note: Fender part number not legible on this scan — Push-pull output into four 10-inch speakers
-  sim_ip_ma: 46.2383
-  sim_ig2_ma: 2.3745
+  sim_ip_ma: 40.3964
+  sim_ig2_ma: 1.9566
 - amp: '5f1'
   name_style: Tweed Champ-style
   tube: '6V6GT'

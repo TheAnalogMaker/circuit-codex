@@ -1,43 +1,37 @@
-# Printed voltage chart read directly from the published 5E6-A (A-EE) drawing
-# (2026-08-08), cross-checked against the higher-resolution Schematic Heaven
-# scan of the same drawing. Fender's printed convention: values +/-20%,
-# electronic voltmeter. Rails get 8% here (no choke to estimate DCR for, but
-# three physically separate filter caps sit on the one node — see
-# netlist.cir); tube pins 20%.
+# Printed voltage chart read from the published 5E6-A (A-EE) drawing, re-read
+# 2026-09-10 at the scan's native 6363 x 4071 (schematic page) and 6463 x 3809
+# (layout page). Fender's printed convention: values +/-20%, electronic
+# voltmeter. Rails get 8% here, tube pins 20%.
 #
-# V2's own pin voltages, and V3's, are not confidently isolated from the
-# surrounding printed figures in this pass (the scan is legible but dense at
-# that cluster, and a first attempt at reading V3's cathode/junction pair
-# turned out physically inconsistent for a 12AX7 once simulated — see
-# netlist.cir's V3 comment) and are left informational (chart: null) rather
-# than asserted. A lug-level re-read, the way amps/5f6 and amps/5f6a were
-# re-read on 2026-08-03, should resolve them before this entry is promoted
-# out of draft.
-#
-# Four of the nodes below currently MISS their printed figures and are left
-# standing as misses: BP3 (315 V simulated / 275 V printed), both V1 plates
-# (161 / 130) and the shared V1 cathode (2.5 / 2). One cause, not four — the
-# two printed 10 kΩ droppers carry too little current in the model, so the
-# preamp rail sits high and drags its stage up with it. See meta.yaml's
-# verification note for what the same lug-level re-read is expected to settle.
+# Every figure the schematic page prints is carried below, each on the node it
+# is printed beside. The one figure taken from the layout page instead is the
+# cathodyne's 1.5k/56k junction (JPI), which the schematic leaves unlettered
+# and the layout letters +70 V at that eyelet. The two 6L6G plates read +405 V
+# on both pages; the netlist omits the output transformer's primary DCR, so
+# the plates are node BP2 and that figure is noted there rather than carried
+# as a node of its own.
 source: >-
-  Fender 5E6-A (A-EE) drawing, printed voltages: rails +420/+410/+405 (all
-  the same undropped node), +335, +275; 12AY7 (V1) plates +130, cathode +2;
-  a 12AX7 (V3, cathodyne) pin figure set near "+210", "+72" and "+1.7" that
-  this pass could not self-consistently assign to PPI/KPI/JPI (see
-  the netlist's header) and is not carried into the nodes below; bias supply output
-  printed near "3300" in the -A revision (magnitude ~42 V, sign not clearly
-  legible — see the sources cited on this page).
+  Fender 5E6-A (A-EE) drawing, printed voltages: rails +420 (first filter,
+  after the standby switch), +410 (after the choke: screens and OT centre tap),
+  +335, +275; bias -42; 6L6G plates +405; 12AY7 input plates +130, shared
+  cathode +2; 12AY7 gain stage plate +130, cathode +2; cathode follower's
+  cathode +130; 12AX7 driver plate +200, cathode +1.7; cathodyne plate +260,
+  cathode +72, and on the layout page +70 at the cathode resistors' junction.
 nodes:
-  BP1:  { chart: 420, tol_pct: 8, note: "first-filter node — plates, screens and OT centre tap all land here directly (no choke); the drawing also reads 410/405 V at nearby points on this same node" }
-  BP2:  { chart: 335, tol_pct: 8, note: "PI supply node after the first 10 kΩ dropper" }
-  BP3:  { chart: 275, tol_pct: 8, note: "preamp supply node after the second 10 kΩ dropper" }
-  PAY1: { chart: 130, tol_pct: 20, note: "V1 channel-A (bright) plate" }
-  PAY2: { chart: 130, tol_pct: 20, note: "V1 channel-B (normal) plate" }
-  KAY:  { chart: 2, tol_pct: 20, note: "shared V1 cathode, 820 Ω" }
-  P2A:  { chart: null, note: "V2 plate — not confidently isolated from the surrounding printed figures this pass; simulated value only" }
-  K2A:  { chart: null, note: "V2 cathode, 1.5 kΩ — same caveat as P2A" }
-  PPI:  { chart: null, note: "V3 (cathodyne) plate, 56 kΩ load — a printed figure near +210 V exists on the sheet but this pass could not confidently pin it to this node; simulated value only" }
-  KPI:  { chart: null, note: "V3 cathode pin, above the 1.5k+56k split — same caveat as PPI" }
-  JPI:  { chart: null, note: "1.5k/56k cathode-split junction — the cathodyne grid's DC reference through the 1 MΩ leak; same caveat as PPI" }
-  G51:  { chart: -42, tol_pct: 8, note: "6L6G fixed bias via 220k from the bias supply; printed magnitude ~42 V, sign inferred negative (see the sources cited on this page)" }
+  BP1:  { chart: 420, tol_pct: 8, note: "first filter can, after the standby switch; the netlist drives this node" }
+  BP2:  { chart: 410, tol_pct: 8, note: "after the choke: both screens and the OT centre tap. The choke's resistance is estimated from this very drop, so agreement here is by construction. The plates read +405 V on the drawing, 5 V under the tap across the primary the netlist does not model" }
+  BP3:  { chart: 335, tol_pct: 8, note: "driver and cathodyne supply, after the first 10 kΩ dropper" }
+  BP4:  { chart: 275, tol_pct: 8, note: "preamp supply after the second 10 kΩ dropper: both input plate loads, the gain stage's plate load and the cathode follower's plate" }
+  PAY1: { chart: 130, tol_pct: 20, note: "input stage, bright-channel plate (12AY7)" }
+  PAY2: { chart: 130, tol_pct: 20, note: "input stage, normal-channel plate (12AY7)" }
+  KAY:  { chart: 2, tol_pct: 20, note: "shared input-stage cathode, 820 Ω" }
+  P2A:  { chart: 130, tol_pct: 20, note: "gain stage plate (12AY7), 100 kΩ load; also the cathode follower's grid, direct-coupled" }
+  K2A:  { chart: 2, tol_pct: 20, note: "gain stage cathode, 1.5 kΩ with 25 µF" }
+  KCF:  { chart: 130, tol_pct: 20, note: "cathode follower's cathode, 100 kΩ to ground; the tone network's feed" }
+  PDR:  { chart: 200, tol_pct: 20, note: "driver plate (12AX7), 100 kΩ load" }
+  KDR:  { chart: 1.7, tol_pct: 20, note: "driver cathode: 1.5 kΩ to ground, and the 20 kΩ feedback resistor to the speaker line in parallel with it at DC" }
+  PPI:  { chart: 260, tol_pct: 20, note: "cathodyne plate, 56 kΩ load" }
+  KPI:  { chart: 72, tol_pct: 20, note: "cathodyne cathode pin, above the 1.5 kΩ + 56 kΩ legs" }
+  JPI:  { chart: 70, tol_pct: 20, note: "1.5 kΩ/56 kΩ junction, where the cathodyne's 1 MΩ grid leak returns. The schematic page letters no figure here; the layout page prints +70 V at this eyelet" }
+  G51:  { chart: -42, tol_pct: 8, note: "upper 6L6G grid: 220 kΩ from the bias supply, then the 1.5 kΩ stopper" }
+  G52:  { chart: -42, tol_pct: 8, note: "lower 6L6G grid, the same feed" }
