@@ -593,8 +593,40 @@ def run_line(spec, indent="  "):
         f"{k}: {fmt_val(spec[k])}" for k in keys) + " }"
 
 
-def write_back(amp: str, layout):
-    p = ROOT / "amps" / amp / "layout.yaml"
+def _flow_tail(line: str) -> str:
+    """What follows a flow-style run's closing brace on its line — kept when it
+    is an inline comment. Quote-aware, so a '#' or '}' inside a quoted value
+    is never mistaken for the end of the mapping or the start of a comment."""
+    start = line.find("{")
+    if start < 0:
+        return ""
+    depth, quote, i = 0, None, start
+    while i < len(line):
+        c = line[i]
+        if quote:
+            if c == "\\" and quote == '"':
+                i += 2
+                continue
+            if c == quote:
+                quote = None
+        elif c in "\"'":
+            quote = c
+        elif c in "{[":
+            depth += 1
+        elif c in "}]":
+            depth -= 1
+            if depth == 0:
+                tail = line[i + 1:]
+                return tail if tail.strip().startswith("#") else ""
+        i += 1
+    return ""
+
+
+def write_back(amp: str, layout, path: Path | None = None):
+    """Re-emit the runs section. A run's inline comment survives the rewrite:
+    until 2026-09-11 every rewritten line lost it, and board agents restored
+    the comments by hand after each routing pass."""
+    p = path or ROOT / "amps" / amp / "layout.yaml"
     lines = p.read_text().split("\n")
     start = next(i for i, l in enumerate(lines) if l.startswith("runs:"))
     end = next(i for i in range(start + 1, len(lines))
@@ -605,7 +637,7 @@ def write_back(amp: str, layout):
     runs = layout["runs"]
     if len(flow) == len(runs):
         for n, li in enumerate(flow):
-            seg[li] = run_line(runs[n])
+            seg[li] = run_line(runs[n]) + _flow_tail(seg[li])
     else:
         assert not any(l.lstrip().startswith("#") for l in seg), \
             "block-style runs section carries comments — refusing to re-emit"
