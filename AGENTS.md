@@ -67,6 +67,10 @@ python3 check_schematics.py   # kiutils round-trip + sheet furniture/legibility
                               #   fails too: its name still joins the other
                               #   labels, so no pin reads isolated, while the
                               #   wire it was drawn to name is a separate net.
+                              #   So does a two-terminal PART with both pins on
+                              #   one net (a coupler whose far pin T-taps its own
+                              #   node): it does nothing, and parts outside the
+                              #   DC netlist are checked by nothing else.
 cd pipeline && for f in draw_*.py; do python3 "$f" >/dev/null; done && \
 (cd ../site && node scripts/sync-assets.mjs) && \
 git diff --exit-code -- ../amps ../site/public/schematics   # zero schematic drift: ids are

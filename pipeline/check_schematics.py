@@ -418,6 +418,32 @@ def dangling_label_report(path: Path) -> list[tuple[str, tuple, float]]:
     return out
 
 
+def shorted_part_report(path: Path) -> list[tuple[str, str, list]]:
+    """[(reference, library id, the net's members), ...] for every two-terminal
+    symbol whose two pins the drawing puts on ONE net.
+
+    A resistor, capacitor or diode with both ends on one node does nothing, so
+    a drawing that shows one is always wrong — and nothing else sees it when
+    the part sits outside the DC netlist (a coupler, a tremolo-ladder part). On
+    the AB763 the phase inverter's .001 had both ends on V6A's grid, so the mix
+    node reached no inverter at all; on the Super a tremolo resistor was
+    grounded at both ends."""
+    nets = Nets(path)
+    lib = {}
+    for sym in nets.sch.schematicSymbols:
+        ref = next((pr.value for pr in sym.properties if pr.key == "Reference"), None)
+        if ref:
+            lib[ref] = sym.libId
+    out = []
+    for ref, pinmap in sorted(nets.pins.items()):
+        if len(pinmap) != 2:
+            continue
+        a, b = (pinmap[k] for k in sorted(pinmap))
+        if nets.dsu.find(a) == nets.dsu.find(b):
+            out.append((ref, lib.get(ref, "?"), nets.net_members(nets.dsu.find(a))))
+    return out
+
+
 def _load_allowlist() -> dict[str, dict[str, str]]:
     """{amp: {pin: reason}} — pins this corpus draws open on purpose."""
     if not ALLOWLIST.exists():
@@ -505,7 +531,8 @@ def connectivity_selftest() -> int:
         return 1
     print(f"selftest ok: deleting the {cut} lead(s) drawn to {target} on the 5E3 "
           f"is caught as an isolated pin ({len(gained)} new finding(s))")
-    return label_selftest(src)
+    rc = label_selftest(src)
+    return rc or part_selftest(src)
 
 
 def label_selftest(src: Path) -> int:
@@ -550,6 +577,44 @@ def label_selftest(src: Path) -> int:
     return 0
 
 
+def part_selftest(src: Path) -> int:
+    """Draw a wire from one pin of a two-terminal part to its other pin — the
+    AB763's .001 that sat with both ends on one grid — and require the
+    shorted-part check to name the part."""
+    import re
+    import shutil
+    target = "RK1"
+    if any(r == target for r, _, _ in shorted_part_report(src)):
+        print(f"SELFTEST INCONCLUSIVE: {target} is already shorted on the 5E3")
+        return 1
+    nets = Nets(src)
+    pins = nets.pins.get(target, {})
+    if len(pins) != 2:
+        print(f"SELFTEST INCONCLUSIVE: {target} is not a two-terminal part on the 5E3")
+        return 1
+    (x1, y1), (x2, y2) = (pins[k] for k in sorted(pins))
+    text = src.read_text()
+    m = re.search(r"  \(wire \(pts [^\n]*\)\n    \(stroke[^\n]*\)\n?(    \(uuid [^\n]*\)\n)?", text)
+    if not m:
+        print("SELFTEST INCONCLUSIVE: no wire block to copy on the 5E3")
+        return 1
+    block = m.group(0)
+    new = re.sub(r"\(pts [^\n]*\)", f"(pts (xy {x1:g} {y1:g}) (xy {x2:g} {y2:g}))", block, count=1)
+    new = re.sub(r'\(uuid "?[0-9a-fA-F-]+"?\)', '(uuid "00000000-0000-4000-8000-00000000beef")', new)
+    planted_text = text[:m.end()] + new + text[m.end():]
+    with tempfile.TemporaryDirectory() as tmpdir:
+        planted = Path(tmpdir) / "schematic.kicad_sch"
+        shutil.copy(src, planted)
+        planted.write_text(planted_text)
+        found = shorted_part_report(planted)
+    if not any(r == target for r, _, _ in found):
+        print(f"SELFTEST FAILED: a wire across {target}'s two pins was not reported ({found})")
+        return 1
+    print(f"selftest ok: a wire drawn across {target}'s two pins on the 5E3 is caught as a "
+          f"part shorted by the drawing")
+    return 0
+
+
 def main() -> int:
     import os
     report = "--report" in sys.argv
@@ -571,6 +636,7 @@ def main() -> int:
     conn_sheets = 0
     conn_failures = 0
     dang_total = 0
+    short_total = 0
     dang_sheets = 0
 
     files = sorted((ROOT / "amps").glob("*/schematic.kicad_sch"))
@@ -633,7 +699,15 @@ def main() -> int:
                 print(f"       <{name}> at ({a[0]:.2f}, {a[1]:.2f}), {mm:.2f} mm from the nearest wire or pin")
             if not report and len(ranked) > 4:
                 print(f"       … {len(ranked) - 4} more (--report)")
-        if mode == "error" and (found or stale or dangling):
+        shorted = shorted_part_report(f)
+        if shorted:
+            short_total += len(shorted)
+            word = "FAIL" if mode == "error" else "warn"
+            print(f"{word} {amp}: {len(shorted)} two-terminal part(s) with both pins on one net")
+            for ref, lib, members in shorted:
+                more = " …" if len(members) > 6 else ""
+                print(f"       {ref} ({lib}): {', '.join(members[:6])}{more}")
+        if mode == "error" and (found or stale or dangling or shorted):
             conn_failures += 1
 
     print(f"checked {len(files)} schematic(s), {failures} failure(s)")
@@ -644,6 +718,7 @@ def main() -> int:
         print(f"connectivity: {conn_total} isolated pin(s) on {conn_sheets} "
               f"sheet(s), {waived_n} waived — {tail}")
         print(f"labels: {dang_total} touching no wire or pin on {dang_sheets} sheet(s)")
+        print(f"parts: {short_total} two-terminal part(s) with both pins on one net")
     return 1 if (failures or conn_failures) else 0
 
 
