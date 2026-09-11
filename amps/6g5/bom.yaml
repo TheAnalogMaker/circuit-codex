@@ -135,7 +135,7 @@ items:
   - { ref: D5, part: "Silicon diode", value: "1N4007-class", role: "HT rectifier — the HT_B leg, second of three" }
   - { ref: D6, part: "Silicon diode", value: "1N4007-class", role: "HT rectifier — the HT_B leg, third of three (A-FJ draws six diodes, three per leg, off a centre-tapped winding)" }
   - { ref: CF3, part: "Electrolytic capacitor", value: "20 µF · 600 V", role: "B+ reservoir, ahead of the choke (per the drawing's repeated '20-600P' marking)" }
-  - { ref: L1, part: "Choke", value: "CH. · inductance not printed", role: "B+ reservoir to plates/screens filter choke, labelled CH. on the drawing" }
+  - { ref: L1, part: "Choke", value: "CH. · inductance not printed", role: "Filter choke from the +460 V node, where the output transformer's centre tap lands, to the +458 V screen and dropper node — labelled CH. on the drawing" }
   - { ref: CF4, part: "Electrolytic capacitor", value: "20 µF · 600 V", role: "Filter at the post-choke node (+458 V: screens and every dropper)" }
   - { ref: RD1, part: "Carbon comp resistor", value: "4.7 kΩ · 1 W", role: "Dropper, post-choke node to the +430 V phase-inverter supply" }
   - { ref: CF5, part: "Electrolytic capacitor", value: "20 µF · 600 V", role: "Filter at the +430 V phase-inverter supply" }
@@ -151,7 +151,7 @@ items:
   - { ref: SW1, part: "Switch", value: "SPST", role: "AC power switch" }
   - { ref: PL1, part: "Pilot lamp", value: "6.3 V", role: "Pilot lamp, fed from the 6.3 V heater chain" }
   - { ref: JSPK, part: "Jack", value: "speaker", role: "Speaker jack" }
-  - { ref: DBIAS, part: "Silicon diode", value: "1N4007-class (schematic-only)", role: "Bias rectifier — fed from TR1's bias tap, its + (bar) end toward the tap (A-FJ); the DC netlist drives the -55 V line as an ideal source" }
+  - { ref: DBIAS, part: "Silicon diode", value: "1N4007-class", role: "Bias rectifier — fed from TR1's bias tap, its + (bar) end toward the tap (A-FJ); the DC netlist drives the -55 V line as an ideal source" }
   - { ref: CBIAS, part: "Electrolytic capacitor", value: "8 µF · 150 V", role: "Bias filter at the rectifier (A-FJ: 8-150)" }
   - { ref: RBIAS2, part: "Carbon comp resistor", value: "10 kΩ · ½ W", role: "Bias series resistor, rectifier node to the -55 V line (A-FJ)" }
   - { ref: CBIAS2, part: "Electrolytic capacitor", value: "8 µF · 150 V", role: "Bias filter at the -55 V line (A-FJ: 8-150)" }

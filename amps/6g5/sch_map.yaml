@@ -3,9 +3,9 @@
 # against this sheet and against netlist.cir. See docs/schematic-nets.md.
 
 anchors:
-  TR2.1: BP1               # OT primary, V7 plate end — primary DCR omitted
-  TR2.2: BP1               # OT primary centre tap
-  TR2.3: BP1               # OT primary, V8 plate end
+  TR2.1: BR                # OT primary, V7 plate end — primary DCR omitted
+  TR2.2: BR                # OT primary centre tap
+  TR2.3: BR                # OT primary, V8 plate end
   TR2.4: "0"               # OT secondary hot — secondary DCR folded into ground
                            # (the RNFB return); mirrors layout
                            # net_map JSPK: '0'.

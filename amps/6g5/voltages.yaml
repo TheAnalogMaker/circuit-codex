@@ -6,7 +6,8 @@
 # completes it as "+ or - 20%". Tube pins therefore get 20%; rails get tighter
 # internal targets.
 #
-# Only BP1 (+456 V, the 6L6GC plates) and the -55 V bias line are driven.
+# Only BR (+460 V, ahead of the choke, where the output transformer's centre
+# tap lands), BP1 (+458 V, after it) and the -55 V bias line are driven.
 # Every other node below is solved through resistors the drawing letters.
 source: "Fender Pro-Amp Model 6G5 drawing (A-FJ). Schematic page: +460 (after
   the standby switch), +458 (after the choke; screens and droppers), +456 (6L6GC
@@ -39,7 +40,7 @@ nodes:
   PPIB: { chart: 310, tol_pct: 20, note: "phase-inverter plate, 100 kΩ (cold) side" }
   KPI:  { chart: 23, tol_pct: 20, note: "phase-inverter joined cathodes, above the 820 Ω — printed at the socket on the layout page only" }
   JPI:  { chart: null, note: "phase-inverter tail junction (820 Ω / 6.8 kΩ), the grid-leak return — printed on neither page" }
-  S71:  { chart: 458, tol_pct: 10, note: "6L6GC (V7) screen after its 470 Ω · 1 W stopper. The drawing prints +458 V at the post-choke node the screens hang from; the model folds that node onto the driven +456 V plate rail" }
+  S71:  { chart: 458, tol_pct: 10, note: "6L6GC (V7) screen after its 470 Ω · 1 W stopper. The drawing prints +458 V at the post-choke node the screens hang from; the model drives that node at the printed +458 V" }
   S72:  { chart: 458, tol_pct: 10, note: "6L6GC (V8) screen after its own 470 Ω · 1 W stopper — same basis as S71" }
   G71:  { chart: -55, tol_pct: 8, note: "6L6GC (V7) grid, fixed bias via 220 kΩ from the -55 V supply" }
   G72:  { chart: -55, tol_pct: 8, note: "6L6GC (V8) grid, fixed bias via 220 kΩ from the -55 V supply" }

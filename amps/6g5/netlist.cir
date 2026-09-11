@@ -16,11 +16,13 @@
 * the harmonic-vibrato pair, both sections, cathodes joined; V5 is the
 * long-tailed-pair phase inverter. Ten triode sections, all drawn.
 *
-* DC conventions. BP1 is DRIVEN at the +456 V the drawing prints at the 6L6GC
-* plates. The drawing prints +460 V at the reservoir end of the choke and
-* +458 V after it, where the screens and every dropper hang; with the choke's
-* and the output transformer's winding resistance omitted, as throughout this
-* corpus, those three collapse onto one node. The silicon rectifier and its
+* DC conventions. The drawing prints +460 V ahead of the choke, where the
+* output transformer's centre tap lands, +458 V after it, where the screens
+* and every dropper hang, and +456 V at the 6L6GC plates. Two nodes are
+* DRIVEN: BR at +460 V and BP1 at +458 V. The choke's resistance is not
+* printed, so the 2 V between them cannot be derived and both stay anchors;
+* the output transformer's winding resistance is omitted, as throughout this
+* corpus, so the plates sit on BR. The silicon rectifier and its
 * reservoir are not modelled, exactly as a tube rectifier's own drop is not
 * modelled elsewhere. The bias supply is replaced by an ideal -55 V source:
 * all 29 fixed-bias circuits documented here drive their bias supply from an
@@ -83,7 +85,8 @@
 .include models/12ax7.inc
 .include models/6l6gc.inc
 
-VBP1 BP1 0 DC 456
+VBR BR 0 DC 460
+VBP1 BP1 0 DC 458
 VBIAS NBIAS 0 DC -55
 
 * --- Dropper chain (all four read from the drawing) ---
@@ -174,7 +177,7 @@ C2 PPIB G72 0.05u
 * --- Output stage: two 6L6GC, fixed bias, grounded cathodes ---
 RGL1 NBIAS G71 220k
 RSC1 BP1 S71 470
-XV7 BP1 S71 G71 0 6L6GC
+XV7 BR S71 G71 0 6L6GC
 RGL2 NBIAS G72 220k
 RSC2 BP1 S72 470
-XV8 BP1 S72 G72 0 6L6GC
+XV8 BR S72 G72 0 6L6GC
