@@ -77,4 +77,4 @@ added: 2026-08-08
 contributors: [TheAnalogMaker]
 
 sections:   # valve sections the tube complement supplies that the netlist does not instantiate (pipeline/check_sections.py)
-  V3A: "not drawn — the H-FD schematic draws only V3B, the bass channel's third stage"
+  V3A: "unused — the H-FD layout page wires V3 pins 6, 7 and 8 only; pins 1, 2 and 3 are bare, and the schematic draws only V3B, the bass channel's third stage"

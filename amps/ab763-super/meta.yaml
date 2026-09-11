@@ -57,4 +57,4 @@ added: 2026-08-30
 contributors: [TheAnalogMaker]
 
 sections:   # valve sections the tube complement supplies that the netlist does not instantiate (pipeline/check_sections.py)
-  V5: "excluded — the tremolo bottle: a running phase-shift oscillator has no static operating point; it taps the driven node BP1, so no gated node moves"
+  V5: "excluded — the tremolo bottle: a running phase-shift oscillator (one section) and the neon-lamp driver it swings (the other, whose printed +390 / +170 are averages a meter reads); neither has a static operating point"

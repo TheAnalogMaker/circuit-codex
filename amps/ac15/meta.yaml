@@ -49,6 +49,6 @@ added: 2026-08-02
 contributors: [TheAnalogMaker]
 
 sections:   # valve sections the tube complement supplies that the netlist does not instantiate (pipeline/check_sections.py)
-  V5: "excluded — the Vibrato/Tremolo channel's first stage, left out with the whole channel: it shares one derived supply node with the oscillator, which has no static operating point"
+  V5: "excluded — the Vibrato/Tremolo channel's two gain stages (both sections), left out with the whole channel: they share one derived supply node with the oscillator, which has no static operating point"
   V6: "excluded — the Vibrato/Tremolo modulator, left out with the whole channel (see V5)"
-  V7: "excluded — the Vibrato/Tremolo phase-shift oscillator: a running oscillator has no static operating point"
+  V7: "excluded — the Vibrato/Tremolo phase-shift oscillator (one section) and the section that feeds Depth (the other): a running oscillator has no static operating point"

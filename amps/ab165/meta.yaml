@@ -43,4 +43,4 @@ added: 2026-08-08
 contributors: [TheAnalogMaker]
 
 sections:   # valve sections the tube complement supplies that the netlist does not instantiate (pipeline/check_sections.py)
-  V3A: "not drawn — the D-FE schematic draws only V3B, the mixer/driver stage"
+  V3A: "unused — the D-FE layout page wires V3 pins 6, 7 and 8 only; pins 1, 2 and 3 are bare, and the schematic draws only V3B, the mixer/driver stage"
