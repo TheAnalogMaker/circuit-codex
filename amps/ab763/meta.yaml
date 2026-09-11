@@ -27,5 +27,5 @@ sources:
 verification:
   status: verified
   date: 2026-07-19
-  max_deviation_pct: 10.5   # worst gated node (the 820 Ω cathode stages, tol 20%); the tremolo oscillator and its two shared-rail channel-input plates are documented exclusions (see notes.md), reported not gated
+  max_deviation_pct: 13.6   # worst gated node (KA and KE, the two shared 820 Ω cathodes at boxes [A] and [E], tol 20%); the tremolo oscillator is a documented exclusion (see notes.md), reported not gated
 contributors: [TheAnalogMaker]

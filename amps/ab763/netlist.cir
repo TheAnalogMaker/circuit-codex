@@ -5,30 +5,48 @@
 * 12AX7 (reference/tubes/12ax7.yaml also_known_as); the two 12AT7 (reverb
 * driver, phase inverter) use the clean-room 12AT7 model added with this amp.
 *
+* SHARED CATHODE NETWORKS. The drawing carries boxed letters wherever a lead
+* leaves one part of the sheet and lands on another. Two of them, [A] and [E],
+* are cathode connections, and each ties TWO triodes to ONE 820 Ohm / 25 uF
+* network that the sheet draws once:
+*   [A] = node KA — the Normal channel's 2nd stage and the Vibrato channel's
+*         2nd stage. The network is drawn at the Vibrato stage. The factory
+*         layout wires it the same way: the Normal bottle's pin 8 runs to the
+*         Vibrato bottle's pin 8, and one lead goes on to the single 820 Ohm.
+*   [E] = node KE — the mix driver and the reverb-recovery amp. The network is
+*         drawn at the recovery stage.
+* The factory layout places one 820 Ohm cathode resistor per box, two in all.
+* Each carries two triodes' current, which is what the chart's +1.3 V, printed
+* at both ends of each box, is read across.
+*
 * DC conventions. Two printed rail nodes are driven at their charted values and
 * the rest of each stage is solved: BP1 = +415 V (6V6 plates / OT centre tap,
-* OT primary DCR omitted) and BC = +325 V (the printed node feeding the phase-
-* inverter plates and the 820 Ohm-cathode preamp stages). The 6V6 screens hang
-* off BP1 through their 470 Ohm stoppers; the reverb driver hangs off BP1 through
-* the reverb transformer (TR4, 125A20B) primary DCR, modeled at 200 Ohm. The
-* input-stage rail BD is derived from BC through the drawing's 10k dropper.
+* OT primary DCR omitted) and BC = +325 V (drawing node [C], printed beside the
+* phase-inverter plate loads, the only stage it feeds). The 6V6 screens hang
+* off BP1 through their 470 Ohm stoppers; the reverb driver hangs off BP1
+* through the reverb transformer (TR4, 125A20B) primary DCR, modeled at 200
+* Ohm. The preamp rail BD (drawing node [D]) is DERIVED from BC through the
+* drawing's second 10k dropper, so its simulated value is a check on the chart
+* rather than an input to it. Every 100k-loaded 12AX7 triode hangs from it —
+* both channel inputs, both 2nd stages, the reverb recovery and the mix driver,
+* six triodes on one 10k: the drawing runs all six plate loads to [D], and the
+* factory layout fans each pair of 100k loads from an eyelet lettered D.
 *
 * Fixed-bias supply (470 Ohm-1W + rectifier + 25/50 uF cans + 10k/10k-L divider)
 * is replaced by an ideal -35 V source, exactly as its AC/ripple-filtering role
 * warrants. DC-open caps are MODELLED where BOTH leads land on a named DC node
 * (the PI->6V6 coupling caps and every cathode-bypass can) so an eventual layout
 * is placement-checked; open at DC they move no operating point. Caps into the
-* abstracted volume / tone / reverb-mix / tremolo networks stay omitted.
+* abstracted volume / tone / reverb-mix / tremolo networks stay omitted, and so
+* do the two 220k mixing resistors, which dead-end on the DC-open mix node.
 *
 * EXCLUDED — the tremolo (vibrato) oscillator V5 (12AX7). It is a running phase-
 * shift oscillator: its chart-printed pins (+270 V plate, +2.1 V cathode, +345 V,
-* +17.0 V) are dynamic averages shifted by grid-leak detection, not a static
-* quiescent point. A static DC solve of the printed 220k/2.7k self-bias stage
-* lands near +200 V, ~26% off the printed +270 V, so force-fitting it would break
-* the honesty rule (an internally-driven node with no well-defined DC point). It
-* is documented in notes.md, not modeled. Its plate supply taps the input-stage
-* rail (BD); with it excluded, BD reads above the factory value, so the two input-
-* stage plates are reported informational (voltages.yaml), never gated.
+* +17.0 V) are running averages shifted by grid-leak detection, not a static
+* quiescent point, so it is documented in notes.md, not modeled. Its plate
+* loads return to the drawing's box [B] — the +415 V node after the choke,
+* which this netlist drives as BP1 — not to the preamp rail, so leaving it out
+* moves no gated node.
 .include models/12ax7.inc
 .include models/12at7.inc
 .include models/6v6gt.inc
@@ -37,9 +55,9 @@ VBP1 BP1 0 DC 415
 VBC  BC  0 DC 325
 VBIAS NBIAS 0 DC -35
 
-* input-stage rail: BC -> 10k -> BD (the +325 -> +180 dropper; BOM ref RD2. The
+* preamp rail: BC -> 10k -> BD (drawing node [C] -> node [D]; BOM ref RD2). The
 * +415 -> +325 dropper, BOM RD1, is not modelled — BC is driven at its charted
-* value, so that dropper carries no DC the solve needs).
+* value, so that dropper carries no DC the solve needs.
 RD2 BC BD 10k
 
 * --- Normal channel input V1a (12AX7): 100k plate, 1.5k cathode (25uF), grid
@@ -50,6 +68,15 @@ RGN1 GN1 0 1meg
 RKN1 KN1 0 1500
 CKN1 KN1 0 25u
 
+* --- Normal channel 2nd stage V1b (12AX7): 100k plate, grid returned to ground
+*     through the normal volume pot (~0 V DC). Plate rail BD. Its cathode pin
+*     carries the drawing's boxed connection [A] and has NO resistor of its
+*     own: it lands on node KA, the 820 Ohm / 25 uF network drawn once at the
+*     Vibrato 2nd stage below.
+RLN2 BD PN2 100k
+XV1B PN2 GN2 KA 12AX7
+RGN2 GN2 0 1meg
+
 * --- Vibrato channel input V2a (12AX7): identical topology, plate rail BD.
 RLV1 BD PV1 100k
 XV2A PV1 GV1 KV1 12AX7
@@ -57,30 +84,40 @@ RGV1 GV1 0 1meg
 RKV1 KV1 0 1500
 CKV1 KV1 0 25u
 
-* --- Vibrato channel 2nd stage V2b (12AX7): 100k plate, 820 cathode (25uF),
-*     grid returns through the vibrato volume pot (~0 V DC). Plate rail BC.
-RLV2 BC PV2 100k
-XV2B PV2 GV2 KV2 12AX7
+* --- Vibrato channel 2nd stage V2b (12AX7): 100k plate, grid returned through
+*     the vibrato volume pot (~0 V DC). Plate rail BD. Cathode on node KA.
+RLV2 BD PV2 100k
+XV2B PV2 GV2 KA 12AX7
 RGV2 GV2 0 1meg
-RKV2 KV2 0 820
-CKV2 KV2 0 25u
 
-* --- Reverb-recovery amp V3b (12AX7): 100k plate, 820 cathode (25uF), grid from
-*     the reverb tank output through a 3.3M/220k network (~0 V DC). Plate rail BC.
-RLR1 BC PR1 100k
-XV3B PR1 GR1 KR1 12AX7
+* --- Cathode network [A]: ONE 820 Ohm and ONE 25 uF can, carrying BOTH second
+*     stages' current. Drawn at the Vibrato stage, under the designators the
+*     parts list gives it there; the Normal stage's cathode returns to it
+*     through the boxed [A] connection.
+RKV2 KA 0 820
+CKV2 KA 0 25u
+
+* --- Reverb-recovery amp V3b (12AX7): 100k plate, grid from the reverb tank
+*     output through a 3.3M/220k network (~0 V DC). Plate rail BD. Cathode on
+*     node KE.
+RLR1 BD PR1 100k
+XV3B PR1 GR1 KE 12AX7
 RGRV GR1 0 1meg
-RKR1 KR1 0 820
-CKR1 KR1 0 25u
 
-* --- Vibrato/reverb mix driver V3a (12AX7): 100k plate, 820 cathode (25uF); its
-*     grid carries the mixed dry+reverb signal and is shunted by the tremolo
-*     optocoupler (DC-open path). DC grid ~0 via the 3.3M leak. Plate rail BC.
-RLD1 BC PD1 100k
-XV3A PD1 GD1 KD1 12AX7
+* --- Vibrato/reverb mix driver V3a (12AX7): 100k plate; its grid carries the
+*     mixed dry+reverb signal, DC ~0 via the 3.3M leak. Plate rail BD. Its
+*     cathode pin carries the drawing's boxed connection [E] and has NO
+*     resistor of its own: it lands on node KE.
+RLD1 BD PD1 100k
+XV3A PD1 GD1 KE 12AX7
 RGD1 GD1 0 3.3meg
-RKD1 KD1 0 820
-CKD1 KD1 0 25u
+
+* --- Cathode network [E]: ONE 820 Ohm and ONE 25 uF can, carrying BOTH the mix
+*     driver's and the reverb recovery's current. Drawn at the recovery stage,
+*     under the designators the parts list gives it there; the mix driver's
+*     cathode returns to it through the boxed [E] connection.
+RKR1 KE 0 820
+CKR1 KE 0 25u
 
 * --- Reverb driver V4 (12AT7, BOTH sections in parallel): shared 2.2k cathode
 *     (25uF), grids tied through a 1M leak, plates tied and fed from BP1 through

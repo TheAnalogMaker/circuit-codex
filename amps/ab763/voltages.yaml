@@ -4,27 +4,42 @@
 # Tube pins therefore get 20%; the driven supply / bias rails get tighter targets.
 #
 # Two rails are DRIVEN at their printed values (BP1 = +415 V plates, BC = +325 V
-# phase-inverter/preamp node) and every stage below is solved; see netlist.cir.
-# The input-stage rail is derived through the drawing's 10k dropper, and because
-# the excluded tremolo oscillator taps that rail (notes.md), the two channel-input
-# plates are reported for information, not gated.
-source: "Fender AB763 Deluxe Reverb-Amp drawing, printed voltages: +415 (6V6 plates, screens), +420 (OT centre tap), +410 (reverb-driver plate), +345/+270 (tremolo oscillator, excluded), +325 (PI/preamp node), +180/+170 (preamp plates), PI +170/+180 plates with +77/+75.5 tail, +8.7 (reverb-driver cathode), +1.3 (preamp cathodes), -35 (6V6 fixed bias)"
+# phase-inverter node) and every stage below is solved; see netlist.cir. The
+# preamp rail (drawing node [D]) is derived through the drawing's 10k dropper and
+# carries every 100k-loaded preamp triode — both channel inputs, both second
+# stages, the reverb recovery and the mix driver — so their plates are a check
+# on the chart, not an echo of it.
+#
+# Two cathode readings are printed at both ends of a boxed connection, because
+# the box is the node: +1.3 V at the Normal and Vibrato second stages (box [A],
+# node KA) and at the mix driver and the reverb recovery (box [E], node KE).
+# Each is one gated node here, not two.
+#
+# Until 2026-09-10 this file reported the four channel-input readings (+180 V /
+# +1.3 V Normal, +170 V / +1.3 V Vibrato) as information only, with a note that
+# the excluded tremolo oscillator taps the input-stage rail and runs it high.
+# That note was false. The drawing returns the tremolo's plate loads to box [B]
+# (+415 V), not to the preamp rail. The rail read high because the model hung
+# only two of the six triodes on it; one of the missing four, the Normal second
+# stage, was absent altogether. With all six on it, every printed figure lands.
+source: "Fender AB763 Deluxe Reverb-Amp drawing, printed voltages: +415 (6V6 plates, screens), +420 (OT centre tap), +410 (reverb-driver plate), +345/+270 (tremolo oscillator, excluded), +325 (phase-inverter plate node [C]), +180/+170 (preamp plates), PI +170/+180 plates with +77/+75.5 tail, +8.7 (reverb-driver cathode), +1.3 (preamp cathodes; boxes [A] and [E] each printed at both ends), -35 (6V6 fixed bias)"
 nodes:
   S61:  { chart: 415, tol_pct: 8,  note: "6V6 (V7) screen after its 470 Ohm-1W stopper, off the +415 plate rail" }
   G61:  { chart: -35, tol_pct: 8,  note: "6V6 (V7) grid, fixed bias via 220k from the -35 V supply" }
   PRD:  { chart: 410, tol_pct: 20, note: "reverb-driver 12AT7 plate (paralleled sections), off BP1 through the TR4 primary DCR" }
   KRD:  { chart: 8.7, tol_pct: 20, note: "reverb-driver 12AT7 shared cathode over 2.2k" }
-  PV2:  { chart: 170, tol_pct: 20, note: "vibrato-channel 2nd stage plate, 100k from +325" }
-  KV2:  { chart: 1.3, tol_pct: 20, note: "vibrato-channel 2nd stage cathode over 820 Ohm" }
-  PR1:  { chart: 170, tol_pct: 20, note: "reverb-recovery plate, 100k from +325" }
-  KR1:  { chart: 1.3, tol_pct: 20, note: "reverb-recovery cathode over 820 Ohm" }
-  PD1:  { chart: 180, tol_pct: 20, note: "vibrato/reverb mix-driver plate, 100k from +325" }
-  KD1:  { chart: 1.3, tol_pct: 20, note: "mix-driver cathode over 820 Ohm" }
+  BD:   { chart: null, note: "preamp rail, drawing node [D] — the drawing prints no voltage here; derived from the +325 V node through the 10k dropper" }
+  PN1:  { chart: 180, tol_pct: 20, note: "Normal-channel input plate, 100k from the preamp rail [D]" }
+  KN1:  { chart: 1.3, tol_pct: 20, note: "Normal-channel input cathode over 1.5k" }
+  PN2:  { chart: 180, tol_pct: 20, note: "Normal-channel 2nd-stage plate, 100k from the preamp rail [D]" }
+  PV1:  { chart: 170, tol_pct: 20, note: "Vibrato-channel input plate, 100k from the preamp rail [D]" }
+  KV1:  { chart: 1.3, tol_pct: 20, note: "Vibrato-channel input cathode over 1.5k" }
+  PV2:  { chart: 170, tol_pct: 20, note: "Vibrato-channel 2nd-stage plate, 100k from the preamp rail [D]" }
+  KA:   { chart: 1.3, tol_pct: 20, note: "boxed [A] — the ONE 820 Ohm carrying both second stages, Normal and Vibrato; the chart prints +1.3 V at each end of the box" }
+  PR1:  { chart: 170, tol_pct: 20, note: "reverb-recovery plate, 100k from the preamp rail [D]" }
+  PD1:  { chart: 180, tol_pct: 20, note: "vibrato/reverb mix-driver plate, 100k from the preamp rail [D]" }
+  KE:   { chart: 1.3, tol_pct: 20, note: "boxed [E] — the ONE 820 Ohm carrying both the mix driver and the reverb recovery; the chart prints +1.3 V at each end of the box" }
   PPIA: { chart: 170, tol_pct: 20, note: "PI plate, 82k (hot) side" }
   PPIB: { chart: 180, tol_pct: 20, note: "PI plate, 100k (cold) side" }
   KPI:  { chart: 77,   tol_pct: 20, note: "PI joined cathodes, above the 470 Ohm" }
   JPI:  { chart: 75.5, tol_pct: 20, note: "PI tail junction (470 Ohm / 22k), grid-leak return" }
-  PN1:  { chart: null, note: "normal-channel input plate — printed +180 V. Reported, not gated: this stage's rail is shared with the excluded tremolo oscillator, so the un-loaded derived rail runs the plate high (sim ~199 V)" }
-  KN1:  { chart: null, note: "normal-channel input cathode over 1.5k — printed +1.3 V (informational, same shared-rail reason)" }
-  PV1:  { chart: null, note: "vibrato-channel input plate — printed +170 V (informational, shared-rail with the excluded tremolo)" }
-  KV1:  { chart: null, note: "vibrato-channel input cathode over 1.5k — printed +1.3 V (informational)" }
