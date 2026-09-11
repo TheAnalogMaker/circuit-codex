@@ -151,6 +151,9 @@ def check(data: dict) -> list[str]:
         sock = re.match(r"V\d+", key).group(0)
         if sock not in sockets:
             out.append(f"sections: {key} names {sock}, which the BOM does not list as a valve")
+        elif sockets[sock][1] == 0:
+            out.append(f"sections: {key} is a {sockets[sock][0]}, which supplies no amplifying section "
+                       f"(a rectifier sits outside the DC model) — there is nothing to declare")
         if not VALUE_RE.match(str(value or "")):
             out.append(f"sections: {key} must start \"excluded —\", \"not drawn —\" or \"unused —\" (got {str(value)[:40]!r})")
     for sock, (canon, n) in sockets.items():
@@ -222,6 +225,8 @@ def selftest() -> int:
     expect("...and sch_map symbols resolve it", check(d) == [])
     d = base(); d["declared"] = {"V9": "excluded — planted"}
     expect("a declaration for a socket the BOM lacks is caught", len(check(d)) == 1)
+    d = base(); d["declared"] = {"V3": "excluded — a rectifier, planted"}
+    expect("a declaration for a rectifier socket (no sections) is caught", len(check(d)) == 1)
     d = base(); d["instances"] = [("V1", "12AX7"), ("V2", "6V6GT")]
     expect("one unlettered instance of a dual triode leaves a section to account for", len(check(d)) == 1)
 
