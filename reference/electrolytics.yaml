@@ -255,32 +255,24 @@ amps:
       plus_drawn_at: a
       ref: CKB1
   ab763:
-    not_decided:
-    - ref: C13
-      verdict: undecided
-      why: 'C13.a: on BD, which has no simulated volts'
     wrong:
     - leads: '''+'' lead CKRD.a: 0 = +0.0 V (ground); other lead CKRD.b: KRD = +8.2 V (op-points)'
       placed: 'by position: the left end of a can along a row'
       plus_drawn_at: a
       ref: CKRD
-    - leads: '''+'' lead CKR1.a: 0 = +0.0 V (ground); other lead CKR1.b: KR1 = +1.2 V (op-points)'
+    - leads: '''+'' lead CKR1.a: 0 = +0.0 V (ground); other lead CKR1.b: KE = +1.5 V (op-points)'
       placed: 'by position: the left end of a can along a row'
       plus_drawn_at: a
       ref: CKR1
-    - leads: '''+'' lead CKD1.a: 0 = +0.0 V (ground); other lead CKD1.b: KD1 = +1.2 V (op-points)'
-      placed: 'by position: the left end of a can along a row'
-      plus_drawn_at: a
-      ref: CKD1
-    - leads: '''+'' lead CKV1.a: 0 = +0.0 V (ground); other lead CKV1.b: KV1 = +1.6 V (op-points)'
+    - leads: '''+'' lead CKV1.a: 0 = +0.0 V (ground); other lead CKV1.b: KV1 = +1.4 V (op-points)'
       placed: 'by position: the left end of a can along a row'
       plus_drawn_at: a
       ref: CKV1
-    - leads: '''+'' lead CKV2.a: 0 = +0.0 V (ground); other lead CKV2.b: KV2 = +1.2 V (op-points)'
+    - leads: '''+'' lead CKV2.a: 0 = +0.0 V (ground); other lead CKV2.b: KA = +1.5 V (op-points)'
       placed: 'by position: the left end of a can along a row'
       plus_drawn_at: a
       ref: CKV2
-    - leads: '''+'' lead CKN1.a: 0 = +0.0 V (ground); other lead CKN1.b: KN1 = +1.6 V (op-points)'
+    - leads: '''+'' lead CKN1.a: 0 = +0.0 V (ground); other lead CKN1.b: KN1 = +1.4 V (op-points)'
       placed: 'by position: the left end of a can along a row'
       plus_drawn_at: a
       ref: CKN1
@@ -391,8 +383,8 @@ amps:
       plus_drawn_at: a
       ref: C19
 summary:
-  cans: 267
-  right: 192
-  undecided: 14
+  cans: 266
+  right: 193
+  undecided: 13
   unmarked: 0
-  wrong: 61
+  wrong: 60
