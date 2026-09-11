@@ -31,7 +31,7 @@ heaters_unsourced: >-
   derived from the factory schematic, so no factory drawing can establish its
   heater legs.
 
-caption: "Layout derived from the schematic — no factory layout sheet located. The Marshall JTM45 was a turret-board amp with no Fender-style published layout drawing; Dr. Tube (the schematic source) and a web/browser probe were checked on 2026-07-18 and served none. Board order and point-to-point wiring are reconstructed from schematic.kicad_sch / netlist.cir and follow the Fender 5F6-A layout this circuit copies. All hookup and transformer leads are drawn in the neutral tone: with no layout sheet, no lead colours are asserted (Marshall/Drake colour codes cannot be sourced here). The three TMB tone-stack caps sit on the board beside the 56 kΩ slope resistor and are wired as the drawing wires them: the 270 pF from the cathode-follower output to the treble pot's top lug, the 0.02 µF from the slope's foot to the treble-bottom / bass node, and the third from the slope's foot into the middle pot's wiper. the input grid stoppers (R1s/R2s 68k) and grid leaks (RG1/RG2 1M) sit at the input jacks; the 27k negative-feedback resistor and 5k presence control (with its 0.01µF cap) join the phase-inverter tail foot off-board. The 6.3 V heater chain (green twisted pair, PT → pilot lamp → the two KT66 outputs → the ECC83 phase inverter → the ECC83 driver → the ECC83 input, skipping the directly-heated GZ34) is likewise derived: with no layout sheet its daisy order is the physical socket order and the twisted-pair green is the house heater idiom, not a sourced wire colour (no winding centre-tap arrangement is asserted). Not a trace or a dimensioned reproduction."
+caption: "Layout derived from the schematic — no factory layout sheet located. The Marshall JTM45 was a turret-board amp with no Fender-style published layout drawing; Dr. Tube (the schematic source) and a web/browser probe were checked on 2026-07-18 and served none. Board order and point-to-point wiring are reconstructed from schematic.kicad_sch / netlist.cir and follow the Fender 5F6-A layout this circuit copies. All hookup and transformer leads are drawn in the neutral tone: with no layout sheet, no lead colours are asserted (Marshall/Drake colour codes cannot be sourced here). The three TMB tone-stack caps sit on the board beside the 56 kΩ slope resistor and are wired as the drawing wires them: the 270 pF from the cathode-follower output to the treble pot's top lug, one cap from the slope's foot to the treble-bottom / bass node, and the other from the slope's foot into the middle pot's wiper. the input grid stoppers (R1s/R2s 68k) and grid leaks (RG1/RG2 1M) sit at the input jacks; the 27k negative-feedback resistor and 5k presence control (with its 0.01µF cap) join the phase-inverter tail foot off-board. The 6.3 V heater chain (green twisted pair, PT → pilot lamp → the two KT66 outputs → the ECC83 phase inverter → the ECC83 driver → the ECC83 input, skipping the directly-heated GZ34) is likewise derived: with no layout sheet its daisy order is the physical socket order and the twisted-pair green is the house heater idiom, not a sourced wire colour (no winding centre-tap arrangement is asserted). Not a trace or a dimensioned reproduction."
 source:
   desc: "Marshall JTM45 factory schematic ('Basic schematic for Marshall trem amps, types 1961, 1962, 1987/T') — layout derived from this schematic; no factory layout sheet located"
   url: "https://www.drtube.com/schematics/marshall/jtm45tr.gif"
@@ -51,11 +51,12 @@ wiring_claim: verified
 parts:
   # --- bias supply (silicon HT-tap diode -> 150k -> .05u/25u -> -50V) ----------
   - { ref: RB1,  a: [1, 3],  b: [1, 4] }    # 150k bias series
-  # `cathode` names the eyelet the SCHEMATIC puts the cathode on, so the drawn
-  # body can carry its band the right way round: schematic.kicad_sch wires
-  # HT_B to the DIODE_SS anode pin and the 150 k (RB1) to its cathode pin, and
-  # this run pair lands HT_B on D1.a and RB1 on D1.b — so the band is at b.
-  - { ref: D1,   a: [1, 6],  b: [1, 7], cathode: b }    # 1N4007 bias rectifier
+  # `cathode` names the eyelet the cathode sits on. The rail this diode feeds
+  # is NEGATIVE, so its cathode faces the AC side: the HT feed (V7 pin 6,
+  # D1.a here) — the JTM45 drawing's bar, and schematic.kicad_sch's D1 once
+  # it is drawn at rot 180 in the bias row, K pin toward HT_B. The anode is on
+  # the 150 k (RB1) side, toward the -50 V node.
+  - { ref: D1,   a: [1, 6],  b: [1, 7], cathode: a }    # 1N4007 bias rectifier
   - { ref: C16,  a: [0, 0],  b: [0, 1], value_nudge: [0, -12] }    # 25 µF bias reservoir; value lifted off run[1]
   - { ref: C15,  a: [0, 3],  b: [0, 4] }    # 0.05 µF bias filter
   # --- main filter cans + rail droppers (power end, left) ---------------------
