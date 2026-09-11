@@ -105,6 +105,14 @@ BLOCKING once a default run prints an empty REVERSED list: set
 POLARITY_BLOCKING, and a REVERSED diode then fails a board claiming
 `wiring_claim: verified` like any other DIFF.
 
+The same rule set reads each board diode's FEED (UNFED RECTIFIER): a diode
+the model gives a role (rectifier_role: exactly one end on a supply) is
+walked from its other end, its AC side, to a lead of a power transformer (an
+xfmr stub whose label or BOM part says power or mains), across the parts
+above plus the other diodes of its own stack or bridge (diode_groups), never
+into ground or a DC node. Polarity knows which side of ground a supply sits
+on; this knows a winding feeds it. Report-only under the same switch.
+
 ------------------------------------------------------------------------------
 VERDICT + GATE
 ------------------------------------------------------------------------------
@@ -579,6 +587,93 @@ def judge_diode(ref: str, anode: tuple, cathode: tuple, volts: dict) -> dict:
     return p
 
 
+def rectifier_role(va, vk) -> "tuple | None":
+    """(kind, supply end) for a diode whose simulated volts name the supply it
+    feeds: ('HT', end) when exactly one end sits above POL_BPLUS_V, ('bias',
+    end) when exactly one sits below POL_NEG_V. The OTHER end is the AC side,
+    the one a transformer winding must feed: the anode of an HT rectifier, the
+    cathode of a negative-bias one, whichever way round the part is drawn (a
+    REVERSED part keeps its role; its supply end is where it was drawn). None
+    when the model names no supply at either end, or one at both."""
+    ends = []
+    for end, v in (("cathode", vk), ("anode", va)):
+        if v is not None and v > POL_BPLUS_V:
+            ends.append(("HT", end))
+        elif v is not None and v < POL_NEG_V:
+            ends.append(("bias", end))
+    return ends[0] if len(ends) == 1 else None
+
+
+def diode_groups(nets_of: dict, is_stop) -> dict:
+    """ref -> the diodes of its own stack or bridge (itself included): diodes
+    that share a net which is neither ground nor a modelled DC node, i.e. a
+    stack's inner joints, a bridge's AC corners, a full-wave pair's unmodelled
+    reservoir. `nets_of` is ref -> the nets its two ends sit on."""
+    parent = {r: r for r in nets_of}
+
+    def find(x):
+        while parent[x] != x:
+            parent[x] = parent[parent[x]]
+            x = parent[x]
+        return x
+
+    by_net: dict = {}
+    for ref, nets in nets_of.items():
+        for net in nets:
+            if net is not None and not is_stop(net):
+                by_net.setdefault(net, []).append(ref)
+    for refs in by_net.values():
+        for other in refs[1:]:
+            ra, rb = find(refs[0]), find(other)
+            if ra != rb:
+                parent[ra] = rb
+    groups: dict = {}
+    for ref in nets_of:
+        groups.setdefault(find(ref), set()).add(ref)
+    return {ref: groups[find(ref)] for ref in nets_of}
+
+
+def judge_feed(ref: str, role: tuple, ac_term: str, start, is_stop, feeds,
+               neighbours, node_of) -> dict:
+    """Is a rectifier FED? Breadth-first from `start`, the net of its AC side
+    `ac_term`, to a transformer winding. `feeds(net)` describes a winding end on
+    the net, or None; `is_stop(net)` is a net the walk may neither enter nor
+    leave through: ground, or any node the DC netlist models, since a
+    rectifier's AC side is never a DC node; `neighbours(net)` yields (part ref,
+    far net) for each part the walk may cross. Verdict 'fed' or 'UNFED'."""
+    f = {"ref": ref, "role": role[0], "ac": ac_term, "path": [], "seen": set()}
+    if start is None:
+        f.update(verdict="UNFED", why=f"no lead reaches {ac_term}")
+        return f
+    if is_stop(start):
+        node = node_of(start)
+        f.update(verdict="UNFED", seen={start},
+                 why=f"{ac_term} sits on {'ground' if node == '0' else node}, a "
+                     f"node the DC model holds, where no winding can feed it")
+        return f
+    seen, frontier, crossed = {start}, [(start, [])], []
+    while frontier:
+        net, path = frontier.pop(0)
+        hit = feeds(net)
+        if hit:
+            f.update(verdict="fed", path=path, seen=seen,
+                     why=f"{ac_term} reaches {hit}"
+                         + (f" through {', '.join(path)}" if path else ""))
+            return f
+        for pref, nxt in neighbours(net):
+            if nxt is None or nxt in seen or is_stop(nxt):
+                continue
+            seen.add(nxt)
+            if pref not in crossed:
+                crossed.append(pref)
+            frontier.append((nxt, path + [pref]))
+    f.update(verdict="UNFED", seen=seen,
+             why=f"the walk from {ac_term}"
+                 + (f" across {', '.join(crossed)}" if crossed else "")
+                 + " reaches no transformer winding")
+    return f
+
+
 def load_basing(slug: str) -> dict | None:
     """pin(int) -> {'role': canonical, 'unit': int|None} for signal pins only."""
     path = TUBES / f"{slug}.yaml"
@@ -937,6 +1032,8 @@ def _check_layout(amp_id: str, layout: dict, bom: dict, net_map=None,
             if p["verdict"] == "REVERSED":
                 res.errors.append(f"REVERSED DIODE: {p['ref']} (cathode: "
                                   f"{p['cathode']}): {p['why']} ({p['desc']})")
+            if (p.get("feed") or {}).get("verdict") == "UNFED":
+                res.errors.append(f"UNFED RECTIFIER: {p['ref']}: {p['feed']['why']}")
     res.ok = not res.errors
     return res
 
@@ -1147,6 +1244,14 @@ def _solve(amp_id, layout, R, LG, uf, comps, nodes, net_map, part_terms,
 POLARITY_BLOCKING = False
 
 
+def _is_power_xfmr(R: Renderer, it: dict) -> bool:
+    """A supply transformer by its own words: the stub's label or its BOM part
+    says power or mains (so never an output or a reverb transformer)."""
+    part = (R.bom.get(it.get("ref")) or {}).get("part", "") if it.get("ref") else ""
+    words = f"{it.get('label', '')} {part}".lower()
+    return "power" in words or "mains" in words
+
+
 def board_polarity(R: Renderer, uf: UF, M: dict, volts: dict,
                    modelled: set) -> list:
     """Judge every diode the board draws through the board's own node map, with
@@ -1237,6 +1342,68 @@ def board_polarity(R: Renderer, uf: UF, M: dict, volts: dict,
         p = judge_diode(ref, locate(ta), locate(tk), volts)
         p["cathode"] = end
         out.append(p)
+
+    # ---- rectifier feed (UNFED RECTIFIER), report-only like polarity. -------
+    # Polarity says which side of ground a supply sits on, not that a winding
+    # feeds it. A diode the model gives a role (rectifier_role) is walked from
+    # its AC side to a power-transformer lead, across the parts above plus the
+    # other diodes of its own stack or bridge, never into ground or a DC node.
+    def is_stop(root):
+        return M.get(root) is not None
+
+    pt_terms: set = set()
+    for it in R.offboard:
+        if it.get("kind") == "xfmr" and it.get("id") and _is_power_xfmr(R, it):
+            pt_terms.update(by_prefix.get(it["id"], []))
+
+    def feeds(root):
+        hits = sorted(t for t in members.get(root, ()) if t in pt_terms)
+        return f"the power-transformer lead {hits[0]}" if hits else None
+
+    tids = [tid for _r, tid, _s, _w in items]
+    nets_of = {tid: [uf.find(t) for t in (f"{tid}.a", f"{tid}.b") if t in uf.parent]
+               for tid in tids}
+    groups = diode_groups(nets_of, is_stop)
+
+    def neighbours_for(tid):
+        mates = groups.get(tid, {tid}) - {tid}
+
+        def nb(root):
+            for term in members.get(root, ()):
+                pre = term.split(".", 1)[0]
+                if term in body:
+                    pref, terms = body[term]
+                elif pre in mates:
+                    pref, terms = pre, [f"{pre}.a", f"{pre}.b"]
+                else:
+                    continue
+                for other in terms:
+                    if other != term and other in uf.parent:
+                        yield pref, uf.find(other)
+        return nb
+
+    judged: set = set()
+    for p, tid in zip(out, tids):
+        role = rectifier_role(p["va"], p["vk"]) if p.get("cathode") else None
+        if role is None:
+            continue
+        k = p["cathode"]
+        ac = f"{tid}.{('b' if k == 'a' else 'a') if role[1] == 'cathode' else k}"
+        start = uf.find(ac) if ac in uf.parent else None
+        p["feed"] = judge_feed(p["ref"], role, ac, start, is_stop, feeds,
+                               neighbours_for(tid), M.get)
+        judged.add(tid)
+    for p, tid in zip(out, tids):
+        if "feed" in p:
+            continue
+        mates = sorted(groups.get(tid, {tid}) & judged)
+        p["feed"] = ({"verdict": "covered", "ref": p["ref"],
+                      "why": f"no role of its own; walked as part of "
+                             f"{', '.join(mates)}'s stack or bridge"} if mates else
+                     {"verdict": "unchecked", "ref": p["ref"],
+                      "why": "no role (no `cathode:`, or the model names no "
+                             "supply at either end) and no stack- or bridge-mate "
+                             "with one"})
     return out
 
 
@@ -1591,6 +1758,11 @@ def _print_result(res: Result):
             print(f"  POLAR | REVERSED {p['ref']} (cathode: {p['cathode']}): "
                   f"{p['why']} [{p['desc']}]"
                   + ("" if POLARITY_BLOCKING else "  (report-only)"))
+    for p in res.polarity:
+        f = p.get("feed") or {}
+        if f.get("verdict") == "UNFED":
+            print(f"  POLAR | UNFED {p['ref']} ({f['role']} rectifier): {f['why']}"
+                  + ("" if POLARITY_BLOCKING else "  (report-only)"))
     conf = [p["ref"] for p in res.polarity if p["verdict"] == "confirmed"]
     if conf:
         print(f"  polar | orientation confirmed by the DC model: {', '.join(conf)}")
@@ -1911,6 +2083,25 @@ def selftest() -> int:
             print(f"  [POL] a REVERSED diode leaves the wiring verdict untouched "
                   f"while the list is report-only: {'OK' if same else 'FAIL'}")
 
+    # ---- rectifier feed: the 5F8-A's bias rectifier is fed from PT.red-blue.
+    #      As committed it must read fed; with that one run deleted, UNFED. ----
+    base_feed = next((p.get("feed") or {} for p in base8a.polarity
+                      if p["ref"] == "D1"), {}).get("verdict")
+    pol_results.append(base_feed == "fed")
+    print(f"  [FEED] 5f8a D1 as committed -> {base_feed} (want fed): "
+          f"{'OK' if base_feed == 'fed' else 'FAIL'}")
+    m = copy.deepcopy(l8a)
+    m["runs"] = [run for run in m["runs"]
+                 if not (run.get("from") == "PT.red-blue" and run.get("to") == "D1.a")]
+    r = _check_layout("5f8a", m, b8a)
+    got = next((p.get("feed") or {} for p in r.polarity if p["ref"] == "D1"), {})
+    pol_results.append(got.get("verdict") == "UNFED")
+    print(f"  [FEED] 5f8a D1 with its run from PT.red-blue deleted -> "
+          f"{got.get('verdict')} (want UNFED): "
+          f"{'OK' if got.get('verdict') == 'UNFED' else 'FAIL'}")
+    if got.get("why"):
+        print(f"          -> {got['why']}")
+
     unit_checks = [h2_ok, h2b_ok, h3_ok, h3b_ok, h3c_ok, h3d_ok, h4_ok,
                    h8_red_ok, h8_con_ok, pp_base_ok, pp_break_caught,
                    pot_surfaced, bias_surfaced, h9_fp_ok]
@@ -1920,7 +2111,7 @@ def selftest() -> int:
     n_cases = n_mut + len(unit_checks) + len(pol_results)
     print(f"\nselftest: {passed}/{n_mut} planted-fault mutations caught; "
           f"resolver/island/anchor unit checks {'all OK' if unit_ok else 'FAILED'}; "
-          f"rectifier polarity {sum(pol_results)}/{len(pol_results)} "
+          f"rectifier polarity and feed {sum(pol_results)}/{len(pol_results)} "
           f"({n_cases} cases)"
           + ("" if all_ok else "  !! GATE IS LEAKY"))
     return 0 if all_ok else 1
@@ -1985,6 +2176,16 @@ def _print_polarity_summary(polarity: list):
         reasons.setdefault(p["why"], []).append(f"{a} {p['ref']}")
     for why, items in sorted(reasons.items()):
         print(f"  polarity not checked ({why}): {len(items)} — {', '.join(items)}")
+    fs = [(a, p["feed"]) for a, p in polarity if p.get("feed")]
+    unfed = [(a, f) for a, f in fs if f["verdict"] == "UNFED"]
+    n_fed = sum(1 for _a, f in fs if f["verdict"] == "fed")
+    n_cov = sum(1 for _a, f in fs if f["verdict"] == "covered")
+    n_unc = sum(1 for _a, f in fs if f["verdict"] == "unchecked")
+    print(f"rectifier feed on the boards: {n_fed + len(unfed)} rectifier(s) the "
+          f"model gives a role; {n_fed} fed, {len(unfed)} UNFED; {n_cov} more walked "
+          f"as part of a stack or bridge, {n_unc} not checked (report-only, as above)")
+    for a, f in unfed:
+        print(f"  UNFED {a} {f['ref']} ({f['role']} rectifier): {f['why']}")
 
 
 if __name__ == "__main__":

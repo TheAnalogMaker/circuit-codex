@@ -78,6 +78,9 @@ python3 pipeline/verify_layout_nets.py       # layout↔netlist equivalence (+--
                                   #   the supply it sits on. REPORT-ONLY until
                                   #   the REVERSED list it prints is empty, then
                                   #   POLARITY_BLOCKING (docs/layout-schema.md)
+                                  #   + UNFED RECTIFIER: a rectifier's AC side
+                                  #   reaching no power-transformer lead
+                                  #   (report-only, same switch)
 python3 pipeline/check_heaters.py --selftest && \
 python3 pipeline/check_heaters.py            # heater wiring vs the amp's own declared
                                   #   supply, connection groups and returns, and
@@ -131,6 +134,9 @@ python3 pipeline/verify_schematic_nets.py    # schematic↔netlist equivalence: 
                                              #   on one drawn net (a wire, one label name
                                              #   on both leads, a fuse-and-switch loop),
                                              #   read BEFORE any sch_map contraction
+                                             #   + UNFED RECTIFIER: a rectifier whose AC
+                                             #   side reaches no transformer pin or
+                                             #   winding label (docs/schematic-nets.md)
 python3 pipeline/export_loadlines.py --selftest && \
 python3 pipeline/export_loadlines.py --check # reference/loadlines.yaml vs the netlists,
                                              #   plus grid-supply resolution: a fixed-bias

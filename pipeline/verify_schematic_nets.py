@@ -118,6 +118,8 @@ WHAT IT REPORTS (each line is something a fixer can act on)
                  SIGN the netlist gives the supply it sits on (below)
   SHORTED WINDING a winding whose two ends the drawing puts on one net, read
                  on the nets AS DRAWN, before any declared contraction (below)
+  UNFED RECTIFIER a rectifier whose AC side reaches no transformer winding
+                 (below)
   (coverage)     every schematic symbol with no netlist element is enumerated,
                  tagged "not DC-checked", so what is NOT proven is stated out
                  loud rather than trusted in silence.
@@ -164,6 +166,24 @@ listed as "polarity not checked" with its reason, and counted, every run.
 REVERSED DIODE is a finding like any other: it hard-fails a claimed sheet.
 
 ------------------------------------------------------------------------------
+RECTIFIER FEED — polarity's blind spot
+------------------------------------------------------------------------------
+Polarity knows which side of ground a supply sits on, not that a winding feeds
+it: at e4e59fa the 6G5 drew four diodes whose AC corners all sat on ground, and
+polarity read two of them "confirmed". Each diode the model gives a role
+(`verify_layout_nets.rectifier_role`: exactly one end on a supply, HT above
++50 V or bias below -5 V) is walked from its OTHER end, its AC side, to a
+transformer winding: across POLARITY_WALK_LIBS parts and the other diodes of
+its own stack or bridge (diodes sharing a net that is neither ground nor a
+modelled node), never into ground or a DC node. It is fed when the walk
+reaches a cx:PT pin other than the centre tap, or a global label in
+WINDING_LABELS for a lead the sheet's transformer symbol does not carry; a
+label for a lead the drawn transformer DOES carry counts only by reaching that
+pin. Otherwise UNFED RECTIFIER, a finding like any other. A diode with no role
+is walked as part of a stack- or bridge-mate that has one, or listed as not
+checked.
+
+------------------------------------------------------------------------------
 VERDICT + GATE
 ------------------------------------------------------------------------------
 An amp whose `sch_map.yaml` carries `schematic_claim: verified` is HARD-GATED; an
@@ -188,8 +208,9 @@ from pathlib import Path
 import yaml
 
 from sch_nets import Nets, _key, _on_segment
-from verify_layout_nets import (inherit_node, judge_diode, node_volts,
-                                parse_netlist, supply_walk)
+from verify_layout_nets import (diode_groups, inherit_node, judge_diode,
+                                judge_feed, node_volts, parse_netlist,
+                                rectifier_role, supply_walk)
 
 ROOT = Path(__file__).resolve().parent.parent
 AMPS = ROOT / "amps"
@@ -248,6 +269,15 @@ WINDINGS = {
 # THROUGH them are still one node: a fuse, and a switch in the position the
 # sheet draws it (the DC netlist models the amp in play).
 WINDING_CLOSERS = {"cx:FUSE", "cx:SWITCH"}
+# Global-label names the corpus letters on a transformer lead instead of
+# drawing it as a pin, mapped to the lead they name (read off every sheet on
+# 2026-09-10). A sheet with no cx:PT names its HT and bias leads this way, and
+# the AB763-Twin and AB763 Super letter a bias tap their transformer symbol
+# lacks. A label for a lead the sheet's transformer DOES draw counts only by
+# reaching that pin. A new name goes here, reviewed, never inferred.
+WINDING_LABELS = {"HT_A": "HT_A", "HT-A": "HT_A", "HTA": "HT_A",
+                  "HT_B": "HT_B", "HT-B": "HT_B", "HTB": "HT_B",
+                  "HT_TAP": "HT_TAP", "BIAS TAP": "HT_TAP", "BIAS_AC": "HT_TAP"}
 
 
 # ---------------------------------------------------------------------------
@@ -606,6 +636,13 @@ def check_amp(amp_id: str, sch_path: "Path | None" = None,
                   f"{ref} is drawn the wrong way round: {p['why']}. "
                   f"[{p['desc']}] Turn the symbol through 180 degrees.")
 
+    # -- 3c. rectifier feed --------------------------------------------------
+    # Polarity knows which side of ground a supply sits on, not that a winding
+    # feeds it (the 6G5's base sheet: a bridge on ground, two diodes
+    # "confirmed"). Each diode the model gives a role is walked from its AC side
+    # to a transformer winding.
+    _check_feeds(res, G, M, modelled_refs, pol_mem)
+
     # -- 4. findings --------------------------------------------------------
     mem = members_of()
 
@@ -748,8 +785,99 @@ def check_amp(amp_id: str, sch_path: "Path | None" = None,
         elif p["verdict"] == "unchecked":
             res.scope.append(f"polarity {p['ref']}: NOT CHECKED, {p['why']} "
                              f"[{p['desc']}]")
+    for p in res.polarity:
+        f = p.get("feed")
+        if f:
+            res.scope.append(f"feed {p['ref']}: {f['verdict']}, {f['why']}")
     res.ok = not res.errors
     return res
+
+
+def _check_feeds(res: Result, G: "SchGraph", M: dict, modelled_refs: set,
+                 mem: dict):
+    """UNFED RECTIFIER. Each cx:DIODE_SS the DC model gives a role is walked
+    from its AC side (the end rectifier_role does not put on the supply) to a
+    transformer winding; one that reaches none is a finding. A diode with no
+    role is recorded as walked through a stack- or bridge-mate, or not checked.
+    Verdicts land on each res.polarity entry under 'feed'."""
+    names = _pin_numbers(G)
+    pt_pin = {num: nm for nm, num in names.get("cx:PT", {}).items()}
+    pt_leads = (set(names.get("cx:PT", {}))
+                if any(lib == "cx:PT" for lib in G.lib.values()) else set())
+
+    def is_stop(net):
+        return M.get(net) is not None
+
+    near: set = set()      # labels for a lead the drawn transformer DOES carry
+
+    def feeds(net):
+        for m in mem.get(net, ()):
+            if m.startswith("<"):
+                lead = WINDING_LABELS.get(m[1:-1])
+                if lead and lead not in pt_leads:
+                    return (f"the winding label {m}" if not pt_leads else
+                            f"the label {m}, for a lead the drawn transformer "
+                            f"has no pin for")
+                if lead:
+                    near.add(m)
+                continue
+            sref, _, num = m.rpartition(".")
+            if G.lib.get(sref) == "cx:PT" and pt_pin.get(num, "HT_CT") != "HT_CT":
+                return f"{m} ({pt_pin[num]})"
+        return None
+
+    diodes = {p["ref"]: p for p in res.polarity}
+    nets_of = {r: [G.term(f"{r}.{DIODE_PINS['anode']}"),
+                   G.term(f"{r}.{DIODE_PINS['cathode']}")] for r in diodes}
+    groups = diode_groups(nets_of, is_stop)
+
+    def neighbours_for(judged_ref):
+        mates = groups[judged_ref] - {judged_ref}
+
+        def nb(net):
+            for m in mem.get(net, ()):
+                if m.startswith("<"):
+                    continue
+                sref, _, num = m.rpartition(".")
+                if sref == judged_ref or sref in modelled_refs:
+                    continue
+                if G.lib.get(sref) in POLARITY_WALK_LIBS or sref in mates:
+                    for other in G.nets.pins.get(sref, {}):
+                        if other != num:
+                            yield sref, G.term(f"{sref}.{other}")
+        return nb
+
+    judged: set = set()
+    for ref, p in diodes.items():
+        role = rectifier_role(p["va"], p["vk"])
+        if role is None:
+            continue
+        ac = f"{ref}.{DIODE_PINS['anode' if role[1] == 'cathode' else 'cathode']}"
+        near.clear()
+        f = judge_feed(ref, role, ac, G.term(ac), is_stop, feeds,
+                       neighbours_for(ref), M.get)
+        p["feed"] = f
+        judged.add(ref)
+        if f["verdict"] == "UNFED":
+            mates = sorted(groups[ref] - {ref})
+            _bump(res, "UNFED RECTIFIER",
+                  f"{ref} ({role[0]} rectifier: its {role[1]} is on the supply) is "
+                  f"fed by nothing: {f['why']}"
+                  + (f" (it does reach {', '.join(sorted(near))}, a label for a "
+                     f"lead the drawn transformer has a pin for, but never that "
+                     f"pin)" if near else "")
+                  + (f"; its stack or bridge is {', '.join(mates)}" if mates else "")
+                  + ". Join its AC side to the winding the source draws.")
+    for ref, p in diodes.items():
+        if "feed" in p:
+            continue
+        mates = sorted(groups[ref] & judged)
+        p["feed"] = ({"verdict": "covered", "ref": ref,
+                      "why": f"no role of its own; walked as part of "
+                             f"{', '.join(mates)}'s stack or bridge"} if mates else
+                     {"verdict": "unchecked", "ref": ref,
+                      "why": "no role (the model names no supply at either end) "
+                             "and no stack- or bridge-mate with one"})
 
 
 def _pin_numbers(G: "SchGraph") -> dict:
@@ -1010,6 +1138,22 @@ def _print_polarity_summary(polarity: list):
         print(f"  polarity not checked ({why}): {len(items)} — {', '.join(items)}")
 
 
+def _print_feed_summary(polarity: list):
+    """How many sheet rectifiers a winding was proven to feed, and which were
+    not checked: never silent."""
+    fs = [(amp, p["feed"]) for amp, p in polarity if p.get("feed")]
+    unfed = [(a, f) for a, f in fs if f["verdict"] == "UNFED"]
+    n_fed = sum(1 for _a, f in fs if f["verdict"] == "fed")
+    cov = [f"{a} {f['ref']}" for a, f in fs if f["verdict"] == "covered"]
+    unc = [f"{a} {f['ref']}" for a, f in fs if f["verdict"] == "unchecked"]
+    print(f"rectifier feed: {n_fed + len(unfed)} sheet rectifier(s) the model gives "
+          f"a role; {n_fed} fed, {len(unfed)} UNFED; {len(cov)} more walked as part "
+          f"of a stack or bridge, {len(unc)} not checked")
+    if unc:
+        print(f"  feed not checked (no role, no stack- or bridge-mate with one): "
+              f"{len(unc)} — {', '.join(unc)}")
+
+
 def analyze(amp_id: str) -> int:
     """Dump the solved node <-> net mapping for one sheet, node by node — the
     view a fixer works from: what the netlist puts on a node, what the drawing
@@ -1248,12 +1392,102 @@ def selftest() -> int:
 
     n_pol = _selftest_polarity(fails)
     n_win = _selftest_windings(fails)
-    n_cases += n_pol + n_win
+    n_feed = _selftest_feeds(fails)
+    n_cases += n_pol + n_win + n_feed
     for f in fails:
         print(f"  !! {f}")
     print(f"self-test: {'PASS' if not fails else 'FAIL'} ({n_cases} cases: "
-          f"{n_pol} rectifier polarity, {n_win} shorted winding)")
+          f"{n_pol} rectifier polarity, {n_win} shorted winding, "
+          f"{n_feed} rectifier feed)")
     return 1 if fails else 0
+
+
+_GLABEL_AT = (r'\(global_label "{name}" \(shape [^)]*\) '
+              r'\(at (-?[\d.]+) (-?[\d.]+)( -?[\d.]+)?\)')
+
+
+def _move_label(text: str, name: str, near: tuple, dy: float = -300.0) -> str:
+    """Move the anchor of the global label `name` that sits nearest `near` off
+    its wire (by `dy` mm, clear of the drawing), so the name no longer reaches
+    what that wire joins. The 6G5 at e4e59fa had exactly this: HT_A/HT_B labels
+    that stopped 6 mm short of the rectifier's wires."""
+    pat = re.compile(_GLABEL_AT.format(name=re.escape(name)))
+    found = [(abs(float(m.group(1)) - near[0]) + abs(float(m.group(2)) - near[1]), m)
+             for m in pat.finditer(text)]
+    if not found:
+        raise AssertionError(f"self-test: no global label {name!r}")
+    m = min(found, key=lambda dm: dm[0])[1]
+    head = m.group(0)[:m.group(0).rfind("(at ")]
+    at = f"(at {m.group(1)} {float(m.group(2)) + dy:g}{m.group(3) or ''})"
+    return text[:m.start()] + head + at + text[m.end():]
+
+
+def _selftest_feeds(fails: list) -> int:
+    """UNFED RECTIFIER must bite on a rectifier cut off from its winding, and
+    read fed, with the walk shown, on rectifiers fed as drawn. Returns the
+    case count."""
+    n = 0
+    print("=== rectifier feed: planted faults (edits to temp copies of the "
+          "regenerated .kicad_sch) ===")
+    planted = [
+        ("6g5", "6G5: the HT_A label at the rectifier leg moved off its wire (the "
+                "base sheet's fault: labels stopped short of the diodes' wires)",
+         lambda t: _move_label(t, "HT_A", _pin_xy("6g5", "D1", DIODE_PINS["anode"])),
+         "D3 (HT rectifier"),
+        ("6g5", "6G5: the HT_A label at the transformer moved off its wire, so the "
+                "leg's HT_A names a pin it never reaches",
+         lambda t: _move_label(t, "HT_A", _pin_xy("6g5", "TR1", "3")),
+         "D3 (HT rectifier"),
+        ("5f4", "5F4: the bias rectifier cut off from its tap (the HT_TAP label at "
+                "RB1 moved off its wire)",
+         lambda t: _move_label(t, "HT_TAP", _pin_xy("5f4", "RB1", "1")),
+         "D1 (bias rectifier"),
+    ]
+    tmp = Path(tempfile.mkdtemp(prefix="cx-schfeed-"))
+    try:
+        for amp, label, mutate, needle in planted:
+            base = check_amp(amp)
+            dst = tmp / f"{amp}.kicad_sch"
+            dst.write_text(mutate((AMPS / amp / "schematic.kicad_sch").read_text()))
+            r = check_amp(amp, sch_path=dst)
+            n += 1
+            new = set(r.errors) - set(base.errors)
+            hit = [e for e in new if e.startswith("UNFED RECTIFIER") and needle in e]
+            print(f"  {'CAUGHT' if hit else 'MISSED'}: {label}")
+            if hit:
+                print(f"          -> {hit[0][:170]}")
+            else:
+                fails.append(f"rectifier feed: {label} was not reported")
+                for e in sorted(new)[:3]:
+                    print(f"          (new, not matched) {e[:140]}")
+            if len(r.errors) < len(base.errors):
+                fails.append(f"rectifier feed: {label} REMOVED findings")
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)
+
+    print("=== rectifier feed: fed as drawn ===")
+    for amp, ref, want, label in (
+            ("6g5", "D3", "fed", "6G5 HT leg A, through D2 and D1 to TR1's HT_A pin"),
+            ("6g5", "D1", "covered", "6G5 D1, no role of its own, walked as part "
+                                     "of D3's leg"),
+            ("6g5", "DBIAS", "fed", "6G5 bias rectifier, from TR1's tap pin"),
+            ("5f4", "D1", "fed", "5F4 bias rectifier, through RB1 to T1's tap pin"),
+            ("jtm45", "D1", "fed", "JTM45 bias rectifier, from the HT_B label (the "
+                                   "sheet draws no transformer)"),
+            ("ab763-twin", "DBIAS", "fed", "AB763-Twin bias rectifier, from a BIAS "
+                                           "TAP label for a lead its transformer "
+                                           "symbol lacks")):
+        r = check_amp(amp)
+        n += 1
+        p = next((q for q in r.polarity if q["ref"] == ref), {})
+        f = p.get("feed") or {}
+        got = f.get("verdict", "absent")
+        print(f"  {'OK    ' if got == want else 'WRONG '} {label}: {got}")
+        if f.get("why"):
+            print(f"          -> {f['why'][:170]}")
+        if got != want:
+            fails.append(f"rectifier feed: {amp} {ref} should be {want}, got {got}")
+    return n
 
 
 def _add_wire(text: str, a: tuple, b: tuple) -> str:
@@ -1463,6 +1697,7 @@ def main(argv: list[str]) -> int:
         print("findings by class: " +
               ", ".join(f"{k}={v}" for k, v in sorted(totals.items())))
     _print_polarity_summary(polarity)
+    _print_feed_summary(polarity)
     if failed_claimed:
         print(f"GATE FAIL — claimed sheets with findings: {', '.join(failed_claimed)}")
         return 1

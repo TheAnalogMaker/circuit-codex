@@ -211,6 +211,7 @@ per-component views do not repeat each other.
 | `STALE DECLARATION` | an `sch_map.yaml` entry that names nothing on this sheet, so it was not applied |
 | `REVERSED DIODE` | a `cx:DIODE_SS` drawn the wrong way round, judged against the simulated sign of the supply it sits on ([Rectifier polarity](#rectifier-polarity)) |
 | `SHORTED WINDING` | a winding whose two ends the drawing puts on one net, read on the nets as drawn ([Shorted windings](#shorted-windings)) |
+| `UNFED RECTIFIER` | a rectifier the model gives a role whose AC side reaches no transformer winding ([Rectifier feed](#rectifier-feed)) |
 
 `--report` adds the applied declarations and the coverage narrative: how many
 symbols the netlist models, how many terminals are DC-checked, which tubes are
@@ -303,6 +304,41 @@ the board gate reads `cathode:` fields by exactly the same clauses (report-only
 there for now; see `docs/layout-schema.md`). Here `REVERSED DIODE` is a finding
 like any other: it hard-fails a sheet that claims `schematic_claim: verified`.
 
+## Rectifier feed
+
+Polarity knows which side of ground a supply sits on, not that a winding feeds
+it. At e4e59fa the 6G5 drew four diodes as a bridge whose AC corners all sat
+on ground, and polarity read two of them *confirmed*: anode on ground, cathode
+on B+, the right way round for a part nothing fed.
+
+So each diode the model gives a role is walked from its AC side to a
+transformer winding. The role comes from `verify_layout_nets.rectifier_role`:
+exactly one end on a supply, an **HT** rectifier when that end sits above
++50 V and a **bias** rectifier when it sits below −5 V. The AC side is the
+other end: the anode of an HT rectifier, the cathode of a bias one, whichever
+way round the part is drawn.
+
+The walk crosses the same parts as the polarity walk, plus the other diodes of
+the rectifier's own stack or bridge: diodes that share a net that is neither
+ground nor a modelled node, such as a stack's inner joints or a bridge's AC
+corners. It never enters ground or a DC node, because a rectifier's AC side is
+never one. It is **fed** when it reaches either of these:
+
+- a `cx:PT` pin other than the centre tap;
+- a global label in `WINDING_LABELS` (`HT_A`, `HT_B`, `HT_TAP`, `BIAS TAP` and
+  their spellings) for a lead the sheet's transformer symbol does not carry.
+
+Ten of the 28 sheets with a silicon rectifier draw no transformer and name its
+leads that way. The AB763-Twin and AB763 Super letter a bias tap their
+transformer symbol lacks. A label for a lead the drawn transformer *does*
+carry counts only by reaching that pin, so a label stopped short at the
+transformer end is caught as well. Otherwise the diode is
+**`UNFED RECTIFIER`**, a finding like any other.
+
+A diode with no role, such as an inner diode of a series stack or a bridge's
+low side, is recorded as walked through a stack- or bridge-mate that has one,
+or listed as not checked. Both counts print on every run.
+
 ## The gate
 
 An amp whose `sch_map.yaml` carries `schematic_claim: verified` is **hard-gated**:
@@ -342,8 +378,21 @@ The shorted-winding cases plant four faults, and each must add a
   through the power switch and fuse;
 - both of the 5F4's primary labels lettered `MAINS`.
 
-The same three sheets as committed must add none. The run ends by printing its
-case count, split by class.
+The same three sheets as committed must add none.
+
+The rectifier-feed cases plant three faults, and each must add an
+`UNFED RECTIFIER`:
+- the 6G5's `HT_A` label at the rectifier leg moved off its wire, which is the
+  base sheet's own fault;
+- the same label at the transformer end moved off instead, so the leg's `HT_A`
+  names a pin it never reaches;
+- the 5F4's bias rectifier cut off from its tap.
+
+Six rectifiers as committed must come back fed, or walked through their leg:
+the 6G5's HT leg, one of its inner diodes and its bias rectifier; the 5F4's
+bias rectifier through RB1; the JTM45's through a winding label; and the
+AB763-Twin's through a `BIAS TAP` label. The run ends by printing its case
+count, split by class.
 
 ## CI
 

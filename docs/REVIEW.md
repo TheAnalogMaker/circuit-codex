@@ -219,7 +219,10 @@ not model, a bias row's resistor and trim pot or an HT standby switch, the
 check walks through them to the node it does model and prints the path. A diode
 nothing decides, like the inner diodes of a series HT stack, is listed as not
 checked on every run, so review the drawn symbol against the source anyway: the
-check knows which side of ground a supply is on, not which lead is the tap.
+check knows which side of ground a supply is on, not which lead is the tap. A
+second check, `UNFED RECTIFIER`, follows each rectifier's AC side to a
+transformer winding. It exists because the 6G5 at e4e59fa drew a bridge whose
+AC corners sat on ground, and polarity called two of its diodes confirmed.
 
 ## Social cards — the same rule
 

@@ -1048,6 +1048,14 @@ empty:** set `POLARITY_BLOCKING = True` in `verify_layout_nets.py`, and a
 REVERSED diode then fails a board claiming `wiring_claim: verified` like any
 other DIFF.
 
+The same run reads each board rectifier's **feed** (`UNFED RECTIFIER`,
+report-only under the same switch). A diode the model gives a role is walked
+from its AC side to a lead of a power transformer: an `xfmr` stub whose label
+or BOM part says power or mains. The walk crosses the same parts plus the
+other diodes of its own stack or bridge, and never enters ground or a DC node.
+The rule and its reasons are in `docs/schematic-nets.md` under *Rectifier
+feed*.
+
 `verify_layout_nets.py --selftest` (wired into CI) plants the adversarial audit's
 exact faults — one per proven hole class — and asserts each is caught: two
 endpoints swapped, a run deleted, a run rerouted to a wrong pin; an aliased-valve
@@ -1063,8 +1071,10 @@ live rail must surface in the unchecked-terminal report even though neither is a
 DC short). A rectifier-polarity case sets the 5F8-A's bias rectifier to
 `cathode: b` and requires REVERSED, reached through the unmodelled RB1, with an
 unchanged wiring verdict while the list is report-only. It then sets
-`cathode: a` and requires *confirmed*. A gate that can't catch planted faults
-is decoration.
+`cathode: a` and requires *confirmed*. A feed case requires that same
+rectifier to read *fed* as committed, and UNFED once its run from
+`PT.red-blue` is deleted. A gate that can't catch planted faults is
+decoration.
 
 ```
 python3 pipeline/render_layouts.py                 # (re)generate SVGs first
