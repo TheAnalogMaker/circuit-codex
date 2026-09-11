@@ -1177,6 +1177,14 @@ const TONE_STACK_GATE_EXTRAS = [
     refs: { trebleCap: 'C5', treblePot: 'VR3', trebleShuntCap: 'C6', bassCoupler: 'C16', bassShunt: 'RSH', bassSeries: 'RSL', bassPot: 'VR4', bassLegCap: 'C7', outSeries: 'RSR' },
   },
   {
+    // The 5E6-A draws the 5F4's split network off its cathode follower, with
+    // 220 kOhm where the 5F4 has 100 kOhm in the bass branch and a 10 MOhm
+    // return to the gain stage's grid. Wiring-only: the layout page's 47 pF
+    // across the Treble control is not an element the solver models.
+    id: '5e6a', kind: 'split', wiring: 'split',
+    refs: { trebleCap: 'C4', treblePot: 'VR3', trebleShuntCap: 'C7', bassCoupler: 'C3', bassShunt: 'RBL', bassSeries: 'RTS', bassPot: 'VR4', bassLegCap: 'CBS', outSeries: 'RTO' },
+  },
+  {
     // Wiring-only, and it must stay that way until the solver grows an element
     // for it: the ladder tonestack.js models has no resistor between the treble
     // capacitor and the treble pot, and this channel's drawing has one. The

@@ -170,11 +170,6 @@ UNCHECKED_NETWORKS = {
             "Bass control's top lug, with a 500 pF shunt off the Treble cold lug and the "
             "Bass wiper driving the phase inverter. meta.yaml calls it `james`; it is not "
             "the B-15N's James board and the lab models neither.",
-    "5e6a": "Bass shelf and treble branch never meet in a stack: the Bass control rides "
-            "the shared presence/feedback bus through 220 kOhm with a 220 kOhm/0.005 uF "
-            "shelf under its wiper, while the treble path runs two series capacitors "
-            "(0.1 uF then 250 pF) through a Treble rheostat and into the driver grid "
-            "through 47 pF. No lab model.",
     "6g6b:bass": "Cathode-follower-fed network with a 1 MOhm bass leg bridged by two "
                  "0.25 uF capacitors and a 10 kOhm dropper paralleled by a 25 kOhm Bass "
                  "control, and the channel's Treble control sitting in the shared driver "
