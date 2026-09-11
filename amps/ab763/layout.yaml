@@ -196,7 +196,7 @@ runs:
 
   # === B+4 net (node [D]): dropper output → every 100k preamp plate load — both
   # channel inputs, both 2nd stages (above), the recovery and the mix driver ======
-  - { from: C13.a, to: RLV1.a, via: [[3.5, 1.2], [6, 2.44], [54.6, 2.44]] }  # B+4 → vibrato input plate load (steep dive right of the drops)
+  - { from: C13.a, to: RLV1.a, via: [[3.5, 1.2], [6, 2.44], [54.413, 2.44]] }  # B+4 → vibrato input plate load (steep dive right of the drops)
   - { from: RLV1.a, to: RLV2.a, via: [[55.5, 0.4], [58.5, 0.4]] }        # backbone hop (flat, on-board)
   - { from: RLV2.a, to: RLN1.a, via: [[59.5, 0.4], [63.5, 0.4]] }        # backbone hop (flat, on-board)
   - { from: C13.a, to: RD2.b, via: [[3.8, 0.35], [7.6, 0.7]] }           # B+4 filter → dropper output (flat right, clears the GZ34 lead)
@@ -219,14 +219,14 @@ runs:
   - { from: V8.pin8, to: [1.45, 14.5], via: [[14.7, 1.5]] }         # V8 cathode → ground (land clear of the green SPK lead)
 
   # === phase inverter: plates→couplers, cathodes→tail, grid leaks→junction =====
-  - { from: RLPA.b, to: V6.pin6, via: [[19.7, 1.5]] }               # hot plate load → V6 plate (PPIA), jog off RTAIL.a
-  - { from: V6.pin6, to: C1.a, via: [[20, 2.55], [12.323, 2.55]] }    # PPIA → hot coupler (deep sub-lane below the SPK jack + 6V6 pins)
-  - { from: RLPB.b, to: V6.pin1, via: [[20.3, 1.7]] }              # cold plate load → V6 plate (PPIB), leave down-left off col21
-  - { from: V6.pin1, to: C2.a, via: [[18.6, 2.65], [16, 2.65]] }    # PPIB → cold coupler (deep sub-lane below the SPK jack + 6V6 pins)
-  - { from: RGPA.a, to: V6.pin7, via: [[21.3, 1.55]] }             # hot grid leak → V6 grid (GPIA), jog off RGPA.b
-  - { from: RGPB.a, to: V6.pin2, via: [[22.4, 1.57]] }             # cold grid leak → V6 grid (GPIB), jog off RGPB.b
-  - { from: V6.pin8, to: RTAIL.a, via: [[20.4, 2.35], [18.5, 2.35], [18.5, 1.5]] } # V6 cathode(u1) → tail (KPI), below the ring, up the left
-  - { from: V6.pin3, to: RTAIL.a, via: [[19.3, 1.85]] }           # V6 cathode(u2) → tail top (KPI), from below
+  - { from: RLPA.b, to: V6.pin1, via: [[19.7, 1.5]] }               # hot plate load → V6 plate (PPIA), jog off RTAIL.a
+  - { from: V6.pin1, to: C1.a, via: [[20, 2.55], [12.323, 2.55]] }    # PPIA → hot coupler (deep sub-lane below the SPK jack + 6V6 pins)
+  - { from: RLPB.b, to: V6.pin6, via: [[20.3, 1.7]] }              # cold plate load → V6 plate (PPIB), leave down-left off col21
+  - { from: V6.pin6, to: C2.a, via: [[19.088, 2.65], [16, 2.65]] }    # PPIB → cold coupler (deep sub-lane below the SPK jack + 6V6 pins)
+  - { from: RGPA.a, to: V6.pin2, via: [[21.13, 1.5]] }             # hot grid leak → V6 grid (GPIA), jog off RGPA.b
+  - { from: RGPB.a, to: V6.pin7, via: [[22.4, 1.57]] }             # cold grid leak → V6 grid (GPIB), jog off RGPB.b
+  - { from: V6.pin3, to: RTAIL.a, via: [[20.4, 2.35], [18.5, 2.35], [18.5, 1.5]] } # V6 cathode(u1) → tail (KPI), below the ring, up the left
+  - { from: V6.pin8, to: RTAIL.a, via: [[19.3, 1.85]] }           # V6 cathode(u2) → tail top (KPI), from below
   - { from: RTAIL.b, to: RT2.a, via: [[20.4, 1.4], [21.5, 1.1]] }  # tail → junction (JPI), flat from the left (clear of RGPA.b)
   - { from: RGPA.b, to: RT2.a, via: [[23, 1.55]] }               # hot grid leak → junction, from lower-left
   - { from: RGPB.b, to: RT2.a, via: [[24.5, 2], [24.9, 1.5]] }    # cold grid leak → junction, from lower-right (clear of RGRD.b)
@@ -236,11 +236,11 @@ runs:
   - { from: RNF2.b, to: [1.45, 29.3] }                          # 47 → ground
   - { from: SPK.tip, to: RNFB.a, via: [[18.2, 2.9], [26.8, 2.9]] }  # speaker hot → the 820
   - { from: CCN2.b, to: RMN2.a, via: [[62.6, -0.2], [25.2, -0.2]] } # link X: .047 → the Normal 220k
-  - { from: CCD1.b, to: RMD1.a, via: [[50.6, -0.32], [27.2, -0.32]] } # link Y: .1 → the Vibrato 220k
+  - { from: CCD1.b, to: RMD1.a, via: [[50.203, -0.32], [27.2, -0.32]] } # link Y: .1 → the Vibrato 220k
 
   # === reverb driver V4 (paralleled): plates, grids, cathodes ==================
   - { from: V4.pin6, to: V4.pin1, via: [[32.3, 2.577]] }              # tie the two plates (PRD), shallow loop
-  - { from: V4.pin1, to: T4.blue, via: [[33.6, 2.36], [36, 2.315]] } # plates → reverb-trans primary (PRD)
+  - { from: V4.pin1, to: T4.blue, via: [[33.6, 2.36], [36, 2.282]] } # plates → reverb-trans primary (PRD)
   - { from: V4.pin7, to: V4.pin2, via: [[32.8, 2.5], [32.5, 3.2]] }   # tie the two grids (GRD), deep loop clear of pin8
   - { from: V4.pin7, to: RGRD.a, via: [[32.956, 2], [31.674, 1.44]] } # grids → 1M leak (leave pin7 below pin6, approach RGRD.a off col25)
   - { from: RGRD.b, to: [1.45, 31.2] }                            # grid leak → ground (land between the junction + leak leads)
@@ -270,7 +270,7 @@ runs:
   - { from: CBD1.b, to: RGD1.a }                                # 10 pF across the 3.3M
   - { from: CCV2.b, to: RGD1.b, via: [[59.5, 1.25], [54.5, 1.25]] } # the .02's far side → the dry path
   - { from: RGD1.b, to: CRS.a, via: [[53.6, 2.36], [34.6, 2.36]] }  # the .02's far side → the reverb send
-  - { from: CRS.b, to: RGRD.a, via: [[33.4, 1.305]] }             # 500 pF → the paralleled driver grids (GRD)
+  - { from: CRS.b, to: RGRD.a, via: [[33.361, 1.305]] }             # 500 pF → the paralleled driver grids (GRD)
   - { from: RGD2.b, to: [1.45, 50] }                           # grid leak → ground (straight down off RGD2.b, clear of the grid lead)
   - { from: V3.pin3, to: RKR1.a, via: [[49.32, 2.35], [48.39, 1.88]] }  # cathode → the shared 820Ω (box [E], KE)
 

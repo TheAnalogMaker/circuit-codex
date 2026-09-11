@@ -456,8 +456,11 @@ s.glabel("PIG", 218, YPH, 180)
 cl, cr = s.series_h("C", "CPIA", ".001u", 226, YPH)
 s.wire(218, YPH, cl, YPH)
 s.wire(cr, YPH, XPI - 7.62, YPH)
-t6a = s.triode("V6A", "12AT7", XPI, YPH)
-t6b = s.triode("V6B", "12AT7", XPI, YPB)
+# Sections per the factory layout page: the +170 V (82k, hot) plate is pin 1 and
+# the +180 V (100k, cold) plate pin 6, with +77 V on the joined cathodes — so the
+# .001-fed hot half V6A is unit 2 and the cold half V6B unit 1.
+t6a = s.triode("V6A", "12AT7", XPI, YPH, unit=2)
+t6b = s.triode("V6B", "12AT7", XPI, YPB, unit=1)
 s.plate_load("RLPA", "82k 5%", t6a["p"], "B+3")
 s.plate_load("RLPB", "100k 5%", t6b["p"], "B+3")
 # Shared tail. The cold half's lead is taken from V6B's CATHODE (YPB + 7.62)
