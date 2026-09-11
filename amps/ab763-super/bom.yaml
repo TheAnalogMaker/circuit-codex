@@ -53,7 +53,7 @@ items:
   - { ref: RKRD, part: "Carbon comp resistor", value: "2.2 kΩ · ½ W", role: "Reverb-driver shared cathode bias" }
   - { ref: CKRD, part: "Electrolytic capacitor", value: "25 µF · 25 V", role: "Reverb-driver cathode bypass" }
   - { ref: T4,  part: "Reverb transformer",   value: "Fender 125A20B", role: "Reverb driver → tank input" }
-  - { ref: RGR1, part: "Carbon comp resistor", value: "220 kΩ · ½ W", role: "Reverb-recovery grid resistor (tank output)" }
+  - { ref: RGR1, part: "Carbon comp resistor", value: "220 kΩ · ½ W", role: "Reverb-recovery grid leak, to ground (the tank output lands on the grid)" }
   - { ref: RLR1, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "V3b (reverb recovery) plate load" }
   - { ref: RKE, part: "Carbon comp resistor", value: "820 Ω · ½ W",   role: "Cathode bias at the drawing's boxed [E] — one resistor for BOTH the mix driver and the reverb recovery" }
   - { ref: CKE, part: "Electrolytic capacitor", value: "25 µF · 25 V", role: "Cathode bypass across RKE (shared [E] network)" }
@@ -92,10 +92,11 @@ items:
   - { ref: RGPA, part: "Carbon comp resistor", value: "1 MΩ · ½ W",   role: "PI grid leak (hot), returned to tail junction" }
   - { ref: RGPB, part: "Carbon comp resistor", value: "1 MΩ · ½ W",   role: "PI grid leak (cold), returned to tail junction" }
   - { ref: RTAIL, part: "Carbon comp resistor", value: "470 Ω · ½ W", role: "PI cathode resistor" }
-  - { ref: RT2, part: "Carbon comp resistor", value: "22 kΩ · ½ W",   role: "PI tail (junction → ground)" }
+  - { ref: RT2, part: "Carbon comp resistor", value: "22 kΩ · ½ W",   role: "PI tail, junction → the feedback node" }
   - { ref: CPIA, part: "Coupling capacitor",  value: "0.001 µF",       role: "PI hot-grid input coupling, from the junction where both channels' 220 kΩ mixing resistors meet" }
-  - { ref: CPIB, part: "Coupling capacitor",  value: "0.1 µF · 200 V", role: "PI cold-grid AC ground / NFB reference" }
-  - { ref: RNFB, part: "Carbon comp resistor", value: "820 Ω · ½ W",  role: "Negative feedback, OT secondary → PI (DC-neutral)" }
+  - { ref: CPIB, part: "Coupling capacitor",  value: "0.1 µF · 200 V", role: "PI cold grid → the feedback node" }
+  - { ref: RNFB, part: "Carbon comp resistor", value: "820 Ω · ½ W",  role: "Negative feedback, speaker → the feedback node" }
+  - { ref: RFB1, part: "Carbon comp resistor", value: "100 Ω · ½ W", role: "Feedback-node leg to ground (the 22 kΩ tail and the 820 Ω land on it)" }
   - { ref: C1,  part: "Coupling capacitor",   value: "0.1 µF · 400 V", role: "PI hot plate → V7 grid" }
   - { ref: C2,  part: "Coupling capacitor",   value: "0.1 µF · 400 V", role: "PI cold plate → V8 grid" }
   # --- Output stage (6L6GC pair) ---
@@ -109,9 +110,10 @@ items:
   # --- Power supply ---
   - { ref: T1,  part: "Power transformer",    value: "Fender 125P5D · 360-0-360 V", role: "HT + heaters + bias tap + rectifier filament" }
   - { ref: T2,  part: "Filter choke",         value: "Fender 125C1A", role: "Reservoir → 6L6GC plate/screen rail" }
-  - { ref: C10, part: "Electrolytic capacitor", value: "70 µF · 350 V (×2)", role: "Reservoir filter (post-standby)" }
-  - { ref: RBL1, part: "Wirewound resistor",  value: "220 kΩ · 1 W",  role: "Reservoir cap balancing bleeder" }
-  - { ref: RBL2, part: "Wirewound resistor",  value: "220 kΩ · 1 W",  role: "Reservoir cap balancing bleeder" }
+  - { ref: C10, part: "Electrolytic capacitor", value: "70 µF · 350 V", role: "Reservoir filter, upper can of the series pair (post-standby)" }
+  - { ref: C13, part: "Electrolytic capacitor", value: "70 µF · 350 V", role: "Reservoir filter, lower can of the series pair" }
+  - { ref: RBL1, part: "Wirewound resistor",  value: "220 kΩ · 1 W",  role: "Balancing resistor across C10" }
+  - { ref: RBL2, part: "Wirewound resistor",  value: "220 kΩ · 1 W",  role: "Balancing resistor across C13" }
   - { ref: C11, part: "Electrolytic capacitor", value: "20 µF · 525 V", role: "Filter, node B (screens/BP1)" }
   - { ref: C12, part: "Electrolytic capacitor", value: "20 µF · 525 V", role: "Filter, node C (phase-inverter plate rail; the reverb driver is fed from BP1, not this node)" }
   - { ref: RD1, part: "Wirewound resistor",   value: "1 kΩ · 1 W",   role: "Rail dropper B → C" }

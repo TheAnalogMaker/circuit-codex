@@ -54,8 +54,8 @@ circuit's own parts list.
 parallel** (2.2 kΩ shared cathode) into the 125A20B transformer and the
 spring tank — the same reverb-transformer part number the Deluxe Reverb and
 Twin Reverb entries in this corpus cite. The returned signal comes back
-through a 12AX7 recovery stage (100 kΩ plate, 820 Ω cathode, grid on a 220 kΩ
-leak from the tank), is set by the 100 kΩ Reverb control, and returns through
+through a 12AX7 recovery stage (100 kΩ plate, 820 Ω cathode; the tank's output lands on
+the grid, which a 220 kΩ leak returns to ground), is set by the 100 kΩ Reverb control, and returns through
 470 kΩ onto the mix driver's grid.
 
 **Tremolo.** The tremolo tube is a 12AX7 doing two jobs. One triode is a
@@ -80,18 +80,20 @@ the grid at ground. Its output runs through 0.1 µF (the node the Intensity
 control hangs from) and a 220 kΩ mixing resistor to the junction the Normal
 channel's own 220 kΩ reaches, and 0.001 µF carries the sum to a 12AT7
 **long-tailed pair** (82 kΩ and 100 kΩ 5% plate loads, a 470 Ω cathode
-resistor to a tail junction, 22 kΩ tail to ground, both 1 MΩ grid leaks
-returned to that junction) — exactly the tail values the [Deluxe
+resistor to a tail junction, both 1 MΩ grid leaks returned to that
+junction, and a 22 kΩ tail from it to the feedback node, which a 100 Ω
+returns to ground) — exactly the tail values the [Deluxe
 Reverb](/amps/ab763/)'s own phase inverter uses. The pair splits the signal for the **6L6GC pair**, each output
 tube fixed-biased at **−52 V** through a 220 kΩ leak *and its own 1.5 kΩ grid
 stopper* — a resistor the Deluxe Reverb's 6V6GT stage does not carry — with
-470 Ω · 1 W screen resistors, and an 820 Ω negative-feedback loop returning
-from the speaker to the inverter.
+470 Ω · 1 W screen resistors, and an 820 Ω negative-feedback resistor returning
+from the speaker to that same feedback node.
 
 ## Power
 
-360-0-360 V (power transformer 125P5D) → **GZ34** → a pair of 70 µF · 350 V
-reservoir caps (with 220 kΩ balancing bleeders off the standby switch) →
+360-0-360 V (power transformer 125P5D) → **GZ34** → a series pair of 70 µF · 350 V
+reservoir caps after the standby switch (each with a 220 kΩ balancing
+resistor across it) →
 filter choke (125C1A) → **+460 V** at the 6L6GC plates (the output
 transformer 125A9A's centre tap reads +465 V on the chart, 5 V above the
 plate reading — merged to one modelled rail, the primary DCR omitted, exactly
@@ -200,8 +202,8 @@ reproduce the chart to within half a percent — +447.6 V against a printed
 | shared cathode **[A]** | 2.1 V | 2.2 V | +3.6 % |
 | shared cathode **[E]** | 2 V | 2.2 V | +8.8 % |
 | reverb-driver cathode | 8.4 V | 9.1 V | +8.5 % |
-| phase-inverter plates | 230 V | 255.6 / 249.1 V | +11.1 / +8.3 % |
-| phase-inverter cathode / tail | 106 / 104.5 V | 97.2 / 95.2 V | −8.3 / −8.9 % |
+| phase-inverter plates | 230 V | 255.8 / 249.3 V | +11.2 / +8.4 % |
+| phase-inverter cathode / tail | 106 / 104.5 V | 97.5 / 95.5 V | −8.0 / −8.6 % |
 
 The widest misses left are the phase inverter's, at eight to eleven percent on
 a sheet whose own notice allows twenty — the ordinary distance between a

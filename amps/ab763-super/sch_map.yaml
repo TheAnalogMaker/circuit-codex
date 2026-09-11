@@ -9,6 +9,11 @@ anchors:
   T3.4: "0"                # OT secondary hot — secondary DCR folded into ground;
                            # mirrors layout net_map SPK: '0'.
 
+symbols:
+  # netlist RGRV GR1 0 220k is the parts list's RGR1, the reverb-recovery grid
+  # leak, drawn from the recovery grid to ground.
+  RGRV: RGR1
+
 element_pins:
   # netlist RTR4 BP1 PRD 200 is the reverb-transformer primary DCR, not a
   # discrete resistor: it is the T4 primary winding, B+ lead to plate lead.

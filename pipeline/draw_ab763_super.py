@@ -284,10 +284,14 @@ s.wire(104.89, YR - 1.46, 110, YR - 1.46)
 s.gnd(110, YR - 1.46)
 
 # reverb recovery V3B: tank return -> RGR1 220k -> grid; RLR1 100k -> BD; cathode
+# The tank return lands straight on the grid, and RGR1 220k is that grid's
+# leak to ground, as the C-FD sheet draws it (until 2026-09-10 the 220k was
+# drawn in series from the tank return).
 s.glabel("TANK RET", 118, YR - 6, 180)
-gl2, gr2 = s.series_h("R", "RGR1", "220k", 128, YR - 6)
-s.wire(118, YR - 6, gl2, YR - 6)
-s.wire(gr2, YR - 6, 138, YR - 6)
+s.wire(118, YR - 6, 138, YR - 6)
+s.junction(126, YR - 6)
+s.sym("R", "RGR1", "220k", 126, YR - 6 + 3.81)
+s.gnd(126, YR - 6 + 7.62)
 s.wire(138, YR - 6, 138, YR)
 t3b = s.triode("V3B", "12AX7", 148, YR)
 s.wire(138, YR, t3b["g"][0], YR)
@@ -375,8 +379,10 @@ s.glabel("PIG", 264, YPH, 180)
 cl, cr = s.series_h("C", "CPIA", ".001u", 272, YPH)
 s.wire(264, YPH, cl, YPH)
 s.wire(cr, YPH, XPI - 7.62, YPH)
-t6a = s.triode("V6A", "12AT7", XPI, YPH)
-t6b = s.triode("V6B", "12AT7", XPI, YPB)
+# The C-FD layout page (3299 x 2551) runs the 82K plate load to pin 1 and the
+# 100K to pin 6, both lettered +230 V: the hot, .001-fed half is on 1/2/3.
+t6a = s.triode("V6A", "12AT7", XPI, YPH, unit=2)
+t6b = s.triode("V6B", "12AT7", XPI, YPB, unit=1)
 s.plate_load("RLPA", "82k 5%", t6a["p"], "BC")
 s.plate_load("RLPB", "100k 5%", t6b["p"], "BC")
 # Shared tail. The cold half's lead is taken from V6B's CATHODE (YPB + 7.62)
@@ -400,8 +406,13 @@ s.wire(XPI - 19, JY, tl, JY)
 s.wire(XPI - 30, JY, XPI - 19, JY)
 s.junction(XPI - 26, JY)
 s.junction(XPI - 22, JY)
+# The 22k tail lands on the feedback node F, where the 820 from the speaker,
+# the .1-200 from the cold grid and a 100 to ground meet, as the C-FD sheet
+# draws the four on one vertical. Until 2026-09-10 this sheet grounded the tail
+# and had no 100.
 s.sym("R", "RT2", "22k", XPI - 26, JY + 3.81)
-s.gnd(XPI - 26, JY + 7.62)
+s.wire(XPI - 26, JY + 7.62, XPI - 26, YPB)
+s.junction(XPI - 26, YPB)
 s.sym("R", "RGPA", "1M", XPI - 22, JY - 8, lx=-9.4)
 s.wire(XPI - 22, JY - 4.19, XPI - 22, JY)
 s.wire(XPI - 22, JY - 11.81, XPI - 22, YPH - 2)
@@ -426,6 +437,11 @@ s.wire(XPI - 68, YPB + 12, nl, YPB + 12)
 s.wire(nr, YPB + 12, XPI - 46, YPB + 12)
 s.wire(XPI - 46, YPB + 12, XPI - 46, YPB)
 s.junction(XPI - 46, YPB)
+# ... and the feedback node's 100 to ground
+s.junction(XPI - 46, YPB + 12)
+s.wire(XPI - 46, YPB + 12, XPI - 46, YPB + 14)
+s.sym("R", "RFB1", "100", XPI - 46, YPB + 17.81)
+s.gnd(XPI - 46, YPB + 21.62)
 
 # ============================ OUTPUT: 6L6GC pair ========================
 s.text("Output pair — 6L6GC, fixed bias at -52 V through 220 kΩ leaks, one 1.5 kΩ stopper per grid", 340, 46, 1.6)
@@ -502,8 +518,11 @@ YT = 256
 XA, XB = 340, 406
 s.caption('Tremolo — oscillator V5A and neon-lamp driver V5B; neither half has a static DC operating point, so both are excluded from the netlist (see the circuit story)', 296, 203, 1.4)
 s.note('Neither tremolo half has a static DC operating point, so V5 is excluded from the netlist (see the circuit story); both halves tap BP1 directly, a driven node, so excluding them moves no gated node.')
-t5a = s.triode("V5A", "12AX7", XA, YT)
-t5b = s.triode("V5B", "12AX7", XB, YT)
+# The C-FD layout page (3299 x 2551) puts the oscillator on pins 1/2/3 (+280 V
+# at pin 1, +2.5 V at pin 3) and the lamp driver on 6/7/8 (+390 V at pin 6,
+# +17.0 V at pin 8): V5A is datasheet unit 2, V5B unit 1.
+t5a = s.triode("V5A", "12AX7", XA, YT, unit=2)
+t5b = s.triode("V5B", "12AX7", XB, YT, unit=1)
 s.plate_load("RTO2", "220k", t5a["p"], "BP1")
 s.sym("R", "RKTO1", "2.7k", XA, YT + 11.43)
 s.gnd(XA, YT + 15.24)
@@ -607,17 +626,21 @@ s.wire(74, YPW + 5.74, 74, YPW + 8)
 s.wire(86, YPW + 5.74, 86, YPW + 8)
 s.wire(74, YPW + 8, 100, YPW + 8)
 s.junction(86, YPW + 8)
-# post-standby reservoir C10 (bom: 70 uF, physically two identical cans in
-# parallel per its own "(x2)" count — drawn as the one lumped value, same
-# convention as a repeated-part count elsewhere in the corpus), bled by two
-# resistors (RBL1, RBL2) both bridging the same node to ground
-s.sym("C", "C10", "70u", 100, YPW + 11.81)
-s.gnd(100, YPW + 11.81 + 3.81)
+# post-standby reservoir: two 70 uF / 350 V cans IN SERIES (C10 over C13),
+# each with its own 220k-1W balancing resistor across it (RBL1, RBL2), as the
+# C-FD sheet draws it. Until 2026-09-10 this was one lumped 70 uF with both
+# 220k from the top node to ground.
 s.junction(100, YPW + 8)
-s.junction(118, YPW + 8)
-s.shunt_r("RBL1", "220k 1W", 118, YPW + 8)
-s.junction(130, YPW + 8)
-s.shunt_r("RBL2", "220k 1W", 130, YPW + 8)
+s.sym("C", "C10", "70u 350V", 100, YPW + 11.81)
+s.junction(112, YPW + 8)
+s.sym("R", "RBL1", "220k 1W", 112, YPW + 11.81)
+s.wire(100, YPW + 15.62, 112, YPW + 15.62)
+s.junction(100, YPW + 15.62)
+s.junction(112, YPW + 15.62)
+s.sym("C", "C13", "70u 350V", 100, YPW + 19.43)
+s.sym("R", "RBL2", "220k 1W", 112, YPW + 19.43)
+s.wire(100, YPW + 23.24, 112, YPW + 23.24)
+s.gnd(100, YPW + 23.24)
 s.wire(100, YPW + 8, 142, YPW + 8)
 # choke T2 -> BP1 node (screens/plates/reverb driver), filtered by C11
 lch, rch = s.choke("T2", "125C1A", 148.62, YPW + 8, lx=-5.0, ly=-7.4)

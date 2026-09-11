@@ -101,9 +101,11 @@ CKA KA 0 25u
 
 * --- Mix driver V3a (12AX7): 100k plate, plate rail BD. Its grid returns to
 *     ground through the drawn 220k leak (RMR2). The 3.3M (RGD1, 10 pF across
-*     it) sits IN SERIES ahead of the grid and reaches only the dry node, which
-*     the 0.02 uF coupler and the 500 pF reverb send block at DC, so it carries
-*     no DC and is left out. So is the 470k reverb return (RMR): it runs to the
+*     it) sits IN SERIES ahead of the grid and reaches only the dry node GDRY,
+*     which the 0.02 uF coupler (CCV2) and the 500 pF reverb send (CRS) block at
+*     DC: it carries no DC, and GDRY sits at the grid's own 0 V. It and the
+*     three caps are modelled so the board's placement of this corner is
+*     machine-checked. The 470k reverb return (RMR) is left out: it runs to the
 *     Reverb pot's wiper, at 0 V, in parallel with the leak, and moves nothing.
 *     The tremolo works on this stage's OUTPUT (the Intensity control hangs
 *     between its 0.1 uF coupler and its 220k mixing resistor), not on its
@@ -111,6 +113,10 @@ CKA KA 0 25u
 RLD1 BD PD1 100k
 XV3A PD1 GD1 KE 12AX7
 RMR2 GD1 0 220k
+RGD1 GDRY GD1 3.3meg
+CBD1 GDRY GD1 10p
+CCV2 PV2 GDRY 0.02u
+CRS GDRY GRD 500p
 
 * --- Reverb-recovery amp V3b (12AX7): 100k plate, grid from the reverb-tank
 *     output through a 220k leak (~0 V DC). Plate rail BD. Cathode on node KE.
@@ -137,9 +143,11 @@ CKRD KRD 0 25u
 
 * --- Phase inverter V6 (12AT7 long-tailed pair): 82k (hot) and 100k (cold)
 *     5% plate loads from BC; cathodes joined at KPI, 470 Ohm to the tail
-*     junction JPI, 22k tail from JPI to ground; both 1M grid leaks return to
-*     JPI. The 820 Ohm/OT-secondary negative-feedback loop sits at ~0 V DC
-*     (omitted, same treatment as amps/ab763's RNFB).
+*     junction JPI; both 1M grid leaks return to JPI. The 22k tail runs from
+*     JPI to the feedback node NFB, not to ground: the drawing lands it on the
+*     node where the 820 Ohm from the speaker, the .1-200 from the cold grid and
+*     a 100 Ohm to ground meet (the arrangement amps/ab763-twin models too). The
+*     OT secondary's DCR is folded into ground, so the 820 returns there.
 RLPA BC PPIA 82k
 XV6A PPIA GPIA KPI 12AT7
 RGPA GPIA JPI 1meg
@@ -147,7 +155,9 @@ RLPB BC PPIB 100k
 XV6B PPIB GPIB KPI 12AT7
 RGPB GPIB JPI 1meg
 RTAIL KPI JPI 470
-RT2 JPI 0 22k
+RT2 JPI NFB 22k
+RFB1 NFB 0 100
+RNFB NFB 0 820
 
 * --- Output pair 6L6GC (fixed bias): grids to -52 V through 220k-5% leaks at
 *     node GB1/GB2, each then through its OWN 1500 Ohm grid stopper (a detail

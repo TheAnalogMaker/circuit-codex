@@ -107,16 +107,17 @@ parts:
   - { ref: RNFB, a: [1, 9], b: [0, 9] }    # 820 feedback from the speaker → node F
   - { ref: CPIB, a: [0, 10], b: [1, 10] }  # .1-200 node F → PI pin-7 grid
   - { ref: RGPB, a: [0, 11], b: [1, 11] }  # 1M tail junction → pin-7 grid
-  - { ref: RT2,  a: [0, 12], b: [1, 12] }  # 22k tail (JPI → ground, as modelled; the sheet takes it to node F)
+  - { ref: RT2,  a: [0, 11], b: [0, 10] }  # 22k tail, tail junction → node F (the drawing lands the tail on the feedback node)
+  - { ref: RFB1, a: [0, 17], b: [1, 17] }  # 100 node F → ground (the layout's '100' along the board's top edge)
   - { ref: RTAIL, a: [1, 13], b: [0, 13] } # 470 cathodes → tail junction
   - { ref: RGPA, a: [1, 14], b: [0, 14] }  # 1M tail junction → pin-2 grid
   - { ref: RMD1, a: [0, 15], b: [0, 16] }  # 220k Normal-channel .047 (boxed X) → mixing node
   - { ref: CPIA, a: [0, 16], b: [1, 16] }  # .001 mixing node → pin-2 grid
   # --- tremolo oscillator: plate load and phase-shift ladder -----------------
   - { ref: RTO2, a: [1, 18], b: [1, 21] }  # 220k +460 V → oscillator plate (pin 1)
-  - { ref: CTO1, a: [0, 22], b: [1, 22] }  # .01 Speed node → lamp-driver grid node
-  - { ref: CTO2, a: [1, 23], b: [0, 23] }  # .01 lamp-driver grid node → oscillator grid
-  - { ref: RTOG, a: [0, 24], b: [1, 24] }  # 1M oscillator grid → vibrato-pedal node
+  - { ref: CTO2, a: [0, 22], b: [1, 22] }  # .01 Speed node → lamp-driver grid node
+  - { ref: CTO3, a: [1, 23], b: [0, 23] }  # .01 lamp-driver grid node → oscillator grid
+  - { ref: RTOG2, a: [0, 24], b: [1, 24] }  # 1M oscillator grid → vibrato-pedal node
   # --- recovery/mix stage: tremolo cathode, [E], reverb mix, couplers, loads --
   - { ref: CKTO1, a: [0, 25], b: [1, 25] } # 25 µF tremolo oscillator cathode bypass
   - { ref: RKTO1, a: [0, 26], b: [1, 26] } # 2700 tremolo oscillator cathode
@@ -271,10 +272,10 @@ runs:
   - { from: RNFB.b, to: CPIB.a }
   - { from: CPIB.b, to: RGPB.b }
   - { from: RGPB.b, to: V6.pin7, via: [[16.4, 1.7]] }
-  - { from: RGPB.a, to: RT2.a }
-  - { from: RT2.a, to: RTAIL.b }
+  - { from: RGPB.a, to: RTAIL.b }
   - { from: RTAIL.b, to: RGPA.b }
-  - { from: RT2.b, to: [1.45, 12] }
+  - { from: RFB1.a, to: CPIB.a, via: [[17, -0.17], [10, -0.17]] }
+  - { from: RFB1.b, to: [1.45, 17] }
   - { from: RTAIL.a, to: V6.pin3, via: [[13.672, 1.7]] }
   - { from: V6.pin8, to: RTAIL.a, via: [[16.5, 2.1], [16.5, 1.55], [13.2, 1.55]] }
   - { from: RGPA.a, to: CPIA.b, via: [[14.5, 1.15], [15.5, 1.15]] }
@@ -282,13 +283,13 @@ runs:
 
   # === tremolo oscillator ==================================================
   - { from: RTO2.b, to: V5.pin1, via: [[21, 1.25], [20.4, 1.7]] }
-  - { from: VRSPD.lug2, to: CTO1.a }
+  - { from: VRSPD.lug2, to: CTO2.a }
   - { from: VRSPD.lug3, to: VRSPD.lug2 }
-  - { from: CTO1.b, to: CTO2.a }
-  - { from: CTO1.b, to: V5.pin7, via: [[22, 1.4]] }
-  - { from: CTO2.b, to: RTOG.a }
-  - { from: RTOG.a, to: V5.pin2, via: [[23.5, 0.3], [23.5, 1.9], [20.6, 2.214]] }
-  - { from: RTOG.b, to: JVP.tip, via: [[24, 1.3], [33.5, 1.3]] }
+  - { from: CTO2.b, to: CTO3.a }
+  - { from: CTO2.b, to: V5.pin7, via: [[22, 1.4]] }
+  - { from: CTO3.b, to: RTOG2.a }
+  - { from: RTOG2.a, to: V5.pin2, via: [[23.5, 0.3], [23.5, 1.9], [20.6, 2.214]] }
+  - { from: RTOG2.b, to: JVP.tip, via: [[24, 1.3], [33.5, 1.3]] }
   - { from: CKTO1.a, to: RKTO1.a }
   - { from: V5.pin3, to: CKTO1.a, via: [[24.5, 1.796], [24.5, 0.3]] }
   - { from: CKTO1.b, to: [1.45, 25] }
@@ -412,7 +413,7 @@ net_map:
     T3.blue:  BP1    # OT primary, V8 plate lead → BP1
     T3.brown: BP1    # OT primary, V7 plate lead → BP1
     T4.red:   BP1    # reverb-transformer primary, B+ side → BP1 (feeds V4 via the primary DCR, RTR4)
-    SPK: "0"         # speaker jack — OT-secondary DCR folded into ground (NFB return reads as ground at DC)
+    SPK.tip: "0"     # speaker jack — OT-secondary DCR folded into ground (NFB return reads as ground at DC)
   # DC-transparent parts the netlist omits (no discrete board resistor here):
   netlist_unplaced:
     RTR4: "reverb transformer T4 primary DCR (~200Ω) — the winding, not a discrete board resistor; its BP1 lead anchors above and its plate lead lands on the paralleled V4 plates (PRD)"
@@ -431,7 +432,7 @@ net_map:
     RBIAS: "470 Ω bias feed — the '470-1W' in the Super Reverb AB763 layout's bias sub-box, not on the main eyelet board"
     CBIAS: "bias filter — the '25|50' can in the Super Reverb AB763 layout's bias sub-box, not on the main eyelet board"
     RGR1: "220 kΩ reverb-recovery grid leak — the Super Reverb AB763 layout draws it at the reverb jacks, from the recovery-grid lead to a ground lug, not on the eyelet board"
-    RINT: "27 kΩ bias-divider leg — the Super Reverb AB763 layout letters '27K' inside the 10K-L bias control's outline, from one end of that control to its ground tab, and the schematic draws the same leg with the control's wiper as the −52 V line: a resistor mounted on the control, not on the eyelet board (the layout carries no 27K in its tremolo)"
+    RBIAS2: "27 kΩ bias-divider leg — the Super Reverb AB763 layout letters '27K' inside the 10K-L bias control's outline, from one end of that control to its ground tab, and the schematic draws the same leg with the control's wiper as the −52 V line: a resistor mounted on the control, not on the eyelet board (the layout carries no 27K in its tremolo)"
 
 # Board-scope rules for the sheet ↔ board gate: parts the sheet draws that
 # this board deliberately does not, by designator glob, each with where the
@@ -440,5 +441,5 @@ scope:
   not_drawn:
     - { match: "CBR[NV]", why: "120 pF bright caps — the Super Reverb AB763 layout letters '120PF' at each channel's BRIGHT switch: at the switch, not on the eyelet board" }
     - { match: "R[12][nv]", why: "68 kΩ input grid stoppers — the Super Reverb AB763 layout hangs a 68K pair from each channel's jacks beside the 1 MΩ leak: at the jacks, not on the eyelet board" }
-    - { match: "C1[0-2]", why: "the filter cans (the 70 µF series pair and the two 20 µF · 525 V) — not on the eyelet board and not drawn anywhere on the Super Reverb AB763 layout sheet: its rail eyelets at the board's left end run by leads to chassis holes" }
+    - { match: "C1[0-3]", why: "the filter cans (the 70 µF series pair and the two 20 µF · 525 V) — not on the eyelet board and not drawn anywhere on the Super Reverb AB763 layout sheet: its rail eyelets at the board's left end run by leads to chassis holes" }
     - { match: "RBL[12]", why: "220 kΩ · 1 W reservoir balancing resistors — not on the eyelet board and not drawn anywhere on the Super Reverb AB763 layout sheet, like the series filter pair they belong with" }
