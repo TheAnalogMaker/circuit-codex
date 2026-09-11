@@ -285,9 +285,10 @@ s.gnd(190, jrev["sleeve"][1])
 
 # ============================ BIAS SUPPLY (band 2, right) ============
 YB = 120
-s.text("Bias supply — 100 k feed off the HT winding, silicon rectifier, 25 µF can, 22 k bleeder → -34 V",
+s.text("Bias supply — 100 k feed off the HT winding, silicon rectifier, 25 µF can, 22 k bleeder; "
+       "the Intensity control's track ends here and its wiper is the -34 V line",
        250, 110, 1.3)
-s.glabel("-34V", 252, YB, 180)
+s.glabel("BIAS FILTER", 252, YB, 180)
 s.wire(252, YB, 275.92, YB)
 s.junction(260, YB)
 s.sym("C", "CB3", "25u", 260, YB + 3.81, ly=0.8)
@@ -440,7 +441,7 @@ s.text("its printed pins are dynamic averages, not a static DC point,", 12, 234,
 s.text("so it is a documented netlist exclusion (see the circuit story).", 12, 238, 1.4)
 t4a = s.triode("V4A", "12AX7", 76, YT, unit=2)
 s.plate_load("RTOP", "220k", t4a["p"], "B+2")
-# cathode: 3.3k || 25u, with the phase-shift ladder's last resistor returning here
+# cathode: 3.3k || 25u, with the ladder's 1 M from the pedal node returning here
 s.wire(76, YT + 7.62, 76, YT + 9)
 s.sym("R", "RKTO", "3.3k", 76, YT + 12.81, lx=-8.6, ly=0.8)
 s.sym("C", "CKTO", "25u", 83.62, YT + 12.81)
@@ -448,45 +449,56 @@ s.wire(76, YT + 9, 83.62, YT + 9)
 s.wire(76, YT + 16.62, 83.62, YT + 16.62)
 s.gnd(76, YT + 16.62)
 s.junction(76, YT + 9)
-# phase-shift ladder: plate -> CTO1 - RTO1 - CTO2 - RTO2 - CTO3 -> grid
+# The phase-shift ladder, as the K-FD sheet draws it (5554x4346):
+#   plate -.02- S [Speed 3M-RA + 100k to ground] -.01- N1 [vibrato-pedal jack;
+#   1M to the cathode] -.01- grid [1M to ground]
+# Until 2026-09-10 this was drawn scrambled: Speed on the grid node, the pedal
+# jack on the plate tee, a 1 M to ground where the Speed network belongs, and
+# the middle cap lettered .05 where the drawing letters .01.
 teet = YT - 7.62 - 3.48
+YL = YT + 34                                    # the ladder row
 s.junction(76, teet)
-s.wire(76, teet, 88, teet)
-s.wire(88, teet, 88, YT + 26)
-cl, cr = s.series_h("C", "CTO1", ".02u", 82, YT + 26)
-s.wire(88, YT + 26, cr, YT + 26)
-s.wire(cl, YT + 26, 74, YT + 26)
-s.junction(74, YT + 26)
-s.sym("R", "RTO1", "1M", 74, YT + 29.81, ly=0.8)
-s.gnd(74, YT + 33.62)
-cl, cr = s.series_h("C", "CTO2", ".05u", 66, YT + 26)
-s.wire(74, YT + 26, cr, YT + 26)
-s.wire(cl, YT + 26, 58, YT + 26)
-s.junction(58, YT + 26)
-s.sym("R", "RTO2", "1M", 58, YT + 14)
-s.wire(58, YT + 17.81, 58, YT + 26)
-s.wire(58, YT + 10.19, 58, YT + 9)
-s.wire(58, YT + 9, 76, YT + 9)
-cl, cr = s.series_h("C", "CTO3", ".01u", 50, YT + 26)
-s.wire(58, YT + 26, cr, YT + 26)
-s.wire(cl, YT + 26, 42, YT + 26)
-s.junction(42, YT + 26)
-s.sym("R", "RSPD", "100k", 42, YT + 29.81, lx=-8.6, ly=0.8)
-s.sym("POT", "VRSPD", "3M speed", 42, YT + 37.43)
-s.gnd(42, YT + 41.24)
-# Speed pot is wired as a rheostat — wiper tied back to its top lug
-s.wire(47.08, YT + 37.43, 51, YT + 37.43)
-s.wire(51, YT + 37.43, 51, YT + 33.62)
-s.wire(51, YT + 33.62, 42, YT + 33.62)
-s.junction(42, YT + 33.62)
-s.wire(42, YT + 26, 42, YT)
-s.wire(42, YT, t4a["g"][0], YT)
-# oscillator output -> 1M series, 0.02u shunt, 0.1u coupler, Intensity -> bias line
-s.junction(88, teet)
-s.wire(88, teet, 100, teet)
-s.junction(100, teet)
 l, r = s.series_h("R", "RTOUT", "1M", 106, teet)
-s.wire(100, teet, l, teet)
+s.wire(76, teet, l, teet)                       # plate tee -> the output network
+s.junction(94, teet)
+s.wire(94, teet, 94, YL - 7.62)                 # ... and down to the ladder
+s.sym("C", "CTO1", ".02u", 94, YL - 3.81, lx=2.4, ly=0.8)
+s.junction(94, YL)                              # S, the Speed node
+# Speed: the 3 MOhm-RA pot as a rheostat (wiper strapped to its hot lug) in
+# series with 100k, S to ground
+s.wire(94, YL, 98.19, YL)
+s.sym("POT", "VRSPD", "3M speed", 102, YL, rot=90, lx=-4.6, ly=6.4)
+s.wire(102, YL - 5.08, 98.19, YL - 5.08)
+s.wire(98.19, YL - 5.08, 98.19, YL)
+s.junction(98.19, YL)
+sl, sr = s.series_h("R", "RSPD", "100k", 112, YL)
+s.wire(105.81, YL, sl, YL)
+s.wire(sr, YL, 118, YL)
+s.gnd(118, YL, rot=0)
+# S -.01- N1
+cl, cr = s.series_h("C", "CTO2", ".01u", 80, YL)
+s.wire(94, YL, cr, YL)
+s.wire(cl, YL, 33.08, YL)                       # N1: out to the pedal jack's tip
+s.junction(60, YL)
+s.junction(48, YL)
+# N1 -1M- the oscillator cathode
+s.sym("R", "RTO2", "1M", 60, YL - 8)
+s.wire(60, YL - 4.19, 60, YL)
+s.wire(60, YL - 11.81, 60, YT + 9)
+s.wire(60, YT + 9, 76, YT + 9)
+# N1 -.01- the grid node; the grid's 1 M to ground
+s.sym("C", "CTO3", ".01u", 48, YT + 16, lx=-8.2, ly=0.8)
+s.wire(48, YT + 19.81, 48, YL)
+s.wire(48, YT + 12.19, 48, YT)
+s.junction(48, YT)
+s.wire(36, YT, t4a["g"][0], YT)
+s.sym("R", "RTO1", "1M", 36, YT + 3.81, lx=-8.6, ly=0.8)
+s.gnd(36, YT + 7.62)
+# vibrato footswitch grounds N1 and stops the oscillator
+jvib = s.jack("JVIB", "vibrato fsw", 28, YL + 2.54, mirror=True)
+s.wire(jvib["sleeve"][0], jvib["sleeve"][1], 36, jvib["sleeve"][1])
+s.gnd(36, jvib["sleeve"][1])
+# oscillator output -> 1M series, 0.02u shunt, 0.1u coupler, Intensity -> bias line
 s.wire(r, teet, 116, teet)
 s.junction(116, teet)
 s.sym("C", "CTO4", ".02u", 116, teet + 3.81, ly=0.8)
@@ -495,15 +507,13 @@ cl, cr = s.series_h("C", "CINT", ".1u", 124, teet)
 s.wire(116, teet, cl, teet)
 s.wire(cr, teet, 134, teet)
 s.sym("POT", "VRINT", "250k-L int", 134, teet + 3.81)
-s.gnd(134, teet + 7.62)
+# The Intensity track runs from the coupler to the bias supply's filter node,
+# not to ground, and its wiper is the -34 V grid-leak line: the drawing's
+# "-34V" is lettered on the wiper's line, beside the two 220k 5% leaks.
+s.wire(134, teet + 7.62, 134, teet + 11)
+s.glabel("BIAS FILTER", 134, teet + 11, 270)
 s.wire(139.08, teet + 3.81, 148, teet + 3.81)
 s.glabel("-34V", 148, teet + 3.81, 0)
-# vibrato footswitch grounds the oscillator output
-jvib = s.jack("JVIB", "vibrato fsw", 166, YT + 4)
-s.wire(100, teet, 100, jvib["tip"][1])
-s.wire(100, jvib["tip"][1], jvib["tip"][0], jvib["tip"][1])
-s.wire(jvib["sleeve"][0], jvib["sleeve"][1], 156, jvib["sleeve"][1])
-s.gnd(156, jvib["sleeve"][1])
 
 s.write(OUT)
 print(f"wrote {OUT}")

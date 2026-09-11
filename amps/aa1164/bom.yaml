@@ -64,17 +64,17 @@ items:
   - { ref: RTOP, part: "Carbon comp resistor", value: "220 kΩ · ½ W", role: "Tremolo oscillator plate load" }
   - { ref: RKTO, part: "Carbon comp resistor", value: "3.3 kΩ · ½ W", role: "Tremolo oscillator cathode bias" }
   - { ref: CKTO, part: "Electrolytic capacitor", value: "25 µF · 25 V", role: "Tremolo oscillator cathode bypass" }
-  - { ref: CTO1, part: "Film capacitor", value: "0.02 µF", role: "Tremolo oscillator plate coupling" }
-  - { ref: CTO2, part: "Film capacitor", value: "0.05 µF", role: "Tremolo phase-shift cap" }
-  - { ref: CTO3, part: "Film capacitor", value: "0.01 µF", role: "Tremolo phase-shift cap (Speed network)" }
-  - { ref: RTO1, part: "Carbon comp resistor", value: "1 MΩ · ½ W", role: "Tremolo phase-shift resistor to ground" }
-  - { ref: RTO2, part: "Carbon comp resistor", value: "1 MΩ · ½ W", role: "Tremolo phase-shift resistor to the oscillator cathode" }
-  - { ref: RSPD, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "Speed-network series resistor" }
+  - { ref: CTO1, part: "Film capacitor", value: "0.02 µF", role: "Tremolo phase-shift cap, oscillator plate → Speed node" }
+  - { ref: CTO2, part: "Film capacitor", value: "0.01 µF", role: "Tremolo phase-shift cap, Speed node → pedal node" }
+  - { ref: CTO3, part: "Film capacitor", value: "0.01 µF", role: "Tremolo phase-shift cap, pedal node → oscillator grid" }
+  - { ref: RTO1, part: "Carbon comp resistor", value: "1 MΩ · ½ W", role: "Tremolo oscillator grid leak" }
+  - { ref: RTO2, part: "Carbon comp resistor", value: "1 MΩ · ½ W", role: "Tremolo pedal node → oscillator cathode" }
+  - { ref: RSPD, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "Speed-network series resistor, with the Speed control from the Speed node to ground" }
   - { ref: VRSPD, part: "Reverse-audio potentiometer", value: "3 MΩ-RA", role: "Speed" }
   - { ref: RTOUT, part: "Carbon comp resistor", value: "1 MΩ · ½ W", role: "Tremolo oscillator output series resistor" }
   - { ref: CTO4, part: "Film capacitor", value: "0.02 µF", role: "Tremolo output shunt to ground" }
   - { ref: CINT, part: "Coupling capacitor", value: "0.1 µF", role: "Tremolo output coupling into the Intensity control" }
-  - { ref: VRINT, part: "Linear potentiometer", value: "250 kΩ-L", role: "Intensity — sets how far the oscillator swings the bias line" }
+  - { ref: VRINT, part: "Linear potentiometer", value: "250 kΩ-L", role: "Intensity — its track runs from the 0.1 µF coupler to the bias supply's filter node, and its wiper is the −34 V grid-leak line" }
   # --- Output stage (6V6GT pair) ---
   - { ref: RGL1, part: "Carbon comp resistor", value: "220 kΩ · ½ W · 5%", role: "V5 grid leak, from the −34 V bias line" }
   - { ref: RGL2, part: "Carbon comp resistor", value: "220 kΩ · ½ W · 5%", role: "V6 grid leak, from the −34 V bias line" }
@@ -102,7 +102,7 @@ items:
   - { ref: SW2, part: "Switch", value: "SPDT", role: "Ground switch (period; not in modern builds)" }
   - { ref: CDEATH, part: "Ceramic capacitor", value: "0.047 µF · 600 V", role: "Ground-switch cap (period; not in modern builds)" }
   # --- Footswitch jacks ---
-  - { ref: JVIB, part: "Jack", value: "vibrato footswitch", role: "Grounds the oscillator to switch the tremolo off" }
+  - { ref: JVIB, part: "Jack", value: "vibrato footswitch", role: "Grounds the phase-shift ladder's pedal node to stop the oscillator" }
   - { ref: JREV, part: "Jack", value: "reverb footswitch", role: "Reverb footswitch" }
   # --- Tubes ---
   - { ref: V1, part: "Preamp tube", value: "12AX7 (7025)", role: "Preamp input stage + second stage (V1a/V1b)" }
