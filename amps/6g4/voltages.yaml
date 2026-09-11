@@ -6,7 +6,8 @@
 # completes it as "+ or - 20%". Tube pins therefore get 20%; rails get tighter
 # internal targets.
 #
-# Only BP1 (+456 V, the 6L6GC plates) and the -55 V bias line are driven.
+# Only BR (+460 V, ahead of the choke, where the output transformer's centre
+# tap lands), BP1 (+458 V, after it) and the -55 V bias line are driven.
 # Every other node below is solved through resistors the drawing letters.
 source: "Fender 'Super-Amp' Schematic, Model 6G4 (A-FJ). Schematic page: +458
   (after the choke; screens and droppers), +456 (6L6GC plates), +430
@@ -40,5 +41,5 @@ nodes:
   JPI:  { chart: null, note: "phase-inverter tail junction (820 Ω / 6.8 kΩ), the grid-leak return — printed on neither page" }
   G61:  { chart: -55, tol_pct: 8, note: "6L6GC (V7) grid, fixed bias through a 220 kΩ · 5% leak from the driven -55 V supply — exact by construction (ideal source, no drop across the leak at zero grid current)" }
   G62:  { chart: -55, tol_pct: 8, note: "6L6GC (V8) grid, fixed bias through a 220 kΩ · 5% leak from the driven -55 V supply — exact by construction" }
-  BS1:  { chart: 458, tol_pct: 10, note: "6L6GC (V7) screen after its 470 Ω · 1 W stopper. The drawing prints +458 V at the post-choke node the screens hang from; the model folds that node onto the driven +456 V plate rail" }
+  BS1:  { chart: 458, tol_pct: 10, note: "6L6GC (V7) screen after its 470 Ω · 1 W stopper. The drawing prints +458 V at the post-choke node the screens hang from; the model drives that node at the printed +458 V" }
   BS2:  { chart: 458, tol_pct: 10, note: "6L6GC (V8) screen after its own 470 Ω · 1 W stopper — same basis as BS1" }

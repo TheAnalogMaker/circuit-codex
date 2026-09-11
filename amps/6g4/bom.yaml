@@ -122,7 +122,7 @@ items:
   # --- Power supply and dropper chain ---
   - { ref: T1, part: "Power transformer", value: "Fender 8087", role: "HT + heaters + rectifier filament" }
   - { ref: C10, part: "Electrolytic capacitor", value: "20 µF · 600 V", role: "Reservoir at the GZ34 cathode, ahead of the standby switch and choke (the drawing puts two 20-600 cans here)" }
-  - { ref: CH1, part: "Filter choke", value: "Fender 125C1A", role: "Reservoir → the post-choke node" }
+  - { ref: CH1, part: "Filter choke", value: "Fender 125C1A", role: "Filter choke from the +460 V node, where the output transformer's centre tap lands, to the +458 V screen and dropper node" }
   - { ref: CF4, part: "Electrolytic capacitor", value: "20 µF · 600 V", role: "Filter at the post-choke node (+458 V: screens and every dropper)" }
   - { ref: RD1, part: "Power resistor", value: "4.7 kΩ · 1 W", role: "Dropper, post-choke node to the +430 V phase-inverter supply (the schematic letters it 4700 1W)" }
   - { ref: CF5, part: "Electrolytic capacitor", value: "20 µF · 600 V", role: "Filter at the +430 V phase-inverter supply" }

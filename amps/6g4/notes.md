@@ -117,9 +117,10 @@ but carries no Presence control at all and takes its feedback through 56 kΩ.
 
 ## Power
 
-The GZ34 feeds two 20 µF reservoir cans, then the standby switch and the
-choke. After the choke, **+458 V** feeds the 6L6GC screens and every dropper;
-the plates, through the output transformer, print **+456 V**. From there
+The GZ34 feeds two 20 µF reservoir cans, then the standby switch. The output
+transformer's centre tap takes **+460 V** there, ahead of the choke; after the
+choke, **+458 V** feeds the 6L6GC screens and every dropper, and the plates,
+through the output transformer, print **+456 V**. From there
 each rail has its own dropper and its own 20 µF can:
 
 | Rail | Printed | Fed through | Feeds |
@@ -130,8 +131,9 @@ each rail has its own dropper and its own 20 µF can:
 | Oscillator supply | +275 V | 56 kΩ · 1 W from +350 V | the oscillator's and splitter's plate loads |
 
 The last three figures are lettered on the layout page only. The model drives
-only the plate rail and the bias line and solves every other rail through
-these resistors, each landing within a few percent of its printed value — the
+the +460 V and +458 V nodes either side of the choke, whose resistance is
+not printed, and the bias line, and solves every other rail through these
+resistors, each landing within a few percent of its printed value — the
 oscillator supply excepted, for the reason above. A separate bias-tap
 rectifier, 8 µF, 10 kΩ, then 8 µF with a 56 kΩ bleeder deliver the fixed
 **−55 V**.

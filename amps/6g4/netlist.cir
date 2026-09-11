@@ -23,11 +23,13 @@
 * and the "mixing resistors" (6.8k, 220k) are channel 1's plate-load
 * decoupler and channel 2's plate load.
 *
-* DC conventions. BP1 is DRIVEN at the +456 V the drawing prints at the 6L6GC
-* plates. The drawing prints +458 V after the choke, where the screens and
-* every dropper hang; with the choke's and the output transformer's winding
-* resistance omitted, as throughout this corpus, the two collapse onto one
-* node. The GZ34 and its reservoir are not modelled. The fixed-bias supply
+* DC conventions. The drawing prints +460 V ahead of the choke, where the
+* output transformer's centre tap lands, +458 V after it, where the screens
+* and every dropper hang, and +456 V at the 6L6GC plates. Two nodes are
+* DRIVEN: BR at +460 V and BP1 at +458 V. The choke's resistance is not
+* printed, so the 2 V between them cannot be derived and both stay anchors;
+* the output transformer's winding resistance is omitted, as throughout this
+* corpus, so the plates sit on BR. The GZ34 and its reservoir are not modelled. The fixed-bias supply
 * (a bias-tap rectifier, 8 uF, 10k, then 8 uF with a 56k bleeder) is
 * replaced by an ideal -55 V source, printed directly on the drawing.
 *
@@ -87,7 +89,8 @@
 .include models/12ax7.inc
 .include models/6l6gc.inc
 
-VBP1 BP1 0 DC 456
+VBR BR 0 DC 460
+VBP1 BP1 0 DC 458
 VBIAS NBIAS 0 DC -55
 
 * --- Dropper chain (all four read from the drawing) ---
@@ -177,10 +180,10 @@ C2 PPIB G62 0.05u
 
 * --- Output pair 6L6GC (fixed bias): grids to -55 V through 220k-5% leaks,
 *     screens off BP1 through 470 Ohm-1W stoppers each, cathodes grounded,
-*     plates at BP1 (OT primary DCR omitted).
+*     plates at BR (OT primary DCR omitted).
 RGL1 NBIAS G61 220k
 RS1 BP1 BS1 470
-XV7 BP1 BS1 G61 0 6L6GC
+XV7 BR BS1 G61 0 6L6GC
 RGL2 NBIAS G62 220k
 RS2 BP1 BS2 470
-XV8 BP1 BS2 G62 0 6L6GC
+XV8 BR BS2 G62 0 6L6GC
