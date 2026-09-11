@@ -53,15 +53,21 @@ sheet (re-read at lug level 2026-08-03):
 **Reverb.** The dry vibrato signal drives a **12AT7 with both triodes in
 parallel** (2.2 kΩ shared cathode) into the 125A20B transformer and the spring
 tank. The returned signal comes back through a **12AX7 recovery stage** (100 kΩ
-plate, 820 Ω cathode) and is blended back with the dry signal by the 100 kΩ
-Reverb control, then handed to the mix driver that feeds the inverter. The mix
-driver has no cathode resistor of its own either: it shares the recovery stage's
-820 Ω and 25 µF, a connection the drawing marks with a boxed **E**.
+plate, 820 Ω cathode) and meets the dry signal at the mix driver's grid: the
+reverb through 470 kΩ from the 100 kΩ Reverb control's wiper, the dry signal
+through 3.3 MΩ with 10 pF across it, and a 220 kΩ to ground holding the grid.
+The mix driver has no cathode resistor of its own either: it shares the recovery
+stage's 820 Ω and 25 µF, a connection the drawing marks with a boxed **E**.
 
-**Tremolo.** A 12AX7 phase-shift oscillator (Speed on a 3 MΩ control) drives an
-**optocoupler** — a neon lamp facing a photoresistor — that periodically shunts
-the mix-driver's grid to ground, swinging the volume up and down. The Intensity
-control sets how hard the lamp is driven.
+**Tremolo.** One half of a 12AX7 is a phase-shift oscillator: its plate feeds a
+0.02 µF / 0.01 µF / 0.01 µF ladder back to its own grid, and the 3 MΩ Speed
+control, in series with 100 kΩ, tunes the ladder's middle to ground. The other
+half, coupled directly to the ladder, drives a neon lamp in its plate circuit.
+The lamp faces a photoresistor inside an **optocoupler**; the photoresistor
+hangs from the Intensity control's wiper, and Intensity's other end takes the
+vibrato channel's output just after the mix driver, so each flash shunts that
+signal toward ground and the volume swings. The vibrato footswitch grounds the
+oscillator's feed and stops it.
 
 **Phase inverter and output.** The two channels meet at one node, each through
 its own 220 kΩ mixing resistor — the Vibrato side after the mix driver's 0.1 µF

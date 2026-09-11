@@ -358,89 +358,116 @@ s.junction(216, teem)
 cl, cr = s.series_h("C", "CCD1", ".1u", 226, teem)
 s.wire(222, teem, cl, teem)
 s.wire(cr, teem, 232, teem)
+# the node between the .1 and the 220k is the tremolo's shunt point: Intensity's
+# top lands here (TREM), and the photocell pulls it toward ground
+s.junction(231, teem)
+s.wire(231, teem, 231, teem + 6)
+s.glabel("TREM", 231, teem + 6, 270)
 ml, mr = s.series_h("R", "RMD1", "220k", 236, teem)
 s.wire(232, teem, ml, teem)
 s.wire(mr, teem, 242, teem)
 s.wire(242, teem, 242, YM - 20)
 s.glabel("PIG", 242, YM - 20, 0)
 
-# ============================ TREMOLO OSCILLATOR (excluded) ==========
-YT = 210
-s.caption('Tremolo oscillator (V5) + optocoupler — dynamic; DC point excluded from netlist (see the circuit story)', 26, 198, 1.4)
-# V5A = phase-shift oscillator; V5B = intensity driver into the optocoupler.
-t5a = s.triode("V5A", "12AX7", 56, YT)
-t5b = s.triode("V5B", "12AX7", 96, YT)
-s.plate_load("RTO2", "220k", t5a["p"], "B+4")   # oscillator plate load
-s.plate_load("RTO1", "100k", t5b["p"], "B+4")   # driver plate load
-# cathodes to ground
-s.sym("R", "RKTO1", "2.7k", 56, YT + 11.43)
-s.gnd(56, YT + 15.24)
-s.sym("R", "RKTO2", "100k", 96, YT + 11.43)
-s.gnd(96, YT + 15.24)
-# V5A plate tee feeds (a) CTO3 -> V5B grid and (b) the phase-shift feedback net
-tee5 = YT - 7.62 - 3.48                          # = 198.9
-s.junction(56, tee5)
-cl, cr = s.series_h("C", "CTO3", ".02u", 68, tee5)   # 64.19..71.81
-s.wire(56, tee5, cl, tee5)
-s.wire(cr, tee5, 88.38, tee5)
-s.wire(88.38, tee5, 88.38, YT)                   # -> V5B grid
-# V5B grid leak RTO10 10M
-s.wire(88.38, YT, 82, YT)
-s.junction(82, YT)
-s.sym("R", "RTO10", "10M", 82, YT + 3.81)
-s.gnd(82, YT + 7.62)
-# phase-shift feedback: plate -> CTO1 - RTOG2 - CTO2 - RTOG3 -> V5A grid
-s.wire(56, tee5, 48, tee5)
-s.wire(48, tee5, 48, 230)
-cl, cr = s.series_h("C", "CTO1", ".01u", 42, 230)     # 38.19..45.81
-s.wire(48, 230, cr, 230)
-s.wire(cl, 230, 36, 230)
-s.junction(36, 230)
-s.sym("R", "RTOG2", "1M", 36, 233.81)
-s.gnd(36, 237.62)
-cl, cr = s.series_h("C", "CTO2", ".01u", 30, 230)     # 26.19..33.81
-s.wire(36, 230, cr, 230)
-s.wire(cl, 230, 24, 230)
-s.junction(24, 230)
-s.sym("R", "RTOG3", "1M", 24, 233.81)
-s.gnd(24, 237.62)
-s.wire(24, 230, 24, YT)
-s.wire(24, YT, 48.38, YT)                         # -> V5A grid
-# V5A grid leak RTOG 2.2M
-s.junction(44, YT)
-s.sym("R", "RTOG", "2.2M", 44, YT + 3.81)
-s.gnd(44, YT + 7.62)
-# speed pot VRSPD 3M — tunes the feedback net (across the CTO2 / RTOG3 node)
-# Speed control: a 3 MOhm pot used as a RHEOSTAT — wiper strapped back to its
-# hot lug, the idiom the AA1164's own speed control is drawn with. Its bottom
-# lug grounds at its own pin; the flag used to sit 3.81 mm below it.
-s.sym("POT", "VRSPD", "3M speed", 16, 226, lx=-13.0, ly=-3.2)
-s.gnd(16, 229.81)
-s.wire(21.08, 226, 24, 226)
-s.wire(24, 226, 24, 230)
-s.junction(24, 230)
-s.junction(21.08, 226)
-s.wire(21.08, 226, 21.08, 218)
-s.wire(21.08, 218, 16, 218)
-s.wire(16, 218, 16, 222.19)
-# intensity: V5B plate -> VRINT 50k -> opto lamp. No series resistor: the 10K the
-# C-FD sheet draws beside INTENSITY is the bias control's fixed leg (RBAL).
-s.junction(96, tee5)
-s.wire(96, tee5, 108, tee5)
-s.wire(108, tee5, 108, 202.19)
-s.sym("POT", "VRINT", "50k int", 108, 206)
-s.gnd(108, 209.81)
-s.wire(113.08, 206, 130, 206)
-# optocoupler: lamp driven by intensity; photocell shunts the mix-driver grid
-op = s.opto("OPTO", "roach", 142, 206)
-s.wire(130, 206, 130, op["l1"][1])
-s.wire(130, op["l1"][1], op["l1"][0], op["l1"][1])
-s.wire(op["l2"][0], op["l2"][1], op["l2"][0] - 4, op["l2"][1])
-s.gnd(op["l2"][0] - 4, op["l2"][1])
-s.wire(op["p1"][0], op["p1"][1], op["p1"][0] + 4, op["p1"][1])
-s.glabel("MIXG", op["p1"][0] + 4, op["p1"][1], 0)   # photocell -> mix-driver grid node
-s.wire(op["p2"][0], op["p2"][1], op["p2"][0] + 4, op["p2"][1])
-s.gnd(op["p2"][0] + 4, op["p2"][1])
+# ============================ TREMOLO (V5, excluded) =================
+# As the C-FD sheet draws it. V5A is a phase-shift oscillator: its plate feeds a
+# .02 / .01 / .01 ladder back to its own grid; the ladder's middle node is tuned
+# to ground through the Speed rheostat and a 100k; its outer node and the grid
+# each reach the vibrato-pedal node through a 1M, and a 2.2M returns that node
+# to the raw negative bias supply (the footswitch grounds it and stops the
+# oscillation). V5B's grid
+# is DC-coupled to the ladder's outer node; its plate (+345 V) is fed from
+# +415 V through a 10M, and through the neon lamp and a 100k in series, so the
+# lamp flashes with the oscillation. The photocell sits in the Intensity
+# control's wiper, and Intensity's top takes the mix output (TREM, the node
+# between the mix driver's .1 coupler and its 220k): each flash shunts that
+# node toward ground. A running oscillator has no static operating point, so V5
+# is excluded from the DC netlist and none of this wiring is DC-checked.
+YT = 226
+s.caption('Tremolo (V5) + optocoupler — a running oscillator, excluded from the DC netlist', 86, 196, 1.4)
+# pedal node (x=21): the footswitch above, the 2.2M to the raw bias supply below
+s.glabel("VIB PEDAL", 21, 200, 90)
+s.wire(21, 200, 21, YT)
+s.junction(21, 204)
+s.junction(21, YT)
+s.sym("R", "RTOG", "2.2M", 21, YT + 3.81, lx=-9.4)
+s.glabel("BIAS RAW", 21, YT + 7.62, 270)
+# RTOG2 1M: pedal node -> the ladder's outer node (36, 204)
+rl, rr = s.series_h("R", "RTOG2", "1M", 28.5, 204)
+s.wire(21, 204, rl, 204)
+s.wire(rr, 204, 36, 204)
+s.junction(36, 204)
+# RTOG3 1M: pedal node -> the oscillator grid node (36, YT)
+rl, rr = s.series_h("R", "RTOG3", "1M", 28.5, YT)
+s.wire(21, YT, rl, YT)
+s.wire(rr, YT, 36, YT)
+s.junction(36, YT)
+# CTO1 .01: outer node -> grid
+s.sym("C", "CTO1", ".01u", 36, 215, lx=2.6)
+s.wire(36, 204, 36, 211.19)
+s.wire(36, 218.81, 36, YT)
+# the outer node drives V5B's grid, by label
+s.wire(36, 204, 36, 200)
+s.glabel("LFO", 36, 200, 90)
+# CTO2 .01: outer node -> middle node (52, 204)
+cl, cr = s.series_h("C", "CTO2", ".01u", 44, 204)
+s.wire(36, 204, cl, 204)
+s.wire(cr, 204, 52, 204)
+s.junction(52, 204)
+# the middle node goes to the Speed rheostat, by label
+s.wire(52, 204, 52, 200)
+s.glabel("SPEED", 52, 200, 90)
+# V5A oscillator: 220k plate load from +415 V ([B])
+t5a = s.triode("V5A", "12AX7", 60, YT)
+s.wire(36, YT, t5a["g"][0], YT)
+s.plate_load("RTO2", "220k", t5a["p"], "B+2")
+tee5 = YT - 7.62 - 3.48
+# CTO3 .02: middle node -> the oscillator plate
+s.sym("C", "CTO3", ".02u", 52, 207.81, lx=-9.4)
+s.wire(52, 211.62, 52, tee5)
+s.wire(52, tee5, 60, tee5)
+s.junction(60, tee5)
+# oscillator cathode: 2.7k || 25u (+2.1 V on the chart)
+s.wire(60, YT + 7.62, 60, YT + 9)
+s.shunt_rc("RKTO1", "2.7k", "CKTO1", "25u", 60, YT + 9, dx=-7.62)
+# V5B lamp driver: grid on the ladder, plate fed through the 10M and the lamp
+s.glabel("LFO", 86, YT, 180)
+t5b = s.triode("V5B", "12AX7", 100, YT)
+s.wire(86, YT, t5b["g"][0], YT)
+s.plate_load("RTO10", "10M", t5b["p"], "B+2")
+teeL = YT - 7.62 - 3.48
+s.junction(100, teeL)
+s.wire(100, YT + 7.62, 100, YT + 9)
+s.shunt_rc("RKTO2", "100k", "CKTO2", "25u", 100, YT + 9)
+# optocoupler: the lamp between V5B's plate and RLAMP 100k from +415 V; the
+# photocell from Intensity's wiper to ground
+op = s.opto("OPTO", "roach", 134, 210)
+s.wire(100, teeL, 122, teeL)
+s.wire(122, teeL, 122, op["l2"][1])
+s.wire(122, op["l2"][1], op["l2"][0], op["l2"][1])
+s.wire(op["l1"][0], op["l1"][1], 118, op["l1"][1])
+s.sym("R", "RLAMP", "100k", 118, op["l1"][1] - 3.81, lx=2.6)
+s.glabel("B+2", 118, op["l1"][1] - 7.62, 90)
+s.wire(op["p2"][0], op["p2"][1], op["p2"][0], op["p2"][1] + 3.5)
+s.gnd(op["p2"][0], op["p2"][1] + 3.5)
+# Intensity 50K-RA, drawn turned over so its wiper faces the photocell: top
+# (lug 3) takes the mix output, wiper to the photocell, bottom (lug 1) to ground
+s.sym("POT", "VRINT", "50k int", 152, 212, rot=180, lx=4.4, ly=-2.0)
+s.wire(op["p1"][0], op["p1"][1], 143.5, op["p1"][1])
+s.wire(143.5, op["p1"][1], 143.5, 212)
+s.wire(143.5, 212, 146.92, 212)
+s.wire(152, 208.19, 152, 204)
+s.glabel("TREM", 152, 204, 90)
+s.gnd(152, 215.81)
+# Speed: a 3M rheostat from the ladder's middle node, then 100k to ground
+s.glabel("SPEED", 162, 206, 180)
+s.wire(162, 206, 168, 206)
+s.sym("POT", "VRSPD", "3M speed", 168, 209.81, lx=6.6, ly=-1.0)
+s.wire(173.08, 209.81, 173.08, 213.62)
+s.wire(173.08, 213.62, 168, 213.62)
+s.junction(168, 213.62)
+s.sym("R", "RTO1", "100k", 168, 217.43, lx=2.6)
+s.gnd(168, 221.24)
 
 # ============================ PHASE INVERTER (LTP) ===================
 XPI = 258
