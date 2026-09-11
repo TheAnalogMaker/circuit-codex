@@ -59,13 +59,6 @@ amps:
       placed: 'by position: the left end of a can along a row'
       plus_drawn_at: a
       ref: C13
-  5e6a:
-    wrong:
-    - leads: '''+'' lead C14.a: NBIAS = -42.0 V (ideal source VBIAS) through RB1; other lead C14.b: 0
-        = +0.0 V (ground)'
-      placed: 'by position: the left end of a can along a row'
-      plus_drawn_at: a
-      ref: C14
   5f10:
     wrong:
     - leads: '''+'' lead C11.a: NBIAS = -21.0 V (ideal source VBIAS); other lead C11.b: 0 = +0.0 V (ground)'
@@ -371,24 +364,19 @@ amps:
       ref: C16
   m1959:
     wrong:
-    - leads: '''+'' lead C17.a: NBIAS = -46.0 V (ideal source VBIAS) through RBB, RBC, VR7; other lead
-        C17.b: 0 = +0.0 V (ground)'
-      placed: 'by position: the left end of a can along a row'
-      plus_drawn_at: a
-      ref: C17
-    - leads: '''+'' lead C18.a: NBIAS = -46.0 V (ideal source VBIAS) through RBC, VR7; other lead C18.b:
-        0 = +0.0 V (ground)'
+    - leads: '''+'' lead C18.a: NBIAS = -46.0 V (ideal source VBIAS); other lead C18.b: 0 = +0.0 V (ground)'
       placed: 'by position: the left end of a can along a row'
       plus_drawn_at: a
       ref: C18
   m1987:
     wrong:
-    - leads: '''+'' lead C15.a: NBIAS = -48.0 V (ideal source VBIAS); other lead C15.b: 0 = +0.0 V (ground)'
-      placed: 'by position: the left end of a can along a row'
+    - leads: '''+'' lead C15.a: NBIAS = -48.0 V (ideal source VBIAS) through RBB; other lead C15.b: 0
+        = +0.0 V (ground)'
+      placed: 'by position: the top of a standing can'
       plus_drawn_at: a
       ref: C15
     - leads: '''+'' lead C16.a: NBIAS = -48.0 V (ideal source VBIAS); other lead C16.b: 0 = +0.0 V (ground)'
-      placed: 'by position: the left end of a can along a row'
+      placed: 'by position: the top of a standing can'
       plus_drawn_at: a
       ref: C16
   m2204:
@@ -404,7 +392,7 @@ amps:
       ref: C19
 summary:
   cans: 267
-  right: 190
+  right: 192
   undecided: 14
   unmarked: 0
-  wrong: 63
+  wrong: 61
