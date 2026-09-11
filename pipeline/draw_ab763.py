@@ -447,10 +447,14 @@ XPI = 258
 YPH = 100  # hot
 YPB = 132  # cold
 s.text("Long-tailed-pair phase inverter", 244, 70, 1.6)
-# hot grid input from PIG (mixer output)
-s.glabel("PIG", 232, YPH, 180)
-cl, cr = s.series_h("C", "CPIA", ".001u", 240, YPH)
-s.wire(236, YPH, cl, YPH)
+# hot grid input from PIG (the mix node) through CPIA 0.001u. The coupler sits
+# LEFT of the RGPA riser (x=236) and its lead starts AT the label: drawn with the
+# label at x=232 and the wire from x=236, the label touched nothing and CPIA's
+# left pin tapped the RGPA riser, so the coupler sat with both ends on the hot
+# grid and the mix node never reached the inverter.
+s.glabel("PIG", 218, YPH, 180)
+cl, cr = s.series_h("C", "CPIA", ".001u", 226, YPH)
+s.wire(218, YPH, cl, YPH)
 s.wire(cr, YPH, XPI - 7.62, YPH)
 t6a = s.triode("V6A", "12AT7", XPI, YPH)
 t6b = s.triode("V6B", "12AT7", XPI, YPB)
