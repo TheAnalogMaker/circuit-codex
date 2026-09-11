@@ -9,6 +9,14 @@ anchors:
   T2.4: "0"                # OT secondary hot — secondary DCR folded into ground;
                            # mirrors layout net_map SPK.tip: '0'.
 
+series_bridge:
+  R1a: "68k grid stopper from channel 1's input 1. The A-FJ sheet puts the
+    channel's 1 MΩ leak at the input-1 end of this stopper, not at the grid;
+    with no DC grid current the stopper drops nothing, so its two ends are
+    the one node netlist.cir calls G1I and models as RG1I G1I 0."
+  R1b: "68k grid stopper from channel 2's input 1 — the same arrangement, for
+    G2I and RG2I."
+
 # Hard-gated: verify_schematic_nets.py fails CI on any finding for this sheet.
 # Claimed 2026-09-02 after the drawing went clean against netlist.cir.
 schematic_claim: verified

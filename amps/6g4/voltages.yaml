@@ -1,30 +1,44 @@
-# Printed voltage chart read directly from the published 6G4 Super-Amp
-# drawing (schematic + companion layout, both carrying the same values). The
-# drawing's notice: "Voltages read to ground with electronic voltmeter.
-# Values shown + or -" (the layout page states the drawing's usual ±20%).
+# Printed voltages read directly from the published 6G4 Super-Amp drawing
+# (A-FJ): the schematic page prints the stage pins and three rails, and the
+# companion layout page prints the same pins at each socket plus every rail
+# the dropper chain produces. The schematic's notice reads "Voltages read to
+# ground with electronic voltmeter. Values shown + or -"; the layout page
+# completes it as "+ or - 20%". Tube pins therefore get 20%; rails get tighter
+# internal targets.
 #
-# BP1 (+456 V, 6L6GC plates) is driven directly. BD/BE1/BE2 (the three
-# preamp/recovery rails) are CALIBRATED so the plate nodes below land on
-# their printed values by construction — see netlist.cir's DC-conventions
-# note — so this file gates the CATHODE nodes those rails were not tuned
-# against, plus the phase-inverter and output-stage nodes that follow from
-# the one legibly-derived rail (BC, via the drawing's own 4.7 kΩ · 1 W
-# dropper) and the fixed -55 V bias source.
-source: "Fender 'Super-Amp' Schematic, Model 6G4 (A-FJ), printed voltages: +456 (6L6GC plates and, informationally, screens), +315/+310 (phase-inverter plates, hot/cold), +170 (both channels' input-stage plates), +160 (channel 1 recovery-stage plate), +120 (channel 2 recovery-stage plate), -55 (6L6GC fixed bias)"
+# Only BP1 (+456 V, the 6L6GC plates) and the -55 V bias line are driven.
+# Every other node below is solved through resistors the drawing letters.
+source: "Fender 'Super-Amp' Schematic, Model 6G4 (A-FJ). Schematic page: +458
+  (after the choke; screens and droppers), +456 (6L6GC plates), +430
+  (phase-inverter supply), +315/+310 (phase-inverter plates), +320/+320 and
+  +3.3 (vibrato pair plates and joined cathodes), +130 and +1.3 (vibrato
+  oscillator plate and cathode — excluded, reported here only), +180 and +1.5
+  (the oscillator's phase splitter), +170/+1.4 (both first stages, cathodes
+  joined), +160 (channel 1 second stage), +120 (channel 2 second stage), +1.1
+  (the second stages' joined cathodes), -55 (6L6GC fixed bias). Layout page,
+  in addition: +350 (vibrato-pair supply), +275 (oscillator and splitter
+  supply), +260 (rail A, both channels), +23 (phase-inverter cathodes)."
 nodes:
-  P1I:  { chart: null, note: "channel-1 input-stage plate — printed +170 V. Not gated: BD is CALIBRATED to reproduce this reading exactly, so a comparison here would be circular. Listed for reference; simulated 170.0 V by construction" }
-  P2I:  { chart: null, note: "channel-2 input-stage plate — printed +170 V, same shared BD rail and calibration basis as P1I" }
-  P1D:  { chart: null, note: "channel-1 recovery-stage plate — printed +160 V. Not gated: BE1 is calibrated to reproduce this reading exactly" }
-  P2D:  { chart: null, note: "channel-2 recovery-stage plate — printed +120 V. Not gated: BE2 is calibrated to reproduce this reading exactly" }
-  K1I:  { chart: null, note: "channel-1 input-stage cathode over 1.5 kΩ — the drawing's own cathode-pin figure at this stage was not legibly read at this scan's resolution; BD is calibrated to the PLATE (P1I) instead, so this cathode is a free prediction, reported for reference" }
-  K2I:  { chart: null, note: "channel-2 input-stage cathode over 1.5 kΩ — same shared BD rail as K1I; same reporting basis" }
-  K1D:  { chart: null, note: "channel-1 recovery-stage cathode over 820 Ω — BE1 is calibrated to the plate (P1D); this cathode is a free prediction" }
-  K2D:  { chart: null, note: "channel-2 recovery-stage cathode over 820 Ω — BE2 is calibrated to the plate (P2D); this cathode is a free prediction" }
-  PPIA: { chart: 315, tol_pct: 20, note: "phase-inverter plate, 82 kΩ (hot) side, off the derived BC rail (BP1 -> 4.7 kΩ · 1 W dropper) — not tuned to this value" }
-  PPIB: { chart: 310, tol_pct: 20, note: "phase-inverter plate, 100 kΩ (cold) side, off the derived BC rail — not tuned to this value" }
-  KPI:  { chart: null, note: "joined phase-inverter cathodes, above the 820 Ω tail resistor — the drawing's own figure here was not legibly read at this scan's resolution; reported for reference (6G3's own chart, the closest sibling circuit with the identical 820 Ω / 6.8 kΩ tail pair, reads +20 V here)" }
-  JPI:  { chart: null, note: "phase-inverter tail junction (820 Ω / 6.8 kΩ), grid-leak return — same reporting basis as KPI (6G3's chart reads +18 V at the analogous node)" }
+  BC:   { chart: 430, tol_pct: 8, note: "phase-inverter supply, after the 4.7 kΩ · 1 W dropper from the post-choke node — printed on both pages" }
+  BA:   { chart: 260, tol_pct: 10, note: "rail A, after a 56 kΩ · 1 W dropper from the +430 V node; it feeds all four channel plate loads. Printed on the layout page only" }
+  BV:   { chart: 350, tol_pct: 10, note: "vibrato-pair supply, after a 56 kΩ · 1 W dropper from the post-choke node. Printed on the layout page only. Simulates a few volts high: the oscillator's own draw, which also passes through this dropper, is not modelled (see the next node)" }
+  BL:   { chart: 275, tol_pct: 10, note: "supply for the oscillator's 470 kΩ and the splitter's 100 kΩ, after a second 56 kΩ · 1 W dropper. Printed on the layout page only, as a small vertical label; the units digit is the least certain glyph, and the 10% band holds any reading of it. Simulates about 9% high because the oscillator is excluded from the model and its running draw with it — about 0.3 mA on the chart's own +130 V plate reading. With a 0.31 mA sink standing in for it, this node lands at 275 V and the vibrato-pair supply at 346 V" }
+  P1I:  { chart: 170, tol_pct: 20, note: "channel-1 first stage plate (V1, 100 kΩ load off rail A)" }
+  P2I:  { chart: 170, tol_pct: 20, note: "channel-2 first stage plate (V1's other section, 100 kΩ load off rail A)" }
+  KI:   { chart: 1.4, tol_pct: 20, note: "both first stages' joined cathodes over one 820 Ω / 25 µF pair (the drawing's boxed C)" }
+  P1D:  { chart: 160, tol_pct: 20, note: "channel-1 second stage plate (V2): 100 kΩ, then a 6.8 kΩ decoupling resistor to rail A, output taken between them" }
+  P2D:  { chart: 120, tol_pct: 20, note: "channel-2 second stage plate (V2's other section): a single 220 kΩ load off rail A — the reason it prints lower than channel 1" }
+  KD:   { chart: 1.1, tol_pct: 20, note: "both second stages' joined cathodes over one 820 Ω / 25 µF pair (the drawing's boxed D)" }
+  PV1:  { chart: 320, tol_pct: 20, note: "vibrato pair, low-band section plate (V4, 100 kΩ load off the vibrato-pair supply)" }
+  PV2:  { chart: 320, tol_pct: 20, note: "vibrato pair, high-band section plate" }
+  KV:   { chart: 3.3, tol_pct: 20, note: "vibrato pair's joined cathodes over 4.7 kΩ / 2 µF" }
+  PS:   { chart: 180, tol_pct: 20, note: "oscillator's phase splitter plate (V3, 100 kΩ load). Reads high with its supply — see BL" }
+  KS:   { chart: 1.5, tol_pct: 20, note: "phase splitter cathode over 1.5 kΩ / 25 µF" }
+  PPIA: { chart: 315, tol_pct: 20, note: "phase-inverter plate, 82 kΩ (hot) side" }
+  PPIB: { chart: 310, tol_pct: 20, note: "phase-inverter plate, 100 kΩ (cold) side" }
+  KPI:  { chart: 23, tol_pct: 20, note: "phase-inverter joined cathodes, above the 820 Ω — printed at the socket on the layout page only" }
+  JPI:  { chart: null, note: "phase-inverter tail junction (820 Ω / 6.8 kΩ), the grid-leak return — printed on neither page" }
   G61:  { chart: -55, tol_pct: 8, note: "6L6GC (V7) grid, fixed bias through a 220 kΩ · 5% leak from the driven -55 V supply — exact by construction (ideal source, no drop across the leak at zero grid current)" }
   G62:  { chart: -55, tol_pct: 8, note: "6L6GC (V8) grid, fixed bias through a 220 kΩ · 5% leak from the driven -55 V supply — exact by construction" }
-  BS1:  { chart: 456, tol_pct: 10, note: "6L6GC (V7) screen after its 470 Ω-1W stopper, off the +456 V plate rail — the drawing prints +456 V at the plate pin only; the screen figure is not separately printed, so the drawn stopper's small drop (a few volts at typical screen current) is reported against the plate figure as an internal target, tighter than the drawing's own ±20%" }
-  BS2:  { chart: 456, tol_pct: 10, note: "6L6GC (V8) screen after its own 470 Ω-1W stopper — same reporting basis as BS1" }
+  BS1:  { chart: 458, tol_pct: 10, note: "6L6GC (V7) screen after its 470 Ω · 1 W stopper. The drawing prints +458 V at the post-choke node the screens hang from; the model folds that node onto the driven +456 V plate rail" }
+  BS2:  { chart: 458, tol_pct: 10, note: "6L6GC (V8) screen after its own 470 Ω · 1 W stopper — same basis as BS1" }
