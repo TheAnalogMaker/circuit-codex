@@ -77,8 +77,8 @@ items:
   - { ref: C22, part: "Electrolytic capacitor", value: "50 µF · 350 V", role: "Input-stage-supply filter" }
   - { ref: D2,  part: "Rectifier diode", value: "silicon", role: "HT full-wave rectifier (upper)" }
   - { ref: D3,  part: "Rectifier diode", value: "silicon", role: "HT full-wave rectifier (lower)" }
-  - { ref: C23, part: "Film capacitor", value: "0.22 µF", role: "HT-winding snubber, upper half of the HT secondary (end to the grounded centre tap)" }
-  - { ref: C24, part: "Film capacitor", value: "0.22 µF", role: "HT-winding snubber, lower half of the HT secondary (end to the grounded centre tap)" }
+  - { ref: C23, part: "Film capacitor", value: "0.22 µF", role: "HT-winding snubber across the upper half of the HT secondary (end to the grounded centre tap). The drawing letters it “22”; read as 0.22 µF, the value the model 1959 sheet by the same drawer letters “.22”" }
+  - { ref: C24, part: "Film capacitor", value: "0.22 µF", role: "HT-winding snubber across the lower half of the HT secondary (end to the grounded centre tap). The drawing letters it “22”; read as 0.22 µF, the value the model 1959 sheet by the same drawer letters “.22”" }
   # --- valves ---
   - { ref: V1, part: "Preamp tube", value: "ECC83 (12AX7)", role: "Input valve — both channels (V1A/V1B)" }
   - { ref: V2, part: "Preamp tube", value: "ECC83 (12AX7)", role: "Second stage + cathode follower (V2A/V2B)" }
