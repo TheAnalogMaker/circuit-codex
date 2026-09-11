@@ -124,8 +124,8 @@ parts:
   - { ref: RKE,  a: [0, 28], b: [1, 28] }  # 820 cathode SHARED by recovery + mix driver
   - { ref: RMR,  a: [0, 29], b: [0, 30] }  # 470k Reverb-control wiper → mix grid node
   - { ref: RMR2, a: [0, 30], b: [1, 30] }  # 220k mix grid node → ground
-  - { ref: RGD1, a: [0, 31], b: [1, 31] }  # 3.3M mix grid (to ground, as modelled; the sheet takes it to boxed Z)
-  - { ref: CBD1, a: [0, 31], b: [0, 32] }  # 10 pF mix grid node → boxed Z (the Vibrato .02)
+  - { ref: RGD1, a: [0, 31], b: [1, 31] }  # 3.3M mix grid ← boxed Z (the dry node), in parallel with the 10 pF, as the sheet draws it
+  - { ref: CBD1, a: [0, 31], b: [0, 32] }  # 10 pF mix grid node ← boxed Z, in parallel with the 3.3M
   - { ref: CCD1, a: [1, 33], b: [0, 33] }  # mix plate coupler → tremolo node (Intensity top)
   - { ref: RLD1, a: [0, 34], b: [1, 34] }  # 100k mix plate load (BD → PD1)
   - { ref: RLR1, a: [0, 35], b: [1, 35] }  # 100k recovery plate load (BD → PR1)
@@ -136,7 +136,7 @@ parts:
   - { ref: CKA,  a: [0, 39], b: [1, 39] }  # 25 µF bypass, SHARED [A] cathode
   - { ref: RKA,  a: [0, 40], b: [1, 40] }  # 820 cathode SHARED by both second stages
   - { ref: RGRD, a: [0, 41], b: [1, 41] }  # 1M reverb-driver grid leak
-  - { ref: CRS,  a: [0, 42], b: [1, 42] }  # 500 pF Vibrato 2nd-stage plate → driver grids
+  - { ref: CRS,  a: [0, 42], b: [0, 43] }  # 500 pF driver grids ← the dry node (boxed Z), after the .02
   - { ref: CCV2, a: [1, 43], b: [0, 43] }  # .02 Vibrato 2nd-stage plate → boxed Z
   # --- vibrato channel: plate loads, treble cap, slope resistor, stack caps ---
   - { ref: RLV2, a: [0, 44], b: [1, 44] }  # 100k 2nd-stage plate load (BD → PV2)
@@ -306,7 +306,7 @@ runs:
   - { from: RMR2.a, to: RGD1.a }
   - { from: V3.pin7, to: RGD1.a, via: [[31.5, 1.8], [31.5, 0.3]] }
   - { from: RMR2.b, to: [1.45, 30] }
-  - { from: RGD1.b, to: [1.45, 31] }
+  - { from: RGD1.b, to: CBD1.b, via: [[32, 0.85]] }   # the 3.3M's far end on boxed Z, beside the 10 pF
   - { from: CBD1.b, to: CCV2.b, via: [[32, -0.35], [43, -0.35]] }
   - { from: CCD1.a, to: RLD1.b }
   - { from: V3.pin6, to: CCD1.a, via: [[32.5, 1.6], [33, 1.3]] }
@@ -334,7 +334,6 @@ runs:
   - { from: V4.pin6, to: T4.blue, via: [[43.557, 1.879]] }
   - { from: T4.green, to: JRO.tip, via: [[44.6, 2.9], [37.5, 2.9]] }
   - { from: T4.black, to: [1.45, 45.6] }
-  - { from: CRS.b, to: CCV2.a }
   - { from: CCV2.a, to: RLV2.b }
   - { from: V2.pin6, to: RLV2.b, via: [[49.9, 1.6], [44.4, 1.3]] }
   - { from: V2.pin8, to: RKA.a, via: [[50.3, 2.35], [40.5, 2.35], [40.5, 0.3]] }
@@ -432,7 +431,7 @@ net_map:
     RBIAS: "470 Ω bias feed — the '470-1W' in the Super Reverb AB763 layout's bias sub-box, not on the main eyelet board"
     CBIAS: "bias filter — the '25|50' can in the Super Reverb AB763 layout's bias sub-box, not on the main eyelet board"
     RGR1: "220 kΩ reverb-recovery grid leak — the Super Reverb AB763 layout draws it at the reverb jacks, from the recovery-grid lead to a ground lug, not on the eyelet board"
-    RINT: "27 kΩ listed as a tremolo intensity resistor — the Super Reverb AB763 layout carries no 27K anywhere in its tremolo: its Intensity pot's wiper goes to the photoresistor and its only 27K is lettered inside the 10K-L bias control's outline, the schematic's leg from that control to ground"
+    RINT: "27 kΩ bias-divider leg — the Super Reverb AB763 layout letters '27K' inside the 10K-L bias control's outline, from one end of that control to its ground tab, and the schematic draws the same leg with the control's wiper as the −52 V line: a resistor mounted on the control, not on the eyelet board (the layout carries no 27K in its tremolo)"
 
 # Board-scope rules for the sheet ↔ board gate: parts the sheet draws that
 # this board deliberately does not, by designator glob, each with where the
