@@ -79,7 +79,6 @@ items:
   - { ref: CTO1, part: "Film capacitor",      value: "0.01 µF",        role: "Tremolo phase-shift cap" }
   - { ref: CTO2, part: "Film capacitor",      value: "0.01 µF",        role: "Tremolo phase-shift cap" }
   - { ref: CTO3, part: "Film capacitor",      value: "0.02 µF",        role: "Tremolo phase-shift cap" }
-  - { ref: RINT, part: "Carbon comp resistor", value: "10 kΩ · ½ W",  role: "Tremolo intensity series" }
   - { ref: OPTO, part: "Optocoupler",         value: "neon lamp + photoresistor", role: "Tremolo modulator (shunts V3a grid)" }
   # --- Phase inverter (V6 12AT7 LTP) ---
   - { ref: RLPA, part: "Carbon comp resistor", value: "82 kΩ · ½ W · 5%", role: "PI plate load (hot side)" }

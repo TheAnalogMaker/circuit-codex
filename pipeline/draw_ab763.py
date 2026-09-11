@@ -405,15 +405,14 @@ s.junction(21.08, 226)
 s.wire(21.08, 226, 21.08, 218)
 s.wire(21.08, 218, 16, 218)
 s.wire(16, 218, 16, 222.19)
-# intensity: V5B plate -> VRINT 50k -> RINT 10k -> opto lamp
+# intensity: V5B plate -> VRINT 50k -> opto lamp. No series resistor: the 10K the
+# C-FD sheet draws beside INTENSITY is the bias control's fixed leg (RBAL).
 s.junction(96, tee5)
 s.wire(96, tee5, 108, tee5)
 s.wire(108, tee5, 108, 202.19)
 s.sym("POT", "VRINT", "50k int", 108, 206)
 s.gnd(108, 209.81)
-il, ir = s.series_h("R", "RINT", "10k", 120, 206)
-s.wire(113.08, 206, il, 206)
-s.wire(ir, 206, 130, 206)
+s.wire(113.08, 206, 130, 206)
 # optocoupler: lamp driven by intensity; photocell shunts the mix-driver grid
 op = s.opto("OPTO", "roach", 142, 206)
 s.wire(130, 206, 130, op["l1"][1])
