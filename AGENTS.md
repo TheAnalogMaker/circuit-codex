@@ -85,6 +85,9 @@ python3 pipeline/verify_layout_nets.py       # layout↔netlist equivalence (+--
                                   #   '+' vs the DC sign; the worklist
                                   #   reference/electrolytics.yaml is drift-
                                   #   gated (regenerate with --export)
+                                  #   + SHORTED PART: a two-lead part with both
+                                  #   leads on one net, read as drawn
+                                  #   (report-only, SHORTED_PART_BLOCKING)
 python3 pipeline/check_heaters.py --selftest && \
 python3 pipeline/check_heaters.py            # heater wiring vs the amp's own declared
                                   #   supply, connection groups and returns, and

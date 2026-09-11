@@ -1087,6 +1087,19 @@ verdicts join the DIFF lines only when `ELECTROLYTIC_BLOCKING` is set, which
 happens once `plus:` is declared and drawn and the file's `wrong` list is
 empty.
 
+**Shorted parts: report-only, its own switch.** A two-lead part whose two leads
+the drawing puts on one net is shorted out: a resistor that drops nothing, a
+cap that couples or filters nothing, a diode that rectifies nothing. That
+covers resistors, capacitors, diodes and chokes in `parts[]`, off-board
+`kind: part` stubs other than the pilot lamp, and an off-board choke with two
+leads. The equivalence proof sees such a short only for a part the netlist
+models, and never for one a declaration joins on purpose: a `series_bridge`
+grid stopper, or transformer leads anchored to one node. So this check reads
+the board **as drawn**, runs, eyelets and the ground bus, before any `net_map`
+union. Each finding names its cause: one eyelet, the ground bus, or a run or
+shared eyelet. It found none on 6ce2a23 across 1,730 parts, so it keeps no
+worklist. Its findings join the DIFF lines once `SHORTED_PART_BLOCKING` is set.
+
 `verify_layout_nets.py --selftest` (wired into CI) plants the adversarial audit's
 exact faults — one per proven hole class — and asserts each is caught: two
 endpoints swapped, a run deleted, a run rerouted to a wrong pin; an aliased-valve
@@ -1108,7 +1121,11 @@ rectifier to read *fed* as committed, and UNFED once its run from
 and the AB763's cathode bypass CKN1 as drawn (WRONG) and with the `+` turned to
 the other lead (right), and the 5F4's cathode bypass C3 both ways. They also
 require the JTM100's series-stacked C13 and C14 to be decided through their
-joint. A gate that can't catch planted faults is decoration.
+joint. Shorted-part cases plant a run between one resistor's two eyelets
+on the 5F1 and a run between an off-board stub's two terminals; each must be
+reported, the 5F1 as committed must report none, and a `series_bridge`
+stopper is never read as shorted. A gate that can't catch planted faults is
+decoration.
 
 ```
 python3 pipeline/render_layouts.py                 # (re)generate SVGs first

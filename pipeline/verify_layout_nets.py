@@ -126,6 +126,17 @@ reference/electrolytics.yaml by --export, and a full run fails when that file
 is stale. They join res.errors only when ELECTROLYTIC_BLOCKING is set.
 
 ------------------------------------------------------------------------------
+SHORTED PARTS (2026-09-11) — REPORT-ONLY, its own switch
+------------------------------------------------------------------------------
+A two-lead part (resistor, capacitor, diode, choke; an off-board kind: part
+stub; an off-board choke with two leads) whose a and b land on ONE net is
+shorted out. shorted_parts reads the board AS DRAWN, a fresh LayoutGraph
+before any net_map union, because a series_bridge or a pair of co-anchored
+leads joins two ends on purpose. It found none on 6ce2a23 (1,730 parts), so
+it keeps no worklist; findings join res.errors when SHORTED_PART_BLOCKING is
+set.
+
+------------------------------------------------------------------------------
 VERDICT + GATE
 ------------------------------------------------------------------------------
 Per amp: PASS/FAIL with per-net diffs in builder language (extra connection /
@@ -785,6 +796,7 @@ class Result:
         self.node_of_root: dict = {}      # the solved map: layout net root -> node
         self.polarity: list = []          # board_polarity() verdicts, report-only
         self.electrolytics: list = []     # board_electrolytics() verdicts, report-only
+        self.shorted_parts: list = []     # shorted_parts() on the drawn board, report-only
 
 
 def _invert_basing(basing: dict) -> dict:
@@ -1051,6 +1063,13 @@ def _check_layout(amp_id: str, layout: dict, bom: dict, net_map=None,
             if c["verdict"] == "WRONG":
                 res.errors.append(f"REVERSED ELECTROLYTIC: {c['ref']}: {c['why']} "
                                   f"({c['desc']})")
+    # Shorted parts, read on the board AS DRAWN (a fresh LayoutGraph, before
+    # the net_map unions above). Report-only until SHORTED_PART_BLOCKING.
+    res.shorted_parts = shorted_parts(R)
+    if SHORTED_PART_BLOCKING:
+        for s in res.shorted_parts:
+            res.errors.append(f"SHORTED PART: {s['ref']}: {s['cause']}, so "
+                              f"{s['terms'][0]} and {s['terms'][1]} are one board net")
     if POLARITY_BLOCKING:
         for p in res.polarity:
             if p["verdict"] == "REVERSED":
@@ -1702,6 +1721,71 @@ def _print_electrolytic_summary(electro: dict):
             print(f"  WRONG {amp}: " + ", ".join(w["ref"] for w in entry["wrong"]))
 
 
+# ============================================================================
+# shorted parts (2026-09-11) — report-only, its own switch
+# ============================================================================
+# A two-lead part whose two leads the drawing puts on ONE board net is shorted
+# out: a resistor that drops nothing, a cap that couples or filters nothing, a
+# diode that rectifies nothing. The equivalence proof sees that only for a part
+# the netlist models, and never for one a declaration joins on purpose (a
+# series_bridge grid stopper, transformer leads co-anchored to one node), so
+# this reads the board AS DRAWN: a fresh LayoutGraph of runs, eyelets and the
+# ground bus, before any net_map union. The 6G6-B's C13 was one: its lower
+# eyelet shared RB1.b while a run also took it to the bus. The sheet-side twin
+# lives in verify_schematic_nets.
+SHORTED_PART_BLOCKING = False
+SHORTED_PART_CATS = {"res", "film", "mica", "electro", "diode", "choke"}
+
+
+def shorted_parts(R: Renderer) -> list:
+    """Every two-lead part the board draws with both leads on one net, read on
+    the drawn board: parts[] rows whose BOM type is a resistor, capacitor, diode
+    or choke; off-board `kind: part` stubs (a pilot-lamp glyph aside, which
+    check_heaters owns); and an off-board `kind: choke` with exactly two leads.
+    Pots, tubes, jacks, switches and transformers have no single pair of ends
+    and are not read."""
+    LG = LayoutGraph(R)
+    uf = LG.uf
+    members = uf.members()
+
+    def cat(ref):
+        return category(str((R.bom.get(ref) or {}).get("part", "")))
+
+    items = []
+    for p in R.parts:
+        ref = p.get("ref")
+        if ref and "a" in p and "b" in p and cat(ref) in SHORTED_PART_CATS:
+            items.append((ref, f"{ref}.a", f"{ref}.b", p))
+    for it in R.offboard:
+        oid, kind, ref = it.get("id"), it.get("kind"), it.get("ref")
+        if not oid:
+            continue
+        if (kind == "part" and it.get("glyph") != "lamp"
+                and (ref is None or cat(ref) in SHORTED_PART_CATS)):
+            items.append((ref or oid, f"{oid}.a", f"{oid}.b", it))
+        elif kind == "choke":
+            ends = sorted(t for t in uf.parent
+                          if isinstance(t, str) and t.startswith(oid + "."))
+            if len(ends) == 2:
+                items.append((ref or oid, ends[0], ends[1], it))
+    out = []
+    for ref, ta, tb, spec in items:
+        if ta not in uf.parent or tb not in uf.parent:
+            continue                      # a lead no run reaches cannot short
+        root = uf.find(ta)
+        if uf.find(tb) != root:
+            continue
+        if spec.get("a") is not None and spec.get("a") == spec.get("b"):
+            cause = "both leads are drawn in one eyelet"
+        elif GND in uf.parent and root == uf.find(GND):
+            cause = "both leads land on the ground bus"
+        else:
+            cause = "a run or a shared eyelet joins its two leads"
+        net = sorted(m for m in members.get(root, []) if not m.startswith("@"))
+        out.append({"ref": ref, "terms": [ta, tb], "cause": cause, "net": net})
+    return out
+
+
 def _check_twisted_heaters(res, R, sockets: dict):
     """A heater-styled run (style: twisted, a pair; or style: heater, one
     conductor) is EXCLUDED from equivalence checking as heater wiring; validate
@@ -2068,6 +2152,10 @@ def _print_result(res: Result):
         print(f"  can   | electrolytics: {len(res.electrolytics)}; {n['right']} '+' on the "
               f"more positive lead, {n['WRONG']} WRONG, {n['undecided']} undecided, "
               f"{n['unmarked']} drawn with no '+'")
+    for s in res.shorted_parts:
+        print(f"  SHORT | SHORTED PART {s['ref']}: {s['cause']}, so {s['terms'][0]} and "
+              f"{s['terms'][1]} are one board net {{{', '.join(s['net'][:6])}}}"
+              + ("" if SHORTED_PART_BLOCKING else "  (report-only)"))
     conf = [p["ref"] for p in res.polarity if p["verdict"] == "confirmed"]
     if conf:
         print(f"  polar | orientation confirmed by the DC model: {', '.join(conf)}")
@@ -2447,18 +2535,83 @@ def selftest() -> int:
         print(f"  [CAN] JTM100 {ref}, half of a series-stacked pair, decided through its "
               f"joint -> {c3['verdict'] if c3 else 'absent'}: {'OK' if decided else 'FAIL'}")
 
+    # ---- shorted parts: a two-lead part with both leads on one DRAWN net. -----
+    print("=== shorted parts (read on the board as drawn; report-only) ===")
+    sp_results: list = []
+
+    def _cat(bm, ref):
+        return category(str((bm.get(ref) or {}).get("part", "")))
+
+    r0 = _check_layout("5f1", l5f1, b5f1)
+    sp_results.append(not r0.shorted_parts)
+    print(f"  [SHORT] 5f1 as committed -> {len(r0.shorted_parts)} shorted part(s) "
+          f"(want 0): {'OK' if not r0.shorted_parts else 'FAIL'}")
+    rp = next(p for p in l5f1["parts"] if p.get("ref") and _cat(b5f1, p["ref"]) == "res")
+    m = copy.deepcopy(l5f1)
+    m["runs"].append({"from": list(rp["a"]), "to": list(rp["b"])})
+    r = _check_layout("5f1", m, b5f1)
+    hit = [s for s in r.shorted_parts if s["ref"] == rp["ref"]]
+    sp_results.append(bool(hit))
+    print(f"  [SHORT] 5f1: a run planted between {rp['ref']}'s two eyelets {rp['a']} "
+          f"and {rp['b']} -> {'CAUGHT' if hit else 'MISSED'}")
+    if hit:
+        print(f"          -> {hit[0]['ref']}: {hit[0]['cause']}, net {hit[0]['net'][:5]}")
+    if not SHORTED_PART_BLOCKING:
+        quiet = not any(e.startswith("SHORTED PART") for e in r.errors)
+        sp_results.append(quiet)
+        print(f"  [SHORT] the planted short stays out of the DIFF lines while "
+              f"report-only: {'OK' if quiet else 'FAIL'}")
+    stub, samp, slay, sbom = None, None, None, None
+    for amp in ("5f1", "5f4", "jtm45", "aa1164", "5f6a"):
+        slay, sbom = _load_layout(amp)
+        stub = next((it for it in slay.get("offboard", []) or []
+                     if it.get("kind") == "part" and it.get("ref") and it.get("id")
+                     and _cat(sbom, it["ref"]) == "res"), None)
+        if stub:
+            samp = amp
+            break
+    if stub:
+        m = copy.deepcopy(slay)
+        m["runs"].append({"from": f"{stub['id']}.a", "to": f"{stub['id']}.b"})
+        r = _check_layout(samp, m, sbom)
+        hit = any(s["ref"] == stub["ref"] for s in r.shorted_parts)
+        sp_results.append(hit)
+        print(f"  [SHORT] {samp}: a run planted between off-board stub {stub['id']}'s "
+              f"terminals a and b -> {'CAUGHT' if hit else 'MISSED'}")
+    else:
+        sp_results.append(False)
+        print("  [SHORT] no off-board resistor stub on the baseline boards: FAIL")
+    bridged = None
+    for amp in _layout_amp_ids():
+        lay, bm = _load_layout(amp)
+        refs = [ref for ref in ((lay.get("net_map") or {}).get("series_bridge") or {})
+                if any(p.get("ref") == ref for p in lay.get("parts", []) or [])]
+        if refs:
+            bridged = (amp, refs, _check_layout(amp, lay, bm))
+            break
+    if bridged:
+        amp, refs, r = bridged
+        leaked = [s["ref"] for s in r.shorted_parts if s["ref"] in refs]
+        sp_results.append(not leaked)
+        print(f"  [SHORT] {amp}'s series_bridge stopper(s) {', '.join(refs)}, which the "
+              f"contracted graph joins on purpose, are not read as shorted: "
+              f"{'OK' if not leaked else 'FAIL ' + str(leaked)}")
+
     unit_checks = [h2_ok, h2b_ok, h3_ok, h3b_ok, h3c_ok, h3d_ok, h4_ok,
                    h8_red_ok, h8_con_ok, pp_base_ok, pp_break_caught,
                    pot_surfaced, bias_surfaced, h9_fp_ok]
     unit_ok = all(unit_checks)
     pol_ok = all(pol_results)
     can_ok = all(can_results)
-    all_ok = ok_mut and unit_ok and pol_ok and can_ok
-    n_cases = n_mut + len(unit_checks) + len(pol_results) + len(can_results)
+    sp_ok = all(sp_results)
+    all_ok = ok_mut and unit_ok and pol_ok and can_ok and sp_ok
+    n_cases = (n_mut + len(unit_checks) + len(pol_results) + len(can_results)
+               + len(sp_results))
     print(f"\nselftest: {passed}/{n_mut} planted-fault mutations caught; "
           f"resolver/island/anchor unit checks {'all OK' if unit_ok else 'FAILED'}; "
           f"rectifier polarity and feed {sum(pol_results)}/{len(pol_results)}; "
-          f"electrolytic polarity {sum(can_results)}/{len(can_results)} "
+          f"electrolytic polarity {sum(can_results)}/{len(can_results)}; "
+          f"shorted parts {sum(sp_results)}/{len(sp_results)} "
           f"({n_cases} cases)"
           + ("" if all_ok else "  !! GATE IS LEAKY"))
     return 0 if all_ok else 1
@@ -2486,12 +2639,14 @@ def main(argv: list[str]) -> int:
     checked = 0
     polarity: list = []
     electro: dict = {}
+    shorted: list = []
     for d in amp_dirs:
         if only and d.name != only:
             continue
         res = check_amp(d.name, verbose=True)
         polarity.extend((d.name, p) for p in res.polarity)
         electro[d.name] = res.electrolytics
+        shorted.extend((d.name, s) for s in res.shorted_parts)
         checked += 1
         if not res.ok:
             if res.claim:
@@ -2506,6 +2661,11 @@ def main(argv: list[str]) -> int:
               "electrically equivalent to the netlist.")
     _print_polarity_summary(polarity)
     _print_electrolytic_summary(electro)
+    print(f"\nshorted two-lead parts on the boards, read as drawn: {len(shorted)} "
+          + ("(BLOCKING: SHORTED_PART_BLOCKING is set)" if SHORTED_PART_BLOCKING
+             else "(report-only: SHORTED_PART_BLOCKING is off)"))
+    for amp, s in shorted:
+        print(f"  SHORTED {amp} {s['ref']}: {s['cause']}")
     # The worklist is committed, so a full run that disagrees with it fails:
     # a stale worklist misstates the size of the job it exists to measure.
     stale = [] if only else check_electrolytic_worklist(electro)
