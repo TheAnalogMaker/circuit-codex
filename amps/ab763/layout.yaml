@@ -18,7 +18,7 @@ wiring_claim: verified
 
 board:
   rows: 2
-  cols: 62
+  cols: 68
   title: "AB763 · eyelet board layout"
 
 # The heater circuits this drawing establishes against the amplifier's own
@@ -58,10 +58,10 @@ parts:
   - { ref: RD2, a: [0, 7], b: [0, 8] }     # 10k dropper B+3→B+4 (BC→BD)
   # --- output stage (6V6 pair V7/V8) ---
   - { ref: RS1, a: [0, 10], b: [0, 11] }   # 470Ω-1W V7 screen stopper (B+1→S61)
-  - { ref: C1,  a: [0, 12], b: [0, 13] }   # 0.1µF PI hot plate → V7 grid (PPIA→G61)
+  - { ref: C1, a: [0, 12], b: [0, 13] }   # 0.1µF PI hot plate → V7 grid (PPIA→G61)
   - { ref: RGL1, a: [0, 13], b: [1, 13] }  # 220k V7 grid leak (G61→ -35V), shares G61 eyelet
   - { ref: RS2, a: [0, 14], b: [0, 15] }   # 470Ω-1W V8 screen stopper (B+1→S62)
-  - { ref: C2,  a: [0, 16], b: [0, 17] }   # 0.1µF PI cold plate → V8 grid (PPIB→G62)
+  - { ref: C2, a: [0, 16], b: [0, 17] }   # 0.1µF PI cold plate → V8 grid (PPIB→G62)
   - { ref: RGL2, a: [0, 17], b: [1, 17] }  # 220k V8 grid leak (G62→ -35V), shares G62 eyelet
   # --- long-tailed-pair phase inverter (V6 12AT7) ---
   - { ref: RLPA, a: [0, 18], b: [0, 19] }  # 82k hot plate load (BC→PPIA)
@@ -69,71 +69,80 @@ parts:
   - { ref: RGPA, a: [0, 22], b: [1, 22] }  # 1M hot grid leak (GPIA→JPI)
   - { ref: RGPB, a: [0, 23], b: [1, 23] }  # 1M cold grid leak (GPIB→JPI)
   - { ref: RTAIL, a: [1, 19], b: [1, 20] } # 470Ω tail (KPI→JPI)
-  - { ref: RT2,  a: [0, 24], b: [1, 24] }  # 22k tail junction → ground (JPI→0)
+  - { ref: RT2, a: [0, 24], b: [1, 24] }  # 22k tail junction → ground (JPI→0)
+  # --- the phase inverter's input and feedback networks, beside it as the layout page draws them ---
+  - { ref: RMN2, a: [0, 25], b: [0, 26] }  # 220k Normal mixing resistor: a ← the .047 (link X), b = the mix node
+  - { ref: RMD1, a: [0, 27], b: [0, 26] }  # 220k Vibrato mixing resistor: a ← the .1 (link Y), b = the mix node
+  - { ref: CPIA, a: [0, 26], b: [1, 26] }  # .001: the mix node → the PI hot grid
+  - { ref: RNFB, a: [1, 27], b: [1, 28] }  # 820 negative feedback: a ← the speaker hot, b = the feedback node
+  - { ref: CPIB, a: [0, 28], b: [1, 28] }  # .1-200: the PI cold grid → the feedback node
+  - { ref: RNF2, a: [1, 28], b: [1, 29] }  # 47: the feedback node → ground
   # --- reverb driver (V4 12AT7, both sections paralleled) ---
-  - { ref: RGRD, a: [0, 25], b: [1, 25] }  # 1M grid leak (GRD→0)
-  - { ref: CKRD, a: [0, 26], b: [0, 27] }  # 25µF cathode bypass (shares KRD eyelet)
-  - { ref: RKRD, a: [0, 27], b: [1, 27] }  # 2.2k shared cathode (KRD→0)
+  - { ref: RGRD, a: [0, 31], b: [1, 31] }  # 1M grid leak (GRD→0)
+  - { ref: CKRD, a: [0, 32], b: [0, 33] }  # 25µF cathode bypass (shares KRD eyelet)
+  - { ref: RKRD, a: [0, 33], b: [1, 33] }  # 2.2k shared cathode (KRD→0)
   # --- reverb recovery (V3b half) ---
-  - { ref: RLR1, a: [0, 39], b: [0, 40] }  # 100k plate load (BD→PR1)
-  - { ref: CKR1, a: [0, 41], b: [0, 42] }  # 25µF cathode bypass (shares KR1)
-  - { ref: RKR1, a: [0, 42], b: [1, 42] }  # 820Ω cathode (KE→0) — box [E]: the one network, shared with the mix driver
+  - { ref: RLR1, a: [0, 45], b: [0, 46] }  # 100k plate load (BD→PR1)
+  - { ref: CKR1, a: [0, 47], b: [0, 48] }  # 25µF cathode bypass (shares KR1)
+  - { ref: RKR1, a: [0, 48], b: [1, 48] }  # 820Ω cathode (KE→0) — box [E]: the one network, shared with the mix driver
   # --- vibrato/reverb mix driver (V3a half) ---
-  - { ref: RGD2, a: [1, 43], b: [1, 44] }  # 220k mix-driver grid return (GD1→0): the fan's 220K to ground on the layout page
-  - { ref: RLD1, a: [0, 44], b: [0, 45] }  # 100k plate load (BD→PD1)
+  - { ref: RGD2, a: [1, 49], b: [1, 50] }  # 220k mix-driver grid return (GD1→0): the fan's 220K to ground on the layout page
+  - { ref: RLD1, a: [0, 50], b: [0, 51] }  # 100k plate load (BD→PD1)
+  - { ref: CCD1, a: [0, 51], b: [1, 51] }  # .1 coupler: a on V3a's plate eyelet (with RLD1), b → link Y
   # --- reverb level network: the layout page takes the recovery plate through the .003 to the
   # Reverb pot's top, and its wiper through the 470K to the mix-driver grid node ---
-  - { ref: CCR1, a: [0, 46], b: [1, 46] }  # .003 coupler: b ← recovery plate (PR1), a → Reverb pot top (lug 3)
-  - { ref: RMR,  a: [0, 47], b: [1, 47] }  # 470k reverb mix: a ← Reverb pot wiper (lug 2), b → mix-driver grid (GD1)
+  - { ref: CCR1, a: [0, 52], b: [1, 52] }  # .003 coupler: b ← recovery plate (PR1), a → Reverb pot top (lug 3)
+  - { ref: RMR, a: [0, 53], b: [1, 53] }  # 470k reverb mix: a ← Reverb pot wiper (lug 2), b → mix-driver grid (GD1)
   # --- the dry path: the vibrato channel's .02 out of V2b's plate eyelet, into the reverb
   # send (500 pF) and, through 3.3M ‖ 10 pF, onto the mix-driver grid node ---
-  - { ref: RGD1, a: [0, 48], b: [1, 48] }  # 3.3M dry-path mixing resistor: a on the grid node, b on the .02's far side
-  - { ref: CBD1, a: [1, 48], b: [1, 49] }  # 10 pF across RGD1: a on the .02's far side, b tied back to RGD1.a
-  - { ref: CCV2, a: [0, 54], b: [1, 54] }  # .02 coupler, sharing RLV2's plate eyelet as the layout page draws it
-  - { ref: CRS,  a: [0, 28], b: [1, 28] }  # 500 pF reverb send: a ← the .02's far side, b → the driver grid
+  - { ref: RGD1, a: [0, 54], b: [1, 54] }  # 3.3M dry-path mixing resistor: a on the grid node, b on the .02's far side
+  - { ref: CBD1, a: [1, 54], b: [1, 55] }  # 10 pF across RGD1: a on the .02's far side, b tied back to RGD1.a
+  - { ref: CCV2, a: [0, 60], b: [1, 60] }  # .02 coupler, sharing RLV2's plate eyelet as the layout page draws it
+  - { ref: CRS, a: [0, 34], b: [1, 34] }  # 500 pF reverb send: a ← the .02's far side, b → the driver grid
   # --- vibrato channel input (V2a half) ---
-  - { ref: RLV1, a: [0, 49], b: [0, 50] }  # 100k plate load (BD→PV1)
-  - { ref: CKV1, a: [0, 51], b: [0, 52] }  # 25µF cathode bypass (shares KV1)
-  - { ref: RKV1, a: [0, 52], b: [1, 52] }  # 1.5k cathode (KV1→0)
+  - { ref: RLV1, a: [0, 55], b: [0, 56] }  # 100k plate load (BD→PV1)
+  - { ref: CKV1, a: [0, 57], b: [0, 58] }  # 25µF cathode bypass (shares KV1)
+  - { ref: RKV1, a: [0, 58], b: [1, 58] }  # 1.5k cathode (KV1→0)
   # --- vibrato channel 2nd stage (V2b half) ---
-  - { ref: RLV2, a: [0, 53], b: [0, 54] }  # 100k plate load (BD→PV2)
-  - { ref: CKV2, a: [0, 55], b: [0, 56] }  # 25µF cathode bypass (shares KV2)
-  - { ref: RKV2, a: [0, 56], b: [1, 56] }  # 820Ω cathode (KA→0) — box [A]: the one network, shared with V1b
+  - { ref: RLV2, a: [0, 59], b: [0, 60] }  # 100k plate load (BD→PV2)
+  - { ref: CKV2, a: [0, 61], b: [0, 62] }  # 25µF cathode bypass (shares KV2)
+  - { ref: RKV2, a: [0, 62], b: [1, 62] }  # 820Ω cathode (KA→0) — box [A]: the one network, shared with V1b
   # --- normal channel input (V1a half) + 2nd stage (V1b half) ---
-  - { ref: RLN1, a: [0, 58], b: [0, 59] }  # 100k plate load (BD→PN1)
-  - { ref: CKN1, a: [0, 60], b: [0, 61] }  # 25µF cathode bypass (shares KN1)
-  - { ref: RKN1, a: [0, 61], b: [1, 61] }  # 1.5k cathode (KN1→0)
-  - { ref: RLN2, a: [0, 58], b: [1, 58] }  # 100k V1b plate load (BD→PN2), sharing RLN1.a's eyelet: the layout page fans both Normal plate loads from one eyelet lettered D
+  - { ref: RLN1, a: [0, 64], b: [0, 65] }  # 100k plate load (BD→PN1)
+  - { ref: CKN1, a: [0, 66], b: [0, 67] }  # 25µF cathode bypass (shares KN1)
+  - { ref: RKN1, a: [0, 67], b: [1, 67] }  # 1.5k cathode (KN1→0)
+  - { ref: RLN2, a: [0, 64], b: [1, 64] }  # 100k V1b plate load (BD→PN2), sharing RLN1.a's eyelet: the layout page fans both Normal plate loads from one eyelet lettered D
+  - { ref: CCN2, a: [1, 64], b: [1, 63] }  # .047 coupler: a on V1b's plate eyelet (with RLN2), b → link X
 
 offboard:
-  - { id: T1,  ref: T1, kind: xfmr,  edge: left,   at: 0.5, label: "Power trans" }
-  - { id: PL1, kind: part, glyph: lamp, edge: left, at: 1.6, label: "Pilot lamp" }
-  - { id: T2,  ref: T2, kind: choke, edge: top,    at: 1.5, label: "Choke" }
-  - { id: V9,  ref: V9, kind: tube,  edge: bottom, at: 2,   label: "V9 · GZ34" }
-  - { id: V7,  ref: V7, kind: tube,  edge: bottom, at: 11,  label: "V7 · 6V6GT" }
-  - { id: V8,  ref: V8, kind: tube,  edge: bottom, at: 15,  label: "V8 · 6V6GT" }
-  - { id: T3,  ref: T3, kind: xfmr,  edge: top,    at: 13,  label: "Output trans" }
-  - { id: SPK, kind: jack, edge: bottom, at: 17,  label: "Spkr" }
-  - { id: V6,  ref: V6, kind: tube,  edge: bottom, at: 20,  label: "V6 · 12AT7 PI" }
-  - { id: V4,  ref: V4, kind: tube,  edge: bottom, at: 27,  label: "V4 · 12AT7 rev drv" }
-  - { id: T4,  ref: T4, kind: xfmr,  edge: top,    at: 30,  label: "Reverb trans" }
-  - { id: V5,  ref: V5, kind: tube,  edge: bottom, at: 33,  label: "V5 · 12AX7 trem" }
-  - { id: VRSPD, ref: VRSPD, kind: pot, edge: top, at: 35,  label: "Speed" }
-  - { id: VRINT, ref: VRINT, kind: pot, edge: top, at: 37,  label: "Intensity" }
-  - { id: V3,  ref: V3, kind: tube,  edge: bottom, at: 43,  label: "V3 · 12AX7 rev/mix" }
-  - { id: VRREV, ref: VRREV, kind: pot, edge: top, at: 41,  label: "Reverb" }
-  - { id: JRO, kind: jack, edge: bottom, at: 47.5, label: "Reverb out" }  # the tank-return RCA; the layout page runs its centre to V3 pin 2
-  - { id: V2,  ref: V2, kind: tube,  edge: bottom, at: 52,  label: "V2 · 12AX7 vib" }
-  - { id: VRVV, ref: VRVV, kind: pot, edge: top, at: 50,  label: "Vibrato vol" }
-  - { id: JV,  kind: jack, edge: top, at: 47, label: "Vibrato in" }
-  - { id: V1,  ref: V1, kind: tube,  edge: bottom, at: 60,  label: "V1 · 12AX7 norm" }
-  - { id: VRVN, ref: VRVN, kind: pot, edge: top, at: 58,  label: "Normal vol" }
-  - { id: JN,  kind: jack, edge: top, at: 61, label: "Normal in" }
+  - { id: T1, ref: T1, kind: xfmr, edge: left, at: 0.5, label: Power trans }
+  - { id: PL1, kind: part, glyph: lamp, edge: left, at: 1.6, label: Pilot lamp }
+  - { id: T2, ref: T2, kind: choke, edge: top, at: 1.5, label: Choke }
+  - { id: V9, ref: V9, kind: tube, edge: bottom, at: 2, label: V9 · GZ34 }
+  - { id: V7, ref: V7, kind: tube, edge: bottom, at: 11, label: V7 · 6V6GT }
+  - { id: V8, ref: V8, kind: tube, edge: bottom, at: 15, label: V8 · 6V6GT }
+  - { id: T3, ref: T3, kind: xfmr, edge: top, at: 13, label: Output trans }
+  - { id: SPK, kind: jack, edge: bottom, at: 17, label: Spkr }
+  - { id: V6, ref: V6, kind: tube, edge: bottom, at: 20, label: V6 · 12AT7 PI }
+  - { id: V4, ref: V4, kind: tube, edge: bottom, at: 33, label: V4 · 12AT7 rev drv }
+  - { id: T4, ref: T4, kind: xfmr, edge: top, at: 36, label: Reverb trans }
+  - { id: V5, ref: V5, kind: tube, edge: bottom, at: 39, label: V5 · 12AX7 trem }
+  - { id: VRSPD, ref: VRSPD, kind: pot, edge: top, at: 41, label: Speed }
+  - { id: VRINT, ref: VRINT, kind: pot, edge: top, at: 43, label: Intensity }
+  - { id: V3, ref: V3, kind: tube, edge: bottom, at: 49, label: V3 · 12AX7 rev/mix }
+  - { id: VRREV, ref: VRREV, kind: pot, edge: top, at: 47, label: Reverb }
+  - { id: JRO, kind: jack, edge: bottom, at: 53.5, label: Reverb out }  # the tank-return RCA; the layout page runs its centre to V3 pin 2
+  - { id: V2, ref: V2, kind: tube, edge: bottom, at: 58, label: V2 · 12AX7 vib }
+  - { id: VRVV, ref: VRVV, kind: pot, edge: top, at: 56, label: Vibrato vol }
+  - { id: JV, kind: jack, edge: top, at: 53, label: Vibrato in }
+  - { id: V1, ref: V1, kind: tube, edge: bottom, at: 66, label: V1 · 12AX7 norm }
+  - { id: VRVN, ref: VRVN, kind: pot, edge: top, at: 64, label: Normal vol }
+  - { id: JN, kind: jack, edge: top, at: 67, label: Normal in }
 
 # Ground bus — the bare rail just below the bottom eyelet row; cathode, filter,
 # grid-leak, and pot grounds tie to it.
 bus:
-  - { from: [1.45, -0.5], to: [1.45, 61.5] }
+  - { from: [1.45, -0.5], to: [1.45, 67.5] }
 
 # Wiring — read lead-by-lead from the published AB763 layout drawing. Transformer
 # leads carry the drawing's colours. The 6.3 V heater winding is the green pair;
@@ -166,8 +175,8 @@ runs:
   - { from: T3.red, to: C10.a, color: red, via: [[11.4, 0.4], [9.4, 2.55], [-0.51, 2.55]] } # OT centre tap → B+1 (peel left of the blue plate lead, drop left of V7)
   - { from: RS2.a, to: RS1.a, color: red, via: [[14, 0.5], [10.4, 0.5]] }     # screen backbone (flat, above the 6V6 pins)
   - { from: RS1.a, to: C11.a, color: red, via: [[10, 2.5], [4.7, 2.5], [4.7, 0.15], [2.3, 0.15]] } # screen node → B+1 (flat approach from the right)
-  - { from: T4.red, to: C11.a, color: red, via: [[29.6, 2.82], [3.6, 2.82], [3.6, 1.0]] } # reverb-trans primary → B+1 (rise col 3.6, clear corridor)
-  - { from: RD1.a, to: C11.a, color: red, via: [[5, 2.86], [0.4, 2.86], [0.4, 1.0]] }     # B+1 → dropper feed (rise col 0.4, from lower-left)
+  - { from: T4.red, to: C11.a, color: red, via: [[35.6, 2.82], [3.6, 2.82], [3.6, 1]] } # reverb-trans primary → B+1 (rise col 3.6, clear corridor)
+  - { from: RD1.a, to: C11.a, color: red, via: [[5, 2.86], [0.4, 2.86], [0.4, 1]] }     # B+1 → dropper feed (rise col 0.4, from lower-left)
   - { from: T3.blue, to: V7.pin3, via: [[12.67, 3], [10.5, 3]] }  # OT primary → V7 plate (straight down, then deep-left under the tube)
   - { from: T3.brown, to: V8.pin3, via: [[13.4, 3.08], [15, 3.08]] } # OT primary → V8 plate
   - { from: T3.green, to: SPK.tip, via: [[13.4, 1.05]] }             # OT secondary → speaker
@@ -180,16 +189,16 @@ runs:
   # Feeds the phase-inverter plates only; the preamp loads are all on B+4. =====
   - { from: C12.a, to: RLPA.a, via: [[2.4, 0.4], [5.2, 0.4], [5.2, 2.4], [17.6, 2.4]] }  # B+3 filter → PI hot plate load (jog off C12.a, dive below the 6V6 pins)
   - { from: RLPA.a, to: RLPB.a, via: [[18.5, 0.4], [19.5, 0.4]] }        # backbone hop (flat, on-board)
-  - { from: RLR1.a, to: RLD1.a, via: [[39.5, 0.4], [43.5, 0.4]] }        # B+4: recovery → mix-driver plate loads (flat, on-board)
-  - { from: RLD1.a, to: RLV2.a, via: [[44.485, 2.28], [53.3, 2.28]] }      # B+4: → vibrato 2nd-stage plate load
+  - { from: RLR1.a, to: RLD1.a, via: [[45.5, 0.4], [49.5, 0.4]] }        # B+4: recovery → mix-driver plate loads (flat, on-board)
+  - { from: RLD1.a, to: RLV2.a, via: [[50.485, 2.28], [59.3, 2.28]] }      # B+4: → vibrato 2nd-stage plate load
   - { from: C12.a, to: RD2.a, via: [[1.7, 0.75], [6.6, 0.75]] }          # B+3 filter → dropper node (jog off C12.a, own lane)
   - { from: RD1.b, to: RD2.a }                                       # B+1→B+3 dropper meets B+3 node (adjacent)
 
   # === B+4 net (node [D]): dropper output → every 100k preamp plate load — both
   # channel inputs, both 2nd stages (above), the recovery and the mix driver ======
-  - { from: C13.a, to: RLV1.a, via: [[3.5, 1.2], [6.0, 2.44], [48.6, 2.44]] }  # B+4 → vibrato input plate load (steep dive right of the drops)
-  - { from: RLV1.a, to: RLV2.a, via: [[49.5, 0.4], [52.5, 0.4]] }        # backbone hop (flat, on-board)
-  - { from: RLV2.a, to: RLN1.a, via: [[53.5, 0.4], [57.5, 0.4]] }        # backbone hop (flat, on-board)
+  - { from: C13.a, to: RLV1.a, via: [[3.5, 1.2], [6, 2.44], [54.6, 2.44]] }  # B+4 → vibrato input plate load (steep dive right of the drops)
+  - { from: RLV1.a, to: RLV2.a, via: [[55.5, 0.4], [58.5, 0.4]] }        # backbone hop (flat, on-board)
+  - { from: RLV2.a, to: RLN1.a, via: [[59.5, 0.4], [63.5, 0.4]] }        # backbone hop (flat, on-board)
   - { from: C13.a, to: RD2.b, via: [[3.8, 0.35], [7.6, 0.7]] }           # B+4 filter → dropper output (flat right, clears the GZ34 lead)
 
   # === -35V bias rail: the two 6V6 grid leaks tie together (shallow bow) =========
@@ -219,74 +228,80 @@ runs:
   - { from: V6.pin8, to: RTAIL.a, via: [[20.4, 2.35], [18.5, 2.35], [18.5, 1.5]] } # V6 cathode(u1) → tail (KPI), below the ring, up the left
   - { from: V6.pin3, to: RTAIL.a, via: [[19.3, 1.85]] }           # V6 cathode(u2) → tail top (KPI), from below
   - { from: RTAIL.b, to: RT2.a, via: [[20.4, 1.4], [21.5, 1.1]] }  # tail → junction (JPI), flat from the left (clear of RGPA.b)
-  - { from: RGPA.b, to: RT2.a, via: [[23.0, 1.55]] }               # hot grid leak → junction, from lower-left
-  - { from: RGPB.b, to: RT2.a, via: [[24.5, 2.0], [24.9, 1.5]] }    # cold grid leak → junction, from lower-right (clear of RGRD.b)
+  - { from: RGPA.b, to: RT2.a, via: [[23, 1.55]] }               # hot grid leak → junction, from lower-left
+  - { from: RGPB.b, to: RT2.a, via: [[24.5, 2], [24.9, 1.5]] }    # cold grid leak → junction, from lower-right (clear of RGRD.b)
   - { from: RT2.b, to: [1.45, 24] }                                 # tail 22k → ground
+  - { from: CPIA.b, to: RGPA.a, via: [[22.95, 1.1], [20.895, 0.256]] }            # .001 → hot grid (GPIA)
+  - { from: CPIB.a, to: RGPB.a, via: [[27.5, 0.4], [23.5, 0.4]] }  # .1-200 → cold grid (GPIB)
+  - { from: RNF2.b, to: [1.45, 29.3] }                          # 47 → ground
+  - { from: SPK.tip, to: RNFB.a, via: [[18.2, 2.9], [26.8, 2.9]] }  # speaker hot → the 820
+  - { from: CCN2.b, to: RMN2.a, via: [[62.6, -0.2], [25.2, -0.2]] } # link X: .047 → the Normal 220k
+  - { from: CCD1.b, to: RMD1.a, via: [[50.6, -0.32], [27.2, -0.32]] } # link Y: .1 → the Vibrato 220k
 
   # === reverb driver V4 (paralleled): plates, grids, cathodes ==================
-  - { from: V4.pin6, to: V4.pin1, via: [[26.3, 2.577]] }              # tie the two plates (PRD), shallow loop
-  - { from: V4.pin1, to: T4.blue, via: [[27.6, 2.36], [30, 2.315]] } # plates → reverb-trans primary (PRD)
-  - { from: V4.pin7, to: V4.pin2, via: [[26.8, 2.5], [26.5, 3.2]] }   # tie the two grids (GRD), deep loop clear of pin8
-  - { from: V4.pin7, to: RGRD.a, via: [[26.956, 2], [25.674, 1.44]] } # grids → 1M leak (leave pin7 below pin6, approach RGRD.a off col25)
-  - { from: RGRD.b, to: [1.45, 25.2] }                            # grid leak → ground (land between the junction + leak leads)
-  - { from: V4.pin8, to: RKRD.a, via: [[28.2, 2.0]] }              # cathode(u1) → 2.2k (KRD), leave pin8 rightward off pin7
-  - { from: V4.pin3, to: RKRD.a, via: [[26.2, 1.4]] }           # cathode(u2) → 2.2k (KRD), from lower-left
-  - { from: CKRD.a, to: [1.45, 26] }                             # bypass → ground
-  - { from: RKRD.b, to: [1.45, 27.4], via: [[27.2, 1.5]] }         # 2.2k → ground
-  - { from: T4.green, to: [1.45, 30.4] }                         # reverb-trans secondary → tank (annotation)
+  - { from: V4.pin6, to: V4.pin1, via: [[32.3, 2.577]] }              # tie the two plates (PRD), shallow loop
+  - { from: V4.pin1, to: T4.blue, via: [[33.6, 2.36], [36, 2.315]] } # plates → reverb-trans primary (PRD)
+  - { from: V4.pin7, to: V4.pin2, via: [[32.8, 2.5], [32.5, 3.2]] }   # tie the two grids (GRD), deep loop clear of pin8
+  - { from: V4.pin7, to: RGRD.a, via: [[32.956, 2], [31.674, 1.44]] } # grids → 1M leak (leave pin7 below pin6, approach RGRD.a off col25)
+  - { from: RGRD.b, to: [1.45, 31.2] }                            # grid leak → ground (land between the junction + leak leads)
+  - { from: V4.pin8, to: RKRD.a, via: [[34.2, 2]] }              # cathode(u1) → 2.2k (KRD), leave pin8 rightward off pin7
+  - { from: V4.pin3, to: RKRD.a, via: [[32.2, 1.4]] }           # cathode(u2) → 2.2k (KRD), from lower-left
+  - { from: CKRD.a, to: [1.45, 32] }                             # bypass → ground
+  - { from: RKRD.b, to: [1.45, 33.4], via: [[33.2, 1.5]] }         # 2.2k → ground
+  - { from: T4.green, to: [1.45, 36.4] }                         # reverb-trans secondary → tank (annotation)
 
   # === reverb recovery V3b (unit 2 of V3, pins 1/2/3 — the layout page's +170 V plate
   # is pin 1): plate, grid, cathode ============================================
-  - { from: RLR1.b, to: V3.pin1, via: [[40, 1.62]] }             # plate load → V3 plate (PR1)
+  - { from: RLR1.b, to: V3.pin1, via: [[46, 1.62]] }             # plate load → V3 plate (PR1)
   - { from: V3.pin1, to: CCR1.b }                                 # recovery plate → the .003
-  - { from: CCR1.a, to: VRREV.lug3, via: [[46, -0.4], [41.3, -0.4]] } # .003 → Reverb pot top
-  - { from: VRREV.lug2, to: RMR.a, via: [[41, -0.62], [47, -0.62]] } # Reverb pot wiper → 470k
-  - { from: V3.pin2, to: JRO.tip, via: [[43.607, 2.089]] }                                # recovery grid ← tank return (GR1)
-  - { from: V3.pin8, to: RKR1.a, via: [[42.55, 1.62], [42.551, 0.498]] }          # cathode → 820Ω (KR1)
-  - { from: CKR1.a, to: [1.45, 41] }                            # bypass → ground
-  - { from: RKR1.b, to: [1.45, 42], via: [[42.218, 1.5]] }        # 820Ω → ground
+  - { from: CCR1.a, to: VRREV.lug3, via: [[52, -0.4], [47.3, -0.4]] } # .003 → Reverb pot top
+  - { from: VRREV.lug2, to: RMR.a, via: [[47, -0.62], [53, -0.62]] } # Reverb pot wiper → 470k
+  - { from: V3.pin2, to: JRO.tip, via: [[49.607, 2.089]] }                                # recovery grid ← tank return (GR1)
+  - { from: V3.pin8, to: RKR1.a, via: [[48.55, 1.62], [48.551, 0.498]] }          # cathode → 820Ω (KR1)
+  - { from: CKR1.a, to: [1.45, 47] }                            # bypass → ground
+  - { from: RKR1.b, to: [1.45, 48], via: [[48.218, 1.5]] }        # 820Ω → ground
 
   # === mix driver V3a (unit 1 of V3, pins 6/7/8 — the layout page's +180 V plate is
   # pin 6): plate, grid, cathode =================================================
-  - { from: RLD1.b, to: V3.pin6, via: [[45, 1.8]] }             # plate load → V3 plate (PD1)
-  - { from: RGD2.a, to: V3.pin7, via: [[43.6, 1.62]] }         # 220k grid return → V3 grid (GD1)
+  - { from: RLD1.b, to: V3.pin6, via: [[50.53, 1.8]] }             # plate load → V3 plate (PD1)
+  - { from: RGD2.a, to: V3.pin7, via: [[49.6, 1.62]] }         # 220k grid return → V3 grid (GD1)
   - { from: RMR.b, to: V3.pin7 }                                # 470k reverb mix → V3 grid (GD1)
   - { from: RGD1.a, to: RMR.b }                                 # 3.3M onto the grid node
   - { from: CBD1.b, to: RGD1.a }                                # 10 pF across the 3.3M
-  - { from: CCV2.b, to: RGD1.b, via: [[53.5, 1.25], [48.5, 1.25]] } # the .02's far side → the dry path
-  - { from: RGD1.b, to: CRS.a, via: [[47.6, 2.36], [28.6, 2.36]] }  # the .02's far side → the reverb send
-  - { from: CRS.b, to: RGRD.a, via: [[27.4, 1.305]] }             # 500 pF → the paralleled driver grids (GRD)
-  - { from: RGD2.b, to: [1.45, 44] }                           # grid leak → ground (straight down off RGD2.b, clear of the grid lead)
-  - { from: V3.pin3, to: RKR1.a, via: [[43.32, 2.35], [42.39, 1.88]] }  # cathode → the shared 820Ω (box [E], KE)
+  - { from: CCV2.b, to: RGD1.b, via: [[59.5, 1.25], [54.5, 1.25]] } # the .02's far side → the dry path
+  - { from: RGD1.b, to: CRS.a, via: [[53.6, 2.36], [34.6, 2.36]] }  # the .02's far side → the reverb send
+  - { from: CRS.b, to: RGRD.a, via: [[33.4, 1.305]] }             # 500 pF → the paralleled driver grids (GRD)
+  - { from: RGD2.b, to: [1.45, 50] }                           # grid leak → ground (straight down off RGD2.b, clear of the grid lead)
+  - { from: V3.pin3, to: RKR1.a, via: [[49.32, 2.35], [48.39, 1.88]] }  # cathode → the shared 820Ω (box [E], KE)
 
   # === vibrato input V2a (unit1 of V2): plate, grid, cathode ===================
-  - { from: RLV1.b, to: V2.pin1, via: [[50.4, 1.62], [50.9, 2.35]] }           # plate load → V2 plate (PV1)
-  - { from: JV.tip, to: V2.pin2, via: [[50.07, -0.4], [52.724, 1.225]] } # jack → V2a grid (GV1)
+  - { from: RLV1.b, to: V2.pin1, via: [[56.4, 1.62], [56.9, 2.35]] }           # plate load → V2 plate (PV1)
+  - { from: JV.tip, to: V2.pin2, via: [[56.07, -0.4], [58.724, 1.225]] } # jack → V2a grid (GV1)
   - { from: V2.pin3, to: RKV1.a } # cathode → 1.5k (KV1)
-  - { from: CKV1.a, to: [1.45, 51] }
-  - { from: RKV1.b, to: [1.45, 52] }                           # 1.5k → ground (straight down, between the cathode riser and the jack lead)
+  - { from: CKV1.a, to: [1.45, 57] }
+  - { from: RKV1.b, to: [1.45, 58] }                           # 1.5k → ground (straight down, between the cathode riser and the jack lead)
 
   # === vibrato 2nd stage V2b (unit2 of V2): plate, grid, cathode ===============
   - { from: RLV2.b, to: V2.pin6 }           # plate load → V2 plate (PV2)
-  - { from: VRVV.lug2, to: V2.pin7, via: [[50, -0.55], [52.5, -0.55], [52.5, 1.5], [53.3, 1.75]] } # vibrato-vol wiper → V2b grid (GV2)
-  - { from: V2.pin8, to: RKV2.a, via: [[53.4, 2.2], [55.6, 1.8]] }  # cathode → the shared 820Ω (box [A], KA)
-  - { from: CKV2.a, to: [1.45, 55] }
-  - { from: RKV2.b, to: [1.45, 56.5], via: [[56.3, 1.4]] }      # 820Ω → ground (drop right, clear of the cathode ascent)
+  - { from: VRVV.lug2, to: V2.pin7, via: [[56, -0.55], [58.5, -0.55], [58.5, 1.5], [59.3, 1.75]] } # vibrato-vol wiper → V2b grid (GV2)
+  - { from: V2.pin8, to: RKV2.a, via: [[59.4, 2.2], [61.6, 1.8]] }  # cathode → the shared 820Ω (box [A], KA)
+  - { from: CKV2.a, to: [1.45, 61] }
+  - { from: RKV2.b, to: [1.45, 62.5], via: [[62.3, 1.4]] }      # 820Ω → ground (drop right, clear of the cathode ascent)
 
   # === normal input V1a (unit1 of V1): plate, grid, cathode ====================
-  - { from: RLN1.b, to: V1.pin1, via: [[58.6, 1.3], [58.9, 2.35]] }         # plate load → V1 plate (PN1)
-  - { from: JN.tip, to: V1.pin2, via: [[59.09, 0.15], [58.9, 2.046]] } # jack → V1a grid (GN1)
-  - { from: V1.pin3, to: RKN1.a, via: [[59.437, 1.55], [61.5, 1.25]] }        # cathode → 1.5k (KN1)
-  - { from: RLN2.b, to: V1.pin6, via: [[60.203, 1.465]] }                             # V1b plate load → V1 plate (PN2)
-  - { from: VRVN.lug2, to: V1.pin7, via: [[58, -0.55], [59.5, -0.55], [59.5, 0.5], [61.2, 1.5]] }                          # normal-vol wiper → V1b grid (GN2)
-  - { from: V1.pin8, to: V2.pin8, via: [[61.3, 2.35], [60.4, 2.6], [53.3, 2.6]] }                            # V1b cathode → V2b cathode: box [A], one lead on to RKV2 (KA)
-  - { from: CKN1.a, to: [1.45, 59.5] }                       # bypass → ground (angle left, diverge from the jack lead)
-  - { from: RKN1.b, to: [1.45, 61.7], via: [[61.5, 1.4]] }    # 1.5k → ground (drop right, clear of the cathode ascent)
+  - { from: RLN1.b, to: V1.pin1, via: [[64.6, 1.3], [64.9, 2.35]] }         # plate load → V1 plate (PN1)
+  - { from: JN.tip, to: V1.pin2, via: [[65.09, 0.15], [64.9, 2.046]] } # jack → V1a grid (GN1)
+  - { from: V1.pin3, to: RKN1.a, via: [[65.437, 1.55], [67.5, 1.25]] }        # cathode → 1.5k (KN1)
+  - { from: RLN2.b, to: V1.pin6, via: [[66.203, 1.465]] }                             # V1b plate load → V1 plate (PN2)
+  - { from: VRVN.lug2, to: V1.pin7, via: [[64, -0.55], [65.5, -0.55], [65.5, 0.5], [67.2, 1.5]] }                          # normal-vol wiper → V1b grid (GN2)
+  - { from: V1.pin8, to: V2.pin8, via: [[67.3, 2.35], [66.4, 2.6], [59.3, 2.6]] }                            # V1b cathode → V2b cathode: box [A], one lead on to RKV2 (KA)
+  - { from: CKN1.a, to: [1.45, 65.5] }                       # bypass → ground (angle left, diverge from the jack lead)
+  - { from: RKN1.b, to: [1.45, 67.7], via: [[67.5, 1.4]] }    # 1.5k → ground (drop right, clear of the cathode ascent)
 
   # === pot grounds (island controls) ==========================================
-  - { from: VRVN.lug1, to: [1.45, 57.5] }
-  - { from: VRVV.lug1, to: [1.45, 49.6] }
-  - { from: VRREV.lug1, to: [1.45, 40.6] }
+  - { from: VRVN.lug1, to: [1.45, 63.5] }
+  - { from: VRVV.lug1, to: [1.45, 55.6] }
+  - { from: VRREV.lug1, to: [1.45, 46.6] }
 
   # === 6.3 V heater chain (green twisted pair) =================================
   # PT green pair → pilot lamp → V7 → V8 → V6 → V4 → V5 → V3 → V2 → V1, in the
@@ -296,11 +311,11 @@ runs:
   - { from: PL1.b, to: V7.pin7, style: twisted, via: [[-1.2, 3.6], [11, 3.6]] }
   - { from: V7.pin2, to: V8.pin7, style: twisted, via: [[11, 3.6], [15, 3.6]] }
   - { from: V8.pin2, to: V6.pin4, style: twisted, via: [[15, 3.62], [20, 3.62]] }
-  - { from: V6.pin5, to: V4.pin4, style: twisted, via: [[20, 3.62], [27, 3.62]] }
-  - { from: V4.pin5, to: V5.pin4, style: twisted, via: [[27, 3.64], [33, 3.64]] }
-  - { from: V5.pin5, to: V3.pin4, style: twisted, via: [[33, 3.64], [43, 3.64]] }
-  - { from: V3.pin5, to: V2.pin4, style: twisted, via: [[43, 3.64], [52, 3.64]] }
-  - { from: V2.pin5, to: V1.pin4, style: twisted, via: [[52, 3.64], [60, 3.64]] }
+  - { from: V6.pin5, to: V4.pin4, style: twisted, via: [[20, 3.62], [33, 3.62]] }
+  - { from: V4.pin5, to: V5.pin4, style: twisted, via: [[33, 3.64], [39, 3.64]] }
+  - { from: V5.pin5, to: V3.pin4, style: twisted, via: [[39, 3.64], [49, 3.64]] }
+  - { from: V3.pin5, to: V2.pin4, style: twisted, via: [[49, 3.64], [58, 3.64]] }
+  - { from: V2.pin5, to: V1.pin4, style: twisted, via: [[58, 3.64], [66, 3.64]] }
   - { from: V1.pin4, to: V1.pin5, style: twisted }
 
 # net_map — reviewable reconciliation of the drawn wiring with the DC netlist
