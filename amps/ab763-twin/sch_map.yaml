@@ -10,12 +10,6 @@ anchors:
                            # (RFB1's return); mirrors layout net_map SPK.tip: '0'.
   T3.5: "0"                # OT secondary cold — same winding, same node;
                            # mirrors layout net_map SPK.sleeve: '0'.
-  # netlist RGR1 GR1 0 220k: the reverb-recovery grid resistor returns down the
-  # tank's output return lead, which is chassis ground — the same fold the
-  # netlist applies to the OT secondary. (amps/ab763 declares the equivalent
-  # return as layout net_map.netlist_unplaced RGRV; here the resistor is drawn,
-  # so the return needs a node.)
-  "<TANK RET>": "0"        # reverb tank output return — chassis ground
 
 element_pins:
   # netlist RTR4 BB PRD 200 is the reverb-transformer primary DCR, not a

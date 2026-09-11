@@ -92,8 +92,10 @@ CKA KA 0 25u
 *     The recovery grid returns to ground through its 220k tank leak. The mix
 *     driver's grid returns through the drawn 220k leak (RTOG4). The 3.3M (10 pF
 *     across it) sits IN SERIES ahead of that grid and reaches only the dry
-*     node, which the 0.02 uF coupler and the 500 pF send block at DC, so it
-*     carries no DC and is left out. So is the 470k reverb return: it runs to the
+*     node GDRY, which the 0.02 uF coupler (CCV2) and the 500 pF send (CRS)
+*     block at DC: it carries no DC, and GDRY sits at the grid's own 0 V. It and
+*     the three caps are modelled so the board's placement of this corner is
+*     machine-checked. The 470k reverb return is left out: it runs to the
 *     Reverb pot's wiper, at 0 V, in parallel with the leak, and moves nothing.
 RLR1 BD PR1 100k
 XV4B PR1 GR1 KE 12AX7
@@ -101,6 +103,10 @@ RGR1 GR1 0 220k
 RLD1 BD PD1 100k
 XV4A PD1 GD1 KE 12AX7
 RTOG4 GD1 0 220k
+RGD1 GDRY GD1 3.3meg
+CBD1 GDRY GD1 10p
+CCV2 PV2 GDRY 0.02u
+CRS GDRY GRD 500p
 RKE KE 0 820
 CKE KE 0 25u
 

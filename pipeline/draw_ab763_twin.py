@@ -232,11 +232,15 @@ s.glabel("REVERB TANK", 112, YR - 6.54, 0)
 s.wire(104.89, YR - 1.46, 112, YR - 1.46)
 s.gnd(112, YR - 1.46)
 
-# ---- reverb recovery (V4B): tank return -> 220k -> grid; 100k plate load ----
+# ---- reverb recovery (V4B): the tank return lands straight on the grid, and
+# RGR1 220k is that grid's leak to ground, as the C-FD sheet draws it. Until
+# 2026-09-10 the 220k was drawn in series from the tank return, and an sch_map
+# anchor folded the return lead into ground to match the netlist.
 s.glabel("TANK RET", 150, YR - 6, 180)
-gl, gr = s.series_h("R", "RGR1", "220k", 162, YR - 6)
-s.wire(150, YR - 6, gl, YR - 6)
-s.wire(gr, YR - 6, 172, YR - 6)
+s.wire(150, YR - 6, 172, YR - 6)
+s.junction(158, YR - 6)
+s.sym("R", "RGR1", "220k", 158, YR - 6 + 3.81)
+s.gnd(158, YR - 6 + 7.62)
 s.wire(172, YR - 6, 172, YR)
 t4b = s.triode("V4B", "12AX7 (7025)", 182, YR)
 s.wire(172, YR, t4b["g"][0], YR)
@@ -320,8 +324,11 @@ s.junction(251.62, 250)
 YT = 306
 s.caption('Tremolo — oscillator V5A and neon-lamp driver V5B; neither half has a static DC operating point, so both are excluded from the netlist (see the circuit story)', 12, 252, 1.5)
 XA, XB = 70, 136
-t5a = s.triode("V5A", "12AX7", XA, YT)
-t5b = s.triode("V5B", "12AX7", XB, YT)
+# The C-FD layout page (2157 x 1397) leads the oscillator's plate (+300 V) to
+# pin 1 and its +2.0 V cathode to pin 3, and the lamp driver's +380 V plate to
+# pin 6: V5A is datasheet unit 2, V5B unit 1.
+t5a = s.triode("V5A", "12AX7", XA, YT, unit=2)
+t5b = s.triode("V5B", "12AX7", XB, YT, unit=1)
 s.plate_load("RTO1", "220k", t5a["p"], "B+2")
 s.sym("R", "RKTO1", "2.7k", XA, YT + 11.43)
 s.gnd(XA, YT + 15.24)
