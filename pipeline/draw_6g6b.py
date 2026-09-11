@@ -264,7 +264,7 @@ s.glabel("MIX", mr + 4, P2B_Y, 0)
 
 # ====================== BASS CHANNEL, LATER STAGES (V3A/V3B) + ITS TREBLE ======
 DY = 152.0
-t3a = s.triode("V3A", "7025", 240, DY)
+t3a = s.triode("V3A", "7025", 240, DY, unit=2)   # E-FB layout: V3A on pins 1/2/3
 s.wire(MIXG_X, DY, t3a["g"][0], DY)
 s.sym("R", "RG3A", "1M (est)", t3a["g"][0] - 3.81, DY + 9, lx=-9.4)
 s.gnd(t3a["g"][0] - 3.81, DY + 12.81)
@@ -282,7 +282,7 @@ s.sym("POT", "VR6", "250k-A · Bass Treble", 272, P3A_Y + 3.81, lx=2.4, ly=-1.5)
 s.wire(cr5, P3A_Y, 272, P3A_Y)
 s.gnd(272, P3A_Y + 7.62 + 3.81)
 s.wire(272, P3A_Y + 7.62, 272, P3A_Y + 7.62 + 3.81)
-t3b = s.triode("V3B", "7025", 296, DY)
+t3b = s.triode("V3B", "7025", 296, DY, unit=1)   # E-FB layout: V3B (the .002 plate) on pins 6/7/8
 s.wire(277.08, P3A_Y + 3.81, 284, P3A_Y + 3.81)
 s.wire(284, P3A_Y + 3.81, 284, DY)
 s.wire(284, DY, t3b["g"][0], DY)
@@ -313,11 +313,11 @@ s.junction(316, P3B_Y)
 s.wire(316, P3B_Y, 316, P3B_Y + 5)
 s.glabel("MIX", 316, P3B_Y + 5, 270)
 s.wire(cr6, P3B_Y, GL, P3B_Y)
-t4a = s.triode("V4A", "7025", 348, PIY_A)
+t4a = s.triode("V4A", "7025", 348, PIY_A, unit=2)   # E-FB layout: the 82k (+300 V) plate is pin 1, C1 on pin 2
 s.wire(GL, P3B_Y, GL, PIY_A)
 s.wire(GL, PIY_A, t4a["g"][0], PIY_A)
 s.junction(GL, PIY_A)
-t4b = s.triode("V4B", "7025", 348, PIY_B)
+t4b = s.triode("V4B", "7025", 348, PIY_B, unit=1)
 s.plate_load("RL4A", "82k 5%", t4a["p"], "BP410")
 s.plate_load("RL4B", "100k 5%", t4b["p"], "BP410")
 # shared tail: cathodes -> 820 -> J -> 10k (est) -> gnd
@@ -494,15 +494,9 @@ s.sym("C", "C14", "20u 600V", 182, PY + 55.81)
 s.gnd(182, PY + 59.62)
 s.junction(182, PY + 52)
 s.wire(176, PY + 52, 182, PY + 52)
-s.wire(182, PY + 52, 188, PY + 52)
+s.wire(182, PY + 52, 190, PY + 52)
 s.glabel("BP230", 190, PY + 52, 0)
-s.text("BP430 (5881 screens) and BP355 (Normal ch. recovery) tap the same "
-       "dropper chain the E-FB drawing shows but were not fully traced at "
-       "this pass; both", 20, 320, 1.15)
-s.text("are driven directly as ideal sources in the netlist, printed at "
-       "their own chart values (see the sources list).", 20, 323.5, 1.15)
-s.glabel("BP430", 30, 340, 0)
-s.glabel("BP355", 30, 346, 0)
+s.note("BP430 (the 5881 screens) and BP355 (the Normal channel's lane) are not drawn off this chain here; both are driven directly as ideal sources in the netlist, at their own chart values (see the sources list).")
 
 # ============================ BIAS SUPPLY =====================================
 BSY = 300.0
