@@ -274,16 +274,14 @@ s.wire(40.08, 178, 44, 178)
 s.wire(44, 170, 44, 178)
 s.junction(44, 174)
 s.wire(44, 174, 47, 174)
-# diode snubbers: one across each rectifier diode, anode lead to cathode lead
-for _cref, _dy, _cy, _lx, _ly in [("C23", 170, 163, -3.2, -6.2),
-                                  ("C24", 178, 185, 6.4, 1.2)]:
-    s.sym("C", _cref, ".022u", 35, _cy, rot=90, lx=_lx, ly=_ly)
-    s.wire(29.92, _dy, 29.92, _cy)
-    s.wire(29.92, _cy, 35 - 3.81, _cy)
-    s.wire(35 + 3.81, _cy, 40.08, _cy)
-    s.wire(40.08, _cy, 40.08, _dy)
-    s.junction(29.92, _dy)
-    s.junction(40.08, _dy)
+# HT-winding snubbers: 70-19-11 draws a 0.22 µF from each switched HT end to
+# the winding's centre tap, which it grounds (the same pair the 1959 draws).
+s.junction(28, 170)
+s.sym("C", "C23", ".22u", 28, 166.19, lx=2.2)       # HT_A end -> centre tap (ground)
+s.gnd(28, 162.38, rot=90)
+s.junction(28, 178)
+s.sym("C", "C24", ".22u", 28, 181.81, lx=2.2)       # HT_B end -> centre tap (ground)
+s.gnd(28, 185.62)
 # reservoir: 50u + 80u to ground, B+1
 s.junction(50, 174)
 s.sym("C", "C17", "50u", 50, 177.81)
@@ -338,35 +336,37 @@ s.gnd(129, 181.62)
 # -BIAS (C16 8u). Drawn as a shallow horizontal row — like the JTM45 / 5F4 bias
 # rows — so nothing drops into the A4 title block in the bottom-right corner.
 BY = 160.72
-# The Unicord 70-19-11 sheet runs the HT winding's end through the 220k IN
-# SERIES into the diode, and the first 8 µF and the 15k hang on the diode's
-# output — RBA and RBB are not one node. It was drawn here with the diode
-# first and the 220k after it. No PT is drawn on this sheet, so the winding
-# end is the HT_B label the rectifier uses.
-s.glabel("HT_B", 150.1, BY, 180)
+# 70-19-11: the HT winding's switched top end (HT_A, the upper diode's end)
+# runs through the 220k IN SERIES into the bias diode, whose bar faces the
+# 220k: the rail it feeds is negative, so the cathode is on the AC side and the
+# anode on the first 8 µF. The 15k runs from there to the bias node, which
+# carries the second 8 µF, feeds both grid leaks as -BIAS, and is bled to
+# ground through the 47k and the 25k trimmer drawn as a variable resistor
+# (arrow through the body; its wiper strapped here to the end the 47k feeds).
+s.glabel("HT_A", 150.1, BY, 180)
 l, r = s.series_h("R", "RBA", "220k", 155.5, BY)
 s.wire(150.1, BY, l, BY)
 s.wire(r, BY, 160.32, BY)
-s.sym("DIODE_SS", "D1", "1N4007", 165.4, BY, lx=-2.0, ly=-5.4)
+s.sym("DIODE_SS", "D1", "1N4007", 165.4, BY, rot=180, lx=-2.0, ly=-5.4, label_rot=0)
 s.wire(170.48, BY, 178.04, BY)
 s.junction(178.04, BY)
-# supply-node filter (one cap dropped to ground, like the JTM45 bias row)
-s.sym("C", "C15", "8u", 178.04, BY + 3.81)
+s.sym("C", "C15", "8u", 178.04, BY + 3.81)              # first filter, at the diode's anode
 s.gnd(178.04, BY + 7.62)
-# 15k / 25k-trim / 47k divider along the same row; VR6 wiper sets -BIAS
 lb, rb = s.series_h("R", "RBB", "15k", 183.5, BY)
 s.wire(178.04, BY, lb, BY)
-s.wire(rb, BY, 189, BY)                         # supply -> 15k -> node A (VR6 top)
-s.sym("POT", "VR6", "25k adj", 189, BY + 3.81)  # top = A, bottom = B, wiper = -BIAS
-# node B -> 47k -> ground (short bleeder drop, well clear of the title block)
-s.sym("R", "RBC", "47k", 189, BY + 11.43)       # top pin = node B (189, BY+7.62)
-s.gnd(189, BY + 15.24)
-# trim wiper -> -BIAS, filtered by C16 (a separate short drop to its right)
-s.wire(194.08, BY + 3.81, 197, BY + 3.81)
-s.junction(197, BY + 3.81)
-s.glabel("-BIAS", 197, BY + 3.81, 0)
-s.sym("C", "C16", "8u", 197, BY + 7.62, lx=2.2)  # top pin at the -BIAS node
-s.gnd(197, BY + 11.43)
+s.wire(rb, BY, 197, BY)                                     # 15k -> the bias node
+s.junction(189, BY)
+s.sym("C", "C16", "8u", 189, BY + 3.81, lx=2.2)         # second filter, at the bias node
+s.gnd(189, BY + 7.62)
+s.junction(197, BY)
+s.wire(197, BY, 205, BY)
+s.glabel("-BIAS", 205, BY, 0)                             # -> both grid leaks
+s.sym("R", "RBC", "47k", 197, BY + 3.81)                 # bleeder: bias node -> trimmer
+s.sym("POT", "VR6", "25k adj", 197, BY + 11.43)          # trimmer as a variable resistor
+s.wire(202.08, BY + 11.43, 202.08, BY + 7.62)               # wiper strapped to the end the 47k feeds
+s.wire(202.08, BY + 7.62, 197, BY + 7.62)
+s.junction(197, BY + 7.62)
+s.gnd(197, BY + 15.24)
 
 s.write(OUT, [
     "EL34 evolution of the JTM45 — silicon rectifier, dual EL34 output. Heaters, PT primary and pilot lamp omitted — see the netlist and the sources list",
