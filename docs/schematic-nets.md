@@ -152,6 +152,10 @@ element_pins:            # netlist ref -> the two terminals that realise it
 netlist_undrawn:         # netlist element with no symbol — reported, not failed
   RMIX: "the two channels' mixing resistors, drawn as one network"
 
+winding_labels:          # label -> the transformer terminal it stands for, on a
+  HT_B: ht_b             #   sheet that letters a lead instead of drawing its pin
+                         #   (ht_a / ht_b / tap / bias; read by UNFED RECTIFIER)
+
 schematic_claim: verified   # opt in to HARD gating (see below)
 ```
 
@@ -166,7 +170,9 @@ echoes every reconciliation that was applied.
 A declaration in the sheet's own `sch_map.yaml` that names nothing on the sheet
 is a **`STALE DECLARATION`** finding, whichever key it sits under: a `symbols`
 target, an `anchors` terminal, an `element_pins` pair, a `series_bridge`
-designator. It is named as the stale line it is, with the key and the value that
+designator, a `winding_labels` name. A `winding_labels` line for a terminal the
+sheet's transformer draws as a pin is stale too, because the label must reach
+the pin. It is named as the stale line it is, with the key and the value that
 no longer resolve, and the declaration is not applied.
 
 This matters most for `symbols`, because that key *redirects* the lookup for a
@@ -325,15 +331,18 @@ corners. It never enters ground or a DC node, because a rectifier's AC side is
 never one. It is **fed** when it reaches either of these:
 
 - a `cx:PT` pin other than the centre tap;
-- a global label in `WINDING_LABELS` (`HT_A`, `HT_B`, `HT_TAP`, `BIAS TAP` and
-  their spellings) for a lead the sheet's transformer symbol does not carry.
+- a global label that the sheet's `sch_map.yaml` declares under
+  `winding_labels` as a transformer terminal (`ht_a`, `ht_b`, `tap`, or
+  `bias` for a bias feed the transformer symbol has no pin for).
 
-Ten of the 28 sheets with a silicon rectifier draw no transformer and name its
-leads that way. The AB763-Twin and AB763 Super letter a bias tap their
-transformer symbol lacks. A label for a lead the drawn transformer *does*
-carry counts only by reaching that pin, so a label stopped short at the
-transformer end is caught as well. Otherwise the diode is
-**`UNFED RECTIFIER`**, a finding like any other.
+A label never counts by its name. Sixteen sheets draw no power transformer and
+start their rectifiers from labels. Ten of them have a silicon rectifier, and
+those ten declare their labels, as do the AB763-Twin and AB763 Super for a bias
+tap their transformer symbol lacks. A declaration for a terminal the drawn
+transformer *does* carry as a pin is a `STALE DECLARATION`: the label must
+reach the pin. So a label stopped short at the transformer end is caught too,
+and a sheet that gains a transformer has to drop its lines. Otherwise the diode
+is **`UNFED RECTIFIER`**, a finding like any other.
 
 A diode with no role, such as an inner diode of a series stack or a bridge's
 low side, is recorded as walked through a stack- or bridge-mate that has one,
@@ -390,9 +399,12 @@ The rectifier-feed cases plant three faults, and each must add an
 
 Six rectifiers as committed must come back fed, or walked through their leg:
 the 6G5's HT leg, one of its inner diodes and its bias rectifier; the 5F4's
-bias rectifier through RB1; the JTM45's through a winding label; and the
-AB763-Twin's through a `BIAS TAP` label. The run ends by printing its case
-count, split by class.
+bias rectifier through RB1; the JTM45's through its declared `HT_B` label;
+and the AB763-Twin's through its declared `BIAS TAP` label. Two declaration
+cases follow. The JTM45 with its `winding_labels` removed must read UNFED,
+because a label never counts by its name. The 6G5 declaring `HT_A: ht_a`, a
+terminal its transformer draws as a pin, must be a `STALE DECLARATION`. The
+run ends by printing its case count, split by class.
 
 ## CI
 

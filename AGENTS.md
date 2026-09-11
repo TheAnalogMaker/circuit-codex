@@ -136,7 +136,7 @@ python3 pipeline/verify_schematic_nets.py    # schematic↔netlist equivalence: 
                                              #   read BEFORE any sch_map contraction
                                              #   + UNFED RECTIFIER: a rectifier whose AC
                                              #   side reaches no transformer pin or
-                                             #   winding label (docs/schematic-nets.md)
+                                             #   label declared in sch_map winding_labels
 python3 pipeline/export_loadlines.py --selftest && \
 python3 pipeline/export_loadlines.py --check # reference/loadlines.yaml vs the netlists,
                                              #   plus grid-supply resolution: a fixed-bias

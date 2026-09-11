@@ -88,13 +88,17 @@ Two sources, in this order:
      `netlist_undrawn`   netlist element with no symbol on the sheet — reported
                          in coverage, never a failure, exactly like the layout's
                          `netlist_unplaced`.
+     `winding_labels`    global label -> the transformer terminal it stands for
+                         (ht_a / ht_b / tap / bias), on a sheet that letters a
+                         lead instead of drawing its transformer pin; read by
+                         UNFED RECTIFIER, never inferred from a name.
      `schematic_claim`   `verified` opts the sheet into HARD gating.
 
 A declaration never widens to bury a failure, and it never rots unnoticed
 either. An UNdeclared undrawn element is a hard finding. A declaration in the
 sheet's own sch_map.yaml that names nothing on the sheet — a `symbols` target,
-an `anchors` terminal, an `element_pins` pair, a `series_bridge` designator — is
-a STALE DECLARATION finding, named as the stale line it is rather than left to
+an `anchors` terminal, an `element_pins` pair, a `series_bridge` designator, a
+`winding_labels` name — is a STALE DECLARATION finding, named as the stale line it is rather than left to
 surface as some downstream element's MISSING SYMBOL. A declaration REUSED from
 layout.yaml that does not apply here is a scope line instead, because it was
 written about a board and may legitimately have no counterpart on a sheet.
@@ -176,10 +180,12 @@ polarity read two of them "confirmed". Each diode the model gives a role
 transformer winding: across POLARITY_WALK_LIBS parts and the other diodes of
 its own stack or bridge (diodes sharing a net that is neither ground nor a
 modelled node), never into ground or a DC node. It is fed when the walk
-reaches a cx:PT pin other than the centre tap, or a global label in
-WINDING_LABELS for a lead the sheet's transformer symbol does not carry; a
-label for a lead the drawn transformer DOES carry counts only by reaching that
-pin. Otherwise UNFED RECTIFIER, a finding like any other. A diode with no role
+reaches a cx:PT pin other than the centre tap, or a global label that
+sch_map.yaml `winding_labels` declares as a winding terminal the sheet's
+transformer symbol has no pin for (16 sheets draw no transformer). Names are
+never inferred, and a declaration for a terminal the drawn transformer does
+carry is a STALE DECLARATION. Otherwise UNFED RECTIFIER, a finding like any
+other. A diode with no role
 is walked as part of a stack- or bridge-mate that has one, or listed as not
 checked.
 
@@ -269,15 +275,15 @@ WINDINGS = {
 # THROUGH them are still one node: a fuse, and a switch in the position the
 # sheet draws it (the DC netlist models the amp in play).
 WINDING_CLOSERS = {"cx:FUSE", "cx:SWITCH"}
-# Global-label names the corpus letters on a transformer lead instead of
-# drawing it as a pin, mapped to the lead they name (read off every sheet on
-# 2026-09-10). A sheet with no cx:PT names its HT and bias leads this way, and
-# the AB763-Twin and AB763 Super letter a bias tap their transformer symbol
-# lacks. A label for a lead the sheet's transformer DOES draw counts only by
-# reaching that pin. A new name goes here, reviewed, never inferred.
-WINDING_LABELS = {"HT_A": "HT_A", "HT-A": "HT_A", "HTA": "HT_A",
-                  "HT_B": "HT_B", "HT-B": "HT_B", "HTB": "HT_B",
-                  "HT_TAP": "HT_TAP", "BIAS TAP": "HT_TAP", "BIAS_AC": "HT_TAP"}
+# The winding terminals a sheet may letter as a global label instead of
+# drawing its transformer's pin, each with the cx:PT pin it stands for (None:
+# the symbol has no pin for it, as for a separate bias winding). WHICH label
+# stands for which terminal is declared per sheet in sch_map.yaml
+# `winding_labels`, never inferred from a name: 16 sheets draw no power
+# transformer, and the AB763-Twin and AB763 Super letter a bias tap their
+# transformer symbol lacks.
+WINDING_TERMINALS = {"ht_a": "HT_A", "ht_b": "HT_B", "tap": "HT_TAP",
+                     "bias": None}
 
 
 # ---------------------------------------------------------------------------
@@ -641,7 +647,8 @@ def check_amp(amp_id: str, sch_path: "Path | None" = None,
     # feeds it (the 6G5's base sheet: a bridge on ground, two diodes
     # "confirmed"). Each diode the model gives a role is walked from its AC side
     # to a transformer winding.
-    _check_feeds(res, G, M, modelled_refs, pol_mem)
+    _check_feeds(res, G, M, modelled_refs, pol_mem,
+                 sm.get("winding_labels") or {})
 
     # -- 4. findings --------------------------------------------------------
     mem = members_of()
@@ -794,32 +801,53 @@ def check_amp(amp_id: str, sch_path: "Path | None" = None,
 
 
 def _check_feeds(res: Result, G: "SchGraph", M: dict, modelled_refs: set,
-                 mem: dict):
+                 mem: dict, winding_labels: dict):
     """UNFED RECTIFIER. Each cx:DIODE_SS the DC model gives a role is walked
     from its AC side (the end rectifier_role does not put on the supply) to a
     transformer winding; one that reaches none is a finding. A diode with no
     role is recorded as walked through a stack- or bridge-mate, or not checked.
-    Verdicts land on each res.polarity entry under 'feed'."""
+    Verdicts land on each res.polarity entry under 'feed'. A global label is a
+    winding terminal only where sch_map `winding_labels` declares it, and only
+    for a terminal the sheet's transformer symbol, if it draws one, has no pin
+    for; any other declaration is a STALE DECLARATION and is not applied."""
     names = _pin_numbers(G)
     pt_pin = {num: nm for nm, num in names.get("cx:PT", {}).items()}
     pt_leads = (set(names.get("cx:PT", {}))
                 if any(lib == "cx:PT" for lib in G.lib.values()) else set())
+    declared: dict = {}
+    for label, term in (winding_labels or {}).items():
+        label, term = str(label), str(term)
+        where = f"sch_map.winding_labels[{label}] = {term}"
+        if term not in WINDING_TERMINALS:
+            _bump(res, "STALE DECLARATION",
+                  f"{where} is not a winding terminal (one of "
+                  f"{', '.join(sorted(WINDING_TERMINALS))}); not applied")
+        elif label not in G.nets.labels:
+            _bump(res, "STALE DECLARATION",
+                  f"{where} names no global label on this sheet; not applied. "
+                  f"Correct the name, or delete it.")
+        elif WINDING_TERMINALS[term] in pt_leads:
+            _bump(res, "STALE DECLARATION",
+                  f"{where}: this sheet draws a transformer with a "
+                  f"{WINDING_TERMINALS[term]} pin, so a label for that terminal "
+                  f"must reach the pin; not applied. Delete the declaration.")
+        else:
+            declared[label] = term
+            res.info.append(f"<{label}> stands for the transformer's {term} "
+                            f"terminal (sch_map.winding_labels)")
 
     def is_stop(net):
         return M.get(net) is not None
 
-    near: set = set()      # labels for a lead the drawn transformer DOES carry
+    near: set = set()      # labels a walk reached that no declaration covers
 
     def feeds(net):
         for m in mem.get(net, ()):
             if m.startswith("<"):
-                lead = WINDING_LABELS.get(m[1:-1])
-                if lead and lead not in pt_leads:
-                    return (f"the winding label {m}" if not pt_leads else
-                            f"the label {m}, for a lead the drawn transformer "
-                            f"has no pin for")
-                if lead:
-                    near.add(m)
+                if m[1:-1] in declared:
+                    return (f"the declared winding label {m} "
+                            f"({declared[m[1:-1]]})")
+                near.add(m)
                 continue
             sref, _, num = m.rpartition(".")
             if G.lib.get(sref) == "cx:PT" and pt_pin.get(num, "HT_CT") != "HT_CT":
@@ -863,9 +891,11 @@ def _check_feeds(res: Result, G: "SchGraph", M: dict, modelled_refs: set,
             _bump(res, "UNFED RECTIFIER",
                   f"{ref} ({role[0]} rectifier: its {role[1]} is on the supply) is "
                   f"fed by nothing: {f['why']}"
-                  + (f" (it does reach {', '.join(sorted(near))}, a label for a "
-                     f"lead the drawn transformer has a pin for, but never that "
-                     f"pin)" if near else "")
+                  + ((f" (it reaches {', '.join(sorted(near))}, but never a "
+                      f"transformer pin)" if pt_leads else
+                      f" (it reaches {', '.join(sorted(near))}, which "
+                      f"sch_map.winding_labels does not declare as a winding "
+                      f"terminal)") if near else "")
                   + (f"; its stack or bridge is {', '.join(mates)}" if mates else "")
                   + ". Join its AC side to the winding the source draws.")
     for ref, p in diodes.items():
@@ -1356,6 +1386,8 @@ def selftest() -> int:
          "sch_map.element_pins[R9]"),
         ("symbols -> nothing", {"symbols": {"R9": "NOSUCH"}},
          "sch_map.symbols[R9] -> NOSUCH"),
+        ("winding_labels", {"winding_labels": {"NOSUCH": "ht_a"}},
+         "sch_map.winding_labels[NOSUCH]"),
         # The reported bug, exactly: the target was renamed away, and the netlist
         # element IS on the sheet under its own designator.
         ("symbols -> renamed away", {"symbols": {"V1A": "V1"}},
@@ -1472,11 +1504,11 @@ def _selftest_feeds(fails: list) -> int:
                                      "of D3's leg"),
             ("6g5", "DBIAS", "fed", "6G5 bias rectifier, from TR1's tap pin"),
             ("5f4", "D1", "fed", "5F4 bias rectifier, through RB1 to T1's tap pin"),
-            ("jtm45", "D1", "fed", "JTM45 bias rectifier, from the HT_B label (the "
-                                   "sheet draws no transformer)"),
-            ("ab763-twin", "DBIAS", "fed", "AB763-Twin bias rectifier, from a BIAS "
-                                           "TAP label for a lead its transformer "
-                                           "symbol lacks")):
+            ("jtm45", "D1", "fed", "JTM45 bias rectifier, from the declared HT_B "
+                                   "label (the sheet draws no transformer)"),
+            ("ab763-twin", "DBIAS", "fed", "AB763-Twin bias rectifier, from the "
+                                           "declared BIAS TAP label, a tap its "
+                                           "transformer symbol lacks")):
         r = check_amp(amp)
         n += 1
         p = next((q for q in r.polarity if q["ref"] == ref), {})
@@ -1487,6 +1519,30 @@ def _selftest_feeds(fails: list) -> int:
             print(f"          -> {f['why'][:170]}")
         if got != want:
             fails.append(f"rectifier feed: {amp} {ref} should be {want}, got {got}")
+
+    print("=== rectifier feed: winding labels are declared, never inferred ===")
+    decl_cases = [
+        ("jtm45", "JTM45 with its winding_labels declaration removed: the HT_B "
+                  "label no longer counts", "winding_labels", None,
+         ("UNFED RECTIFIER", "D1 (bias rectifier")),
+        ("6g5", "6G5 declaring HT_A: ht_a, a terminal its transformer draws as a "
+                "pin", "winding_labels", {"HT_A": "ht_a"},
+         ("STALE DECLARATION", "winding_labels[HT_A]")),
+    ]
+    for amp, label, key, value, (cls, needle) in decl_cases:
+        sm = {k: v for k, v in load_sch_map(amp).items() if k != key}
+        if value is not None:
+            sm[key] = value
+        base = check_amp(amp)
+        r = check_amp(amp, sch_map=sm)
+        n += 1
+        new = set(r.errors) - set(base.errors)
+        hit = [e for e in new if e.startswith(cls) and needle in e]
+        print(f"  {'CAUGHT' if hit else 'MISSED'}: {label}")
+        if hit:
+            print(f"          -> {hit[0][:170]}")
+        else:
+            fails.append(f"rectifier feed: {label} was not reported")
     return n
 
 
