@@ -217,4 +217,7 @@ on the board is electrically the same net the simulated circuit declares,
 within the documented DC scope.
 
 The full artifact set is present: schematic, board layout in both styles, the
-social card, and the family-tier entry.
+social card, and the family-tier entry. The board layout is redrawn from
+Fender's own layout sheet for this circuit: its parts stand in the order that
+sheet mounts them, above the valve sockets in the sheet's order, with the
+controls in the sheet's order above.
