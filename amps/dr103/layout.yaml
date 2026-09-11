@@ -66,14 +66,21 @@ wiring_claim: verified
 parts:
   # --- negative-bias supply (1 k -> UF5408 -> 100 uF -> 47 k bleeder) --------
   - { ref: RB1,  a: [1, 0],  b: [1, 1] }    # 1k 2W series resistor at the tap
-  - { ref: D5,   a: [1, 2],  b: [1, 3] }    # bias rectifier
+  # D5's cathode faces the AC side through RB1: the rail it feeds is NEGATIVE.
+  # Read from schematic.kicad_sch — D5 at rot 180 in the bias row, K pin toward
+  # RB1, which these runs land on D5.a.
+  - { ref: D5,   a: [1, 2],  b: [1, 3], cathode: a }   # bias rectifier
   - { ref: C16,  a: [0, 2],  b: [0, 4] }    # 100 uF 63 V bias filter
   - { ref: RB2,  a: [1, 5],  b: [1, 6] }    # 47k bleeder
   # --- silicon HT bridge + series-pair reservoir bank (B+1) -----------------
-  - { ref: D1,   a: [1, 8],  b: [1, 9] }    # bridge arm, HT_A -> B+1
-  - { ref: D2,   a: [1, 10], b: [1, 11] }   # bridge arm, HT_B -> B+1
-  - { ref: D3,   a: [1, 12], b: [1, 13] }   # bridge arm, ground -> HT_A
-  - { ref: D4,   a: [1, 14], b: [1, 15] }   # bridge arm, ground -> HT_B
+  # Bridge arms: every cathode faces the more positive end — B+1 for D1/D2,
+  # the HT end for D3/D4, whose anodes sit on ground. schematic.kicad_sch draws
+  # each arm at rot 90 with the K pin toward B+1 (upper) or the HT label
+  # junction (lower), and these runs land that end on b.
+  - { ref: D1,   a: [1, 8],  b: [1, 9], cathode: b }    # bridge arm, HT_A -> B+1
+  - { ref: D2,   a: [1, 10], b: [1, 11], cathode: b }   # bridge arm, HT_B -> B+1
+  - { ref: D3,   a: [1, 12], b: [1, 13], cathode: b }   # bridge arm, ground -> HT_A
+  - { ref: D4,   a: [1, 14], b: [1, 15], cathode: b }   # bridge arm, ground -> HT_B
   - { ref: C17,  a: [0, 8],  b: [0, 10] }   # 220 uF reservoir, upper half
   - { ref: C18,  a: [0, 10], b: [0, 12] }   # 220 uF reservoir, lower half
   - { ref: RB3,  a: [1, 17], b: [1, 18] }   # 220k balancing resistor, upper
