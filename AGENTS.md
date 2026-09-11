@@ -63,6 +63,10 @@ python3 check_schematics.py   # kiutils round-trip + sheet furniture/legibility
                               #   --connectivity=warn to survey); waivers in
                               #   pipeline/sch_open_pins.yaml, dated, one
                               #   reason sentence each.
+                              #   A LABEL whose anchor touches no wire or pin
+                              #   fails too: its name still joins the other
+                              #   labels, so no pin reads isolated, while the
+                              #   wire it was drawn to name is a separate net.
 cd pipeline && for f in draw_*.py; do python3 "$f" >/dev/null; done && \
 (cd ../site && node scripts/sync-assets.mjs) && \
 git diff --exit-code -- ../amps ../site/public/schematics   # zero schematic drift: ids are

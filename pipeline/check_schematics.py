@@ -389,6 +389,35 @@ def isolated_pin_report(path: Path) -> list[tuple[str, float, bool]]:
     return out
 
 
+def dangling_label_report(path: Path) -> list[tuple[str, tuple, float]]:
+    """[(label name, anchor, mm to the nearest wire or pin), ...] for every
+    label whose anchor touches no wire (end or interior), no pin and no
+    junction dot.
+
+    KiCad joins a label to a net only where its anchor sits on one. A label
+    drawn a few millimetres short of its wire still ties together every OTHER
+    label carrying its name, so nothing on the sheet reads as an isolated pin:
+    the wire it was meant to name is simply a separate net. That is how the
+    dry path into the AB763 family's mixer grid went missing on claimed sheets
+    (the MIXG label 4 mm off its wire on the Deluxe, the Super and the Twin),
+    and why the isolated-pin check above could not see it."""
+    from sch_nets import _key, _on_segment
+    nets = Nets(path)
+    segs = [(_key(w.points[0].X, w.points[0].Y), _key(w.points[1].X, w.points[1].Y))
+            for w in nets.sch.graphicalItems if getattr(w, "type", None) == "wire"]
+    pins = {q for pinmap in nets.pins.values() for q in pinmap.values()}
+    juncs = {_key(j.position.X, j.position.Y) for j in nets.sch.junctions}
+    out = []
+    for name, anchors in sorted(nets.labels.items()):
+        for a in anchors:
+            if a in pins or a in juncs or any(_on_segment(a, s0, s1) for s0, s1 in segs):
+                continue
+            gaps = [_seg_distance(a, s0, s1) for s0, s1 in segs]
+            gaps += [((a[0] - q[0]) ** 2 + (a[1] - q[1]) ** 2) ** 0.5 for q in pins]
+            out.append((name, a, min(gaps) if gaps else float("inf")))
+    return out
+
+
 def _load_allowlist() -> dict[str, dict[str, str]]:
     """{amp: {pin: reason}} — pins this corpus draws open on purpose."""
     if not ALLOWLIST.exists():
@@ -476,6 +505,48 @@ def connectivity_selftest() -> int:
         return 1
     print(f"selftest ok: deleting the {cut} lead(s) drawn to {target} on the 5E3 "
           f"is caught as an isolated pin ({len(gained)} new finding(s))")
+    return label_selftest(src)
+
+
+def label_selftest(src: Path) -> int:
+    """Move one global label 4 mm along x, off its wire — the AB763 family's
+    MIXG fault — and require the dangling-label check to name it."""
+    import re
+    import shutil
+    if dangling_label_report(src):
+        print("SELFTEST INCONCLUSIVE: the 5E3 already has a dangling label")
+        return 1
+    text = src.read_text()
+    m = re.search(r'\(global_label "([^"]+)"[^\n]*?\(at (-?[\d.]+) (-?[\d.]+)', text)
+    if not m:
+        print("SELFTEST INCONCLUSIVE: no global label on the 5E3")
+        return 1
+    name, x, y = m.group(1), float(m.group(2)), float(m.group(3))
+    # Moving a label ALONG its wire leaves it on the wire; choose the first
+    # offset that the original geometry proves lands on no wire and no pin.
+    from sch_nets import _key, _on_segment
+    nets = Nets(src)
+    segs = [(_key(w.points[0].X, w.points[0].Y), _key(w.points[1].X, w.points[1].Y))
+            for w in nets.sch.graphicalItems if getattr(w, "type", None) == "wire"]
+    pins = {q for pinmap in nets.pins.values() for q in pinmap.values()}
+    for dx, dy in ((4, 0), (-4, 0), (0, 4), (0, -4), (4, 4.13), (-4, -4.13)):
+        q = _key(x + dx, y + dy)
+        if q not in pins and not any(_on_segment(q, s0, s1) for s0, s1 in segs):
+            break
+    else:
+        print(f"SELFTEST INCONCLUSIVE: every trial offset of <{name}> lands on ink")
+        return 1
+    moved = (text[:m.start(2)] + f"{x + dx:g} {y + dy:g}" + text[m.end(3):])
+    with tempfile.TemporaryDirectory() as tmpdir:
+        planted = Path(tmpdir) / "schematic.kicad_sch"
+        shutil.copy(src, planted)
+        planted.write_text(moved)
+        found = dangling_label_report(planted)
+    if not any(n == name for n, _, _ in found):
+        print(f"SELFTEST FAILED: <{name}> moved ({dx:+g}, {dy:+g}) mm off its wire was not reported ({found})")
+        return 1
+    print(f"selftest ok: <{name}> moved ({dx:+g}, {dy:+g}) mm off its wire on the 5E3 is "
+          f"caught as a label touching no wire or pin")
     return 0
 
 
@@ -499,6 +570,8 @@ def main() -> int:
     conn_total = 0
     conn_sheets = 0
     conn_failures = 0
+    dang_total = 0
+    dang_sheets = 0
 
     files = sorted((ROOT / "amps").glob("*/schematic.kicad_sch"))
     failures = 0
@@ -548,7 +621,19 @@ def main() -> int:
             print(f"{'FAIL' if mode == 'error' else 'warn'} {amp}: "
                   f"sch_open_pins.yaml still waives {', '.join(sorted(stale))}, "
                   f"which no longer hang open — delete the entry")
-        if mode == "error" and (found or stale):
+        dangling = dangling_label_report(f)
+        if dangling:
+            dang_total += len(dangling)
+            dang_sheets += 1
+            word = "FAIL" if mode == "error" else "warn"
+            print(f"{word} {amp}: {len(dangling)} label(s) touching no wire or pin — "
+                  f"the name joins its other labels, the anchor joins nothing")
+            ranked = sorted(dangling, key=lambda r: -r[2])
+            for name, a, mm in (ranked if report else ranked[:4]):
+                print(f"       <{name}> at ({a[0]:.2f}, {a[1]:.2f}), {mm:.2f} mm from the nearest wire or pin")
+            if not report and len(ranked) > 4:
+                print(f"       … {len(ranked) - 4} more (--report)")
+        if mode == "error" and (found or stale or dangling):
             conn_failures += 1
 
     print(f"checked {len(files)} schematic(s), {failures} failure(s)")
@@ -558,6 +643,7 @@ def main() -> int:
         waived_n = sum(len(v) for v in allow.values())
         print(f"connectivity: {conn_total} isolated pin(s) on {conn_sheets} "
               f"sheet(s), {waived_n} waived — {tail}")
+        print(f"labels: {dang_total} touching no wire or pin on {dang_sheets} sheet(s)")
     return 1 if (failures or conn_failures) else 0
 
 
