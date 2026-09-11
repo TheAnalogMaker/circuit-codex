@@ -5,8 +5,8 @@
 # shows them — never a trace or a dimensioned reproduction.
 #
 # The board reads left→right matching the sheet's own tube row order —
-# output-stage/cathodyne parts at the left end, the resolved tremolo-
-# oscillator bits and the Speed end resistor next, then the driver (V1B) and
+# output-stage/cathodyne parts at the left end, the tremolo oscillator's
+# plate load, output feed and phase-shift ladder next, then the driver (V1B) and
 # the input stage (V1A) at the right — matching the tube row below it
 # (5Y3GT · 6V6GT · 6V6GT · 12AX7 inverter+oscillator · 7025 driver+input),
 # same convention amps/6g3 established.
@@ -33,8 +33,9 @@
 # verified electrically equivalent to the simulated netlist (netlist.cir) by
 # pipeline/verify_layout_nets.py — see the net_map block at the foot of this
 # file and docs/layout-schema.md. Heaters, the pilot lamp, the tremolo
-# oscillator's own network and the PT / rectifier AC side are an excluded
-# annotation layer (not in netlist.cir).
+# oscillator's own network (drawn in full below, from the layout page, but not
+# simulated) and the PT / rectifier AC side are an excluded annotation layer
+# (not in netlist.cir).
 wiring_claim: verified
 
 board:
@@ -97,7 +98,7 @@ heaters:
       never on the 6.3 V chain.
     sockets:
       V5: { feed: [2], return: [8] }        # 5Y3GT directly-heated filament
-caption: "Redrawn from the published Fender \"Princeton\" Model 6G2 layout drawing (H-FA) — principal board components and their hookup, in the order the drawing shows them. Off the board: the two 68 kΩ input grid stoppers and the 1 MΩ input grid leak mount at the jacks (the sheet's own \"Instruments\" jacks carry a resistor right at the lug); the Tone cut cap and the Intensity wiper-to-ground cap mount at their own pots; the rail-dropper chain (RD1/RD2 + the three filter caps) and the bias-supply group (R5/D1/C14/R6) each sit in the sheet's own small sub-boxes rather than on the eyelet strip, drawn here as off-board stubs so every rail stays traceable. The 6.3 V heater supply is single-ended: one green transformer lead is grounded alongside the red-yellow HT centre tap, and the other feeds the pilot light and every heater, so each socket carries a green feed and a grounded return (7025 and 12AX7 pins 4+5 strapped for 6.3 V parallel with the centre tap at pin 9 to ground; each 6V6GT fed at pin 2 and returned at pin 7, which the sheet takes to the cathode at pin 8, the shell at pin 1, and ground). Those landings are the drawing's own; the feed's daisy order (pilot light → the two 6V6 output tubes → the 12AX7 → the 7025) is the conventional reading of the sheet's \"to all 6.3 volt htrs\" arrow, which states the connection rather than routing it. The 5Y3GT rectifier is directly heated and keeps its own 5 V winding, the transformer's yellow pair, off this chain. Not a trace or a dimensioned reproduction."
+caption: "Redrawn from the published Fender \"Princeton\" Model 6G2 layout drawing (H-FA) — principal board components and their hookup, in the order the drawing shows them. Off the board: the two 68 kΩ input grid stoppers and the 1 MΩ input grid leak mount at the jacks (the sheet's own \"Instruments\" jacks carry a resistor right at the lug); the Tone cut cap, the Intensity wiper-to-ground cap and the Speed control's 100 kΩ mount at their own pots; the rail-dropper chain (RD1/RD2 + the three filter caps) and the bias-supply group (R5/D1/C14/R6) each sit in the sheet's own small sub-boxes rather than on the eyelet strip, drawn here as off-board stubs so every rail stays traceable. The 6.3 V heater supply is single-ended: one green transformer lead is grounded alongside the red-yellow HT centre tap, and the other feeds the pilot light and every heater, so each socket carries a green feed and a grounded return (7025 and 12AX7 pins 4+5 strapped for 6.3 V parallel with the centre tap at pin 9 to ground; each 6V6GT fed at pin 2 and returned at pin 7, which the sheet takes to the cathode at pin 8, the shell at pin 1, and ground). Those landings are the drawing's own; the feed's daisy order (pilot light → the two 6V6 output tubes → the 12AX7 → the 7025) is the conventional reading of the sheet's \"to all 6.3 volt htrs\" arrow, which states the connection rather than routing it. The 5Y3GT rectifier is directly heated and keeps its own 5 V winding, the transformer's yellow pair, off this chain. Not a trace or a dimensioned reproduction."
 source:
   desc: "Fender \"Princeton\" Model 6G2 layout drawing (H-FA) — title block reads \"FENDER 'PRINCETON' LAYOUT MODEL 6G2 H-FA\", matching the schematic's own H-FA drawing number"
   url: "https://el34world.com/charts/Schematics/files/Fender/Fender_princeton_6g2.pdf"
@@ -116,16 +117,24 @@ parts:
   - { ref: RG4, a: [0, 22], b: [1, 22] }      # 1.5k V4 grid stopper: -35V(.a) -> grid(.b, shares C8.b)
   # --- driver -> cathodyne coupler ----------------------------------------
   - { ref: C6, a: [0, 26], b: [1, 26] }       # 0.02 uF: GPI(.a) -> V1B plate tap(.b)
-  # --- tremolo oscillator: the resolved plate-load / output-feed bits ----
-  - { ref: RL4, a: [0, 30], b: [0, 33] }      # 56k oscillator plate load (V2B plate -> BP)
+  # --- tremolo oscillator: plate load, output feed, phase-shift ladder ----
+  - { ref: RL4, a: [0, 30], b: [0, 33] }      # 220k oscillator plate load (V2B plate -> BP)
   - { ref: R4, a: [0, 33], b: [0, 36] }       # 220k oscillator output feed
   - { ref: C9, a: [0, 36], b: [0, 39] }       # 0.1 uF output coupler -> Intensity
-  # --- Speed control's own end resistor -----------------------------------
-  - { ref: R3, a: [0, 44], b: [1, 44] }       # 100k Speed-control end resistor
+  # The ladder as the H-FA layout page draws it: plate -> .02 -> Speed node ->
+  # .01 -> pedal node (1M to the cathode; the tremolo-pedal jack) -> .01 ->
+  # grid (1M to ground); cathode 3300 in parallel with 25-25.
+  - { ref: CTO1, a: [1, 41], b: [0, 41] }     # 0.02 uF: plate(.a) -> Speed node(.b)
+  - { ref: CTO2, a: [0, 41], b: [0, 43] }     # 0.01 uF: Speed node -> pedal node
+  - { ref: CTO3, a: [0, 43], b: [1, 43] }     # 0.01 uF: pedal node -> grid
+  - { ref: RTO1, a: [0, 43], b: [0, 45] }     # 1M: pedal node -> cathode
+  - { ref: RTO2, a: [1, 43], b: [1, 45] }     # 1M: grid -> ground
+  - { ref: RKTO, a: [0, 45], b: [1, 45] }     # 3.3k: cathode -> ground
+  - { ref: CKTO, a: [0, 46], b: [1, 46] }     # 25 uF: cathode -> ground
   # --- driver (V1B) ---------------------------------------------------------
   - { ref: RL2, a: [0, 48], b: [1, 48] }      # 100k plate load (BD -> PB)
   - { ref: RK2, a: [0, 50], b: [1, 50] }      # 1.5k cathode resistor
-  - { ref: C5, a: [0, 52], b: [1, 52] }       # 25 uF cathode bypass
+  - { ref: RNFB, a: [0, 52], b: [1, 52] }     # 56k global feedback: V1B cathode(.a) -> speaker line(.b)
   - { ref: C4, a: [0, 55], b: [1, 55] }       # 0.02 uF Volume wiper -> V1B grid
   # --- input stage (V1A) -----------------------------------------------------
   - { ref: RL1, a: [0, 61], b: [1, 61] }      # 100k plate load (BD -> PA)
@@ -143,7 +152,7 @@ offboard:
   - { id: T2, ref: T2, kind: xfmr, edge: bottom, at: 13.5, label: "Output trans" }
   - { id: SPK, kind: jack, edge: bottom, at: 16.5, label: "Spkr" }
   - { id: V2, ref: V2, kind: tube, edge: bottom, at: 20, label: "V2 · 12AX7 inverter+tremolo" }
-  - { id: JTR, kind: jack, edge: bottom, at: 33, label: "Tremolo pedal" }
+  - { id: JTR, kind: jack, edge: bottom, at: 42.2, label: "Tremolo pedal" }
   - { id: V1, ref: V1, kind: tube, edge: bottom, at: 64, label: "V1 · 7025 driver+input" }
   # --- rail-dropper chain: sits in the sheet's own small sub-box. Ordered to
   #     match the rail topology itself (BP · C11 -> RD1 -> BS · C12 -> RD2 ->
@@ -167,6 +176,9 @@ offboard:
   - { id: C10, ref: C10, kind: part, edge: top, at: 37, label: "C10" }
   - { id: VR4, ref: VR4, kind: pot, edge: top, at: 40, label: "Intensity" }
   - { id: VR3, ref: VR3, kind: pot, edge: top, at: 44, label: "Speed" }
+  # the Speed rheostat's 100k: the layout page draws it on the pot's own lugs,
+  # returned to the pot case, not on the eyelet board
+  - { id: R3, ref: R3, kind: part, edge: top, at: 46.4, label: "R3" }
   - { id: C3, ref: C3, kind: part, edge: top, at: 56, label: "C3" }
   - { id: VR1, ref: VR1, kind: pot, edge: top, at: 58.5, label: "Tone" }
   - { id: VR2, ref: VR2, kind: pot, edge: top, at: 61, label: "Volume" }
@@ -280,19 +292,28 @@ runs:
   - { from: C6.b, to: RL2.b, via: [[26.6, -0.30], [48.6, -0.30]] }
 
   # === tremolo oscillator (annotation layer) ================================
-  - { from: RL4.b, to: V2.pin1, via: [[33.1, 1.68], [16.5, 1.68], [16.5, 2.55]] }
+  - { from: RL4.b, to: V2.pin1, via: [[33.1, 1.51], [17.9, 1.51], [17.9, 2.18]] }
+  - { from: RL4.b, to: CTO1.a, via: [[34.2, 0.6], [34.2, 1.22], [41.0, 1.22]] }     # plate -> ladder
+  - { from: CTO3.b, to: V2.pin2, via: [[43.3, 1.57], [18.3, 1.57], [18.3, 2.07]] }  # oscillator grid
+  - { from: CKTO.a, to: V2.pin3, via: [[46.5, 0.4], [46.5, 1.63], [18.7, 1.63], [18.7, 1.93]] }  # oscillator cathode
+  - { from: RKTO.a, to: CKTO.a }
+  - { from: RKTO.b, to: [1.45, 45] }
+  - { from: CKTO.b, to: [1.45, 46] }
+  - { from: JTR.tip, to: CTO2.b, via: [[42.5, 1.2], [42.5, 0.4]] }   # pedal jack on the pedal node
+  - { from: JTR.sleeve, to: [1.45, 42.8], via: [[42.8, 2.1]] }
 
   # === Speed control (VR3) with its own end resistor R3 ====================
+  - { from: VR3.lug1, to: CTO1.b, via: [[43.69, -0.42], [41.0, -0.42]] }   # Speed node -> rheostat
   - { from: VR3.lug2, to: VR3.lug3 }
-  - { from: VR3.lug3, to: R3.a, via: [[44.5, -0.62], [44.5, -0.20]] }
-  - { from: R3.b, to: [1.45, 44] }
+  - { from: VR3.lug3, to: R3.a }
+  - { from: R3.b, to: [1.45, 47.45], via: [[47.45, -0.55]] }
 
   # === driver ==================================================================
   - { from: RL2.b, to: V1.pin1, via: [[48.6, 1.56], [60.0, 1.56], [60.0, 1.80]] }
-  - { from: RK2.a, to: C5.a, via: [[50.4, -0.30], [52.6, -0.30]] }
+  - { from: RK2.a, to: RNFB.a, via: [[50.4, -0.30], [52.6, -0.30]] }
   - { from: RK2.a, to: V1.pin3, via: [[50.4, 1.66], [63.0, 1.66]] }
   - { from: RK2.b, to: [1.45, 50] }
-  - { from: C5.b, to: [1.45, 52] }
+  - { from: RNFB.b, to: SPK.tip, via: [[52.4, 3.3], [16.2, 3.3], [16.2, 2.2]] }   # speaker line back to V1B's cathode
   - { from: C4.b, to: V1.pin2, via: [[55.4, -0.20], [63.9, -0.20], [63.9, 1.90]] }
 
   # === input stage ===============================================================
@@ -359,7 +380,7 @@ net_map:
     T2.red: BP        # OT primary centre tap -> reservoir node
     T2.blue: BP        # OT primary, V3 plate lead
     T2.brown: BP       # OT primary, V4 plate lead
-    SPK.tip: "0"       # OT-secondary DCR folded into ground (no NFB on this drawing)
+    SPK.tip: "0"       # OT-secondary DCR folded into ground; RNFB's far end lands here
   netlist_unplaced:
     RG1: "1 MΩ input grid leak — mounted at the input jacks, not on the eyelet board"
     RG2: "V1B's nominal 1 MΩ grid return — no discrete part on the drawing; the grid returns to ground at the Volume pot's own ground lug (see notes.md)"

@@ -4,10 +4,11 @@
 Values per the published 6G2 Princeton (H-FA) drawing (see amps/6g2/meta.yaml).
 Signal flows left->right: two-jack input (V1A) -> a single-knob Tone/Volume
 network -> V1B second stage -> a cathodyne phase inverter (V2A) -> a
-fixed-bias 6V6GT pair. The bias-vary tremolo oscillator (V2B, the OTHER half
-of the cathodyne's own bottle) sits below with the Intensity control wired
-directly into the -35 V bias line; the power and bias supplies sit at the
-bottom right.
+fixed-bias 6V6GT pair, with a 56k from the speaker line back to V1B's
+unbypassed cathode closing the global feedback loop. The bias-vary tremolo
+oscillator (V2B, the OTHER half of the cathodyne's own bottle) sits below with
+the Intensity control wired directly into the -35 V bias line; the power and
+bias supplies sit at the bottom right.
 
 Rails: BP = +315 (5Y3GT reservoir / OT centre tap / oscillator plate),
 BS = +312 (6V6 screens), BD = +280 (preamp/PI rail); -35V is the fixed-bias
@@ -15,14 +16,13 @@ line the Intensity control rides on. Heaters, PT primary/mains, the pilot
 lamp and the chassis switches are omitted here (annotation layer) — see
 netlist.cir, meta.yaml, and the board layout (layout.yaml).
 
-The tremolo oscillator IS drawn — plate load, Speed control and output
-coupling into Intensity are all resolved facts from the sheet. Its own
-phase-shift RC ladder is NOT: bom.yaml records the count and rough values as
-unresolved from this scan, so — like the AC15's vibrato/tremolo networks —
-this drawing names the ladder's interfaces (grid, cathode, Speed tap) with
-global labels and asserts nothing about their interconnection. Its DC
-operating point alone is excluded from netlist.cir regardless (a running
-oscillator has no static bias point) — see amps/6g2/notes.md.
+The tremolo oscillator is drawn in full, as the H-FA sheet draws it: a 220k
+plate load off the +315 V reservoir; the phase-shift ladder plate -> .02 ->
+Speed node (3M-RA rheostat + 100k to ground) -> .01 -> the pedal node (1M to
+the cathode, and the tremolo-pedal jack) -> .01 -> grid (1M to ground); a
+3300 + 25 uF cathode; and the output through 220k and .1 into Intensity. Its
+DC operating point alone is excluded from netlist.cir (a running oscillator
+has no static bias point) — see amps/6g2/notes.md.
 """
 from pathlib import Path
 
@@ -121,7 +121,14 @@ s.text("  returns to ground at the Volume pot's own ground lug (see the circuit 
        t1b["g"][0] + 4, 74.2, 1.0)
 
 s.wire(122, 73.62, 122, 76)
-s.shunt_rc("RK2", "1.5k", "C5", "25u", 122, 76)
+# Unbypassed: the drawing's only 25-25 is V1A's. The global negative feedback
+# lands here instead — RNFB 56k from the speaker line (the SPKR label at T2).
+s.shunt_r("RK2", "1.5k", 122, 76)
+s.junction(122, 76)
+s.wire(122, 76, 130, 76)
+s.sym("R", "RNFB", "56k", 130, 79.81)
+s.wire(130, 83.62, 130, 86)
+s.glabel("SPKR", 130, 86, 270)
 tapB = plate_rl("RL2", "100k", t1b["p"], "BD")   # (122, 54.9)
 
 # ============================ CATHODYNE PHASE INVERTER ===================
@@ -207,51 +214,78 @@ s.wire(274.89, 63.46, 278, 63.46)
 s.glabel("SPKR", 278, 63.46, 0)
 s.wire(274.89, 68.54, 278, 68.54)
 s.glabel("GND", 278, 68.54, 0)
-s.text("No negative-feedback resistor found on the published drawing — open loop", 244, 100, 1.2)
+s.text("SPKR also returns to V1B's cathode through RNFB 56k — the global negative feedback", 236, 100, 1.2)
 
 # ============================ TREMOLO OSCILLATOR =========================
 YT = 150
+RAILY = 178                                    # phase-shift ladder rail
 s.caption("Bias-vary tremolo — V2B phase-shift oscillator (the other half of the cathodyne's own 12AX7 bottle)", 20, 130, 1.5)
 s.note('Its DC point alone is excluded from the netlist — a running oscillator has no static operating point (see the circuit story)')
-s.note('The phase-shift RC ladder between grid/cathode and the Speed tap is NOT resolved from this scan (see the parts list):')
-s.note('its interfaces are named below and nothing further is asserted about their interconnection — compare the AC15.')
 
-t2b = s.triode("V2B", "12AX7", 70, YT)
-# Plate: RL4 (56k) straight to BP (the driven reservoir, not the derived BD
-# rail) — a tee also feeds the resolved R4/C9 output chain into Intensity.
-s.wire(70, YT - 7.62, 70, YT - 11.1)
-s.sym("R", "RL4", "56k", 70, YT - 14.91)
-s.wire(70, YT - 18.72, 70, YT - 21.27)
-s.glabel("BP", 70, YT - 21.27, 90)
-s.junction(70, YT - 11.1)
-ml, mr = s.series_h("R", "R4", "220k", 90, YT - 11.1)
-s.wire(70, YT - 11.1, ml, YT - 11.1)
-cl9, cr9 = s.series_h("C", "C9", ".1u", 106, YT - 11.1)
-s.wire(mr, YT - 11.1, cl9, YT - 11.1)
-s.wire(cr9, YT - 11.1, 116, YT - 11.1)
-s.glabel("OSC-OUT", 116, YT - 11.1, 0)
-
-# Grid — the ladder's far interface, named and left unconnected (unresolved).
-s.wire(t2b["g"][0], t2b["g"][1], t2b["g"][0], YT + 4)
-s.wire(t2b["g"][0], YT + 4, 40, YT + 4)
-s.glabel("OSC-LAD-G", 40, YT + 4, 180)
-# Cathode — no component appears in bom.yaml for this leg either.
-s.wire(70, YT + 7.62, 70, YT + 15)
-s.glabel("OSC-LAD-K", 70, YT + 15, 90)
-s.text("cathode network not resolved from this scan", 78, YT + 14, 1.0)
-
-# Speed control (VR3, 3M-RA) wired as a rheostat with its own 100k end
-# resistor to ground — the LOCAL wiring is a resolved fact; which ladder tap
-# its hot lug reads from the sheet is not, so that lug is left named, not wired.
-s.sym("POT", "VR3", "3M-RA", 40, YT - 25, lx=-9.5, ly=1.0)
-s.glabel("OSC-LAD-SPD", 40, YT - 32.62, 90)
-s.wire(40, YT - 28.81, 40, YT - 32.62)
-s.wire(45.08, YT - 25, 45.08, YT - 21.19)
-s.wire(45.08, YT - 21.19, 40, YT - 21.19)
-s.junction(40, YT - 21.19)
-s.sym("R", "R3", "100k", 40, YT - 17.38)
-s.gnd(40, YT - 13.57)
-s.text("Speed", 24, YT - 26, 1.2)
+t2b = s.triode("V2B", "12AX7", 60, YT)
+# Plate load RL4 (220k) to BP: the drawing's boxed-X node, the +315 V
+# reservoir tap, not the derived BD rail.
+s.plate_load("RL4", "220k", t2b["p"], "BP")
+PTEE = YT - 7.62 - 3.48                                    # 138.9, the plate node
+s.junction(60, PTEE)
+# Cathode: 3300 in parallel with a 25 uF bypass (+2 V on the drawing).
+s.wire(60, YT + 7.62, 60, YT + 10)
+s.shunt_rc("RKTO", "3.3k", "CKTO", "25u", 52.38, YT + 10)
+s.junction(60, YT + 10)
+# Phase-shift ladder, as drawn: plate -> .02 -> N2 (Speed) -> .01 -> N1 (pedal
+# node, 1M to the cathode) -> .01 -> grid (1M to ground).
+s.wire(60, PTEE, 70, PTEE)
+cl, cr = s.series_h("C", "CTO1", ".02u", 78, PTEE)
+s.wire(70, PTEE, cl, PTEE)
+s.wire(cr, PTEE, 90, PTEE)                                 # N2
+# Speed VR3 (3M-RA) wired as a rheostat, wiper strapped to its far lug, then
+# R3 100k to ground.
+s.wire(90, PTEE, 94.19, PTEE)
+s.sym("POT", "VR3", "3M-RA", 98, PTEE, rot=90, lx=-3.2, ly=6.4)
+s.wire(101.81, PTEE, 106, PTEE)
+s.wire(98, PTEE - 5.08, 101.81, PTEE - 5.08)               # rheostat: wiper to lug 3
+s.wire(101.81, PTEE - 5.08, 101.81, PTEE)
+s.junction(101.81, PTEE)
+sl, sr = s.series_h("R", "R3", "100k", 112, PTEE)
+s.wire(106, PTEE, sl, PTEE)
+s.wire(sr, PTEE, 120, PTEE)
+s.gnd(120, PTEE)
+s.text("Speed", 94, PTEE - 8, 1.2)
+# N2 down to the lower ladder rail
+s.wire(90, PTEE, 90, RAILY)
+s.junction(90, PTEE)
+cl, cr = s.series_h("C", "CTO2", ".01u", 82, RAILY)
+s.wire(90, RAILY, cr, RAILY)
+s.wire(cl, RAILY, 72, RAILY)                               # N1
+s.junction(72, RAILY)
+cl, cr = s.series_h("C", "CTO3", ".01u", 62, RAILY)
+s.wire(72, RAILY, cr, RAILY)
+s.wire(cl, RAILY, 48, RAILY)                               # oscillator grid
+s.junction(48, RAILY)
+s.wire(48, RAILY, 48, YT)
+s.wire(48, YT, t2b["g"][0], YT)
+s.sym("R", "RTO2", "1M", 48, RAILY + 3.81, lx=-8.4)        # grid -> ground
+s.gnd(48, RAILY + 7.62)
+s.sym("R", "RTO1", "1M", 72, 169)                          # N1 -> cathode
+s.wire(72, 172.81, 72, RAILY)
+s.wire(72, 165.19, 72, YT + 10)
+s.wire(72, YT + 10, 60, YT + 10)
+# Tremolo-pedal jack on N1: the pedal's switch grounds that node and the
+# oscillator stops.
+s.wire(72, RAILY, 72, RAILY + 10)
+jtr = s.jack("JTR", "pedal", 80, RAILY + 12.54, lx=3.4, ly=-9.6)
+s.wire(72, RAILY + 10, jtr["tip"][0], RAILY + 10)          # ladder node -> tip
+s.wire(*jtr["sleeve"], 68, jtr["sleeve"][1])               # sleeve -> chassis
+s.wire(68, RAILY + 18, 68, jtr["sleeve"][1])
+s.gnd(68, RAILY + 18)
+# Output: plate -> R4 220k -> C9 .1 -> the Intensity control (OSC-OUT).
+s.wire(60, PTEE, 50, PTEE)
+ml, mr = s.series_h("R", "R4", "220k", 44, PTEE)
+s.wire(50, PTEE, mr, PTEE)
+cl9, cr9 = s.series_h("C", "C9", ".1u", 30, PTEE)
+s.wire(ml, PTEE, cr9, PTEE)
+s.wire(cl9, PTEE, 22, PTEE)
+s.glabel("OSC-OUT", 22, PTEE, 180)
 
 # ============================ POWER SUPPLY ===============================
 YPW = 190

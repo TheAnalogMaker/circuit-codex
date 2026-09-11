@@ -18,7 +18,7 @@ nodes:
   PA:   { chart: 185, tol_pct: 20, note: "V1A (7025) plate, 100k off BD" }
   KA:   { chart: 1.5, tol_pct: 20, note: "V1A cathode, over its own 1.5k/25uF" }
   PB:   { chart: 185, tol_pct: 20, note: "V1B (7025) plate, 100k off BD — the drawing prints the same value at both 7025 plates" }
-  KB:   { chart: 1.5, tol_pct: 20, note: "V1B cathode, over its own 1.5k/25uF" }
+  KB:   { chart: 1.5, tol_pct: 20, note: "V1B cathode, over its unbypassed 1.5k — the 56k speaker feedback lands on this node, a second DC path to ground (the speaker line sits at ~0 V through the output transformer's secondary)" }
   PPI:  { chart: 230, tol_pct: 20, note: "cathodyne plate, 56k load from BD" }
   KPI:  { chart: 56.5, tol_pct: 20, note: "cathodyne cathode pin, above the 1.5k cathode resistor into the tail" }
   JPI:  { chart: 55,  tol_pct: 20, note: "cathodyne tail junction (1.5k cathode resistor / 56k-to-ground), grid-leak return" }

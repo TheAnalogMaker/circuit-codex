@@ -26,8 +26,8 @@ style, the same architecture the tweed 5F2-A used) and a 1 MΩ-A Volume pot.
 This network is not in the DC netlist — the wiper draws no grid current, so
 its own resistance never sets an operating point, exactly as the corpus treats
 every other volume/tone network. A second 0.02 µF coupler carries the wiper
-into V1B, an identical second stage: 100 kΩ plate load, its own 1.5 kΩ/25 µF
-cathode.
+into V1B, the second stage: 100 kΩ plate load and a 1.5 kΩ cathode resistor
+left unbypassed, because the global feedback lands there (see Output below).
 
 **Cathodyne phase inverter.** V1B's plate couples through 0.02 µF into the
 grid of a **cathodyne** — a single 12AX7 triode with matched output impedances,
@@ -47,17 +47,26 @@ coupler from the junction rather than the bare cathode pin.
 **Output.** Two 6V6GTs, grounded cathodes, 1500 Ω grid stoppers. Both grids
 wire straight into the **Intensity** pot's wiper rather than through a
 dedicated grid-leak resistor — see "The tremolo modulates the bias" below.
-No negative-feedback resistor appears on the published drawing, unlike the
-5F10 that precedes it and the AA964 that follows: this Princeton runs
-open-loop.
+A 56 kΩ resistor carries the speaker line back to V1B's unbypassed cathode —
+global negative feedback. The schematic runs that lead along the top of the
+sheet from the output transformer's secondary and drops it onto V1B's cathode
+node; the layout page puts the 56 kΩ on V1B's cathode eyelet beside its
+1.5 kΩ, with its wire running to the speaker jacks. The 5F10 Harvard's own
+driver carries the same pairing, a 56 kΩ from the speaker into an unbypassed
+1.5 kΩ cathode.
 
 ## The tremolo modulates the bias — without a leak resistor in the way
 
-The other half of the cathodyne's bottle is a phase-shift oscillator: 56 kΩ
-plate load taken straight off the driven reservoir (not the derived preamp
-rail, so it keeps running cleanly regardless of preamp loading), a Speed
-control (3 MΩ reverse-audio) setting the RC ladder's rate, and its output
-leaving through 220 kΩ and 0.1 µF into a 250 kΩ-linear **Intensity** control.
+The other half of the cathodyne's bottle is a phase-shift oscillator. Its
+220 kΩ plate load comes straight off the +315 V reservoir, and a three-section
+ladder runs from plate back to grid: 0.02 µF to a Speed node, which the
+3 MΩ reverse-audio Speed control (a rheostat, with 100 kΩ in series) returns
+to ground; 0.01 µF to a second node, which a 1 MΩ returns to the oscillator's
+cathode; and 0.01 µF to the grid, which a 1 MΩ returns to ground. The cathode
+sits on 3.3 kΩ bypassed by 25 µF, printed +2 V. The tremolo-pedal jack hangs
+on the ladder's middle node, so closing the pedal's switch grounds that node
+and stops the oscillation. The output leaves the plate through 220 kΩ and
+0.1 µF into a 250 kΩ-linear **Intensity** control.
 
 Where the 6G3/AB763 generation fixes a 220 kΩ · 5 % grid-leak resistor at each
 output tube and modulates the bias *supply* upstream of it, the 6G2 wires the
@@ -118,7 +127,8 @@ charts throughout this period — and considerably more complete than the
 5F2-A's undocumented single-ended predecessor or the AC15's five scattered
 annotations. The simulation reproduces every gated node, eleven in all, within
 4 % of the printed chart (worst nodes: the cathodyne's cathode pin and tail
-junction, 3.9 %; every other node inside 2 %) — tighter than every other
+junction, 3.9 %; then V1B's cathode, 3.4 %, where the feedback resistor is a
+second path to ground; every other node inside 2 %) — tighter than every other
 *verified* entry in this corpus, all eighteen of which report a worst node
 above 3.9 %.
 
@@ -145,11 +155,11 @@ own readings to ±20 %.
 The tremolo oscillator (the cathodyne bottle's other half) is a running
 phase-shift oscillator with no static operating point — a dynamic average, not
 a DC bias, the same reasoning the 6G3's circuit story gives for its own
-oscillator. Its plate load taps the driven reservoir node directly, so
-excluding it from the
-netlist costs nothing downstream. Its own RC ladder's exact tap count is not
-fully resolved from this scan; because the stage is excluded from the gated
-model regardless, that residual uncertainty has no bearing on any gated node.
+oscillator. Its 220 kΩ plate load taps the driven reservoir node directly,
+and its output reaches the bias line only through a 0.1 µF capacitor, so
+excluding it from the netlist costs nothing downstream. The ladder itself is
+fully lettered on both pages of the drawing and is drawn here as printed, on
+the schematic and on the board.
 
 ## Lineage
 

@@ -21,8 +21,10 @@
 * EXCLUDED — the tremolo oscillator, the second section of the 12AX7 that
 * also carries the cathodyne (V2B). It is a running phase-shift oscillator: a
 * dynamic average, not a static quiescent point, so it is reported in
-* notes.md rather than modelled. Its 56k plate load taps the DRIVEN node BP
-* directly, so leaving it out changes nothing downstream.
+* notes.md rather than modelled. Its 220k plate load taps the DRIVEN node BP
+* (the drawing's boxed-X reservoir tap) directly, and its output reaches the
+* bias line only through a 0.1 uF cap, so leaving it out changes nothing
+* downstream.
 *
 * The 6V6 grids are NOT fed through a fixed 220k-style grid-leak resistor on
 * this drawing (unlike the AA964 that follows it): both grids wire straight
@@ -32,10 +34,16 @@
 * current flows through the pot at all — its resistance, and the Intensity
 * setting, move no operating point — so the grids sit at exactly -35 V
 * through their 1500 ohm grid-stopper resistors, which are what is modelled
-* here. No negative-feedback resistor was found on the published drawing.
+* here.
 *
-* DC-open caps are MODELLED where BOTH leads land on a named DC node (the two
-* cathode-bypass cans, the driver-to-cathodyne coupler, and the cathodyne's
+* Global negative feedback: a 56k resistor runs from the speaker line (the
+* output transformer's secondary) back to V1B's cathode, which the drawing
+* leaves unbypassed. The speaker line sits at ~0 V DC through the secondary,
+* folded into ground here, so at DC the 56k is a second path to ground in
+* parallel with V1B's 1.5k cathode resistor (1461 ohm together).
+*
+* DC-open caps are MODELLED where BOTH leads land on a named DC node (V1A's
+* cathode-bypass can, the driver-to-cathodyne coupler, and the cathodyne's
 * two output couplers — the plate coupler and the tail-junction coupler,
 * matching the 5F10's own cathodyne wiring) so the board layout is placement-
 * checked; open at DC they move no operating point. The input-stage coupler
@@ -60,16 +68,19 @@ RG1 GA 0 1meg
 RK1 KA 0 1.5k
 C1 KA 0 25u
 
-* --- V1B (7025), second stage: identical 100k plate load and 1.5k/25uF
-*     cathode. Its grid sits on the abstracted Tone/Volume network — no grid
-*     current flows, so it is tied to ground through a nominal 1M rather than
-*     simulating the pot network itself (the network's own caps are DC-open
-*     into an unmodelled node and are correspondingly omitted).
+* --- V1B (7025), second stage: the same 100k plate load and 1.5k cathode
+*     resistor, but the cathode is UNBYPASSED (the drawing's 25-25 belongs
+*     to V1A alone) because the global negative feedback lands on it: RNFB,
+*     56k from the speaker line (~0 V DC — see the header). Its grid sits on
+*     the abstracted Tone/Volume network — no grid current flows, so it is
+*     tied to ground through a nominal 1M rather than simulating the pot
+*     network itself (the network's own caps are DC-open into an unmodelled
+*     node and are correspondingly omitted).
 RL2 BD PB 100k
 XV1B PB GB KB 12AX7
 RG2 GB 0 1meg
 RK2 KB 0 1.5k
-C5 KB 0 25u
+RNFB KB 0 56k
 
 * --- V2A cathodyne phase inverter (12AX7, shares its bottle with the
 *     tremolo oscillator, V2B, excluded below): 56k plate load off BD; a

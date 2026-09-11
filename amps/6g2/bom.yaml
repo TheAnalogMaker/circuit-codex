@@ -23,8 +23,8 @@ items:
   # --- V1B second stage ---
   - { ref: RG2, part: "—",                    value: "—",              role: "V1B grid returns to ground through the Volume pot's own body — no discrete leak resistor; modelled in the DC netlist as a nominal 1 MΩ, since no grid current flows and the pot's own value is not load-bearing" }
   - { ref: RL2, part: "Carbon comp resistor", value: "100 kΩ · ½ W",   role: "V1B plate load" }
-  - { ref: RK2, part: "Carbon comp resistor", value: "1.5 kΩ · ½ W",   role: "V1B cathode bias" }
-  - { ref: C5,  part: "Electrolytic capacitor", value: "25 µF · 25 V", role: "V1B cathode bypass" }
+  - { ref: RK2, part: "Carbon comp resistor", value: "1.5 kΩ · ½ W",   role: "V1B cathode bias, unbypassed — the drawing's only 25 µF cathode can is V1A's" }
+  - { ref: RNFB, part: "Carbon comp resistor", value: "56 kΩ · ½ W",  role: "Global negative feedback, speaker line → V1B cathode" }
   - { ref: C6,  part: "Coupling capacitor",   value: "0.02 µF · 400 V", role: "V1B plate → cathodyne grid" }
   # --- V2A cathodyne phase inverter ---
   - { ref: RL3,  part: "Carbon comp resistor", value: "56 kΩ · ½ W",   role: "Cathodyne plate load" }
@@ -34,15 +34,21 @@ items:
   - { ref: C7,   part: "Coupling capacitor",  value: "0.1 µF · 400 V", role: "Cathodyne plate → V3 grid" }
   - { ref: C8,   part: "Coupling capacitor",  value: "0.1 µF · 400 V", role: "Cathodyne tail junction → V4 grid" }
   # --- V2B tremolo oscillator (excluded from the DC netlist — see notes.md) ---
-  - { ref: RL4, part: "Carbon comp resistor", value: "56 kΩ · ½ W",    role: "Oscillator plate load, off the driven reservoir (BP), killed at the tremolo-pedal jack" }
-  - { ref: —,   part: "Phase-shift RC ladder", value: "≈0.01–0.02 µF / 1 MΩ sections", role: "Oscillator frequency-setting network — component count and exact taps not fully resolved on this scan; excluded from the gated netlist regardless (see the circuit story)" }
-  - { ref: VR3, part: "Reverse-audio potentiometer", value: "3 MΩ-RA", role: "Speed (oscillator frequency)" }
-  - { ref: R3,  part: "Carbon comp resistor", value: "100 kΩ · ½ W",   role: "Speed-control end resistor" }
+  - { ref: RL4, part: "Carbon comp resistor", value: "220 kΩ · ½ W",   role: "Oscillator plate load, off the +315 V reservoir (BP)" }
+  - { ref: RKTO, part: "Carbon comp resistor", value: "3.3 kΩ · ½ W", role: "Oscillator cathode bias" }
+  - { ref: CKTO, part: "Electrolytic capacitor", value: "25 µF · 25 V", role: "Oscillator cathode bypass" }
+  - { ref: CTO1, part: "Coupling capacitor",  value: "0.02 µF · 400 V", role: "Phase-shift ladder: plate → the Speed node" }
+  - { ref: VR3, part: "Reverse-audio potentiometer", value: "3 MΩ-RA", role: "Speed — a rheostat from the Speed node, its wiper strapped to the far lug" }
+  - { ref: R3,  part: "Carbon comp resistor", value: "100 kΩ · ½ W",   role: "Speed rheostat's series resistor to ground" }
+  - { ref: CTO2, part: "Coupling capacitor",  value: "0.01 µF · 400 V", role: "Phase-shift ladder: Speed node → the pedal node" }
+  - { ref: RTO1, part: "Carbon comp resistor", value: "1 MΩ · ½ W",   role: "Phase-shift ladder: pedal node → oscillator cathode" }
+  - { ref: CTO3, part: "Coupling capacitor",  value: "0.01 µF · 400 V", role: "Phase-shift ladder: pedal node → oscillator grid" }
+  - { ref: RTO2, part: "Carbon comp resistor", value: "1 MΩ · ½ W",   role: "Oscillator grid leak to ground" }
   - { ref: R4,  part: "Carbon comp resistor", value: "220 kΩ · ½ W",   role: "Oscillator output feed to the Intensity control" }
   - { ref: C9,  part: "Coupling capacitor",   value: "0.1 µF · 400 V", role: "Oscillator output coupling to the Intensity control" }
   - { ref: VR4, part: "Linear potentiometer", value: "250 kΩ-L",       role: "Intensity — sits directly in the -35 V bias line feeding both 6V6 grids; carries no DC (see the DC netlist header)" }
   - { ref: C10, part: "Film capacitor",       value: "0.05 µF · 200 V", role: "Intensity wiper to ground" }
-  - { ref: —,   part: "Jack",                 value: "closed-circuit", role: "Tremolo footswitch pedal jack (shorts the oscillator's plate supply)" }
+  - { ref: JTR, part: "Jack",                 value: "tremolo pedal", role: "Tremolo pedal jack — its tip is on the ladder's pedal node, so the pedal's switch grounds that node and stops the oscillator" }
   # --- Output stage ---
   - { ref: RG3, part: "Carbon comp resistor", value: "1.5 kΩ · ½ W",   role: "V3 grid stopper, wired straight to the -35 V bias line" }
   - { ref: RG4, part: "Carbon comp resistor", value: "1.5 kΩ · ½ W",   role: "V4 grid stopper, same bias-line wiring" }
