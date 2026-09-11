@@ -265,7 +265,7 @@ for y, pref, cref, cval, glref, gstop in [
     s.gnd(221.6, p["k"][1] + 0)
 
 # ---- output transformer -------------------------------------------------
-s.sym("OT_PP", "T3", "part no. not printed", 249.5, 110)
+s.sym("OT_PP", "T3", "no number printed", 249.5, 110)
 s.wire(221.6, 84 - 0.635 - 7.62, 221.6, 73.5)
 s.wire(221.6, 73.5, 240.61, 73.5)
 s.wire(240.61, 73.5, 240.61, 104.92)
@@ -299,7 +299,7 @@ s.sym("C", "C9", "16u", 88.9, 181.61)
 s.gnd(88.9, 185.42)
 s.glabel("B+1", 95.25, 177.8, 0)
 s.wire(95.25, 177.8, 97.79, 177.8)
-s.sym("CHOKE", "L1", "part no. not printed", 105.41, 177.8, lx=-16.0, ly=-7.0)
+s.sym("CHOKE", "L1", "no number printed", 105.41, 177.8, lx=-16.0, ly=-7.0)
 s.wire(113.03, 177.8, 129.19, 177.8)
 s.junction(116.84, 177.8)
 s.glabel("B+2", 116.84, 175.26, 90)
@@ -347,7 +347,7 @@ s.glabel("-42V", 183.12, 160.72, 0)
 # The drawing takes the bias feed from a fourth HT-winding terminal between
 # one end and the centre tap. The 5 V and 6.3 V windings, mains switch, fuse,
 # ground switch, standby switch and the two 0.05 uF bypass caps are not drawn.
-pt = s.pt("T1", "part no. not printed", 205, 176, tap=True)
+pt = s.pt("T1", "no number printed", 205, 176, tap=True)
 s.wire(pt["pri1"][0], pt["pri1"][1], pt["pri1"][0] - 4, pt["pri1"][1])
 s.glabel("MAINS", pt["pri1"][0] - 4, pt["pri1"][1], 180)
 s.wire(pt["pri2"][0], pt["pri2"][1], pt["pri2"][0] - 4, pt["pri2"][1])

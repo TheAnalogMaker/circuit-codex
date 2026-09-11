@@ -57,7 +57,7 @@ items:
   - { ref: R6s, part: "Carbon comp resistor", value: "1.5 kΩ · ½ W", role: "V5 grid stopper, mounted on the socket from pin 6 to the grid at pin 5" }
   # --- supply: two rectifiers, a choke, two droppers ------------------------
   - { ref: C9,  part: "Electrolytic capacitor", value: "16 µF · 450 V", role: "First filter, +420 V, after the standby switch" }
-  - { ref: L1,  part: "Filter choke",         value: "part number not printed", role: "+420 V → +410 V; the OT centre tap and both screens sit after it" }
+  - { ref: L1,  part: "Filter choke",         value: "no number printed", role: "+420 V → +410 V; the OT centre tap and both screens sit after it" }
   - { ref: C10, part: "Electrolytic capacitor", value: "16 µF · 450 V", role: "Filter, +410 V (first of two cans on this node)" }
   - { ref: C11, part: "Electrolytic capacitor", value: "16 µF · 450 V", role: "Filter, +410 V (second of two cans on this node)" }
   - { ref: RD1, part: "Power resistor",       value: "10 kΩ",         role: "Rail dropper, +410 V → +335 V" }
@@ -77,8 +77,8 @@ items:
   - { ref: V6,  part: "Rectifier tube",       value: "5U4GA",          role: "Rectifier, tube 1 of 2 (parallel full-wave, not DC-modelled)" }
   - { ref: V7,  part: "Rectifier tube",       value: "5U4GA",          role: "Rectifier, tube 2 of 2 (parallel full-wave, not DC-modelled)" }
   # --- transformers and mains hardware --------------------------------------
-  - { ref: T1,  part: "Power transformer",    value: "part number not printed", role: "HT winding with centre tap and bias tap, 5 V rectifier filament, 6.3 V heaters" }
-  - { ref: T3,  part: "Output transformer",   value: "part number not printed", role: "Push-pull output into four 10-inch speakers" }
+  - { ref: T1,  part: "Power transformer",    value: "no number printed", role: "HT winding with centre tap and bias tap, 5 V rectifier filament, 6.3 V heaters" }
+  - { ref: T3,  part: "Output transformer",   value: "no number printed", role: "Push-pull output into four 10-inch speakers" }
   - { ref: "—", part: "Film capacitor",       value: "0.05 µF · 600 V", role: "Line bypass through the ground switch to chassis" }
   - { ref: "—", part: "Film capacitor",       value: "0.05 µF · 600 V", role: "HT bypass, rectifier output → ground, ahead of the standby switch" }
   - { ref: "—", part: "Fuse",                 value: "3 A",             role: "AC line fuse" }
