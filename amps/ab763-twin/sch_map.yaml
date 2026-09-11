@@ -17,13 +17,6 @@ anchors:
   # so the return needs a node.)
   "<TANK RET>": "0"        # reverb tank output return — chassis ground
 
-series_bridge:
-  # 220 k load to ground at the reverb/dry mix node. netlist.cir models the mix
-  # driver's grid return as one 3.3 M leak to 0 (RGD1 GD1 0) and omits this
-  # resistor: no DC grid current flows, so it drops nothing and the netlist's
-  # node 0 runs through it.
-  RTOG4: "220 k load to ground at the reverb/dry mix node — no DC grid current, so RGD1's return to node 0 runs through it"
-
 element_pins:
   # netlist RTR4 BB PRD 200 is the reverb-transformer primary DCR, not a
   # discrete resistor: it is the T4 primary winding, B+ lead to plate lead.

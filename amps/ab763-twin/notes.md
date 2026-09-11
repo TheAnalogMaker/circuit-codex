@@ -27,7 +27,7 @@ across it on a switch.
 coupler into a 220 kΩ mixing resistor. No reverb, no tremolo.
 
 **Vibrato channel.** Volume → a second 12AX7 stage (100 kΩ plate) → a 0.02 µF
-coupler into the reverb and tremolo section.
+coupler onto the dry node, which feeds both the reverb send and the mix driver.
 
 ## Two cathodes, four triodes
 
@@ -50,18 +50,27 @@ that changes one — a swapped tube, a hotter section — moves the other with i
 with both triodes in parallel** (1 MΩ grid leak, 2.2 kΩ shared cathode) feeding
 the 125A20B transformer and the spring tank. What comes back is recovered by a
 12AX7 stage across a 220 kΩ tank leak, coupled out by 0.003 µF, and blended with
-the dry signal by the 100 kΩ Reverb control through a 470 kΩ mixing resistor.
+the dry signal by the 100 kΩ Reverb control through a 470 kΩ resistor onto the
+mix driver's grid.
 
 **Tremolo.** The tremolo tube is a 12AX7 doing two jobs. One triode is a
-phase-shift oscillator (220 kΩ plate load, 2.7 kΩ cathode, Speed on a 3 MΩ
-control); the other drives the **neon lamp** inside an optocoupler, sitting at
-the top of a 100 kΩ feed from the supply with a 10 MΩ bleeder across its plate.
-The lamp faces a photoresistor which, through the 50 kΩ Intensity control,
-periodically shunts the mix driver's grid toward ground and swings the volume.
+phase-shift oscillator (220 kΩ plate load, 2.7 kΩ cathode). Its ladder runs from
+the plate through 0.02 µF to the Speed node — a 3 MΩ Speed control and 100 kΩ to
+ground — then through 0.01 µF to a middle node and another 0.01 µF to the grid.
+A 1 MΩ from the middle node and another from the grid meet at the footswitch
+junction, which returns through 2.2 MΩ to the bias supply's filter node. The
+other triode takes its grid from that middle node and drives the **neon lamp**
+inside an optocoupler, sitting at the top of a 100 kΩ feed from the supply with
+a 10 MΩ bleeder across its plate. The lamp faces a photoresistor that shunts the
+wiper of the 50 kΩ Intensity control to ground. The control hangs from the mix
+driver's output, between its 0.1 µF coupler and its 220 kΩ mixing resistor, so
+the tremolo swings the level the vibrato channel hands to the phase inverter.
 
-**Mixing and inversion.** The mix driver (100 kΩ plate, its grid fed through
-3.3 MΩ with 10 pF across it) is coupled out by 0.1 µF into the vibrato channel's
-own 220 kΩ mixing resistor. The two channels' mixing resistors meet, and a
+**Mixing and inversion.** The mix driver's grid is fed from the dry node through
+3.3 MΩ with 10 pF across it, takes the reverb return through 470 kΩ, and is held
+at ground by a 220 kΩ leak. Its plate (100 kΩ load) is coupled out by 0.1 µF —
+the node the Intensity control hangs from — into the vibrato channel's own
+220 kΩ mixing resistor. The two channels' mixing resistors meet, and a
 single 0.001 µF capacitor carries the sum to the phase inverter's grid.
 
 **Phase inverter and output.** A 12AT7 **long-tailed pair** — 82 kΩ and 100 kΩ

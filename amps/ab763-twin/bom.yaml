@@ -59,12 +59,12 @@ items:
   - { ref: RLR1, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "Reverb-recovery plate load" }
   - { ref: CCR1, part: "Coupling capacitor",  value: "0.003 µF",       role: "Reverb-recovery output coupling" }
   - { ref: VRREV, part: "Linear potentiometer", value: "100 kΩ-L",     role: "Reverb level" }
-  - { ref: RMR, part: "Carbon comp resistor", value: "470 kΩ · ½ W",  role: "Reverb mix resistor" }
+  - { ref: RMR, part: "Carbon comp resistor", value: "470 kΩ · ½ W",  role: "Reverb return into the mix-driver grid" }
   # --- Vibrato/reverb mix driver ---
-  - { ref: RGD1, part: "Carbon comp resistor", value: "3.3 MΩ · ½ W", role: "Mix-driver grid resistor in the dry path (tremolo shunt node)" }
-  - { ref: CBD1, part: "Mica capacitor",      value: "10 pF",          role: "Bright cap across the mix-driver grid resistor" }
+  - { ref: RGD1, part: "Carbon comp resistor", value: "3.3 MΩ · ½ W", role: "Dry-path series resistor, dry node → mix-driver grid (10 pF across it)" }
+  - { ref: CBD1, part: "Mica capacitor",      value: "10 pF",          role: "Bright cap across the dry-path 3.3 MΩ" }
   - { ref: RLD1, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "Mix-driver plate load" }
-  - { ref: CCD1, part: "Coupling capacitor",  value: "0.1 µF",         role: "Mix-driver output coupling" }
+  - { ref: CCD1, part: "Coupling capacitor",  value: "0.1 µF",         role: "Mix-driver output coupling, onto the Intensity control and the 220 kΩ mixing resistor" }
   # --- Shared recovery / mix-driver cathode network, drawing box [E] ---
   - { ref: RKE, part: "Carbon comp resistor", value: "820 Ω · ½ W",   role: "Cathode bias SHARED by the reverb recovery and the mix driver ([E])" }
   - { ref: CKE, part: "Electrolytic capacitor", value: "25 µF · 25 V", role: "Bypass for the shared recovery/mix-driver cathode ([E])" }
@@ -74,23 +74,23 @@ items:
   - { ref: CPIA, part: "Coupling capacitor",  value: "0.001 µF",       role: "Mixer node → PI hot grid" }
   # --- Tremolo (12AX7; neither half has a static DC point — see notes.md) ---
   - { ref: VRSPD, part: "Reverse-audio potentiometer", value: "3 MΩ-RA", role: "Tremolo speed" }
-  - { ref: VRINT, part: "Reverse-audio potentiometer", value: "50 kΩ-RA", role: "Tremolo intensity" }
+  - { ref: VRINT, part: "Reverse-audio potentiometer", value: "50 kΩ-RA", role: "Intensity — from the mix driver's output (after its 0.1 µF coupler) to ground; the photocell shunts its wiper" }
   - { ref: RTO1, part: "Carbon comp resistor", value: "220 kΩ · ½ W", role: "Tremolo oscillator plate load" }
   - { ref: RKTO1, part: "Carbon comp resistor", value: "2.7 kΩ · ½ W", role: "Tremolo oscillator cathode bias" }
   - { ref: CKTO1, part: "Electrolytic capacitor", value: "25 µF · 25 V", role: "Tremolo oscillator cathode bypass" }
-  - { ref: RTOG1, part: "Carbon comp resistor", value: "1 MΩ · ½ W",  role: "Tremolo phase-shift resistor" }
-  - { ref: RTOG2, part: "Carbon comp resistor", value: "1 MΩ · ½ W",  role: "Tremolo phase-shift resistor" }
-  - { ref: RTOG3, part: "Carbon comp resistor", value: "2.2 MΩ · ½ W", role: "Tremolo oscillator grid resistor" }
-  - { ref: RTOG4, part: "Carbon comp resistor", value: "220 kΩ · ½ W", role: "Load to ground at the reverb/dry mix node, where the photocell shunts the signal" }
+  - { ref: RTOG1, part: "Carbon comp resistor", value: "1 MΩ · ½ W",  role: "Tremolo phase-shift ladder, middle node → footswitch junction" }
+  - { ref: RTOG2, part: "Carbon comp resistor", value: "1 MΩ · ½ W",  role: "Tremolo phase-shift ladder, oscillator grid → footswitch junction" }
+  - { ref: RTOG3, part: "Carbon comp resistor", value: "2.2 MΩ · ½ W", role: "Footswitch junction → the bias supply's filter node" }
+  - { ref: RTOG4, part: "Carbon comp resistor", value: "220 kΩ · ½ W", role: "Mix-driver grid leak, to ground" }
   - { ref: RTOSP, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "Tremolo speed-network series resistor" }
-  - { ref: CTO1, part: "Film capacitor",      value: "0.01 µF",        role: "Tremolo phase-shift cap" }
-  - { ref: CTO2, part: "Film capacitor",      value: "0.01 µF",        role: "Tremolo phase-shift cap" }
-  - { ref: CTO3, part: "Film capacitor",      value: "0.02 µF",        role: "Tremolo oscillator → lamp-driver coupling" }
+  - { ref: CTO1, part: "Film capacitor",      value: "0.01 µF",        role: "Tremolo phase-shift cap, Speed node → middle node (the lamp driver's grid)" }
+  - { ref: CTO2, part: "Film capacitor",      value: "0.01 µF",        role: "Tremolo phase-shift cap, middle node → oscillator grid" }
+  - { ref: CTO3, part: "Film capacitor",      value: "0.02 µF",        role: "Tremolo phase-shift cap, oscillator plate → Speed node" }
   - { ref: RTO10, part: "Carbon comp resistor", value: "10 MΩ · ½ W", role: "Lamp-driver plate bleeder to the +458 V node" }
   - { ref: RKTO2, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "Lamp-driver cathode bias" }
   - { ref: CKTO2, part: "Electrolytic capacitor", value: "25 µF · 25 V", role: "Lamp-driver cathode bypass" }
   - { ref: RLAMP, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "Neon-lamp series resistor to the +458 V node" }
-  - { ref: OPTO, part: "Optocoupler",         value: "neon lamp + photoresistor", role: "Tremolo modulator (shunts the mix-driver grid)" }
+  - { ref: OPTO, part: "Optocoupler",         value: "neon lamp + photoresistor", role: "Tremolo modulator — the lamp on the lamp driver's plate; the photocell shunts the Intensity control's wiper to ground" }
   # --- Phase inverter (12AT7 long-tailed pair) ---
   - { ref: RLPA, part: "Carbon comp resistor", value: "82 kΩ · ½ W · 5%", role: "PI plate load (hot side)" }
   - { ref: RLPB, part: "Carbon comp resistor", value: "100 kΩ · ½ W · 5%", role: "PI plate load (cold side)" }

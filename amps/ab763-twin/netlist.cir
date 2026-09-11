@@ -89,14 +89,18 @@ CKA KA 0 25u
 
 * --- Reverb recovery + reverb/dry mix driver (12AX7 each): 100k plate loads off
 *     BD; both cathodes on the SHARED node KE (820 Ohm / 25 uF, drawing box [E]).
-*     The recovery grid returns to ground through its 220k tank leak; the mix
-*     driver's grid sits at ~0 V through the 3.3M in the dry-signal path.
+*     The recovery grid returns to ground through its 220k tank leak. The mix
+*     driver's grid returns through the drawn 220k leak (RTOG4). The 3.3M (10 pF
+*     across it) sits IN SERIES ahead of that grid and reaches only the dry
+*     node, which the 0.02 uF coupler and the 500 pF send block at DC, so it
+*     carries no DC and is left out. So is the 470k reverb return: it runs to the
+*     Reverb pot's wiper, at 0 V, in parallel with the leak, and moves nothing.
 RLR1 BD PR1 100k
 XV4B PR1 GR1 KE 12AX7
 RGR1 GR1 0 220k
 RLD1 BD PD1 100k
 XV4A PD1 GD1 KE 12AX7
-RGD1 GD1 0 3.3meg
+RTOG4 GD1 0 220k
 RKE KE 0 820
 CKE KE 0 25u
 
