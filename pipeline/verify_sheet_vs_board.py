@@ -218,14 +218,17 @@ class Sheet:
         the board's conductor runs THROUGH — a grid stopper soldered at the
         socket lug is drawn on the sheet and is no board part. Its two sheet
         nets are one board net by declaration, so they are joined here before
-        the comparison; a bridged part the board DOES place is compared as a
-        part like any other."""
+        the comparison; a bridged part the board DOES place — as a two-lead
+        part, an off-board stub, or a control whose lugs the board wires (the
+        5G9's Depth pot) — is compared as a part like any other. Until
+        2026-09-11 a placed pot read as "not placed" and was bridged, which
+        folded its cold end into its wiper on the sheet side alone."""
         srcs = [("layout net_map.series_bridge", bd.net_map.get("series_bridge") or {}),
                 ("sch_map.series_bridge", bd.sch_map.get("series_bridge") or {})]
         for src, entries in srcs:
             for ref in entries:
                 ref = str(ref)
-                if ref not in self.G.lib or bd.part_terms(ref) is not None:
+                if ref not in self.G.lib or bd.places(ref):
                     continue
                 if self.G.join(f"{ref}.1", f"{ref}.2"):
                     self.bridged[ref] = src
@@ -288,6 +291,15 @@ class Board:
         if term in self.terms:
             return self.LG.net(term)
         return None
+
+    def places(self, ref: str) -> bool:
+        """True when the board carries `ref` in any form: a two-lead part, an
+        off-board part stub, or a control, jack, valve or transformer stub
+        whose terminals the layout names."""
+        if self.part_terms(ref) is not None:
+            return True
+        bid = self.id_of_ref.get(ref, ref)
+        return any(str(m).split(".", 1)[0] in (ref, bid) for m in self.terms)
 
     def part_terms(self, ref: str):
         """(term_a, term_b) for a sheet two-lead designator, on this board."""
@@ -1197,6 +1209,17 @@ def selftest() -> int:
             "leads", {"T1.9": "T1.blue"}))
         case("STALE LEAD    5c1 net_map.leads names a pin the sheet has not",
              "STALE DECLARATION", check_amp("5c1", d), "T1.9")
+
+        # series_bridge: applied to a sheet-only part, never to one the board places
+        for amp, ref, want, label in (
+                ("5g9", "VR5", False, "BRIDGE        5g9 Depth pot VR5 is placed on the board -> not bridged"),
+                ("5f10", "Rs1", True, "BRIDGE        5f10 grid stopper Rs1 is sheet-only -> bridged")):
+            n += 1
+            sh_b, _bd = load_amp(amp, _copy_amp(tmp, amp))
+            ok = (ref in sh_b.bridged) == want
+            print(f"  {'ok  ' if ok else 'FAIL'} {label}")
+            if not ok:
+                fails.append(label)
 
         # ---- 5D3: dual triodes and two channels of pots, also clean at HEAD --
         d = _copy_amp(tmp, "5d3")
