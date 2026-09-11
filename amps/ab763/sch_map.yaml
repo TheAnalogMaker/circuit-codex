@@ -15,13 +15,17 @@ anchors:
   T2.1: BP1                # choke, reservoir end (the <B+1> rail)
   T2.2: BP1                # choke, screen-rail end (the <B+2> rail)
 
-# (No `symbols:` entry is needed: the sheet letters the normal-channel input
-# stage V1A, matching the netlist's XV1A.)
+# (No `symbols:` entry is needed: the sheet letters both Normal-channel stages
+# V1A and V1B, matching the netlist's XV1A and XV1B.)
 
 element_pins:
   # netlist RTR4 BP1 PRD 200 is the reverb-transformer primary DCR, not a
   # discrete resistor: it is the T4 primary winding, B+ lead to plate lead.
   RTR4: [T4.2, T4.1]
+  # netlist RGN2 GN2 0 1meg is the Normal second stage's DC grid return: the
+  # 1M-A volume pot, wiper (V1B's grid) -> track -> its grounded end. No
+  # discrete grid leak is drawn on the C-FD sheet.
+  RGN2: [VRVN.2, VRVN.3]
 
 # Hard-gated: verify_schematic_nets.py fails CI on any finding for this sheet.
 # Claimed 2026-09-02 after the drawing went clean against netlist.cir.

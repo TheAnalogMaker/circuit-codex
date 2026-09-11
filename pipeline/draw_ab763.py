@@ -9,9 +9,25 @@ to keep every block clear of its neighbours and of the title block (bottom-right
 
 Redrawn from circuit facts — never a trace of a factory drawing. Rails: B+1 = +415
 (6V6 plates, OT centre tap, reverb driver via T4), B+2 = +415 screens (post-choke),
-B+3 = +325 (PI plates + 820 Ohm-cathode stages), B+4 = +180 (channel-input rail);
--35 V is the fixed-bias line. Heaters, PT primary/mains, and pilot lamp omitted here
-(annotation layer) — see netlist.cir, meta.yaml, and the board layout (layout.yaml).
+B+3 = +325, the drawing's node [C] (the PI plates only), B+4 = the drawing's node
+[D], which the chart gives no voltage (every 100k preamp stage: both channel
+inputs, both second stages, the reverb recovery and the mix driver); -35 V is the
+fixed-bias line. Heaters, PT primary/mains, and
+pilot lamp omitted here (annotation layer) — see netlist.cir, meta.yaml, and the
+board layout (layout.yaml).
+
+Two cathode networks are SHARED, and the sheet draws each of them once, under the
+boxed letter the source drawing gives it. KA (boxed [A]) is one 820 Ohm / 25 uF
+carrying both second stages, drawn at V2B; KE (boxed [E]) is one 820 Ohm / 25 uF
+carrying the mix driver and the reverb recovery, drawn at V3B. The stage that
+does not carry the parts reaches its network by that global label — the
+drawing's own boxed connection, redrawn as a label rather than invented as a
+second resistor.
+
+Valve sections follow the factory layout page (6026x3650): on both channel
+bottles the input stage's plate lead leaves pin 1 for the tone-stack eyelet and
+the second stage's leaves pin 6 for its coupler's eyelet, so V1A/V2A are unit 2
+and V1B/V2B unit 1.
 """
 from pathlib import Path
 
@@ -21,7 +37,8 @@ OUT = Path(__file__).resolve().parent.parent / "amps" / "ab763" / "schematic.kic
 s = Sch()
 
 
-def input_stage(y, j1, j2, r1, r2, rleak, vref, vval, rload, rk, ck, ckval, rail):
+def input_stage(y, j1, j2, r1, r2, rleak, vref, vval, rload, rk, ck, ckval, rail,
+                unit=None):
     """Two-jack input: 68k stoppers -> grid (1M leak) -> triode -> plate load + RC cathode.
     Returns the triode pin dict."""
     gb = 40  # grid-bus x
@@ -37,7 +54,7 @@ def input_stage(y, j1, j2, r1, r2, rleak, vref, vval, rload, rk, ck, ckval, rail
     s.junction(gb, y)
     s.sym("R", rleak, "1M", gb, y + 3.81 + 4)
     s.gnd(gb, y + 7.62 + 4)
-    t = s.triode(vref, vval, 52, y)
+    t = s.triode(vref, vval, 52, y, unit=unit)
     s.wire(gb, y, t["g"][0], y)
     s.plate_load(rload, "100k", t["p"], rail)
     # cathode RC on its own stub: kept off the tube's own column so the next
@@ -49,13 +66,14 @@ def input_stage(y, j1, j2, r1, r2, rleak, vref, vval, rload, rk, ck, ckval, rail
 
 
 # ============================ TITLE ==================================
-s.note('Heaters, PT primary/mains, pilot lamp omitted here — see the netlist, the sources list and the board drawing. Rails: B+1 +415 · B+2 +415 screens · B+3 +325 · B+4 +180 · bias -35 V')
+s.note('Heaters, PT primary/mains, pilot lamp omitted here — see the netlist, the sources list and the board drawing. Rails: B+1 +415 · B+2 +415 screens · B+3 +325, node [C] · B+4 node [D], no printed voltage · bias -35 V')
+s.note('KA / KE are the drawing\'s boxed [A] / [E]: V1B and V2B share the one 820 / 25u drawn at V2B, V3A and V3B the one drawn at V3B')
 
 # ============================ NORMAL CHANNEL (top row) ================
 YN = 62
 s.text("Normal channel", 12, 48, 1.6)
 t1 = input_stage(YN, "NORM 1", "NORM 2", "R1n", "R2n", "RGN1", "V1A", "12AX7",
-                 "RLN1", "RKN1", "CKN1", "25u", "B+4")
+                 "RLN1", "RKN1", "CKN1", "25u", "B+4", unit=2)
 
 # normal two-knob tone stack + volume, wired as the C-FD sheet draws it — the
 # same ladder the blackface AA964 prints. The plate feeds the network directly:
@@ -106,18 +124,36 @@ s.wire(101.08, tee - 2.19, 114, tee - 2.19)
 s.wire(114, tee - 2.19, 114, tee)
 s.sym("POT", "VRVN", "1M vol", 114, tee + 3.81)
 s.gnd(114, tee + 7.62)
-# volume wiper -> mixer resistor -> PI grid bus (to the right, at PI grid line)
+# volume wiper -> V1B second-stage grid. The pot's own ground end is the DC
+# grid return (netlist RGN2, declared in sch_map.yaml) — no discrete leak drawn.
+XV1B = 134
 s.wire(119.08, tee + 3.81, 122, tee + 3.81)
-ml, mr = s.series_h("R", "RMD1", "220k", 126, tee + 3.81)  # PI-grid mixer resistor shared
-s.wire(122, tee + 3.81, ml, tee + 3.81)
-s.wire(mr, tee + 3.81, 230, tee + 3.81)       # long run to PI hot grid
-s.glabel("PIG", 230, tee + 3.81, 0)
+s.wire(122, tee + 3.81, 122, YN)
+t1b = s.triode("V1B", "12AX7", XV1B, YN, unit=1)
+s.wire(122, YN, t1b["g"][0], YN)
+s.plate_load("RLN2", "100k", t1b["p"], "B+4")
+# Its cathode carries NO resistor: the drawing boxes the pin [A] and returns it
+# to the 820 Ohm / 25 uF drawn once at V2B, so the label is the connection.
+s.wire(XV1B, YN + 7.62, XV1B, YN + 11)
+s.glabel("KA", XV1B, YN + 11, 270)
+# V1B plate -> CCN2 0.047u -> RMN2 220k -> the PI-grid bus: the mix node the
+# mix driver's RMD1 lands on too (block C below), coupled on by CPIA.
+teeN2 = YN - 7.62 - 3.48
+s.wire(XV1B, teeN2, 142, teeN2)
+s.junction(XV1B, teeN2)
+cl, cr = s.series_h("C", "CCN2", ".047u", 146, teeN2)
+s.wire(142, teeN2, cl, teeN2)
+s.wire(cr, teeN2, 154, teeN2)
+ml, mr = s.series_h("R", "RMN2", "220k", 158, teeN2)
+s.wire(154, teeN2, ml, teeN2)
+s.wire(mr, teeN2, 230, teeN2)                 # long run to the PI hot grid
+s.glabel("PIG", 230, teeN2, 0)
 
 # ============================ VIBRATO CHANNEL (second row) ============
 YV = 100
 s.text("Vibrato channel (reverb + tremolo)", 12, 86, 1.6)
 t2 = input_stage(YV, "VIB 1", "VIB 2", "R1v", "R2v", "RGV1", "V2A", "12AX7",
-                 "RLV1", "RKV1", "CKV1", "25u", "B+4")
+                 "RLV1", "RKV1", "CKV1", "25u", "B+4", unit=2)
 
 # vibrato tone stack — the C-FD sheet draws the SAME two-knob ladder as the
 # normal channel, part for part (100k slope, 250p treble, 0.1 and 0.047 caps,
@@ -173,11 +209,17 @@ s.wire(109.08, teev + 3.81, 112, teev + 3.81)
 s.junction(112, teev + 3.81)
 # vol wiper -> V2B second-stage grid
 s.wire(112, teev + 3.81, 112, YV)
-t2b = s.triode("V2B", "12AX7", 118, YV)
+t2b = s.triode("V2B", "12AX7", 118, YV, unit=1)
 s.wire(112, YV, t2b["g"][0], YV)
-s.plate_load("RLV2", "100k", t2b["p"], "B+3")
+s.plate_load("RLV2", "100k", t2b["p"], "B+4")
 s.wire(118, YV + 7.62, 118, YV + 9)
+# Cathode network [A] — drawn HERE, once, and carrying V1B's current too: the
+# label stub is the drawing's boxed [A], not a second network. It leaves to the
+# left, clear of the network's own lettering.
 s.shunt_rc("RKV2", "820", "CKV2", "25u", 118, YV + 9)
+s.junction(118, YV + 9)
+s.wire(118, YV + 9, 108, YV + 9)
+s.glabel("KA", 108, YV + 9, 180)
 # V2B plate -> CCV2 0.02u -> reverb send (to reverb driver grid, down to block C)
 teeb = YV - 7.62 - 3.48
 s.wire(118, teeb, 126, teeb)
@@ -236,7 +278,8 @@ s.glabel("REVERB TANK", 110, YR - 16, 90)
 s.wire(104.89, YR - 1.46, 110, YR - 1.46)
 s.gnd(110, YR - 1.46)
 
-# reverb recovery V3B: tank -> RGR1 220k -> grid; RLR1 100k -> B+3; RKR1 820 || CKR1
+# reverb recovery V3B: tank -> RGR1 220k -> grid; RLR1 100k -> B+4; RKR1 820 ||
+# CKR1 is the shared [E] network, carrying the mix driver V3A's current too
 s.glabel("TANK RET", 118, YR - 6, 180)
 gl2, gr2 = s.series_h("R", "RGR1", "220k", 128, YR - 6)
 s.wire(118, YR - 6, gl2, YR - 6)
@@ -244,9 +287,12 @@ s.wire(gr2, YR - 6, 138, YR - 6)
 s.wire(138, YR - 6, 138, YR)
 t3b = s.triode("V3B", "12AX7", 148, YR)
 s.wire(138, YR, t3b["g"][0], YR)
-s.plate_load("RLR1", "100k", t3b["p"], "B+3")
+s.plate_load("RLR1", "100k", t3b["p"], "B+4")
 s.wire(148, YR + 7.62, 148, YR + 9)
 s.shunt_rc("RKR1", "820", "CKR1", "25u", 148, YR + 9)
+s.junction(148, YR + 9)
+s.wire(148, YR + 9, 140, YR + 9)
+s.glabel("KE", 140, YR + 9, 180)
 # recovery plate -> CCR1 0.003u -> reverb level pot VRREV 100k -> RMR 470k mixer
 teer = YR - 7.62 - 3.48
 s.wire(148, teer, 156, teer)
@@ -263,7 +309,9 @@ s.wire(mr2, teer + 3.81, 190, teer + 3.81)
 s.wire(190, teer + 3.81, 190, YR + 12)
 s.glabel("MIXG", 190, YR + 12, 0)             # dry+reverb mix -> mix-driver grid
 
-# mix driver V3A: grid = MIXG; RGD1 3.3M leak; RLD1 100k -> B+3; RKD1 820 || CKD1
+# mix driver V3A: grid = MIXG; RGD1 3.3M leak; RLD1 100k -> B+4. Its cathode has
+# NO resistor: the drawing boxes the pin [E] and returns it to the 820 Ohm /
+# 25 uF drawn at V3B, so the label is the connection.
 YM = YR + 22
 s.glabel("MIXG", 196, YM, 180)
 s.wire(200, YM, 204, YM)
@@ -279,18 +327,24 @@ s.wire(216, YM - 6, 216, YM - 7.62 - 3.48)
 t3a = s.triode("V3A", "12AX7", 216, YM)
 s.wire(204, YM, t3a["g"][0], YM)
 s.junction(204, YM)
-s.plate_load("RLD1", "100k", t3a["p"], "B+3")
-s.wire(216, YM + 7.62, 216, YM + 9)
-s.shunt_rc("RKD1", "820", "CKD1", "25u", 216, YM + 9)
-# mix-driver plate -> CCD1 0.001u -> PI hot grid line (PIG)
+s.plate_load("RLD1", "100k", t3a["p"], "B+4")
+s.wire(216, YM + 7.62, 216, YM + 11)
+s.glabel("KE", 216, YM + 11, 270)
+# mix-driver plate -> CCD1 0.1u -> RMD1 220k -> the PI-grid bus (PIG): the mix
+# node the Normal channel's RMN2 lands on too, coupled into the PI's hot grid by
+# CPIA 0.001u. The C-FD sheet letters this coupler .1 and puts the 220k between
+# it and the node.
 teem = YM - 7.62 - 3.48
 s.wire(216, teem, 222, teem)
 s.junction(216, teem)
-cl, cr = s.series_h("C", "CCD1", ".001u", 226, teem)
+cl, cr = s.series_h("C", "CCD1", ".1u", 226, teem)
 s.wire(222, teem, cl, teem)
 s.wire(cr, teem, 232, teem)
-s.wire(232, teem, 232, YM - 20)
-s.glabel("PIG", 232, YM - 20, 0)
+ml, mr = s.series_h("R", "RMD1", "220k", 236, teem)
+s.wire(232, teem, ml, teem)
+s.wire(mr, teem, 242, teem)
+s.wire(242, teem, 242, YM - 20)
+s.glabel("PIG", 242, YM - 20, 0)
 
 # ============================ TREMOLO OSCILLATOR (excluded) ==========
 YT = 210
