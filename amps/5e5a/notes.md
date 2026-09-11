@@ -111,15 +111,17 @@ transformer's secondary, which moves that node by less than 1%.
 
 The J-EE sheet set carries its own layout page ("FENDER 'PRO-AMP' LAYOUT
 MODEL 5E5-A"), and the board diagram on this page is redrawn from it, left to
-right as the sheet reads: the bias supply and the fixed-bias 6L6GB support at
-the power end, the driver and cathodyne in the centre, then the second stage
-and the 12AY7 input pair. Column positions are this entry's own placement of
-that sequence, not a dimensioned transfer of the sheet's grid.
+right as the sheet reads. The bias supply, the three 16 µF cans and the
+fixed-bias 6L6GB support sit at the power end, then the driver and cathodyne,
+then the tone network, the second 12AY7 and the 12AY7 input pair. Column
+positions are this entry's own placement of that sequence, not a dimensioned
+transfer of the sheet's grid.
 
-The board diagram predates the reading of the second stage above. It still
-draws V2 as one triode on socket pins 6-7-8 with the tone network off its
-plate, and it has not yet been redrawn with the follower's load, the bass
-branch, the 5 MΩ return or the feedback resistor, all of which the factory
-layout places on the eyelet board. Where the board diagram and the schematic
-disagree about V2 and the tone network, the schematic is the reading of the
-drawing.
+The drawn point-to-point wiring is proved electrically equivalent to the
+simulated circuit, so a lead traced across the board lands on the node the
+netlist gives it. One part is drawn where it reads best rather than where the
+factory mounts it: V2A's 100 kΩ plate load, which the layout page strings
+across the V2 socket from pin 6 to pin 1, sits on the board beside the stage.
+The tone network's 0.005 µF and 0.01 µF and its second 220 kΩ hang at the
+pots, as the layout page draws them. The Presence control with its 0.1 µF,
+and the Instrument volume's bright cap, are panel parts off the board.

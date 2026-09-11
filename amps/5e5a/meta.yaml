@@ -64,18 +64,16 @@ sources:
     url: "https://mojotone.com/blogs/fender-field-guide/fender-narrow-panel-tweed-pro"
 verification:
   status: draft   # One reason, stated rather than tuned away.
-                  # The board drawing predates the 2026-09-10 reading of the
-                  # second stage: it still draws V2 as a single triode on socket
-                  # pins 6-7-8 with the tone network off its plate, and it lacks
-                  # the follower's load, the bass branch, the 5 MEG return and
-                  # the feedback resistor, all of which the J-EE layout page
-                  # places on the eyelet board. The netlist, chart and schematic
-                  # are otherwise complete: every component value is legible,
-                  # 15/15 printed nodes simulate within tolerance, and the sheet
-                  # is proved equivalent to netlist.cir. Estimated, because no
-                  # page letters them: the choke DCR and the OT primary.
-                  # WORK ITEM: redraw the board from the layout page, then
-                  # re-run this verification.
+                  # Two figures are estimated because no page letters them
+                  # (the choke DCR and the OT primary), and the board's heater
+                  # layer is not yet established against the J-EE layout page.
+                  # Everything else is read from the sheet set and gated: every
+                  # component value is legible, 15/15 printed nodes simulate
+                  # within tolerance, and the schematic and the board are each
+                  # proved equivalent to netlist.cir (the board since the
+                  # 2026-09-10 redraw of the second stage and tone network).
+                  # WORK ITEM: a maintainer's read of the heater chain and the
+                  # two estimates, then re-run this verification.
 # Day the circuit landed in the corpus (git history) — the feed's pubDate for a
 # draft; production builds are shallow clones and cannot ask git.
 added: 2026-08-08
