@@ -64,9 +64,8 @@ items:
   - { ref: V4,  part: "Power tube",      value: "6L6GB",  role: "Push-pull output (upper)" }
   - { ref: V5,  part: "Power tube",      value: "6L6GB",  role: "Push-pull output (lower)" }
   - { ref: V6,  part: "Rectifier tube",  value: "5U4GA",  role: "Full-wave rectifier" }
-  - { ref: T1,  part: "Power transformer", value: "power transformer", role: "HT winding with a centre tap and a bias tap between one end and the centre tap (the layout letters that lead red-blue), 5 V rectifier-filament and 6.3 V heater windings; the bias rectifier is fed through 10 kΩ from the tap, not from a rectifier plate" }
+  - { ref: T1,  part: "Power transformer", value: "~330-0-330 V · 6.3 V · 5 V (est.)", role: "HT winding with a centre tap and a bias tap between one end and the centre tap (the layout letters that lead red-blue), 5 V rectifier-filament and 6.3 V heater windings; the bias rectifier is fed through 10 kΩ from the tap, not from a rectifier plate" }
   - { ref: T2,  part: "Output transformer", value: "~4.3 kΩ : 8 Ω (est. for 2x6L6GB into one 15\" speaker)", role: "Push-pull output" }
-  - { ref: "—", part: "Power transformer", value: "~330-0-330 V · 6.3 V · 5 V (est.)", role: "HT + heaters + rectifier filament" }
   - { ref: SPKR, part: "Speaker", value: "15\" · 8 Ω", role: "Fixed speaker + external speaker jack" }
   - { ref: PL1, part: "Pilot lamp assembly", value: "pilot lamp", role: "Panel pilot lamp, on the 6.3 V heater chain (\"TO ALL 6.3 VOLT FILAMENTS AND PILOT LITE\", printed on the schematic's rectifier note; layout page also shows a PILOT LITE stub)" }
   - { ref: "—", part: "Fuse",           value: "3 A",   role: "Mains fuse, in one conductor of the line cord (annotation only)" }
