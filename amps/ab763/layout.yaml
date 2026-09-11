@@ -79,12 +79,18 @@ parts:
   - { ref: CKR1, a: [0, 41], b: [0, 42] }  # 25µF cathode bypass (shares KR1)
   - { ref: RKR1, a: [0, 42], b: [1, 42] }  # 820Ω cathode (KE→0) — box [E]: the one network, shared with the mix driver
   # --- vibrato/reverb mix driver (V3a half) ---
-  - { ref: RGD1, a: [1, 43], b: [1, 44] }  # 3.3M grid leak (GD1→0)
+  - { ref: RGD2, a: [1, 43], b: [1, 44] }  # 220k mix-driver grid return (GD1→0): the fan's 220K to ground on the layout page
   - { ref: RLD1, a: [0, 44], b: [0, 45] }  # 100k plate load (BD→PD1)
   # --- reverb level network: the layout page takes the recovery plate through the .003 to the
   # Reverb pot's top, and its wiper through the 470K to the mix-driver grid node ---
   - { ref: CCR1, a: [0, 46], b: [1, 46] }  # .003 coupler: b ← recovery plate (PR1), a → Reverb pot top (lug 3)
   - { ref: RMR,  a: [0, 47], b: [1, 47] }  # 470k reverb mix: a ← Reverb pot wiper (lug 2), b → mix-driver grid (GD1)
+  # --- the dry path: the vibrato channel's .02 out of V2b's plate eyelet, into the reverb
+  # send (500 pF) and, through 3.3M ‖ 10 pF, onto the mix-driver grid node ---
+  - { ref: RGD1, a: [0, 48], b: [1, 48] }  # 3.3M dry-path mixing resistor: a on the grid node, b on the .02's far side
+  - { ref: CBD1, a: [1, 48], b: [1, 49] }  # 10 pF across RGD1: a on the .02's far side, b tied back to RGD1.a
+  - { ref: CCV2, a: [0, 54], b: [1, 54] }  # .02 coupler, sharing RLV2's plate eyelet as the layout page draws it
+  - { ref: CRS,  a: [0, 28], b: [1, 28] }  # 500 pF reverb send: a ← the .02's far side, b → the driver grid
   # --- vibrato channel input (V2a half) ---
   - { ref: RLV1, a: [0, 49], b: [0, 50] }  # 100k plate load (BD→PV1)
   - { ref: CKV1, a: [0, 51], b: [0, 52] }  # 25µF cathode bypass (shares KV1)
@@ -219,7 +225,7 @@ runs:
 
   # === reverb driver V4 (paralleled): plates, grids, cathodes ==================
   - { from: V4.pin6, to: V4.pin1, via: [[26.3, 2.577]] }              # tie the two plates (PRD), shallow loop
-  - { from: V4.pin1, to: T4.blue, via: [[27.6, 2.36], [30.0, 2.36]] } # plates → reverb-trans primary (PRD)
+  - { from: V4.pin1, to: T4.blue, via: [[27.6, 2.36], [30, 2.315]] } # plates → reverb-trans primary (PRD)
   - { from: V4.pin7, to: V4.pin2, via: [[26.8, 2.5], [26.5, 3.2]] }   # tie the two grids (GRD), deep loop clear of pin8
   - { from: V4.pin7, to: RGRD.a, via: [[26.956, 2], [25.674, 1.44]] } # grids → 1M leak (leave pin7 below pin6, approach RGRD.a off col25)
   - { from: RGRD.b, to: [1.45, 25.2] }                            # grid leak → ground (land between the junction + leak leads)
@@ -243,9 +249,14 @@ runs:
   # === mix driver V3a (unit 1 of V3, pins 6/7/8 — the layout page's +180 V plate is
   # pin 6): plate, grid, cathode =================================================
   - { from: RLD1.b, to: V3.pin6, via: [[45, 1.8]] }             # plate load → V3 plate (PD1)
-  - { from: RGD1.a, to: V3.pin7, via: [[43.6, 1.62]] }         # 3.3M → V3 grid (GD1)
+  - { from: RGD2.a, to: V3.pin7, via: [[43.6, 1.62]] }         # 220k grid return → V3 grid (GD1)
   - { from: RMR.b, to: V3.pin7 }                                # 470k reverb mix → V3 grid (GD1)
-  - { from: RGD1.b, to: [1.45, 44] }                           # grid leak → ground (straight down off RGD1.b, clear of the grid lead)
+  - { from: RGD1.a, to: RMR.b }                                 # 3.3M onto the grid node
+  - { from: CBD1.b, to: RGD1.a }                                # 10 pF across the 3.3M
+  - { from: CCV2.b, to: RGD1.b, via: [[53.5, 1.25], [48.5, 1.25]] } # the .02's far side → the dry path
+  - { from: RGD1.b, to: CRS.a, via: [[47.6, 2.36], [28.6, 2.36]] }  # the .02's far side → the reverb send
+  - { from: CRS.b, to: RGRD.a, via: [[27.4, 1.305]] }             # 500 pF → the paralleled driver grids (GRD)
+  - { from: RGD2.b, to: [1.45, 44] }                           # grid leak → ground (straight down off RGD2.b, clear of the grid lead)
   - { from: V3.pin3, to: RKR1.a, via: [[43.32, 2.35], [42.39, 1.88]] }  # cathode → the shared 820Ω (box [E], KE)
 
   # === vibrato input V2a (unit1 of V2): plate, grid, cathode ===================
@@ -323,7 +334,7 @@ net_map:
     RGV1: "1M vibrato-channel input grid leak — mounted at the input jacks, not on the eyelet board"
     RGV2: "vibrato volume pot VRVV — the netlist models its DC grid return as one grid-leak (GV2→0)"
     RGN2: "normal volume pot VRVN — the netlist models its DC grid return as one grid-leak (GN2→0)"
-    RGRV: "reverb-recovery grid return — the drawing's 220 kΩ from the grid node to ground, mounted at the reverb-pedal jack beside the tank-return (REVERB OUTPUT) jack, off the eyelet board (GR1→0)"
+    RGR1: "220 kΩ reverb-recovery grid return — mounted at the reverb-pedal jack, which the layout page wires to the tank-return (REVERB OUTPUT) jack; off the eyelet board (GR1→0)"
   # Parts the sheet draws that this board neither places nor wires — each
   # read off the cited layout drawing (sheet ↔ board gate, 2026-09-10).
   not_on_board:
