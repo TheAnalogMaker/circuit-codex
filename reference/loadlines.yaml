@@ -247,23 +247,23 @@ stages:
   plate_node: BP1
   plate_v: 305.0
   screen_node: BP2
-  screen_v: 300.943
+  screen_v: 302.936
   cathode_node: '0'
   cathode_v: 0.0
   rk_total: null
   rk_per_tube: null
   grid_node: G6A
-  grid_v: -21.0
+  grid_v: -27.0
   grid_supply_node: NBIAS
-  grid_supply_v: -21.0
+  grid_supply_v: -27.0
   grid_supply_basis: source
   grid_supply_note: null
   ot_primary_z: null
   ot_primary_approx: false
   ot_primary_note: Push-pull (impedance ratio not printed on the drawing) — Push-pull output into the
     speaker
-  sim_ip_ma: 36.495
-  sim_ig2_ma: 3.0061
+  sim_ip_ma: 20.1362
+  sim_ig2_ma: 0.8781
 - amp: '5f2a'
   name_style: Tweed Princeton-style
   tube: '6V6GT'
@@ -353,7 +353,7 @@ stages:
   plate_node: BP1
   plate_v: 432.0
   screen_node: S51
-  screen_v: 430.067
+  screen_v: 430.078
   cathode_node: '0'
   cathode_v: 0.0
   rk_total: null
@@ -367,8 +367,8 @@ stages:
   ot_primary_z: null
   ot_primary_approx: false
   ot_primary_note: Fender 45249 · 2 Ω secondary — Push-pull output into four 8 Ω speakers
-  sim_ip_ma: 29.5318
-  sim_ig2_ma: 0.9644
+  sim_ip_ma: 29.5368
+  sim_ig2_ma: 0.9647
 - amp: '5f8a'
   name_style: High-power Tweed Twin-style
   tube: '5881'
@@ -379,7 +379,7 @@ stages:
   plate_node: BP1
   plate_v: 397.0
   screen_node: SA1
-  screen_v: 394.228
+  screen_v: 394.239
   cathode_node: '0'
   cathode_v: 0.0
   rk_total: null
@@ -394,8 +394,8 @@ stages:
   ot_primary_approx: false
   ot_primary_note: Fender 45268 — Push-pull-parallel output into two speakers; the drawing prints no secondary
     impedance
-  sim_ip_ma: 35.7936
-  sim_ig2_ma: 1.6623
+  sim_ip_ma: 35.7992
+  sim_ig2_ma: 1.6627
 - amp: '5g9'
   name_style: Tweed Tremolux-style
   tube: '6V6GT'
@@ -460,7 +460,7 @@ stages:
   plate_node: BP
   plate_v: 315.0
   screen_node: BS
-  screen_v: 312.096
+  screen_v: 312.085
   cathode_node: '0'
   cathode_v: 0.0
   rk_total: null
@@ -474,7 +474,7 @@ stages:
   ot_primary_z: null
   ot_primary_approx: false
   ot_primary_note: 125A10B — Push-pull output, centre-tapped primary
-  sim_ip_ma: 8.7731
+  sim_ip_ma: 8.7712
   sim_ig2_ma: 0.0
 - amp: '6g3'
   name_style: Brown Deluxe-style
@@ -878,7 +878,7 @@ stages:
   plate_node: BP1
   plate_v: 450.0
   screen_node: BP2
-  screen_v: 442.238
+  screen_v: 442.24
   cathode_node: '0'
   cathode_v: 0.0
   rk_total: null
@@ -894,8 +894,8 @@ stages:
   ot_primary_note: Ampeg OT-214 — Push-pull 6L6GC output, centre-tapped primary (blue/red/brown), tapped
     secondary (green/yellow/black); the handwritten part number beside it is only partly legible on this
     scan
-  sim_ip_ma: 28.873
-  sim_ig2_ma: 0.8466
+  sim_ip_ma: 28.8742
+  sim_ig2_ma: 0.8467
 - amp: 'dr103'
   name_style: Hiwatt Custom 100-style
   tube: 'EL34'

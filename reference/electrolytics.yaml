@@ -61,7 +61,7 @@ amps:
       ref: C13
   5f10:
     wrong:
-    - leads: '''+'' lead C11.a: NBIAS = -21.0 V (ideal source VBIAS); other lead C11.b: 0 = +0.0 V (ground)'
+    - leads: '''+'' lead C11.a: NBIAS = -27.0 V (ideal source VBIAS); other lead C11.b: 0 = +0.0 V (ground)'
       placed: 'by position: the top of a standing can'
       plus_drawn_at: a
       ref: C11
@@ -93,10 +93,6 @@ amps:
       plus_drawn_at: a
       ref: C15
   5f8a:
-    not_decided:
-    - ref: C14
-      verdict: undecided
-      why: 'C14.b: a lead on nothing else'
     wrong:
     - leads: '''+'' lead C15b.a: NBIAS = -41.0 V (ideal source VBIAS) through RB1; other lead C15b.b:
         0 = +0.0 V (ground)'
@@ -122,6 +118,10 @@ amps:
       plus_drawn_at: a
       ref: C14
   6g2:
+    not_decided:
+    - ref: CKTO
+      verdict: undecided
+      why: 'CKTO.a: reaches only ground, through RKTO'
     wrong:
     - leads: '''+'' lead C14.a: NBIAS = -35.0 V (ideal source VBIAS) through VR4; other lead C14.b: 0
         = +0.0 V (ground)'
@@ -383,8 +383,8 @@ amps:
       plus_drawn_at: a
       ref: C19
 summary:
-  cans: 269
-  right: 195
+  cans: 270
+  right: 196
   undecided: 19
   unmarked: 0
   wrong: 55
