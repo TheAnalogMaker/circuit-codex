@@ -114,8 +114,8 @@ items:
   - { ref: DBIAS, part: "Rectifier (bias)",   value: "silicon diode", role: "Bias-supply rectifier" }
   - { ref: CB1, part: "Electrolytic capacitor", value: "25 µF · 50 V", role: "Bias-supply filter" }
   - { ref: CB2, part: "Electrolytic capacitor", value: "50 µF · 50 V", role: "Bias-supply filter" }
-  - { ref: VRBAL, part: "Linear potentiometer", value: "10 kΩ-L",     role: "Hum-balance / bias divider" }
-  - { ref: RBAL, part: "Carbon comp resistor", value: "10 kΩ · ½ W",  role: "Bias divider" }
+  - { ref: VRBAL, part: "Linear potentiometer", value: "10 kΩ-L",     role: "Bias control: across the raw negative supply with RBAL; the −35 V line is its wiper" }
+  - { ref: RBAL, part: "Carbon comp resistor", value: "10 kΩ · ½ W",  role: "Bias divider leg, from the 10K-L control to ground" }
   # --- Death cap / mains (period part) ---
   - { ref: CDEATH, part: "Ceramic capacitor", value: "0.047 µF · 600 V", role: "Ground-switch cap (period; not in modern builds)" }
   # --- Tubes ---

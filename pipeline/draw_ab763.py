@@ -633,7 +633,7 @@ s.gnd(164, YPW + 11.81 + 3.81)
 
 # ============================ BIAS SUPPLY ===========================
 YB = YPW - 6
-s.text("Bias supply — off an HT tap → -35 V (25u/50u, 10k hum-balance)", 190, 236, 1.3)
+s.text("Bias supply — off an HT tap → -35 V (25u/50u, 10k-L divider)", 190, 229, 1.3)
 s.glabel("HT_B", 190, YB, 180)
 s.wire(190, YB, 193.92, YB)
 s.sym("DIODE_SS", "DBIAS", "Si", 199, YB, lx=-2.0, ly=-5.4, rot=180, label_rot=0)
@@ -647,21 +647,23 @@ s.gnd(218, YB + 7.62)
 s.junction(224, YB)
 s.sym("C", "CB2", "50u", 224, YB + 3.81)
 s.gnd(224, YB + 7.62)
-# hum-balance divider VRBAL 10k + RBAL 10k -> -35V
-s.wire(224, YB, 230, YB)
-# The 10 kOhm balance control is drawn as a two-terminal element in the bias
-# string, so its wiper is strapped to the lug the -35 V line leaves by: without
-# the strap the pot is a floating-wiper fixed 10 k. Its far lug used to stop
-# 0.19 mm short of RBAL's lead, leaving both pins open.
+# Bias divider, as the C-FD sheet draws it: the 10K-L control runs from the raw
+# supply (the rectifier / 470 / 25u-50u node) to RBAL 10k, which returns to
+# ground, and the -35 V line is the control's WIPER. The raw end is labelled
+# BIAS RAW. The sheet used to draw the control as a rheostat in series with
+# RBAL and take -35 V off RBAL's far end, with no path to ground.
+s.wire(224, YB, 230.19, YB)
 s.sym("POT", "VRBAL", "10k bal", 234, YB, rot=90, lx=-3.2, ly=6.4)
-s.wire(230, YB, 230.19, YB)
-s.wire(234, YB - 5.08, 237.81, YB - 5.08)
-s.wire(237.81, YB - 5.08, 237.81, YB)
-s.junction(237.81, YB)
+s.wire(234, YB - 5.08, 234, YB - 8)
+s.wire(234, YB - 8, 254, YB - 8)
+s.glabel("-35V", 254, YB - 8, 0)
 l, r = s.series_h("R", "RBAL", "10k", 244, YB)
 s.wire(237.81, YB, l, YB)
-s.wire(r, YB, 254, YB)
-s.glabel("-35V", 254, YB, 0)
+s.wire(r, YB, 252, YB)
+s.gnd(252, YB)
+s.junction(227, YB)
+s.wire(227, YB, 227, YB - 6)
+s.glabel("BIAS RAW", 227, YB - 6, 90)
 
 # ============================ DEATH CAP =============================
 s.note('Period ground-switch cap (not in modern builds)')
