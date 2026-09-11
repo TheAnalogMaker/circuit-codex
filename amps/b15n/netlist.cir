@@ -103,11 +103,13 @@ R20 K2B 0 2.2k
 * grid/plate/cathode of unit 2, 4/5/6 the same of unit 1):
 *   V3B = pins 1/2/3 — the DRIVER half. Its grid is the channel mixing bus,
 *         where both channels' 270 kOhm mixing resistors (R18, R22) meet; the
-*         EXT. AMP. jack J5 taps the same node. It has no grid leak of its own:
-*         the DC return runs back out through those mixing resistors, each
-*         channel's 120 kOhm tone-board resistor and bass pot, to the 22 kOhm
-*         foot of that board. Lumped at 1 MOhm below — with no grid current the
-*         value cannot move a DC point.
+*         EXT. AMP. jack J5 taps the same node, and so does R40, the global
+*         feedback resistor (below). It has no grid leak of its own: its DC
+*         returns are R40 to the output transformer's green lead (~0 V) and
+*         the path back out through those mixing resistors, each channel's
+*         120 kOhm tone-board resistor and bass pot, to the 22 kOhm foot of
+*         that board. That second path is lumped at 1 MOhm below — with no
+*         grid current neither value can move a DC point.
 *   V3A = pins 4/5/6 — the INVERTED half. Its grid is fed through C11 0.022 uF
 *         from the midpoint of R28 470 kOhm / R29 510 kOhm, a divider strung
 *         ACROSS the two driver anodes. That divider is the whole inverter: the
@@ -115,17 +117,17 @@ R20 K2B 0 2.2k
 *         small residual that drives the second grid and self-balances the pair.
 *         It is a paraphase, not a long-tailed pair — the two cathodes are
 *         separate and differently loaded.
-* R25 220 Ohm on the V3B cathode is the shunt leg of the global negative-
-* feedback divider: R40 10 kOhm comes back from the output transformer's GREEN
-* secondary lead into that node. The secondary is a DC short to ground, so R40
-* is modelled as 10 kOhm to ground; unlike a long-tailed pair's tail foot this
-* is NOT DC-neutral (it trims the effective cathode resistor from 220 to 215
-* Ohm), which is why it is in the deck rather than a comment.
+* R40 10 kOhm comes back from the output transformer's GREEN secondary lead
+* onto V3B's GRID (pin 1), the channel mixing bus, on both revisions of the
+* drawing, not onto its cathode. The secondary is a DC short to ground, so R40
+* is 10 kOhm from the grid to ground: with no grid current it moves no
+* operating point, but it is the grid's one discrete DC return, so it is in
+* the deck. R25 220 Ohm is V3B's own unbypassed cathode resistor.
 R26 BP4 P3B 120k
 XV3B P3B G3B K3B 6SL7GT
 RG3B G3B 0 1meg
 R25 K3B 0 220
-R40 K3B 0 10k
+R40 G3B 0 10k
 R27 BP4 P3A 120k
 XV3A P3A G3A K3A 6SL7GT
 R23 G3A 0 470k

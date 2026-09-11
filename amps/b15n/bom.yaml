@@ -99,8 +99,8 @@ items:
   # --- Driver / self-balancing paraphase inverter (V3) ---
   - { ref: J5,  part: "Jack socket",           value: "1/4 in",        role: "EXT. AMP. output jack, tapping the channel mixing bus at the driver grid" }
   - { ref: R26, part: "Carbon comp resistor",  value: "120 kΩ",        role: "V3 unit 2 anode load (pin 2) — the driver half" }
-  - { ref: R25, part: "Carbon comp resistor",  value: "220 Ω",         role: "V3 unit 2 cathode (pin 3) — also the shunt leg of the global feedback divider" }
-  - { ref: R40, part: "Carbon comp resistor",  value: "10 kΩ",         role: "Global negative feedback, output transformer green secondary lead back to V3 pin 3" }
+  - { ref: R25, part: "Carbon comp resistor",  value: "220 Ω",         role: "V3 unit 2 cathode (pin 3), unbypassed" }
+  - { ref: R40, part: "Carbon comp resistor",  value: "10 kΩ",         role: "Global negative feedback, output transformer green secondary lead back to V3 pin 1, the driver grid and channel mixing bus" }
   - { ref: R27, part: "Carbon comp resistor",  value: "120 kΩ",        role: "V3 unit 1 anode load (pin 5) — the inverted half" }
   - { ref: R24, part: "Carbon comp resistor",  value: "1 kΩ",          role: "V3 unit 1 cathode bias (pin 6)" }
   - { ref: CKD1, part: "Electrolytic capacitor", value: "25 µF · 25 V", role: "V3 unit 1 cathode bypass, across R24. Unlettered on the drawing" }

@@ -74,11 +74,11 @@ nodes:
     dispute_note: >-
       Same node pair, taken from the cathode side. 3 V across R25's 220 Ω is
       13.6 mA — six times the 2.3 mA the 6SL7 data sheet gives for its Class-A
-      point, and 3.2 W dissipated in a plate rated 1 W. R25 is not a plain bias
-      resistor either: it is the shunt leg of the global feedback divider, with
-      R40 10 kΩ returning from the output transformer's green secondary lead into
-      the same node, which lowers the effective cathode resistance rather than
-      raising it. There is no reading of this sheet under which 3 V appears here.
+      point, and 3.2 W dissipated in a plate rated 1 W. R25 is the stage's own
+      unbypassed cathode resistor and nothing else lands on this node: the
+      global feedback resistor R40 returns to the driver's grid (the channel
+      mixing bus), not here, so no second path adds or removes cathode current.
+      There is no reading of this sheet under which 3 V appears here.
   K3A:
     chart: 2.2
     disputed: true

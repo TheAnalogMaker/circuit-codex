@@ -218,7 +218,7 @@ s.caption('ULTRA LO shorts out the 1 MOhm shunt leg; ULTRA HI switches 500 pF ac
 s.caption('Printed tone board: both bass caps land on the wiper, and the 120 kOhm link between the two wipers IS the board output.', 196, Y1 + 26, 1.4)
 
 # ============================ MIXING BUS =============================
-s.note('Both channels sum through 270 kOhm apiece onto the driver grid, which has no grid leak of its own: its DC return runs back out through those two mixing resistors and both tone boards to their 22 kOhm feet. The EXT. AMP. jack J5 taps the same node.')
+s.note('Both channels sum through 270 kOhm apiece onto the driver grid, which has no grid leak of its own: its DC returns are R40 10 kOhm, the global feedback resistor, to the output transformer\'s green lead, and the path back out through those two mixing resistors and both tone boards to their 22 kOhm feet. The EXT. AMP. jack J5 taps the same node.')
 s.wire(MIX, Y1 + 16, MIX, Y2 + 16)
 s.wire(MIX, Y2 + 16, MIX, 176)
 s.junction(MIX, Y2 + 16)
@@ -260,7 +260,6 @@ s.sym("R", "R26", "120k", 330, 158.19)
 s.wire(330, 154.38, 330, 151)
 s.glabel("BP4", 330, 151, 90)
 s.wire(330, v3b["k"][1], 330, 187)
-s.junction(330, 187)
 s.sym("R", "R25", "220", 330, 190.81, lx=-9.0, ly=-0.8)
 s.gnd(330, 194.62)
 
@@ -354,15 +353,16 @@ s.text("GRN.", 508, 124.4, 1.3)
 s.text("BLK.", 508, 154, 1.3)
 
 # global negative feedback: the transformer's green secondary lead back to the
-# driver cathode through 10k — it lands on R25, not on an inverter tail.
+# driver GRID through 10k — it lands on the channel mixing bus (pin 1), on both
+# revisions of the drawing, not on the cathode.
 s.junction(534, 127.46)
 s.wire(534, 127.46, 534, 210)
 l, r = s.series_h("R", "R40", "10k", 440, 210)
 s.wire(534, 210, r, 210)
-s.wire(l, 210, 346, 210)
-s.wire(346, 210, 346, 187)
-s.wire(346, 187, 330, 187)
-s.caption('Global negative feedback: 10 kOhm from the output transformer\'s green secondary lead onto the driver cathode over R25 220 Ohm, which is why that 220 Ohm is a feedback shunt leg rather than a bias resistor.', 346, 218, 1.4)
+s.wire(l, 210, 310, 210)
+s.wire(310, 210, 310, 176)
+s.junction(310, 176)
+s.caption('Global negative feedback: 10 kOhm from the output transformer\'s green secondary lead onto the driver grid, the channels\' mixing bus. R25 220 Ohm is the driver\'s own unbypassed cathode resistor.', 346, 218, 1.4)
 
 # ============================ POWER SUPPLY ===========================
 s.caption('Power supply — PT-108 mains transformer, 5AR4, the STANDBY switch in the HT centre-tap return, one reservoir and a three-section can. No choke.', 300, 236, 1.5)

@@ -88,8 +88,9 @@ resistor, and each channel carries its own.
 
 Each board's output leaves through a **270 kΩ mixing resistor**; the two meet at
 the driver's grid, where the EXT. AMP. jack also taps in. That mixing node has
-no grid leak of its own — its DC return runs back out through both channels'
-270 kΩ, each board's 120 kΩ link and bass pot, to the 22 kΩ foot.
+no grid leak of its own — its DC returns are the global feedback resistor R40
+(below) and the path back out through both channels' 270 kΩ, each board's
+120 kΩ link and bass pot, to the 22 kΩ foot.
 
 **The driver and the paraphase.** V3's two sections are asymmetric on purpose.
 Unit 2 (pins 1/2/3) takes the mixed signal on a 120 kΩ plate load over a
@@ -104,10 +105,12 @@ the arrangement most American makers had abandoned for the long-tailed pair by
 1960. The two cathodes here are separate and differently loaded, which is what
 tells you at a glance it is not an LTP.
 
-The 220 Ω on unit 2's cathode is not really a bias resistor. It is the shunt leg
-of the **global feedback divider**: R40 10 kΩ returns from the output
-transformer's green secondary lead into that same node. Feedback lands on the
-driver, not on a phase-inverter tail.
+The **global feedback** resistor, R40 10 kΩ, returns from the output
+transformer's green secondary lead to unit 2's **grid** — the channels' mixing
+bus, where both 270 kΩ mixing resistors meet — on both revisions of the
+drawing. Feedback is summed into the driver's input alongside the two
+channels, not applied at a cathode or at a phase-inverter tail; the 220 Ω on
+unit 2's cathode is the stage's own unbypassed cathode resistor.
 
 **Output.** Two 0.022 µF couplers carry the two plates to two grid lines. Each
 grid line has a **270 kΩ return to a −50 V bias line** and a **1 kΩ stopper**
