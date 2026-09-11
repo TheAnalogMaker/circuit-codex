@@ -1456,23 +1456,19 @@ amps:
     counts:
       anchors: 48
       board_only: 0
-      merged: 1
-      misplaced: 2
+      merged: 0
+      misplaced: 0
       pot_as_resistor: 0
       pot_orientation_flipped: 1
       section_swap: 0
       sheet_only_declared: 6
-      sheet_only_undeclared: 3
+      sheet_only_undeclared: 0
       split: 0
       stale_declarations: 0
-      two_terminal_checked: 75
+      two_terminal_checked: 78
       unresolved: 0
-    merged:
-    - - - VR4.lug2
-      - - VR5.lug2
-    misplaced:
-    - RSL
-    - VR3#ends
+    merged: []
+    misplaced: []
     pot_as_resistor: []
     pot_orientation_flipped:
     - VR7
@@ -1484,10 +1480,7 @@ amps:
     - R4s
     - RG1
     - RG2
-    sheet_only_undeclared:
-    - C4
-    - C5
-    - C6
+    sheet_only_undeclared: []
     split: []
     stale_declarations: []
     unresolved: []
@@ -1529,24 +1522,20 @@ amps:
     counts:
       anchors: 41
       board_only: 0
-      merged: 1
-      misplaced: 3
+      merged: 0
+      misplaced: 1
       pot_as_resistor: 0
       pot_orientation_flipped: 0
       section_swap: 0
       sheet_only_declared: 7
-      sheet_only_undeclared: 3
+      sheet_only_undeclared: 0
       split: 0
       stale_declarations: 0
-      two_terminal_checked: 61
+      two_terminal_checked: 64
       unresolved: 0
-    merged:
-    - - - VR4.lug2
-      - - VR5.lug2
+    merged: []
     misplaced:
     - D1
-    - RSL
-    - VR3#ends
     pot_as_resistor: []
     pot_orientation_flipped: []
     section_swap: []
@@ -1558,10 +1547,7 @@ amps:
     - R2s
     - RG1
     - RG2
-    sheet_only_undeclared:
-    - C4
-    - C5
-    - C6
+    sheet_only_undeclared: []
     split: []
     stale_declarations: []
     unresolved: []
@@ -1574,20 +1560,18 @@ amps:
       anchors: 35
       board_only: 2
       merged: 0
-      misplaced: 2
+      misplaced: 0
       pot_as_resistor: 0
       pot_orientation_flipped: 0
       section_swap: 0
       sheet_only_declared: 5
-      sheet_only_undeclared: 3
+      sheet_only_undeclared: 0
       split: 0
       stale_declarations: 0
-      two_terminal_checked: 42
-      unresolved: 1
+      two_terminal_checked: 46
+      unresolved: 0
     merged: []
-    misplaced:
-    - RSL
-    - VR4#ends
+    misplaced: []
     pot_as_resistor: []
     pot_orientation_flipped: []
     section_swap: []
@@ -1597,14 +1581,10 @@ amps:
     - R2s
     - RG1
     - RG2
-    sheet_only_undeclared:
-    - C4
-    - C5
-    - C6
+    sheet_only_undeclared: []
     split: []
     stale_declarations: []
-    unresolved:
-    - VR3#ends
+    unresolved: []
   m1959:
     board_only: []
     claimed: true
@@ -1617,18 +1597,18 @@ amps:
       pot_orientation_flipped: 0
       section_swap: 0
       sheet_only_declared: 11
-      sheet_only_undeclared: 4
+      sheet_only_undeclared: 0
       split: 0
       stale_declarations: 0
-      two_terminal_checked: 69
+      two_terminal_checked: 72
       unresolved: 0
     merged:
-    - - - VR4.lug2
-      - - VR5.lug2
+    - - RBC
+      - VR7#ends
     misplaced:
     - RBA
-    - RSL
-    - VR3#ends
+    - RGL1
+    - RGL2
     - VR6#ends
     pot_as_resistor: []
     pot_orientation_flipped: []
@@ -1645,11 +1625,7 @@ amps:
     - R4s
     - RG1
     - RG2
-    sheet_only_undeclared:
-    - C10
-    - C31
-    - C8
-    - C9
+    sheet_only_undeclared: []
     split: []
     stale_declarations: []
     unresolved: []
@@ -1659,27 +1635,27 @@ amps:
     - VRP
     claimed: true
     counts:
-      anchors: 32
+      anchors: 33
       board_only: 2
-      merged: 1
-      misplaced: 4
+      merged: 0
+      misplaced: 6
       pot_as_resistor: 0
       pot_orientation_flipped: 0
       section_swap: 0
       sheet_only_declared: 12
-      sheet_only_undeclared: 7
+      sheet_only_undeclared: 1
       split: 0
       stale_declarations: 0
-      two_terminal_checked: 47
+      two_terminal_checked: 53
       unresolved: 0
-    merged:
-    - - - VR4.lug2
-      - - VR5.lug2
+    merged: []
     misplaced:
-    - D1
+    - C16
     - RBA
-    - RSL
-    - VR3#ends
+    - RBC
+    - RGL1
+    - RGL2
+    - VR6#ends
     pot_as_resistor: []
     pot_orientation_flipped: []
     section_swap: []
@@ -1697,13 +1673,7 @@ amps:
     - RG1
     - RG2
     sheet_only_undeclared:
-    - C10
-    - C8
-    - C9
     - L1
-    - RBB
-    - RBC
-    - VR6
     split: []
     stale_declarations: []
     unresolved: []
@@ -1713,28 +1683,23 @@ amps:
     counts:
       anchors: 34
       board_only: 0
-      merged: 2
-      misplaced: 5
+      merged: 1
+      misplaced: 2
       pot_as_resistor: 0
       pot_orientation_flipped: 0
       section_swap: 0
       sheet_only_declared: 12
-      sheet_only_undeclared: 3
+      sheet_only_undeclared: 0
       split: 1
       stale_declarations: 0
-      two_terminal_checked: 51
-      unresolved: 3
+      two_terminal_checked: 57
+      unresolved: 0
     merged:
-    - - - VR4.lug2
-      - - VR5.lug2
     - - R26
       - RV1#ends
     misplaced:
-    - D5
-    - R15
     - R22
     - VR2#ends
-    - VR3#ends
     pot_as_resistor: []
     pot_orientation_flipped: []
     section_swap: []
@@ -1751,10 +1716,7 @@ amps:
     - R36
     - R37
     - T3
-    sheet_only_undeclared:
-    - C10
-    - C11
-    - C12
+    sheet_only_undeclared: []
     split:
     - - - GND
         - V4.pin8
@@ -1762,24 +1724,21 @@ amps:
         - VR6.lug2
       - - RV1.lug2
     stale_declarations: []
-    unresolved:
-    - D2
-    - D3
-    - D4
+    unresolved: []
 summary:
   amps: 40
-  amps_with_findings: 34
-  anchors: 1267
+  amps_with_findings: 33
+  anchors: 1268
   board_only: 5
-  claimed_amps_with_findings: 32
-  merged: 18
-  misplaced: 75
+  claimed_amps_with_findings: 31
+  merged: 14
+  misplaced: 68
   pot_as_resistor: 1
   pot_orientation_flipped: 18
   section_swap: 3
   sheet_only_declared: 233
-  sheet_only_undeclared: 263
+  sheet_only_undeclared: 241
   split: 1
   stale_declarations: 0
-  two_terminal_checked: 1820
-  unresolved: 9
+  two_terminal_checked: 1845
+  unresolved: 5
