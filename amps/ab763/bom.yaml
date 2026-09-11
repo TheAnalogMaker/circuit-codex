@@ -4,7 +4,7 @@
 # schematic (schematic.kicad_sch) by pipeline/validate.py, in both directions.
 # Values are the drawing's; the notice sets 1/2 W / 10% resistors and 400 V caps
 # unless noted.
-notes: "The drawing shows one jack per channel input pair; the chassis carries two per channel. Tremolo-oscillator and reverb-tank interconnect parts are listed but the oscillator's DC point is excluded from the netlist (see the circuit story)."
+notes: "The drawing shows one jack per channel input pair; the chassis carries two per channel. Tremolo-oscillator and reverb-tank interconnect parts are listed but the oscillator's DC point is excluded from the netlist (see the circuit story). Two cathode networks are shared, and each is listed once, under the stage where the drawing draws it: RKV2/CKV2 carry both second stages (the drawing's boxed [A]), RKR1/CKR1 both the reverb recovery and the mix driver (boxed [E]). Neither the Normal second stage nor the mix driver has a cathode resistor of its own."
 items:
   # --- Normal channel input (V1a) ---
   - { ref: R1n, part: "Carbon comp resistor", value: "68 kΩ · ½ W",  role: "Normal input grid stopper (jack 1)" }
@@ -22,6 +22,10 @@ items:
   - { ref: CBN2, part: "Coupling capacitor",  value: "0.047 µF",       role: "Normal tone-stack middle-leg cap, slope node to the bleed resistor" }
   - { ref: RSLN, part: "Carbon comp resistor", value: "6.8 kΩ · ½ W",  role: "Normal tone-stack bleed resistor" }
   - { ref: VRVN, part: "Audio-taper potentiometer", value: "1 MΩ-A",   role: "Normal volume" }
+  # --- Normal channel 2nd stage (V1b) — its cathode is the shared [A] network below ---
+  - { ref: RLN2, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "V1b (normal 2nd stage) plate load" }
+  - { ref: CCN2, part: "Coupling capacitor",  value: "0.047 µF",       role: "V1b output coupling, into the mixing resistor RMN2" }
+  - { ref: RMN2, part: "Carbon comp resistor", value: "220 kΩ · ½ W", role: "Normal-channel mixing resistor, into the phase-inverter input node" }
   # --- Vibrato channel input (V2a) + 2nd stage (V2b) ---
   - { ref: R1v, part: "Carbon comp resistor", value: "68 kΩ · ½ W",  role: "Vibrato input grid stopper (jack 1)" }
   - { ref: R2v, part: "Carbon comp resistor", value: "68 kΩ · ½ W",  role: "Vibrato input grid stopper (jack 2)" }
@@ -39,8 +43,8 @@ items:
   - { ref: RSLV, part: "Carbon comp resistor", value: "6.8 kΩ · ½ W",  role: "Vibrato tone-stack bleed resistor" }
   - { ref: VRVV, part: "Audio-taper potentiometer", value: "1 MΩ-A",   role: "Vibrato volume" }
   - { ref: RLV2, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "V2b (vibrato 2nd stage) plate load" }
-  - { ref: RKV2, part: "Carbon comp resistor", value: "820 Ω · ½ W",  role: "V2b cathode bias" }
-  - { ref: CKV2, part: "Electrolytic capacitor", value: "25 µF · 25 V", role: "V2b cathode bypass" }
+  - { ref: RKV2, part: "Carbon comp resistor", value: "820 Ω · ½ W",  role: "Cathode bias at the drawing's boxed [A] — one resistor for BOTH second stages, Normal (V1b) and Vibrato (V2b)" }
+  - { ref: CKV2, part: "Electrolytic capacitor", value: "25 µF · 25 V", role: "Cathode bypass across RKV2 (the shared [A] network)" }
   - { ref: CCV2, part: "Coupling capacitor",  value: "0.02 µF",        role: "V2b output coupling" }
   # --- Reverb send/driver (V4 12AT7) + tank + recovery (V3b) ---
   - { ref: CRS, part: "Coupling capacitor",   value: "500 pF",         role: "Reverb send coupling to driver grid" }
@@ -50,19 +54,17 @@ items:
   - { ref: T4,  part: "Reverb transformer",   value: "Fender 125A20B", role: "Reverb driver → tank input" }
   - { ref: RGR1, part: "Carbon comp resistor", value: "220 kΩ · ½ W", role: "Reverb-recovery grid resistor (tank output)" }
   - { ref: RLR1, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "V3b (reverb recovery) plate load" }
-  - { ref: RKR1, part: "Carbon comp resistor", value: "820 Ω · ½ W",  role: "V3b cathode bias" }
-  - { ref: CKR1, part: "Electrolytic capacitor", value: "25 µF · 25 V", role: "V3b cathode bypass" }
+  - { ref: RKR1, part: "Carbon comp resistor", value: "820 Ω · ½ W",  role: "Cathode bias at the drawing's boxed [E] — one resistor for BOTH the reverb recovery (V3b) and the mix driver (V3a)" }
+  - { ref: CKR1, part: "Electrolytic capacitor", value: "25 µF · 25 V", role: "Cathode bypass across RKR1 (the shared [E] network)" }
   - { ref: CCR1, part: "Coupling capacitor",  value: "0.003 µF",       role: "Reverb-recovery output coupling" }
   - { ref: VRREV, part: "Linear potentiometer", value: "100 kΩ-L",     role: "Reverb level" }
   - { ref: RMR, part: "Carbon comp resistor", value: "470 kΩ · ½ W",  role: "Reverb mix resistor" }
   # --- Vibrato/reverb mix driver (V3a) ---
   - { ref: RLD1, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "V3a (mix driver) plate load" }
   - { ref: RGD1, part: "Carbon comp resistor", value: "3.3 MΩ · ½ W", role: "V3a grid leak (tremolo shunt node)" }
-  - { ref: RKD1, part: "Carbon comp resistor", value: "820 Ω · ½ W",  role: "V3a cathode bias" }
-  - { ref: CKD1, part: "Electrolytic capacitor", value: "25 µF · 25 V", role: "V3a cathode bypass" }
   - { ref: CBD1, part: "Mica capacitor",      value: "10 pF",          role: "V3a grid bright cap" }
-  - { ref: RMD1, part: "Carbon comp resistor", value: "220 kΩ · ½ W", role: "Mix-driver to PI grid resistor" }
-  - { ref: CCD1, part: "Coupling capacitor",  value: "0.001 µF",       role: "Mix-driver → PI coupling" }
+  - { ref: RMD1, part: "Carbon comp resistor", value: "220 kΩ · ½ W", role: "Vibrato-channel mixing resistor, from the mix driver's coupler into the phase-inverter input node" }
+  - { ref: CCD1, part: "Coupling capacitor",  value: "0.1 µF",         role: "Mix-driver output coupling, into the mixing resistor RMD1" }
   # --- Tremolo oscillator (V5 12AX7) — DC point excluded (see notes.md) ---
   - { ref: VRSPD, part: "Reverse-audio potentiometer", value: "3 MΩ-RA", role: "Tremolo speed" }
   - { ref: VRINT, part: "Reverse-audio potentiometer", value: "50 kΩ-RA", role: "Tremolo intensity" }
@@ -86,7 +88,7 @@ items:
   - { ref: RGPB, part: "Carbon comp resistor", value: "1 MΩ · ½ W",   role: "PI grid leak (cold), returned to tail junction" }
   - { ref: RTAIL, part: "Carbon comp resistor", value: "470 Ω · ½ W", role: "PI cathode resistor" }
   - { ref: RT2, part: "Carbon comp resistor", value: "22 kΩ · ½ W",   role: "PI tail (junction → ground)" }
-  - { ref: CPIA, part: "Coupling capacitor",  value: "0.001 µF",       role: "PI hot-grid input coupling" }
+  - { ref: CPIA, part: "Coupling capacitor",  value: "0.001 µF",       role: "PI hot-grid input coupling, from the node where the two channels' 220 kΩ mixing resistors meet" }
   - { ref: CPIB, part: "Coupling capacitor",  value: "0.1 µF · 200 V", role: "PI cold-grid AC ground" }
   - { ref: RNFB, part: "Carbon comp resistor", value: "820 Ω · ½ W",  role: "Negative feedback, OT secondary → PI (DC-neutral)" }
   - { ref: RNF2, part: "Carbon comp resistor", value: "47 Ω · ½ W",   role: "NFB return / PI cold-grid reference" }
@@ -117,7 +119,7 @@ items:
   # --- Death cap / mains (period part) ---
   - { ref: CDEATH, part: "Ceramic capacitor", value: "0.047 µF · 600 V", role: "Ground-switch cap (period; not in modern builds)" }
   # --- Tubes ---
-  - { ref: V1,  part: "Preamp tube",          value: "12AX7 (7025)",   role: "Normal channel input (V1a)" }
+  - { ref: V1,  part: "Preamp tube",          value: "12AX7 (7025)",   role: "Normal channel input + 2nd stage (V1a/V1b)" }
   - { ref: V2,  part: "Preamp tube",          value: "12AX7 (7025)",   role: "Vibrato channel input + 2nd stage (V2a/V2b)" }
   - { ref: V3,  part: "Preamp tube",          value: "12AX7 (7025)",   role: "Reverb recovery + mix driver (V3a/V3b)" }
   - { ref: V4,  part: "Preamp/driver tube",   value: "12AT7",          role: "Reverb driver (both sections paralleled)" }
