@@ -6,25 +6,38 @@ around a pair of **6L6GC** output tubes and a single 15-inch speaker, produced
 small amp learning fixed bias and a long-tailed-pair inverter, the Pro is the
 same redesign applied to Fender's high-power circuit: **silicon
 rectification** in place of a tube rectifier, **fixed, non-adjustable bias**,
-and a genuine **tremolo** — read here directly off the drawing as a photocell
-circuit, not the "harmonic vibrato" a secondary field guide labels it (see
-below). The preamp bottles are marked **7025** on the drawing, the low-noise
+and a **harmonic vibrato** — a circuit that sweeps the bass and treble halves
+of the signal against each other rather than simply turning the volume up and
+down. All five small bottles are marked **7025** on the drawing, the low-noise
 selected version of the 12AX7.
+
+**Correction, September 2026.** This page previously described the vibrato as
+a photocell tremolo and gave each channel a bottle of its own. Both were
+misreadings: the drawing has no lamp or photocell anywhere, and its five
+small bottles are shared by stage, not by channel. The circuit below is read
+again from the drawing at its full resolution.
 
 ## Signal path
 
-**Two full channels.** Normal and Bright are drawn as mirror images, each with
-two input jacks (a 68 kΩ stopper apiece, over a shared 1 MΩ leak) into a first
-12AX7 stage — 100 kΩ plate load, 820 Ω cathode with a split 25 + 25 µF bypass,
-printed **+170 V / +1.4 V** on both channels. From there each channel runs
-through a 0.05 µF coupling capacitor into its own **Bass/Treble** network and
-a 500 kΩ-L Volume control (with a 47 pF bright capacitor from its hot lug to
-its wiper) into a **second** 12AX7 stage (100 kΩ plate load) before the two
-channels sum at a shared node — the
-printed plate reads **+160 V** on channel 1 and **+120 V** on channel 2; the
-drawing gives no reason for the asymmetry (different bias points on nominally
-identical stages happen on hand-built amps of this era) and this archive
-reports both rather than forcing them to match.
+**Two channels, one bottle per stage.** The drawing prints no channel names;
+channel 1 is the one drawn on top, whose controls sit beside Speed and
+Intensity on the panel. Each channel has two inputs on 68 kΩ stoppers, with a
+1 MΩ leak to ground at input 1, into a first stage with a 100 kΩ plate load.
+The two first stages are the two halves of one bottle, V1, and share a single
+820 Ω cathode resistor and a single 25 µF bypass — the drawing letters the
+joined cathodes with a boxed **C** and prints **+170 V** at both plates and
+**+1.4 V** at the cathodes. Each channel then runs through a 0.05 µF coupler
+into its own **Bass/Treble** network and a 500 kΩ-L Volume control, into a
+second stage — and again both second stages share one bottle, V2, and one
+820 Ω / 25 µF cathode pair (the boxed **D**, **+1.1 V**).
+
+**The two second stages are loaded differently**, which is what the chart's
+**+160 V** and **+120 V** record. Channel 1's plate returns to its supply
+through 100 kΩ and then a 6.8 kΩ decoupling resistor, and its output is taken
+from the junction of the two, not from the plate. Channel 2's plate load is a
+single 220 kΩ. Channel 1 alone has a 47 pF bright capacitor from its Volume
+control's hot lug to the wiper; neither page of the drawing shows one on
+channel 2.
 
 **The tone network** is the one the brown Super ([6G4](/amps/6g4/)) draws,
 part for part. From the coupler, a 250 pF treble capacitor feeds the hot lug
@@ -34,129 +47,112 @@ wired as a divider from the slope foot to ground, with the 0.01 µF bass
 capacitor across its upper section (hot lug to wiper) and a 10 kΩ foot
 resistor across its lower (wiper to ground); the Treble wiper alone is the
 output. The pot values are what both pages of the drawing letter — Treble
-250K-L, Bass 250K-A, Volume 500K-L. An earlier reading here gave the Treble
-and Volume controls as 250 kΩ audio-taper parts, and the drawing that went
-with it had no slope resistor and no coupler and put the 10 kΩ in series with
-the 0.01 µF ahead of the network; the sheet was re-read lug by lug and both
-the parts list and the drawing corrected.
+250K-L, Bass 250K-A, Volume 500K-L.
 
-**The mixing/tremolo node.** Both channels' second stages land on one node
-carrying the tremolo optocoupler (below) before a **driver** 12AX7 stage
-(100 kΩ plate load, printed **+320 V**) that feeds the phase inverter. The
-driver carries a sizeable local network around it (470 kΩ, two 220 kΩ resistors,
-2500 pF) that this entry reads onto the BOM but does not model in the DC
-netlist — see "What isn't modelled" below.
+**Only channel 1 goes through the vibrato.** Its output feeds the vibrato
+circuit below; channel 2's output joins the vibrato's output afterwards,
+through 0.05 µF and 1 MΩ, and the sum drives the phase inverter through a
+0.001 µF coupler.
 
-**Phase inverter and output.** A **long-tailed-pair** 12AX7 — 82 kΩ (hot) and
-100 kΩ (cold) 5 % plate loads, printed **+315 V / +310 V**, an 820 Ω shared
-cathode into a 6.8 kΩ tail — drives the **two 6L6GC** output tubes through
-0.05 µF couplers. The tail foot sits on a **1.5 kΩ** resistor to ground, with
-the **5 kΩ-L Presence** control in series with a **0.1 µF** capacitor
-paralleling it — the cap is what makes the control AC-only — and a **22 kΩ**
-negative-feedback resistor returns to that same node from the output
-transformer's secondary. The output tubes run **fixed,
-non-adjustable bias**: grounded cathodes, 220 kΩ · 5 % grid leaks to the bias
-line, and individual 470 Ω · 1 W screen stoppers off a shared 4.7 kΩ · 1 W
-screen dropper.
+## The harmonic vibrato
 
-## The tremolo is a photocell circuit, not harmonic vibrato
+Channel 1's signal is split into two bands. A **low-pass** branch — 470 kΩ
+into 0.005 µF to ground — reaches one grid of V4 through 0.01 µF; a
+**high-pass** branch — a 220 kΩ / 220 kΩ divider — reaches the other grid
+through 250 pF. The two halves of V4 amplify one band each: 100 kΩ plate
+loads, one shared 4.7 kΩ cathode resistor bypassed by 2 µF, printed **+320 V**
+at both plates and **+3.3 V** at the cathodes. Their plates recombine through
+470 kΩ apiece.
 
-A field guide's summary for this model calls the tremolo "harmonic vibrato" —
-but the drawing itself shows one 12AX7 phase-shift oscillator (Speed on a
-4 MΩ-RA rheostat, 1.5 kΩ cathode with a 25 + 25 µF bypass, printed +120 V
-plate / +1.5 V cathode) driving a **lamp facing a photoresistor**, the classic
-Fender optocoupler, wired to shunt the channel-mixing node to ground —
-Intensity sets how hard the lamp is driven. That is the same circuit family as
-the tweed-era optical tremolo circuits, not the phase-mixed dual-triode network
-"harmonic vibrato" names (compare the brown Deluxe's own *bias-vary* tremolo,
-which is a third, different mechanism again — see [6g3](/amps/6g3/)). Per this
-project's hard rule 1, the published drawing governs over a secondary
-description where the two disagree; the field guide's date range and wattage
-are used, its circuit-type label is not.
+A slow oscillator makes the two bands take turns. V3A is a phase-shift
+oscillator — a ladder of 0.02, 0.01 and 0.01 µF from its plate back to its
+grid, with the 4 MΩ reverse-audio **Speed** control and a 100 kΩ to ground on
+the first node, a 1 MΩ to the cathode on the second, and a 1 MΩ grid leak.
+Its 470 kΩ plate load and 4.7 kΩ / 25 µF cathode print **+130 V** and
+**+1.3 V**. The vibrato pedal's jack sits on the ladder's second node: the
+footswitch grounds it and the oscillation stops. The oscillator's output
+leaves through 4.7 MΩ and 0.005 µF onto the 10 MΩ-L **Intensity** control,
+and the wiper feeds the low-band grid of V4 through 1 MΩ.
 
-Electrically, an oscillator like this has no static operating point — it swings
-around whatever its printed pins describe. This entry excludes it from the DC
-netlist exactly as [ab763](/amps/ab763/) excludes its own tremolo oscillator,
-and reports the printed pins for the record only, in the operating-point
-table, without comparing them against the model.
+The other band is driven the opposite way by V3B, the oscillator's second
+half, working as a phase splitter. Both V4 grids return through 1 MΩ each to
+V3B's grid, so the swing arriving at the low-band grid reaches the splitter
+too; V3B inverts it and feeds it to the high-band grid through 0.05 µF and
+1 MΩ. As the oscillator pushes one band up, it pulls the other down — the
+tone tilts from bass to treble and back at the Speed setting. Capacitors on
+the oscillator's plate, the Intensity control, the splitter's grid and its
+plate (0.03, 0.1, 0.05, 0.05 and 0.25 µF to ground) round off the sweep. The
+splitter prints **+180 V** at its plate and **+1.5 V** at its cathode (1.5 kΩ
+/ 25 µF).
+
+**In the model.** The vibrato pair and the splitter each have a static
+operating point, and both are simulated and compared with the chart. The
+oscillator does not: a running phase-shift oscillator swings around whatever
+its printed pins describe, so it is excluded from the model, exactly as the
+[AB763](/amps/ab763/) excludes its own, and its printed pins are reported for
+the record only. Leaving it out has one visible cost. The oscillator draws
+about 0.3 mA from the supply it shares with the splitter, and without it that
+supply simulates about 300 V against the printed +275 V; with a stand-in for
+that current it lands on 275 V, and the splitter on its printed +180 V.
+
+## Phase inverter and output
+
+A **long-tailed-pair** inverter — 82 kΩ (hot) and 100 kΩ (cold) 5 % plate
+loads, printed **+315 V / +310 V**, with 47 pF across the two plates and an
+820 Ω shared cathode (**+23 V**) into a 6.8 kΩ tail — drives the **two
+6L6GC** output tubes through 0.05 µF couplers. The tail lands on a foot node
+carrying a **1.5 kΩ** resistor to ground, the **22 kΩ** negative-feedback
+resistor from the output transformer's secondary, the 0.1 µF that grounds the
+cold grid for signal, and the **5 kΩ-L Presence** control in series with a
+**0.1 µF** capacitor, which makes that branch AC-only. The output tubes run
+**fixed, non-adjustable bias**: grounded cathodes, 220 kΩ · 5 % grid leaks to
+the bias line and individual 470 Ω · 1 W screen stoppers.
 
 ## Power
 
 The centre-tapped HT secondary feeds **two legs of three silicon diodes** (no
-tube rectifier) into a **+460 V** reservoir, filtered through a choke to
-**+456 V** at the 6L6GC plates (output-transformer primary DCR omitted, as
-throughout this corpus) and, through a shared 4.7 kΩ · 1 W dropper, **+430 V**
-at the screens. A 56 kΩ + 10 kΩ divider steps that down toward the phase-
-inverter and driver supply (**+320 V / +315 V / +310 V** printed at those
-stages). Fixed bias reads **−55 V** off a tight, rotated hand-lettered label
-beside the two output-stage 220 kΩ grid leaks — the sheet carries no separate
-bias test point the way the rail voltages are individually called out, so this
-figure is read with a wider margin than the horizontal prints (flagged in
-the operating-point table).
+tube rectifier) into two 20 µF reservoir cans, then the standby switch
+(**+460 V**) and the choke. After the choke, **+458 V** feeds the 6L6GC
+screens and every dropper; the plates, through the output transformer, print
+**+456 V**. From there each rail has its own dropper and its own 20 µF can:
 
-## What isn't modelled, and why this entry is draft
+| Rail | Printed | Fed through | Feeds |
+|---|---|---|---|
+| Phase-inverter supply | +430 V | 4.7 kΩ · 1 W from +458 V | the inverter's two plate loads |
+| Rail A | +260 V | 56 kΩ · 1 W from +430 V | all four channel plate loads |
+| Vibrato-pair supply | +350 V | 56 kΩ · 1 W from +458 V | V4's plate loads |
+| Oscillator supply | +275 V | 56 kΩ · 1 W from +350 V | the oscillator's and splitter's plate loads |
 
-This is a dense, hand-lettered two-channel drawing, and three things kept this
-entry from earning `verified`:
+The last three figures are lettered on the layout page only. The model drives
+only the plate rail and the bias line and solves every other rail through
+these resistors, each landing within a few percent of its printed value — the
+oscillator supply excepted, for the reason above. Fixed bias reads **−55 V**
+off a small rotated label beside the two output grid leaks, from a
+bias-tap rectifier, 8 µF, 10 kΩ, then 8 µF with a 56 kΩ bleeder; that one
+figure is read with a wider margin than the horizontal prints.
 
-- **The preamp, driver and phase-inverter supply taps.** The drawing prints a
-  4.7 kΩ-1W shared screen dropper (read and modelled as a real resistor — the
-  screens node solves close to its printed +430 V) and, past that, a 56 kΩ-1W
-  + 10 kΩ pair descending toward the phase-inverter/driver supply — but not
-  which stages' currents that pair actually carries. Chaining every
-  downstream stage (PI + driver + all four preamp triodes) through it the way
-  this corpus derives other amps' rails collapsed the node to a quarter of its
-  printed value: real Fender dropper chains this narrow only carry one or two
-  light taps, not five stages' combined current, so the drawing's tap
-  structure past the screens must fan out in a way this scan didn't resolve.
-  The netlist therefore DRIVES the phase-inverter supply (BP3), the driver
-  supply (BDRV) and the shared preamp rail (BD) directly, each chosen to land
-  its own stage near its printed plate reading — anchors, not derivations, in
-  the same spirit as `ab763` driving its BC node directly rather than deriving
-  it through the dropper above it. PI plates gate at a normal 20% against
-  their anchor; the driver and preamp-stage nodes are informational, because
-  an anchor chosen to fit isn't independent evidence for the fit.
-- **The driver stage's local feedback network.** The 470 kΩ / 220 kΩ / 2500 pF
-  network around V5 is read onto the BOM but not modelled — the netlist gives
-  it a plain 100 kΩ-plate/820 Ω-cathode stage instead, one more reason its
-  plate reading is informational rather than gated.
-- **The −55 V bias figure's own confidence.** Every other rail on this sheet
-  is printed horizontally, in the same lettering size as the component values
-  around it. The bias figure is a small rotated label with no dedicated test
-  point, which this archive reads as "−55 V" but flags rather than treats as
-  equal-confidence with the rest of the chart.
+## Why this entry is draft
 
-None of this is a claim that the circuit is *wrong* — the well-attested part of
-the chain (B+1, the screens node, the phase-inverter plates, the fixed-bias
-grid leaks) simulates close to its printed figures. It is a claim that this
-entry has not yet earned `verified`, per this project's hard rule 4: that
-status is set by CI plus maintainer review once the remaining structure is
-resolved (most likely against a second copy of this drawing or the companion
-6G5-A revision), not asserted ahead of the evidence.
+The chain from the plate rail down to every stage is derived through
+resistors the drawing letters, and every printed stage voltage is compared
+with the model. Three things stand between that and `verified`: the excluded
+oscillator leaves its own supply reading high; four of the compared figures
+appear on the layout page only; and the −55 V bias label is read with less
+confidence than the rest. `verified` is granted by the maintainer's review in
+any case, never by the checks alone.
 
 ## Seven bottles, five noval sockets
 
-The chassis carries **five 7025s, not seven**. The published layout sheet's own
-socket row draws five noval sockets alongside the two 6L6GC octals, and the
-denser schematic page — where each triode half is drawn where the signal needs
-it rather than where the socket is — is easy to read as seven. Each
-preamp/driver/inverter/oscillator function maps onto its own socket: V1 carries
-both Normal stages, V2 both Bright stages, V3 the tremolo oscillator (excluded
-from the DC model), V5 the driver and V6 the phase inverter.
+The chassis carries **five 7025s**, not seven — the layout page's socket row
+draws five noval sockets alongside the two 6L6GC octals, and the voltages it
+letters at each socket say which stage each half carries. From the input end:
+V1 holds both channels' first stages, V2 both second stages, V3 the vibrato
+oscillator and its splitter, V4 the vibrato pair, and V5 the phase inverter.
 
-The board diagram's wiring is proved electrically equivalent to the simulated
-netlist within the documented DC scope, so this entry's layout carries a
-verified wiring claim. Outside that scope, by declaration: the driven BP3 /
-BDRV / BD anchors, both channels' tone networks, the oscillator's own
-phase-shift ladder and the driver's local feedback network. The tone
-networks are drawn on the board diagram where the layout page mounts them —
-the coupler on the board beside each channel's plate load, the capacitors
-and resistors at the pots — and wired lug to lug, but no gate checks them
-against the netlist, which does not model them. The oscillator's ladder and
-the driver's feedback network stay schematic-only. None of that lifts the
-entry past **draft**: a wiring-equivalence proof is a claim about
-connectivity, not about the supply topology and component values still
-unresolved above.
+The board diagram draws the vibrato network on the eyelet board, where the
+layout page mounts it, and the parts the page mounts at the controls there:
+the tone parts at each channel's pots, the Speed control's 100 kΩ, the
+Intensity wiper's 0.05 µF, and the Presence control's 1.5 kΩ and 0.1 µF.
 
 ## Lineage
 
@@ -164,7 +160,7 @@ The 6G5's predecessor is the narrow-panel tweed Pro, the **5E5-A**, which this
 corpus documents — and the metadata carries the derivation edge. The brown
 circuit keeps the tweed Pro's 40 W-class output pair and its Presence control,
 and replaces the tube rectifier with silicon diodes, the split-load cathodyne
-with a long-tailed pair, and the single channel with two plus tremolo. It is
-the same shape of redesign the 6G3 applies to the tweed Deluxe. Behind the
-5E5-A stand the earlier tweed Pros, the 5C5 and 5D5, which are history-tier
-entries rather than documented circuits.
+with a long-tailed pair, and the single channel with two plus a harmonic
+vibrato. It is the same shape of redesign the 6G3 applies to the tweed
+Deluxe. Behind the 5E5-A stand the earlier tweed Pros, the 5C5 and 5D5, which
+are history-tier entries rather than documented circuits.

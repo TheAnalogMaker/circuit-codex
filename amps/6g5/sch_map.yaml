@@ -7,20 +7,16 @@ anchors:
   TR2.2: BP1               # OT primary centre tap
   TR2.3: BP1               # OT primary, V8 plate end
   TR2.4: "0"               # OT secondary hot — secondary DCR folded into ground
-                           # (the RNFB / presence return); mirrors layout
+                           # (the RNFB return); mirrors layout
                            # net_map JSPK: '0'.
 
 series_bridge:
-  RPRES: "1500 presence/feedback FOOT resistor. The published 6G5 schematic
-    sheet (A-FJ) draws it from the phase-inverter tail foot straight down to
-    ground, with the 5k-L Presence pot and its 0.1 uF cap paralleling it, so
-    the foot resistor is that node's DC path and the cap blocks DC in the pot
-    branch. netlist.cir folds RPRES into ground and models the tail as
-    RT2 JPI 0 6.8k — a declared DC simplification, not a drawing fault: the
-    real DC foot is 1500 in parallel with RNFB's return through the OT
-    secondary (~1.4k), and no gated node depends on it (voltages.yaml reads
-    KPI and JPI as informational, chart: null). Same abstraction 6g4 declares
-    for its own RPF in layout.yaml net_map."
+  R1H: "68k grid stopper from channel 1's input 1. The A-FJ sheet puts the
+    channel's 1 MΩ leak at the input-1 end of this stopper, not at the grid;
+    with no DC grid current the stopper drops nothing, so its two ends are
+    the one node netlist.cir calls G1A and models as RG1A G1A 0."
+  R2H: "68k grid stopper from channel 2's input 1 — the same arrangement, for
+    G2A and RG2A."
 
 # Hard-gated: verify_schematic_nets.py fails CI on any finding for this sheet.
 # Claimed 2026-09-09, after the presence network was redrawn from the factory
