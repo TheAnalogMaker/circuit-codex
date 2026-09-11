@@ -418,7 +418,9 @@ s.junction(52, 204)
 s.wire(52, 204, 52, 200)
 s.glabel("SPEED", 52, 200, 90)
 # V5A oscillator: 220k plate load from +415 V ([B])
-t5a = s.triode("V5A", "12AX7", 60, YT)
+# Sections per the factory layout page: the +270 V oscillator plate is pin 1
+# (+2.1 V on pin 3), the +345 V lamp-driver plate pin 6 — V5A unit 2, V5B unit 1.
+t5a = s.triode("V5A", "12AX7", 60, YT, unit=2)
 s.wire(36, YT, t5a["g"][0], YT)
 s.plate_load("RTO2", "220k", t5a["p"], "B+2")
 tee5 = YT - 7.62 - 3.48
@@ -432,7 +434,7 @@ s.wire(60, YT + 7.62, 60, YT + 9)
 s.shunt_rc("RKTO1", "2.7k", "CKTO1", "25u", 60, YT + 9, dx=-7.62)
 # V5B lamp driver: grid on the ladder, plate fed through the 10M and the lamp
 s.glabel("LFO", 86, YT, 180)
-t5b = s.triode("V5B", "12AX7", 100, YT)
+t5b = s.triode("V5B", "12AX7", 100, YT, unit=1)
 s.wire(86, YT, t5b["g"][0], YT)
 s.plate_load("RTO10", "10M", t5b["p"], "B+2")
 teeL = YT - 7.62 - 3.48
