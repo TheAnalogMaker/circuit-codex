@@ -65,10 +65,6 @@ amps:
       reason: "The factory drawing prints this HT-winding snubber as an unconnected annotation, and bom.yaml records that; drawing a lead would claim a connection the source does not show."
       added: 2026-09-02
 
-  5e6a:
-    - pin: VR5.3
-      reason: "Presence is a two-terminal control here: bom.yaml puts its hot lug on the shared presence/NFB bus and takes the wiper through CPR to ground, so the cold lug carries nothing and is drawn with no lead."
-      added: 2026-09-02
   "6161":            # quoted — bare 6161 parses as an integer key
     - pin: VR3.3
       reason: "Tone is a rheostat with its wiper grounded; layout.yaml wires lug 1 and lug 2 only, so the far lug is free in the amplifier as well as on the sheet, which says so in its own annotation."

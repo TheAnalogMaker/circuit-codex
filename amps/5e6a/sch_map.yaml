@@ -3,19 +3,17 @@
 # against this sheet and against netlist.cir. See docs/schematic-nets.md.
 
 anchors:
-  T3.1: BP1                # OT primary, V4 plate end — primary DCR omitted
-  T3.2: BP1                # OT primary centre tap (the <B+1> rail)
-  T3.3: BP1                # OT primary, V5 plate end
-  T3.4: "0"                # OT secondary hot — secondary DCR folded into ground
-                           # (the RNF feedback return); mirrors layout.yaml
-                           # net_map anchor SPK: '0'.
+  T3.1: BP2                # OT primary, V4 plate end — primary DCR omitted (plate node = B+2)
+  T3.2: BP2                # OT primary centre tap, on <B+2> after the choke
+  T3.3: BP2                # OT primary, V5 plate end
+  T3.4: "0"                # OT secondary hot — secondary DCR folded into ground,
+                           # so RNF's speaker end reads as ground at DC; mirrors
+                           # the layout net_map anchor on the speaker jack.
 
 symbols:
-  # The netlist letters these sections with an A suffix; the sheet draws each as
-  # a single un-suffixed triode symbol.
-  V2A: V2                  # netlist XV2A P2A G2A K2A -> the sheet's V2
-  V3A: V3                  # netlist XV3A PPI GPI KPI -> the sheet's V3
+  # netlist RCHOKE BP1 BP2 110 Ω is the choke's winding resistance, not a
+  # discrete resistor: the sheet draws the choke itself as L1.
+  RCHOKE: L1
 
-# Hard-gated: verify_schematic_nets.py fails CI on any finding for this sheet.
-# Claimed 2026-09-02 after the drawing went clean against netlist.cir.
-schematic_claim: verified
+# No schematic_claim: this sheet was redrawn on 2026-09-10 from the A-EE
+# drawing, and the claim is the maintainer's to grant again.
