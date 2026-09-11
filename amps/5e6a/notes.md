@@ -1,157 +1,133 @@
 # 5E6-A — Tweed Bassman-style
 
 The mature narrow-panel revision of the 4x10 tweed Bassman's dual-rectifier
-era — the last stop before the 5F6 brought in the three-knob tone stack and
-the long-tailed-pair phase inverter that made the line famous. Where the 5F6
-and 5F6-A each carry a single mercury-vapour or GZ34 rectifier feeding the
-amp through a choke, the 5E6-A still runs the older scheme its 5D6 ancestor
-established: two 5U4GA rectifier tubes in parallel and no choke at all,
-plates and screens landing straight on the first filter node.
+era, and the last stop before the 5F6 brought in the three-knob tone stack and
+the long-tailed-pair phase inverter that made the line famous. Its preamp is
+already the one the tweed Super's 5F4 draws: an input stage, a gain stage
+direct-coupled to a cathode follower, a two-knob treble/bass network fed from
+that follower, and a 12AX7 driver ahead of a split-load phase inverter. What
+it keeps from its 5D6 ancestor is the supply: two 5U4GA rectifier tubes in
+parallel.
 
 ## Circuit walkthrough (short form)
 
-Two channels (each: 1 MΩ grid leak, no stopper) → **V1** 12AY7 (100 kΩ
-plates, shared 820 Ω cathode with 250 µF bypass) → 0.02 µF couplers → 1 MΩ
-volume pots → 270 kΩ mixers → **V2** 12AY7, a single-section extra gain
-stage (100 kΩ plate, 1.5 kΩ/25 µF cathode) → Presence(5k)/Bass/Treble network
-→ **V3** 12AX7, a single-section self-biased split-load (cathodyne) phase
-inverter: 56 kΩ plate, cathode split 1.5 kΩ (between the cathode pin and the
-grid-leak's return junction) + 56 kΩ (junction to ground) — the same shape as
-the 5F4's V3B — → 0.1 µF couplers + 1.5 kΩ stoppers →
-**6L6G pair**, fixed-biased through 220 kΩ leaks, screens tied straight to
-the supply with no series resistor → output transformer into four 10-inch
-speakers.
+**Input.** Two channels, each jack running straight to a 12AY7 grid with a
+1 MΩ leak and no grid stopper. The two halves share an 820 Ω / 250 µF cathode
+and carry 100 kΩ plate loads from the +275 V rail. Each plate feeds a 1 MΩ
+Volume control through 0.02 µF, and the bright channel's control carries 100 pF
+from its hot lug to its wiper. The two wipers meet at the next grid through
+270 kΩ each.
 
-Power: two **5U4GA** rectifiers in parallel (no choke) → **+420 V** (plates,
-screens, OT centre tap — the drawing also reads +410/+405 V at nearby points
-on this same undropped node) → 10 kΩ → **+335 V** (V3 supply) → 10 kΩ →
-**+275 V** (V1/V2 supply). A selenium-rectifier bias supply (3,300 Ω, 100 µF,
-56 kΩ bleeder) delivers roughly −42 V to the 6L6G grid leaks.
+**Gain stage and cathode follower.** The second 12AY7's first half is a gain
+stage (100 kΩ plate load, 1.5 kΩ / 25 µF cathode). Its plate runs straight to
+the other half's grid, and that half is a cathode follower: plate on the
++275 V rail, 100 kΩ from cathode to ground.
 
-## What makes this circuit distinct from its neighbors
+**Tone network.** Two branches leave the follower's cathode. The treble branch
+is 250 pF into one end of the 1 MΩ Treble control, whose other end bleeds to
+ground through 0.01 µF. The bass branch is 0.1 µF into a node that 220 kΩ holds
+at ground and that also returns 10 MΩ of feedback to the gain stage's grid;
+from there 220 kΩ feeds the Bass control's wiper, whose ends go to ground
+directly and through 0.005 µF. A last 220 kΩ joins the Bass wiper to the Treble
+wiper, and the Treble wiper drives the next grid with no coupling capacitor.
 
-- **No choke.** Every other verified amp in this family (5F6, 5F6-A, 5F4)
-  filters through the 14684 choke between the first reservoir cap and the
-  screens. The 5E6-A drawing shows none: the plates, screens and OT centre
-  tap all read within a few volts of each other at the same node, consistent
-  with three separate 16 µF/450 V cans sitting at slightly different physical
-  points on one low-impedance rail rather than three RC-filtered stages.
-- **Two rectifier tubes, not one.** The 5E6-A keeps the "dual rectifier"
-  scheme this archive's Bassman family timeline describes for the 5D6 lineage: two 5U4GA tubes wired in parallel off separate secondary
-  taps, both cathodes landing on the same first-filter node — extra current
-  capacity for the 4x10 cab's fixed-bias 6L6G pair.
-- **Cathodyne, not long-tailed-pair.** The corpus's own existing citation
-  chain already had this right — the family timeline's 5F6 entry reads "swapped
-  the cathodyne splitter for a long-tailed-pair phase inverter" —
-  the 5E6-A's V3 is a single 12AX7 section, self-biased with a split cathode
-  resistor exactly the way the 5F4's V3B is (1.5 kΩ junction + 56 kΩ tail),
-  just without the extra driver stage the 5F4 puts in front of it.
-- **No cathode follower.** That innovation is the 5F6's, not this circuit's:
-  the signal runs V1 → V2 → tone network → V3 directly, with V2 doing the
-  gain-recovery work a cathode follower would later take over.
+**Driver and cathodyne.** The 12AX7's first half is a driver: 100 kΩ plate load
+from +335 V and 1.5 kΩ cathode. The 20 kΩ negative-feedback resistor from the
+speaker line lands on that cathode, and so does the 5 kΩ Presence control,
+whose wiper goes to ground through 0.1 µF. The driver's plate couples through
+0.02 µF into the other half, a split-load (cathodyne) phase inverter: 56 kΩ
+plate load, 1.5 kΩ then 56 kΩ under the cathode, and a 1 MΩ grid leak returned
+to the junction between them.
+
+**Output.** The cathodyne's plate and cathode each feed a 6L6G grid through
+0.1 µF, onto the junction where a 220 kΩ leak from the −42 V bias supply lands,
+then through a 1.5 kΩ stopper. The screens and the output transformer's centre
+tap share the +410 V node, and the transformer drives four 10-inch speakers.
+
+**Power.** Two 5U4GA rectifiers in parallel, each HT lead to one plate of each
+bottle, reach the first 16 µF can at **+420 V** through the standby switch. A
+choke follows, and two more 16 µF cans hold **+410 V** for the screens and the
+centre tap. A 10 kΩ dropper gives **+335 V** (driver and cathodyne), and a
+second gives **+275 V** (input stage, gain stage and follower). The bias comes
+from a tap on the HT winding through 3,300 Ω and a selenium rectifier to
+**−42 V**, with 100 µF and 56 kΩ to ground.
+
+## What sets it apart from its neighbours
+
+- **Two rectifier tubes.** The 5E6-A keeps the paralleled pair of 5U4GAs the
+  Bassman family history describes for the 5D6 line, where the 5F4, 5F6 and
+  5F6-A in this corpus each run one rectifier tube.
+- **The choke sits ahead of the output transformer.** On the 5F4 the centre tap
+  takes the first filter node and the choke feeds only the screens and the
+  preamp. On the 5E6-A the centre tap and the screens both sit after the choke,
+  so it carries the whole amplifier's current.
+- **The 5F4's preamp, with different values.** The stage chain is the one the
+  5F4 draws, stage for stage. The 5E6-A puts a 12AY7 where the 5F4 has a 12AX7
+  in the gain stage and follower, uses no input grid stoppers where the 5F4
+  has 68 kΩ, and letters 220 kΩ where the 5F4 has 100 kΩ in the bass branch,
+  10 MΩ where it has 4.7 MΩ in the feedback return, and 20 kΩ where it has
+  56 kΩ from the speaker.
+- **Cathodyne, not long-tailed pair.** The Bassman family history's 5F6 entry
+  reads "swapped the cathodyne splitter for a long-tailed-pair phase
+  inverter". This circuit is that cathodyne.
+
+## The operating point
+
+Every figure the schematic page prints lands within the chart's tolerance when
+the circuit is simulated: the four rails, the input stage, the gain stage and
+its follower, the driver and the cathodyne, and the bias. The cathodyne's
+resistor junction has no figure on the schematic page; the layout page letters
++70 V at that eyelet, and the table carries it. The choke's resistance is not
+printed on either page, so the model sizes it to the printed 10 V drop across
+it, and the +410 V node agrees with the chart by construction rather than as
+an independent check.
+
+## What the drawing leaves open
+
+- **Three parts the two pages letter differently.** The layout page letters
+  one of the two mixers 250 K where the schematic prints 270K for both, and
+  letters the Treble's bleed capacitor 600 V where the schematic prints
+  .01-400. The parts list enters the schematic's values and states the
+  layout's lettering beside them.
+- **One part only the layout page shows.** A 47 pF capacitor bridges the Treble
+  control from its wiper to the lug the 250 pF feeds. The schematic page does
+  not draw it; the schematic here does, marked as coming from the layout page.
+- **Which jack feeds which grid.** The layout page takes both input leads under
+  the board as a pair, so it does not show which of the two jacks reaches
+  which grid. The board here follows the schematic's order.
 
 ## The 5E6 → 5E6-A revision
 
-The 5E6 and 5E6-A drawings share the same drawing code (A-EE) and are
-otherwise identical circuits. The one substantive difference is a handwritten
-note on the 5E6 sheet beside the bias-supply series resistor: "THIS CHANGE TO
-INCREASE BIAS ON PLATES SO WON'T GET HOT", with the original resistor value
-struck through and "3300" written in. The 5E6-A drawing prints 3,300 Ω
-cleanly with no annotation — the fix formalized. A smaller series resistor in
-this bias-supply topology (selenium rectifier → series R → filter cap →
-bleeder) delivers a larger-magnitude (more negative) bias voltage, which
-lowers 6L6G quiescent plate current and dissipation — exactly the fix the
-note describes. This is the one circuit-level change the "-A" suffix marks.
-
-## What the drawing resolves, and what it does not
-
-The title block, tube complement (a dual-5U4GA rectifier and a 2×12AY7/1×12AX7
-preamp split), the rail chain and V1's front end all read consistently off the
-drawing and agree across the two archived copies of the same A-EE sheet. They
-do **not** all agree with the printed chart, and this entry is published as a
-draft for that reason: the voltage table carries twelve nodes, seven of them
-with a chart figure this reading could pin down, and four of those seven miss
-— as one fault rather than four. The preamp rail reads 315 V simulated against
-the chart's 275 V — 14.5% out, against the 8% this corpus holds a rail to — and
-the three nodes it feeds follow it up: both 12AY7 plates at 161 V against a
-printed 130 V (23.8%) and the shared 12AY7 cathode at 2.5 V against 2 V
-(26.2%), both past the chart's own ±20% convention. The two printed 10 kΩ
-droppers carry less current in the model than the drawing's own rail figures
-imply, so every node below the first dropper sits high; the likeliest reading
-error is which node feeds the 6L6G screens. The rails above that dropper, the
-output stage and its bias all gate clean. Three things the sheet does **not**
-resolve are flagged here rather than guessed at:
-
-- **V2's own pin voltages** — the printed figures around V2 sit in a cluster
-  dense enough that they cannot be confidently separated from the neighbouring
-  tone-network figures. The voltage table carries them as simulated-only, with
-  no chart figure to check against.
-- **V3's plate/cathode/junction pin voltages** — a printed figure cluster near
-  +210/+72/+1.7 V sits close to the 12AX7 on the sheet, but the obvious
-  assignment (+72 V to the cathode pin, +1.7 V to the grid-leak junction) does
-  not survive simulation: a 12AX7 cannot hold ~1.25 mA against the roughly
-  −70 V grid-to-cathode bias that pairing implies, so at least one figure
-  belongs to another node — possibly to V2. The netlist therefore uses the
-  5F4's V3B values verbatim (56k plate, 1.5k/56k cathode split, the same
-  shape), and the voltage table leaves PPI/KPI/JPI informational rather than
-  assign the printed numbers to pins the physics rules out.
-- **One lug of the Presence/Bass/Treble ladder** — the ladder is drawn as read
-  (see below), with a single residual lug-level uncertainty annotated on the
-  schematic itself. Because the network is entirely DC-open, none of it bears
-  on the operating point; it does mean the tone-stack lab has no topology to
-  plot for this amp, whose ladder is not one of the shapes it solves.
-
-All three are draft-status gaps, not disputes: nothing here contradicts the
-drawing. The bias-supply figure's printed **sign** is also
-not clearly legible on the archived scan (magnitude ~42 V is clear); it is
-read as negative for consistency with every other fixed-bias amp in this
-corpus whose sheet prints a bias figure (twenty of them, every one negative)
-and because the circuit only functions as drawn (a fixed-bias output pair)
-with a negative supply.
-
-## The tone ladder, lug by lug
-
-The schematic redraws the Presence/Bass/Treble ladder from a lug-level read of
-the A-EE sheet: a bleeder, a bass shelf, and a shared presence/NFB bus fed by a
-20 kΩ resistor off the speaker node — the family's usual feedback take-off —
-with the treble pot wired as a rheostat, the same trick the family's three-knob
-ladders use for their bass pot.
-
-Two details of that region are easy to misread and are worth stating plainly.
-What looks at low resolution like one "10 MΩ channel-linking resistor in series
-with a small mica cap" is two unrelated parts: `RFB`, a light V2 plate-to-grid
-feedback resistor drawn as a loop above V2, whose left end lands on the
-post-mixer V2 grid node rather than on the input jacks; and `CJ1`, a
-channel-jumper cap bridging the two channels' post-coupler nodes directly. Each
-channel also carries a 100 kΩ padding resistor from its coupler to its
-volume-pot hot lug (`RP1`/`RP2`). And the bass-shelf mica reads **.005**, i.e.
-0.005 µF (`CBS`), not the .0005 the same dense patch of ink can suggest — a
-factor of ten, and worth a third read before this entry leaves draft.
-
-**One residual uncertainty, flagged rather than guessed past:** which of the
-bass pot's two end lugs is the "hot" one riding the shared presence/NFB bus and
-which is the "cold" one feeding the fixed shelf network. It is drawn as read,
-the two lugs sit close together on the sheet, and the schematic carries a
-comment saying so right above that block. A lug-by-lug re-check would firm it
-up before this entry leaves draft.
+The 5E6 and 5E6-A drawings share the same drawing code (A-EE). The one
+substantive difference is a handwritten note on the 5E6 sheet beside the
+bias-supply series resistor: "THIS CHANGE TO INCREASE BIAS ON PLATES SO WON'T
+GET HOT", with the original resistor value struck through and "3300" written
+in. The 5E6-A drawing prints 3,300 Ω cleanly with no annotation — the fix
+formalized. In this bias supply the resistor sits ahead of the selenium
+rectifier, which charges a 100 µF filter loaded by a 56 kΩ bleeder, so a
+smaller resistor lets the filter charge nearer the winding's peak and delivers
+a larger-magnitude (more negative) bias. That lowers the 6L6G's idle current
+and plate dissipation, which is the fix the note describes. It is the one
+circuit-level change the "-A" suffix marks.
 
 ## The board
 
-The board diagram is redrawn from the A-EE sheet's own layout page: the
-principal components in the order the drawing shows them, with their hookup.
-The parallel-rectifier supply is the feature of it — two 5U4GAs and no choke,
-so plates, screens and the output transformer's centre tap all land on one
-first-filter node carrying three 16 µF cans, where most of this corpus's
-tweed amps split the screen supply behind a choke.
+The board diagram is redrawn from the A-EE layout page: the principal
+components in the order the drawing shows them, with their hookup. The bias
+parts and four 16 µF cans sit at the power end, then the driver and cathodyne
+parts, the +275 V can, the gain stage and follower, the tone network's board
+parts and the mixers, and the input stage at the far end. The choke is a
+chassis part whose two leads come up through a grommet to the +420 V and
++410 V cans. Several parts mount off the board as the drawing shows them: each
+6L6G's 1.5 kΩ stopper on its socket, the gain stage's 100 kΩ plate load across
+the second 12AY7's socket, the input grid leaks at the jacks, and the
+tone network's pot-side parts at the controls.
 
 The drawn point-to-point wiring is proved electrically equivalent to the
 simulated circuit within the documented DC scope, every valve anchored, with
-the two rectifiers outside the DC model by the same convention every other
-circuit here follows (none of the corpus's 41 netlists models its rectifier;
-each drives the reservoir from a source). The five panel pots sit off the
-board as the sheet draws them, and the primary leads land on chassis switches;
-the fixed
-tone-network parts are on the board.
+the two rectifiers outside the DC model. The 6.3 V heater layer is drawn as the
+earlier board had it and is not yet established against the amplifier's own
+drawing.
 
 ## Lineage
 

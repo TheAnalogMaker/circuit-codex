@@ -8,61 +8,65 @@ era:
 wattage: 40
 tubes: [12AY7, 12AY7, 12AX7, 6L6G, 6L6G, 5U4GA, 5U4GA]
 topology:
-  rectifier: { kind: tube, type: "5U4GA", count: 2, note: "dual full-wave rectifier tubes in parallel, both cathodes tied to one B+1 node — no choke on this drawing (unlike 5F6/5F6-A/5F4)" }
+  rectifier: { kind: tube, type: "5U4GA", count: 2, note: "two rectifier tubes in parallel, each HT lead to one plate of each bottle, into a 16 µF can and then a choke" }
   bias: fixed
   phase_inverter: cathodyne
-  tone_stack: bass-treble-presence   # interactive 2-knob network + separate presence; one lug of the ladder is unresolved — see notes.md
+  tone_stack: cathode-follower-tb   # the 5F4's split treble/bass network off a cathode follower, with a separate presence control on the driver's cathode
 lineage:
   derived_from: []      # 5D6 / plain 5E6 (the "dual-rectifier" 4x10 tweed line this revises) are not yet their own corpus circuits
   influenced: ["5f6"]    # the 5F6 is this circuit's direct revision — see amps/5f6/meta.yaml (reciprocal edge added there)
 conventions:
-  designators: functional   # designators carry a role code (RD1 dropper, RL4 plate load, CK1 cathode bypass)
+  designators: functional   # designators carry a role code (RD1 dropper, RL3 plate load, RK2 cathode, CC3 coupler)
 sources:
   - desc: >-
       Fender "Bass-Man" Schematic, Model 5E6-A (drawing code A-EE): every
-      component value AND the printed voltage chart read directly from the
-      published schematic (2026-08-08) — 12AY7 two-channel input (1 MEG grid
-      leaks, no stoppers; shared 820 Ω/250 µF cathode; 100 kΩ plates → +130 V);
-      channels combine through 1 MEG leaks + 270 kΩ mixers into a second,
-      single-section 12AY7 gain stage (100 kΩ plate → +130 V, 1.5 kΩ/25 µF
-      cathode); a Presence(5k)/Bass/Treble network (220 kΩ, .005 µF, 1 MEG,
-      .01-400 legible; one lug of the ladder unresolved —
-      see the circuit story) feeds a single-section 12AX7 self-biased split-load
-      (cathodyne) phase inverter — 56 kΩ plate, cathode split 1.5 kΩ (junction,
-      where the 1 MEG grid leak returns) + 56 kΩ (cathode pin), the same shape
-      as the 5F4's V3B (a printed pin-voltage cluster near +210/+72/+1.7 exists
-      on the sheet but not confidently assignable node-by-node at this resolution —
-      see the operating-point table) — driving a fixed-bias 6L6G pair (220 kΩ leaks, 1.5 kΩ
-      output grid stoppers, no screen resistors) from two 5U4GA rectifier tubes wired
-      in parallel (no choke: +420/+410/+405 V all read at the same
-      undropped node) through two 10 kΩ droppers to +335 V (PI) and +275 V
-      (preamp). Bias supply: selenium rectifier, 3300 Ω, 100 µF/25 V, 56 kΩ
-      bleeder. Not reproduced here; archived at EL34World.
+      component value, the stage chain and the printed voltage chart read from
+      the published schematic at its native 6363 × 4071. A 12AY7 two-channel input
+      (1 MEG grid leaks, no stoppers; 100 kΩ plates at +130 V; shared 820 Ω /
+      250 µF cathode at +2 V; 0.0001 µF bright cap across the first Volume); a
+      second 12AY7 split into a gain stage (100 kΩ plate at +130 V, 1.5 kΩ / 25 µF
+      cathode at +2 V) direct-coupled to a cathode follower (100 kΩ cathode load
+      at +130 V); a treble/bass network fed from the follower's cathode (0.1 µF,
+      220 kΩ to ground and 10 MEG back to the gain stage's grid, 220 kΩ to the
+      Bass wiper with 0.005 µF under it, 220 kΩ to the Treble wiper; 250 pF into
+      the Treble with 0.01 µF · 400 V under it); a 12AX7 driver (100 kΩ plate at
+      +200 V, 1.5 kΩ cathode at +1.7 V, with the 20 kΩ feedback resistor and the
+      5 kΩ Presence on that cathode) into a split-load cathodyne (56 kΩ plate at
+      +260 V; 1.5 kΩ + 56 kΩ cathode at +72 V; 1 MEG grid leak to the junction);
+      0.1 µF couplers onto 220 kΩ leaks from −42 V and 1.5 kΩ stoppers into a
+      fixed-bias 6L6G pair (plates +405 V). Supply: two 5U4GA in parallel,
+      16 µF at +420 V, a choke, two 16 µF at +410 V (screens and the OT centre
+      tap), 10 kΩ to +335 V, 10 kΩ to +275 V; bias from an HT-winding tap through
+      3300 Ω and a selenium rectifier to −42 V with 100 µF and 56 kΩ. Not
+      reproduced here; archived at EL34World.
     url: "https://el34world.com/charts/Schematics/files/Fender/Fender_bassman_5e6a.pdf"
   - desc: >-
-      Fender "Bass-Man" Layout, Model 5E6-A (A-EE), page 1 — corroborates the
-      schematic's component values and confirms the physical tube-socket order
-      (5U4G, 5U4G, 6L6G, 6L6G, 12AX7, 12AY7, 12AY7 — seven bottles total) and
-      the two AC-line 0.05 µF/600 V bypass caps, 3 A fuse, ground/AC/standby
-      switches and pilot lamp. Not reproduced here; archived at EL34World.
+      Fender "Bass-Man" Layout, Model 5E6-A (A-EE), page 1, read at its native
+      6463 × 3809: the board's parts in order, the socket wiring (the second
+      12AY7's 100 kΩ plate load across its socket from pin 6 to pin 1 with a pin 7
+      to pin 1 jumper; the 12AX7's +200 V driver plate on pin 1 and +260 V
+      cathodyne plate on pin 6; each 6L6G's 1.5 kΩ stopper on the socket), the
+      choke's two leads rising to the +420 V and +410 V cans, the tone parts at
+      the controls, and the printed +70 V at the cathodyne's resistor junction.
+      It letters three parts differently from the schematic page: one mixer
+      250 K, the Treble's bleed capacitor 600 V, and a 47 MMF across the Treble
+      control that the schematic page does not draw. Not reproduced here;
+      archived at EL34World.
     url: "https://el34world.com/charts/Schematics/files/Fender/Fender_bassman_5e6a.pdf"
   - desc: >-
       Fender "Bass-Man" Schematic, Model 5E6 (same A-EE drawing code as the
-      5E6-A) — read side by side with the 5E6-A to confirm the two circuits
-      are otherwise identical and to date the one substantive change: a
-      handwritten note on the 5E6 sheet by the bias-supply resistor reads
-      "THIS CHANGE TO INCREASE BIAS ON PLATES SO WON'T GET HOT", with the
+      5E6-A) — read side by side with the 5E6-A to date the one substantive
+      change: a handwritten note on the 5E6 sheet by the bias-supply resistor
+      reads "THIS CHANGE TO INCREASE BIAS ON PLATES SO WON'T GET HOT", with the
       resistor's value struck through; the 5E6-A drawing prints the changed
-      value (3300 Ω) cleanly with no annotation, confirming the -A suffix
-      marks that fix landing. A lower series resistor in this bias-supply
-      topology delivers a more negative (larger-magnitude) bias, consistent
-      with the note's stated intent of reducing 6L6G plate dissipation.
+      value (3300 Ω) cleanly with no annotation, confirming the -A suffix marks
+      that fix landing. A lower series resistor ahead of this bias rectifier
+      delivers a more negative (larger-magnitude) bias, consistent with the
+      note's stated intent of reducing 6L6G plate dissipation.
     url: "https://el34world.com/charts/Schematics/files/Fender/Fender_bassman_5e6.pdf"
   - desc: >-
-      Schematic Heaven, Fender Bassman 5E6-A schematic + layout scan — a
-      higher-resolution independent scan of the same A-EE drawing, used to
-      cross-check the values above (title block, component values and printed
-      voltages all agree with the El34World copy).
+      Schematic Heaven, Fender Bassman 5E6-A schematic + layout scan — a second
+      archived copy of the same A-EE drawing.
     url: "https://schematicheaven.net/fenderamps/bassman_5e6a_schem.pdf"
   - desc: >-
       Wikipedia, "Fender Bassman" — dates the 5E6/5E6-A narrow-panel dual-
@@ -73,28 +77,15 @@ sources:
       family page).
     url: "https://en.wikipedia.org/wiki/Fender_Bassman"
 verification:
-  status: draft   # Four nodes miss their printed figures and are published as
-                  # misses rather than tuned away: the preamp rail BP3 reads
-                  # 315 V simulated against the chart's 275 V (14.5%, tol 8%),
-                  # and the three nodes it feeds follow it up — both V1 plates
-                  # at 161 V against 130 V (23.8%) and the shared V1 cathode at
-                  # 2.5 V against 2 V (26.2%). They are one fault, not four: the
-                  # two printed 10 kΩ droppers carry less current in the model
-                  # than the drawing's own rail figures imply (85 V and 60 V of
-                  # drop want 8.5 mA and 6.0 mA; the model draws 5.9 mA and
-                  # 4.7 mA), so every node below the first dropper sits high.
-                  # The likely reading error is which node feeds the 6L6G
-                  # screens — this netlist puts them on BP1 with the plates —
-                  # but that is a lug-level question the current scan could not
-                  # settle, and the same re-read owes V2's and V3's own pin
-                  # voltages (see voltages.yaml). Until it happens this circuit
-                  # stays draft, and the loadline preset it publishes rests on
-                  # the output stage, whose bias and B+ both gate green.
-                  # The artifact set is complete and is not what holds this
-                  # entry back: the board layout is drawn from the A-EE layout
-                  # page cited in sources, both renders and the social card are
-                  # present, and the drawn wiring is proved electrically
-                  # equivalent to netlist.cir. WORK ITEM: settle the screen-node
-                  # reading above on a sharper scan, then re-run.
+  status: draft   # Rebuilt 2026-09-10 from the A-EE drawing's two pages: the
+                  # netlist now carries all seven stages the schematic draws,
+                  # and every printed voltage (17 nodes) lands within the chart's
+                  # tolerance. The schematic and the board were redrawn with it;
+                  # both equivalence gates and the sheet-vs-board gate are clean.
+                  # It stays draft for the maintainer's review of the rebuilt
+                  # drawings. Two things the drawing does not settle: which input
+                  # jack feeds which grid (the layout takes both leads under the
+                  # board as a pair), and the choke's resistance (not printed;
+                  # the model's 110 Ω is sized to the printed 10 V drop).
 added: 2026-08-08
 contributors: [TheAnalogMaker]
