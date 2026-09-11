@@ -29,7 +29,7 @@ reservoir at **+340 V**. There is no choke here (the 5E1 that follows adds
 one; the 5F1 and AA764 drop it again) — a plain **500 Ω** resistor drops the
 rail to **+320 V**, which supplies only the 6V6 plate (through the
 output-transformer primary); a
-**25 kΩ** resistor then drops that node further to **+260 V**, and it is
+**25 kΩ** resistor then drops that node further to **+280 V**, and it is
 *this* third rail — not the plate's own +320 V node — that the drawing routes
 to the 6V6 screen, alongside the whole 6SJ7 plate/screen circuit. So the
 single output tube's screen shares a dropper-filtered rail with the preamp
@@ -50,8 +50,8 @@ cathode ties straight to ground, and a single 5 MΩ resistor returns the grid
 to ground too — with no cathode resistor anywhere in the stage. A real 6SJ7
 run this way self-biases to a small negative grid voltage from grid contact
 potential and rectified grid current, not from a cathode voltage drop. It is
-a real, period-correct circuit (matched by the printed chart's own +130 V
-plate reading, well below what a zero-bias 6SJ7 would show), and it
+a real, period-correct circuit — the printed chart puts its grid at −0.5 V
+with the cathode at ground — and it
 disappears from the Champ line entirely once the 5E1's 12AX7 arrives with
 conventional cathode-biased stages.
 
@@ -64,33 +64,39 @@ subcircuit, which ties the grid node only to the plate/cathode through AC-only
 Miller capacitances. Contact bias is exactly
 the mechanism that gap can't reach: with nothing but a capacitor and a
 to-ground resistor at the grid, this DC deck has no current path that would
-pull the grid negative, so it settles `Vg1` at 0 V — a real (if small)
-departure from the tube's actual operating point. The 6SJ7 plate node is
-therefore carried in the voltage table with no chart figure to compare
-against (reported, never gated) rather than compared against the printed
-+130 V, which is honest about what
-the simulation can and cannot show here rather than papering over it with a
-misleading percentage. The B+ rails and the 6V6 stage — which do not depend
-on this mechanism — are fully chart-gated as usual.
+pull the grid negative, so it settles the grid at 0 V where the sheet prints
+−0.5 V. The screen follows it: the sheet prints +21 V there, and the deck
+settles near +12 V. Those two figures are carried in the voltage table as
+reported, not gated. The 6SJ7 plate is gated like every other pin, and it lands
+inside the chart's ±20 % — +149.3 V against the printed +130 V — but with the
+stage's grid and screen off, that agreement says the plate voltage matches, not
+that the 6SJ7's operating point does. The B+ rails and the 6V6 stage do not
+depend on this mechanism and are chart-gated as usual.
 
 ## Verification
 
 The layout sheet prints a voltage chart (Fender's usual "read to ground with
-an electronic voltmeter, ±20%") giving the two B+ rails downstream of the
-reservoir (+320 V at the 6V6 plate, +260 V at the shared 6V6-screen/6SJ7
-rail), the 6SJ7 plate (+130 V, not chart-gated — see above), and the 6V6
-cathode (+14 V). The simulation lands within tolerance on every chart-gated
-node, three in all: the 6V6 plate rail 1.4% off (+324.4 V), the shared
-screen/preamp rail 3.9% off (+249.8 V), and the 6V6 cathode 9.7% off
-(+15.4 V) — all inside Fender's own ±20% convention.
+an electronic voltmeter, ±20%"): +340 V at the rectifier, +320 V where the
+500 Ω meets the 25 kΩ, +280 V on the far side of the 25 kΩ (lettered at the
+6V6's screen), the 6V6's plate and cathode at +300 V and +16 V, and the
+6SJ7's plate, screen and grid at +130 V, +21 V and −0.5 V. The simulation is
+gated on four of them and lands inside Fender's own ±20% on all four: the
++320 V junction 1.4% off (+324.4 V), the shared screen/preamp rail 10.8% off
+(+249.8 V), the 6SJ7 plate 14.8% off (+149.3 V) and the 6V6 cathode 4.0% off
+(+15.4 V). The shared rail runs low because the 25 kΩ carries 3.0 mA in the
+simulation against the 1.6 mA the printed 320 → 280 V drop implies, most of
+it the 6V6's screen current. The 6SJ7's screen and grid are reported, not
+gated (see above). The 6V6 plate pin is not a node of its own here: the model
+omits the output transformer's primary resistance, which drops the 20 V
+between the junction and the pin.
 
 The screen node is where this circuit punishes a careless reading. Tie the 6V6
-screen to the plate's own +320 V rail instead of the +260 V node the drawing
-actually feeds it from and the tube draws hard enough to pull the simulated
-cathode to +20.4 V — a 46% miss — while dragging the shared rail down to
-+303 V against its printed +260 V, a 17% miss on a node the tube is not
-supposed to load that hard. The chart catches it immediately, which is the
-point of gating against it.
+screen to the +320 V junction instead of the +280 V node the drawing actually
+feeds it from and the tube draws hard enough to lift the simulated cathode to
++20.4 V — 27.5% over the printed +16 V — while the shared rail, relieved of
+the screen current, climbs to +303 V and takes the 6SJ7's plate to +180 V
+against its printed +130 V, a 38.6% miss. The chart catches it on two nodes at
+once, which is the point of gating against it.
 
 ## The board, as the factory drew it
 

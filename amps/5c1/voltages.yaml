@@ -2,9 +2,15 @@
 # layout sheet (2026-08-08). The drawing's NOTICE prints Fender's convention:
 # "voltages read to ground with electronic volt meter, values shown +or-20%".
 # B+1 (+340 V reservoir) is the simulation reference, per project convention.
-source: "Fender Champ 5C1 (F-DH) layout sheet, printed chart: rails +340/+320/+260, 6SJ7 plate +130, 6V6 cathode +14."
+# Re-read at the sheet's full resolution (6510 x 4718) on 2026-09-10: the shared
+# rail prints +280 V and the 6V6 cathode +16 V (this table had +260 and +14,
+# neither of which the sheet prints), and the 6SJ7's screen and grid figures,
+# which it had not carried, are recorded below.
+source: "Fender Champ 5C1 (F-DH) layout sheet, printed chart: +340 V at the rectifier, +320 V at the 500 Ω/25 kΩ junction, +280 V on the far side of the 25 kΩ (printed at the 6V6 screen, pin 4); 6V6 plate +300 V and cathode +16 V; 6SJ7 plate +130 V, screen +21 V and grid −0.5 V."
 nodes:
-  BP2: { chart: 320, tol_pct: 20, note: "6V6 plate (via OT primary, DCR omitted) — single 500 Ω resistor dropper off the reservoir, no choke on this pre-5E1 circuit" }
-  BP3: { chart: 260, tol_pct: 20, note: "shared rail after the 25 kΩ dropper off BP2 — feeds the 6V6 screen (drawn off the far side of the 25 kΩ from its own plate, not off BP2) and the whole 6SJ7 plate/screen circuit" }
-  P1:  { chart: null, tol_pct: 20, note: "6SJ7 plate — chart reads +130 V, but this stage's grid-leak (contact) bias has no DC current path in the project's grid-current-free Koren tube models (a stated limitation of the corpus's tube models): with only a capacitor and a 5 Meg leak at the grid, this deck settles Vg1 at 0 V rather than the real tube's small negative contact bias, so the simulated plate current — and this node — is not comparable to the chart. Reported for reference, not gated." }
-  K2:  { chart: 14, tol_pct: 20, note: "6V6GT cathode, chart pin value (500 Ω, 25 µF bypass)" }
+  BP2: { chart: 320, tol_pct: 20, note: "the 500 Ω/25 kΩ junction, which feeds the output transformer's primary — a single 500 Ω dropper off the reservoir, no choke on this pre-5E1 circuit. The 6V6 plate pin itself prints +300 V, 20 V lower across the primary, whose resistance the model omits, so the plate simulates at this node's voltage" }
+  BP3: { chart: 280, tol_pct: 20, note: "shared rail after the 25 kΩ dropper off BP2, printed at the 6V6 screen (pin 4) — feeds the 6V6 screen (drawn off the far side of the 25 kΩ from its own plate, not off BP2) and the whole 6SJ7 plate/screen circuit" }
+  P1:  { chart: 130, tol_pct: 20, note: "6SJ7 plate, printed pin value — gated like every other pin, and inside the chart's ±20 %. The stage around it is not reproduced: its grid and screen are reported rather than gated (see G1 and SG1), so this pass shows the plate voltage agrees, not that the 6SJ7's operating point does" }
+  SG1: { chart: null, note: "6SJ7 screen — the drawing prints +21 V here. Reported, not gated: the stage is grid-leak (contact) biased, the corpus's tube models carry no grid-current path, and so the deck holds the grid at 0 V (G1) and the tube's screen current does not follow the real stage's; the screen simulates well below the printed figure" }
+  G1:  { chart: null, note: "6SJ7 grid — the drawing prints −0.5 V here, the contact bias the tube develops across its 5 MΩ leak. Reported, not gated: with no grid-current path in the corpus's tube models, nothing in this DC deck can pull the grid below 0 V" }
+  K2:  { chart: 16, tol_pct: 20, note: "6V6GT cathode, chart pin value (500 Ω, 25 µF bypass)" }
