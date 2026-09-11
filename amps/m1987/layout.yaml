@@ -28,7 +28,7 @@ heaters_unsourced: >-
   is derived from the factory drawing, so no factory drawing can establish
   its heater legs.
 
-caption: "Layout derived from the schematic — no factory layout sheet located. The Marshall model 1987 was a turret-board amp, documented by the factory as a schematic (Unicord 70-19-11, cited in meta.yaml), not a Fender-style dimensioned layout drawing. Board order and point-to-point wiring are reconstructed from schematic.kicad_sch / netlist.cir. All hookup and transformer leads are drawn in the neutral tone: with no layout sheet, no Marshall/Drake lead colours are asserted. The two input channels are unmatched by design — the high-treble channel (V1A) runs an 820 Ω cathode fully bypassed by 320 µF, the normal channel (V1B) a colder 2.7 kΩ with a 0.68 µF partial bypass. The three tone-stack caps sit on the board beside the 33 kΩ slope resistor, each under its own control, and are wired as the drawing wires them: the 500 pF from the cathode-follower output to the treble pot's top lug, one 0.022 µF from the slope's foot to the treble-bottom / bass node, the other from the slope's foot into the middle pot's wiper. Parts drawn off the board here: the bright caps (C5/C6) and their 470 kΩ resistors (RB1/RB2) mount across the volume pots; the input grid stoppers (68 kΩ) and 1 MΩ grid leaks (RG1/RG2) sit at the input jacks; the rectifier snubbers (C23/C24) sit across the diodes; and the 15 kΩ / 25 kΩ-trim / 47 kΩ bias divider (RBB/VR6/RBC) sets the negative-bias level at the bias supply. The 6.3 V heater chain (green twisted pair, PT → pilot lamp → the two EL34 outputs → the ECC83 phase inverter → the ECC83 second stage → the ECC83 input) is likewise derived: with no layout sheet its daisy order is the physical socket order and the twisted-pair green is the house heater idiom, not a sourced wire colour. Not a trace or a dimensioned reproduction."
+caption: "Layout derived from the schematic — no factory layout sheet located. The Marshall model 1987 was a turret-board amp, documented by the factory as a schematic (Unicord 70-19-11, cited in meta.yaml), not a Fender-style dimensioned layout drawing. Board order and point-to-point wiring are reconstructed from schematic.kicad_sch / netlist.cir. All hookup and transformer leads are drawn in the neutral tone: with no layout sheet, no Marshall/Drake lead colours are asserted. The two input channels are unmatched by design — the high-treble channel (V1A) runs an 820 Ω cathode fully bypassed by 320 µF, the normal channel (V1B) a colder 2.7 kΩ with a 0.68 µF partial bypass. The three tone-stack caps sit on the board beside the 33 kΩ slope resistor, each under its own control, and are wired as the drawing wires them: the 500 pF from the cathode-follower output to the treble pot's top lug, one 0.022 µF from the slope's foot to the treble-bottom / bass node, the other from the slope's foot into the middle pot's wiper. Parts drawn off the board here: the bright caps (C5/C6) and their 470 kΩ resistors (RB1/RB2) mount across the volume pots; the input grid stoppers (68 kΩ) and 1 MΩ grid leaks (RG1/RG2) sit at the input jacks; the rectifier snubbers (C23/C24) sit across the diodes. The negative-bias supply is drawn as the drawing wires it: the 220 kΩ from the HT winding's top end in series into the bias diode, an 8 µF filter, the 15 kΩ, and the bias node with its own 8 µF, which feeds the two grid leaks and is bled to chassis through the 47 kΩ and the 25 kΩ trimmer wired as a variable resistor. The 6.3 V heater chain (green twisted pair, PT → pilot lamp → the two EL34 outputs → the ECC83 phase inverter → the ECC83 second stage → the ECC83 input) is likewise derived: with no layout sheet its daisy order is the physical socket order and the twisted-pair green is the house heater idiom, not a sourced wire colour. Not a trace or a dimensioned reproduction."
 source:
   desc: "Marshall model 1987 factory drawing (Unicord 70-19-11, July 1970) — layout derived from this schematic; no factory layout sheet located"
   url: "https://www.drtube.com/schematics/marshall/1987u.gif"
@@ -45,11 +45,19 @@ wiring_claim: verified
 # Board-mounted parts. a / b are eyelet endpoints [row, col]; the body is drawn
 # between them (same row = axial part; shared column across rows = vertical leg).
 parts:
-  # --- negative-bias supply (HT-tap diode -> 220k -> -BIAS, 8u + 8u filters) ----
-  - { ref: C15,  a: [0, 0],  b: [0, 1] }    # 8 µF bias filter
-  - { ref: C16,  a: [0, 3],  b: [0, 4] }    # 8 µF bias filter
-  - { ref: RBA,  a: [1, 1],  b: [1, 2] }    # 220k bias series
-  - { ref: D1,   a: [1, 4],  b: [1, 5] }    # bias-supply rectifier diode
+  # --- negative-bias supply, as 70-19-11 wires it: the HT winding's top end ->
+  # 220k in series -> diode -> 8 µF / 15k -> the bias node with its own 8 µF ->
+  # 47k -> the 25k trimmer as a variable resistor to chassis. Four parts in a
+  # row on the upper row, sharing eyelets; each filter stands down from its
+  # node to the ground bus; the trimmer sits above the end of the row. D1 is drawn
+  # unbanded: the 70-19-11 bar faces the 220k, but the schematic this board
+  # would cite draws the diode the other way round.
+  - { ref: RBA,  a: [0, 0],  b: [0, 1] }    # 220k in series from the HT winding's top end
+  - { ref: D1,   a: [0, 1],  b: [0, 2], nudge: [0, 44] }    # bias rectifier (a = the 220k side)
+  - { ref: RBB,  a: [0, 2],  b: [0, 3], nudge: [0, -30] }    # 15k between the two filters
+  - { ref: RBC,  a: [0, 3],  b: [0, 4] }    # 47k from the bias node to the trimmer
+  - { ref: C15,  a: [0, 2],  b: [1, 2] }    # 8 µF filter at the diode's output, standing
+  - { ref: C16,  a: [0, 3],  b: [1, 3] }    # 8 µF filter at the bias node, standing
   # --- silicon HT rectifier + reservoir (B+1) ---------------------------------
   - { ref: D2,   a: [1, 7],  b: [1, 8] }    # HT rectifier (upper)
   - { ref: D3,   a: [1, 10], b: [1, 11] }   # HT rectifier (lower)
@@ -106,6 +114,7 @@ offboard:
   - { id: PT,  kind: xfmr,  edge: left,   at: 0.3, label: "Power trans" }
   - { id: L1,  ref: L1, kind: choke, edge: left, at: 1.5, label: "Choke" }
   - { id: PL1, kind: part, glyph: lamp, edge: left, at: 2.6, label: "Pilot lamp" }
+  - { id: VR6, ref: VR6, kind: pot, edge: top, at: 4.5, label: "Bias adj" }   # 25k trimmer — a variable resistor on 70-19-11 (arrow through the body)
   - { id: V4,  ref: V4, kind: tube, edge: bottom, at: 31,   label: "V4 · EL34" }
   - { id: V5,  ref: V5, kind: tube, edge: bottom, at: 38,   label: "V5 · EL34", label_nudge: [-40, 0] }  # caption left of centre, clear of the stack of harness lanes that runs under this socket
   - { id: SPK, kind: jack, edge: bottom, at: 41, label: "Spkr jacks" }
@@ -140,9 +149,9 @@ bus:
 
 runs:
   # --- silicon rectifier + reservoir (B+1) -----------------------------------
-  - { from: PT.ht1,  to: D2.a, via: [[2.6, 0.35], [6.6, 0.6]] }   # HT winding -> rectifier upper (PT-AC)
-  - { from: PT.ht2,  to: D3.a, via: [[3.4, 0.95], [9.6, 0.62]] }  # HT winding -> rectifier lower (PT-AC)
-  - { from: PT.htct, to: [1.45, 12], via: [[1.6, 1.75], [12, 1.75]] } # HT centre tap -> ground (PT-AC)
+  - { from: PT.ht1,  to: D2.a, via: [[-0.28, 1.14], [6.6, 1.22]] } # HT winding -> rectifier upper (PT-AC)
+  - { from: PT.ht2,  to: D3.a, via: [[-0.43, 0.41], [-0.5, 1.33], [9.6, 1.33]] } # HT winding -> rectifier lower (PT-AC)
+  - { from: PT.htct, to: [1.45, 0.2] }                             # HT centre tap -> ground (PT-AC)
   - { from: D2.b, to: C17.a, via: [[7.6, 0.42]] }        # rectifier -> reservoir B+1
   - { from: D3.b, to: C17.a, via: [[10.6, 0.5], [6.6, 0.42]] }   # rectifier -> reservoir B+1
   - { from: C17.a, to: C18.a, via: [[7.5, -0.4]] }       # reservoir parallel (B+1)
@@ -164,15 +173,15 @@ runs:
   - { from: C21.b, to: [1.45, 22.5], via: [[22.5, 0.6]] }
   - { from: C22.b, to: [1.45, 27] }
 
-  # --- negative-bias supply: HT tap -> D1 -> 220k -> -BIAS (8u + 8u) ----------
-  - { from: PT.bias, to: D1.a, via: [[2.9, 0.7], [4, 1.35]] }    # HT tap -> bias diode (PT-AC)
-  - { from: D1.b, to: RBA.b, via: [[3.4, 1.35]] }        # diode -> 220k series
-  - { from: RBA.a, to: C15.a, via: [[0.4, 0.5]] }        # -BIAS: 220k -> filter
-  - { from: C15.a, to: C16.a, via: [[1.5, -0.35]] }      # -BIAS filters parallel
-  - { from: C15.b, to: [1.45, 0.5], via: [[0.6, 0.7]] }
-  - { from: C16.b, to: [1.45, 5], via: [[4, 0.7]] }
+  # --- negative-bias supply (see the parts block) ------------------------------
+  - { from: PT.ht1, to: RBA.a }                          # HT winding's top end -> 220k (PT-AC)
+  - { from: C15.b, to: [1.45, 2] }                       # filter -> ground
+  - { from: C16.b, to: [1.45, 3] }                       # filter -> ground
+  - { from: RBC.b, to: VR6.lug1 }                        # 47k -> trimmer
+  - { from: VR6.lug2, to: VR6.lug1, via: [[4.35, -0.66], [4.35, -0.95], [3.94, -0.95]] }   # wiper strapped: a variable resistor
+  - { from: VR6.lug3, to: [1.45, 5.0], via: [[5.0, -0.3]] }   # trimmer -> chassis
   - { from: RGL1.b, to: RGL2.b, via: [[30.4, 1.16], [36.9, 1.16]] } # -BIAS ties both grid leaks
-  - { from: RGL1.b, to: C16.a, via: [[29.5, 1.15], [28.3, 1.15], [28.3, 2.5], [3.4, 2.5]] } # -BIAS backbone -> bias node
+  - { from: RGL1.b, to: RBC.a, via: [[29.5, 1.15], [28.3, 1.15], [28.3, 2.5], [3.8, 2.5], [3.8, 0.2]] } # -BIAS backbone -> bias node
 
   # --- EL34 output: grids, screens, plates, cathodes, OT ---------------------
   - { from: C13.b, to: V4.pin5, via: [[31.6, 1.5]] }     # PI coupler -> V4 grid
