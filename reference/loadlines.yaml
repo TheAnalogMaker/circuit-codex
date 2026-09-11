@@ -509,10 +509,10 @@ stages:
   output_tubes: 2
   config: push-pull
   bias: fixed
-  plate_node: BP1
-  plate_v: 456.0
+  plate_node: BR
+  plate_v: 460.0
   screen_node: BS1
-  screen_v: 455.908
+  screen_v: 457.89
   cathode_node: '0'
   cathode_v: 0.0
   rk_total: null
@@ -526,8 +526,8 @@ stages:
   ot_primary_z: null
   ot_primary_approx: false
   ot_primary_note: Fender 45216 — Push-pull 6L6GC output
-  sim_ip_ma: 20.9545
-  sim_ig2_ma: 0.1957
+  sim_ip_ma: 21.6637
+  sim_ig2_ma: 0.2334
 - amp: '6g5'
   name_style: Brown Pro-style
   tube: '6L6GC'
@@ -535,10 +535,10 @@ stages:
   output_tubes: 2
   config: push-pull
   bias: fixed
-  plate_node: BP1
-  plate_v: 456.0
+  plate_node: BR
+  plate_v: 460.0
   screen_node: S71
-  screen_v: 454.346
+  screen_v: 457.89
   cathode_node: '0'
   cathode_v: 0.0
   rk_total: null
@@ -553,8 +553,8 @@ stages:
   ot_primary_approx: false
   ot_primary_note: 'push-pull : speaker — Push-pull output into the 15-inch speaker; no part number printed
     on this sheet'
-  sim_ip_ma: 20.412
-  sim_ig2_ma: 0.1676
+  sim_ip_ma: 21.6637
+  sim_ig2_ma: 0.2334
 - amp: '6g6b'
   name_style: Blonde Bassman-style
   tube: '5881'

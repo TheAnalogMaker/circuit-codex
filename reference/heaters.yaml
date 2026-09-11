@@ -710,7 +710,7 @@ amps:
       pins:
       - 4
       - 5
-      socket: V3
+      socket: V1
     fully_established: false
   6g5:
     centre_tapped_sockets:
@@ -735,14 +735,14 @@ amps:
         grouping: opposite-legs
         reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
         tube: 12ax7
-      V5:
+      V4:
         drawn_on_pins:
         - 4
         - 5
         grouping: opposite-legs
         reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
         tube: 12ax7
-      V6:
+      V5:
         drawn_on_pins:
         - 4
         - 5
@@ -756,7 +756,7 @@ amps:
       pins:
       - 4
       - 5
-      socket: V2
+      socket: V1
     fully_established: false
   6g6b:
     centre_tapped_sockets:

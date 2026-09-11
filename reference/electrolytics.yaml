@@ -141,53 +141,14 @@ amps:
       ref: C25
   6g4:
     not_decided:
-    - ref: C10
+    - ref: CTOK
       verdict: undecided
-      why: 'C10.b: a lead on nothing else'
-    wrong:
-    - leads: '''+'' lead CK1D.a: 0 = +0.0 V (ground); other lead CK1D.b: K1D = +1.0 V (op-points)'
-      placed: 'by position: the left end of a can along a row'
-      plus_drawn_at: a
-      ref: CK1D
-    - leads: '''+'' lead CK1I.a: 0 = +0.0 V (ground); other lead CK1I.b: K1I = +1.4 V (op-points)'
-      placed: 'by position: the left end of a can along a row'
-      plus_drawn_at: a
-      ref: CK1I
-    - leads: '''+'' lead CK2D.a: 0 = +0.0 V (ground); other lead CK2D.b: K2D = +0.8 V (op-points)'
-      placed: 'by position: the left end of a can along a row'
-      plus_drawn_at: a
-      ref: CK2D
-    - leads: '''+'' lead CK2I.a: 0 = +0.0 V (ground); other lead CK2I.b: K2I = +1.4 V (op-points)'
-      placed: 'by position: the left end of a can along a row'
-      plus_drawn_at: a
-      ref: CK2I
-    - leads: '''+'' lead CBIAS.a: NBIAS = -55.0 V (ideal source VBIAS) through RBIAS2; other lead CBIAS.b:
-        0 = +0.0 V (ground)'
-      placed: 'by position: the top of a standing can'
-      plus_drawn_at: a
-      ref: CBIAS
-    - leads: '''+'' lead CBIAS2.a: NBIAS = -55.0 V (ideal source VBIAS); other lead CBIAS2.b: 0 = +0.0
-        V (ground)'
-      placed: 'by position: the top of a standing can'
-      plus_drawn_at: a
-      ref: CBIAS2
+      why: 'CTOK.a: reaches only ground, through RTOK'
   6g5:
     not_decided:
-    - ref: CF4
+    - ref: CTOK
       verdict: undecided
-      why: 'CF4.b: a lead on nothing else'
-    - ref: CF5
-      verdict: undecided
-      why: 'CF5.b: a lead on nothing else'
-    - ref: CK5
-      verdict: undecided
-      why: 'CK5.a: on K5, which has no simulated volts'
-    - ref: CK1B
-      verdict: undecided
-      why: 'CK1B.a: on K1B, which has no simulated volts'
-    - ref: CK2B
-      verdict: undecided
-      why: 'CK2B.a: on K2B, which has no simulated volts'
+      why: 'CTOK.a: reaches only ground, through RTOK'
   aa1164:
     not_decided:
     - ref: CKTO
@@ -384,7 +345,7 @@ amps:
       ref: C19
 summary:
   cans: 270
-  right: 196
-  undecided: 19
+  right: 206
+  undecided: 15
   unmarked: 0
-  wrong: 55
+  wrong: 49
