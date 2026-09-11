@@ -99,8 +99,9 @@ contain it. What is documented here is the AC30 without it.
 
 The factory drawing annotates its working voltages beside the circuit — +320 V at
 the rail, +290 V at the front-end anode supply, +170 V at each V1 anode, +1.6 V
-at V1's shared cathode, +230 V at each inverter anode, +55 V at the inverter tail
-junction, and the output stage's quiescent 10 V — but it prints no tabulated
+at V1's shared cathode, +230 V at each inverter anode, 56.5 V at the inverter's
+joined cathodes (lettered "565v", its decimal point not visible), +55 V at the
+inverter tail junction, and the output stage's quiescent 10 V — but it prints no tabulated
 valve-voltage chart of the kind Fender printed, and states no measurement
 convention. There is therefore no per-pin reference to verify against, and the
 circuit is published as a **draft** for the same reason its sibling AC15 is.
@@ -108,8 +109,9 @@ circuit is published as a **draft** for the same reason its sibling AC15 is.
 The agreement is nonetheless close. Simulated from the redrawn netlist with the
 +320 V rail driven at its printed value, the front-end supply lands at 295 V
 against a printed 290, the V1 anodes at 172 V against 170, V1's shared cathode at
-1.68 V against 1.6, the inverter anodes at 227 V against 230, and the output
-stage at 10.6 V of cathode bias against a printed 10. The worst gated node is the
+1.68 V against 1.6, the inverter anodes at 227 V against 230, its joined
+cathodes at 62 V against 56.5, and the output stage at 10.6 V of cathode bias
+against a printed 10. The worst gated node is the
 inverter's tail junction, 61 V against a printed 55 — about 10%, and the one
 figure on the sheet with a documented history: the modifications box records
 *"230V WAS 285V"* at Issue 3 of 11 October 1963, so at least one of this

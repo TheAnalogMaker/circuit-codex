@@ -23,7 +23,7 @@
 # the one carried here, because it is the one the sheet as amended prints, and it
 # is also the one the simulation lands on (227 V). The earlier 285 V figure is
 # recorded in notes.md rather than silently dropped.
-source: "JMI drawing OS/065, 'VOX A.C.30.36 AMPLIFIER CIRCUIT / NORMAL', title-block date 29-4-60, modifications through ISS.4 of 11-9-64 — working voltages annotated beside the circuit: +320 V rail, +290 V front-end anode supply, +170 V V1 anodes, +1.6 V V1 cathode, +230 V phase-inverter anodes, +55 V inverter tail junction, and 'QUIESCENT 10v / 12.5v AT 30 WATTS' at the shared EL84 cathode resistor. No tabulated valve-voltage chart is printed and no measurement convention is stated."
+source: "JMI drawing OS/065, 'VOX A.C.30.36 AMPLIFIER CIRCUIT / NORMAL', title-block date 29-4-60, modifications through ISS.4 of 11-9-64 — working voltages annotated beside the circuit: +320 V rail, +290 V front-end anode supply, +170 V V1 anodes, +1.6 V V1 cathode, +230 V phase-inverter anodes, '565v' (56.5 V; the decimal point is not visible) at the inverter's joined cathodes, +55 V inverter tail junction, and 'QUIESCENT 10v / 12.5v AT 30 WATTS' at the shared EL84 cathode resistor. No tabulated valve-voltage chart is printed and no measurement convention is stated."
 nodes:
   BPN:  { chart: 290, tol_pct: 20, note: "front-end anode supply, after the 22 kΩ dropper R10 from the +320 V rail (8 µF C4). Simulated slightly high by construction: any current the excluded Vibrato/Tremolo chain draws from this side of the supply is not modelled" }
   PV1A: { chart: 170, tol_pct: 20, note: "V1 Brilliant-channel anode (pin 1), 220 kΩ load R5" }
@@ -32,7 +32,7 @@ nodes:
   BPPI: { chart: null, note: "phase-inverter supply node, after its own 22 kΩ dropper R11 from the +320 V rail (8 µF C8) — the drawing annotates the anodes, not this node" }
   PPIA: { chart: 230, tol_pct: 20, note: "phase-inverter anode, Brilliant/Normal side (100 kΩ load R18). Annotation revised from 285 V at ISS.3, 11-10-63" }
   PPIB: { chart: 230, tol_pct: 20, note: "phase-inverter anode, Vibrato/Tremolo side (100 kΩ load R19) — the drawing prints one figure for the pair. R19's multiplier glyph is the one value on this copy that does not resolve cleanly; see the circuit story" }
-  KPI:  { chart: null, note: "phase-inverter shared cathode, above the 1.2 kΩ R16" }
+  KPI:  { chart: 56.5, tol_pct: 20, note: "phase-inverter joined cathodes (V2 pins 3/8), above the 1.2 kΩ R16 — OS/065 letters '565v' there with no decimal point visible; 565 V would stand above the +320 V rail, so the figure is 56.5 V, a volt and a half above the +55 V the sheet prints at the tail junction below R16" }
   JPI:  { chart: 55, tol_pct: 20, note: "tail junction over the 47 kΩ R15 — the return for both 1 MΩ grid leaks, and the drawing's one annotated figure inside the inverter's cathode circuit" }
   NGA:  { chart: null, note: "EL84 grid-drive line, side A (V3 + V5), returned to ground through R20 220 kΩ — 0 V by construction" }
   NGB:  { chart: null, note: "EL84 grid-drive line, side B (V4 + V6), returned to ground through R21 280 kΩ — the drawing's asymmetric partner to R20" }
