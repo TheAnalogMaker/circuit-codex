@@ -190,6 +190,9 @@ amps:
       why: 'CK2B.a: on K2B, which has no simulated volts'
   aa1164:
     not_decided:
+    - ref: CKTO
+      verdict: undecided
+      why: 'CKTO.b: reaches only ground, through RKTO'
     - ref: CKD1
       verdict: undecided
       why: 'CKD1.b: on KD1B, which has no simulated volts'
@@ -373,8 +376,8 @@ amps:
       plus_drawn_at: a
       ref: C19
 summary:
-  cans: 266
+  cans: 267
   right: 195
-  undecided: 16
+  undecided: 17
   unmarked: 0
   wrong: 55
