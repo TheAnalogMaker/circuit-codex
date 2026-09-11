@@ -81,6 +81,10 @@ python3 pipeline/verify_layout_nets.py       # layout↔netlist equivalence (+--
                                   #   + UNFED RECTIFIER: a rectifier's AC side
                                   #   reaching no power-transformer lead
                                   #   (report-only, same switch)
+                                  #   + electrolytic polarity: each can's drawn
+                                  #   '+' vs the DC sign; the worklist
+                                  #   reference/electrolytics.yaml is drift-
+                                  #   gated (regenerate with --export)
 python3 pipeline/check_heaters.py --selftest && \
 python3 pipeline/check_heaters.py            # heater wiring vs the amp's own declared
                                   #   supply, connection groups and returns, and

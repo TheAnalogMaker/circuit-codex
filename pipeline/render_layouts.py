@@ -2245,6 +2245,32 @@ class Renderer:
         a_low = first_is_low
         return (-1 if a_low else 1) if end == "a" else (1 if a_low else -1)
 
+    def plus_side(self, part):
+        """Which end of an electrolytic, 'a' or 'b', carries its drawn '+' TODAY,
+        and how that was decided: (end, how), end None when no '+' is drawn.
+
+        The mark is placed by POSITION, never from data. Both styles put it at
+        the LEFT end of a can lying along a row (the modern style's '+' bars,
+        the era sheet's gutter) and at the TOP of a standing can (the modern
+        crimp ring, the era '+'), read with the same orientation rule as
+        cathode_side(). Off the board only the era sheet marks a can, and only
+        on a top- or bottom-edge stub, over terminal a (the left one, see
+        part_terminal_pos()); a left/right-edge stub's can is drawn as a dogbone
+        with no mark, and the modern off-board glyph carries none.
+        verify_layout_nets holds this mark to the circuit's DC sign
+        (reference/electrolytics.yaml). A `plus: a|b` field, once the renderer
+        draws from one, is read here and nowhere else."""
+        if "a" in part and "b" in part:
+            (r1, c1), (r2, c2) = part["a"], part["b"]
+            if c1 == c2 and r1 != r2:
+                return ("a" if r1 < r2 else "b"), "by position: the top of a standing can"
+            return ("a" if c1 <= c2 else "b"), "by position: the left end of a can along a row"
+        if part.get("edge", "top") in ("top", "bottom"):
+            return "a", ("by position: over terminal a, the left one, of an off-board can "
+                         "(the era sheet only)")
+        return None, ("no '+' is drawn: a can on a left/right-edge stub carries no mark "
+                      "in either style")
+
     def bom_for(self, ref):
         rec = self.bom.get(ref)
         if rec is None:

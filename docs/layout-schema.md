@@ -129,6 +129,20 @@ space inside the body, and the value reflows into what is left. Set inline (as
 it was until 2026-08-04) the mark's bar struck the first digit and `+25MFD`
 read as `±25MFD` on every narrow can in the corpus.
 
+**Which end the `+` is on.** Today the `+` is placed by position, not from
+data. Both styles put it at the left end of a can lying along a row and at the
+top of a standing can (`render_layouts.plus_side()`, the same orientation
+reading as `cathode_side()`). Off the board only the era sheet marks a can,
+and only on a top- or bottom-edge stub, over terminal `a`. So a negative-bias
+filter can shows its `+` on the negative node, and a standing cathode bypass on
+a board whose ground bus runs along the top row shows its `+` at ground.
+`verify_layout_nets.py` holds each drawn `+` to the circuit's DC sign and
+keeps the result in `reference/electrolytics.yaml` (see *Electrolytic
+polarity* below). A `plus: a | b` field will replace the position rule,
+sourced from the factory layout's own `+` where it is legible and from the DC
+sign only where the layout prints none, and saying which. Until the renderer
+draws from it, no layout declares one.
+
 ## `offboard[]` — labelled stubs around the board
 
 ```yaml
@@ -1056,6 +1070,23 @@ other diodes of its own stack or bridge, and never enters ground or a DC node.
 The rule and its reasons are in `docs/schematic-nets.md` under *Rectifier
 feed*.
 
+**Electrolytic polarity: a drift-gated worklist, report-only.** Every
+electrolytic the board draws, board-mounted or an off-board `kind: part`, is
+read with the `+` the drawing puts on it (`plus_side()`). That `+` lead must
+sit on the more positive DC node, judged through the same node map and walk as
+the rectifier checks. Ground is 0 V, so a can with one lead on ground takes the
+other node's sign. The joint of a series-stacked pair of cans lies strictly
+between its two ends: a net carrying only the stack's leads and its balancing
+resistors cannot sit outside them. Two leads within 0.1 V are not ordered.
+
+Each can reads `right`, `WRONG`, `undecided`, or `unmarked` (no `+` drawn).
+`--export` writes `reference/electrolytics.yaml`: the summary, then, per board,
+every WRONG can with both leads' levels and every can not decided. A full run
+fails when that file is stale, as it does for `reference/heaters.yaml`. The
+verdicts join the DIFF lines only when `ELECTROLYTIC_BLOCKING` is set, which
+happens once `plus:` is declared and drawn and the file's `wrong` list is
+empty.
+
 `verify_layout_nets.py --selftest` (wired into CI) plants the adversarial audit's
 exact faults — one per proven hole class — and asserts each is caught: two
 endpoints swapped, a run deleted, a run rerouted to a wrong pin; an aliased-valve
@@ -1073,8 +1104,11 @@ DC short). A rectifier-polarity case sets the 5F8-A's bias rectifier to
 unchanged wiring verdict while the list is report-only. It then sets
 `cathode: a` and requires *confirmed*. A feed case requires that same
 rectifier to read *fed* as committed, and UNFED once its run from
-`PT.red-blue` is deleted. A gate that can't catch planted faults is
-decoration.
+`PT.red-blue` is deleted. Electrolytic cases take the 5F4's bias filter C15
+and the AB763's cathode bypass CKN1 as drawn (WRONG) and with the `+` turned to
+the other lead (right), and the 5F4's cathode bypass C3 both ways. They also
+require the JTM100's series-stacked C13 and C14 to be decided through their
+joint. A gate that can't catch planted faults is decoration.
 
 ```
 python3 pipeline/render_layouts.py                 # (re)generate SVGs first

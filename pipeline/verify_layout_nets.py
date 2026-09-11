@@ -114,6 +114,18 @@ into ground or a DC node. Polarity knows which side of ground a supply sits
 on; this knows a winding feeds it. Report-only under the same switch.
 
 ------------------------------------------------------------------------------
+ELECTROLYTIC POLARITY (2026-09-11) — REPORT-ONLY, a drift-gated worklist
+------------------------------------------------------------------------------
+The drawings place each can's '+' by position (render_layouts.plus_side: the
+left end of a can along a row, the top of a standing one), never from data.
+board_electrolytics holds that drawn '+' to the DC sign through the same node
+map (_BoardNodes): the '+' lead must sit on the more positive node, ground is
+0 V, and the joint of a series-stacked pair lies between its ends. Verdicts:
+right / WRONG / undecided / unmarked (no '+' drawn). They are written to
+reference/electrolytics.yaml by --export, and a full run fails when that file
+is stale. They join res.errors only when ELECTROLYTIC_BLOCKING is set.
+
+------------------------------------------------------------------------------
 VERDICT + GATE
 ------------------------------------------------------------------------------
 Per amp: PASS/FAIL with per-net diffs in builder language (extra connection /
@@ -134,6 +146,7 @@ import copy
 import math
 import re
 import sys
+from collections import Counter
 from itertools import product
 from pathlib import Path
 
@@ -771,6 +784,7 @@ class Result:
         self.anchor_class: dict = {}      # net_map anchor -> CONSTRAINING|REDUNDANT (H8)
         self.node_of_root: dict = {}      # the solved map: layout net root -> node
         self.polarity: list = []          # board_polarity() verdicts, report-only
+        self.electrolytics: list = []     # board_electrolytics() verdicts, report-only
 
 
 def _invert_basing(basing: dict) -> dict:
@@ -940,7 +954,8 @@ def _run_terminal_names(R: Renderer, spec) -> list[str]:
 
 
 def _check_layout(amp_id: str, layout: dict, bom: dict, net_map=None,
-                  netlist_path: "Path | None" = None) -> Result:
+                  netlist_path: "Path | None" = None,
+                  plus_override: "dict | None" = None) -> Result:
     """Solve one layout (in-memory) against its netlist and return the best
     Result. Shared by check_amp, the mutation self-test, and the H8 anchor
     classifier. `net_map` overrides layout['net_map'] when given (the classifier
@@ -1024,9 +1039,18 @@ def _check_layout(amp_id: str, layout: dict, bom: dict, net_map=None,
     # Rectifier polarity, judged once on the winning trial's node map. It lands
     # in res.polarity, never res.errors, so it cannot sway which half-assignment
     # trial wins, and it blocks nothing until POLARITY_BLOCKING is set.
-    res.polarity = board_polarity(
-        R, uf, res.node_of_root, node_volts(amp_id, netlist_path),
-        {c.ref for c in comps if c.kind in ("R", "C", "L")})
+    volts = node_volts(amp_id, netlist_path)
+    modelled = {c.ref for c in comps if c.kind in ("R", "C", "L")}
+    res.polarity = board_polarity(R, uf, res.node_of_root, volts, modelled)
+    # Electrolytic polarity: each can's DRAWN '+' against the DC sign, on the
+    # same node map. Report-only (res.electrolytics) until ELECTROLYTIC_BLOCKING.
+    res.electrolytics = board_electrolytics(
+        R, _BoardNodes(R, uf, res.node_of_root, volts, modelled), plus_override)
+    if ELECTROLYTIC_BLOCKING:
+        for c in res.electrolytics:
+            if c["verdict"] == "WRONG":
+                res.errors.append(f"REVERSED ELECTROLYTIC: {c['ref']}: {c['why']} "
+                                  f"({c['desc']})")
     if POLARITY_BLOCKING:
         for p in res.polarity:
             if p["verdict"] == "REVERSED":
@@ -1244,6 +1268,136 @@ def _solve(amp_id, layout, R, LG, uf, comps, nodes, net_map, part_terms,
 POLARITY_BLOCKING = False
 
 
+class _BoardNodes:
+    """A board's solved node map plus the unmodelled parts a walk may cross,
+    shared by the rectifier and the electrolytic checks so both read one graph.
+
+    Crossable (`body`): resistors, fuses and chokes as board or off-board parts
+    that carry no netlist element, every lug of a pot, and a switch with exactly
+    two terminals. Never a capacitor, a transformer lead, a tube pin or a diode."""
+
+    def __init__(self, R: Renderer, uf: UF, M: dict, volts: dict, modelled: set):
+        self.R, self.uf, self.M, self.volts, self.modelled = R, uf, M, volts, modelled
+        self.by_prefix: dict = {}
+        for term in uf.parent:
+            if isinstance(term, str) and "." in term and not term.startswith("@"):
+                self.by_prefix.setdefault(term.split(".", 1)[0], []).append(term)
+        self.body: dict = {}
+        for p in R.parts:
+            ref = p.get("ref")
+            if ref and self._conducts(ref):
+                self._cross(ref, [f"{ref}.a", f"{ref}.b"])
+        for it in R.offboard:
+            oid, kind = it.get("id"), it.get("kind")
+            if not oid:
+                continue
+            terms = sorted(self.by_prefix.get(oid, []))
+            if kind == "part" and it.get("ref") and self._conducts(it["ref"]):
+                self._cross(oid, [f"{oid}.a", f"{oid}.b"])
+            elif kind in ("pot", "choke") or (kind == "switch" and len(terms) == 2):
+                self._cross(oid, terms)
+        self.members = uf.members()
+
+    def cat(self, ref):
+        return category(str((self.R.bom.get(ref) or {}).get("part", "")))
+
+    def _conducts(self, bom_ref):
+        part = str((self.R.bom.get(bom_ref) or {}).get("part", "")).lower()
+        return self.cat(bom_ref) in ("res", "choke") or "fuse" in part
+
+    def _cross(self, ref, terms):
+        if ref in self.modelled or len(terms) < 2:
+            return
+        for term in terms:
+            self.body[term] = (ref, terms)
+
+    def neighbours(self, root):
+        for term in self.members.get(root, ()):
+            if term in self.body:
+                ref, terms = self.body[term]
+                for other in terms:
+                    if other != term and other in self.uf.parent:
+                        yield ref, self.uf.find(other)
+
+    def locate(self, term):
+        """(term, node, via, note) for judge_diode: the node a terminal sits on,
+        or inherits through supply_walk. Never uf.find() a terminal no run
+        reaches: find() would ADD it."""
+        if term not in self.uf.parent:
+            return (term, None, (), "no run reaches it")
+        root = self.uf.find(term)
+        if self.M.get(root) is not None:
+            return (term, self.M[root])
+        found, note = inherit_node(supply_walk(root, self.M.get, self.neighbours),
+                                   self.volts)
+        return (term, found[0], found[1]) if found else (term, None, (), note)
+
+    def interval(self, term):
+        """((lo, hi, open), description) for the DC level an electrolytic's lead
+        sits at, or (None, reason). A point for a modelled node, or one the lead
+        inherits through supply_walk; an OPEN interval for the joint of a
+        series-stacked pair (_midpoint)."""
+        if term not in self.uf.parent:
+            return None, "no run reaches it"
+        root = self.uf.find(term)
+        node = self.M.get(root)
+        if node is not None:
+            if node not in self.volts:
+                return None, f"on {node}, which has no simulated volts"
+            v, src = self.volts[node]
+            return (v, v, False), f"{node} = {v:+.1f} V ({src})"
+        mid = self._midpoint(root)
+        if mid:
+            return mid
+        found, note = inherit_node(supply_walk(root, self.M.get, self.neighbours),
+                                   self.volts)
+        if found:
+            n, via = found
+            v, src = self.volts[n]
+            return (v, v, False), f"{n} = {v:+.1f} V ({src}) through {', '.join(via)}"
+        others = [m for m in self.members.get(root, ())
+                  if not m.startswith("@") and m != term]
+        return None, (note or ("a lead on nothing else" if not others
+                               else "on no modelled node"))
+
+    def _midpoint(self, root):
+        """The joint of a series-stacked pair of filter cans: a net whose only
+        leads are two or more electrolytics' and unmodelled resistors' (the
+        stack's balancing resistors). At DC it lies strictly BETWEEN the far ends
+        of those parts, which is all a polarity needs. supply_walk's nearest-
+        ground rule would put it at B+ and decide nothing for the upper can."""
+        leads = [m for m in self.members.get(root, ()) if not m.startswith("@")]
+        cans = [m for m in leads if self.cat(m.split(".", 1)[0]) == "electro"]
+        if len(cans) < 2:
+            return None
+        for m in leads:
+            pre = m.split(".", 1)[0]
+            if m not in cans and (self.cat(pre) != "res" or pre in self.modelled):
+                return None
+        far = []
+        for m in leads:
+            pre, _, end = m.partition(".")
+            other = f"{pre}.{'b' if end == 'a' else 'a'}"
+            if other not in self.uf.parent:
+                continue
+            r2 = self.uf.find(other)
+            if r2 == root:
+                continue
+            node = self.M.get(r2)
+            if node is None:
+                found, _note = inherit_node(
+                    supply_walk(r2, self.M.get, self.neighbours), self.volts)
+                node = found[0] if found else None
+            if node is not None and node in self.volts:
+                far.append(self.volts[node][0])
+        if len(far) < 2 or max(far) - min(far) < ELEC_MARGIN_V:
+            return None
+        lo, hi = min(far), max(far)
+        stack = sorted({m.split(".", 1)[0] for m in cans})
+        return (lo, hi, True), (f"between {lo:+.1f} V and {hi:+.1f} V, the joint of the "
+                                f"series stack {', '.join(stack)}")
+
+
 def _is_power_xfmr(R: Renderer, it: dict) -> bool:
     """A supply transformer by its own words: the stub's label or its BOM part
     says power or mains (so never an output or a reverb transformer)."""
@@ -1279,56 +1433,9 @@ def board_polarity(R: Renderer, uf: UF, M: dict, volts: dict,
         if it.get("kind") == "part" and ref and it.get("id") and cat(ref) == "diode":
             items.append((ref, it["id"], it, "offboard"))
 
-    # the DC-conducting bodies a walk may cross: terminal -> (ref, its terminals)
-    by_prefix: dict = {}
-    for term in uf.parent:
-        if isinstance(term, str) and "." in term and not term.startswith("@"):
-            by_prefix.setdefault(term.split(".", 1)[0], []).append(term)
-    body: dict = {}
-
-    def cross(ref, terms):
-        if ref in modelled or len(terms) < 2:
-            return
-        for term in terms:
-            body[term] = (ref, terms)
-
-    def conducts(bom_ref):
-        part = str((R.bom.get(bom_ref) or {}).get("part", "")).lower()
-        return cat(bom_ref) in ("res", "choke") or "fuse" in part
-
-    for p in R.parts:
-        ref = p.get("ref")
-        if ref and conducts(ref):
-            cross(ref, [f"{ref}.a", f"{ref}.b"])
-    for it in R.offboard:
-        oid, kind = it.get("id"), it.get("kind")
-        if not oid:
-            continue
-        terms = sorted(by_prefix.get(oid, []))
-        if kind == "part" and it.get("ref") and conducts(it["ref"]):
-            cross(oid, [f"{oid}.a", f"{oid}.b"])
-        elif kind in ("pot", "choke") or (kind == "switch" and len(terms) == 2):
-            cross(oid, terms)
-
-    members = uf.members()
-
-    def neighbours(root):
-        for term in members.get(root, ()):
-            if term in body:
-                ref, terms = body[term]
-                for other in terms:
-                    if other != term and other in uf.parent:
-                        yield ref, uf.find(other)
-
-    def locate(term):
-        # never uf.find() a terminal no run reaches: find() would ADD it
-        if term not in uf.parent:
-            return (term, None, (), "no run reaches it")
-        root = uf.find(term)
-        if M.get(root) is not None:
-            return (term, M[root])
-        found, note = inherit_node(supply_walk(root, M.get, neighbours), volts)
-        return (term, found[0], found[1]) if found else (term, None, (), note)
+    # the DC-conducting bodies a walk may cross, the node map, and the walk
+    bn = _BoardNodes(R, uf, M, volts, modelled)
+    by_prefix, body, members, locate = bn.by_prefix, bn.body, bn.members, bn.locate
 
     out = []
     for ref, tid, spec, where in items:
@@ -1405,6 +1512,194 @@ def board_polarity(R: Renderer, uf: UF, M: dict, volts: dict,
                              "supply at either end) and no stack- or bridge-mate "
                              "with one"})
     return out
+
+
+# ============================================================================
+# electrolytic polarity (2026-09-11) — report-only, its own switch
+# ============================================================================
+# Which end of an electrolytic is positive is a physical fact a builder acts
+# on. The board drawings place each can's '+' by POSITION (the left end of a can
+# along a row, the top of a standing one: render_layouts.plus_side), never from
+# data, so a negative-bias filter can shows its '+' on the negative node and a
+# standing cathode bypass on a board whose ground bus runs along the top row
+# shows its '+' at ground: the heater lesson again, a renderer rule standing in
+# for a fact. Each can's DRAWN '+' is held to the circuit's DC sign, through the
+# same node map and supply walk the rectifier checks use: the '+' lead must sit
+# on the more positive node. Ground is 0 V, so a can with one lead on ground
+# takes the other node's sign; the joint of a series-stacked pair lies between
+# its ends (_BoardNodes._midpoint). The verdicts are a drift-gated worklist,
+# reference/electrolytics.yaml (regenerate with --export), and join res.errors
+# only when ELECTROLYTIC_BLOCKING is set, once `plus:` is declared and drawn
+# and the list's `wrong` is empty.
+ELECTROLYTIC_BLOCKING = False
+ELEC_MARGIN_V = 0.1        # two leads closer than this are not ordered
+ELEC_WORKLIST = ROOT / "reference" / "electrolytics.yaml"
+ELEC_WORKLIST_HEADER = """\
+# GENERATED - pipeline/verify_layout_nets.py --export. Do not hand-edit; a run
+# that disagrees with this file fails the gate, the same way reference/heaters.yaml
+# and reference/sheet-board.yaml are held to what a fresh run produces.
+#
+# WHAT THIS IS. Which end of an electrolytic is positive is a physical fact a
+# builder acts on, and a can fitted the wrong way round fails. The board
+# drawings place each can's '+' by POSITION (the left end of a can along a row,
+# the top of a standing one: render_layouts.plus_side), never from data, so a
+# negative-bias filter can shows its '+' on the negative node, and a standing
+# cathode bypass on a board whose ground bus runs along the top row shows its
+# '+' at ground. verify_layout_nets.py holds each drawn '+' to the circuit's DC
+# sign: the '+' lead must sit on the more positive node. Ground is 0 V; the
+# joint of a series-stacked pair of cans lies between its ends.
+#
+# HOW TO READ IT. `summary` counts every can on every board. `wrong` lists the
+# cans whose '+' is drawn on the MORE NEGATIVE lead, with both leads' levels.
+# `not_decided` lists the cans the DC model does not order (a lead on no
+# modelled node, or on a node with no simulated volts) and the cans drawn with
+# no '+' at all.
+#
+# CLEARING AN ENTRY. Once layout.yaml declares `plus: a|b` and the renderer
+# draws from it, declare each can from the factory layout's own '+' where it is
+# legible, else from the circuit's DC sign, saying which in the comment, and
+# re-export. The check is report-only (ELECTROLYTIC_BLOCKING) until `wrong` is
+# empty.
+"""
+
+
+def judge_can(plus: tuple, minus: tuple) -> str:
+    """'right' | 'WRONG' | 'undecided' for a can whose '+' lead sits at `plus`
+    and other lead at `minus`, each (lo, hi, open). Points must differ by
+    ELEC_MARGIN_V; an open interval (a stack's joint) lies strictly inside."""
+    (plo, phi, popen), (mlo, mhi, mopen) = plus, minus
+    if not (popen or mopen):
+        d = plo - mlo
+        return "right" if d >= ELEC_MARGIN_V else ("WRONG" if d <= -ELEC_MARGIN_V
+                                                   else "undecided")
+    if plo > mhi or (plo >= mhi and (popen or mopen)):
+        return "right"
+    if phi < mlo or (phi <= mlo and (popen or mopen)):
+        return "WRONG"
+    return "undecided"
+
+
+def board_electrolytics(R: Renderer, bn: _BoardNodes,
+                        plus_override: "dict | None" = None) -> list:
+    """Every electrolytic the board draws (parts[] rows, and off-board
+    `kind: part` items whose BOM type is electrolytic), its drawn '+'
+    (R.plus_side, or `plus_override` in the self-test), and whether that '+'
+    sits on the more positive lead."""
+    items = []
+    for p in R.parts:
+        ref = p.get("ref")
+        if ref and bn.cat(ref) == "electro":
+            items.append((ref, ref, p))
+    for it in R.offboard:
+        ref = it.get("ref")
+        if it.get("kind") == "part" and ref and it.get("id") and bn.cat(ref) == "electro":
+            items.append((ref, it["id"], it))
+    words = {"right": "the '+' is on the more positive lead",
+             "WRONG": "the '+' is drawn on the MORE NEGATIVE lead",
+             "undecided": f"the two leads sit within {ELEC_MARGIN_V:g} V"}
+    out = []
+    for ref, tid, spec in items:
+        if plus_override and ref in plus_override:
+            plus, how = plus_override[ref], "the self-test's override"
+        else:
+            plus, how = R.plus_side(spec)
+        c = {"ref": ref, "tid": tid, "plus": plus, "how": how, "desc": ""}
+        if plus is None:
+            c.update(verdict="unmarked", why=how)
+            out.append(c)
+            continue
+        minus = "b" if plus == "a" else "a"
+        ip, dp = bn.interval(f"{tid}.{plus}")
+        im, dm = bn.interval(f"{tid}.{minus}")
+        c["desc"] = f"'+' lead {tid}.{plus}: {dp}; other lead {tid}.{minus}: {dm}"
+        if ip is None or im is None:
+            c.update(verdict="undecided",
+                     why=f"{tid}.{plus}: {dp}" if ip is None else f"{tid}.{minus}: {dm}")
+        else:
+            v = judge_can(ip, im)
+            c.update(verdict=v, why=words[v])
+        out.append(c)
+    return out
+
+
+def electrolytic_worklist(electro: dict) -> dict:
+    """reference/electrolytics.yaml's body: the summary, then per board every
+    can whose '+' is drawn on the more negative lead, and every can not decided."""
+    summary = {"cans": 0, "right": 0, "wrong": 0, "undecided": 0, "unmarked": 0}
+    amps: dict = {}
+    for amp in sorted(electro):
+        wrong, rest = [], []
+        for c in electro[amp]:
+            summary["cans"] += 1
+            summary[{"WRONG": "wrong"}.get(c["verdict"], c["verdict"])] += 1
+            if c["verdict"] == "WRONG":
+                wrong.append({"ref": c["ref"], "plus_drawn_at": c["plus"],
+                              "placed": c["how"], "leads": c["desc"]})
+            elif c["verdict"] in ("undecided", "unmarked"):
+                rest.append({"ref": c["ref"], "verdict": c["verdict"], "why": c["why"]})
+        if wrong or rest:
+            entry: dict = {}
+            if wrong:
+                entry["wrong"] = wrong
+            if rest:
+                entry["not_decided"] = rest
+            amps[amp] = entry
+    return {"summary": summary, "amps": amps}
+
+
+def _layout_amp_ids() -> list:
+    return [d.name for d in sorted((ROOT / "amps").iterdir())
+            if d.is_dir() and d.name != "_template"
+            and (d / "layout.yaml").exists() and (d / "netlist.cir").exists()]
+
+
+def export_electrolytics() -> int:
+    electro = {}
+    for amp in _layout_amp_ids():
+        layout, bom = _load_layout(amp)
+        electro[amp] = _check_layout(amp, layout, bom).electrolytics
+    data = electrolytic_worklist(electro)
+    ELEC_WORKLIST.write_text(ELEC_WORKLIST_HEADER
+                             + yaml.safe_dump(data, sort_keys=True, width=100,
+                                              allow_unicode=True))
+    print(f"exported {ELEC_WORKLIST.relative_to(ROOT)} - "
+          + ", ".join(f"{k} {v}" for k, v in data["summary"].items()))
+    return 0
+
+
+def check_electrolytic_worklist(electro: dict) -> list:
+    """The committed worklist must be what a fresh run produces: a stale one
+    would misstate the size of the job it exists to measure."""
+    rel = ELEC_WORKLIST.relative_to(ROOT)
+    if not ELEC_WORKLIST.exists():
+        return [f"{rel} is missing - regenerate with pipeline/verify_layout_nets.py --export"]
+    committed = yaml.safe_load(ELEC_WORKLIST.read_text()) or {}
+    fresh = electrolytic_worklist(electro)
+    if committed == fresh:
+        return []
+    out = [f"{rel} is stale - regenerate with pipeline/verify_layout_nets.py --export"]
+    if committed.get("summary") != fresh.get("summary"):
+        out.append(f"    committed summary: {committed.get('summary')}")
+        out.append(f"    fresh     summary: {fresh.get('summary')}")
+    ca, fa = committed.get("amps") or {}, fresh.get("amps") or {}
+    changed = sorted(k for k in set(ca) | set(fa) if ca.get(k) != fa.get(k))
+    if changed:
+        out.append(f"    boards that differ: {', '.join(changed)}")
+    return out
+
+
+def _print_electrolytic_summary(electro: dict):
+    data = electrolytic_worklist(electro)
+    s = data["summary"]
+    print(f"\nelectrolytic polarity on the boards: {s['cans']} can(s); {s['right']} '+' on "
+          f"the more positive lead, {s['wrong']} WRONG, {s['undecided']} undecided, "
+          f"{s['unmarked']} drawn with no '+'")
+    print("  " + ("BLOCKING (ELECTROLYTIC_BLOCKING is set)" if ELECTROLYTIC_BLOCKING else
+                  "REPORT-ONLY: the '+' is drawn by position today; the worklist "
+                  "reference/electrolytics.yaml is drift-gated"))
+    for amp, entry in data["amps"].items():
+        if entry.get("wrong"):
+            print(f"  WRONG {amp}: " + ", ".join(w["ref"] for w in entry["wrong"]))
 
 
 def _check_twisted_heaters(res, R, sockets: dict):
@@ -1763,6 +2058,16 @@ def _print_result(res: Result):
         if f.get("verdict") == "UNFED":
             print(f"  POLAR | UNFED {p['ref']} ({f['role']} rectifier): {f['why']}"
                   + ("" if POLARITY_BLOCKING else "  (report-only)"))
+    for c in res.electrolytics:
+        if c["verdict"] == "WRONG":
+            print(f"  CAN   | WRONG {c['ref']}: {c['why']}, '+' drawn at {c['plus']} "
+                  f"({c['how']}) [{c['desc']}]"
+                  + ("" if ELECTROLYTIC_BLOCKING else "  (report-only)"))
+    if res.electrolytics:
+        n = Counter(c["verdict"] for c in res.electrolytics)
+        print(f"  can   | electrolytics: {len(res.electrolytics)}; {n['right']} '+' on the "
+              f"more positive lead, {n['WRONG']} WRONG, {n['undecided']} undecided, "
+              f"{n['unmarked']} drawn with no '+'")
     conf = [p["ref"] for p in res.polarity if p["verdict"] == "confirmed"]
     if conf:
         print(f"  polar | orientation confirmed by the DC model: {', '.join(conf)}")
@@ -2102,16 +2407,58 @@ def selftest() -> int:
     if got.get("why"):
         print(f"          -> {got['why']}")
 
+    # ---- electrolytic polarity: the drawn '+' against the DC sign. The list is
+    #      report-only, but the rule must bite in both directions, and the joint
+    #      of a series stack must be decided, not shrugged. ------------------
+    print("=== electrolytic polarity (report-only; the rule itself must bite) ===")
+    can_results: list = []
+
+    def _can(amp, ref, override=None):
+        lay, bm = _load_layout(amp)
+        r_ = _check_layout(amp, lay, bm, plus_override=override)
+        return r_, next((c for c in r_.electrolytics if c["ref"] == ref), None)
+
+    for amp, ref, want, label in (
+            ("5f4", "C15", "WRONG", "5F4 bias filter can as drawn: '+' on the -40 V node"),
+            ("5f4", "C3", "right", "5F4 cathode bypass C3 as drawn"),
+            ("ab763", "CKN1", "WRONG", "AB763 cathode bypass CKN1 as drawn: '+' at ground")):
+        r_, c = _can(amp, ref)
+        got = c["verdict"] if c else "absent"
+        can_results.append(got == want)
+        print(f"  [CAN] {label} -> {got} (want {want}): {'OK' if got == want else 'FAIL'}")
+        if c:
+            print(f"          -> {c['desc'][:150]}")
+        flip_want = {"WRONG": "right", "right": "WRONG"}[want]
+        if c and c["plus"]:
+            _r2, c2 = _can(amp, ref, {ref: "b" if c["plus"] == "a" else "a"})
+            got2 = c2["verdict"] if c2 else "absent"
+            can_results.append(got2 == flip_want)
+            print(f"  [CAN] ... with its '+' turned to the other lead -> {got2} (want "
+                  f"{flip_want}): {'OK' if got2 == flip_want else 'FAIL'}")
+        if not ELECTROLYTIC_BLOCKING:
+            quiet = not any(e.startswith("REVERSED ELECTROLYTIC") for e in r_.errors)
+            can_results.append(quiet)
+            if not quiet:
+                print("  [CAN] a report-only verdict leaked into the errors: FAIL")
+    for ref in ("C13", "C14"):
+        _r3, c3 = _can("jtm100", ref)
+        decided = bool(c3) and c3["verdict"] in ("right", "WRONG") and "series stack" in c3["desc"]
+        can_results.append(decided)
+        print(f"  [CAN] JTM100 {ref}, half of a series-stacked pair, decided through its "
+              f"joint -> {c3['verdict'] if c3 else 'absent'}: {'OK' if decided else 'FAIL'}")
+
     unit_checks = [h2_ok, h2b_ok, h3_ok, h3b_ok, h3c_ok, h3d_ok, h4_ok,
                    h8_red_ok, h8_con_ok, pp_base_ok, pp_break_caught,
                    pot_surfaced, bias_surfaced, h9_fp_ok]
     unit_ok = all(unit_checks)
     pol_ok = all(pol_results)
-    all_ok = ok_mut and unit_ok and pol_ok
-    n_cases = n_mut + len(unit_checks) + len(pol_results)
+    can_ok = all(can_results)
+    all_ok = ok_mut and unit_ok and pol_ok and can_ok
+    n_cases = n_mut + len(unit_checks) + len(pol_results) + len(can_results)
     print(f"\nselftest: {passed}/{n_mut} planted-fault mutations caught; "
           f"resolver/island/anchor unit checks {'all OK' if unit_ok else 'FAILED'}; "
-          f"rectifier polarity and feed {sum(pol_results)}/{len(pol_results)} "
+          f"rectifier polarity and feed {sum(pol_results)}/{len(pol_results)}; "
+          f"electrolytic polarity {sum(can_results)}/{len(can_results)} "
           f"({n_cases} cases)"
           + ("" if all_ok else "  !! GATE IS LEAKY"))
     return 0 if all_ok else 1
@@ -2125,6 +2472,8 @@ def main(argv: list[str]) -> int:
         return analyze(argv[1])
     if argv and argv[0] == "--selftest":
         return selftest()
+    if argv and argv[0] == "--export":
+        return export_electrolytics()
     only = None
     if argv and argv[0] == "--amp":
         only = argv[1]
@@ -2136,11 +2485,13 @@ def main(argv: list[str]) -> int:
     report_only_fail = 0
     checked = 0
     polarity: list = []
+    electro: dict = {}
     for d in amp_dirs:
         if only and d.name != only:
             continue
         res = check_amp(d.name, verbose=True)
         polarity.extend((d.name, p) for p in res.polarity)
+        electro[d.name] = res.electrolytics
         checked += 1
         if not res.ok:
             if res.claim:
@@ -2154,7 +2505,13 @@ def main(argv: list[str]) -> int:
         print("BLOCKING: an amp claims its wiring is verified but it is not "
               "electrically equivalent to the netlist.")
     _print_polarity_summary(polarity)
-    return 1 if hard_fail else 0
+    _print_electrolytic_summary(electro)
+    # The worklist is committed, so a full run that disagrees with it fails:
+    # a stale worklist misstates the size of the job it exists to measure.
+    stale = [] if only else check_electrolytic_worklist(electro)
+    for line in stale:
+        print(f"FAIL {line}" if not line.startswith("    ") else line)
+    return 1 if (hard_fail or stale) else 0
 
 
 def _print_polarity_summary(polarity: list):
