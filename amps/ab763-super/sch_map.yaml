@@ -14,6 +14,10 @@ element_pins:
   # discrete resistor: it is the T4 primary winding, B+ lead to plate lead.
   RTR4: [T4.2, T4.1]
 
+# Hard-gated: verify_schematic_nets.py fails CI on any finding for this sheet.
+# Claimed 2026-09-02 after the drawing went clean against netlist.cir.
+schematic_claim: verified
+
 # Transformer terminals this sheet letters as global labels instead of drawing
 # them as pins of its transformer symbol. Read by verify_schematic_nets.py's
 # UNFED RECTIFIER, which never infers a terminal from a label's name. When the
@@ -22,7 +26,3 @@ element_pins:
 winding_labels:
   BIAS TAP: tap   # a dedicated PT tap (the sheet's own note), feeding
                   # DBIAS; T1's symbol has no tap pin
-
-# Hard-gated: verify_schematic_nets.py fails CI on any finding for this sheet.
-# Claimed 2026-09-02 after the drawing went clean against netlist.cir.
-schematic_claim: verified

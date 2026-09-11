@@ -14,6 +14,10 @@ symbols:
   # it IS drawn, so it binds to the symbol instead.)
   RCHOKE: L1
 
+# Hard-gated: verify_schematic_nets.py fails CI on any finding for this sheet.
+# Claimed 2026-09-02 after the drawing went clean against netlist.cir.
+schematic_claim: verified
+
 # Transformer terminals this sheet letters as global labels instead of drawing
 # them as transformer pins: the sheet draws no power transformer. Read by
 # verify_schematic_nets.py's UNFED RECTIFIER, which never infers a terminal
@@ -23,7 +27,3 @@ winding_labels:
   HT_A: ht_a      # an HT winding end; D2 rectifies it
   HT_B: ht_b      # the other end; D3 rectifies it, and it feeds bias
                   # rectifier D1 through RBA
-
-# Hard-gated: verify_schematic_nets.py fails CI on any finding for this sheet.
-# Claimed 2026-09-02 after the drawing went clean against netlist.cir.
-schematic_claim: verified

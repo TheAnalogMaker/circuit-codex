@@ -335,10 +335,11 @@ never one. It is **fed** when it reaches either of these:
   `winding_labels` as a transformer terminal (`ht_a`, `ht_b`, `tap`, or
   `bias` for a bias feed the transformer symbol has no pin for).
 
-A label never counts by its name. Sixteen sheets draw no power transformer and
-start their rectifiers from labels. Ten of them have a silicon rectifier, and
-those ten declare their labels, as do the AB763-Twin and AB763 Super for a bias
-tap their transformer symbol lacks. A declaration for a terminal the drawn
+A label never counts by its name. A sheet that draws no power transformer
+starts its rectifiers from labels, and every such sheet with a silicon rectifier
+declares them, as do the AB763-Twin and AB763 Super for a bias tap their
+transformer symbol lacks (`grep -l winding_labels amps/*/sch_map.yaml` lists
+the declaring sheets). A declaration for a terminal the drawn
 transformer *does* carry as a pin is a `STALE DECLARATION`: the label must
 reach the pin. So a label stopped short at the transformer end is caught too,
 and a sheet that gains a transformer has to drop its lines. Otherwise the diode

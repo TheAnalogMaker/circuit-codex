@@ -182,7 +182,8 @@ its own stack or bridge (diodes sharing a net that is neither ground nor a
 modelled node), never into ground or a DC node. It is fed when the walk
 reaches a cx:PT pin other than the centre tap, or a global label that
 sch_map.yaml `winding_labels` declares as a winding terminal the sheet's
-transformer symbol has no pin for (16 sheets draw no transformer). Names are
+transformer symbol has no pin for (a sheet that draws no transformer letters
+its leads that way). Names are
 never inferred, and a declaration for a terminal the drawn transformer does
 carry is a STALE DECLARATION. Otherwise UNFED RECTIFIER, a finding like any
 other. A diode with no role
@@ -279,9 +280,9 @@ WINDING_CLOSERS = {"cx:FUSE", "cx:SWITCH"}
 # drawing its transformer's pin, each with the cx:PT pin it stands for (None:
 # the symbol has no pin for it, as for a separate bias winding). WHICH label
 # stands for which terminal is declared per sheet in sch_map.yaml
-# `winding_labels`, never inferred from a name: 16 sheets draw no power
-# transformer, and the AB763-Twin and AB763 Super letter a bias tap their
-# transformer symbol lacks.
+# `winding_labels`, never inferred from a name: a sheet that draws no power
+# transformer letters its leads, and the AB763-Twin and AB763 Super letter a
+# bias tap their transformer symbol lacks.
 WINDING_TERMINALS = {"ht_a": "HT_A", "ht_b": "HT_B", "tap": "HT_TAP",
                      "bias": None}
 

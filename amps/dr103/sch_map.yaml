@@ -15,6 +15,10 @@ anchors:
   VR1.2: "0"               # Brilliant volume wiper — RM1's return
   VR2.2: "0"               # Normal volume wiper — RM2's return
 
+# Hard-gated: verify_schematic_nets.py fails CI on any finding for this sheet.
+# Claimed 2026-09-02 after the drawing went clean against netlist.cir.
+schematic_claim: verified
+
 # Transformer terminals this sheet letters as global labels instead of drawing
 # them as transformer pins: the sheet draws no power transformer. Read by
 # verify_schematic_nets.py's UNFED RECTIFIER, which never infers a terminal
@@ -26,7 +30,3 @@ winding_labels:
   BIAS_AC: bias   # the bias rectifier D5's AC feed, through RB1; the
                   # sheet does not say whether it is an HT tap or a
                   # winding of its own, so it is not declared a tap
-
-# Hard-gated: verify_schematic_nets.py fails CI on any finding for this sheet.
-# Claimed 2026-09-02 after the drawing went clean against netlist.cir.
-schematic_claim: verified
