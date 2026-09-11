@@ -1185,6 +1185,10 @@ const TONE_STACK_GATE_EXTRAS = [
     refs: { trebleCap: 'C4', treblePot: 'VR3', trebleShuntCap: 'C7', bassCoupler: 'C3', bassShunt: 'RBL', bassSeries: 'RTS', bassPot: 'VR4', bassLegCap: 'CBS', outSeries: 'RTO' },
   },
   {
+    id: '5e5a', kind: 'split', wiring: 'split',
+    refs: { trebleCap: 'C8', treblePot: 'VR4', trebleShuntCap: 'C7', bassCoupler: 'C14', bassShunt: 'RSH', bassSeries: 'RSL', bassPot: 'VR3', bassLegCap: 'C15', outSeries: 'RSR' },
+  },
+  {
     // Wiring-only, and it must stay that way until the solver grows an element
     // for it: the ladder tonestack.js models has no resistor between the treble
     // capacitor and the treble pot, and this channel's drawing has one. The

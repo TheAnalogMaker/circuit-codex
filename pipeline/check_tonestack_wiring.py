@@ -166,12 +166,6 @@ UNCHECKED_NETWORKS = {
     "6g3:bright": "The second of the 6G3's two single-knob blends (0.02 uF cut).",
 
     # --- networks the lab has no `kind` for at all.
-    "5e5a": "The 5F4's split network, redrawn at lug level from the J-EE sheet on "
-            "2026-09-10: 250 pF from the cathode follower into the Treble pot (0.01 uF "
-            "cold end to ground, wiper = output), and a 0.1 uF-coupled bass branch (220 "
-            "kOhm leak, 100 kOhm into the Bass pot's wiper, 0.005 uF leg) recombined "
-            "through 220 kOhm. check_split walks this kind on the 5F4 and 5E4-A; this "
-            "sheet is not walked until its refs are entered in the spec tables.",
     "6g6b:bass": "Cathode-follower-fed network with a 1 MOhm bass leg bridged by two "
                  "0.25 uF capacitors and a 10 kOhm dropper paralleled by a 25 kOhm Bass "
                  "control, and the channel's Treble control sitting in the shared driver "
