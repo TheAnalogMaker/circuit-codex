@@ -210,7 +210,7 @@ runs:
   - { from: V2.pin3, to: RKA.a, via: [[13, 1.6]] }   # V2B cathode → 1.5k
   - { from: RKA.b, to: RKB.a, via: [[13.1, 1.55], [15.4, 1.55]] }  # junction → 56k cathode load (lane clear of RL4)
   - { from: RKB.b, to: [1.45, 16] }                  # 56k → ground bus
-  - { from: RKA.b, to: C8.a, via: [[13, 0.55]] }     # junction → cathode-side coupler
+  - { from: RKA.a, to: C8.a }                        # cathode (the 1.5k's top) → cathode-side coupler, as F-EE's layout draws it
   - { from: C8.b, to: V4.pin5, via: [[15.5, 3.32], [8.5, 3.32]] }  # coupler → V4 grid (approach from left of pin 8)
   - { from: RGPI.a, to: RKA.b, via: [[17, 0.6], [12.4, 0.6]] }    # PI grid leak → junction (upper lane)
   - { from: RGPI.b, to: V2.pin2, via: [[18.6, 1.7]] }  # PI grid leak → V2B grid (from right)

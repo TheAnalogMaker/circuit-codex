@@ -94,12 +94,15 @@ s.junction(tpi["p"][0], pty)
 s.wire(r, pty, 155, pty)
 s.wire(155, pty, 155, 92)               # own column: up the grid-leak column
                                         # this lead ran through RG6A's body
-# Cathode-side tap at the 1.5k/56k junction — the balanced point the netlist
-# and notes both name (JPI). It used to be taken off the cathode pin itself.
-s.wire(138.43, 129.54, 146.05, 129.54)
-l, r = s.series_h("C", "C8", ".1u", 149.86, 129.54)
-s.wire(r, 129.54, 155, 129.54)
-s.wire(155, 129.54, 155, 132)
+# Cathode-side tap ON the cathode, the top of the 1.5k: F-EE's schematic runs
+# the .1-200 from the dot above the 1500 and its layout puts the cap's eyelet on
+# the 1500's cathode end. (11e9875 had moved it to the 1.5k/56k junction to
+# agree with a netlist that read C8 on JPI; the netlist was the misreading.)
+s.junction(138.43, 121.92)
+s.wire(138.43, 121.92, 146.05, 121.92)
+l, r = s.series_h("C", "C8", ".1u", 149.86, 121.92)
+s.wire(r, 121.92, 155, 121.92)
+s.wire(155, 121.92, 155, 132)
 
 kpin6 = {}
 for y, vref, gl, st in [(92, "V3", "RG6A", "R3s"), (132, "V4", "RG6B", "R4s")]:

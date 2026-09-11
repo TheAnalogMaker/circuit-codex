@@ -51,10 +51,12 @@ RK66 K66 0 250
 
 * DC-open caps (both leads on a named DC node — placement layout-checked):
 * cathode-bypass caps + the cathodyne's two output couplers. The cathode-side
-* coupler taps the 1.5k/56k junction (JPI) — the balanced point matching the
-* plate's 56k load — as the drawing shows, not the cathode pin.
+* coupler C8 is taken off the cathode itself (KPI), the top of the 1.5k — the
+* F-EE schematic runs the .1-200 from the dot above the 1500, and the layout
+* puts the cap's eyelet on the 1500's cathode end. The 1.5k/56k junction (JPI)
+* carries only the grid-leak return.
 C10 KAY 0 25u
 C4  K2A 0 25u
 C9  K66 0 25u
 C7  PPI G6A 0.1u
-C8  JPI G6B 0.1u
+C8  KPI G6B 0.1u

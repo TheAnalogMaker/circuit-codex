@@ -24,7 +24,9 @@ and **22k** droppers: B+1 (output plates) → B+2 (screens) → B+3 (preamp).
 The 5E3's phase inverter uses a wiring detail that's easy to miss: V2B's
 cathode runs through **1.5k** to a junction, then **56k** to ground, and the
 **1M grid leak returns to that junction** rather than to ground — the tone
-network's capacitors AC-couple the grid. The stage therefore biases itself:
+network's capacitors AC-couple the grid. The lower output coupler is taken off
+the cathode itself, at the top of the 1.5k, not off the junction: both the
+schematic and the layout page draw it there. The stage therefore biases itself:
 simulation puts the cathode at 45.8 V and the junction at 44.6 V — a clean
 −1.2 V bias — with the plate (56k from B+3) at 190 V.
 
