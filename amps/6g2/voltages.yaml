@@ -9,15 +9,35 @@
 # centre tap — and every rail below it is solved through the printed
 # droppers; see netlist.cir.
 #
-# VERIFIED 2026-08-08 against this printed chart: all eleven nodes gated, worst
-# 3.9% (KPI/JPI) against the sheet's own +/-20% convention.
-source: "Fender 'Princeton' Model 6G2 (H-FA) drawing, printed voltages: +315 (reservoir / OT centre tap), +312 (6V6 screen node), +280 (preamp/PI rail), +230 (cathodyne plate), +185 (both 7025 plates), +1.5 (both 7025 cathodes), cathodyne cathode +56.5 into a +55 tail junction, -35 (6V6 fixed bias, and the tremolo oscillator's own +200/oscillating plate, excluded — see the circuit story)"
+# VERIFIED 2026-08-08 against this printed chart. Nine of its eleven nodes are
+# gated, worst 3.9% (KPI/JPI) against the sheet's own +/-20% convention. The
+# two 7025 plates print +135 V on both pages, which the chart's own +1.5 V
+# cathode figures contradict, so PA and PB are carried as disputed.
+source: "Fender 'Princeton' Model 6G2 (H-FA) drawing, printed voltages: +315 (reservoir / OT centre tap), +312 (6V6 screen node), +280 (preamp/PI rail), +230 (cathodyne plate), +135 (both 7025 plates, printed on the schematic and the layout page — disputed, see PA), +1.5 (both 7025 cathodes), cathodyne cathode +56.5 into a +55 tail junction, -35 (6V6 fixed bias, and the tremolo oscillator's own +200/oscillating plate, excluded — see the circuit story)"
 nodes:
   BS:   { chart: 312, tol_pct: 8,  note: "6V6 screen node, one 1000 Ohm-1W dropper below the driven reservoir — internal target, tighter than the drawing's own +/-20%" }
   BD:   { chart: 280, tol_pct: 8,  note: "preamp/PI rail, 10k-1W below the screen node — internal target" }
-  PA:   { chart: 185, tol_pct: 20, note: "V1A (7025) plate, 100k off BD" }
+  PA:
+    chart: 135
+    disputed: true
+    dispute_note: >-
+      V1A (7025) plate, 100k off BD. Both pages of H-FA print +135 V here, the
+      3 unambiguous on the 800 ppi layout copy. The chart contradicts itself:
+      its +1.5 V across V1A's 1500 Ohm cathode resistor is 1.0 mA, and 1.0 mA
+      through the 100 kOhm plate load from the printed +280 V rail drops 100 V,
+      leaving about 180 V at the plate. 135 V would take 1.45 mA, which would
+      put 2.2 V on that cathode, not the printed 1.5 V. No reading of the sheet
+      makes both figures true.
   KA:   { chart: 1.5, tol_pct: 20, note: "V1A cathode, over its own 1.5k/25uF" }
-  PB:   { chart: 185, tol_pct: 20, note: "V1B (7025) plate, 100k off BD — the drawing prints the same value at both 7025 plates" }
+  PB:
+    chart: 135
+    disputed: true
+    dispute_note: >-
+      V1B (7025) plate, 100k off BD — the drawing prints +135 V at both 7025
+      plates, on both pages. Same contradiction as PA: +1.5 V across V1B's
+      cathode (1500 Ohm, with the 56 kOhm feedback leg in parallel, 1461 Ohm
+      together) is about 1.03 mA, and that through the 100 kOhm load from
+      +280 V drops about 103 V, leaving about 177 V at the plate, not 135.
   KB:   { chart: 1.5, tol_pct: 20, note: "V1B cathode, over its unbypassed 1.5k — the 56k speaker feedback lands on this node, a second DC path to ground (the speaker line sits at ~0 V through the output transformer's secondary)" }
   PPI:  { chart: 230, tol_pct: 20, note: "cathodyne plate, 56k load from BD" }
   KPI:  { chart: 56.5, tol_pct: 20, note: "cathodyne cathode pin, above the 1.5k cathode resistor into the tail" }

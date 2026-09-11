@@ -122,12 +122,21 @@ The drawing prints a comprehensive per-pin voltage chart, values ±20 %, read
 to ground with an electronic voltmeter — the notice Fender printed on its
 charts throughout this period — and considerably more complete than the
 5F2-A's undocumented single-ended predecessor or the AC15's five scattered
-annotations. The simulation reproduces every gated node, eleven in all, within
+annotations. The simulation reproduces every gated node, nine in all, within
 4 % of the printed chart (worst nodes: the cathodyne's cathode pin and tail
 junction, 3.9 %; then V1B's cathode, 3.4 %, where the feedback resistor is a
 second path to ground; every other node inside 2 %) — tighter than every other
 *verified* entry in this corpus, all eighteen of which report a worst node
 above 3.9 %.
+
+Two printed figures are carried as disputed rather than gated. Both pages
+print **+135 V** at both 7025 plates, the 3 unambiguous on the 800 ppi layout
+copy. The same chart prints +1.5 V over each 1.5 kΩ cathode resistor, which
+is 1.0 mA; 1.0 mA through a 100 kΩ plate load from the +280 V rail leaves
+about 180 V at the plate, and 135 V would need 1.45 mA, which would put 2.2 V
+on the cathode. No reading of the sheet makes both figures true, so the plates
+are recorded as printed and set aside. The simulation puts them at 185 V
+and 184 V.
 
 One component value on this sheet is settled by the chart rather than by the
 ink, and it is worth stating which: the cathodyne's cathode resistor, in the
@@ -144,8 +153,9 @@ rail chain, both preamp stages, the cathodyne's plate load, the output stage,
 and the bias supply — carries no such ambiguity.
 
 This circuit is published as **verified**: every node the chart prints is
-compared, and the worst of them sits 3.9 % out against a sheet that states its
-own readings to ±20 %.
+compared — nine gated, the two 7025 plates disputed as above — and the worst
+gated node sits 3.9 % out against a sheet that states its own readings to
+±20 %.
 
 ## The oscillator, excluded
 
