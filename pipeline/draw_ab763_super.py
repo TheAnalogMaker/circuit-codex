@@ -6,10 +6,11 @@ amps/ab763-super/meta.yaml. Two preamp channel rows at the top, each a gain
 stage into its tone stack into a second gain stage (Normal — the plain two-knob
 stack; Vibrato — the genuine three-knob FMV stack, its Middle a real 10 kΩ pot
 in place of the Normal channel's fixed 6.8 kΩ bleed resistor), the reverb
-driver/recovery/mixer block below them, the tremolo oscillator (single triode,
-excluded from netlist.cir — no static DC point) under that, the long-tailed-
-pair phase inverter and the 6L6GC pair on the right, and the rectifier/filter
-and bias supplies along the bottom.
+driver/recovery/mixer block below them, the long-tailed-pair phase inverter and
+the 6L6GC pair on the right, the tremolo (both halves of V5 — the phase-shift
+oscillator and the neon-lamp driver, excluded from netlist.cir, neither having a
+static DC point) under the output pair, and the rectifier/filter and bias
+supplies along the bottom.
 
 Two cathode networks are SHARED, and the sheet draws each of them once, under
 the boxed letter its source drawing gives it. Node KA (boxed [A]) is one 820 Ω
@@ -216,23 +217,23 @@ s.shunt_rc("RKA", "820", "CKA", "25u", XV2B, YV + 9)
 s.junction(XV2B, YV + 9)
 s.wire(XV2B, YV + 9, XV2B + 16, YV + 9)
 s.glabel("KA", XV2B + 16, YV + 9, 0)
-# V2B plate tees to two independent couplers: CRS (500p) to the reverb driver
-# grid, and CCV2 (0.02u) to the dry side of the mix node — matching notes.md's
-# "feeds two places" description exactly.
+# V2B plate -> CCV2 (0.02u) -> the dry node, which feeds BOTH the reverb send
+# (CRS, 500p) and, through 3.3M || 10 pF, the mix driver's grid. Until
+# 2026-09-10 the send was drawn off the plate itself, ahead of CCV2.
 teeb = YV - 7.62 - 3.48
 s.wire(XV2B, teeb, 160, teeb)
 s.junction(XV2B, teeb)
 cl, cr = s.series_h("C", "CCV2", ".02u", 166, teeb)
 s.wire(160, teeb, cl, teeb)
 s.wire(cr, teeb, 176, teeb)
+s.junction(176, teeb)
 s.wire(176, teeb, 176, 150)
-s.glabel("MIXG", 176, 150, 270)
-# the reverb send tees off the plate ROW on its own riser, clear of the plate
+s.glabel("DRY", 176, 150, 270)
+# the reverb send rises from the dry node on its own riser, clear of the plate
 # load column and of the rail flag at its head
-s.junction(160, teeb)
-s.wire(160, teeb, 160, teeb - 18)
+s.wire(176, teeb, 176, teeb - 18)
 rl, rr = s.series_h("C", "CRS", "500p", 128, teeb - 18)
-s.wire(160, teeb - 18, rr, teeb - 18)
+s.wire(176, teeb - 18, rr, teeb - 18)
 s.wire(rl, teeb - 18, 40, teeb - 18)
 s.glabel("RVSEND", 40, teeb - 18, 180)
 
@@ -311,102 +312,59 @@ ml2, mr2 = s.series_h("R", "RMR", "470k", 188, teer + 3.81)
 s.wire(182, teer + 3.81, ml2, teer + 3.81)
 s.wire(mr2, teer + 3.81, 196, teer + 3.81)
 s.wire(196, teer + 3.81, 196, 150)
-s.glabel("MIXG", 196, 150, 90)   # same net as CCV2's dry-side MIXG stub above, by name
+s.glabel("MIXG", 196, 150, 90)   # the mix driver's grid (below), joined by name
 
-# mix driver V3a: grid = MIXG (dry Vibrato + recovered reverb); RMR2 220k mix-
-# node reference to ground; RGD1 3.3M grid leak; CBD1 10p bright cap; RLD1
-# 100k -> BD; cathode to the shared [E] network by label, no resistor here
+# mix driver V3a, as the C-FD sheet draws it: the dry node reaches the grid
+# through RGD1 3.3M with CBD1 10p across it, IN SERIES; the grid (MIXG) takes
+# the reverb return (RMR 470k, above) and its DC return RMR2 220k to ground.
+# RLD1 100k -> BD; cathode to the shared [E] network by label, no resistor
+# here. Until 2026-09-10 this sheet drew RGD1 as a grid leak to ground and
+# CBD1 from the grid to the PLATE.
 YM = YR + 22
-s.glabel("MIXG", 202, YM, 180)
-s.wire(206, YM, 210, YM)
-s.junction(210, YM)
-s.sym("R", "RMR2", "220k", 210, YM + 3.81)
-s.gnd(210, YM + 7.62)
-s.wire(210, YM, 216, YM)
-s.sym("R", "RGD1", "3.3M", 216, YM + 3.81)
-s.gnd(216, YM + 7.62)
-s.wire(216, YM, 222, YM)
-s.wire(222, YM, 222, YM - 6)
-s.junction(222, YM)
-cbl, cbr = s.series_h("C", "CBD1", "10p", 228, YM - 6)
-s.wire(222, YM - 6, cbl, YM - 6)
-s.wire(cbr, YM - 6, 234, YM - 6)
-s.wire(234, YM - 6, 234, YM - 7.62 - 3.48)
+s.glabel("DRY", 198, YM - 14, 90)
+s.wire(198, YM - 14, 198, YM)
+s.junction(198, YM - 6)
+gl, gr = s.series_h("R", "RGD1", "3.3M", 204, YM)
+s.wire(198, YM, gl, YM)
+s.wire(gr, YM, 212, YM)
+cbl, cbr = s.series_h("C", "CBD1", "10p", 204, YM - 6)
+s.wire(198, YM - 6, cbl, YM - 6)
+s.wire(cbr, YM - 6, 212, YM - 6)
+s.wire(212, YM - 6, 212, YM)
+s.junction(212, YM)
 t3a = s.triode("V3A", "12AX7", 234, YM)
-s.wire(222, YM, t3a["g"][0], YM)
+s.wire(212, YM, t3a["g"][0], YM)
+s.junction(218, YM)
+s.sym("R", "RMR2", "220k", 218, YM + 3.81, lx=-9.4)   # the grid leak
+s.gnd(218, YM + 7.62)
+s.junction(222, YM)
+s.wire(222, YM, 222, YM - 12)
+s.glabel("MIXG", 222, YM - 12, 90)
 s.plate_load("RLD1", "100k", t3a["p"], "BD")
 # Cathode: the drawing boxes this pin [E] and returns it to the 820 Ohm / 25 uF
 # drawn at the reverb recovery. No resistor of its own.
 s.wire(234, YM + 7.62, 234, YM + 11)
 s.glabel("KE", 234, YM + 11, 270)
-# mix-driver plate -> CCD1 0.001u -> PI hot grid line (PIG) — same net as the
-# Normal channel's own PIG stub above (RMD1's output), joined by name alone;
-# no physical wire run between the two, so neither stub is a pass-through.
+# mix-driver plate -> CCD1 0.1u -> node X -> RMIXV 220k -> the phase-inverter
+# input junction (PIG), where the Normal channel's RMD1 lands too, joined by
+# name. The Intensity control hangs from X and the photocell shunts its wiper
+# to ground: the tremolo works on this stage's OUTPUT. Until 2026-09-10 this
+# sheet drew CCD1 as .001 straight to PIG, with no 220k and no Intensity here.
 teem = YM - 7.62 - 3.48
 s.wire(234, teem, 240, teem)
 s.junction(234, teem)
-cl, cr = s.series_h("C", "CCD1", ".001u", 244, teem)
+cl, cr = s.series_h("C", "CCD1", ".1u", 244, teem)
 s.wire(240, teem, cl, teem)
-s.wire(cr, teem, 250, teem)
-s.glabel("PIG", 250, teem, 0)
-
-# ============================ TREMOLO OSCILLATOR (excluded) ============
-YT = 232
-s.caption('Tremolo oscillator (V5, one 12AX7 half) — excluded from the netlist (see the circuit story)', 26, 199, 1.4)
-s.note('The tremolo oscillator has no static DC operating point, so it is excluded from the netlist (see the circuit story); its supply taps BP1 directly, a driven node, so excluding it moves no gated node.')
-t5 = s.triode("V5", "12AX7", 60, YT, lx=-16.0, ly=-12.0)
-s.plate_load("RTO2", "220k", t5["p"], "BP1")
-s.wire(60, YT + 7.62, 60, YT + 9)
-s.shunt_rc("RKTO1", "2.7k", "CKTO1", "25u", 60, YT + 9)
-# plate tees: (a) phase-shift network back to the grid, (b) the intensity feed
-tee5 = YT - 7.62 - 3.48
-s.junction(60, tee5)
-cl, cr = s.series_h("C", "CTO1", ".01u", 74, tee5)   # plate -> node N1
-s.wire(60, tee5, cl, tee5)
-s.wire(cr, tee5, 90, tee5)
-s.junction(90, tee5)                                  # N1: speed network
-# Speed control: a 3 MOhm-RA pot used as a RHEOSTAT, wiper strapped back to
-# its hot lug (the idiom the AA1164's own speed control is drawn with).
-s.sym("POT", "VRSPD", "3M-RA speed", 98, tee5, rot=90, lx=-4.6, ly=-10.0)
-s.wire(90, tee5, 94.19, tee5)
-s.wire(98, tee5 - 5.08, 94.19, tee5 - 5.08)
-s.wire(94.19, tee5 - 5.08, 94.19, tee5)
-s.junction(94.19, tee5)
-sl, sr = s.series_h("R", "RTO1", "100k", 108, tee5)
-s.wire(101.81, tee5, sl, tee5)
-s.gnd(sr, tee5, rot=0)
-# N1 -> CTO2 -> node N2 -> RTOG 1M to ground -> grid. Routed well clear (in x)
-# of the reverb driver's cathode network (RKRD/CKRD) directly above, so the
-# two blocks' labels never crowd each other.
-s.wire(90, tee5, 90, YT - 20)
-cl2, cr2 = s.series_h("C", "CTO2", ".01u", 62, YT - 20)
-s.wire(90, YT - 20, cr2, YT - 20)
-s.wire(cl2, YT - 20, 38, YT - 20)
-s.junction(38, YT - 20)
-s.sym("R", "RTOG", "1M", 38, YT - 20 + 3.81)
-s.gnd(38, YT - 20 + 7.62)
-s.wire(38, YT - 20, 38, YT)
-s.wire(38, YT, 52.38, YT)
-s.note('The vibrato footswitch grounds the oscillator grid bus and stops the oscillator (period detail; not modelled here)')
-# Intensity: the oscillator's PLATE PIN row (clear of the speed network above
-# it) -> VRINT 50k-RA as a rheostat -> RINT 27k -> the optocoupler's neon lamp.
-YI = t5["p"][1]
-s.junction(60, YI)
-s.wire(60, YI, 120.19, YI)
-s.sym("POT", "VRINT", "50k-RA int", 124, YI, rot=90, lx=-4.6, ly=6.4)
-s.wire(124, YI - 5.08, 120.19, YI - 5.08)
-s.wire(120.19, YI - 5.08, 120.19, YI)
-s.junction(120.19, YI)
-il, ir = s.series_h("R", "RINT", "27k", 136, YI)
-s.wire(127.81, YI, il, YI)
-op = s.opto("OPTO", "neon + photocell", 152, YI + 2.54)
-s.wire(ir, YI, op["l1"][0], op["l1"][1])
-s.wire(op["l2"][0], op["l2"][1], op["l2"][0] - 6, op["l2"][1])
-s.gnd(op["l2"][0] - 6, op["l2"][1])
-s.wire(op["p1"][0], op["p1"][1], op["p1"][0] + 6, op["p1"][1])
-s.glabel("MIXG", op["p1"][0] + 6, op["p1"][1], 0)     # photocell shunts the mix-driver grid
-s.wire(op["p2"][0], op["p2"][1], op["p2"][0] + 6, op["p2"][1])
-s.gnd(op["p2"][0] + 6, op["p2"][1])
+ml, mr = s.series_h("R", "RMIXV", "220k", 258, teem)
+s.wire(cr, teem, ml, teem)
+s.wire(mr, teem, 266, teem)
+s.glabel("PIG", 266, teem, 0)
+s.junction(252, teem)                                   # X
+s.wire(252, teem, 252, teem + 6)
+s.sym("POT", "VRINT", "50k-RA int", 252, teem + 9.81, lx=6.0, ly=6.0)
+s.gnd(252, teem + 13.62)
+s.wire(257.08, teem + 9.81, 262, teem + 9.81)
+s.glabel("PHOTOCELL", 262, teem + 9.81, 0)
 
 # ============================ PHASE INVERTER (LTP) =====================
 XPI = 300
@@ -530,6 +488,100 @@ s.glabel("SPKR", XO + 55.43, 111.46, 0)
 s.wire(XO + 52.89, 116.54, XO + 55.43, 116.54)
 s.glabel("GND", XO + 55.43, 116.54, 0)
 
+# ============================ TREMOLO (excluded) =======================
+# V5 is a 12AX7 with BOTH halves in use, as the C-FD sheet draws it (read at
+# 3299 x 2551): V5A the phase-shift oscillator (+280 V plate, +2.5 V cathode)
+# and V5B the neon-lamp driver (+390 V plate, +17.0 V cathode). The ladder:
+#   plate -.02- S [Speed 3M-RA + 100k to ground] -.01- N1 -.01- grid,
+#   with 1M from N1 and 1M from the grid meeting at J (the footswitch
+#   junction), and J -2.2M- the bias supply's filter node. V5B's grid is N1.
+# Until 2026-09-10 this sheet drew one triode, a two-cap ladder to a grounded
+# 1M, and an Intensity rheostat plus a 27k in series with the lamp off the
+# oscillator's plate, with the photocell on the mix driver's grid.
+YT = 256
+XA, XB = 340, 406
+s.caption('Tremolo — oscillator V5A and neon-lamp driver V5B; neither half has a static DC operating point, so both are excluded from the netlist (see the circuit story)', 296, 203, 1.4)
+s.note('Neither tremolo half has a static DC operating point, so V5 is excluded from the netlist (see the circuit story); both halves tap BP1 directly, a driven node, so excluding them moves no gated node.')
+t5a = s.triode("V5A", "12AX7", XA, YT)
+t5b = s.triode("V5B", "12AX7", XB, YT)
+s.plate_load("RTO2", "220k", t5a["p"], "BP1")
+s.sym("R", "RKTO1", "2.7k", XA, YT + 11.43)
+s.gnd(XA, YT + 15.24)
+s.sym("C", "CKTO1", "25u", XA + 8, YT + 11.43)
+s.wire(XA, YT + 7.62, XA + 8, YT + 7.62)
+s.wire(XA, YT + 15.24, XA + 8, YT + 15.24)
+tee5 = YT - 7.62 - 3.48
+YN1 = YT - 32                                   # the N1 row
+s.junction(XA, tee5)
+cl, cr = s.series_h("C", "CTO1", ".02u", XA + 10, tee5)
+s.wire(XA, tee5, cl, tee5)
+s.wire(cr, tee5, XA + 18, tee5)                 # S
+s.junction(XA + 18, tee5)
+# Speed control: a 3 MOhm-RA pot used as a RHEOSTAT, wiper strapped back to
+# its hot lug (the idiom the AA1164's own speed control is drawn with).
+s.sym("POT", "VRSPD", "3M-RA speed", XA + 26, tee5, rot=90, lx=-4.6, ly=6.4)
+s.wire(XA + 18, tee5, XA + 22.19, tee5)
+s.wire(XA + 26, tee5 - 5.08, XA + 22.19, tee5 - 5.08)
+s.wire(XA + 22.19, tee5 - 5.08, XA + 22.19, tee5)
+s.junction(XA + 22.19, tee5)
+sl, sr = s.series_h("R", "RTO1", "100k", XA + 36, tee5)
+s.wire(XA + 29.81, tee5, sl, tee5)
+s.wire(sr, tee5, XA + 42, tee5)
+s.gnd(XA + 42, tee5, rot=0)
+# S -.01- N1, along the row above the plate load's rail flag
+s.wire(XA + 18, tee5, XA + 18, YN1)
+cl, cr = s.series_h("C", "CTO2", ".01u", XA - 10, YN1)
+s.wire(XA + 18, YN1, cr, YN1)
+s.wire(cl, YN1, XA - 20, YN1)                   # N1
+s.junction(XA - 20, YN1)
+# N1 -1M- J
+sl, sr = s.series_h("R", "RTOG1", "1M", XA - 32, YN1)
+s.wire(XA - 20, YN1, sr, YN1)
+s.wire(sl, YN1, XA - 44, YN1)
+# N1 -.01- the grid node; the grid node -1M- J
+s.sym("C", "CTO3", ".01u", XA - 20, YT - 16)
+s.wire(XA - 20, YN1, XA - 20, YT - 19.81)
+s.wire(XA - 20, YT - 12.19, XA - 20, YT)
+s.junction(XA - 20, YT)
+s.wire(XA - 20, YT, t5a["g"][0], YT)
+sl, sr = s.series_h("R", "RTOG2", "1M", XA - 32, YT)
+s.wire(XA - 20, YT, sr, YT)
+s.wire(sl, YT, XA - 44, YT)
+# J, and its 2.2M to the bias supply's filter node
+s.wire(XA - 44, YN1, XA - 44, YT)
+s.junction(XA - 44, YT)
+s.sym("R", "RTOG3", "2.2M", XA - 44, YT + 3.81, lx=-9.4)
+s.wire(XA - 44, YT + 7.62, XA - 44, YT + 11)
+s.glabel("BIAS FILTER", XA - 44, YT + 11, 270)
+s.note('The vibrato footswitch grounds the junction of the two 1 MΩ ladder resistors and the 2.2 MΩ, and stops the oscillator (the pedal jack is not drawn here)')
+# N1 -> the lamp driver's grid, over the top of the ladder
+s.wire(XA - 20, YN1, XA - 20, YN1 - 12)
+s.wire(XA - 20, YN1 - 12, XB - 14, YN1 - 12)
+s.wire(XB - 14, YN1 - 12, XB - 14, YT)
+s.wire(XB - 14, YT, t5b["g"][0], YT)
+# lamp driver: 100k cathode, 10M plate bleeder, the neon lamp in series with
+# 100k to the +460 V rail
+s.sym("R", "RKTO2", "100k", XB, YT + 11.43)
+s.gnd(XB, YT + 15.24)
+s.sym("C", "CKTO2", "25u", XB + 8, YT + 11.43)
+s.wire(XB, YT + 7.62, XB + 8, YT + 7.62)
+s.wire(XB, YT + 15.24, XB + 8, YT + 15.24)
+s.plate_load("RTO10", "10M", t5b["p"], "BP1")
+op = s.opto("OPTO", "neon + photocell", XB + 24, tee5 + 2.54, ly=-10.0)
+s.junction(XB, tee5)
+s.wire(XB, tee5, op["l1"][0], op["l1"][1])
+s.wire(op["l2"][0], op["l2"][1], op["l2"][0], YT)
+s.wire(op["l2"][0], YT, XB + 24, YT)
+s.sym("R", "RLAMP", "100k", XB + 24, YT + 3.81)
+s.wire(XB + 24, YT + 7.62, XB + 24, YT + 10)
+s.glabel("BP1", XB + 24, YT + 10, 270)
+# the photocell shunts the Intensity control's wiper (at the mix driver's
+# output) to ground
+s.wire(op["p1"][0], op["p1"][1], op["p1"][0] + 6, op["p1"][1])
+s.glabel("PHOTOCELL", op["p1"][0] + 6, op["p1"][1], 0)
+s.wire(op["p2"][0], op["p2"][1], op["p2"][0] + 4, op["p2"][1])
+s.gnd(op["p2"][0] + 4, op["p2"][1])
+
 # ============================ POWER SUPPLY (bottom) =====================
 YPW = 262
 s.text("Power supply — T1 125P5D 360-0-360 V, GZ34 full-wave, T2 125C1A choke · standby/mains AC switch omitted", 40, 238, 1.5)
@@ -597,7 +649,7 @@ s.wire(198, YPW + 4, 198, YPW + 8)
 
 # ============================ BIAS SUPPLY ================================
 YB = YPW - 4
-s.text("Bias supply — a dedicated PT tap, silicon-rectified, 25 µF-filtered, through an adjustable 10 kΩ-L pot", 218, 236, 1.4)
+s.text("Bias supply — PT tap, silicon rectifier, 25 µF filter; 10 kΩ-L pot over a 27 kΩ leg, wiper to -52 V", 218, 236, 1.4)
 s.glabel("BIAS TAP", 218, YB, 180)
 s.wire(218, YB, 221.92, YB)
 s.sym("DIODE_SS", "DBIAS", "Si", 227, YB, lx=-2.0, ly=-5.4, rot=180, label_rot=0)
@@ -608,16 +660,23 @@ s.wire(r, YB, 250, YB)
 s.junction(246, YB)
 s.sym("C", "CBIAS", "25u 50V", 246, YB + 3.81)
 s.gnd(246, YB + 7.62)
-# The bias pot is drawn as a two-terminal element in the -52 V feed, so its
-# wiper is strapped to its hot lug: an adjustable pot with a floating wiper is
-# a fixed 10 k. (No hum-balance leg on this platform - see the header.)
+# The filter node also takes the tremolo ladder's 2.2M (RTOG3).
 s.wire(250, YB, 258.19, YB)
+s.junction(254, YB)
+s.wire(254, YB, 254, YB - 6)
+s.glabel("BIAS FILTER", 254, YB - 6, 90)
+# The 10k-L pot's track runs from the filter node to a 27k leg to ground, and
+# its WIPER is the -52 V grid line: the C-FD sheet's -52V line runs to the
+# wiper arrow. Until 2026-09-10 the pot was drawn as a rheostat in series with
+# the line, and the 27k was drawn in the tremolo as an Intensity series
+# resistor. (No hum-balance leg on this platform - see the header.)
 s.sym("POT", "VRBIAS", "10k-L bias", 262, YB, rot=90, lx=-3.8, ly=6.4)
-s.wire(262, YB - 5.08, 258.19, YB - 5.08)
-s.wire(258.19, YB - 5.08, 258.19, YB)
-s.junction(258.19, YB)
-s.wire(265.81, YB, 274, YB)
-s.glabel("-52V", 274, YB, 0)
+s.wire(265.81, YB, 270, YB)
+s.sym("R", "RBIAS2", "27k", 270, YB + 3.81)
+s.gnd(270, YB + 7.62)
+s.wire(262, YB - 5.08, 262, YB - 10)
+s.wire(262, YB - 10, 276, YB - 10)
+s.glabel("-52V", 276, YB - 10, 0)
 
 s.write(OUT)
 print(f"wrote {OUT}")

@@ -33,10 +33,11 @@
 *                  100k-loaded preamp triode below).
 *
 * The negative-bias supply (a dedicated PT tap, a silicon rectifier, a 25 uF/
-* 50 V filter can and a 10k-L adjustment pot) is replaced by an ideal -52 V
-* source, exactly as its AC/ripple-filtering role warrants — the pot sets the
-* level the chart prints, it does not divide a resistor ladder the DC solve
-* needs. Likewise the reservoir (two 70 uF/350 V caps with 220k-1W balancing
+* 50 V filter can, and a 10k-L pot whose track runs from the filter node to a
+* 27k leg to ground and whose wiper is the -52 V line) is replaced by an ideal
+* -52 V source, exactly as its AC/ripple-filtering role warrants — the wiper
+* sets the level the chart prints, and no DC flows into the grid leaks, so
+* nothing the DC solve needs depends on that divider. Likewise the reservoir (two 70 uF/350 V caps with 220k-1W balancing
 * bleeders off the standby switch): BP1 is driven at the value they produce.
 *
 * DC-open caps are MODELLED where BOTH leads land on a named DC node (the PI ->
@@ -44,10 +45,11 @@
 * is placement-checked; open at DC they move no operating point. Caps into the
 * abstracted volume / tone / reverb-mix / tremolo networks stay omitted.
 *
-* EXCLUDED — the tremolo (vibrato) oscillator V5 (12AX7). It is a running
-* phase-shift oscillator: no static DC operating point (see notes.md). It taps
-* BP1 — a DRIVEN node — not a derived preamp rail, so leaving it out shifts no
-* gated node's simulated value (the same structural point amps/ab763-twin's own
+* EXCLUDED — the tremolo (vibrato) tube V5 (12AX7), BOTH halves: V5A is a
+* running phase-shift oscillator and V5B drives the optocoupler's neon lamp, so
+* neither has a static DC operating point (see notes.md). Both tap BP1 — a
+* DRIVEN node — not a derived preamp rail, so leaving them out shifts no gated
+* node's simulated value (the same structural point amps/ab763-twin's own
 * tremolo exclusion makes, and unlike amps/ab763's tremolo, which shares its
 * derived input-stage rail and so DOES move it).
 .include models/12ax7.inc
@@ -97,13 +99,18 @@ RGV2 GV2 0 1meg
 RKA KA 0 820
 CKA KA 0 25u
 
-* --- Mix driver V3a (12AX7): 100k plate; grid carries the mixed dry+reverb
-*     signal, shunted by the tremolo optocoupler (DC-open). DC grid ~0 via the
-*     3.3M leak. Plate rail BD. Cathode on node KE (boxed [E]) — no resistor of
-*     its own.
+* --- Mix driver V3a (12AX7): 100k plate, plate rail BD. Its grid returns to
+*     ground through the drawn 220k leak (RMR2). The 3.3M (RGD1, 10 pF across
+*     it) sits IN SERIES ahead of the grid and reaches only the dry node, which
+*     the 0.02 uF coupler and the 500 pF reverb send block at DC, so it carries
+*     no DC and is left out. So is the 470k reverb return (RMR): it runs to the
+*     Reverb pot's wiper, at 0 V, in parallel with the leak, and moves nothing.
+*     The tremolo works on this stage's OUTPUT (the Intensity control hangs
+*     between its 0.1 uF coupler and its 220k mixing resistor), not on its
+*     grid. Cathode on node KE (boxed [E]) — no resistor of its own.
 RLD1 BD PD1 100k
 XV3A PD1 GD1 KE 12AX7
-RGD1 GD1 0 3.3meg
+RMR2 GD1 0 220k
 
 * --- Reverb-recovery amp V3b (12AX7): 100k plate, grid from the reverb-tank
 *     output through a 220k leak (~0 V DC). Plate rail BD. Cathode on node KE.

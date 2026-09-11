@@ -2,7 +2,7 @@
 # Reference designators follow the DC netlist where a part is modeled and are
 # descriptive otherwise. Values are the drawing's; the notice sets 1/2 W / 10%
 # resistors and 400 V caps unless noted.
-notes: "The drawing shows one jack per channel input pair; the chassis carries two per channel. Tremolo-oscillator and reverb-tank interconnect parts are listed but the oscillator's DC point is excluded from the netlist (see the circuit story). The Normal channel's tone stack is the fixed two-knob ladder (6.8 kΩ bleed); the Vibrato channel's third pot is a genuine 10 kΩ Middle control wired in place of that bleed resistor, not a shared component — the two stacks are asymmetric, read as printed. Two cathode networks are shared, and each is listed once, under the boxed letter the drawing gives it: RKA/CKA carry both second stages (Normal and Vibrato), RKE/CKE both the mix driver and the reverb recovery. Neither the Normal second stage nor the mix driver has a cathode resistor of its own."
+notes: "The drawing shows one jack per channel input pair; the chassis carries two per channel. The tremolo tube's parts (both halves of V5: the phase-shift oscillator and the neon-lamp driver) and the reverb-tank interconnect parts are listed, but neither tremolo half has a static DC point, so V5 is excluded from the netlist (see the circuit story). The Normal channel's tone stack is the fixed two-knob ladder (6.8 kΩ bleed); the Vibrato channel's third pot is a genuine 10 kΩ Middle control wired in place of that bleed resistor, not a shared component — the two stacks are asymmetric, read as printed. Two cathode networks are shared, and each is listed once, under the boxed letter the drawing gives it: RKA/CKA carry both second stages (Normal and Vibrato), RKE/CKE both the mix driver and the reverb recovery. Neither the Normal second stage nor the mix driver has a cathode resistor of its own."
 items:
   # --- Normal channel input (V1a) ---
   - { ref: R1n, part: "Carbon comp resistor", value: "68 kΩ · ½ W",  role: "Normal input grid stopper (jack 1)" }
@@ -46,9 +46,9 @@ items:
   - { ref: RLV2, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "V2b (vibrato 2nd stage) plate load" }
   - { ref: RKA, part: "Carbon comp resistor", value: "820 Ω · ½ W",   role: "Cathode bias at the drawing's boxed [A] — one resistor for BOTH second stages, Normal and Vibrato" }
   - { ref: CKA, part: "Electrolytic capacitor", value: "25 µF · 25 V", role: "Cathode bypass across RKA (shared [A] network)" }
-  - { ref: CCV2, part: "Coupling capacitor",  value: "0.02 µF",        role: "V2b output coupling, feeds both the reverb send and the mix network" }
+  - { ref: CCV2, part: "Coupling capacitor",  value: "0.02 µF",        role: "V2b output coupling onto the dry node, which feeds the reverb send and, through 3.3 MΩ, the mix driver" }
   # --- Reverb send/driver (V4 12AT7) + tank + recovery (V3b) ---
-  - { ref: CRS, part: "Coupling capacitor",   value: "500 pF",         role: "Reverb send coupling to driver grid" }
+  - { ref: CRS, part: "Coupling capacitor",   value: "500 pF",         role: "Reverb send, dry node → driver grid" }
   - { ref: RGRD, part: "Carbon comp resistor", value: "1 MΩ · ½ W",   role: "Reverb-driver 12AT7 grid leak" }
   - { ref: RKRD, part: "Carbon comp resistor", value: "2.2 kΩ · ½ W", role: "Reverb-driver shared cathode bias" }
   - { ref: CKRD, part: "Electrolytic capacitor", value: "25 µF · 25 V", role: "Reverb-driver cathode bypass" }
@@ -59,26 +59,33 @@ items:
   - { ref: CKE, part: "Electrolytic capacitor", value: "25 µF · 25 V", role: "Cathode bypass across RKE (shared [E] network)" }
   - { ref: CCR1, part: "Coupling capacitor",  value: "0.003 µF",       role: "Reverb-recovery output coupling" }
   - { ref: VRREV, part: "Linear potentiometer", value: "100 kΩ-L",     role: "Reverb level" }
-  - { ref: RMR, part: "Carbon comp resistor", value: "470 kΩ · ½ W",  role: "Reverb mix resistor" }
-  - { ref: RMR2, part: "Carbon comp resistor", value: "220 kΩ · ½ W", role: "Reverb-pot ground-leg / mix reference resistor" }
+  - { ref: RMR, part: "Carbon comp resistor", value: "470 kΩ · ½ W",  role: "Reverb return into the mix-driver grid" }
+  - { ref: RMR2, part: "Carbon comp resistor", value: "220 kΩ · ½ W", role: "Mix-driver grid leak, to ground" }
   # --- Mix driver (V3a) ---
   - { ref: RLD1, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "V3a (mix driver) plate load" }
-  - { ref: RGD1, part: "Carbon comp resistor", value: "3.3 MΩ · ½ W", role: "V3a grid leak (tremolo shunt node)" }
-  - { ref: CBD1, part: "Mica capacitor",      value: "10 pF",          role: "V3a grid bright cap" }
-  - { ref: RMD1, part: "Carbon comp resistor", value: "220 kΩ · ½ W", role: "Mix-driver to PI grid resistor" }
-  - { ref: CCD1, part: "Coupling capacitor",  value: "0.001 µF",       role: "Mix-driver → PI coupling" }
-  # --- Tremolo oscillator (V5 12AX7) — DC point excluded (see notes.md) ---
+  - { ref: RGD1, part: "Carbon comp resistor", value: "3.3 MΩ · ½ W", role: "Dry-path series resistor, dry node → mix-driver grid (10 pF across it)" }
+  - { ref: CBD1, part: "Mica capacitor",      value: "10 pF",          role: "Bright cap across the dry-path 3.3 MΩ" }
+  - { ref: RMD1, part: "Carbon comp resistor", value: "220 kΩ · ½ W", role: "Normal-channel mixing resistor, into the phase-inverter input junction" }
+  - { ref: CCD1, part: "Coupling capacitor",  value: "0.1 µF",       role: "Mix-driver output coupling, onto the Intensity control and the 220 kΩ mixing resistor" }
+  - { ref: RMIXV, part: "Carbon comp resistor", value: "220 kΩ · ½ W", role: "Vibrato-channel mixing resistor, mix-driver output → the phase-inverter input junction" }
+  # --- Tremolo (V5 12AX7: oscillator V5a + neon-lamp driver V5b) — neither has a static DC point (see notes.md) ---
   - { ref: VRSPD, part: "Reverse-audio potentiometer", value: "3 MΩ-RA", role: "Tremolo speed" }
-  - { ref: VRINT, part: "Reverse-audio potentiometer", value: "50 kΩ-RA", role: "Tremolo intensity" }
-  - { ref: RTO1, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "Speed-network fixed resistor" }
-  - { ref: RTO2, part: "Carbon comp resistor", value: "220 kΩ · ½ W", role: "Tremolo oscillator plate load (1st half)" }
-  - { ref: RTOG, part: "Carbon comp resistor", value: "1 MΩ · ½ W",  role: "Tremolo phase-shift / grid resistor" }
-  - { ref: RKTO1, part: "Carbon comp resistor", value: "2.7 kΩ · ½ W", role: "Tremolo oscillator cathode (1st half)" }
-  - { ref: RINT, part: "Carbon comp resistor", value: "27 kΩ · ½ W",  role: "Tremolo intensity series" }
-  - { ref: CTO1, part: "Film capacitor",      value: "0.01 µF",        role: "Tremolo phase-shift cap" }
-  - { ref: CTO2, part: "Film capacitor",      value: "0.01 µF",        role: "Tremolo phase-shift cap" }
-  - { ref: CKTO1, part: "Electrolytic capacitor", value: "25 µF",      role: "Tremolo oscillator cathode bypass (1st half)" }
-  - { ref: OPTO, part: "Optocoupler",         value: "neon lamp + photoresistor", role: "Tremolo modulator (shunts V3a grid)" }
+  - { ref: RTO1, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "Speed-network series resistor, with the Speed control from the Speed node to ground" }
+  - { ref: RTO2, part: "Carbon comp resistor", value: "220 kΩ · ½ W", role: "Tremolo oscillator (V5a) plate load" }
+  - { ref: RKTO1, part: "Carbon comp resistor", value: "2.7 kΩ · ½ W", role: "Tremolo oscillator (V5a) cathode bias" }
+  - { ref: CKTO1, part: "Electrolytic capacitor", value: "25 µF",      role: "Tremolo oscillator (V5a) cathode bypass" }
+  - { ref: CTO1, part: "Film capacitor",      value: "0.02 µF",        role: "Tremolo phase-shift cap, oscillator plate → Speed node" }
+  - { ref: CTO2, part: "Film capacitor",      value: "0.01 µF",        role: "Tremolo phase-shift cap, Speed node → middle node (the lamp driver's grid)" }
+  - { ref: CTO3, part: "Film capacitor",      value: "0.01 µF",        role: "Tremolo phase-shift cap, middle node → oscillator grid" }
+  - { ref: RTOG1, part: "Carbon comp resistor", value: "1 MΩ · ½ W",  role: "Tremolo phase-shift ladder, middle node → footswitch junction" }
+  - { ref: RTOG2, part: "Carbon comp resistor", value: "1 MΩ · ½ W",  role: "Tremolo phase-shift ladder, oscillator grid → footswitch junction" }
+  - { ref: RTOG3, part: "Carbon comp resistor", value: "2.2 MΩ · ½ W", role: "Footswitch junction → the bias supply's filter node" }
+  - { ref: RKTO2, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "Lamp-driver (V5b) cathode bias" }
+  - { ref: CKTO2, part: "Electrolytic capacitor", value: "25 µF · 25 V", role: "Lamp-driver (V5b) cathode bypass" }
+  - { ref: RTO10, part: "Carbon comp resistor", value: "10 MΩ · ½ W", role: "Lamp-driver plate bleeder to the +460 V rail" }
+  - { ref: RLAMP, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "Neon-lamp series resistor to the +460 V rail" }
+  - { ref: OPTO, part: "Optocoupler",         value: "neon lamp + photoresistor", role: "Tremolo modulator — the lamp on the lamp driver's plate; the photocell shunts the Intensity control's wiper to ground" }
+  - { ref: VRINT, part: "Reverse-audio potentiometer", value: "50 kΩ-RA", role: "Intensity — from the mix driver's output (after its 0.1 µF coupler) to ground; the photocell shunts its wiper" }
   # --- Phase inverter (V6 12AT7 LTP) ---
   - { ref: RLPA, part: "Carbon comp resistor", value: "82 kΩ · ½ W · 5%", role: "PI plate load (hot side)" }
   - { ref: RLPB, part: "Carbon comp resistor", value: "100 kΩ · ½ W · 5%", role: "PI plate load (cold side)" }
@@ -86,7 +93,7 @@ items:
   - { ref: RGPB, part: "Carbon comp resistor", value: "1 MΩ · ½ W",   role: "PI grid leak (cold), returned to tail junction" }
   - { ref: RTAIL, part: "Carbon comp resistor", value: "470 Ω · ½ W", role: "PI cathode resistor" }
   - { ref: RT2, part: "Carbon comp resistor", value: "22 kΩ · ½ W",   role: "PI tail (junction → ground)" }
-  - { ref: CPIA, part: "Coupling capacitor",  value: "0.001 µF",       role: "PI hot-grid input coupling (from the mix driver, RMD1/CCD1)" }
+  - { ref: CPIA, part: "Coupling capacitor",  value: "0.001 µF",       role: "PI hot-grid input coupling, from the junction where both channels' 220 kΩ mixing resistors meet" }
   - { ref: CPIB, part: "Coupling capacitor",  value: "0.1 µF · 200 V", role: "PI cold-grid AC ground / NFB reference" }
   - { ref: RNFB, part: "Carbon comp resistor", value: "820 Ω · ½ W",  role: "Negative feedback, OT secondary → PI (DC-neutral)" }
   - { ref: C1,  part: "Coupling capacitor",   value: "0.1 µF · 400 V", role: "PI hot plate → V7 grid" }
@@ -113,13 +120,14 @@ items:
   - { ref: RBIAS, part: "Wirewound resistor", value: "470 Ω",         role: "Bias-supply series resistor (wattage marking not fully legible on the scan; role and value read directly, matching the Deluxe Reverb's identical 470 Ω bias-feed resistor)" }
   - { ref: DBIAS, part: "Rectifier (bias)",   value: "silicon diode", role: "Bias-supply rectifier" }
   - { ref: CBIAS, part: "Electrolytic capacitor", value: "25 µF · 50 V", role: "Bias-supply filter" }
-  - { ref: VRBIAS, part: "Linear potentiometer", value: "10 kΩ-L",    role: "Bias adjustment" }
+  - { ref: VRBIAS, part: "Linear potentiometer", value: "10 kΩ-L",    role: "Bias adjustment — its track runs from the filter node to the 27 kΩ leg, and its wiper sets the −52 V grid line" }
+  - { ref: RBIAS2, part: "Carbon comp resistor", value: "27 kΩ · ½ W", role: "Bias-pot ground leg: the 10 kΩ-L track runs from the filter node to this 27 kΩ" }
   # --- Tubes ---
   - { ref: V1,  part: "Preamp tube",          value: "12AX7 (7025)",   role: "Normal channel input + 2nd stage (V1a/V1b)" }
   - { ref: V2,  part: "Preamp tube",          value: "12AX7 (7025)",   role: "Vibrato channel input + 2nd stage (V2a/V2b)" }
   - { ref: V3,  part: "Preamp tube",          value: "12AX7 (7025)",   role: "Mix driver + reverb recovery (V3a/V3b)" }
   - { ref: V4,  part: "Preamp/driver tube",   value: "12AT7",          role: "Reverb driver (both sections paralleled)" }
-  - { ref: V5,  part: "Preamp tube",          value: "12AX7",          role: "Tremolo oscillator (DC point excluded)" }
+  - { ref: V5,  part: "Preamp tube",          value: "12AX7",          role: "Tremolo oscillator + neon-lamp driver (V5a/V5b; neither has a static DC point, both excluded)" }
   - { ref: V6,  part: "Preamp/driver tube",   value: "12AT7",          role: "Long-tailed-pair phase inverter" }
   - { ref: V7,  part: "Power tube",           value: "6L6GC",          role: "Push-pull output (hot side)" }
   - { ref: V8,  part: "Power tube",           value: "6L6GC",          role: "Push-pull output (cold side)" }

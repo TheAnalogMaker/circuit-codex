@@ -20,16 +20,16 @@ labelled plain 12AX7; the reverb driver and phase inverter are **12AT7s**.
 6.8 kΩ bleed resistor rather than a control — and a 1 MΩ volume with its own
 120 pF bright switch → a **second 12AX7 stage** (100 kΩ plate; its cathode
 carries no resistor of its own — see *Two cathode networks, four triodes*
-below) → a 0.047 µF coupling cap and a 220 kΩ mixing resistor into the
-phase-inverter grid. No reverb, no tremolo.
+below) → a 0.047 µF coupling cap and a 220 kΩ mixing resistor to the junction
+that feeds the phase inverter. No reverb, no tremolo.
 
 **Vibrato channel.** Input stage as above → a **three-knob** tone stack —
 Treble, Bass, **and Middle**, where the Normal channel's fixed bleed resistor
 is replaced by a genuine 10 kΩ-A potentiometer — and its own 120 pF bright
 switch → a second 12AX7 stage (100 kΩ plate, on the 820 Ω cathode network it
-shares with the Normal channel's second stage). This stage's output feeds two
-places: a 500 pF cap to the reverb driver, and (through a 0.02 µF cap) the dry
-side of the reverb/tremolo mix network.
+shares with the Normal channel's second stage). Its 0.02 µF coupler feeds a dry
+node with two branches: a 500 pF cap to the reverb driver, and a 3.3 MΩ
+resistor (10 pF across it) into the mix driver's grid.
 
 ## Two tone stacks on one chassis
 
@@ -55,18 +55,31 @@ parallel** (2.2 kΩ shared cathode) into the 125A20B transformer and the
 spring tank — the same reverb-transformer part number the Deluxe Reverb and
 Twin Reverb entries in this corpus cite. The returned signal comes back
 through a 12AX7 recovery stage (100 kΩ plate, 820 Ω cathode, grid on a 220 kΩ
-leak from the tank) and is blended with the dry signal by the 100 kΩ Reverb
-control before reaching the mix driver.
+leak from the tank), is set by the 100 kΩ Reverb control, and returns through
+470 kΩ onto the mix driver's grid.
 
-**Tremolo.** A 12AX7 phase-shift oscillator (Speed on a 3 MΩ reverse-audio
-pot) drives an **optocoupler** — a neon lamp facing a photoresistor — that
-periodically shunts the mix-driver's grid to ground. The Intensity control
-sets how hard the lamp is driven.
+**Tremolo.** The tremolo tube is a 12AX7 doing two jobs. One triode is a
+phase-shift oscillator (220 kΩ plate load, 2.7 kΩ cathode). Its ladder runs from
+the plate through 0.02 µF to the Speed node — a 3 MΩ reverse-audio Speed control
+and 100 kΩ to ground — then through 0.01 µF to a middle node and another
+0.01 µF to the grid. A 1 MΩ from the middle node and another from the grid meet
+at the footswitch junction, which returns through 2.2 MΩ to the bias supply's
+filter node. The other triode takes its grid from that middle node and drives
+the neon lamp of an **optocoupler**: the lamp sits between its plate and a
+100 kΩ feed from the +460 V rail, with a 10 MΩ bleeder beside it and a 100 kΩ
+cathode resistor. The lamp faces a photoresistor that shunts the wiper of the
+50 kΩ reverse-audio **Intensity** control to ground, and that control hangs from
+the mix driver's output, between its 0.1 µF coupler and its 220 kΩ mixing
+resistor, so the tremolo swings the Vibrato channel's level on its way to the
+phase inverter.
 
 **Mix driver and phase inverter.** A third 12AX7 stage (100 kΩ plate, 820 Ω
-cathode, 3.3 MΩ grid leak, 10 pF bright cap) sums the dry Vibrato signal and
-the recovered reverb, is shunted by the tremolo optocoupler, and drives a
-12AT7 **long-tailed pair** (82 kΩ and 100 kΩ 5% plate loads, a 470 Ω cathode
+cathode) sums the two: the dry signal reaches its grid through 3.3 MΩ with
+10 pF across it, the recovered reverb through 470 kΩ, and a 220 kΩ leak holds
+the grid at ground. Its output runs through 0.1 µF (the node the Intensity
+control hangs from) and a 220 kΩ mixing resistor to the junction the Normal
+channel's own 220 kΩ reaches, and 0.001 µF carries the sum to a 12AT7
+**long-tailed pair** (82 kΩ and 100 kΩ 5% plate loads, a 470 Ω cathode
 resistor to a tail junction, 22 kΩ tail to ground, both 1 MΩ grid leaks
 returned to that junction) — exactly the tail values the [Deluxe
 Reverb](/amps/ab763/)'s own phase inverter uses. The pair splits the signal for the **6L6GC pair**, each output
@@ -86,8 +99,9 @@ as the Deluxe Reverb merges its own +415 V/+420 V pair) → **+460 V** screens (
 470 Ω · 1 W stoppers) → a printed **1 kΩ** dropper → **+450 V** at the
 phase-inverter plates and the reverb-driver plate → a printed **4.7 kΩ**
 dropper → **+410 V** at every 100 kΩ-loaded preamp stage. A separate PT tap
-feeds a silicon-rectified, 25 µF-filtered supply through an **adjustable
-10 kΩ-L pot** for the **−52 V** fixed bias — unlike the Deluxe Reverb's fixed
+feeds a silicon-rectified, 25 µF-filtered supply across an **adjustable
+10 kΩ-L pot** and a 27 kΩ leg to ground, whose wiper sets the **−52 V** fixed
+bias — unlike the Deluxe Reverb's fixed
 bias-balance arrangement, this platform lets the player (or the tech) trim
 the output-tube bias directly, the same feature the [Twin
 Reverb](/amps/ab763-twin/)'s own bias supply carries.
@@ -117,14 +131,17 @@ drives both of its own two upper rails independently.
 
 ## Exclusions and what is reported, not gated
 
-- **The tremolo oscillator (V5, 12AX7).** A running phase-shift oscillator
-  has no static DC operating point — its printed pins are the average a meter
-  reads while it swings, set by grid-leak detection — so it is documented
-  here rather than modelled in the simulated deck, the same treatment the
-  Deluxe Reverb and Twin Reverb entries give their own tremolo stages. Its supply taps BP1, a
-  **driven** node, so excluding it shifts no gated node's simulated value —
-  unlike the Deluxe Reverb, whose tremolo shares a *derived* input-stage rail
-  and so does move one.
+- **The tremolo tube (V5, 12AX7), both halves.** The oscillator is a running
+  phase-shift circuit with no static DC operating point: its printed +280 V
+  plate and +2.5 V cathode are the average a meter reads while it swings, set
+  by grid-leak detection. The lamp driver's printed +390 V plate and +17 V
+  cathode are what a meter reads while the neon lamp fires and extinguishes.
+  Neither is a static operating point, so both are documented here rather than
+  modelled in the simulated deck, the same treatment the Deluxe Reverb and
+  Twin Reverb entries give their own tremolo stages. Both halves hang off the
+  +460 V rail, a **driven** node, so excluding them shifts no gated node's
+  simulated value — unlike the Deluxe Reverb, whose tremolo shares a
+  *derived* input-stage rail and so does move one.
 
 - **BC and BD are derived, not measured inputs.** Both carry the chart's
   printed figure in the operating-point table precisely so a passing check
