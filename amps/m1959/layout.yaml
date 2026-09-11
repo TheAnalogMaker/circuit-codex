@@ -66,10 +66,14 @@ parts:
   - { ref: C18,  a: [0, 6],  b: [0, 8] }    # 8 µF filter at the bias node
   - { ref: RBC,  a: [1, 9],  b: [1, 10] }   # 47k from the bias node to the trimmer
   # --- silicon HT bridge + series-pair reservoir bank (B+1) -------------------
-  - { ref: D2,   a: [1, 12], b: [1, 13] }   # bridge arm, HT_A -> B+1
-  - { ref: D3,   a: [1, 14], b: [1, 15] }    # bridge arm, HT_B -> B+1
-  - { ref: D4,   a: [1, 16], b: [1, 17] }   # bridge arm, ground -> HT_A
-  - { ref: D5,   a: [1, 18], b: [1, 19] }    # bridge arm, ground -> HT_B
+  # Bridge arms: every cathode faces the more positive end — B+1 for D2/D3,
+  # the HT end for D4/D5, whose anodes sit on ground. schematic.kicad_sch draws
+  # each arm at rot 90 with the K pin toward B+1 (upper) or toward the HT_A /
+  # HT_B label junction (lower), and these runs land that end on b.
+  - { ref: D2,   a: [1, 12], b: [1, 13], cathode: b }   # bridge arm, HT_A -> B+1
+  - { ref: D3,   a: [1, 14], b: [1, 15], cathode: b }   # bridge arm, HT_B -> B+1
+  - { ref: D4,   a: [1, 16], b: [1, 17], cathode: b }   # bridge arm, ground -> HT_A
+  - { ref: D5,   a: [1, 18], b: [1, 19], cathode: b }   # bridge arm, ground -> HT_B
   - { ref: C19,  a: [0, 12], b: [0, 14] }   # 100 µF reservoir, upper half
   - { ref: C20,  a: [0, 14], b: [0, 16] }   # 100 µF reservoir, lower half
   - { ref: C21,  a: [0, 18], b: [0, 20] }   # 100 µF reservoir, upper half (2nd bank)
