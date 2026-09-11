@@ -45,14 +45,14 @@ items:
   - { ref: RLV2, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "V2b (vibrato 2nd stage) plate load" }
   - { ref: RKV2, part: "Carbon comp resistor", value: "820 Ω · ½ W",  role: "Cathode bias at the drawing's boxed [A] — one resistor for BOTH second stages, Normal (V1b) and Vibrato (V2b)" }
   - { ref: CKV2, part: "Electrolytic capacitor", value: "25 µF · 25 V", role: "Cathode bypass across RKV2 (the shared [A] network)" }
-  - { ref: CCV2, part: "Coupling capacitor",  value: "0.02 µF",        role: "V2b output coupling" }
+  - { ref: CCV2, part: "Coupling capacitor",  value: "0.02 µF",        role: "V2b output coupling — into the reverb send (CRS) and the dry path (RGD1)" }
   # --- Reverb send/driver (V4 12AT7) + tank + recovery (V3b) ---
-  - { ref: CRS, part: "Coupling capacitor",   value: "500 pF",         role: "Reverb send coupling to driver grid" }
+  - { ref: CRS, part: "Coupling capacitor",   value: "500 pF",         role: "Reverb send coupling, from the .02's far side to the driver grid" }
   - { ref: RGRD, part: "Carbon comp resistor", value: "1 MΩ · ½ W",   role: "Reverb-driver 12AT7 grid leak" }
   - { ref: RKRD, part: "Carbon comp resistor", value: "2.2 kΩ · ½ W", role: "Reverb-driver shared cathode bias" }
   - { ref: CKRD, part: "Electrolytic capacitor", value: "25 µF · 25 V", role: "Reverb-driver cathode bypass" }
   - { ref: T4,  part: "Reverb transformer",   value: "Fender 125A20B", role: "Reverb driver → tank input" }
-  - { ref: RGR1, part: "Carbon comp resistor", value: "220 kΩ · ½ W", role: "Reverb-recovery grid resistor (tank output)" }
+  - { ref: RGR1, part: "Carbon comp resistor", value: "220 kΩ · ½ W", role: "Reverb-recovery grid return to ground, mounted at the reverb-pedal jack (the tank return lands on the grid)" }
   - { ref: RLR1, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "V3b (reverb recovery) plate load" }
   - { ref: RKR1, part: "Carbon comp resistor", value: "820 Ω · ½ W",  role: "Cathode bias at the drawing's boxed [E] — one resistor for BOTH the reverb recovery (V3b) and the mix driver (V3a)" }
   - { ref: CKR1, part: "Electrolytic capacitor", value: "25 µF · 25 V", role: "Cathode bypass across RKR1 (the shared [E] network)" }
@@ -61,8 +61,9 @@ items:
   - { ref: RMR, part: "Carbon comp resistor", value: "470 kΩ · ½ W",  role: "Reverb mix resistor" }
   # --- Vibrato/reverb mix driver (V3a) ---
   - { ref: RLD1, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "V3a (mix driver) plate load" }
-  - { ref: RGD1, part: "Carbon comp resistor", value: "3.3 MΩ · ½ W", role: "V3a grid leak (tremolo shunt node)" }
-  - { ref: CBD1, part: "Mica capacitor",      value: "10 pF",          role: "V3a grid bright cap" }
+  - { ref: RGD1, part: "Carbon comp resistor", value: "3.3 MΩ · ½ W", role: "Dry-path mixing resistor: the vibrato channel's .02 coupler → the mix-driver grid (CBD1 across it)" }
+  - { ref: RGD2, part: "Carbon comp resistor", value: "220 kΩ · ½ W", role: "Mix-driver grid return to ground" }
+  - { ref: CBD1, part: "Mica capacitor",      value: "10 pF",          role: "Bright cap across RGD1" }
   - { ref: RMD1, part: "Carbon comp resistor", value: "220 kΩ · ½ W", role: "Vibrato-channel mixing resistor, from the mix driver's coupler into the phase-inverter input node" }
   - { ref: CCD1, part: "Coupling capacitor",  value: "0.1 µF",         role: "Mix-driver output coupling, into the mixing resistor RMD1" }
   # --- Tremolo oscillator (V5 12AX7) — DC point excluded (see notes.md) ---

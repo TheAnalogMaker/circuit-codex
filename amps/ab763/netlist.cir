@@ -97,20 +97,24 @@ RGV2 GV2 0 1meg
 RKV2 KA 0 820
 CKV2 KA 0 25u
 
-* --- Reverb-recovery amp V3b (12AX7): 100k plate, grid from the reverb tank
-*     output through a 3.3M/220k network (~0 V DC). Plate rail BD. Cathode on
-*     node KE.
+* --- Reverb-recovery amp V3b (12AX7): 100k plate; its grid takes the tank's
+*     return and is held at 0 V DC by the drawing's 220k to ground (RGR1),
+*     which the layout mounts at the reverb-pedal jack. Plate rail BD.
+*     Cathode on node KE.
 RLR1 BD PR1 100k
 XV3B PR1 GR1 KE 12AX7
-RGRV GR1 0 1meg
+RGR1 GR1 0 220k
 
-* --- Vibrato/reverb mix driver V3a (12AX7): 100k plate; its grid carries the
-*     mixed dry+reverb signal, DC ~0 via the 3.3M leak. Plate rail BD. Its
+* --- Vibrato/reverb mix driver V3a (12AX7): 100k plate; its grid is the mix
+*     node — the dry signal through 3.3M ‖ 10 pF from the vibrato channel's .02
+*     coupler, the reverb through 470k from the Reverb wiper — held at 0 V DC
+*     by the drawing's 220k to ground (RGD2). The 3.3M and the 470k dead-end on
+*     DC-open nodes, so they are omitted. Plate rail BD. Its
 *     cathode pin carries the drawing's boxed connection [E] and has NO
 *     resistor of its own: it lands on node KE.
 RLD1 BD PD1 100k
 XV3A PD1 GD1 KE 12AX7
-RGD1 GD1 0 3.3meg
+RGD2 GD1 0 220k
 
 * --- Cathode network [E]: ONE 820 Ohm and ONE 25 uF can, carrying BOTH the mix
 *     driver's and the reverb recovery's current. Drawn at the recovery stage,

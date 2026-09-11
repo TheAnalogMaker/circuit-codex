@@ -278,12 +278,16 @@ s.glabel("REVERB TANK", 110, YR - 16, 90)
 s.wire(104.89, YR - 1.46, 110, YR - 1.46)
 s.gnd(110, YR - 1.46)
 
-# reverb recovery V3B: tank -> RGR1 220k -> grid; RLR1 100k -> B+4; RKR1 820 ||
-# CKR1 is the shared [E] network, carrying the mix driver V3A's current too
+# reverb recovery V3B: the tank return lands ON the grid, and RGR1 220k is the
+# grid's return to ground — the C-FD sheet draws the tank plug, the 220k to
+# ground and the reverb-pedal switch all on the grid node (the layout mounts
+# the 220k at the pedal jack). RLR1 100k -> B+4; RKR1 820 || CKR1 is the shared
+# [E] network, carrying the mix driver V3A's current too.
 s.glabel("TANK RET", 118, YR - 6, 180)
-gl2, gr2 = s.series_h("R", "RGR1", "220k", 128, YR - 6)
-s.wire(118, YR - 6, gl2, YR - 6)
-s.wire(gr2, YR - 6, 138, YR - 6)
+s.wire(118, YR - 6, 138, YR - 6)
+s.junction(126, YR - 6)
+s.sym("R", "RGR1", "220k", 126, YR - 6 + 3.81)
+s.gnd(126, YR - 6 + 7.62)
 s.wire(138, YR - 6, 138, YR)
 t3b = s.triode("V3B", "12AX7", 148, YR)
 s.wire(138, YR, t3b["g"][0], YR)
@@ -309,9 +313,13 @@ s.wire(mr2, teer + 3.81, 190, teer + 3.81)
 s.wire(190, teer + 3.81, 190, YR + 12)
 s.glabel("MIXG", 190, YR + 12, 0)             # dry+reverb mix -> mix-driver grid
 
-# mix driver V3A: grid = MIXG; RGD1 3.3M leak; RLD1 100k -> B+4. Its cathode has
-# NO resistor: the drawing boxes the pin [E] and returns it to the 820 Ohm /
-# 25 uF drawn at V3B, so the label is the connection.
+# mix driver V3A: its grid is the mix node. The reverb arrives through RMR 470k
+# (label MIXG), the dry signal from the vibrato channel's .02 coupler (the
+# RVSEND net, which also feeds the reverb send) through RGD1 3.3M with CBD1 10p
+# across it, and RGD2 220k is the grid's return to ground — as the C-FD sheet
+# draws it: the 3.3M is in series, not a grid leak. RLD1 100k -> B+4. Its
+# cathode has NO resistor: the drawing boxes the pin [E] and returns it to the
+# 820 Ohm / 25 uF drawn at V3B, so the label is the connection.
 YM = YR + 22
 # The label must TOUCH the grid lead: set 4 mm short of it (x=196 against a
 # wire starting at 200) the reverb mix RMR and the photocell drew on a net of
@@ -319,18 +327,24 @@ YM = YR + 22
 # sees, because both parts sit in the abstracted mix network.
 s.glabel("MIXG", 196, YM, 180)
 s.wire(196, YM, 204, YM)
+s.junction(200, YM)
 s.junction(204, YM)
-s.sym("R", "RGD1", "3.3M", 204, YM + 3.81)    # grid leak / tremolo shunt node
+s.sym("R", "RGD2", "220k", 204, YM + 3.81, lx=2.6)   # grid return to ground
 s.gnd(204, YM + 7.62)
-# bright cap CBD1 10p across grid to plate side (drawn as small cap to grid)
-s.wire(204, YM, 204, YM - 6)
-cbl, cbr = s.series_h("C", "CBD1", "10p", 210, YM - 6)
-s.wire(204, YM - 6, cbl, YM - 6)
-s.wire(cbr, YM - 6, 216, YM - 6)
-s.wire(216, YM - 6, 216, YM - 7.62 - 3.48)
+# RGD1 3.3M || CBD1 10p, grid node -> RVSEND (the .02's far side), hung below-left
+s.wire(200, YM, 200, YM + 17)
+rl, rr = s.series_h("R", "RGD1", "3.3M", 192, YM + 11)
+s.wire(200, YM + 11, rr, YM + 11)
+s.wire(rl, YM + 11, 184, YM + 11)
+cl, cr = s.series_h("C", "CBD1", "10p", 192, YM + 17)
+s.wire(200, YM + 17, cr, YM + 17)
+s.wire(cl, YM + 17, 184, YM + 17)
+s.wire(184, YM + 11, 184, YM + 17)
+s.junction(184, YM + 11)
+s.junction(200, YM + 11)
+s.glabel("RVSEND", 184, YM + 11, 180)
 t3a = s.triode("V3A", "12AX7", 216, YM)
 s.wire(204, YM, t3a["g"][0], YM)
-s.junction(204, YM)
 s.plate_load("RLD1", "100k", t3a["p"], "B+4")
 s.wire(216, YM + 7.62, 216, YM + 11)
 s.glabel("KE", 216, YM + 11, 270)
