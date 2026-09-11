@@ -1,5 +1,5 @@
 # Parts list — reference designators match schematic.kicad_sch exactly.
-notes: "The sheet's own note reads: all resistors are ½ W 10% unless otherwise marked, so a wattage appears below only where the drawing letters one (470 Ω 1 W screens; 1 W on both rail droppers) and a tolerance only where it letters one (5% on the two phase-inverter plate loads). The drawing shows two jacks on each channel and this schematic draws both, with all four 68 kΩ stoppers. The negative-feedback resistor, the presence pot and its 0.1 µF wiper cap are chassis wiring rather than board wiring, but they carry designators (RNF, VR6, C16) and are drawn. The 100 pF bright cap mounts on the bright volume pot's own lugs, inside the tone/volume network the DC model abstracts, so it is listed without a designator and annotated on the schematic rather than drawn."
+notes: "The sheet's own note reads: all resistors are ½ W 10% unless otherwise marked, so a wattage appears below only where the drawing letters one (470 Ω 1 W screens; 1 W on both rail droppers) and a tolerance only where it letters one (5% on the two phase-inverter plate loads). The drawing shows two jacks on each channel and this schematic draws both, with all four 68 kΩ stoppers. The presence pot and its 0.1 µF wiper cap are chassis wiring, and the negative-feedback resistor mounts on the eyelet board beside the tail's 10 kΩ, as the factory layout places it; all three carry designators (RNF, VR6, C16) and are drawn. The 100 pF bright cap mounts on the bright volume pot's own lugs, inside the tone/volume network the DC model abstracts, so it is listed without a designator and annotated on the schematic rather than drawn."
 items:
   - { ref: R1s, part: "Carbon comp resistor", value: "68 kΩ",  role: "Bright channel, jack 1 grid stopper" }
   - { ref: R2s, part: "Carbon comp resistor", value: "68 kΩ",  role: "Bright channel, jack 2 grid stopper" }
@@ -37,7 +37,7 @@ items:
   - { ref: C10, part: "Mica capacitor",       value: "47 pF",   role: "Across the two PI plates" }
   - { ref: C7,  part: "Film capacitor",       value: "0.1 µF · 200 V", role: "V3B grid AC-ground to the tail foot" }
   - { ref: RNF, part: "Carbon comp resistor", value: "56 kΩ",  role: "Negative feedback, speaker → the phase-inverter tail foot" }
-  - { ref: VR6, part: "Linear potentiometer", value: "5 kΩ",   role: "Presence — from the tail foot to ground" }
+  - { ref: VR6, part: "Linear potentiometer", value: "5 kΩ",   role: "Presence — its track from the tail foot to ground, 0.1 µF on the wiper" }
   - { ref: C16, part: "Film capacitor",       value: "0.1 µF · 200 V", role: "Presence wiper to ground" }
   - { ref: C8,  part: "Coupling capacitor",   value: "0.1 µF · 400 V", role: "PI (V3A) → the V4/V5 output pair" }
   - { ref: C9,  part: "Coupling capacitor",   value: "0.1 µF · 400 V", role: "PI (V3B) → the V6/V7 output pair" }

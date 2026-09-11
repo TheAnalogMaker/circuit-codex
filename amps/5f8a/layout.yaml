@@ -14,7 +14,7 @@ board:
   rows: 2
   cols: 50
   title: "5F8-A · eyelet board layout"
-caption: "Redrawn from the published Fender 5F8-A layout drawing (I-EG) — principal board components and their hookup, in the order the drawing shows them. What the sheet places off the eyelet board is drawn off it here: the four 470 Ω 1 W screen resistors and the two 1.5 kΩ grid stoppers mount on the 5881 sockets (each stopper bridging its pair's two grid pins), the four 20 µF · 600 V filter cans are chassis-mounted, the 1 MΩ input grid leaks sit at the jacks, and the selenium bias rectifier is a chassis part. The tone-stack capacitors mount on the board as the sheet places them — the two 0.02 µF caps sharing their node-B eyelet with the 56 kΩ slope's lead and the 250 pF mica beside them — and the pots are wired as the sheet draws them: the bass pot a rheostat with its wiper strapped into the treble-lug node, the middle pot's wiper fed from the second 0.02 µF, the treble wiper alone carrying the output. The cathode-follower's 100 kΩ load is omitted for legibility. The 6.3 V heater chain (green twisted pair, PT → pilot lamp → the four 5881 outputs → the two 12AX7s → the 12AY7 input) is routed as the sheet shows it; the GZ34 is directly heated from the 5 V winding and off the 6.3 V chain. The power-transformer primary leads land on chassis switches, off the board. Not a trace or a dimensioned reproduction."
+caption: "Redrawn from the published Fender 5F8-A layout drawing (I-EG) — principal board components and their hookup, in the order the drawing shows them. What the sheet places off the eyelet board is drawn off it here: the four 470 Ω 1 W screen resistors and the two 1.5 kΩ grid stoppers mount on the 5881 sockets (each stopper bridging its pair's two grid pins), the four 20 µF · 600 V filter cans are chassis-mounted, the 1 MΩ input grid leaks sit at the jacks, and the selenium bias rectifier is a chassis part. The tone-stack capacitors mount on the board as the sheet places them — the two 0.02 µF caps sharing their node-B eyelet with the 56 kΩ slope's lead and the 250 pF mica beside them — and the pots are wired as the sheet draws them: the bass pot a rheostat with its wiper strapped into the treble-lug node, the middle pot's wiper fed from the second 0.02 µF, the treble wiper alone carrying the output. The cathode-follower's 100 kΩ load is omitted for legibility. The 6.3 V heater chain (green twisted pair, PT → pilot lamp → the four 5881 outputs → the two 12AX7s → the 12AY7 input) is routed as the sheet shows it; the GZ34 is directly heated from the 5 V winding and off the 6.3 V chain. The power-transformer primary leads land on chassis switches, off the board. The 10 kΩ tail's far end is not grounded: it carries the 56 kΩ feedback resistor, the presence pot's track and the V3B grid's 0.1 µF, as the sheet wires it; the factory board mounts that 56 kΩ beside the 10 kΩ, and it is drawn here beside the speaker jacks. Not a trace or a dimensioned reproduction."
 source:
   desc: "Fender 'Twin-Amp' Model 5F8-A layout drawing (I-EG), page 2 of the published sheet"
   url: "https://schematicheaven.net/fenderamps/twin_5f8a_schem.pdf"
@@ -89,10 +89,10 @@ offboard:
   - { id: RGS1, ref: RGS1, kind: part, edge: bottom, at: 9.7, label: "RGS1" }
   - { id: RGS2, ref: RGS2, kind: part, edge: bottom, at: 20.6, label: "RGS2" }
   - { id: SPK,  kind: jack, edge: bottom, at: 27.6, label: "Spkr jacks" }
-  # 56 kΩ negative-feedback resistor: taps the speaker/OT-secondary node and
-  # returns to the phase-inverter tail foot. Drawn as a discrete 2-lead off-board
-  # part so the wiring reads true — a bare wire here would falsely short the
-  # speaker node to the tail foot.
+  # 56 kΩ negative-feedback resistor RNF: from the speaker/OT-secondary node to
+  # the tail's foot (RT2.b). The factory layout mounts it on the board beside
+  # the tail's 10 kΩ; it is drawn here as a discrete 2-lead part at the speaker
+  # jacks — never a bare wire, which would short the speaker node to the foot.
   - { id: RNF,  ref: RNF, kind: part, edge: bottom, at: 30.0, label: "NFB" }
   - { id: V3,   ref: V3, kind: tube, edge: bottom, at: 33.0,   label: "V3 · 12AX7 (PI)" }
   - { id: V2,   ref: V2, kind: tube, edge: bottom, at: 39.6,   label: "V2 · 12AX7" }
@@ -309,15 +309,6 @@ net_map:
     T3.brown: BP1    # V6 + V7 plates -> OT primary end B
     T3.red:   BP1    # OT primary centre tap -> B+1
     SPK: "0"         # speaker jack — OT-secondary DCR folded into ground (the NFB return reads as ground at DC)
-    # The drawing does NOT tie the 10 kΩ tail's foot straight to the chassis: it
-    # runs the foot to the presence pot's hot lug, and the pot's cold lug to
-    # ground, with the 56 kΩ feedback resistor landing on the same foot. The DC
-    # model collapses that whole return to ground (netlist.cir: RT2 JPI 0 10k),
-    # which the printed chart supports — +27 V at the junction is 2.7 mA in
-    # 10 kΩ, the same current the two plate drops imply, so the foot is sitting
-    # at about zero. Anchoring the pot's hot lug to node 0 states that
-    # collapse here rather than misdrawing the board to suit the model.
-    VR6.lug3: "0"
   # Netlist elements with no discrete same-named board part — reported in
   # coverage, never a failure (their nodes still have to check out).
   # DC-transparent parts the netlist omits: the grid draws no current, so the
@@ -333,6 +324,7 @@ net_map:
     RCHOKE: "filter choke L1 is a chassis part on this sheet (B+1 -> B+2); the netlist models its ~130 Ω DCR as RCHOKE"
     RG3:  "V2A grid return — realised through the volume pots (VR1/VR2) and the 270k channel mixers to ground, not a discrete board resistor"
     RKCF: "V2B cathode-follower 100 kΩ load — omitted from this redraw for legibility, as on the 5F6-A page; its node is carried here by the RSL.a feed"
+    RPRES: "the 5 kΩ presence pot VR6's track, chassis-mounted from the tail's foot (lug 3, on RT2.b) to the ground bus (lug 1)"
   # Parts the sheet draws that this board neither places nor wires — each
   # read off the cited layout drawing (sheet ↔ board gate, 2026-09-10).
   not_on_board:

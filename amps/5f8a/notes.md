@@ -82,27 +82,38 @@ schematic and layout here follow the sheets:
 
 ## Where the model simplifies, and why
 
-The DC deck drives +397 V at the reservoir and derives everything below it. Two
-simplifications are worth stating plainly, because both are visible on the
-sheet:
+The DC deck drives +397 V at the reservoir and derives everything below it. One
+simplification is worth stating plainly, because it is visible on the sheet:
 
 - **The choke** is modelled as 130 Ω of winding resistance, an estimate. The
   sheet prints 397 V on one side of it and 395 V on the other — the same 2 V
   the 5F6-A's sheet prints across the same part number, 14684.
-- **The tail foot.** The drawing runs the 10 kΩ tail's foot to the presence
-  pot's hot lug and grounds the pot's cold lug, with the 56 kΩ feedback
-  resistor landing on the same foot. The DC model collapses that return to
-  ground. The printed chart supports it: +27 V at the tail junction is 2.7 mA
-  through 10 kΩ, and the two plate drops (355→230 through 82 kΩ, 355→225
-  through 100 kΩ) imply 2.8 mA — so the foot is sitting at about zero, and the
-  presence network is carrying no meaningful DC.
+
+## The tail foot, and a chart that does not fit it
+
+The drawing runs the 10 kΩ tail's foot to the presence pot's hot lug and
+grounds the pot's cold lug, with the 56 kΩ feedback resistor and the second
+grid's 0.1 µF landing on the same foot: the schematic draws the four on one
+vertical, and the layout on one eyelet. The model carries that foot as drawn.
+The 56 kΩ (back to the speaker, DC ground through the output transformer) and
+the pot's 5 kΩ track are both DC returns, and simulation puts the foot at
++12.5 V.
+
+The printed chart does not fit it. Its plate figures (355 → 230 V through
+82 kΩ, 355 → 225 V through 100 kΩ) imply 2.82 mA of tail current, and 2.82 mA
+through the 10 kΩ alone is 28.2 V — the printed +27 V junction, with +28.5 V at
+the cathodes. Through the drawn foot the same current would put the junction at
+41.2 V. The two tail figures are therefore shown as disputed: the page prints
+them beside the simulated +39.8 V junction and +41.1 V cathodes rather than
+bending the circuit to match.
 
 ## Verification — against the printed factory chart
 
-The I-EG drawing prints a full voltage chart, and simulation matches all
-fourteen compared nodes (the 5881 screen carries no chart value and is
-informational only): rails within 0.3 %, every tube pin within 7.4 %, against
-the sheet's own stated convention of ±20 % read with an electronic voltmeter.
+The I-EG drawing prints a full voltage chart, and simulation matches twelve of
+its fourteen compared nodes (the 5881 screen carries no chart value and is
+informational only): rails within 0.4 %, every gated tube pin within 7.5 %,
+against the sheet's own stated convention of ±20 % read with an electronic
+voltmeter. The other two are the tail figures above, disputed.
 
 ## Reading the chart off a scan
 

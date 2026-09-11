@@ -21,6 +21,12 @@ symbols:
   # it IS drawn, so it binds to the symbol instead.)
   RCHOKE: L1
 
+element_pins:
+  # netlist RPRES PRES 0 5k is the presence pot's track: its top lug on the
+  # tail's foot, its lower lug on ground. The wiper and its 0.1 µF (C16) are
+  # AC-only and not modelled.
+  RPRES: [VR6.1, VR6.3]
+
 netlist_undrawn:
   RG3: "V2A's grid return. At DC it is realised through the two 1 MΩ volume pots and their 270 kΩ mixers, all of which the sheet draws — there is no discrete grid-leak resistor on this node to bind to."
 

@@ -10,9 +10,10 @@
 * The bias supply is replaced by an ideal -41 V source (its selenium rectifier,
 * 15k/56k and two 8uF/150V cans are rectification and ripple filtering).
 * DC-open caps are MODELLED where both leads land on a named DC node (the
-* PI->output couplers C8/C9 and the shared 12AY7 cathode bypass C3) so their
-* board placement is layout-checked; open at DC, they move no operating point.
-* Caps into the abstracted volume/tone/presence network stay omitted.
+* PI->output couplers C8/C9, the V3B grid's AC ground C7 and the shared 12AY7
+* cathode bypass C3) so their board placement is layout-checked; open at DC,
+* they move no operating point. Caps into the abstracted volume/tone network,
+* and the presence pot's wiper cap C16, stay omitted.
 *
 * TUBE MODEL MAPPING: the drawing letters four 5881s and models/5881.inc is the
 * corpus's own 5881 fit, so no substitution is made anywhere in this deck. The
@@ -50,10 +51,8 @@ XV2B BP4 P2A KCF 12AX7
 RKCF KCF 0 100k
 
 * Long-tailed-pair phase inverter (82k/100k 5% plates, 470R + 10k tail, both 1M
-* grid leaks to the tail junction, 47 pF across the plates). The 56k feedback
-* resistor and the 5k presence pot land at the tail foot and sit at ~0 V DC
-* through the speaker/pot returns — DC-neutral, omitted here. The printed chart
-* (J +27 V across 10k = 2.7 mA) confirms that reading.
+* grid leaks to the tail junction J, 47 pF across the plates; the 10k's foot is
+* its own node).
 RLA BP3 PPIA 82k
 XV3A PPIA GPIA KPI 12AX7
 RGA GPIA JPI 1meg
@@ -61,7 +60,18 @@ RLB BP3 PPIB 100k
 XV3B PPIB GPIB KPI 12AX7
 RGB GPIB JPI 1meg
 RTAIL KPI JPI 470
-RT2 JPI 0 10k
+RT2 JPI PRES 10k
+* The tail's foot, as the I-EG schematic and layout both wire it: the 10k does
+* not return to ground but to a node of its own, PRES, which carries the 56k
+* negative-feedback resistor from the speaker (the OT secondary is DC ground, so
+* its far end is node 0), the top of the 5k presence pot's track (lower lug to
+* ground; its 0.1 uF wiper cap C16 is open at DC and omitted) and the V3B grid's
+* 0.1 uF AC ground C7. The 56k and the 5k track are both DC returns, so the foot
+* sits at the tail current times their 4.6k parallel resistance. The printed
+* tail figures do not fit this topology: see the KPI/JPI notes in voltages.yaml.
+RNF PRES 0 56k
+RPRES PRES 0 5k
+C7 GPIB PRES 0.1u
 * 47 pF across the two PI plates — DC-open, but both leads land on named DC
 * nodes, so it is modelled and its placement is drawing- and layout-checked.
 C10 PPIA PPIB 47p

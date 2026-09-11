@@ -5,6 +5,10 @@
 #
 # Every figure below is transcribed from the drawing. Nothing is interpolated:
 # a node the sheet does not print carries chart: null and is informational.
+#
+# Two printed values are disputed: the phase-inverter cathode and tail-junction
+# figures fit a 10 kΩ tail returned straight to ground, which is not what the
+# drawing shows. See the notes on KPI and JPI for the arithmetic.
 source: "Fender 'Twin-Amp' Model 5F8-A drawing (I-EG), printed voltages: rails +397/+395/+355/+295, bias −41 V; pins 12AY7 +145/+145 and +2.2 shared cathode, V2A +165 plate and +1 cathode, cathode follower +165, PI grids +19/+20, tail junction +27, PI cathodes +28.5, PI plates +230 (82k side) / +225 (100k side)"
 nodes:
   BP2:  { chart: 395, tol_pct: 8, note: "screens node after the choke (DCR estimated at 130 Ω)" }
@@ -18,7 +22,16 @@ nodes:
   KCF:  { chart: 165, tol_pct: 20, note: "cathode-follower output; the sheet prints +165 on both sides of the direct coupling, so the follower runs at about −1 V grid-to-cathode" }
   PPIA: { chart: 230, tol_pct: 20, note: "PI plate, 82 kΩ 5% side" }
   PPIB: { chart: 225, tol_pct: 20, note: "PI plate, 100 kΩ 5% side" }
-  KPI:  { chart: 28.5, tol_pct: 20, note: "PI cathodes above the 470 Ω" }
-  JPI:  { chart: 27, tol_pct: 20, note: "tail junction (grid-leak return)" }
+  KPI:
+    chart: 28.5
+    tol_pct: 20
+    disputed: true
+    dispute_note: "The printed tail figures fit a tail the drawing does not show. The printed plates (+230 V through 82 kΩ and +225 V through 100 kΩ, both off +355 V) carry 1.52 + 1.30 = 2.82 mA, and 2.82 mA through a 10 kΩ returned straight to ground is 28.2 V at the junction and 29.6 V at these cathodes — the printed +27 V and +28.5 V. But the I-EG schematic and layout both land that 10 kΩ on a node of its own, returned to ground through the 56 kΩ feedback resistor and the 5 kΩ presence pot's track in parallel (4.6 kΩ); at the same 2.82 mA that puts the junction at 41.2 V and these cathodes at 42.5 V. Simulation follows the drawn tail."
+  JPI:
+    chart: 27
+    tol_pct: 20
+    disputed: true
+    dispute_note: "The other half of the same contradiction — see KPI. The printed plates' 2.82 mA through the 10 kΩ alone gives 28.2 V, which fits the printed +27 V only if the 10 kΩ returns to ground; through the drawn foot (56 kΩ ∥ 5 kΩ = 4.6 kΩ) the same current puts the junction at 41.2 V."
+  PRES: { chart: null, note: "informational — the tail's foot, where the 10 kΩ, the 56 kΩ feedback resistor, the presence pot's track and the V3B grid's 0.1 µF meet; the drawing prints no figure here" }
   GA1:  { chart: -41, tol_pct: 8, note: "fixed bias via the 220 kΩ leaks from the −41 V supply" }
   SA1:  { chart: null, note: "informational — 5881 screen after its 470 Ω; the sheet prints no screen figure" }

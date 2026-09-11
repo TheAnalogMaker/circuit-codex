@@ -154,7 +154,7 @@ s.wire(168.91, 92, tp["g"][0], 92)
 bt = s.triode("V3B", "12AX7", 176.53, 126, unit=1)
 s.plate_load("RLA", "82k 5%", tp["p"], "B+3")
 s.plate_load("RLB", "100k 5%", bt["p"], "B+3")
-# shared tail: cathodes -> 470 -> J -> 10k -> gnd
+# shared tail: cathodes -> 470 -> J -> 10k -> the tail's foot (NOT ground)
 s.wire(176.53, 99.62, 176.53, 102)
 s.wire(176.53, 102, 182.88, 102)
 s.wire(176.53, 133.62, 176.53, 136)
@@ -165,7 +165,6 @@ s.sym("R", "RTAIL", "470", 187.96, 109 + 3.81, lx=2.0)
 s.wire(182.88, 109, 187.96, 109)
 s.junction(187.96, 116.62)
 s.sym("R", "RT2", "10k", 187.96, 120.43)
-s.gnd(187.96, 124.24)
 # both grid leaks to the junction
 s.wire(168.91, 92, 168.91, 99)
 s.junction(168.91, 92)
@@ -176,28 +175,28 @@ s.wire(168.91, 126, 168.91, 122)        # bottom grid
 s.wire(168.91, 126, bt["g"][0], 126)
 s.junction(168.91, 126)
 s.sym("R", "RGB", "1M", 168.91, 118.19, lx=-9.4)
-# label shifted right (lx=0) so it clears the mid pot's value text
-s.sym("C", "C7", ".1u", 162.56, 126, rot=90, lx=0, ly=-6.2)
-bl2, br2 = 158.75, 166.37
-s.wire(br2, 126, 168.91, 126)
-s.wire(bl2, 126, 158.75, 126)
-s.wire(158.75, 126, 158.75, 116.62)
-s.wire(158.75, 116.62, 168.91, 116.62)  # bottom grid AC-grounded to J
+# V3B's grid is held to the tail's FOOT by 0.1 uF, not to the junction: the
+# I-EG schematic lands it on the vertical the 10k, the 56k and the presence
+# pot share, and the layout puts it on the 10k's top eyelet.
+s.sym("C", "C7", ".1u", 168.91, 129.81, lx=-5.9)
+s.wire(168.91, 133.62, 168.91, 140)
+s.wire(168.91, 140, 187.96, 140)
 
-# ---- negative feedback + presence, at the phase-inverter tail -----------
-# 56 kΩ back from the speaker, and the 5 kΩ presence pot bridging the tail foot
-# to ground with 0.1 µF on its wiper. All three sit at ~0 V DC, so the DC model
-# leaves them out — the drawing states them.
-s.junction(185, 116.62)
-s.wire(185, 116.62, 185, 147)
-s.junction(185, 147)
+# ---- negative feedback + presence, at the phase-inverter tail's foot ----
+# The 10k's far end is a node of its own that also carries C7, and it does not
+# return to ground: 56 kΩ back to the speaker (DC ground through the OT
+# secondary) and the 5 kΩ presence pot's track are its DC returns, the pot's
+# lower lug grounded and 0.1 µF on its wiper, as I-EG draws them.
+s.wire(187.96, 124.24, 187.96, 147)     # RT2's foot, straight down the node
+s.junction(187.96, 140)
+s.junction(187.96, 147)
 nl, nr = s.series_h("R", "RNF", "56k", 170, 147)
-s.wire(nr, 147, 185, 147)
+s.wire(nr, 147, 187.96, 147)
 s.wire(158, 147, nl, 147)
 s.glabel("SPKR", 158, 147, 180)
-s.sym("POT", "VR6", "5k pres", 185, 150.81)
-s.gnd(185, 154.62)
-s.wire(190.08, 150.81, 196, 150.81)          # presence wiper -> 0.1 uF -> gnd
+s.sym("POT", "VR6", "5k pres", 187.96, 150.81)
+s.gnd(187.96, 154.62)
+s.wire(193.04, 150.81, 196, 150.81)          # presence wiper -> 0.1 uF -> gnd
 s.sym("C", "C16", ".1u", 196, 154.62)
 s.gnd(196, 158.43)
 
