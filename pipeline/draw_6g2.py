@@ -164,7 +164,7 @@ s.wire(GX, 87.43, JPI_X, 87.43)
 s.wire(JPI_X, 87.43, JPI_X, JPI_Y)
 
 # ============================ OUTPUT COUPLERS + 6V6 PAIR =================
-s.caption('Output pair — grounded cathodes, fixed bias through 1.5k grid stoppers off the -35 V line', 200, 44, 1.4)
+s.caption('Output pair — grounded cathodes; each grid behind a 1.5k stopper, fixed bias through a 220k 5% leak off the -35 V line', 200, 44, 1.4)
 GY3 = 50          # V3 grid row (plate-side output)
 GY4 = JPI_Y        # V4 grid row (tail-junction output)
 
@@ -184,13 +184,19 @@ s.wire(186, JPI_Y, cl8, JPI_Y)
 s.wire(cr8, JPI_Y, 208, GY4)
 
 XO = 234
-for gy, cref_x, vref, glref in [(GY3, 208, "V3", "RG3"), (GY4, 208, "V4", "RG4")]:
-    s.wire(cref_x, gy, XO - 7.62, gy)
+for gy, cref_x, vref, rstop, rleak in [(GY3, 208, "V3", "RG3", "RGL3"),
+                                       (GY4, 208, "V4", "RG4", "RGL4")]:
+    # coupler node: a 220k 5% leak down to the -35 V line, a 1.5k stopper
+    # on to the grid — as H-FA draws both pages
+    s.wire(cref_x, gy, 212, gy)
+    s.junction(212, gy)
+    s.sym("R", rleak, "220k 5%", 212, gy + 3.81, lx=3.0, ly=2.4)
+    s.wire(212, gy + 7.62, 212, gy + 10.16)
+    s.glabel("-35V", 212, gy + 10.16, 270)
+    sl, sr = s.series_h("R", rstop, "1.5k", 219, gy)
+    s.wire(212, gy, sl, gy)
+    s.wire(sr, gy, XO - 7.62, gy)
     p = s.pentode(vref, "6V6GT", XO, gy)
-    s.junction(216, gy)
-    s.sym("R", glref, "1.5k", 216, gy + 3.81, lx=3.0, ly=2.4)
-    s.wire(216, gy + 7.62, 216, gy + 10.16)
-    s.glabel("-35V", 216, gy + 10.16, 270)
     s.wire(p["g2"][0], p["g2"][1], p["g2"][0] + 6, p["g2"][1])
     s.glabel("BS", p["g2"][0] + 6, p["g2"][1], 0)
     s.gnd(XO, p["k"][1])
@@ -358,11 +364,11 @@ s.wire(200, YBI, 212, YBI)
 
 # ---- Intensity (VR4, 250k-L) sits directly IN the -35 V bias line: the raw
 # node above feeds lug1, the oscillator's AC-only output feeds lug3, and the
-# WIPER — the node that actually reaches both 6V6 grid stoppers — carries
+# WIPER — the line both 220k grid leaks return to — carries
 # both the fixed DC level and (capacitively) the oscillator's modulation.
-s.text("Intensity sits IN the bias line (not a grid-leak network): raw -35 V on one lug, the oscillator's AC output on",
+s.text("Intensity sits IN the bias line: raw -35 V on one lug, the oscillator's AC output on",
        150, 234, 1.15)
-s.text("the other; the WIPER is the -35V line the 6V6 grid stoppers see, with C10 bypassing it to ground.",
+s.text("the other; the WIPER is the -35V line both 220k grid leaks return to, with C10 bypassing it to ground.",
        150, 238, 1.15)
 s.wire(212, YBI, 212, 244)
 s.sym("POT", "VR4", "250k-L", 212, 247.81)

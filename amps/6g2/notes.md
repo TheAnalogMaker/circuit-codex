@@ -44,9 +44,10 @@ now has three independent factory drawings for. The plate output couples
 other's, exactly mirroring how the 5F10's own netlist takes its second
 coupler from the junction rather than the bare cathode pin.
 
-**Output.** Two 6V6GTs, grounded cathodes, 1500 Ω grid stoppers. Both grids
-wire straight into the **Intensity** pot's wiper rather than through a
-dedicated grid-leak resistor — see "The tremolo modulates the bias" below.
+**Output.** Two 6V6GTs, grounded cathodes. Each cathodyne output couples
+through 0.1 µF onto a node with a 1500 Ω grid stopper to its grid and a
+220 kΩ · 5 % leak to the −35 V bias line, which is the **Intensity** pot's
+wiper — see "The tremolo modulates the bias" below.
 A 56 kΩ resistor carries the speaker line back to V1B's unbypassed cathode —
 global negative feedback. The schematic runs that lead along the top of the
 sheet from the output transformer's secondary and drops it onto V1B's cathode
@@ -55,7 +56,7 @@ node; the layout page puts the 56 kΩ on V1B's cathode eyelet beside its
 driver carries the same pairing, a 56 kΩ from the speaker into an unbypassed
 1.5 kΩ cathode.
 
-## The tremolo modulates the bias — without a leak resistor in the way
+## The tremolo modulates the bias
 
 The other half of the cathodyne's bottle is a phase-shift oscillator. Its
 220 kΩ plate load comes straight off the +315 V reservoir, and a three-section
@@ -68,17 +69,13 @@ on the ladder's middle node, so closing the pedal's switch grounds that node
 and stops the oscillation. The output leaves the plate through 220 kΩ and
 0.1 µF into a 250 kΩ-linear **Intensity** control.
 
-Where the 6G3/AB763 generation fixes a 220 kΩ · 5 % grid-leak resistor at each
-output tube and modulates the bias *supply* upstream of it, the 6G2 wires the
-Intensity pot's wiper **directly** to both 6V6 grid-stopper junctions — no
-separate leak resistor at all. The pot's own two ends are the -35 V fixed-bias
-supply on one side and the oscillator's AC-only output (capacitor-coupled, so
-DC-blocked) on the other. Because the output grids draw no DC grid current,
-nothing can flow through the pot regardless of its resistance or wiper
-position, so the grids sit at exactly -35 V no matter where Intensity is set —
-what varies is how much of the oscillator's AC swing rides on top of that
-fixed point. It is the same trick the later amps use, wired one stage earlier
-and with one fewer resistor.
+The Intensity pot sits in the −35 V bias line itself. One end takes the
+fixed-bias supply and the other the oscillator's output through 0.1 µF, so DC
+reaches the pot only from the supply side, and its wiper is the bias line both
+220 kΩ · 5 % grid leaks return to. The output grids draw no DC current, so
+nothing flows through the leaks or the pot whatever the setting: the grids sit
+at −35 V, and what Intensity sets is how much of the oscillator's swing rides
+on top of that fixed point.
 
 ## Power
 

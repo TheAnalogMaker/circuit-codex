@@ -98,23 +98,25 @@ heaters:
       never on the 6.3 V chain.
     sockets:
       V5: { feed: [2], return: [8] }        # 5Y3GT directly-heated filament
-caption: "Redrawn from the published Fender \"Princeton\" Model 6G2 layout drawing (H-FA) — principal board components and their hookup, in the order the drawing shows them. Off the board: the two 68 kΩ input grid stoppers and the 1 MΩ input grid leak mount at the jacks (the sheet's own \"Instruments\" jacks carry a resistor right at the lug); the Tone cut cap, the Intensity wiper-to-ground cap and the Speed control's 100 kΩ mount at their own pots; the rail-dropper chain (RD1/RD2 + the three filter caps) and the bias-supply group (R5/D1/C14/R6) each sit in the sheet's own small sub-boxes rather than on the eyelet strip, drawn here as off-board stubs so every rail stays traceable. The 6.3 V heater supply is single-ended: one green transformer lead is grounded alongside the red-yellow HT centre tap, and the other feeds the pilot light and every heater, so each socket carries a green feed and a grounded return (7025 and 12AX7 pins 4+5 strapped for 6.3 V parallel with the centre tap at pin 9 to ground; each 6V6GT fed at pin 2 and returned at pin 7, which the sheet takes to the cathode at pin 8, the shell at pin 1, and ground). Those landings are the drawing's own; the feed's daisy order (pilot light → the two 6V6 output tubes → the 12AX7 → the 7025) is the conventional reading of the sheet's \"to all 6.3 volt htrs\" arrow, which states the connection rather than routing it. The 5Y3GT rectifier is directly heated and keeps its own 5 V winding, the transformer's yellow pair, off this chain. Not a trace or a dimensioned reproduction."
+caption: "Redrawn from the published Fender \"Princeton\" Model 6G2 layout drawing (H-FA) — principal board components and their hookup, in the order the drawing shows them. Off the board: the two 68 kΩ input grid stoppers and the 1 MΩ input grid leak mount at the jacks (the sheet's own \"Instruments\" jacks carry a resistor right at the lug); the Tone cut cap, the Intensity wiper-to-ground cap and the Speed control's 100 kΩ mount at their own pots; the two 1.5 kΩ grid stoppers, which the drawing mounts at the 6V6GT sockets, are drawn on the board beside their 220 kΩ grid leaks; the rail-dropper chain (RD1/RD2 + the three filter caps) and the bias-supply group (R5/D1/C14/R6) each sit in the sheet's own small sub-boxes rather than on the eyelet strip, drawn here as off-board stubs so every rail stays traceable. The 6.3 V heater supply is single-ended: one green transformer lead is grounded alongside the red-yellow HT centre tap, and the other feeds the pilot light and every heater, so each socket carries a green feed and a grounded return (7025 and 12AX7 pins 4+5 strapped for 6.3 V parallel with the centre tap at pin 9 to ground; each 6V6GT fed at pin 2 and returned at pin 7, which the sheet takes to the cathode at pin 8, the shell at pin 1, and ground). Those landings are the drawing's own; the feed's daisy order (pilot light → the two 6V6 output tubes → the 12AX7 → the 7025) is the conventional reading of the sheet's \"to all 6.3 volt htrs\" arrow, which states the connection rather than routing it. The 5Y3GT rectifier is directly heated and keeps its own 5 V winding, the transformer's yellow pair, off this chain. Not a trace or a dimensioned reproduction."
 source:
   desc: "Fender \"Princeton\" Model 6G2 layout drawing (H-FA) — title block reads \"FENDER 'PRINCETON' LAYOUT MODEL 6G2 H-FA\", matching the schematic's own H-FA drawing number"
   url: "https://el34world.com/charts/Schematics/files/Fender/Fender_princeton_6g2.pdf"
 
 parts:
   # --- V3 grid stopper, cathodyne plate coupler + load -------------------
-  - { ref: RG3, a: [0, 2], b: [1, 2] }        # 1.5k V3 grid stopper (-35V.a -> G61.b)
-  - { ref: C7, a: [1, 2], b: [1, 5] }         # 0.1 uF PI plate(.b) -> V3 grid(.a, shares RG3.b)
+  - { ref: RG3, a: [1, 2], b: [1, 3] }        # 1.5k V3 grid stopper: grid(.a, run to V3 pin 5) <- coupler node(.b)
+  - { ref: RGL3, a: [0, 3], b: [1, 3] }       # 220k 5% V3 grid leak: -35V(.a) -> coupler node(.b)
+  - { ref: C7, a: [1, 3], b: [1, 5] }         # 0.1 uF PI plate(.b) -> V3 coupler node(.a)
   - { ref: RL3, a: [0, 5], b: [1, 5] }        # 56k cathodyne plate load (BD.a -> PPI.b, shares C7.b)
   # --- cathodyne cathode / tail network — every leg wired explicitly -----
   - { ref: RKA, a: [0, 8], b: [1, 8] }        # 1.5k cathode resistor: K(.a) -> JPI(.b)
   - { ref: RGPI, a: [0, 12], b: [1, 12] }     # 1M grid leak: GPI(.a) -> JPI(.b)
   - { ref: RKB, a: [0, 15], b: [1, 15] }      # 56k tail-to-ground: GND(.a) -> JPI(.b)
   # --- tail coupler + V4 grid stopper -------------------------------------
-  - { ref: C8, a: [1, 19], b: [1, 22] }       # 0.1 uF: JPI(.a) -> V4 grid(.b) — both row1
-  - { ref: RG4, a: [0, 22], b: [1, 22] }      # 1.5k V4 grid stopper: -35V(.a) -> grid(.b, shares C8.b)
+  - { ref: C8, a: [1, 19], b: [1, 21] }       # 0.1 uF: JPI(.a) -> V4 coupler node(.b) — both row1
+  - { ref: RGL4, a: [0, 21], b: [1, 21] }     # 220k 5% V4 grid leak: -35V(.a) -> coupler node(.b)
+  - { ref: RG4, a: [1, 22], b: [1, 21] }      # 1.5k V4 grid stopper: grid(.a, run to V4 pin 5) <- coupler node(.b)
   # --- driver -> cathodyne coupler ----------------------------------------
   - { ref: C6, a: [0, 26], b: [1, 26] }       # 0.02 uF: GPI(.a) -> V1B plate tap(.b)
   # --- tremolo oscillator: plate load, output feed, phase-shift ladder ----
@@ -224,7 +226,7 @@ runs:
   #   -0.15  RD1.a -> T2.red (BP short-haul, x3-13.9)
   #   -0.30  V5.pin4 -> R5.a (bias feed, x1.2-15, wraps the left edge)
   #   -0.45  RD1.a -> RL4.a (BP long-haul, x3.5-33.1)
-  #   -0.60  RG4.a -> RG3.a, yellow (x2.5-22)
+  #   -0.60  RGL4.a -> RGL3.a, yellow (x3-21)
   #   -0.75  RD2.b -> RL2.a (BD long-haul, x9.5-48.4)
   #   -0.90  R6.a -> VR4.lug1, brown (x22.5-40.6)
   - { from: RD1.a, to: C11.a, color: red, via: [[2.8, -0.50]] }
@@ -268,12 +270,12 @@ runs:
   - { from: C9.b, to: VR4.lug3, color: brown, via: [[39.4, -0.20], [40.4, -0.20]] }
   - { from: VR4.lug2, to: C10.a, via: [[40.45, -0.35], [39.0, -0.38], [37.0, -0.38]] }
   - { from: C10.b, to: [1.45, 37.0] }
-  - { from: VR4.lug2, to: RG4.a, color: yellow, via: [[40.6, -0.60], [22.3, -0.60]] }
-  - { from: RG4.a, to: RG3.a, color: yellow, via: [[21.7, -0.60], [2.5, -0.60]] }
+  - { from: VR4.lug2, to: RGL4.a, color: yellow, via: [[40.6, -0.60], [21.3, -0.60]] }
+  - { from: RGL4.a, to: RGL3.a, color: yellow, via: [[20.7, -0.60], [3.0, -0.60]] }
 
   # === output stage: grids and cathodes ====================================
-  - { from: C7.a, to: V3.pin5, via: [[3.2, 1.38], [6.4, 1.38]] }
-  - { from: C8.b, to: V4.pin5, via: [[19.6, 1.05], [10.9, 1.66]] }
+  - { from: RG3.a, to: V3.pin5, via: [[3.2, 1.38], [6.4, 1.38]] }
+  - { from: RG4.a, to: V4.pin5, via: [[22.3, 1.25], [12.0, 1.25], [10.9, 1.66]] }
   - { from: V3.pin8, to: [1.45, 6.0], via: [[6.1, 2.26]] }
   - { from: V4.pin8, to: [1.45, 10.6], via: [[10.4, 2.26]] }
 

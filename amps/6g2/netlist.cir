@@ -26,15 +26,13 @@
 * bias line only through a 0.1 uF cap, so leaving it out changes nothing
 * downstream.
 *
-* The 6V6 grids are NOT fed through a fixed 220k-style grid-leak resistor on
-* this drawing (unlike the AA964 that follows it): both grids wire straight
-* into the Intensity pot's wiper, and the pot's other two ends are the -35 V
-* bias supply on one side and the (AC-only, capacitor-coupled) oscillator
-* output on the other. Because the output grids draw no DC grid current, no
-* current flows through the pot at all — its resistance, and the Intensity
-* setting, move no operating point — so the grids sit at exactly -35 V
-* through their 1500 ohm grid-stopper resistors, which are what is modelled
-* here.
+* Each 6V6 grid sits behind a 1500 ohm stopper on a coupler node that a
+* 220k 5% leak returns to the -35 V bias line — the Intensity pot's wiper.
+* The pot's other two ends are the -35 V bias supply on one side and the
+* (AC-only, capacitor-coupled) oscillator output on the other. Because the
+* output grids draw no DC grid current, no current flows through the leaks
+* or the pot — their values, and the Intensity setting, move no operating
+* point — so the grids sit at exactly -35 V.
 *
 * Global negative feedback: a 56k resistor runs from the speaker line (the
 * output transformer's secondary) back to V1B's cathode, which the drawing
@@ -96,15 +94,16 @@ RKB JPI 0 56k
 RGPI GPI JPI 1meg
 C6 PB GPI 0.02u
 
-* --- Output pair 6V6GT (fixed bias): grids tied to -35 V through 1500 ohm
-*     grid-stopper resistors (see the header note on why no dedicated leak
-*     resistor is needed here); screens on the +312 V node BS; cathodes
-*     grounded; plates on BP. Two distinct single-ended bottles V3 / V4, one
-*     driven from the cathodyne's plate output, the other from its tail
-*     junction.
+* --- Output pair 6V6GT (fixed bias): each coupler lands on its own node
+*     (N61, N62) with a 220k 5% leak to the -35 V line and a 1500 ohm grid
+*     stopper to the grid; screens on the +312 V node BS; cathodes grounded;
+*     plates on BP. Two distinct single-ended bottles V3 / V4, one driven
+*     from the cathodyne's plate output, the other from its tail junction.
 XV3 BP BS G61 0 6V6GT
-RG3 NBIAS G61 1500
+RG3 N61 G61 1500
+RGL3 NBIAS N61 220k
 XV4 BP BS G62 0 6V6GT
-RG4 NBIAS G62 1500
-C7 PPI G61 0.1u
-C8 JPI G62 0.1u
+RG4 N62 G62 1500
+RGL4 NBIAS N62 220k
+C7 PPI N61 0.1u
+C8 JPI N62 0.1u

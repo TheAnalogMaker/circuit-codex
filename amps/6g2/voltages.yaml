@@ -22,5 +22,5 @@ nodes:
   PPI:  { chart: 230, tol_pct: 20, note: "cathodyne plate, 56k load from BD" }
   KPI:  { chart: 56.5, tol_pct: 20, note: "cathodyne cathode pin, above the 1.5k cathode resistor into the tail" }
   JPI:  { chart: 55,  tol_pct: 20, note: "cathodyne tail junction (1.5k cathode resistor / 56k-to-ground), grid-leak return" }
-  G61:  { chart: -35, tol_pct: 8,  note: "6V6 (V3) grid — wired straight to the -35 V bias line through its 1500 ohm grid stopper; no dedicated leak resistor on this drawing (see the netlist's header)" }
-  G62:  { chart: -35, tol_pct: 8,  note: "6V6 (V4) grid, same bias-line wiring" }
+  G61:  { chart: -35, tol_pct: 8,  note: "6V6 (V3) grid — behind its 1500 ohm stopper and a 220k 5% leak from the -35 V bias line" }
+  G62:  { chart: -35, tol_pct: 8,  note: "6V6 (V4) grid, the same stopper-and-leak wiring" }

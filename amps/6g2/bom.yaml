@@ -31,8 +31,8 @@ items:
   - { ref: RGPI, part: "Carbon comp resistor", value: "1 MΩ · ½ W",    role: "Cathodyne grid leak, returned to the tail junction (not ground)" }
   - { ref: RKA,  part: "Carbon comp resistor", value: "1.5 kΩ · ½ W",  role: "Cathodyne cathode resistor, into the tail junction — the same 1.5 kΩ used elsewhere on this sheet as a grid stopper; an initial read as 700 Ω did not reproduce the printed cathode/junction chart values (+56.5 V / +55 V) in simulation; 1.5 kΩ reproduces both within 4%" }
   - { ref: RKB,  part: "Carbon comp resistor", value: "56 kΩ · ½ W",   role: "Cathodyne tail-to-ground resistor — read against the faint corner of this sheet, cross-checked against the identical 56 kΩ tail on the sibling 5F10 (Harvard) and AA964 (blackface Princeton) cathodynes, and consistent with the printed chart once RKA above was corrected" }
-  - { ref: C7,   part: "Coupling capacitor",  value: "0.1 µF · 400 V", role: "Cathodyne plate → V3 grid" }
-  - { ref: C8,   part: "Coupling capacitor",  value: "0.1 µF · 400 V", role: "Cathodyne tail junction → V4 grid" }
+  - { ref: C7,   part: "Coupling capacitor",  value: "0.1 µF · 400 V", role: "Cathodyne plate → V3's coupler node" }
+  - { ref: C8,   part: "Coupling capacitor",  value: "0.1 µF · 400 V", role: "Cathodyne tail junction → V4's coupler node" }
   # --- V2B tremolo oscillator (excluded from the DC netlist — see notes.md) ---
   - { ref: RL4, part: "Carbon comp resistor", value: "220 kΩ · ½ W",   role: "Oscillator plate load, off the +315 V reservoir (BP)" }
   - { ref: RKTO, part: "Carbon comp resistor", value: "3.3 kΩ · ½ W", role: "Oscillator cathode bias" }
@@ -46,12 +46,14 @@ items:
   - { ref: RTO2, part: "Carbon comp resistor", value: "1 MΩ · ½ W",   role: "Oscillator grid leak to ground" }
   - { ref: R4,  part: "Carbon comp resistor", value: "220 kΩ · ½ W",   role: "Oscillator output feed to the Intensity control" }
   - { ref: C9,  part: "Coupling capacitor",   value: "0.1 µF · 400 V", role: "Oscillator output coupling to the Intensity control" }
-  - { ref: VR4, part: "Linear potentiometer", value: "250 kΩ-L",       role: "Intensity — sits directly in the -35 V bias line feeding both 6V6 grids; carries no DC (see the DC netlist header)" }
+  - { ref: VR4, part: "Linear potentiometer", value: "250 kΩ-L",       role: "Intensity — sits directly in the -35 V bias line; its wiper is the line both 220 kΩ grid leaks return to; carries no DC (see the DC netlist header)" }
   - { ref: C10, part: "Film capacitor",       value: "0.05 µF · 200 V", role: "Intensity wiper to ground" }
   - { ref: JTR, part: "Jack",                 value: "tremolo pedal", role: "Tremolo pedal jack — its tip is on the ladder's pedal node, so the pedal's switch grounds that node and stops the oscillator" }
   # --- Output stage ---
-  - { ref: RG3, part: "Carbon comp resistor", value: "1.5 kΩ · ½ W",   role: "V3 grid stopper, wired straight to the -35 V bias line" }
-  - { ref: RG4, part: "Carbon comp resistor", value: "1.5 kΩ · ½ W",   role: "V4 grid stopper, same bias-line wiring" }
+  - { ref: RGL3, part: "Carbon comp resistor", value: "220 kΩ · 5 % · ½ W", role: "V3 grid leak, from the -35 V bias line to V3's coupler node" }
+  - { ref: RG3, part: "Carbon comp resistor", value: "1.5 kΩ · ½ W",   role: "V3 grid stopper, coupler node → grid" }
+  - { ref: RGL4, part: "Carbon comp resistor", value: "220 kΩ · 5 % · ½ W", role: "V4 grid leak, from the -35 V bias line to V4's coupler node" }
+  - { ref: RG4, part: "Carbon comp resistor", value: "1.5 kΩ · ½ W",   role: "V4 grid stopper, coupler node → grid" }
   # --- Power supply ---
   - { ref: RD1, part: "Power resistor",       value: "1 kΩ · 1 W",  role: "Rail dropper +315 V → +312 V (screens)" }
   - { ref: RD2, part: "Power resistor",       value: "10 kΩ · 1 W",   role: "Rail dropper +312 V → +280 V (preamp/PI)" }
