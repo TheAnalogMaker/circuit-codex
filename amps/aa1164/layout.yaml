@@ -84,12 +84,12 @@ parts:
   - { ref: RGRD, a: [0, 51], b: [1, 51] }  # 1M reverb-driver grid leak (GRD→0)
   - { ref: CKRD, a: [0, 56], b: [0, 57] }  # 25 µF cathode bypass (shares KRD)
   - { ref: RKRD, a: [0, 57], b: [1, 57] }  # 2.2k shared cathode (KRD→0)
-  # --- preamp second stage (V1, right half) ---
+  # --- preamp second stage (V1 pins 6/7/8, as the K-FD sheets print it) ---
   - { ref: CC1,  a: [0, 59], b: [0, 58] }  # 0.02 µF output coupling (shares PN2)
   - { ref: RLN2, a: [0, 60], b: [0, 59] }  # 100k plate load (BD→PN2)
   - { ref: CKN2, a: [0, 62], b: [0, 63] }  # 25 µF cathode bypass (shares KN2)
   - { ref: RKN2, a: [0, 63], b: [1, 63] }  # 1.5k cathode (KN2→0)
-  # --- preamp input stage (V1, left half) ---
+  # --- preamp input stage (V1 pins 1/2/3: grid 2 on the jacks' red lead) ---
   - { ref: RLN1, a: [0, 68], b: [0, 69] }  # 100k plate load (BD→PN1)
   # --- tone stack (right end, as the layout mounts it): 250 pF and the 100k
   #     slope off the plate eyelet, .047 and .1 standing on the slope node ---
@@ -248,21 +248,21 @@ runs:
   - { from: CC1.b, to: CRS.a, via: [[57.6, -0.52], [50.4, -0.52]] }
   - { from: CRS.a, to: RMIX.a, via: [[49.6, -0.38], [42.4, -0.38]] }
 
-  # === preamp second stage (V1, right half) ===================================
-  - { from: RLN2.b, to: V1.pin1, via: [[59.4, 1.8], [63.8, 2.45]] }
-  - { from: VRVOL.lug2, to: V1.pin2, via: [[61.3, -0.5], [61.3, 1.5], [63.6, 1.9]] }
+  # === preamp second stage (V1 pins 6/7/8) =====================================
+  - { from: RLN2.b, to: V1.pin6, via: [[59.4, 1.6], [66.7, 1.6]] }
+  - { from: VRVOL.lug2, to: V1.pin7, via: [[61.3, -0.5], [61.3, 1.52], [66.98, 1.52], [66.98, 1.93]] }
   - { from: VRVOL.lug1, to: [1.45, 64.4], via: [[61.4, -0.75], [64.4, 0.5]] }
-  - { from: V1.pin3, to: RKN2.a, via: [[63.6, 1.55]] }
+  - { from: V1.pin8, to: RKN2.a, via: [[67.3, 2.07], [67.3, 1.3], [63.55, 1.3], [63.55, 0.35]] }
   - { from: CKN2.a, to: [1.45, 61.6] }
   - { from: RKN2.b, to: [1.45, 63.4] }
 
-  # === preamp input stage (V1, left half) =====================================
-  - { from: RLN1.b, to: V1.pin6, via: [[69, 1.62]] }
+  # === preamp input stage (V1 pins 1/2/3) ======================================
+  - { from: RLN1.b, to: V1.pin1, via: [[69.3, 1.6], [69.3, 2.75], [65.0, 2.75], [65.0, 2.3]] }
   - { from: JIN.tip, to: RGN1.a, via: [[77, -1.1]] }
   - { from: JIN.sleeve, to: [1.45, 79.2], via: [[79.2, -0.6]] }
-  - { from: RGN1.a, to: V1.pin7, via: [[75.6, -0.4], [75.6, 1.4]] }
+  - { from: RGN1.a, to: V1.pin2, via: [[75.6, -0.4], [75.6, 2.85], [64.85, 2.85], [64.85, 2.07]] }
   - { from: RGN1.b, to: [1.45, 76.4], via: [[76.4, -0.35]] }
-  - { from: V1.pin8, to: RKN1.a, via: [[68, 2.35], [77.6, 1.7]] }
+  - { from: V1.pin3, to: RKN1.a, via: [[64.7, 1.93], [64.7, 2.95], [77.6, 2.95], [77.6, 1.7]] }
   - { from: CKN1.a, to: [1.45, 76.9], via: [[76.9, 0.7]] }
   - { from: RKN1.b, to: [1.45, 78.6], via: [[78.5, 1.35]] }
 
