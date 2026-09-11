@@ -16,6 +16,12 @@ symbols:
   # it IS drawn, so it binds to the symbol instead.)
   RCHOKE: L1
 
+element_pins:
+  # netlist RPRES PRES 0 5k is the presence pot's track: its top lug on the
+  # tail's foot, its lower lug on ground. The wiper and its 0.1 µF (C16) are
+  # AC-only and not modelled.
+  RPRES: [VR6.1, VR6.3]
+
 # Hard-gated: verify_schematic_nets.py fails CI on any finding for this sheet.
 # Claimed 2026-09-02 after the drawing went clean against netlist.cir.
 schematic_claim: verified

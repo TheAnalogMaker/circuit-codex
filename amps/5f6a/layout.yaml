@@ -65,7 +65,7 @@ heaters:
       pin, so the winding floats at B+ and neither leg is grounded.
     sockets:
       V6: { feed: [2], return: [8] }        # GZ34 — pin 8 shared with the cathode
-caption: "Redrawn from the published Fender 5F6-A layout drawing (I-EG) — principal board components and their hookup, in the order the drawing shows them. The tone-stack capacitors mount on the board, as the factory sheet places them — the two 0.02 µF caps sharing their node-B eyelet with the 56 kΩ slope's lead and the 250 pF mica beside them — and the bias supply’s second 8 µF can (C15b, on the rectifier side of the 15 kΩ) is a chassis part and is not drawn; the pots are wired as the sheet draws: the bass pot a rheostat with its wiper strapped into the treble-lug node, the middle pot's wiper fed from the second 0.02 µF, the treble wiper alone carrying the output. The four-jack input network's 68 kΩ grid stoppers and the cathode-follower's 100 kΩ load are drawn schematically or omitted for legibility; the 1 MΩ input grid leaks (RG1 bright, RG2 normal) are placed at their input jacks. The 6.3 V winding is centre-tapped and it is the tap that is grounded, not either leg: the green-yellow lead goes to the chassis and the two greens float about it. The sheet names each socket's heater landings with a short stub marked X rather than routing the leads, and those landings are what the drawing states — all three noval bottles have pins 4+5 strapped for 6.3 V parallel with the centre tap at pin 9 carrying the other leg, and each 5881 takes the two legs on its only heater pins, 2 and 7. The order the two legs reach the sockets in (pilot lamp → the two 5881 outputs → the two 12AX7s → 12AY7 input) follows the sheet's own physical order. The GZ34 rectifier is directly heated from the 5 V winding, the transformer's yellow pair, and off the 6.3 V chain. The power-transformer primary leads land on chassis switches, off the board. Not a trace or a dimensioned reproduction."
+caption: "Redrawn from the published Fender 5F6-A layout drawing (I-EG) — principal board components and their hookup, in the order the drawing shows them. The tone-stack capacitors mount on the board, as the factory sheet places them — the two 0.02 µF caps sharing their node-B eyelet with the 56 kΩ slope's lead and the 250 pF mica beside them — and the bias supply’s second 8 µF can (C15b, on the rectifier side of the 15 kΩ) is a chassis part and is not drawn; the pots are wired as the sheet draws: the bass pot a rheostat with its wiper strapped into the treble-lug node, the middle pot's wiper fed from the second 0.02 µF, the treble wiper alone carrying the output. The four-jack input network's 68 kΩ grid stoppers and the cathode-follower's 100 kΩ load are drawn schematically or omitted for legibility; the 1 MΩ input grid leaks (RG1 bright, RG2 normal) are placed at their input jacks. The 6.3 V winding is centre-tapped and it is the tap that is grounded, not either leg: the green-yellow lead goes to the chassis and the two greens float about it. The sheet names each socket's heater landings with a short stub marked X rather than routing the leads, and those landings are what the drawing states — all three noval bottles have pins 4+5 strapped for 6.3 V parallel with the centre tap at pin 9 carrying the other leg, and each 5881 takes the two legs on its only heater pins, 2 and 7. The order the two legs reach the sockets in (pilot lamp → the two 5881 outputs → the two 12AX7s → 12AY7 input) follows the sheet's own physical order. The GZ34 rectifier is directly heated from the 5 V winding, the transformer's yellow pair, and off the 6.3 V chain. The power-transformer primary leads land on chassis switches, off the board. The 10 kΩ tail's far end is not grounded: it carries the 27 kΩ feedback resistor, the presence pot's track and the V3B grid's 0.1 µF, as the sheet wires it; the factory board mounts that 27 kΩ beside the 10 kΩ, and it is drawn here beside the speaker jacks. Not a trace or a dimensioned reproduction."
 source:
   desc: "Fender 'Bassman' Model 5F6-A layout drawing (I-EG), page 1"
   url: "https://el34world.com/charts/Schematics/files/Fender/Fender_bassman_5f6a.pdf"
@@ -104,7 +104,8 @@ parts:
   - { ref: RGA,  a: [1, 20], b: [1, 21] }   # 1M PI grid leak (V3A) → tail junction
   - { ref: RGB,  a: [1, 22], b: [1, 23] }   # 1M PI grid leak (V3B) → tail junction
   - { ref: RTAIL, a: [0, 24], b: [1, 24] }  # 470 Ω PI tail (vertical)
-  - { ref: RT2,  a: [1, 25], b: [1, 26] }   # 10k tail junction → ground
+  - { ref: RT2,  a: [1, 25], b: [1, 26] }   # 10k tail junction → the tail's foot (NOT ground)
+  - { ref: C7,   a: [0, 22], b: [0, 23] }   # 0.1 µF V3B grid → the tail's foot
   # cathode-follower FMV tone stack (slope + caps on the board, per the sheet)
   - { ref: C6,   a: [0, 25], b: [0, 27] }   # 0.02 µF treble wiper → PI grid
   - { ref: RSL,  a: [1, 27], b: [1, 28] }   # 56k tone-stack slope
@@ -133,10 +134,11 @@ offboard:
   - { id: V4,   ref: V4, kind: tube, edge: bottom, at: 6.5,  label: "V4 · 5881" }
   - { id: V5,   ref: V5, kind: tube, edge: bottom, at: 10.5, label: "V5 · 5881" }
   - { id: SPK,  kind: jack, edge: bottom, at: 15, label: "Spkr jacks" }
-  # 27 kΩ negative-feedback resistor (annotation only — no board designator):
-  # taps the speaker/OT-secondary node and returns to the phase-inverter tail
-  # foot. Drawn as a discrete 2-lead off-board part so the wiring reads true — a
-  # bare wire here would falsely short the speaker node to the tail junction.
+  # 27 kΩ negative-feedback resistor RNF: from the speaker/OT-secondary node to
+  # the tail's foot (RT2.b). The factory layout mounts it on the board beside
+  # the tail's 10 kΩ; this board has no free eyelet pair in that run, so it is
+  # drawn as a discrete 2-lead part at the speaker jacks — never a bare wire,
+  # which would short the speaker node to the foot.
   - { id: RNF, ref: RNF, kind: part, edge: bottom, at: 18.5, label: "NFB" }
   - { id: V3,   ref: V3, kind: tube, edge: bottom, at: 20,   label: "V3 · 12AX7 (PI)" }
   - { id: V2,   ref: V2, kind: tube, edge: bottom, at: 31,   label: "V2 · 12AX7" }
@@ -236,7 +238,7 @@ runs:
   - { from: T3.black, to: SPK, via: [[43.6, 0.59], [43.6, 3.05], [16.5, 3.05], [16.5, 2]] }
   - { from: T3.green, to: SPK, via: [[43.8, 0.69], [43.8, 3.2], [15, 3.2]] }
   - { from: SPK, to: RNF.a, via: [[15.4, 2.55], [17.9, 2.55]] }
-  - { from: RNF.b, to: RT2.a, via: [[19.5, 2.6], [19.5, 3.35], [25, 3.35]] }
+  - { from: RNF.b, to: RT2.b, via: [[19.5, 2.6], [19.5, 3.35], [26, 3.35]] }
 
   # --- long-tailed-pair phase inverter (V3) ---------------------------------
   # Plate loads reach B+3 (C13.a) from staggered top lanes; the V3 plate, grid
@@ -256,7 +258,11 @@ runs:
   - { from: RTAIL.b, to: RT2.a }
   - { from: RGA.b, to: RT2.a, via: [[21, 0.75], [24.7, 0.75]] }
   - { from: RGB.b, to: RT2.a, via: [[23.4, 1.25], [24.7, 1.25]] }
-  - { from: RT2.b, to: [1.45, 26] }
+  # The tail's foot: the 10k's far end is NOT grounded. It carries the 27 kΩ
+  # feedback return (above), the presence pot's track (below) and V3B's grid
+  # AC ground C7 — the node I-EG builds on the 10k's top eyelet.
+  - { from: C7.a, to: RGB.a }
+  - { from: C7.b, to: RT2.b, via: [[23.5, 0.4], [25.7, 0.4]] }
 
   # --- V2A driver + V2B cathode follower -------------------------------------
   # B+4 backbone runs in the top lane nearest the board; the V2 pins and the
@@ -311,7 +317,7 @@ runs:
   - { from: C3.b, to: [1.45, 42] }
 
   # --- presence control (5k), at the phase-inverter tail foot -----------------
-  - { from: VR6.lug3, to: RT2.a, via: [[4, -0.82], [25.5, -0.82]] }
+  - { from: VR6.lug3, to: C7.b, via: [[4, -0.82], [22.55, -0.82], [22.55, -0.25]] }
   - { from: VR6.lug1, to: [1.45, 4.8], via: [[4.8, -0.55]] }
   - { from: VR6.lug2, to: C16.a, via: [[4, -1.3], [6, -1.3]] }
   - { from: C16.b, to: [1.45, 6.8], via: [[6.8, -0.5]] }
@@ -376,3 +382,4 @@ net_map:
     RCHOKE: "filter choke L1 sits on the board (B+1 → B+2); the netlist models its ~130 Ω DCR as RCHOKE"
     RG3:  "V2A grid return — realised through the volume pots (VR1/VR2) and 270k channel mixers to ground, not a discrete board resistor"
     RKCF: "V2B cathode-follower 100 kΩ load — the sheet runs it from the +180 V eyelet across the board; omitted from this redraw, whose CF node is carried by the RSL.a feed"
+    RPRES: "the 5 kΩ presence pot VR6's track, chassis-mounted from the tail's foot (lug 3, on C7.b) to the ground bus (lug 1)"

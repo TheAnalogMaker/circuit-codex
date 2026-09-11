@@ -21,8 +21,9 @@ tail, both 1M grid leaks returned to the tail junction, 47 pF across the
 plates →
 0.1 µF couplers → **5881 pair**, fixed-biased at −48 V through 220k leaks,
 **470 Ω 1W screen resistors** → 2 Ω output (four 8 Ω speakers), with 27 kΩ of
-negative feedback returning to the phase-inverter tail alongside the 5 kΩ
-presence pot and its 0.1 µF wiper cap.
+negative feedback returning to the foot of the phase-inverter tail — the far
+end of its 10k, which is not grounded — alongside the 5 kΩ presence pot's
+track and the second grid's 0.1 µF.
 
 Power: 325-0-325 (PT 8087) → GZ34 → standby → **+432 V** plates (20 µF) →
 choke (14684) → **+430 V** screens → 4.7 kΩ → **+385 V** PI (20 µF) → 10k →
@@ -69,9 +70,11 @@ specific:
 
 - **Rectifier.** The 83 mercury-vapour tube gives way to the GZ34.
 - **Presence.** The 5 kΩ presence pot and the 27 kΩ feedback return leave the
-  tone stack's ground leg and land at the phase-inverter tail instead, the pot
-  bridging the tail to ground with 0.1 µF on its wiper. The middle pot's foot,
-  which fed the presence pot on the 5F6, now runs straight to ground.
+  tone stack's ground leg and land at the foot of the phase-inverter tail
+  instead: the tail's 10k no longer returns to ground but to the node they
+  share, and the pot's track runs from there to ground with 0.1 µF on its
+  wiper. The middle pot's foot, which fed the presence pot on the 5F6, now
+  runs straight to ground.
 - **Output stage.** The 5F6's 1.5 kΩ grid stoppers and 100 Ω screen resistors
   become no stoppers and 470 Ω 1 W screen resistors.
 - **Second-stage cathode.** The 5F6 bypasses V2A's 820 Ω cathode resistor with
@@ -114,14 +117,24 @@ cathode strapped to the heater inside the envelope at pin 8.
 
 ## Verification — against the printed factory chart
 
-The I-EG drawing prints a full voltage chart, and simulation matches all 13
+The I-EG drawing prints a full voltage chart. Simulation matches 11 of its 13
 compared nodes (S51 carries no chart value and is informational only): rails
-within 0.8 %, every tube pin within 9.6 % (the chart's own convention is
-±20 %). Working from the drawing also settles two details
-that often circulate incorrectly:
+within 0.7 %, every gated tube pin within 9.8 % (the chart's own convention is
+±20 %). The other two, the phase-inverter cathodes and the tail junction, are
+shown as disputed, because the chart's tail figures fit a circuit the drawing
+does not show:
 
-- The phase-inverter tail is **10k** (with a 470 Ω bias resistor) — not the
-  6.8k sometimes quoted. The chart's own +32.5 V junction figure confirms it:
-  32.5 V across 10k matches the ~3.2 mA the plate drops imply.
-- At DC the tail's 10k returns effectively straight to ground; the 27k
-  feedback resistor and presence pot sit at the foot at roughly 0 V.
+- The phase-inverter tail is **10k** (with a 470 Ω bias resistor), as the
+  drawing letters it — not the 6.8k sometimes quoted.
+- The 10k does **not** return to ground. Both the schematic and the layout
+  land its far end on a node of its own, which the 27 kΩ feedback resistor
+  (back to the speaker, DC ground through the output transformer) and the
+  presence pot's 5 kΩ track hold above ground; the V3B grid's 0.1 µF lands
+  there too. Simulated, that foot sits at +12.6 V and the junction at +42.3 V.
+- The printed +32.5 V junction and +34 V cathodes are what the printed plate
+  currents, 3.38 mA in all, give through a 10k returned straight to ground —
+  33.8 V — and they are, figure for figure, the chart the [5F6](/amps/5f6/)
+  prints, whose 10k does return to ground. Through the drawn foot the same
+  current would put the junction near 48 V. The page prints the chart's figures
+  beside the simulation and marks them disputed, rather than bending the circuit
+  to fit them.
