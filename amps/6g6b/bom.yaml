@@ -4,7 +4,7 @@
 # E-FB schematic page, verified against its own title block) but are NOT
 # modelled in netlist.cir (an abstracted control island, same convention as
 # every other amp in the corpus); their parts carry schematic-only refs.
-notes: "Two full 4-pin input jacks per channel (2/1, hi/lo) share one 68 kΩ-per-jack, 1 MΩ-leak grid network, same convention as the tweed amps. Values keyed to the E-FB drawing, re-read from the source PDF at 750 dpi lug by lug. Every value in the signal and supply path is read from the sheet. V1B is a cathode follower, so it has no plate-load resistor, no interstage coupling cap and no grid leak of its own, and the phase-inverter tail's foot is lettered in full (6.8 kΩ, 4.7 kΩ, the 56 kΩ speaker feedback and the Presence pot across the foot). The only parts still marked (estimate) are three grid leaks the sheet does not draw as discrete resistors — RG2B, RG3A and RG3B stand in for a DC return the volume pots and mixing resistors above them already provide, and no stage's operating point turns on their value. Cathode-bypass electrolytics that the drawing shows as a shared dual-section can are drawn here as one equivalent cap per stage, valued as the chart prints the pair."
+notes: "Two full 4-pin input jacks per channel (2/1, hi/lo) share one 68 kΩ-per-jack, 1 MΩ-leak grid network, same convention as the tweed amps. Values keyed to the E-FB drawing, re-read from the source PDF at 750 dpi lug by lug. Every value in the signal and supply path is read from the sheet. V1B is a cathode follower, so it has no plate-load resistor, no interstage coupling cap and no grid leak of its own, and the phase-inverter tail's foot is lettered in full (6.8 kΩ, 4.7 kΩ, the 56 kΩ speaker feedback and the Presence pot across the foot). The only parts still marked (estimate) are three grid leaks the sheet does not draw as discrete resistors — RG2B, RG3A and RG3B stand in for a DC return the Volume and Treble pots above them already provide, and no stage's operating point turns on their value. Cathode-bypass electrolytics that the drawing shows as a shared dual-section can are drawn here as one equivalent cap per stage, valued as the chart prints the pair."
 items:
   # --- Bass channel input + V1A/V1B
   - { ref: R1s, part: "Carbon comp resistor", value: "68 kΩ · ½ W", role: "Bass ch. jack 2 stopper" }
@@ -22,7 +22,7 @@ items:
   - { ref: RTN3, part: "Carbon comp resistor", value: "10 kΩ · ½ W", role: "Bass ch. tone network: dropper, paralleled by the Bass pot" }
   - { ref: VR1, part: "Linear potentiometer (rheostat)", value: "25 kΩ-L", role: "Bass ch. Bass control, in parallel with RTN3" }
   - { ref: RBF, part: "Carbon comp resistor", value: "820 Ω · ½ W", role: "Bass ch. tone-network foot, to ground" }
-  - { ref: VR2, part: "Linear potentiometer", value: "250 kΩ-L", role: "Bass ch. Volume control; wiper feeds the shared driver stage (V3A grid)" }
+  - { ref: VR2, part: "Linear potentiometer", value: "250 kΩ-L", role: "Bass ch. Volume control; wiper feeds V3A's grid, the channel's next gain stage" }
 
   # --- Normal channel input + V2A/V2B
   - { ref: R3s, part: "Carbon comp resistor", value: "68 kΩ · ½ W", role: "Normal ch. jack 2 stopper" }
@@ -44,21 +44,21 @@ items:
   - { ref: RL2B, part: "Carbon comp resistor", value: "220 kΩ · ½ W", role: "V2B plate load, off the same +355 V lane" }
   - { ref: RK2B, part: "Carbon comp resistor", value: "2.7 kΩ · ½ W", role: "V2B cathode bias" }
   - { ref: CK2B, part: "Electrolytic capacitor", value: "25 µF (dual-can pair)", role: "V2B cathode bypass" }
-  - { ref: RM1, part: "Carbon comp resistor", value: "470 kΩ · ½ W", role: "Normal ch. mixing resistor into the shared driver" }
+  - { ref: RM1, part: "Carbon comp resistor", value: "470 kΩ · ½ W", role: "Normal ch. mixing resistor, V2B's plate → the mixing node after V3B, which C1 couples into the phase inverter" }
 
-  # --- Shared driver bottle (V3A/V3B) + Bass ch. Treble control
-  - { ref: RG3A, part: "Carbon comp resistor", value: "1 MΩ · ½ W (estimate)", role: "V3A grid leak — both channels' Volume outputs mix here" }
+  # --- Bass channel, later stages (V3A/V3B) + the channel's Treble control
+  - { ref: RG3A, part: "Carbon comp resistor", value: "1 MΩ · ½ W (estimate)", role: "V3A grid leak, off the Bass Volume's wiper" }
   - { ref: RL3A, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "V3A plate load" }
   - { ref: RK3A, part: "Carbon comp resistor", value: "1.5 kΩ · ½ W", role: "V3A cathode bias, bypassed" }
   - { ref: CDR1, part: "Film capacitor", value: "0.1 µF", role: "V3A plate coupling into the Bass ch. Treble control" }
-  - { ref: VR6, part: "Audio-taper potentiometer", value: "250 kΩ-A", role: "Bass ch. Treble control — the front-panel BASS/TREBLE/VOLUME group ahead of the Bass jacks (25k-L/250k-A/250k-L) places it here, in the driver bottle's own signal path between V3A and V3B, rather than beside the channel's other two pots" }
+  - { ref: VR6, part: "Audio-taper potentiometer", value: "250 kΩ-A", role: "Bass ch. Treble control — the front-panel BASS/TREBLE/VOLUME group ahead of the Bass jacks (25k-L/250k-A/250k-L) places it here, in V3's own signal path between V3A and V3B, rather than beside the channel's other two pots" }
   - { ref: RG3B, part: "Carbon comp resistor", value: "1 MΩ · ½ W (estimate)", role: "V3B grid leak" }
   - { ref: RL3B, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "V3B plate load" }
   - { ref: RK3B, part: "Carbon comp resistor", value: "1.5 kΩ · ½ W", role: "V3B cathode bias" }
-  - { ref: RM2, part: "Carbon comp resistor", value: "470 kΩ · ½ W", role: "V3B → phase-inverter mixing/coupling resistor" }
+  - { ref: RM2, part: "Carbon comp resistor", value: "470 kΩ · ½ W", role: "Bass ch. mixing resistor, V3B's plate → the mixing node, where RM1 joins it" }
 
   # --- Phase inverter (V4A/V4B)
-  - { ref: C1, part: "Mica capacitor", value: "500 pF (.0005 µF)", role: "Driver → V4A grid coupling" }
+  - { ref: C1, part: "Mica capacitor", value: "500 pF (.0005 µF)", role: "Mixing node → V4A grid coupling" }
   - { ref: RG4A, part: "Carbon comp resistor", value: "1 MΩ · ½ W", role: "V4A grid leak, returned to the tail junction" }
   - { ref: RL4A, part: "Carbon comp resistor", value: "82 kΩ · ½ W · 5%", role: "V4A plate load (hot side)" }
   - { ref: RG4B, part: "Carbon comp resistor", value: "1 MΩ · ½ W", role: "V4B grid leak, returned to the tail junction" }
@@ -98,7 +98,7 @@ items:
   - { ref: C13, part: "Electrolytic capacitor", value: "25 µF + 50 µF", role: "Bias supply filter — one dual-section can" }
   - { ref: V1, part: "Preamp tube", value: "7025 (12AX7-family)", role: "Bass channel, both stages (V1A/V1B)" }
   - { ref: V2, part: "Preamp tube", value: "7025 (12AX7-family)", role: "Normal channel, both stages (V2A/V2B)" }
-  - { ref: V3, part: "Preamp tube", value: "7025 (12AX7-family)", role: "Shared driver + Bass ch. Treble (V3A/V3B)" }
+  - { ref: V3, part: "Preamp tube", value: "7025 (12AX7-family)", role: "Bass channel, second and third gain stages (V3A/V3B), the channel's Treble control between them" }
   - { ref: V4, part: "Preamp tube", value: "7025 (12AX7-family)", role: "Long-tailed-pair phase inverter (V4A/V4B)" }
   - { ref: V5, part: "Power tube", value: "5881", role: "Push-pull output (upper)" }
   - { ref: V6, part: "Power tube", value: "5881", role: "Push-pull output (lower)" }

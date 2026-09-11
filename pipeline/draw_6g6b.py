@@ -4,14 +4,15 @@
 Values per the published Fender "Bassman" Model 6G6-B drawing (E-FB), schematic
 page — see amps/6g6b/meta.yaml. Re-read from the source PDF at 800 dpi for this
 pass (the meta.yaml citation covers the original chart-reading pass; the values
-below match it). Two full channels (Bass, Normal), each two preamp stages with
-its own Bass/Treble/Volume tone network, mix at a shared driver bottle (V3)
-ahead of a long-tailed-pair phase inverter (V4) and a fixed-bias 5881 pair
-(V5/V6) off a solid-state bridge rectifier — there is no rectifier tube.
+below match it). Two full channels (Bass, Normal), each with its own
+Bass/Treble/Volume tone network, mix through a 470k from each (V3B's plate,
+V2B's plate) at one node, which a .0005 couples into a long-tailed-pair phase
+inverter (V4) ahead of a fixed-bias 5881 pair (V5/V6) off a solid-state
+bridge rectifier — there is no rectifier tube.
 
-Valve numbering follows the drawing: V1 = Bass channel (both stages), V2 =
-Normal channel (both stages), V3 = shared driver + the Bass channel's own
-Treble control (sitting in V3's own signal path), V4 = phase inverter, V5/V6 =
+Valve numbering follows the drawing: V1 = Bass channel input + cathode
+follower, V2 = Normal channel (both stages), V3 = the Bass channel's later two
+stages with its own Treble control between them, V4 = phase inverter, V5/V6 =
 output pair.
 
 No engineering estimates are drawn. V1B is a cathode follower — plate straight
@@ -37,7 +38,7 @@ from schematic_lib import Sch
 OUT = Path(__file__).resolve().parent.parent / "amps" / "6g6b" / "schematic.kicad_sch"
 s = Sch()
 
-MIXG_X = 225.0  # vertical bus carrying both channels' Volume outputs to V3A's grid
+MIXG_X = 225.0  # vertical bus carrying the Bass Volume's wiper to V3A's grid
 
 # ============================ BASS CHANNEL (V1A/V1B) =========================
 BY = 40.0
@@ -256,12 +257,12 @@ s.junction(190, P2B_Y)
 s.wire(190, P2B_Y, 196, P2B_Y)
 ml, mr = s.series_h("R", "RM1", "470k", 200, P2B_Y)
 s.wire(196, P2B_Y, ml, P2B_Y)
-s.wire(mr, P2B_Y, MIXG_X, P2B_Y)
-s.junction(MIXG_X, P2B_Y)
+# RM1 does NOT land on V3A's grid: it joins RM2 at the mixing node after V3B,
+# the node C1 couples into the phase inverter (label MIX, below).
+s.wire(mr, P2B_Y, mr + 4, P2B_Y)
+s.glabel("MIX", mr + 4, P2B_Y, 0)
 
-# ============================ MIXING NODE -> SHARED DRIVER ====================
-
-# ============================ SHARED DRIVER (V3A/V3B) + BASS TREBLE ==========
+# ====================== BASS CHANNEL, LATER STAGES (V3A/V3B) + ITS TREBLE ======
 DY = 152.0
 t3a = s.triode("V3A", "7025", 240, DY)
 s.wire(MIXG_X, DY, t3a["g"][0], DY)
@@ -305,7 +306,12 @@ JY = 200.0
 PIY_A = 200.0
 PIY_B = 236.0
 cl6, cr6 = s.series_h("C", "C1", "500p", 322, P3B_Y)
-s.wire(mr2, P3B_Y, cl6, P3B_Y)
+# the mixing node: RM2 from V3B's plate meets RM1 from V2B's plate (MIX)
+s.wire(mr2, P3B_Y, 316, P3B_Y)
+s.wire(316, P3B_Y, cl6, P3B_Y)
+s.junction(316, P3B_Y)
+s.wire(316, P3B_Y, 316, P3B_Y + 5)
+s.glabel("MIX", 316, P3B_Y + 5, 270)
 s.wire(cr6, P3B_Y, GL, P3B_Y)
 t4a = s.triode("V4A", "7025", 348, PIY_A)
 s.wire(GL, P3B_Y, GL, PIY_A)
@@ -523,7 +529,7 @@ s.text("Bias supply: silicon diode off an AC tap, 1 k/4.7 k dropping through "
        "the choke, 27 k bleeder, dual 25/50 uF can -> -54 V.", 220, 312, 1.15)
 
 s.write(OUT, [
-    "Two full channels (Bass, Normal), each two preamp stages with its own Bass/Treble/Volume tone network, mixing at a shared driver bottle ahead of a long-tailed-pair phase inverter and a fixed-bias 5881 pair off a solid-state bridge — no rectifier tube.",
-    "The Bass channel's own Treble control sits inside the driver bottle's signal path (V3A -> VR6 -> V3B), not beside its Bass/Volume pots. Heaters, PT primary, ground switch, fuse and standby switch omitted.",
+    "Two full channels (Bass, Normal), each with its own Bass/Treble/Volume tone network, mixing through a 470k from each at the node that feeds a long-tailed-pair phase inverter, ahead of a fixed-bias 5881 pair off a solid-state bridge — no rectifier tube.",
+    "The Bass channel runs on through V3 (V3A -> its own Treble control VR6 -> V3B) before it meets the Normal channel at MIX. Heaters, PT primary, ground switch, fuse and standby switch omitted.",
 ])
 print(f"wrote {OUT}")

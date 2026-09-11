@@ -3,9 +3,9 @@
 The middle circuit of the piggyback Bassman's three-revision run: a
 50-watt head-and-cabinet rig that replaced the tweed 4x10 combo entirely.
 Fender moved the Bassman name onto a genuinely different amplifier here —
-two full input channels (Bass, Normal), each running its own two-stage
-preamp and its own Bass/Treble/Volume network, mixing into a shared driver
-stage before a long-tailed-pair phase inverter and a fixed-bias 5881 pair.
+two full input channels (Bass, Normal), each with its own Bass/Treble/Volume
+network, mixing through a pair of 470 kΩ resistors just ahead of a
+long-tailed-pair phase inverter and a fixed-bias 5881 pair.
 The 6G6 (late 1960) used a GZ34 tube rectifier; the 6G6-A (early 1961)
 moved to solid-state rectification; the 6G6-B carried that forward with
 further circuit changes through 1963, running in blonde Tolex until the
@@ -22,8 +22,7 @@ lead goes straight to the same +230 V lane with no plate resistor in it, and
 its 100 kΩ cathode load is the stage's output, printed +136 V. That cathode
 drives the Bass/Volume network (1 MΩ and a 250 pF + 47 kΩ branch, two
 0.25 µF bridging caps, a 10 kΩ dropper paralleled by the 25 kΩ-L Bass pot,
-an 820 Ω foot and a 250 kΩ-L Volume pot) whose wiper feeds the shared driver
-stage.
+an 820 Ω foot and a 250 kΩ-L Volume pot) whose wiper feeds V3A (below).
 
 **Normal channel**: two inputs → **V2A** (1.5 kΩ cathode, 100 kΩ plate load
 climbing to that channel's own +355 V lane, printed +230 V/+1.9 V) → a
@@ -33,17 +32,24 @@ that tap, where the 250 kΩ-A Bass rheostat also hangs; 0.05 µF from the
 slope foot to the Bass foot and 6.8 kΩ from there to ground; the Treble
 pot's cold lug bled to ground through 0.005 µF) → a 1 MΩ-A
 Volume pot → **V2B** recovery (2.7 kΩ cathode, 220 kΩ plate off the same
-+355 V lane, printed +190 V/+1.8 V) → a 470 kΩ resistor into the shared
-driver stage's grid.
++355 V lane, printed +190 V/+1.8 V) → a 470 kΩ resistor into the mixing
+node described below.
 
-**Shared driver**: both channels' Volume outputs land on **V3A**'s grid
+**Bass channel, continued**: the Bass Volume's wiper feeds **V3A**'s grid
 (100 kΩ plate off +230 V, 1.5 kΩ cathode, printed +150 V/+1.2 V) → the Bass
 channel's own 250 kΩ-A Treble control (the front panel's BASS/TREBLE/VOLUME
 group ahead of the Bass jacks reads 25k-L/250k-A/250k-L, so this pot sits in
-the driver bottle's signal path rather than beside the channel's other two
-knobs) → **V3B** recovery (1.5 kΩ cathode, 100 kΩ plate off +230 V with
-0.002 µF across it, printed +150 V/+1.3 V) → 470 kΩ + a 500 pF coupler into
-the phase inverter.
+V3's signal path rather than beside the channel's other two knobs) → **V3B**
+(1.5 kΩ cathode, 100 kΩ plate off +230 V with 0.002 µF across it, printed
++150 V/+1.3 V) → a 470 kΩ resistor into the mixing node.
+
+**Mixing node**: V3B's 470 kΩ and the Normal channel's 470 kΩ from V2B's
+plate meet at one node, and a 500 pF capacitor carries it into the phase
+inverter. V3 is therefore the Bass channel's own second and third gain
+stages, not a driver both channels share: the Normal channel joins the Bass
+channel's path only here. No capacitor stands between either plate and the
+node, so the two 470 kΩ resistors are also a DC path from V2B's plate to
+V3B's, about 40 µA, and the simulated deck includes it.
 
 **Phase inverter**: long-tailed pair, 82 kΩ (hot) / 100 kΩ (cold) 5%
 plates off a +410 V lane (printed +300 V/+280 V), both 1 MΩ grid leaks
@@ -112,7 +118,7 @@ look at high magnification.
   the network redrawn with all six parts.
 
 Both readings are corroborated by arithmetic already on the sheet.
-136 V across 100 kΩ is 1.36 mA; add V1A's 0.43 mA and the driver bottle's
+136 V across 100 kΩ is 1.36 mA; add V1A's 0.43 mA and V3's
 two 0.8 mA sections and the +230 V lane draws about 3.4 mA, which across its
 own 56 kΩ · 1 W dropper falls 190 V from the +428 V node — landing on the
 printed +230 V. Read as a common-cathode stage instead, V1B passes about
@@ -137,22 +143,24 @@ The board drawing follows the E-FB layout page, and it draws each channel's
 Bass, Treble and Volume network in full. The Normal channel's slope resistor
 and its three capacitors stand on the board; its 6.8 kΩ foot and 0.005 µF
 bleed hang at the Bass and Treble pots, which is where the layout page puts
-them, and the Treble pot is drawn with its fourth, tap terminal. The drawn
-wiring is proved electrically equivalent to the simulated circuit.
+them, and the Treble pot is drawn with its fourth, tap terminal. The two
+470 kΩ mixing resistors meet at their own eyelet, which carries the 500 pF
+to the phase inverter, as the layout page draws them. The drawn wiring is
+proved electrically equivalent to the simulated circuit.
 
-## The Bass/Normal split, and why the driver bottle carries a Treble pot
+## The Bass/Normal split, and why V3 carries a Treble pot
 
 This is a genuinely two-channel amplifier, not a single voice with a bright
-switch: each channel gets its own complete two-stage preamp and its own
-tone network, and they mix only after both have already been shaped. The
-Bass channel's Treble control physically living inside the shared driver
-bottle's own signal path (between its two triode sections) rather than
-beside the channel's Bass and Volume pots is a printed fact of this
-drawing, not a simplification — the front-panel silkscreen order
-(Presence, Bass, Treble, Volume, then the Normal jacks; Bass, Treble,
-Volume, then the Bass jacks) is what fixes which knob belongs to which
-channel, and the schematic's own component placement is what shows the
-Bass channel's Treble pot living downstream of the mixing point.
+switch: each channel gets its own preamp and its own tone network, and they
+mix only after both have been shaped, at the node that feeds the phase
+inverter. The Bass channel's Treble control sits inside V3's signal path
+(between its two triode sections) rather than beside the channel's Bass and
+Volume pots, and that is a printed fact of this drawing, not a
+simplification — the front-panel silkscreen order (Presence, Bass, Treble,
+Volume, then the Normal jacks; Bass, Treble, Volume, then the Bass jacks) is
+what fixes which knob belongs to which channel, and the schematic draws the
+Bass channel's Treble pot between V3A and V3B, upstream of the mixing
+point.
 
 The Normal channel, by contrast, carries its Treble control in its own
 first-stage network (350 kΩ/70 kΩ tap) before mixing — the two channels'

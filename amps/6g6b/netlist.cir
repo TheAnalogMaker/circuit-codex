@@ -25,16 +25,18 @@
 * "+230 V." as a shared preamp rail is what made an earlier pass hang V2A's
 * plate load on +230 V and miss the printed cathode by a third.
 *
-* Two full channels (Bass, Normal) mix at the grid of a shared two-stage
-* driver bottle, which drives a long-tailed-pair phase inverter and a
-* fixed-bias 5881 pair. Each channel's Bass/Treble/Volume network is an
-* abstracted control island (NOT modelled — same convention as every other
-* amp in the corpus), as is the Bass channel's own Treble control, which
-* physically sits between the driver bottle's two sections rather than
-* beside its other two pots. Grid-leak resistors below stand in for
-* "returns to ~0 V DC through the volume pot / mixing network above it" —
-* since these stages draw no grid current, the exact leak value does not
-* move the tube's own operating point (set by its cathode resistor and rail).
+* Two full channels (Bass, Normal) mix only at the phase inverter's input:
+* the Bass channel runs on through V3 (V3A off its Volume wiper, its own
+* Treble control, V3B), and V3B's plate and the Normal channel's V2B plate
+* each feed a 470k into one mixing node (MIX), which a .0005 uF cap couples
+* into the long-tailed-pair phase inverter ahead of a fixed-bias 5881 pair.
+* Each channel's Bass/Treble/Volume network is an abstracted control island
+* (NOT modelled — same convention as every other amp in the corpus), as is
+* the Bass channel's own Treble control between V3's two sections.
+* Grid-leak resistors below stand in for "returns to ~0 V DC through the
+* volume pot above it" — since these stages draw no grid current, the exact
+* leak value does not move the tube's own operating point (set by its
+* cathode resistor and rail).
 .include models/12ax7.inc
 .include models/5881.inc
 
@@ -83,12 +85,12 @@ XV2B P2B G2B K2B 12AX7
 RG2B G2B 0 1meg
 RK2B K2B 0 2700
 
-* --- V3 (7025) — shared driver + Bass-channel Treble recovery. Both
-* channels' Volume outputs mix at V3A's grid (network not modelled, see
-* header); the Bass channel's own Treble control (250k-A) sits between
-* V3A's plate and V3B's grid. Both sections read +150 V on the chart off
-* their own 100k/+230 V legs, and both cathodes are chart-read: 1500 Ohm at
-* +1.2 V (V3A, bypassed) and 1500 Ohm at +1.3 V (V3B).
+* --- V3 (7025) — the Bass channel's later stages. V3A takes the Bass
+* Volume's wiper (network not modelled, see header); the Bass channel's own
+* Treble control (250k-A) sits between V3A's plate and V3B's grid. Both
+* sections read +150 V on the chart off their own 100k/+230 V legs, and both
+* cathodes are chart-read: 1500 Ohm at +1.2 V (V3A, bypassed) and 1500 Ohm
+* at +1.3 V (V3B).
 RL3A BP230 P3A 100k
 XV3A P3A G3A K3A 12AX7
 RG3A G3A 0 1meg
@@ -124,9 +126,14 @@ RT2   JPI NFB 6800
 RPF   NFB 0 4700
 RNFB  NFB 0 56k
 
-* V3B plate -> V4A grid coupling (the .0005 uF cap the chart shows landing
-* on a 1M leak already anchored at JPI — DC-open, moves no operating point).
-C1 P3B G4A 0.0005u
+* The mixing node. V3B's plate (+150 V) and the Normal channel's V2B plate
+* (+190 V) each feed a 470k into MIX, and nothing else touches MIX at DC, so
+* the pair is a 940k path between the two plates carrying about 40 uA —
+* modelled, since that is a real DC current. MIX couples into V4A's grid
+* through the .0005 uF cap (DC-open), onto a 1M leak already anchored at JPI.
+RM2 P3B MIX 470k
+RM1 P2B MIX 470k
+C1 MIX G4A 0.0005u
 
 * --- 5881 pair — fixed bias via 220k leaks from -54 V, cathodes grounded
 * (no cathode resistor drawn), 470 Ohm 1W screen resistors off +430 V, plates
