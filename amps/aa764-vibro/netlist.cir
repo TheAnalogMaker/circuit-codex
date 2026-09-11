@@ -6,8 +6,8 @@
 * component-for-component the same as amps/aa764 (the non-tremolo Champ that
 * shares the same AA764 designation) — same plate loads, same cathode
 * networks, same feedback divider, same droppers. What is added for the
-* "VIBRO-CHAMP AA764" drawing is a second, dedicated 12AX7 tremolo oscillator
-* ahead of the same output stage; see the EXCLUDED note below. Only the
+* "VIBRO-CHAMP AA764" drawing is a second, dedicated 12AX7 tremolo whose
+* output lands on V1B's cathode; see the EXCLUDED note below. Only the
 * reservoir voltage differs, +355 V here against aa764's +360 V, the drawing's
 * own printed figure — the oscillator's added current draw plausibly explains
 * the 5 V gap, but each amp's chart is read and driven as printed, never
@@ -36,19 +36,28 @@
 *    modelled as 2.7k from the cathode divider node KFB to ground, in
 *    parallel with the 47 Ohm leg. Same topology as aa764.
 *
-* EXCLUDED — the tremolo (vibrato) oscillator V4 (12AX7, both sections). It
-* is a running RC phase-shift oscillator (first section) feeding a cathode-
-* follower buffer (second section) into the Intensity control, which injects
-* the AC signal at the 6V6 cathode/bias node — it has no static DC operating
-* point of its own (see notes.md and amps/ab763's V5, the same category of
-* exclusion). Its printed chart pins (+170 V / +1.6 V first section, +340 V /
-* +175 V second section) are dynamic averages, not a quiescent point, and are
-* documented in notes.md rather than modelled or gated. The oscillator's first
-* section plate ties to the same BP3 preamp rail that feeds V1A/V1B (through
-* its own 470k dropper, off-model); excluding it means this netlist's BP3
-* carries slightly less current than the real circuit, so the simulated V1A/
-* V1B plates read a little above the printed chart — see voltages.yaml for
-* how each node's tolerance was set with that in mind.
+* EXCLUDED — the tremolo (vibrato) bottle V4 (12AX7, both sections). Its
+* first section (pins 1-3) is a running RC phase-shift oscillator; its second
+* (pins 6-8) is a cathode follower, direct-coupled from the oscillator's plate,
+* whose cathode (+175 V printed) feeds the Intensity control's WIPER through
+* 68k. One end of that 25k-RA pot is grounded; the other goes straight to
+* V1B's cathode (K1B), with no capacitor anywhere in the path. The oscillator
+* has no static DC operating point (see notes.md and amps/ab763's V5, the
+* same category of exclusion); its printed pins (+170 V / +1.6 V, +340 V /
+* +175 V) are dynamic averages, documented rather than modelled.
+*
+* The injection is DC-coupled into K1B, and how much of the follower's
+* ~2.5 mA reaches K1B depends on where the Intensity control is set, which
+* the drawing does not state. With the follower held at its printed +175 V as
+* a driven source, moving the wiper from the grounded end to the V1B end takes
+* K1B from 1.65 V to 3.87 V and V1B's plate from 213 V to 323 V (the chart
+* prints +1.5 V and +200 V). This deck leaves the injection out, and K1B and
+* P1B are reported for reference rather than gated (voltages.yaml).
+*
+* Both V4 sections draw from BP2 (+340 V), between the 1k and 10k droppers:
+* the oscillator through its 470k plate load, the follower's plate directly.
+* With V4 left out, BP2 and BP3 below it carry about 2.9 mA less than the
+* real circuit, so both simulated rails read a few volts above the chart.
 .include models/12ax7.inc
 .include models/6v6gt.inc
 

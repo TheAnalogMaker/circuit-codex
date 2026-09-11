@@ -10,15 +10,16 @@
 # a dimensioned reproduction.
 #
 # What is ADDED for the "VIBRO-CHAMP AA764" drawing is the tremolo hardware:
-# the Vibrato Pedal jack (J1) with its bleeder (R20), the Speed and Intensity
-# controls (R24, R27), and the oscillator tube (V4) itself, drawn as off-board
-# stubs. The oscillator's own RC network (R21-R23, R25-R26, C15-C16) is NOT
-# placed on the board here — it mounts off the board, at the Speed/Intensity
-# pot lugs and the Vibrato Pedal jack, the same convention amps/ab763 documents
-# for its own dedicated trem-oscillator network (see that entry's net_map
-# excluded_tubes note). V4 is a running oscillator with no static DC operating
-# point (notes.md) and is DECLARED EXCLUDED below; only its 6.3 V heater pins
-# are wired, extending the same single-ended daisy chain amps/aa764 uses.
+# the Vibrato Pedal jack (J1) with the 1 MΩ (R20) from its tip to the
+# oscillator's cathode, the Speed and Intensity controls (R24, R27), and the
+# tremolo tube (V4) itself, drawn as off-board stubs. The rest of V4's network
+# (R21-R23, R26, C15-C18) is NOT placed on this board, although the factory
+# layout page mounts it on the eyelet board (the Speed control's 100k, R25,
+# rides on the pot); the schematic draws all of it. V4 is a running
+# oscillator with no static DC operating point (notes.md) and is DECLARED
+# EXCLUDED below; R20's lead to its cathode (pin 3) and its 6.3 V heater pins
+# are wired, the heaters extending the same single-ended daisy chain
+# amps/aa764 uses.
 #
 # The board reads left→right exactly as amps/aa764 does: the supply droppers
 # and filter sections at the left end, then the 6V6 cathode network, the
@@ -27,7 +28,7 @@
 # finally the input stoppers and the first-stage cathode network at the right
 # — matching the tube row (5Y3GT · 6V6GT · 12AX7, left to right). The added
 # tremolo hardware sits in the board's otherwise-empty left-hand margin: the
-# Vibrato Pedal jack, its bleeder, and the Speed/Intensity pots along the top
+# Vibrato Pedal jack, its 1 MΩ, and the Speed/Intensity pots along the top
 # edge, the oscillator tube along the bottom edge beneath them.
 #
 # Two documented redraw conventions carried over from amps/aa764, both stated
@@ -93,7 +94,7 @@ board:
 wire_legend:
   heater: "green — 6.3 V heaters (single-ended; one leg grounded at the transformer)"
 
-caption: "The audio path (input stoppers, both 12AX7 gain stages, the treble-bass tone stack, the negative-feedback divider and the 6V6GT output stage) reuses amps/aa764's board order and wiring verbatim — the two entries' audio paths are component-for-component identical (notes.md), so the same redrawn arrangement, read from the published Fender 'Champ-Amp AA764' layout drawing (I-FD), is the honest redraw here too. Added for the Vibro Champ: the Vibrato Pedal jack (J1) and its 1 MΩ bleeder (R20) at the top-left margin, the Speed (R24) and Intensity (R27) controls beside them, and the oscillator tube (V4) along the bottom edge beneath. V4's own RC phase-shift network (R21-R23, R25-R26, C15-C16) is not placed on the board — it mounts off the board, at the Speed/Intensity pot lugs and the jack, the same convention amps/ab763 documents for its own dedicated trem-oscillator network; V4 has no static DC operating point and is declared excluded (net_map.excluded_tubes) — only its 6.3 V heater pins are wired, extending the single-ended daisy chain (one green transformer lead grounded, the other feeding the pilot lamp and every heater in turn: 12AX7 V1 pins 4+5 strapped, centre tap at pin 9 to ground; 6V6GT V2 pin 2 fed, pin 7 to ground; 12AX7 V4 pins 4+5 strapped, centre tap at pin 9 to ground). The board's chassis-ground returns are drawn as one ground bus, and the three 20 µF filter sections — a chassis can on the sheet — are drawn in the board row beneath the droppers they filter. The 1 MΩ grid leak sits at the input jack and the 15 kΩ bass leg at the Bass control, as the sheet shows them. Not a trace or a dimensioned reproduction."
+caption: "The audio path (input stoppers, both 12AX7 gain stages, the treble-bass tone stack, the negative-feedback divider and the 6V6GT output stage) reuses amps/aa764's board order and wiring verbatim — the two entries' audio paths are component-for-component identical (notes.md), so the same redrawn arrangement, read from the published Fender 'Champ-Amp AA764' layout drawing (I-FD), is the honest redraw here too. Added for the Vibro Champ: the Vibrato Pedal jack (J1) and the 1 MΩ (R20) from its tip to the oscillator's cathode at the top-left margin, the Speed (R24) and Intensity (R27) controls beside them, and the tremolo tube (V4) along the bottom edge beneath. The rest of V4's network (the phase-shift ladder, the oscillator's cathode network, its 470 kΩ plate load and the follower's 68 kΩ), which the factory layout page mounts on the eyelet board, is not drawn here; the schematic carries all of it. V4 has no static DC operating point and is excluded from the simulated circuit — only R20's lead to its cathode and its 6.3 V heater pins are wired, extending the single-ended daisy chain (one green transformer lead grounded, the other feeding the pilot lamp and every heater in turn: 12AX7 V1 pins 4+5 strapped, centre tap at pin 9 to ground; 6V6GT V2 pin 2 fed, pin 7 to ground; 12AX7 V4 pins 4+5 strapped, centre tap at pin 9 to ground). The board's chassis-ground returns are drawn as one ground bus, and the three 20 µF filter sections — a chassis can on the sheet — are drawn in the board row beneath the droppers they filter. The 1 MΩ grid leak sits at the input jack and the 15 kΩ bass leg at the Bass control, as the sheet shows them. Not a trace or a dimensioned reproduction."
 source:
   desc: "Fender 'VIBRO-CHAMP AA764' drawing (I-FD), schematic + layout sheets"
   url: "https://el34world.com/charts/Schematics/Files/Fender/Fender_vibro_champ_aa764.pdf"
@@ -136,7 +137,7 @@ parts:
 # transformer and speaker jack along the bottom, the controls and input jacks
 # up top, the power transformer and pilot lamp at the left — the same
 # positions amps/aa764 uses (see the header note above). Added for this entry:
-# the Vibrato Pedal jack + its bleeder and the Speed/Intensity controls, in the
+# the Vibrato Pedal jack + its 1 MΩ and the Speed/Intensity controls, in the
 # board's otherwise-empty top-left margin (cols 0-27, clear of the Bass control
 # at 28), and the oscillator tube along the bottom edge beneath them (cols
 # 15.5-43.5 is clear between the 6V6 and V1). The audio-path input jacks are
@@ -173,9 +174,9 @@ bus:
 
 # Wiring — the audio path is read lead-by-lead from the published AA764
 # layout drawing and is identical to amps/aa764's runs (see the header note).
-# Added for this entry: the Vibrato Pedal jack's bleeder wiring, and the
-# heater daisy chain extended to V4 (its own RC network is off-board and
-# unwired here — see the caption). The transformer leads carry the colours
+# Added for this entry: the Vibrato Pedal jack and its 1 MΩ to the
+# oscillator's cathode, and the heater daisy chain extended to V4 (the rest of
+# its network is not placed here — see the caption). The transformer leads carry the colours
 # marked on that sheet: the power transformer's two reds (315-0-315 V) with
 # the red/yellow centre tap, the two yellows of the 5 V rectifier winding, and
 # the two greens of the 6.3 V heater winding (one grounded, one feeding the
@@ -225,7 +226,7 @@ runs:
   - { from: C5.b, to: R9.b, via: [[21.60, 1.20]] }
   - { from: R10.a, to: R9.a, via: [[23.60, -0.80], [20.00, -0.80]] }   # 47 Ω onto the KFB node, from above
   - { from: R10.b, to: [1.45, 24] }                                 # 47 Ω → ground bus
-  - { from: V1.pin8, to: R9.b, via: [[45.60, 2.62], [20.35, 2.62]] }   # V1B cathode → 1.5 kΩ (deep lane)
+  - { from: V1.pin8, to: R9.b, via: [[45.60, 2.62], [19.85, 2.62]] }   # V1B cathode → 1.5 kΩ (deep lane)
 
   # === 12AX7 driver plate, coupler and the +320 V rail =====================
   - { from: V1.pin6, to: C6.b, via: [[45.30, 1.58], [29.60, 1.58]] }   # V1B plate → coupler / plate load
@@ -267,15 +268,15 @@ runs:
   - { from: C1.b, to: [1.45, 47] }
 
   # === Vibrato Pedal jack + its bleeder — added for this entry =============
-  # The pedal-jack normalling contact itself is not modelled as board wiring
-  # (schematic.kicad_sch draws its effective connection point-to-point, not a
-  # mechanical spring contact); the bleeder that is always in circuit is.
+  # The pedal jack's tip is the phase-shift ladder's pedal node; R20 (1 MΩ)
+  # runs from it to the oscillator's cathode, V4 pin 3 (the rest of the
+  # ladder is not placed — see the caption).
   # Positioned past col 11 (R13's leg) so neither lead's terminal sits under
   # the pilot-lamp feed, which crosses cols -1.3..10.2 at y = -1.10 on its way
   # to V2 — the same clearance rule that places the tone-stack pot leads past
   # col 27.
   - { from: J1.tip, to: R20.a, via: [[14.40, -0.50]] }
-  - { from: R20.b, to: [1.45, 16.9], via: [[16.90, -0.30]] }
+  - { from: R20.b, to: V4.pin3, via: [[16.90, -0.30], [16.90, 1.93]] }
   - { from: J1.sleeve, to: [1.45, 12.6], via: [[12.60, -0.70]] }
 
   # === 6.3 V heaters — single-ended, one leg grounded (annotation layer) ====
@@ -283,7 +284,7 @@ runs:
   # lamp and on to every heater in turn (V1, V2, then V4, the added oscillator
   # tube), so this is not a twisted pair: every socket gets a green feed and a
   # grounded return. V4's signal pins carry no run — it is a declared exclusion
-  # (net_map.excluded_tubes) with its own RC network off the board.
+  # (net_map.excluded_tubes); the rest of its network is not placed.
   - { from: T1.green1, to: [1.45, -0.35], style: heater, via: [[-0.85, 0.577], [-0.85, 1.30]] }   # grounded 6.3 V leg
   - { from: T1.green2, to: PL1.a, style: heater, via: [[-1.65, 0.640], [-1.65, -0.55]] }
   - { from: PL1.b, to: [1.45, -0.45], style: heater, via: [[-2.05, -0.779], [-2.05, 0.05], [-0.55, 0.05]] }   # pilot lamp return → ground
@@ -330,4 +331,4 @@ net_map:
   # reason). V4's heater pins are still validated onto heater pins by the
   # wiring above; no signal pin is DC-checked.
   excluded_tubes:
-    V4: "12AX7 tremolo oscillator (both sections) — a bias-vary phase-shift oscillator with no static DC operating point (excluded from netlist.cir; its RC network mounts off the board, at the Speed/Intensity pot lugs and the Vibrato Pedal jack — see notes.md)"
+    V4: "12AX7 tremolo (both sections) — a phase-shift oscillator and a cathode follower into the Intensity control, with no static DC operating point (excluded from netlist.cir; see notes.md)"

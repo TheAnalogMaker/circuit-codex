@@ -6,20 +6,21 @@ meta.yaml). The audio path (input jacks, V1A, tone stack, volume, V1B and its
 feedback divider, the 0.02 uF coupler and the 6V6GT output stage) duplicates
 amps/aa764 component-for-component -- same designators, same values, same
 topology -- so this half of the sheet mirrors pipeline/draw_aa764.py exactly.
-What is added is a second, dedicated 12AX7 (V4) running a bias-vary tremolo
-oscillator ahead of the same output stage: V4A is an RC phase-shift oscillator
-fed from the Vibrato Pedal jack (J1) and tuned by the Speed control (R24);
-V4B is direct-coupled from V4A's plate and wired as a cathode follower whose
-cathode, through the Intensity control (R27), injects the oscillator's signal
-directly at the 6V6 cathode/bias node (K2) -- the "bias-vary" mechanism the
-family name describes. V4 has no static DC operating point (a running
-oscillator) and is excluded from netlist.cir; see notes.md and
-amps/ab763's V5, the same category of exclusion.
+What is added is a second, dedicated 12AX7 (V4) running the tremolo. V4A
+(pins 1-3) is an RC phase-shift oscillator, drawn as the sheet draws it:
+plate -> .02 -> Speed node (Speed R24 + 100k to ground) -> .01 -> pedal node
+(1M to the cathode; the Vibrato Pedal jack J1) -> .01 -> grid (1M to ground),
+cathode 4700 || 25 uF. V4B (pins 6-8) is a cathode follower direct-coupled
+from V4A's plate; its cathode feeds the Intensity control's WIPER through 68k,
+one end of that pot is grounded, and the other goes straight to V1B's cathode
+(K1B). V4 has no static DC operating point (a running oscillator) and is
+excluded from netlist.cir; see notes.md and amps/ab763's V5, the same
+category of exclusion.
 
 Redrawn from circuit facts -- never a trace of a factory drawing. Rails:
 B+1 = +355 (reservoir, output-transformer primary feed), B+2 = +340 (6V6
-screen; also V4B's plate, tied straight to this rail with no plate resistor),
-B+3 = +320 (both 12AX7 plate loads; also V4A's plate load). The 6.3 V heater
+screen; also V4A's 470k plate load and V4B's plate, tied straight to this
+node with no plate resistor), B+3 = +320 (both audio 12AX7 plate loads). The 6.3 V heater
 winding, its grounded return leg, the pilot lamp, the AC switch and the mains
 fuse are an annotation layer and are not drawn here -- see netlist.cir,
 notes.md and layout.yaml.
@@ -113,6 +114,11 @@ s.wire(124, 77.62, 124, 80)
 s.sym("R", "R9", "1.5k", 124, 83.81)
 s.sym("C", "C5", "25u", 132, 83.81)
 s.wire(124, 80, 132, 80)
+# K1B — the tremolo's Intensity control lands on this cathode with no
+# capacitor in the path (see the tremolo block below).
+s.junction(132, 80)
+s.wire(132, 80, 136, 80)
+s.glabel("K1B", 136, 80, 0)
 s.wire(124, 87.62, 132, 87.62)
 s.junction(124, 87.62)
 s.sym("R", "R10", "47", 124, 91.43)
@@ -137,13 +143,7 @@ s.wire(v2["g2"][0], v2["g2"][1], 176, v2["g2"][1])
 s.glabel("B+2", 176, v2["g2"][1], 0)
 s.wire(164, 76.985, 164, 80)
 s.shunt_rc("R13", "470 1W", "C7", "25u", 164, 80)
-# K2 — the 6V6 cathode/bias node the tremolo oscillator's Intensity control
-# injects into (see the tremolo block below); tapped here with a global label
-# so the far-off oscillator section can reach it without a sheet-crossing wire.
 s.junction(164, 80)
-s.wire(164, 80, 182, 80)
-s.wire(182, 80, 182, 90)
-s.glabel("K2", 182, 90, 270)
 s.wire(164, 61.745, 164, 56)
 s.sym("OT_SE", "T2", "125A35A", 196, 58.54)      # PRI_P (187.11,56) PRI_B (187.11,61.08)
 s.wire(164, 56, 187.11, 56)
@@ -155,74 +155,81 @@ s.glabel("SPKR", 209, 56, 0)
 s.wire(204.89, 61.08, 209, 61.08)
 s.glabel("GND", 209, 61.08, 0)
 
-# ============================ TREMOLO OSCILLATOR (excluded) ==========
-# V4A: RC phase-shift oscillator, fed by the Vibrato Pedal jack (J1) and
-# tuned by the Speed control (R24, feeding back from the plate to the grid
-# through C16). V4B: direct-coupled from V4A's plate (no cap between them —
-# bom.yaml lists none), wired as a cathode follower whose plate ties straight
-# to B+2 with no plate load and whose cathode, through the Intensity control
-# (R27), injects the oscillator's signal directly at K2 (the 6V6 cathode/bias
-# node) — the bias-vary mechanism. Dynamic; no static DC point (notes.md);
-# excluded from netlist.cir, the same category of exclusion as amps/ab763's V5.
-YT = 220
-s.caption('Tremolo oscillator (V4) — bias-vary; dynamic, DC point excluded from netlist (see the circuit story)', 8, YT - 24, 1.4)
+# ============================ TREMOLO (excluded) =====================
+# As the sheet draws it. V4A (pins 1-3): phase-shift oscillator, plate ->
+# .02 -> Speed node -> .01 -> pedal node -> .01 -> grid. V4B (pins 6-8):
+# cathode follower direct-coupled from V4A's plate, its cathode into the
+# Intensity control's wiper through 68k; the pot's far end lands on V1B's
+# cathode (K1B). Dynamic, no static DC point (notes.md); excluded from
+# netlist.cir, the same category of exclusion as amps/ab763's V5.
+YT = 212
+RAILY = 236                                    # phase-shift ladder rail
+s.caption('Tremolo (V4) — phase-shift oscillator and cathode follower into Intensity; dynamic, DC point excluded from the netlist (see the circuit story)', 8, YT - 26, 1.4)
 
-# --- Vibrato Pedal jack + bleeder + line coupler ----------------------
-j1 = s.jack("J1", "vibrato pedal", 8, YT - 4)
-s.text("Vibrato Pedal", 2, YT - 14, 1.2)
-s.wire(j1["sleeve"][0], j1["sleeve"][1], j1["sleeve"][0], j1["sleeve"][1] + 5)
-s.gnd(j1["sleeve"][0], j1["sleeve"][1] + 5)
-s.wire(j1["tip"][0], j1["tip"][1], 20, j1["tip"][1])
-s.junction(20, j1["tip"][1])
-s.sym("R", "R20", "1M", 20, j1["tip"][1] + 3.81)                 # bleeder to ground
-s.gnd(20, j1["tip"][1] + 7.62)
-l, r = s.series_h("C", "C15", ".01u", 30, j1["tip"][1])          # jack line coupler
-s.wire(20, j1["tip"][1], l, j1["tip"][1])
-s.wire(r, j1["tip"][1], 38, j1["tip"][1])
-s.wire(38, j1["tip"][1], 38, YT)
+t4a = s.triode("V4A", "12AX7", 60, YT, unit=2)   # oscillator on pins 1-3
+s.plate_load("R22", "470k", t4a["p"], "B+2")
+PTEE = YT - 7.62 - 3.48                           # the oscillator's plate node
+s.junction(60, PTEE)
+s.wire(60, YT + 7.62, 60, YT + 10)
+s.shunt_rc("R23", "4.7k", "C18", "25u", 52.38, YT + 10)
+s.junction(60, YT + 10)
+# ladder: plate -> .02 -> N2 (Speed) -> .01 -> N1 (pedal node) -> .01 -> grid
+s.wire(60, PTEE, 70, PTEE)
+cl, cr = s.series_h("C", "C16", ".02u", 78, PTEE)
+s.wire(70, PTEE, cl, PTEE)
+s.wire(cr, PTEE, 90, PTEE)                         # N2
+s.wire(90, PTEE, 94.19, PTEE)
+s.sym("POT", "R24", "3M-RA speed", 98, PTEE, rot=90, lx=-3.2, ly=6.4)
+s.wire(101.81, PTEE, 106, PTEE)
+s.wire(98, PTEE - 5.08, 101.81, PTEE - 5.08)       # rheostat: wiper to lug 3
+s.wire(101.81, PTEE - 5.08, 101.81, PTEE)
+s.junction(101.81, PTEE)
+sl, sr = s.series_h("R", "R25", "100k", 112, PTEE)
+s.wire(106, PTEE, sl, PTEE)
+s.wire(sr, PTEE, 120, PTEE)
+s.gnd(120, PTEE)
+s.text("Speed", 94, PTEE - 8, 1.2)
+s.wire(90, PTEE, 90, RAILY)
+s.junction(90, PTEE)
+cl, cr = s.series_h("C", "C15", ".01u", 82, RAILY)
+s.wire(90, RAILY, cr, RAILY)
+s.wire(cl, RAILY, 72, RAILY)                       # N1, the pedal node
+s.junction(72, RAILY)
+cl, cr = s.series_h("C", "C17", ".01u", 62, RAILY)
+s.wire(72, RAILY, cr, RAILY)
+s.wire(cl, RAILY, 48, RAILY)                       # oscillator grid
+s.junction(48, RAILY)
+s.wire(48, RAILY, 48, YT)
+s.wire(48, YT, t4a["g"][0], YT)
+s.sym("R", "R21", "1M", 48, RAILY + 3.81, lx=-8.4)   # grid -> ground
+s.gnd(48, RAILY + 7.62)
+s.sym("R", "R20", "1M", 72, 229)                   # pedal node -> cathode
+s.wire(72, 232.81, 72, RAILY)
+s.wire(72, 225.19, 72, YT + 10)
+s.wire(72, YT + 10, 60, YT + 10)
+# Vibrato Pedal jack on the pedal node: its footswitch grounds that node
+s.wire(72, RAILY, 72, RAILY + 10)
+j1 = s.jack("J1", "vibrato pedal", 80, RAILY + 12.54, lx=3.4, ly=-9.6)
+s.wire(72, RAILY + 10, j1["tip"][0], RAILY + 10)
+s.wire(*j1["sleeve"], 68, j1["sleeve"][1])
+s.wire(68, RAILY + 18, 68, j1["sleeve"][1])
+s.gnd(68, RAILY + 18)
 
-# --- V4A: oscillator --------------------------------------------------
-t4a = s.triode("V4A", "12AX7", 48, YT)           # p (48,YT-7.62) g (40.38,YT) k (48,YT+7.62)
-s.wire(38, YT, t4a["g"][0], YT)
-s.junction(38, YT)
-s.sym("R", "R21", "1M", 38, YT + 3.81)           # V4A grid leak
-s.gnd(38, YT + 7.62)
-s.plate_load("R22", "470k", t4a["p"], "B+3")     # tee at (48, YT-7.62-3.48)
-s.wire(48, YT + 7.62, 48, YT + 11)
-s.shunt_r("R23", "4.7k", 48, YT + 11)             # cathode bias, no bypass
-
-# --- feedback loop: plate tee → C16 → Speed pot → back to the grid ----
-tee4 = YT - 7.62 - 3.48                           # = 208.9, the plate-load tee
-s.junction(48, tee4)
-cl, cr = s.series_h("C", "C16", "not legible", 60, tee4)
-s.wire(48, tee4, cl, tee4)
-s.wire(cr, tee4, 72, tee4)
-s.wire(72, tee4, 72, 232.19)
-s.sym("POT", "R24", "3M-RA speed", 72, 236)      # lug1 (72,232.19) lug3 (72,239.81)
-s.sym("R", "R25", "100k", 72, 243.81)            # fixed leg, lug3 → ground
-s.wire(72, 239.81, 72, 240)
-s.gnd(72, 247.62)
-s.wire(77.08, 236, 84, 236)                       # wiper (lug2) feeds back to the grid
-s.wire(84, 236, 84, 250)
-s.wire(84, 250, 38, 250)
-s.wire(38, 250, 38, YT)
-
-# --- V4B: direct-coupled cathode follower ------------------------------
-t4b = s.triode("V4B", "12AX7", 96, YT)           # p (96,YT-7.62) g (88.38,YT) k (96,YT+7.62)
-s.wire(48, tee4, 88.38, tee4)                     # V4A plate tee → V4B grid, direct-coupled
-s.wire(88.38, tee4, 88.38, YT)
-s.wire(96, YT - 7.62, 96, YT - 11)
-s.glabel("B+2", 96, YT - 11, 90)                  # plate tied straight to B+2, no plate load
-s.wire(96, YT + 7.62, 96, YT + 11)
-s.junction(96, YT + 11)
-s.shunt_r("R26", "68k", 96, YT + 11)              # cathode bias, straight to ground
-s.wire(96, YT + 11, 116, YT + 11)                 # tee sideways to the Intensity control
-s.sym("POT", "R27", "25k-RA int", 116, YT + 14.81)  # lug1 (116,YT+11) lug3 (116,YT+18.62)
-s.wire(116, YT + 18.62, 116, YT + 22.43)
-s.gnd(116, YT + 22.43)
-s.wire(121.08, YT + 14.81, 130, YT + 14.81)       # wiper (lug2) → injection line
-s.wire(130, YT + 14.81, 130, YT - 4)
-s.glabel("K2", 130, YT - 4, 90)                   # → 6V6 cathode/bias node
+# V4B: cathode follower, grid direct-coupled from the oscillator's plate node
+t4b = s.triode("V4B", "12AX7", 24, YT, unit=1)    # follower on pins 6-8
+s.wire(60, PTEE, 12, PTEE)
+s.wire(12, PTEE, 12, YT)
+s.wire(12, YT, t4b["g"][0], YT)
+s.wire(24, YT - 7.62, 28, YT - 7.62)
+s.glabel("B+2", 28, YT - 7.62, 0)                  # plate straight on B+2, no load
+s.wire(24, YT + 7.62, 24, YT + 10)
+s.sym("R", "R26", "68k", 24, YT + 13.81)           # cathode -> Intensity wiper
+s.wire(24, YT + 17.62, 24, YT + 24)
+s.sym("POT", "R27", "25k-RA int", 18.92, YT + 24, lx=-12.0, ly=4.0)   # wiper at (24, YT+24)
+s.wire(18.92, YT + 27.81, 18.92, YT + 31)
+s.gnd(18.92, YT + 31)
+s.wire(18.92, YT + 20.19, 18.92, YT + 18)
+s.glabel("K1B", 18.92, YT + 18, 90)                # far end -> V1B's cathode
 
 # ============================ POWER SUPPLY ===========================
 YPW = 150.0

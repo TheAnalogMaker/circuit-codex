@@ -3,8 +3,8 @@
 Fender's smallest amp gains a trem foot. The Vibro Champ is the AA764 drawing
 family's tremolo-equipped sibling: the same five-watt, single-12AX7-preamp,
 single-ended-6V6 recipe as the plain [Champ](/amps/aa764/), plus a second,
-dedicated 12AX7 running a bias-vary tremolo oscillator ahead of the same
-output stage. Fender's own drawing prints **"VIBRO-CHAMP AA764"** — the
+dedicated 12AX7 running a tremolo whose output lands on the second preamp
+stage's cathode. Fender's own drawing prints **"VIBRO-CHAMP AA764"** — the
 identical designation the non-tremolo Champ sheet carries — so this circuit
 is filed under the qualified id `aa764-vibro`, leaving the plain Champ's
 `aa764` to the drawing that carries no tremolo. Two print runs of the
@@ -33,7 +33,8 @@ to ground through **15 kΩ**. The treble wiper hands the recovered signal to a
 **V1B** — 12AX7, **100 kΩ** plate load. Its cathode resistor is **1.5 kΩ**
 with a **25 µF** bypass, but it does not land on ground: it sits on a
 **47 Ω** leg, and the **2.7 kΩ** negative-feedback resistor from the speaker
-jack lands on that same junction.
+jack lands on that same junction. The tremolo's Intensity control lands on
+the cathode itself (see Tremolo below).
 
 **Output** — a **0.02 µF** coupling cap into the **6V6GT** grid, held down by
 a **220 kΩ** leak. The 6V6 is cathode-biased on **470 Ω · 1 W** with a
@@ -48,33 +49,29 @@ tube trem in [6G3](/amps/6g3/), where the oscillator is the second half of the
 driver tube, this is its own socket, the same arrangement the
 [Deluxe Reverb](/amps/ab763/) uses for its trem oscillator.
 
-**First section** — an RC phase-shift oscillator. The **Vibrato Pedal** jack
-carries a normalling switch (open when the pedal is plugged in, letting the
-external footswitch mute the effect; shorted otherwise, so the trem runs
-whenever nothing is plugged in) ahead of a **1 MΩ** bleeder and a **1 MΩ**
-grid leak. Plate load is **470 kΩ** off the B+3 preamp rail, printing
-**+170 V**; cathode is **4.7 kΩ** with a **25 µF** bypass, printing **+1.6 V**.
-The frequency-setting network runs through a **3 MΩ reverse-audio Speed**
-control with a **100 kΩ** fixed leg to ground — the same 3 MΩ Speed value
-the Deluxe Reverb uses for its own (opto-coupled) oscillator, though the two
-circuits inject the signal differently.
+**First section** (pins 1–3) — an RC phase-shift oscillator. Its plate load
+is **470 kΩ** off the **+340 V** node between the two droppers, printing
+**+170 V**; the cathode sits on **4.7 kΩ** bypassed by **25 µF**, printing
+**+1.6 V**. A three-section ladder runs from the plate back to the grid:
+**0.02 µF** to a Speed node, which the **3 MΩ reverse-audio Speed** control
+(a rheostat, with **100 kΩ** in series on the pot) returns to ground;
+**0.01 µF** to a second node, which a **1 MΩ** returns to the cathode; and
+**0.01 µF** to the grid, which a **1 MΩ** returns to ground. The **Vibrato
+Pedal** jack hangs on the ladder's middle node, so the pedal's footswitch
+grounds that node and stops the oscillation.
 
-**Second section** — wired as a cathode follower: its plate ties straight to
-the B+2 rail (**+340 V**, no plate load resistor), and its **68 kΩ** cathode
-prints **+175 V**, feeding a **25 kΩ reverse-audio Intensity** control that
-sets how hard the oscillator's signal is injected into the amp.
+**Second section** (pins 6–8) — a cathode follower, its grid taken straight
+off the oscillator's plate and its plate tied directly to the **+340 V** node
+with no plate load. Its cathode prints **+175 V** and feeds the wiper of the
+**25 kΩ reverse-audio Intensity** control through **68 kΩ**. One end of that
+pot is grounded; the other goes straight to **V1B's cathode**, with no
+capacitor anywhere in the path.
 
-This is a **bias-vary** tremolo — it works by varying a DC operating point in
-sympathy with the oscillator, the family AB763's opto-coupled Deluxe Reverb
-trem does not belong to — consistent with the single-ended Champ/Princeton
-line's small-amp trem circuits generally. Unlike 6G3's fixed-bias output
-stage, this 6V6 is cathode-biased, so there is no separate negative-bias line
-for the oscillator to modulate; the Intensity control's output lands in the
-same corner of the sheet as the negative-feedback network ahead of the output
-stage. The exact phase-shift coupling capacitor between the first section's
-grid network and the Speed control is present on the drawing but was not
-individually confirmed at the available scan resolution (C16 in the parts
-list); every other oscillator value above was read directly off the sheet.
+So this tremolo works on the preamp, not the output stage: the follower
+pushes its oscillating current into V1B's cathode, moving that stage's bias
+and with it its gain, and the Intensity control sets how much of that
+current reaches the cathode rather than ground. The 6V6 is not touched by
+it.
 
 ## Power
 
@@ -119,14 +116,20 @@ first section, +340 V / +175 V second section) are read directly off the
 sheet and recorded on this page, but are not modelled or gated: the
 simulated deck omits V4 entirely.
 
-Its first section's plate load taps the same **BP3** preamp rail that feeds
-V1A and V1B (through its own 470 kΩ, off-model). Leaving the oscillator out
-therefore means BP3 carries a little less current in this model than the
-real circuit did, and the two audio-path plates it feeds read a bit above the
-printed chart as a result — the same effect the Deluxe Reverb entry documents
-for its own shared rail. Here, though, the deviation stays well inside the chart's own
-±20 % convention (see below), so P1A/K1A/P1B/K1B are gated normally rather
-than set aside as informational.
+Both of its sections draw from the **+340 V** node (BP2), between the two
+droppers: the oscillator through its 470 kΩ plate load, the follower's plate
+directly. Leaving the bottle out therefore means BP2, and the +320 V rail
+below it, carry about 2.9 mA less in this model than the real circuit did,
+which is why both rails read a few volts above the chart (see below).
+
+The follower's cathode is also DC-coupled into V1B's cathode through 68 kΩ
+and the Intensity control, and how much of its roughly 2.5 mA lands there
+depends on the control's setting, which the drawing does not state. Holding
+the follower at its printed +175 V and moving the wiper from the grounded end
+to the V1B end takes V1B's cathode from 1.65 V to 3.87 V and its plate from
+213 V to 323 V. The printed +1.5 V and +200 V describe one setting of a knob
+the sheet does not record, so V1B's cathode and plate are reported here for
+reference rather than gated.
 
 ## Reading against the printed chart
 
@@ -138,17 +141,15 @@ ground with an electronic voltmeter. Driving the reservoir at its printed
 |---|---|---|---|
 | Screen rail (BP2) | +340 V | +349.1 V | 2.7 % |
 | Preamp rail (BP3) | +320 V | +326.9 V | 2.2 % |
-| V1A plate / cathode | +205 V / +1.6 V | +215.0 V / +1.7 V | 4.9 % |
-| V1B plate / cathode | +200 V / +1.5 V | +216.6 V / +1.7 V | 8.3 % / 13.7 % |
-| 6V6 cathode (K2) | not printed | +22.2 V | informational |
+| V1A plate / cathode | +205 V / +1.6 V | +215.0 V / +1.7 V | 4.9 % / 4.9 % |
+| 6V6 cathode (K2) | +21 V | +22.2 V | 5.9 % |
+| V1B plate / cathode | +200 V / +1.5 V | +216.6 V / +1.7 V | for reference — see above |
 
-Every gated node lands comfortably inside the drawing's own ±20 % convention
-— the worst is V1B's cathode at 13.7 %, still well short of the tremolo-
-excluded shared-rail effect crossing that line the way it does on the
-Deluxe Reverb.
-The 6V6 cathode has no printed figure to compare against; the drawing prints
-only **+2 V** at its grid (pin 6), a small positive reading typical of a
-cathode-biased stage's grid-leak return rather than a value worth gating.
+Every gated node lands inside the drawing's own ±20 % convention; the worst
+is the 6V6 cathode at 5.9 %. The drawing prints **+21 V** beside the 6V6's
+cathode, pin 8, on both the schematic and the layout page; its grid carries
+no figure. V1B's two figures are simulated with the tremolo left out; the
+range its injection spans is given above.
 
 One value on the chart is deliberately not simulated. The drawing prints
 **+355 V** at the reservoir and **+342 V** at the 6V6 plate; the gap between
@@ -158,23 +159,16 @@ the same 125A35A part.
 
 ## The tremolo block, as drawn
 
-The schematic and the board layout on this page resolve the connections the
-parts list's per-part roles leave implicit. V4A's plate feeds back to its
-own grid through C16 and the Speed control — a single-RC phase-shift loop,
-the pot's resistance setting the frequency. V4B is direct-coupled from V4A's
-plate (no capacitor — the drawing shows none) and wired as a cathode
-follower whose plate ties straight to the B+2 rail with no plate load
-resistor; its cathode, through the Intensity control, injects the
-oscillator's signal directly at K2, the 6V6 cathode/bias node — the
-bias-vary mechanism. The Vibrato Pedal jack's internal normalling contact is
-not drawn as a mechanical spring switch; its effective point-to-point
-connection (tip into the bleeder/coupler line, sleeve to ground) is drawn
-instead. The oscillator's own RC network mounts off the board — at the
-Speed and Intensity pot lugs and the jack — the same convention the Deluxe
-Reverb entry documents for its own dedicated trem-oscillator network; only
-V4's heater pins are wired on the board, extending the single-ended daisy
-chain. The board otherwise reuses the Champ's arrangement verbatim, since
-the two circuits' audio paths are component-for-component identical (see
-above). The drawn wiring is proved electrically equivalent to the simulated
-circuit, with V4 excluded from that check just as it is excluded from the
-deck.
+The schematic on this page draws the tremolo as the factory sheet does: the
+oscillator on V4's pins 1–3 with its three-section ladder, the follower on
+pins 6–8, the 68 kΩ into the Intensity wiper, and the pot's far end
+labelled onto V1B's cathode. The factory layout page mounts the ladder, the
+oscillator's cathode network, its 470 kΩ plate load and the follower's
+68 kΩ on the eyelet board, with the Speed control's 100 kΩ riding on the pot.
+The board drawing on this page draws the pedal jack, the 1 MΩ from its tip
+to the oscillator's cathode, the two controls and V4's heater pins; the rest
+of the tremolo network is not drawn on it. The board otherwise reuses the
+Champ's arrangement verbatim, since the two circuits' audio paths are
+component-for-component identical (see above). The drawn wiring is proved
+electrically equivalent to the simulated circuit, with V4 excluded from that
+check just as it is excluded from the deck.
