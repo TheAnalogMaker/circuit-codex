@@ -277,28 +277,18 @@ amps:
       plus_drawn_at: a
       ref: CKN1
   ab763-super:
-    wrong:
-    - leads: '''+'' lead CKRD.a: 0 = +0.0 V (ground); other lead CKRD.b: KRD = +9.1 V (op-points)'
-      placed: 'by position: the left end of a can along a row'
-      plus_drawn_at: a
-      ref: CKRD
-    - leads: '''+'' lead CKE.a: 0 = +0.0 V (ground); other lead CKE.b: KE = +2.2 V (op-points)'
-      placed: 'by position: the left end of a can along a row'
-      plus_drawn_at: a
-      ref: CKE
-    - leads: '''+'' lead CKV1.a: 0 = +0.0 V (ground); other lead CKV1.b: KV1 = +2.1 V (op-points)'
-      placed: 'by position: the left end of a can along a row'
-      plus_drawn_at: a
-      ref: CKV1
-    - leads: '''+'' lead CKA.a: 0 = +0.0 V (ground); other lead CKA.b: KA = +2.2 V (op-points)'
-      placed: 'by position: the left end of a can along a row'
-      plus_drawn_at: a
-      ref: CKA
-    - leads: '''+'' lead CKN1.a: 0 = +0.0 V (ground); other lead CKN1.b: KN1 = +2.1 V (op-points)'
-      placed: 'by position: the left end of a can along a row'
-      plus_drawn_at: a
-      ref: CKN1
+    not_decided:
+    - ref: CKTO1
+      verdict: undecided
+      why: 'CKTO1.a: reaches only ground, through RKTO1'
   ab763-twin:
+    not_decided:
+    - ref: CKTO1
+      verdict: undecided
+      why: 'CKTO1.b: reaches only ground, through RKTO1'
+    - ref: CKTO2
+      verdict: undecided
+      why: 'CKTO2.b: reaches only ground, through RKTO2'
     wrong:
     - leads: '''+'' lead CKE.a: 0 = +0.0 V (ground); other lead CKE.b: KE = +2.2 V (op-points)'
       placed: 'by position: the left end of a can along a row'
@@ -384,7 +374,7 @@ amps:
       ref: C19
 summary:
   cans: 266
-  right: 193
-  undecided: 13
+  right: 195
+  undecided: 16
   unmarked: 0
-  wrong: 60
+  wrong: 55
