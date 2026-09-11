@@ -108,7 +108,7 @@ items:
   - { ref: V7, part: "Power tube", value: "EL34", role: "Parallel push-pull output — phase B" }
   # --- transformers, hardware, annotations ---
   - { ref: T1, part: "Output transformer", value: "16/8/4 Ω taps", role: "Output transformer — parallel push-pull primary for four EL34s, 16/8/4 Ω secondary taps (feedback from the 16 Ω tap)" }
-  - { ref: "—", part: "Power transformer", value: "Universal primary 110/120/200/225/245 V · HT + 6.3 V heaters", role: "Mains/HT transformer" }
+  - { ref: "—", part: "Power transformer", value: "Universal primary 110/120/200/225/245 V · HT, bias and 6.3 V heater windings", role: "Mains/HT transformer, with a separate bias winding (one end to chassis) feeding the bias rectifier" }
   - { ref: "—", part: "Fuse", value: "4 A", role: "Mains fuse (annotation)" }
   - { ref: "—", part: "Fuse", value: "1 A", role: "HT fuse (annotation)" }
   - { ref: "—", part: "Standby switch", value: "SPST", role: "HT standby (annotation)" }

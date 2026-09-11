@@ -49,8 +49,9 @@ sharing resistors. That rail feeds the output valves' plates and screens
 directly; a 20 kΩ / 1 W dropper takes it down to the phase inverter and two
 further 10 kΩ / 1 W droppers step it down again for the second stage and the
 input valve, each node filtered by a pair of 50 µF capacitors. The negative grid
-bias comes from one end of the HT winding through 27 kΩ into its own diode,
-then a 15 kΩ / 47 kΩ network with 8 µF filters and a 27 kΩ trimmer.
+bias comes from its own winding on the mains transformer, one end grounded:
+through 27 kΩ into its own diode, then 8 µF, 15 kΩ and a second 8 µF at the
+bias node, which a 47 kΩ and a 27 kΩ trimmer bleed to ground.
 
 ## Lineage
 

@@ -367,11 +367,14 @@ for x0, rref, rval, rail, cA, cB in [
 
 # ======================= negative-bias supply ===============================
 BY = 252.0
-# The Unicord 70-6-11 sheet runs the HT winding's end through the 27k (22k
-# annotated) IN SERIES into the 1008 diode; the first 8 µF hangs on the
-# diode's output. It was drawn here as a shunt at the diode. No PT is drawn
-# on this sheet, so the winding end is the HT_B label the bridge uses.
-s.glabel("HT_B", 116, BY, 180)
+# The Unicord 70-6-11 drawing feeds the bias supply from a SEPARATE winding,
+# not from the HT winding: the drawing grounds one end of it and runs the other
+# through the 27k (22k annotated) IN SERIES into the 1008 diode, cathode toward
+# the 27k. No PT is drawn on this sheet, so that hot end is the BIAS W label.
+# The first 8 µF hangs on the diode's anode; the 15k runs to the bias node,
+# which carries the second 8 µF, feeds both grid leaks as -BIAS, and is bled to
+# ground through the 47k and the 27k trimmer drawn as a variable resistor.
+s.glabel("BIAS W", 116, BY, 180)
 ba_l, ba_r = s.series_h("R", "RBA", "27k", 121.5, BY)
 s.wire(116, BY, ba_l, BY)
 s.wire(ba_r, BY, 125.92, BY)
@@ -384,18 +387,24 @@ bl2, br2 = s.series_h("R", "RBB", "15k", 156, BY)
 s.wire(146, BY, bl2, BY)
 s.wire(br2, BY, 166, BY)
 s.junction(166, BY)
-s.sym("C", "C18", "8u", 166, BY + 3.81, lx=2.2)
+s.sym("C", "C18", "8u", 166, BY + 3.81, lx=-4.6)
 s.gnd(166, BY + 7.62)
 cl2, cr2 = s.series_h("R", "RBC", "47k", 176, BY)
 s.wire(166, BY, cl2, BY)
 s.wire(cr2, BY, 186, BY)
 s.sym("POT", "VR7", "27k bias adj", 186, BY + 3.81, lx=6.0, ly=-5.6)
 s.gnd(186, BY + 7.62)
-s.wire(191.08, BY + 3.81, 205, BY + 3.81)
-s.glabel("-BIAS", 205, BY + 3.81, 0)
-s.text("Bias supply: 27 k in series from the HT winding end into its own diode, "
-       "15 k between the two 8 uF filters, then the 47 k / 27 k-trimmer divider "
-       "that sets the grid bias.", 116, 266, 1.15)
+s.wire(191.08, BY + 3.81, 191.08, BY)                  # wiper strapped to the end the 47k
+s.wire(191.08, BY, 186, BY)                            # feeds: a variable resistor
+s.junction(186, BY)
+s.junction(169.5, BY)                                  # the bias node -> both grid leaks
+s.wire(169.5, BY, 169.5, BY + 12)
+s.wire(169.5, BY + 12, 205, BY + 12)
+s.glabel("-BIAS", 205, BY + 12, 0)
+s.text("Bias supply: a separate bias winding (BIAS W; the drawing grounds its other end)",
+       116, 269.5, 1.15)
+s.text("-> 27 k -> diode -> 8 uF, 15 k, 8 uF at the bias node; 47 k + 27 k trimmer to ground.",
+       116, 273, 1.15)
 
 # ---- parts the drawing annotates rather than wires -------------------------
 s.sym("C", "C29", ".22u", 185, 276, lx=-2.8, ly=-5.6)
