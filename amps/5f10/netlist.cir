@@ -5,7 +5,7 @@
 * DC conventions: B+1 driven at the printed +305 V; downstream rails DERIVED.
 * The 470 R and 22 k droppers are modeled, so the 6V6 screen current and the
 * preamp current set B+2/B+3 by simulation. OT primary DCR omitted (6V6 plates
-* sit at B+1). Fixed-bias supply replaced by an ideal -21 V source (its selenium
+* sit at B+1). Fixed-bias supply replaced by an ideal -27 V source (its selenium
 * rectifier, 6.8 k, 56 k and 25 uF network is AC/ripple filtering). The 56 k
 * negative-feedback resistor returns from the speaker (~0 V DC) to the driver
 * cathode, so at DC it parallels that 1.5 k. DC-open caps (coupling / cathode-
@@ -18,7 +18,7 @@
 .include models/6v6gt.inc
 
 VBP1 BP1 0 DC 305
-VBIAS NBIAS 0 DC -21
+VBIAS NBIAS 0 DC -27
 
 * rail: 470 -> screens node, 22k -> preamp/PI node
 RD1 BP1 BP2 470
@@ -45,7 +45,7 @@ RKA KPI JPI 1.5k
 RKB JPI 0 56k
 RGPI GPI JPI 1meg
 
-* 6V6GT pair — fixed bias via 220k leaks from -21 V (1.5k stoppers DC-nil),
+* 6V6GT pair — fixed bias via 220k leaks from -27 V (1.5k stoppers DC-nil),
 * plates at B+1 (OT primary), screens after the 470 R at B+2, cathodes grounded
 XV3 BP1 BP2 G6A 0 6V6GT
 RG1 NBIAS G6A 220k
@@ -54,8 +54,10 @@ RG2 NBIAS G6B 220k
 
 * DC-open caps (both leads on a named DC node — placement layout-checked):
 * 6AT6 cathode bypass, driver->PI coupler, and the cathodyne's two output
-* couplers (plate PPI to the upper grid, cathode junction JPI to the lower).
+* couplers: the plate PPI to the upper grid, and the cathode pin KPI — the top
+* of the 1.5 k, the +44.3 V node, where F-EF's schematic and layout both take
+* it — to the lower. The 1.5 k / 56 k junction carries only the grid leak.
 C1  KAT 0 25u
 C5  P2A GPI 0.02u
 C6  PPI G6A 0.1u
-C7  JPI G6B 0.1u
+C7  KPI G6B 0.1u

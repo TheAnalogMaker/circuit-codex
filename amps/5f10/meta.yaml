@@ -18,12 +18,12 @@ lineage:
 conventions:
   designators: functional   # designators carry a role code (RD1 dropper, RL4 plate load, CK1 cathode bypass)
 sources:
-  - desc: "Fender 'Harvard' Model 5F10 drawing (F-EF), schematic + layout: every component value AND the printed voltage chart read directly from the published sheet (+305/+302/+250 rails, -21 V fixed bias, tube pins; cathodyne PI = 56k plate + 1.5k/56k cathode with the 1M leak to the junction; 470 R screen dropper + 22k; 56k negative feedback to the driver cathode). Not reproduced here; archived at EL34World"
+  - desc: "Fender 'Harvard' Model 5F10 drawing (F-EF), schematic + layout: every component value AND the printed voltage chart read directly from the published sheet (+305/+302/+250 rails, -27 V fixed bias, tube pins; cathodyne PI = 56k plate + 1.5k/56k cathode with the 1M leak to the junction; 470 R screen dropper + 22k; 56k negative feedback to the driver cathode). Not reproduced here; archived at EL34World"
     url: "https://el34world.com/charts/Schematics/files/Fender/Fender_harvard_5f10_schem.pdf"
   - desc: "RCA 6AT6 datasheet (twin-diode / high-mu triode, Sept 1955) — triode Class-A anchor for the clean-room CC0 tube model (Va=250 V, Vg=-3 V, mu=70, rp=58k, gm=1200 umho, Ia=1 mA); only the triode section is used"
     url: "https://frank.pocnet.net/sheets/049/6/6AT6.pdf"
 verification:
   status: verified
   date: 2026-07-18
-  max_deviation_pct: 15.7  # driver cathode vs printed chart (±20% convention); the driver plate is next at 7.8%
+  max_deviation_pct: 15.2  # driver cathode vs printed chart (±20% convention); the 6AT6 cathode is next at 8.1%
 contributors: [TheAnalogMaker]

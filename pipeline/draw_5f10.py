@@ -135,12 +135,15 @@ al, ar = s.series_h("C", "C6", ".1u", 150, ptee)
 s.wire(ar, ptee, 155, ptee)
 s.wire(155, ptee, 155, 92)
 s.wire(155, 92, 158.75, 92)
-# Cathode-side tap at the 1.5k/56k junction (JPI), the balanced point the
-# netlist names — it used to be taken off the cathode pin itself.
-s.wire(140, 127.62, 146.19, 127.62)
-kl, kr = s.series_h("C", "C7", ".1u", 150, 127.62)
-s.wire(kr, 127.62, 158.75, 127.62)
-s.wire(158.75, 127.62, 158.75, 132)
+# Cathode-side tap ON the cathode pin, the top of the 1.5k: F-EF's schematic
+# runs the .1-200 from the +44.3 V dot and its layout puts the cap's eyelet on
+# the 1500's cathode end. (11e9875 had moved it to the 1.5k/56k junction to
+# agree with a netlist that read C7 on JPI; the netlist was the misreading.)
+s.junction(140, 120)
+s.wire(140, 120, 146.19, 120)
+kl, kr = s.series_h("C", "C7", ".1u", 150, 120)
+s.wire(kr, 120, 158.75, 120)
+s.wire(158.75, 120, 158.75, 132)
 
 # ---- 6V6GT pair, fixed bias --------------------------------------------
 for y, vref, gl, st in [(92, "V3", "RG1", "Rs1"), (132, "V4", "RG2", "Rs2")]:
@@ -151,7 +154,7 @@ for y, vref, gl, st in [(92, "V3", "RG1", "Rs1"), (132, "V4", "RG2", "Rs2")]:
     s.junction(158.75, y)
     s.sym("R", gl, "220k", 158.75, y + 3.81)
     s.wire(158.75, y + 7.62, 158.75, y + 10.16)
-    s.glabel("-21V", 158.75, y + 10.16, 270)
+    s.glabel("-27V", 158.75, y + 10.16, 270)
     s.wire(p["g2"][0], p["g2"][1], p["g2"][0] + 2.54, p["g2"][1])
     s.glabel("B+2", p["g2"][0] + 2.54, p["g2"][1], 0)
     s.gnd(175.26, p["k"][1])           # cathode to ground (fixed bias)
@@ -207,9 +210,9 @@ s.gnd(124.46, 185.42)
 # F-EF (schematic page 6378x3898; crop tmp/boards2/crops/5f10-schem-bias.png)
 # draws the bias feed from the HT winding's own tap between the top end and the
 # centre tap, through the 6800 INTO the selenium rectifier's "+" end, with the
-# 56K bleeder and the two 25 uF cans on the -21 V side. Until 2026-09-10 this
+# 56K bleeder and the two 25 uF cans on the -27 V side. Until 2026-09-10 this
 # row hung the rectifier on a 5Y3GT plate (HT_B) and put the resistor after it.
-s.text("Bias supply — HT tap -> 6.8k -> selenium rectifier -> -21 V (25u x2)", 138, 160, 1.3)
+s.text("Bias supply — HT tap -> 6.8k -> selenium rectifier -> -27 V (25u x2)", 138, 160, 1.3)
 s.glabel("HT_TAP", 138, 168, 180)
 l, r = s.series_h("R", "RB1", "6.8k", 145.5, 168)
 s.wire(138, 168, l, 168)
@@ -222,7 +225,7 @@ s.gnd(166.04, 175.62)
 s.junction(168.58, 168)
 s.sym("C", "C11", "25u", 168.58, 171.81, lx=2.2)
 s.gnd(168.58, 175.62)
-s.glabel("-21V", 171.12, 168, 0)
+s.glabel("-27V", 171.12, 168, 0)
 
 # ---- power transformer (HT winding + bias tap) -------------------------
 # Drawn so the bias feed starts where F-EF starts it: a fourth terminal on the

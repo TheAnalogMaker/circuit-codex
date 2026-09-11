@@ -24,8 +24,8 @@ items:
   - { ref: C7,  part: "Coupling capacitor",   value: "0.1 µF · 200 V", role: "PI cathode → lower 6V6 grid" }
   - { ref: Rs1, part: "Carbon comp resistor", value: "1.5 kΩ · ½ W", role: "Upper 6V6 grid stopper" }
   - { ref: Rs2, part: "Carbon comp resistor", value: "1.5 kΩ · ½ W", role: "Lower 6V6 grid stopper" }
-  - { ref: RG1, part: "Carbon comp resistor", value: "220 kΩ · ½ W", role: "Upper 6V6 grid leak, from the −21 V bias line" }
-  - { ref: RG2, part: "Carbon comp resistor", value: "220 kΩ · ½ W", role: "Lower 6V6 grid leak, from the −21 V bias line" }
+  - { ref: RG1, part: "Carbon comp resistor", value: "220 kΩ · ½ W", role: "Upper 6V6 grid leak, from the −27 V bias line" }
+  - { ref: RG2, part: "Carbon comp resistor", value: "220 kΩ · ½ W", role: "Lower 6V6 grid leak, from the −27 V bias line" }
   - { ref: RD1, part: "Carbon comp resistor", value: "470 Ω · 1 W",  role: "6V6 screen dropper B+1 → B+2" }
   - { ref: RD2, part: "Power resistor",       value: "22 kΩ",         role: "Rail dropper B+2 → B+3" }
   - { ref: C8,  part: "Electrolytic capacitor", value: "16 µF · 450 V", role: "Filter, B+1" }

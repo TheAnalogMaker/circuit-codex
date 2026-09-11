@@ -17,36 +17,40 @@ Three inputs (each a 68 kΩ stopper, grid grounded through the switched jacks) �
 control (0.005 µF) → **12AX7 driver** (100 kΩ plate, 1.5 kΩ *unbypassed* cathode)
 → 0.02 µF → **12AX7 cathodyne phase inverter** (56 kΩ plate load, 1.5 kΩ + 56 kΩ
 cathode stack, 1 MΩ grid leak returned to the junction) → 0.1 µF couplers →
-**6V6GT pair**, fixed-biased at −21 V through 220 kΩ grid leaks with 1.5 kΩ
+**6V6GT pair**, fixed-biased at −27 V through 220 kΩ grid leaks with 1.5 kΩ
 stoppers → output transformer → speaker. A **56 kΩ negative-feedback** resistor
 runs from the speaker back to the driver's cathode.
 
 Power: HT winding → **5Y3GT** → **+305 V** plates (16 µF) → 470 Ω → **+302 V**
 screens → 22 kΩ → **+250 V** preamp (16 µF). The bias supply takes a tap on
 the HT winding through a 6.8 kΩ series resistor into a selenium rectifier; a
-56 kΩ bleeder and two 25 µF cans sit on the **−21 V** grid line.
+56 kΩ bleeder and two 25 µF cans sit on the **−27 V** grid line.
 
 ## Fixed bias in a tweed
 
 Two details set the Harvard apart from its cathode-biased tweed siblings. First,
-the 6V6 grids are held at a fixed −21 V from the selenium bias supply rather than
-lifted by a shared cathode resistor, so the output tubes idle warm and give up a
-little of the tweed "sag and bloom" for a firmer, louder response. Second, the
+the 6V6 grids are held at a fixed −27 V from the selenium bias supply rather than
+lifted by a shared cathode resistor, trading a little of the tweed "sag and
+bloom" for a firmer, louder response; at that bias the model idles each 6V6 near
+20 mA, about 6 W. Second, the
 phase inverter is a **cathodyne**: the 12AX7's cathode runs through 1.5 kΩ to a
 junction and then 56 kΩ to ground, with the 1 MΩ grid leak returned to that
-junction so the stage self-biases — simulation puts the cathode pin at 47.4 V and
-the junction at 46.1 V, a clean −1.3 V grid-to-cathode. The plate (56 kΩ from the
-+250 V rail) sits at 197 V, balancing the two drive signals to the output pair.
+junction so the stage self-biases — simulation puts the cathode pin at 47.7 V and
+the junction at 46.4 V, a clean −1.3 V grid-to-cathode. The plate (56 kΩ from the
++250 V rail) sits at 199 V, balancing the two drive signals to the output pair.
+The lower output coupler is taken off the cathode pin itself — the +44.3 V node
+at the top of the 1.5 kΩ — not off the junction: both the schematic and the
+layout page draw it there.
 
 ## Verification — against the printed factory chart
 
 The F-EF drawing prints a full voltage chart, and every node on it is gated
-against simulation. The +302 V and +250 V rails land within 3 %, and every tube
+against simulation. The +302 V and +250 V rails land within 2 %, and every tube
 pin is within the chart's own ±20 % convention. The worst of them is the driver
-cathode at 15.7 %: it is unbypassed and loaded at DC by the 56 kΩ feedback
+cathode at 15.2 %: it is unbypassed and loaded at DC by the 56 kΩ feedback
 resistor returning from the speaker, and the anchor-fit 12AX7 model runs a
 little light there, so simulation reads 1.3 V against the printed 1.5 V. Every
-other pin lands within 7.8 %. Nothing is disputed and nothing is excluded.
+other pin lands within 8.1 %. Nothing is disputed and nothing is excluded.
 The 6AT6 uses a purpose-built, public-domain model fitted to its RCA datasheet
 (triode section only); the two diode units play no part in the amplifier and are
 left unmodeled.
