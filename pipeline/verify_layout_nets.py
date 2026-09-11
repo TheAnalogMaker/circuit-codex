@@ -84,7 +84,7 @@ ROUND-2 RE-AUDIT CLOSURE (2026-07-19) — three further escapes:
       netlist.cir (couplers + cathode-bypass, all 8 amps); op point unmoved.
 
 ------------------------------------------------------------------------------
-RECTIFIER POLARITY (2026-09-10) — REPORT-ONLY until its list is empty
+RECTIFIER POLARITY (2026-09-10) — BLOCKING since 2026-09-11
 ------------------------------------------------------------------------------
 A board diode's orientation lives only in its `cathode: a|b` field, and the
 boards copied theirs from sheets on which 25 of 68 diodes turned out to be
@@ -98,12 +98,12 @@ A terminal on no modelled node inherits one through supply_walk (unmodelled
 resistors, fuses, chokes, every lug of a pot, a two-terminal switch; path
 printed; used only when the nodes reached agree in sign). A diode with no
 `cathode:` is listed as not checked. Every REVERSED diode prints with its amp,
-ref and both nodes' volts, per amp and in the closing summary, but the
-verdicts live in res.polarity, not res.errors: they block nothing while a
-board-repair wave corrects the copied `cathode:` fields. The check becomes
-BLOCKING once a default run prints an empty REVERSED list: set
-POLARITY_BLOCKING, and a REVERSED diode then fails a board claiming
-`wiring_claim: verified` like any other DIFF.
+ref and both nodes' volts, per amp and in the closing summary. The list went
+empty on 2026-09-11, after a board-repair wave corrected the `cathode:` fields
+the boards had copied from backwards sheets, and POLARITY_BLOCKING was set: a
+REVERSED diode is now a DIFF, and it fails the run on every board, claimed or
+not (BLOCKING_PREFIXES). Diodes the model cannot decide stay listed as not
+checked.
 
 The same rule set reads each board diode's FEED (UNFED RECTIFIER): a diode
 the model gives a role (rectifier_role: exactly one end on a supply) is
@@ -111,7 +111,7 @@ walked from its other end, its AC side, to a lead of a power transformer (an
 xfmr stub whose label or BOM part says power or mains), across the parts
 above plus the other diodes of its own stack or bridge (diode_groups), never
 into ground or a DC node. Polarity knows which side of ground a supply sits
-on; this knows a winding feeds it. Report-only under the same switch.
+on; this knows a winding feeds it. It blocks under the same switch.
 
 ------------------------------------------------------------------------------
 ELECTROLYTIC POLARITY (2026-09-11) — REPORT-ONLY, a drift-gated worklist
@@ -126,15 +126,15 @@ reference/electrolytics.yaml by --export, and a full run fails when that file
 is stale. They join res.errors only when ELECTROLYTIC_BLOCKING is set.
 
 ------------------------------------------------------------------------------
-SHORTED PARTS (2026-09-11) — REPORT-ONLY, its own switch
+SHORTED PARTS (2026-09-11) — BLOCKING, its own switch
 ------------------------------------------------------------------------------
 A two-lead part (resistor, capacitor, diode, choke; an off-board kind: part
 stub; an off-board choke with two leads) whose a and b land on ONE net is
 shorted out. shorted_parts reads the board AS DRAWN, a fresh LayoutGraph
 before any net_map union, because a series_bridge or a pair of co-anchored
 leads joins two ends on purpose. It found none on 6ce2a23 (1,730 parts), so
-it keeps no worklist; findings join res.errors when SHORTED_PART_BLOCKING is
-set.
+it keeps no worklist, and SHORTED_PART_BLOCKING is set: a shorted part is a
+DIFF that fails the run on every board (BLOCKING_PREFIXES).
 
 ------------------------------------------------------------------------------
 VERDICT + GATE
@@ -794,9 +794,9 @@ class Result:
         self.info: list[str] = []         # declared reconciliations
         self.anchor_class: dict = {}      # net_map anchor -> CONSTRAINING|REDUNDANT (H8)
         self.node_of_root: dict = {}      # the solved map: layout net root -> node
-        self.polarity: list = []          # board_polarity() verdicts, report-only
+        self.polarity: list = []          # board_polarity() verdicts
         self.electrolytics: list = []     # board_electrolytics() verdicts, report-only
-        self.shorted_parts: list = []     # shorted_parts() on the drawn board, report-only
+        self.shorted_parts: list = []     # shorted_parts() on the drawn board
 
 
 def _invert_basing(basing: dict) -> dict:
@@ -1049,8 +1049,9 @@ def _check_layout(amp_id: str, layout: dict, bom: dict, net_map=None,
             break
     res = best[1]
     # Rectifier polarity, judged once on the winning trial's node map. It lands
-    # in res.polarity, never res.errors, so it cannot sway which half-assignment
-    # trial wins, and it blocks nothing until POLARITY_BLOCKING is set.
+    # in res.polarity, not in the trials' errors, so it cannot sway which
+    # half-assignment trial wins; POLARITY_BLOCKING (set since 2026-09-11) then
+    # adds each REVERSED or UNFED rectifier to res.errors below.
     volts = node_volts(amp_id, netlist_path)
     modelled = {c.ref for c in comps if c.kind in ("R", "C", "L")}
     res.polarity = board_polarity(R, uf, res.node_of_root, volts, modelled)
@@ -1064,7 +1065,7 @@ def _check_layout(amp_id: str, layout: dict, bom: dict, net_map=None,
                 res.errors.append(f"REVERSED ELECTROLYTIC: {c['ref']}: {c['why']} "
                                   f"({c['desc']})")
     # Shorted parts, read on the board AS DRAWN (a fresh LayoutGraph, before
-    # the net_map unions above). Report-only until SHORTED_PART_BLOCKING.
+    # the net_map unions above). SHORTED_PART_BLOCKING (set) makes each a DIFF.
     res.shorted_parts = shorted_parts(R)
     if SHORTED_PART_BLOCKING:
         for s in res.shorted_parts:
@@ -1280,11 +1281,11 @@ def _solve(amp_id, layout, R, LG, uf, comps, nodes, net_map, part_terms,
     return res
 
 
-# Report-only until the board-repair wave has corrected every `cathode:` field
-# the boards copied from backwards sheets. Set it True once a default run prints
-# an empty REVERSED list: each REVERSED diode then joins res.errors and fails a
-# board claiming wiring_claim: verified like any other DIFF.
-POLARITY_BLOCKING = False
+# BLOCKING since 2026-09-11, when the board-repair wave left the REVERSED list
+# empty: a REVERSED or UNFED board rectifier joins res.errors, and main() fails
+# the run for it on EVERY board, claimed or not (BLOCKING_PREFIXES). Diodes the
+# model cannot decide stay listed as not checked.
+POLARITY_BLOCKING = True
 
 
 class _BoardNodes:
@@ -1469,7 +1470,7 @@ def board_polarity(R: Renderer, uf: UF, M: dict, volts: dict,
         p["cathode"] = end
         out.append(p)
 
-    # ---- rectifier feed (UNFED RECTIFIER), report-only like polarity. -------
+    # ---- rectifier feed (UNFED RECTIFIER), under polarity's switch. --------
     # Polarity says which side of ground a supply sits on, not that a winding
     # feeds it. A diode the model gives a role (rectifier_role) is walked from
     # its AC side to a power-transformer lead, across the parts above plus the
@@ -1722,7 +1723,7 @@ def _print_electrolytic_summary(electro: dict):
 
 
 # ============================================================================
-# shorted parts (2026-09-11) — report-only, its own switch
+# shorted parts (2026-09-11) — BLOCKING, its own switch
 # ============================================================================
 # A two-lead part whose two leads the drawing puts on ONE board net is shorted
 # out: a resistor that drops nothing, a cap that couples or filters nothing, a
@@ -1732,8 +1733,9 @@ def _print_electrolytic_summary(electro: dict):
 # this reads the board AS DRAWN: a fresh LayoutGraph of runs, eyelets and the
 # ground bus, before any net_map union. The 6G6-B's C13 was one: its lower
 # eyelet shared RB1.b while a run also took it to the bus. The sheet-side twin
-# lives in verify_schematic_nets.
-SHORTED_PART_BLOCKING = False
+# lives in verify_schematic_nets. None were found on 6ce2a23 (1,730 parts), so
+# it blocked from the day it went in: every shorted part fails the run.
+SHORTED_PART_BLOCKING = True
 SHORTED_PART_CATS = {"res", "film", "mica", "electro", "diode", "choke"}
 
 
@@ -2449,11 +2451,13 @@ def selftest() -> int:
           f"5f10's correct wiring still PASSES: "
           f"{'OK' if h9_fp_ok else 'FAIL ' + str(r10.errors[:2])}")
 
-    # ---- rectifier polarity through the board's own node map. The list is
-    #      report-only, but the rule must still bite: the 5F8-A's bias
-    #      rectifier reaches the -41 V rail only through RB1, so this also
-    #      proves the walk across an unmodelled resistor. ----------------------
-    print("=== rectifier polarity (report-only list; the rule itself must bite) ===")
+    # ---- rectifier polarity through the board's own node map. The rule must
+    #      bite, and while POLARITY_BLOCKING is set a REVERSED band must fail
+    #      the board's verdict. The 5F8-A's bias rectifier reaches the -41 V rail
+    #      only through RB1, so this also proves the walk across an unmodelled
+    #      resistor. -------------------------------------------------------------
+    print(f"=== rectifier polarity ({'blocking' if POLARITY_BLOCKING else 'report-only'};"
+          f" the rule itself must bite) ===")
     l8a, b8a = _load_layout("5f8a")
     base8a = _check_layout("5f8a", l8a, b8a)
     pol_results: list = []
@@ -2470,7 +2474,13 @@ def selftest() -> int:
               f"{'OK' if verdict == want else 'FAIL'}")
         if got:
             print(f"          -> {(got['why'] + ' ') if got['why'] else ''}[{got['desc']}]")
-        if end == "b" and not POLARITY_BLOCKING:
+        if end == "b" and POLARITY_BLOCKING:
+            gated = (not r.ok) and any(e.startswith("REVERSED DIODE: D1")
+                                       for e in r.errors)
+            pol_results.append(gated)
+            print(f"  [POL] BLOCKING: the REVERSED diode is a DIFF and fails the "
+                  f"board's verdict: {'OK' if gated else 'FAIL'}")
+        elif end == "b":
             same = r.ok == base8a.ok and sorted(r.errors) == sorted(base8a.errors)
             pol_results.append(same)
             print(f"  [POL] a REVERSED diode leaves the wiring verdict untouched "
@@ -2494,6 +2504,11 @@ def selftest() -> int:
           f"{'OK' if got.get('verdict') == 'UNFED' else 'FAIL'}")
     if got.get("why"):
         print(f"          -> {got['why']}")
+    if POLARITY_BLOCKING:
+        gated = (not r.ok) and any(e.startswith("UNFED RECTIFIER: D1") for e in r.errors)
+        pol_results.append(gated)
+        print(f"  [FEED] BLOCKING: the UNFED rectifier is a DIFF and fails the "
+              f"board's verdict: {'OK' if gated else 'FAIL'}")
 
     # ---- electrolytic polarity: the drawn '+' against the DC sign. The list is
     #      report-only, but the rule must bite in both directions, and the joint
@@ -2536,7 +2551,8 @@ def selftest() -> int:
               f"joint -> {c3['verdict'] if c3 else 'absent'}: {'OK' if decided else 'FAIL'}")
 
     # ---- shorted parts: a two-lead part with both leads on one DRAWN net. -----
-    print("=== shorted parts (read on the board as drawn; report-only) ===")
+    print(f"=== shorted parts (read on the board as drawn; "
+          f"{'blocking' if SHORTED_PART_BLOCKING else 'report-only'}) ===")
     sp_results: list = []
 
     def _cat(bm, ref):
@@ -2556,7 +2572,13 @@ def selftest() -> int:
           f"and {rp['b']} -> {'CAUGHT' if hit else 'MISSED'}")
     if hit:
         print(f"          -> {hit[0]['ref']}: {hit[0]['cause']}, net {hit[0]['net'][:5]}")
-    if not SHORTED_PART_BLOCKING:
+    if SHORTED_PART_BLOCKING:
+        gated = (not r.ok) and any(e.startswith(f"SHORTED PART: {rp['ref']}")
+                                   for e in r.errors)
+        sp_results.append(gated)
+        print(f"  [SHORT] BLOCKING: the planted short is a DIFF and fails the "
+              f"board's verdict: {'OK' if gated else 'FAIL'}")
+    else:
         quiet = not any(e.startswith("SHORTED PART") for e in r.errors)
         sp_results.append(quiet)
         print(f"  [SHORT] the planted short stays out of the DIFF lines while "
@@ -2620,6 +2642,14 @@ def selftest() -> int:
 # ============================================================================
 # entry
 # ============================================================================
+# Findings that fail the run on EVERY board, claimed or not. A wiring claim is
+# about DC equivalence; a reversed band, an unfed rectifier and a shorted part
+# are physical faults a builder would copy whatever the board claims. Each is in
+# res.errors only while its switch is set (ELECTROLYTIC_BLOCKING is still off).
+BLOCKING_PREFIXES = ("REVERSED DIODE:", "UNFED RECTIFIER:", "SHORTED PART:",
+                     "REVERSED ELECTROLYTIC:")
+
+
 def main(argv: list[str]) -> int:
     if argv and argv[0] == "--analyze":
         return analyze(argv[1])
@@ -2640,6 +2670,7 @@ def main(argv: list[str]) -> int:
     polarity: list = []
     electro: dict = {}
     shorted: list = []
+    physical: list = []
     for d in amp_dirs:
         if only and d.name != only:
             continue
@@ -2647,6 +2678,8 @@ def main(argv: list[str]) -> int:
         polarity.extend((d.name, p) for p in res.polarity)
         electro[d.name] = res.electrolytics
         shorted.extend((d.name, s) for s in res.shorted_parts)
+        if any(e.startswith(BLOCKING_PREFIXES) for e in res.errors):
+            physical.append(d.name)
         checked += 1
         if not res.ok:
             if res.claim:
@@ -2659,6 +2692,9 @@ def main(argv: list[str]) -> int:
     if hard_fail:
         print("BLOCKING: an amp claims its wiring is verified but it is not "
               "electrically equivalent to the netlist.")
+    if physical:
+        print(f"BLOCKING: {', '.join(physical)} draw(s) a reversed or unfed rectifier "
+              f"or a shorted part; these fail the run on every board, claimed or not.")
     _print_polarity_summary(polarity)
     _print_electrolytic_summary(electro)
     print(f"\nshorted two-lead parts on the boards, read as drawn: {len(shorted)} "
@@ -2671,7 +2707,7 @@ def main(argv: list[str]) -> int:
     stale = [] if only else check_electrolytic_worklist(electro)
     for line in stale:
         print(f"FAIL {line}" if not line.startswith("    ") else line)
-    return 1 if (hard_fail or stale) else 0
+    return 1 if (hard_fail or stale or physical) else 0
 
 
 def _print_polarity_summary(polarity: list):
@@ -2700,7 +2736,8 @@ def _print_polarity_summary(polarity: list):
     n_unc = sum(1 for _a, f in fs if f["verdict"] == "unchecked")
     print(f"rectifier feed on the boards: {n_fed + len(unfed)} rectifier(s) the "
           f"model gives a role; {n_fed} fed, {len(unfed)} UNFED; {n_cov} more walked "
-          f"as part of a stack or bridge, {n_unc} not checked (report-only, as above)")
+          f"as part of a stack or bridge, {n_unc} not checked "
+          f"({'blocking' if POLARITY_BLOCKING else 'report-only'}, as above)")
     for a, f in unfed:
         print(f"  UNFED {a} {f['ref']} ({f['role']} rectifier): {f['why']}")
 

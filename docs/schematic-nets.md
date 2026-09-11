@@ -306,8 +306,8 @@ than "not reversed": the drawn part keeps every clause **and** the same part
 turned round would break one, so the model actually decided it.
 
 The rule lives in `verify_layout_nets.judge_diode`, beside `parse_netlist`, so
-the board gate reads `cathode:` fields by exactly the same clauses (report-only
-there for now; see `docs/layout-schema.md`). Here `REVERSED DIODE` is a finding
+the board gate reads `cathode:` fields by exactly the same clauses (blocking
+there too since 2026-09-11; see `docs/layout-schema.md`). Here `REVERSED DIODE` is a finding
 like any other: it hard-fails a sheet that claims `schematic_claim: verified`.
 
 ## Rectifier feed

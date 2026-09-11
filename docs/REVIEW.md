@@ -223,8 +223,8 @@ of each supply, and holds every diode to it: a cathode on a node the model
 holds below −5 V, an anode on one above +50 V, or a part forward-biased by more
 than 1 V between two modelled nodes is `REVERSED DIODE` in
 `verify_schematic_nets.py` (blocking on a claimed sheet), and the same rule
-reads each board's `cathode:` in `verify_layout_nets.py` (report-only until its
-list is empty). Where a rectifier's own node sits behind parts the netlist does
+reads each board's `cathode:` in `verify_layout_nets.py` (blocking on every
+board since 2026-09-11). Where a rectifier's own node sits behind parts the netlist does
 not model, a bias row's resistor and trim pot or an HT standby switch, the
 check walks through them to the node it does model and prints the path. A diode
 nothing decides, like the inner diodes of a series HT stack, is listed as not

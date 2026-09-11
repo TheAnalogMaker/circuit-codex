@@ -75,19 +75,20 @@ python3 pipeline/render_og.py --check        # per-amp social cards match their 
 python3 pipeline/verify_layout_nets.py       # layout↔netlist equivalence (+--selftest)
                                   #   + rectifier polarity: every board diode's
                                   #   `cathode:` against the simulated sign of
-                                  #   the supply it sits on. REPORT-ONLY until
-                                  #   the REVERSED list it prints is empty, then
-                                  #   POLARITY_BLOCKING (docs/layout-schema.md)
+                                  #   the supply it sits on. BLOCKING on every
+                                  #   board, claimed or not, since 2026-09-11
+                                  #   (POLARITY_BLOCKING; docs/layout-schema.md)
                                   #   + UNFED RECTIFIER: a rectifier's AC side
                                   #   reaching no power-transformer lead
-                                  #   (report-only, same switch)
+                                  #   (blocking, same switch)
                                   #   + electrolytic polarity: each can's drawn
                                   #   '+' vs the DC sign; the worklist
                                   #   reference/electrolytics.yaml is drift-
                                   #   gated (regenerate with --export)
                                   #   + SHORTED PART: a two-lead part with both
                                   #   leads on one net, read as drawn
-                                  #   (report-only, SHORTED_PART_BLOCKING)
+                                  #   (blocking on every board,
+                                  #   SHORTED_PART_BLOCKING)
 python3 pipeline/check_heaters.py --selftest && \
 python3 pipeline/check_heaters.py            # heater wiring vs the amp's own declared
                                   #   supply, connection groups and returns, and

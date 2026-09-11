@@ -1042,7 +1042,7 @@ sets `wiring_claim: verified` is **hard-gated** (a failure fails CI); an amp
 without the claim is **report-only**. This mirrors `meta.yaml`'s
 `verification.status: verified` gate on the netlist itself.
 
-**Rectifier polarity: report-only until its list is empty.** A board diode's
+**Rectifier polarity: blocking since 2026-09-11.** A board diode's
 direction lives only in its `cathode: a|b` field, and the boards copied theirs
 from sheets on which 25 of 68 diodes turned out to be drawn backwards
 (2026-09-10). Every diode the board draws is judged through this board's own
@@ -1055,15 +1055,16 @@ below −5 V, its anode on one above +50 V, or it is forward-biased by more than
 and chokes (board or off-board), every lug of a pot, and a switch with exactly
 two terminals. A diode with no `cathode:` is drawn unbanded and listed as not
 checked. Each run prints every REVERSED diode with its amp, ref and both nodes'
-volts, per amp (`POLAR |`) and again in a closing summary. The findings sit
-apart from the DIFF lines and change no verdict while a board-repair wave
-corrects the copied fields. **The check becomes blocking once that list is
-empty:** set `POLARITY_BLOCKING = True` in `verify_layout_nets.py`, and a
-REVERSED diode then fails a board claiming `wiring_claim: verified` like any
-other DIFF.
+volts, per amp (`POLAR |`) and again in a closing summary. The list went
+empty on 2026-09-11, after a board-repair wave corrected the copied fields,
+and `POLARITY_BLOCKING` was set in `verify_layout_nets.py`. A REVERSED diode is
+now a DIFF, and it fails the run on **every** board, claimed or not: a wiring
+claim is about DC equivalence, and a reversed band is a physical fault a
+builder would copy whatever the board claims. Diodes the model cannot decide
+stay listed as not checked.
 
 The same run reads each board rectifier's **feed** (`UNFED RECTIFIER`,
-report-only under the same switch). A diode the model gives a role is walked
+blocking under the same switch). A diode the model gives a role is walked
 from its AC side to a lead of a power transformer: an `xfmr` stub whose label
 or BOM part says power or mains. The walk crosses the same parts plus the
 other diodes of its own stack or bridge, and never enters ground or a DC node.
@@ -1087,7 +1088,7 @@ verdicts join the DIFF lines only when `ELECTROLYTIC_BLOCKING` is set, which
 happens once `plus:` is declared and drawn and the file's `wrong` list is
 empty.
 
-**Shorted parts: report-only, its own switch.** A two-lead part whose two leads
+**Shorted parts: blocking, its own switch.** A two-lead part whose two leads
 the drawing puts on one net is shorted out: a resistor that drops nothing, a
 cap that couples or filters nothing, a diode that rectifies nothing. That
 covers resistors, capacitors, diodes and chokes in `parts[]`, off-board
@@ -1098,7 +1099,8 @@ grid stopper, or transformer leads anchored to one node. So this check reads
 the board **as drawn**, runs, eyelets and the ground bus, before any `net_map`
 union. Each finding names its cause: one eyelet, the ground bus, or a run or
 shared eyelet. It found none on 6ce2a23 across 1,730 parts, so it keeps no
-worklist. Its findings join the DIFF lines once `SHORTED_PART_BLOCKING` is set.
+worklist, and `SHORTED_PART_BLOCKING` is set: a shorted part is a DIFF that
+fails the run on every board, claimed or not, like a reversed band.
 
 `verify_layout_nets.py --selftest` (wired into CI) plants the adversarial audit's
 exact faults — one per proven hole class — and asserts each is caught: two
@@ -1113,17 +1115,18 @@ must pass *and* a broken pin on its real socket must be caught) and two
 **enumeration** cases (a mis-lugged pot ground and a bias resistor dropped on a
 live rail must surface in the unchecked-terminal report even though neither is a
 DC short). A rectifier-polarity case sets the 5F8-A's bias rectifier to
-`cathode: b` and requires REVERSED, reached through the unmodelled RB1, with an
-unchanged wiring verdict while the list is report-only. It then sets
+`cathode: b` and requires REVERSED, reached through the unmodelled RB1, and a
+DIFF that fails the board's verdict now that the check blocks. It then sets
 `cathode: a` and requires *confirmed*. A feed case requires that same
-rectifier to read *fed* as committed, and UNFED once its run from
+rectifier to read *fed* as committed, and UNFED, as a DIFF, once its run from
 `PT.red-blue` is deleted. Electrolytic cases take the 5F4's bias filter C15
 and the AB763's cathode bypass CKN1 as drawn (WRONG) and with the `+` turned to
 the other lead (right), and the 5F4's cathode bypass C3 both ways. They also
 require the JTM100's series-stacked C13 and C14 to be decided through their
 joint. Shorted-part cases plant a run between one resistor's two eyelets
 on the 5F1 and a run between an off-board stub's two terminals; each must be
-reported, the 5F1 as committed must report none, and a `series_bridge`
+reported (the first as a DIFF), the 5F1 as committed must report none, and
+a `series_bridge`
 stopper is never read as shorted. A gate that can't catch planted faults is
 decoration.
 
