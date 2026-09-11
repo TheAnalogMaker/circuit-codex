@@ -284,7 +284,7 @@ amps:
       anchors: 22
       board_only: 0
       merged: 0
-      misplaced: 4
+      misplaced: 2
       pot_as_resistor: 0
       pot_orientation_flipped: 0
       section_swap: 0
@@ -296,9 +296,7 @@ amps:
       unresolved: 0
     merged: []
     misplaced:
-    - D1
     - R1s
-    - RB1
     - VR2#ends
     pot_as_resistor: []
     pot_orientation_flipped: []
@@ -1775,7 +1773,7 @@ summary:
   board_only: 5
   claimed_amps_with_findings: 32
   merged: 18
-  misplaced: 77
+  misplaced: 75
   pot_as_resistor: 1
   pot_orientation_flipped: 18
   section_swap: 3

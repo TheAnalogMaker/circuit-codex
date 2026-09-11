@@ -174,7 +174,7 @@ s.wire(212.09, 114.54, 214.63, 114.54)
 s.glabel("GND", 214.63, 114.54, 0)
 
 # ---- power supply -------------------------------------------------------
-s.text("Power supply — HT winding, 5Y3GT full-wave (heaters, PT primary, AC switch/fuse omitted)", 22, 158, 1.5)
+s.text("Power supply — HT winding, 5Y3GT full-wave (heaters, AC switch/fuse omitted)", 22, 158, 1.5)
 for x, ref, ht in [(45.72, "V5A", "HT_A"), (58.42, "V5B", "HT_B")]:
     s.glabel(ht, x, 157.5, 90)
     s.wire(x, 157.5, x, 160.16)
@@ -204,14 +204,18 @@ s.sym("C", "C10", "16u", 124.46, 181.61)
 s.gnd(124.46, 185.42)
 
 # ---- bias supply --------------------------------------------------------
-s.text("Bias supply — selenium rectifier off an HT tap -> -21 V (25u x2)", 138, 160, 1.3)
-s.glabel("HT_B", 138, 168, 180)
-s.wire(138, 168, 141.91, 168)
-s.sym("DIODE_SS", "D1", "SEL", 146.99, 168, lx=-2.0, ly=-5.4, rot=180, label_rot=0)
-s.wire(152.07, 168, 155.88, 168)
-l, r = s.series_h("R", "RB1", "6.8k", 159.69, 168)
-s.wire(155.88, 168, l, 168)
-s.wire(r, 168, 171.12, 168)
+# F-EF (schematic page 6378x3898; crop tmp/boards2/crops/5f10-schem-bias.png)
+# draws the bias feed from the HT winding's own tap between the top end and the
+# centre tap, through the 6800 INTO the selenium rectifier's "+" end, with the
+# 56K bleeder and the two 25 uF cans on the -21 V side. Until 2026-09-10 this
+# row hung the rectifier on a 5Y3GT plate (HT_B) and put the resistor after it.
+s.text("Bias supply — HT tap -> 6.8k -> selenium rectifier -> -21 V (25u x2)", 138, 160, 1.3)
+s.glabel("HT_TAP", 138, 168, 180)
+l, r = s.series_h("R", "RB1", "6.8k", 145.5, 168)
+s.wire(138, 168, l, 168)
+s.wire(r, 168, 151.92, 168)
+s.sym("DIODE_SS", "D1", "SEL", 157, 168, lx=-2.0, ly=-5.4, rot=180, label_rot=0)
+s.wire(162.08, 168, 171.12, 168)
 s.junction(166.04, 168)
 s.sym("R", "RB2", "56k", 166.04, 171.81)
 s.gnd(166.04, 175.62)
@@ -220,7 +224,25 @@ s.sym("C", "C11", "25u", 168.58, 171.81, lx=2.2)
 s.gnd(168.58, 175.62)
 s.glabel("-21V", 171.12, 168, 0)
 
+# ---- power transformer (HT winding + bias tap) -------------------------
+# Drawn so the bias feed starts where F-EF starts it: a fourth terminal on the
+# HT winding between one end and the centre tap (the lead the layout page
+# letters WHITE). The 5 V and 6.3 V windings, mains switch and fuse are not drawn.
+pt = s.pt("T2", "n/a", 188, 188, tap=True)
+s.wire(pt["pri1"][0], pt["pri1"][1], pt["pri1"][0] - 3, pt["pri1"][1])
+s.glabel("MAINS", pt["pri1"][0] - 3, pt["pri1"][1], 180)
+s.wire(pt["pri2"][0], pt["pri2"][1], pt["pri2"][0] - 3, pt["pri2"][1])
+s.glabel("MAINS N", pt["pri2"][0] - 3, pt["pri2"][1], 180)
+s.wire(pt["ht_a"][0], pt["ht_a"][1], pt["ht_a"][0] + 12, pt["ht_a"][1])
+s.glabel("HT_A", pt["ht_a"][0] + 12, pt["ht_a"][1], 0)
+s.wire(pt["tap"][0], pt["tap"][1], pt["tap"][0] + 2, pt["tap"][1])
+s.glabel("HT_TAP", pt["tap"][0] + 2, pt["tap"][1], 0)
+s.wire(pt["ht_ct"][0], pt["ht_ct"][1], pt["ht_ct"][0] + 12, pt["ht_ct"][1])
+s.gnd(pt["ht_ct"][0] + 12, pt["ht_ct"][1], 0)
+s.wire(pt["ht_b"][0], pt["ht_b"][1], pt["ht_b"][0] + 4, pt["ht_b"][1])
+s.glabel("HT_B", pt["ht_b"][0] + 4, pt["ht_b"][1], 0)
+
 s.write(OUT, [
-    "Heaters, PT primary, AC switch/fuse/pilot omitted — see the netlist and the sources list",
+    "Heaters, AC switch/fuse/pilot omitted — see the netlist and the sources list",
 ])
 print(f"wrote {OUT}")

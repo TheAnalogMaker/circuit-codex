@@ -41,7 +41,7 @@ items:
   - { ref: V4,  part: "Power tube",           value: "6V6GT",          role: "Push-pull output (lower)" }
   - { ref: V5,  part: "Rectifier tube",       value: "5Y3GT",          role: "Full-wave rectifier (V5A/V5B)" }
   - { ref: T1,  part: "Output transformer",   value: "Push-pull (impedance ratio not printed on the drawing)", role: "Push-pull output into the speaker" }
-  - { ref: "—", part: "Power transformer",    value: "HT (center-tapped) · 6.3 V · 5 V", role: "HT + heaters + rectifier filament (no part number on the drawing)" }
+  - { ref: T2,  part: "Power transformer",    value: "HT (center-tapped, bias tap) · 6.3 V · 5 V", role: "HT winding with a centre tap and a bias tap between one end and the centre tap (the white lead) + heaters + rectifier filament (no part number on the drawing)" }
   - { ref: "—", part: "Film capacitor",       value: "0.05 µF · 600 V", role: "AC-line filter caps (×2, annotation only)" }
   - { ref: "—", part: "Fuse",                 value: "¾ A",            role: "AC mains fuse (annotation only)" }
   - { ref: "—", part: "Switch",               value: "SPST",           role: "AC power switch (annotation only)" }

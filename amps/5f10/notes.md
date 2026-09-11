@@ -22,9 +22,9 @@ stoppers → output transformer → speaker. A **56 kΩ negative-feedback** resi
 runs from the speaker back to the driver's cathode.
 
 Power: HT winding → **5Y3GT** → **+305 V** plates (16 µF) → 470 Ω → **+302 V**
-screens → 22 kΩ → **+250 V** preamp (16 µF). The bias supply is a selenium
-rectifier off an HT tap, filtered by 6.8 kΩ / 56 kΩ and two 25 µF cans, giving
-the **−21 V** grid line.
+screens → 22 kΩ → **+250 V** preamp (16 µF). The bias supply takes a tap on
+the HT winding through a 6.8 kΩ series resistor into a selenium rectifier; a
+56 kΩ bleeder and two 25 µF cans sit on the **−21 V** grid line.
 
 ## Fixed bias in a tweed
 

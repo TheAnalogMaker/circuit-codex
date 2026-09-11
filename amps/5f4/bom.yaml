@@ -64,6 +64,5 @@ items:
   - { ref: V6,  part: "Rectifier tube",       value: "5U4G",           role: "Full-wave rectifier (V6A/V6B)" }
   - { ref: T1,  part: "Power transformer",    value: "Fender 8087",    role: "HT winding with a centre tap and a bias tap between one end and the centre tap (the layout letters that lead red-blue), 5 V rectifier-filament and 6.3 V heater windings; the bias rectifier is fed from the tap, not from a rectifier plate" }
   - { ref: T3,  part: "Output transformer",   value: "Fender 45216",   role: "Push-pull output into 2 × 10 in speakers" }
-  - { ref: "—", part: "Power transformer",    value: "Fender 8087",    role: "HT + heaters + rectifier filament" }
   - { ref: "—", part: "Mica capacitor",       value: "100 pF",         role: "Bright cap across VR1 (annotation only on schematic)" }
   - { ref: "—", part: "Film capacitor",       value: "0.05 µF · 600 V (×2)", role: "AC-line filter caps (annotation only)" }
