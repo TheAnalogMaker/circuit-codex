@@ -145,6 +145,9 @@ runs:
   - { from: L1.lo, to: RD1.a, via: [[-0.8, 0.84], [3.7, 0.84]] }
   - { from: RD1.b, to: RD2.a, via: [[5.6, -0.42], [22.6, -0.42]] }
   - { from: RD2.b, to: C14.a, via: [[24.4, 0.52], [28.6, 0.52]] }
+  # C14's negative lead: I-EG's layout runs the 8 µF can's other eyelet straight up
+  # to the chassis-ground lead (the ▲ above it); here it drops to the ground bus.
+  - { from: C14.b, to: [1.45, 30.4], via: [[30.6, 0.35], [30.4, 0.8]] }
 
   # --- bias supply: PT red-blue -> selenium rectifier -> 15k -> 56k -> -41 V -
   - { from: D1.b, to: RB1.a, via: [[1.4, 2.55], [0.95, 1.7]] }
@@ -219,7 +222,7 @@ runs:
   - { from: C7.b, to: RT2.b, via: [[17.35, 0.72], [20.55, 0.72]] }
 
   # --- V2A driver + V2B cathode follower -------------------------------------
-  - { from: C14.a, to: RL3.a, via: [[29.2, -0.3], [30.9, -0.3]] }
+  - { from: C14.a, to: RL3.a, via: [[29.2, -0.3], [31.25, -0.3], [31.25, 0.3], [31.0, 0.62]] }   # descends clear of C14's grounded eyelet, into RL3.a from above
   - { from: RL3.b, to: V2.pin6, via: [[32.35, 1.22], [40.61, 1.22], [40.61, 1.55]] }
   - { from: RL3.b, to: V2.pin2, via: [[32.6, 0.66], [37.94, 0.66], [37.94, 2.2]] }
   - { from: V2.pin1, to: RL2.a, via: [[38.59, 2.46], [38.59, 2.9], [36.4, 2.9], [36.4, 0.5]] }
