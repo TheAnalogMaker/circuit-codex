@@ -313,8 +313,12 @@ s.glabel("MIXG", 190, YR + 12, 0)             # dry+reverb mix -> mix-driver gri
 # NO resistor: the drawing boxes the pin [E] and returns it to the 820 Ohm /
 # 25 uF drawn at V3B, so the label is the connection.
 YM = YR + 22
+# The label must TOUCH the grid lead: set 4 mm short of it (x=196 against a
+# wire starting at 200) the reverb mix RMR and the photocell drew on a net of
+# their own, and the mix driver's grid on another — a break no netlist gate
+# sees, because both parts sit in the abstracted mix network.
 s.glabel("MIXG", 196, YM, 180)
-s.wire(200, YM, 204, YM)
+s.wire(196, YM, 204, YM)
 s.junction(204, YM)
 s.sym("R", "RGD1", "3.3M", 204, YM + 3.81)    # grid leak / tremolo shunt node
 s.gnd(204, YM + 7.62)

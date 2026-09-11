@@ -849,7 +849,7 @@
     (effects (font (size 1.27 1.27)) (justify left)) (uuid "69fb3d3e-a46c-52aa-aec1-5e8c371fe9a5"))
   (global_label "MIXG" (shape input) (at 205.7 150.278 180)
     (effects (font (size 1.27 1.27)) (justify right)) (uuid "f1c6ea7a-5548-50f5-9ee6-90ed605f53de"))
-  (wire (pts (xy 209.7 150.278) (xy 213.7 150.278))
+  (wire (pts (xy 205.7 150.278) (xy 213.7 150.278))
     (stroke (width 0) (type default)) (uuid "ff372dda-927d-54bf-a3b2-0d5bd12d9726"))
   (junction (at 213.7 150.278) (diameter 1.467) (color 0 0 0 0) (uuid "3c9a31ed-767d-58b2-86c5-1d6da56bf036"))
   (symbol (lib_id "cx:R") (at 213.7 154.088 0) (unit 1)
