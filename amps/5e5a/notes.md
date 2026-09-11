@@ -1,152 +1,125 @@
 # 5E5-A — Tweed Pro-style
 
 The last and best-known tweed revision of Fender's Pro amp: a two-channel
-12AY7 front end feeding a shared second gain stage, a passive James tone
-network (Bass, Treble, Presence), a 12AX7 driver + split-load (cathodyne)
-phase inverter, and a fixed-bias 6L6GB pair into a single 15-inch speaker.
-Produced 1956–1960, it is the circuit that reintroduced negative feedback
-(and the Presence control) after the immediately preceding 5E5 had removed
-both. It is also the tweed 5-series' hottest front end: mic and instrument
-each get their own gain stage before they are ever mixed, and the mixed
-signal gets a *second* shared gain stage before the tone network — where the
-5F6-A Bassman goes straight from its mixed node into a cathode follower, the
-Pro interposes a full extra 12AY7 triode.
+12AY7 front end, a second 12AY7 used as a gain stage DC-coupled into a
+cathode follower, a follower-fed Treble/Bass network with a Presence control,
+a 12AX7 driver + split-load (cathodyne) phase inverter, and a fixed-bias
+6L6GB pair into a single 15-inch speaker. Produced 1956–1960, it is the
+circuit that reintroduced negative feedback (and the Presence control) after
+the immediately preceding 5E5 had removed both. Mic and instrument each get
+their own gain stage before they are mixed, and the mixed signal gets a
+second gain stage and a cathode follower before the tone controls — the shape
+the 5F4 Super, 5E4-A Super and 5F6-A Bassman in this corpus also use.
 
 ## Circuit walkthrough (short form)
 
-Mic channel (68k stopper, 1M leak) → **V1A** 12AY7 ↘
-Instrument channel (68k stopper, 1M leak) → **V1B** 12AY7 ↗ shared 820 Ω
-cathode, 100k plates → 0.02 µF couplers → 1M MIC VOL / INST VOL pots → 270k
-mixers → **V2**, a single shared 12AY7 triode (100k plate, 1.5k cathode; the
-tube's second triode is idle) → the passive **James tone network** (1M Bass,
-1M Treble) → **V3A** 12AX7 driver (100k plate, 1.5k cathode) → 0.02 µF →
-**V3B split-load cathodyne**: 56k plate, 1.5k + 56k under the cathode, 1M
+Instrument channel (68 kΩ stopper, 1 MΩ leak) → **V1A** 12AY7 ↘
+Mic channel (68 kΩ stopper, 1 MΩ leak) → **V1B** 12AY7 ↗ shared 820 Ω
+cathode, 100 kΩ plates → 0.02 µF couplers → 1 MΩ INST VOL / MIC VOL pots
+(a 100 pF bright cap across INST VOL only) → 270 kΩ mixers → **V2A**, a 12AY7
+gain stage (100 kΩ plate, 1.5 kΩ cathode bypassed by 25 µF), DC-coupled into
+**V2B**, the same bottle's other section, a cathode follower with a 100 kΩ
+cathode load.
+
+The follower's cathode feeds the tone network: two branches that recombine
+at the driver's grid. **Treble**: 250 pF into the Treble pot, whose other end
+is bled to ground through 0.01 µF; the pot's wiper is the network's output.
+**Bass**: 0.1 µF into a branch with 220 kΩ to ground and 100 kΩ onward into
+the Bass pot's *wiper* (one end of that pot grounded, the other returned
+through 0.005 µF), then 220 kΩ from that wiper to the output. A 5 MΩ resistor
+runs from V2A's grid back to the bass branch; because the branch's 220 kΩ
+holds that node at 0 V, it is also V2A's DC grid reference.
+
+→ **V3A** 12AX7 driver (100 kΩ plate, 1.5 kΩ cathode) → 0.02 µF → **V3B
+split-load cathodyne**: 56 kΩ plate, 1.5 kΩ + 56 kΩ under the cathode, 1 MΩ
 grid leak returned to the junction → 0.1 µF couplers from the cathodyne's
-**plate and cathode** into 1.5k stoppers → **6L6GB pair**, fixed-biased
-through 220k leaks, screens tied straight to the screens rail → output
+**plate and cathode** into 1.5 kΩ stoppers → **6L6GB pair**, fixed-biased
+through 220 kΩ leaks, screens tied straight to the screens rail → output
 transformer into the 15-inch speaker (with an external-speaker jack). A
-100k negative-feedback resistor returns from the speaker/OT-secondary node to
-a 5k **Presence** pot's hot lug (the pot's other lug grounded), its wiper
-coupling through 0.1 µF into the **driver's (V3A) grid** — not the cathode,
-where the 5F4 Super puts the same tap. It is an AC-only path sitting at about
-0 V DC, so the DC netlist does not carry it either way.
+100 kΩ negative-feedback resistor returns from the speaker to the **driver's
+cathode**, and the 5 kΩ **Presence** control hangs on the same node — a
+rheostat to ground through 0.1 µF, which shunts the fed-back treble away so
+that turning it up leaves the top end with less feedback.
 
-Power: 5U4GA rectifier → **+390 V** (power-tube plates) → choke → **+385 V**
-(screens) → rail dropper → **+300 V** (driver/PI) → rail dropper → **+250 V**
-(preamp). A selenium rectifier supplies the **−32 V** fixed-bias rail: 10 kΩ from
-a dedicated tap on the transformer's high-tension winding — between one end and
-the centre tap, the red-blue lead on the layout, never a rectifier plate — into
-the cell, then a 100 µF can with a 56 kΩ bleeder across it.
+Power: 5U4GA rectifier → **+390 V** (power-tube plates, 16 µF) → choke →
+**+385 V** (screens, 16 µF) → 10 kΩ → **+300 V** (driver/PI, 16 µF) → 10 kΩ →
+**+250 V** (preamp, 8 µF). A selenium rectifier supplies the **−32 V**
+fixed-bias rail: 10 kΩ from a dedicated tap on the transformer's high-tension
+winding — between one end and the centre tap, the red-blue lead on the
+layout, never a rectifier plate — into the cell, then a 100 µF can with a
+56 kΩ bleeder across it.
 
-## Two printed resistors the netlist does not model
+## The second stage
 
-The sheet prints two resistors around the shared second gain stage that the
-DC model deliberately leaves out. A **100 kΩ** (RFB1) sits across V2's own
-plate and grid; a **5 MΩ** (RBLEED) runs from V2's grid across to the driver's
-grid, in parallel with the whole coupling + grid-leak path between them. Both
-are legible enough to carry in the parts list. Modelled as plain DC resistors,
-they collapse V2's operating point — its plate falls to about 8 V against a
-printed +130 V — which contradicts the chart's own self-consistent class-A
-reading, so at least one leg almost certainly sits behind a coupling cap this
-copy of the drawing does not resolve. A DC block on the RBLEED path is the
-likelier reading: it explains why a plate-referenced 100 kΩ still lets the
-stage bias normally where a direct DC bridge does not. Both are therefore
-carried as parts, not guessed into the netlist. Whether either leg is
-capacitor-coupled wants the physical chassis or a sharper scan, and wants
-settling before any board drawing wires them as hard connections.
+The J-EE schematic draws V2 as one envelope with both sections in use, and
+the layout page confirms it at the socket. V2A's 100 kΩ plate load is
+soldered across the V2 socket from pin 6 — the follower's plate, straight on
+the +250 V rail — to pin 1, the gain stage's plate. A strap then runs from
+pin 1 to pin 7, the follower's grid. The follower's cathode (pin 8) runs to
+the eyelet printed +130 V, which carries the 100 kΩ load to ground and both
+tone-network feeds. The gain stage's grid (pin 2) goes to the 270 kΩ mixers'
+junction, and its cathode (pin 3) to the eyelet printed +1.9 V.
 
-The **James network's internal wiring** — which lugs the Bass and Treble pots
-land on, beyond their existence and 1 MΩ value, both confirmed on the layout
-sheet's panel row — is not resolved on this copy either. The region between
-V2's plate and the driver's grid is the densest ink on the sheet: a 1 MΩ pot
-flanked by a .01-400 and a .0005 cap, with the RFB1/RBLEED pair above it. The
-schematic redraws the network in the standard James shape (treble peak cap +
-pot, coupling cap, bass pot to ground) and captions it as such; its lug-level
-wiring is illustrative rather than a chart-verified claim — the same status as
-the rest of a draft circuit.
+The printed figures agree with that reading. A follower's cathode sits a
+volt or two above its grid, so a follower at 130 V puts V2A's plate near
+128 V. V2A's 100 kΩ load then drops about 122 V from the 250 V rail, which is
+1.2 mA — 1.8 V across its 1.5 kΩ cathode resistor, against the printed 1.9 V.
 
 ## Why the topology reads this way
 
 The published tube-complement summaries for this amp are terse — "half
 12AY7 / 12AY7 / half 12AX7" per channel plus "phase inverter: half 12AX7
-(split load)" — but read as *stage chains* rather than per-channel tube
-counts, they resolve to exactly the structure above: each channel keeps its
-own first triode, both channels share the second 12AY7 stage and the 12AX7
-driver, and the 12AX7's other half is the cathodyne. This corpus already
-documents the same driver + split-load cathodyne shape (not a long-tailed
-pair) on the 5F4 Super, built from the same Fender drafting office in the
-same years, which is the strongest structural cross-check available here.
+(split load)" — but read as *stage chains* they resolve to exactly the
+structure above. Each channel keeps its own first triode. Both channels share
+a *whole* second 12AY7, one section a gain stage and the other the
+cathode follower. The 12AX7's two halves are the driver and the cathodyne.
+The Treble/Bass network off the follower's cathode is the one the 5F4 Super
+and 5E4-A Super sheets draw, part for part, from the same Fender drafting
+office in the same years.
 
-## What is legible on this copy of the drawing, and what is not
+## What is legible on this copy of the drawing
 
-The J-EE sheet prints its voltage chart directly on the schematic rather than
-as a separate table, and everything below is read from a 300 dpi capture of
-the published PDF. Confidently legible, and used directly: the four
-rail voltages (+390/+385/+300/+250), the bias rail (−32 V), V1's shared
-cathode and both plates (+1.9 V / +130 V), V2's own plate and cathode
-(+130 V / +1.9 V), the driver's cathode (+1.6 V), and the cathodyne's cathode
-and 1.5k/56k junction (+58 V / +56.5 V — a consistent pair, implying ~1 mA
-through both legs, exactly the shape this corpus's 5F4 Super chart shows for
-the same stage). The James tone network's own component values (1M Bass, 1M Treble,
-5K Presence) and the front-end/output-stage resistor network (68k stoppers,
-1M leaks, 100k plates, 820 Ω shared cathode, 270k mixers, 56k cathodyne
-plate, 1.5k+56k cathodyne cathode legs, 220k output grid leaks, 0.1 µF
-output couplers) are also legible and match the values Fender reused across
-this exact tweed lineup (the 5F4 in this corpus uses every one of these figures
-in the same roles; the 5E3, which has no mixing resistors, uses all the rest).
+The published PDF carries each page as a single 1506 × 864 image, so
+rendering it at a higher resolution adds no detail. At that resolution every
+component value on the schematic page is legible, including V2's own
+resistors (100 kΩ plate load; 1.5 kΩ with 25 µF · 25 V on the cathode;
+100 kΩ under the follower) and both rail droppers (10 kΩ each). The schematic
+page leaves one part unlettered, the 12AX7's interstage coupler; the layout
+page prints 0.02 µF · 600 V on it. The layout page also prints three plate
+voltages the schematic page leaves out: +125 V on each of V1's plates, +190 V
+on the driver's plate and +245 V on the cathodyne's.
 
-**Not confidently legible**, and therefore carried at this corpus's standard
-value for the identical role rather than guessed digit-by-digit: V2's own
-plate and cathode *resistor values* (100k / 1.5k, matching 5f4's V2A — the
-printed *voltages* they produce, +130 V / +1.9 V, are legible and gated), and
-the two rail-dropper resistors between the screens node and the preamp node
-(16k / 22k — the second figure matches 5e3's own front-end dropper exactly;
-the first is derived from the printed +385→+300 V drop divided by the stage
-currents the rest of the netlist already fixes, ≈5.2 mA, giving ≈16 kΩ). The
-driver's and cathodyne's own plate voltages remain uncharted — carried in the
-voltage table as informational only, never gated. A maintainer with a
-sharper scan or the physical chassis should confirm or correct these
-three values, plus resolve the RFB1/RBLEED coupling question above, before
-this circuit is considered for verified status.
+Two figures are estimated because no page letters them: the choke's DC
+resistance (about 110 Ω, from the printed +390 → +385 V drop) and the output
+transformer's primary impedance.
 
 ## Verification
 
-Simulation passes all twelve chart-gated nodes within
-tolerance. The largest deviations are V2's pins — K2 at 10.8% and P2 at
-10.4% — then PAY1/PAY2 at 8.0%, all against the 20% tube-pin tolerance. The
-node nearest its own limit is a different one: BP4, the preamp rail furthest
-from the not-confidently-legible RD1/RD2 dropper estimates, sits 8.3% out
-against a 10% rail tolerance, and so uses more of its allowance than any tube
-pin does. K3A, the driver cathode, lands within 2.4% of its printed
-+1.6 V. The cathodyne cathode/junction pair (KPI/JPI) — the two most
-distinctively-shaped printed figures on this chart — land within 1%, the
-strongest single piece of evidence that the driver+cathodyne reading above is
-the circuit the sheet actually draws. As a draft circuit these are reported,
-not gated, and this circuit stays published as a draft until a maintainer
-confirms the remaining not-confidently-legible values and the RFB1/RBLEED
-coupling question.
+Simulation lands all 15 printed nodes within tolerance. The largest
+deviations are V1's shared cathode at 9.7%, the driver's plate at 8.9% and
+V1's plates at 8.8%, all against the 20% tube-pin allowance. The rails sit
+within 5.2% of their printed values against a 10% house tolerance. Both of
+V2's printed nodes — V2A's cathode and the follower's — land within 3.3%, as
+does the cathodyne's distinctive 58 V / 56.5 V cathode pair. As a draft
+circuit these are reported, not gated.
 
-The schematic on this page redraws the circuit above from the same J-EE sheet
-set. The caveat above says what stays illustrative rather than chart-verified
-(the James network's internal lug wiring).
+The 100 kΩ feedback resistor is left out of the DC model. At DC it only
+parallels the driver's 1.5 kΩ cathode resistor through the output
+transformer's secondary, which moves that node by less than 1%.
 
 ## The board
 
 The J-EE sheet set carries its own layout page ("FENDER 'PRO-AMP' LAYOUT
-MODEL 5E5-A"), so the board diagram here is redrawn from a factory drawing
-rather than derived from the schematic. It reads the way the sheet reads,
-left to right: the bias supply and the fixed-bias 6L6GB support at the power
-end; the driver and the split-load cathodyne in the centre, with the James
-tone network beside them; then the single-triode second stage and the 12AY7
-input pair. Column positions are this entry's own placement of that
-sequence, not a dimensioned transfer of the sheet's grid.
+MODEL 5E5-A"), and the board diagram on this page is redrawn from it, left to
+right as the sheet reads: the bias supply and the fixed-bias 6L6GB support at
+the power end, the driver and cathodyne in the centre, then the second stage
+and the 12AY7 input pair. Column positions are this entry's own placement of
+that sequence, not a dimensioned transfer of the sheet's grid.
 
-The drawn point-to-point wiring is proved electrically equivalent to the
-simulated circuit, so a lead traced across the board lands on the node the
-netlist gives it. Two things on the drawing are illustrative rather than
-proved. The James network's internal lug wiring is drawn in the simplified
-arrangement described above. And the presence control and its
-negative-feedback pair, along with V2's own plate-to-grid resistor and its
-long grid return, are chassis wiring rather than board wiring: they are real
-components, drawn on the schematic, and deliberately absent from the board
-diagram.
+The board diagram predates the reading of the second stage above. It still
+draws V2 as one triode on socket pins 6-7-8 with the tone network off its
+plate, and it has not yet been redrawn with the follower's load, the bass
+branch, the 5 MΩ return or the feedback resistor, all of which the factory
+layout places on the eyelet board. Where the board diagram and the schematic
+disagree about V2 and the tone network, the schematic is the reading of the
+drawing.

@@ -13,7 +13,7 @@ topology:
   rectifier: { kind: tube, type: "5U4GA" }
   bias: fixed
   phase_inverter: cathodyne
-  tone_stack: james
+  tone_stack: cathode-follower-tb   # the 5F4's split Treble/Bass network, fed from V2B's cathode
 lineage:
   derived_from: []   # the 5E5 (cathode-biased, no NFB) is the direct ancestor —
                       # edge added when that circuit lands; see history/families/pro.yaml
@@ -23,38 +23,37 @@ conventions:
   designators: functional   # designators carry a role code (RD1 dropper, RL4 plate load, CK1 cathode bypass)
 sources:
   - desc: "Fender 'Pro-Amp' Model 5E5-A schematic (J-EE): component values read
-      directly from the published drawing where legible, plus the printed
-      voltage chart embedded on the sheet itself (Fender's own convention:
-      'VOLTAGES READ TO GROUND WITH ELECTRONIC VOLTMETER, VALUES SHOWN +/- 20%')
-      — rails +390/+385/+300/+250, bias -32 V; V1 (12AY7, mic+instrument
-      channels) shared 820 ohm/dual-25uF cathode at +1.9 V, 100k plates at
-      +130 V; V3 (12AX7) driver cathode +1.4 V, split-load cathodyne cathode
+      directly from the published drawing, plus the printed voltage chart
+      embedded on the sheet itself (Fender's own convention: 'VOLTAGES READ TO
+      GROUND WITH ELECTRONIC VOLTMETER, VALUES SHOWN +/- 20%') — rails
+      +390/+385/+300/+250, bias -32 V; V1 (12AY7, mic+instrument channels)
+      shared 820 ohm/dual-25uF cathode at +1.9 V, 100k plates; V2 (12AY7) with
+      both sections used, a gain stage (1500 ohm/25uF cathode at +1.9 V, 100k
+      plate load) DC-coupled into a cathode follower (100k cathode load,
+      +130 V); V3 (12AX7) driver cathode +1.6 V, split-load cathodyne cathode
       +58 V over the 1.5k/56k junction at +56.5 V; two 68k stoppers and a 1M
-      leak per channel, 0.02uF couplers, 1M INST/MIC VOL pots, 270k mixers,
-      1M BASS and TREBLE pots with a 5k PRESENCE pot, 56k cathodyne plate load,
-      1M grid leak returned to the cathodyne junction, 220k output grid leaks,
-      0.1uF cathodyne-to-output couplers. Some rail-dropper and V2 (second
-      12AY7 stage) values were not confidently legible in this copy and are
-      carried at this corpus's standard values for the identical role elsewhere
-      in the tweed lineup (5E3, 5F4) rather than guessed digit-by-digit — see
-      the circuit story. Not reproduced here; archived at Schematic Heaven"
+      leak per channel, 0.02uF couplers, 1M INST/MIC VOL pots with a .0001
+      bright cap on INST only, 270k mixers, a 5 MEG from V2's grid to the tone
+      network's bass branch, the follower-fed Treble/Bass network (250 pF into
+      a 1M Treble pot with .01 to ground; .1 coupler, 220k leak, 100k into a
+      1M Bass pot's wiper with .005 on its far end, 220k to the driver grid),
+      a 5K PRESENCE pot and 100k feedback resistor on the driver's cathode,
+      56k cathodyne plate, 1M grid leak returned to the cathodyne junction,
+      220k output grid leaks, 0.1uF cathodyne-to-output couplers, two 10K rail
+      droppers, 16-450 filters at +390/+385/+300 and 8-450 at +250. The PDF
+      carries the page as one 1506 x 864 image, and every component value is
+      legible at that resolution. Not reproduced here; archived at Schematic
+      Heaven"
     url: "https://schematicheaven.net/fenderamps/pro_5e5a_schem.pdf"
   - desc: "Fender 'Pro-Amp' Model 5E5-A layout drawing (J-EE), same sheet set —
       corroborates the tube complement (5U4GA, 2x6L6GB, 12AX7, 2x12AY7), the
       BASS/TREBLE (1M) and PRESENCE (5K) pot values, and the two-input-per-channel
-      MIC/INST front panel, and is the source the board drawing is redrawn from"
-    url: "https://schematicheaven.net/fenderamps/pro_5e5a_schem.pdf"
-  - desc: "The same Fender 'Pro-Amp' Model 5E5-A schematic + layout sheet set
-      (J-EE) read at 300 dpi, which is the resolution the finer figures need:
-      the title block ('FENDER PRO-AMP SCHEMATIC/LAYOUT MODEL 5E5-A', J-EE),
-      V2's own plate and cathode voltages (+130/+1.9, both gated), the
-      driver's cathode (+1.6), a 100k resistor across V2's own plate and grid
-      and a 5 MEG resistor from V2's grid to the driver's grid (RFB1 and
-      RBLEED in the parts list — carried as parts, not modelled; see the
-      circuit story), and the negative-feedback + Presence tap landing on the
-      driver's GRID rather than its cathode. The source the schematic on this
-      page is drawn from. Not reproduced
-      here; archived at Schematic Heaven"
+      MIC/INST front panel; letters the interstage coupler the schematic leaves
+      blank (0.02 MFD 600 VOLTS) and prints the plate voltages the schematic
+      omits (V1 +125 V, driver +190 V, cathodyne +245 V); shows the socket pins
+      each stage uses (V2's gain stage on 1-2-3 with its 100k plate load across
+      pins 6 and 1, the follower on 6-7-8; V3's driver on 1-2-3, the cathodyne
+      on 6-7-8); and is the source the board drawing is redrawn from"
     url: "https://schematicheaven.net/fenderamps/pro_5e5a_schem.pdf"
   - desc: "Mojotone Fender Field Guide, 'Fender Narrow Panel Tweed Pro' — 5E5
       (1955)/5E5-A (1956-1960) dating, full tube complement (12AY7 mic/instrument,
@@ -65,22 +64,18 @@ sources:
     url: "https://mojotone.com/blogs/fender-field-guide/fender-narrow-panel-tweed-pro"
 verification:
   status: draft   # One reason, stated rather than tuned away.
-                  # The 300 dpi read of the J-EE sheet (see sources)
-                  # resolved V2's own plate/cathode voltages and the driver's
-                  # cathode digit; all are gated in voltages.yaml, 12/12
-                  # non-informational nodes green. Still open: V2's own resistor VALUES and the
-                  # two rail-dropper resistors (carried at this corpus's
-                  # standard values for the role, not guessed), the driver's
-                  # and cathodyne's uncharted plate voltages, and whether
-                  # RFB1/RBLEED (bom.yaml) sit behind a coupling cap this scan
-                  # doesn't resolve — flagged for a maintainer with a
-                  # still-sharper scan or the physical chassis.
-                  # The artifact set is otherwise complete: the board layout is
-                  # drawn from the J-EE layout sheet cited in sources, both
-                  # renders and the social card are present, and the drawn
-                  # wiring is proved electrically equivalent to netlist.cir.
-                  # WORK ITEM: settle the open values above against a sharper
-                  # scan, then re-run this verification.
+                  # The board drawing predates the 2026-09-10 reading of the
+                  # second stage: it still draws V2 as a single triode on socket
+                  # pins 6-7-8 with the tone network off its plate, and it lacks
+                  # the follower's load, the bass branch, the 5 MEG return and
+                  # the feedback resistor, all of which the J-EE layout page
+                  # places on the eyelet board. The netlist, chart and schematic
+                  # are otherwise complete: every component value is legible,
+                  # 15/15 printed nodes simulate within tolerance, and the sheet
+                  # is proved equivalent to netlist.cir. Estimated, because no
+                  # page letters them: the choke DCR and the OT primary.
+                  # WORK ITEM: redraw the board from the layout page, then
+                  # re-run this verification.
 # Day the circuit landed in the corpus (git history) — the feed's pubDate for a
 # draft; production builds are shallow clones and cannot ask git.
 added: 2026-08-08
