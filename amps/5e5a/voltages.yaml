@@ -1,35 +1,36 @@
-# Printed voltage chart read directly from the published 5E5-A (J-EE)
-# schematic — embedded on the sheet itself rather than tabulated separately,
-# under Fender's own printed convention: "VOLTAGES READ TO GROUND WITH
-# ELECTRONIC VOLTMETER, VALUES SHOWN + OR - 20%". Rails get a tighter 10%
-# house tolerance (this corpus's convention on 5e3/5f4); tube pins keep
-# Fender's own 20%.
+# Printed voltages from the published 5E5-A (J-EE) sheet set. The schematic
+# page prints its figures beside the nodes; the layout page prints the same
+# figures at the board eyelets plus three the schematic page leaves unlettered
+# (V1's plates, the driver's plate, the cathodyne's plate). Both pages carry
+# Fender's notice: "VOLTAGES READ TO GROUND WITH ELECTRONIC VOLTMETER, VALUES
+# SHOWN + OR - 20%". Rails get a tighter 10% house tolerance (this corpus's
+# convention on 5e3/5f4); tube pins keep Fender's own 20%.
 #
-# Re-read 2026-08-08 from a 300 dpi capture of the same schematicheaven.net
-# PDF (title block re-verified: "FENDER PRO-AMP SCHEMATIC MODEL 5E5-A J-EE"),
-# sharper than the compressed copy the data-core session had. Two corrections
-# against that session's reading: V2's own plate (+130 V) and cathode (+1.9 V)
-# — same printed figures as V1's, previously left informational — are now
-# confidently legible and gated below; the driver's cathode reads +1.6 V, not
-# +1.4 V (the digit was mis-read against the compressed scan). The netlist's
-# simulated K3A (1.6 V, unchanged) now lands on the chart exactly instead of
-# 11.6% off — corroborating evidence for the re-read digit, not just the sharper
-# scan alone. See notes.md for the two newly-legible annotation-layer
-# resistors (RFB1, RBLEED) this same re-read found.
-source: "Fender 5E5-A (J-EE) schematic, printed voltages: rails +390/+385/+300/+250, bias -32; V1 (12AY7) shared cathode +1.9, plates +130 (both channels, symmetric load); V2 (12AY7) own cathode +1.9, own plate +130 (same printed figures as V1, re-read 2026-08-08); V3B (12AX7 cathodyne) cathode +58 over the 1.5k/56k junction at +56.5; V3A (12AX7 driver) cathode +1.6 (re-read 2026-08-08, was +1.4)"
+# Re-read 2026-09-10 at the only resolution the published PDF carries — each
+# page is one 1506 x 864 image; a higher-dpi render of it adds no detail. Two
+# corrections to the earlier reading, both from reading the stage a figure sits
+# on rather than the figure alone. The +130 V printed beside V2 is the cathode
+# FOLLOWER's cathode, not a plate: V2 is a gain stage DC-coupled into a
+# follower, not one triode. And V1's plates, carried at that same +130 V, are
+# printed +125 V on the layout page; the schematic page prints no V1 plate
+# figure at all. The driver's and cathodyne's plates, previously uncharted, are
+# the layout page's +190 V and +245 V.
+source: "Fender 5E5-A (J-EE) sheet set, printed voltages. Schematic page: rails +390/+385/+300/+250, bias -32; V1 (12AY7) shared cathode +1.9; V2A (12AY7 gain stage) cathode +1.9; V2B (cathode follower) cathode +130; V3A (12AX7 driver) cathode +1.6; V3B (cathodyne) cathode +58 over the 1.5k/56k junction at +56.5. Layout page, at the board eyelets: the same figures plus V1's two plates +125, the driver's plate +190 and the cathodyne's plate +245"
 nodes:
-  BP2: { chart: 385, tol_pct: 10, note: "screens node (after the choke, DCR estimated at 110 R)" }
-  BP3: { chart: 300, tol_pct: 10, note: "driver/PI supply node (after the first rail dropper)" }
-  BP4: { chart: 250, tol_pct: 10, note: "preamp supply node (after the second rail dropper)" }
-  PAY1: { chart: 130, tol_pct: 20, note: "V1A (mic channel) plate" }
-  PAY2: { chart: 130, tol_pct: 20, note: "V1B (instrument channel) plate — same printed figure, symmetric 100k load" }
-  KAY: { chart: 1.9, tol_pct: 20, note: "V1 shared 820 R cathode (both triodes)" }
-  P2: { chart: 130, tol_pct: 20, note: "V2 (second 12AY7 stage) plate — same printed figure as V1's plates; re-read 2026-08-08 from a sharper scan (was informational)" }
-  K2: { chart: 1.9, tol_pct: 20, note: "V2 cathode — same printed figure as V1's shared cathode; re-read 2026-08-08 from a sharper scan (was informational). V2's own cathode resistor is a different, still-not-confidently-legible value from V1's 820R (V2 runs one triode, not two sharing the load), so the matching voltage is a coincidence of the design point, not a shared component" }
-  G3A: { chart: null, note: "informational — driver grid, DC-referenced through the abstracted James tone network's leak to ground" }
-  K3A: { chart: 1.6, tol_pct: 20, note: "V3A (12AX7 driver) cathode, 1.5 kOhm — re-read 2026-08-08 as +1.6 V (was misread +1.4 V); the netlist's simulated 1.6 V now matches exactly" }
-  P3A: { chart: null, note: "informational — driver plate; not confidently legible in this copy" }
-  PPI: { chart: null, note: "informational — cathodyne plate; not confidently legible in this copy" }
-  KPI: { chart: 58, tol_pct: 20, note: "V3B (cathodyne) cathode, 1.5 kOhm above the 56 kOhm leg" }
-  JPI: { chart: 56.5, tol_pct: 20, note: "1.5 kOhm/56 kOhm junction — the cathodyne grid's DC reference through the 1 MOhm leak; the printed 58/56.5 pair implies ~1 mA through both legs, consistent with a 12AX7 cathodyne at this bias" }
-  G61: { chart: -32, tol_pct: 10, note: "6L6GB fixed bias via 220k from the -32 V supply (zero grid current, so this equals the bias rail exactly)" }
+  BP1: { chart: 390, tol_pct: 10, note: "rectifier output and power-tube plate node, ahead of the choke — the simulation drives this node at the printed figure, so it matches by construction" }
+  BP2: { chart: 385, tol_pct: 10, note: "screens node, after the choke (DCR estimated at 110 Ω)" }
+  BP3: { chart: 300, tol_pct: 10, note: "driver/phase-inverter node, after the first 10 kΩ dropper" }
+  BP4: { chart: 250, tol_pct: 10, note: "preamp node, after the second 10 kΩ dropper" }
+  PAY1: { chart: 125, tol_pct: 20, note: "V1A (instrument channel) plate — printed on the layout page at this plate's eyelet; the schematic page prints no V1 plate figure" }
+  PAY2: { chart: 125, tol_pct: 20, note: "V1B (mic channel) plate — the layout page prints the same +125 V at this plate's eyelet" }
+  KAY: { chart: 1.9, tol_pct: 20, note: "V1's shared 820 Ω cathode (both triodes), printed on both pages" }
+  P2A: { chart: null, note: "informational — V2A's plate, which is also the cathode follower's grid; neither page prints a figure here" }
+  K2A: { chart: 1.9, tol_pct: 20, note: "V2A (gain stage) cathode, 1.5 kΩ bypassed by 25 µF — printed on both pages, the same figure as V1's cathode" }
+  KCF: { chart: 130, tol_pct: 20, note: "V2B (cathode follower) cathode, 100 kΩ to ground — printed on both pages. Consistent with V2A's printed cathode: a follower at 130 V holds its grid, V2A's plate, near 128 V, so V2A's 100 kΩ load drops about 122 V from the 250 V rail — 1.2 mA, or 1.8 V across its 1.5 kΩ against the printed 1.9 V" }
+  G3A: { chart: null, note: "informational — the driver's grid, returned to ground through the tone network's resistive branch (220 kΩ, 100 kΩ, 220 kΩ); no figure is printed and none is needed, since no grid current flows" }
+  K3A: { chart: 1.6, tol_pct: 20, note: "V3A (12AX7 driver) cathode, 1.5 kΩ — printed on both pages. The 100 kΩ feedback resistor and the Presence control land on this node too" }
+  P3A: { chart: 190, tol_pct: 20, note: "V3A (driver) plate, 100 kΩ load from the 300 V rail — printed on the layout page at this plate's eyelet. Consistent with the printed cathode: 1.6 V across 1.5 kΩ is 1.07 mA, and 300 V less 107 V is 193 V" }
+  PPI: { chart: 245, tol_pct: 20, note: "V3B (cathodyne) plate, 56 kΩ load from the 300 V rail — printed on the layout page at the eyelet feeding the upper output coupler. Consistent with the cathode pair: 55 V across 56 kΩ is 0.98 mA, the same current the 58 V / 56.5 V pair implies" }
+  KPI: { chart: 58, tol_pct: 20, note: "V3B (cathodyne) cathode, 1.5 kΩ above the 56 kΩ leg" }
+  JPI: { chart: 56.5, tol_pct: 20, note: "1.5 kΩ/56 kΩ junction — the cathodyne grid's DC reference through the 1 MΩ leak; the printed 58/56.5 pair implies about 1 mA through both legs" }
+  G61: { chart: -32, tol_pct: 10, note: "6L6GB fixed bias via 220 kΩ from the −32 V supply (zero grid current, so this equals the bias rail exactly)" }
