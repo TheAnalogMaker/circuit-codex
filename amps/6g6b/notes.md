@@ -62,17 +62,28 @@ output transformer's secondary), and the front panel's 25 kΩ-L Presence pot
 bridging the 4.7 kΩ end to end with a 0.1 µF · 200 V cap on its wiper.
 
 **Output**: two 5881s, fixed-biased through 220 kΩ leaks from a −54 V
-supply (grounded cathodes, no cathode resistor), 470 Ω 1 W screen
-resistors off a +430 V tap, plates direct on +428 V.
+supply (grounded cathodes, no cathode resistor). Their plates hang on the
+output transformer's primary, whose centre tap the sheet letters +430 V —
+the same node as the reservoir — and the +428 V printed at the plate leads
+is the primary's own resistance. The 470 Ω 1 W screen stoppers come off the
+other end of the choke: node B, the +428 V node the dropper chain also
+leaves from.
 
 **Power**: a centre-tapped HT winding feeds two three-diode series legs — a
-solid-state full-wave rectifier; there is no rectifier tube. The chain runs
-+430 V (screens, at the reservoir) → choke (TR2, 125C1A) → +428 V (plates)
-→ 4.7 kΩ · 1 W → +410 V (phase inverter) → 27 kΩ · 1 W → +355 V (the Normal
-channel's whole lane). The Bass row's +230 V lane hangs off the +428 V node
-through its own 56 kΩ · 1 W dropper and a 20 µF · 600 V filter. A small
-silicon diode off an AC tap, 1 kΩ dropping, a 27 kΩ bleeder and a 25/50 µF
-dual can produce −54 V for the output bias.
+solid-state full-wave rectifier; there is no rectifier tube. Two 20 µF ·
+600 V cans in parallel are the reservoir, and past the standby switch that
++430 V node does two things: it runs up to the output transformer's primary
+centre tap, and it feeds the choke (TR2, 125C1A). The choke's far end is
+node B, +430 V less the choke's own resistance, printed +428 V — and every
+other lane comes off it: 4.7 kΩ · 1 W → +410 V (phase inverter) → 27 kΩ ·
+1 W → +355 V (the Normal channel's whole lane), with the Bass row's
++230 V lane on its own 56 kΩ · 1 W. Each of those nodes carries a
+20 µF · 600 V filter, and the two 470 Ω screen stoppers sit on node B
+alongside the droppers. A small silicon diode off an AC tap, 1 kΩ dropping,
+a 27 kΩ bleeder and a 25/50 µF dual can produce −54 V for the output bias.
+Only the two rectifier legs and the bias parts are on the eyelet board; the
+cans, the choke and the three droppers are chassis parts the layout page
+does not draw, and the board takes each lane as a lettered lead.
 
 ## Reading this drawing
 
@@ -135,9 +146,14 @@ The Presence pot itself is the one drawn DC path left out of the deck — pots
 are omitted corpus-wide — and including its 25 kΩ element would move the
 tail junction from 28.4 V to about 27.8 V, both inside the chart's ±20%.
 
-With the circuit the sheet actually draws, every gated node lands: the worst
-is V1A's cathode at 17.3% against the chart's own ±20% convention. The entry
-stays a draft only because a verified badge is a maintainer's to grant.
+With the circuit the sheet actually draws, every gated node but one lands
+inside the chart's own ±20% convention, and the three derived rails land
+within 2.8% of their printed figures. The exception is V1A's cathode:
+1.32 V simulated against a printed 1.1 V, 20.1% — a tenth of a percent
+outside. Its own lane is derived rather than driven and sits 2.8% above the
+printed +230 V; hold that lane at the printed figure instead and the same
+cathode reads 1.29 V, 17.4%. The entry stays a draft because that node is
+out, and because a verified badge is a maintainer's to grant.
 
 The board drawing follows the E-FB layout page, and it draws each channel's
 Bass, Treble and Volume network in full. The Normal channel's slope resistor

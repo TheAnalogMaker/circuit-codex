@@ -3,10 +3,12 @@
 # against this sheet and against netlist.cir. See docs/schematic-nets.md.
 
 anchors:
-  T3.1: BP428              # OT primary, V5 plate end — primary DCR omitted, so
-                           # both plates and the centre tap are the +428 V node
-  T3.2: BP428              # OT primary centre tap
-  T3.3: BP428              # OT primary, V6 plate end
+  T3.1: BP430              # OT primary, V5 plate end — primary DCR omitted, so
+                           # both plates and the centre tap are the +430 V node
+                           # the drawing letters at that tap (the printed
+                           # "+428 V." at the plate leads IS that omitted DCR)
+  T3.2: BP430              # OT primary centre tap — the "+430 V." lead
+  T3.3: BP430              # OT primary, V6 plate end
   T3.4: "0"                # OT secondary hot — secondary DCR folded into ground;
                            # mirrors layout net_map SPK: '0'.
 

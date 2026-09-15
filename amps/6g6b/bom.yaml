@@ -71,10 +71,10 @@ items:
 
   # --- Output stage (5881 pair)
   - { ref: RGL5, part: "Carbon comp resistor", value: "220 kΩ · ½ W", role: "V5 grid leak, from the -54 V bias line" }
-  - { ref: RS5, part: "Carbon comp resistor", value: "470 Ω · 1 W", role: "V5 screen resistor" }
+  - { ref: RS5, part: "Carbon comp resistor", value: "470 Ω · 1 W", role: "V5 screen stopper, off node B (+428 V)" }
   - { ref: C2, part: "Coupling capacitor", value: "0.1 µF · 400 V", role: "V4A → V5 grid" }
   - { ref: RGL6, part: "Carbon comp resistor", value: "220 kΩ · ½ W", role: "V6 grid leak, from the -54 V bias line" }
-  - { ref: RS6, part: "Carbon comp resistor", value: "470 Ω · 1 W", role: "V6 screen resistor" }
+  - { ref: RS6, part: "Carbon comp resistor", value: "470 Ω · 1 W", role: "V6 screen stopper, off node B (+428 V)" }
   - { ref: C3, part: "Coupling capacitor", value: "0.1 µF · 400 V", role: "V4B → V6 grid" }
 
   # --- Power supply
@@ -84,14 +84,15 @@ items:
   - { ref: DR4, part: "Silicon rectifier diode", value: "silicon diode", role: "Main B+ rectifier bridge, series leg B, upper — HT_B leg" }
   - { ref: DR5, part: "Silicon rectifier diode", value: "silicon diode", role: "Main B+ rectifier bridge, series leg B, middle — HT_B leg" }
   - { ref: DR6, part: "Silicon rectifier diode", value: "silicon diode", role: "Main B+ rectifier bridge, series leg B, lower — HT_B leg" }
-  - { ref: C10, part: "Electrolytic capacitor", value: "20 µF · 600 V", role: "Filter, first B+ node" }
-  - { ref: C11, part: "Electrolytic capacitor", value: "20 µF · 600 V", role: "Filter, B+ after choke" }
-  - { ref: C12, part: "Electrolytic capacitor", value: "20 µF · 600 V (×2, dual)", role: "Filter, driver/preamp B+ taps" }
-  - { ref: RD1, part: "Power resistor", value: "4.7 kΩ · 1 W", role: "Rail dropper, before the choke" }
+  - { ref: C10, part: "Electrolytic capacitor", value: "20 µF · 600 V (×2, in parallel)", role: "Filter, reservoir — the +430 V node, which the standby switch also carries up to the output transformer's primary centre tap" }
+  - { ref: C11, part: "Electrolytic capacitor", value: "20 µF · 600 V", role: "Filter, node B: the post-choke +428 V node that feeds the two 5881 screen stoppers and the whole dropper chain" }
+  - { ref: C12, part: "Electrolytic capacitor", value: "20 µF · 600 V", role: "Filter, the phase inverter's +410 V lane" }
+  - { ref: C15, part: "Electrolytic capacitor", value: "20 µF · 600 V", role: "Filter, node C: the Normal channel's +355 V lane" }
+  - { ref: RD1, part: "Power resistor", value: "4.7 kΩ · 1 W", role: "Rail dropper, node B (+428 V) → the phase inverter's +410 V lane" }
   - { ref: RD2, part: "Power resistor", value: "27 kΩ · 1 W", role: "Rail dropper, +410 V → the Normal channel's +355 V lane" }
   - { ref: RD3, part: "Power resistor", value: "56 kΩ · 1 W", role: "Rail dropper, the post-choke +428 V node → the Bass row's +230 V lane" }
   - { ref: C14, part: "Electrolytic capacitor", value: "20 µF · 600 V", role: "Filter, Bass-row +230 V lane" }
-  - { ref: L1, part: "Filter choke", value: "Fender 125C1A (TR2)", role: "B+ filtering" }
+  - { ref: L1, part: "Filter choke", value: "Fender 125C1A (TR2)", role: "B+ filtering — between the +430 V reservoir and node B, the +428 V node that feeds the screens and the droppers" }
   - { ref: DB1, part: "Rectifier (bias)", value: "silicon diode", role: "Bias supply rectifier, AC tap" }
   - { ref: RB1, part: "Carbon comp resistor", value: "1 kΩ · 1 W · 5%", role: "Bias supply series resistor" }
   - { ref: RB2, part: "Carbon comp resistor", value: "27 kΩ · 1 W · 5%", role: "Bias supply bleeder" }

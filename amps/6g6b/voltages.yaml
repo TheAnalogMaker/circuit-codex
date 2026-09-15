@@ -1,22 +1,25 @@
 # Printed voltage chart read directly from the published 6G6-B (E-FB) drawing,
 # schematic page. Notice printed on the sheet: "Voltages read to ground with
 # electronic voltmeter. Values shown + or - 20%." Tube pins therefore get 20%;
-# the B+ lanes here are each driven directly at their own printed value (see
-# netlist.cir header on why no dropper chain is asserted between them), so
-# they carry the tighter 8% internal target used for a driven, not derived,
-# node elsewhere in this corpus.
+# the B+ lanes carry the tighter 8% internal target this corpus uses for rails.
+# Only TWO of those lanes are driven here — BP430 (the reservoir, which the
+# standby switch also carries to the output transformer's primary centre tap)
+# and BP428 (node B, the choke's far end) — because neither the choke's DCR
+# nor the rectifier's source impedance is on the drawing. The other three are
+# DERIVED through the drawn droppers in the drawing's own order, so the rail
+# ladder below is a checked claim and not an input to itself.
 #
 # The sheet letters "+230 V." three times: twice on the Bass row's own B+
 # lane (a rail, BP230 below) and once at V2A's plate in the Normal channel,
 # whose 100 kOhm load climbs to that channel's +355 V lane. P2A below is that
 # third reading, gated as a tube pin.
-source: "Fender 'Bassman' Model 6G6-B drawing (E-FB), schematic page 2 (https://el34world.com/charts/Schematics/Files/Fender/Fender_bassman_6g6b.pdf), printed voltages: +428 (5881 plates), +430 (5881 screens), +410 (phase-inverter plate lane), +355 (Normal-ch. B+ lane), +230 (Bass-row B+ lane, lettered twice), -54 (fixed bias); tube pins +135/+1.1 (V1A plate/cathode), +136 (V1B cathode-follower output, 100k load), +230/+1.9 (V2A plate/cathode), +190/+1.8 (V2B plate/cathode), +150/+1.2 (V3A plate/cathode), +150/+1.3 (V3B plate/cathode), +300 (V4A plate, 82k), +280 (V4B plate, 100k), +30/+28 (phase-inverter shared cathode / tail junction, either side of the 820 Ohm)"
+source: "Fender 'Bassman' Model 6G6-B drawing (E-FB), schematic page 2 (https://el34world.com/charts/Schematics/Files/Fender/Fender_bassman_6g6b.pdf), printed voltages: +430 (reservoir, and the output-transformer primary centre tap the 5881 plates hang on), +428 (node B, past the choke: the 5881 screen stoppers and the dropper chain), +410 (phase-inverter plate lane), +355 (Normal-ch. B+ lane), +230 (Bass-row B+ lane, lettered twice), -54 (fixed bias); tube pins +135/+1.1 (V1A plate/cathode), +136 (V1B cathode-follower output, 100k load), +230/+1.9 (V2A plate/cathode), +190/+1.8 (V2B plate/cathode), +150/+1.2 (V3A plate/cathode), +150/+1.3 (V3B plate/cathode), +300 (V4A plate, 82k), +280 (V4B plate, 100k), +30/+28 (phase-inverter shared cathode / tail junction, either side of the 820 Ohm)"
 nodes:
-  BP428: { chart: 428, tol_pct: 8, note: "5881 plates, driven directly (OT primary DCR omitted)" }
-  BP430: { chart: 430, tol_pct: 8, note: "5881 screen tap, driven directly" }
-  BP410: { chart: 410, tol_pct: 8, note: "phase-inverter plate lane, driven directly" }
-  BP355: { chart: 355, tol_pct: 8, note: "Normal-channel B+ lane — feeds BOTH that channel's plate loads (V2A's 100 kΩ and V2B's 220 kΩ)" }
-  BP230: { chart: 230, tol_pct: 8, note: "Bass-row B+ lane — lettered twice on that lane, and dropped to it from node B (the post-choke +428 V node) through a 56 kΩ 1 W resistor" }
+  BP428: { chart: 428, tol_pct: 8, note: "node B, the choke's far end — driven directly. It feeds the two 470 Ω screen stoppers and every dropper below" }
+  BP430: { chart: 430, tol_pct: 8, note: "the reservoir, and (past the omitted standby switch) the output transformer's primary centre tap — driven directly, so the 5881 plates sit on it with the primary DCR omitted. The sheet's printed +428 V at the plate leads IS that omitted DCR, 2 V under the +430 V it letters at the tap" }
+  BP410: { chart: 410, tol_pct: 8, note: "phase-inverter plate lane — derived from node B through the printed 4.7 kΩ · 1 W dropper; checked against the chart, not an input to it" }
+  BP355: { chart: 355, tol_pct: 8, note: "Normal-channel B+ lane, node C — derived from +410 V through the printed 27 kΩ · 1 W dropper; feeds BOTH that channel's plate loads (V2A's 100 kΩ and V2B's 220 kΩ)" }
+  BP230: { chart: 230, tol_pct: 8, note: "Bass-row B+ lane — lettered twice on that lane, and derived from node B (the post-choke +428 V node) through the printed 56 kΩ · 1 W dropper" }
   P1A:  { chart: 135, tol_pct: 20, note: "Bass ch. V1A (input) plate, 220 kΩ off BP230 — also V1B's grid, which it drives directly" }
   K1A:  { chart: 1.1, tol_pct: 20, note: "Bass ch. V1A cathode, 2700 Ω" }
   K1B:  { chart: 136, tol_pct: 20, note: "Bass ch. V1B cathode-follower output: 100 kΩ load to ground, plate straight on BP230, grid taken directly off P1A. The follower rides about a volt above the plate that drives it, so the printed +136 V beside the printed +135 V is the drawing agreeing with itself; 136 V over 100 kΩ is the 1.36 mA that also closes the 56 kΩ rail dropper's arithmetic (see the circuit story)" }

@@ -5,18 +5,26 @@
 * (reference/tubes/12ax7.yaml also_known_as) — so every small-signal stage
 * uses the clean-room 12AX7 model.
 *
-* DC conventions — RAILS. The E-FB drawing prints supply figures at the
-* bottom of each channel's own B+ lane (+230 V under the Bass row, +355 V
-* under the Normal row) and again at the phase inverter (+410 V) and the
-* output pair (+430 V screens, +428 V plates). Each is driven here as its
-* OWN ideal source rather than derived through the drawn dropper chain
-* (+430 -> choke -> +428 = node B -> 4.7k -> +410 -> 27k -> +355 = node C,
-* with a 56k/1W from node B to the +230 Bass-row rail): an honest
-* simplification flagged here rather than a solved chain.
-* BP428 (5881 plates, OT primary DCR omitted), BP430 (5881 screens),
-* BP410 (phase-inverter plate supply), BP355 (Normal-channel B+ lane, feeding
-* BOTH that channel's plate loads), BP230 (Bass-row B+ lane, feeding V1A's
-* plate load, V1B's plate direct, and both driver-bottle plate loads).
+* DC conventions — RAILS. The E-FB drawing prints a figure at every node of
+* its supply chain, and hangs a 20 uF/600 V filter on each one: +430 V at
+* the rectifier's reservoir (two of those cans in parallel) and +430 V again
+* on the far side of the standby switch, where the choke (TR2) takes it and
+* a lead carries it up to the OUTPUT TRANSFORMER'S PRIMARY CENTRE TAP;
+* +428 V at node B, the choke's far end, which feeds the two 470 Ohm screen
+* stoppers and the whole dropper chain; +410 V on the phase inverter's plate
+* lane; +355 V at node C (the Normal row's lane); and +230 V under the Bass
+* row. The standby switch is omitted here, so the reservoir and the OT
+* centre tap are one node, BP430. Only the two ends of the choke are driven,
+* as ideal sources at their printed values — BP430 (reservoir and OT centre
+* tap: the 5881 plates, primary DCR omitted) and BP428 (node B: the 5881
+* screens and the droppers) — because the choke's DCR and the rectifier's
+* source impedance are not on the drawing. The other three rails are
+* DERIVED through the drawn droppers, in the drawing's own order:
+*   node B (+428) -> 4.7k 1W (RD1) -> BP410 (the phase inverter's two plate
+*   loads) -> 27k 1W (RD2) -> node C, BP355 (BOTH Normal-channel plate
+*   loads); and node B -> 56k 1W (RD3) -> BP230 (the Bass row's lane: V1A's
+*   plate load, V1B's plate direct, and both V3 plate loads).
+* Each derived rail is gated against its printed figure (voltages.yaml).
 *
 * The +230 V figure is a RAIL here and a PLATE VOLTAGE in the Normal channel:
 * the drawing letters "+230 V." twice on the Bass row's own supply lane, and
@@ -42,9 +50,9 @@
 
 VBP428 BP428 0 DC 428
 VBP430 BP430 0 DC 430
-VBP410 BP410 0 DC 410
-VBP355 BP355 0 DC 355
-VBP230 BP230 0 DC 230
+RD1 BP428 BP410 4.7k
+RD2 BP410 BP355 27k
+RD3 BP428 BP230 56k
 VBIAS  NBIAS 0 DC -54
 
 * --- V1 (7025 = 12AX7) — BASS channel
@@ -136,17 +144,23 @@ RM1 P2B MIX 470k
 C1 MIX G4A 0.0005u
 
 * --- 5881 pair — fixed bias via 220k leaks from -54 V, cathodes grounded
-* (no cathode resistor drawn), 470 Ohm 1W screen resistors off +430 V, plates
-* direct on +428 V (OT primary DCR omitted, matching the 2 V drawing split
-* between the +430 V screen tap and the +428 V plate tap). Two distinct
-* single-ended bottles V5 / V6 — NOT dual-section "V5A/V5B", which the
-* netlist parser would misread as one bottle's two triode halves.
+* (no cathode resistor drawn). The plates hang on BP430 through the OT
+* primary, whose DCR is omitted: that DCR is exactly what the drawing's
+* printed "+428 V." at the plate leads is, 2 V under the +430 V it letters
+* at the centre tap. The 470 Ohm 1W screen stoppers come off BP428 — node B,
+* the choke's far end, the same node the dropper chain leaves from. Until
+* 2026-09-15 this deck had the two the other way round (screens on +430,
+* plates on +428), which ran the whole output current through the choke:
+* the drawing's "+430 V." lead goes UP to the centre tap and its "+428 V."
+* screen lead comes DOWN to node B. Two distinct single-ended bottles
+* V5 / V6 — NOT dual-section "V5A/V5B", which the netlist parser would
+* misread as one bottle's two triode halves.
 RGL5 NBIAS G5 220k
-XV5 BP428 S5 G5 0 5881
-RS5 BP430 S5 470
+XV5 BP430 S5 G5 0 5881
+RS5 BP428 S5 470
 RGL6 NBIAS G6 220k
-XV6 BP428 S6 G6 0 5881
-RS6 BP430 S6 470
+XV6 BP430 S6 G6 0 5881
+RS6 BP428 S6 470
 
 * PI plate -> output grid couplers (0.1 uF on the drawing, DC-open). C2
 * carries V4A (82k plate) to V5's grid, C3 carries V4B (100k plate) to V6's

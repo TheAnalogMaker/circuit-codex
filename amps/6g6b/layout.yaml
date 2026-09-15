@@ -6,8 +6,10 @@
 # trace or a dimensioned reproduction.
 #
 # The board reads left->right exactly as the drawing's tube row does: the
-# bias supply and the silicon bridge/reservoir at the left, the dropper chain
-# next, the two 5881 output tubes, the phase-inverter 7025, the Normal-channel
+# bias supply and the two silicon rectifier legs at the left (the only supply
+# parts the layout page draws — see net_map.not_on_board for the filter cans,
+# the choke and the droppers, which it does not), the two 5881 output tubes,
+# the phase-inverter 7025, the Normal-channel
 # 7025 pair, the Bass channel's V3 7025 pair (with the Bass channel's own Treble
 # pot in its signal path), and the Bass-channel 7025 pair at the right end —
 # matching the drawing's front-panel groups (Presence/Normal pots at the left
@@ -16,7 +18,7 @@ board:
   rows: 2
   cols: 186
   title: "6G6-B · eyelet board layout"
-caption: "Redrawn from the published Fender 'Bassman' Model 6G6-B (E-FB) layout drawing — principal board components, in the order the drawing shows them. Each channel's Bass/Treble/Volume tone network is drawn in full: the Normal channel's 100 kΩ slope and its three capacitors stand on the board, while its 6.8 kΩ foot and 0.005 µF bleed hang at the Bass and Treble pots, as the sheet draws them; the Treble pot is the tapped 350 kΩ/70 kΩ part, its tap carrying the 0.1 µF. (The Bass channel's own Treble control sits in V3's own signal path, per the front-panel silkscreen order; the two 470 kΩ mixing resistors meet at their own eyelet, which carries the 500 pF to the phase inverter.) The negative-bias supply, which the drawing boxes as a small sub-board, takes the power transformer's own bias tap — the red-blue lead — through the 1 kΩ · 1 W to the bias rectifier; the rectifier's other end is the −54 V line, with the 25/50 µF can and the 27 kΩ bleeder returning it to ground. The 6.3 V heater chain (green twisted pair, PT -> pilot lamp -> the two 5881 outputs -> the phase-inverter 7025 -> the Normal-channel 7025 -> the V3 7025 -> the Bass-channel 7025) is routed in the drawing's own socket order. Not a trace or a dimensioned reproduction."
+caption: "Redrawn from the published Fender 'Bassman' Model 6G6-B (E-FB) layout drawing — principal board components, in the order the drawing shows them. Each channel's Bass/Treble/Volume tone network is drawn in full: the Normal channel's 100 kΩ slope and its three capacitors stand on the board, while its 6.8 kΩ foot and 0.005 µF bleed hang at the Bass and Treble pots, as the sheet draws them; the Treble pot is the tapped 350 kΩ/70 kΩ part, its tap carrying the 0.1 µF. (The Bass channel's own Treble control sits in V3's own signal path, per the front-panel silkscreen order; the two 470 kΩ mixing resistors meet at their own eyelet, which carries the 500 pF to the phase inverter.) Of the main supply, only the two three-diode rectifier legs are on the board: the layout drawing puts the filter cans, the choke and the three droppers on the chassis and does not draw them, so each B+ lane reaches the board as a lettered lead and the legs' own output leaves the same way. The negative-bias supply, which the drawing boxes as a small sub-board, takes the power transformer's own bias tap — the red-blue lead — through the 1 kΩ · 1 W to the bias rectifier; the rectifier's other end is the −54 V line, with the 25/50 µF can and the 27 kΩ bleeder returning it to ground. The 6.3 V heater chain (green twisted pair, PT -> pilot lamp -> the two 5881 outputs -> the phase-inverter 7025 -> the Normal-channel 7025 -> the V3 7025 -> the Bass-channel 7025) is routed in the drawing's own socket order. Not a trace or a dimensioned reproduction."
 source:
   desc: "Fender 'Bassman' Model 6G6-B drawing (E-FB), board-layout page"
   url: "https://el34world.com/charts/Schematics/Files/Fender/Fender_bassman_6g6b.pdf"
@@ -51,25 +53,19 @@ parts:
   - { ref: C13, a: [0, 3], b: [1, 3] }      # 25/50 uF dual can: lower lead on the -54 V node (shares DB1.b), upper lead to ground
   - { ref: RB2, a: [1, 4], b: [1, 5] }      # 27k 1W bleeder across the -54 V node
 
-  # --- silicon HT bridge + reservoir (B+1) ------------------------------------
-  # Each leg runs from its HT lead at a to the reservoir side at b. E-FB draws
+  # --- silicon HT rectifier legs ----------------------------------------------
+  # Each leg runs from its HT lead at a to the +430 V side at b. E-FB draws
   # every one of the six "- |>+" with its + (bar, cathode) toward the +430 V
-  # node, and schematic.kicad_sch now points them the same way, so every band
-  # sits at b.
+  # node, and schematic.kicad_sch points them the same way, so every band
+  # sits at b. The legs' output leaves this sub-board by a lead: the reservoir
+  # cans, the standby switch, the choke and the whole dropper chain are
+  # chassis parts the layout page does not draw (net_map.not_on_board).
   - { ref: DR1, a: [1, 8],  b: [1, 9],  cathode: b }    # leg A upper
   - { ref: DR2, a: [1, 9],  b: [1, 10], cathode: b }    # leg A middle
-  - { ref: DR3, a: [1, 10], b: [1, 11], cathode: b }    # leg A lower -> B+1
+  - { ref: DR3, a: [1, 10], b: [1, 11], cathode: b }    # leg A lower -> +430 V
   - { ref: DR4, a: [1, 13], b: [1, 14], cathode: b }    # leg B upper
   - { ref: DR5, a: [1, 14], b: [1, 15], cathode: b }    # leg B middle
-  - { ref: DR6, a: [1, 15], b: [1, 16], cathode: b }    # leg B lower -> B+1
-  - { ref: C10, a: [0, 17], b: [1, 17] }    # 20 uF, first B+ node
-
-  # --- dropper chain: 4.7k -> choke -> 20uF -> 27k -> 20uF(dual) -------------
-  - { ref: RD1, a: [1, 20], b: [1, 21] }    # 4.7k 1W, before the choke
-  - { ref: L1,  a: [0, 24], b: [0, 26] }    # choke TR2, 125C1A (axial, top row)
-  - { ref: C11, a: [0, 28], b: [1, 28] }    # 20 uF, post-choke (BP428)
-  - { ref: RD2, a: [1, 30], b: [1, 31] }    # 27k 1W, preamp/driver tap
-  - { ref: C12, a: [0, 33], b: [1, 33] }    # 20 uF dual, driver/preamp taps (BP410)
+  - { ref: DR6, a: [1, 15], b: [1, 16], cathode: b }    # leg B lower -> +430 V
 
   # --- output pair support (V5 upper phase / V6 lower phase) -----------------
   - { ref: C2,   a: [0, 37], b: [0, 39] }   # 0.1 uF V4A plate -> V5 grid
@@ -183,28 +179,18 @@ runs:
   # the -54 V line out to the two output grid leaks (RGL5.b carries it on to RGL6.b)
   - { from: RB2.a, to: RGL5.b, via: [[4.4, 1.85], [38.6, 1.85]] }
 
-  # --- silicon HT bridge -------------------------------------------------
+  # --- silicon HT rectifier legs -----------------------------------------
   - { from: PT.ht1, to: DR1.a, via: [[-2.426, 0.675], [-2.4, 1.7], [8.2, 1.7], [8.4, 1.62]] }
   - { from: DR3.b, to: DR6.b, via: [[11.4, 1.28]] }
-  - { from: DR3.b, to: C10.a, via: [[11, 0.55]] }
   - { from: PT.ht3, to: DR4.a, via: [[-3.2, 1.2], [-3.2, 3.4], [13.2, 3.4], [13.4, 1.62]] }
-  - { from: C10.b, to: [1.45, 17], via: [[17, 1.33]] }
 
-  # --- dropper chain: B+1 -> 4.7k -> choke -> 20uF (BP428) -> 27k -> 20uF dual (BP410) --
-  - { from: C10.a, to: RD1.a, via: [[17.4, -0.4], [20.4, -0.4]] }
-  - { from: RD1.b, to: L1.a, via: [[22.4, 0.6], [23.5, 0.05]] }
-  - { from: L1.b, to: C11.a, via: [[26.5, 0.05], [27.6, -0.4]] }
-  - { from: C11.b, to: [1.45, 28] }
-  - { from: C11.a, to: RD2.a, via: [[28.6, -1.1], [30.4, -1.1], [30.4, -0.4]] }
-  - { from: RD2.b, to: C12.a, via: [[32.4, -0.55], [33.4, -0.4]] }
-  - { from: C12.b, to: [1.45, 33], via: [[33.9, 0.95]] }
-
-  # BP428 deep lane (screens/plates feed): C11 -> RS5/RGL5 -> RS6/RGL6
+  # +428 V screen lane: node B arrives from the cans by its own lead (the
+  # layout page letters it "+428 V." at the socket, on the pin-6 tie the
+  # 470 Ω stopper runs to), and RS5 carries it on to RS6
   - { from: RS5.a, to: RS6.a, via: [[42.6, -2.4], [48.6, -2.4]] }
   - { from: RGL5.b, to: RGL6.b, via: [[39.6, -1.6], [46.6, -1.6]] }
 
-  # BP410 deep lane: C12 -> RL4A -> RL4B -> RM2 (V3B->PI coupling resistor rail side)
-  - { from: C12.a, to: RL4A.a, via: [[33.6, -2.8], [56.4, -2.8]] }
+  # BP410 deep lane: the +410 V lead feeds RL4A, which carries it on to RL4B
   - { from: RL4A.a, to: RL4B.a, via: [[58.495, -2.8], [58.4, -2.8]] }
 
   # BP230 deep lane: RL3A -> RL3B -> RL1A -> V1B's plate (long backbone, y=-3.2)
@@ -308,9 +294,9 @@ runs:
   - { from: CK2B.b, to: [1.45, 110] }
   - { from: RK2B.b, to: [1.45, 108] }
   # The +355 V lane's own derivation (27 kΩ · 1 W down from +410 V) is drawn on
-  # the schematic sheet but not on this board drawing; net_map anchors RL2B.b
-  # to BP355 directly, matching the "driven as its own ideal source"
-  # convention netlist.cir uses for every rail here.
+  # the schematic sheet but not on this board drawing — the dropper is a
+  # chassis part at the filter cans — so net_map anchors RL2B.b to BP355, the
+  # lane the lead arrives on.
   - { from: RM1.a, to: V2.pin1, via: [[112.4, -0.9], [108.6, -0.9], [108.603, 1.952]] }
 
   # --- Bass channel: input, V1A, V1B (cathode follower), tone network ------
@@ -351,16 +337,23 @@ runs:
 # (netlist.cir) for pipeline/verify_layout_nets.py. See docs/layout-schema.md.
 net_map:
   # OT primary DCR omitted (matches every other amp in the corpus): both 5881
-  # plates and the primary centre tap sit at the same driven node, BP428.
+  # plates and the primary centre tap sit at the same driven node, BP430 —
+  # the node the drawing letters "+430 V." at that tap. The "+428 V." it
+  # prints at the plate leads is the omitted primary DCR.
   anchors:
-    T3.pri_a: BP428
-    T3.pri_b: BP428
-    T3.ct:    BP428
+    T3.pri_a: BP430
+    T3.pri_b: BP430
+    T3.ct:    BP430
     SPK: "0"          # speaker jack — OT-secondary DCR folded into ground (NFB return)
-    RL2B.b: BP355     # +355 V lane — driven as an ideal source (netlist.cir header); RL2A.a shares it by a drawn run
-    RS5.a: BP430      # screen rail — not traced to a shared board dropper on the available scan (two consumers, chained to each other only)
+    RL2B.b: BP355     # +355 V lane — arrives by lead from the off-board 27 kΩ dropper; RL2A.a shares it by a drawn run
+    RL4A.a: BP410     # +410 V lane — arrives by lead from the off-board 4.7 kΩ dropper; RL4B.a shares it by a drawn run
+    RS5.a: BP428      # screen stoppers' feed — node B, the choke's far end, by its own lead; two consumers, chained to each other only
+    DR3.b: BP430      # the rectifier legs' output: the +430 V node on the far side of the (off-board) reservoir cans and standby switch, which this board does not draw
     RGL5.b: NBIAS     # the -54 V line: the bias supply (RB1/DB1/C13/RB2) lands here from RB2.a; the netlist abstracts that supply to the ideal NBIAS source
   netlist_unplaced:
+    RD1: "4.7 kΩ · 1 W rail dropper, node B → the +410 V lane — a chassis part at the filter cans; the layout page draws it nowhere and brings +410 V to the board by a lead"
+    RD2: "27 kΩ · 1 W rail dropper, +410 V → the +355 V lane — as RD1"
+    RD3: "56 kΩ · 1 W rail dropper, node B → the Bass row's +230 V lane — as RD1"
     R1s: "Bass ch. jack-2 stopper — chassis-mounted at the jacks, ahead of RG1A; no DC grid current so it moves no operating point"
     R2s: "Bass ch. jack-1 stopper — as R1s"
     R3s: "Normal ch. jack-2 stopper — as R1s"
@@ -380,7 +373,24 @@ net_map:
     CTN7: "Normal ch. tone-network bass-position cap (slope foot to the Treble tap) — control-network island"
     CDR1: "V3A -> Bass ch. Treble coupling cap — control-network island, DC-open"
     VR7: "Presence pot — its element bridges RPF end to end and its wiper feeds a 0.1 uF cap; pots are not modelled in netlist.cir corpus-wide"
+  # Parts the sheet draws that this board neither places nor wires. The E-FB
+  # layout page (read at 3300 x 2550) draws the bias sub-board and the two
+  # three-diode rectifier legs inside one boxed sub-board and NOTHING else of
+  # the supply: no filter cans, no choke, no droppers. The board's left edge
+  # takes them as leads — the eyelets lettered "+430 V.", "+428 V." and
+  # "-54 V." — and the rectifier legs' own output leaves by a lead of its own.
+  not_on_board:
+    C10: "20 µF · 600 V reservoir (the drawing's two cans in parallel) — at the filter cans on the chassis, ahead of the standby switch; the layout page draws neither"
+    C11: "20 µF · 600 V filter on node B, the post-choke +428 V node — a can on the chassis; the board takes +428 V as a lead"
+    C12: "20 µF · 600 V filter on the phase inverter's +410 V lane — a can on the chassis; the board takes +410 V as a lead"
+    C15: "20 µF · 600 V filter on node C, the Normal channel's +355 V lane — a can on the chassis; the board takes +355 V as a lead"
+    C14: "20 µF · 600 V filter on the Bass row's +230 V lane — a can on the chassis; the board takes +230 V as a lead"
+    L1: "filter choke TR2 (125C1A) — a chassis part between the reservoir and node B; the layout page draws it nowhere"
   # Sheet terminal -> board terminal: the sheet numbers the transformer's bias
-  # tap as T1 pin 6 (label HT_TAP); E-FB letters that lead RED-BLUE.
+  # tap as T1 pin 6 (label HT_TAP); E-FB letters that lead RED-BLUE. The
+  # sheet's +430 V node is the board's rectifier-leg output: one node with the
+  # reservoir cans and the standby switch — both off this board — between
+  # them, which is why no board conductor joins the legs to anything else.
   leads:
     T1.6: PT.red-blue
+    "<BP430>": DR3.b
