@@ -56,8 +56,8 @@ parts:
   - { ref: RTOUT, a: [1, 27], b: [1, 26] } # 1M output series resistor (plate → trem-out node)
   - { ref: RTOP,  a: [0, 27], b: [1, 27] } # 220k plate load off the +400 rail
   - { ref: CTO1,  a: [0, 28], b: [0, 29] } # .02 plate → Speed node (jumpered from the plate eyelet)
-  - { ref: CTO3,  a: [0, 29], b: [0, 30] } # .01 Speed node → middle node
-  - { ref: CTO2,  a: [0, 30], b: [1, 30] } # middle node → grid (lettered .01 on both factory sheets)
+  - { ref: CTO2,  a: [0, 29], b: [0, 30] } # .01 Speed node → middle node
+  - { ref: CTO3,  a: [0, 30], b: [1, 30] } # middle node → grid (lettered .01 on both factory sheets)
   - { ref: RTO1,  a: [1, 30], b: [1, 31] } # 1M grid → ground
   - { ref: RTO2,  a: [0, 30], b: [0, 31] } # 1M middle node → oscillator cathode
   - { ref: RKTO,  a: [0, 31], b: [1, 31] } # 3.3k oscillator cathode → ground
@@ -191,7 +191,7 @@ runs:
   - { from: RTOP.a, to: CF2.a, color: red, via: [[27, -0.64], [1.6, -0.64]] }   # plate load off the +400 rail
   - { from: RTOP.b, to: CTO1.a }                                       # plate eyelet → the ladder's .02
   - { from: RTOP.b, to: V4.pin1, via: [[26.8, 1.18], [19.84, 1.18], [19.84, 2.3]] }
-  - { from: CTO2.b, to: V4.pin2, via: [[29.6, 1.25], [19.98, 1.25], [19.98, 2.07]] }
+  - { from: CTO3.b, to: V4.pin2, via: [[29.6, 1.25], [19.98, 1.25], [19.98, 2.07]] }
   - { from: RKTO.a, to: V4.pin3, via: [[30.6, 0.5], [30.6, 1.32], [20.12, 1.32], [20.12, 1.93]] }
   - { from: RTO1.b, to: [1.45, 31] }
   - { from: CKTO.a, to: [1.45, 32.4], via: [[32.4, 0.6]] }
