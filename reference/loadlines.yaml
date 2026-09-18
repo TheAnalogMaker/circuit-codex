@@ -562,10 +562,10 @@ stages:
   output_tubes: 2
   config: push-pull
   bias: fixed
-  plate_node: BP428
-  plate_v: 428.0
+  plate_node: BP430
+  plate_v: 430.0
   screen_node: S5
-  screen_v: 430.0
+  screen_v: 428.0
   cathode_node: '0'
   cathode_v: 0.0
   rk_total: null
@@ -579,7 +579,7 @@ stages:
   ot_primary_z: null
   ot_primary_approx: false
   ot_primary_note: Fender 125A13A — Push-pull output
-  sim_ip_ma: 14.7892
+  sim_ip_ma: 14.233
   sim_ig2_ma: 0.0
 - amp: 'aa1164'
   name_style: Blackface Princeton Reverb-style
