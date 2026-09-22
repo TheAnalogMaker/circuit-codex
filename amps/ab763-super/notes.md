@@ -136,7 +136,7 @@ drives both of its own two upper rails independently.
 - **The tremolo tube (V5, 12AX7), both halves.** The oscillator is a running
   phase-shift circuit with no static DC operating point: its printed +280 V
   plate and +2.5 V cathode are the average a meter reads while it swings, set
-  by grid-leak detection. The lamp driver's printed +390 V plate and +17 V
+  by grid-leak detection. The lamp driver's printed +390 V plate and +170 V
   cathode are what a meter reads while the neon lamp fires and extinguishes.
   Neither is a static operating point, so both are documented here rather than
   modelled in the simulated deck, the same treatment the Deluxe Reverb and

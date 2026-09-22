@@ -342,7 +342,7 @@ composes the line; a declared circuit prints neither marker.
 
 ##### `heaters_unsourced` — when no factory sheet exists to read
 
-Twelve boards in this corpus are **derived**: the amplifier's documentation is a
+Eleven boards in this corpus are **derived**: the amplifier's documentation is a
 circuit drawing and no factory board-layout sheet was published or located, so
 the placement and routing are the Codex's own (each says so in its `source` and
 its caption). Their heater legs cannot be established from a factory drawing by
@@ -378,13 +378,16 @@ AA764 is the case: every capture of its layout PDF is the same 2171 px copy,
 while the Vibro-Champ page of the same drawing family was found at 708 ppi and
 declared.
 
-A layout may hold both: `amps/ab763-super` establishes its 5 V rectifier winding
-from the schematic and leaves the 6.3 V chain unestablished, and the marker then
-states what was established, that the rest was not, and that there is no factory
-board-layout drawing for the rest to be read off. Replace the key with a
-`heaters:` block if the circuit drawing itself turns out to establish the wiring
-— the AB763 Super's does for its 5 V winding, and does not for its 6.3 V chain,
-which it only arrows.
+A layout may hold a declaration and a gap at once: `amps/ab763-super` establishes
+its 5 V rectifier winding from the schematic — which draws that winding as an
+explicit two-terminal secondary — and leaves the 6.3 V chain unestablished,
+because the schematic only arrows it and the copy of its C-FD layout page read
+for that board does not resolve the legs socket by socket. That amp therefore
+carries `heaters:` and `heaters_pending:` together, and the marker states what
+was established and that the rest was not. Which key a partly-declared board
+takes for the remainder is the same question as above: `heaters_unsourced` only
+where no factory board-layout sheet was published or located at all,
+`heaters_pending` where one exists and a better copy would clear the sockets.
 
 ##### The worklist is committed (`reference/heaters.yaml`)
 
