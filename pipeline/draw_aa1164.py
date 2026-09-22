@@ -45,7 +45,14 @@ s.sym("R", "RGN1", "1M", 38, YN + 4 + 3.81)
 s.gnd(38, YN + 4 + 7.62)
 
 # --- V1A input stage
-t1 = s.triode("V1A", "12AX7 (7025)", 52, YN)
+# Both K-FD pages put the input stage on pins 1/2/3 and the stage after the
+# Volume control on 6/7/8. The circuit drawing (5554×4346) letters the input
+# triode plate 1, grid 2, cathode 3 and letters 6 and 8 on the second stage;
+# the layout page (5734×4467) lands the lead from the instrument jacks on pin
+# 2 of the 7025 socket and prints +1.3 V on the lead at pin 3. A 12AX7's unit
+# 1 IS pins 6/7/8, so the input stage is unit 2 and the second stage unit 1 —
+# the opposite of the rank default this sheet took until now.
+t1 = s.triode("V1A", "12AX7 (7025)", 52, YN, unit=2)
 s.wire(38, YN, t1["g"][0], YN)
 s.plate_load("RLN1", "100k", t1["p"], "B+4")
 s.wire(52, YN + 7.62, 52, YN + 9)
@@ -110,7 +117,7 @@ s.gnd(132, TRB + 11.43)
 # --- V1B second stage
 s.wire(137.08, TRB + 7.62, 144, TRB + 7.62)
 s.wire(144, TRB + 7.62, 144, YN)
-t1b = s.triode("V1B", "12AX7 (7025)", 156, YN)
+t1b = s.triode("V1B", "12AX7 (7025)", 156, YN, unit=1)   # 6/7/8 — see V1A above
 s.wire(144, YN, t1b["g"][0], YN)
 s.plate_load("RLN2", "100k", t1b["p"], "B+4")
 s.wire(156, YN + 7.62, 156, YN + 9)
@@ -464,15 +471,21 @@ s.junction(94, teet)
 s.wire(94, teet, 94, YL - 7.62)                 # ... and down to the ladder
 s.sym("C", "CTO1", ".02u", 94, YL - 3.81, lx=2.4, ly=0.8)
 s.junction(94, YL)                              # S, the Speed node
-# Speed: the 3 MOhm-RA pot as a rheostat (wiper strapped to its hot lug) in
-# series with 100k, S to ground
+# Speed: the 3 MOhm-RA pot as a rheostat in series with 100k, S to ground.
+# The strap is at the 100k END, not the Speed-node end: the K-FD layout page
+# (5734×4467, the control read at (2500,500)-(2820,800)) arcs a lead from the
+# pot's left lug to its wiper lug, hangs the 100k off that same left lug to a
+# ground triangle, and runs the right lug alone to the board. Until 2026-09-22
+# this sheet strapped the wiper to the Speed-node lug instead — the same track
+# resistance either way, but the wrong lug pair, and the board (which draws it
+# as the page does) then read as a mismatch.
 s.wire(94, YL, 98.19, YL)
 s.sym("POT", "VRSPD", "3M speed", 102, YL, rot=90, lx=-4.6, ly=6.4)
-s.wire(102, YL - 5.08, 98.19, YL - 5.08)
-s.wire(98.19, YL - 5.08, 98.19, YL)
-s.junction(98.19, YL)
 sl, sr = s.series_h("R", "RSPD", "100k", 112, YL)
 s.wire(105.81, YL, sl, YL)
+s.wire(102, YL - 5.08, 107, YL - 5.08)          # wiper ...
+s.wire(107, YL - 5.08, 107, YL)                 # ... onto the lug the 100k leaves
+s.junction(107, YL)
 s.wire(sr, YL, 118, YL)
 s.gnd(118, YL, rot=0)
 # S -.01- N1
