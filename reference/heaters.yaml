@@ -1138,9 +1138,12 @@ amps:
       - 5
       socket: V1
     fully_established: false
-    no_factory_layout_sheet: No factory board-layout sheet for the Super Reverb AB763 was located; this
-      board is derived from the factory schematic, so no factory drawing can establish its 6.3 V heater
-      legs. The 5 V rectifier circuit is declared from the circuit drawing, which draws that winding.
+    read_pending_because: The C-FD layout page for the Super Reverb AB763 is published and is this board's
+      source for its part order and socket leads, but the copy read (3299 x 2551, cross-checked against
+      a 2182 x 1394 capture) does not resolve the 6.3 V heater legs socket by socket, and the circuit
+      drawing only arrows the chain "TO ALL 6.3V HEATERS AND PILOT LIGHT". A copy of the layout page carrying
+      those legs legibly is what clears these sockets. The 5 V rectifier circuit is declared from the
+      circuit drawing, which draws that winding.
   ab763-twin:
     centre_tapped_sockets:
       V1:
@@ -1514,11 +1517,11 @@ amps:
 summary:
   declared_and_checked: 15
   doubtful_sockets: 98
-  doubtful_sockets_no_factory_sheet: 37
-  doubtful_sockets_pending_a_read: 61
+  doubtful_sockets_no_factory_sheet: 31
+  doubtful_sockets_pending_a_read: 67
   fully_established: 11
   layouts: 40
-  layouts_with_no_factory_layout_sheet: 12
+  layouts_with_no_factory_layout_sheet: 11
   links_needing_a_source_read: 25
   links_that_short_the_supply: 0
   not_established: 25

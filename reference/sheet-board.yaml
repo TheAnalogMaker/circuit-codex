@@ -735,10 +735,10 @@ amps:
       anchors: 41
       board_only: 0
       merged: 0
-      misplaced: 2
+      misplaced: 0
       pot_as_resistor: 0
       pot_orientation_flipped: 0
-      section_swap: 1
+      section_swap: 0
       sheet_only_declared: 10
       sheet_only_undeclared: 0
       split: 0
@@ -746,13 +746,10 @@ amps:
       two_terminal_checked: 62
       unresolved: 0
     merged: []
-    misplaced:
-    - CTO1
-    - CTO2
+    misplaced: []
     pot_as_resistor: []
     pot_orientation_flipped: []
-    section_swap:
-    - V1
+    section_swap: []
     sheet_only_declared:
     - CB3
     - CDEATH
@@ -1050,7 +1047,7 @@ amps:
     board_only: []
     claimed: true
     counts:
-      anchors: 56
+      anchors: 58
       board_only: 0
       merged: 0
       misplaced: 0
@@ -1058,10 +1055,10 @@ amps:
       pot_orientation_flipped: 0
       section_swap: 0
       sheet_only_declared: 22
-      sheet_only_undeclared: 8
+      sheet_only_undeclared: 0
       split: 0
       stale_declarations: 0
-      two_terminal_checked: 70
+      two_terminal_checked: 78
       unresolved: 0
     merged: []
     misplaced: []
@@ -1091,15 +1088,7 @@ amps:
     - RSLN
     - RTO1
     - T2
-    sheet_only_undeclared:
-    - CKTO2
-    - CTO1
-    - RKTO2
-    - RLAMP
-    - RMIXV
-    - RTO10
-    - RTOG1
-    - RTOG3
+    sheet_only_undeclared: []
     split: []
     stale_declarations: []
     unresolved: []
@@ -1527,18 +1516,18 @@ amps:
     unresolved: []
 summary:
   amps: 40
-  amps_with_findings: 26
-  anchors: 1392
+  amps_with_findings: 24
+  anchors: 1394
   board_only: 5
-  claimed_amps_with_findings: 25
+  claimed_amps_with_findings: 23
   merged: 8
-  misplaced: 36
+  misplaced: 34
   pot_as_resistor: 0
   pot_orientation_flipped: 33
-  section_swap: 1
+  section_swap: 0
   sheet_only_declared: 244
-  sheet_only_undeclared: 67
+  sheet_only_undeclared: 59
   split: 1
   stale_declarations: 0
-  two_terminal_checked: 2122
+  two_terminal_checked: 2130
   unresolved: 3

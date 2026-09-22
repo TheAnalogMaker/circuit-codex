@@ -249,6 +249,9 @@ amps:
       ref: CKN1
   ab763-super:
     not_decided:
+    - ref: CKTO2
+      verdict: undecided
+      why: 'CKTO2.a: reaches only ground, through RKTO2'
     - ref: CKTO1
       verdict: undecided
       why: 'CKTO1.a: reaches only ground, through RKTO1'
@@ -344,8 +347,8 @@ amps:
       plus_drawn_at: a
       ref: C19
 summary:
-  cans: 267
+  cans: 268
   right: 203
-  undecided: 15
+  undecided: 16
   unmarked: 0
   wrong: 49
