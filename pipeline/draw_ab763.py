@@ -513,9 +513,11 @@ s.wire(239, JY, tl, JY)
 s.wire(228, JY, 239, JY)                        # tail-junction rail (y=116)
 s.junction(232, JY)
 s.junction(236, JY)
-# RT2 22k tail -> ground (x=232)
+# RT2 22k tail -> the feedback node (x=232). C-FD returns the tail to the
+# 820/47 junction, not to ground: its foot drops onto CPIB's far-side wire.
 s.sym("R", "RT2", "22k", 232, JY + 3.81)
-s.gnd(232, JY + 7.62)
+s.wire(232, JY + 7.62, 232, YPB)
+s.junction(232, YPB)
 # hot grid leak RGPA (x=236) up to the hot grid via a y=98 detour clear of CPIA
 s.sym("R", "RGPA", "1M", 236, JY - 8, lx=-9.4)  # pins 104.19 / 111.81
 s.wire(236, 111.81, 236, JY)
@@ -535,7 +537,8 @@ cbl, cbr = s.series_h("C", "CPIB", ".1u", 238, YPB)   # 234.19..241.81
 s.wire(250.38, YPB, cbr, YPB)
 s.junction(250.38, YPB)
 s.wire(cbl, YPB, 224, YPB)
-# NFB from speaker: SPKR -> RNFB 820 -> cold grid node; RNF2 47 to gnd
+# NFB from speaker: SPKR -> RNFB 820 -> the feedback node (CPIB's far side,
+# the tail's foot); RNF2 47 to gnd
 s.glabel("SPKR", XPI - 60, YPB + 12, 180)
 nl, nr = s.series_h("R", "RNFB", "820", XPI - 50, YPB + 12)
 s.wire(XPI - 60, YPB + 12, nl, YPB + 12)

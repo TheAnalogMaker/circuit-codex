@@ -73,11 +73,13 @@ oscillator's feed and stops it.
 its own 220 kΩ mixing resistor — the Vibrato side after the mix driver's 0.1 µF
 coupler — and a 0.001 µF capacitor carries that node into a 12AT7
 **long-tailed pair** (82 kΩ and 100 kΩ
-5% plate loads, a 470 Ω cathode resistor to a tail junction, 22 kΩ tail to
-ground, both 1 MΩ grid leaks returned to that junction) splits the signal for the
+5% plate loads, a 470 Ω cathode resistor to a tail junction, a 22 kΩ tail from
+that junction to the feedback node, both 1 MΩ grid leaks returned to the
+junction) splits the signal for the
 **6V6GT pair**. The output tubes are fixed-biased at **−35 V** through 220 kΩ
-leaks, with 470 Ω · 1 W screen resistors, and an 820 Ω negative-feedback loop
-returns from the speaker to the inverter.
+leaks, with 470 Ω · 1 W screen resistors, and an 820 Ω negative-feedback resistor
+returns from the speaker to the foot of the inverter's tail, where a 47 Ω goes
+to ground: the tail current and the feedback share that node.
 
 ## Power
 
@@ -101,11 +103,12 @@ long-tailed-pair inverter, GZ34 rectifier and negative-feedback loop.
 The drawing prints a full voltage chart, every value set at ±20 %, read to ground
 with an electronic voltmeter. The simulated DC operating point tracks it across
 the modelled stages: the reverb-driver plate lands at +414 V against a printed
-+410 V, the phase-inverter plates and the +77 V / +75.5 V tail fall within a tenth
-of the chart, and the 6V6 screens sit at +415 V with their grids on the −35 V bias
-line. The preamp rail is not held at a figure of its own: the chart prints none,
-so it is solved through its 10 kΩ dropper from the +325 V node, and the six
-preamp plates are a genuine check on the chart rather than an echo of it: they
++410 V, the phase-inverter plates and the +77 V / +75.5 V tail fall within about
+a tenth of the chart (the 82 kΩ plate is the widest, +188 V against +170 V),
+and the 6V6 screens sit at +415 V with their grids on the −35 V bias line. The
+preamp rail is not held at a figure of its own: the chart prints none, so it
+is solved through its 10 kΩ dropper from the +325 V node, and the six preamp
+plates are a genuine check on the chart rather than an echo of it: they
 land between +176 V and +180 V against printed figures of +170 V and +180 V. The
 widest miss is at the two shared cathodes, boxes A and E, each +1.48 V against a
 printed +1.3 V — about a seventh high.

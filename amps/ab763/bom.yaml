@@ -90,11 +90,11 @@ items:
   - { ref: RGPA, part: "Carbon comp resistor", value: "1 MΩ · ½ W",   role: "PI grid leak (hot), returned to tail junction" }
   - { ref: RGPB, part: "Carbon comp resistor", value: "1 MΩ · ½ W",   role: "PI grid leak (cold), returned to tail junction" }
   - { ref: RTAIL, part: "Carbon comp resistor", value: "470 Ω · ½ W", role: "PI cathode resistor" }
-  - { ref: RT2, part: "Carbon comp resistor", value: "22 kΩ · ½ W",   role: "PI tail (junction → ground)" }
+  - { ref: RT2, part: "Carbon comp resistor", value: "22 kΩ · ½ W",   role: "PI tail, from the junction to the feedback node (the 820/47 junction), not to ground" }
   - { ref: CPIA, part: "Coupling capacitor",  value: "0.001 µF",       role: "PI hot-grid input coupling, from the node where the two channels' 220 kΩ mixing resistors meet" }
   - { ref: CPIB, part: "Coupling capacitor",  value: "0.1 µF · 200 V", role: "PI cold-grid AC ground" }
-  - { ref: RNFB, part: "Carbon comp resistor", value: "820 Ω · ½ W",  role: "Negative feedback, OT secondary → PI (DC-neutral)" }
-  - { ref: RNF2, part: "Carbon comp resistor", value: "47 Ω · ½ W",   role: "NFB return / PI cold-grid reference" }
+  - { ref: RNFB, part: "Carbon comp resistor", value: "820 Ω · ½ W",  role: "Negative feedback, speaker hot → the feedback node at the PI tail's foot (DC-neutral)" }
+  - { ref: RNF2, part: "Carbon comp resistor", value: "47 Ω · ½ W",   role: "Feedback node → ground: where the 820, the PI tail and the cold-grid 0.1 µF meet" }
   - { ref: C1,  part: "Coupling capacitor",   value: "0.1 µF · 400 V", role: "PI hot plate → V7 grid" }
   - { ref: C2,  part: "Coupling capacitor",   value: "0.1 µF · 400 V", role: "PI cold plate → V8 grid" }
   # --- Output stage (6V6GT pair) ---
