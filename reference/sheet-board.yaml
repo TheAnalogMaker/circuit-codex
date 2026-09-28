@@ -993,7 +993,7 @@ amps:
       anchors: 56
       board_only: 0
       merged: 1
-      misplaced: 1
+      misplaced: 0
       pot_as_resistor: 0
       pot_orientation_flipped: 6
       section_swap: 0
@@ -1009,8 +1009,7 @@ amps:
       - RS2
       - RTO10
       - RTO2
-    misplaced:
-    - RT2
+    misplaced: []
     pot_as_resistor: []
     pot_orientation_flipped:
     - VRBN
@@ -1522,7 +1521,7 @@ summary:
   board_only: 5
   claimed_amps_with_findings: 23
   merged: 8
-  misplaced: 35
+  misplaced: 34
   pot_as_resistor: 0
   pot_orientation_flipped: 33
   section_swap: 0

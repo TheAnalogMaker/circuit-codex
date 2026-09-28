@@ -69,7 +69,7 @@ parts:
   - { ref: RGPA, a: [0, 22], b: [1, 22] }  # 1M hot grid leak (GPIA→JPI)
   - { ref: RGPB, a: [0, 23], b: [1, 23] }  # 1M cold grid leak (GPIB→JPI)
   - { ref: RTAIL, a: [1, 19], b: [1, 20] } # 470Ω tail (KPI→JPI)
-  - { ref: RT2, a: [0, 24], b: [1, 24] }  # 22k tail junction → ground (JPI→0)
+  - { ref: RT2, a: [0, 24], b: [1, 24] }  # 22k tail: the junction (JPI) → the feedback node (NFB), as the layout page lands it on the 820/47 eyelet
   # --- the phase inverter's input and feedback networks, beside it as the layout page draws them ---
   - { ref: RMN2, a: [0, 25], b: [0, 26] }  # 220k Normal mixing resistor: a ← the .047 (link X), b = the mix node
   - { ref: RMD1, a: [0, 27], b: [0, 26] }  # 220k Vibrato mixing resistor: a ← the .1 (link Y), b = the mix node
@@ -263,7 +263,7 @@ runs:
   - { from: RTAIL.b, to: RT2.a, via: [[20.4, 1.4], [21.5, 1.1]] }  # tail → junction (JPI), flat from the left (clear of RGPA.b)
   - { from: RGPA.b, to: RT2.a, via: [[23, 1.55]] }               # hot grid leak → junction, from lower-left
   - { from: RGPB.b, to: RT2.a, via: [[24.5, 2], [24.9, 1.5]] }    # cold grid leak → junction, from lower-right (clear of RGRD.b)
-  - { from: RT2.b, to: [1.45, 24] }                                 # tail 22k → ground
+  - { from: RT2.b, to: RNF2.a, via: [[26.0, 1.32]] }                # tail 22k → the feedback node (the RNFB/RNF2/CPIB eyelet), not ground; under CPIA.b, above the bus
   - { from: CPIA.b, to: RGPA.a, via: [[22.95, 1.1], [20.895, 0.256]] }            # .001 → hot grid (GPIA)
   - { from: CPIB.a, to: RGPB.a, via: [[27.5, 0.4], [23.5, 0.4]] }  # .1-200 → cold grid (GPIB)
   - { from: RNF2.b, to: [1.45, 29.3] }                          # 47 → ground
@@ -409,7 +409,7 @@ net_map:
     T3.blue:  BP1    # OT primary, V7 plate lead → B+1
     T3.brown: BP1    # OT primary, V8 plate lead → B+1
     T4.red:   BP1    # reverb-transformer primary, B+ side → B+1
-    SPK: "0"         # speaker jack — OT-secondary DCR folded into ground (NFB return reads as ground at DC)
+    SPK.tip: "0"     # speaker jack — OT-secondary DCR folded into ground (NFB return reads as ground at DC)
   # DC-transparent parts the netlist omits (no DC grid current) — none placed on
   # the board here (the 68k input grid stoppers mount at the jacks, off the board).
   # Netlist elements with no discrete same-named board part — reported in coverage,
