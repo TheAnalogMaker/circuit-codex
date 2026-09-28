@@ -15,5 +15,7 @@ symbols:
   # discrete resistor: the sheet draws the choke itself as L1.
   RCHOKE: L1
 
-# No schematic_claim: this sheet was redrawn on 2026-09-10 from the A-EE
-# drawing, and the claim is the maintainer's to grant again.
+# Hard-gated: verify_schematic_nets.py fails CI on any finding for this sheet.
+# Withdrawn when the sheet was redrawn from the A-EE drawing on 2026-09-10;
+# re-granted by the maintainer on 2026-09-27, the redrawn sheet clean against netlist.cir.
+schematic_claim: verified

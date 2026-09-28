@@ -23,8 +23,10 @@
 # the socket from pin 6, where the coupler and the 220K leak land, to the grid at
 # pin 5.
 #
-# No wiring_claim: this board was redrawn on 2026-09-10 and the claim is the
-# maintainer's to grant again.
+# Hard-gated: verify_layout_nets.py fails CI on any finding for this board.
+# Withdrawn when the board was redrawn from the A-EE layout page on 2026-09-10;
+# re-granted by the maintainer on 2026-09-27, the redrawn board clean against netlist.cir.
+wiring_claim: verified
 board:
   rows: 2
   cols: 74
