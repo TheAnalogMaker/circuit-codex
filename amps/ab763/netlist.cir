@@ -135,8 +135,13 @@ CKRD KRD 0 25u
 
 * --- Phase inverter V6 (12AT7 long-tailed pair): 82k (hot) and 100k (cold)
 *     plate loads from BC; cathodes joined at KPI, 470 Ohm to the tail junction
-*     JPI, 22k tail from JPI to ground; both 1M grid leaks return to JPI. The
-*     820 Ohm/OT-secondary negative-feedback loop sits at ~0 V DC (omitted).
+*     JPI, 22k tail from JPI to the feedback node NFB; both 1M grid leaks
+*     return to JPI. C-FD (schematic and layout alike) lands the tail's foot on
+*     the junction of the 820 Ohm feedback resistor and the 47 Ohm to ground,
+*     not on ground, so the tail current reaches ground through the 47. The
+*     820's other end is the speaker hot: the OT secondary's DCR is folded
+*     into ground, so the 820 returns there too (the arrangement
+*     amps/ab763-super and amps/ab763-twin model).
 RLPA BC PPIA 82k
 XV6A PPIA GPIA KPI 12AT7
 RGPA GPIA JPI 1meg
@@ -144,7 +149,9 @@ RLPB BC PPIB 100k
 XV6B PPIB GPIB KPI 12AT7
 RGPB GPIB JPI 1meg
 RTAIL KPI JPI 470
-RT2 JPI 0 22k
+RT2 JPI NFB 22k
+RNF2 NFB 0 47
+RNFB NFB 0 820
 
 * --- Output pair 6V6GT (fixed bias): grids to -35 V through 220k leaks, screens
 *     off BP1 through 470 Ohm-1W stoppers, cathodes grounded, plates at BP1 (OT
