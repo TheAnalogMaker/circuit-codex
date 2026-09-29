@@ -9,7 +9,7 @@
 * B+1 is DRIVEN at 490 V — a representative figure for the published 50 W Plexi
 * HT rail, stated as a modelling assumption, NOT a measurement — and the
 * downstream rails are DERIVED through the drawn decoupling network (choke +
-* 10 kΩ/1 W droppers + the 47 kΩ PI->2nd-stage dropper). Node voltages are
+* two series 10 kΩ/1 W droppers, then 10 kΩ/1 W to each preamp rail). Node voltages are
 * reported informationally in voltages.yaml (chart: null); none is gate-compared.
 *
 * DC conventions (as in the sibling amps): the output-transformer primary DCR is
@@ -29,11 +29,11 @@
 VBP1 BP1 0 DC 490
 VBIAS NBIAS 0 DC -48
 
-* Rail chain: reservoir -> choke -> EL34 screens -> 10k -> PI -> 47k -> 2nd stage
+* Rail chain: reservoir -> choke -> EL34 screens -> 20k (two 10k/1W in series) -> PI -> 10k -> 2nd stage
 * -> 10k -> input stage. Choke DCR estimated; dropper values from the drawing.
 RCHOKE BP1 BP2 50
-RD1 BP2 BP3 10k
-RD2 BP3 BP4 47k
+RD1 BP2 BP3 20k
+RD2 BP3 BP4 10k
 RD3 BP4 BP5 10k
 
 * --- V1 (ECC83) input valve: two channels ---
@@ -66,7 +66,8 @@ RKCF KCF 0 100k
 * --- V3 (ECC83) long-tailed-pair phase inverter ---
 * 100k (V3A) / 82k (V3B) plate loads from the PI rail; 470R shared cathode over a
 * 10k tail; V3A grid from the tone stack (0.022 coupler, DC-open) with a 1M leak;
-* V3B grid AC-grounded, DC-referred to the tail junction through its 1M leak.
+* V3B grid AC-coupled to the presence node, DC-referred to the grid-leak
+* junction through its own 1M leak.
 RLA BP3 PPIA 100k
 XV3A PPIA GPIA KPI 12AX7
 RGA GPIA JPI 1meg
@@ -74,7 +75,11 @@ RLB BP3 PPIB 82k
 XV3B PPIB GPIB KPI 12AX7
 RGB GPIB JPI 1meg
 RTAIL KPI JPI 470
-RT2 JPI 0 10k
+RT2 JPI PRES 10k
+RPRES PRES 0 5k
+* 47k feedback from the 8-ohm tap; secondary winding DCR omitted.
+RNFB PRES 0 47k
+C25 GPIB PRES 0.1u
 * 47pF plate-to-plate phase-compensation cap (DC-open, both leads on named nodes)
 C12 PPIA PPIB 47p
 
