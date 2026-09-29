@@ -127,15 +127,16 @@ that still carry overlap/termination debt are held behind a
 `pipeline/lint_waivers.yaml` waiver, not shipped clean — remove the waiver only
 once the layout passes the lint on its own.
 
-**A drawn `+` is a claim.** An electrolytic fitted the wrong way round fails,
-so the `+` on a board drawing is a fact a builder acts on. Until 2026-09-11 the
-renderer placed it by position: the left end of a can along a row, the top of
-a standing one. That drew every negative-bias filter can with its `+` on the
-negative node, and every standing cathode bypass on a board whose ground bus
-runs along the top row with its `+` at ground. `verify_layout_nets.py` now
-holds each drawn `+` to the circuit's DC sign and keeps the list in
-`reference/electrolytics.yaml`. Until that list is empty, check a can's `+`
-against the node it sits on before trusting it.
+**A drawn `+` is a claim.** An electrolytic's `plus: a | b` names its actual
+positive lead, independent of where it is placed on the page. Read the
+source's printed `+` where legible, otherwise document the DC sign; position
+alone is not evidence. Both styles draw that declaration, including chassis
+cans. `verify_layout_nets.py` blocks a reversed can on every board and keeps
+all DC-undecided cases explicit in `reference/electrolytics.yaml`. The
+[268-can sweep](electrolytic-polarity.md) has zero reversed marks and 16
+undecided DC checks; a declaration or a clean aggregate must not be described
+as a completed check of those 16. Review the readable can crops and each
+changed board in both styles, plus its regenerated social card.
 
 ## Schematics — the sheet is the figure
 

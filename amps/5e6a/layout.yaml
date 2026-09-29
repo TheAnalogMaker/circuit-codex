@@ -54,17 +54,24 @@ caption: >-
   reproduction.
 source: {desc: 'Fender "Bass-Man" Layout, Model 5E6-A (A-EE), page 1', url: 'https://el34world.com/charts/Schematics/files/Fender/Fender_bassman_5e6a.pdf'}
 
+# Electrolytic lead declarations: see docs/electrolytic-polarity.md for the
+# source crop register and the unresolved DC checks. a/b name actual terminals.
 parts:
   # --- bias supply ------------------------------------------------------------
   - { ref: RB1,  a: [1, 0],  b: [1, 1] }    # 3300, bias tap -> selenium + end
   - { ref: RB2,  a: [1, 2],  b: [1, 3] }    # 56K bleeder, -42 V -> ground
-  - { ref: C14,  a: [0, 2],  b: [0, 3] }    # 100 MFD 25 V; + end (a) to ground, as the schematic letters it
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead C14.a: 0 = +0.0 V (ground); lead C14.b: NBIAS = -42.0 V (ideal source VBIAS); more-positive lead is C14.a.
+  - { ref: C14,  a: [0, 2],  b: [0, 3] , plus: a }    # 100 MFD 25 V; + end (a) to ground, as the schematic letters it
   # --- filter cans and the first dropper ----------------------------------
-  - { ref: C9,   a: [0, 5],  b: [0, 6] }    # 16 MFD, +420 V
-  - { ref: C10,  a: [0, 7],  b: [0, 8] }    # 16 MFD, +410 V
-  - { ref: C11,  a: [0, 9],  b: [0, 10] }   # 16 MFD, +410 V
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead C9.a: BP2 = +409.8 V (op-points) through L1; lead C9.b: 0 = +0.0 V (ground); more-positive lead is C9.a.
+  - { ref: C9,   a: [0, 5],  b: [0, 6] , plus: a }    # 16 MFD, +420 V
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead C10.a: BP2 = +409.8 V (op-points); lead C10.b: 0 = +0.0 V (ground); more-positive lead is C10.a.
+  - { ref: C10,  a: [0, 7],  b: [0, 8] , plus: a }    # 16 MFD, +410 V
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead C11.a: BP2 = +409.8 V (op-points); lead C11.b: 0 = +0.0 V (ground); more-positive lead is C11.a.
+  - { ref: C11,  a: [0, 9],  b: [0, 10] , plus: a }   # 16 MFD, +410 V
   - { ref: RD1,  a: [1, 11], b: [1, 12] }   # 10K, +410 -> +335
-  - { ref: C12,  a: [0, 12], b: [0, 13] }   # 16 MFD, +335 V
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead C12.a: BP3 = +332.3 V (op-points); lead C12.b: 0 = +0.0 V (ground); more-positive lead is C12.a.
+  - { ref: C12,  a: [0, 12], b: [0, 13] , plus: a }   # 16 MFD, +335 V
   # --- phase inverter: driver + cathodyne -----------------------------------
   - { ref: RK3,  a: [0, 15], b: [1, 15] }   # 1500, driver cathode -> ground
   - { ref: RNF,  a: [1, 16], b: [1, 17] }   # 20K, driver cathode -> speaker line
@@ -79,10 +86,12 @@ parts:
   - { ref: CC3,  a: [0, 33], b: [0, 34] }   # .02 MFD 600 V, driver plate -> cathodyne grid
   - { ref: RLD,  a: [1, 35], b: [1, 36] }   # 100K, +335 -> driver plate
   - { ref: RD2,  a: [1, 37], b: [1, 38] }   # 10K, +335 -> +275
-  - { ref: C13,  a: [0, 39], b: [0, 40] }   # 8 MFD, +275 V
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead C13.a: BP4 = +277.4 V (op-points); lead C13.b: 0 = +0.0 V (ground); more-positive lead is C13.a.
+  - { ref: C13,  a: [0, 39], b: [0, 40] , plus: a }   # 8 MFD, +275 V
   # --- gain stage + cathode follower ------------------------------------------
   - { ref: RK2,  a: [0, 42], b: [1, 42] }   # 1500, gain-stage cathode -> ground
-  - { ref: C2,   a: [0, 43], b: [0, 44] }   # 25 MFD 25 V, across RK2
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead C2.a: K2A = +2.1 V (op-points); lead C2.b: 0 = +0.0 V (ground); more-positive lead is C2.a.
+  - { ref: C2,   a: [0, 43], b: [0, 44] , plus: a }   # 25 MFD 25 V, across RK2
   - { ref: RKCF, a: [0, 46], b: [1, 46] }   # 100K, follower cathode -> ground
   # --- tone network (board side) ----------------------------------------------
   - { ref: RBL,  a: [1, 47], b: [1, 48] }   # 220K, ground -> the bass branch's first node
@@ -97,7 +106,8 @@ parts:
   - { ref: RL1,  a: [1, 63], b: [1, 64] }   # 100K, +275 -> V1 pin 6
   - { ref: RL2,  a: [1, 65], b: [1, 66] }   # 100K, +275 -> V1 pin 1
   - { ref: CC2,  a: [0, 67], b: [0, 68] }   # .02 MFD 600 V, V1 pin 1 -> normal Volume
-  - { ref: C1,   a: [0, 69], b: [0, 70] }   # 250 MFD 6 V, across RK1
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead C1.a: KAY = +2.2 V (op-points); lead C1.b: 0 = +0.0 V (ground); more-positive lead is C1.a.
+  - { ref: C1,   a: [0, 69], b: [0, 70] , plus: a }   # 250 MFD 6 V, across RK1
   - { ref: RK1,  a: [0, 72], b: [1, 72] }   # 820, shared cathode -> ground
 
 offboard:

@@ -19,12 +19,16 @@ source:
   desc: "Fender 'Twin-Amp' Model 5F8-A layout drawing (I-EG), page 2 of the published sheet"
   url: "https://schematicheaven.net/fenderamps/twin_5f8a_schem.pdf"
 
+# Electrolytic lead declarations: see docs/electrolytic-polarity.md for the
+# source crop register and the unresolved DC checks. a/b name actual terminals.
 parts:
   # --- bias supply (left end): selenium rect -> 8 µF -> 15k -> 8 µF ‖ 56k -----
-  - { ref: C15b, a: [0, 0],  b: [0, 2] }    # 8 µF reservoir, rectifier side of the 15 kΩ
+  # Polarity: printed '+' on the cited source; lead C15b.a: NBIAS = -41.0 V (ideal source VBIAS) through RB1; lead C15b.b: 0 = +0.0 V (ground); more-positive lead is C15b.b.
+  - { ref: C15b, a: [0, 0],  b: [0, 2] , plus: b }    # 8 µF reservoir, rectifier side of the 15 kΩ
   - { ref: RB1,  a: [1, 0],  b: [1, 1] }    # 15k bias series
   - { ref: RB2,  a: [1, 2],  b: [1, 3] }    # 56k bias bleeder
-  - { ref: C15,  a: [0, 3],  b: [0, 5] }    # 8 µF on the −41 V line
+  # Polarity: printed '+' on the cited source; lead C15.a: NBIAS = -41.0 V (ideal source VBIAS); lead C15.b: 0 = +0.0 V (ground); more-positive lead is C15.b.
+  - { ref: C15,  a: [0, 3],  b: [0, 5] , plus: b }    # 8 µF on the −41 V line
   - { ref: RD1,  a: [1, 4],  b: [1, 5] }    # 4.7k 1W dropper B+2→B+3
   # --- output quartet support: one coupler and one grid leak per PAIR --------
   - { ref: C8,   a: [0, 6],  b: [0, 8] }    # 0.1 µF PI plate (V3A) → the V4/V5 pair
@@ -47,7 +51,8 @@ parts:
   - { ref: C5b,  a: [0, 25], b: [0, 24] }   # 0.02 µF node B → middle wiper (shares the node-B eyelet with C5)
   - { ref: C4,   a: [0, 26], b: [0, 27] }   # 250 pF mica, node A → treble top
   - { ref: RD2,  a: [1, 23], b: [1, 24] }   # 10k 1W dropper B+3→B+4
-  - { ref: C14,  a: [0, 29], b: [0, 31] }   # 8 µF filter, B+4
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead C14.a: BP4 = +296.2 V (op-points); lead C14.b: 0 = +0.0 V (ground); more-positive lead is C14.a.
+  - { ref: C14,  a: [0, 29], b: [0, 31] , plus: a }   # 8 µF filter, B+4
   # --- channel mixers into the V2A grid -------------------------------------
   - { ref: RM1,  a: [1, 25], b: [1, 26] }   # 270k bright-channel mixer
   - { ref: RM2,  a: [1, 27], b: [1, 28] }   # 270k normal-channel mixer
@@ -63,7 +68,8 @@ parts:
   - { ref: R2s,  a: [1, 41], b: [1, 42] }   # 68k bright, jack 2
   - { ref: R3s,  a: [1, 43], b: [1, 44] }   # 68k normal, jack 1
   - { ref: R4s,  a: [1, 45], b: [1, 46] }   # 68k normal, jack 2
-  - { ref: C3,   a: [0, 45], b: [0, 47] }   # 250 µF 12AY7 cathode bypass
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead C3.a: KAY = +2.4 V (op-points); lead C3.b: 0 = +0.0 V (ground); more-positive lead is C3.a.
+  - { ref: C3,   a: [0, 45], b: [0, 47] , plus: a }   # 250 µF 12AY7 cathode bypass
   - { ref: RK1,  a: [0, 48], b: [1, 48] }   # 820 Ω shared 12AY7 cathode (vertical)
 
 offboard:

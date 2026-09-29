@@ -74,17 +74,23 @@ source:
 
 # Board-mounted parts. a / b are eyelet endpoints [row, col]; the body is drawn
 # between them (same row = axial part; column shared across rows = vertical leg).
+# Electrolytic lead declarations: see docs/electrolytic-polarity.md for the
+# source crop register and the unresolved DC checks. a/b name actual terminals.
 parts:
   # filter cans + rail droppers (power-supply end, left)
-  - { ref: C5,  a: [0, 0],  b: [0, 2] }    # 16 µF filter, B+1
-  - { ref: C7,  a: [0, 3],  b: [0, 5] }    # 8 µF filter, B+2
-  - { ref: C8,  a: [0, 6],  b: [0, 8] }    # 8 µF filter, B+3
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead C5.a: BP1 = +340.0 V (ideal source VBP1); lead C5.b: 0 = +0.0 V (ground); more-positive lead is C5.a.
+  - { ref: C5,  a: [0, 0],  b: [0, 2] , plus: a }    # 16 µF filter, B+1
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead C7.a: BP2 = +291.5 V (op-points); lead C7.b: 0 = +0.0 V (ground); more-positive lead is C7.a.
+  - { ref: C7,  a: [0, 3],  b: [0, 5] , plus: a }    # 8 µF filter, B+2
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead C8.a: BP3 = +252.1 V (op-points); lead C8.b: 0 = +0.0 V (ground); more-positive lead is C8.a.
+  - { ref: C8,  a: [0, 6],  b: [0, 8] , plus: a }    # 8 µF filter, B+3
   - { ref: R13, a: [1, 0],  b: [1, 1] }    # 22k negative feedback
   - { ref: R10, a: [1, 3],  b: [1, 4] }    # 10k dropper B+1→B+2
   - { ref: R11, a: [1, 6],  b: [1, 7] }    # 22k dropper B+2→B+3
   # 6V6 output stage
   - { ref: R8,  a: [0, 9],  b: [1, 9] }    # 470 Ω 5W cathode (vertical leg)
-  - { ref: C6,  a: [0, 10], b: [0, 11] }   # 25 µF cathode bypass
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead C6.a: K2 = +18.0 V (op-points); lead C6.b: 0 = +0.0 V (ground); more-positive lead is C6.a.
+  - { ref: C6,  a: [0, 10], b: [0, 11] , plus: a }   # 25 µF cathode bypass
   - { ref: R9,  a: [1, 10], b: [1, 11] }   # 220k grid leak
   - { ref: C3,  a: [0, 13], b: [0, 15] }   # 0.02 µF coupler, V1B → 6V6 grid
   # preamp: two 12AX7 gain stages

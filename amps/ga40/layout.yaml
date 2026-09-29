@@ -54,18 +54,24 @@ source:
 # between them (same row = axial part; shared column across rows = vertical leg).
 # Two leads in one eyelet are one solder point — used deliberately below, e.g.
 # the supply chain's droppers and cans meeting at their shared rail eyelets.
+# Electrolytic lead declarations: see docs/electrolytic-polarity.md for the
+# source crop register and the unresolved DC checks. a/b name actual terminals.
 parts:
   # --- power supply: reservoir -> choke -> +310 -> 10k -> +280 -> 10k -> +265 --
-  - { ref: CF1, a: [0, 1],  b: [1, 1] }     # 20 µF reservoir, ahead of the choke
-  - { ref: CF2, a: [0, 5],  b: [1, 5] }     # 10 µF post-choke can (BP310)
+  # Polarity: printed '+' on the cited source; lead CF1.a: BP310 = +310.0 V (ideal source VBP310) through L1; lead CF1.b: 0 = +0.0 V (ground); more-positive lead is CF1.a.
+  - { ref: CF1, a: [0, 1],  b: [1, 1] , plus: a }     # 20 µF reservoir, ahead of the choke
+  # Polarity: printed '+' on the cited source; lead CF2.a: BP310 = +310.0 V (ideal source VBP310); lead CF2.b: 0 = +0.0 V (ground); more-positive lead is CF2.a.
+  - { ref: CF2, a: [0, 5],  b: [1, 5] , plus: a }     # 10 µF post-choke can (BP310)
   - { ref: RD1, a: [0, 5],  b: [0, 8] }     # 10 kΩ, BP310 -> BP280
   - { ref: RD2, a: [0, 8],  b: [0, 11] }    # 10 kΩ, BP280 -> BP265
   #   ^ no can sits on the +280 eyelet: a published restoration records four
   #     (20/10/10/10 µF) and this reading places three. The gap is left visible.
-  - { ref: CF3, a: [0, 11], b: [1, 11] }    # 10 µF preamp-rail can (BP265)
+  # Polarity: printed '+' on the cited source; lead CF3.a: BP265 = +265.0 V (ideal source VBP265); lead CF3.b: 0 = +0.0 V (ground); more-positive lead is CF3.a.
+  - { ref: CF3, a: [0, 11], b: [1, 11] , plus: a }    # 10 µF preamp-rail can (BP265)
   # --- output stage: the shared cathode resistor, couplers, grid leaks ---------
   - { ref: RKO, a: [0, 14], b: [1, 14] }    # 200 Ω — the pair's ENTIRE bias
-  - { ref: CKO, a: [0, 16], b: [1, 16] }    # 20 µF across it
+  # Polarity: printed '+' on the cited source; lead CKO.a: KOUT = +18.3 V (op-points); lead CKO.b: 0 = +0.0 V (ground); more-positive lead is CKO.a.
+  - { ref: CKO, a: [0, 16], b: [1, 16] , plus: a }    # 20 µF across it
   - { ref: RL4B, a: [0, 19], b: [0, 21] }   # 220 kΩ inverted-side plate load
   - { ref: CC2, a: [0, 21], b: [0, 23] }    # 0.02 µF P4B -> V6 grid
   - { ref: RGL6, a: [0, 23], b: [1, 23] }   # 470 kΩ V6 grid leak — the one that
@@ -79,7 +85,8 @@ parts:
   - { ref: RPB, a: [1, 30], b: [1, 32] }    # 7.5 kΩ divider foot -> ground
   # --- inverter cathodes (ONE resistor for both halves) and the mixer ---------
   - { ref: RK4, a: [0, 34], b: [1, 34] }    # 1 kΩ shared cathode
-  - { ref: CK4, a: [0, 36], b: [1, 36] }    # 20 µF bypass
+  # Polarity: printed '+' on the cited source; lead CK4.a: K4 = +1.3 V (op-points); lead CK4.b: 0 = +0.0 V (ground); more-positive lead is CK4.a.
+  - { ref: CK4, a: [0, 36], b: [1, 36] , plus: a }    # 20 µF bypass
   - { ref: RM1, a: [0, 41], b: [0, 43] }    # 470 kΩ channel-1 mixing resistor
   # --- channel 1 --------------------------------------------------------------
   - { ref: RL1, a: [0, 55], b: [0, 57] }    # 100 kΩ plate load (BP265 -> P1)
@@ -87,7 +94,8 @@ parts:
   - { ref: RS1, a: [0, 62], b: [0, 64] }    # 750 kΩ screen dropper (BP265 -> SG1)
   - { ref: CS1, a: [0, 64], b: [1, 64] }    # 0.05 µF screen bypass
   - { ref: RK1, a: [0, 66], b: [1, 66] }    # 3.3 kΩ cathode
-  - { ref: CK1, a: [0, 68], b: [1, 68] }    # 20 µF cathode bypass
+  # Polarity: printed '+' on the cited source; lead CK1.a: K1 = +4.9 V (op-points); lead CK1.b: 0 = +0.0 V (ground); more-positive lead is CK1.a.
+  - { ref: CK1, a: [0, 68], b: [1, 68] , plus: a }    # 20 µF cathode bypass
   - { ref: RIN1, a: [0, 70], b: [0, 72] }   # 51 kΩ, first jack -> the grid
   - { ref: RIN2, a: [1, 70], b: [1, 72] }   # 51 kΩ, second jack -> the SAME grid
   #   ^ the two sit in parallel between one jack node and one grid; drawn on the
@@ -218,7 +226,8 @@ runs:
   # and octal 7/8 on the 6SQ7, whose pin 2 is its triode grid, not a heater —
   # each validated against the reference/tubes basing data.
   - { from: T1.fil, to: PL1.a, style: twisted, via: [[-1.2, 4.20], [0.2, 4.20]] }
-  - { from: PL1.b, to: V5.pin2, style: twisted, via: [[1.0, 4.20], [10.4, 4.20]] }
+  # Route the pilot feed beside CF1 so the heater pair does not cover its +.
+  - { from: PL1.b, to: V5.pin2, style: twisted, via: [[1.8, 4.20], [10.4, 4.20]] }
   - { from: V5.pin7, to: V6.pin2, style: twisted, via: [[12.0, 4.20], [16.4, 4.20]] }
   - { from: V6.pin7, to: V4.pin4, style: twisted, via: [[18.0, 4.20], [36.4, 4.20]] }
   - { from: V4.pin5, to: V3.pin7, style: twisted, via: [[38.0, 4.20], [45.4, 4.20]] }

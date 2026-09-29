@@ -31,6 +31,8 @@ source:
   desc: "Fender 'Bassman-Amp' Model AA864 layout drawing (H-FD), title block \"FENDER MODEL 'BASSMAN-AMP AA864' LAYOUT P/B\", Fender Electric Instrument Company, Fullerton, California, U.S.A."
   url: "https://el34world.com/charts/Schematics/Files/Fender/Fender_bassman_aa864_layout.pdf"
 
+# Electrolytic lead declarations: see docs/electrolytic-polarity.md for the
+# source crop register and the unresolved DC checks. a/b name actual terminals.
 parts:
   # --- supply corner: reservoir balancing pair, then the two rail droppers ---
   - { ref: RBL1, a: [0, 1], b: [1, 1] }    # 220k-1W across the upper 70 µF can
@@ -58,7 +60,8 @@ parts:
   - { ref: RNF,  a: [1, 39], b: [1, 40] }  # 100 Ω feedback node → ground
   - { ref: RNFB, a: [0, 40], b: [0, 42] }  # 820 Ω negative feedback, speaker → NFB
   # --- Normal channel: cathode pairs, plate loads, tone ladder ---
-  - { ref: CKN1, a: [0, 46], b: [1, 46] }  # 25 µF V2a cathode bypass
+  # Polarity: printed '+' on the cited source; lead CKN1.a: KN1 = +1.9 V (op-points); lead CKN1.b: 0 = +0.0 V (ground); more-positive lead is CKN1.a.
+  - { ref: CKN1, a: [0, 46], b: [1, 46] , plus: a }  # 25 µF V2a cathode bypass
   - { ref: RKN1, a: [0, 48], b: [1, 48] }  # 1.5k V2a cathode bias
   - { ref: RLN1, a: [0, 50], b: [0, 52] }  # 100k V2a plate load (PN1→BPR)
   - { ref: RLN2, a: [0, 52], b: [0, 54] }  # 100k V2b plate load, shares the BPR eyelet
@@ -68,7 +71,8 @@ parts:
   - { ref: CBN2, a: [1, 56], b: [1, 57] }  # 0.047 µF slope node → the bass-pot foot
   - { ref: RSLN, a: [1, 58], b: [1, 59] }  # 6.8k bleed, foot → ground
   - { ref: RKN2, a: [0, 60], b: [1, 60] }  # 1.5k V2b cathode bias
-  - { ref: CKN2, a: [0, 62], b: [1, 62] }  # 25 µF V2b cathode bypass
+  # Polarity: printed '+' on the cited source; lead CKN2.a: KN2 = +1.9 V (op-points); lead CKN2.b: 0 = +0.0 V (ground); more-positive lead is CKN2.a.
+  - { ref: CKN2, a: [0, 62], b: [1, 62] , plus: a }  # 25 µF V2b cathode bypass
   # --- Bass-channel driver (V3b) ---
   - { ref: RLB3, a: [0, 65], b: [0, 67] }  # 100k driver plate load (PB3→BPR)
   - { ref: CLB3, a: [1, 65], b: [1, 67] }  # 0.005 µF straight across RLB3
@@ -79,11 +83,13 @@ parts:
   - { ref: RDV2, a: [1, 74], b: [1, 75] }  # 220k divider, shunt leg (GB3→0)
   - { ref: CDV,  a: [0, 75], b: [1, 75] }  # 0.001 µF across RDV2
   - { ref: RKB2, a: [0, 77], b: [1, 77] }  # 1.5k V1b cathode bias
-  - { ref: CKB2, a: [0, 79], b: [1, 79] }  # 25 µF V1b cathode bypass
+  # Polarity: printed '+' on the cited source; lead CKB2.a: KB2 = +1.9 V (op-points); lead CKB2.b: 0 = +0.0 V (ground); more-positive lead is CKB2.a.
+  - { ref: CKB2, a: [0, 79], b: [1, 79] , plus: a }  # 25 µF V1b cathode bypass
   - { ref: RLB2, a: [0, 81], b: [0, 83] }  # 100k V1b plate load (PB2→BPR)
   - { ref: RLB1, a: [0, 83], b: [0, 85] }  # 100k V1a plate load, shares the BPR eyelet
   - { ref: RKB1, a: [0, 87], b: [1, 87] }  # 1.5k V1a cathode bias
-  - { ref: CKB1, a: [0, 89], b: [1, 89] }  # 25 µF V1a cathode bypass
+  # Polarity: printed '+' on the cited source; lead CKB1.a: KB1 = +1.9 V (op-points); lead CKB1.b: 0 = +0.0 V (ground); more-positive lead is CKB1.a.
+  - { ref: CKB1, a: [0, 89], b: [1, 89] , plus: a }  # 25 µF V1a cathode bypass
   - { ref: CTB,  a: [1, 91], b: [1, 92] }  # 250 pF treble cap off the V1a plate
   - { ref: RTB,  a: [1, 93], b: [1, 94] }  # 250k above the 50k treble pot
   - { ref: RSB1, a: [1, 96], b: [1, 97] }  # 100k slope resistor
@@ -101,11 +107,16 @@ offboard:
   - { id: D4,  ref: D4,  kind: part, edge: top, at: 5.0, label: "D4" }
   - { id: D5,  ref: D5,  kind: part, edge: top, at: 6.4, label: "D5" }
   - { id: D6,  ref: D6,  kind: part, edge: top, at: 7.8, label: "D6" }
-  - { id: C10, ref: C10, kind: part, edge: bottom, at: 1.0,  label: "Can +422 upper" }
-  - { id: C11, ref: C11, kind: part, edge: bottom, at: 3.0,  label: "Can +422 lower" }
-  - { id: C12, ref: C12, kind: part, edge: bottom, at: 5.0,  label: "Can +420" }
-  - { id: C13, ref: C13, kind: part, edge: bottom, at: 7.0,  label: "Can +410" }
-  - { id: C14, ref: C14, kind: part, edge: bottom, at: 9.0,  label: "Can +380" }
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead C10.a: BPL = +422.0 V (ideal source VBPL); lead C10.b: between +0.0 V and +422.0 V, the joint of the series stack C10, C11; more-positive lead is C10.a.
+  - { id: C10, ref: C10, kind: part, edge: bottom, at: 1.0,  label: "Can +422 upper" , plus: a }
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead C11.a: between +0.0 V and +422.0 V, the joint of the series stack C10, C11; lead C11.b: 0 = +0.0 V (ground); more-positive lead is C11.a.
+  - { id: C11, ref: C11, kind: part, edge: bottom, at: 3.0,  label: "Can +422 lower" , plus: a }
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead C12.a: BSC = +420.0 V (ideal source VBSC); lead C12.b: 0 = +0.0 V (ground); more-positive lead is C12.a.
+  - { id: C12, ref: C12, kind: part, edge: bottom, at: 5.0,  label: "Can +420" , plus: a }
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead C13.a: BPI = +409.6 V (op-points); lead C13.b: 0 = +0.0 V (ground); more-positive lead is C13.a.
+  - { id: C13, ref: C13, kind: part, edge: bottom, at: 7.0,  label: "Can +410" , plus: a }
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead C14.a: BPR = +379.4 V (op-points); lead C14.b: 0 = +0.0 V (ground); more-positive lead is C14.a.
+  - { id: C14, ref: C14, kind: part, edge: bottom, at: 9.0,  label: "Can +380" , plus: a }
   - { id: SWSTBY, ref: SWSTBY, kind: switch, edge: bottom, at: 11.5, label: "Standby" }
   - { id: TR2, ref: T2,  kind: choke, edge: top, at: 11.0, label: "Filter choke" }
   - { id: TR3, ref: T3,  kind: xfmr,  edge: top, at: 17.0, label: "Output trans" }
@@ -119,7 +130,8 @@ offboard:
   # negative-bias supply, on its own terminal strip
   - { id: RBIAS,  ref: RBIAS,  kind: part, edge: top, at: 26.0, label: "Bias series R" }
   - { id: DBIAS,  ref: DBIAS,  kind: part, edge: top, at: 29.0, label: "Bias rectifier" }
-  - { id: CB1,    ref: CB1,    kind: part, edge: top, at: 32.0, label: "Bias can" }
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead CB1.a: NBIAS = -44.0 V (ideal source VBIAS) through VRBIAS; lead CB1.b: 0 = +0.0 V (ground); more-positive lead is CB1.b.
+  - { id: CB1,    ref: CB1,    kind: part, edge: top, at: 32.0, label: "Bias can" , plus: b }
   - { id: VRBIAS, ref: VRBIAS, kind: pot,  edge: top, at: 35.5, label: "Bias adjust" }
   - { id: RBIAS2, ref: RBIAS2, kind: part, edge: top, at: 39.0, label: "Bias divider R" }
   # Normal channel controls and jacks

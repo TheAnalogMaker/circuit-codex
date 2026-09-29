@@ -1,354 +1,391 @@
-# GENERATED - pipeline/verify_layout_nets.py --export. Do not hand-edit; a run
-# that disagrees with this file fails the gate, the same way reference/heaters.yaml
-# and reference/sheet-board.yaml are held to what a fresh run produces.
-#
-# WHAT THIS IS. Which end of an electrolytic is positive is a physical fact a
-# builder acts on, and a can fitted the wrong way round fails. The board
-# drawings place each can's '+' by POSITION (the left end of a can along a row,
-# the top of a standing one: render_layouts.plus_side), never from data, so a
-# negative-bias filter can shows its '+' on the negative node, and a standing
-# cathode bypass on a board whose ground bus runs along the top row shows its
-# '+' at ground. verify_layout_nets.py holds each drawn '+' to the circuit's DC
-# sign: the '+' lead must sit on the more positive node. Ground is 0 V; the
-# joint of a series-stacked pair of cans lies between its ends.
-#
-# HOW TO READ IT. `summary` counts every can on every board. `wrong` lists the
-# cans whose '+' is drawn on the MORE NEGATIVE lead, with both leads' levels.
-# `not_decided` lists the cans the DC model does not order (a lead on no
-# modelled node, or on a node with no simulated volts) and the cans drawn with
-# no '+' at all.
-#
-# CLEARING AN ENTRY. Once layout.yaml declares `plus: a|b` and the renderer
-# draws from it, declare each can from the factory layout's own '+' where it is
-# legible, else from the circuit's DC sign, saying which in the comment, and
-# re-export. The check is report-only (ELECTROLYTIC_BLOCKING) until `wrong` is
-# empty.
+# GENERATED - pipeline/verify_layout_nets.py --export. Do not hand-edit.
+# Every evaluated board has counts, including boards with zero cans/findings.
+# `plus:` names the lead carrying each drawn '+'. WRONG means the DC model
+# places that lead below the other lead and blocks CI on every board.
+# `not_decided` is retained evidence, never a claim of correct polarity: the
+# DC model cannot order those leads. Source declarations can establish the
+# physical orientation without turning an unmodelled node into a checked one.
+# Layout comments cite printed marks or explicitly identify DC-sign reasoning.
+# Both styles mark off-board cans as well as the principal board's cans.
 amps:
-  5d3:
-    wrong:
-    - leads: '''+'' lead C1.b: 0 = +0.0 V (ground); other lead C1.a: KAY = +1.8 V (op-points)'
-      placed: 'by position: the left end of a can along a row'
-      plus_drawn_at: b
-      ref: C1
-  5e1:
-    wrong:
-    - leads: '''+'' lead C5.b: 0 = +0.0 V (ground); other lead C5.a: BP2 = +305.2 V (op-points) through
-        L1'
-      placed: 'by position: the left end of a can along a row'
-      plus_drawn_at: b
-      ref: C5
-  5e3:
-    wrong:
-    - leads: '''+'' lead C4.a: 0 = +0.0 V (ground); other lead C4.b: K2A = +1.2 V (op-points)'
-      placed: 'by position: the left end of a can along a row'
-      plus_drawn_at: a
-      ref: C4
-  5e4a:
-    wrong:
-    - leads: '''+'' lead C15.a: NBIAS = -32.0 V (ideal source VBIAS); other lead C15.b: 0 = +0.0 V (ground)'
-      placed: 'by position: the left end of a can along a row'
-      plus_drawn_at: a
-      ref: C15
-    - leads: '''+'' lead C4.b: 0 = +0.0 V (ground); other lead C4.a: K2A = +2.0 V (op-points)'
-      placed: 'by position: the left end of a can along a row'
-      plus_drawn_at: b
-      ref: C4
-  5e5a:
-    wrong:
-    - leads: '''+'' lead C13.a: NBIAS = -32.0 V (ideal source VBIAS); other lead C13.b: 0 = +0.0 V (ground)'
-      placed: 'by position: the left end of a can along a row'
-      plus_drawn_at: a
-      ref: C13
-  5f10:
-    wrong:
-    - leads: '''+'' lead C11.a: NBIAS = -27.0 V (ideal source VBIAS); other lead C11.b: 0 = +0.0 V (ground)'
-      placed: 'by position: the top of a standing can'
-      plus_drawn_at: a
-      ref: C11
-  5f4:
-    wrong:
-    - leads: '''+'' lead C15.a: NBIAS = -40.0 V (ideal source VBIAS); other lead C15.b: 0 = +0.0 V (ground)'
-      placed: 'by position: the left end of a can along a row'
-      plus_drawn_at: a
-      ref: C15
-    - leads: '''+'' lead C4.b: 0 = +0.0 V (ground); other lead C4.a: K2A = +1.5 V (op-points)'
-      placed: 'by position: the left end of a can along a row'
-      plus_drawn_at: b
-      ref: C4
-  5f6:
-    wrong:
-    - leads: '''+'' lead C19.a: NBIAS = -48.0 V (ideal source VBIAS) through RB1; other lead C19.b: 0
-        = +0.0 V (ground)'
-      placed: 'by position: the left end of a can along a row'
-      plus_drawn_at: a
-      ref: C19
-    - leads: '''+'' lead C20.a: NBIAS = -48.0 V (ideal source VBIAS); other lead C20.b: 0 = +0.0 V (ground)'
-      placed: 'by position: the left end of a can along a row'
-      plus_drawn_at: a
-      ref: C20
-  5f6a:
-    wrong:
-    - leads: '''+'' lead C15.a: NBIAS = -48.0 V (ideal source VBIAS); other lead C15.b: 0 = +0.0 V (ground)'
-      placed: 'by position: the left end of a can along a row'
-      plus_drawn_at: a
-      ref: C15
-  5f8a:
-    wrong:
-    - leads: '''+'' lead C15b.a: NBIAS = -41.0 V (ideal source VBIAS) through RB1; other lead C15b.b:
-        0 = +0.0 V (ground)'
-      placed: 'by position: the left end of a can along a row'
-      plus_drawn_at: a
-      ref: C15b
-    - leads: '''+'' lead C15.a: NBIAS = -41.0 V (ideal source VBIAS); other lead C15.b: 0 = +0.0 V (ground)'
-      placed: 'by position: the left end of a can along a row'
-      plus_drawn_at: a
-      ref: C15
-  5g9:
+  '5c1':
+    counts:
+      cans: 4
+      right: 4
+      undecided: 0
+      unmarked: 0
+      wrong: 0
+  '5d3':
+    counts:
+      cans: 6
+      right: 6
+      undecided: 0
+      unmarked: 0
+      wrong: 0
+  '5e1':
+    counts:
+      cans: 5
+      right: 5
+      undecided: 0
+      unmarked: 0
+      wrong: 0
+  '5e3':
+    counts:
+      cans: 6
+      right: 6
+      undecided: 0
+      unmarked: 0
+      wrong: 0
+  '5e4a':
+    counts:
+      cans: 7
+      right: 7
+      undecided: 0
+      unmarked: 0
+      wrong: 0
+  '5e5a':
+    counts:
+      cans: 7
+      right: 7
+      undecided: 0
+      unmarked: 0
+      wrong: 0
+  '5e6a':
+    counts:
+      cans: 8
+      right: 8
+      undecided: 0
+      unmarked: 0
+      wrong: 0
+  '5f1':
+    counts:
+      cans: 4
+      right: 4
+      undecided: 0
+      unmarked: 0
+      wrong: 0
+  '5f10':
+    counts:
+      cans: 5
+      right: 5
+      undecided: 0
+      unmarked: 0
+      wrong: 0
+  '5f2a':
+    counts:
+      cans: 6
+      right: 6
+      undecided: 0
+      unmarked: 0
+      wrong: 0
+  '5f4':
+    counts:
+      cans: 7
+      right: 7
+      undecided: 0
+      unmarked: 0
+      wrong: 0
+  '5f6':
+    counts:
+      cans: 5
+      right: 5
+      undecided: 0
+      unmarked: 0
+      wrong: 0
+  '5f6a':
+    counts:
+      cans: 6
+      right: 6
+      undecided: 0
+      unmarked: 0
+      wrong: 0
+  '5f8a':
+    counts:
+      cans: 4
+      right: 4
+      undecided: 0
+      unmarked: 0
+      wrong: 0
+  '5g9':
+    counts:
+      cans: 8
+      right: 7
+      undecided: 1
+      unmarked: 0
+      wrong: 0
     not_decided:
-    - ref: CK3
+    - leads: '''+'' lead CK3.a: reaches only ground, through RK3; other lead CK3.b: 0 = +0.0 V (ground)'
+      plus_drawn_at: a
+      ref: CK3
       verdict: undecided
       why: 'CK3.a: reaches only ground, through RK3'
-    wrong:
-    - leads: '''+'' lead C13.a: NB69 = -69.0 V (ideal source VB69); other lead C13.b: 0 = +0.0 V (ground)'
-      placed: 'by position: the top of a standing can'
-      plus_drawn_at: a
-      ref: C13
-    - leads: '''+'' lead C14.a: NBIAS = -28.0 V (op-points); other lead C14.b: 0 = +0.0 V (ground)'
-      placed: 'by position: the top of a standing can'
-      plus_drawn_at: a
-      ref: C14
-  6g2:
+  '6161':
+    counts:
+      cans: 5
+      right: 5
+      undecided: 0
+      unmarked: 0
+      wrong: 0
+  '6g2':
+    counts:
+      cans: 6
+      right: 5
+      undecided: 1
+      unmarked: 0
+      wrong: 0
     not_decided:
-    - ref: CKTO
+    - leads: '''+'' lead CKTO.a: reaches only ground, through RKTO; other lead CKTO.b: 0 = +0.0 V (ground)'
+      plus_drawn_at: a
+      ref: CKTO
       verdict: undecided
       why: 'CKTO.a: reaches only ground, through RKTO'
-    wrong:
-    - leads: '''+'' lead C14.a: NBIAS = -35.0 V (ideal source VBIAS) through VR4; other lead C14.b: 0
-        = +0.0 V (ground)'
-      placed: 'by position: over terminal a, the left one, of an off-board can (the era sheet only)'
-      plus_drawn_at: a
-      ref: C14
-  6g3:
+  '6g3':
+    counts:
+      cans: 4
+      right: 3
+      undecided: 1
+      unmarked: 0
+      wrong: 0
     not_decided:
-    - ref: C11
+    - leads: '''+'' lead C11.a: reaches only ground, through RK3; other lead C11.b: 0 = +0.0 V (ground)'
+      plus_drawn_at: a
+      ref: C11
       verdict: undecided
       why: 'C11.a: reaches only ground, through RK3'
-    wrong:
-    - leads: '''+'' lead C25.a: NBIAS = -26.0 V (ideal source VBIAS) through VR6; other lead C25.b: 0
-        = +0.0 V (ground)'
-      placed: 'by position: over terminal a, the left one, of an off-board can (the era sheet only)'
+  '6g4':
+    counts:
+      cans: 7
+      right: 6
+      undecided: 1
+      unmarked: 0
+      wrong: 0
+    not_decided:
+    - leads: '''+'' lead CTOK.a: reaches only ground, through RTOK; other lead CTOK.b: 0 = +0.0 V (ground)'
       plus_drawn_at: a
-      ref: C25
-  6g4:
-    not_decided:
-    - ref: CTOK
+      ref: CTOK
       verdict: undecided
       why: 'CTOK.a: reaches only ground, through RTOK'
-  6g5:
+  '6g5':
+    counts:
+      cans: 7
+      right: 6
+      undecided: 1
+      unmarked: 0
+      wrong: 0
     not_decided:
-    - ref: CTOK
+    - leads: '''+'' lead CTOK.a: reaches only ground, through RTOK; other lead CTOK.b: 0 = +0.0 V (ground)'
+      plus_drawn_at: a
+      ref: CTOK
       verdict: undecided
       why: 'CTOK.a: reaches only ground, through RTOK'
-  aa1164:
+  '6g6b':
+    counts:
+      cans: 4
+      right: 4
+      undecided: 0
+      unmarked: 0
+      wrong: 0
+  'aa1164':
+    counts:
+      cans: 10
+      right: 8
+      undecided: 2
+      unmarked: 0
+      wrong: 0
     not_decided:
-    - ref: CKTO
+    - leads: '''+'' lead CKTO.b: reaches only ground, through RKTO; other lead CKTO.a: 0 = +0.0 V (ground)'
+      plus_drawn_at: b
+      ref: CKTO
       verdict: undecided
       why: 'CKTO.b: reaches only ground, through RKTO'
-    - ref: CKD1
+    - leads: '''+'' lead CKD1.a: KD1 = +1.3 V (op-points); other lead CKD1.b: on KD1B, which has no simulated
+        volts'
+      plus_drawn_at: a
+      ref: CKD1
       verdict: undecided
       why: 'CKD1.b: on KD1B, which has no simulated volts'
-    wrong:
-    - leads: '''+'' lead CKR1.a: 0 = +0.0 V (ground); other lead CKR1.b: KR1 = +1.3 V (op-points)'
-      placed: 'by position: the left end of a can along a row'
-      plus_drawn_at: a
-      ref: CKR1
-    - leads: '''+'' lead CKRD.a: 0 = +0.0 V (ground); other lead CKRD.b: KRD = +8.0 V (op-points)'
-      placed: 'by position: the left end of a can along a row'
-      plus_drawn_at: a
-      ref: CKRD
-    - leads: '''+'' lead CKN2.a: 0 = +0.0 V (ground); other lead CKN2.b: KN2 = +1.3 V (op-points)'
-      placed: 'by position: the left end of a can along a row'
-      plus_drawn_at: a
-      ref: CKN2
-    - leads: '''+'' lead CKN1.a: 0 = +0.0 V (ground); other lead CKN1.b: KN1 = +1.3 V (op-points)'
-      placed: 'by position: the left end of a can along a row'
-      plus_drawn_at: a
-      ref: CKN1
-  aa764:
+  'aa764':
+    counts:
+      cans: 6
+      right: 5
+      undecided: 1
+      unmarked: 0
+      wrong: 0
     not_decided:
-    - ref: C5
+    - leads: '''+'' lead C5.b: K1B = +1.7 V (op-points); other lead C5.a: on KFB, which has no simulated
+        volts'
+      plus_drawn_at: b
+      ref: C5
       verdict: undecided
       why: 'C5.a: on KFB, which has no simulated volts'
-  aa764-vibro:
+  'aa764-vibro':
+    counts:
+      cans: 6
+      right: 5
+      undecided: 1
+      unmarked: 0
+      wrong: 0
     not_decided:
-    - ref: C5
+    - leads: '''+'' lead C5.b: K1B = +1.7 V (op-points); other lead C5.a: on KFB, which has no simulated
+        volts'
+      plus_drawn_at: b
+      ref: C5
       verdict: undecided
       why: 'C5.a: on KFB, which has no simulated volts'
-  aa864-bassman:
-    wrong:
-    - leads: '''+'' lead CB1.a: NBIAS = -44.0 V (ideal source VBIAS) through VRBIAS; other lead CB1.b:
-        0 = +0.0 V (ground)'
-      placed: 'by position: over terminal a, the left one, of an off-board can (the era sheet only)'
-      plus_drawn_at: a
-      ref: CB1
-  aa964:
+  'aa864-bassman':
+    counts:
+      cans: 10
+      right: 10
+      undecided: 0
+      unmarked: 0
+      wrong: 0
+  'aa964':
+    counts:
+      cans: 7
+      right: 6
+      undecided: 1
+      unmarked: 0
+      wrong: 0
     not_decided:
-    - ref: CKTO
+    - leads: '''+'' lead CKTO.a: reaches only ground, through RKTO; other lead CKTO.b: 0 = +0.0 V (ground)'
+      plus_drawn_at: a
+      ref: CKTO
       verdict: undecided
       why: 'CKTO.a: reaches only ground, through RKTO'
-  ab165:
-    wrong:
-    - leads: '''+'' lead CKN2.a: 0 = +0.0 V (ground); other lead CKN2.b: KN2 = +1.9 V (op-points)'
-      placed: 'by position: the left end of a can along a row'
-      plus_drawn_at: a
-      ref: CKN2
-    - leads: '''+'' lead CKN1.a: 0 = +0.0 V (ground); other lead CKN1.b: KN1 = +1.6 V (op-points)'
-      placed: 'by position: the left end of a can along a row'
-      plus_drawn_at: a
-      ref: CKN1
-    - leads: '''+'' lead CKM.a: 0 = +0.0 V (ground); other lead CKM.b: KM = +2.0 V (op-points)'
-      placed: 'by position: the left end of a can along a row'
-      plus_drawn_at: a
-      ref: CKM
-    - leads: '''+'' lead CKB2.a: 0 = +0.0 V (ground); other lead CKB2.b: KB2 = +1.6 V (op-points)'
-      placed: 'by position: the left end of a can along a row'
-      plus_drawn_at: a
-      ref: CKB2
-    - leads: '''+'' lead CKB1.a: 0 = +0.0 V (ground); other lead CKB1.b: KB1 = +1.6 V (op-points)'
-      placed: 'by position: the left end of a can along a row'
-      plus_drawn_at: a
-      ref: CKB1
-  ab763:
+  'ab165':
+    counts:
+      cans: 5
+      right: 5
+      undecided: 0
+      unmarked: 0
+      wrong: 0
+  'ab763':
+    counts:
+      cans: 11
+      right: 9
+      undecided: 2
+      unmarked: 0
+      wrong: 0
     not_decided:
-    - ref: CKTO2
+    - leads: '''+'' lead CKTO2.b: reaches only ground, through RKTO2; other lead CKTO2.a: 0 = +0.0 V (ground)'
+      plus_drawn_at: b
+      ref: CKTO2
       verdict: undecided
       why: 'CKTO2.b: reaches only ground, through RKTO2'
-    - ref: CKTO1
+    - leads: '''+'' lead CKTO1.b: reaches only ground, through RKTO1; other lead CKTO1.a: 0 = +0.0 V (ground)'
+      plus_drawn_at: b
+      ref: CKTO1
       verdict: undecided
       why: 'CKTO1.b: reaches only ground, through RKTO1'
-    wrong:
-    - leads: '''+'' lead CKRD.a: 0 = +0.0 V (ground); other lead CKRD.b: KRD = +8.2 V (op-points)'
-      placed: 'by position: the left end of a can along a row'
-      plus_drawn_at: a
-      ref: CKRD
-    - leads: '''+'' lead CKR1.a: 0 = +0.0 V (ground); other lead CKR1.b: KE = +1.5 V (op-points)'
-      placed: 'by position: the left end of a can along a row'
-      plus_drawn_at: a
-      ref: CKR1
-    - leads: '''+'' lead CKV1.a: 0 = +0.0 V (ground); other lead CKV1.b: KV1 = +1.4 V (op-points)'
-      placed: 'by position: the left end of a can along a row'
-      plus_drawn_at: a
-      ref: CKV1
-    - leads: '''+'' lead CKV2.a: 0 = +0.0 V (ground); other lead CKV2.b: KA = +1.5 V (op-points)'
-      placed: 'by position: the left end of a can along a row'
-      plus_drawn_at: a
-      ref: CKV2
-    - leads: '''+'' lead CKN1.a: 0 = +0.0 V (ground); other lead CKN1.b: KN1 = +1.4 V (op-points)'
-      placed: 'by position: the left end of a can along a row'
-      plus_drawn_at: a
-      ref: CKN1
-  ab763-super:
+  'ab763-super':
+    counts:
+      cans: 7
+      right: 5
+      undecided: 2
+      unmarked: 0
+      wrong: 0
     not_decided:
-    - ref: CKTO2
+    - leads: '''+'' lead CKTO2.a: reaches only ground, through RKTO2; other lead CKTO2.b: 0 = +0.0 V (ground)'
+      plus_drawn_at: a
+      ref: CKTO2
       verdict: undecided
       why: 'CKTO2.a: reaches only ground, through RKTO2'
-    - ref: CKTO1
+    - leads: '''+'' lead CKTO1.a: reaches only ground, through RKTO1; other lead CKTO1.b: 0 = +0.0 V (ground)'
+      plus_drawn_at: a
+      ref: CKTO1
       verdict: undecided
       why: 'CKTO1.a: reaches only ground, through RKTO1'
-  ab763-twin:
+  'ab763-twin':
+    counts:
+      cans: 7
+      right: 5
+      undecided: 2
+      unmarked: 0
+      wrong: 0
     not_decided:
-    - ref: CKTO1
+    - leads: '''+'' lead CKTO1.b: reaches only ground, through RKTO1; other lead CKTO1.a: 0 = +0.0 V (ground)'
+      plus_drawn_at: b
+      ref: CKTO1
       verdict: undecided
       why: 'CKTO1.b: reaches only ground, through RKTO1'
-    - ref: CKTO2
+    - leads: '''+'' lead CKTO2.b: reaches only ground, through RKTO2; other lead CKTO2.a: 0 = +0.0 V (ground)'
+      plus_drawn_at: b
+      ref: CKTO2
       verdict: undecided
       why: 'CKTO2.b: reaches only ground, through RKTO2'
-    wrong:
-    - leads: '''+'' lead CKE.a: 0 = +0.0 V (ground); other lead CKE.b: KE = +2.2 V (op-points)'
-      placed: 'by position: the left end of a can along a row'
-      plus_drawn_at: a
-      ref: CKE
-    - leads: '''+'' lead CKRD.a: 0 = +0.0 V (ground); other lead CKRD.b: KRD = +9.1 V (op-points)'
-      placed: 'by position: the left end of a can along a row'
-      plus_drawn_at: a
-      ref: CKRD
-    - leads: '''+'' lead CKV1.a: 0 = +0.0 V (ground); other lead CKV1.b: KV1 = +2.1 V (op-points)'
-      placed: 'by position: the left end of a can along a row'
-      plus_drawn_at: a
-      ref: CKV1
-    - leads: '''+'' lead CKA.a: 0 = +0.0 V (ground); other lead CKA.b: KA = +2.2 V (op-points)'
-      placed: 'by position: the left end of a can along a row'
-      plus_drawn_at: a
-      ref: CKA
-    - leads: '''+'' lead CKN1.a: 0 = +0.0 V (ground); other lead CKN1.b: KN1 = +2.1 V (op-points)'
-      placed: 'by position: the left end of a can along a row'
-      plus_drawn_at: a
-      ref: CKN1
-  b15n:
-    wrong:
-    - leads: '''+'' lead C15.a: NBIAS = -50.0 V (ideal source VBIAS) through R42; other lead C15.b: 0
-        = +0.0 V (ground)'
-      placed: 'by position: the top of a standing can'
-      plus_drawn_at: a
-      ref: C15
-    - leads: '''+'' lead CBF2.a: NBIAS = -50.0 V (ideal source VBIAS); other lead CBF2.b: 0 = +0.0 V (ground)'
-      placed: 'by position: the top of a standing can'
-      plus_drawn_at: a
-      ref: CBF2
-  dr103:
-    wrong:
-    - leads: '''+'' lead C16.a: NBIAS = -38.0 V (ideal source VBIAS); other lead C16.b: 0 = +0.0 V (ground)'
-      placed: 'by position: the left end of a can along a row'
-      plus_drawn_at: a
-      ref: C16
-  jtm100:
-    wrong:
-    - leads: '''+'' lead C21.a: NBIAS = -65.0 V (ideal source VBIAS) through RB3; other lead C21.b: 0
-        = +0.0 V (ground)'
-      placed: 'by position: the left end of a can along a row'
-      plus_drawn_at: a
-      ref: C21
-    - leads: '''+'' lead C22.a: NBIAS = -65.0 V (ideal source VBIAS); other lead C22.b: 0 = +0.0 V (ground)'
-      placed: 'by position: the left end of a can along a row'
-      plus_drawn_at: a
-      ref: C22
-  jtm45:
-    wrong:
-    - leads: '''+'' lead C16.a: NBIAS = -50.0 V (ideal source VBIAS); other lead C16.b: 0 = +0.0 V (ground)'
-      placed: 'by position: the left end of a can along a row'
-      plus_drawn_at: a
-      ref: C16
-  m1959:
-    wrong:
-    - leads: '''+'' lead C18.a: NBIAS = -46.0 V (ideal source VBIAS); other lead C18.b: 0 = +0.0 V (ground)'
-      placed: 'by position: the left end of a can along a row'
-      plus_drawn_at: a
-      ref: C18
-  m1987:
-    wrong:
-    - leads: '''+'' lead C15.a: NBIAS = -48.0 V (ideal source VBIAS) through RBB; other lead C15.b: 0
-        = +0.0 V (ground)'
-      placed: 'by position: the top of a standing can'
-      plus_drawn_at: a
-      ref: C15
-    - leads: '''+'' lead C16.a: NBIAS = -48.0 V (ideal source VBIAS); other lead C16.b: 0 = +0.0 V (ground)'
-      placed: 'by position: the top of a standing can'
-      plus_drawn_at: a
-      ref: C16
-  m2204:
-    wrong:
-    - leads: '''+'' lead C20.a: NBIAS = -47.0 V (ideal source VBIAS) through R27; other lead C20.b: 0
-        = +0.0 V (ground)'
-      placed: 'by position: the left end of a can along a row'
-      plus_drawn_at: a
-      ref: C20
-    - leads: '''+'' lead C19.a: NBIAS = -47.0 V (ideal source VBIAS); other lead C19.b: 0 = +0.0 V (ground)'
-      placed: 'by position: the left end of a can along a row'
-      plus_drawn_at: a
-      ref: C19
+  'ac15':
+    counts:
+      cans: 6
+      right: 6
+      undecided: 0
+      unmarked: 0
+      wrong: 0
+  'ac30':
+    counts:
+      cans: 6
+      right: 6
+      undecided: 0
+      unmarked: 0
+      wrong: 0
+  'b15n':
+    counts:
+      cans: 7
+      right: 7
+      undecided: 0
+      unmarked: 0
+      wrong: 0
+  'dr103':
+    counts:
+      cans: 8
+      right: 8
+      undecided: 0
+      unmarked: 0
+      wrong: 0
+  'ga40':
+    counts:
+      cans: 6
+      right: 6
+      undecided: 0
+      unmarked: 0
+      wrong: 0
+  'jtm100':
+    counts:
+      cans: 11
+      right: 11
+      undecided: 0
+      unmarked: 0
+      wrong: 0
+  'jtm45':
+    counts:
+      cans: 6
+      right: 6
+      undecided: 0
+      unmarked: 0
+      wrong: 0
+  'm1959':
+    counts:
+      cans: 13
+      right: 13
+      undecided: 0
+      unmarked: 0
+      wrong: 0
+  'm1987':
+    counts:
+      cans: 9
+      right: 9
+      undecided: 0
+      unmarked: 0
+      wrong: 0
+  'm2204':
+    counts:
+      cans: 6
+      right: 6
+      undecided: 0
+      unmarked: 0
+      wrong: 0
 summary:
   cans: 268
-  right: 203
+  right: 252
   undecided: 16
   unmarked: 0
-  wrong: 49
+  wrong: 0

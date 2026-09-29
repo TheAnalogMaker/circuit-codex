@@ -37,14 +37,20 @@ source:
 # Board-mounted parts. a / b are eyelet endpoints [row, col]; the body is drawn
 # between them (same row = axial part; shared column across the rows = a vertical
 # leg — a cathode resistor or bypass can to the ground bus).
+# Electrolytic lead declarations: see docs/electrolytic-polarity.md for the
+# source crop register and the unresolved DC checks. a/b name actual terminals.
 parts:
   # --- bias supply + main filter cans + rail droppers (power end, left) -------
-  - { ref: C15,  a: [0, 0],  b: [0, 2] }    # 100 µF bias-supply filter ("100-25" on the sheet)
+  # Polarity: printed '+' on the cited source; lead C15.a: NBIAS = -32.0 V (ideal source VBIAS); lead C15.b: 0 = +0.0 V (ground); more-positive lead is C15.b.
+  - { ref: C15,  a: [0, 0],  b: [0, 2] , plus: b }    # 100 µF bias-supply filter ("100-25" on the sheet)
   - { ref: RB1,  a: [1, 0],  b: [1, 1] }    # 18k bias series (bias tap -> selenium rect) — the footnoted change
   - { ref: RB2,  a: [1, 2],  b: [1, 3] }    # 56k bias bleeder
-  - { ref: C11,  a: [0, 3],  b: [0, 5] }    # 16 µF filter, B+1 (+390, reservoir)
-  - { ref: C12,  a: [0, 6],  b: [0, 8] }    # 16 µF filter, B+2 (+385, screens + OT CT)
-  - { ref: C13,  a: [0, 9],  b: [0, 11] }   # 16 µF filter, B+3 (+300, PI)
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead C11.a: BP1 = +390.0 V (ideal source VBP1); lead C11.b: 0 = +0.0 V (ground); more-positive lead is C11.a.
+  - { ref: C11,  a: [0, 3],  b: [0, 5] , plus: a }    # 16 µF filter, B+1 (+390, reservoir)
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead C12.a: BP2 = +389.3 V (op-points); lead C12.b: 0 = +0.0 V (ground); more-positive lead is C12.a.
+  - { ref: C12,  a: [0, 6],  b: [0, 8] , plus: a }    # 16 µF filter, B+2 (+385, screens + OT CT)
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead C13.a: BP3 = +315.9 V (op-points); lead C13.b: 0 = +0.0 V (ground); more-positive lead is C13.a.
+  - { ref: C13,  a: [0, 9],  b: [0, 11] , plus: a }   # 16 µF filter, B+3 (+300, PI)
   - { ref: RD1,  a: [1, 4],  b: [1, 5] }    # 10k dropper B+2->B+3
   - { ref: RD2,  a: [1, 6],  b: [1, 7] }    # 10k dropper B+3->B+4
   # --- 6V6GT output support: grid leaks (from -32 V) + 1.5k grid stoppers -----
@@ -71,10 +77,12 @@ parts:
   - { ref: RF1,  a: [1, 30], b: [1, 31] }   # 5M V2A grid reference from node B
   - { ref: RSH,  a: [0, 31], b: [0, 32] }   # 220k bass-branch leak (node B -> ground)
   # --- channel mixers + V2 gain stage / cathode follower ---------------------
-  - { ref: C4,   a: [0, 34], b: [0, 33] }   # 25 µF V2A cathode bypass (shares the cathode eyelet with RK2)
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead C4.b: 0 = +0.0 V (ground); lead C4.a: K2A = +2.0 V (op-points); more-positive lead is C4.a.
+  - { ref: C4,   a: [0, 34], b: [0, 33] , plus: a }   # 25 µF V2A cathode bypass (shares the cathode eyelet with RK2)
   - { ref: RM1,  a: [1, 32], b: [1, 33] }   # 270k channel-1 mixer
   - { ref: RK2,  a: [0, 34], b: [1, 34] }   # 1.5k V2A cathode (vertical)
-  - { ref: C14,  a: [0, 35], b: [0, 37] }   # 8 µF filter, B+4 (+250, preamp)
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead C14.a: BP4 = +263.9 V (op-points); lead C14.b: 0 = +0.0 V (ground); more-positive lead is C14.a.
+  - { ref: C14,  a: [0, 35], b: [0, 37] , plus: a }   # 8 µF filter, B+4 (+250, preamp)
   - { ref: RM2,  a: [1, 35], b: [1, 36] }   # 270k channel-2 mixer
   - { ref: RL3,  a: [1, 37], b: [1, 38] }   # 100k V2A plate load
   # --- 12AY7 input pair (right end) ------------------------------------------
@@ -84,7 +92,8 @@ parts:
   - { ref: RL2,  a: [1, 41], b: [1, 42] }   # 100k V1B plate load
   - { ref: R1s,  a: [1, 44], b: [1, 45] }   # 68k channel-1 grid stopper
   - { ref: RK1,  a: [0, 46], b: [1, 46] }   # 820 Ω shared 12AY7 cathode (vertical)
-  - { ref: C3,   a: [0, 47], b: [0, 48] }   # 25 µF 12AY7 cathode bypass
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead C3.a: KAY = +2.1 V (op-points); lead C3.b: 0 = +0.0 V (ground); more-positive lead is C3.a.
+  - { ref: C3,   a: [0, 47], b: [0, 48] , plus: a }   # 25 µF 12AY7 cathode bypass
   - { ref: R2s,  a: [1, 47], b: [1, 48] }   # 68k channel-2 grid stopper
 
 # Off-board items drawn as labelled stubs around the board, in the drawing's

@@ -124,24 +124,28 @@ backwards sheet is still backwards, so `verify_layout_nets.py` also judges every
 declared `cathode:` against the simulated sign of the supply the diode sits on;
 see *Rectifier polarity* under the equivalence gate below.
 
+**`plus: a | b`** (electrolytics only) names the lead that carries the can's
+`+`, and the drawing puts the mark there in both styles: the `+` and its gutter
+at that end of a can lying along a row, the crimp ring and `+` at that end of a
+standing can. `validate.py` rejects a `plus:` that names no lead of the part, or
+that sits on anything but an electrolytic. Source it from the factory layout's
+own printed `+` where it is legible, else from the circuit's DC sign, and say
+which in the field's comment. A can that declares none keeps the position
+default described under *Which end the `+` is on*.
+
 **Polarity gutter.** An electrolytic's `+` is a placed mark with reserved clear
 space inside the body, and the value reflows into what is left. Set inline (as
 it was until 2026-08-04) the mark's bar struck the first digit and `+25MFD`
 read as `±25MFD` on every narrow can in the corpus.
 
-**Which end the `+` is on.** Today the `+` is placed by position, not from
-data. Both styles put it at the left end of a can lying along a row and at the
-top of a standing can (`render_layouts.plus_side()`, the same orientation
-reading as `cathode_side()`). Off the board only the era sheet marks a can,
-and only on a top- or bottom-edge stub, over terminal `a`. So a negative-bias
-filter can shows its `+` on the negative node, and a standing cathode bypass on
-a board whose ground bus runs along the top row shows its `+` at ground.
-`verify_layout_nets.py` holds each drawn `+` to the circuit's DC sign and
-keeps the result in `reference/electrolytics.yaml` (see *Electrolytic
-polarity* below). A `plus: a | b` field will replace the position rule,
-sourced from the factory layout's own `+` where it is legible and from the DC
-sign only where the layout prints none, and saying which. Until the renderer
-draws from it, no layout declares one.
+**Which end the `+` is on.** Every corpus can declares `plus: a | b`; the
+[polarity audit](electrolytic-polarity.md) records the source reads and the
+remaining DC-model limitations. Both styles resolve that lead to its actual
+position, including reversed `a`/`b` geometry and off-board cans on all four
+edges. An undeclared input retains the legacy left/top position default
+(off-board: terminal `a`); that fallback is rendering compatibility, never
+polarity evidence. `verify_layout_nets.py` checks the drawn lead against DC
+sign and drift-gates `reference/electrolytics.yaml`.
 
 ## `offboard[]` — labelled stubs around the board
 
@@ -162,6 +166,7 @@ draws from it, no layout declares one.
 | `glyph` | Only for `kind: part` — `lamp` draws the pilot-lamp glyph; otherwise the body its BOM part type calls for (see body vocabulary above), at the same size a board part gets, with its value lettered on it |
 | `value` | Only meaningful on a **ref-less** item, and only for `kind: part`. Values live in `bom.yaml`, keyed by ref, so a layout and the parts list can never disagree — and that stays true for every part the BOM knows. But the annotation layer draws parts the electrical model does not carry (a negative-feedback resistor stated only as a schematic *text note*, so it has no symbol and therefore no BOM ref), and those had no way to state a value at all: they shipped as blank bodies. A ref'd item ignores this field, so the two can never diverge. The value must be sourced in a comment; the lint fails a ref-less `kind: part` that has neither |
 | `cathode` | Only for a `kind: part` whose BOM type is a diode/rectifier — `a` \| `b`, same meaning as on `parts[]` |
+| `plus` | Only for a `kind: part` whose BOM type is electrolytic — `a` \| `b`, same meaning as on `parts[]`. Both styles draw the `+` beside the declared terminal on all four edges |
 | `label_nudge` / `value_nudge` | For `kind: pot` — `[dx, dy]` px shifts for the name+value pair / the value alone, keeping the label's opaque halo. `kind: tube` accepts `label_nudge` too (the socket caption as one piece), for a caption whose whole natural band is occupied by a routed run. Same status as `parts[]`'s nudges: an authored starting point for the automatic placement pass, not the mechanism |
 | `tap` | Only for `kind: pot` — `true` declares a **tapped** potentiometer: a fixed connection into the resistance element brought out as a fourth solder lug, addressed as `VRn.lug4`. Drawn as a fourth pip lettered `T` on the pot's flank (the left flank of a top/bottom-edge pot, the upper flank of a left/right-edge one), never as a member of the 1/2/3 fan, whose order is the part's own. The render refuses `tap: true` on a pot whose `bom.yaml` value states no tap, and refuses `.lug4` on a pot that does not declare one — a tap is a fact about the part, so both the parts list and the layout have to say it. The 6G6-B's Normal-channel Treble control (`350 kΩ, 70 kΩ tap` on the E-FB sheet) is the corpus's one tapped pot; its tap carries the 0.1 µF from the slope foot, and the schematic draws it on the matching four-pin `cx:POT_TAP` symbol |
 
@@ -1074,7 +1079,7 @@ other diodes of its own stack or bridge, and never enters ground or a DC node.
 The rule and its reasons are in `docs/schematic-nets.md` under *Rectifier
 feed*.
 
-**Electrolytic polarity: a drift-gated worklist, report-only.** Every
+**Electrolytic polarity: blocking on every board.** Every
 electrolytic the board draws, board-mounted or an off-board `kind: part`, is
 read with the `+` the drawing puts on it (`plus_side()`). That `+` lead must
 sit on the more positive DC node, judged through the same node map and walk as
@@ -1084,12 +1089,18 @@ between its two ends: a net carrying only the stack's leads and its balancing
 resistors cannot sit outside them. Two leads within 0.1 V are not ordered.
 
 Each can reads `right`, `WRONG`, `undecided`, or `unmarked` (no `+` drawn).
-`--export` writes `reference/electrolytics.yaml`: the summary, then, per board,
-every WRONG can with both leads' levels and every can not decided. A full run
-fails when that file is stale, as it does for `reference/heaters.yaml`. The
-verdicts join the DIFF lines only when `ELECTROLYTIC_BLOCKING` is set, which
-happens once `plus:` is declared and drawn and the file's `wrong` list is
-empty.
+`--export` writes `reference/electrolytics.yaml`: global counts and an entry
+for **every evaluated board**, including boards with no findings. Each entry
+has `counts: {cans, right, wrong, undecided, unmarked}` and optional `wrong`
+and `not_decided` arrays. Amp keys are quoted strings, so `5e3` remains an id
+in the site's YAML loader. Missing boards are not evidence of a check.
+
+A full run fails when the report is stale. `ELECTROLYTIC_BLOCKING` also makes
+a reversed can fail every board, with or without `wiring_claim: verified`.
+The sweep reached 252 right, zero wrong, 16 undecided, zero unmarked out of
+268 cans. A source declaration does not resolve missing DC evidence: all 16
+undecided cases remain in the report, with their actual leads and reasons.
+See [the audit register](electrolytic-polarity.md).
 
 **Shorted parts: blocking, its own switch.** A two-lead part whose two leads
 the drawing puts on one net is shorted out: a resistor that drops nothing, a
@@ -1122,9 +1133,11 @@ DC short). A rectifier-polarity case sets the 5F8-A's bias rectifier to
 DIFF that fails the board's verdict now that the check blocks. It then sets
 `cathode: a` and requires *confirmed*. A feed case requires that same
 rectifier to read *fed* as committed, and UNFED, as a DIFF, once its run from
-`PT.red-blue` is deleted. Electrolytic cases take the 5F4's bias filter C15
-and the AB763's cathode bypass CKN1 as drawn (WRONG) and with the `+` turned to
-the other lead (right), and the 5F4's cathode bypass C3 both ways. They also
+`PT.red-blue` is deleted. Electrolytic cases take the 5F4's C15 as committed
+(declared `plus: b`, right), with its declaration turned (WRONG), and with it
+removed (the position default, WRONG). They take the AB763's cathode bypass
+CKN1 as drawn (WRONG) and with the `+` turned to the other lead (right), and the
+5F4's cathode bypass C3 both ways. They also
 require the JTM100's series-stacked C13 and C14 to be decided through their
 joint. Shorted-part cases plant a run between one resistor's two eyelets
 on the 5F1 and a run between an off-board stub's two terminals; each must be

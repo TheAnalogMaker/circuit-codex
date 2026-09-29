@@ -2246,30 +2246,36 @@ class Renderer:
         return (-1 if a_low else 1) if end == "a" else (1 if a_low else -1)
 
     def plus_side(self, part):
-        """Which end of an electrolytic, 'a' or 'b', carries its drawn '+' TODAY,
-        and how that was decided: (end, how), end None when no '+' is drawn.
+        """The lead carrying the drawn '+', and the declaration's provenance.
 
-        The mark is placed by POSITION, never from data. Both styles put it at
-        the LEFT end of a can lying along a row (the modern style's '+' bars,
-        the era sheet's gutter) and at the TOP of a standing can (the modern
-        crimp ring, the era '+'), read with the same orientation rule as
-        cathode_side(). Off the board only the era sheet marks a can, and only
-        on a top- or bottom-edge stub, over terminal a (the left one, see
-        part_terminal_pos()); a left/right-edge stub's can is drawn as a dogbone
-        with no mark, and the modern off-board glyph carries none.
-        verify_layout_nets holds this mark to the circuit's DC sign
-        (reference/electrolytics.yaml). A `plus: a|b` field, once the renderer
-        draws from one, is read here and nowhere else."""
+        Both styles draw a declared mark on board and off-board cans. The
+        legacy position default remains for undeclared inputs; corpus layouts
+        declare every can. Terminal ids, never geometric position, own polarity.
+        """
+        declared = part.get("plus")
+        if declared is not None:
+            if declared not in ("a", "b"):
+                raise ValueError(f"invalid plus lead {declared!r} on {part.get('ref')}")
+            return declared, f"declared: plus: {declared}"
         if "a" in part and "b" in part:
             (r1, c1), (r2, c2) = part["a"], part["b"]
             if c1 == c2 and r1 != r2:
                 return ("a" if r1 < r2 else "b"), "by position: the top of a standing can"
             return ("a" if c1 <= c2 else "b"), "by position: the left end of a can along a row"
-        if part.get("edge", "top") in ("top", "bottom"):
-            return "a", ("by position: over terminal a, the left one, of an off-board can "
-                         "(the era sheet only)")
-        return None, ("no '+' is drawn: a can on a left/right-edge stub carries no mark "
-                      "in either style")
+        return "a", "by position: off-board terminal a"
+
+    def plus_sign(self, part) -> int:
+        """-1 when the drawn '+' sits at the left / top end of the body, +1 at the
+        right / bottom end: plus_side() in the drawing's own terms, as
+        cathode_side() does for a band. With no `plus:` this is always -1,
+        because the position default IS the first end."""
+        end, _how = self.plus_side(part)
+        if "a" in part and "b" in part:
+            (r1, c1), (r2, c2) = part["a"], part["b"]
+            a_first = (r1 < r2) if (c1 == c2 and r1 != r2) else (c1 <= c2)
+        else:
+            a_first = True          # part_terminal_pos(): terminal a is left / top
+        return -1 if (end == "a") == a_first else 1
 
     def bom_for(self, ref):
         rec = self.bom.get(ref)
@@ -2534,17 +2540,18 @@ class Renderer:
         els.append(f'<line x1="{fmt(x1)}" y1="{fmt(y1)}" x2="{fmt(x2)}" y2="{fmt(y2)}" '
                    f'stroke="{LEAD}" stroke-width="2"/>')
         band = self.cathode_side(part) if cat == "diode" else 0
+        plus = self.plus_sign(part) if cat == "electro" else -1
         if vertical:
             cx = x1
             cy = (y1 + y2) / 2
             geom, labs = self._body_vertical(cat, cx, cy, val, ref, ndx, ndy, vndx, vndy,
-                                             band=band)
+                                             band=band, plus=plus)
         else:
             cx = (x1 + x2) / 2
             cy = y1
             span = abs(c2 - c1)
             geom, labs = self._body_horizontal(cat, cx, cy, span, val, ref,
-                                               ndx, ndy, vndx, vndy, band=band)
+                                               ndx, ndy, vndx, vndy, band=band, plus=plus)
         els += geom
         # eyelets on top of leads
         els.append(eyelet(x1, y1))
@@ -2572,7 +2579,7 @@ class Renderer:
                            halo=BOARD, halo_width=2.8, owner=f"{ref} body"))
 
     def _body_horizontal(self, cat, cx, cy, span, val, ref, ndx=0, ndy=0, vndx=0, vndy=0,
-                         band=0):
+                         band=0, plus=-1):
         w = max(26.0, span * CW - 16)
         els: list[str] = []
         labs: list[str] = []
@@ -2595,10 +2602,10 @@ class Renderer:
                        f'rx="6" fill="{ELEC_BODY}" stroke="{ELEC_EDGE}" stroke-width="1.2"/>')
             els.append(f'<ellipse cx="{fmt(cx)}" cy="{fmt(y)}" rx="{fmt(w/2)}" ry="4.5" '
                        f'fill="{ELEC_TOP}" stroke="{ELEC_EDGE}" stroke-width="1"/>')
-            els.append(f'<line x1="{fmt(x+6)}" y1="{fmt(y+9)}" x2="{fmt(x+14)}" y2="{fmt(y+9)}" '
-                       f'stroke="{WELL}" stroke-width="1.6"/>')  # + bar
-            els.append(f'<line x1="{fmt(x+10)}" y1="{fmt(y+5)}" x2="{fmt(x+10)}" y2="{fmt(y+13)}" '
-                       f'stroke="{WELL}" stroke-width="1.6"/>')  # + stem
+            # the '+' at the end plus_side() names: left by default, right when
+            # the part declares its other lead (plus:)
+            px = x + 10 if plus < 0 else x + w - 10
+            els += plus_mark(px, y + 9, 4, WELL, 1.6)
             els.append(f'<line x1="{fmt(x)}" y1="{fmt(cy+8-2)}" x2="{fmt(x+w)}" y2="{fmt(cy+8-2)}" '
                        f'stroke="{ELEC_EDGE}" stroke-width="1"/>')
             self.obst_rect(x, y - 4.5, x + w, y + h, f"{ref} body")
@@ -2631,7 +2638,8 @@ class Renderer:
             labs.append(self._label_pair(cx, y - 6, cy + 21, ref, val, ndx, ndy, vndx, vndy))
         return els, labs
 
-    def _body_vertical(self, cat, cx, cy, val, ref, ndx=0, ndy=0, vndx=0, vndy=0, band=0):
+    def _body_vertical(self, cat, cx, cy, val, ref, ndx=0, ndy=0, vndx=0, vndy=0, band=0,
+                       plus=-1):
         # A standing part bridging the two eyelet rows. Every family keeps the
         # body vocabulary it uses horizontally — a vertical film cap is a
         # square-cornered rectangle, a vertical resistor an end-banded rounded
@@ -2657,8 +2665,13 @@ class Renderer:
         els.append(f'<rect x="{fmt(x)}" y="{fmt(y)}" width="{fmt(w)}" height="{fmt(h)}" '
                    f'rx="{fmt(rx)}" fill="{fill}" stroke="{edge}" stroke-width="1"/>')
         if cat == "electro":
-            els.append(f'<line x1="{fmt(x)}" y1="{fmt(y + 7)}" x2="{fmt(x + w)}" '
-                       f'y2="{fmt(y + 7)}" stroke="{ELEC_EDGE}" stroke-width="1"/>')
+            # the crimp ring marks the '+' end: the top by default, the bottom
+            # when the part declares its lower lead (plus:)
+            ring = (y + 7) if plus < 0 else (y + h - 7)
+            els.append(f'<line x1="{fmt(x)}" y1="{fmt(ring)}" x2="{fmt(x + w)}" '
+                       f'y2="{fmt(ring)}" stroke="{ELEC_EDGE}" stroke-width="1"/>')
+            els += plus_mark(cx, (y + 3.5) if plus < 0 else (y + h - 3.5),
+                             2.4, WELL, 1.2)
         elif cat == "film":
             els.append(f'<line x1="{fmt(x + 2)}" y1="{fmt(cy)}" x2="{fmt(x + w - 2)}" '
                        f'y2="{fmt(cy)}" stroke="{FILM_EDGE}" stroke-width="0.8" '
@@ -2951,13 +2964,18 @@ class Renderer:
         midx, midy = (ta[0] + tb[0]) / 2, (ta[1] + tb[1]) / 2
         els.append(f'<line x1="{fmt(ta[0])}" y1="{fmt(ta[1])}" x2="{fmt(tb[0])}" '
                    f'y2="{fmt(tb[1])}" stroke="{LEAD}" stroke-width="2"/>')
+        ref = item.get("ref")
+        electro = bool(ref) and category(self.bom_for(ref)["part"]) == "electro"
         if horiz:
             bw = max(22.0, abs(tb[0] - ta[0]) - 8)
             bh = 15.0
             rx, ry = midx - bw / 2, midy - bh / 2
             els.append(f'<rect x="{fmt(rx)}" y="{fmt(ry)}" width="{fmt(bw)}" height="{fmt(bh)}" '
                        f'rx="6" fill="{RES_BODY}" stroke="{RES_END}" stroke-width="1"/>')
-            for ex_ in (rx + 5, rx + bw - 5):
+            if electro:
+                px = rx + 5 if self.plus_sign(item) < 0 else rx + bw - 5
+                els += plus_mark(px, midy, 2.5, WELL, 1.3)
+            for ex_ in (() if electro else (rx + 5, rx + bw - 5)):
                 els.append(f'<line x1="{fmt(ex_)}" y1="{fmt(ry+1)}" x2="{fmt(ex_)}" '
                            f'y2="{fmt(ry+bh-1)}" stroke="{RES_END}" stroke-width="2"/>')
             self.obst_rect(rx, ry, rx + bw, ry + bh, f"part {pid} body")
@@ -2981,6 +2999,9 @@ class Renderer:
             rx, ry = midx - bw / 2, midy - bh / 2
             els.append(f'<rect x="{fmt(rx)}" y="{fmt(ry)}" width="{fmt(bw)}" height="{fmt(bh)}" '
                        f'rx="6" fill="{RES_BODY}" stroke="{RES_END}" stroke-width="1"/>')
+            if electro:
+                py = ry + 5 if self.plus_sign(item) < 0 else ry + bh - 5
+                els += plus_mark(midx, py, 2.5, WELL, 1.3)
             self.obst_rect(rx, ry, rx + bw, ry + bh, f"part {pid} body")
             lx = midx + away[0] * 16
             anchor = "end" if away[0] < 0 else "start"
@@ -4377,11 +4398,14 @@ class SheetRenderer(Renderer):
         els = [f'<line x1="{fmt(x1)}" y1="{fmt(y1)}" x2="{fmt(x2)}" y2="{fmt(y2)}" '
                f'stroke="{SH_INK}" stroke-width="1.5"/>']
         band = self.cathode_side(part) if cat == "diode" else 0
+        plus = self.plus_sign(part) if cat == "electro" else -1
         if vertical:
-            els += self._sheet_body_vertical(cat, x1, (y1 + y2) / 2, v1, v2, ref, band=band)
+            els += self._sheet_body_vertical(cat, x1, (y1 + y2) / 2, v1, v2, ref, band=band,
+                                             plus=plus)
         else:
             els += self._sheet_body_horizontal(cat, (x1 + x2) / 2, y1,
-                                               abs(c2 - c1), v1, v2, ref, band=band)
+                                               abs(c2 - c1), v1, v2, ref, band=band,
+                                               plus=plus)
         els.append(sheet_eyelet(x1, y1))
         els.append(sheet_eyelet(x2, y2))
         self.obst_circle(x1, y1, 4.0, f"eyelet {ref}.a")
@@ -4438,7 +4462,7 @@ class SheetRenderer(Renderer):
                 return True
         return False
 
-    def _sheet_body_horizontal(self, cat, cx, cy, span, v1, v2, ref, band=0):
+    def _sheet_body_horizontal(self, cat, cx, cy, span, v1, v2, ref, band=0, plus=-1):
         # Bodies may run a shade wider than their eyelet span (a real can sits
         # over its eyelets) so the value fits ON the part, as the idiom wants.
         w = max((34.0 if cat == "electro" else 30.0), span * CW - 16)
@@ -4456,10 +4480,14 @@ class SheetRenderer(Renderer):
                        f'rx="5" fill="{SH_BODY}" stroke="{SH_INK}" stroke-width="1.8"/>')
             els.append(f'<line x1="{fmt(x)}" y1="{fmt(y + 6.5)}" x2="{fmt(x + w)}" '
                        f'y2="{fmt(y + 6.5)}" stroke="{SH_INK}" stroke-width="0.9"/>')
-            els += plus_mark(x + 7.5, y + 13.5, 3.4, SH_INK, 1.5)
+            # the '+' and its gutter sit at the end plus_side() names: the left
+            # by default, the right when the part declares its other lead
+            els += plus_mark((x + 7.5) if plus < 0 else (x + w - 7.5), y + 13.5,
+                             3.4, SH_INK, 1.5)
             self.obst_rect(x, y, x + w, y + h, f"{ref} body")
             gut = PLUS_GUTTER                 # clear space the '+' owns
-            vcx, vw = x + gut + (w - gut) / 2, w - gut
+            vcx = (x + gut + (w - gut) / 2) if plus < 0 else (x + (w - gut) / 2)
+            vw = w - gut
             placed = False
             for size in (10.5, 9.5, 9.0):     # beside the '+', sharing its line
                 if self._fits(v1, size, vw - 5):
@@ -4532,7 +4560,7 @@ class SheetRenderer(Renderer):
             self._ref_label(cx, cy - 15, ref)
         return els
 
-    def _sheet_body_vertical(self, cat, cx, cy, v1, v2, ref, band=0):
+    def _sheet_body_vertical(self, cat, cx, cy, v1, v2, ref, band=0, plus=-1):
         """A standing part bridging the two eyelet rows — the era sheets drew
         these turned through 90 degrees, keeping each family's own outline.
 
@@ -4568,9 +4596,11 @@ class SheetRenderer(Renderer):
             x, y = cx - w / 2, cy - h / 2
             els.append(f'<rect x="{fmt(x)}" y="{fmt(y)}" width="{fmt(w)}" height="{fmt(h)}" '
                        f'rx="4" fill="{SH_BODY}" stroke="{SH_INK}" stroke-width="1.8"/>')
-            els.append(f'<line x1="{fmt(x)}" y1="{fmt(y + 8.5)}" x2="{fmt(x + w)}" '
-                       f'y2="{fmt(y + 8.5)}" stroke="{SH_INK}" stroke-width="0.9"/>')
-            els += plus_mark(cx, y + 4.2, 2.8, SH_INK, 1.4)
+            # crimp and '+' at the end plus_side() names: the top by default
+            ring = (y + 8.5) if plus < 0 else (y + h - 8.5)
+            els.append(f'<line x1="{fmt(x)}" y1="{fmt(ring)}" x2="{fmt(x + w)}" '
+                       f'y2="{fmt(ring)}" stroke="{SH_INK}" stroke-width="0.9"/>')
+            els += plus_mark(cx, (y + 4.2) if plus < 0 else (y + h - 4.2), 2.8, SH_INK, 1.4)
         elif cat == "diode":
             w = 17.0
             x, y = cx - w / 2, cy - h / 2
@@ -4834,12 +4864,17 @@ class SheetRenderer(Renderer):
                 els.append(f'<line x1="{fmt(x0)}" y1="{fmt(y0 + 5.5)}" '
                            f'x2="{fmt(x0 + bw)}" y2="{fmt(y0 + 5.5)}" '
                            f'stroke="{SH_INK}" stroke-width="0.9"/>')
-                els += plus_mark(x0 + 7.0, y0 + 13.5, 3.2, SH_INK, 1.5)
+                psign = self.plus_sign(item)      # terminal a is the left one
+                # Below the lead axis: the short-can terminal ring occupies
+                # the middle of the gutter and must not overwrite the mark.
+                els += plus_mark((x0 + 7.0) if psign < 0 else (x0 + bw - 7.0), y0 + 21.0,
+                                 3.2, SH_INK, 1.5)
                 self.obst_rect(x0, y0, x0 + bw, y0 + bh2, f"part {pid} body")
                 top = away[1] < 0
                 gut = PLUS_GUTTER
                 on_body = bool(val) and self._val_on_body(
-                    x0 + gut + (bw - gut) / 2, midy + 3.5, val, bw - gut, clear)
+                    (x0 + gut + (bw - gut) / 2) if psign < 0 else (x0 + (bw - gut) / 2),
+                    midy + 3.5, val, bw - gut, clear)
                 ref_y = (midy - 24) if top else (midy + 26)
                 val_y = (midy - 36) if top else (midy + 38)
                 self.lab(midx, ref_y, label.upper(), SH_INK, 10, weight=700,
@@ -4889,9 +4924,16 @@ class SheetRenderer(Renderer):
         else:
             bw, bh = 18.6, max(30.0, abs(tb[1] - ta[1]) - 6)
             rx, ry = midx - bw / 2, midy - bh / 2
-            els.append(f'<g transform="rotate(-90 {fmt(midx)} {fmt(midy)})">'
-                       f'<path d="{dogbone_path(midx, midy, bh)}" fill="{SH_BODY}" '
-                       f'stroke="{SH_INK}" stroke-width="1.6"/></g>')
+            if cat == "electro":
+                els.append(f'<rect x="{fmt(rx)}" y="{fmt(ry)}" width="{fmt(bw)}" '
+                           f'height="{fmt(bh)}" rx="4" fill="{SH_BODY}" '
+                           f'stroke="{SH_INK}" stroke-width="1.6"/>')
+                py = ry + 8 if self.plus_sign(item) < 0 else ry + bh - 8
+                els += plus_mark(midx, py, 2.8, SH_INK, 1.4)
+            else:
+                els.append(f'<g transform="rotate(-90 {fmt(midx)} {fmt(midy)})">'
+                           f'<path d="{dogbone_path(midx, midy, bh)}" fill="{SH_BODY}" '
+                           f'stroke="{SH_INK}" stroke-width="1.6"/></g>')
             self.obst_rect(rx, ry, rx + bw, ry + bh, f"part {pid} body")
             # A standing off-board body letters BESIDE itself, horizontally —
             # the sheet style never rotates type (see _sheet_body_vertical).

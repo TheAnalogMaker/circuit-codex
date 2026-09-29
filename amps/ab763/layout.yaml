@@ -48,12 +48,18 @@ source:
   desc: "Fender 'Deluxe Reverb-Amp AB763' layout drawing (C-FD), page 1"
   url: "https://el34world.com/charts/Schematics/files/Fender/Fender_deluxe_reverb_ab763.pdf"
 
+# Electrolytic lead declarations: see docs/electrolytic-polarity.md for the
+# source crop register and the unresolved DC checks. a/b name actual terminals.
 parts:
   # --- power supply (left end): filter cans + droppers ---
-  - { ref: C10, a: [0, 0], b: [1, 0] }     # 16 µF reservoir (B+1, 6V6 plates)
-  - { ref: C11, a: [0, 1], b: [1, 1] }     # 16 µF post-choke screen node (B+1 at DC)
-  - { ref: C12, a: [0, 2], b: [1, 2] }     # 16 µF B+3 (+325, PI/820-cathode stages)
-  - { ref: C13, a: [0, 3], b: [1, 3] }     # 16 µF B+4 (+180, channel-input rail)
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead C10.a: BP1 = +415.0 V (ideal source VBP1); lead C10.b: 0 = +0.0 V (ground); more-positive lead is C10.a.
+  - { ref: C10, a: [0, 0], b: [1, 0] , plus: a }     # 16 µF reservoir (B+1, 6V6 plates)
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead C11.a: BP1 = +415.0 V (ideal source VBP1); lead C11.b: 0 = +0.0 V (ground); more-positive lead is C11.a.
+  - { ref: C11, a: [0, 1], b: [1, 1] , plus: a }     # 16 µF post-choke screen node (B+1 at DC)
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead C12.a: BC = +325.0 V (ideal source VBC); lead C12.b: 0 = +0.0 V (ground); more-positive lead is C12.a.
+  - { ref: C12, a: [0, 2], b: [1, 2] , plus: a }     # 16 µF B+3 (+325, PI/820-cathode stages)
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead C13.a: BD = +270.2 V (op-points); lead C13.b: 0 = +0.0 V (ground); more-positive lead is C13.a.
+  - { ref: C13, a: [0, 3], b: [1, 3] , plus: a }     # 16 µF B+4 (+180, channel-input rail)
   - { ref: RD1, a: [0, 5], b: [0, 6] }     # 10k dropper B+1→B+3 (not modelled; BC is driven)
   - { ref: RD2, a: [0, 7], b: [0, 8] }     # 10k dropper B+3→B+4 (BC→BD)
   # --- output stage (6V6 pair V7/V8) ---
@@ -79,11 +85,13 @@ parts:
   - { ref: RNF2, a: [1, 28], b: [1, 29] }  # 47: the feedback node → ground
   # --- reverb driver (V4 12AT7, both sections paralleled) ---
   - { ref: RGRD, a: [0, 31], b: [1, 31] }  # 1M grid leak (GRD→0)
-  - { ref: CKRD, a: [0, 32], b: [0, 33] }  # 25µF cathode bypass (shares KRD eyelet)
+  # Polarity: printed '+' on the cited source; lead CKRD.a: 0 = +0.0 V (ground); lead CKRD.b: KRD = +8.2 V (op-points); more-positive lead is CKRD.b.
+  - { ref: CKRD, a: [0, 32], b: [0, 33] , plus: b }  # 25µF cathode bypass (shares KRD eyelet)
   - { ref: RKRD, a: [0, 33], b: [1, 33] }  # 2.2k shared cathode (KRD→0)
   # --- reverb recovery (V3b half) ---
   - { ref: RLR1, a: [0, 47], b: [0, 48] }  # 100k plate load (BD→PR1)
-  - { ref: CKR1, a: [0, 49], b: [0, 50] }  # 25µF cathode bypass (shares KR1)
+  # Polarity: printed '+' on the cited source; lead CKR1.a: 0 = +0.0 V (ground); lead CKR1.b: KE = +1.5 V (op-points); more-positive lead is CKR1.b.
+  - { ref: CKR1, a: [0, 49], b: [0, 50] , plus: b }  # 25µF cathode bypass (shares KR1)
   - { ref: RKR1, a: [0, 50], b: [1, 50] }  # 820Ω cathode (KE→0) — box [E]: the one network, shared with the mix driver
   # --- vibrato/reverb mix driver (V3a half) ---
   - { ref: RGD2, a: [1, 51], b: [1, 52] }  # 220k mix-driver grid return (GD1→0): the fan's 220K to ground on the layout page
@@ -102,7 +110,8 @@ parts:
   # --- tremolo (V5 12AX7): oscillator ladder, lamp driver and their cathode networks, on the
   # board beside the roach as the layout page places them. V5 is excluded from the DC netlist,
   # so this wiring is annotation: not DC-checked, but checked sheet-vs-board ---
-  - { ref: CKTO2, a: [0, 35], b: [0, 36] }  # 25 µF lamp-driver cathode bypass (shares the cathode eyelet)
+  # Polarity: printed '+' on the cited source; source '+' at CKTO2.b; DC check remains undecided (CKTO2.b: reaches only ground, through RKTO2).
+  - { ref: CKTO2, a: [0, 35], b: [0, 36] , plus: b }  # 25 µF lamp-driver cathode bypass (shares the cathode eyelet)
   - { ref: RKTO2, a: [0, 36], b: [1, 36] }  # 100k lamp-driver cathode (+17 V on the chart)
   - { ref: RTOG,  a: [0, 37], b: [0, 38] }  # 2.2M: the vibrato-pedal node → the raw bias supply (its lead leaves the board for the bias box)
   - { ref: RTOG3, a: [0, 38], b: [1, 38] }  # 1M: pedal node → the oscillator grid
@@ -113,7 +122,8 @@ parts:
   - { ref: RTO2, a: [0, 41], b: [1, 41] }  # 220k oscillator plate load from +415 V
   - { ref: RTO10, a: [0, 42], b: [1, 42] }  # 10M lamp-driver plate feed from +415 V
   - { ref: RLAMP, a: [0, 42], b: [0, 43] }  # 100k from +415 V to the neon lamp's far lead
-  - { ref: CKTO1, a: [0, 45], b: [0, 46] }  # 25 µF oscillator cathode bypass (shares the cathode eyelet)
+  # Polarity: printed '+' on the cited source; source '+' at CKTO1.b; DC check remains undecided (CKTO1.b: reaches only ground, through RKTO1).
+  - { ref: CKTO1, a: [0, 45], b: [0, 46] , plus: b }  # 25 µF oscillator cathode bypass (shares the cathode eyelet)
   - { ref: RKTO1, a: [0, 46], b: [1, 46] }  # 2.7k oscillator cathode (+2.1 V on the chart)
   # --- vibrato channel input (V2a half) ---
   - { ref: RLV1, a: [0, 57], b: [0, 58] }  # 100k plate load (BD→PV1)
@@ -123,11 +133,13 @@ parts:
   - { ref: RSV, a: [0, 58], b: [1, 58] }  # 100k slope: plate → the slope foot
   - { ref: CBV, a: [1, 58], b: [1, 59] }  # 0.1: slope foot → the Treble bottom / Bass node
   - { ref: CBV2, a: [1, 60], b: [1, 61] }  # 0.047: slope foot → the Bass foot (the 6.8k on the pot)
-  - { ref: CKV1, a: [0, 62], b: [0, 63] }  # 25µF cathode bypass (shares KV1)
+  # Polarity: printed '+' on the cited source; lead CKV1.a: 0 = +0.0 V (ground); lead CKV1.b: KV1 = +1.4 V (op-points); more-positive lead is CKV1.b.
+  - { ref: CKV1, a: [0, 62], b: [0, 63] , plus: b }  # 25µF cathode bypass (shares KV1)
   - { ref: RKV1, a: [0, 63], b: [1, 63] }  # 1.5k cathode (KV1→0)
   # --- vibrato channel 2nd stage (V2b half) ---
   - { ref: RLV2, a: [0, 64], b: [0, 65] }  # 100k plate load (BD→PV2)
-  - { ref: CKV2, a: [0, 66], b: [0, 67] }  # 25µF cathode bypass (shares KV2)
+  # Polarity: printed '+' on the cited source; lead CKV2.a: 0 = +0.0 V (ground); lead CKV2.b: KA = +1.5 V (op-points); more-positive lead is CKV2.b.
+  - { ref: CKV2, a: [0, 66], b: [0, 67] , plus: b }  # 25µF cathode bypass (shares KV2)
   - { ref: RKV2, a: [0, 67], b: [1, 67] }  # 820Ω cathode (KA→0) — box [A]: the one network, shared with V1b
   # --- normal channel input (V1a half) + 2nd stage (V1b half) ---
   - { ref: RLN1, a: [0, 69], b: [0, 70] }  # 100k plate load (BD→PN1)
@@ -137,7 +149,8 @@ parts:
   - { ref: RSN, a: [0, 70], b: [1, 70] }  # 100k slope: plate → the slope foot
   - { ref: CBN, a: [1, 70], b: [1, 71] }  # 0.1: slope foot → the Treble bottom / Bass node
   - { ref: CBN2, a: [1, 72], b: [1, 73] }  # 0.047: slope foot → the Bass foot (the 6.8k on the pot)
-  - { ref: CKN1, a: [0, 74], b: [0, 75] }  # 25µF cathode bypass (shares KN1)
+  # Polarity: printed '+' on the cited source; lead CKN1.a: 0 = +0.0 V (ground); lead CKN1.b: KN1 = +1.4 V (op-points); more-positive lead is CKN1.b.
+  - { ref: CKN1, a: [0, 74], b: [0, 75] , plus: b }  # 25µF cathode bypass (shares KN1)
   - { ref: RKN1, a: [0, 75], b: [1, 75] }  # 1.5k cathode (KN1→0)
   - { ref: RLN2, a: [0, 69], b: [1, 69] }  # 100k V1b plate load (BD→PN2), sharing RLN1.a's eyelet: the layout page fans both Normal plate loads from one eyelet lettered D
   - { ref: CCN2, a: [1, 69], b: [1, 68] }  # .047 coupler: a on V1b's plate eyelet (with RLN2), b → link X

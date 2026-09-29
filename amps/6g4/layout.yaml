@@ -67,6 +67,8 @@ source:
   desc: "Fender 'Super-Amp' Layout, Model 6G4 (A-FJ), page 2 of the two-page factory sheet (page 1 is the schematic)"
   url: "https://el34world.com/charts/Schematics/files/Fender/Fender_super_6g4_schem.pdf"
 
+# Electrolytic lead declarations: see docs/electrolytic-polarity.md for the
+# source crop register and the unresolved DC checks. a/b name actual terminals.
 parts:
   # --- bias sub-board (the page boxes it beside the power transformer) --------
   # T1's blue-red tap -> the rectifier's "+" end (the cathode, band at a) ->
@@ -75,9 +77,11 @@ parts:
   # lead, so both cans stand with that lead on top, where the drawings put the
   # mark, and a strap takes the two tops to ground.
   - { ref: DBIAS, a: [1, 0], b: [1, 1], cathode: a }   # bias rectifier, "+" toward the tap
-  - { ref: CBIAS, a: [0, 1], b: [1, 1] }     # 8 uF: top (+) to ground, bottom on the rectifier's "-" end
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead CBIAS.a: 0 = +0.0 V (ground); lead CBIAS.b: NBIAS = -55.0 V (ideal source VBIAS) through RBIAS2; more-positive lead is CBIAS.a.
+  - { ref: CBIAS, a: [0, 1], b: [1, 1] , plus: a }     # 8 uF: top (+) to ground, bottom on the rectifier's "-" end
   - { ref: RBIAS2, a: [1, 2], b: [1, 3] }    # 10k, rectifier node -> -55 V
-  - { ref: CBIAS2, a: [0, 3], b: [1, 3] }    # 8 uF: top (+) to ground, bottom on -55 V
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead CBIAS2.a: 0 = +0.0 V (ground); lead CBIAS2.b: NBIAS = -55.0 V (ideal source VBIAS); more-positive lead is CBIAS2.a.
+  - { ref: CBIAS2, a: [0, 3], b: [1, 3] , plus: a }    # 8 uF: top (+) to ground, bottom on -55 V
   - { ref: RBIAS1, a: [1, 4], b: [1, 5] }    # 56k bleeder, -55 V -> ground
   - { ref: RGL1, a: [0, 7], b: [1, 7] }
   - { ref: C1, a: [1, 7], b: [1, 10] }
@@ -102,7 +106,8 @@ parts:
   - { ref: RGV1, a: [0, 33], b: [1, 33] }
   - { ref: RGV2, a: [0, 34], b: [1, 34] }
   - { ref: RKV, a: [0, 35], b: [1, 35] }
-  - { ref: CKV, a: [0, 36], b: [1, 36] }
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead CKV.a: KV = +3.4 V (op-points); lead CKV.b: 0 = +0.0 V (ground); more-positive lead is CKV.a.
+  - { ref: CKV, a: [0, 36], b: [1, 36] , plus: a }
   - { ref: CV1, a: [0, 37], b: [1, 37] }
   - { ref: CLP, a: [0, 38], b: [1, 38] }
   - { ref: RLP, a: [1, 39], b: [0, 39] }
@@ -121,7 +126,8 @@ parts:
   - { ref: CTO2, a: [0, 52], b: [1, 52] }
   - { ref: RTOG2, a: [0, 53], b: [1, 53] }
   - { ref: RTOK, a: [0, 54], b: [1, 54] }
-  - { ref: CTOK, a: [0, 55], b: [1, 55] }
+  # Polarity: DC sign (source read; no legible printed capacitor + used); factory cathode above ground, + at CTOK.a; DC check remains undecided (CTOK.a: reaches only ground, through RTOK).
+  - { ref: CTOK, a: [0, 55], b: [1, 55] , plus: a }
   - { ref: RLS, a: [1, 56], b: [0, 56] }
   - { ref: CPS, a: [0, 57], b: [1, 57] }
   - { ref: CFS, a: [0, 58], b: [1, 58] }
@@ -130,7 +136,8 @@ parts:
   - { ref: CSV, a: [0, 61], b: [1, 61] }
   - { ref: RSV, a: [0, 62], b: [1, 62] }
   - { ref: RKS, a: [0, 63], b: [1, 63] }
-  - { ref: CKS, a: [0, 64], b: [1, 64] }
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead CKS.a: KS = +1.6 V (op-points); lead CKS.b: 0 = +0.0 V (ground); more-positive lead is CKS.a.
+  - { ref: CKS, a: [0, 64], b: [1, 64] , plus: a }
   - { ref: CC1D, a: [0, 65], b: [1, 65] }
   - { ref: RLD1, a: [0, 66], b: [1, 66] }
   - { ref: RL1D, a: [1, 66], b: [1, 67] }
@@ -138,9 +145,11 @@ parts:
   - { ref: CC2D, a: [1, 69], b: [1, 70] }
   - { ref: RM2, a: [1, 70], b: [0, 70] }
   - { ref: RKD, a: [0, 72], b: [1, 72] }
-  - { ref: CKD, a: [0, 73], b: [1, 73] }
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead CKD.a: KD = +1.2 V (op-points); lead CKD.b: 0 = +0.0 V (ground); more-positive lead is CKD.a.
+  - { ref: CKD, a: [0, 73], b: [1, 73] , plus: a }
   - { ref: RKI, a: [0, 75], b: [1, 75] }
-  - { ref: CKI, a: [0, 76], b: [1, 76] }
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead CKI.a: KI = +1.4 V (op-points); lead CKI.b: 0 = +0.0 V (ground); more-positive lead is CKI.a.
+  - { ref: CKI, a: [0, 76], b: [1, 76] , plus: a }
   - { ref: RL1I, a: [0, 78], b: [1, 78] }
   - { ref: CC1T, a: [1, 79], b: [0, 79] }
   - { ref: RL2I, a: [0, 81], b: [1, 81] }

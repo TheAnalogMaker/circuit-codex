@@ -44,6 +44,8 @@ wiring_claim: verified
 
 # Board-mounted parts. a / b are eyelet endpoints [row, col]; the body is drawn
 # between them (same row = axial part; shared column across rows = vertical leg).
+# Electrolytic lead declarations: see docs/electrolytic-polarity.md for the
+# source crop register and the unresolved DC checks. a/b name actual terminals.
 parts:
   # --- negative-bias supply, as 70-19-11 wires it: the HT winding's top end ->
   # 220k in series -> diode -> 8 µF / 15k -> the bias node with its own 8 µF ->
@@ -56,8 +58,10 @@ parts:
   - { ref: D1,   a: [0, 1],  b: [0, 2], nudge: [0, 44], cathode: a }    # bias rectifier (a = the 220k side)
   - { ref: RBB,  a: [0, 2],  b: [0, 3], nudge: [0, -30] }    # 15k between the two filters
   - { ref: RBC,  a: [0, 3],  b: [0, 4] }    # 47k from the bias node to the trimmer
-  - { ref: C15,  a: [0, 2],  b: [1, 2] }    # 8 µF filter at the diode's output, standing
-  - { ref: C16,  a: [0, 3],  b: [1, 3] }    # 8 µF filter at the bias node, standing
+  # Polarity: printed '+' on the cited source; lead C15.b: 0 = +0.0 V (ground); lead C15.a: NBIAS = -48.0 V (ideal source VBIAS) through RBB; more-positive lead is C15.b.
+  - { ref: C15,  a: [0, 2],  b: [1, 2] , plus: b }    # 8 µF filter at the diode's output, standing
+  # Polarity: printed '+' on the cited source; lead C16.b: 0 = +0.0 V (ground); lead C16.a: NBIAS = -48.0 V (ideal source VBIAS); more-positive lead is C16.b.
+  - { ref: C16,  a: [0, 3],  b: [1, 3] , plus: b }    # 8 µF filter at the bias node, standing
   # --- silicon HT rectifier + reservoir (B+1) ---------------------------------
   # HT rectifiers: cathodes toward B+1 (schematic.kicad_sch: D2/D3 at rot 0,
   # K pin toward the B+1 junction), which these runs land on b.
@@ -65,16 +69,22 @@ parts:
   - { ref: D3,   a: [1, 10], b: [1, 11], cathode: b }   # HT rectifier (lower)
   - { ref: C23,  a: [1, 7],  b: [1, 6] }    # 0.22 µF snubber: HT_A end -> chassis (the grounded centre tap)
   - { ref: C24,  a: [1, 10], b: [1, 9] }    # 0.22 µF snubber: HT_B end -> chassis
-  - { ref: C17,  a: [0, 6],  b: [0, 8] }    # 50 µF reservoir, B+1
-  - { ref: C18,  a: [0, 9],  b: [0, 11] }   # 80 µF reservoir, B+1
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead C17.a: BP1 = +490.0 V (ideal source VBP1); lead C17.b: 0 = +0.0 V (ground); more-positive lead is C17.a.
+  - { ref: C17,  a: [0, 6],  b: [0, 8] , plus: a }    # 50 µF reservoir, B+1
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead C18.a: BP1 = +490.0 V (ideal source VBP1); lead C18.b: 0 = +0.0 V (ground); more-positive lead is C18.a.
+  - { ref: C18,  a: [0, 9],  b: [0, 11] , plus: a }   # 80 µF reservoir, B+1
   # --- filter cans + rail droppers (screens, PI, 2nd stage, input) ------------
-  - { ref: C19,  a: [0, 13], b: [0, 15] }   # 50 µF filter, B+2 (screens)
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead C19.a: BP2 = +489.6 V (op-points); lead C19.b: 0 = +0.0 V (ground); more-positive lead is C19.a.
+  - { ref: C19,  a: [0, 13], b: [0, 15] , plus: a }   # 50 µF filter, B+2 (screens)
   - { ref: RD1,  a: [1, 15], b: [1, 16] }   # 20k aggregate (two series 10k/1W) B+2->B+3
-  - { ref: C20,  a: [0, 17], b: [0, 19] }   # 50 µF filter, B+3 (PI)
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead C20.a: BP3 = +340.7 V (op-points); lead C20.b: 0 = +0.0 V (ground); more-positive lead is C20.a.
+  - { ref: C20,  a: [0, 17], b: [0, 19] , plus: a }   # 50 µF filter, B+3 (PI)
   - { ref: RD2,  a: [1, 19], b: [1, 20] }   # 10k dropper B+3->B+4
-  - { ref: C21,  a: [0, 21], b: [0, 23] }   # 50 µF filter, B+4 (2nd stage / CF)
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead C21.a: BP4 = +292.4 V (op-points); lead C21.b: 0 = +0.0 V (ground); more-positive lead is C21.a.
+  - { ref: C21,  a: [0, 21], b: [0, 23] , plus: a }   # 50 µF filter, B+4 (2nd stage / CF)
   - { ref: RD3,  a: [1, 23], b: [1, 24] }   # 10k dropper B+4->B+5
-  - { ref: C22,  a: [0, 25], b: [0, 27] }   # 50 µF filter, B+5 (input)
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead C22.a: BP5 = +273.5 V (op-points); lead C22.b: 0 = +0.0 V (ground); more-positive lead is C22.a.
+  - { ref: C22,  a: [0, 25], b: [0, 27] , plus: a }   # 50 µF filter, B+5 (input)
   # --- EL34 output support: PI-plate couplers + 220k grid leaks ---------------
   - { ref: RGL1, a: [1, 29], b: [1, 30] }   # 220k V4 grid leak -> -BIAS
   - { ref: C13,  a: [0, 30], b: [0, 32] }   # 0.022 µF PI(A) -> V4 grid coupler
@@ -108,7 +118,8 @@ parts:
   - { ref: C4,   a: [0, 70], b: [0, 72] }   # 0.0022 µF V1B -> normal volume
   - { ref: RL2,  a: [1, 70], b: [1, 71] }   # 100k V1B plate load
   - { ref: RK1,  a: [0, 74], b: [1, 74] }   # 820 V1A cathode (vertical)
-  - { ref: C1,   a: [0, 75], b: [0, 77] }   # 320 µF V1A cathode bypass
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead C1.a: K1A = +1.0 V (op-points); lead C1.b: 0 = +0.0 V (ground); more-positive lead is C1.a.
+  - { ref: C1,   a: [0, 75], b: [0, 77] , plus: a }   # 320 µF V1A cathode bypass
   - { ref: RK2,  a: [0, 78], b: [1, 78] }   # 2.7k V1B cathode (vertical)
   - { ref: C2,   a: [0, 79], b: [0, 80] }   # 0.68 µF V1B cathode bypass
 

@@ -48,15 +48,21 @@ source:
 # Two leads in one eyelet are one solder point — used deliberately below, e.g.
 # the supply chain's droppers and cans meeting at their shared rail eyelets and
 # each tone board's pot connections.
+# Electrolytic lead declarations: see docs/electrolytic-polarity.md for the
+# source crop register and the unresolved DC checks. a/b name actual terminals.
 parts:
   # === power supply: reservoir -> 1 kOhm 10 W -> screen node -> two 22 kOhm ==
-  - { ref: C17,  a: [0, 1],  b: [1, 1] }    # 30 uF reservoir (BP1)
+  # Polarity: printed '+' on the cited source; lead C17.a: BP1 = +450.0 V (ideal source VBP1); lead C17.b: 0 = +0.0 V (ground); more-positive lead is C17.a.
+  - { ref: C17,  a: [0, 1],  b: [1, 1] , plus: a }    # 30 uF reservoir (BP1)
   - { ref: R39,  a: [0, 1],  b: [0, 4] }    # 1 kOhm 10 W, BP1 -> screen node
-  - { ref: C16A, a: [0, 4],  b: [1, 4] }    # screen-node section of the C16 can
+  # Polarity: printed '+' on the cited source; lead C16A.a: BP2 = +442.2 V (op-points); lead C16A.b: 0 = +0.0 V (ground); more-positive lead is C16A.a.
+  - { ref: C16A, a: [0, 4],  b: [1, 4] , plus: a }    # screen-node section of the C16 can
   - { ref: R37,  a: [0, 4],  b: [0, 7] }    # 22 kOhm 1 W, BP2 -> preamp rail
-  - { ref: C16B, a: [0, 7],  b: [1, 7] }    # preamp-rail section
+  # Polarity: printed '+' on the cited source; lead C16B.a: BP3 = +383.9 V (op-points); lead C16B.b: 0 = +0.0 V (ground); more-positive lead is C16B.a.
+  - { ref: C16B, a: [0, 7],  b: [1, 7] , plus: a }    # preamp-rail section
   - { ref: R38,  a: [0, 10], b: [0, 13] }   # 22 kOhm 1 W, BP2 -> driver rail
-  - { ref: C16C, a: [0, 13], b: [1, 13] }   # driver-rail section
+  # Polarity: printed '+' on the cited source; lead C16C.a: BP4 = +367.1 V (op-points); lead C16C.b: 0 = +0.0 V (ground); more-positive lead is C16C.a.
+  - { ref: C16C, a: [0, 13], b: [1, 13] , plus: a }   # driver-rail section
   # === negative-bias supply =================================================
   - { ref: R36,  a: [0, 16], b: [0, 19] }   # 100 kOhm 2 W from the 5AR4 plate
   - { ref: R35,  a: [0, 19], b: [1, 19] }   # 56 kOhm on the rectifier side
@@ -65,9 +71,11 @@ parts:
   #     5AR4 plate, its anode the bias filter, so it conducts toward the bias
   #     line on the half cycle that plate swings below ground.
   - { ref: R34,  a: [0, 22], b: [1, 22] }   # 47 kOhm on the bias side
-  - { ref: C15,  a: [0, 25], b: [1, 25] }   # 10 uF bias filter
+  # Polarity: printed '+' on the cited source; lead C15.a: NBIAS = -50.0 V (ideal source VBIAS) through R42; lead C15.b: 0 = +0.0 V (ground); more-positive lead is C15.b.
+  - { ref: C15,  a: [0, 25], b: [1, 25] , plus: b }   # 10 uF bias filter
   - { ref: R42,  a: [0, 25], b: [0, 28] }   # 10 kOhm between the two cans
-  - { ref: CBF2, a: [0, 28], b: [1, 28] }   # 10 uF on the -50 V line itself
+  # Polarity: printed '+' on the cited source; lead CBF2.a: NBIAS = -50.0 V (ideal source VBIAS); lead CBF2.b: 0 = +0.0 V (ground); more-positive lead is CBF2.b.
+  - { ref: CBF2, a: [0, 28], b: [1, 28] , plus: b }   # 10 uF on the -50 V line itself
   # === output stage: couplers, grid returns, stoppers, load resistor ========
   - { ref: C13,  a: [0, 32], b: [0, 34] }   # 0.022 driver plate -> V5 grid
   - { ref: R30,  a: [0, 34], b: [1, 34] }   # 270 kOhm V5 grid return to -50 V
@@ -82,7 +90,8 @@ parts:
   - { ref: R40,  a: [0, 56], b: [0, 58] }   # 10 kOhm global feedback: driver grid(.a) <- OT green(.b)
   - { ref: R27,  a: [0, 60], b: [0, 62] }   # 120 kOhm inverted-side anode load
   - { ref: R24,  a: [0, 64], b: [1, 64] }   # 1 kOhm inverted-side cathode
-  - { ref: CKD1, a: [0, 66], b: [1, 66] }   # 25 uF across it
+  # Polarity: printed '+' on the cited source; lead CKD1.a: K3A = +1.5 V (op-points); lead CKD1.b: 0 = +0.0 V (ground); more-positive lead is CKD1.a.
+  - { ref: CKD1, a: [0, 66], b: [1, 66] , plus: a }   # 25 uF across it
   - { ref: R23,  a: [0, 68], b: [1, 68] }   # 470 kOhm inverted-side grid leak
   - { ref: R28,  a: [0, 70], b: [0, 72] }   # 470 kOhm paraphase divider, upper
   - { ref: R29,  a: [0, 72], b: [0, 74] }   # 510 kOhm paraphase divider, lower

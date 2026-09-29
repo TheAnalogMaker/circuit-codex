@@ -55,6 +55,8 @@ wiring_claim: verified
 # Two leads in one eyelet are one solder point — used deliberately below, e.g. the
 # three series diodes of each HT arm and the reservoir pairs joining at their
 # shared mid-point eyelets.
+# Electrolytic lead declarations: see docs/electrolytic-polarity.md for the
+# source crop register and the unresolved DC checks. a/b name actual terminals.
 parts:
   # --- negative-bias supply (HT tap -> 150k -> diode -> 56k/16k, 8u + 8u) -----
   # Diode orientation read from schematic.kicad_sch: D7 is drawn rot=270 with its
@@ -62,10 +64,12 @@ parts:
   # winding, which is what makes the filter node negative.
   - { ref: RB1,  a: [1, 0],  b: [1, 1],  }   # 150k bias series (VR6 470k trim across it)
   - { ref: D7,   a: [1, 2],  b: [1, 3], cathode: a }   # bias rectifier, cathode toward the 150k
-  - { ref: C21,  a: [0, 3],  b: [0, 5] }    # 8 µF bias filter (supply node)
+  # Polarity: printed '+' on the cited source; lead C21.b: 0 = +0.0 V (ground); lead C21.a: NBIAS = -65.0 V (ideal source VBIAS) through RB3; more-positive lead is C21.b.
+  - { ref: C21,  a: [0, 3],  b: [0, 5] , plus: b }    # 8 µF bias filter (supply node)
   - { ref: RB2,  a: [1, 5],  b: [1, 6] }    # 56k bleeder to ground
   - { ref: RB3,  a: [1, 8],  b: [1, 9] }    # 16k between the two filters
-  - { ref: C22,  a: [0, 8],  b: [0, 10] }   # 8 µF bias filter (grid-line side)
+  # Polarity: printed '+' on the cited source; lead C22.b: 0 = +0.0 V (ground); lead C22.a: NBIAS = -65.0 V (ideal source VBIAS); more-positive lead is C22.b.
+  - { ref: C22,  a: [0, 8],  b: [0, 10] , plus: b }   # 8 µF bias filter (grid-line side)
   # --- HT rectifier: two arms of three series silicon diodes ------------------
   # Each arm's diodes share an eyelet in series; cathodes face the B+1 end.
   - { ref: D1,   a: [1, 12], b: [1, 13], cathode: b }
@@ -75,17 +79,25 @@ parts:
   - { ref: D5,   a: [1, 18], b: [1, 19], cathode: b }
   - { ref: D6,   a: [1, 19], b: [1, 20], cathode: b }
   # --- reservoir: three series 32 µF pairs across B+1 ------------------------
-  - { ref: C13,  a: [0, 12], b: [0, 14] }
-  - { ref: C14,  a: [0, 14], b: [0, 16] }
-  - { ref: C15,  a: [0, 18], b: [0, 20] }
-  - { ref: C16,  a: [0, 20], b: [0, 22] }
-  - { ref: C17,  a: [0, 24], b: [0, 26] }
-  - { ref: C18,  a: [0, 26], b: [0, 28] }
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead C13.a: BP1 = +560.0 V (ideal source VBP1); lead C13.b: between +0.0 V and +560.0 V, the joint of the series stack C13, C14; more-positive lead is C13.a.
+  - { ref: C13,  a: [0, 12], b: [0, 14] , plus: a }
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead C14.a: between +0.0 V and +560.0 V, the joint of the series stack C13, C14; lead C14.b: 0 = +0.0 V (ground); more-positive lead is C14.a.
+  - { ref: C14,  a: [0, 14], b: [0, 16] , plus: a }
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead C15.a: BP1 = +560.0 V (ideal source VBP1); lead C15.b: between +0.0 V and +560.0 V, the joint of the series stack C15, C16; more-positive lead is C15.a.
+  - { ref: C15,  a: [0, 18], b: [0, 20] , plus: a }
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead C16.a: between +0.0 V and +560.0 V, the joint of the series stack C15, C16; lead C16.b: 0 = +0.0 V (ground); more-positive lead is C16.a.
+  - { ref: C16,  a: [0, 20], b: [0, 22] , plus: a }
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead C17.a: BP1 = +560.0 V (ideal source VBP1); lead C17.b: between +0.0 V and +560.0 V, the joint of the series stack C17, C18; more-positive lead is C17.a.
+  - { ref: C17,  a: [0, 24], b: [0, 26] , plus: a }
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead C18.a: between +0.0 V and +560.0 V, the joint of the series stack C17, C18; lead C18.b: 0 = +0.0 V (ground); more-positive lead is C18.a.
+  - { ref: C18,  a: [0, 26], b: [0, 28] , plus: a }
   # --- rail droppers: 8.2k -> phase inverter, 10k/1W -> preamp ---------------
   - { ref: RD1,  a: [1, 32], b: [1, 33] }   # 8.2k, screens -> PI rail
-  - { ref: C19,  a: [0, 33], b: [0, 35] }   # 32 µF, PI rail
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead C19.a: BP3 = +473.6 V (op-points); lead C19.b: 0 = +0.0 V (ground); more-positive lead is C19.a.
+  - { ref: C19,  a: [0, 33], b: [0, 35] , plus: a }   # 32 µF, PI rail
   - { ref: RD2,  a: [1, 38], b: [1, 39] }   # 10k 1W, PI rail -> preamp rail
-  - { ref: C20,  a: [0, 39], b: [0, 41] }   # 16 µF, preamp rail
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead C20.a: BP4 = +406.6 V (op-points); lead C20.b: 0 = +0.0 V (ground); more-positive lead is C20.a.
+  - { ref: C20,  a: [0, 39], b: [0, 41] , plus: a }   # 16 µF, preamp rail
   # --- KT66 output support: phase A (V5 stoppered + V6 direct) ---------------
   - { ref: C9,   a: [0, 45], b: [0, 47] }   # 0.1 µF PI(A) -> phase-A grid node
   - { ref: RGL1, a: [0, 47], b: [1, 47] }   # 220k grid leak for the pair (vertical)
@@ -125,7 +137,8 @@ parts:
   - { ref: C2,   a: [0, 103], b: [0, 105] } # 0.02 µF V1B -> channel II volume
   - { ref: RL2,  a: [1, 103], b: [1, 104] } # 100k V1B plate load
   - { ref: RK1,  a: [0, 107], b: [1, 107] } # 820 shared input cathode (vertical)
-  - { ref: C3,   a: [0, 108], b: [0, 110] } # 25 µF shared cathode bypass
+  # Polarity: printed '+' on the cited source; lead C3.a: KA = +2.2 V (op-points); lead C3.b: 0 = +0.0 V (ground); more-positive lead is C3.a.
+  - { ref: C3,   a: [0, 108], b: [0, 110] , plus: a } # 25 µF shared cathode bypass
 
 # Off-board items as labelled stubs: valves along the bottom in chassis order
 # (four KT66s, the output transformer and speaker jacks, then the ECC83 phase

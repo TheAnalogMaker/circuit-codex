@@ -44,21 +44,28 @@ source:
   desc: "JMI drawing OS/065, \"VOX A.C.30.36 AMPLIFIER CIRCUIT / NORMAL\" (title-block date 29-4-60, main body as amended to Issue 4 of 11-9-64) — layout DERIVED from that circuit drawing; JMI published no board-layout sheet for the AC30/6 and none was located"
   url: "https://www.voxac30.org.uk/vox_ac30_circuit_diagrams.html"
 
+# Electrolytic lead declarations: see docs/electrolytic-polarity.md for the
+# source crop register and the unresolved DC checks. a/b name actual terminals.
 parts:
   # --- supply: reservoir, post-choke can, the two 22 kΩ rail droppers ----------
-  - { ref: C39, a: [0, 1],  b: [1, 1] }    # 16 µF reservoir, ahead of the choke
-  - { ref: C40, a: [0, 2],  b: [1, 2] }    # 16 µF after the choke — the +320 V rail (BP1)
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead C39.a: BP1 = +320.0 V (ideal source VBP1) through CH1; lead C39.b: 0 = +0.0 V (ground); more-positive lead is C39.a.
+  - { ref: C39, a: [0, 1],  b: [1, 1] , plus: a }    # 16 µF reservoir, ahead of the choke
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead C40.a: BP1 = +320.0 V (ideal source VBP1); lead C40.b: 0 = +0.0 V (ground); more-positive lead is C40.a.
+  - { ref: C40, a: [0, 2],  b: [1, 2] , plus: a }    # 16 µF after the choke — the +320 V rail (BP1)
   - { ref: R10, a: [0, 4],  b: [0, 5] }    # 22 kΩ dropper, BP1 → front-end anode supply
-  - { ref: C4,  a: [0, 5],  b: [1, 5] }    # 8 µF front-end smoothing (shares the BPN eyelet)
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead C4.a: BPN = +295.3 V (op-points); lead C4.b: 0 = +0.0 V (ground); more-positive lead is C4.a.
+  - { ref: C4,  a: [0, 5],  b: [1, 5] , plus: a }    # 8 µF front-end smoothing (shares the BPN eyelet)
   - { ref: R11, a: [0, 7],  b: [0, 8] }    # 22 kΩ dropper, BP1 → phase-inverter supply
-  - { ref: C8,  a: [0, 8],  b: [1, 8] }    # 8 µF inverter smoothing (shares the BPPI eyelet)
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead C8.a: BPPI = +291.6 V (op-points); lead C8.b: 0 = +0.0 V (ground); more-positive lead is C8.a.
+  - { ref: C8,  a: [0, 8],  b: [1, 8] , plus: a }    # 8 µF inverter smoothing (shares the BPPI eyelet)
   # --- the two grid-drive lines out of the inverter ---------------------------
   - { ref: C6,  a: [0, 10], b: [0, 12] }   # 0.15 µF inverter anode A → drive line A
   - { ref: R20, a: [0, 12], b: [1, 12] }   # 220 kΩ drive-line-A return (grid leak, V3 + V5)
   - { ref: C9,  a: [0, 14], b: [0, 16] }   # 0.15 µF inverter anode B → drive line B
   - { ref: R21, a: [0, 16], b: [1, 16] }   # 280 kΩ drive-line-B return — the drawing's asymmetric partner
   # --- the output quartet's ENTIRE bias arrangement: one resistor, one can -----
-  - { ref: C11, a: [0, 18], b: [1, 18] }   # 250 µF cathode bypass
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead C11.a: KOUT = +10.6 V (op-points); lead C11.b: 0 = +0.0 V (ground); more-positive lead is C11.a.
+  - { ref: C11, a: [0, 18], b: [1, 18] , plus: a }   # 250 µF cathode bypass
   - { ref: R24, a: [0, 19], b: [1, 19] }   # 50 Ω shared cathode resistor, all four EL84s
   # --- output stage: a grid stopper left and a screen stopper right of each valve
   - { ref: R22, a: [0, 21], b: [0, 22] }   # 1.5 kΩ V3 grid stopper (drive line A → G3)
@@ -87,7 +94,8 @@ parts:
   - { ref: R6,  a: [0, 83], b: [0, 84] }   # 220 kΩ anode load, Normal side (pin 6)
   - { ref: R5,  a: [0, 85], b: [0, 86] }   # 220 kΩ anode load, Brilliant side (pin 1)
   - { ref: R4,  a: [0, 88], b: [1, 88] }   # 1.5 kΩ SHARED cathode resistor, both channels
-  - { ref: C1,  a: [0, 89], b: [1, 89] }   # 25 µF shared cathode bypass
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead C1.a: KV1 = +1.7 V (op-points); lead C1.b: 0 = +0.0 V (ground); more-positive lead is C1.a.
+  - { ref: C1,  a: [0, 89], b: [1, 89] , plus: a }   # 25 µF shared cathode bypass
   - { ref: R14, a: [0, 91], b: [1, 91] }   # 1 MΩ Normal input grid leak
   - { ref: R3,  a: [0, 93], b: [1, 93] }   # 1 MΩ Brilliant input grid leak
 

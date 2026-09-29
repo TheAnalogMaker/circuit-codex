@@ -40,14 +40,20 @@ source:
   desc: "JMI drawing OA/031, \"VOX AC.15 amplifier circuit No. 3\" (29-4-60) — layout DERIVED from that circuit drawing; JMI published no board-layout sheet for the AC15 and none was located"
   url: "https://www.voxac30.org.uk/vox_ac15_third_circuit.html"
 
+# Electrolytic lead declarations: see docs/electrolytic-polarity.md for the
+# source crop register and the unresolved DC checks. a/b name actual terminals.
 parts:
   # --- power supply: reservoir, post-choke can, two of the three 22 kΩ droppers
-  - { ref: CR1,  a: [0, 1],  b: [1, 1] }    # 16 µF reservoir (+325 V, ahead of the choke)
-  - { ref: CR2,  a: [0, 2],  b: [1, 2] }    # 16 µF after the choke — the +315 V rail (BP1)
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead CR1.a: BP1 = +315.0 V (ideal source VBP1) through CH1; lead CR1.b: 0 = +0.0 V (ground); more-positive lead is CR1.a.
+  - { ref: CR1,  a: [0, 1],  b: [1, 1] , plus: a }    # 16 µF reservoir (+325 V, ahead of the choke)
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead CR2.a: BP1 = +315.0 V (ideal source VBP1); lead CR2.b: 0 = +0.0 V (ground); more-positive lead is CR2.a.
+  - { ref: CR2,  a: [0, 2],  b: [1, 2] , plus: a }    # 16 µF after the choke — the +315 V rail (BP1)
   - { ref: RD1,  a: [0, 4],  b: [0, 5] }    # 22 kΩ dropper, BP1 → Normal-channel rail
-  - { ref: CF1,  a: [0, 5],  b: [1, 5] }    # 8 µF Normal-channel smoothing (shares the BPN eyelet)
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead CF1.a: BPN = +289.1 V (op-points); lead CF1.b: 0 = +0.0 V (ground); more-positive lead is CF1.a.
+  - { ref: CF1,  a: [0, 5],  b: [1, 5] , plus: a }    # 8 µF Normal-channel smoothing (shares the BPN eyelet)
   - { ref: RD2,  a: [0, 7],  b: [0, 8] }    # 22 kΩ dropper, BP1 → phase-inverter rail
-  - { ref: CF2,  a: [0, 8],  b: [1, 8] }    # 8 µF phase-inverter smoothing (shares the BPPI eyelet)
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead CF2.a: BPPI = +287.0 V (op-points); lead CF2.b: 0 = +0.0 V (ground); more-positive lead is CF2.a.
+  - { ref: CF2,  a: [0, 8],  b: [1, 8] , plus: a }    # 8 µF phase-inverter smoothing (shares the BPPI eyelet)
   # --- output stage: screen stoppers, grid networks, the one shared cathode resistor
   - { ref: RSC1, a: [0, 11], b: [0, 12] }   # 100 Ω V3 screen stopper (BP1 → S3)
   - { ref: RSC2, a: [0, 14], b: [0, 15] }   # 100 Ω V4 screen stopper (BP1 → S4)
@@ -58,7 +64,8 @@ parts:
   - { ref: RGL2, a: [0, 23], b: [1, 23] }   # 220 kΩ V4 grid leak (shares the NG4 eyelet)
   - { ref: RST2, a: [0, 23], b: [0, 24] }   # 1.5 kΩ V4 grid stopper (NG4 → G4)
   - { ref: R22,  a: [0, 26], b: [1, 26] }   # 130 Ω · 5 W — the pair's ENTIRE bias arrangement
-  - { ref: CKO,  a: [0, 27], b: [1, 27] }   # 50 µF cathode bypass across it
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead CKO.a: KOUT = +11.2 V (op-points); lead CKO.b: 0 = +0.0 V (ground); more-positive lead is CKO.a.
+  - { ref: CKO,  a: [0, 27], b: [1, 27] , plus: a }   # 50 µF cathode bypass across it
   # --- phase inverter: matched anode loads, both grid leaks to the tail junction
   - { ref: RLA,  a: [0, 30], b: [0, 31] }   # 100 kΩ anode load, Normal side
   - { ref: RLB,  a: [0, 32], b: [0, 33] }   # 100 kΩ anode load, Vibrato/Tremolo side
@@ -74,7 +81,8 @@ parts:
   - { ref: RS1,  a: [0, 49], b: [0, 50] }   # 1 MΩ screen feed (BPN → SEF)
   - { ref: CS1,  a: [0, 50], b: [1, 50] }   # 0.1 µF screen bypass (shares the SEF eyelet)
   - { ref: RK1,  a: [0, 53], b: [1, 53] }   # 2.2 kΩ cathode bias
-  - { ref: CK1,  a: [0, 54], b: [1, 54] }   # 25 µF cathode bypass
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead CK1.a: KEF = +2.6 V (op-points); lead CK1.b: 0 = +0.0 V (ground); more-positive lead is CK1.a.
+  - { ref: CK1,  a: [0, 54], b: [1, 54] , plus: a }   # 25 µF cathode bypass
   - { ref: CO1,  a: [0, 56], b: [0, 57] }   # 0.01 µF anode → Brilliance switch → volume
 
 offboard:

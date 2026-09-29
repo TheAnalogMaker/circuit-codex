@@ -75,6 +75,8 @@ source:
   desc: "Fender 'Princeton-Amp AA964' layout drawing (L-FD)"
   url: "https://el34world.com/charts/Schematics/files/Fender/Fender_princeton_AA964_layout.pdf"
 
+# Electrolytic lead declarations: see docs/electrolytic-polarity.md for the
+# source crop register and the unresolved DC checks. a/b name actual terminals.
 parts:
   # --- dropper chain at the left end, beside the chassis-mounted filter can ---
   - { ref: RD1, a: [0, 2], b: [0, 4] }     # 1k-1W  +420 (BP1) → +415 screen rail (BA)
@@ -100,10 +102,12 @@ parts:
   - { ref: RTO1,   a: [0, 39], b: [1, 39] } # 1M returned to the oscillator cathode
   - { ref: RTO2,   a: [0, 40], b: [1, 40] } # 1M grid to ground
   - { ref: RKTO,   a: [1, 39], b: [1, 38] } # 3.3k oscillator cathode bias
-  - { ref: CKTO,   a: [1, 41], b: [1, 42] } # 25µF oscillator cathode bypass
+  # Polarity: printed '+' on the cited source; source '+' at CKTO.a; DC check remains undecided (CKTO.a: reaches only ground, through RKTO).
+  - { ref: CKTO,   a: [1, 41], b: [1, 42] , plus: a } # 25µF oscillator cathode bypass
   # --- feedback tail and the second stage's cathode (V1B half) ---
   - { ref: RNFB, a: [1, 45], b: [1, 46] }  # 2.7k negative feedback, speaker → tail (J1B)
-  - { ref: CK1B, a: [0, 46], b: [1, 46] }  # 25µF cathode bypass (K1B→J1B)
+  # Polarity: printed '+' on the cited source; lead CK1B.a: K1B = +1.6 V (op-points); lead CK1B.b: J1B = +0.0 V (op-points); more-positive lead is CK1B.a.
+  - { ref: CK1B, a: [0, 46], b: [1, 46] , plus: a }  # 25µF cathode bypass (K1B→J1B)
   - { ref: RK1B, a: [0, 48], b: [1, 48] }  # 1.5k cathode resistor (K1B→J1B)
   - { ref: R47,  a: [1, 48], b: [1, 49] }  # 47Ω feedback tail (J1B→0), shares J1B
   # --- second-stage coupler and the two plate loads off the shared +290 eyelet ---
@@ -118,17 +122,22 @@ parts:
   - { ref: RBL, a: [0, 59], b: [1, 59] }   # 6.8k bleed to ground
   # --- first stage cathode (V1A half) ---
   - { ref: RK1A, a: [0, 62], b: [1, 62] }  # 1.5k cathode resistor (K1A→0)
-  - { ref: CK1A, a: [0, 64], b: [1, 64] }  # 25µF cathode bypass (K1A→0)
+  # Polarity: printed '+' on the cited source; lead CK1A.a: K1A = +1.5 V (op-points); lead CK1A.b: 0 = +0.0 V (ground); more-positive lead is CK1A.a.
+  - { ref: CK1A, a: [0, 64], b: [1, 64] , plus: a }  # 25µF cathode bypass (K1A→0)
 
 offboard:
   - { id: TR1, ref: TR1, kind: xfmr, edge: left,   at: 0.45, label: "Power trans" }
   - { id: PL1, kind: part, glyph: lamp, edge: left, at: 1.5, label: "Pilot lamp" }
   # the four filter sections + the third dropper live at the chassis-mounted can
-  - { id: CA,  ref: CA,  kind: part, edge: bottom, at: 1.0, label: "Can +420" }
-  - { id: CB,  ref: CB,  kind: part, edge: bottom, at: 3.0, label: "Can +415" }
-  - { id: CC,  ref: CC,  kind: part, edge: bottom, at: 5.0, label: "Can +370" }
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead CA.a: BP1 = +420.0 V (ideal source VBP1); lead CA.b: 0 = +0.0 V (ground); more-positive lead is CA.a.
+  - { id: CA,  ref: CA,  kind: part, edge: bottom, at: 1.0, label: "Can +420" , plus: a }
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead CB.a: BA = +412.0 V (op-points); lead CB.b: 0 = +0.0 V (ground); more-positive lead is CB.a.
+  - { id: CB,  ref: CB,  kind: part, edge: bottom, at: 3.0, label: "Can +415" , plus: a }
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead CC.a: BINT = +354.5 V (op-points); lead CC.b: 0 = +0.0 V (ground); more-positive lead is CC.a.
+  - { id: CC,  ref: CC,  kind: part, edge: bottom, at: 5.0, label: "Can +370" , plus: a }
   - { id: RD3, ref: RD3, kind: part, edge: bottom, at: 7.0, label: "Dropper" }
-  - { id: CD,  ref: CD,  kind: part, edge: bottom, at: 9.0, label: "Can +290" }
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead CD.a: BB = +297.1 V (op-points); lead CD.b: 0 = +0.0 V (ground); more-positive lead is CD.a.
+  - { id: CD,  ref: CD,  kind: part, edge: bottom, at: 9.0, label: "Can +290" , plus: a }
   - { id: V5,  ref: V5,  kind: tube, edge: bottom, at: 12,   label: "V5 · GZ34" }
   - { id: V3,  ref: V3,  kind: tube, edge: bottom, at: 17,   label: "V3 · 6V6GT" }
   - { id: TR2, ref: TR2, kind: xfmr, edge: top,    at: 19.5, label: "Output trans" }
