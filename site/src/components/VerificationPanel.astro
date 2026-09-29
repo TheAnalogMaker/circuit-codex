@@ -9,7 +9,7 @@ const attention = rows.filter((r) => r.tone === 'attention').length;
     <h2 id="verification-title">Verification details</h2>
     <a href="/about/#verified">What these checks mean</a>
   </div>
-  <p class="intro">{attention ? `${attention} check areas have open findings or incomplete coverage.` : 'Each check covers a different part of this reference.'}
+  <p class="intro">{attention ? `${attention} check ${attention === 1 ? 'area has' : 'areas have'} open findings or incomplete coverage.` : 'Each check covers a different part of this reference.'}
     {' '}The circuit badge records the DC comparison and maintainer review.</p>
   <details>
     <summary>View checks, findings and exclusions</summary>

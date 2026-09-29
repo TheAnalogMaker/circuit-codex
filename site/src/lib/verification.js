@@ -20,6 +20,7 @@ const yes = (value) => value === true || value === 'true';
 const count = (value) => value !== undefined && value !== null && /^\d+$/.test(String(value))
   ? Number(value) : null;
 const list = (value) => Array.isArray(value) ? value : [];
+const counted = (n, singular, plural = `${singular}s`) => `${n} ${n === 1 ? singular : plural}`;
 const row = (id, title, status, summary, details = [], tone = 'neutral') => ({ id, title, status, summary, details, tone });
 const absent = (id, title) => row(id, title, 'Not checked', 'No published check result is available.');
 
@@ -34,14 +35,14 @@ export function verificationRows(amp, { schematicChecked = false, opRows = [], r
   if (opRows.length && !gated.length) dc = row('dc', 'DC operating point', 'Simulation only',
     'No undisputed reference voltages are available for a comparison.');
   else if (gated.length && missing.length) dc = row('dc', 'DC operating point', 'Incomplete',
-    `${missing.length} of ${gated.length} reference nodes lack a complete comparison.`, [], 'attention');
+    `${missing.length} of ${counted(gated.length, 'reference node')} ${missing.length === 1 ? 'lacks' : 'lack'} a complete comparison.`, [], 'attention');
   else if (outside.length) dc = row('dc', 'DC operating point', 'Outside target',
-    `${outside.length} of ${gated.length} reference nodes fall outside their stated tolerance.`, [], 'attention');
+    `${outside.length} of ${counted(gated.length, 'reference node')} ${outside.length === 1 ? 'falls outside its' : 'fall outside their'} stated tolerance.`, [], 'attention');
   else if (gated.length) dc = row('dc', 'DC operating point',
     amp.meta?.verification?.status === 'verified' ? 'Verified' : 'Within target',
-    `${gated.length} reference nodes are within tolerance.`
+    `${counted(gated.length, 'reference node')} ${gated.length === 1 ? 'is' : 'are'} within tolerance.`
       + (amp.meta?.verification?.status === 'verified' ? ' Maintainer verification is recorded.' : ' The circuit remains a draft awaiting maintainer review.'), [], 'checked');
-  if (disputed) dc.details.push(`${disputed} disputed node${disputed === 1 ? ' is' : 's are'} excluded from the tolerance result; their reasoning is listed in the operating-point table.`);
+  if (disputed) dc.details.push(`${counted(disputed, 'disputed node')} ${disputed === 1 ? 'is' : 'are'} excluded from the tolerance result; ${disputed === 1 ? 'its' : 'their'} reasoning is listed in the operating-point table.`);
   dc.details.push('This compares simulated DC conditions with the cited reference. It does not test sound, physical construction or every part of the circuit.');
   result.push(dc);
 
@@ -54,21 +55,23 @@ export function verificationRows(amp, { schematicChecked = false, opRows = [], r
 
   const sheet = reports['sheet-board']?.amps?.[amp.id];
   const names = {
-    misplaced: 'parts with different connections', merged: 'merged nets', split: 'split nets',
-    section_swap: 'valve-section swaps', board_only: 'board-only parts',
-    sheet_only_undeclared: 'sheet-only parts without an exclusion', stale_declarations: 'outdated exclusions',
-    unresolved: 'unresolved parts', pot_as_resistor: 'controls without a comparable wiper',
+    misplaced: ['part with different connections', 'parts with different connections'],
+    merged: ['merged net', 'merged nets'], split: ['split net', 'split nets'],
+    section_swap: ['valve-section swap', 'valve-section swaps'], board_only: ['board-only part', 'board-only parts'],
+    sheet_only_undeclared: ['sheet-only part without an exclusion', 'sheet-only parts without an exclusion'],
+    stale_declarations: ['outdated exclusion', 'outdated exclusions'], unresolved: ['unresolved part', 'unresolved parts'],
+    pot_as_resistor: ['control without a comparable wiper', 'controls without a comparable wiper'],
   };
   if (!sheet || !sheet.counts || !Object.keys(names).every((k) => count(sheet.counts[k]) !== null)) {
     result.push(absent('drawings', 'Schematic against board'));
   } else {
     const findings = Object.entries(names).filter(([k]) => count(sheet.counts[k]) > 0)
-      .map(([k, label]) => `${count(sheet.counts[k])} ${label}`);
+      .map(([k, [singular, plural]]) => counted(count(sheet.counts[k]), singular, plural));
     const excluded = count(sheet.counts.sheet_only_declared);
     result.push(row('drawings', 'Schematic against board', findings.length ? 'Open findings' : 'No open findings',
       findings.length ? findings.join('; ') + '.' : 'No disagreement is listed in the published comparison.',
       ['A finding identifies a difference or a coverage gap. The factory source must decide which drawing, if either, needs correction.',
-        `${excluded ?? 'An unreported number of'} sheet-only parts are explicitly excluded${list(sheet.sheet_only_declared).length ? `: ${sheet.sheet_only_declared.join(', ')}` : ''}. Heaters and the pilot lamp are checked separately.`], findings.length ? 'attention' : 'checked'));
+        `${excluded === null ? 'An unreported number of sheet-only parts' : counted(excluded, 'sheet-only part')} ${excluded === 1 ? 'is' : 'are'} explicitly excluded${list(sheet.sheet_only_declared).length ? `: ${sheet.sheet_only_declared.join(', ')}` : ''}. Heaters and the pilot lamp are checked separately.`], findings.length ? 'attention' : 'checked'));
   }
 
   const heater = reports.heaters?.amps?.[amp.id];
@@ -99,12 +102,14 @@ export function verificationRows(amp, { schematicChecked = false, opRows = [], r
   const detail = [...wrong.map((c) => `${c.ref}: ${c.leads}`), ...undecided.map((c) => `${c.ref}: ${c.why}`)];
   const completeCounts = counts && ['cans', 'right', 'wrong', 'undecided', 'unmarked'].every((k) => count(counts[k]) !== null)
     && count(counts.cans) === ['right', 'wrong', 'undecided', 'unmarked'].reduce((n, k) => n + count(counts[k]), 0);
+  const wrongCount = completeCounts ? count(counts.wrong) : wrong.length;
+  const undecidedCount = completeCounts ? count(counts.undecided) + count(counts.unmarked) : undecided.length;
   if (wrong.length || (completeCounts && count(counts.wrong))) result.push(row('polarity', 'Capacitor polarity', 'Open findings',
-    `${completeCounts ? count(counts.wrong) : wrong.length} positive-lead markings disagree with the model's voltage ordering.`, detail, 'attention'));
+    `${counted(wrongCount, 'positive-lead marking')} ${wrongCount === 1 ? 'disagrees' : 'disagree'} with the model's voltage ordering.`, detail, 'attention'));
   else if (undecided.length || (completeCounts && count(counts.undecided) + count(counts.unmarked))) result.push(row('polarity', 'Capacitor polarity', 'Partial',
-    `${completeCounts ? count(counts.undecided) + count(counts.unmarked) : undecided.length} capacitor markings cannot be confirmed by the DC model.`, detail, 'attention'));
+    `${counted(undecidedCount, 'capacitor marking')} cannot be confirmed by the DC model.`, detail, 'attention'));
   else if (completeCounts && count(counts.cans) > 0) result.push(row('polarity', 'Capacitor polarity', 'Checked',
-    `${count(counts.right)} capacitor markings agree with the model's voltage ordering.`, ['This check uses DC voltage ordering; source review establishes markings the model cannot decide.'], 'checked'));
+    `${counted(count(counts.right), 'capacitor marking')} ${count(counts.right) === 1 ? 'agrees' : 'agree'} with the model's voltage ordering.`, ['This check uses DC voltage ordering; source review establishes markings the model cannot decide.'], 'checked'));
   else if (completeCounts && count(counts.cans) === 0) result.push(row('polarity', 'Capacitor polarity', 'Not applicable', 'No electrolytic capacitors were found by this check.'));
   else result.push(absent('polarity', 'Capacitor polarity'));
   return result;
