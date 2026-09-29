@@ -10,7 +10,9 @@ on every contributor, human or machine. They exist because the project's brand i
 An open corpus of vintage guitar tube-amp circuits. Each `amps/<id>/` holds structured
 data (`meta.yaml`, `netlist.cir`, `voltages.yaml`, `bom.yaml`, `layout.yaml`,
 `schematic.kicad_sch`, `notes.md`) that the Astro site in `site/` renders at deploy
-time (Cloudflare Workers Builds on push to main → circuitcodex.com). Tube models in
+time (Cloudflare Workers Builds on push to main → circuitcodex.com; only main
+deploys, and each build stamps `/version.json` with its revision so
+`production-revision.yml` can prove what production serves). Tube models in
 `models/` are CC0 clean-room fits. `pipeline/` holds the generators and gates.
 
 ## Hard rules (violations are closed regardless of quality)

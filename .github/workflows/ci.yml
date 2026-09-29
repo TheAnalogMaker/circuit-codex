@@ -154,6 +154,10 @@ jobs:
       # search-engine ping cannot fail CI (the ping is not a corpus claim).
       - run: INDEXNOW=0 npm run build
         working-directory: site
+      # The build stamps dist/version.json with the revision it was built from;
+      # production is checked against it (production-revision.yml, land.sh).
+      - run: node -e "const v=require('./dist/version.json'); const h=require('child_process').execSync('git rev-parse HEAD').toString().trim(); if (v.revision!==h) { console.error('version.json', v.revision, '!= HEAD', h); process.exit(1) } console.log('version.json', v.revision.slice(0,7), v.branch)"
+        working-directory: site
       - run: node scripts/check-lineage-caption.mjs
         working-directory: site
       # The build's first step is sync-assets.mjs, which copies every amps/<id>/
