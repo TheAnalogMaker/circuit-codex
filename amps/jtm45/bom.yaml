@@ -63,4 +63,4 @@ items:
   - { ref: "—", part: "Mica capacitor",       value: "100 pF",         role: "Bright cap across VR1 (annotation only on schematic)" }
   - { ref: RNFB, part: "Carbon comp resistor", value: "27 kΩ · ½ W", role: "Negative feedback, speaker → tail foot" }
   - { ref: VR6, part: "Linear potentiometer", value: "5 kΩ", role: "Presence track, tail foot → ground" }
-  - { ref: C17, part: "Film capacitor", value: "0.01 µF · 400 V", role: "Presence wiper → ground" }
+  - { ref: C17, part: "Film capacitor", value: "0.1 µF · 400 V", role: "Presence wiper → ground" }

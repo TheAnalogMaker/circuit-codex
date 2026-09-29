@@ -23,7 +23,8 @@ TMB tone stack (56 kΩ slope; 270 pF treble, 0.01 µF bass and 0.02 µF middle c
 470 Ω + 10 kΩ tail, both 1 MΩ grid leaks returned to the tail junction →
 0.1 µF couplers → **KT66 pair**, fixed-biased through 220 kΩ leaks, with
 33 kΩ grid stoppers and **1 kΩ · 2 W screen stoppers** → output transformer,
-27 kΩ negative feedback into the tail foot with the 5 kΩ presence control.
+27 kΩ negative feedback into the tail foot with the 5 kΩ presence control
+and its 0.1 µF wiper-to-ground capacitor.
 
 Power: 360-0-360 HT → GZ34 → standby → **+450 V** reservoir feeding the output
 plates (chart 430 V) → **20 H choke** → **+440 V** screens → 8.2 kΩ → **+380 V**

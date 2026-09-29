@@ -220,7 +220,9 @@ s.glabel("PRES", 151, 135, 180)
 # Presence/feedback node: 47k from the 8-ohm tap, 5k track to ground.
 s.glabel("SPKR", 139, 142, 180)
 s.wire(139, 142, 148.19, 142)
-s.series_h("R", "RNFB", "47k", 152, 142)
+# Keep both properties below the resistor: the automatic right-side placement
+# puts RNFB through the outgoing lead in KiCanvas.
+s.sym("R", "RNFB", "47k", 152, 142, rot=90, lx=-3.2, ly=4.0)
 s.wire(155.81, 142, 175, 142)
 s.junction(166, 142)
 s.glabel("PRES", 166, 142, 90)
