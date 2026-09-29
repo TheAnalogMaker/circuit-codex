@@ -46,15 +46,12 @@ filters, and the drawing circles **−65/−66 V** at it.
 
 ## Two things the drawing does that a tidy redrawing would not
 
-**The presence control sits inside the tail, not beside it.** On the JTM45 the
-inverter's 10 kΩ tail goes to ground and the presence pot and feedback resistor
-join it there. Here the 10 kΩ lands on the *top* of the 5 kΩ presence pot, and
-the pot completes the path to ground. The chart proves it rather than merely
-allowing it: 52 V at the inverter cathodes with 310 V and 300 V plates off a
-470 V rail means 3.65 mA in the tail, which needs about 14 kΩ to ground — the
-10 kΩ alone would put the cathodes near 37 V. The drawing then circles 16 V at
-the pot's top, which is what 3.65 mA through 5 kΩ gives. Three independently
-printed numbers agree on one topology.
+**The presence control sits inside the tail.** As on the JTM45, the
+inverter's 10 kΩ resistor lands on the top of the 5 kΩ presence track. Its
+lower lug is grounded, and the 27 kΩ feedback resistor supplies another DC
+return through the output transformer's secondary. The effective resistance
+below the tail foot is therefore about 4.22 kΩ when winding resistance is
+neglected. The factory drawing circles 16 V at this junction.
 
 That node is also where the feedback arrives and where the inverter's second
 grid is driven from: the 27 kΩ comes down to it from the 16 Ω tap, and a 0.1 µF
@@ -94,11 +91,12 @@ in this sheet.
 This drawing prints a full **VALVE VOLTAGE CHART**, measured "to chassis under
 no signal conditions with an AVO Model 8 Mk II, meter sensitivity 20,000 Ω/V",
 and it circles six further node voltages on the schematic itself. That is a
-richer measurement basis than any other Marshall sheet in the corpus, and the
-circuit reproduces it well: every rail lands within 4.3% of its circled figure,
-every preamp and inverter plate within 3.5%, and all three hand-meter cathode
-readings within 8.1%. The worst node is the presence-pot top at 13.1% — a
-single-digit reading set by tube current rather than by a stiff supply.
+measurement basis that the simulation reproduces within the declared
+tolerances: the three derived rails are within 4.3%, the preamp and inverter
+plates within 3.6%, and the cathodes within 8.1%. The presence junction is
+15.4 V against its circled 16 V (4.1%). Its 27 kΩ feedback resistor carries
+DC to ground through the output winding as well as AC feedback; omitting
+that return previously overstated this voltage.
 
 The entry is nonetheless published as a **draft**, for two reasons that have
 nothing to do with the chart.
