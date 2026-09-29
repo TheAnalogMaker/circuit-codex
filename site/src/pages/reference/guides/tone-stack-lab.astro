@@ -101,6 +101,21 @@ function round(x) {
   return Math.abs(x - Math.round(x)) < 0.05 ? String(Math.round(x)) : x.toFixed(1);
 }
 
+const threeKnob = presets.filter((p) => p.kind === 'fmv');
+const fixedLeg = presets.filter((p) => p.kind === 'tb');
+const ladder = presets.filter((p) => p.wiring === 'ladder');
+const valueGroups = (list, key) => [...new Set(list.map((p) => p.parts[key]))]
+  .sort((a, b) => b - a)
+  .map((value) => `${ohms(value)} in ${nameList(list.filter((p) => p.parts[key] === value))}`)
+  .join('; ');
+const middleValues = valueGroups(threeKnob, 'midPot');
+const fixedValues = valueGroups(fixedLeg, 'midFixed');
+const middleRange = [...new Set(threeKnob.map((p) => p.parts.midPot))].sort((a, b) => a - b);
+const middleRangeText = middleRange.length === 1 ? ohms(middleRange[0])
+  : `${ohms(middleRange[0])} to ${ohms(middleRange.at(-1))}`;
+const middleLosses = threeKnob.map((p) => -summarise(p, midPositions()).minDb);
+const middleLossRange = `${Math.round(Math.min(...middleLosses))} to ${Math.round(Math.max(...middleLosses))}`;
+
 const clientPresets = presets.map((p) => ({
   id: p.id, kind: p.kind, label: p.label, style: p.style, blurb: p.blurb,
   controls: p.controls, parts: p.parts,
@@ -132,6 +147,14 @@ const description = 'An interactive frequency-response lab for the passive tone 
   <section class="tool" id="lab" aria-labelledby="lab-h">
     <h2 id="lab-h" class="tool-h">Frequency response</h2>
 
+    <label class="mobile-picker" for="ts-preset">
+      <span>Selected circuit</span>
+      <select id="ts-preset" disabled>
+        {presets.map((p) => (
+          <option value={p.id} selected={p.id === opening.id}>{p.label} · {TONE_STACK_KINDS[p.kind].label}</option>
+        ))}
+      </select>
+    </label>
     <nav class="presets" aria-label="Tone-stack presets">
       {presets.map((p) => (
         <a class="preset" href={`?preset=${p.id}#lab`} data-preset={p.id}
@@ -142,20 +165,20 @@ const description = 'An interactive frequency-response lab for the passive tone 
       ))}
     </nav>
 
-    <p class="p-blurb" id="ts-blurb">{opening.blurb}</p>
-
     <div class="controls" id="ts-controls">
       {['treble', 'mid', 'bass', 'tone'].map((c) => (
         <label class="ctl" data-ctl={c} hidden={!opening.controls.includes(c)}>
           <span class="ctl-name">{CONTROL_LABEL[c]}</span>
           <input type="range" id={`ts-${c}`} min="0" max="10" step="0.1" value="5"
-                 aria-label={CONTROL_LABEL[c]} aria-describedby="ts-readout" />
+                 aria-label={CONTROL_LABEL[c]} aria-describedby="ts-position-note" disabled />
           <output class="ctl-val" for={`ts-${c}`} id={`ts-${c}-val`}>5.0</output>
         </label>
       ))}
     </div>
+    <p class="position-note" id="ts-position-note">Resistance position, not the amp's dial:
+      5 means half the resistance track. <a href="/reference/guides/pot-tapers/">About pot taper ↗</a></p>
 
-    <ul class="legend" aria-hidden="true">
+    <ul class="legend">
       <li><span class="sw live"></span>This setting</li>
       <li><span class="sw ref"></span><span id="ts-ref-name">Every control at 10</span></li>
     </ul>
@@ -210,10 +233,24 @@ const description = 'An interactive frequency-response lab for the passive tone 
     <script type="application/json" id="ts-data" is:inline set:html={JSON.stringify(clientPresets)}></script>
 
     <p class="readout" id="ts-readout" aria-live="polite">{openReadout}</p>
+    <p class="comparison-readout" id="ts-comparison-readout" aria-live="polite" hidden></p>
     <p class="hover-readout" id="ts-hover" aria-hidden="true">Point at the chart to read a frequency.</p>
+    <div class="lab-actions">
+      <button type="button" id="ts-pin" disabled>Pin comparison</button>
+      <button type="button" id="ts-clear" hidden>Clear comparison</button>
+      <button type="button" id="ts-reset" disabled>Reset sliders to 5</button>
+      <button type="button" id="ts-copy" disabled>Copy this setting</button>
+    </div>
+    <p class="action-help">Pin a curve, then choose another circuit or move the sliders to compare.
+      Reset changes the active sliders; a pinned comparison stays fixed.</p>
+    <p class="copy-status" id="ts-copy-status" role="status"></p>
+    <label class="copy-fallback" id="ts-copy-fallback" hidden>Copy this link
+      <input id="ts-copy-url" type="text" readonly />
+    </label>
+    <p class="p-blurb" id="ts-blurb">{opening.blurb}</p>
     <noscript><p class="hover-readout">The chart above is the {opening.label} stack with
       every control at 5, against the same stack with everything at 10. Moving the
-      controls needs JavaScript; the component values behind every preset are tabulated
+      controls and restoring a shared setting need JavaScript; the component values behind every preset are tabulated
       further down this page.</p></noscript>
   </section>
 
@@ -242,26 +279,25 @@ const description = 'An interactive frequency-response lab for the passive tone 
         and the curve does not become a straight line — the dip is still there, only
         shallower, and the whole response stays below 0 dB across the midrange. The
         controls set where the network's three paths hand over to each other; they cannot
-        remove the hand-over. That is the reference curve drawn faintly behind every
-        setting, and it is the single most useful thing to know about these circuits: the
+        remove the hand-over. That is the dashed reference curve until you pin a
+        comparison (the one-knob preset instead uses Tone at 0). The
         stack has a voice of its own that no knob position turns off.</p>
       <p><strong>Insertion loss is real, and it is large.</strong> Look at where the
-        midrange sits on a three-knob preset — nine to fifteen decibels down at five all
-        round, and deeper as the Middle comes down. The circuit pays for the tone
-        controls in level, which is exactly why these stacks are fed from a
-        <a href="/topology/tone-stack-cf-fmv/">cathode follower</a> and followed by
-        another gain stage. A designer who wanted a milder tone control could have one;
+        deepest cut sits across the {threeKnob.length} three-knob presets — about
+        {middleLossRange} decibels down with every control at five. The circuit pays for the tone
+        controls in level. The tweed Bassman and British presets use a
+        <a href="/topology/tone-stack-cf-fmv/">cathode follower</a> to drive the stack;
+        the Twin and Super Reverb presets are plate-fed. A designer who wanted a milder tone control could have one;
         what these amps wanted was <em>range</em>, and range costs signal.</p>
       <p><strong>The controls interact — and the wiring sets what happens at the
-        stops.</strong> Set Bass and Middle both to zero on any of the three-knob
-        presets and the curve stops around thirty decibels down rather than falling
-        off the chart: in the ladder wiring every one of these drawings prints, the
-        middle pot's full 25 kΩ track always stands between the network's foot and
-        ground, and it props the output up at every knob setting. The textbook
+        stops.</strong> In the {threeKnob.length} three-knob presets, the middle
+        pot's full track always stands between the network's foot and ground.
+        Bass and Middle at zero do not remove that resistance. Its value varies:
+        {middleValues}. The textbook
         redrawing of the same parts — output node joined to both wipers, rheostat mid
         leg — would instead tie the output to ground through the remains of the
-        network and go nearly silent; the solver holds that form too, but no preset
-        uses it, because no published sheet the archive has read draws it.</p>
+        network and go nearly silent; the solver also holds that form, but these
+        {threeKnob.length} presets use the ladder wiring.</p>
     </div>
   </section>
 
@@ -270,8 +306,8 @@ const description = 'An interactive frequency-response lab for the passive tone 
     <div class="era">
       <p>Ignore the knobs for a moment and follow the signal. It arrives at one node and
         leaves from another, and between them it can take three routes to the output.</p>
-      <p><strong>The treble route</strong> starts at a very small capacitor — 250 pF on
-        the tweed circuits, 270 pF and 500 pF on the British ones. A capacitor that small is close to
+      <p><strong>The treble route</strong> starts at a very small capacitor — each
+        preset's value appears in its parts table below. A capacitor that small is close to
         an open circuit at bass frequencies and close to a wire at treble, so this path
         carries only the top end. It lands on the treble pot; the wiper decides how much
         of that top end reaches the output and how much is bled away into the rest of the
@@ -286,25 +322,23 @@ const description = 'An interactive frequency-response lab for the passive tone 
         did in going from 56 kΩ to 33 kΩ, changes the amp's whole character without moving
         a single knob.</p>
       <p><strong>The output is the treble pot's wiper, alone.</strong> That is the
-        <em>ladder</em> wiring, and it is the form every published drawing behind these
-        presets prints — the Fender 5F6, 5F6-A, AA964, AB763 and AA1164 sheets and the
-        Marshall JTM45, 1987 and 1959 drawings alike: the bass pot is a rheostat in
+        <em>ladder</em> wiring used by the {ladder.length} three-knob and blackface
+        two-knob presets: the bass pot is a rheostat in
         series down the network's lower half, and the Bass control works by varying how
         hard that lower half loads the treble pot. The <em>joined</em> wiring — the
         textbook redrawing of the same parts, with the treble and bass wipers meeting
-        at a single output node — is kept in the solver as the reference form, but no
-        preset uses it: none of the sheets the archive has read draws it. Either way
+        at a single output node — is kept in the solver as a reference form.
+        Either way
         the controls cannot be separated; the wirings differ in <em>where</em> the
         collision happens, and, as the sections below show, in what happens at the
         stops.</p>
       <p><strong>The mid leg is the network's foot.</strong> Below the bass pot the
         network runs to ground through whatever the circuit puts there. A three-knob stack
-        puts a small pot there — 25 kΩ, tiny beside the 1 MΩ bass pot — and that pot is
+        puts a small pot there — {middleRangeText} in these presets — and that pot is
         the Middle control: the pot's full track always stands in the leg, the mid
         capacitor lands on its <em>wiper</em>, and the control slides the capacitor's
         injection point along a fixed resistance. Fender's two-knob blackface circuits
-        replace the pot with a fixed resistor — 6.8 kΩ on the Deluxe Reverb and both
-        Princetons, 15 kΩ on the blackface Champ — but keep the capacitor that feeds
+        replace the pot with a fixed resistor — {fixedValues} — but keep the capacitor that feeds
         the leg. The tweed Super's two knobs are no member of this family at all: its
         sheet draws a different network — treble and bass on two separate branches,
         recombined at the output — and its preset below is solved as that network. One
@@ -320,19 +354,19 @@ const description = 'An interactive frequency-response lab for the passive tone 
         missing control, and it is not the missing control that does it. What carves the
         notch is the second low-end path: a capacitor on the mid leg as well as on the
         bass leg, two routes down from the slope resistor arriving at the output node from
-        different places. Every three-knob circuit here has it, and so does the blackface
-        two-knob stack — which is why a blackface amp is scooped with both knobs at five
+        different places. The {threeKnob.length} three-knob presets have it, and so do the {fixedLeg.length} blackface
+        two-knob presets — which is why a blackface amp is scooped with both knobs at five
         even though it has no Middle control to blame. The tweed Super's preset is the
         odd one out because its circuit is: with treble and bass on separate branches
         and no shared cap ladder, five-and-five leaves only a shallow saddle — about
         7 dB at its deepest, near 190 Hz — though pushing both controls to ten deepens
         the crossover valley between the two branches to around 18 dB at 1 kHz.</p>
       <p>The foot of the network is worth trying at the extremes, because the families
-        end differently. On the three-knob presets — the 5F6, the 5F6-A and all three
-        Marshalls — Bass and Middle both at zero bottoms out around 30 dB down: the
-        25 kΩ middle track stands permanently in the ground leg, and the stack never
-        collapses. The blackface two-knob presets hold up for the same reason in fixed
-        form: the 6.8 kΩ leg keeps them around 29 dB down rather than silent. The
+        end differently. On 5F6-A, with Treble at five and Bass and Middle both at
+        zero, the lowest point is around 31 dB down: its middle track remains in the
+        ground leg. AB763 Deluxe Reverb with Treble at five and Bass at zero reaches
+        around 29 dB down. Other presets have different component values and source
+        resistances, so their floors differ; pin one to compare them. The
         split-network 5F4 behaves differently again — Bass at zero grounds its bass
         branch's injection point, and the low end falls some fifty decibels while the
         treble branch keeps playing, only about 13 dB down at 5 kHz: one branch can go
@@ -439,7 +473,7 @@ const description = 'An interactive frequency-response lab for the passive tone 
     {presets.map((p) => (
       <div class="pcard">
         <div class="pcard-head">
-          <a class="pcard-id" href={`?preset=${p.id}#lab`}>{p.label}</a>
+          <a class="pcard-id" href={`?preset=${p.id}#lab`} data-preset={p.id}>{p.label}</a>
           <span class="pcard-style">{p.style} · {p.era.start}–{p.era.end}</span>
           <span class="chip">{TONE_STACK_KINDS[p.kind].label}</span>
           {p.topologyHref && <a class="chip" href={p.topologyHref}>topology ↗</a>}
@@ -490,8 +524,8 @@ const description = 'An interactive frequency-response lab for the passive tone 
         against a 0.005 µF capacitor and a plate of a few tens of kilohms, not a quirk of
         the plot — and it is why a tweed tone control is so often described as doing
         nothing until it is nearly off.</p>
-      <p>It is also why the driving impedance is not a detail here. The three-knob stacks
-        are fed from a follower stiff enough that the network barely loads it; this one is
+      <p>It is also why the driving impedance is not a detail here. The Bassman's stack
+        is fed from a follower stiff enough that the network barely loads it; this one is
         fed from a plate, and the bleed works <em>against</em> that plate resistance. Take
         the source impedance away and the control would do nothing at all.</p>
       <p>Where each circuit sits on that ladder — no tone control, one knob, two, three —
@@ -503,9 +537,13 @@ const description = 'An interactive frequency-response lab for the passive tone 
 
 <script>
   import {
-    PLOT, plotY, plotF, curvePath, sweepFrequencies, summarise, responseDb,
+    PLOT, plotY, plotF, sweepFrequencies, summarise, responseDb,
     labelPlacement,
   } from '../../../lib/tonestack.js';
+  import {
+    CONTROLS, readLabState, writeLabState, selectLabPreset, pinLabComparison,
+    referenceSetting, labCurvePaths,
+  } from '../../../lib/tonestack-state.js';
 
   const el = (id) => document.getElementById(id);
   const dataNode = el('ts-data');
@@ -521,50 +559,68 @@ const description = 'An interactive frequency-response lab for the passive tone 
     const liveLabel = el('ts-live-label');
     const refLabel = el('ts-ref-label');
     const refName = el('ts-ref-name');
+    const picker = el('ts-preset');
     const readout = el('ts-readout');
+    const comparisonReadout = el('ts-comparison-readout');
     const hover = el('ts-hover');
     const blurb = el('ts-blurb');
     const title = el('ts-chart-title');
     const cross = el('ts-cross');
     const dot = el('ts-dot');
     const capture = el('ts-capture');
+    const pin = el('ts-pin');
+    const clear = el('ts-clear');
+    const reset = el('ts-reset');
+    const copy = el('ts-copy');
+    const copyStatus = el('ts-copy-status');
+    const copyFallback = el('ts-copy-fallback');
+    const copyUrl = el('ts-copy-url');
 
-    let preset = byId.get(new URLSearchParams(location.search).get('preset')) || PRESETS[0];
-    let pos = { treble: 0.5, mid: 0.5, bass: 0.5, tone: 0.5 };
+    let state = readLabState(location.search, PRESETS);
+    picker.disabled = false;
+    for (const button of [pin, reset, copy]) button.disabled = false;
+    el('lab').classList.add('is-interactive');
 
     const sliders = {};
-    for (const c of ['treble', 'mid', 'bass', 'tone']) {
+    for (const c of CONTROLS) {
       const input = el('ts-' + c);
       if (!input) continue;
       sliders[c] = { input, out: el('ts-' + c + '-val'), row: input.closest('.ctl') };
       input.addEventListener('input', () => {
-        pos[c] = Number(input.value) / 10;
+        state.pos[c] = Number(input.value) / 10;
         render();
       });
     }
 
-    function refPositions() {
-      return preset.kind === 'single-knob'
-        ? { tone: 0 }
-        : { treble: 1, mid: 1, bass: 1, tone: 1 };
-    }
-    const refTitle = () => (preset.kind === 'single-knob' ? 'Tone at 0' : 'Every control at 10');
+    const refTitle = () => state.comparison ? 'Pinned: ' + state.comparison.preset.label
+      : state.preset.kind === 'single-knob' ? 'Tone at 0' : 'Every control at 10';
+    const settingText = (setting) => setting.preset.controls
+      .map((c) => CONTROL_LABEL[c].toLowerCase() + ' ' + (setting.pos[c] * 10).toFixed(1))
+      .join(' · ');
 
     function fmt(db) {
       return db <= -48 ? 'below −48' : (db < 0 ? '−' : '+') + Math.abs(db).toFixed(1);
     }
 
     function render() {
-      const refPos = refPositions();
-      liveCurve.setAttribute('d', curvePath(preset, pos, FREQS));
-      refCurve.setAttribute('d', curvePath(preset, refPos, FREQS));
+      const { preset, pos, comparison } = state;
+      const reference = referenceSetting(state);
+      const paths = labCurvePaths(state, FREQS);
+      liveCurve.setAttribute('d', paths.live);
+      refCurve.setAttribute('d', paths.reference);
+      refCurve.classList.toggle('pinned', Boolean(comparison));
+      el('lab').classList.toggle('has-comparison', Boolean(comparison));
 
-      // Direct labels, named where the two curves are furthest apart.
-      const lab = labelPlacement(preset, pos, refPos);
-      for (const [node, y] of [[liveLabel, lab.yLive], [refLabel, lab.yRef]]) {
-        node.setAttribute('x', lab.x.toFixed(1));
-        node.setAttribute('y', y.toFixed(1));
-        node.setAttribute('text-anchor', lab.anchor);
+      // The solver's direct-label helper assumes one preset. Cross-preset
+      // overlays use the legend and full readouts instead of misplacing labels.
+      for (const node of [liveLabel, refLabel]) node.classList.toggle('is-off', Boolean(comparison));
+      if (!comparison) {
+        const lab = labelPlacement(preset, pos, reference.pos);
+        for (const [node, y] of [[liveLabel, lab.yLive], [refLabel, lab.yRef]]) {
+          node.setAttribute('x', lab.x.toFixed(1));
+          node.setAttribute('y', y.toFixed(1));
+          node.setAttribute('text-anchor', lab.anchor);
+        }
       }
       refLabel.textContent = refTitle();
       refName.textContent = refTitle();
@@ -573,42 +629,89 @@ const description = 'An interactive frequency-response lab for the passive tone 
         const on = preset.controls.includes(c);
         sliders[c].row.hidden = !on;
         sliders[c].input.disabled = !on;
+        sliders[c].input.value = (pos[c] * 10).toFixed(1);
         sliders[c].out.textContent = (pos[c] * 10).toFixed(1);
       }
 
       const s = summarise(preset, pos);
-      const set = preset.controls
-        .map((c) => CONTROL_LABEL[c].toLowerCase() + ' ' + (pos[c] * 10).toFixed(1))
-        .join(' · ');
       const deepest = s.interior
         ? 'deepest cut ' + fmt(s.minDb) + ' dB at ' + Math.round(s.minHz) + ' Hz.'
         : 'lowest point ' + fmt(s.minDb) + ' dB, at the '
           + (s.minHz > 1000 ? 'top' : 'bottom') + ' of the sweep — no dip in between.';
-      readout.textContent = preset.label + ' · ' + set + ' — ' + deepest
+      readout.textContent = preset.label + ' · ' + settingText(state) + ' — ' + deepest
         + ' 100 Hz ' + fmt(s.at100) + ' dB · 1 kHz ' + fmt(s.at1k)
         + ' dB · 5 kHz ' + fmt(s.at5k) + ' dB.';
       blurb.textContent = preset.blurb || blurb.textContent;
       title.textContent = 'Frequency response of the ' + preset.label
-        + ' tone stack, 10 Hz to 100 kHz';
+        + ' tone stack' + (comparison ? ' compared with ' + comparison.preset.label : '')
+        + ', 10 Hz to 100 kHz';
+      el('ts-chart-desc').textContent = 'A logarithmic frequency axis from 10 Hz to 100 kHz'
+        + ' against level in decibels. Solid amber: this setting. Dashed '
+        + (comparison ? 'blue: ' : 'grey: ') + refTitle()
+        + '. Settings and levels are given in the readouts below the chart.';
+      comparisonReadout.hidden = !comparison;
+      if (comparison) {
+        const cs = summarise(comparison.preset, comparison.pos);
+        comparisonReadout.textContent = refTitle() + ' · ' + settingText(comparison)
+          + ' — 100 Hz ' + fmt(cs.at100) + ' dB · 1 kHz ' + fmt(cs.at1k)
+          + ' dB · 5 kHz ' + fmt(cs.at5k) + ' dB.'
+          + (paths.live === paths.reference ? ' The curves overlap.' : '');
+      }
+      clear.hidden = !comparison;
+      pin.textContent = comparison ? 'Replace pinned comparison' : 'Pin comparison';
+      picker.value = preset.id;
 
       for (const a of document.querySelectorAll('.preset')) {
         if (a.dataset.preset === preset.id) a.setAttribute('aria-current', 'true');
         else a.removeAttribute('aria-current');
       }
+      cross.classList.add('is-off');
+      dot.classList.add('is-off');
+      hover.textContent = 'Point at the chart to read a frequency.';
+      copyStatus.textContent = '';
+      copyFallback.hidden = true;
+      const url = new URL(location.href);
+      url.search = writeLabState(state, url.search).toString();
+      history.replaceState(null, '', url);
     }
 
-    for (const a of document.querySelectorAll('.preset')) {
+    function selectPreset(id) {
+      const next = byId.get(id);
+      if (!next) return;
+      state = selectLabPreset(state, next);
+      render();
+    }
+    picker.addEventListener('change', () => selectPreset(picker.value));
+    for (const a of document.querySelectorAll('[data-preset]')) {
       a.addEventListener('click', (e) => {
-        const next = byId.get(a.dataset.preset);
-        if (!next) return;
+        if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
         e.preventDefault();
-        preset = next;
-        pos = { treble: 0.5, mid: 0.5, bass: 0.5, tone: 0.5 };
-        for (const c of Object.keys(sliders)) sliders[c].input.value = '5';
-        history.replaceState(null, '', '?preset=' + preset.id + '#lab');
-        render();
+        selectPreset(a.dataset.preset);
+        if (a.classList.contains('pcard-id')) el('lab').scrollIntoView();
       });
     }
+    pin.addEventListener('click', () => { state = pinLabComparison(state); render(); });
+    clear.addEventListener('click', () => {
+      state.comparison = null;
+      render();
+      pin.focus();
+    });
+    reset.addEventListener('click', () => { state = selectLabPreset(state, state.preset); render(); });
+    window.addEventListener('popstate', () => { state = readLabState(location.search, PRESETS); render(); });
+    copy.addEventListener('click', async () => {
+      const url = new URL(location.href);
+      url.hash = 'lab';
+      try {
+        await navigator.clipboard.writeText(url.href);
+        copyStatus.textContent = state.comparison ? 'Setting and comparison copied.' : 'Setting copied.';
+      } catch {
+        copyStatus.textContent = 'Select and copy the link below.';
+        copyFallback.hidden = false;
+        copyUrl.value = url.href;
+        copyUrl.focus();
+        copyUrl.select();
+      }
+    });
 
     // Pointer read-off across the plot.
     function readAt(clientX) {
@@ -618,7 +721,7 @@ const description = 'An interactive frequency-response lab for the passive tone 
         Math.max(0, ((clientX - rect.left) * (PLOT.w / rect.width)) - PLOT.pad.l),
       );
       const f = plotF(x);
-      const db = responseDb(preset, pos, f);
+      const db = responseDb(state.preset, state.pos, f);
       cross.setAttribute('x1', x.toFixed(1));
       cross.setAttribute('x2', x.toFixed(1));
       dot.setAttribute('cx', x.toFixed(1));
@@ -626,7 +729,9 @@ const description = 'An interactive frequency-response lab for the passive tone 
       cross.classList.remove('is-off');
       dot.classList.remove('is-off');
       const hz = f >= 1000 ? (f / 1000).toFixed(2) + ' kHz' : Math.round(f) + ' Hz';
-      hover.textContent = 'At ' + hz + ': ' + fmt(db) + ' dB.';
+      const reference = referenceSetting(state);
+      hover.textContent = 'At ' + hz + ': this setting ' + fmt(db) + ' dB; '
+        + refTitle() + ' ' + fmt(responseDb(reference.preset, reference.pos, f)) + ' dB.';
     }
     capture.addEventListener('pointermove', (e) => readAt(e.clientX));
     capture.addEventListener('pointerdown', (e) => readAt(e.clientX));
@@ -653,6 +758,9 @@ const description = 'An interactive frequency-response lab for the passive tone 
   /* ---- lab ---- */
   .tool { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 18px 20px 20px; scroll-margin-top: 72px; }
   .tool-h { margin: 0 0 12px; font-size: 12.5px; letter-spacing: .2em; color: var(--faint); }
+  .mobile-picker { display: none; }
+  .mobile-picker span { font-family: var(--disp); text-transform: uppercase; letter-spacing: .1em; font-size: 11px; color: var(--faint); }
+  .mobile-picker select { width: 100%; min-height: 44px; padding: 8px; border: 1px solid var(--amber-dim); border-radius: 6px; background: var(--well); color: var(--ink); font: 14px var(--body); }
 
   .presets { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
   .preset { display: flex; flex-direction: column; gap: 1px; border: 1px solid var(--line); border-radius: 7px; padding: 6px 12px 7px; color: var(--muted); background: var(--well); }
@@ -663,6 +771,18 @@ const description = 'An interactive frequency-response lab for the passive tone 
   .preset .p-kind { font-size: 10.5px; color: var(--faint); letter-spacing: .04em; }
 
   .p-blurb { color: var(--muted); font-size: 13.5px; margin: 0 0 14px; max-width: 72ch; line-height: 1.55; }
+  .tool .p-blurb { margin: 14px 0 0; }
+  .position-note { color: var(--muted); font-size: 12px; line-height: 1.5; margin: 0 0 12px; max-width: 75ch; }
+  .lab-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+  .lab-actions button { padding: 8px 12px; min-height: 44px; border: 1px solid var(--line); border-radius: 6px; background: var(--well); color: var(--ink); font: 13px var(--body); cursor: pointer; }
+  .lab-actions button:hover { border-color: var(--amber); }
+  .lab-actions button:disabled { opacity: .6; cursor: default; }
+  .tool :is(button, select, input, a):focus-visible { outline: 2px solid var(--amber); outline-offset: 3px; }
+  .action-help, .copy-status, .copy-fallback { max-width: 80ch; font-size: 12px; line-height: 1.5; color: var(--muted); margin: 8px 0 0; }
+  .copy-status:empty { display: none; }
+  .copy-fallback { display: grid; gap: 4px; }
+  .copy-fallback[hidden], .lab-actions [hidden] { display: none; }
+  .copy-fallback input { width: 100%; min-width: 0; box-sizing: border-box; padding: 8px; background: var(--well); color: var(--ink); border: 1px solid var(--line); }
 
   .controls { display: flex; flex-wrap: wrap; gap: 10px 26px; margin-bottom: 10px; }
   .ctl { display: flex; align-items: center; gap: 10px; }
@@ -676,6 +796,7 @@ const description = 'An interactive frequency-response lab for the passive tone 
   .legend .sw { display: inline-block; width: 20px; height: 0; border-top-width: 2.5px; border-top-style: solid; }
   .legend .sw.live { border-color: var(--amber); }
   .legend .sw.ref { border-top-style: dashed; border-color: var(--muted); }
+  .has-comparison .legend .sw.ref { border-color: #83becf; }
 
   .fig { background: var(--well); border: 1px solid var(--line-soft); border-radius: 8px; padding: 8px 10px; }
   .chart { display: block; width: 100%; height: auto; }
@@ -690,6 +811,7 @@ const description = 'An interactive frequency-response lab for the passive tone 
   .curve { fill: none; stroke-linecap: round; stroke-linejoin: round; }
   .curve.live { stroke: var(--amber); stroke-width: 2.5; }
   .curve.ref { stroke: var(--muted); stroke-width: 1.6; stroke-dasharray: 6 5; opacity: .8; }
+  .curve.ref.pinned { stroke: #83becf; stroke-width: 2; opacity: 1; }
   .curve-label { font-family: var(--disp); text-transform: uppercase; letter-spacing: .08em; font-size: 11.5px; }
   .curve-label.live { fill: var(--amber); }
   .curve-label.ref { fill: var(--muted); }
@@ -700,6 +822,7 @@ const description = 'An interactive frequency-response lab for the passive tone 
   .capture { fill: transparent; cursor: crosshair; touch-action: pan-y; }
 
   .readout { min-height: 1.4em; margin: 14px 2px 2px; font-family: var(--mono); font-variant-numeric: tabular-nums; font-size: 13px; color: var(--ink); line-height: 1.6; }
+  .comparison-readout { margin: 8px 2px 2px; font: 13px var(--mono); font-variant-numeric: tabular-nums; color: #83becf; line-height: 1.6; }
   .hover-readout { margin: 4px 2px 0; font-family: var(--mono); font-variant-numeric: tabular-nums; font-size: 12.5px; color: var(--faint); }
 
   /* ---- prose ---- */
@@ -721,4 +844,14 @@ const description = 'An interactive frequency-response lab for the passive tone 
   .pcard-blurb { color: var(--muted); font-size: 13.5px; margin: 0 0 12px; max-width: 74ch; }
   .pcard-foot { color: var(--faint); font-size: 12.5px; margin: 10px 0 0; max-width: 84ch; line-height: 1.6; }
   a.chip:hover { border-color: var(--amber-dim); color: var(--amber); text-decoration: none; }
+
+  @media (max-width: 600px) {
+    .tool { padding: 16px 12px; }
+    .is-interactive .mobile-picker { display: grid; gap: 5px; margin-bottom: 14px; }
+    .is-interactive .presets { display: none; }
+    .controls { display: grid; gap: 9px; }
+    .ctl { min-height: 28px; }
+    .ctl input[type="range"] { flex: 1; min-width: 0; width: auto; }
+    .fig { padding: 6px 2px; }
+  }
 </style>
