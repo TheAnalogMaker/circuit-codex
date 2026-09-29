@@ -1,5 +1,8 @@
 ---
 import Base from '../../layouts/Base.astro';
+import VerificationPanel from '../../components/VerificationPanel.astro';
+import { loadVerificationReports, verificationRows } from '../../lib/verification.js';
+import { ampCorrections, archiveRevision } from '../../lib/revisions.js';
 import { loadCorpus, displayId, ampMetaDescription, layoutAlt, layoutMinWidth, topologyHref, circuitFamilyMap, loadHistory, TOPOLOGY_DIMENSIONS, loadLoadlineStages, toneStackPresetIds, ampOpPoints, designatorScheme, schematicNetsVerified, listPhrase, correctionUrl, GITHUB } from '../../lib/corpus.js';
 
 export async function getStaticPaths() {
@@ -50,6 +53,9 @@ const allChartNull = !!amp.voltages && Object.values(amp.voltages.nodes)
 // verification run exported, with each row's deviation computed from the two
 // numbers standing beside it. See ampOpPoints() in lib/corpus.js.
 const opRows = ampOpPoints(amp);
+const checks = verificationRows(amp, { schematicChecked: schematicNetsChecked, opRows, reports: loadVerificationReports() });
+const corrections = ampCorrections(amp.id);
+const revision = archiveRevision();
 // Voltages print with one decimal and a real minus sign, matching the house
 // units style used elsewhere on the page (−40 V, not -40 V).
 const volts = (n) => `${String(Number(n).toFixed(1)).replace('-', '−')} V`;
@@ -208,11 +214,14 @@ const styleNoBreak = String(m.name_style).replace(/-/g, '‑');
       <a href="#parts">Parts</a>
       <a href="#story">Story</a>
       <a href="#sources">Sources</a>
+      <a href="#verification">Verification</a>
+      <a href={`/compare/?left=${amp.id}`}>Compare</a>
     </nav>
   </header>
 
   <div class="cols">
     <div class="main figures">
+      <VerificationPanel rows={checks} />
       <div class="viewer" id="schematic">
         <div class="viewer-head">Schematic — redrawn in KiCad · scroll to zoom, drag to pan</div>
         {amp.hasSchematic ? (
@@ -247,10 +256,12 @@ const styleNoBreak = String(m.name_style).replace(/-/g, '‑');
                 does not check component values, and it does not prove the netlist itself a
                 faithful reading of the factory drawing — that rests on the operating-point
                 comparison below and on the cited sources. The netlist is a DC model, so what
-                it leaves out is drawn here but not checked: the supply front end ahead of the
+                it leaves out is drawn here but outside this check: the supply front end ahead of the
                 first rail, transformer winding resistance, the volume / tone / mixer control
                 networks and the capacitors inside them, and the heater and AC-side wiring.
-                Every abstraction this circuit relies on is declared as reviewable data in its
+                Separate checks cover drawing-to-board agreement, declared heater circuits and
+                polarity where the model can decide it; see <a href="#verification">Verification details</a>
+                for their coverage and findings. Every abstraction this circuit relies on is declared as reviewable data in its
                 own <a href={`${ghDir}/sch_map.yaml`}>sch_map.yaml</a>, and the CI report
                 enumerates each terminal left unchecked.</p>
             </details>
@@ -347,8 +358,9 @@ const styleNoBreak = String(m.name_style).replace(/-/g, '‑');
                 no missing or extra connections. Parts outside that DC model — the volume / tone /
                 mixer control-network internals, the negative-bias front end, and the heater chain,
                 pilot lamp and power-transformer / rectifier AC side — are drawn from the cited
-                sources but are <em>not</em> machine-checked; the CI report enumerates every one of
-                their terminals so the boundary is explicit rather than silent.</p>
+                sources but are outside <em>this DC equivalence check</em>. Separate checks compare
+                the drawings and examine declared heater circuits and polarity; see
+                <a href="#verification">Verification details</a> for their coverage and findings.</p>
               )}
               <p>Board and part positions are drawn at diagram scale, and lead dress, grounding
               paths, and physical spacing all matter in a high-voltage chassis. If you build from
@@ -383,7 +395,7 @@ const styleNoBreak = String(m.name_style).replace(/-/g, '‑');
           ? <a href={topologyHref('tone_stack', m)}>{m.topology.tone_stack}</a> : m.topology.tone_stack}
           {/* --- tone-stack lab link; remove this fragment to revert --- */}
           {hasToneStackLab && (
-            <> · <a href={`/reference/guides/tone-stack-lab/?preset=${amp.id}#lab`}>hear the curve ↗</a></>
+            <> · <a href={`/reference/guides/tone-stack-lab/?preset=${amp.id}#lab`}>Explore the tone stack ↗</a></>
           )}
           {/* --- end tone-stack lab link --- */}</dd>
         {/* --- lineage row (explore surface); remove this block to revert --- */}
@@ -398,6 +410,11 @@ const styleNoBreak = String(m.name_style).replace(/-/g, '‑');
         {/* --- end lineage row --- */}
       </dl>
       <div class="files">
+        <h3>Downloads</h3>
+        {amp.hasSchematic && <a href={`/schematics/${amp.id}.kicad_sch`} download={`${amp.id}-${revision?.short ?? 'archive'}.kicad_sch`}>Download schematic (KiCad)</a>}
+        {amp.bom && <a href={`/downloads/${amp.id}.csv`} download={`${amp.id}-bom-${revision?.short ?? 'archive'}.csv`}>Parts list (CSV)</a>}
+        <a href={`/downloads/${amp.id}.json`} download={`${amp.id}-reference-${revision?.short ?? 'archive'}.json`}>Circuit data and check coverage (JSON)</a>
+        <p class="sub">{revision && <>Archive revision <a href={revision.url}>{revision.short}</a>. </>}Circuit data: CC-BY-SA 4.0, The Analog Maker / Circuit Codex.</p>
         <h3>Data</h3>
         <a href={`${ghDir}/meta.yaml`}>meta.yaml</a>
         {amp.hasNetlist && <a href={`${ghDir}/netlist.cir`}>netlist.cir</a>}
@@ -527,6 +544,11 @@ const styleNoBreak = String(m.name_style).replace(/-/g, '‑');
   </div>
 
   <section class="sources">
+    {corrections.length > 0 && <div class="corrections">
+      <h2 id="corrections">Corrections to this reference</h2>
+      <ul class="src">{corrections.map((c) => <li><time datetime={c.date}>{c.date}</time> — <strong>{c.title}.</strong> {c.description} <a href={c.url}>View correction</a></li>)}</ul>
+      <p><a href="/corrections/">All published corrections</a> · <a href="/corrections.xml">Subscribe to corrections</a></p>
+    </div>}
     <h2 id="sources">Sources</h2>
     {m.sources && (
       <ul class="src">{m.sources.map((s) => (

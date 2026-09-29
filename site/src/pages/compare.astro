@@ -1,0 +1,112 @@
+---
+import Base from '../layouts/Base.astro';
+import { comparisonCircuits, COMPARISON_FIELDS } from '../lib/comparison.js';
+import { comparisonSelection, fieldDifference } from '../lib/comparison-state.js';
+const circuits = comparisonCircuits();
+const initial = comparisonSelection('', circuits.map((a) => a.id));
+const left = circuits.find((a) => a.id === initial.left);
+const right = circuits.find((a) => a.id === initial.right);
+const pairUrl = (a, b) => `/compare/?left=${a}&right=${b}`;
+---
+<Base title="Compare circuits · Circuit Codex" description="Compare two classic amplifier circuits by tubes, topology, power, voltage sources and verification coverage.">
+<div class="wrap compare">
+  <header>
+    <a href="/#circuits">← Circuit archive</a>
+    <h1>Compare circuits</h1>
+    <p>Follow what changed between two designs: their valves, topology, tone networks
+      and the evidence behind the drawings. Missing information is marked explicitly.</p>
+    <p class="examples">Try <a href={pairUrl('5f6a', 'jtm45')}>5F6-A &amp; JTM45</a> · <a href={pairUrl('aa964', 'aa1164')}>AA964 &amp; AA1164</a> · <a href={pairUrl('5e3', '6g3')}>5E3 &amp; 6G3</a></p>
+  </header>
+  <form id="comparison-form" class="picker" action="/compare/" method="get">
+    {['left', 'right'].map((side) => <label>{side === 'left' ? 'First circuit' : 'Second circuit'}
+      <select name={side} id={`compare-${side}`}>
+        {circuits.map((a) => <option value={a.id} selected={a.id === initial[side]}>{a.name} — {a.style}</option>)}
+      </select>
+    </label>)}
+    <label class="check"><input type="checkbox" id="differences" name="differences" value="1" /> Show differences and missing data</label>
+    <button type="button" id="copy-comparison">Copy comparison link</button>
+    <span id="copy-result" role="status"></span>
+  </form>
+  <noscript><p>The table below compares 5F6-A and JTM45. Selecting another pair requires JavaScript; the circuit archive remains available without it.</p></noscript>
+  <p id="selection-status" class="selection" role="status">Comparing {left.name} and {right.name}.</p>
+  <div class="table-wrap" tabindex="0" role="region" aria-label="Circuit comparison table">
+    <table>
+      <caption>Metadata and check coverage; equivalent labels do not prove identical circuits.</caption>
+      <thead><tr><th scope="col">Feature</th><th scope="col"><a id="left-heading" href={`/amps/${left.id}/`}>{left.name}</a></th><th scope="col"><a id="right-heading" href={`/amps/${right.id}/`}>{right.name}</a></th><th scope="col">Comparison</th></tr></thead>
+      <tbody>{COMPARISON_FIELDS.map(([key, label]) => <tr data-field={key} data-difference={fieldDifference(left, right, key)}>
+        <th scope="row">{label}</th><td data-side="left">{left.values[key] ?? 'Not recorded'}</td><td data-side="right">{right.values[key] ?? 'Not recorded'}</td><td data-verdict>{fieldDifference(left, right, key)}</td>
+      </tr>)}</tbody>
+    </table>
+  </div>
+  <section class="tools">
+    <h2>Explore these circuits</h2>
+    <p><a id="tone-comparison" href={`/reference/guides/tone-stack-lab/?preset=${right.id}&compare=${left.id}#lab`}>Overlay their tone stacks</a><span id="tone-unavailable" hidden>One or both circuits lack a tone-stack preset. Their circuit pages describe the networks.</span></p>
+    <p><a id="left-loadline" href={`/reference/guides/load-lines/?preset=${left.id}`}>{left.name} load line</a> · <a id="right-loadline" href={`/reference/guides/load-lines/?preset=${right.id}`}>{right.name} load line</a></p>
+    <p class="scope">The comparison uses documented metadata and current check results. It does not match component designators between different drawing conventions or predict the sound of a complete amplifier.</p>
+  </section>
+  <script type="application/json" id="comparison-data" is:inline set:html={JSON.stringify(circuits).replaceAll('<', '\\u003c')} />
+</div>
+</Base>
+<script>
+  import { comparisonSelection, comparisonUrl, fieldDifference } from '../lib/comparison-state.js';
+  const circuits = JSON.parse(document.getElementById('comparison-data').textContent);
+  const ids = circuits.map((a) => a.id);
+  const byId = new Map(circuits.map((a) => [a.id, a]));
+  const first = document.getElementById('compare-left');
+  const second = document.getElementById('compare-right');
+  const differences = document.getElementById('differences');
+  let selection = comparisonSelection(location.search, ids);
+  function show() {
+    const left = byId.get(selection.left), right = byId.get(selection.right);
+    first.value = left.id; second.value = right.id; differences.checked = selection.differences;
+    for (const option of second.options) option.disabled = option.value === left.id;
+    for (const [side, amp] of [['left', left], ['right', right]]) {
+      const heading = document.getElementById(`${side}-heading`);
+      heading.textContent = amp.name; heading.href = `/amps/${amp.id}/`;
+      const link = document.getElementById(`${side}-loadline`);
+      link.textContent = `${amp.name} load line`; link.href = `/reference/guides/load-lines/?preset=${amp.id}`;
+      link.hidden = !amp.loadline;
+    }
+    for (const row of document.querySelectorAll('tr[data-field]')) {
+      const key = row.dataset.field;
+      const verdict = fieldDifference(left, right, key);
+      row.querySelector('[data-side="left"]').textContent = left.values[key] ?? 'Not recorded';
+      row.querySelector('[data-side="right"]').textContent = right.values[key] ?? 'Not recorded';
+      row.querySelector('[data-verdict]').textContent = verdict;
+      row.dataset.difference = verdict;
+      row.hidden = selection.differences && verdict === 'Same';
+    }
+    const tone = document.getElementById('tone-comparison');
+    tone.hidden = !(left.tonePreset && right.tonePreset);
+    tone.href = `/reference/guides/tone-stack-lab/?preset=${right.id}&compare=${left.id}#lab`;
+    document.getElementById('tone-unavailable').hidden = !tone.hidden;
+    document.getElementById('selection-status').textContent = `Comparing ${left.name} and ${right.name}.`;
+    document.getElementById('copy-result').textContent = '';
+    history.replaceState(null, '', comparisonUrl(selection));
+  }
+  document.getElementById('comparison-form').addEventListener('change', () => {
+    selection = comparisonSelection(new URLSearchParams({left:first.value, right:second.value, differences:differences.checked?'1':'0'}), ids); show();
+  });
+  document.getElementById('comparison-form').addEventListener('submit', (e) => e.preventDefault());
+  document.getElementById('copy-comparison').addEventListener('click', async () => {
+    try { await navigator.clipboard.writeText(location.href); document.getElementById('copy-result').textContent = 'Link copied.'; }
+    catch { document.getElementById('copy-result').textContent = 'Copy the address from your browser to share this comparison.'; }
+  });
+  window.addEventListener('popstate', () => { selection = comparisonSelection(location.search, ids); show(); });
+  show();
+</script>
+<style>
+  header{padding:44px 0 20px}h1{font-size:clamp(30px,5vw,44px);margin:12px 0}
+  header p{max-width:72ch;color:var(--muted)}.examples{font-size:13px}
+  .picker{display:grid;grid-template-columns:1fr 1fr;gap:16px;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:20px}
+  label{font-size:13px;color:var(--muted);min-width:0}select{display:block;width:100%;margin-top:6px;padding:10px;background:var(--well);border:1px solid var(--line);border-radius:5px;color:var(--ink);font:inherit}
+  .check{display:flex;align-items:center;gap:8px}.check input{accent-color:var(--amber)}
+  button{border:1px solid var(--amber-dim);border-radius:5px;padding:9px;background:var(--well);color:var(--amber);cursor:pointer;font:inherit;font-size:13px}
+  #copy-result{font-size:12px;color:var(--muted)}.selection{font-size:13px;color:var(--muted)}
+  .table-wrap{overflow-x:auto;margin:20px 0}table{width:100%;border-collapse:collapse;table-layout:fixed;font-size:13px}
+  caption{text-align:left;color:var(--muted);padding:0 0 10px;font-size:12px}th,td{padding:12px;border-bottom:1px solid var(--line);vertical-align:top;text-align:left;overflow-wrap:anywhere}
+  thead th{font-size:16px}th:first-child{width:18%}th:last-child{width:14%}td{color:var(--muted)}
+  tr[data-difference="Different"] td{background:var(--panel)}[data-verdict]{font-size:11px;color:var(--amber)}
+  .tools{margin:32px 0 48px}.tools h2{font-size:18px}.scope{font-size:13px;color:var(--muted);max-width:80ch}
+  @media(max-width:599px){.picker{grid-template-columns:1fr;padding:14px}table{min-width:610px}header{padding-top:26px}}
+</style>

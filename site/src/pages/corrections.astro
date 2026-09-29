@@ -1,0 +1,33 @@
+---
+import Base from '../layouts/Base.astro';
+import { displayId } from '../lib/corpus.js';
+import { loadCorrections } from '../lib/revisions.js';
+const corrections = loadCorrections();
+---
+<Base title="Corrections to the archive · Circuit Codex" description="Published corrections to Circuit Codex circuit references, with dates and links to the changed revisions.">
+  <div class="wrap">
+    <header>
+      <h1>Corrections to the archive</h1>
+      <p>Changes to facts, drawings and their stated coverage, so a reference you saved
+        can be checked against what has changed. These entries record corrections;
+        original verification dates remain on each circuit page.</p>
+      <p><a href="/corrections.xml">Subscribe to corrections (RSS)</a> · <a href="/feed.xml">New circuits and studies (RSS)</a></p>
+    </header>
+    <p class="scope">This log begins with the source corrections listed below. The
+      <a href="https://github.com/TheAnalogMaker/circuit-codex/commits/main/">full repository history</a>
+      contains earlier changes.</p>
+    {corrections.map((c) => <article id={c.id}>
+      <time datetime={c.date}>{c.date}</time>
+      <h2>{c.title}</h2>
+      <p>{c.description}</p>
+      <p class="links">{c.amps.map((id, i) => <>{i > 0 ? ' · ' : ''}<a href={`/amps/${id}/`}>{displayId(id)}</a></>)} · <a href={c.url}>View correction</a></p>
+    </article>)}
+  </div>
+</Base>
+<style>
+  header{padding:48px 0 16px;max-width:70ch}h1{font-size:clamp(28px,5vw,42px)}
+  header p,.scope{color:var(--muted)}.scope{font-size:13px}
+  article{padding:24px 0;border-top:1px solid var(--line);max-width:76ch}
+  time{font-family:var(--mono);color:var(--amber);font-size:12px}
+  h2{font-size:20px;margin:8px 0}article p{color:var(--muted)}.links{font-size:13px}
+</style>
