@@ -74,7 +74,7 @@ corpus; reading its polarity does not broaden the corpus's historical claims.
 | `ab763-twin` | [drawing](https://el34world.com/charts/Schematics/files/Fender/Fender_twin_reverb_ab763_layout.pdf) | 2157 × 1397 | `690, 363, 2114, 1006` |
 | `ac15` | [drawing](https://www.voxac30.org.uk/images/ac15_third_circuit/thumbs3/oa31.jpg) | 900 × 723 | `0, 0, 900, 723` |
 | `ac30` | [drawing](https://www.voxac30.org.uk/vox_ac30_circuit_diagrams.html) | 3600 × 2492 | `0, 0, 3600, 2492` |
-| `b15n` | [drawing](https://ampeg.com/data/6/0a000509142f661ff65a5784a/application/pdf/) | 3328 × 5080 | `899, 305, 2563, 4572` |
+| `b15n` | [drawing](https://ampeg.com/data/6/0a000509142f661ff65a5784a/application/pdf/) | 3328 × 5080 | `0, 0, 3328, 5080` |
 | `dr103` | [drawing](https://www.hiwatt.org/Schematics/DR103sn903pre.pdf) | 1760 × 1360 | `0, 0, 1760, 1360` |
 | `dr103-layout` | [drawing](https://www.hiwatt.org/Layouts/DR103hiwattlayout.pdf) | 2417 × 1795 | `0, 0, 2417, 1795` |
 | `ga40` | [drawing](https://schematicheaven.net/gibsonamps/ga40.pdf) | 1022 × 758 | `0, 0, 1022, 538` |
@@ -112,7 +112,11 @@ mark where available; it does not supply missing simulator coverage.
 
 ## Review and regression checks
 
-The validator rejects a declaration naming an absent lead or a non-electrolytic.
+The validator requires a declaration on every drawn electrolytic and rejects
+one naming an absent lead, a non-electrolytic, or a lamp glyph that would hide
+the mark. Deletion regressions cover a previously correct board can, an
+off-board can, and a DC-undecided can: none can silently return to a geometric
+default during corpus validation.
 The net selftest reverses a real bias can, removes its declaration to expose
 the legacy fallback, and plants a reversal on an unclaimed board. Thirty-two
 renderer cases compare the emitted `+` coordinate with the declared terminal

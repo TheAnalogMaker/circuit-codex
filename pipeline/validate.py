@@ -293,8 +293,9 @@ def check_layout_plus(amp_dir: Path) -> list[str]:
     """`plus:` on a layout part names the lead that carries an electrolytic's
     '+' (docs/layout-schema.md), and the renderer draws the mark there. It must
     name one of that part's own leads (a or b, on a parts[] row or an off-board
-    `kind: part`), and it must sit on an electrolytic: any other value would
-    be ignored and the can drawn by position, silently."""
+    `kind: part`), and it must sit on an electrolytic. Every drawn electrolytic
+    must declare it: a position-based renderer fallback is not source evidence.
+    A lamp glyph cannot carry this declaration because it draws no can mark."""
     lay_path = amp_dir / "layout.yaml"
     if not lay_path.exists():
         return []
@@ -307,15 +308,25 @@ def check_layout_plus(amp_dir: Path) -> list[str]:
     rows = [("parts[]", p) for p in layout.get("parts") or []]
     rows += [("offboard", it) for it in layout.get("offboard") or []]
     for where, row in rows:
-        if not isinstance(row, dict) or "plus" not in row:
+        if not isinstance(row, dict):
             continue
         name = row.get("ref") or row.get("id") or "?"
+        electro = "electrolytic" in part_of.get(row.get("ref"), "").lower()
+        drawn_part = where == "parts[]" or row.get("kind") == "part"
+        if row.get("glyph") == "lamp" and (electro or "plus" in row):
+            errors.append(f"{lay_path}: {where} {name}: glyph: lamp cannot draw an "
+                          "electrolytic '+' mark")
+        if "plus" not in row:
+            if drawn_part and electro:
+                errors.append(f"{lay_path}: {where} {name}: electrolytic requires plus: a | b "
+                              "with source or DC-sign provenance; position is not evidence")
+            continue
         leads = (tuple(k for k in ("a", "b") if k in row) if where == "parts[]"
                  else ("a", "b") if row.get("kind") == "part" else ())
         if row["plus"] not in leads:
             errors.append(f"{lay_path}: {where} {name}: plus: {row['plus']!r} names no lead "
                           f"of this part (available leads: {', '.join(leads) or 'none'})")
-        elif "electrolytic" not in part_of.get(row.get("ref"), "").lower():
+        elif not electro:
             errors.append(f"{lay_path}: {where} {name}: plus: sits on a part whose BOM type "
                           f"is {part_of.get(row.get('ref')) or 'unknown'!r}, not an "
                           f"electrolytic, so no '+' is drawn for it")
@@ -653,7 +664,14 @@ def selftest(root: Path) -> int:
         ("off-board plus c", {"offboard": [dict(off, plus="c")]}, "Electrolytic capacitor", True),
         ("plus on a socket", {"offboard": [dict(off, kind="tube", plus="a")]},
          "Electrolytic capacitor", True),
-        ("undeclared can retains legacy fallback", {"parts": [part]}, "Electrolytic capacitor", False),
+        ("undeclared board can", {"parts": [part]}, "Electrolytic capacitor", True),
+        ("undeclared off-board can", {"offboard": [off]}, "Electrolytic capacitor", True),
+        ("lamp glyph hides declared can mark", {"offboard": [dict(off, plus="a", glyph="lamp")]},
+         "Electrolytic capacitor", True),
+        ("lamp glyph hides undeclared can mark", {"offboard": [dict(off, glyph="lamp")]},
+         "Electrolytic capacitor", True),
+        ("ordinary lamp needs no can declaration", {"offboard": [dict(off, glyph="lamp")]},
+         "Pilot lamp", False),
     )
     with tempfile.TemporaryDirectory() as td:
         d = Path(td)
@@ -666,8 +684,30 @@ def selftest(root: Path) -> int:
                 print(f"FAIL selftest: {name} — expected "
                       f"{'a finding' if should_fire else 'no finding'}, got the other")
                 failures += 1
+        # Deleting source declarations must fail even if the geometric fallback
+        # happens to draw the same end, or if DC coverage is undecided. Exercise
+        # real rows and BOM types, including a chassis-mounted supply can.
+        deletion_cases = (("5f4", "parts", "C3"),
+                          ("5g9", "offboard", "C15"),
+                          ("aa764", "parts", "C5"))
+        for amp_id, section, ref in deletion_cases:
+            source = root / "amps" / amp_id
+            layout = yaml.safe_load((source / "layout.yaml").read_text())
+            (d / "bom.yaml").write_text((source / "bom.yaml").read_text())
+            (d / "layout.yaml").write_text(yaml.safe_dump(layout))
+            baseline_errors = check_layout_plus(d)
+            row = next(p for p in layout[section] if p.get("ref") == ref)
+            declared = row.pop("plus", None)
+            (d / "layout.yaml").write_text(yaml.safe_dump(layout))
+            errors = check_layout_plus(d)
+            if (baseline_errors or declared not in ("a", "b") or len(errors) != 1
+                    or f"{ref}: electrolytic requires plus:" not in errors[0]):
+                print(f"FAIL selftest: deleting {amp_id} {ref} plus must reject an "
+                      f"otherwise valid layout; got {errors!r}")
+                failures += 1
     if failures == 0:
-        print(f"validate selftest: {len(cases) + 1 + len(plus_cases)} planted cases passed")
+        print(f"validate selftest: {len(cases) + 1 + len(plus_cases) + len(deletion_cases)} "
+              "planted cases passed")
     return failures
 
 

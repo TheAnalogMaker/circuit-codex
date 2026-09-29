@@ -127,11 +127,11 @@ see *Rectifier polarity* under the equivalence gate below.
 **`plus: a | b`** (electrolytics only) names the lead that carries the can's
 `+`, and the drawing puts the mark there in both styles: the `+` and its gutter
 at that end of a can lying along a row, the crimp ring and `+` at that end of a
-standing can. `validate.py` rejects a `plus:` that names no lead of the part, or
-that sits on anything but an electrolytic. Source it from the factory layout's
+standing can. `validate.py` requires it on every drawn electrolytic, rejects a
+`plus:` that names no lead of the part or sits on anything but an electrolytic,
+and rejects an electrolytic disguised by `glyph: lamp`. Source it from the factory layout's
 own printed `+` where it is legible, else from the circuit's DC sign, and say
-which in the field's comment. A can that declares none keeps the position
-default described under *Which end the `+` is on*.
+which in the field's comment.
 
 **Polarity gutter.** An electrolytic's `+` is a placed mark with reserved clear
 space inside the body, and the value reflows into what is left. Set inline (as
@@ -142,9 +142,9 @@ read as `±25MFD` on every narrow can in the corpus.
 [polarity audit](electrolytic-polarity.md) records the source reads and the
 remaining DC-model limitations. Both styles resolve that lead to its actual
 position, including reversed `a`/`b` geometry and off-board cans on all four
-edges. An undeclared input retains the legacy left/top position default
+edges. A standalone undeclared input retains the legacy left/top position default
 (off-board: terminal `a`); that fallback is rendering compatibility, never
-polarity evidence. `verify_layout_nets.py` checks the drawn lead against DC
+polarity evidence, and corpus validation rejects it. `verify_layout_nets.py` checks the drawn lead against DC
 sign and drift-gates `reference/electrolytics.yaml`.
 
 ## `offboard[]` — labelled stubs around the board
@@ -166,7 +166,7 @@ sign and drift-gates `reference/electrolytics.yaml`.
 | `glyph` | Only for `kind: part` — `lamp` draws the pilot-lamp glyph; otherwise the body its BOM part type calls for (see body vocabulary above), at the same size a board part gets, with its value lettered on it |
 | `value` | Only meaningful on a **ref-less** item, and only for `kind: part`. Values live in `bom.yaml`, keyed by ref, so a layout and the parts list can never disagree — and that stays true for every part the BOM knows. But the annotation layer draws parts the electrical model does not carry (a negative-feedback resistor stated only as a schematic *text note*, so it has no symbol and therefore no BOM ref), and those had no way to state a value at all: they shipped as blank bodies. A ref'd item ignores this field, so the two can never diverge. The value must be sourced in a comment; the lint fails a ref-less `kind: part` that has neither |
 | `cathode` | Only for a `kind: part` whose BOM type is a diode/rectifier — `a` \| `b`, same meaning as on `parts[]` |
-| `plus` | Only for a `kind: part` whose BOM type is electrolytic — `a` \| `b`, same meaning as on `parts[]`. Both styles draw the `+` beside the declared terminal on all four edges |
+| `plus` | Required for a `kind: part` whose BOM type is electrolytic — `a` \| `b`, same meaning as on `parts[]`. Both styles draw the `+` beside the declared terminal on all four edges; `glyph: lamp` is incompatible |
 | `label_nudge` / `value_nudge` | For `kind: pot` — `[dx, dy]` px shifts for the name+value pair / the value alone, keeping the label's opaque halo. `kind: tube` accepts `label_nudge` too (the socket caption as one piece), for a caption whose whole natural band is occupied by a routed run. Same status as `parts[]`'s nudges: an authored starting point for the automatic placement pass, not the mechanism |
 | `tap` | Only for `kind: pot` — `true` declares a **tapped** potentiometer: a fixed connection into the resistance element brought out as a fourth solder lug, addressed as `VRn.lug4`. Drawn as a fourth pip lettered `T` on the pot's flank (the left flank of a top/bottom-edge pot, the upper flank of a left/right-edge one), never as a member of the 1/2/3 fan, whose order is the part's own. The render refuses `tap: true` on a pot whose `bom.yaml` value states no tap, and refuses `.lug4` on a pot that does not declare one — a tap is a fact about the part, so both the parts list and the layout have to say it. The 6G6-B's Normal-channel Treble control (`350 kΩ, 70 kΩ tap` on the E-FB sheet) is the corpus's one tapped pot; its tap carries the 0.1 µF from the slope foot, and the schematic draws it on the matching four-pin `cx:POT_TAP` symbol |
 

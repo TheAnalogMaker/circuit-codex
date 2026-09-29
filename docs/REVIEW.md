@@ -128,7 +128,9 @@ that still carry overlap/termination debt are held behind a
 once the layout passes the lint on its own.
 
 **A drawn `+` is a claim.** An electrolytic's `plus: a | b` names its actual
-positive lead, independent of where it is placed on the page. Read the
+positive lead, independent of where it is placed on the page. Every drawn
+electrolytic must declare it; validation rejects a missing declaration or a
+lamp glyph that would hide the mark. Read the
 source's printed `+` where legible, otherwise document the DC sign; position
 alone is not evidence. Both styles draw that declaration, including chassis
 cans. `verify_layout_nets.py` blocks a reversed can on every board and keeps
