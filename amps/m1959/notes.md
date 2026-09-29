@@ -40,7 +40,7 @@ From there the two phases split: each 0.022 µF coupler feeds a pair of EL34s
 through 5.6 kΩ grid stoppers, with one 120 kΩ grid leak per pair carrying the
 adjustable negative bias. Every screen grid has its own 1 kΩ stopper. The
 output transformer offers 16, 8 and 4 Ω taps, and negative feedback returns from
-the 16 Ω tap through a 47 kΩ resistor to the cold end of the inverter's tail,
+the 8 Ω tap through a 47 kΩ resistor to the cold end of the inverter's tail,
 where a 5 kΩ presence control shunts the top of the feedback band to ground.
 
 Power: a universal-primary mains transformer (110/120/200/225/245 V taps), a
@@ -81,17 +81,16 @@ that joins the two wipers.
 Marshall drawings of this period print component values only, and the 1959
 drawing carries no valve-voltage chart. A factory chart does exist for the
 100-watt head, issued with the sheet of the same drawing number and date that
-covers the 6550-fitted Mark II — a component-for-component identical front end
+covers the 6550-fitted Mark II — a closely related front end with a different presence return
 ahead of a different output quartet. Its ECC83 figures are used here for the
-preamp and phase inverter, and the circuit reproduces them closely: every
-preamp plate lands within 5% of its printed figure and the inverter's two plates
-within 3%. The cathode figures — single-digit-volt readings taken with a
-hand-held meter — land within 17%.
+preamp and phase inverter. The EL34 drawing places the 10 kΩ tail above a
+5 kΩ presence track in parallel with the 47 kΩ feedback resistor; the Mark II
+uses a 4.7 kΩ return with a DC-blocked presence control. Those drawings define
+the circuit; the chart cannot establish a different tail connection.
 
-Two things keep the circuit a **draft**. The inverter's cathode simulates about
-8 volts above the printed figure, because the model idles that pair harder than
-the chart's amplifier did and the supply it hangs on runs high for the same
-reason. And the EL34 output stage has no published figures of its own at all:
+The inverter cathode simulates about 36.5 V against the Mark II chart's
+18.5 V. That disagreement remains visible, and the circuit stays a **draft**.
+The EL34 output stage also has no published figures of its own:
 its plate and screen voltages here are derived from a rail taken as an
 assumption, and the idle current is a choice within the range these amplifiers
 are set to rather than a reading. Verified is earned against measurements, and

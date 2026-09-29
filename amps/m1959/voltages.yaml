@@ -2,7 +2,7 @@
 # the published factory "MARSHALL 100W. VOLT. CHART". That chart is issued with
 # the Unicord sheet carrying the SAME drawing number and date as this circuit's
 # drawing (70-6-11, July 1970) under the title "MARSHALL 1959 MARK II": a
-# component-for-component identical ECC83 front end ahead of a 6550 output
+# related ECC83 front end ahead of a 6550 output
 # quartet instead of the EL34 quartet documented here.
 #
 # What that means for gating:
@@ -17,18 +17,11 @@
 #     with the 1 kOhm V2A cathode resistor the drawing annotates as "(1K)", while
 #     the netlist uses the drawing's primary 820 Ohm. K2A is flagged accordingly.
 #
-# The chart also settles a modelling question the drawing alone leaves open. Its
-# 18.5 V phase-inverter cathode over the drawn 470 Ohm + 10 kOhm tail implies
-# 1.77 mA, which splits across the 82 kOhm and 100 kOhm plate loads to give
-# exactly the printed 210 V and 195 V plates at a 283 V supply. The tail is
-# therefore returned to DC ground through the 10 kOhm alone: the presence pot and
-# the feedback resistor sit at its cold end without adding series resistance.
-#
-# Rails and the output stage are reported informationally. The simulated supply
-# runs above the chart's implied rails because the v0 12AX7 model draws more
-# current through the 20 kOhm dropper than the chart's stages do; that carries
-# straight through to the phase-inverter tail, which reads high. This is one of
-# the reasons the circuit is published as a draft — see notes.md.
+# The EL34 drawing explicitly returns the 10k tail through the 5k presence
+# track in parallel with 47k feedback to the grounded OT secondary. The Mark II
+# drawing uses a 4.7k return and a DC-blocked presence control instead. Its chart
+# therefore supplies a comparison, not proof of identical operating conditions.
+# Preserve every printed value; do not alter the drawn tail to fit the chart.
 source: "Marshall factory 'MARSHALL 100W. VOLT. CHART' published with Unicord drawing 70-6-11, July 1970 ('MARSHALL 1959 MARK II'): V1 pins 1/3/6/8 = 135 / 1.0 / 195 / 1.5; V2 pins 1/3/6/7/8 = 153 / 1.1 / 260 / 153 / 153; V3 pins 1/3/6/8 = 210 / 18.5 / 195 / 18.5; V4-V7 (6550) pins 3/4/5 = 453 / 450 / -51; footnote 'Bias approx. -51 vdc; primary current 1.2 - 1.3 amps at 120 vac'."
 nodes:
   P1A:  { chart: 135, tol_pct: 20, note: "V1A plate — channel I (high-treble) input, 100 kΩ load, 820 Ω cathode (chart V1 pin 1)" }
@@ -46,7 +39,7 @@ nodes:
   KPI:
     chart: 18.5
     tol_pct: 20
-    note: "phase-inverter shared cathode above the 470 Ω (chart V3 pins 3 and 8). The simulated value runs high: the anchor-point 12AX7 model idles this pair at ~2.5 mA against the chart's 1.8 mA, and the supply it hangs on is itself high for the same reason."
+    note: "phase-inverter shared cathode above the 470 Ω (chart V3 pins 3 and 8). The drawn 10 kΩ tail ends at the 5 kΩ presence track in parallel with the 47 kΩ feedback return. This EL34 circuit simulates about 36.5 V; the 18.5 V chart belongs to the related 6550 Mark II and is retained without changing the drawn return to force agreement."
   BP2:  { chart: null, note: "phase-inverter supply node, after the 20 kΩ/1 W dropper — no chart pin. The chart's own stage currents put it near 300 V" }
   BP3:  { chart: 260, tol_pct: 20, note: "second-stage / cathode-follower supply node after the first 10 kΩ/1 W dropper — read from the cathode follower's plate, chart V2 pin 6" }
   BP4:  { chart: null, note: "input-stage supply node after the second 10 kΩ/1 W dropper — no chart pin; the chart's V1 plate and cathode figures put it near 254 V" }

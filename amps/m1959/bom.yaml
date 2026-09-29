@@ -51,7 +51,7 @@ items:
   - { ref: RT2, part: "Carbon comp resistor", value: "10 kΩ · ½ W", role: "PI tail (junction → presence/feedback node)" }
   - { ref: C12, part: "Mica capacitor", value: "47 pF", role: "PI plate-to-plate / phase compensation" }
   # --- negative feedback + presence ---
-  - { ref: RNFB, part: "Carbon comp resistor", value: "47 kΩ · ½ W", role: "Negative feedback, 16 Ω secondary tap → PI tail cold end (drawing annotates a 100 kΩ variant)" }
+  - { ref: RNFB, part: "Carbon comp resistor", value: "47 kΩ · ½ W", role: "Negative feedback, 8 Ω secondary tap → PI tail cold end (drawing annotates a 100 kΩ variant)" }
   - { ref: VR6, part: "Linear potentiometer", value: "5 kΩ", role: "Presence" }
   - { ref: C13, part: "Film capacitor", value: "0.1 µF", role: "Presence-pot wiper to ground" }
   - { ref: C14, part: "Film capacitor", value: "0.1 µF", role: "AC coupling from the presence/feedback node to the V3B grid" }
@@ -70,7 +70,7 @@ items:
   - { ref: RSC7, part: "Carbon comp resistor", value: "1 kΩ", role: "V7 screen-grid stopper" }
   # --- fixed-bias supply ---
   - { ref: D1,  part: "Silicon rectifier diode", value: "1008", role: "Bias-supply rectifier — its own HT-tap diode" }
-  - { ref: RBA, part: "Carbon comp resistor", value: "27 kΩ · ½ W", role: "Bias-supply series resistor, HT winding end → diode (drawing annotates a 22 kΩ variant)" }
+  - { ref: RBA, part: "Carbon comp resistor", value: "27 kΩ · ½ W", role: "Bias-supply series resistor, dedicated bias winding → diode (drawing annotates a 22 kΩ variant)" }
   - { ref: RBB, part: "Carbon comp resistor", value: "15 kΩ · ½ W", role: "Bias-supply series resistor between the two 8 µF filters" }
   - { ref: RBC, part: "Carbon comp resistor", value: "47 kΩ · ½ W", role: "Bias-adjust divider, upper leg" }
   - { ref: VR7, part: "Trim potentiometer", value: "27 kΩ", role: "Bias adjust" }
@@ -107,7 +107,7 @@ items:
   - { ref: V6, part: "Power tube", value: "EL34", role: "Parallel push-pull output — phase B" }
   - { ref: V7, part: "Power tube", value: "EL34", role: "Parallel push-pull output — phase B" }
   # --- transformers, hardware, annotations ---
-  - { ref: T1, part: "Output transformer", value: "16/8/4 Ω taps", role: "Output transformer — parallel push-pull primary for four EL34s, 16/8/4 Ω secondary taps (feedback from the 16 Ω tap)" }
+  - { ref: T1, part: "Output transformer", value: "16/8/4 Ω taps", role: "Output transformer — parallel push-pull primary for four EL34s, 16/8/4 Ω secondary taps (feedback from the 8 Ω tap)" }
   - { ref: "—", part: "Power transformer", value: "Universal primary 110/120/200/225/245 V · HT, bias and 6.3 V heater windings", role: "Mains/HT transformer, with a separate bias winding (one end to chassis) feeding the bias rectifier" }
   - { ref: "—", part: "Fuse", value: "4 A", role: "Mains fuse (annotation)" }
   - { ref: "—", part: "Fuse", value: "1 A", role: "HT fuse (annotation)" }

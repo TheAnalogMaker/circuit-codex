@@ -182,7 +182,7 @@ s.sym("C", "C12", "47p", 199, 132.38)
 s.wire(199, 136.19, 199, 150.38)
 s.wire(199, 150.38, 186, 150.38)
 s.junction(186, 150.38)
-# shared tail: cathodes -> 470 -> J -> 10k -> gnd
+# shared tail: cathodes -> 470 -> J -> 10k -> PRES
 s.wire(186, 129.62, 186, 132)
 s.wire(186, 132, 192, 132)
 s.wire(186, 165.62, 186, 168)
@@ -195,7 +195,8 @@ s.wire(rr, 175, 208, 175)
 s.wire(208, 175, 208, JY)
 s.junction(208, JY)
 s.sym("R", "RT2", "10k", 208, JY + 3.81)
-s.gnd(208, JY + 7.62)
+s.wire(208, JY + 7.62, 208, 193)
+s.glabel("PRES", 208, 193, 270)
 # grid leaks, both returned to the tail junction along the JY lane
 s.wire(GL, 122, GL, 126)
 s.junction(GL, 122)
@@ -212,35 +213,34 @@ s.wire(GL, 158, t3b["g"][0], 158)
 s.wire(174, 158, GL, 158)
 s.wire(174, 158, 174, 166.19)
 s.sym("C", "C14", ".1u", 174, 170, lx=-6.0, ly=3.0)
-s.wire(174, 173.81, 174, JY)
+s.wire(174, 173.81, 174, 176.5)
+s.glabel("PRES", 174, 176.5, 270)
 # the tail-junction lane itself
-s.wire(145, JY, RC, JY)
-s.wire(RC, JY, 174, JY)
-s.wire(174, JY, GL, JY)
+s.wire(RC, JY, GL, JY)
 s.wire(GL, JY, 208, JY)
 s.junction(RC, JY)
-s.junction(174, JY)
 s.junction(GL, JY)
 
-# ---- negative feedback + presence, at the tail junction --------------------
+# ---- negative feedback + presence, at the tail foot --------------------
 nl, nr = s.series_h("R", "RNFB", "47k", 141, JY)
-s.wire(nr, JY, 145, JY)
+s.wire(nr, JY, 160, JY)
+s.glabel("PRES", 154, JY, 90)
+s.junction(154, JY)
 s.wire(nl, JY, 134, JY)
 s.glabel("SPKR", 134, JY, 180)
 s.junction(160, JY)
 s.wire(160, JY, 160, 188)
 s.sym("POT", "VR6", "5k presence", 160, 191.81, lx=-14.0, ly=6.5)
-s.wire(160, 195.62, 165.08, 195.62)        # free lug tied to the wiper
-s.wire(165.08, 195.62, 165.08, 191.81)
+s.gnd(160, 195.62)                       # lower track lug is grounded
 s.wire(165.08, 191.81, 170, 191.81)
 s.sym("C", "C13", ".1u", 170, 195.62, lx=2.2)
 s.gnd(170, 199.43)
-s.text("Presence: the 5 k pot works as a variable resistor into the 0.1 uF, "
-       "shunting the", 60, 190, 1.15)
-s.text("feedback node to ground at high frequency. Being DC-blocked it adds "
-       "no series", 60, 194, 1.15)
-s.text("resistance, so the inverter tail returns to ground through the 10 k "
-       "alone.", 60, 198, 1.15)
+s.text("Presence: 5 k track from the tail foot to ground; 0.1 uF from the wiper",
+       60, 190, 1.15)
+s.text("to ground. The 47 k feedback resistor supplies a second DC return through",
+       60, 194, 1.15)
+s.text("the output winding. The 10 k tail ends at this separate feedback node.",
+       60, 198, 1.15)
 
 # ======================= EL34 quartet, fixed bias ===========================
 # Two valves per phase. Each PI plate drives a 0.022 uF coupler onto a grid
@@ -302,7 +302,7 @@ s.wire(308.89, 127.46, 313, 127.46)
 s.glabel("SPKR", 313, 127.46, 0)
 s.wire(308.89, 132.54, 313, 132.54)
 s.glabel("GND", 313, 132.54, 0)
-s.text("16 / 8 / 4 ohm secondary taps; feedback is taken from the 16 ohm tap.",
+s.text("16 / 8 / 4 ohm secondary taps; feedback is taken from the 8 ohm tap.",
        258, 148, 1.15)
 
 # ======================= power supply — silicon bridge ======================
