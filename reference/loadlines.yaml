@@ -961,7 +961,7 @@ stages:
   plate_node: BP1
   plate_v: 560.0
   screen_node: S5
-  screen_v: 558.451
+  screen_v: 558.448
   cathode_node: '0'
   cathode_v: 0.0
   rk_total: null
@@ -976,7 +976,7 @@ stages:
   ot_primary_approx: false
   ot_primary_note: Push-pull, 4x KT66 primary — Output to the speaker; secondary leads lettered on the
     sheet — blue 100 V line, white 16 Ω, yellow 8 Ω, orange common
-  sim_ip_ma: 71.5516
+  sim_ip_ma: 71.5499
   sim_ig2_ma: 0.0
 - amp: 'jtm45'
   name_style: British lead-style
@@ -988,7 +988,7 @@ stages:
   plate_node: BP1
   plate_v: 450.0
   screen_node: S5
-  screen_v: 448.737
+  screen_v: 448.749
   cathode_node: '0'
   cathode_v: 0.0
   rk_total: null
@@ -1002,7 +1002,7 @@ stages:
   ot_primary_z: null
   ot_primary_approx: false
   ot_primary_note: Push-pull, KT66 primary — Push-pull output to the speaker
-  sim_ip_ma: 59.1388
+  sim_ip_ma: 59.1465
   sim_ig2_ma: 0.0
 - amp: 'm1959'
   name_style: Super Lead 100-style
@@ -1028,7 +1028,7 @@ stages:
   ot_primary_z: null
   ot_primary_approx: false
   ot_primary_note: 16/8/4 Ω taps — Output transformer — parallel push-pull primary for four EL34s, 16/8/4
-    Ω secondary taps (feedback from the 16 Ω tap)
+    Ω secondary taps (feedback from the 8 Ω tap)
   sim_ip_ma: 32.8241
   sim_ig2_ma: 0.0
 - amp: 'm1987'
@@ -1041,7 +1041,7 @@ stages:
   plate_node: BP1
   plate_v: 490.0
   screen_node: BP2
-  screen_v: 489.639
+  screen_v: 489.628
   cathode_node: '0'
   cathode_v: 0.0
   rk_total: null
@@ -1055,7 +1055,7 @@ stages:
   ot_primary_z: null
   ot_primary_approx: false
   ot_primary_note: Push-pull EL34 primary, 16/8/4 Ω secondary — Output transformer
-  sim_ip_ma: 44.746
+  sim_ip_ma: 44.7387
   sim_ig2_ma: 0.0
 - amp: 'm2204'
   name_style: Master Volume lead 50-style
