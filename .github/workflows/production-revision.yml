@@ -1,7 +1,8 @@
 name: production-revision
 
 # Is circuitcodex.com serving main? The build stamps /version.json with its source
-# revision (site/scripts/write-version.mjs). This job compares that with main's head.
+# revision (site/scripts/write-version.mjs). This job reads it from the production
+# Worker (via its workers.dev address) and compares it with main's head.
 #
 # Why: until 2026-09-29, every branch build in Workers Builds deployed to production,
 # and an unmerged PR was served for hours while every check on main stayed green.
@@ -41,9 +42,14 @@ jobs:
           committed=$(gh api "repos/$REPO/commits/$MAIN_SHA" -q .commit.committer.date)
           age=$(( $(date +%s) - $(date -d "$committed" +%s) ))
           UA="circuit-codex-production-check/1 (+https://github.com/$REPO/actions)"
+          # Read the Worker's workers.dev address: the same Worker and active deployment
+          # that circuitcodex.com routes to, outside the zone's bot protection, which
+          # answers GitHub's datacenter IPs with a 403 challenge (seen 2026-09-29).
+          # land.sh checks the custom domain itself from a normal client.
+          SITE=https://circuit-codex.theanalogmaker.workers.dev
           served() {
             code=$(curl -s -A "$UA" -D /tmp/h -o /tmp/b -w '%{http_code}' --max-time 20 \
-                     "https://circuitcodex.com/version.json?t=$(date +%s)" || echo 000)
+                     "$SITE/version.json?t=$(date +%s)" || echo 000)
             echo "  HTTP $code; cf-mitigated: $(grep -i '^cf-mitigated:' /tmp/h | cut -d' ' -f2- | tr -d '\r'); server: $(grep -i '^server:' /tmp/h | cut -d' ' -f2- | tr -d '\r')" >&2
             [ "$code" = 200 ] && python3 -c 'import json,sys; print(json.load(open("/tmp/b")).get("revision",""))' 2>/dev/null
           }
