@@ -82,7 +82,7 @@ s.gnd(116.84, 127.12)
 # Wired as the published JTM45 drawing ('Basic schematic for Marshall trem
 # amps') draws it — the same network as the Fender 5F6-A sheet it copies:
 #   node A = cathode-follower output: 270 pF to the treble pot AND the 56k slope;
-#   node B = the slope's foot: 0.02 uF to the treble-bottom/bass node, 0.01 uF
+#   node B = the slope's foot: 0.01 uF to the treble-bottom/bass node, 0.02 uF
 #            to the MIDDLE POT'S WIPER;
 #   the bass pot is a rheostat (wiper strapped) in series down the ladder, and
 #   the stack's output is the TREBLE WIPER ALONE.
@@ -99,8 +99,8 @@ s.wire(135.89, 119.5, 135.89, 130)      # node B riser, down to the mid cap
 tl, tr = s.series_h("C", "C4", "270p", 139.7, 96)
 s.wire(tr, 96, 147.32, 96)
 s.sym("POT", "VR3", "250k treb", 147.32, 99.81)
-# bass branch: node B -> 0.02 uF -> treble-bottom/bass node
-bl, br = s.series_h("C", "C5", ".02u", 139.7, 108)
+# bass branch: node B -> 0.01 uF -> treble-bottom/bass node
+bl, br = s.series_h("C", "C5", ".01u", 139.7, 108)
 s.wire(135.89, 108, bl, 108)
 s.wire(br, 108, 147.32, 108)
 s.wire(147.32, 103.62, 147.32, 108)     # treble bottom lug -> bass node
@@ -110,8 +110,8 @@ s.wire(152.4, 111.81, 156.21, 111.81)   # bass wiper strapped to its foot lug, a
 s.wire(156.21, 111.81, 156.21, 118)     # the published drawing loops it (rheostat)
 s.wire(156.21, 118, 147.32, 118)
 s.junction(147.32, 118)
-# mid branch: node B -> 0.01 uF -> the middle pot's wiper
-ml, mr = s.series_h("C", "C6", ".01u", 139.7, 130)
+# mid branch: node B -> 0.02 uF -> the middle pot's wiper
+ml, mr = s.series_h("C", "C6", ".02u", 139.7, 130)
 s.wire(135.89, 130, ml, 130)
 s.wire(mr, 130, 154.94, 130)
 s.wire(154.94, 130, 154.94, 121.81)
@@ -131,7 +131,7 @@ s.wire(168.91, 92, tp["g"][0], 92)
 bt = s.triode("V4B", "ECC83", 176.53, 126)
 s.plate_load("RLA", "82k", tp["p"], "B+3")
 s.plate_load("RLB", "100k", bt["p"], "B+3")
-# shared tail: cathodes -> 470 -> J -> 10k -> gnd
+# shared tail: cathodes -> 470 -> J -> 10k -> presence/feedback node
 s.wire(176.53, 99.62, 176.53, 102)
 s.wire(176.53, 102, 182.88, 102)
 s.wire(176.53, 133.62, 176.53, 136)
@@ -142,7 +142,8 @@ s.sym("R", "RTAIL", "470", 187.96, 109 + 3.81, lx=2.0)
 s.wire(182.88, 109, 187.96, 109)
 s.junction(187.96, 116.62)
 s.sym("R", "RT2", "10k", 187.96, 120.43)
-s.gnd(187.96, 124.24)
+s.wire(187.96, 124.24, 187.96, 127)
+s.glabel("PRES", 187.96, 127, 270)
 # both grid leaks to the junction
 s.wire(168.91, 92, 168.91, 99)
 s.junction(168.91, 92)
@@ -156,9 +157,20 @@ s.sym("R", "RGB", "1M", 168.91, 118.19, lx=-9.4)
 bl2, br2 = s.series_h("C", "C8", ".1u", 162.56, 126)
 s.wire(br2, 126, 168.91, 126)
 s.wire(bl2, 126, 158.75, 126)
-s.wire(158.75, 126, 158.75, 116.62)
-s.wire(158.75, 116.62, 168.91, 116.62)  # bottom grid AC-grounded to J
-s.text("27k NFB + 5k presence (with .01u) join the tail foot at ~0 V DC", 150, 145, 1.1)
+s.wire(158.75, 126, 158.75, 133)
+s.glabel("PRES", 158.75, 133, 270)
+# Feedback and presence: separate tail foot, 5k track to ground, wiper cap.
+s.glabel("SPKR", 142, 140, 180)
+s.wire(142, 140, 148.19, 140)
+s.series_h("R", "RNFB", "27k", 152, 140)
+s.wire(155.81, 140, 175, 140)
+s.junction(166, 140)
+s.glabel("PRES", 166, 140, 90)
+s.sym("POT", "VR6", "5k pres", 175, 143.81, lx=-13, ly=6.4)
+s.gnd(175, 147.62)
+s.wire(180.08, 143.81, 193, 143.81)
+s.sym("C", "C17", ".01u", 193, 147.62)
+s.gnd(193, 151.43)
 
 # ---- KT66 pair, fixed bias ----------------------------------------------
 for y, pref, cref, sref, glref, stref in [
