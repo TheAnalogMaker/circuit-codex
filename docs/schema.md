@@ -20,7 +20,7 @@ Schema will stabilize at the end of Phase 0 (pilot: 5f1, 5e3, 5f6a).
 | `lineage.derived_from` | list of ids | — | Direct circuit ancestors (solid edges in the graph) |
 | `lineage.influenced` | list of ids | — | Looser influence (dashed edges) |
 | `sources` | list of `{desc, url}` | ✓ | Where the circuit facts came from (published charts, dated revisions, measurements) — cite and link; `url` optional only when no canonical link exists. Never "traced from factory drawing" |
-| `verification.status` | enum | ✓ | `draft` · `verified` — **only CI + maintainer review set `verified`** |
+| `verification.status` | enum | ✓ | `draft` · `verified` — contributors leave this `draft`. **Only a maintainer sets `verified`, and only after the gates pass.** CI can block a claim; it can never grant one. |
 | `verification.date` | date | when verified | |
 | `verification.max_deviation_pct` | number | when verified | Worst node deviation, simulated vs published chart |
 | `added` | date | when draft | Day the circuit landed in the corpus (its git landing date). The feed dates a draft by it — production builds are shallow clones, so git cannot. Verified circuits are dated by `verification.date` instead |
