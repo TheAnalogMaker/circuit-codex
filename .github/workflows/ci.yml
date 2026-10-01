@@ -160,6 +160,11 @@ jobs:
         working-directory: site
       - run: node scripts/check-lineage-caption.mjs
         working-directory: site
+      # The bench calculators and the resistor color-code tool share one reader
+      # for 4k7 / 1M / 0.02mfd. A second copy is how "MFD" (the units guide's
+      # own word for µF) was refused as a negative.
+      - run: node --test scripts/check-bench-units.mjs
+        working-directory: site
       # The build's first step is sync-assets.mjs, which copies every amps/<id>/
       # schematic.kicad_sch to the copy KiCanvas actually serves. Both copies are
       # committed, so this proves the published one is the corpus's one.

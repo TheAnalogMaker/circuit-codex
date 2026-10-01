@@ -74,8 +74,9 @@ import Base from '../../../layouts/Base.astro';
       </div>
       <div class="rd" aria-live="polite"><b id="cc-f">—</b><span class="rd-sub" id="cc-sub"></span></div>
       <p class="hint">f₋₃dB = 1 / (2π · R · C). Cap accepts
-        <span class="k">0.02</span>, <span class="k">22n</span>,
-        <span class="k">470p</span>. Unsure what the "−3 dB" in that name means? See the
+        <span class="k">0.02</span>, <span class="k">0.02mfd</span>, <span class="k">22n</span>,
+        <span class="k">470p</span>. <span class="k">mfd</span> is the tube-era word for µF.
+        Unsure what the "−3 dB" in that name means? See the
         <a href="/reference/guides/units-conventions/#db">units &amp; notation guide</a>.</p>
     </section>
 
@@ -98,33 +99,15 @@ import Base from '../../../layouts/Base.astro';
 </div>
 </Base>
 
-<script is:inline>
-(function () {
-  const el = (id) => document.getElementById(id);
+<script>
+import { ohms, farads } from '../../../lib/bench-units.js';
 
-  // ---- parsers ------------------------------------------------------------
-  function num(v) { if (v == null) return null; v = String(v).trim(); if (v === '') return null; const n = parseFloat(v); return isFinite(n) ? n : null; }
-  function ohms(v) {
-    if (v == null) return null;
-    let s = String(v).trim().toLowerCase().replace(/ohms?|Ω/g, '').replace(/\s+/g, '');
-    if (s === '') return null;
-    const mult = { r: 1, k: 1e3, m: 1e6 };
-    let m = s.match(/^(\d*)([rkm])(\d+)$/); if (m) return parseFloat((m[1] || '0') + '.' + m[3]) * mult[m[2]];
-    m = s.match(/^(\d*\.?\d+)([rkm]?)$/); if (m) return parseFloat(m[1]) * (m[2] ? mult[m[2]] : 1);
-    return null;
-  }
-  function farads(v) {
-    if (v == null) return null;
-    let s = String(v).trim().toLowerCase().replace(/farads?/g, '').replace(/\s+/g, '').replace(/f$/, '');
-    if (s === '') return null;
-    const suf = { p: 1e-12, n: 1e-9, u: 1e-6, 'µ': 1e-6, m: 1e-3 };
-    const m = s.match(/^(\d*\.?\d+)([pnuµm]?)$/);
-    if (!m) return null;
-    return parseFloat(m[1]) * (m[2] ? suf[m[2]] : 1e-6); // no suffix → µF
-  }
+const el = (id) => document.getElementById(id);
+
+function num(v) { if (v == null) return null; v = String(v).trim(); if (v === '') return null; const n = parseFloat(v); return isFinite(n) ? n : null; }
 
   // ---- formatters (house unit style) --------------------------------------
-  const t = (x, s) => String(Number(x.toPrecision(s || 4)));
+  const t = (x, s) => String(Number(x.toPrecision(s || 4))).replace(/-/g, '−');
   function fR(o) { if (!isFinite(o)) return '—'; let u = 'Ω', x = o; if (Math.abs(o) >= 1e6) { x = o / 1e6; u = 'MΩ'; } else if (Math.abs(o) >= 1e3) { x = o / 1e3; u = 'kΩ'; } return t(x) + ' ' + u; }
   function fI(a) { if (!isFinite(a)) return '—'; let u = 'A', x = a; const m = Math.abs(a); if (m < 1e-3) { x = a * 1e6; u = 'µA'; } else if (m < 1) { x = a * 1e3; u = 'mA'; } return t(x) + ' ' + u; }
   function fP(w) { if (!isFinite(w)) return '—'; let u = 'W', x = w; if (Math.abs(w) < 1) { x = w * 1e3; u = 'mW'; } return t(x) + ' ' + u; }
@@ -275,7 +258,7 @@ import Base from '../../../layouts/Base.astro';
     const badC = unread(cc.c, C);
     const badR = unread(cc.r, R);
     if (badC || badR) {
-      refuse(cc.f, cc.sub, 'A capacitor and a resistor are sizes — 0.02, 22n, 470p and 1M read; a negative does not.');
+      refuse(cc.f, cc.sub, 'Could not read that capacitor or resistor. 0.02, 0.02mfd, 22n, 470p, 1M and 4k7 read; a negative is not a size.');
       return;
     }
     accept(cc.sub);
@@ -320,8 +303,7 @@ import Base from '../../../layouts/Base.astro';
   ['Zp', 'Zs', 'N'].forEach((k) => ot[k].addEventListener('input', () => { push(otOrder, k); otCompute(); }));
 
   // ---- init ---------------------------------------------------------------
-  olCompute(); dvCompute(); cbCompute(); ccCompute(); otCompute();
-})();
+olCompute(); dvCompute(); cbCompute(); ccCompute(); otCompute();
 </script>
 
 <style>
