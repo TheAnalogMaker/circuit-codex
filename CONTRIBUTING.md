@@ -3,7 +3,8 @@
 Contributions are welcome — new circuits, corrections to existing ones, tube models,
 pipeline improvements. This project is community-driven by design and
 curator-controlled in practice: anyone can propose, CI and maintainers gate what
-merges, and only the pipeline assigns the `verified` badge.
+merges, and only a maintainer grants the `verified` badge. CI can block a
+claim; it can never grant one.
 
 ## The three hard rules
 

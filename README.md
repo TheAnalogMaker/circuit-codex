@@ -61,8 +61,8 @@ docs/               schema and process documentation
 
 Contributions are welcome from day one — see [CONTRIBUTING.md](CONTRIBUTING.md).
 The short version: redraw from facts (attested in your PR), follow the naming rules,
-sign off your commits (DCO). The `verified` badge is assigned by CI + maintainer
-review only.
+sign off your commits (DCO). A maintainer grants the `verified` badge, and only
+after the gates pass. CI can block a claim; it can never grant one.
 
 ## Safety
 
