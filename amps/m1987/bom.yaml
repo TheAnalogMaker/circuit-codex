@@ -49,7 +49,7 @@ items:
   - { ref: RLA, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "PI plate load (V3A)" }
   - { ref: RLB, part: "Carbon comp resistor", value: "82 kΩ · ½ W", role: "PI plate load (V3B)" }
   - { ref: RTAIL, part: "Carbon comp resistor", value: "470 Ω · ½ W", role: "PI tail (shared cathode → junction)" }
-  - { ref: RT2, part: "Carbon comp resistor", value: "10 kΩ · ½ W", role: "PI tail (junction → NFB/ground)" }
+  - { ref: RT2, part: "Carbon comp resistor", value: "10 kΩ · ½ W", role: "PI tail (junction → presence/feedback node)" }
   - { ref: C12, part: "Mica capacitor", value: "47 pF", role: "PI plate-to-plate / phase compensation" }
   # --- output stage (V4/V5 EL34) ---
   - { ref: C13, part: "Coupling capacitor", value: "0.022 µF · 400 V", role: "PI → V4 grid" }
@@ -65,8 +65,8 @@ items:
   - { ref: C15, part: "Electrolytic capacitor", value: "8 µF", role: "Bias-supply filter" }
   - { ref: C16, part: "Electrolytic capacitor", value: "8 µF", role: "Bias-supply filter" }
   # --- power supply ---
-  - { ref: RD1, part: "Power resistor", value: "10 kΩ · 1 W", role: "Rail dropper B+2 (screens) → B+3 (phase inverter)" }
-  - { ref: RD2, part: "Power resistor", value: "47 kΩ · 1 W", role: "Rail dropper B+3 (phase inverter) → B+4 (second stage / cathode follower) — drawing annotates a 100 kΩ variant" }
+  - { ref: RD1, part: "Power resistor", value: "20 kΩ · 2 W", role: "Rail dropper B+2 (screens) → B+3 (phase inverter), representing the drawing's two series 10 kΩ · 1 W resistors" }
+  - { ref: RD2, part: "Power resistor", value: "10 kΩ · 1 W", role: "Rail dropper B+3 (phase inverter) → B+4 (second stage / cathode follower)" }
   - { ref: RD3, part: "Power resistor", value: "10 kΩ · 1 W", role: "Rail dropper B+4 (second stage) → B+5 (input stage)" }
   - { ref: L1,  part: "Filter choke", value: "inductance not printed", role: "Reservoir → screen-supply choke, drawn unlettered on the drawing" }
   - { ref: C17, part: "Electrolytic capacitor", value: "50 µF · 500 V", role: "Reservoir filter (B+1)" }
@@ -92,4 +92,7 @@ items:
   - { ref: "—", part: "Fuse", value: "½ A", role: "HT fuse (annotation)" }
   - { ref: "—", part: "Standby switch", value: "SPST", role: "HT standby (annotation)" }
   - { ref: "—", part: "Pilot lamp", value: "6.3 V", role: "Panel pilot lamp (annotation)" }
-  - { ref: "—", part: "Carbon comp resistor", value: "presence/NFB network", role: "Negative-feedback + presence around the PI tail (annotation)" }
+  - { ref: RNFB, part: "Carbon comp resistor", value: "47 kΩ · ½ W", role: "Negative feedback from the 8 Ω tap to the tail foot; drawing annotates a 100 kΩ variant" }
+  - { ref: VR7, part: "Linear potentiometer", value: "5 kΩ", role: "Presence track from tail foot to ground" }
+  - { ref: C25, part: "Film capacitor", value: "0.1 µF", role: "V3B grid AC-coupled to the presence/feedback node" }
+  - { ref: C26, part: "Film capacitor", value: "0.1 µF", role: "Presence wiper to ground" }

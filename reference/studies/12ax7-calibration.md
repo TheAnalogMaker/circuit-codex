@@ -229,8 +229,10 @@ circuit — the 2026-08-03 re-reading — all five printed values gate cleanly. 
 V2A pair stands disputed on its own arithmetic.) No physically valid 12AX7
 model can reproduce the V2A numbers, because the printed numbers do not describe
 a physically valid operating point. Those chart values should be treated as
-**disputed**, the way the JTM45's phase-inverter cathode reading already is — not
-chased with model parameters.
+**disputed**, not chased with model parameters. The JTM45's former cathode
+dispute was different: its redrawing grounded the tail incorrectly. Restoring
+the drawn presence/feedback return brings that printed 40 V value within
+tolerance without changing the tube model.
 
 ## Status
 

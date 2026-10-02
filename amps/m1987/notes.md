@@ -26,12 +26,14 @@ load) → treble-middle-bass tone stack (33 kΩ slope; 500 pF, 0.022 µF and
 100 kΩ and 82 kΩ plates, 470 Ω + 10 kΩ tail, both 1 MΩ grid leaks to the tail
 junction, 47 pF across) → 0.022 µF couplers → **EL34 pair**, fixed-biased through
 220 kΩ grid leaks → output transformer with 16/8/4 Ω taps, negative feedback and
-a presence control returned to the tail.
+a 47 kΩ feedback resistor (100 kΩ variant) from the 8 Ω tap to the tail foot.
+The 10 kΩ tail ends at that node, with the 5 kΩ presence track returning to
+ground and a 0.1 µF coupling capacitor running to the inverter's second grid.
 
 Power: a universal-primary mains transformer (110/120/200/225/245 V taps) and a
 silicon full-wave rectifier feed a 50 µF + 80 µF reservoir; a filter choke and a
-chain of 10 kΩ / 1 W droppers (with a 47 kΩ dropper to the phase-inverter/second-
-stage supply) step the rail down for the screens, phase inverter and preamp. The
+pair of series 10 kΩ · 1 W droppers feeds the phase-inverter rail, followed by
+10 kΩ · 1 W to the second stage and another 10 kΩ · 1 W to the input stage. The
 negative grid bias comes from one end of the HT winding through 220 kΩ into a
 diode, then a 15 kΩ / 25 kΩ network and 8 µF filters.
 

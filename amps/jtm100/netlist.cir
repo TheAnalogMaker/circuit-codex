@@ -94,11 +94,11 @@ C8 GPIB PRES 0.1u
 C12 PPIA PPIB 47p
 RTAIL KPI JPI 470
 RT2 JPI PRES 10k
-* The presence pot sits IN the tail, not at DC ground: the drawing's circled
-* 16 V at its top is what the chart's 52 V PI cathode needs to be consistent
-* with the drawn 470 + 10k, and the 27 k feedback resistor and the pot's 0.1 uF
-* wiper cap are DC-neutral there.
+* The presence track and feedback resistor provide parallel DC returns from
+* the tail foot. The OT secondary winding DCR is omitted (speaker = DC ground);
+* only the presence wiper capacitor is DC-open.
 RPRES PRES 0 5k
+RNFB PRES 0 27k
 
 * --- V5..V8 (KT66) parallel push-pull output, adjustable fixed bias ---
 * Each phase: a 0.1 uF coupler from a PI plate onto a phase node that carries

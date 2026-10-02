@@ -1,5 +1,5 @@
 # Parts list — reference designators match schematic.kicad_sch exactly.
-notes: "The schematic draws one jack per channel (the chassis has four). This is the plain (non-tremolo) head: the factory drawing's V2 tremolo valve and its bias-modulation network are omitted, so the valve numbering follows the drawing (V1 input, V3 second stage + cathode follower, V4 phase inverter, V5/V6 KT66, V7 GZ34). Parts drawn only as annotations (bright cap, NFB, presence, presence cap) are listed without designators."
+notes: "The schematic draws one jack per channel (the chassis has four). This is the plain (non-tremolo) head: the factory drawing's V2 tremolo valve and its 2G374 transistor signal-shunt network are omitted, so the valve numbering follows the drawing (V1 input, V3 second stage + cathode follower, V4 phase inverter, V5/V6 KT66, V7 GZ34). The bright cap is annotated and listed without a designator."
 items:
   - { ref: R1s, part: "Carbon comp resistor", value: "68 kΩ · ½ W",  role: "Bright-channel grid stopper" }
   - { ref: R2s, part: "Carbon comp resistor", value: "68 kΩ · ½ W",  role: "Normal-channel grid stopper" }
@@ -23,7 +23,7 @@ items:
   - { ref: VR3, part: "Potentiometer",        value: "250 kΩ",        role: "Treble" }
   - { ref: C5,  part: "Film capacitor",       value: "0.02 µF · 400 V", role: "Tone stack — bass" }
   - { ref: VR4, part: "Audio-taper potentiometer", value: "1 MΩ",    role: "Bass" }
-  - { ref: C6,  part: "Film capacitor",       value: "0.01 µF · 400 V", role: "Tone stack — middle" }
+  - { ref: C6,  part: "Film capacitor",       value: "0.02 µF · 400 V", role: "Tone stack — middle" }
   - { ref: VR5, part: "Linear potentiometer", value: "25 kΩ",         role: "Middle" }
   - { ref: C7,  part: "Coupling capacitor",   value: "0.02 µF · 400 V", role: "Tone stack → phase-inverter grid" }
   - { ref: RGA, part: "Carbon comp resistor", value: "1 MΩ · ½ W",   role: "PI grid leak (V4A), returned to tail junction" }
@@ -32,7 +32,7 @@ items:
   - { ref: RLB, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "PI plate load (V4B)" }
   - { ref: RTAIL, part: "Carbon comp resistor", value: "470 Ω · ½ W", role: "PI tail bias" }
   - { ref: RT2, part: "Carbon comp resistor", value: "10 kΩ · ½ W",  role: "PI tail (junction → foot)" }
-  - { ref: C8,  part: "Film capacitor",       value: "0.1 µF · 400 V", role: "V4B grid AC-ground to the tail junction" }
+  - { ref: C8,  part: "Film capacitor",       value: "0.1 µF · 400 V", role: "V4B grid AC-coupled to the presence/feedback node" }
   - { ref: C9,  part: "Coupling capacitor",   value: "0.1 µF · 400 V", role: "PI → V5 grid" }
   - { ref: C10, part: "Coupling capacitor",   value: "0.1 µF · 400 V", role: "PI → V6 grid" }
   - { ref: R5s, part: "Carbon comp resistor", value: "33 kΩ · ½ W",  role: "V5 grid stopper" }
@@ -61,6 +61,6 @@ items:
   - { ref: T3,  part: "Output transformer",   value: "Push-pull, KT66 primary", role: "Push-pull output to the speaker" }
   - { ref: "—", part: "Power transformer",    value: "360-0-360 V HT · 6.3 V heaters", role: "HT + heaters + rectifier filament" }
   - { ref: "—", part: "Mica capacitor",       value: "100 pF",         role: "Bright cap across VR1 (annotation only on schematic)" }
-  - { ref: "—", part: "Carbon comp resistor", value: "27 kΩ · ½ W",   role: "Negative feedback, speaker → tail foot (annotation only)" }
-  - { ref: "—", part: "Linear potentiometer", value: "5 kΩ",           role: "Presence (annotation only)" }
-  - { ref: "—", part: "Film capacitor",       value: "0.01 µF · 400 V", role: "Presence cap, tail foot to ground (annotation only)" }
+  - { ref: RNFB, part: "Carbon comp resistor", value: "27 kΩ · ½ W", role: "Negative feedback, speaker → tail foot" }
+  - { ref: VR6, part: "Linear potentiometer", value: "5 kΩ", role: "Presence track, tail foot → ground" }
+  - { ref: C17, part: "Film capacitor", value: "0.1 µF · 400 V", role: "Presence wiper → ground" }

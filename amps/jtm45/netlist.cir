@@ -59,14 +59,14 @@ RGA GPIA JPI 1meg
 RLB BP3 PPIB 100k
 XV4B PPIB GPIB KPI 12AX7
 RGB GPIB JPI 1meg
-* C8: V4B grid AC-grounded to the tail junction (0.1u, DC-open). Both ends are
-* real netlist nodes (GPIB == JPI at DC through RGB), so modelling it lets the
-* gate check the cap actually lands on the tail junction, not elsewhere.
-C8 GPIB JPI 0.1u
+* C8: V4B grid AC-coupled to the feedback / presence node at the tail foot.
+C8 GPIB PRES 0.1u
 RTAIL KPI JPI 470
-RT2 JPI 0 10k
-* 27k negative-feedback resistor and 5k presence pot join the tail foot at
-* ~0 V DC (speaker/pot returns) — DC-neutral, omitted here.
+RT2 JPI PRES 10k
+* Two DC returns: presence track to ground and feedback through the speaker
+* winding (secondary DCR omitted). The wiper capacitor is DC-open.
+RPRES PRES 0 5k
+RNFB PRES 0 27k
 
 * KT66 pair — fixed bias via 220k grid leaks (RGL1/RGL2) from the -50 V line,
 * 1k 2W screen resistors, cathodes grounded. Plates sit at B+1 (OT primary DCR

@@ -31,7 +31,7 @@ heaters_unsourced: >-
   derived from the factory schematic, so no factory drawing can establish its
   heater legs.
 
-caption: "Layout derived from the schematic — no factory layout sheet located. The Marshall JTM45 was a turret-board amp with no Fender-style published layout drawing; Dr. Tube (the schematic source) and a web/browser probe were checked on 2026-07-18 and served none. Board order and point-to-point wiring are reconstructed from schematic.kicad_sch / netlist.cir and follow the Fender 5F6-A layout this circuit copies. All hookup and transformer leads are drawn in the neutral tone: with no layout sheet, no lead colours are asserted (Marshall/Drake colour codes cannot be sourced here). The three TMB tone-stack caps sit on the board beside the 56 kΩ slope resistor and are wired as the drawing wires them: the 270 pF from the cathode-follower output to the treble pot's top lug, one cap from the slope's foot to the treble-bottom / bass node, and the other from the slope's foot into the middle pot's wiper. the input grid stoppers (R1s/R2s 68k) and grid leaks (RG1/RG2 1M) sit at the input jacks; the 27k negative-feedback resistor and 5k presence control (with its 0.01µF cap) join the phase-inverter tail foot off-board. The 6.3 V heater chain (green twisted pair, PT → pilot lamp → the two KT66 outputs → the ECC83 phase inverter → the ECC83 driver → the ECC83 input, skipping the directly-heated GZ34) is likewise derived: with no layout sheet its daisy order is the physical socket order and the twisted-pair green is the house heater idiom, not a sourced wire colour (no winding centre-tap arrangement is asserted). Not a trace or a dimensioned reproduction."
+caption: "Layout derived from the schematic — no factory layout sheet located. The Marshall JTM45 was a turret-board amp with no Fender-style published layout drawing; Dr. Tube (the schematic source) and a web/browser probe were checked on 2026-07-18 and served none. Board order and point-to-point wiring are reconstructed from schematic.kicad_sch / netlist.cir and follow the Fender 5F6-A layout this circuit copies. All hookup and transformer leads are drawn in the neutral tone: with no layout sheet, no lead colours are asserted (Marshall/Drake colour codes cannot be sourced here). The three TMB tone-stack caps sit on the board beside the 56 kΩ slope resistor and are wired as the drawing wires them: the 270 pF from the cathode-follower output to the treble pot's top lug, one cap from the slope's foot to the treble-bottom / bass node, and the other from the slope's foot into the middle pot's wiper. the input grid stoppers (R1s/R2s 68k) and grid leaks (RG1/RG2 1M) sit at the input jacks; the 27k negative-feedback resistor and 5k presence control (with its 0.1µF cap) join the phase-inverter tail foot off-board. The 6.3 V heater chain (green twisted pair, PT → pilot lamp → the two KT66 outputs → the ECC83 phase inverter → the ECC83 driver → the ECC83 input, skipping the directly-heated GZ34) is likewise derived: with no layout sheet its daisy order is the physical socket order and the twisted-pair green is the house heater idiom, not a sourced wire colour (no winding centre-tap arrangement is asserted). Not a trace or a dimensioned reproduction."
 source:
   desc: "Marshall JTM45 factory schematic ('Basic schematic for Marshall trem amps, types 1961, 1962, 1987/T') — layout derived from this schematic; no factory layout sheet located"
   url: "https://www.drtube.com/schematics/marshall/jtm45tr.gif"
@@ -79,11 +79,11 @@ parts:
   - { ref: RLA,  a: [1, 31], b: [1, 32] }   # 82k V4A plate load
   - { ref: RLB,  a: [1, 33], b: [1, 34] }   # 100k V4B plate load
   - { ref: C7,   a: [0, 32], b: [0, 33] }   # 0.02 µF tone stack -> V4A grid coupler
-  - { ref: C8,   a: [0, 35], b: [0, 36] }   # 0.1 µF V4B grid AC-ground to tail jct
+  - { ref: C8,   a: [0, 35], b: [0, 36] }   # 0.1 µF V4B grid AC-coupled to presence/feedback node
   - { ref: RGA,  a: [1, 36], b: [1, 37] }   # 1M V4A grid leak -> tail junction
   - { ref: RGB,  a: [1, 38], b: [1, 39] }   # 1M V4B grid leak -> tail junction
   - { ref: RTAIL, a: [1, 41], b: [1, 42], nudge: [0, -16] }  # 470 PI tail along the lower row; its foot shares RT2's eyelet (the tail junction)
-  - { ref: RT2,  a: [1, 42], b: [1, 43] }   # 10k tail junction -> ground
+  - { ref: RT2,  a: [1, 42], b: [1, 43] }   # 10k tail junction -> presence/feedback node
   # --- cathode-follower TMB tone stack: slope, CF load and the three tone caps --
   - { ref: RSL,  a: [1, 45], b: [1, 46] }   # 56k tone-stack slope (a = CF output, b = the slope foot)
   - { ref: C4,   a: [0, 43], b: [0, 42] }   # 270 pF treble cap: CF output -> treble pot's top lug
@@ -114,15 +114,15 @@ offboard:
   - { id: V5,  ref: V5, kind: tube, edge: bottom, at: 20,   label: "V5 · KT66" }
   - { id: V6,  ref: V6, kind: tube, edge: bottom, at: 27,   label: "V6 · KT66" }
   - { id: SPK, kind: jack, edge: bottom, at: 33, label: "Spkr jacks" }
-  # 27 kΩ negative-feedback resistor (annotation only — no board designator):
+  # 27 kΩ negative-feedback resistor:
   # taps the speaker/OT-secondary node and returns to the phase-inverter tail
   # foot. Drawn as a discrete 2-lead off-board part so the wiring reads true — a
   # bare wire here would falsely short the speaker node to the tail junction.
-  - { id: RNFB, kind: part, edge: bottom, at: 35, label: "NFB", value: "27 kΩ" }   # value stated in this amp's own schematic annotation; no schematic symbol, so no bom.yaml ref
+  - { id: RNFB, ref: RNFB, kind: part, edge: bottom, at: 35, label: "NFB" }
   - { id: V4,  ref: V4, kind: tube, edge: bottom, at: 37,   label: "V4 · ECC83 (PI)" }
   - { id: V3,  ref: V3, kind: tube, edge: bottom, at: 50,   label: "V3 · ECC83" }
   - { id: V1,  ref: V1, kind: tube, edge: bottom, at: 59,   label: "V1 · ECC83" }
-  - { id: VRP, kind: pot, edge: top, at: 40,   label: "Presence" }
+  - { id: VRP, ref: VR6, kind: pot, edge: top, at: 40,   label: "Presence" }
   - { id: VR3, ref: VR3, kind: pot, edge: top, at: 43,   label: "Treble" }
   - { id: VR4, ref: VR4, kind: pot, edge: top, at: 45,   label: "Bass" }
   - { id: VR5, ref: VR5, kind: pot, edge: top, at: 47.5, label: "Middle" }
@@ -197,7 +197,7 @@ runs:
   - { from: T3.sa,  to: SPK, via: [[63.4, 0.595], [63.4, 3.2], [31, 3.2], [31, 1.86]] }    # OT secondary -> speaker (own drop col 63.4, right of C3.b ground; up the left of the Spkr label)
   - { from: T3.sb,  to: SPK, via: [[63.6, 0.69], [63.6, 3.34], [33, 3.34]] }  # OT secondary -> speaker (own drop col 63.6; rises straight up to SPK from directly below)
   - { from: SPK, to: RNFB.a, via: [[34, 1.9], [34, 2.6]] }                 # speaker/OT-secondary node -> 27k NFB
-  - { from: RNFB.b, to: RT2.a, via: [[36, 2.6], [36, 3.08], [43, 3.08]] }  # 27k NFB -> tail junction (routed in the deep band)
+  - { from: RNFB.b, to: RT2.b, via: [[36, 2.6], [36, 3.08], [43, 3.08]] }  # 27k NFB -> tail foot (routed in the deep band)
 
   # --- long-tailed-pair phase inverter (V4) ----------------------------------
   - { from: RLA.a, to: C13.a, via: [[30.3, 2.40], [11.5, 2.40]] } # 82k plate load -> B+3 (deep lane 2.40; threads up to C13.a between the col-11 ground drop and RD2.a)
@@ -211,11 +211,10 @@ runs:
   - { from: RGA.b, to: RT2.a, via: [[37, 1.4], [40.3, 1.4]] }   # 1M grid leak -> tail junction (own lane; approaches RT2.a shallowly from the lower-left)
   - { from: RGB.a, to: V4.pin2, via: [[38.5, 1.7]] }         # 1M grid leak -> V4B grid
   - { from: RGB.b, to: RT2.a, via: [[39, 1.7], [41.3, 1.7]] }   # 1M grid leak -> tail junction (own lane; approaches RT2.a from lower-left, clear of the NFB return)
-  - { from: C8.a, to: RT2.a }                      # V4B grid AC-ground cap -> tail jct
+  - { from: C8.a, to: RT2.b }                      # V4B grid coupler -> tail foot
   - { from: C8.b, to: V4.pin2, via: [[35.6, 2.07]] }             # -> V4B grid (drops left of RGA.a, lands V4.pin2 horizontally from the far/left side, clear of pin3)
   - { from: V4.pin8, to: RTAIL.a, via: [[40.3, 1.25]] }         # V4A cathode -> tail top (higher lane, clear of the presence-ground drop; approaches RTAIL.a from lower-left)
   - { from: V4.pin3, to: RTAIL.a, via: [[38, 0.7], [40.6, 0.7]] }       # V4B cathode -> tail top (rises steeply left of V4.pin6, high lane clear of RGB.b, then approaches RTAIL.a from the right)
-  - { from: RT2.b, to: [1.45, 43] }                # 10k tail -> ground bus
 
   # --- cathode-follower TMB tone stack (C4/C5/C6 on the board) --------------
   - { from: V3.pin3, to: RKCF.a, via: [[46.6, 1.5]] }           # CF cathode -> 100k load (approaches RKCF.a from lower-left, clear of RKCF.b / its ground drop)
@@ -272,7 +271,7 @@ runs:
   - { from: C3.b, to: [1.45, 63] }
 
   # --- presence control (5k, off-board) at the phase-inverter tail foot -------
-  - { from: VRP.lug3, to: RT2.a, via: [[41.0, 0.8], [42.0, 0.8]] }  # presence -> tail junction, left of the treble cap
+  - { from: VRP.lug3, to: RT2.b, via: [[41.0, 0.8], [42.0, 0.8]] }  # presence -> tail foot, left of the treble cap
   - { from: VRP.lug1, to: [1.45, 40] }             # presence ground
 
   # --- 6.3 V heater chain (green twisted pair, standard-practice / derived) ---
@@ -314,10 +313,12 @@ net_map:
     RCHOKE: "filter choke L1 sits on the board (B+1 → B+2); the netlist models its ~150 Ω DCR as RCHOKE"
     RG1: "V1A grid leak — 1 MΩ chassis-mounted at the bright input jack, off the board"
     RG2: "V1B grid leak — 1 MΩ chassis-mounted at the normal input jack, off the board"
+    RPRES: "the 5 kΩ presence track VR6, mounted at the chassis control; wiper capacitor is DC-open"
     RG3: "V3A grid return — realised through the volume pots (VR1/VR2) and 270k channel mixers to ground, not a discrete board resistor"
   # Parts the sheet draws that this board neither places nor wires — each
   # read off the cited layout drawing (sheet ↔ board gate, 2026-09-10).
   not_on_board:
+    C17: "0.1 µF presence capacitor from the 5 kΩ control wiper to ground on the factory schematic; mounted at that chassis control and omitted from this board drawing"
     L1: "20 H choke — a chassis part: the JTM45 drawing (read at 2194 × 1539) draws it at the top right above the KT66 pair, lettered 20H. This derived board draws it only as the off-board choke stub (kind: choke), which the sheet ↔ board gate has no two-lead vocabulary for"
 
 # Board-scope rules for the sheet ↔ board gate: parts the sheet draws that

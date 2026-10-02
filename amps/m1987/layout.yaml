@@ -28,7 +28,7 @@ heaters_unsourced: >-
   is derived from the factory drawing, so no factory drawing can establish
   its heater legs.
 
-caption: "Layout derived from the schematic — no factory layout sheet located. The Marshall model 1987 was a turret-board amp, documented by the factory as a schematic (Unicord 70-19-11, cited in meta.yaml), not a Fender-style dimensioned layout drawing. Board order and point-to-point wiring are reconstructed from schematic.kicad_sch / netlist.cir. All hookup and transformer leads are drawn in the neutral tone: with no layout sheet, no Marshall/Drake lead colours are asserted. The two input channels are unmatched by design — the high-treble channel (V1A) runs an 820 Ω cathode fully bypassed by 320 µF, the normal channel (V1B) a colder 2.7 kΩ with a 0.68 µF partial bypass. The three tone-stack caps sit on the board beside the 33 kΩ slope resistor, each under its own control, and are wired as the drawing wires them: the 500 pF from the cathode-follower output to the treble pot's top lug, one 0.022 µF from the slope's foot to the treble-bottom / bass node, the other from the slope's foot into the middle pot's wiper. Parts drawn off the board here: the bright caps (C5/C6) and their 470 kΩ resistors (RB1/RB2) mount across the volume pots; the input grid stoppers (68 kΩ) and 1 MΩ grid leaks (RG1/RG2) sit at the input jacks. The two 0.22 µF snubbers (C23/C24) run from each HT lead to chassis beside its rectifier diode: across the two halves of the HT winding, whose centre tap is grounded, as the drawing places them. The negative-bias supply is drawn as the drawing wires it: the 220 kΩ from the HT winding's top end in series into the bias diode, an 8 µF filter, the 15 kΩ, and the bias node with its own 8 µF, which feeds the two grid leaks and is bled to chassis through the 47 kΩ and the 25 kΩ trimmer wired as a variable resistor. The 6.3 V heater chain (green twisted pair, PT → pilot lamp → the two EL34 outputs → the ECC83 phase inverter → the ECC83 second stage → the ECC83 input) is likewise derived: with no layout sheet its daisy order is the physical socket order and the twisted-pair green is the house heater idiom, not a sourced wire colour. Not a trace or a dimensioned reproduction."
+caption: "Layout derived from the schematic — no factory layout sheet located. The Marshall model 1987 was a turret-board amp, documented by the factory as a schematic (Unicord 70-19-11, cited in meta.yaml), not a Fender-style dimensioned layout drawing. Board order and point-to-point wiring are reconstructed from schematic.kicad_sch / netlist.cir. All hookup and transformer leads are drawn in the neutral tone: with no layout sheet, no Marshall/Drake lead colours are asserted. The two input channels are unmatched by design — the high-treble channel (V1A) runs an 820 Ω cathode fully bypassed by 320 µF, the normal channel (V1B) a colder 2.7 kΩ with a 0.68 µF partial bypass. The three tone-stack caps sit on the board beside the 33 kΩ slope resistor, each under its own control, and are wired as the drawing wires them: the 500 pF from the cathode-follower output to the treble pot's top lug, one 0.022 µF from the slope's foot to the treble-bottom / bass node, the other from the slope's foot into the middle pot's wiper. RD1 represents the two series 10 kΩ · 1 W resistors between the screen and phase-inverter rails as one 20 kΩ equivalent. Parts drawn off the board here: the 0.1 µF presence capacitor (C26) mounts at its control; the bright caps (C5/C6) and their 470 kΩ resistors (RB1/RB2) mount across the volume pots; the input grid stoppers (68 kΩ) and 1 MΩ grid leaks (RG1/RG2) sit at the input jacks. The two 0.22 µF snubbers (C23/C24) run from each HT lead to chassis beside its rectifier diode: across the two halves of the HT winding, whose centre tap is grounded, as the drawing places them. The negative-bias supply is drawn as the drawing wires it: the 220 kΩ from the HT winding's top end in series into the bias diode, an 8 µF filter, the 15 kΩ, and the bias node with its own 8 µF, which feeds the two grid leaks and is bled to chassis through the 47 kΩ and the 25 kΩ trimmer wired as a variable resistor. The 6.3 V heater chain (green twisted pair, PT → pilot lamp → the two EL34 outputs → the ECC83 phase inverter → the ECC83 second stage → the ECC83 input) is likewise derived: with no layout sheet its daisy order is the physical socket order and the twisted-pair green is the house heater idiom, not a sourced wire colour. Not a trace or a dimensioned reproduction."
 source:
   desc: "Marshall model 1987 factory drawing (Unicord 70-19-11, July 1970) — layout derived from this schematic; no factory layout sheet located"
   url: "https://www.drtube.com/schematics/marshall/1987u.gif"
@@ -69,9 +69,9 @@ parts:
   - { ref: C18,  a: [0, 9],  b: [0, 11] }   # 80 µF reservoir, B+1
   # --- filter cans + rail droppers (screens, PI, 2nd stage, input) ------------
   - { ref: C19,  a: [0, 13], b: [0, 15] }   # 50 µF filter, B+2 (screens)
-  - { ref: RD1,  a: [1, 15], b: [1, 16] }   # 10k dropper B+2->B+3
+  - { ref: RD1,  a: [1, 15], b: [1, 16] }   # 20k aggregate (two series 10k/1W) B+2->B+3
   - { ref: C20,  a: [0, 17], b: [0, 19] }   # 50 µF filter, B+3 (PI)
-  - { ref: RD2,  a: [1, 19], b: [1, 20] }   # 47k dropper B+3->B+4
+  - { ref: RD2,  a: [1, 19], b: [1, 20] }   # 10k dropper B+3->B+4
   - { ref: C21,  a: [0, 21], b: [0, 23] }   # 50 µF filter, B+4 (2nd stage / CF)
   - { ref: RD3,  a: [1, 23], b: [1, 24] }   # 10k dropper B+4->B+5
   - { ref: C22,  a: [0, 25], b: [0, 27] }   # 50 µF filter, B+5 (input)
@@ -86,9 +86,10 @@ parts:
   - { ref: RLB,  a: [1, 44], b: [1, 45] }   # 82k PI(B) plate load
   - { ref: C12,  a: [0, 45], b: [0, 47] }   # 47 pF plate-to-plate compensation
   - { ref: RGA,  a: [1, 47], b: [1, 48] }   # 1M PI(A) grid leak -> tail junction
+  - { ref: C25, a: [0, 49], b: [0, 50] }  # V3B grid to presence/feedback node
   - { ref: RGB,  a: [1, 49], b: [1, 50] }   # 1M PI(B) grid leak -> tail junction
   - { ref: RTAIL, a: [1, 52], b: [1, 53] }  # 470 PI tail along the lower row; its foot shares RT2's eyelet (the tail junction)
-  - { ref: RT2,  a: [1, 53], b: [1, 54] }   # 10k tail junction -> ground
+  - { ref: RT2,  a: [1, 53], b: [1, 54] }   # 10k tail junction -> presence/feedback node
   # --- cathode-follower TMB tone stack: slope, CF load and the three tone caps --
   - { ref: RSL,  a: [1, 55], b: [1, 56] }   # 33k tone-stack slope (a = CF output, b = the slope foot)
   - { ref: C8,   a: [0, 53], b: [0, 52] }   # 500 pF treble cap: CF output -> treble pot's top lug
@@ -122,21 +123,12 @@ offboard:
   - { id: V4,  ref: V4, kind: tube, edge: bottom, at: 31,   label: "V4 · EL34" }
   - { id: V5,  ref: V5, kind: tube, edge: bottom, at: 38,   label: "V5 · EL34", label_nudge: [-40, 0] }  # caption left of centre, clear of the stack of harness lanes that runs under this socket
   - { id: SPK, kind: jack, edge: bottom, at: 41, label: "Spkr jacks" }
-  # NFB resistor (annotation only — no board designator): taps the speaker /
-  # OT-secondary node and returns to the phase-inverter tail foot. Drawn as a
-  # discrete 2-lead off-board part so the wiring reads true — a bare wire here
-  # would falsely short the speaker node to the tail junction.
-  # The resistance is the one this amp's own schematic states in its annotation
-  # ("Presence + NFB (27k) join the tail foot at ~0 V DC"); it carries no
-  # schematic symbol and so no bom.yaml ref, and a `value:` on a ref-less
-  # off-board item is the only place it can be stated. Without it the part
-  # shipped as a blank body — identified as "NFB" and nothing more — while the
-  # model 1959's counterpart in the same position reads "NFB / 47K".
-  - { id: RNFB, kind: part, edge: bottom, at: 44, label: "NFB", value: "27 kΩ" }
+  # Feedback from the 8-ohm tap, 47k (100k variant printed on the factory sheet).
+  - { id: RNFB, ref: RNFB, kind: part, edge: bottom, at: 44, label: "NFB" }
   - { id: V3,  ref: V3, kind: tube, edge: bottom, at: 46,   label: "V3 · ECC83 (PI)" }
   - { id: V2,  ref: V2, kind: tube, edge: bottom, at: 60,   label: "V2 · ECC83" }
   - { id: V1,  ref: V1, kind: tube, edge: bottom, at: 72,   label: "V1 · ECC83" }
-  - { id: VRP, kind: pot, edge: top, at: 50.5, label: "Presence" }
+  - { id: VRP, ref: VR7, kind: pot, edge: top, at: 50.5, label: "Presence" }
   - { id: VR3, ref: VR3, kind: pot, edge: top, at: 52,   label: "Treble" }
   - { id: VR4, ref: VR4, kind: pot, edge: top, at: 54,   label: "Bass" }
   - { id: VR5, ref: VR5, kind: pot, edge: top, at: 56.5, label: "Middle" }
@@ -166,11 +158,11 @@ runs:
   - { from: C18.a, to: L1.hi, via: [[5.5, 2.5]] }        # B+1 -> choke
   - { from: T1.ct, to: C18.a, via: [[80.3, 0.5], [80.3, 3.12], [9.4, 3.12], [9.4, 0.5]] } # OT centre tap -> B+1
 
-  # --- filtered B+ rail: choke, then 10k / 47k / 10k droppers ----------------
+  # --- filtered B+ rail: choke, then 20k (two series 10k/1W) / 10k / 10k droppers ----------------
   - { from: L1.lo, to: C19.a, via: [[13, 2.5]] }         # choke -> B+2 (screens)
-  - { from: C19.a, to: RD1.a, via: [[15.4, 0.5]] }       # B+2 -> 10k dropper
+  - { from: C19.a, to: RD1.a, via: [[15.4, 0.5]] }       # B+2 -> 20k aggregate dropper
   - { from: RD1.b, to: C20.a, via: [[16.6, 0.5]] }       # -> B+3 (PI)
-  - { from: C20.a, to: RD2.a, via: [[19.4, 0.5]] }       # B+3 -> 47k dropper
+  - { from: C20.a, to: RD2.a, via: [[19.4, 0.5]] }       # B+3 -> 10k dropper
   - { from: RD2.b, to: C21.a, via: [[20.6, 0.5]] }       # -> B+4 (2nd stage / CF)
   - { from: C21.a, to: RD3.a, via: [[23.4, 0.5]] }       # B+4 -> 10k dropper
   - { from: RD3.b, to: C22.a, via: [[24.6, 0.5]] }       # -> B+5 (input)
@@ -205,7 +197,7 @@ runs:
   - { from: T1.sa, to: SPK, via: [[80.5, 0.6], [80.5, 3.36], [41.4, 3.36], [41.4, 2.15]] } # OT secondary -> speaker
   - { from: T1.sb, to: SPK, via: [[80.7, 0.7], [80.7, 3.48], [40.6, 3.48]] } # OT secondary -> speaker
   - { from: SPK, to: RNFB.a, via: [[41.2, 2.32], [42.8, 2.72]] }            # speaker node -> NFB
-  - { from: RNFB.b, to: RT2.a, via: [[43.4, 2.7], [43.4, 3.24], [53.2, 3.24]] } # NFB -> tail junction
+  - { from: RNFB.b, to: RT2.b, via: [[43.4, 2.7], [43.4, 3.24], [53.2, 3.24]] } # NFB -> tail foot
 
   # --- long-tailed-pair phase inverter (V3) ----------------------------------
   - { from: RLA.a, to: C20.a, via: [[41.6, 2.34], [17.6, 2.34], [17.4, 0.45]] } # PI(A) plate load -> B+3
@@ -220,10 +212,11 @@ runs:
   - { from: RGA.a, to: V3.pin7, via: [[47.2, 1.72]] }          # 1M grid leak -> V3A grid
   - { from: RGA.b, to: RT2.a, via: [[47.6, 1.32], [52.6, 1.32]] } # 1M grid leak -> tail junction
   - { from: RGB.a, to: V3.pin2, via: [[48.8, 1.6], [45.6, 2.0]] } # 1M grid leak -> V3B grid
+  - { from: C25.a, to: RGB.a, via: [[48.6, 0.5]] }
+  - { from: C25.b, to: RT2.b, via: [[50.4, 0.83], [54.3, 0.83]] }
   - { from: RGB.b, to: RT2.a, via: [[49.6, 1.52], [52.7, 1.52]] } # 1M grid leak -> tail junction
   - { from: V3.pin8, to: RTAIL.a, via: [[47.4, 1.5], [47.4, 0.68], [51.5, 0.68]] } # V3A cathode -> tail top (KPI)
   - { from: V3.pin3, to: RTAIL.a, via: [[44.8, 1.3], [44.8, 0.5], [51.8, 0.5]] } # V3B cathode -> tail top
-  - { from: RT2.b, to: [1.45, 54] }                           # 10k tail -> ground bus
 
   # --- cathode-follower TMB tone stack (C8/C9/C10 on the board) --------------
   - { from: V2.pin3, to: RKCF.a, via: [[57.8, 1.5]] }         # CF cathode (KCF) -> 100k load
@@ -285,7 +278,7 @@ runs:
   - { from: C2.b, to: [1.45, 79] }
 
   # --- presence control (off-board) at the phase-inverter tail foot ----------
-  - { from: VRP.lug3, to: RT2.a, via: [[51.0, 0.8], [53.0, 0.8]] }  # presence -> tail junction, under the treble cap
+  - { from: VRP.lug3, to: RT2.b, via: [[51.0, 0.8], [53.0, 0.8]] }  # presence -> tail foot, under the treble cap
   - { from: VRP.lug1, to: [1.45, 50.6] }                      # presence ground
 
   # --- 6.3 V heater chain (green twisted pair, standard-practice / derived) ---
@@ -315,8 +308,10 @@ net_map:
   # Netlist elements realised off the board or by a control — reported in
   # coverage, never a failure (their nodes still have to check out).
   not_on_board:
+    C26: "0.1 µF presence capacitor, drawn from the 5 kΩ wiper to ground on Unicord 70-19-11; mounted at that chassis control and omitted from this board drawing"
     L1: "filter choke — the Unicord 70-19-11 drawing (read at 2023 × 1304) draws it unlettered between the output-transformer centre-tap node and the screen node; a chassis part, drawn on this derived board only as the off-board choke stub (kind: choke), which the sheet ↔ board gate has no two-lead vocabulary for"
   netlist_unplaced:
+    RPRES: "the 5 kΩ presence track VR7, mounted at the chassis control from the tail foot to ground"
     RCHOKE: "filter choke L1 sits on the board (B+1 -> B+2); the netlist models its DCR as RCHOKE"
     RG1: "V1A grid leak — 1 MΩ chassis-mounted at the bright input jack, off the board"
     RG2: "V1B grid leak — 1 MΩ chassis-mounted at the normal input jack, off the board"

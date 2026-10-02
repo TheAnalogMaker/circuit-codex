@@ -6,6 +6,7 @@ anchors:
   T1.1: BP1                # OT primary, V4 plate end — primary DCR omitted
   T1.2: BP1                # OT primary centre tap (the <B+1> rail)
   T1.3: BP1                # OT primary, V5 plate end
+  T1.4: "0"                # OT secondary DCR omitted; RNFB returns from 8-ohm tap
 
 symbols:
   # netlist RCHOKE BP1 BP2 50 Ω is the filter choke's winding DCR, not a

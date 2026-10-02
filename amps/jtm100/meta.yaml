@@ -90,7 +90,7 @@ sources:
     url: "https://en.wikipedia.org/wiki/Marshall_Amplification"
 verification:
   status: draft   # the drawing prints a full valve-voltage chart and every gated
-                  # node lands inside the era's printed tolerances (worst 13.1%),
+                  # node lands inside the era's printed tolerances (worst 8.0%),
                   # and the drawn board wiring is proved equivalent to the netlist
                   # (layout.yaml carries wiring_claim: verified). What still stands
                   # between that and a verified operating point is the output
