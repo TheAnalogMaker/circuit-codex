@@ -103,6 +103,8 @@ source:
   desc: "Fender \"Princeton\" Model 6G2 layout drawing (H-FA) — title block reads \"FENDER 'PRINCETON' LAYOUT MODEL 6G2 H-FA\", matching the schematic's own H-FA drawing number"
   url: "https://el34world.com/charts/Schematics/files/Fender/Fender_princeton_6g2.pdf"
 
+# Electrolytic lead declarations: see docs/electrolytic-polarity.md for the
+# source crop register and the unresolved DC checks. a/b name actual terminals.
 parts:
   # --- V3 grid stopper, cathodyne plate coupler + load -------------------
   - { ref: RG3, a: [1, 2], b: [1, 3] }        # 1.5k V3 grid stopper: grid(.a, run to V3 pin 5) <- coupler node(.b)
@@ -132,7 +134,8 @@ parts:
   - { ref: RTO1, a: [0, 43], b: [0, 45] }     # 1M: pedal node -> cathode
   - { ref: RTO2, a: [1, 43], b: [1, 45] }     # 1M: grid -> ground
   - { ref: RKTO, a: [0, 45], b: [1, 45] }     # 3.3k: cathode -> ground
-  - { ref: CKTO, a: [0, 46], b: [1, 46] }     # 25 uF: cathode -> ground
+  # Polarity: DC sign (source read; no legible printed capacitor + used); factory cathode above ground, + at CKTO.a; DC check remains undecided (CKTO.a: reaches only ground, through RKTO).
+  - { ref: CKTO, a: [0, 46], b: [1, 46] , plus: a }     # 25 uF: cathode -> ground
   # --- driver (V1B) ---------------------------------------------------------
   - { ref: RL2, a: [0, 48], b: [1, 48] }      # 100k plate load (BD -> PB)
   - { ref: RK2, a: [0, 50], b: [1, 50] }      # 1.5k cathode resistor
@@ -141,7 +144,8 @@ parts:
   # --- input stage (V1A) -----------------------------------------------------
   - { ref: RL1, a: [0, 61], b: [1, 61] }      # 100k plate load (BD -> PA)
   - { ref: RK1, a: [0, 63], b: [1, 63] }      # 1.5k cathode resistor
-  - { ref: C1, a: [0, 65], b: [1, 65] }       # 25 uF cathode bypass
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead C1.a: KA = +1.5 V (op-points); lead C1.b: 0 = +0.0 V (ground); more-positive lead is C1.a.
+  - { ref: C1, a: [0, 65], b: [1, 65] , plus: a }       # 25 uF cathode bypass
   - { ref: C2, a: [0, 68], b: [1, 68] }       # 0.02 uF V1A plate -> Tone/Volume network
 
 offboard:
@@ -160,18 +164,22 @@ offboard:
   #     match the rail topology itself (BP · C11 -> RD1 -> BS · C12 -> RD2 ->
   #     BD · C13) so each filter can sits right beside the node it filters —
   #     the wiring below needs almost no jogging to reach it. ------------------
-  - { id: C11, ref: C11, kind: part, edge: top, at: 2, label: "C11" }
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead C11.a: BP = +315.0 V (ideal source VBP); lead C11.b: 0 = +0.0 V (ground); more-positive lead is C11.a.
+  - { id: C11, ref: C11, kind: part, edge: top, at: 2, label: "C11" , plus: a }
   - { id: RD1, ref: RD1, kind: part, edge: top, at: 4.5, label: "RD1" }
-  - { id: C12, ref: C12, kind: part, edge: top, at: 7, label: "C12" }
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead C12.a: BS = +312.1 V (op-points); lead C12.b: 0 = +0.0 V (ground); more-positive lead is C12.a.
+  - { id: C12, ref: C12, kind: part, edge: top, at: 7, label: "C12" , plus: a }
   - { id: RD2, ref: RD2, kind: part, edge: top, at: 9.5, label: "RD2" }
-  - { id: C13, ref: C13, kind: part, edge: top, at: 12, label: "C13" }
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead C13.a: BD = +282.9 V (op-points); lead C13.b: 0 = +0.0 V (ground); more-positive lead is C13.a.
+  - { id: C13, ref: C13, kind: part, edge: top, at: 12, label: "C13" , plus: a }
   # --- bias supply: sits in the sheet's own small sub-box --------------------
   - { id: R5, ref: R5, kind: part, edge: top, at: 15, label: "R5" }
   # Band at a, the end R5 feeds: the H-FA schematic draws the bias rectifier's
   # bar, its + end, beside the 100K-5% that comes off the HT winding, which a
   # negative supply needs, and schematic.kicad_sch now points it the same way.
   - { id: D1, ref: D1, kind: part, edge: top, at: 17.5, label: "D1", cathode: a }
-  - { id: C14, ref: C14, kind: part, edge: top, at: 20, label: "C14" }
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead C14.a: NBIAS = -35.0 V (ideal source VBIAS) through VR4; lead C14.b: 0 = +0.0 V (ground); more-positive lead is C14.b.
+  - { id: C14, ref: C14, kind: part, edge: top, at: 20, label: "C14" , plus: b }
   - { id: R6, ref: R6, kind: part, edge: top, at: 22.5, label: "R6" }
   # --- front-panel controls, left to right (Intensity · Speed · Tone ·
   #     Volume · Instruments), matching the sheet's own control row ----------

@@ -27,15 +27,21 @@ source:
   desc: "Fender 'Princeton Reverb-Amp AA1164' drawing no. D 045427 rev A, sheet 2 of 2 (layout)"
   url: "https://el34world.com/charts/Schematics/files/Fender/Fender_princeton_reverb_aa1164.pdf"
 
+# Electrolytic lead declarations: see docs/electrolytic-polarity.md for the
+# source crop register and the unresolved DC checks. a/b name actual terminals.
 parts:
   # --- power supply (left end): each can shares an eyelet with its dropper ---
-  - { ref: CF1, a: [0, 0], b: [1, 0] }     # 20 µF reservoir (+420, OT centre tap)
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead CF1.a: BA = +420.0 V (ideal source VBA); lead CF1.b: 0 = +0.0 V (ground); more-positive lead is CF1.a.
+  - { ref: CF1, a: [0, 0], b: [1, 0] , plus: a }     # 20 µF reservoir (+420, OT centre tap)
   - { ref: R1K, a: [0, 0], b: [0, 2] }     # 1 kΩ-1W dropper +420 → +400
-  - { ref: CF2, a: [0, 2], b: [1, 2] }     # 20 µF screen / reverb-driver rail (+400)
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead CF2.a: BB = +407.5 V (op-points); lead CF2.b: 0 = +0.0 V (ground); more-positive lead is CF2.a.
+  - { ref: CF2, a: [0, 2], b: [1, 2] , plus: a }     # 20 µF screen / reverb-driver rail (+400)
   - { ref: RD1, a: [0, 2], b: [0, 4] }     # 18 kΩ-1W dropper +400 → +320
-  - { ref: CF3, a: [0, 4], b: [1, 4] }     # 20 µF +320 node (nothing else taps it)
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead CF3.a: BC = +327.6 V (op-points); lead CF3.b: 0 = +0.0 V (ground); more-positive lead is CF3.a.
+  - { ref: CF3, a: [0, 4], b: [1, 4] , plus: a }     # 20 µF +320 node (nothing else taps it)
   - { ref: RD2, a: [0, 4], b: [0, 6] }     # 18 kΩ-1W dropper +320 → +240
-  - { ref: CF4, a: [0, 6], b: [1, 6] }     # 20 µF preamp / phase-inverter rail (+240)
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead CF4.a: BD = +247.7 V (op-points); lead CF4.b: 0 = +0.0 V (ground); more-positive lead is CF4.a.
+  - { ref: CF4, a: [0, 6], b: [1, 6] , plus: a }     # 20 µF preamp / phase-inverter rail (+240)
   # --- output stage (6V6 pair V5/V6): couplers + grid leaks, no screen stoppers ---
   - { ref: C1,   a: [0, 12], b: [0, 13] }  # 0.1 µF inverter plate → V5 grid (PPI→G61)
   - { ref: RGL1, a: [0, 13], b: [1, 13] }  # 220k 5% V5 grid leak (G61 → −34 V)
@@ -61,9 +67,11 @@ parts:
   - { ref: RTO1,  a: [1, 30], b: [1, 31] } # 1M grid → ground
   - { ref: RTO2,  a: [0, 30], b: [0, 31] } # 1M middle node → oscillator cathode
   - { ref: RKTO,  a: [0, 31], b: [1, 31] } # 3.3k oscillator cathode → ground
-  - { ref: CKTO,  a: [0, 32], b: [0, 31] } # 25 µF cathode bypass (ground → cathode)
+  # Polarity: printed '+' on the cited source; source '+' at CKTO.b; DC check remains undecided (CKTO.b: reaches only ground, through RKTO).
+  - { ref: CKTO,  a: [0, 32], b: [0, 31] , plus: b } # 25 µF cathode bypass (ground → cathode)
   # --- reverb recovery (V3, left half) ---
-  - { ref: CKR1, a: [0, 34], b: [0, 35] }  # 25 µF cathode bypass (shares KR1)
+  # Polarity: printed '+' on the cited source; lead CKR1.a: 0 = +0.0 V (ground); lead CKR1.b: KR1 = +1.3 V (op-points); more-positive lead is CKR1.b.
+  - { ref: CKR1, a: [0, 34], b: [0, 35] , plus: b }  # 25 µF cathode bypass (shares KR1)
   - { ref: RKR1, a: [0, 35], b: [1, 35] }  # 1.5k cathode (KR1→0)
   - { ref: RLR1, a: [0, 36], b: [0, 37] }  # 100k plate load (BD→PR1)
   - { ref: CCR1, a: [1, 38], b: [0, 38] }  # .003 recovery plate → Reverb control (foot jumpered from the plate eyelet)
@@ -76,18 +84,21 @@ parts:
   - { ref: RLD1, a: [0, 45], b: [0, 46] }  # 100k plate load (BD→PD1)
   - { ref: CC2,  a: [0, 46], b: [1, 46] }  # .02 driver plate → phase-inverter grid
   - { ref: RNFB, a: [1, 47], b: [1, 48] }  # 2.7k speaker feedback onto the 47 Ω junction
-  - { ref: CKD1, a: [0, 48], b: [1, 48] }  # 25 µF cathode bypass (KD1→KD1B)
+  # Polarity: printed '+' on the cited source; source '+' at CKD1.a; DC check remains undecided (CKD1.b: on KD1B, which has no simulated volts).
+  - { ref: CKD1, a: [0, 48], b: [1, 48] , plus: a }  # 25 µF cathode bypass (KD1→KD1B)
   - { ref: RKD1, a: [0, 49], b: [1, 49] }  # 1.5k cathode (KD1→KD1B)
   - { ref: RKD2, a: [1, 49], b: [1, 50] }  # 47 Ω unbypassed cathode resistor (KD1B→0)
   # --- reverb send + driver (V2, 12AT7 both sections paralleled) ---
   - { ref: CRS,  a: [0, 50], b: [0, 51] }  # 500 pF reverb send coupling (shares GRD)
   - { ref: RGRD, a: [0, 51], b: [1, 51] }  # 1M reverb-driver grid leak (GRD→0)
-  - { ref: CKRD, a: [0, 56], b: [0, 57] }  # 25 µF cathode bypass (shares KRD)
+  # Polarity: printed '+' on the cited source; lead CKRD.a: 0 = +0.0 V (ground); lead CKRD.b: KRD = +8.0 V (op-points); more-positive lead is CKRD.b.
+  - { ref: CKRD, a: [0, 56], b: [0, 57] , plus: b }  # 25 µF cathode bypass (shares KRD)
   - { ref: RKRD, a: [0, 57], b: [1, 57] }  # 2.2k shared cathode (KRD→0)
   # --- preamp second stage (V1 pins 6/7/8, as the K-FD sheets print it) ---
   - { ref: CC1,  a: [0, 59], b: [0, 58] }  # 0.02 µF output coupling (shares PN2)
   - { ref: RLN2, a: [0, 60], b: [0, 59] }  # 100k plate load (BD→PN2)
-  - { ref: CKN2, a: [0, 62], b: [0, 63] }  # 25 µF cathode bypass (shares KN2)
+  # Polarity: printed '+' on the cited source; lead CKN2.a: 0 = +0.0 V (ground); lead CKN2.b: KN2 = +1.3 V (op-points); more-positive lead is CKN2.b.
+  - { ref: CKN2, a: [0, 62], b: [0, 63] , plus: b }  # 25 µF cathode bypass (shares KN2)
   - { ref: RKN2, a: [0, 63], b: [1, 63] }  # 1.5k cathode (KN2→0)
   # --- preamp input stage (V1 pins 1/2/3: grid 2 on the jacks' red lead) ---
   - { ref: RLN1, a: [0, 68], b: [0, 69] }  # 100k plate load (BD→PN1)
@@ -97,7 +108,8 @@ parts:
   - { ref: RS,  a: [1, 70], b: [1, 71] }   # 100k slope resistor (plate → slope node)
   - { ref: CB2, a: [1, 71], b: [0, 71] }   # .047 slope node → Bass low end (the 6.8k leg)
   - { ref: CB1, a: [1, 72], b: [0, 72] }   # .1 slope node → Bass wiper / Treble low end
-  - { ref: CKN1, a: [0, 77], b: [0, 78] }  # 25 µF cathode bypass (shares KN1)
+  # Polarity: printed '+' on the cited source; lead CKN1.a: 0 = +0.0 V (ground); lead CKN1.b: KN1 = +1.3 V (op-points); more-positive lead is CKN1.b.
+  - { ref: CKN1, a: [0, 77], b: [0, 78] , plus: b }  # 25 µF cathode bypass (shares KN1)
   - { ref: RKN1, a: [0, 78], b: [1, 78] }  # 1.5k cathode (KN1→0)
 
 offboard:

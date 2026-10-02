@@ -54,6 +54,8 @@ source:
   desc: "Fender 'Deluxe' Model 6G3 drawing (I-FA), page 1 of 2 (layout; page 2 is the schematic redrawn in this amp's schematic.kicad_sch)"
   url: "https://el34world.com/charts/Schematics/files/Fender/Fender_deluxe_6g3.pdf"
 
+# Electrolytic lead declarations: see docs/electrolytic-polarity.md for the
+# source crop register and the unresolved DC checks. a/b name actual terminals.
 parts:
   # --- output couplers, 6V6 grid leaks, phase-inverter plate loads ---------
   - { ref: RG4, a: [0, 2], b: [1, 2] }      # 220k-5% V4 grid leak (-26 V → G61)
@@ -82,14 +84,16 @@ parts:
   - { ref: R7, a: [1, 39], b: [1, 42] }     # 1M oscillator grid leak to ground
   - { ref: C19, a: [0, 40], b: [0, 43] }    # 0.1 µF output coupler → Intensity
   - { ref: RK3, a: [0, 44], b: [1, 44] }    # 2.7k oscillator cathode
-  - { ref: C11, a: [0, 46], b: [1, 46] }    # 25 µF oscillator cathode bypass
+  # Polarity: DC sign (source read; no legible printed capacitor + used); factory cathode above ground, + at C11.a; DC check remains undecided (C11.a: reaches only ground, through RK3).
+  - { ref: C11, a: [0, 46], b: [1, 46] , plus: a }    # 25 µF oscillator cathode bypass
   # --- driver (the V2 bottle's first half) ---------------------------------
   - { ref: RL3, a: [0, 49], b: [1, 49] }    # 100k plate load (J2 → P2A)
   - { ref: RD4, a: [0, 51], b: [1, 51] }    # 15k decoupler (B+4 → J2)
   - { ref: R5, a: [0, 53], b: [1, 53] }     # 220k Normal mixing resistor
   - { ref: R6, a: [0, 55], b: [1, 55] }     # 220k Bright mixing resistor
   - { ref: RK2, a: [0, 57], b: [1, 57] }    # 1.5k driver cathode
-  - { ref: C4, a: [0, 59], b: [1, 59] }     # 25 µF driver cathode bypass
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead C4.a: K2A = +1.3 V (op-points); lead C4.b: 0 = +0.0 V (ground); more-positive lead is C4.a.
+  - { ref: C4, a: [0, 59], b: [1, 59] , plus: a }     # 25 µF driver cathode bypass
   # --- channel input stages (V1 = 7025) ------------------------------------
   - { ref: C2, a: [0, 62], b: [1, 62] }     # 0.02 µF Bright coupler → volume
   - { ref: RL2, a: [0, 64], b: [1, 64] }    # 220k Bright plate load (B+4 → PB1)
@@ -97,7 +101,8 @@ parts:
   - { ref: C3, a: [0, 68], b: [1, 68] }     # 0.003 µF treble shunt across RL1
   - { ref: C1, a: [0, 70], b: [1, 70] }     # 0.02 µF Normal coupler → volume
   - { ref: RK1, a: [0, 72], b: [1, 72] }    # 1.5k shared 7025 cathode
-  - { ref: C10, a: [0, 74], b: [1, 74] }    # 25 µF shared cathode bypass
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead C10.a: KIN = +1.6 V (op-points); lead C10.b: 0 = +0.0 V (ground); more-positive lead is C10.a.
+  - { ref: C10, a: [0, 74], b: [1, 74] , plus: a }    # 25 µF shared cathode bypass
 
 offboard:
   # --- chassis iron and the tube row (the sheet's own arrangement) ----------
@@ -127,7 +132,8 @@ offboard:
   # cannot yet show. Declared anyway, as amps/5e4a, 5e5a, 5f4, 5f8a and 5g9
   # already do, so the fact is recorded where the fix will read it.
   - { id: D1, ref: D1, kind: part, edge: top, at: 18.0, label: "D1", cathode: a }
-  - { id: C25, ref: C25, kind: part, edge: top, at: 21.0, label: "C25" }
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead C25.a: NBIAS = -26.0 V (ideal source VBIAS) through VR6; lead C25.b: 0 = +0.0 V (ground); more-positive lead is C25.b.
+  - { id: C25, ref: C25, kind: part, edge: top, at: 21.0, label: "C25" , plus: b }
   - { id: R12, ref: R12, kind: part, edge: top, at: 24.0, label: "R12" }
   # --- front-panel controls and jacks --------------------------------------
   - { id: C20, ref: C20, kind: part, edge: top, at: 26.6, label: "C20" }

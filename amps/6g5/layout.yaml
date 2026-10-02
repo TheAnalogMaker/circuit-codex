@@ -41,6 +41,8 @@ source:
   desc: "Fender 'Pro-Amp' Model 6G5 layout drawing (A-FJ), page 2 of the archived PDF"
   url: "https://schematicheaven.net/fenderamps/pro_6g5_schem.pdf"
 
+# Electrolytic lead declarations: see docs/electrolytic-polarity.md for the
+# source crop register and the unresolved DC checks. a/b name actual terminals.
 parts:
   # --- rectifier and bias sub-board (boxed on the page beside TR1) ------------
   # Each HT lead runs through a leg of three silicon diodes; the page letters
@@ -61,9 +63,11 @@ parts:
   # lead, so both cans stand with that lead on top, where the drawings put the
   # mark, and a strap takes the two tops to ground.
   - { ref: DBIAS, a: [1, 10], b: [1, 11], cathode: a }   # bias rectifier, "+" toward the tap
-  - { ref: CBIAS, a: [0, 11], b: [1, 11] }     # 8 uF: top (+) to ground, bottom on the rectifier's "-" end
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead CBIAS.a: 0 = +0.0 V (ground); lead CBIAS.b: NBIAS = -55.0 V (ideal source VBIAS) through RBIAS2; more-positive lead is CBIAS.a.
+  - { ref: CBIAS, a: [0, 11], b: [1, 11] , plus: a }     # 8 uF: top (+) to ground, bottom on the rectifier's "-" end
   - { ref: RBIAS2, a: [1, 12], b: [1, 13] }    # 10k, rectifier node -> -55 V
-  - { ref: CBIAS2, a: [0, 13], b: [1, 13] }    # 8 uF: top (+) to ground, bottom on -55 V
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead CBIAS2.a: 0 = +0.0 V (ground); lead CBIAS2.b: NBIAS = -55.0 V (ideal source VBIAS); more-positive lead is CBIAS2.a.
+  - { ref: CBIAS2, a: [0, 13], b: [1, 13] , plus: a }    # 8 uF: top (+) to ground, bottom on -55 V
   - { ref: RBIAS1, a: [1, 14], b: [1, 15] }    # 56k bleeder, -55 V -> ground
   # --- output couplers, grid leaks and screen stoppers (V7/V8) ---
   - { ref: RGL1, a: [0, 17], b: [1, 17] }     # 220k-5% V7 grid leak (-55 V -> G71)
@@ -91,7 +95,8 @@ parts:
   - { ref: RGV1, a: [0, 43], b: [1, 43] }   # 1M GS -> GV1
   - { ref: RGV2, a: [0, 44], b: [1, 44] }   # 1M GS -> GV2
   - { ref: RKV,  a: [0, 45], b: [1, 45] }   # 4.7k joined cathodes -> ground
-  - { ref: CKV,  a: [0, 46], b: [1, 46] }   # 2-25 cathode bypass
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead CKV.a: KV = +3.4 V (op-points); lead CKV.b: 0 = +0.0 V (ground); more-positive lead is CKV.a.
+  - { ref: CKV,  a: [0, 46], b: [1, 46] , plus: a }   # 2-25 cathode bypass
   # --- band-splitting filters off channel 1 ---
   - { ref: CV1,  a: [0, 47], b: [1, 47] }   # .01 low-pass node -> GV1
   - { ref: CLP,  a: [0, 48], b: [1, 48] }   # .005 low-pass node -> ground
@@ -112,7 +117,8 @@ parts:
   - { ref: CTO2, a: [0, 62], b: [1, 62] }   # .01 ladder: node B -> oscillator grid
   - { ref: RTOG2, a: [0, 63], b: [1, 63] }  # 1M oscillator grid leak
   - { ref: RTOK, a: [0, 64], b: [1, 64] }   # 4700 oscillator cathode
-  - { ref: CTOK, a: [0, 65], b: [1, 65] }   # 25-25 oscillator cathode bypass
+  # Polarity: DC sign (source read; no legible printed capacitor + used); factory cathode above ground, + at CTOK.a; DC check remains undecided (CTOK.a: reaches only ground, through RTOK).
+  - { ref: CTOK, a: [0, 65], b: [1, 65] , plus: a }   # 25-25 oscillator cathode bypass
   # --- phase splitter (V3B) ---
   - { ref: RLS,  a: [1, 66], b: [0, 66] }   # 100k BL -> splitter plate
   - { ref: CPS,  a: [0, 67], b: [1, 67] }   # .25 splitter plate -> ground
@@ -122,7 +128,8 @@ parts:
   - { ref: CSV,  a: [0, 71], b: [1, 71] }   # .05 splitter output coupler
   - { ref: RSV,  a: [0, 72], b: [1, 72] }   # 1M splitter output -> GV2
   - { ref: RKS,  a: [0, 73], b: [1, 73] }   # 1500 splitter cathode
-  - { ref: CKS,  a: [0, 74], b: [1, 74] }   # 25-25 splitter cathode bypass
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead CKS.a: KS = +1.6 V (op-points); lead CKS.b: 0 = +0.0 V (ground); more-positive lead is CKS.a.
+  - { ref: CKS,  a: [0, 74], b: [1, 74] , plus: a }   # 25-25 splitter cathode bypass
   # --- V2: both second stages ---
   - { ref: CC1D, a: [0, 75], b: [1, 75] }   # .05 channel-1 output (N1D -> VIN)
   - { ref: RLD1, a: [0, 76], b: [1, 76] }   # 6.8k rail A -> N1D
@@ -131,10 +138,12 @@ parts:
   - { ref: CC2D, a: [1, 79], b: [1, 80] }   # .05 channel-2 output coupler
   - { ref: RM2,  a: [1, 80], b: [0, 80] }   # 1M channel-2 mix -> VMIX
   - { ref: RK2,  a: [0, 82], b: [1, 82] }   # 820 V2 joined cathodes
-  - { ref: CK2,  a: [0, 83], b: [1, 83] }   # 25-25
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead CK2.a: K2 = +1.2 V (op-points); lead CK2.b: 0 = +0.0 V (ground); more-positive lead is CK2.a.
+  - { ref: CK2,  a: [0, 83], b: [1, 83] , plus: a }   # 25-25
   # --- V1: both first stages ---
   - { ref: RK1,  a: [0, 85], b: [1, 85] }   # 820 V1 joined cathodes
-  - { ref: CK1,  a: [0, 86], b: [1, 86] }   # 25-25
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead CK1.a: K1 = +1.4 V (op-points); lead CK1.b: 0 = +0.0 V (ground); more-positive lead is CK1.a.
+  - { ref: CK1,  a: [0, 86], b: [1, 86] , plus: a }   # 25-25
   - { ref: RL1A, a: [0, 88], b: [1, 88] }   # 100k rail A -> V1A plate
   - { ref: CC1T, a: [1, 89], b: [0, 89] }   # .05 V1A plate -> channel-1 tone network
   - { ref: RL2A, a: [0, 91], b: [1, 91] }   # 100k rail A -> V1B plate

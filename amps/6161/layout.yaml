@@ -45,16 +45,22 @@ source:
 # between them (same row = axial part; shared column across rows = vertical leg).
 # Two leads in one eyelet are one solder point — used deliberately below, e.g.
 # the supply chain's droppers and cans meeting at their shared rail eyelets.
+# Electrolytic lead declarations: see docs/electrolytic-polarity.md for the
+# source crop register and the unresolved DC checks. a/b name actual terminals.
 parts:
   # --- power supply: reservoir -> 1 kΩ -> screen node -> 15 kΩ -> B1 --------
-  - { ref: CF1, a: [0, 1],  b: [1, 1] }     # 20 µF reservoir (BP1)
+  # Polarity: printed '+' on the cited source; lead CF1.a: BP1 = +369.0 V (ideal source VBP1); lead CF1.b: 0 = +0.0 V (ground); more-positive lead is CF1.a.
+  - { ref: CF1, a: [0, 1],  b: [1, 1] , plus: a }     # 20 µF reservoir (BP1)
   - { ref: RD1, a: [0, 1],  b: [0, 4] }     # 1 kΩ · 1 W, BP1 -> screen node
-  - { ref: CF2, a: [0, 4],  b: [1, 4] }     # 10 µF screen-node can (BP2)
+  # Polarity: printed '+' on the cited source; lead CF2.a: BP2 = +359.8 V (op-points); lead CF2.b: 0 = +0.0 V (ground); more-positive lead is CF2.a.
+  - { ref: CF2, a: [0, 4],  b: [1, 4] , plus: a }     # 10 µF screen-node can (BP2)
   - { ref: RD2, a: [0, 4],  b: [0, 7] }     # 15 kΩ, BP2 -> B1
-  - { ref: CF3, a: [0, 7],  b: [1, 7] }     # 10 µF B1 can
+  # Polarity: printed '+' on the cited source; lead CF3.a: B1 = +310.8 V (op-points); lead CF3.b: 0 = +0.0 V (ground); more-positive lead is CF3.a.
+  - { ref: CF3, a: [0, 7],  b: [1, 7] , plus: a }     # 10 µF B1 can
   # --- output stage: the shared cathode resistor, grid leaks, couplers ------
   - { ref: RKO, a: [0, 11], b: [1, 11] }    # 250 Ω · 7 W — the pair's ENTIRE bias
-  - { ref: CKO, a: [0, 13], b: [1, 13] }    # 35 µF across it
+  # Polarity: printed '+' on the cited source; lead CKO.a: KOUT = +25.1 V (op-points); lead CKO.b: 0 = +0.0 V (ground); more-positive lead is CKO.a.
+  - { ref: CKO, a: [0, 13], b: [1, 13] , plus: a }    # 35 µF across it
   - { ref: RL4, a: [0, 16], b: [0, 18] }    # 270 kΩ inverted-side plate load (B1 -> PPIB)
   - { ref: CC2, a: [0, 18], b: [0, 20] }    # 0.01 µF PPIB -> V4 grid
   - { ref: RGL2, a: [0, 20], b: [1, 20] }   # 470 kΩ V4 grid leak
@@ -108,7 +114,8 @@ parts:
   - { ref: RI1, a: [0, 110], b: [1, 110] }  # 270 kΩ interstage shunt
   - { ref: CI2, a: [0, 110], b: [0, 112] }  # 0.005 µF interstage coupler, second
   - { ref: RK2, a: [0, 114], b: [1, 114] }  # 1.5 kΩ cathode — SHARED with the follower
-  - { ref: CK2, a: [0, 116], b: [1, 116] }  # 35 µF cathode bypass
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead CK2.a: K1B = +2.5 V (op-points); lead CK2.b: 0 = +0.0 V (ground); more-positive lead is CK2.a.
+  - { ref: CK2, a: [0, 116], b: [1, 116] , plus: a }  # 35 µF cathode bypass
   - { ref: RG2, a: [0, 118], b: [1, 118] }  # 470 kΩ channel 2 grid leak
   - { ref: RGS1, a: [0, 118], b: [0, 120] } # 2.2 kΩ channel 2 grid stopper
 

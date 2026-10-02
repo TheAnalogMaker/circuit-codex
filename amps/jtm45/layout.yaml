@@ -48,6 +48,8 @@ wiring_claim: verified
 
 # Board-mounted parts. a / b are eyelet endpoints [row, col]; the body is drawn
 # between them (same row = axial part; shared column across rows = vertical leg).
+# Electrolytic lead declarations: see docs/electrolytic-polarity.md for the
+# source crop register and the unresolved DC checks. a/b name actual terminals.
 parts:
   # --- bias supply (silicon HT-tap diode -> 150k -> .05u/25u -> -50V) ----------
   - { ref: RB1,  a: [1, 3],  b: [1, 4] }    # 150k bias series
@@ -57,13 +59,18 @@ parts:
   # it is drawn at rot 180 in the bias row, K pin toward HT_B. The anode is on
   # the 150 k (RB1) side, toward the -50 V node.
   - { ref: D1,   a: [1, 6],  b: [1, 7], cathode: a }    # 1N4007 bias rectifier
-  - { ref: C16,  a: [0, 0],  b: [0, 1], value_nudge: [0, -12] }    # 25 µF bias reservoir; value lifted off run[1]
+  # Polarity: printed '+' on the cited source; lead C16.b: 0 = +0.0 V (ground); lead C16.a: NBIAS = -50.0 V (ideal source VBIAS); more-positive lead is C16.b.
+  - { ref: C16,  a: [0, 0],  b: [0, 1], value_nudge: [0, -12] , plus: b }    # 25 µF bias reservoir; value lifted off run[1]
   - { ref: C15,  a: [0, 3],  b: [0, 4] }    # 0.05 µF bias filter
   # --- main filter cans + rail droppers (power end, left) ---------------------
-  - { ref: C11,  a: [0, 6],  b: [0, 8] }    # 32 µF reservoir, B+1
-  - { ref: C12,  a: [0, 9],  b: [0, 11] }   # 16 µF filter, B+2 (screens)
-  - { ref: C13,  a: [0, 12], b: [0, 14] }   # 16 µF filter, B+3 (PI)
-  - { ref: C14,  a: [0, 15], b: [0, 17] }   # 16 µF filter, B+4 (preamp)
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead C11.a: BP1 = +450.0 V (ideal source VBP1); lead C11.b: 0 = +0.0 V (ground); more-positive lead is C11.a.
+  - { ref: C11,  a: [0, 6],  b: [0, 8] , plus: a }    # 32 µF reservoir, B+1
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead C12.a: BP2 = +448.7 V (op-points); lead C12.b: 0 = +0.0 V (ground); more-positive lead is C12.a.
+  - { ref: C12,  a: [0, 9],  b: [0, 11] , plus: a }   # 16 µF filter, B+2 (screens)
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead C13.a: BP3 = +380.4 V (op-points); lead C13.b: 0 = +0.0 V (ground); more-positive lead is C13.a.
+  - { ref: C13,  a: [0, 12], b: [0, 14] , plus: a }   # 16 µF filter, B+3 (PI)
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead C14.a: BP4 = +326.3 V (op-points); lead C14.b: 0 = +0.0 V (ground); more-positive lead is C14.a.
+  - { ref: C14,  a: [0, 15], b: [0, 17] , plus: a }   # 16 µF filter, B+4 (preamp)
   - { ref: RD1,  a: [1, 9],  b: [1, 10] }   # 8.2k dropper B+2->B+3
   - { ref: RD2,  a: [1, 12], b: [1, 13] }   # 10k dropper B+3->B+4
   # --- KT66 output support: grid stoppers, grid leaks, screen stoppers ---------
@@ -101,7 +108,8 @@ parts:
   - { ref: C2,   a: [0, 57], b: [0, 59] }   # 0.02 µF V1B -> normal volume
   - { ref: RL2,  a: [1, 58], b: [1, 59] }   # 100k V1B plate load
   - { ref: RK1,  a: [0, 61], b: [1, 61] }   # 820 shared ECC83 cathode (vertical)
-  - { ref: C3,   a: [0, 62], b: [0, 63] }   # 250 µF shared cathode bypass
+  # Polarity: printed '+' on the cited source; lead C3.a: KA = +1.8 V (op-points); lead C3.b: 0 = +0.0 V (ground); more-positive lead is C3.a.
+  - { ref: C3,   a: [0, 62], b: [0, 63] , plus: a }   # 250 µF shared cathode bypass
 
 # Off-board items as labelled stubs: tubes along the bottom (in the drawing's
 # GZ34 · KT66 · KT66 · ECC83 · ECC83 · ECC83 row order), pots + input jacks up

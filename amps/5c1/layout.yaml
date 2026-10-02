@@ -90,6 +90,8 @@ source:
 
 # Board-mounted parts. a / b are eyelet endpoints [row, col]; the body is drawn
 # between them (same row = axial part; column shared across rows = vertical leg).
+# Electrolytic lead declarations: see docs/electrolytic-polarity.md for the
+# source crop register and the unresolved DC checks. a/b name actual terminals.
 parts:
   # 6SJ7 preamp stage (leftmost, matching the drawing's tube row)
   - { ref: R3,  a: [0, 0],  b: [1, 0] }    # 5 Meg grid leak (vertical leg to ground)
@@ -100,13 +102,17 @@ parts:
   - { ref: R4,  a: [1, 10], b: [1, 11] }   # 2 Meg screen dropper
   # 6V6GT output stage
   - { ref: R6,  a: [0, 12], b: [1, 12] }   # 500 ohm cathode (vertical leg)
-  - { ref: C4,  a: [0, 13], b: [0, 15] }   # 25 uF cathode bypass
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead C4.a: K2 = +15.4 V (op-points); lead C4.b: 0 = +0.0 V (ground); more-positive lead is C4.a.
+  - { ref: C4,  a: [0, 13], b: [0, 15] , plus: a }   # 25 uF cathode bypass
   # B+ chain: two resistor droppers (no choke on this pre-5E1 circuit) + filters
   - { ref: R7,  a: [1, 16], b: [1, 17] }   # 500 ohm dropper B+1->B+2
   - { ref: R8,  a: [1, 18], b: [1, 19] }   # 25k dropper B+2->B+3
-  - { ref: C5,  a: [0, 20], b: [0, 21] }   # 8 uF filter, B+1 (reservoir)
-  - { ref: C6,  a: [0, 22], b: [0, 23] }   # 8 uF filter, B+2
-  - { ref: C7,  a: [0, 24], b: [0, 25] }   # 8 uF filter, B+3
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead C5.a: BP1 = +340.0 V (ideal source VBP1); lead C5.b: 0 = +0.0 V (ground); more-positive lead is C5.a.
+  - { ref: C5,  a: [0, 20], b: [0, 21] , plus: a }   # 8 uF filter, B+1 (reservoir)
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead C6.a: BP2 = +324.4 V (op-points); lead C6.b: 0 = +0.0 V (ground); more-positive lead is C6.a.
+  - { ref: C6,  a: [0, 22], b: [0, 23] , plus: a }   # 8 uF filter, B+2
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead C7.a: BP3 = +249.8 V (op-points); lead C7.b: 0 = +0.0 V (ground); more-positive lead is C7.a.
+  - { ref: C7,  a: [0, 24], b: [0, 25] , plus: a }   # 8 uF filter, B+3
 
 # Off-board items drawn as labelled stubs around the board, in the drawing's
 # positions: the two input jacks and their chassis-mounted 75k resistors at

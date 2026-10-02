@@ -92,7 +92,9 @@ python3 pipeline/verify_layout_nets.py       # layout↔netlist equivalence (+--
                                   #   reaching no power-transformer lead
                                   #   (blocking, same switch)
                                   #   + electrolytic polarity: each can's drawn
-                                  #   '+' vs the DC sign; the worklist
+                                  #   '+' vs the DC sign; BLOCKING on every
+                                  #   board (ELECTROLYTIC_BLOCKING). Preserve
+                                  #   undecided checks; the worklist
                                   #   reference/electrolytics.yaml is drift-
                                   #   gated (regenerate with --export)
                                   #   + SHORTED PART: a two-lead part with both

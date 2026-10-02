@@ -51,20 +51,27 @@ source:
 
 # Board-mounted parts. a / b are eyelet endpoints [row, col]; the body is drawn
 # between them (same row = axial part; column shared across rows = vertical leg).
+# Electrolytic lead declarations: see docs/electrolytic-polarity.md for the
+# source crop register and the unresolved DC checks. a/b name actual terminals.
 parts:
   # --- supply droppers (row 0) over their filter sections (row 1) -----------
   - { ref: R15, a: [0, 1],  b: [0, 4] }    # 10 kΩ 1 W dropper, B+2 → B+3
   - { ref: R14, a: [0, 4],  b: [0, 7] }    # 1 kΩ 1 W dropper, B+1 → B+2
-  - { ref: C10, a: [1, 1],  b: [1, 2] }    # 20 µF filter, B+3 (preamp rail)
-  - { ref: C9,  a: [1, 4],  b: [1, 5] }    # 20 µF filter, B+2 (screen rail)
-  - { ref: C8,  a: [1, 7],  b: [1, 8] }    # 20 µF filter, B+1 (reservoir)
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead C10.a: BP3 = +331.5 V (op-points); lead C10.b: 0 = +0.0 V (ground); more-positive lead is C10.a.
+  - { ref: C10, a: [1, 1],  b: [1, 2] , plus: a }    # 20 µF filter, B+3 (preamp rail)
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead C9.a: BP2 = +354.0 V (op-points); lead C9.b: 0 = +0.0 V (ground); more-positive lead is C9.a.
+  - { ref: C9,  a: [1, 4],  b: [1, 5] , plus: a }    # 20 µF filter, B+2 (screen rail)
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead C8.a: BP1 = +360.0 V (ideal source VBP1); lead C8.b: 0 = +0.0 V (ground); more-positive lead is C8.a.
+  - { ref: C8,  a: [1, 7],  b: [1, 8] , plus: a }    # 20 µF filter, B+1 (reservoir)
   # --- 6V6GT output stage ---------------------------------------------------
   - { ref: R13, a: [0, 11], b: [1, 11] }   # 470 Ω 1 W cathode bias
-  - { ref: C7,  a: [0, 13], b: [1, 13] }   # 25 µF cathode bypass
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead C7.a: K2 = +22.6 V (op-points); lead C7.b: 0 = +0.0 V (ground); more-positive lead is C7.a.
+  - { ref: C7,  a: [0, 13], b: [1, 13] , plus: a }   # 25 µF cathode bypass
   # --- negative-feedback divider + 12AX7 driver cathode ---------------------
   - { ref: R11, a: [0, 18], b: [1, 18] }   # 2.7 kΩ feedback, speaker → KFB
   - { ref: R9,  a: [0, 20], b: [1, 20] }   # 1.5 kΩ V1B cathode, down to KFB
-  - { ref: C5,  a: [0, 22], b: [1, 22] }   # 25 µF, bypasses the 1.5 kΩ only
+  # Polarity: printed '+' on the cited source; source '+' at C5.b; DC check remains undecided (C5.a: on KFB, which has no simulated volts).
+  - { ref: C5,  a: [0, 22], b: [1, 22] , plus: b }   # 25 µF, bypasses the 1.5 kΩ only
   - { ref: R10, a: [0, 24], b: [1, 24] }   # 47 Ω feedback-divider leg
   # --- coupling into the 6V6 grid, and the two 100 kΩ plate loads -----------
   - { ref: R12, a: [0, 27], b: [0, 29] }   # 220 kΩ 6V6 grid leak
@@ -80,7 +87,8 @@ parts:
   - { ref: R2,  a: [0, 40], b: [1, 40] }   # 68 kΩ stopper, jack 2 (low)
   - { ref: R1,  a: [0, 42], b: [1, 42] }   # 68 kΩ stopper, jack 1 (high)
   - { ref: R5,  a: [0, 45], b: [1, 45] }   # 1.5 kΩ V1A cathode bias
-  - { ref: C1,  a: [0, 47], b: [1, 47] }   # 25 µF cathode bypass
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead C1.a: K1A = +1.7 V (op-points); lead C1.b: 0 = +0.0 V (ground); more-positive lead is C1.a.
+  - { ref: C1,  a: [0, 47], b: [1, 47] , plus: a }   # 25 µF cathode bypass
 
 # Off-board items drawn as labelled stubs around the board, in the drawing's
 # positions: tubes, output transformer and speaker jack along the bottom, the

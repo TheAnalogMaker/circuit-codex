@@ -28,6 +28,8 @@ source:
   desc: "Fender 'Bassman-Amp AB165' layout drawing (D-FE), title block read directly: 'FENDER MODEL \"BASSMAN-AMP AB165\" LAYOUT'"
   url: "https://el34world.com/charts/Schematics/Files/Fender/Fender_bassman_ab165_layout.pdf"
 
+# Electrolytic lead declarations: see docs/electrolytic-polarity.md for the
+# source crop register and the unresolved DC checks. a/b name actual terminals.
 parts:
   # --- output-tube grid network (left end, beside the two 6L6GC sockets) ---
   - { ref: C1,   a: [0, 0],  b: [0, 1] }    # .022 PI hot plate → V5 grid (PPIA→GO1)
@@ -50,12 +52,14 @@ parts:
   - { ref: CPIB, a: [0, 20], b: [1, 20] }   # 0.1-200 cold grid → ground
   # --- Normal channel second stage (V2b) ---
   - { ref: RLN2, a: [0, 22], b: [0, 23] }   # 100k plate load (BD→PN2)
-  - { ref: CKN2, a: [0, 24], b: [0, 25] }   # 25 µF cathode bypass (shares KN2)
+  # Polarity: printed '+' on the cited source; lead CKN2.a: 0 = +0.0 V (ground); lead CKN2.b: KN2 = +1.9 V (op-points); more-positive lead is CKN2.b.
+  - { ref: CKN2, a: [0, 24], b: [0, 25] , plus: b }   # 25 µF cathode bypass (shares KN2)
   - { ref: RKN2, a: [0, 25], b: [1, 25] }   # 1.5k cathode (KN2→0)
   - { ref: RMXN, a: [0, 26], b: [0, 27] }   # 220k mixing resistor (PN2→MIX)
   # --- Normal channel input (V2a) ---
   - { ref: RLN1, a: [0, 29], b: [0, 30] }   # 100k plate load (BC→PN1)
-  - { ref: CKN1, a: [0, 31], b: [0, 32] }   # 25 µF cathode bypass (shares KN1)
+  # Polarity: printed '+' on the cited source; lead CKN1.a: 0 = +0.0 V (ground); lead CKN1.b: KN1 = +1.6 V (op-points); more-positive lead is CKN1.b.
+  - { ref: CKN1, a: [0, 31], b: [0, 32] , plus: b }   # 25 µF cathode bypass (shares KN1)
   - { ref: RKN1, a: [0, 32], b: [1, 32] }   # 1.5k cathode (KN1→0)
   # --- Normal channel tone stack, off the V2a plate. D-FE stands the 250 PF,
   # the .047 and the .1 between the rows just right of the channel's first
@@ -70,12 +74,14 @@ parts:
   - { ref: CMIX, a: [0, 42], b: [0, 43] }   # .01 µF mixing node → driver grid
   - { ref: RGM,  a: [0, 43], b: [1, 43] }   # 470k grid leak (GM→0)
   - { ref: RLM,  a: [0, 45], b: [0, 46] }   # 100k plate load (BD→PM)
-  - { ref: CKM,  a: [0, 47], b: [0, 48] }   # 25 µF cathode bypass (shares KM)
+  # Polarity: printed '+' on the cited source; lead CKM.a: 0 = +0.0 V (ground); lead CKM.b: KM = +2.0 V (op-points); more-positive lead is CKM.b.
+  - { ref: CKM,  a: [0, 47], b: [0, 48] , plus: b }   # 25 µF cathode bypass (shares KM)
   - { ref: RKM,  a: [0, 48], b: [1, 48] }   # 1.5k cathode (KM→0)
   - { ref: CPIA, a: [0, 49], b: [0, 50] }   # 0.1 µF driver plate → PI hot grid
   # --- Bass Instrument channel second stage (V1b) ---
   - { ref: RLB2, a: [0, 51], b: [0, 52] }   # 100k plate load (BC→PB2 — see notes.md)
-  - { ref: CKB2, a: [0, 53], b: [0, 54] }   # 25 µF cathode bypass (shares KB2)
+  # Polarity: printed '+' on the cited source; lead CKB2.a: 0 = +0.0 V (ground); lead CKB2.b: KB2 = +1.6 V (op-points); more-positive lead is CKB2.b.
+  - { ref: CKB2, a: [0, 53], b: [0, 54] , plus: b }   # 25 µF cathode bypass (shares KB2)
   - { ref: RKB2, a: [0, 54], b: [1, 54] }   # 1.5k cathode (KB2→0)
   - { ref: RMXB, a: [0, 55], b: [0, 56] }   # 220k mixing resistor (PB2→MIX)
   # --- Bass Instrument channel input (V1a), with the treble-cut shunt ---
@@ -90,7 +96,8 @@ parts:
   - { ref: CBB2,  a: [1, 64], b: [0, 64] }  # .1: slope foot → Bass foot lug (blue; 8.2k on the pot)
   - { ref: CBB,   a: [1, 66], b: [0, 66] }  # .1: slope foot → Bass wiper / Treble foot (brown)
   - { ref: CDEEP, a: [1, 68], b: [0, 68] }  # .1 DEEP cap: slope foot → DEEP switch
-  - { ref: CKB1, a: [0, 71], b: [0, 72] }   # 25 µF cathode bypass (shares KB1)
+  # Polarity: printed '+' on the cited source; lead CKB1.a: 0 = +0.0 V (ground); lead CKB1.b: KB1 = +1.6 V (op-points); more-positive lead is CKB1.b.
+  - { ref: CKB1, a: [0, 71], b: [0, 72] , plus: b }   # 25 µF cathode bypass (shares KB1)
   - { ref: RKB1, a: [0, 72], b: [1, 72] }   # 1.5k cathode (KB1→0)
 
 offboard:

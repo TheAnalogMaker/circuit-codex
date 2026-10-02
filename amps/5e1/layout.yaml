@@ -76,16 +76,22 @@ source:
 
 # Board-mounted parts. a / b are eyelet endpoints [row, col]; the body is drawn
 # between them (same row = axial part; column shared across rows = vertical leg).
+# Electrolytic lead declarations: see docs/electrolytic-polarity.md for the
+# source crop register and the unresolved DC checks. a/b name actual terminals.
 parts:
   # filter cans + rail dropper (power-supply end, left). C5's B+ eyelet faces
   # right so B+1 and B+2 sit next to each other and the choke bridges a clean gap.
-  - { ref: C5,  a: [0, 2],  b: [0, 0] }    # 8 µF filter, B+1 (reservoir, +320)
-  - { ref: C6,  a: [0, 3],  b: [0, 5] }    # 8 µF filter, B+2 (+305)
-  - { ref: C7,  a: [0, 6],  b: [0, 8] }    # 8 µF filter, B+3 (+260)
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead C5.b: 0 = +0.0 V (ground); lead C5.a: BP2 = +305.2 V (op-points) through L1; more-positive lead is C5.a.
+  - { ref: C5,  a: [0, 2],  b: [0, 0] , plus: a }    # 8 µF filter, B+1 (reservoir, +320)
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead C6.a: BP2 = +305.2 V (op-points); lead C6.b: 0 = +0.0 V (ground); more-positive lead is C6.a.
+  - { ref: C6,  a: [0, 3],  b: [0, 5] , plus: a }    # 8 µF filter, B+2 (+305)
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead C7.a: BP3 = +264.1 V (op-points); lead C7.b: 0 = +0.0 V (ground); more-positive lead is C7.a.
+  - { ref: C7,  a: [0, 6],  b: [0, 8] , plus: a }    # 8 µF filter, B+3 (+260)
   - { ref: R10, a: [1, 4],  b: [1, 5] }    # 22k dropper B+2->B+3
   # 6V6 single-ended output
   - { ref: R8,  a: [0, 9],  b: [1, 9] }    # 470 Ω 5W cathode (vertical leg)
-  - { ref: C4,  a: [0, 10], b: [0, 11] }   # 25 µF 6V6 cathode bypass
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead C4.a: K2 = +19.0 V (op-points); lead C4.b: 0 = +0.0 V (ground); more-positive lead is C4.a.
+  - { ref: C4,  a: [0, 10], b: [0, 11] , plus: a }   # 25 µF 6V6 cathode bypass
   - { ref: R9,  a: [1, 11], b: [1, 12] }   # 220k 6V6 grid leak
   # V1B driver stage (12AX7, second half) — nearest the 6V6
   - { ref: R6,  a: [0, 13], b: [1, 13] }   # 1.5k V1B cathode (vertical leg)
@@ -99,7 +105,8 @@ parts:
   # input network (right end)
   - { ref: R1,  a: [1, 23], b: [1, 24] }   # 68k input-1 grid stopper
   - { ref: R2,  a: [1, 25], b: [1, 26] }   # 68k input-2 grid stopper
-  - { ref: C1,  a: [0, 28], b: [0, 29] }   # 25 µF V1A cathode bypass
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead C1.a: K1A = +1.4 V (op-points); lead C1.b: 0 = +0.0 V (ground); more-positive lead is C1.a.
+  - { ref: C1,  a: [0, 28], b: [0, 29] , plus: a }   # 25 µF V1A cathode bypass
   - { ref: R3,  a: [1, 29], b: [1, 30] }   # 1M grid leak (chassis-mounted at the jacks; drawn on-board here — see caption)
 
 # Off-board items drawn as labelled stubs around the board, in the drawing's

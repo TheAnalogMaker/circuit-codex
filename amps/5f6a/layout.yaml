@@ -78,16 +78,23 @@ source:
 # coupler-to-wrong-grid fault fails), and the twisted heater runs are validated.
 wiring_claim: verified
 
+# Electrolytic lead declarations: see docs/electrolytic-polarity.md for the
+# source crop register and the unresolved DC checks. a/b name actual terminals.
 parts:
   # bias supply + main filter cans + rail droppers (power end, left)
-  - { ref: C15,  a: [0, 0],  b: [0, 2] }    # 8 µF bias-supply filter, −48 V line (the second
+  # Polarity: printed '+' on the cited source; lead C15.a: NBIAS = -48.0 V (ideal source VBIAS); lead C15.b: 0 = +0.0 V (ground); more-positive lead is C15.b.
+  - { ref: C15,  a: [0, 0],  b: [0, 2] , plus: b }    # 8 µF bias-supply filter, −48 V line (the second
                                             # can, C15b, sits on the chassis and is not drawn)
   - { ref: RB1,  a: [1, 0],  b: [1, 1] }    # 15k bias series (from selenium rect)
   - { ref: RB2,  a: [1, 2],  b: [1, 3] }    # 56k bias bleeder
-  - { ref: C11,  a: [0, 3],  b: [0, 5] }    # 20 µF filter, B+1 (plates)
-  - { ref: C12,  a: [0, 6],  b: [0, 8] }    # 20 µF filter, B+2 (screens)
-  - { ref: C13,  a: [0, 9],  b: [0, 11] }   # 20 µF filter, B+3 (PI)
-  - { ref: C14,  a: [0, 12], b: [0, 14] }   # 8 µF filter, B+4 (preamp)
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead C11.a: BP1 = +432.0 V (ideal source VBP1); lead C11.b: 0 = +0.0 V (ground); more-positive lead is C11.a.
+  - { ref: C11,  a: [0, 3],  b: [0, 5] , plus: a }    # 20 µF filter, B+1 (plates)
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead C12.a: BP2 = +430.5 V (op-points); lead C12.b: 0 = +0.0 V (ground); more-positive lead is C12.a.
+  - { ref: C12,  a: [0, 6],  b: [0, 8] , plus: a }    # 20 µF filter, B+2 (screens)
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead C13.a: BP3 = +386.5 V (op-points); lead C13.b: 0 = +0.0 V (ground); more-positive lead is C13.a.
+  - { ref: C13,  a: [0, 9],  b: [0, 11] , plus: a }   # 20 µF filter, B+3 (PI)
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead C14.a: BP4 = +322.6 V (op-points); lead C14.b: 0 = +0.0 V (ground); more-positive lead is C14.a.
+  - { ref: C14,  a: [0, 12], b: [0, 14] , plus: a }   # 8 µF filter, B+4 (preamp)
   - { ref: RD1,  a: [1, 4],  b: [1, 5], value_nudge: [-14, 0] }    # 4.7k dropper B+2→B+3; value clear of RD2's
   - { ref: RD2,  a: [1, 6],  b: [1, 7], value_nudge: [14, 0] }    # 10k dropper B+3→B+4; value clear of RD1's
   # 5881 output: grid leaks (from −48 V) + 470 Ω 1W screen resistors
@@ -124,7 +131,8 @@ parts:
   - { ref: C2,   a: [0, 37], b: [0, 39] }   # 0.02 µF V1B → normal volume
   - { ref: RL2,  a: [1, 38], b: [1, 39] }   # 100k V1B plate load
   - { ref: RK1,  a: [0, 40], b: [1, 40] }   # 820 Ω shared 12AY7 cathode (vertical)
-  - { ref: C3,   a: [0, 41], b: [0, 42] }   # 250 µF 12AY7 cathode bypass
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead C3.a: KAY = +2.6 V (op-points); lead C3.b: 0 = +0.0 V (ground); more-positive lead is C3.a.
+  - { ref: C3,   a: [0, 41], b: [0, 42] , plus: a }   # 250 µF 12AY7 cathode bypass
 
 offboard:
   - { id: PT,   kind: xfmr, edge: left,  at: 0.2, label: "Power trans" }

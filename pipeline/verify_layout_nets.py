@@ -114,10 +114,11 @@ into ground or a DC node. Polarity knows which side of ground a supply sits
 on; this knows a winding feeds it. It blocks under the same switch.
 
 ------------------------------------------------------------------------------
-ELECTROLYTIC POLARITY (2026-09-11) — REPORT-ONLY, a drift-gated worklist
+ELECTROLYTIC POLARITY — BLOCKING, with an explicit undecided worklist
 ------------------------------------------------------------------------------
-The drawings place each can's '+' by position (render_layouts.plus_side: the
-left end of a can along a row, the top of a standing one), never from data.
+The drawings place each can's '+' at the lead its `plus:` declares, else by
+position (render_layouts.plus_side: the left end of a can along a row, the top
+of a standing one).
 board_electrolytics holds that drawn '+' to the DC sign through the same node
 map (_BoardNodes): the '+' lead must sit on the more positive node, ground is
 0 V, and the joint of a series-stacked pair lies between its ends. Verdicts:
@@ -795,7 +796,7 @@ class Result:
         self.anchor_class: dict = {}      # net_map anchor -> CONSTRAINING|REDUNDANT (H8)
         self.node_of_root: dict = {}      # the solved map: layout net root -> node
         self.polarity: list = []          # board_polarity() verdicts
-        self.electrolytics: list = []     # board_electrolytics() verdicts, report-only
+        self.electrolytics: list = []     # board_electrolytics() verdicts
         self.shorted_parts: list = []     # shorted_parts() on the drawn board
 
 
@@ -1535,51 +1536,24 @@ def board_polarity(R: Renderer, uf: UF, M: dict, volts: dict,
 
 
 # ============================================================================
-# electrolytic polarity (2026-09-11) — report-only, its own switch
+# electrolytic polarity — declared marks, DC sign, blocking on every board
 # ============================================================================
-# Which end of an electrolytic is positive is a physical fact a builder acts
-# on. The board drawings place each can's '+' by POSITION (the left end of a can
-# along a row, the top of a standing one: render_layouts.plus_side), never from
-# data, so a negative-bias filter can shows its '+' on the negative node and a
-# standing cathode bypass on a board whose ground bus runs along the top row
-# shows its '+' at ground: the heater lesson again, a renderer rule standing in
-# for a fact. Each can's DRAWN '+' is held to the circuit's DC sign, through the
-# same node map and supply walk the rectifier checks use: the '+' lead must sit
-# on the more positive node. Ground is 0 V, so a can with one lead on ground
-# takes the other node's sign; the joint of a series-stacked pair lies between
-# its ends (_BoardNodes._midpoint). The verdicts are a drift-gated worklist,
-# reference/electrolytics.yaml (regenerate with --export), and join res.errors
-# only when ELECTROLYTIC_BLOCKING is set, once `plus:` is declared and drawn
-# and the list's `wrong` is empty.
-ELECTROLYTIC_BLOCKING = False
+# A declared '+' names a physical lead. Ground is 0 V; a series-stack joint
+# lies between its ends. WRONG blocks independently of drawing claims; missing
+# DC evidence stays undecided and remains visible in the committed worklist.
+ELECTROLYTIC_BLOCKING = True
 ELEC_MARGIN_V = 0.1        # two leads closer than this are not ordered
 ELEC_WORKLIST = ROOT / "reference" / "electrolytics.yaml"
 ELEC_WORKLIST_HEADER = """\
-# GENERATED - pipeline/verify_layout_nets.py --export. Do not hand-edit; a run
-# that disagrees with this file fails the gate, the same way reference/heaters.yaml
-# and reference/sheet-board.yaml are held to what a fresh run produces.
-#
-# WHAT THIS IS. Which end of an electrolytic is positive is a physical fact a
-# builder acts on, and a can fitted the wrong way round fails. The board
-# drawings place each can's '+' by POSITION (the left end of a can along a row,
-# the top of a standing one: render_layouts.plus_side), never from data, so a
-# negative-bias filter can shows its '+' on the negative node, and a standing
-# cathode bypass on a board whose ground bus runs along the top row shows its
-# '+' at ground. verify_layout_nets.py holds each drawn '+' to the circuit's DC
-# sign: the '+' lead must sit on the more positive node. Ground is 0 V; the
-# joint of a series-stacked pair of cans lies between its ends.
-#
-# HOW TO READ IT. `summary` counts every can on every board. `wrong` lists the
-# cans whose '+' is drawn on the MORE NEGATIVE lead, with both leads' levels.
-# `not_decided` lists the cans the DC model does not order (a lead on no
-# modelled node, or on a node with no simulated volts) and the cans drawn with
-# no '+' at all.
-#
-# CLEARING AN ENTRY. Once layout.yaml declares `plus: a|b` and the renderer
-# draws from it, declare each can from the factory layout's own '+' where it is
-# legible, else from the circuit's DC sign, saying which in the comment, and
-# re-export. The check is report-only (ELECTROLYTIC_BLOCKING) until `wrong` is
-# empty.
+# GENERATED - pipeline/verify_layout_nets.py --export. Do not hand-edit.
+# Every evaluated board has counts, including boards with zero cans/findings.
+# `plus:` names the lead carrying each drawn '+'. WRONG means the DC model
+# places that lead below the other lead and blocks CI on every board.
+# `not_decided` is retained evidence, never a claim of correct polarity: the
+# DC model cannot order those leads. Source declarations can establish the
+# physical orientation without turning an unmodelled node into a checked one.
+# Layout comments cite printed marks or explicitly identify DC-sign reasoning.
+# Both styles mark off-board cans as well as the principal board's cans.
 """
 
 
@@ -1649,21 +1623,25 @@ def electrolytic_worklist(electro: dict) -> dict:
     amps: dict = {}
     for amp in sorted(electro):
         wrong, rest = [], []
+        counts = dict.fromkeys(summary, 0)
         for c in electro[amp]:
             summary["cans"] += 1
-            summary[{"WRONG": "wrong"}.get(c["verdict"], c["verdict"])] += 1
+            key = {"WRONG": "wrong"}.get(c["verdict"], c["verdict"])
+            summary[key] += 1
+            counts["cans"] += 1
+            counts[key] += 1
             if c["verdict"] == "WRONG":
                 wrong.append({"ref": c["ref"], "plus_drawn_at": c["plus"],
                               "placed": c["how"], "leads": c["desc"]})
             elif c["verdict"] in ("undecided", "unmarked"):
-                rest.append({"ref": c["ref"], "verdict": c["verdict"], "why": c["why"]})
-        if wrong or rest:
-            entry: dict = {}
-            if wrong:
-                entry["wrong"] = wrong
-            if rest:
-                entry["not_decided"] = rest
-            amps[amp] = entry
+                rest.append({"ref": c["ref"], "verdict": c["verdict"], "why": c["why"],
+                             "plus_drawn_at": c["plus"], "leads": c["desc"]})
+        entry: dict = {"counts": counts}
+        if wrong:
+            entry["wrong"] = wrong
+        if rest:
+            entry["not_decided"] = rest
+        amps[amp] = entry
     return {"summary": summary, "amps": amps}
 
 
@@ -1679,9 +1657,19 @@ def export_electrolytics() -> int:
         layout, bom = _load_layout(amp)
         electro[amp] = _check_layout(amp, layout, bom).electrolytics
     data = electrolytic_worklist(electro)
+    class AmpID(str):
+        pass
+
+    class WorklistDumper(yaml.SafeDumper):
+        pass
+
+    WorklistDumper.add_representer(
+        AmpID, lambda dumper, value: dumper.represent_scalar(
+            "tag:yaml.org,2002:str", value, style="'"))
+    data["amps"] = {AmpID(key): value for key, value in data["amps"].items()}
     ELEC_WORKLIST.write_text(ELEC_WORKLIST_HEADER
-                             + yaml.safe_dump(data, sort_keys=True, width=100,
-                                              allow_unicode=True))
+                             + yaml.dump(data, Dumper=WorklistDumper, sort_keys=True,
+                                         width=100, allow_unicode=True))
     print(f"exported {ELEC_WORKLIST.relative_to(ROOT)} - "
           + ", ".join(f"{k} {v}" for k, v in data["summary"].items()))
     return 0
@@ -1715,7 +1703,7 @@ def _print_electrolytic_summary(electro: dict):
           f"the more positive lead, {s['wrong']} WRONG, {s['undecided']} undecided, "
           f"{s['unmarked']} drawn with no '+'")
     print("  " + ("BLOCKING (ELECTROLYTIC_BLOCKING is set)" if ELECTROLYTIC_BLOCKING else
-                  "REPORT-ONLY: the '+' is drawn by position today; the worklist "
+                  "REPORT-ONLY: polarity blocking is disabled; the worklist "
                   "reference/electrolytics.yaml is drift-gated"))
     for amp, entry in data["amps"].items():
         if entry.get("wrong"):
@@ -2511,20 +2499,51 @@ def selftest() -> int:
               f"board's verdict: {'OK' if gated else 'FAIL'}")
 
     # ---- electrolytic polarity: the drawn '+' against the DC sign. The list is
-    #      report-only, but the rule must bite in both directions, and the joint
+    #      blocking on every board, must bite in both directions, and the joint
     #      of a series stack must be decided, not shrugged. ------------------
-    print("=== electrolytic polarity (report-only; the rule itself must bite) ===")
+    print("=== electrolytic polarity (declared leads, blocking) ===")
     can_results: list = []
 
-    def _can(amp, ref, override=None):
+    def _can(amp, ref, override=None, edit=None):
         lay, bm = _load_layout(amp)
+        if edit:
+            lay = copy.deepcopy(lay)
+            edit(lay)
         r_ = _check_layout(amp, lay, bm, plus_override=override)
         return r_, next((c for c in r_.electrolytics if c["ref"] == ref), None)
 
+    # The exemplar: the 5F4's C15 declares plus: b, read from C-EG's printed '+'.
+    # Declared it reads right; its declaration turned reads WRONG; with it
+    # removed the can falls back to the position default, '+' on the -40 V node.
+    def _plus(value):
+        def edit(lay):
+            for p in lay.get("parts", []):
+                if p.get("ref") == "C15":
+                    if value is None:
+                        p.pop("plus", None)
+                    else:
+                        p["plus"] = value
+        return edit
+
+    for edit, want, how, label in (
+            (None, "right", "declared", "5F4 C15 as committed, plus: b declared"),
+            (_plus("a"), "WRONG", "declared", "5F4 C15 with its declaration turned to a"),
+            (_plus(None), "WRONG", "by position",
+             "5F4 C15 with plus: removed, the position default: '+' on -40 V")):
+        _r4, c4 = _can("5f4", "C15", edit=edit)
+        ok = bool(c4) and c4["verdict"] == want and c4["how"].startswith(how)
+        can_results.append(ok)
+        print(f"  [CAN] {label} -> {c4['verdict'] if c4 else 'absent'} "
+              f"({c4['how'] if c4 else ''}): {'OK' if ok else 'FAIL'}")
+        if want == "WRONG":
+            gated = not _r4.ok and any(e.startswith("REVERSED ELECTROLYTIC: C15")
+                                      for e in _r4.errors)
+            can_results.append(gated)
+            print(f"  [CAN] reversed declared/fallback lead blocks: {'OK' if gated else 'FAIL'}")
+
     for amp, ref, want, label in (
-            ("5f4", "C15", "WRONG", "5F4 bias filter can as drawn: '+' on the -40 V node"),
             ("5f4", "C3", "right", "5F4 cathode bypass C3 as drawn"),
-            ("ab763", "CKN1", "WRONG", "AB763 cathode bypass CKN1 as drawn: '+' at ground")):
+            ("ab763", "CKN1", "right", "AB763 cathode bypass CKN1 as declared")):
         r_, c = _can(amp, ref)
         got = c["verdict"] if c else "absent"
         can_results.append(got == want)
@@ -2549,6 +2568,76 @@ def selftest() -> int:
         can_results.append(decided)
         print(f"  [CAN] JTM100 {ref}, half of a series-stacked pair, decided through its "
               f"joint -> {c3['verdict'] if c3 else 'absent'}: {'OK' if decided else 'FAIL'}")
+
+    # Exercise the actual glyph path in BOTH renderers. Capture the emitted
+    # '+' coordinates, then compare them with the terminal positions, including
+    # reversed endpoint order and every off-board edge. A correct plus_side()
+    # alone would not catch a body renderer that ignores its result.
+    import render_layouts as drawing
+    from unittest.mock import patch
+    mark = drawing.plus_mark
+    glyph_cases = 0
+    for cls in (drawing.Renderer, drawing.SheetRenderer):
+        for shape in ("horizontal", "horizontal-reversed", "vertical", "vertical-reversed",
+                      "top", "bottom", "left", "right"):
+            for positive in ("a", "b"):
+                points = []
+                def capture(x, y, *args):
+                    points.append((x, y))
+                    return mark(x, y, *args)
+                spec = {"ref": "C1", "plus": positive}
+                if shape.startswith("horizontal"):
+                    spec.update(a=[0, 1], b=[0, 4])
+                elif shape.startswith("vertical"):
+                    spec.update(a=[0, 1], b=[1, 1])
+                else:
+                    spec.update(id="CF", kind="part", edge=shape, at=1)
+                if shape.endswith("reversed"):
+                    spec["a"], spec["b"] = spec["b"], spec["a"]
+                off = "kind" in spec
+                layout = {"board": {"rows": 2, "cols": 8},
+                          "parts": [] if off else [spec], "offboard": [spec] if off else []}
+                renderer = cls(layout, {"C1": {"part": "Electrolytic capacitor", "value": "25uF"}}, "test")
+                with patch.object(drawing, "plus_mark", capture):
+                    if off:
+                        x, y = renderer.off_pos(spec)
+                        renderer._part_glyph(spec, x, y, "C1", "25uF")
+                        pa = renderer.part_terminal_pos(spec, "a")
+                        pb = renderer.part_terminal_pos(spec, "b")
+                    else:
+                        renderer.part_body(spec)
+                        pa, pb = [(renderer.ex(spec[k][1]), renderer.ey(spec[k][0])) for k in ("a", "b")]
+                if len(points) == 1:
+                    px, py = points[0]
+                    da = (px-pa[0])**2 + (py-pa[1])**2
+                    db = (px-pb[0])**2 + (py-pb[1])**2
+                    correct = da < db if positive == "a" else db < da
+                    if off:
+                        # Keep the mark clear of the terminal ring as well.
+                        correct = correct and min(da, db) > 6.5**2
+                else:
+                    correct = False
+                can_results.append(correct)
+                glyph_cases += 1
+                if not correct:
+                    print(f"  [CAN] glyph {cls.__name__} {shape} plus:{positive}: FAIL ({points})")
+    print(f"  [CAN] {glyph_cases} emitted glyph/terminal cases in both styles")
+
+    # Unclaimed boards fail physical polarity too; declaring a source lead is
+    # not itself evidence that the electrical check has decided it.
+    lay, bm = _load_layout("5e4a")
+    lay = copy.deepcopy(lay)
+    lay.pop("wiring_claim", None)
+    next(p for p in lay["parts"] if p.get("ref") == "C15")["plus"] = "a"
+    bad = _check_layout("5e4a", lay, bm)
+    can_results.append(any(e.startswith("REVERSED ELECTROLYTIC:") for e in bad.errors))
+    for amp, ref in (("aa764", "C5"), ("ab763", "CKTO2")):
+        _r, unresolved = _can(amp, ref)
+        can_results.append(bool(unresolved) and unresolved["verdict"] == "undecided")
+    clean = electrolytic_worklist({"5e3": [], "aa764": [_can("aa764", "C5")[1]]})
+    can_results.append(clean["amps"]["5e3"]["counts"]["cans"] == 0
+                       and clean["amps"]["aa764"]["counts"]["undecided"] == 1
+                       and len(clean["amps"]["aa764"]["not_decided"]) == 1)
 
     # ---- shorted parts: a two-lead part with both leads on one DRAWN net. -----
     print(f"=== shorted parts (read on the board as drawn; "
@@ -2645,7 +2734,7 @@ def selftest() -> int:
 # Findings that fail the run on EVERY board, claimed or not. A wiring claim is
 # about DC equivalence; a reversed band, an unfed rectifier and a shorted part
 # are physical faults a builder would copy whatever the board claims. Each is in
-# res.errors only while its switch is set (ELECTROLYTIC_BLOCKING is still off).
+# res.errors only while its corresponding blocking switch is set.
 BLOCKING_PREFIXES = ("REVERSED DIODE:", "UNFED RECTIFIER:", "SHORTED PART:",
                      "REVERSED ELECTROLYTIC:")
 
@@ -2693,8 +2782,8 @@ def main(argv: list[str]) -> int:
         print("BLOCKING: an amp claims its wiring is verified but it is not "
               "electrically equivalent to the netlist.")
     if physical:
-        print(f"BLOCKING: {', '.join(physical)} draw(s) a reversed or unfed rectifier "
-              f"or a shorted part; these fail the run on every board, claimed or not.")
+        print(f"BLOCKING: {', '.join(physical)} draw(s) a reversed rectifier or electrolytic, "
+              f"an unfed rectifier, or a shorted part; these fail the run on every board, claimed or not.")
     _print_polarity_summary(polarity)
     _print_electrolytic_summary(electro)
     print(f"\nshorted two-lead parts on the boards, read as drawn: {len(shorted)} "

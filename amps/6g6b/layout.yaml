@@ -34,6 +34,8 @@ source:
 # equivalence, which is what pipeline/verify_layout_nets.py hard-gates.
 wiring_claim: verified
 
+# Electrolytic lead declarations: see docs/electrolytic-polarity.md for the
+# source crop register and the unresolved DC checks. a/b name actual terminals.
 parts:
   # --- bias supply (far left) -------------------------------------------------
   # The E-FB layout page (read at 6366 x 4380) boxes the bias supply as a small
@@ -50,7 +52,8 @@ parts:
   # winding), which is also where schematic.kicad_sch puts DB1's cathode
   # (DIODE_SS drawn rot=180, pin 2 K toward the transformer side).
   - { ref: DB1, a: [1, 2], b: [1, 3], cathode: a }   # bias rectifier, "+" on the 1k
-  - { ref: C13, a: [0, 3], b: [1, 3] }      # 25/50 uF dual can: lower lead on the -54 V node (shares DB1.b), upper lead to ground
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead C13.a: 0 = +0.0 V (ground); lead C13.b: NBIAS = -54.0 V (ideal source VBIAS); more-positive lead is C13.a.
+  - { ref: C13, a: [0, 3], b: [1, 3] , plus: a }      # 25/50 uF dual can: lower lead on the -54 V node (shares DB1.b), upper lead to ground
   - { ref: RB2, a: [1, 4], b: [1, 5] }      # 27k 1W bleeder across the -54 V node
 
   # --- silicon HT rectifier legs ----------------------------------------------
@@ -102,7 +105,8 @@ parts:
   - { ref: RG2A, a: [0, 87], b: [1, 87] }   # 1M input grid leak
   - { ref: RL2A, a: [0, 92], b: [0, 93] }   # 100k V2A plate load
   - { ref: RK2A, a: [1, 93], b: [1, 94] }   # 1500 V2A cathode
-  - { ref: CK2A, a: [0, 94], b: [0, 95] }   # 25 uF bypass, shares RK2A.b eyelet (col)
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead CK2A.a: K2A = +1.8 V (op-points); lead CK2A.b: 0 = +0.0 V (ground); more-positive lead is CK2A.a.
+  - { ref: CK2A, a: [0, 94], b: [0, 95] , plus: a }   # 25 uF bypass, shares RK2A.b eyelet (col)
   # Normal-channel tone network, as the E-FB layout page places it: the three
   # capacitors stand between the rows with the 100k slope along the bottom
   # row under them — the .00025's foot on the plate node, the slope from that
@@ -116,7 +120,8 @@ parts:
   - { ref: RG2B, a: [0, 106], b: [1, 106] } # 1M (estimate) V2B grid leak
   - { ref: RL2B, a: [0, 107], b: [0, 108] } # 220k V2B plate load, off +355 V
   - { ref: RK2B, a: [1, 107], b: [1, 108] } # 2700 V2B cathode
-  - { ref: CK2B, a: [0, 109], b: [0, 110] } # 25 uF bypass, shares RK2B.b eyelet (col)
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead CK2B.a: K2B = +1.8 V (op-points); lead CK2B.b: 0 = +0.0 V (ground); more-positive lead is CK2B.a.
+  - { ref: CK2B, a: [0, 109], b: [0, 110] , plus: a } # 25 uF bypass, shares RK2B.b eyelet (col)
   - { ref: RM1,  a: [0, 112], b: [0, 113] } # 470k V2B plate(.a) -> mixing node(.b), joining RM2.b
 
   # --- V3's Bass-ch. Treble + Normal Bass/Treble/Volume pots are
@@ -126,7 +131,8 @@ parts:
   - { ref: RG1A, a: [0, 155], b: [1, 155] } # 1M input grid leak
   - { ref: RL1A, a: [0, 160], b: [0, 161] } # 220k V1A plate load
   - { ref: RK1A, a: [1, 160], b: [1, 161] } # 2700 V1A cathode
-  - { ref: CK1A, a: [0, 162], b: [0, 163] } # 25 uF bypass, shares RK1A.b eyelet (col)
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead CK1A.a: K1A = +1.3 V (op-points); lead CK1A.b: 0 = +0.0 V (ground); more-positive lead is CK1A.a.
+  - { ref: CK1A, a: [0, 162], b: [0, 163] , plus: a } # 25 uF bypass, shares RK1A.b eyelet (col)
   - { ref: RK1B, a: [1, 169], b: [1, 170] } # 100k V1B cathode-follower load; a is the stage output
   - { ref: CTN1, a: [0, 172], b: [0, 174] } # 250 pF treble-bleed branch, off V1B cathode
   - { ref: RTN1, a: [0, 174], b: [0, 176] } # 47k treble-bleed slope, shares CTN1.b eyelet
