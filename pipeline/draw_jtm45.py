@@ -82,7 +82,7 @@ s.gnd(116.84, 127.12)
 # Wired as the published JTM45 drawing ('Basic schematic for Marshall trem
 # amps') draws it — the same network as the Fender 5F6-A sheet it copies:
 #   node A = cathode-follower output: 270 pF to the treble pot AND the 56k slope;
-#   node B = the slope's foot: 0.01 uF to the treble-bottom/bass node, 0.02 uF
+#   node B = the slope's foot: 0.02 uF to the treble-bottom/bass node, 0.02 uF
 #            to the MIDDLE POT'S WIPER;
 #   the bass pot is a rheostat (wiper strapped) in series down the ladder, and
 #   the stack's output is the TREBLE WIPER ALONE.
@@ -99,8 +99,8 @@ s.wire(135.89, 119.5, 135.89, 130)      # node B riser, down to the mid cap
 tl, tr = s.series_h("C", "C4", "270p", 139.7, 96)
 s.wire(tr, 96, 147.32, 96)
 s.sym("POT", "VR3", "250k treb", 147.32, 99.81)
-# bass branch: node B -> 0.01 uF -> treble-bottom/bass node
-bl, br = s.series_h("C", "C5", ".01u", 139.7, 108)
+# bass branch: node B -> 0.02 uF -> treble-bottom/bass node
+bl, br = s.series_h("C", "C5", ".02u", 139.7, 108)
 s.wire(135.89, 108, bl, 108)
 s.wire(br, 108, 147.32, 108)
 s.wire(147.32, 103.62, 147.32, 108)     # treble bottom lug -> bass node
