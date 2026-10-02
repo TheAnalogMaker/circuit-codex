@@ -1,0 +1,69 @@
+name: production-revision
+
+# Is circuitcodex.com serving main? The build stamps /version.json with its source
+# revision (site/scripts/write-version.mjs). This job reads it from the production
+# Worker (via its workers.dev address) and compares it with main's head.
+#
+# Why: until 2026-09-29, every branch build in Workers Builds deployed to production,
+# and an unmerged PR was served for hours while every check on main stayed green.
+# A successful build is not evidence of what production serves; this job reads it.
+#
+# - push to main: wait for the deploy, and fail if production has not caught up
+#   within 20 minutes.
+# - schedule: fail when production serves anything other than main's head, once
+#   that head is more than 20 minutes old (a deploy in flight is not a failure).
+# Never runs for pull requests: a PR build must not be expected in production.
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: "17 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  production-revision:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Compare the served revision with main
+        env:
+          MAIN_SHA: ${{ github.sha }}
+          EVENT: ${{ github.event_name }}
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -u
+          if [ "$EVENT" != "push" ]; then
+            MAIN_SHA=$(gh api "repos/$REPO/commits/main" -q .sha)
+          fi
+          committed=$(gh api "repos/$REPO/commits/$MAIN_SHA" -q .commit.committer.date)
+          age=$(( $(date +%s) - $(date -d "$committed" +%s) ))
+          UA="circuit-codex-production-check/1 (+https://github.com/$REPO/actions)"
+          # Read the Worker's workers.dev address: the same Worker and active deployment
+          # that circuitcodex.com routes to, outside the zone's bot protection, which
+          # answers GitHub's datacenter IPs with a 403 challenge (seen 2026-09-29).
+          # land.sh checks the custom domain itself from a normal client.
+          SITE=https://circuit-codex.theanalogmaker.workers.dev
+          served() {
+            code=$(curl -s -A "$UA" -D /tmp/h -o /tmp/b -w '%{http_code}' --max-time 20 \
+                     "$SITE/version.json?t=$(date +%s)" || echo 000)
+            echo "  HTTP $code; cf-mitigated: $(grep -i '^cf-mitigated:' /tmp/h | cut -d' ' -f2- | tr -d '\r'); server: $(grep -i '^server:' /tmp/h | cut -d' ' -f2- | tr -d '\r')" >&2
+            [ "$code" = 200 ] && python3 -c 'import json,sys; print(json.load(open("/tmp/b")).get("revision",""))' 2>/dev/null
+          }
+          wait=0; [ "$EVENT" = "push" ] && wait=1200
+          deadline=$(( $(date +%s) + wait ))
+          while :; do
+            s=$(served || true)
+            [ "$s" = "$MAIN_SHA" ] && { echo "production serves main ${MAIN_SHA:0:7}"; exit 0; }
+            [ "$(date +%s)" -ge "$deadline" ] && break
+            sleep 30
+          done
+          if [ "$EVENT" != "push" ] && [ "$age" -lt 1200 ]; then
+            echo "main ${MAIN_SHA:0:7} is ${age}s old; production serves '${s:0:7}' (deploy may be in flight)"
+            exit 0
+          fi
+          echo "::error::circuitcodex.com serves '${s:-no readable version.json (see the HTTP lines above)}', not main ${MAIN_SHA}"
+          exit 1

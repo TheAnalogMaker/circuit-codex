@@ -1,0 +1,27 @@
+# Curated, visitor-facing correction events. Original verification dates stay
+# in each circuit's metadata. A later edit is not a new verification grant.
+corrections:
+  - id: ab763-tail-2026-09-27
+    date: '2026-09-27'
+    amps: [ab763]
+    title: AB763 phase-inverter feedback return
+    description: The model, schematic and board now return the phase-inverter tail to the feedback junction shown by the factory drawing. It had been connected directly to ground. The corrected operating point remains within the published chart tolerances.
+    commit: 052aec37c520c9df7f6c28cd55fe35aae700229d
+  - id: aa1164-speed-sections-2026-09-22
+    date: '2026-09-22'
+    amps: [aa1164]
+    title: AA1164 Speed-control connection and input-valve sections
+    description: The schematic now straps the Speed control's wiper to the lug carrying the ground resistor and assigns the input and second-stage valve sections to the factory drawing's pins. The schematic and board comparison now agrees for this circuit.
+    commit: 6cc33f1
+  - id: ab763-super-driver-2026-09-22
+    date: '2026-09-22'
+    amps: [ab763-super]
+    title: AB763 Super Reverb lamp-driver voltage and heater coverage
+    description: The circuit notes now give the factory drawing's lamp-driver cathode value as 170 V, correcting a tenfold transcription error. The layout identifies its 6.3 V heater grouping as awaiting a source read; the earlier claim that no factory layout drawing existed has been removed.
+    commit: 8902d24
+  - id: 6g6b-supply-2026-09-18
+    date: '2026-09-18'
+    amps: [6g6b]
+    title: 6G6-B supply chain and output-stage feeds
+    description: The supply droppers follow the factory drawing's order. The output plates use the reservoir supply and the screens use the node after the choke; those feeds had been interchanged. The circuit remains a draft.
+    commit: df21e09

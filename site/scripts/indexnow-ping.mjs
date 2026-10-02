@@ -33,6 +33,10 @@ const log = (msg) => console.log(`[indexnow] ${msg}`);
 function shouldPing() {
   if (process.env.INDEXNOW === '0') return false;
   if (process.env.INDEXNOW === '1') return true;
+  // Only a production build announces URLs. A Workers Builds branch build (a preview,
+  // or before 2026-09-29 an accidental production deploy) must not tell search
+  // engines that production changed.
+  if (process.env.WORKERS_CI_BRANCH && process.env.WORKERS_CI_BRANCH !== 'main') return false;
   return Boolean(process.env.WORKERS_CI || process.env.CF_PAGES || process.env.CI);
 }
 

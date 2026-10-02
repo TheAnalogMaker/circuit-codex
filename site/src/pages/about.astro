@@ -148,7 +148,12 @@ const dataset = datasetJsonLd(Astro.site);
       proof says the netlist is a faithful reading of the factory drawing; that rests on
       the cited sources and on the chart comparison above. {nSheetsChecked} of the
       {nSheets} redrawn sheets currently claim the drawing check; where a sheet does not,
-      its page carries no note at all rather than a softer one.</p>
+      its verification panel identifies that check as unavailable.</p>
+    <p>The verification panel on each circuit page also lists the separate
+      schematic-to-board comparison, heater coverage and capacitor-polarity checks.
+      An open finding identifies a disagreement or missing evidence; a source review
+      determines the correction. A partial check does not establish the remaining
+      connections. These reports do not grant or replace maintainer verification.</p>
   </section>
 
   <section id="limitations">
@@ -159,8 +164,10 @@ const dataset = datasetJsonLd(Astro.site);
         Board and part positions are drawn at diagram scale. Lead dress, grounding paths,
         and physical spacing — which genuinely matter in a high-voltage chassis — are not
         captured. Parts outside the DC model (control-network internals, the heater chain,
-        the AC side) are drawn from sources but not machine-checked; the CI report
-        enumerates every such terminal so the boundary is explicit.</li>
+        the AC side) are outside the DC equivalence check. Separate checks cover
+        drawing-to-board agreement, declared heater circuits and polarity where
+        the DC model can decide it. Each circuit's verification panel identifies
+        incomplete coverage and open findings.</li>
       <li><strong>Tube models are DC operating-point fits.</strong> They are fitted to
         published datasheet anchor points and validated in ngspice for bias-point work.
         They are not full AC or distortion models and will not predict tone.</li>
@@ -204,8 +211,9 @@ const dataset = datasetJsonLd(Astro.site);
   <section id="contribute">
     <h2>How to contribute</h2>
     <p>The project is community-driven by design and curator-controlled in practice:
-      anyone can propose, CI and maintainers gate what merges, and only the pipeline
-      grants badges. Ways in, easiest first:</p>
+      anyone can propose, CI and maintainers gate what merges, and only a maintainer
+      grants the verified badge. CI can block a claim; it can never grant one.
+      Ways in, easiest first:</p>
     <ol class="ways">
       <li><strong>Report an error.</strong> Spot a wrong value, a broken link, a claim
         that doesn't match its source? <a href={`${GITHUB}/issues`}>Open an issue</a>

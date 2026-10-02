@@ -12,5 +12,5 @@
 - [ ] **Sources listed** in `meta.yaml` `sources:`.
 - [ ] **Commits signed off** (`git commit -s`, DCO) — I have the right to contribute
       this under the repo licenses (MIT code / CC-BY-SA data / CC0 models).
-- [ ] `verification.status` is `draft` (the `verified` badge is assigned by CI +
-      maintainer review, not in the PR).
+- [ ] `verification.status` is `draft` (only a maintainer grants `verified`,
+      after the gates pass — not in this PR).

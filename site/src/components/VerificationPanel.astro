@@ -1,0 +1,43 @@
+---
+import { archiveRevision } from '../lib/revisions.js';
+const { rows, compact = false } = Astro.props;
+const revision = archiveRevision();
+const attention = rows.filter((r) => r.tone === 'attention').length;
+---
+<section class:list={['verification', {compact}]} id="verification" aria-labelledby="verification-title">
+  <div class="heading">
+    <h2 id="verification-title">Verification details</h2>
+    <a href="/about/#verified">What these checks mean</a>
+  </div>
+  <p class="intro">{attention ? `${attention} check ${attention === 1 ? 'area has' : 'areas have'} open findings or incomplete coverage.` : 'Each check covers a different part of this reference.'}
+    {' '}The circuit badge records the DC comparison and maintainer review.</p>
+  <details>
+    <summary>View checks, findings and exclusions</summary>
+    <dl>
+      {rows.map((r) => <div class="check">
+        <dt>{r.title} <span class:list={['status', r.tone]}>{r.status}</span></dt>
+        <dd>{r.summary}
+          {r.details.length > 0 && <ul>{r.details.map((detail) => <li>{detail}</li>)}</ul>}
+        </dd>
+      </div>)}
+    </dl>
+  </details>
+  <p class="revision">{revision ? <>Archive revision <a href={revision.url}>{revision.short}</a>. </> : 'Archive revision unavailable. '}
+    <a href="/corrections/">Published corrections</a>. These checks do not certify a physical build.</p>
+</section>
+<style>
+  .verification{border:1px solid var(--line);border-radius:8px;background:var(--panel);padding:18px 22px;margin:0 0 24px}
+  .heading{display:flex;gap:12px;align-items:baseline;justify-content:space-between;flex-wrap:wrap}
+  h2{font-size:16px;letter-spacing:.12em;margin:0}
+  .heading a,.revision{font-size:12px}
+  .intro{color:var(--muted);font-size:14px;margin:8px 0}
+  summary{cursor:pointer;color:var(--amber);font-size:14px;padding:6px 0}
+  dl{margin:10px 0}.check{padding:12px 0;border-top:1px solid var(--line-soft)}
+  dt{font-weight:600;display:flex;gap:10px;align-items:baseline;justify-content:space-between;flex-wrap:wrap}
+  dd{margin:6px 0 0;color:var(--muted);font-size:13px;overflow-wrap:anywhere}
+  ul{margin:6px 0 0;padding-left:18px}.status{font-size:11px;color:var(--muted);border:1px solid var(--line);border-radius:4px;padding:2px 6px;white-space:nowrap}
+  .status.checked{color:var(--ok)}.status.attention{color:var(--amber)}
+  .revision{margin:12px 0 0;color:var(--muted)}
+  @media(max-width:599px){.verification{padding:14px}.heading{gap:4px}dt{gap:5px}}
+  @media print{.verification{break-inside:avoid}.revision{color:inherit}details{display:block}}
+</style>

@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "dev": "astro dev",
-    "build": "node scripts/sync-assets.mjs && astro build && pagefind --site dist && node scripts/indexnow-ping.mjs",
+    "build": "node scripts/sync-assets.mjs && astro build && pagefind --site dist && node scripts/write-version.mjs && node scripts/indexnow-ping.mjs",
     "preview": "astro preview"
   },
   "dependencies": {

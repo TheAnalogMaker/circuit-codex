@@ -1,0 +1,5 @@
+# Cloudflare static-asset response headers.
+# version.json names the source revision this deploy was built from. It must never
+# be served from a cache, or a post-deploy check could read a stale copy and pass.
+/version.json
+  Cache-Control: no-store

@@ -141,6 +141,10 @@ jobs:
           node-version: "22"
       - run: npm ci
         working-directory: site
+      - run: node --test scripts/check-tonestack-state.mjs
+        working-directory: site
+      - run: node --test scripts/check-reference-tools.mjs
+        working-directory: site
       - run: node scripts/check-loadline-parity.mjs
         working-directory: site
       # The tone-stack lab's browser solver is checked against ngspice AC sweeps
@@ -154,7 +158,16 @@ jobs:
       # search-engine ping cannot fail CI (the ping is not a corpus claim).
       - run: INDEXNOW=0 npm run build
         working-directory: site
+      # The build stamps dist/version.json with the revision it was built from;
+      # production is checked against it (production-revision.yml, land.sh).
+      - run: node -e "const v=require('./dist/version.json'); const h=require('child_process').execSync('git rev-parse HEAD').toString().trim(); if (v.revision!==h) { console.error('version.json', v.revision, '!= HEAD', h); process.exit(1) } console.log('version.json', v.revision.slice(0,7), v.branch)"
+        working-directory: site
       - run: node scripts/check-lineage-caption.mjs
+        working-directory: site
+      # The bench calculators and the resistor color-code tool share one reader
+      # for 4k7 / 1M / 0.02mfd. A second copy is how "MFD" (the units guide's
+      # own word for µF) was refused as a negative.
+      - run: node --test scripts/check-bench-units.mjs
         working-directory: site
       # The build's first step is sync-assets.mjs, which copies every amps/<id>/
       # schematic.kicad_sch to the copy KiCanvas actually serves. Both copies are
