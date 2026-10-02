@@ -81,15 +81,20 @@ that joins the two wipers.
 Marshall drawings of this period print component values only, and the 1959
 drawing carries no valve-voltage chart. A factory chart does exist for the
 100-watt head, issued with the sheet of the same drawing number and date that
-covers the 6550-fitted Mark II — a closely related front end with a different presence return
-ahead of a different output quartet. Its ECC83 figures are used here for the
+covers the 6550-fitted Mark II — a closely related front end ahead of a different output
+quartet. Its ECC83 figures are used here for the
 preamp and phase inverter. The EL34 drawing places the 10 kΩ tail above a
-5 kΩ presence track in parallel with the 47 kΩ feedback resistor; the Mark II
-uses a 4.7 kΩ return with a DC-blocked presence control. Those drawings define
-the circuit; the chart cannot establish a different tail connection.
+5 kΩ presence track in parallel with the 47 kΩ feedback resistor, and a sharp
+(600 ppi) copy of the Mark II drawing returns its tail the same way: the 5 kΩ
+track's lower lug is grounded, with a 4.7 kΩ and a capacitor from the wiper to
+ground. Those drawings define the circuit; the chart cannot establish a
+different tail connection.
 
 The inverter cathode simulates about 36.5 V against the Mark II chart's
-18.5 V. That disagreement remains visible, and the circuit stays a **draft**.
+18.5 V. The chart's own plate figures carry 1.77 mA, which gives exactly 18.5 V
+only through a 10 kΩ tail returned straight to ground — a connection neither
+drawing shows — so that figure is recorded as printed and marked **disputed**,
+and the circuit stays a **draft**.
 The EL34 output stage also has no published figures of its own:
 its plate and screen voltages here are derived from a rail taken as an
 assumption, and the idle current is a choice within the range these amplifiers
