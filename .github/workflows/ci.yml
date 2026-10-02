@@ -141,6 +141,8 @@ jobs:
           node-version: "22"
       - run: npm ci
         working-directory: site
+      - run: node --test scripts/check-tonestack-state.mjs
+        working-directory: site
       - run: node scripts/check-loadline-parity.mjs
         working-directory: site
       # The tone-stack lab's browser solver is checked against ngspice AC sweeps
