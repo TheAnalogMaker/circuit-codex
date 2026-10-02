@@ -19,8 +19,11 @@
 #
 # The EL34 drawing explicitly returns the 10k tail through the 5k presence
 # track in parallel with 47k feedback to the grounded OT secondary. The Mark II
-# drawing uses a 4.7k return and a DC-blocked presence control instead. Its chart
-# therefore supplies a comparison, not proof of identical operating conditions.
+# drawing (600 ppi copy, page 1) returns its tail the same way: the 5k track's
+# lower lug is on the ground bus, with a 4.7k and a capacitor from the wiper to
+# ground. The Mark II's chart therefore disagrees with both drawings at the
+# inverter cathode (see KPI); elsewhere it supplies a comparison, not proof of
+# identical operating conditions.
 # Preserve every printed value; do not alter the drawn tail to fit the chart.
 source: "Marshall factory 'MARSHALL 100W. VOLT. CHART' published with Unicord drawing 70-6-11, July 1970 ('MARSHALL 1959 MARK II'): V1 pins 1/3/6/8 = 135 / 1.0 / 195 / 1.5; V2 pins 1/3/6/7/8 = 153 / 1.1 / 260 / 153 / 153; V3 pins 1/3/6/8 = 210 / 18.5 / 195 / 18.5; V4-V7 (6550) pins 3/4/5 = 453 / 450 / -51; footnote 'Bias approx. -51 vdc; primary current 1.2 - 1.3 amps at 120 vac'."
 nodes:
@@ -39,7 +42,9 @@ nodes:
   KPI:
     chart: 18.5
     tol_pct: 20
-    note: "phase-inverter shared cathode above the 470 Ω (chart V3 pins 3 and 8). The drawn 10 kΩ tail ends at the 5 kΩ presence track in parallel with the 47 kΩ feedback return. This EL34 circuit simulates about 36.5 V; the 18.5 V chart belongs to the related 6550 Mark II and is retained without changing the drawn return to force agreement."
+    disputed: true
+    note: "phase-inverter shared cathode above the 470 Ω (chart V3 pins 3 and 8). The drawn 10 kΩ tail ends at the 5 kΩ presence track in parallel with the 47 kΩ feedback return; this circuit simulates about 36.5 V. The drawn return is kept; the chart is not used to change it."
+    dispute_note: "The printed figures fit a tail neither drawing shows. The printed plates (+210 V through 82 kΩ and +195 V through 100 kΩ, off a supply near +283 V) carry 0.89 + 0.88 = 1.77 mA, and 1.77 mA through the 470 Ω + 10 kΩ alone gives 18.5 V: the printed cathode, exactly, but only if the 10 kΩ returns straight to ground. Both the EL34 drawing and the 6550 Mark II drawing the chart was issued with end the 10 kΩ at the 5 kΩ presence track (lower lug grounded) in parallel with the 47 kΩ feedback, about 4.5 kΩ more; through 14.99 kΩ the same 1.77 mA would put the cathode near 26.5 V, and the printed 18.5 V would leave only 1.23 mA, too little for the printed plates. The chart's cathode and plate figures are consistent with each other and with neither drawing, so they are recorded as printed and disputed rather than fitted."
   BP2:  { chart: null, note: "phase-inverter supply node, after the 20 kΩ/1 W dropper — no chart pin. The chart's own stage currents put it near 300 V" }
   BP3:  { chart: 260, tol_pct: 20, note: "second-stage / cathode-follower supply node after the first 10 kΩ/1 W dropper — read from the cathode follower's plate, chart V2 pin 6" }
   BP4:  { chart: null, note: "input-stage supply node after the second 10 kΩ/1 W dropper — no chart pin; the chart's V1 plate and cathode figures put it near 254 V" }

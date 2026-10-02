@@ -1007,14 +1007,14 @@ const TONE_STACK_SPECS = [
   },
   {
     id: 'jtm45', kind: 'fmv', wiring: 'ladder',
-    blurb: 'The Marshall drawing specifies a 270 pF treble capacitor, a 0.01 µF bass capacitor and a 0.02 µF middle capacitor. Plotted as drawn: treble-wiper output, bass rheostat, mid cap into the middle pot\'s wiper.',
+    blurb: 'The Marshall drawing specifies a 270 pF treble capacitor and 0.02 µF bass and middle capacitors. Plotted as drawn: treble-wiper output, bass rheostat, mid cap into the middle pot\'s wiper.',
     drive: { kind: 'cathode-follower', tube: '12ax7' },
     load: 'RGA',
     refs: { slope: 'RSL', trebleCap: 'C4', treblePot: 'VR3', bassCap: 'C5', bassPot: 'VR4', midCap: 'C6', midPot: 'VR5' },
   },
   {
     id: 'jtm100', kind: 'fmv', wiring: 'ladder',
-    blurb: 'The 100-watt head uses a 0.02 µF bass capacitor where the JTM45 drawing specifies 0.01 µF. Both have a 270 pF treble capacitor and a 0.02 µF middle capacitor. Plotted as the 100 W drawing wires it: treble-wiper output, bass rheostat, mid cap into the middle pot\'s wiper.',
+    blurb: 'Like the JTM45, the 100-watt head uses a 270 pF treble capacitor and 0.02 µF bass and middle capacitors. Plotted as the 100 W drawing wires it: treble-wiper output, bass rheostat, mid cap into the middle pot\'s wiper.',
     drive: { kind: 'cathode-follower', tube: '12ax7' },
     load: 'RGA',
     refs: { slope: 'RSL', trebleCap: 'C4', treblePot: 'VR3', bassCap: 'C5', bassPot: 'VR4', midCap: 'C6', midPot: 'VR5' },

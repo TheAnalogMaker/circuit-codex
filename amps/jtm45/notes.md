@@ -18,7 +18,7 @@ Bright + normal channels (1 MΩ leaks, 68 kΩ stoppers) → **V1** ECC83 (100 k�
 plates, shared 820 Ω cathode with 250 µF bypass) → 0.02 µF couplers → 1 MΩ
 volume pots (100 pF bright cap) → 270 kΩ mixers → **V3A** ECC83 (100 kΩ plate,
 820 Ω cathode) → **V3B cathode follower, DC-coupled** (100 kΩ cathode load) →
-TMB tone stack (56 kΩ slope; 270 pF treble, 0.01 µF bass and 0.02 µF middle caps; 250 kΩ / 1 MΩ /
+TMB tone stack (56 kΩ slope; 270 pF treble, 0.02 µF bass and 0.02 µF middle caps; 250 kΩ / 1 MΩ /
 25 kΩ pots) → 0.02 µF → **long-tailed-pair PI**: 82 kΩ and 100 kΩ plates,
 470 Ω + 10 kΩ tail, both 1 MΩ grid leaks returned to the tail junction →
 0.1 µF couplers → **KT66 pair**, fixed-biased through 220 kΩ leaks, with
@@ -50,7 +50,7 @@ HT rail.
 
 The Marshall drawing wires the stack exactly as the Fender 5F6-A sheet it
 copies: the 270 pF treble capacitor and the 56 kΩ slope resistor both leave the
-cathode-follower output; one 0.01 µF runs from the slope foot to the node
+cathode-follower output; one 0.02 µF runs from the slope foot to the node
 shared by the treble pot's lower lug and the bass pot; the bass pot is a
 rheostat — the drawing loops its wiper to the foot lug — in series down to the
 middle pot's top lug; the 0.02 µF mid capacitor feeds the middle pot's

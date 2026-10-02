@@ -94,7 +94,7 @@ parts:
   # --- cathode-follower TMB tone stack: slope, CF load and the three tone caps --
   - { ref: RSL,  a: [1, 45], b: [1, 46] }   # 56k tone-stack slope (a = CF output, b = the slope foot)
   - { ref: C4,   a: [0, 43], b: [0, 42] }   # 270 pF treble cap: CF output -> treble pot's top lug
-  - { ref: C5,   a: [0, 45], b: [0, 44] }   # 0.01 µF bass cap: slope foot -> treble-bottom / bass node
+  - { ref: C5,   a: [0, 45], b: [0, 44] }   # 0.02 µF bass cap: slope foot -> treble-bottom / bass node
   - { ref: C6,   a: [0, 45], b: [0, 46] }   # middle cap: slope foot -> the middle pot's WIPER
   - { ref: RKCF, a: [0, 47], b: [1, 47] }   # 100k cathode-follower load (vertical)
   # --- channel mixers + V3A second stage --------------------------------------
@@ -237,7 +237,7 @@ runs:
   - { from: RSL.a, to: C4.a, via: [[44.2, 0.5]] }                     # node A (CF output) -> 270 pF treble cap
   - { from: C4.b, to: VR3.lug3 }                                      # 270 pF -> treble top
   - { from: RSL.b, to: C5.a }                                         # slope foot (node B) -> the bass and middle caps' shared eyelet
-  - { from: C5.b, to: VR4.lug3, via: [[45.3, -0.3]] }                  # 0.01 µF bass cap -> bass-cap node (rises straight into the lug)
+  - { from: C5.b, to: VR4.lug3, via: [[45.3, -0.3]] }                  # 0.02 µF bass cap -> bass-cap node (rises straight into the lug)
   - { from: VR3.lug1, to: VR4.lug3, via: [[43, -0.72], [45, -0.72]] } # treble bottom -> bass-cap node
   - { from: VR3.lug2, to: C7.a, via: [[43, -0.55], [33, -0.55]] }  # treble wiper (the stack's output, alone) -> PI coupler
   - { from: VR4.lug2, to: VR4.lug1, via: [[45.15, -0.66], [45.15, -0.95], [44.44, -0.95]] }  # bass wiper looped to its foot lug (rheostat), as the drawing shows

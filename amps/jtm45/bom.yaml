@@ -21,7 +21,7 @@ items:
   - { ref: RSL, part: "Carbon comp resistor", value: "56 kΩ · ½ W",  role: "Tone-stack slope resistor" }
   - { ref: C4,  part: "Mica capacitor",       value: "270 pF",        role: "Tone stack — treble" }
   - { ref: VR3, part: "Potentiometer",        value: "250 kΩ",        role: "Treble" }
-  - { ref: C5,  part: "Film capacitor",       value: "0.01 µF · 400 V", role: "Tone stack — bass" }
+  - { ref: C5,  part: "Film capacitor",       value: "0.02 µF · 400 V", role: "Tone stack — bass" }
   - { ref: VR4, part: "Audio-taper potentiometer", value: "1 MΩ",    role: "Bass" }
   - { ref: C6,  part: "Film capacitor",       value: "0.02 µF · 400 V", role: "Tone stack — middle" }
   - { ref: VR5, part: "Linear potentiometer", value: "25 kΩ",         role: "Middle" }
