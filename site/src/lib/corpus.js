@@ -1035,7 +1035,7 @@ const TONE_STACK_SPECS = [
   },
   {
     id: 'm2204', kind: 'fmv', wiring: 'ladder',
-    blurb: 'The master-volume head keeps the 1987\'s ladder but swaps two parts: a 470 pF treble capacitor for the 500 pF and a 22 kΩ middle control for the 25 kΩ. The output feeds a master volume rather than the phase inverter directly.',
+    blurb: 'The master-volume head keeps the M1987\'s ladder with three changed parts: a 470 pF treble capacitor instead of 500 pF, a 220 kΩ treble control instead of 250 kΩ, and a 22 kΩ middle control instead of 25 kΩ. The output feeds a master volume rather than the phase inverter directly.',
     drive: { kind: 'cathode-follower', tube: '12ax7' },
     load: 'VR2',
     refs: { slope: 'R15', trebleCap: 'C10', treblePot: 'VR3', bassCap: 'C11', bassPot: 'VR5', midCap: 'C12', midPot: 'VR4' },
