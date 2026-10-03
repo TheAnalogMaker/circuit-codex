@@ -84,6 +84,7 @@ parts:
   # --- long-tailed-pair phase inverter (V4) -----------------------------------
   - { ref: RLA,  a: [1, 31], b: [1, 32] }   # 82k V4A plate load
   - { ref: RLB,  a: [1, 33], b: [1, 34] }   # 100k V4B plate load
+  - { ref: C20,  a: [0, 27], b: [0, 28] }   # PI plate-to-plate cap (value not legible on the drawing)
   - { ref: C7,   a: [0, 32], b: [0, 33] }   # 0.02 µF tone stack -> V4A grid coupler
   - { ref: C8,   a: [0, 35], b: [0, 36] }   # 0.1 µF V4B grid AC-coupled to presence/feedback node
   - { ref: RGA,  a: [1, 36], b: [1, 37] }   # 1M V4A grid leak -> tail junction
@@ -210,6 +211,8 @@ runs:
   - { from: RLB.a, to: RLA.a, via: [[32.7, 1.15], [31.3, 1.15]] }     # B+3 backbone (shallow bow above the SPK terminal, clear of the OT-secondary leads)
   - { from: RLA.b, to: V4.pin6, via: [[32, 1.6]] }             # -> V4A plate
   - { from: RLB.b, to: V4.pin1, via: [[35, 1.5], [37, 1.8]] }             # -> V4B plate (passes right of the RNFB terminal; lands V4.pin1 from the right, clear of pin2)
+  - { from: C20.a, to: RLA.b }                     # PI plate-to-plate cap: V4A plate side
+  - { from: C20.b, to: RLB.b }                     # PI plate-to-plate cap: V4B plate side
   - { from: V4.pin6, to: C9.a, via: [[40, 1.85], [40, 2.68], [18.883, 2.68]] }   # V4A plate -> coupler to V5 (exit right of the PI label, then run under it)
   - { from: V4.pin1, to: C10.a, via: [[35.5, 2.057], [35.5, 2.82], [21, 2.82]] }    # V4B plate -> coupler to V6 (own col 35.5 clear of the SPK-NFB lead on col 34; rises to C10.a from lower-left)
   - { from: C7.b, to: V4.pin7, via: [[34, 1.458]] }              # tone coupler -> V4A grid

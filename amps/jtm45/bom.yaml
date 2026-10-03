@@ -31,6 +31,7 @@ items:
   - { ref: RGB, part: "Carbon comp resistor", value: "1 MΩ · ½ W",   role: "PI grid leak (V4B), returned to tail junction" }
   - { ref: RLA, part: "Carbon comp resistor", value: "82 kΩ · ½ W",  role: "PI plate load (V4A)" }
   - { ref: RLB, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "PI plate load (V4B)" }
+  - { ref: C20, part: "Capacitor",            value: "value not legible", role: "PI plate-to-plate capacitor, V4A plate to V4B plate. Drawn on the factory sheet; its value marks match no digit on the drawing, so no value is given. DC-open, so not in the DC model" }
   - { ref: RTAIL, part: "Carbon comp resistor", value: "470 Ω · ½ W", role: "PI tail bias" }
   - { ref: RT2, part: "Carbon comp resistor", value: "10 kΩ · ½ W",  role: "PI tail (junction → foot)" }
   - { ref: C8,  part: "Film capacitor",       value: "0.1 µF · 400 V", role: "V4B grid AC-coupled to the presence/feedback node" }

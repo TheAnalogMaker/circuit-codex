@@ -158,6 +158,13 @@ s.sym("R", "RT2", "10k", 187.96, 120.43)
 s.wire(187.96, 124.24, 187.96, 127)
 s.glabel("PRES", 187.96, 127, 270)
 # both grid leaks to the junction
+# PI plate-to-plate capacitor: drawn between the V4A and V4B plate lines on the
+# factory sheet; its value marks are not legible, so no value is lettered.
+s.wire(191.77, 80.9, 191.77, 94.09)
+s.junction(191.77, 80.9)
+s.sym("C", "C20", "C", 191.77, 97.9, lx=1.6, ly=-1.2)
+s.wire(191.77, 101.71, 191.77, 114.9)
+s.junction(191.77, 114.9)
 s.wire(168.91, 92, 168.91, 99)
 s.junction(168.91, 92)
 s.sym("R", "RGA", "1M", 168.91, 102.81, lx=-9.4)
