@@ -985,10 +985,10 @@ stages:
   output_tubes: 2
   config: push-pull
   bias: fixed
-  plate_node: BP1
-  plate_v: 450.0
+  plate_node: BP2
+  plate_v: 433.755
   screen_node: S5
-  screen_v: 448.749
+  screen_v: 433.755
   cathode_node: '0'
   cathode_v: 0.0
   rk_total: null
@@ -1001,8 +1001,9 @@ stages:
   grid_supply_note: null
   ot_primary_z: null
   ot_primary_approx: false
-  ot_primary_note: Push-pull, KT66 primary — Push-pull output to the speaker
-  sim_ip_ma: 59.1465
+  ot_primary_note: Push-pull, KT66 primary — Push-pull output to the speaker; centre tap on B+2, after
+    the choke
+  sim_ip_ma: 50.1189
   sim_ig2_ma: 0.0
 - amp: 'm1959'
   name_style: Super Lead 100-style
