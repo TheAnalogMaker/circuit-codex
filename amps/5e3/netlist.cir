@@ -29,7 +29,12 @@ XV1B PAY2 GAY2 KAY 12AY7
 RG2 GAY2 0 1meg
 RK1 KAY 0 820
 
-* V2A 12AX7 second stage (grid returns through the 1M volume pots at DC)
+* V2A 12AX7 second stage. F-EE feeds each 1M volume on its wiper and joins
+* the pots' near ends into the V2A grid, the far ends grounded, so the grid's
+* DC return is the two whole tracks in parallel whatever the knobs say. RG3
+* stands in for that return as one lump; no grid current flows, so its value
+* moves no node. (The tone pot's wiper also sits on G2A, capacitor-coupled at
+* both ends; DC-open.)
 RL3 BP3 P2A 100k
 XV2A P2A G2A K2A 12AX7
 RG3 G2A 0 1meg

@@ -36,18 +36,39 @@ s.wire(60.96, 106, 60.96, 141)
 s.junction(60.96, 138)
 s.shunt_rc("RK1", "820", "C10", "25u", 60.96, 141)
 
-# ---- couplers -> volume pots -> mixed into V2A grid ---------------------
-for y, cref, vref in [(88.38, "C1", "VR1"), (120.38, "C2", "VR2")]:
-    s.wire(53.34, y, 66.04, y)          # from plate stub top junction
+# ---- couplers -> volume WIPERS; the V2A grid line off the pot ends -------
+# F-EE (schematic page 6118x3617, crop 1400,500,1400,1800) lands each .1-400 on
+# its volume's ARROW, grounds the far end of each track, and joins the near
+# ends on one vertical line into the V2A grid. The tone pot hangs between the
+# top coupler/wiper node (.0005) and ground (.005), its wiper on that grid
+# line. Until 2026-10-03 this sheet fed the pots on an end, took the grid off
+# the wipers, and ran the tone pot from the V2A plate to the PI grid (V1 audit,
+# 5e3.md). Pin 1 is the grid end on both volumes (rot=180 puts VR1's at the
+# bottom, as the drawing does; mirror="y" keeps VR2's at the top).
+GX = 86.36                              # the V2A grid line
+for y, cref, vref, kw in [(88.38, "C1", "VR1", dict(rot=180, lx=2.6, ly=-6.2, label_rot=0)),
+                          (120.38, "C2", "VR2", dict(mirror="y", lx=2.6, ly=6.0))]:
+    s.wire(53.34, y, 58.42, y)          # from plate stub top junction
     s.junction(53.34, y)
-    l, r = s.series_h("C", cref, ".1u", 69.85, y)
-    s.wire(r, y, 78.74, y)
-    s.sym("POT", vref, "1M vol", 78.74, y + 3.81)
-    s.gnd(78.74, y + 7.62)          # cold lug: pot centre + 3.81, not + 7.62
-    # wiper to the shared V2A grid line at x=86.36
-    s.wire(83.82, y + 3.81, 86.36, y + 3.81)
-    s.wire(86.36, y + 3.81, 86.36, 108)
-s.junction(86.36, 108)
+    l, r = s.series_h("C", cref, ".1u", 62.23, y)
+    s.wire(r, y, GX - 5.08, y)          # coupler -> wiper
+    s.sym("POT", vref, "1M vol", GX, y, **kw)
+grid_top, grid_bot = 88.38 + 3.81, 120.38 - 3.81
+s.gnd(GX, 88.38 - 3.81, 90)             # VR1's far end (pin 3, top) to ground
+s.gnd(GX, 120.38 + 3.81)                # VR2's far end (pin 3, bottom) to ground
+s.wire(GX, grid_top, GX, grid_bot)      # the two grid ends, one line
+s.junction(GX, 108)
+
+# tone: .0005 off the C1/wiper node, pot, .005 to ground; wiper to the grid line
+TX = 71.12
+s.junction(TX, 88.38)
+s.sym("C", "C5", "500p", TX, 92.19 + 1.79, lx=-6.4, ly=1.0)
+s.wire(TX, 88.38, TX, 90.17)
+s.sym("POT", "VR3", "1M tone", TX, 101.6, lx=-12.2, ly=1.0)
+s.wire(TX + 5.08, 101.6, GX, 101.6)
+s.junction(GX, 101.6)
+s.sym("C", "C6", ".005u", TX, 109.22, lx=-7.4, ly=1.0)
+s.gnd(TX, 113.03)
 
 # ---- V2A 12AX7 second stage --------------------------------------------
 t2a = s.triode("V2A", "12AX7", 96.52, 108)
@@ -56,20 +77,7 @@ s.shunt_rc("RK2", "1.5k", "C4", "25u", 96.52, t2a["k"][1] + 1.5)
 s.wire(96.52, t2a["k"][1], 96.52, t2a["k"][1] + 1.5)
 s.plate_load("RL3", "100k", t2a["p"], "B+3")
 
-# ---- tone control then cathodyne PI ------------------------------------
-l, r = s.series_h("C", "C5", "500p", 110.49, 92.9)
-s.wire(t2a["p"][0], t2a["p"][1], l, t2a["p"][1])   # tee off the plate PIN
-s.junction(t2a["p"][0], t2a["p"][1])
-s.wire(l, t2a["p"][1], l, 92.9)                    # up to the tone-stack row
-s.wire(r, 92.9, 119.38, 92.9)
-s.sym("POT", "VR3", "1M tone", 119.38, 96.71)
-l2, r2 = s.series_h("C", "C6", ".005u", 119.38 - 3.81 - 3.3, 108.14)
-s.wire(119.38, 100.52, 119.38, 108.14)  # VR3 cold lug = pot centre + 3.81
-s.wire(119.38, 108.14, r2 + 0, 108.14)
-s.gnd(l2, 108.14)
-# wiper -> PI grid
-s.wire(124.46, 96.71, 128.27, 96.71)
-s.wire(128.27, 96.71, 128.27, 112)
+# ---- cathodyne PI ------------------------------------------------------
 tpi = s.triode("V2B", "12AX7", 138.43, 112)
 s.wire(128.27, 112, tpi["g"][0], 112)
 s.plate_load("RL4", "56k", tpi["p"], "B+3")

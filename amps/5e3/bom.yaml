@@ -9,16 +9,16 @@ items:
   - { ref: RL2, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "V1B plate load" }
   - { ref: RK1, part: "Carbon comp resistor", value: "820 Ω · ½ W",  role: "Shared 12AY7 cathode bias" }
   - { ref: C10, part: "Electrolytic capacitor", value: "25 µF · 25 V", role: "Shared 12AY7 cathode bypass" }
-  - { ref: C1,  part: "Coupling capacitor",   value: "0.1 µF · 400 V", role: "V1A → instrument volume" }
-  - { ref: C2,  part: "Coupling capacitor",   value: "0.1 µF · 400 V", role: "V1B → mic volume" }
-  - { ref: VR1, part: "Audio-taper potentiometer", value: "1 MΩ",    role: "Instrument volume" }
-  - { ref: VR2, part: "Audio-taper potentiometer", value: "1 MΩ",    role: "Mic volume" }
+  - { ref: C1,  part: "Coupling capacitor",   value: "0.1 µF · 400 V", role: "V1A → instrument volume's wiper" }
+  - { ref: C2,  part: "Coupling capacitor",   value: "0.1 µF · 400 V", role: "V1B → mic volume's wiper" }
+  - { ref: VR1, part: "Audio-taper potentiometer", value: "1 MΩ",    role: "Instrument volume: fed on its wiper; one end to ground, the other to the V2A grid line" }
+  - { ref: VR2, part: "Audio-taper potentiometer", value: "1 MΩ",    role: "Mic volume: fed on its wiper; one end to ground, the other to the V2A grid line" }
   - { ref: RL3, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "V2A plate load" }
   - { ref: RK2, part: "Carbon comp resistor", value: "1.5 kΩ · ½ W", role: "V2A cathode bias" }
   - { ref: C4,  part: "Electrolytic capacitor", value: "25 µF · 25 V", role: "V2A cathode bypass" }
-  - { ref: C5,  part: "Mica capacitor",       value: "500 pF",        role: "Tone — treble path" }
-  - { ref: VR3, part: "Audio-taper potentiometer", value: "1 MΩ",    role: "Tone" }
-  - { ref: C6,  part: "Film capacitor",       value: "0.005 µF · 600 V", role: "Tone — cut path to ground" }
+  - { ref: C5,  part: "Mica capacitor",       value: "500 pF",        role: "Tone: instrument volume's wiper → tone pot end" }
+  - { ref: VR3, part: "Audio-taper potentiometer", value: "1 MΩ",    role: "Tone: track between the 500 pF and the 0.005 µF, wiper on the V2A grid line" }
+  - { ref: C6,  part: "Film capacitor",       value: "0.005 µF · 600 V", role: "Tone: tone pot's other end → ground" }
   - { ref: RL4, part: "Carbon comp resistor", value: "56 kΩ · ½ W",  role: "Cathodyne plate load" }
   - { ref: RKA, part: "Carbon comp resistor", value: "1.5 kΩ · ½ W", role: "Cathodyne bias (cathode → junction)" }
   - { ref: RKB, part: "Carbon comp resistor", value: "56 kΩ · ½ W",  role: "Cathodyne cathode load (junction → ground)" }
