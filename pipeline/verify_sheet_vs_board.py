@@ -52,7 +52,10 @@ Anchors — terminals that carry the SAME identity on both surfaces:
                  map is data the author writes, never a guess in code.
 
 Two-terminal parts (R, C, diode, fuse, choke) and pot ends are UNORDERED pairs:
-a resistor has no polarity on either drawing. Their nets are resolved from the
+a resistor has no polarity on either drawing. A board part is a parts[] row or
+an off-board `kind: part` stub by its .a/.b, or an off-board `kind: choke` by
+the two leads the board wires, whatever it names them (hi/lo, in/out, red/
+yellow): a choke with fewer than two leads wired is SHEET-ONLY, not compared. Their nets are resolved from the
 anchors by MAJORITY VOTING to a fixed point — every part with one net mapped
 casts a vote for the other net's realisation, and a sheet net takes the strict
 majority, so a lone dissenter is the misplaced part and not the poisoner of
@@ -285,6 +288,15 @@ class Board:
                              if it.get("kind") == "pot" and "id" in it}
         self.jack_ids: set = {it["id"] for it in self.R.offboard
                               if it.get("kind") == "jack" and "id" in it}
+        # An off-board `kind: choke` is a two-lead part whose leads the board
+        # names freely (hi/lo, in/out, red/yellow, plate/screen) — read the
+        # names it wires, as verify_layout_nets.shorted_parts does. A choke has
+        # no polarity on either drawing, so the pair is compared unordered and
+        # which name is which never matters.
+        self.choke_leads: dict = {
+            it["id"]: sorted(t for t in self.terms
+                             if isinstance(t, str) and t.startswith(it["id"] + "."))
+            for it in self.R.offboard if it.get("kind") == "choke" and "id" in it}
 
     def bnet(self, term: str):
         """Board net root of a terminal, or None when the board never names it."""
@@ -302,12 +314,16 @@ class Board:
         return any(str(m).split(".", 1)[0] in (ref, bid) for m in self.terms)
 
     def part_terms(self, ref: str):
-        """(term_a, term_b) for a sheet two-lead designator, on this board."""
+        """(term_a, term_b) for a sheet two-lead designator, on this board: a
+        parts[] part or an off-board `kind: part` stub by its .a/.b, an
+        off-board `kind: choke` by the two leads the board wires."""
         if ref in self.part_refs:
             return f"{ref}.a", f"{ref}.b"
         bid = self.id_of_ref.get(ref, ref)
         if bid in self.offpart_ids:
             return f"{bid}.a", f"{bid}.b"
+        if len(self.choke_leads.get(bid, ())) == 2:
+            return tuple(self.choke_leads[bid])
         return None
 
     def bname(self, root) -> list:
@@ -509,6 +525,12 @@ def sheet_terminals(sh: Sheet, bd: Board, swap: frozenset = frozenset()):
             if ref in sh.bridged:
                 absent.append((ref, "on the sheet, not placed on the board; declared "
                                     "DC-transparent, so the board's conductor runs through it"))
+                continue
+            if bt is None and bid in bd.choke_leads:
+                leads = bd.choke_leads[bid]
+                absent.append((ref, f"choke placed on the board with {len(leads)} lead(s) "
+                                    f"wired ({', '.join(t.split('.', 1)[1] for t in leads) or 'none'})"
+                                    f" — compared only when exactly two are"))
                 continue
             if bt is None:
                 absent.append((ref, "on the sheet, not placed on the board"))
@@ -1220,6 +1242,27 @@ def selftest() -> int:
             print(f"  {'ok  ' if ok else 'FAIL'} {label}")
             if not ok:
                 fails.append(label)
+
+        # ---- 6G4: an off-board choke compared by the two leads the board wires --
+        d = _copy_amp(tmp, "6g4")
+        case("BASELINE      6g4 sheet and board agree, choke CH1 compared",
+             "PASS", check_amp("6g4", d))
+
+        def swap_choke_ends(L):
+            ends = {"CH1.hi": "CH1.lo", "CH1.lo": "CH1.hi"}
+            for r in L["runs"]:
+                for k in ("from", "to"):
+                    if isinstance(r.get(k), str) and r[k] in ends:
+                        r[k] = ends[r[k]]
+        d = _copy_amp(tmp, "6g4")
+        _edit_layout(d, swap_choke_ends)
+        case("CHOKE         6g4 CH1 turned end for end (hi <-> lo): no polarity -> passes",
+             "PASS", check_amp("6g4", d))
+
+        d = _copy_amp(tmp, "6g4")
+        _edit_layout(d, lambda L: _reroute(L, "CH1.lo", "RS1.a", "RS1.b"))
+        case("CHOKE         6g4 CH1's output lead swapped onto the screen-pin side of RS1",
+             "MISPLACED", check_amp("6g4", d), "CH1")
 
         # ---- 5D3: dual triodes and two channels of pots, also clean at HEAD --
         d = _copy_amp(tmp, "5d3")

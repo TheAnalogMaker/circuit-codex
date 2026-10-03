@@ -946,6 +946,9 @@ section; pot wipers (`VRn.2` ↔ `VRn.lug2`); jack contacts (`cx:JACK` pin 1 ↔
 `J.tip`, pin 2 ↔ `J.sleeve`, for a sheet jack whose reference is a board jack id
 — a board that wires only the jack *body* anchors the sheet's tip to it softly
 and says so); and whatever `net_map.leads` declares (below). Two-terminal parts
+— including an off-board `kind: choke`, read by the two leads the board wires,
+whatever their names (`hi`/`lo`, `in`/`out`, `red`/`yellow`); one with fewer
+than two wired is `SHEET-ONLY` and must be declared —
 and pot ends are unordered pairs resolved from the anchors by majority voting, so
 a lone dissenter is the misplaced part and not the poisoner of everything on its
 net. A section ↔ unit swap is searched for on every dual-section socket, and
@@ -1017,8 +1020,11 @@ is clean for those amps. `--selftest` plants, on temp copies of the 5C1 and 5D3
 `Basing_unit` property), a cap lead moved to another eyelet, bridged pot wipers,
 a cut ground return, a deleted board part first undeclared, then declared per
 part, then covered by a rule, a stale declaration and a dead rule, a grid leak
-relettered as a control, and a `leads` map declared right, crossed and stale —
-and requires each caught and each clean case passing.
+relettered as a control, and a `leads` map declared right, crossed and stale; on
+a temp copy of the 6G4 it turns the off-board choke end for end (must pass — a
+choke has no polarity) and moves its output lead to the far side of the screen
+resistor (must be `MISPLACED`) — and requires each caught and each clean case
+passing.
 
 ```
 python3 pipeline/verify_sheet_vs_board.py            # every amp + worklist drift gate

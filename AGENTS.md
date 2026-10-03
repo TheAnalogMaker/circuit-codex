@@ -122,7 +122,8 @@ python3 pipeline/verify_sheet_vs_board.py    # sheet<->board net equivalence ove
                                   #   equivalence gates skip by construction).
                                   #   Tube pins, pot wipers, jack contacts and
                                   #   <GND> anchor the two partitions; parts
-                                  #   resolve by majority vote; section<->unit
+                                  #   (off-board chokes by their two wired
+                                  #   leads) resolve by majority vote; section<->unit
                                   #   swaps are searched for. EXCLUDES heaters
                                   #   and the pilot lamp (check_heaters owns
                                   #   them) and lists what it could not anchor.
