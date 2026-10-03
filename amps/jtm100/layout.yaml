@@ -179,7 +179,7 @@ bus:
 
 runs:
   # --- negative-bias supply --------------------------------------------------
-  - { from: PT.bias, to: RB1.a, via: [[-1.55, 0.05], [-1.55, 1.32], [-0.4, 1.32]] }  # HT tap -> 150k (PT-AC)
+  - { from: PT.ht1, to: RB1.a, via: [[-1.55, 0.05], [-1.55, 1.32], [-0.4, 1.32]] }  # arm-A HT leg -> 150k, as the 1959T drawing taps it (PT-AC)
   - { from: RB1.b, to: D7.a, via: [[1.6, 1.22]] }        # 150k -> bias diode cathode
   - { from: VR6.lug3, to: RB1.a, via: [[0.62, -0.5], [0.0, -0.5]] }  # trim across the 150k
   - { from: VR6.lug1, to: RB1.b, via: [[1.4, -0.4], [1.4, 0.62]] }
