@@ -14,7 +14,14 @@ s = Sch()
 
 Y = 100.0   # signal row
 
-# ---- inputs: two jacks, each 68k stopper, shared 1M grid leak ------------
+# ---- inputs: two jacks, each 68k stopper, 1M leak at jack 1's tip --------
+# H-EE hangs the 1 MEG from jack 1's TIP, jack side of its 68k, on both pages
+# (schematic page 6118x4407, crop 0,1000,1350,1350: jack 1 tip -> 1 MEG ->
+# ground, jack 1's contact -> ground, jack 2's contact -> jack 1's tip; layout
+# page 5194x4394, crop 3500,600,1300,1900: the 1 MEG from the ground lug to
+# jack 1's tip lug). Until 2026-10-03 this sheet hung it on the grid bus (V1
+# audit, 5e1.md). R1 carries no DC, so the netlist's R3 G1A 0 sees one node
+# either way (sch_map series_bridge).
 s.glabel("IN 1", 26, Y, 180)
 s.wire(26, Y, 33.29, Y)
 l, r = s.series_h("R", "R1", "68k", 37.1, Y)
@@ -25,8 +32,9 @@ l, r = s.series_h("R", "R2", "68k", 37.1, Y - 8)
 s.wire(40.91, Y - 8, 49.53, Y - 8)
 s.wire(49.53, Y - 8, 49.53, Y)
 s.junction(49.53, Y)
-s.sym("R", "R3", "1M", 49.53, Y + 3.81)   # grid leak, shunt to ground
-s.gnd(49.53, Y + 7.62)
+s.junction(30, Y)
+s.sym("R", "R3", "1M", 30, Y + 3.81, lx=2.2, ly=0.0)   # input leak at jack 1's tip
+s.gnd(30, Y + 7.62)
 s.wire(49.53, Y, 53.34, Y)                 # to V1A grid
 
 # ---- V1A input stage ----------------------------------------------------

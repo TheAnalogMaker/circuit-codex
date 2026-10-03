@@ -4,7 +4,7 @@ notes: "Numbering follows the schematic. The AC-line section (power transformer,
 items:
   - { ref: R1,  part: "Carbon comp resistor", value: "68 kΩ · ½ W",       role: "Input 1 grid stopper" }
   - { ref: R2,  part: "Carbon comp resistor", value: "68 kΩ · ½ W",       role: "Input 2 grid stopper" }
-  - { ref: R3,  part: "Carbon comp resistor", value: "1 MΩ · ½ W",        role: "Grid leak" }
+  - { ref: R3,  part: "Carbon comp resistor", value: "1 MΩ · ½ W",        role: "Input leak, jack 1's tip to ground (the V1A grid returns through R1)" }
   - { ref: R4,  part: "Carbon comp resistor", value: "1.5 kΩ · ½ W",      role: "V1A cathode bias" }
   - { ref: R5,  part: "Carbon comp resistor", value: "100 kΩ · ½ W",      role: "V1A plate load" }
   - { ref: R6,  part: "Carbon comp resistor", value: "1.5 kΩ · ½ W",      role: "V1B cathode bias" }
@@ -27,5 +27,5 @@ items:
   - { ref: V3,  part: "Rectifier tube",       value: "5Y3GT",             role: "Full-wave rectifier (V3A/V3B)" }
   - { ref: T1,  part: "Output transformer",   value: "≈5 kΩ : 8 Ω",       role: "Single-ended output (impedance not marked on the drawing; typical SE 6V6 load)" }
   - { ref: "—", part: "Power transformer",    value: "HT · 6.3 V · 5 V",  role: "HT secondary (voltage not marked; +320 V reservoir implies ≈325-0-325) + heater and rectifier windings" }
-  - { ref: "—", part: "Line capacitor",       value: "0.05 µF · 600 V",   role: "Across the AC line at the fuse" }
+  - { ref: "—", part: "Line capacitor",       value: "0.05 µF · 600 V",   role: "AC line to chassis, on the transformer side of the fuse" }
   - { ref: "—", part: "Fuse",                 value: "2 A",               role: "AC-line fuse" }

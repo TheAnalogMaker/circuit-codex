@@ -18,6 +18,12 @@ symbols:
   # it IS drawn, so it binds to the symbol instead.)
   RCHOKE: L1
 
+series_bridge:
+  # The 1 M input leak (R3) hangs from jack 1's tip, jack side of R1, as both
+  # H-EE pages draw it; R1 carries no DC grid current, so the netlist's
+  # R3 G1A 0 runs G1A through it.
+  R1: "68 k jack-1 grid stopper — netlist node G1A runs through it to the 1 M leak at the jack-1 tip"
+
 # Hard-gated: verify_schematic_nets.py fails CI on any finding for this sheet.
 # Claimed 2026-09-02 after the drawing went clean against netlist.cir.
 schematic_claim: verified

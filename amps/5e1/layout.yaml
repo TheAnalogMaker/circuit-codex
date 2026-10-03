@@ -69,7 +69,7 @@ heaters:
       6.3 V chain.
     sockets:
       V3: { feed: [2], return: [8] }        # 5Y3GT directly-heated filament
-caption: "Redrawn from the published Fender 5E1 layout drawing (H-EE), page 1 — principal board components and point-to-point wiring, in the order and connections the drawing shows. Filter and bypass electrolytics are drawn axially in the house style (the sheet stands them vertically, B+ at the bottom). The choke L1 is a chassis-mounted iron part — the sheet draws only its B+1->B+2 leads, no body — so it is shown here as an off-board choke. The 1 MΩ grid leak R3, mounted at the input jacks on the sheet, is drawn on the board's input end so the grid return is shown and traceable. Transformer-lead colours (5Y3 red/yellow/red-yellow, OT blue/red) are marked as on the drawing. The 6.3 V heater supply is single-ended: one green transformer lead is grounded alongside the red-yellow HT centre tap, and the other feeds the pilot lite and both heaters, so each socket carries a green feed and a grounded return (12AX7 pins 4+5 strapped for 6.3 V parallel with the centre tap at pin 9 to ground, matching the sheet's own ground mark there — no CT resistors are shown or in the BOM; 6V6GT fed at pin 7, pin 2 bowed to the base sleeve at pin 1 and out to ground). The 5Y3GT rectifier is directly heated off the 5 V winding, the transformer's yellow pair, and off this chain. The AC-line/fuse/switch wiring remains omitted, as it isn't modeled elsewhere in this amp's data. Not a trace or a dimensioned reproduction."
+caption: "Redrawn from the published Fender 5E1 layout drawing (H-EE), page 1 — principal board components and point-to-point wiring, in the order and connections the drawing shows. Filter and bypass electrolytics are drawn axially in the house style (the sheet stands them vertically, B+ at the bottom). The choke L1 is a chassis-mounted iron part — the sheet draws only its B+1->B+2 leads, no body — so it is shown here as an off-board choke. The 1 MΩ input leak R3 is mounted at the input jacks on the sheet, from jack 1's tip to ground; it is drawn on the board's input end here, wired to jack 1's tip as the sheet wires it (jack side of R1). Transformer-lead colours (5Y3 red/yellow/red-yellow, OT blue/red) are marked as on the drawing. The 6.3 V heater supply is single-ended: one green transformer lead is grounded alongside the red-yellow HT centre tap, and the other feeds the pilot lite and both heaters, so each socket carries a green feed and a grounded return (12AX7 pins 4+5 strapped for 6.3 V parallel with the centre tap at pin 9 to ground, matching the sheet's own ground mark there — no CT resistors are shown or in the BOM; 6V6GT fed at pin 7, pin 2 bowed to the base sleeve at pin 1 and out to ground). The 5Y3GT rectifier is directly heated off the 5 V winding, the transformer's yellow pair, and off this chain. The AC-line/fuse/switch wiring remains omitted, as it isn't modeled elsewhere in this amp's data. Not a trace or a dimensioned reproduction."
 source:
   desc: "Fender 'Champ-Amp' Model 5E1 layout drawing (H-EE), page 1"
   url: "https://el34world.com/charts/Schematics/files/Fender/Fender_champ_5e1.pdf"
@@ -107,7 +107,7 @@ parts:
   - { ref: R2,  a: [1, 25], b: [1, 26] }   # 68k input-2 grid stopper
   # Polarity: DC sign (source read; no legible printed capacitor + used); lead C1.a: K1A = +1.4 V (op-points); lead C1.b: 0 = +0.0 V (ground); more-positive lead is C1.a.
   - { ref: C1,  a: [0, 28], b: [0, 29] , plus: a }   # 25 µF V1A cathode bypass
-  - { ref: R3,  a: [1, 29], b: [1, 30] }   # 1M grid leak (chassis-mounted at the jacks; drawn on-board here — see caption)
+  - { ref: R3,  a: [1, 29], b: [1, 30] }   # 1M input leak (chassis-mounted at jack 1's tip; drawn on-board here — see caption)
 
 # Off-board items drawn as labelled stubs around the board, in the drawing's
 # positions: tubes along the bottom, the volume pot and input jacks up top,
@@ -205,13 +205,16 @@ runs:
   - { from: C1.a, to: R4.a }                             # cathode bypass across 1.5k
   - { from: C1.b, to: [1.45, 29], via: [[29.4, 1.4]] }  # bowed clear of R3.a's eyelet (same column)
 
-  # --- input jacks + shared 1 MΩ grid leak ----------------------------------
+  # --- input jacks + the 1 MΩ leak at jack 1's tip --------------------------
+  # H-EE (layout page 5194x4394, crop 3500,600,1300,1900) wires the 1 MEG from
+  # a ground lug to jack 1's tip, jack side of its 68k; until 2026-10-03 this
+  # board wired it to the V1A grid (V1 audit, 5e1.md).
   - { from: J1, to: R1.a, via: [[24, -0.45]] }           # In 1 -> 68k stopper
   - { from: J2, to: R2.a, via: [[27, -0.45]] }           # In 2 -> 68k stopper
   - { from: R1.b, to: V1.pin7, via: [[24.5, 1.6]] }      # stopper -> V1A grid
   - { from: R2.b, to: V1.pin7, via: [[26, 1.6]] }        # stopper -> V1A grid
-  - { from: R3.a, to: V1.pin7, via: [[28.6, 1.62], [25, 1.62]] }  # grid leak -> V1A grid
-  - { from: R3.b, to: [1.45, 30] }                       # grid leak -> ground bus
+  - { from: R3.a, to: J1, via: [[29.5, 0.6], [29.5, -0.3], [25, -0.3], [24.3, -0.95]] }  # input leak -> jack 1 tip (own column between C1.b and R3.b)
+  - { from: R3.b, to: [1.45, 30] }                       # input leak -> ground bus
 
   # --- output transformer secondary -> speaker jack -------------------------
   - { from: T1.sec, to: SPK.tip, via: [[30.6, 2.3], [16, 2.3]] }   # OT secondary -> speaker hot
@@ -256,6 +259,11 @@ net_map:
     SPK.tip: "0"   # speaker jack hot — OT-secondary DCR folded into ground (the NFB return reads as ground at DC)
   # Netlist elements with no discrete board part — reported in coverage, never a
   # failure (their nodes still have to check out).
+  # DC-transparent input stoppers the netlist omits (no DC grid current, no
+  # drop): R1 joins jack 1's tip, where the 1 MΩ leak hangs, to the V1A grid,
+  # so the netlist's R3 G1A 0 runs through it.
+  series_bridge:
+    R1: "68 k input-1 grid stopper — omitted from netlist (grid == jack-1 tip at DC)"
   netlist_unplaced:
     RCHOKE: "350 Ω choke L1 — chassis-mounted iron part with no board body; DC continuity from B+1 to B+2 is carried by the drawn C5.a->L1.in / L1.out->C6.a leads"
     RVOL: "1 M volume pot VR1 — netlist models the pot as a grid-leak (G1B -> 0); its wiper->grid tie is verified at the grid net"

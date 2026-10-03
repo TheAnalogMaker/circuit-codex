@@ -9,7 +9,7 @@ same preamp, but with a choke-filtered power supply the 5F1 later dropped.
 
 ## Circuit walkthrough (short form)
 
-Two input jacks (each through its own 68 kΩ stopper, 1 MΩ grid leak) → **V1A**
+Two input jacks (each through its own 68 kΩ stopper; a 1 MΩ leak from jack 1's tip to ground) → **V1A**
 (12AX7, 100 kΩ plate load, 1.5 kΩ cathode bypassed by 25 µF) → 0.02 µF coupling
 → 1 MΩ volume pot → **V1B** (12AX7, 100 kΩ plate load, 1.5 kΩ cathode, left
 unbypassed so the feedback can work into it) → 0.02 µF coupling → **V2** 6V6GT
