@@ -21,18 +21,23 @@ Y = 100.0     # signal row
 GAP = 3.48    # plate_load's default plate-to-resistor riser — reused so the
               # coupling and screen taps below land exactly on the tube's own node
 
-# ---- inputs: two jacks, each its own 75k shunt to ground, summed ----------
+# ---- inputs: two jacks, each through its own 75k in SERIES, summed --------
+# F-DH draws each 75 K in series from its jack's tip to the summing node ahead
+# of the .02 (schematic page 5770x4632, crop 50,1300,1100,900; layout page
+# 6510x4718, crop 400,3300,1300,1100: jack 1 tip -> 75 K -> node <- 75 K <-
+# jack 2 tip). Jack 1's contact grounds its own tip when nothing is plugged in;
+# the glabel inputs here do not draw that contact. Until 2026-10-03 both
+# surfaces drew the 75 Ks as shunts to ground with the jacks tied straight to
+# the node (V1 audit, 5c1.md). The input network is outside the DC deck.
 s.glabel("IN 1", 26, Y, 180)
-s.wire(26, Y, 37.1, Y)
-s.junction(37.1, Y)
-s.shunt_r("R1", "75k", 37.1, Y)
-s.wire(37.1, Y, 45, Y)
+l, r = s.series_h("R", "R1", "75k", 35.6, Y)
+s.wire(26, Y, l, Y)
+s.wire(r, Y, 45, Y)
 
 s.glabel("IN 2", 26, Y - 14, 180)
-s.wire(26, Y - 14, 37.1, Y - 14)
-s.junction(37.1, Y - 14)
-s.shunt_r("R2", "75k", 37.1, Y - 14)
-s.wire(37.1, Y - 14, 45, Y - 14)
+l, r = s.series_h("R", "R2", "75k", 35.6, Y - 14)
+s.wire(26, Y - 14, l, Y - 14)
+s.wire(r, Y - 14, 45, Y - 14)
 s.wire(45, Y - 14, 45, Y)
 s.junction(45, Y)
 

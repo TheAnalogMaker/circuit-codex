@@ -2,8 +2,8 @@
 # vendor_url fields land with the Phase-1 affiliate/BOM work.
 notes: "Numbering follows the schematic. The AC-line section (power transformer, fuse, line cap) is drawn as annotation only and carries no designator. Values are from the published Champ 5C1 (F-DH) drawing."
 items:
-  - { ref: R1,  part: "Carbon comp resistor", value: "75 kΩ · ½ W",        role: "Input 1 to ground" }
-  - { ref: R2,  part: "Carbon comp resistor", value: "75 kΩ · ½ W",        role: "Input 2 to ground" }
+  - { ref: R1,  part: "Carbon comp resistor", value: "75 kΩ · ½ W",        role: "Input 1 series resistor, jack 1 tip → summing node ahead of C1" }
+  - { ref: R2,  part: "Carbon comp resistor", value: "75 kΩ · ½ W",        role: "Input 2 series resistor, jack 2 tip → summing node ahead of C1" }
   - { ref: R3,  part: "Carbon comp resistor", value: "5 MΩ · ½ W",         role: "6SJ7 grid leak (contact bias — no cathode resistor)" }
   - { ref: R4,  part: "Carbon comp resistor", value: "2 MΩ · ½ W",         role: "6SJ7 screen dropper" }
   - { ref: R5,  part: "Carbon comp resistor", value: "250 kΩ · ½ W",       role: "6SJ7 plate load" }
@@ -23,5 +23,5 @@ items:
   - { ref: V3,  part: "Rectifier tube",       value: "5Y3GT",              role: "Full-wave rectifier (V3A/V3B)" }
   - { ref: T1,  part: "Output transformer",   value: "≈5 kΩ : 8 Ω",        role: "Single-ended output (impedance not marked on the drawing; typical SE 6V6 load)" }
   - { ref: "—", part: "Power transformer",    value: "HT · 6.3 V · 5 V",   role: "HT secondary (voltage not marked; +340 V reservoir implies ≈345-0-345) + heater and rectifier windings" }
-  - { ref: "—", part: "Line capacitor",       value: "0.05 µF · 600 V",    role: "Across the AC line at the fuse" }
+  - { ref: "—", part: "Line capacitor",       value: "0.05 µF · 600 V",    role: "AC line to chassis, on the line side of the fuse" }
   - { ref: "—", part: "Fuse",                 value: "2 A",                role: "AC-line fuse" }

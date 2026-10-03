@@ -13,8 +13,9 @@ redesign of its own (no landed circuit page).
 
 ## Circuit walkthrough (short form)
 
-Two input jacks, each shunted to ground by its own 75 kΩ resistor, sum into
-a single 0.02 µF coupling cap → **V1** (6SJ7 pentode, grid-leak/contact
+Two input jacks, each through its own 75 kΩ series resistor, sum into a
+single 0.02 µF coupling cap (jack 1's contact grounds its own tip when
+nothing is plugged in) → **V1** (6SJ7 pentode, grid-leak/contact
 biased: a 5 MΩ leak returns the grid to ground and the cathode grounds
 directly, with no cathode resistor at all — the plate carries a 250 kΩ load,
 the screen a 2 MΩ dropper bypassed by 0.05 µF) → 0.02 µF coupling → 1 MΩ

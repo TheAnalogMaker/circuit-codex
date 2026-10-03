@@ -140,10 +140,9 @@ offboard:
 
 # Ground bus — the bare-wire rail running the length of the board just below
 # the bottom eyelet row; cathode, filter, grid-leak, and pot grounds all tie
-# to it. Extended left past column 0 to reach the chassis-mounted jack
-# resistors' ground returns.
+# to it.
 bus:
-  - { from: [1.45, -5.4], to: [1.45, 27.4] }
+  - { from: [1.45, -0.4], to: [1.45, 27.4] }
 
 # Wiring — read lead-by-lead from the published 5C1 layout drawing (F-DH,
 # page 2). The power-transformer secondary leads carry the colours marked on
@@ -161,16 +160,17 @@ bus:
 # basing — heater pins on the twisted runs), pot lugs, jacks, off-board
 # 2-lead parts (R1.a/R1.b), and transformer leads by colour name.
 runs:
-  # --- input jacks + their own 75k shunt resistors, summed at C1 ------------
-  # J1/R1/J2/R2 are all bottom-edge off-board items (below the board, ~row 2);
-  # each jack lands on its own resistor's live terminal, which fans up to the
-  # coupling cap in its own lane so the two feeds never run parallel.
+  # --- input jacks, each through its own 75k in series, summed at C1 --------
+  # F-DH (layout page 6510x4718, crop 400,3300,1300,1100) wires jack 1's tip ->
+  # 75 K -> a junction <- 75 K <- jack 2's tip, and the junction up to the .02;
+  # neither 75 K goes to ground. Until 2026-10-03 this board drew them as shunts
+  # to ground with both jacks tied straight to C1 (V1 audit, 5c1.md). Jack 1's
+  # contact, which grounds its tip with nothing plugged in, has no board
+  # terminal and is not drawn.
   - { from: J1, to: R1.a }
-  - { from: R1.b, to: [1.45, -3.9] }
-  - { from: R1.a, to: C1.a, via: [[-2, 1.543]] }
+  - { from: R1.b, to: C1.a, via: [[-2, 1.543]] }
   - { from: J2, to: R2.a }
-  - { from: R2.b, to: [1.45, -1.6] }
-  - { from: R2.a, to: C1.a, via: [[-0.5, 1.25]] }
+  - { from: R2.b, to: C1.a, via: [[-0.5, 1.25]] }
 
   # --- V1 6SJ7 preamp stage --------------------------------------------------
   - { from: C1.b, to: R3.a, via: [[1.5, -0.35]] }        # coupler -> grid leak (bows above row0, clear of C1's own leads)
