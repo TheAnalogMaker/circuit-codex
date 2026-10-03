@@ -1,9 +1,11 @@
 # Parts list — reference designators match netlist.cir and schematic.kicad_sch,
 # so pipeline/validate.py cross-checks the two in both directions.
-notes: "The schematic draws two input jacks per channel (1 and 2), each pair sharing that channel's grid path; this list carries one representative grid stopper + leak per channel, matching the simplification this corpus's own 5e3 BOM already documents for the identical real-chassis detail. The interstage coupler C1 is the one part the schematic page leaves unlettered: the layout page prints 0.02 µF · 600 V on the coupler whose eyelet carries the driver plate's +190 V. Dropper wattages are not marked on the drawing. Parts on the mains side of the power transformer (fuse, switches, AC-line caps) are listed without designators."
+notes: "Both pages draw two input jacks per channel (1 and 2), each with its own 68 kΩ stopper into the channel's grid (R1s/R3s Instrument, R2s/R4s Mic), and hang the channel's one 1 MΩ leak from jack 1's tip; jack 2's contact rests on jack 1's tip. The interstage coupler C1 is the one part the schematic page leaves unlettered: the layout page prints 0.02 µF · 600 V on the coupler whose eyelet carries the driver plate's +190 V. Dropper wattages are not marked on the drawing. Parts on the mains side of the power transformer (fuse, switches, AC-line caps) are listed without designators."
 items:
-  - { ref: R1s, part: "Carbon comp resistor", value: "68 kΩ · ½ W",  role: "Instrument-channel grid stopper" }
-  - { ref: R2s, part: "Carbon comp resistor", value: "68 kΩ · ½ W",  role: "Mic-channel grid stopper" }
+  - { ref: R1s, part: "Carbon comp resistor", value: "68 kΩ · ½ W",  role: "Instrument-channel grid stopper (jack 1)" }
+  - { ref: R3s, part: "Carbon comp resistor", value: "68 kΩ · ½ W",  role: "Instrument-channel grid stopper (jack 2)" }
+  - { ref: R2s, part: "Carbon comp resistor", value: "68 kΩ · ½ W",  role: "Mic-channel grid stopper (jack 1)" }
+  - { ref: R4s, part: "Carbon comp resistor", value: "68 kΩ · ½ W",  role: "Mic-channel grid stopper (jack 2)" }
   - { ref: RG1, part: "Carbon comp resistor", value: "1 MΩ · ½ W",   role: "Instrument input grid leak" }
   - { ref: RG2, part: "Carbon comp resistor", value: "1 MΩ · ½ W",   role: "Mic input grid leak" }
   - { ref: RL1, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "V1A (instrument) plate load" }

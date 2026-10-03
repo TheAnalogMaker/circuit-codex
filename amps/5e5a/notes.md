@@ -13,8 +13,8 @@ the 5F4 Super, 5E4-A Super and 5F6-A Bassman in this corpus also use.
 
 ## Circuit walkthrough (short form)
 
-Instrument channel (68 kΩ stopper, 1 MΩ leak) → **V1A** 12AY7 ↘
-Mic channel (68 kΩ stopper, 1 MΩ leak) → **V1B** 12AY7 ↗ shared 820 Ω
+Instrument channel (two jacks, a 68 kΩ stopper each, 1 MΩ leak at jack 1) → **V1A** 12AY7 ↘
+Mic channel (two jacks, a 68 kΩ stopper each, 1 MΩ leak at jack 1) → **V1B** 12AY7 ↗ shared 820 Ω
 cathode, 100 kΩ plates → 0.02 µF couplers → 1 MΩ INST VOL / MIC VOL pots
 (a 100 pF bright cap across INST VOL only) → 270 kΩ mixers → **V2A**, a 12AY7
 gain stage (100 kΩ plate, 1.5 kΩ cathode bypassed by 25 µF), DC-coupled into
