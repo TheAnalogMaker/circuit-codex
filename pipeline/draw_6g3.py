@@ -42,20 +42,29 @@ def cathode_rc(rref, rval, cref, cval, x, ytop, dx=7.62):
 
 
 def input_stage(y, j1, j2, r1, r2, rleak, vref, vval):
-    """Two-jack channel input: 68k stoppers -> grid (1M leak) -> triode. The
-    cathode is left on a KIN label: both halves share ONE cathode RC (drawing)."""
+    """Two-jack channel input: 68k stoppers -> grid -> triode, with the 1M leak
+    at jack 1's tip. The cathode is left on a KIN label: both halves share ONE
+    cathode RC (drawing)."""
     s.glabel(j1, 12, y - 4, 180)
     s.glabel(j2, 12, y + 4, 180)
-    l, r = s.series_h("R", r1, "68k", 22, y - 4)
+    l, r = s.series_h("R", r1, "68k", 30, y - 4)
     s.wire(12, y - 4, l, y - 4)
     s.wire(r, y - 4, GB, y - 4)
-    l, r = s.series_h("R", r2, "68k", 22, y + 4)
+    # The 1M leak hangs from the jack-1 TIP, jack side of its 68k, as I-FA
+    # draws it (schematic page 6404x4370, Normal crop 0,900,1060,1990, Bright
+    # 0,1950,1060,3040: jack 1 tip -> 1M -> ground; jack 2's contact -> jack
+    # 1's tip; jack 1's contact -> ground; the layout page mounts it on jack
+    # 1). Until 2026-10-03 this sheet hung it on the grid bus (V1 audit,
+    # 6g3.md). r1 carries no DC, so the netlist's RG1 GN1 0 sees one node
+    # either way (sch_map.yaml series_bridge, the AA1164 idiom).
+    s.junction(18, y - 4)
+    s.sym("R", rleak, "1M", 18, y - 4 - 3.81, lx=2.2, ly=0.0)
+    s.gnd(18, y - 11.62, rot=90)
+    l, r = s.series_h("R", r2, "68k", 30, y + 4)
     s.wire(12, y + 4, l, y + 4)
     s.wire(r, y + 4, GB, y + 4)
     s.wire(GB, y - 4, GB, y + 4)
     s.junction(GB, y)
-    s.sym("R", rleak, "1M", GB, y + 3.81 + 4)
-    s.gnd(GB, y + 7.62 + 4)
     t = s.triode(vref, vval, VX, y)
     s.wire(GB, y, t["g"][0], y)
     s.wire(VX, y + 7.62, VX, y + 11)
@@ -122,7 +131,7 @@ s.note('Heaters, PT primary/mains, pilot lamp, chassis switches and the tremolo 
 
 # ============================ NORMAL CHANNEL =========================
 YN = 62
-s.text("Normal channel", 12, 48, 1.6)
+s.text("Normal channel", 12, 45, 1.6)
 t1a = input_stage(YN, "NORM 1", "NORM 2", "R1n", "R2n", "RG1", "V1A", "7025")
 teeN = plate_load_220k("RL1", t1a["p"], shunt="C3")
 tone_volume(teeN, "C1", ".02u", "VR1", "VR2", "C5", ".01u", "C6", "R5")
@@ -412,7 +421,7 @@ s.glabel("HT_B", 196, YBI, 180)
 l, r = s.series_h("R", "R11", "100k 5%", 210, YBI)
 s.wire(196, YBI, l, YBI)
 s.wire(r, YBI, 219.92, YBI)
-s.sym("DIODE_SS", "D1", "selenium", 225, YBI, lx=-3.4, ly=-5.6, rot=180, label_rot=0)
+s.sym("DIODE_SS", "D1", "diode", 225, YBI, lx=-3.4, ly=-5.6, rot=180, label_rot=0)
 s.wire(230.08, YBI, 236, YBI)
 s.junction(236, YBI)
 s.sym("C", "C25", "25u", 236, YBI + 3.81)

@@ -15,8 +15,8 @@ the 12AX7; the other two small bottles are 12AX7s.
 ## Signal path
 
 **Two channels into one bottle.** Each channel takes two jacks, each on its own
-68 kΩ stopper, over a shared 1 MΩ grid leak, and each drives one half of the
-7025 — 220 kΩ plate load, and a single 1.5 kΩ cathode resistor with a 25 µF
+68 kΩ stopper, with the channel's 1 MΩ leak at jack 1's tip, jack side of its
+stopper, and each drives one half of the 7025 — 220 kΩ plate load, and a single 1.5 kΩ cathode resistor with a 25 µF
 bypass serving both halves. The one asymmetry is what names the channels: the
 Normal side carries a **0.003 µF capacitor across its plate load**, bleeding
 treble to the supply rail, and the Bright side does not.

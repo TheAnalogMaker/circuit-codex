@@ -4,18 +4,18 @@
 # schematic (schematic.kicad_sch) by pipeline/validate.py, in both directions. The
 # drawing's notice sets ½ W · 10 % resistors and 400 V capacitors unless a part
 # is marked otherwise, and every value below is the drawing's.
-notes: "The drawing shows both input jacks per channel, each with its own 68 kΩ stopper. The tremolo oscillator's parts are listed in full, but its DC operating point is excluded from the netlist (see the circuit story). Parts drawn only as annotations — mains cap, fuse, switches, pilot lamp — are listed without designators. The two transformers are numbered T1 (power) and T2 (output) under the archive's convention; the drawing's own labels for the same parts are TR1 and TR2."
+notes: "The drawing shows both input jacks per channel, each with its own 68 kΩ stopper, and hangs the channel's 1 MΩ leak from jack 1's tip, jack side of its stopper (both pages; the layout mounts it on jack 1). The tremolo oscillator's parts are listed in full, but its DC operating point is excluded from the netlist (see the circuit story). Parts drawn only as annotations — mains cap, fuse, switches, pilot lamp — are listed without designators. The two transformers are numbered T1 (power) and T2 (output) under the archive's convention; the drawing's own labels for the same parts are TR1 and TR2."
 items:
   # --- Normal channel input (V1A) ---
   - { ref: R1n, part: "Carbon comp resistor", value: "68 kΩ · ½ W",   role: "Normal input grid stopper (jack 1)" }
   - { ref: R2n, part: "Carbon comp resistor", value: "68 kΩ · ½ W",   role: "Normal input grid stopper (jack 2)" }
-  - { ref: RG1, part: "Carbon comp resistor", value: "1 MΩ · ½ W",    role: "Normal input grid leak" }
+  - { ref: RG1, part: "Carbon comp resistor", value: "1 MΩ · ½ W",    role: "Normal input leak, jack 1's tip to ground (jack side of R1n); the grid's DC return through R1n" }
   - { ref: RL1, part: "Carbon comp resistor", value: "220 kΩ · ½ W",  role: "V1A plate load" }
   - { ref: C3,  part: "Film capacitor",       value: "0.003 µF · 400 V", role: "Treble shunt across the V1A plate load — the Normal channel's darker voicing" }
   # --- Bright channel input (V1B) ---
   - { ref: R3n, part: "Carbon comp resistor", value: "68 kΩ · ½ W",   role: "Bright input grid stopper (jack 1)" }
   - { ref: R4n, part: "Carbon comp resistor", value: "68 kΩ · ½ W",   role: "Bright input grid stopper (jack 2)" }
-  - { ref: RG2, part: "Carbon comp resistor", value: "1 MΩ · ½ W",    role: "Bright input grid leak" }
+  - { ref: RG2, part: "Carbon comp resistor", value: "1 MΩ · ½ W",    role: "Bright input leak, jack 1's tip to ground (jack side of R3n); the grid's DC return through R3n" }
   - { ref: RL2, part: "Carbon comp resistor", value: "220 kΩ · ½ W",  role: "V1B plate load" }
   # --- Shared V1 cathode ---
   - { ref: RK1, part: "Carbon comp resistor", value: "1.5 kΩ · ½ W",  role: "Shared V1A/V1B cathode bias" }
@@ -82,7 +82,7 @@ items:
   - { ref: C24, part: "Electrolytic capacitor", value: "8 µF · 450 V",  role: "Filter, +270 V preamp node" }
   # --- Bias supply ---
   - { ref: R11, part: "Carbon comp resistor", value: "100 kΩ · 5 % · ½ W", role: "Bias-supply feed from the HT winding" }
-  - { ref: D1,  part: "Rectifier (bias)",     value: "selenium · silicon diode in modern builds", role: "Bias-supply rectifier" }
+  - { ref: D1,  part: "Rectifier (bias)",     value: "rectifier type not printed · silicon diode in modern builds", role: "Bias-supply rectifier — both I-FA pages draw a plain diode symbol and letter no material" }
   - { ref: C25, part: "Electrolytic capacitor", value: "25 µF · 50 V", role: "Bias-supply filter" }
   - { ref: R12, part: "Carbon comp resistor", value: "22 kΩ · 5 % · ½ W", role: "Bias-supply bleeder — sets the −26 V line" }
   # --- Tubes ---
@@ -97,6 +97,6 @@ items:
   - { ref: T2,  part: "Output transformer",   value: "125A1A",        role: "Push-pull output" }
   - { ref: "—", part: "Fuse",                 value: "2 A",           role: "AC mains fuse (annotation only)" }
   - { ref: "—", part: "Switch",               value: "SPST",          role: "AC power switch (annotation only)" }
-  - { ref: "—", part: "Switch",               value: "SPST",          role: "Ground (polarity) switch (annotation only)" }
+  - { ref: "—", part: "Switch",               value: "SPDT",          role: "Ground switch — throws the 0.05 µF · 600 V cap to either mains conductor; the schematic draws two contacts, the layout three lugs (annotation only)" }
   - { ref: "—", part: "Film capacitor",       value: "0.05 µF · 600 V", role: "Mains-to-chassis cap on the ground switch (annotation only)" }
   - { ref: "—", part: "Pilot lamp",           value: "6.3 V",         role: "Pilot light (annotation only)" }

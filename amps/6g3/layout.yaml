@@ -206,7 +206,9 @@ runs:
   - { from: C25.a, to: R12.a, via: [[21.2, -0.86], [23.2, -0.86]] }
   - { from: C25.b, to: [1.45, 27.6], via: [[21.7, -0.54], [27.6, -0.54]] }
   - { from: R12.b, to: [1.45, 28.2], via: [[24.6, -0.68], [28.2, -0.68]] }
-  - { from: C25.a, to: VR6.lug1, color: brown, via: [[21.4, -0.5], [29.75, -0.5]] }
+  # I-FA letters no colour on this lead (only "-26 V"); brown is the
+  # oscillator lead on lug 3, yellow the wiper's (V1 audit 2026-10-03)
+  - { from: C25.a, to: VR6.lug1, via: [[21.4, -0.5], [29.75, -0.5]] }
 
   # === the Intensity control sits in the bias line =========================
   - { from: C19.b, to: VR6.lug3, color: brown, via: [[34.65, -0.29], [29.86, -1.08]] }
