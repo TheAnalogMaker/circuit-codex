@@ -240,6 +240,11 @@ s.junction(54.61, 177.8)
 s.junction(66.04, 177.8)
 s.sym("C", "C11", "20u", 66.04, 181.61)
 s.gnd(66.04, 185.42)
+# The I-EG schematic hangs TWO 20-600 cans on the +432 V node, right of the
+# choke (40 µF of reservoir); until 2026-10-03 this sheet drew one.
+s.junction(73.66, 177.8)
+s.sym("C", "C11b", "20u", 73.66, 181.61)
+s.gnd(73.66, 185.42)
 s.glabel("B+1", 82.55, 177.8, 0)
 s.wire(82.55, 177.8, 85.09, 177.8)
 s.sym("CHOKE", "L1", "14684", 92.71, 177.8, lx=-4.0, ly=-6.4)

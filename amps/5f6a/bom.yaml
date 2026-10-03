@@ -46,6 +46,7 @@ items:
   - { ref: RD2, part: "Power resistor",       value: "10 kΩ",         role: "Rail dropper B+3 → B+4" }
   - { ref: L1,  part: "Filter choke",         value: "Fender 14684",  role: "B+1 → B+2 (screens)" }
   - { ref: C11, part: "Electrolytic capacitor", value: "20 µF · 600 V", role: "Filter, B+1" }
+  - { ref: C11b, part: "Electrolytic capacitor", value: "20 µF · 600 V", role: "Filter, B+1 — the I-EG schematic's second 20-600 can on the +432 V node, in parallel with C11" }
   - { ref: C12, part: "Electrolytic capacitor", value: "20 µF · 600 V", role: "Filter, B+2" }
   - { ref: C13, part: "Electrolytic capacitor", value: "20 µF · 600 V", role: "Filter, B+3" }
   - { ref: C14, part: "Electrolytic capacitor", value: "8 µF · 450 V", role: "Filter, B+4" }

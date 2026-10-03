@@ -413,4 +413,5 @@ net_map:
   # Parts the sheet draws that this board neither places nor wires — each
   # read off the cited layout drawing (sheet ↔ board gate, 2026-10-02).
   not_on_board:
+    C11b: "second 20 µF · 600 V reservoir can on the +432 V node — the I-EG schematic draws two 20-600 cans in parallel there, right of the choke; the I-EG layout page draws none of the main filter cans (its +432 V and +430 V leads leave the board's left end), so this redraw keeps C11 on the board as the node's can and does not place a second body beside it"
     D1: "bias-supply selenium rectifier — the 5F6-A layout (I-EG, read at 6600 × 5100) draws it as the 'SEL. RECT.' block off the board's left end, its + terminal on the transformer's red-blue lead and its − terminal running into the board at the 15 kΩ's eyelet: chassis-mounted, not on the eyelet board"

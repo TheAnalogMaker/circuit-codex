@@ -25,7 +25,7 @@ negative feedback returning to the foot of the phase-inverter tail — the far
 end of its 10k, which is not grounded — alongside the 5 kΩ presence pot's
 track and the second grid's 0.1 µF.
 
-Power: 325-0-325 (PT 8087) → GZ34 → standby → **+432 V** plates (20 µF) →
+Power: 325-0-325 (PT 8087) → GZ34 → standby → **+432 V** plates (two 20 µF) →
 choke (14684) → **+430 V** screens → 4.7 kΩ → **+385 V** PI (20 µF) → 10k →
 **+325 V** preamp (8 µF). Bias supply: selenium rectifier, 15k/56k, two
 8 µF/150 V → **−48 V**.
