@@ -37,8 +37,8 @@ items:
   - { ref: C8,  part: "Film capacitor",       value: "0.1 µF · 400 V", role: "V4B grid AC-coupled to the presence/feedback node" }
   - { ref: C9,  part: "Coupling capacitor",   value: "0.1 µF · 400 V", role: "PI → V5 grid" }
   - { ref: C10, part: "Coupling capacitor",   value: "0.1 µF · 400 V", role: "PI → V6 grid" }
-  - { ref: RGL1, part: "Carbon comp resistor", value: "220 kΩ · ½ W", role: "V5 grid leak, from the −50 V bias line" }
-  - { ref: RGL2, part: "Carbon comp resistor", value: "220 kΩ · ½ W", role: "V6 grid leak, from the −50 V bias line" }
+  - { ref: RGL1, part: "Carbon comp resistor", value: "220 kΩ · ½ W", role: "V5 grid leak, from the bias line (node B)" }
+  - { ref: RGL2, part: "Carbon comp resistor", value: "220 kΩ · ½ W", role: "V6 grid leak, from the bias line (node B)" }
   - { ref: RS3, part: "Carbon comp resistor", value: "1 kΩ · 2 W",   role: "Shared screen feed, B+2 → the screen junction (one resistor for both KT66 screens)" }
   - { ref: RS1, part: "Carbon comp resistor", value: "470 Ω · 1 W",  role: "V5 screen resistor, from the screen junction. Printed '470 1W' (probable)" }
   - { ref: RS2, part: "Carbon comp resistor", value: "470 Ω · 1 W",  role: "V6 screen resistor, from the screen junction. Printed '?70 1W': the first digit is not legible; 470 is the only standard value of that form (670 and 870 are not), which is elimination, not a reading" }
@@ -49,10 +49,13 @@ items:
   - { ref: C12, part: "Electrolytic capacitor", value: "32 µF · 500 V", role: "Filter, B+2 (the node the OT centre tap sits on). Its label is the same glyph pair as the reservoir's '32': value probable" }
   - { ref: C13, part: "Electrolytic capacitor", value: "16 µF · 500 V", role: "Filter, B+3" }
   - { ref: C14, part: "Electrolytic capacitor", value: "16 µF · 450 V", role: "Filter, B+4" }
-  - { ref: D1,  part: "Rectifier (bias)",     value: "1N4007 (silicon diode)", role: "Bias supply rectifier" }
-  - { ref: RB1, part: "Carbon comp resistor", value: "150 kΩ · ½ W", role: "Bias supply series resistor" }
-  - { ref: C15, part: "Film capacitor",       value: "0.05 µF · 350 V", role: "Bias supply filter" }
-  - { ref: C16, part: "Electrolytic capacitor", value: "25 µF · 50 V", role: "Bias supply reservoir" }
+  - { ref: RB1, part: "Carbon comp resistor", value: "not legible", role: "Bias supply series resistor, from the HT winding end it shares with a GZ34 anode to the diode. Printed '1■0K': the middle digit is a solid blob (5, 6 or 8); no value is claimed" }
+  - { ref: D1,  part: "Rectifier (bias)",     value: "not printed", role: "Bias supply rectifier, cathode toward the series resistor (the drawing prints no type at the symbol; its '1N4007' note is about replacing the GZ34)" }
+  - { ref: C18, part: "Electrolytic capacitor", value: "8 µF",         role: "Bias filter at the diode node (node A), − at the node. Printed '8' (probable); no voltage rating printed" }
+  - { ref: RB3, part: "Carbon comp resistor", value: "16 kΩ · ½ W",  role: "Bias filter series resistor, node A → the grid-line node (node B). Printed '16K' (probable)" }
+  - { ref: RB2, part: "Carbon comp resistor", value: "not legible", role: "Bias shunt, grid-line node (node B) → return. Printed '5■K': the second digit is overprinted by a wire; no value is claimed" }
+  - { ref: C16, part: "Electrolytic capacitor", value: "not printed", role: "Bias filter on the grid-line node (node B), − at the node and + at the return as printed" }
+  - { ref: C15, part: "Film capacitor",       value: "0.05 µF",       role: "HT bypass, GZ34 cathode → return, on the rectifier side of the standby switch (not a bias part)" }
   - { ref: V1,  part: "Preamp tube",          value: "ECC83 (12AX7)",  role: "Both input stages (V1A/V1B)" }
   - { ref: V3,  part: "Preamp tube",          value: "ECC83 (12AX7)",  role: "Second stage + cathode follower (V3A/V3B)" }
   - { ref: V4,  part: "Preamp tube",          value: "ECC83 (12AX7)",  role: "Long-tailed-pair phase inverter (V4A/V4B)" }

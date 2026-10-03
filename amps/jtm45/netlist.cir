@@ -10,29 +10,42 @@
 * cap, so the choke carries the KT66 plate current as well as the screens and
 * preamp. The choke is modeled as a DCR estimate; the output-transformer primary
 * DCR is omitted, so the KT66 plate node sits at B+2 (chart prints 430 at the
-* plate pin; plates are not gated). DC-open caps
-* are MODELLED where both leads land on a named DC node (the PI->output couplers
-* C9/C10, the tail-bootstrap C8, and the shared-input cathode-bypass C3) so their
-* board placement is layout-checked; open at DC, they move no operating point.
-* Tone-stack caps (a lead inside the abstracted tone network) stay omitted; the
-* tone stack is fully capacitor-coupled at DC. The fixed-bias network (HT-tap
-* diode, 150k, filter caps and
-* grid-leaks) is replaced by an ideal -50 V source: the drawing prints no bias
-* figure or idle current, so this is a representative estimate. Grid-stopper and
-* grid-leak resistors carry no DC and are omitted (grids sit at their leak
-* return). The tremolo section (V2 + transistor) is not part of this head.
+* plate pin; plates are not gated). DC-open caps are MODELLED where both leads
+* land on a named DC node (the PI->output couplers C9/C10, the tail-bootstrap
+* C8, and the shared-input cathode-bypass C3) so their board placement is
+* layout-checked; open at DC, they move no operating point. The PI plate-to-plate
+* cap C20 is drawn with an illegible value and is not modelled (DC-open; no value
+* is invented for it). Tone-stack caps (a lead inside the abstracted tone
+* network) stay omitted; the tone stack is fully capacitor-coupled at DC.
+*
+* THE BIAS VOLTAGE IS ASSUMED, NOT READ. The drawn fixed-bias network (HT
+* winding end -> series resistor of illegible value -> diode -> "8" cap -> 16k
+* -> grid-line node with a shunt of illegible value and an unvalued
+* electrolytic -> the 220k leaks) rectifies AC, so it cannot be DC-modelled, and
+* two of its resistor values are not legible. Its only printed figure, the
+* "10 5V" bubble on the grid-line node, is disputed (voltages.yaml NBIAS: as
+* -105 V it is far past KT66 cutoff at these screen volts). The chart's KT66
+* pin-5 cell is unreadable. So the grid line NBIAS is an ideal -50 V source, a
+* figure kept from the corpus's earlier model and sourced from nothing on the
+* drawing. At -50 V the house KT66 model passes about 49 mA per plate and NO
+* screen current (its screen term is zero once Vg2/mu + Vg1 < 0, mu = 9.5), so
+* the screen resistors show no drop; both are v0-model behaviour at an assumed
+* bias, not readings. Every gated rail depends on this assumption through the
+* plate current in the choke.
+* Grid current is ~0, so the 220k leaks carry no DC and each output grid sits
+* at the bias line. The tremolo section (V2 + transistor) is not part of this head.
 .include models/12ax7.inc
 .include models/kt66.inc
 
 VBP1 BP1 0 DC 450
-VBIAS NBIAS 0 DC -50
+VBIAS NBIAS 0 DC -50     ; ASSUMED, not printed: see header
 
 * rail chain: reservoir -> 20H choke -> OT centre tap + screen feed node -> 8.2k -> PI -> 10k -> preamp
 RCHOKE BP1 BP2 150
 RD1 BP2 BP3 8.2k
 RD2 BP3 BP4 10k
 
-* V1 ECC83 — bright + normal input stages, shared 820R cathode (250uF bypass)
+* V1 ECC83 — normal (V1A) + bright (V1B) input stages, shared 820R cathode (250uF bypass)
 RL1 BP4 P1A 100k
 XV1A P1A G1A KA 12AX7
 RG1 G1A 0 1meg
@@ -71,7 +84,7 @@ RT2 JPI PRES 10k
 RPRES PRES 0 5k
 RNFB PRES 0 27k
 
-* KT66 pair — fixed bias via 220k grid leaks (RGL1/RGL2) from the -50 V line;
+* KT66 pair — fixed bias via 220k grid leaks (RGL1/RGL2) from the assumed -50 V line;
 * cathodes grounded. Plates sit at B+2 (the OT centre tap is after the choke;
 * primary DCR omitted). Screens as drawn: ONE shared 1k 2W (RS3) from B+2 to a
 * screen junction SJ, then a 470R 1W to each screen (RS1 -> V5, RS2 -> V6). The PI plates couple straight to the grids through 0.1u caps

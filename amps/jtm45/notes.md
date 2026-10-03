@@ -29,10 +29,13 @@ transformer,
 27 kΩ negative feedback into the tail foot with the 5 kΩ presence control
 and its 0.1 µF wiper-to-ground capacitor.
 
-Power: 360-0-360 HT → GZ34 → standby → **+450 V** reservoir feeding the output
-plates (chart 430 V) → **20 H choke** → **+440 V** screens → 8.2 kΩ → **+380 V**
-PI → 10 kΩ → **+310 V** preamp. Fixed bias: an HT-tap diode, 150 kΩ, and a
-0.05 µF / 25 µF filter give the **−50 V** grid line.
+Power: 360-0-360 HT → GZ34 (0.05 µF from its cathode to the return) → standby
+→ **+450 V** reservoir → **20 H choke** → **+440 V** node carrying the output
+transformer's centre tap (plates, chart 430 V), the screen feed, a 32 µF filter
+and the 8.2 kΩ → **+380 V** PI → 10 kΩ → **+310 V** preamp. Fixed bias, as
+drawn: the HT winding end that also feeds a GZ34 anode → a series resistor →
+a diode → an "8" filter → 16 kΩ → the grid-line node, which carries a shunt to
+the return, an unvalued electrolytic and both 220 kΩ leaks.
 
 The one part of the drawing not carried over here is the tremolo: on the
 factory sheet an extra ECC83 (its "V2") drives a 2G374 transistor that shunts
@@ -66,12 +69,12 @@ tone-stack lab all follow the drawing.
 ## Verification — against the printed factory chart
 
 Simulation matches all 12 quantitative chart nodes within their tolerances.
-The phase-inverter cathode is about 43 V against the printed 40 V. An earlier
+The phase-inverter cathode is about 42 V against the printed 40 V. An earlier
 redrawing grounded the 10 kΩ tail and incorrectly treated the chart value as
 disputed; the factory drawing ends that resistor at the presence/feedback
 junction, whose 5 kΩ track and 27 kΩ feedback resistor both return to ground.
-The largest deviation is 9.7% at the shared input cathode, within the chart's
-±20% tube-pin tolerance. The tail junction carries no numerical chart value:
+The largest deviation is 6.5% at the V3A plate, within the chart's ±20%
+tube-pin tolerance. The tail junction carries no numerical chart value:
 the drawing marks the inverter grids only “+”, so it is reported informationally.
 
 The drawing letters the input valve's sections, and that fixes which channel is
@@ -86,3 +89,26 @@ The screen feed is drawn as one 1 kΩ · 2 W from the node after the choke to a
 junction, then a 1 W resistor to each screen. The upper one reads "470"; the
 lower one's first digit is not legible, and 470 is kept because 670 and 870 are
 not standard values, which is elimination rather than a reading.
+
+## What the drawing does not settle: the bias
+
+The bias network's values are only partly legible. The series resistor prints
+as "1■0K" with a middle digit that could be 5, 6 or 8, and the grid-line shunt as
+"5■K" with its second digit overprinted by a wire. The electrolytic on the grid
+line carries no value, and the "8" and "16K" are probable readings. No type is
+printed at the diode; the drawing's "1N4007" note is about replacing the GZ34.
+The only voltage printed on the network is a bubble reading "10 5V" on the
+grid-line node, and it cannot be the quiescent bias. The cans there are drawn
+minus-up, so the node is negative. Read as −105 V, it is far beyond the KT66's
+cutoff of about −46 V at the chart's 440 V screens: the valves would pass no
+plate current, and the plates could not read 10 V below the centre-tap node, as
+the chart prints them. Read as −10.5 V, the output pair would draw several
+hundred milliamps and drag the 440 V rail to about 380 V. The chart's own cell
+for the KT66 grids is an illegible handwritten note.
+
+So the DC model holds the grid line at an ideal −50 V. Nothing on the drawing
+supplies that figure; it is the corpus's earlier assumption, kept so the model
+has a bias at all. The gated rails depend on it through the plate current the
+choke carries. The 0.05 µF that the earlier model treated as a bias filter is
+on the rectifier side of the standby switch, from the GZ34 cathode to the
+return, and the 25 µF it listed is not printed anywhere.

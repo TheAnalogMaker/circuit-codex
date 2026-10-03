@@ -10,7 +10,7 @@ follower, V4 phase inverter, V5/V6 KT66, V7 GZ34).
 The circuit is Marshall's copy of the tweed 5F6-A, so the layout mirrors
 draw_5f6a.py with British-supply values (ECC83 input, KT66 output, 1 kohm
 screen feed (one shared 1k 2W, then 470R per screen), 20 H choke with the
-OT centre tap after it, 8.2 kohm dropper, diode bias supply).
+OT centre tap after it, 8.2 kohm dropper, diode / 16k / RC bias network).
 """
 from pathlib import Path
 
@@ -219,7 +219,7 @@ for y, pref, cref, sref, glref in [
     s.junction(210.62, gy)
     s.sym("R", glref, "220k", 210.62, gy + 3.81)
     s.wire(210.62, gy + 7.62, 210.62, gy + 10.16)
-    s.glabel("-50V", 210.62, gy + 10.16, 270)
+    s.glabel("-BIAS", 210.62, gy + 10.16, 270)
     # each screen's own 470R 1W, from the shared screen junction SCR
     s.wire(p["g2"][0], p["g2"][1], p["g2"][0] + 1.9, p["g2"][1])
     sl2, sr2 = s.series_h("R", sref, "470 1W", p["g2"][0] + 5.71, p["g2"][1])
@@ -252,7 +252,7 @@ s.wire(248.81, 150, 254, 150)
 s.glabel("SCR", 254, 150, 0)
 
 # ---- power supply + bias ------------------------------------------------
-s.text("Power — 360-0-360 HT, GZ34, 20H choke (OT centre tap after it) · bias: HT-tap diode, 150k, .05u + 25u -> -50V", 25, 158, 1.4)
+s.text("Power — 360-0-360 HT, GZ34, 20H choke (OT centre tap after it) · bias: HT-tap R, diode, 8u, 16k, shunt R + elec -> -BIAS", 25, 158, 1.4)
 for x, ref, ht in [(41.91, "V7A", "HT_A"), (54.61, "V7B", "HT_B")]:
     s.glabel(ht, x, 157.5, 90)
     s.wire(x, 157.5, x, 160.16)
@@ -260,6 +260,9 @@ for x, ref, ht in [(41.91, "V7A", "HT_A"), (54.61, "V7B", "HT_B")]:
     s.wire(x, 175.4, x, 177.8)
 s.wire(41.91, 177.8, 82.55, 177.8)
 s.junction(54.61, 177.8)
+s.junction(48.26, 177.8)
+s.sym("C", "C15", ".05u", 48.26, 181.61)    # HT bypass at the GZ34 cathode
+s.gnd(48.26, 185.42)
 s.junction(66.04, 177.8)
 s.sym("C", "C11", "32u", 66.04, 181.61)
 s.gnd(66.04, 185.42)
@@ -288,23 +291,32 @@ s.glabel("B+4", 137.16, 175.26, 90)
 s.wire(137.16, 175.26, 137.16, 177.8)
 s.sym("C", "C14", "16u", 142.24, 181.61)
 s.gnd(142.24, 185.42)
-# bias supply: HT tap -> diode -> 150k -> -50V node, .05u + 25u filters
-# (row lifted 12 mm from y=172.72 so nothing reaches the A4 title-block corner)
-s.glabel("HT_B", 150.1, 160.72, 180)
-s.wire(150.1, 160.72, 153.91, 160.72)
-s.sym("DIODE_SS", "D1", "1N4007", 158.99, 160.72, lx=-2.0, ly=-5.4, rot=180, label_rot=0)
-s.wire(164.07, 160.72, 167.88, 160.72)
-l, r = s.series_h("R", "RB1", "150k", 171.69, 160.72)
-s.wire(167.88, 160.72, l, 160.72)
-s.wire(r, 160.72, 183.12, 160.72)
-s.junction(178.04, 160.72)
-s.sym("C", "C15", ".05u", 178.04, 164.53)
-s.gnd(178.04, 168.34)
-s.junction(180.58, 160.72)
-s.sym("C", "C16", "25u", 180.58, 164.53, lx=2.2)
-s.gnd(180.58, 168.34)
-s.glabel("-50V", 183.12, 160.72, 0)
-s.note('standby switch between reservoir and B+1 (omitted)')
+# bias supply, as the drawing chains it: the HT winding end (shared with a
+# GZ34 anode) -> series R (printed 1?0K, not legible) -> diode, cathode toward
+# the R -> node A ("8" can) -> 16k -> node B (shunt "5?K", not legible, and an
+# unvalued electrolytic) -> -BIAS, the 220k leaks. Node B is the netlist's
+# NBIAS, an ASSUMED ideal source: the drawing's only figure there, "10 5V", is
+# disputed (voltages.yaml).
+s.glabel("HT_B", 138.43, 160.72, 180)
+l, r = s.series_h("R", "RB1", "R", 146.05, 160.72)
+s.wire(138.43, 160.72, l, 160.72)
+s.wire(r, 160.72, 153.91, 160.72)
+s.sym("DIODE_SS", "D1", "diode", 158.99, 160.72, lx=-2.0, ly=-5.4, rot=180, label_rot=0)
+s.wire(164.07, 160.72, 167.64, 160.72)
+s.junction(167.64, 160.72)
+s.sym("C", "C18", "8u", 167.64, 164.53, lx=2.2)
+s.gnd(167.64, 168.34)
+l, r = s.series_h("R", "RB3", "16k", 173.99, 160.72)
+s.wire(167.64, 160.72, l, 160.72)
+s.wire(r, 160.72, 189.23, 160.72)
+s.junction(180.34, 160.72)
+s.sym("R", "RB2", "R", 180.34, 164.53, lx=2.2)
+s.gnd(180.34, 168.34)
+s.junction(185.42, 160.72)
+s.sym("C", "C16", "elec", 185.42, 164.53, lx=2.2)
+s.gnd(185.42, 168.34)
+s.glabel("-BIAS", 189.23, 160.72, 0)
+s.note('standby switch between the GZ34 cathode (C15 side) and the +450 V reservoir B+1 (omitted)')
 
 s.write(OUT, [
     "Heaters, PT primary, standby and the tremolo section omitted — see the netlist and the sources list",

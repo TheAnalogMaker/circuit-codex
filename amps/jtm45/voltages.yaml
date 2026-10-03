@@ -3,7 +3,7 @@
 # signal with an AVO Model 8 Mk II (20,000 ohm/V). The drawing's chart labels
 # the valves V1/V3/V4/V5/V6/V7 (its V2 is the tremolo valve, absent from this
 # head). Rails get 8% (choke DCR is estimated); tube pins 20%.
-source: "Marshall JTM45 factory drawing, printed chart: rails +450 (GZ34 cathode) / +440 (screens) / +380 (PI) / +310 (preamp); V1 plate 220, cathode 1.6; V3A plate 190, cathode 1.1; V3B (CF) plate 310, grid 190, cathode 190; V4 (PI) plates 250, cathodes 40, grids '+'; V5/V6 KT66 plate 430, screen 440; V7 GZ34 cathode 450"
+source: "Marshall JTM45 factory drawing, printed chart: rails +450 (GZ34 cathode) / +440 (screens) / +380 (PI) / +310 (preamp); V1 plate 220, cathode 1.6; V3A plate 190, cathode 1.1; V3B (CF) plate 310, grid 190, cathode 190; V4 (PI) plates 250, cathodes 40, grids '+'; V5/V6 KT66 plate 430, screen 440; V7 GZ34 cathode 450; bias-line bubble '10 5V' (disputed, see NBIAS)"
 nodes:
   BP2:  { chart: 440, tol_pct: 8, note: "node after the 20H choke (DCR estimated): the output-transformer centre tap, the shared 1 kΩ screen feed and the 8.2 kΩ dropper all land here, so the choke carries the KT66 plate current" }
   BP3:  { chart: 380, tol_pct: 8, note: "PI supply node after the 8.2 kΩ dropper" }
@@ -22,3 +22,8 @@ nodes:
     note: "Shared phase-inverter cathode. The 10 kΩ tail ends at the presence/feedback junction; the 5 kΩ track and 27 kΩ feedback resistor provide parallel DC returns to ground."
   JPI:  { chart: null, note: "tail junction; the drawing marks the PI grids only as '+' (qualitative)" }
   S5:   { chart: null, note: "informational — V5 screen, fed from B+2 through the shared 1 kΩ 2 W and its own 470 Ω 1 W (chart screen 440 V). The house KT66 model draws no screen current at the modelled bias, so it reads B+2" }
+  NBIAS:
+    chart: -105
+    tol_pct: 8
+    disputed: true
+    dispute_note: "The drawing circles '10 5V' on the grid-line node (the junction of the 16 kΩ, the shunt to ground, the unvalued electrolytic and both 220 kΩ leaks): no minus sign and no decimal point are printed, with a blank 6 px gap between the 0 and the 5. The sign is taken from the drawn electrolytic on that node (− at the node, + at the return). As −105 V it cannot be the quiescent grid bias: the KT66's μ(g1–g2) of 9.5 (GEC data sheet, meta.yaml) puts cutoff near −440/9.5 ≈ −46 V at the chart's 440 V screens, so −105 V is about 59 V past cutoff; the valves would pass no plate current and each plate would read the centre-tap node, yet the chart prints the plates at 430 V, 10 V below the 440 V node the centre tap sits on. Read as −10.5 V it fails the other way: the house model then pulls about 460 mA from the reservoir and B+2 sags to about 381 V against the printed 440 V. The chart's own KT66 pin-5 cell is unreadable. The model's −50 V is an assumed figure, not this reading, and nothing on the drawing gates it."
