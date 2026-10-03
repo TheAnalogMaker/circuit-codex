@@ -4,7 +4,7 @@
 # cross-checks every one of them against it in both directions.
 # Values are the drawing's; its notice sets ½ W / 10 % resistors and 400 V caps
 # unless marked otherwise.
-notes: "The drawing shows both instrument jacks (1 and 2) of each channel with their normalling contacts; this sheet draws them as the two input labels, with the 1 MΩ leak at jack 1's tip, jack side of its 68 kΩ stopper, where D-FE puts it. The schematic draws ONE bias-supply filter capacitor, with polarity marks and no printed value. The output transformer's centre tap takes the HT on the reservoir side of the filter choke; the screens, the first 20 µF can and the 1 kΩ dropper hang on the choke's output. The 6L6GC pair is simulated on this corpus's own clean-room 6L6GC model."
+notes: "The drawing shows both instrument jacks (1 and 2) of each channel with their normalling contacts; this sheet draws them as the two input labels, with the 1 MΩ leak at jack 1's tip, jack side of its 68 kΩ stopper, where D-FE puts it. The schematic draws ONE bias-supply filter capacitor, with polarity marks and no printed value; the layout page letters that one can 50 µF · 50 V. The output transformer's centre tap takes the HT on the reservoir side of the filter choke; the screens, the first 20 µF can and the 1 kΩ dropper hang on the choke's output. The 6L6GC pair is simulated on this corpus's own clean-room 6L6GC model."
 items:
   # --- Bass channel input (V1a) ---
   - { ref: R1b, part: "Carbon comp resistor", value: "68 kΩ · ½ W",  role: "Bass input grid stopper (jack 1)" }
@@ -104,7 +104,7 @@ items:
   # --- Bias supply ---
   - { ref: RBIAS, part: "Wirewound resistor", value: "470 Ω · 1 W",   role: "Bias-supply series resistor off the HT winding" }
   - { ref: DBIAS, part: "Rectifier (bias)",   value: "silicon diode", role: "Bias-supply rectifier" }
-  - { ref: CB1, part: "Electrolytic capacitor", value: "electrolytic (value not printed)", role: "Bias-supply filter, the diode's negative node to ground (+ to ground); the one capacitor the schematic draws there" }
+  - { ref: CB1, part: "Electrolytic capacitor", value: "50 µF · 50 V", role: "Bias-supply filter, the diode's negative node to ground (+ to ground). The D-FE layout page letters it '50 | 50' with + and − marks, the one electrolytic on its bias board (layout 2148x1578, crop 170,400,920,680); the schematic draws the one capacitor and prints no value (crop 4500,2450,5700,3300)" }
   - { ref: RBB1, part: "Carbon comp resistor", value: "10 kΩ · ½ W",  role: "Bias bridge leg, the balance pot's 15 kΩ end → V6's grid-leak return" }
   - { ref: RBB2, part: "Carbon comp resistor", value: "10 kΩ · ½ W",  role: "Bias bridge leg, the balance pot's diode end → V6's grid-leak return" }
   - { ref: RBB3, part: "Carbon comp resistor", value: "15 kΩ · ½ W",  role: "Bias divider foot, the balance pot's far end to ground" }

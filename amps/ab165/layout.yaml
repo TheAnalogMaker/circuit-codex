@@ -344,7 +344,7 @@ net_map:
     CDEATH: ".047-600 ground-switch capacitor — drawn at the GROUND SWITCH on the layout's mains row, off the board"
     DBIAS: "bias rectifier diode — drawn in the layout's bias sub-box (470 1W → diode → 50|50 cap) beside the pilot light, not on the main eyelet board"
     RBIAS: "470 Ω · 1 W bias feed — the '470 1W' in the layout's bias sub-box, not on the main eyelet board"
-    CB1: "bias filter — the one capacitor the D-FE schematic draws on the bias node (crop 4300,2050,5600,3000); an earlier read of the layout's bias sub-box lettered its can '50|50', not on the main eyelet board"
+    CB1: "50 µF · 50 V bias filter — the one electrolytic in the layout's bias sub-box, lettered '50 | 50' with + and − (crop 170,400,920,680), and the one capacitor the D-FE schematic draws on the bias node (crop 4300,2050,5600,3000); not on the main eyelet board"
 
 # Board-scope rules for the sheet ↔ board gate: parts the sheet draws that
 # this board deliberately does not, by designator glob, each with where the

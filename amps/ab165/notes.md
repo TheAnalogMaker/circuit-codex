@@ -74,7 +74,8 @@ the drawing's own droppers, so the printed ladder is a checked claim: +415 and
 +390 land within half a percent of print, +320 within five.
 
 A separate negative supply — 470 Ω · 1 W off the HT winding, a silicon diode
-and one filter capacitor — feeds the bias divider.
+and one filter capacitor, 50 µF · 50 V as the layout page letters it (the
+schematic prints no value) — feeds the bias divider.
 
 ## Reading against the printed chart
 
