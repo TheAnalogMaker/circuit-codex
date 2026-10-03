@@ -3,9 +3,9 @@
 # against this sheet and against netlist.cir. See docs/schematic-nets.md.
 
 anchors:
-  T3.1: BP1                # OT primary, V4 plate end — primary DCR omitted
-  T3.2: BP1                # OT primary centre tap (the <B+1> rail)
-  T3.3: BP1                # OT primary, V5 plate end
+  T3.1: BP2                # OT primary, V4 plate end — primary DCR omitted
+  T3.2: BP2                # OT primary centre tap (the <B+2> rail, the choke's output, with the screens)
+  T3.3: BP2                # OT primary, V5 plate end
 
 symbols:
   # netlist RCHOKE BP1 BP2 130 Ω is the filter choke's winding DCR, not a

@@ -3,8 +3,13 @@
 * (C-EG) drawing's component values (see meta.yaml); no drawing reproduced.
 *
 * DC conventions: B+1 driven at the printed +415 V; downstream nodes DERIVED.
-* Choke (14684) modeled as a 130R DCR estimate (drawing prints 415 -> 410 across
-* it). OT primary DCR omitted. Bias supply replaced by an ideal -40 V source
+* Choke (14684) modeled as a 130R DCR estimate, not fitted (the drawing prints
+* 415 -> 410 across it). The output-transformer centre tap takes B+2, the
+* choke's output, with the screens: C-EG runs it into the screen line on the
+* schematic and letters its RED lead onto the right 6L6G's pin 4 on the layout
+* (V1 audit 2026-10-03; until then this netlist hung the plates on B+1). OT
+* primary DCR omitted, so both plates sit at B+2 and the whole output-stage
+* current crosses the choke. Bias supply replaced by an ideal -40 V source
 * (its 6.8k/56k/selenium network is AC/ripple filtering). DC-open caps are
 * MODELLED where both leads land on a named DC node (the PI->output couplers
 * C9/C10 below, plus the cathode-bypass caps C3/C4) so their board placement is
@@ -69,11 +74,13 @@ RKA KPI JPI 1.5k
 RKB JPI 0 56k
 
 * 6L6G pair — fixed bias via 220k leaks from the -40 V supply; screens tied
-* straight to the +410 V node (no screen resistors on the C-EG drawing).
+* straight to the +410 V node (no screen resistors on the C-EG drawing), and
+* the plates reach the same node through the output-transformer primary (DCR
+* omitted).
 RGL1 NBIAS G51 220k
-XV4 BP1 BP2 G51 0 5881
+XV4 BP2 BP2 G51 0 5881
 RGL2 NBIAS G52 220k
-XV5 BP1 BP2 G52 0 5881
+XV5 BP2 BP2 G52 0 5881
 * Cathodyne -> output-grid drive: 0.1u coupling caps (C9/C10, DC-open) + 1.5k
 * grid stoppers (R5s/R6s). Modelled so the layout-equivalence gate checks the
 * inter-stage routing and push-pull phase natively (C9 carries the cathodyne's

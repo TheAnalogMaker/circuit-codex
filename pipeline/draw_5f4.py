@@ -21,6 +21,18 @@ for ch, (y, jack, gref, pref, plref, cref, vref, mref) in enumerate([
     s.wire(30.48, y, l, y)
     t = s.triode(pref, "12AY7", 49.53, y)
     s.wire(r, y, t["g"][0], y)
+    # Jack 2 has its own 68k into the same grid: C-EG draws four jacks and
+    # four 68 Ks, two per channel, on both pages (schematic 6352x3744, crop
+    # 0,850,900,2550; layout 6330x3228, crop 5200,450,6330,2350). Jack 2's
+    # contact rests on jack 1's tip and jack 1's on ground; the labels here do
+    # not draw the contacts. Until 2026-10-03 this sheet drew one 68k per
+    # channel (V1 audit, 5f4.md).
+    s.glabel(f"{jack} J2", 26, y - 8, 180)
+    s.wire(26, y - 8, 30.48, y - 8)
+    l2, r2 = s.series_h("R", f"R{ch + 3}s", "68k", 34.29, y - 8)
+    s.wire(r2, y - 8, 40.5, y - 8)
+    s.wire(40.5, y - 8, 40.5, y)
+    s.junction(40.5, y)
     # The 1M grid leak hangs from the JACK-1 tip node, jack side of the 68k
     # stopper, as the factory sheet draws it (jack 1 tip -> 1 MEG -> ground;
     # the stoppers run from the jack tips to the grid). The stopper carries
@@ -240,7 +252,12 @@ s.wire(235.7, 126.5, 235.7, 115.08)
 s.wire(235.7, 115.08, 240.61, 115.08)
 s.wire(240.61, 110, 238.07, 110)
 s.wire(238.07, 110, 238.07, 107)
-s.glabel("B+1", 238.07, 107, 90)
+# The centre tap takes B+2, the choke's output, with the screens: C-EG runs
+# it into the screen line on the schematic (6352x3744, crop 5250,1100,5750,2450)
+# and letters its RED lead onto the right 6L6G's pin 4 on the layout
+# (6330x3228, crop 1400,2200,2000,2850). Until 2026-10-03 this sheet put it on
+# B+1, the reservoir side (V1 audit, 5f4.md).
+s.glabel("B+2", 238.07, 107, 90)
 s.wire(258.39, 107.46, 260.93, 107.46)
 s.glabel("SPKR", 260.93, 107.46, 0)
 s.wire(258.39, 112.54, 260.93, 112.54)

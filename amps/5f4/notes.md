@@ -15,7 +15,8 @@ output pair back to 6L6G and lifting the rails.
 
 ## Circuit walkthrough (short form)
 
-Two channels (each: 1M grid leak, 68k stopper) → **V1** 12AY7 (100k plates,
+Two channels, two jacks each (each jack through its own 68k stopper; the 1M
+leak at jack 1's tip) → **V1** 12AY7 (100k plates,
 shared 820 Ω cathode with 25 µF bypass) → 0.02 µF couplers → 1M volume pots →
 270k mixers → **V2A** 12AX7 (100k plate, 1.5k/25 µF cathode) → **V2B cathode
 follower, DC-coupled** (100k cathode load) → the split tone network (below) →
@@ -24,12 +25,13 @@ plate, 1.5k cathode) → 0.02 µF → **V3B split-load cathodyne**: 56k plate, 1
 + 56k under the cathode, 1M grid leak returned to the 1.5k/56k junction → 0.1
 µF couplers from the cathodyne's **plate and cathode** → **6L6G pair**,
 fixed-biased at −40 V through 220k leaks (1.5k grid stoppers), screens tied
-straight to the +410 V node → Fender 45216 output transformer into the two
+straight to the +410 V node → Fender 45216 output transformer, its centre tap
+on that same +410 V node, into the two
 10-inch speakers. A 56k negative-feedback resistor returns from the speaker to
 V3A's cathode, where the 5k presence pot bleeds it to ground through 0.1 µF.
 
-Power: 5U4G rectifier → **+415 V** reservoir (output plates) → choke (14684) →
-**+410 V** screens → 10k → **+332 V** phase-inverter supply → 10k → **+280 V**
+Power: 5U4G rectifier → **+415 V** reservoir → choke (14684) →
+**+410 V** screens and output-transformer centre tap → 10k → **+332 V** phase-inverter supply → 10k → **+280 V**
 preamp. A selenium rectifier with a 6.8k/56k network supplies the **−40 V**
 bias, fed from a dedicated tap on the 8087's high-tension winding — between one
 end and the centre tap, the lead the layout letters red-blue — and not from a
@@ -98,7 +100,7 @@ tap is grounded at the socket, so it is simply the nearest ground lug.
 ## Verification — and what the chart gets wrong
 
 The rails, the 12AY7 front end, all five phase-inverter values, and the 6L6
-fixed-bias supply verify against the printed chart (worst gated node 16.0 %,
+fixed-bias supply verify against the printed chart (worst gated node 13.1 %,
 against the chart's own ±20 % convention). The five phase-inverter figures —
 +213/+1.7 on the driver, +270/+55/+53.3 on the cathodyne — are mutually
 consistent once the stage is read as the driver + cathodyne the sheet draws;
@@ -108,6 +110,6 @@ values remain excluded as disputed, with the arithmetic shown in the voltage
 table: the chart's V2A pair (140 V plate with a 2.2 V cathode) is physically
 impossible for a 12AX7 — that cathode voltage implies a current the tube can
 only pass near 280 V — and the cathode follower inherits the same printed
-value through its direct coupling. Measured period data and simulation agree
-the real operating point sits near 190 V. The full analysis is in the
+value through its direct coupling. Measured period data put the real
+operating point near 190 V, and simulation lands near 178 V. The full analysis is in the
 archive's 12AX7 calibration study.

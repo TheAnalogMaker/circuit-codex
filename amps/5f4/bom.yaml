@@ -1,10 +1,12 @@
 # Parts list — reference designators match schematic.kicad_sch exactly.
-notes: "The schematic draws one jack per channel (the chassis has four). Output tubes are drawn '6L6G' on the C-EG sheet; Fender shipped the tweed Super with 5881s (interchangeable 6L6-family) and the 5881 SPICE model stands in for simulation. The tone network is capacitor-isolated and omitted from the DC netlist (the phase-inverter grid's DC path through it is modelled as a single leak resistor). The negative-feedback resistor, the presence pot and its 0.1 µF bleed cap are chassis wiring rather than board wiring, but the drawing carries all three, so they carry designators (RNF, VR6, C17) and are drawn on the schematic. Parts drawn only as annotations (bright cap, line caps, power transformer) are listed without designators."
+notes: "Both pages draw four input jacks, two per channel, each with its own 68 kΩ stopper into the channel's grid, and hang the channel's 1 MΩ leak from jack 1's tip, jack side of its stopper; jack 2's contact rests on jack 1's tip. The output-transformer centre tap takes the choke's output (+410 V) with the screens, on both pages. Output tubes are drawn '6L6G' on the C-EG sheet; Fender shipped the tweed Super with 5881s (interchangeable 6L6-family) and the 5881 SPICE model stands in for simulation. The tone network is capacitor-isolated and omitted from the DC netlist (the phase-inverter grid's DC path through it is modelled as a single leak resistor). The negative-feedback resistor, the presence pot and its 0.1 µF bleed cap are chassis wiring rather than board wiring, but the drawing carries all three, so they carry designators (RNF, VR6, C17) and are drawn on the schematic. Parts drawn only as annotations (bright cap, line caps, power transformer) are listed without designators."
 items:
-  - { ref: R1s, part: "Carbon comp resistor", value: "68 kΩ · ½ W",  role: "Channel-1 grid stopper" }
-  - { ref: R2s, part: "Carbon comp resistor", value: "68 kΩ · ½ W",  role: "Channel-2 grid stopper" }
-  - { ref: RG1, part: "Carbon comp resistor", value: "1 MΩ · ½ W",   role: "Channel-1 input grid leak" }
-  - { ref: RG2, part: "Carbon comp resistor", value: "1 MΩ · ½ W",   role: "Channel-2 input grid leak" }
+  - { ref: R1s, part: "Carbon comp resistor", value: "68 kΩ · ½ W",  role: "Channel-1 grid stopper (jack 1)" }
+  - { ref: R3s, part: "Carbon comp resistor", value: "68 kΩ · ½ W",  role: "Channel-1 grid stopper (jack 2)" }
+  - { ref: R2s, part: "Carbon comp resistor", value: "68 kΩ · ½ W",  role: "Channel-2 grid stopper (jack 1)" }
+  - { ref: R4s, part: "Carbon comp resistor", value: "68 kΩ · ½ W",  role: "Channel-2 grid stopper (jack 2)" }
+  - { ref: RG1, part: "Carbon comp resistor", value: "1 MΩ · ½ W",   role: "Channel-1 input leak, jack 1's tip to ground (the grid returns through R1s)" }
+  - { ref: RG2, part: "Carbon comp resistor", value: "1 MΩ · ½ W",   role: "Channel-2 input leak, jack 1's tip to ground (the grid returns through R2s)" }
   - { ref: RL1, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "V1A plate load" }
   - { ref: RL2, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "V1B plate load" }
   - { ref: RK1, part: "Carbon comp resistor", value: "820 Ω · ½ W",  role: "Shared 12AY7 cathode bias" }
@@ -47,9 +49,9 @@ items:
   - { ref: RGL2, part: "Carbon comp resistor", value: "220 kΩ · ½ W", role: "V5 grid leak, from the −40 V bias line" }
   - { ref: RD1, part: "Power resistor",       value: "10 kΩ",         role: "Rail dropper B+2 → B+3" }
   - { ref: RD2, part: "Power resistor",       value: "10 kΩ",         role: "Rail dropper B+3 → B+4" }
-  - { ref: L1,  part: "Filter choke",         value: "Fender 14684",  role: "B+1 → B+2 (screens)" }
-  - { ref: C11, part: "Electrolytic capacitor", value: "16 µF · 450 V", role: "Filter, B+1 (reservoir)" }
-  - { ref: C12, part: "Electrolytic capacitor", value: "16 µF · 450 V", role: "Filter, B+2" }
+  - { ref: L1,  part: "Filter choke",         value: "Fender 14684",  role: "B+1 → B+2 (screens and output-transformer centre tap)" }
+  - { ref: C11, part: "Electrolytic capacitor", value: "16 µF · 450 V", role: "Filter, B+1 (reservoir, the choke's input)" }
+  - { ref: C12, part: "Electrolytic capacitor", value: "16 µF · 450 V", role: "Filter, B+2 (screens and output-transformer centre tap)" }
   - { ref: C13, part: "Electrolytic capacitor", value: "16 µF · 450 V", role: "Filter, B+3" }
   - { ref: C14, part: "Electrolytic capacitor", value: "8 µF · 450 V", role: "Filter, B+4" }
   - { ref: D1,  part: "Rectifier (bias)",     value: "selenium (silicon diode in modern builds)", role: "Bias supply rectifier" }

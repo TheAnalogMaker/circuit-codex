@@ -28,7 +28,7 @@ wiring_claim: verified
 
 board:
   rows: 2
-  cols: 49
+  cols: 51
   title: "5F4 · eyelet board layout"
 
 # The 6.3 V supply here is single-ended rather than a twisted pair, so the
@@ -88,7 +88,7 @@ heaters:
       chain.
     sockets:
       V6: { feed: [2], return: [8] }        # 5U4G directly-heated filament
-caption: "Redrawn from the published Fender 5F4 'Super-Amp' layout drawing (C-EG), page 1 — principal board components and their hookup, in the order the drawing shows them. The chassis has four input jacks (two per channel); the drawing's four 68 kΩ grid stoppers collapse to the two the schematic/BOM model (R1s, R2s), and the two 1 MΩ input grid leaks (RG1, RG2) mount at the channel jacks as the sheet shows. The tone network is wired as the sheet draws it: the 250 pF treble cap, 0.1 µF bass coupler and its 220 kΩ leak sit on the board; the 0.01 µF (C6) hangs at the treble pot and the 0.005 µF (C7) at the bass pot, whose other end lug is grounded to its case; the bass branch lands on the bass pot's WIPER, and the second 220 kΩ (RSR) is strung pot-to-pot from the bass wiper to the treble wiper, whose lead alone carries the output to the phase inverter. The presence pot and the 56 kΩ negative-feedback resistor both land at the driver's cathode: they are chassis wiring rather than board wiring, so they are drawn at the chassis edge — the feedback resistor as a discrete part, because a bare lead from the speaker jack to that cathode would draw a short the amplifier does not have. The 0.1 µF on the presence wiper is drawn at the chassis edge beside the pot. The 100 pF bright cap and the two AC-line caps are chassis parts too and are left off this drawing; the schematic carries them. The negative-bias supply takes the power transformer's own bias tap — the red-blue lead — onto the 6.8 kΩ, which feeds the selenium rectifier beside the board; the rectifier's other terminal is the −40 V line, the order the drawing shows. The power-transformer primary (black) lands on chassis switches, off the board; the 6.3 V heater supply is single-ended — one green transformer lead is grounded alongside the red-yellow HT centre tap and the other feeds the pilot light and every heater, so each socket carries a green feed and a grounded return (all three noval bottles have pins 4+5 strapped for 6.3 V parallel with the centre tap at pin 9 to ground; each 6L6G is fed at pin 7 and returned at pin 2, bowed to the base sleeve at pin 1 and on to the fixed-bias grounded cathode at pin 8). Those landings are the drawing's own; the daisy order the feed takes (pilot light → the two 6L6G output tubes → 12AX7 phase inverter → 12AX7 → 12AY7) follows the sheet's own physical order. The directly-heated 5U4G rectifier runs off the 5 V winding, the transformer's yellow pair, not the 6.3 V chain. Not a trace or a dimensioned reproduction."
+caption: "Redrawn from the published Fender 5F4 'Super-Amp' layout drawing (C-EG), page 1 — principal board components and their hookup, in the order the drawing shows them. The chassis has four input jacks (two per channel); each jack has its own 68 kΩ grid stopper, as the drawing's board carries four (R1s and R3s for channel 1's jacks, R2s and R4s for channel 2's), the two of a channel joined at its grid; the two 1 MΩ input leaks (RG1, RG2) mount at each channel's jack 1 as the sheet shows, and the jack-normalling contacts have no board terminal and are not drawn. The tone network is wired as the sheet draws it: the 250 pF treble cap, 0.1 µF bass coupler and its 220 kΩ leak sit on the board; the 0.01 µF (C6) hangs at the treble pot and the 0.005 µF (C7) at the bass pot, whose other end lug is grounded to its case; the bass branch lands on the bass pot's WIPER, and the second 220 kΩ (RSR) is strung pot-to-pot from the bass wiper to the treble wiper, whose lead alone carries the output to the phase inverter. The presence pot and the 56 kΩ negative-feedback resistor both land at the driver's cathode: they are chassis wiring rather than board wiring, so they are drawn at the chassis edge — the feedback resistor as a discrete part, because a bare lead from the speaker jack to that cathode would draw a short the amplifier does not have. The 0.1 µF on the presence wiper is drawn at the chassis edge beside the pot. The 100 pF bright cap and the two AC-line caps are chassis parts too and are left off this drawing; the schematic carries them. The negative-bias supply takes the power transformer's own bias tap — the red-blue lead — onto the 6.8 kΩ, which feeds the selenium rectifier beside the board; the rectifier's other terminal is the −40 V line, the order the drawing shows. The power-transformer primary (black) lands on chassis switches, off the board; the 6.3 V heater supply is single-ended — one green transformer lead is grounded alongside the red-yellow HT centre tap and the other feeds the pilot light and every heater, so each socket carries a green feed and a grounded return (all three noval bottles have pins 4+5 strapped for 6.3 V parallel with the centre tap at pin 9 to ground; each 6L6G is fed at pin 7 and returned at pin 2, bowed to the base sleeve at pin 1 and on to the fixed-bias grounded cathode at pin 8). Those landings are the drawing's own; the daisy order the feed takes (pilot light → the two 6L6G output tubes → 12AX7 phase inverter → 12AX7 → 12AY7) follows the sheet's own physical order. The directly-heated 5U4G rectifier runs off the 5 V winding, the transformer's yellow pair, not the 6.3 V chain. Not a trace or a dimensioned reproduction."
 source:
   desc: "Fender 'Super-Amp' Model 5F4 layout drawing (C-EG), page 1"
   url: "https://el34world.com/charts/Schematics/files/Fender/Fender_super_5f4.pdf"
@@ -108,10 +108,10 @@ parts:
   - { ref: RB1,  a: [1, 0],  b: [1, 1] }    # 6.8k bias series (from selenium rect)
   - { ref: RB2,  a: [1, 2],  b: [1, 3] }    # 56k bias bleeder
   # Polarity: printed '+' on the cited source; lead C11.a: BP1 = +415.0 V (ideal source VBP1); lead C11.b: 0 = +0.0 V (ground); more-positive lead is C11.a.
-  - { ref: C11,  a: [0, 3],  b: [0, 5] , plus: a }    # 16 µF filter, B+1 (+415, output plates / OT CT)
-  # Polarity: printed '+' on the cited source; lead C12.a: BP2 = +413.3 V (op-points); lead C12.b: 0 = +0.0 V (ground); more-positive lead is C12.a.
-  - { ref: C12,  a: [0, 6],  b: [0, 8] , plus: a }    # 16 µF filter, B+2 (+410, screens)
-  # Polarity: printed '+' on the cited source; lead C13.a: BP3 = +335.6 V (op-points); lead C13.b: 0 = +0.0 V (ground); more-positive lead is C13.a.
+  - { ref: C11,  a: [0, 3],  b: [0, 5] , plus: a }    # 16 µF filter, B+1 (+415, reservoir, the choke's input)
+  # Polarity: printed '+' on the cited source; lead C12.a: BP2 = +402.0 V (op-points); lead C12.b: 0 = +0.0 V (ground); more-positive lead is C12.a.
+  - { ref: C12,  a: [0, 6],  b: [0, 8] , plus: a }    # 16 µF filter, B+2 (+410, screens and OT centre tap)
+  # Polarity: printed '+' on the cited source; lead C13.a: BP3 = +326.4 V (op-points); lead C13.b: 0 = +0.0 V (ground); more-positive lead is C13.a.
   - { ref: C13,  a: [0, 9],  b: [0, 11] , plus: a }   # 16 µF filter, B+3 (+332, PI)
   - { ref: RD1,  a: [1, 4],  b: [1, 5] }    # 10k dropper B+2->B+3
   - { ref: RD2,  a: [1, 6],  b: [1, 7] }    # 10k dropper B+3->B+4
@@ -139,11 +139,11 @@ parts:
   - { ref: RF1,  a: [1, 30], b: [1, 31] }   # 4.7M V2A grid reference / feedback from node B
   - { ref: RSH,  a: [0, 31], b: [0, 32] }   # 220k bass-branch leak (node B -> ground)
   # --- channel mixers + V2 gain stage / cathode follower ---------------------
-  # Polarity: DC sign (source read; no legible printed capacitor + used); lead C4.b: 0 = +0.0 V (ground); lead C4.a: K2A = +1.5 V (op-points); more-positive lead is C4.a.
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead C4.b: 0 = +0.0 V (ground); lead C4.a: K2A = +1.4 V (op-points); more-positive lead is C4.a.
   - { ref: C4,   a: [0, 34], b: [0, 33] , plus: a }   # 25 µF V2A cathode bypass (shares the cathode eyelet with RK2)
   - { ref: RM1,  a: [1, 32], b: [1, 33] }   # 270k channel-1 mixer
   - { ref: RK2,  a: [0, 34], b: [1, 34] }   # 1.5k V2A cathode (vertical)
-  # Polarity: DC sign (source read; no legible printed capacitor + used); lead C14.a: BP4 = +280.4 V (op-points); lead C14.b: 0 = +0.0 V (ground); more-positive lead is C14.a.
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead C14.a: BP4 = +272.7 V (op-points); lead C14.b: 0 = +0.0 V (ground); more-positive lead is C14.a.
   - { ref: C14,  a: [0, 35], b: [0, 37] , plus: a }   # 8 µF filter, B+4 (+280, preamp)
   - { ref: RM2,  a: [1, 35], b: [1, 36] }   # 270k channel-2 mixer
   - { ref: RL3,  a: [1, 37], b: [1, 38] }   # 100k V2A plate load
@@ -157,6 +157,10 @@ parts:
   # Polarity: DC sign (source read; no legible printed capacitor + used); lead C3.a: KAY = +2.2 V (op-points); lead C3.b: 0 = +0.0 V (ground); more-positive lead is C3.a.
   - { ref: C3,   a: [0, 47], b: [0, 48] , plus: a }   # 25 µF 12AY7 cathode bypass
   - { ref: R2s,  a: [1, 47], b: [1, 48] }   # 68k channel-2 grid stopper
+  # C-EG's board carries four 68 Ks, two per channel (layout 6330x3228, crop
+  # 5200,450,6330,2350); until 2026-10-03 this board seated one per channel.
+  - { ref: R3s,  a: [0, 49], b: [0, 50] }   # 68k channel-1 jack-2 grid stopper
+  - { ref: R4s,  a: [1, 49], b: [1, 50] }   # 68k channel-2 jack-2 grid stopper
 
 # Off-board items drawn as labelled stubs around the board, in the drawing's
 # positions: tubes along the bottom, the pots and input jacks up top,
@@ -199,6 +203,8 @@ offboard:
   - { id: VR2, ref: VR2, kind: pot, edge: top, at: 43, label: "Volume · 2" }
   - { id: JI,  kind: jack, edge: top, at: 46, label: "Ch 1 in" }
   - { id: JM,  kind: jack, edge: top, at: 48, label: "Ch 2 in" }
+  - { id: JI2, kind: jack, edge: top, at: 49.7, label: "Ch 1 in 2" }
+  - { id: JM2, kind: jack, edge: top, at: 51.2, label: "Ch 2 in 2" }
   # RG1 / RG2 (1 MΩ input grid leaks) mount at the channel jacks per the drawing —
   # generic 2-lead off-board parts (kind: part): RGn.a → the channel input node,
   # RGn.b → ground, using the renderer's 2-terminal support.
@@ -216,7 +222,7 @@ bus:
 # transformer leads carry the colours marked on that drawing: the PT secondary
 # (RED/RED HT plates, YELLOW/YELLOW 5 V filament, RED-YELLOW HT centre tap) to
 # the 5U4G, and the output-transformer primary (V4 plate BROWN, V5 plate BLUE,
-# centre tap RED to B+1). The PT primary (BLACK) lands on the chassis switches,
+# centre tap RED to B+2, onto a 6L6G screen pin as the sheet letters it). The PT primary (BLACK) lands on the chassis switches,
 # off the board, so it is not drawn. The 6.3 V heater winding is the GREEN pair
 # (the sheet shows plain green/green — no centre tap on this transformer); it
 # (the sheet shows plain green/green - no centre tap on this transformer), and
@@ -277,9 +283,13 @@ runs:
   - { from: RGL2.a, to: V5.pin5, via: [[12, 2.1], [9.4, 2.1]] }
   - { from: V4.pin4, to: C12.a, via: [[5.7, 1.5]] }
   - { from: V5.pin4, to: C12.a, via: [[7.4, 1.75], [6.3, 0.5]] }
-  - { from: V4.pin3, to: T3.brown, via: [[4.5, 2.68], [49.1, 2.68], [49.1, 0.31]] }
+  - { from: V4.pin3, to: T3.brown, via: [[4.5, 2.68], [49.1, 2.68], [49.1, 1.058]] }
   - { from: V5.pin3, to: T3.blue, via: [[9, 2.85], [49.4, 2.85], [49.4, 0.41]] }
-  - { from: T3.red, to: C11.a, color: red, via: [[49.7, 0.52], [49.7, 2.5], [3.4, 2.5], [3.4, 0.4]] }
+  # C-EG letters the OT's RED lead onto the right 6L6G's pin 4, the screen
+  # line on B+2 (layout 6330x3228, crop 1400,2200,2000,2850), and the schematic
+  # runs the centre tap into the screen line (6352x3744, crop 5250,1100,5750,2450).
+  # Until 2026-10-03 this lead went to C11, the reservoir side (V1 audit).
+  - { from: T3.red, to: C12.a, color: red, via: [[49.7, 0.808], [49.7, 2.5], [6.4, 2.5], [6.488, 0.4]] }
   - { from: V4.pin8, to: [1.45, 6.9], via: [[7.147, 2.75]] }
   - { from: V5.pin8, to: [1.45, 10.9], via: [[11.11, 2.75]] }
   - { from: T3.sec1, to: SPK, via: [[48.5, 0.63], [48.5, 3.05], [15.8, 3.05], [15.05, 1.9]] }
@@ -357,9 +367,13 @@ runs:
   - { from: V1.pin6, to: C1.a, via: [[43.914, 1.867], [38.3, 1.85], [38.3, 0.4]] }
   - { from: C1.b, to: VR1.lug3, via: [[40, -0.4], [39, -0.4]] }
   - { from: JM, to: R2s.b, via: [[47.6, 0.45], [47.6, 1]] }
-  - { from: RG2.a, to: R2s.b, via: [[48.9, -0.2], [48.6, 0.65]] }
+  - { from: RG2.a, to: R2s.b, via: [[48.787, -0.2], [48.6, 0.65]] }
   - { from: RG2.b, to: [1.45, 46.6], via: [[46.7, 0.5]] }
   - { from: R2s.a, to: V1.pin2, via: [[47, 1.7], [45.63, 1.7]] }
+  - { from: JI2, to: R3s.b }                                    # ch1 jack 2 -> its own 68k
+  - { from: R3s.a, to: R1s.a, via: [[48.6, 0.5], [44.6, 0.5]] }  # -> the V1A grid eyelet
+  - { from: JM2, to: R4s.b }                                    # ch2 jack 2 -> its own 68k
+  - { from: R4s.a, to: R2s.a, via: [[48.7, 1.4], [47.3, 1.4]] }  # -> the V1B grid eyelet
   - { from: V1.pin1, to: RL2.b, via: [[42.5, 2.05], [42, 1.6]] }
   - { from: RL2.a, to: C14.a, via: [[41, 0.34], [37.3, 0.34]] }
   - { from: V1.pin1, to: C2.a, via: [[45.3, 2.18], [41.3, 2.18], [41.3, 0.4]] }
@@ -411,26 +425,28 @@ runs:
 net_map:
   # Terminals the netlist gives no discrete node to reach on their own — anchored
   # to the netlist node they belong to. Co-anchoring the three OT-primary leads
-  # to BP1 declares the DC bridge the netlist collapses (OT primary DCR omitted,
-  # so both 6L6G plates and the centre tap read as B+1). The OT secondary /
+  # to BP2 declares the DC bridge the netlist collapses (OT primary DCR omitted,
+  # so both 6L6G plates and the centre tap read as B+2, the choke's output). The OT secondary /
   # speaker and the off-board 56 k NFB + 5 k presence sit at ~0 V DC and are the
   # netlist's excluded annotation layer (RKB already carries the cathodyne's junction-to-ground
   # 56 k), so they are deliberately NOT anchored — folding them to ground would
   # wrongly short the cathodyne's cathode junction (JPI) to ground.
   anchors:
-    T3.brown: BP1    # OT primary, V4 plate lead — netlist omits OT primary DCR (plate node = B+1)
-    T3.blue:  BP1    # OT primary, V5 plate lead
-    T3.red:   BP1    # OT primary centre tap → first filter (B+1)
+    T3.brown: BP2    # OT primary, V4 plate lead — netlist omits OT primary DCR (plate node = B+2)
+    T3.blue:  BP2    # OT primary, V5 plate lead
+    T3.red:   BP2    # OT primary centre tap → second filter (B+2, with the screens)
   # DC-transparent series parts the netlist omits (no DC grid current → zero
   # drop): their two leads are shorted so the netlist node runs through them.
   # The 12AY7 grids draw no DC current, so each 68 k stopper == its input node.
   series_bridge:
     R1s: "68 k channel-1 grid stopper — omitted from netlist (12AY7 V1A grid == input node at DC)"
     R2s: "68 k channel-2 grid stopper — omitted from netlist (12AY7 V1B grid == input node at DC)"
+    R3s: "68 k channel-1 jack-2 grid stopper — omitted from netlist (no DC grid current, no drop)"
+    R4s: "68 k channel-2 jack-2 grid stopper — omitted from netlist (no DC grid current, no drop)"
   # Netlist elements with no discrete board 2-lead part — reported in coverage,
   # never a failure (their nodes still have to check out).
   netlist_unplaced:
-    RCHOKE: "filter choke DCR (130 Ω BP1→BP2) — realised as the off-board chassis choke L1 (leads hi/lo, kind: choke), not a board 2-lead part; its two rails are anchored independently (BP1 by the 6L6G plates, BP2 by the screens/RD1)"
+    RCHOKE: "filter choke DCR (130 Ω BP1→BP2) — realised as the off-board chassis choke L1 (leads hi/lo, kind: choke), not a board 2-lead part; its two rails are anchored independently (BP1 by the reservoir C11, BP2 by the 6L6G plates, screens and RD1)"
     RG3:    "V2A grid reference — the netlist's single 4.7 M leak-to-ground abstraction of the real grid network (RF1 4.7 M returned to the tone network's bass-branch node, itself held at ≈0 V DC by the 220 k leak, plus the 270 k mixers RM1/RM2 reaching ground through the volume pots); no single board part corresponds"
     RGPI:   "the driver grid's DC reference — the netlist's single 470 k leak abstraction of the tone network's own path to ground (RSR 220 k + the bass track); no discrete part corresponds"
   # Sheet terminal -> board terminal, for what no name can match: the sheet

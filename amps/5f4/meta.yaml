@@ -26,5 +26,5 @@ sources:
 verification:
   status: verified
   date: 2026-08-03   # re-verified after the tone-network + phase-inverter re-reading (first verified 2026-07-18)
-  max_deviation_pct: 16.0   # worst gated node (JPI, the cathodyne 1.5k/56k junction, tol 20%); all five PI values gate cleanly as the driver+cathodyne the sheet draws; three printed values (the V2A pair + the CF it direct-couples) stay excluded per the 12AX7 calibration study
+  max_deviation_pct: 13.1   # worst gated node (JPI, the cathodyne 1.5k/56k junction, tol 20%; was 16.0 until the 2026-10-03 V1 audit moved the output-transformer centre tap to the choke's output, as both pages draw it); all five PI values gate cleanly as the driver+cathodyne the sheet draws; three printed values (the V2A pair + the CF it direct-couples) stay excluded per the 12AX7 calibration study
 contributors: [TheAnalogMaker]
