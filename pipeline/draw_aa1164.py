@@ -32,17 +32,24 @@ s.note('Rails: B+1 +420 (reservoir / OT centre tap) · B+2 +400 (screens, reverb
 YN = 56
 s.caption('Preamp — two inputs, 7025 (12AX7) gain stage, treble/bass stack, Volume, second stage', 12, 32, 1.5)# --- inputs: two 68k stoppers onto a shared 1M grid leak
 s.glabel("INPUT 1", 12, YN - 4, 180)
-l, r = s.series_h("R", "R1a", "68k", 24, YN - 4)
+l, r = s.series_h("R", "R1a", "68k", 30, YN - 4)
 s.wire(12, YN - 4, l, YN - 4)
 s.wire(r, YN - 4, 38, YN - 4)
+# The 1M leak hangs from the jack-1 TIP, jack side of R1a, as both K-FD pages
+# draw it (schematic 5554x4346: jack 1 tip -> 1M -> jack 1's grounded
+# normalling contact; layout 5734x4467: the 1M inside jack 1's ring, the 68k
+# from that lug to the grid lead). Until 2026-10-03 this sheet hung it on the
+# grid bus (V1 audit, aa1164.md). R1a carries no DC, so the netlist's
+# RGN1 GN1 0 sees one node either way — the 5F4 sheet draws the same idiom.
+s.junction(18, YN - 4)
+s.sym("R", "RGN1", "1M", 18, YN - 4 - 3.81, lx=2.2, ly=0.0)
+s.gnd(18, YN - 11.62, rot=90)
 s.glabel("INPUT 2", 12, YN + 4, 180)
-l, r = s.series_h("R", "R1b", "68k", 24, YN + 4)
+l, r = s.series_h("R", "R1b", "68k", 30, YN + 4)
 s.wire(12, YN + 4, l, YN + 4)
 s.wire(r, YN + 4, 38, YN + 4)
 s.wire(38, YN - 4, 38, YN + 4)
 s.junction(38, YN)
-s.sym("R", "RGN1", "1M", 38, YN + 4 + 3.81)
-s.gnd(38, YN + 4 + 7.62)
 
 # --- V1A input stage
 # Both K-FD pages put the input stage on pins 1/2/3 and the stage after the
@@ -256,8 +263,20 @@ s.gnd(84, YR + 1)
 s.wire(tk["out_c"][0], tk["out_c"][1], 114, tk["out_c"][1])
 s.gnd(114, tk["out_c"][1])
 # recovery stage V3A: tank hot -> grid, 220k leak to ground
-s.wire(tk["out_h"][0], tk["out_h"][1], 124, tk["out_h"][1])
+s.wire(tk["out_h"][0], tk["out_h"][1], 118, tk["out_h"][1])
+s.wire(118, tk["out_h"][1], 124, tk["out_h"][1])
 s.wire(124, tk["out_h"][1], 124, YR)
+# reverb footswitch: K-FD wires the Reverb Pedal jack's tip to the Reverb
+# Output jack's tip — the recovery GRID, where the 220k sits — so the closed
+# pedal grounds the grid (schematic 5554x4346: the pedal's shielded lead lands
+# on the grid node; layout 5734x4467: a lead joins the two jacks' tips and the
+# 220k hangs from them). Until 2026-10-03 this sheet put it on the Reverb
+# control's wiper (V1 audit, aa1164.md).
+s.junction(118, tk["out_h"][1])
+jrev = s.jack("JREV", "reverb fsw", 108, YR + 16, mirror=True)
+s.wire(118, tk["out_h"][1], 118, jrev["tip"][1])
+s.wire(118, jrev["tip"][1], jrev["tip"][0], jrev["tip"][1])
+s.gnd(jrev["sleeve"][0], jrev["sleeve"][1])
 # The factory schematic (5554×4346) prints the recovery stage on 1/2/3 and
 # the mixer on 6/7/8 — V3A unit 2, V3B unit 1.
 t3a = s.triode("V3A", "12AX7", 136, YR, unit=2)
@@ -278,17 +297,10 @@ s.wire(cr, teer, 160, teer)
 s.sym("POT", "VRREV", "100k rev", 160, teer + 3.81)
 s.gnd(160, teer + 7.62)
 s.wire(165.08, teer + 3.81, 172, teer + 3.81)
-s.junction(172, teer + 3.81)
 l, r = s.series_h("R", "RMR", "470k", 178, teer + 3.81)
 s.wire(172, teer + 3.81, l, teer + 3.81)
 s.wire(r, teer + 3.81, 190, teer + 3.81)
 s.glabel("MIXG", 190, teer + 3.81, 0)
-# reverb footswitch shorts the recovered signal to ground
-jrev = s.jack("JREV", "reverb fsw", 200, YR + 8)
-s.wire(172, teer + 3.81, 172, jrev["tip"][1])
-s.wire(172, jrev["tip"][1], jrev["tip"][0], jrev["tip"][1])
-s.wire(jrev["sleeve"][0], jrev["sleeve"][1], 190, jrev["sleeve"][1])
-s.gnd(190, jrev["sleeve"][1])
 
 # ============================ BIAS SUPPLY (band 2, right) ============
 YB = 120

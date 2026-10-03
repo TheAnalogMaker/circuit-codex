@@ -21,4 +21,10 @@ element_pins:
 
 # Hard-gated: verify_schematic_nets.py fails CI on any finding for this sheet.
 # Claimed 2026-09-02 after the drawing went clean against netlist.cir.
+series_bridge:
+  # The 1 M input leak hangs from jack 1's tip, jack side of R1a, as both K-FD
+  # pages draw it; R1a carries no DC grid current, so the netlist's
+  # RGN1 GN1 0 runs GN1 through it.
+  R1a: "68 k jack-1 grid stopper — netlist node GN1 runs through it to the 1 M leak at the jack-1 tip"
+
 schematic_claim: verified

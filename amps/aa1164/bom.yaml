@@ -5,12 +5,12 @@
 # Values are the drawing's; the notice sets ½ W / 10% resistors and 400 V
 # capacitors unless noted. Transformer types are the drawing's own TR1/TR2/TR3
 # labels.
-notes: "The drawing shows one jack symbol for the instrument input pair; the chassis carries two. Tube reference designators run from the input end of the chassis (V1 nearest the jacks) — the drawing labels socket types, not V-numbers, and the section split shown here is read off the layout sheet's per-pin voltages. Tremolo-oscillator and reverb-tank interconnect parts are listed, but the oscillator's DC point is excluded from the netlist (see the circuit story). The 125P1B is the power transformer Fender shared across the Champ, the Princeton and the Princeton Reverb, and the HT winding is not annotated the same way on every sheet: this drawing prints 340-0-340 V, as does the Princeton AA964, while the Champ AA764 sheet prints 320-0-320 V for the same part number. Each entry records the figure its own drawing prints."
+notes: "The schematic draws both instrument jacks (1 and 2) with their normalling contacts; this sheet draws them as the two input labels, with the 1 MΩ leak at jack 1's tip, jack side of its 68 kΩ stopper, where both K-FD pages put it. Tube reference designators run from the input end of the chassis (V1 nearest the jacks) — the drawing labels socket types, not V-numbers, and the section split shown here is read off the layout sheet's per-pin voltages. Tremolo-oscillator and reverb-tank interconnect parts are listed, but the oscillator's DC point is excluded from the netlist (see the circuit story). The 125P1B is the power transformer Fender shared across the Champ, the Princeton and the Princeton Reverb, and the HT winding is not annotated the same way on every sheet: this drawing prints 340-0-340 V, as does the Princeton AA964, while the Champ AA764 sheet prints 320-0-320 V for the same part number. Each entry records the figure its own drawing prints."
 items:
   # --- Instrument input + preamp first stage (V1a) ---
   - { ref: R1a, part: "Carbon comp resistor", value: "68 kΩ · ½ W", role: "Input grid stopper (jack 1)" }
   - { ref: R1b, part: "Carbon comp resistor", value: "68 kΩ · ½ W", role: "Input grid stopper (jack 2)" }
-  - { ref: RGN1, part: "Carbon comp resistor", value: "1 MΩ · ½ W", role: "Input grid leak" }
+  - { ref: RGN1, part: "Carbon comp resistor", value: "1 MΩ · ½ W", role: "Input leak, jack 1's tip to ground (jack side of R1a); the grid's DC return through R1a" }
   - { ref: RLN1, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "V1a plate load" }
   - { ref: RKN1, part: "Carbon comp resistor", value: "1.5 kΩ · ½ W", role: "V1a cathode bias" }
   - { ref: CKN1, part: "Electrolytic capacitor", value: "25 µF · 25 V", role: "V1a cathode bypass" }
@@ -103,7 +103,7 @@ items:
   - { ref: CDEATH, part: "Ceramic capacitor", value: "0.047 µF · 600 V", role: "Ground-switch cap (period; not in modern builds)" }
   # --- Footswitch jacks ---
   - { ref: JVIB, part: "Jack", value: "vibrato footswitch", role: "Grounds the phase-shift ladder's pedal node to stop the oscillator" }
-  - { ref: JREV, part: "Jack", value: "reverb footswitch", role: "Reverb footswitch" }
+  - { ref: JREV, part: "Jack", value: "reverb footswitch", role: "Wired to the Reverb Output jack's tip — the recovery grid — so the closed pedal grounds the grid and mutes the reverb" }
   # --- Tubes ---
   - { ref: V1, part: "Preamp tube", value: "12AX7 (7025)", role: "Preamp input stage + second stage (V1a/V1b)" }
   - { ref: V2, part: "Preamp/driver tube", value: "12AT7", role: "Reverb driver (both sections paralleled)" }
