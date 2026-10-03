@@ -296,5 +296,3 @@ net_map:
     RCHOKE: "the choke's winding resistance (110 Ω estimate, BP1 → BP2) — realised as the chassis choke L1 (leads hi/lo, kind: choke), not a board 2-lead part; its two rails are anchored independently (BP1 by the rectifier-side can, BP2 by the screens and the OT centre tap)"
     RG3: "the gain stage's grid reference — the netlist's single 1 M leak-to-ground abstraction of the real grid network (the 270 k mixers RM1/RM2 reaching ground through the volume controls, and RFB 10 M returned to the tone network's first node, which RBL holds at ground); no single board part corresponds"
     RGD: "the driver grid's DC reference — the netlist's single 470 k abstraction of the tone network's own path to ground (RTO 220 k and the Bass control's track); no discrete part corresponds"
-  not_on_board:
-    L1: "filter choke — a chassis part the A-EE layout draws only as its two leads rising through a grommet to the +420 V and +410 V cans. On this board it is the off-board choke stub (kind: choke, leads hi/lo), which the sheet ↔ board gate has no two-lead vocabulary for"

@@ -398,4 +398,3 @@ net_map:
   # read off the cited layout drawing (sheet ↔ board gate, 2026-10-02).
   not_on_board:
     D1: "bias-supply selenium rectifier — the 5F6-A layout (I-EG, read at 6600 × 5100) draws it as the 'SEL. RECT.' block off the board's left end, its + terminal on the transformer's red-blue lead and its − terminal running into the board at the 15 kΩ's eyelet: chassis-mounted, not on the eyelet board"
-    L1: "filter choke — a chassis part the 5F6-A layout does not draw: the +432 V and +430 V leads (both lettered BLACK) leave the board's left end through a chassis grommet to it. On this board it is only the off-board choke stub (kind: choke, leads hi/lo), which the sheet ↔ board gate has no two-lead vocabulary for"

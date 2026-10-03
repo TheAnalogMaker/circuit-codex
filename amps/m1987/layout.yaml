@@ -320,7 +320,6 @@ net_map:
   # coverage, never a failure (their nodes still have to check out).
   not_on_board:
     C26: "0.1 µF presence capacitor, drawn from the 5 kΩ wiper to ground on Unicord 70-19-11; mounted at that chassis control and omitted from this board drawing"
-    L1: "filter choke — the Unicord 70-19-11 drawing (read at 2023 × 1304) draws it unlettered between the output-transformer centre-tap node and the screen node; a chassis part, drawn on this derived board only as the off-board choke stub (kind: choke), which the sheet ↔ board gate has no two-lead vocabulary for"
   netlist_unplaced:
     RPRES: "the 5 kΩ presence track VR7, mounted at the chassis control from the tail foot to ground"
     RCHOKE: "filter choke L1 sits on the board (B+1 -> B+2); the netlist models its DCR as RCHOKE"

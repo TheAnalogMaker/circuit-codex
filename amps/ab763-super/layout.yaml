@@ -462,7 +462,6 @@ net_map:
   # Parts the sheet draws that this board neither places nor wires — each
   # read off the cited layout drawing (sheet ↔ board gate).
   not_on_board:
-    T2: "filter choke — a chassis part the Super Reverb AB763 layout (C-FD, read at 3299 × 2551) does not draw: the +465 V and +460 V eyelets at the board's left end run by leads to chassis holes. On this board it is only the off-board choke stub (kind: choke), which the sheet ↔ board gate has no two-lead vocabulary for"
     RTO1: "100 kΩ speed-network series resistor — the Super Reverb AB763 layout letters '100K' inside the Speed 3.0M-RA pot's outline: mounted at the pot, not on the eyelet board"
     RSLN: "6.8 kΩ normal-channel bleed — the Super Reverb AB763 layout letters '6800' inside the Normal channel's Bass 250K-A pot outline: mounted on the pot, not on the eyelet board"
     DBIAS: "bias rectifier diode — the Super Reverb AB763 layout draws it in the small bias sub-box (470-1W → diode → 25|50 cap) beside the pilot light, not on the main eyelet board"

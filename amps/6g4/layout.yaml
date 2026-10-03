@@ -418,7 +418,6 @@ net_map:
     RG1D: volume pot VRV1, modelled as a grid-leak (G1D -> 0)
     RG2D: volume pot VRV2, modelled as a grid-leak (G2D -> 0)
   not_on_board:
-    CH1: chassis choke 125C1A — drawn off the board as a two-lead choke between the reservoir and the post-choke node, a kind the sheet-to-board comparison does not yet read
     CF4: 20 µF can at the post-choke node — in the filter pack, which the page sends the rails to rather than drawing
     CF5: 20 µF can at the phase-inverter supply — in the filter pack
     CF6: 20 µF can at rail A — in the filter pack

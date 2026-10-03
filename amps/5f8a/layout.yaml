@@ -334,10 +334,6 @@ net_map:
     RG3:  "V2A grid return — realised through the volume pots (VR1/VR2) and the 270k channel mixers to ground, not a discrete board resistor"
     RKCF: "V2B cathode-follower 100 kΩ load — omitted from this redraw for legibility, as on the 5F6-A page; its node is carried here by the RSL.a feed"
     RPRES: "the 5 kΩ presence pot VR6's track, chassis-mounted from the tail's foot (lug 3, on RT2.b) to the ground bus (lug 1)"
-  # Parts the sheet draws that this board neither places nor wires — each
-  # read off the cited layout drawing (sheet ↔ board gate, 2026-09-10).
-  not_on_board:
-    L1: "filter choke — a chassis part the 5F8-A layout (I-EG, page 1 of the el34world copy, read at 6368 × 3218) does not draw: the +397 V and +395 V leads (lettered BLACK, BLACK) leave the board's left end through a chassis grommet to it. On this board it is only the off-board choke stub (kind: choke, leads hi/lo), which the sheet ↔ board gate has no two-lead vocabulary for"
 
 # Board-scope rules for the sheet ↔ board gate: parts the sheet draws that
 # this board deliberately does not, by designator glob, each with where the

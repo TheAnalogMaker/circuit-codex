@@ -368,7 +368,6 @@ net_map:
   # Parts the sheet draws that this board neither places nor wires — each
   # read off the cited layout drawing (sheet ↔ board gate, 2026-09-10).
   not_on_board:
-    L1: "20 H choke — a chassis part (caption): the 1959T drawing (read at 1068 × 759) draws it at the far right beside the HT reservoir. This derived board draws it only as the off-board choke stub (kind: choke), which the sheet ↔ board gate has no two-lead vocabulary for"
     C11: "0.1 µF presence capacitor — drawn from the 5 kΩ presence pot's wiper to ground on the 1959T drawing; mounted at the presence pot on this derived board (caption)"
     C23: "100 pF bright cap — drawn across the channel II 1 MΩ volume on the 1959T drawing; mounted across that control on this derived board (caption)"
 

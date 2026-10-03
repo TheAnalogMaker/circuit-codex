@@ -327,7 +327,6 @@ net_map:
   # read off the cited layout drawing (sheet ↔ board gate, 2026-09-10).
   not_on_board:
     C17: "0.1 µF presence capacitor from the 5 kΩ control wiper to ground on the factory schematic; mounted at that chassis control and omitted from this board drawing"
-    L1: "20 H choke — a chassis part: the JTM45 drawing (read at 2194 × 1539) draws it at the top right above the KT66 pair, lettered 20H. This derived board draws it only as the off-board choke stub (kind: choke), which the sheet ↔ board gate has no two-lead vocabulary for"
 
 # Board-scope rules for the sheet ↔ board gate: parts the sheet draws that
 # this board deliberately does not, by designator glob, each with where the

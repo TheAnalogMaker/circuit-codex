@@ -416,7 +416,7 @@ net_map:
   # Parts the sheet draws that this board neither places nor wires — each
   # read off the cited layout drawing (sheet ↔ board gate, 2026-09-10).
   not_on_board:
-    T2: "filter choke — a chassis part the Twin Reverb AB763 layout (C-FD, read at 2157 × 1397) does not draw: the +460 V and +458 V eyelets at the board's left end run by dashed leads to chassis holes. On this board it is only the off-board choke stub (kind: choke), which the sheet ↔ board gate has no two-lead vocabulary for"
+    T2: "filter choke — a chassis part the Twin Reverb AB763 layout (C-FD, read at 2157 × 1397) does not draw: the +460 V and +458 V eyelets at the board's left end run by dashed leads to chassis holes. On this board it is the off-board choke stub (kind: choke) with neither lead wired, so the sheet ↔ board gate cannot compare it as a two-lead part"
     RB2: "27 kΩ bias-divider leg — lettered '27K' inside the 10K-L bias pot's outline on the layout: a resistor mounted on the pot, off the board"
     CDEATH: ".047-600 ground-switch capacitor — drawn at the GROUND SWITCH on the layout's mains row, off the board"
     DBIAS: "bias rectifier diode — drawn in the layout's bias sub-box (470-1W → diode → 50|50 cap) beside the pilot light, not on the main eyelet board"

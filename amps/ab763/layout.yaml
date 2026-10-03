@@ -441,7 +441,6 @@ net_map:
   # Parts the sheet draws that this board neither places nor wires — each
   # read off the cited layout drawing (sheet ↔ board gate, 2026-09-10).
   not_on_board:
-    T2: "filter choke — a chassis part the AB763 Deluxe Reverb layout (C-FD, page 1, read at 6026 × 3650) does not draw: the +420 V and +415 V eyelets at the board's left end run by dashed leads to chassis holes. On this board it is only the off-board choke stub (kind: choke), which the sheet ↔ board gate has no two-lead vocabulary for"
     CBRV: "47 pF vibrato bright cap — lettered '47PF' inside the Vibrato channel's Volume 1M-A pot outline on the layout: mounted on the pot, not on the eyelet board"
     RTO1: "100 kΩ speed-network series resistor — lettered '100K' inside the Speed 3.0M-RA pot's outline on the layout: mounted at the pot, not on the eyelet board"
     CDEATH: ".047-600 ground-switch capacitor — drawn at the GROUND SWITCH on the layout's mains row, off the board"

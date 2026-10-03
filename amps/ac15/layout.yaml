@@ -259,7 +259,6 @@ net_map:
   # (OA/031) shows and why this DERIVED board leaves it out (sheet ↔ board
   # gate, 2026-10-02).
   not_on_board:
-    CH1: "smoothing choke (Radiospares, 10–20 H) — the OA/031 circuit drawing puts it between the reservoir and the +315 V rail; this derived board draws it only as the off-board choke stub (kind: choke, leads hi/lo), which the sheet ↔ board gate has no two-lead vocabulary for. No factory layout records where it mounts"
     F1: "mains fuse — on the primary side of the circuit drawing; this derived board does not draw the mains wiring (caption). JMI published no layout sheet, so where the factory mounted it is not on record"
     CBR: "250 pF Brilliance cap — the circuit drawing bridges it with the Brilliance switch; this derived board leaves the switch and its cap off the eyelet grid (caption). No factory layout records where it mounts"
     RIN1: "68 kΩ Normal-channel stopper of the drawing's dual-jack input arrangement — this derived board draws the single-jack alternate the drawing also carries (JN, the 33 kΩ RGS1), not the dual-jack pair. No factory layout records where it mounts"

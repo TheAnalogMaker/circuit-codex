@@ -326,7 +326,7 @@ net_map:
   # Parts the sheet draws that this board neither places nor wires — each
   # read off the cited layout drawing (sheet ↔ board gate, 2026-09-10).
   not_on_board:
-    TR2: "filter choke — a chassis part the Bassman AB165 layout (D-FE, read at 2148 × 1578) does not draw: the +425 V and +415 V eyelets at the board's left end run by dashed leads to chassis holes. On this board it is only the off-board choke stub (kind: choke), which the sheet ↔ board gate has no two-lead vocabulary for"
+    TR2: "filter choke — a chassis part the Bassman AB165 layout (D-FE, read at 2148 × 1578) does not draw: the +425 V and +415 V eyelets at the board's left end run by dashed leads to chassis holes. On this board it is the off-board choke stub (kind: choke) with only its red output lead wired, to the +425 V node at RD1: its other lead goes to the standby switch, which this board does not draw, so the sheet ↔ board gate cannot compare it as a two-lead part"
     VRBAL: "10K-L bias balance — a chassis-mounted pot drawn beside the bias sub-box on the layout (its '-45V' lug lettered, and the sheet's '* reset hum balance' note), not on the eyelet board"
     RBB3: "15 kΩ bias-divider foot — lettered '15K' inside the 10K-L bias balance pot's outline on the layout: a resistor mounted on the pot, off the board"
     RSLN: "6.8 kΩ normal-channel bleed — lettered inside the Normal channel's Bass 250K-A pot outline on the layout: mounted on the pot, not on the eyelet board"
