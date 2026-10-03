@@ -258,3 +258,7 @@ net_map:
   netlist_unplaced:
     RCHOKE: "350 Ω choke L1 — chassis-mounted iron part with no board body; DC continuity from B+1 to B+2 is carried by the drawn C5.a->L1.in / L1.out->C6.a leads"
     RVOL: "1 M volume pot VR1 — netlist models the pot as a grid-leak (G1B -> 0); its wiper->grid tie is verified at the grid net"
+  # Parts the sheet draws that this board neither places nor wires — each
+  # read off the cited layout drawing (sheet ↔ board gate, 2026-10-02).
+  not_on_board:
+    L1: "filter choke — a chassis part the 5E1 layout (H-EE, read at 6600 × 5100) does not draw: the +320 V and +305 V eyelets each send a lead down off the board's lower edge into a chassis grommet, and no choke body appears anywhere on the sheet. On this board it is only the off-board choke stub (kind: choke, leads in/out), which the sheet ↔ board gate has no two-lead vocabulary for"
