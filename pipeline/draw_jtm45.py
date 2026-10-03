@@ -22,8 +22,8 @@ s = Sch()
 # ---- V1 ECC83, normal + bright channels, shared 820R/250u cathode ---------
 # The drawing letters the sections: V1A's plate feeds the plain volume and
 # V1B's plate feeds the volume carrying the 100 pF, so V1B is the bright
-# channel. (Until 2026-10-03 this sheet called V1A bright.) The jack -> grid
-# wiring is unchanged; only the channel names follow the volumes.
+# channel. (Until 2026-10-03 this sheet called V1A bright; that swap moved
+# only the channel names, not the jack -> grid wiring.)
 for ch, (y, jack, gref, pref, plref, cref, vref, mref) in enumerate([
         (92, "NORMAL", "RG1", "V1A", "RL1", "C1", "VR1", "RM1"),
         (126, "BRIGHT", "RG2", "V1B", "RL2", "C2", "VR2", "RM2")]):
@@ -33,9 +33,30 @@ for ch, (y, jack, gref, pref, plref, cref, vref, mref) in enumerate([
     s.wire(30.48, y, l, y)
     t = s.triode(pref, "ECC83", 49.53, y)
     s.wire(r, y, t["g"][0], y)
-    s.junction(t["g"][0] - 3.81, y)
-    s.sym("R", gref, "1M", t["g"][0] - 3.81, y + 3.81)
-    s.gnd(t["g"][0] - 3.81, y + 7.62)
+    # Jack 2 has its own 68k into the same grid: the drawing (2194x1539) draws
+    # four jacks and four 68 Ks, two per channel (normal pair crop
+    # 90,350,420,500 into V1A; bright pair crop 90,570,420,720, its junction
+    # running round to V1B's grid, crop 380,330,680,680). Jack 1 here is the
+    # jack carrying the 1M at its tip: the LOWER jack of each pair on the
+    # drawing. The drawing does not separate the normalling contacts from the
+    # tip lines (the upper jack's line drops onto the lower jack's tip line,
+    # the lower jack's line drops to the ground line); the labels here do not
+    # draw the contacts. Until 2026-10-03 this sheet drew one 68k per channel
+    # (V1 audit cleanup H, jtm45.md).
+    s.glabel(f"{jack} 2", 26, y - 8, 180)
+    s.wire(26, y - 8, 30.48, y - 8)
+    l2, r2 = s.series_h("R", f"R{ch + 3}s", "68k", 34.29, y - 8)
+    s.wire(r2, y - 8, 40.5, y - 8)
+    s.wire(40.5, y - 8, 40.5, y)
+    s.junction(40.5, y)
+    # The 1M grid leak hangs from the JACK-1 tip, jack side of its 68k: the
+    # drawing runs it from the lower jack's tip line, left of that jack's 68K,
+    # to the ground line. Until 2026-10-03 this sheet hung it on the grid side
+    # of the stopper. The stopper carries no DC (sch_map series_bridge), so the
+    # netlist sees one node either way.
+    s.junction(l, y)
+    s.sym("R", gref, "1M", l, y + 3.81, lx=2.2, ly=0.0)
+    s.gnd(l, y + 7.62)
     s.plate_load(plref, "100k", t["p"], "B+4")
     # coupler -> volume pot -> 270k mixer into the shared V3A grid line
     ty = y - 7.62 - 3.48                # plate stub tee

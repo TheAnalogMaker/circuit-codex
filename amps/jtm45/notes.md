@@ -14,7 +14,8 @@ the mid-1960s revision shared across the tremolo combos and the 1987 head.
 
 ## Circuit walkthrough (short form)
 
-Normal (V1A) and bright (V1B) channels (1 MΩ leaks, 68 kΩ stoppers) → **V1**
+Normal (V1A) and bright (V1B) channels, two jacks each (a 68 kΩ stopper per jack,
+the 1 MΩ leak at jack 1's tip) → **V1**
 ECC83 (100 kΩ plates, shared 820 Ω cathode with 250 µF bypass) → 0.02 µF
 couplers → 1 MΩ volume pots (the 100 pF bright cap sits on the volume V1B
 feeds) → 270 kΩ mixers, the bright one bridged by a 56 pF capacitor → **V3A** ECC83 (100 kΩ plate,
