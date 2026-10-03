@@ -163,11 +163,13 @@ The schematic on this page draws the tremolo as the factory sheet does: the
 oscillator on V4's pins 1–3 with its three-section ladder, the follower on
 pins 6–8, the 68 kΩ into the Intensity wiper, and the pot's far end
 labelled onto V1B's cathode. The factory layout page mounts the ladder, the
-oscillator's cathode network, its 470 kΩ plate load and the follower's
-68 kΩ on the eyelet board, with the Speed control's 100 kΩ riding on the pot.
-The board drawing on this page draws the pedal jack, the 1 MΩ from its tip
-to the oscillator's cathode, the two controls and V4's heater pins; the rest
-of the tremolo network is not drawn on it. The board otherwise reuses the
+oscillator's cathode network, both 1 MΩs and the follower's 68 kΩ on the
+eyelet board between the 6V6's cathode network and the feedback divider, the
+470 kΩ plate load across V4's own socket, and the Speed control's 100 kΩ on
+its pot. The board drawing on this page draws all of that except the 470 kΩ,
+with the ladder's single factory column folded over the two eyelet rows and
+the audio path from the feedback divider rightward shifted five columns to
+make room; it otherwise reuses the
 Champ's arrangement verbatim, since the two circuits' audio paths are
 component-for-component identical (see above). The drawn wiring is proved
 electrically equivalent to the simulated circuit, with V4 excluded from that
