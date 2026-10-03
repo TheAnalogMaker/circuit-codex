@@ -190,7 +190,7 @@ runs:
   - { from: C3.b, to: R9.a, via: [[16, -0.4], [12, -0.4]] }    # coupler -> 6V6 grid node
   - { from: V1.pin3, to: R6.a, via: [[24, 1.68], [13.4, 1.68]] } # V1B cathode -> 1.5k
   - { from: R6.b, to: [1.45, 13] }                       # 1.5k -> ground bus
-  - { from: SPK, to: R11.a, via: [[16.3, 1.9], [17, 1.9]] }    # speaker -> NFB resistor
+  - { from: SPK.tip, to: R11.a, via: [[16.3, 1.9], [17, 1.9]] }    # speaker hot -> NFB resistor
   - { from: R11.b, to: R6.a, via: [[18, 2.6], [12.3, 2.6], [12.3, 0.5]] } # NFB resistor -> V1B cathode (deep lane, own column)
   - { from: VR1.lug2, to: V1.pin2, via: [[14, -0.45], [20, -0.35]] }  # volume wiper -> V1B grid
   - { from: VR1.lug1, to: [1.45, 14], via: [[12.5, 0.3]] } # volume ground (bowed clear of the C3/R7 eyelet stack at col14)
@@ -214,8 +214,8 @@ runs:
   - { from: R3.b, to: [1.45, 30] }                       # grid leak -> ground bus
 
   # --- output transformer secondary -> speaker jack -------------------------
-  - { from: T1.sec, to: SPK, via: [[30.6, 2.3], [16, 2.3]] }   # OT secondary -> speaker
-  - { from: SPK, to: [1.45, 16] }                        # speaker return -> ground bus
+  - { from: T1.sec, to: SPK.tip, via: [[30.6, 2.3], [16, 2.3]] }   # OT secondary -> speaker hot
+  - { from: SPK.sleeve, to: [1.45, 16] }                 # speaker return -> ground bus
 
   # --- 6.3 V heaters -- single-ended, one green leg grounded ----------------
   # Read pin by pin off the H-EE sheet at its full published resolution; the
@@ -253,6 +253,7 @@ net_map:
   anchors:
     T1.blue: BP2   # OT primary, plate lead — netlist omits OT primary DCR (plate node = BP2)
     T1.red:  BP2   # OT primary, B+ lead — already on the board's B+2 net; anchor makes the bridge explicit
+    SPK.tip: "0"   # speaker jack hot — OT-secondary DCR folded into ground (the NFB return reads as ground at DC)
   # Netlist elements with no discrete board part — reported in coverage, never a
   # failure (their nodes still have to check out).
   netlist_unplaced:
