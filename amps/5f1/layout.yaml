@@ -146,10 +146,10 @@ runs:
   # PT so no two read as one wire before they reach the rectifier pins.
   - { from: PT.red1, to: V3.pin4, via: [[1.4, 0.3]] }        # HT plate 1
   - { from: PT.red2, to: V3.pin6, via: [[2.3, 0.62]] }       # HT plate 2
-  - { from: PT.red-yellow, to: [1.45, 3.0], via: [[1.2, 1.15]] }  # HT centre tap → ground bus
-  - { from: PT.yellow1, to: V3.pin2, via: [[0.72, 1.36]] }   # 5 V rectifier filament
-  - { from: PT.yellow2, to: V3.pin8, via: [[1.4, 1.75]] }    # 5 V rectifier filament / B+
-  - { from: V3.pin8, to: C5.a, color: red, via: [[2.2, 1.5]] }   # B+ out → first filter
+  - { from: PT.red-yellow, to: [1.45, 3], via: [[1.2, 1.15]] }  # HT centre tap → ground bus
+  - { from: PT.yellow1, to: V3.pin2, via: [[1.82, 1.36]] }   # 5 V rectifier filament
+  - { from: PT.yellow2, to: V3.pin8, via: [[-0.82, 0.841]] }    # 5 V rectifier filament / B+
+  - { from: V3.pin8, to: C5.a, color: red, via: [[2.237, 1.688]] }   # B+ out → first filter
 
   # --- filtered B+ rail (16 µF / 8 µF / 8 µF, 10k then 22k droppers) --------
   # Feeds to a shared filter node approach it from distinct angles (≥ ~20°)
@@ -171,23 +171,23 @@ runs:
   - { from: R8.b, to: [1.45, 9.4] }                     # 470 Ω → ground bus
   - { from: C6.a, to: R8.a }                            # cathode bypass across 470 Ω
   - { from: C6.b, to: [1.45, 10.6] }
-  - { from: V2.pin4, to: C7.a, via: [[8.4, 1.55], [2.0, 1.55], [2.0, 0.5]] }  # screen → B+2 (from left)
+  - { from: V2.pin4, to: C7.a, via: [[8.009, 1.55], [2.272, 1.55], [2, 0.5]] }  # screen → B+2 (from left)
   - { from: V2.pin3, to: T2.blue, via: [[8.4, 2.3], [19.6, 2.3], [19.6, 0.44]] }  # plate → OT primary (blue, from left)
   - { from: T2.bplus, to: C5.a, via: [[20, 2.44], [-0.4, 2.44], [-0.4, 0.7]] }  # OT primary → B+1
   - { from: R9.a, to: V2.pin5, via: [[10.2, 1.5]] }     # grid leak → 6V6 grid
   - { from: R9.b, to: [1.45, 11] }                       # grid leak → ground bus
 
   # --- V1B driver stage (12AX7, second half) --------------------------------
-  - { from: V1.pin1, to: R7.a, via: [[16.8, 1.5]] }      # V1B plate → 100k load
+  - { from: V1.pin1, to: R7.a, via: [[16.8, 1.659]] }      # V1B plate → 100k load
   - { from: R7.a, to: C3.a }                             # plate node → coupler
-  - { from: R7.b, to: C8.a, via: [[13, 1.58], [5.2, 1.58], [4.9, 0.62]] }  # plate load → B+3 (from lower-left)
+  - { from: R7.b, to: C8.a, via: [[13, 1.596], [5.2, 1.58], [4.9, 0.62]] }  # plate load → B+3 (from lower-left)
   - { from: C3.b, to: R9.a, via: [[19.4, -0.55], [11, -0.55]] }  # coupler → grid-leak node
-  - { from: V1.pin3, to: R6.a, via: [[16.4, 1.5], [12.9, 1.5]] }  # V1B cathode → 1.5k (from lower-right)
+  - { from: V1.pin3, to: R6.a, via: [[15.77, 1.5], [12.9, 1.5]] }  # V1B cathode → 1.5k (from lower-right)
   - { from: R6.b, to: [1.45, 12] }                       # 1.5k → ground bus
   - { from: SPK, to: R13.a, via: [[12.5, 2.58], [1, 2.58]] }   # speaker → NFB resistor
   - { from: R13.b, to: R6.a, via: [[0.6, 2.72], [11.5, 2.72], [11.5, 0.5]] } # NFB resistor → V1B cathode (from lower-left)
-  - { from: VR1.lug2, to: V1.pin2, via: [[10, -0.35], [17.5, -0.3], [17.6, 1.5]] }  # volume wiper → V1B grid
-  - { from: VR1.lug1, to: [1.45, 9.7] }                  # volume ground
+  - { from: VR1.lug2, to: V1.pin2, via: [[10, -0.35], [17.45, -0.3], [17.75, 1.6]] }  # volume wiper → V1B grid
+  - { from: VR1.lug1, to: [1.45, 9.7], via: [[12.356, -0.898]] }                  # volume ground
 
   # --- V1A input stage (12AX7, first half) ----------------------------------
   - { from: J1, to: R3.a, via: [[16.2, -0.4], [20, -0.35], [20, 1.4]] }   # In 1 → grid stopper
@@ -196,10 +196,10 @@ runs:
   - { from: R1.b, to: [1.45, 19.3] }                         # grid leak → ground bus
   - { from: R3.b, to: V1.pin7, via: [[19, 1.55]] }       # grid stopper → V1A grid
   - { from: V1.pin6, to: R5.a, via: [[16.6, 1.55]] }     # V1A plate → 100k load
-  - { from: R5.b, to: C8.a, via: [[15.2, 1.62], [15.2, 2.5], [4, 2.5], [3.5, 0.4]] }  # plate load → B+3 (deep lane, from left)
+  - { from: R5.b, to: C8.a, via: [[15.03, 1.62], [15.2, 2.5], [4, 2.55], [3.33, 0.45]] }  # plate load → B+3 (deep lane, from left)
   - { from: V1.pin6, to: C1.a, via: [[17.5, 1.2]] }      # V1A plate → volume coupler
-  - { from: C1.b, to: VR1.lug3, via: [[15, -0.5]] }      # coupler → volume input
-  - { from: V1.pin8, to: R4.a, via: [[18.4, 1.55]] }     # V1A cathode → 1.5k (clear of pin 7)
+  - { from: C1.b, to: VR1.lug3, via: [[14.67, -0.12]] }      # coupler → volume input
+  - { from: V1.pin8, to: R4.a, via: [[18.4, 1.552]] }     # V1A cathode → 1.5k (clear of pin 7)
   - { from: R4.b, to: [1.45, 16] }                        # 1.5k → ground bus
 
   # --- 6.3 V heaters — single-ended, one green leg grounded ------------------
@@ -225,9 +225,9 @@ runs:
   # not separable from the pin-8 landing beside it. Pin 8 is the V1A cathode the
   # same sheet letters +1.5 V, which a grounded pin cannot be, so the lead is
   # read as landing on pin 9 alone and pin 8 keeps its cathode lead to R4.
-  - { from: PT.green1, to: [1.45, 2.1], style: heater, via: [[0.75, 1.3]] }    # grounded 6.3 V leg
+  - { from: PT.green1, to: [1.45, 2.1], style: heater, via: [[0.92, 1.3]] }    # grounded 6.3 V leg
   - { from: PT.green2, to: PL1.a, style: heater, via: [[-0.55, 1.04]] }        # 6.3 V feed → pilot lamp
-  - { from: PL1.a, to: V2.pin7, style: heater, via: [[-0.85, 2.5], [9.4, 2.5]] }   # feed → 6V6 heater
+  - { from: PL1.a, to: V2.pin7, style: heater, via: [[-0.85, 2.5], [8.422, 2.5]] }   # feed → 6V6 heater
   - { from: V2.pin7, to: V1.pin4, style: heater }                              # 6V6 → 12AX7 heater
   - { from: V1.pin4, to: V1.pin5, style: heater }                              # 12AX7 ends strapped for 6.3 V
   - { from: V2.pin2, to: [1.45, 6.4], style: heater }                          # 6V6 heater return → ground

@@ -280,7 +280,7 @@ runs:
   - { from: RTAIL.b, to: RT2.a, via: [[20.4, 1.4], [21.5, 1.1]] }  # tail → junction (JPI), flat from the left (clear of RGPA.b)
   - { from: RGPA.b, to: RT2.a, via: [[23, 1.55]] }               # hot grid leak → junction, from lower-left
   - { from: RGPB.b, to: RT2.a, via: [[24.5, 2], [24.9, 1.5]] }    # cold grid leak → junction, from lower-right (clear of RGRD.b)
-  - { from: RT2.b, to: RNF2.a, via: [[26.0, 1.32]] }                # tail 22k → the feedback node (the RNFB/RNF2/CPIB eyelet), not ground; under CPIA.b, above the bus
+  - { from: RT2.b, to: RNF2.a, via: [[26, 1.32]] }                # tail 22k → the feedback node (the RNFB/RNF2/CPIB eyelet), not ground; under CPIA.b, above the bus
   - { from: CPIA.b, to: RGPA.a, via: [[22.95, 1.1], [20.895, 0.256]] }            # .001 → hot grid (GPIA)
   - { from: CPIB.a, to: RGPB.a, via: [[27.5, 0.4], [23.5, 0.4]] }  # .1-200 → cold grid (GPIB)
   - { from: RNF2.b, to: [1.45, 29.3] }                          # 47 → ground
@@ -371,25 +371,25 @@ runs:
   # node (the 0.1 and the Bass rheostat), its wiper the Volume's top; the Bass foot carries the 0.047 ===
   - { from: RSV.b, to: CBV2.a, via: [[58.5, 1.3]] }  # slope foot → the 0.047
   - { from: CTV.b, to: VRTV.lug1 }                              # 250 pF → Treble top
-  - { from: CBV.b, to: VRTV.lug3 }                              # Bass node → Treble bottom
+  - { from: CBV.b, to: VRTV.lug3, via: [[57.011, 0.737]] }                              # Bass node → Treble bottom
   - { from: CBV.b, to: VRBV.lug1, via: [[54.978, -0.207]] }                              # Bass node → Bass top
   - { from: VRBV.lug1, to: VRBV.lug2 }                            # Bass wired as a rheostat
-  - { from: CBV2.b, to: VRBV.lug3 }                             # 0.047 → Bass foot (its 6.8k is on the pot)
+  - { from: CBV2.b, to: VRBV.lug3, via: [[58.661, 1.342]] }                             # 0.047 → Bass foot (its 6.8k is on the pot)
   - { from: VRTV.lug2, to: VRVV.lug3, via: [[55.825, -1.384]] }                              # Treble wiper → Volume top
   # === Normal tone stack: the Treble pot's top takes the 250 pF, its bottom the Bass
   # node (the 0.1 and the Bass rheostat), its wiper the Volume's top; the Bass foot carries the 0.047 ===
   - { from: RSN.b, to: CBN2.a, via: [[70.5, 1.3]] }  # slope foot → the 0.047
   - { from: CTN.b, to: VRTN.lug1 }                              # 250 pF → Treble top
   - { from: CBN.b, to: VRTN.lug3 }                              # Bass node → Treble bottom
-  - { from: CBN.b, to: VRBN.lug1, via: [[66.981, -0.015]] }                              # Bass node → Bass top
+  - { from: CBN.b, to: VRBN.lug1, via: [[66.981, -0.001]] }                              # Bass node → Bass top
   - { from: VRBN.lug1, to: VRBN.lug2 }                            # Bass wired as a rheostat
   - { from: CBN2.b, to: VRBN.lug3 }                             # 0.047 → Bass foot (its 6.8k is on the pot)
   - { from: VRTN.lug2, to: VRVN.lug3, via: [[68.231, -1.236]] }                              # Treble wiper → Volume top
 
   # === pot grounds (island controls) ==========================================
-  - { from: VRVN.lug1, to: [1.45, 68.5] }
+  - { from: VRVN.lug1, to: [1.45, 68.5], via: [[66.424, 0.696]] }
   - { from: VRVV.lug1, to: [1.45, 57.6] }
-  - { from: VRREV.lug1, to: [1.45, 48.6] }
+  - { from: VRREV.lug1, to: [1.45, 48.6], via: [[51.489, -0.578]] }
 
   # === 6.3 V heater chain (green twisted pair) =================================
   # PT green pair → pilot lamp → V7 → V8 → V6 → V4 → V5 → V3 → V2 → V1, in the

@@ -153,12 +153,12 @@ runs:
   # --- power transformer secondary -> 5Y3GT rectifier (marked colours) -------
   # The five secondary leads are fanned into distinct lanes as they leave the
   # PT so no two read as one wire before they reach the rectifier pins.
-  - { from: PT.red1, to: V3.pin4, via: [[1.4, 0.3]] }             # HT plate 1
+  - { from: PT.red1, to: V3.pin4, via: [[1.696, 0.3]] }             # HT plate 1
   - { from: PT.red2, to: V3.pin6, via: [[2.3, 0.62]] }            # HT plate 2
   - { from: PT.red-yellow, to: [1.45, -0.5], via: [[1.2, 1.15]] }  # HT centre tap -> ground bus
-  - { from: PT.yellow1, to: V3.pin2, via: [[0.7, 1.25]] }         # 5 V rectifier filament
-  - { from: PT.yellow2, to: V3.pin8, via: [[1.4, 1.75]] }         # 5 V rectifier filament / B+
-  - { from: V3.pin8, to: C5.a, color: red, via: [[2.2, 1.5]] }    # B+ out -> reservoir (B+1)
+  - { from: PT.yellow1, to: V3.pin2, via: [[0.375, 1.087]] }         # 5 V rectifier filament
+  - { from: PT.yellow2, to: V3.pin8, via: [[1.9, 1.75]] }         # 5 V rectifier filament / B+
+  - { from: V3.pin8, to: C5.a, color: red, via: [[2.2, 1.55]] }    # B+ out -> reservoir (B+1)
 
   # --- filtered B+ rail (8 µF reservoir, choke, 22k dropper, 8 µF / 8 µF) -----
   - { from: C5.a, to: L1.in }                      # B+1 -> choke
@@ -178,29 +178,29 @@ runs:
   # Runs BELOW the board outline, not along it: on row 1.3 the blue lead lay
   # on the board's own bottom rule for the full width of the drawing, so the
   # two read as one heavy line and the lead could not be traced.
-  - { from: V2.pin3, to: T1.blue, via: [[7, 2.12], [30.6, 2.12], [30.6, 0.42]] }  # plate -> OT primary (blue)
-  - { from: T1.red, to: C6.a, via: [[31.5, 0.5], [31.5, 2.8], [1.8, 2.8]] }     # OT primary -> B+2 (red, drops at the board's far right edge, clear of every socket ring, then runs the deepest lane)
+  - { from: V2.pin3, to: T1.blue, via: [[7.61, 2.45], [21.309, 1.522], [30.62, 2.12], [30.6, 0.42]] }  # plate -> OT primary (blue)
+  - { from: T1.red, to: C6.a, via: [[31.32, 0.6], [31.5, 2.8], [1.8, 2.8]] }     # OT primary -> B+2 (red, drops at the board's far right edge, clear of every socket ring, then runs the deepest lane)
   - { from: R9.a, to: V2.pin5, via: [[11, 1.5]] }        # grid leak -> 6V6 grid
   - { from: R9.b, to: [1.45, 12] }                       # grid leak -> ground bus
 
   # --- V1B driver stage (12AX7, second half) --------------------------------
-  - { from: V1.pin1, to: R7.a, via: [[24, 1.6], [15, 1.6]] }   # V1B plate -> 100k load
+  - { from: V1.pin1, to: R7.a, via: [[23.966, 1.6], [15, 1.6]] }   # V1B plate -> 100k load
   - { from: C3.a, to: R7.a }                             # plate node -> coupler
-  - { from: R7.b, to: C7.a, via: [[14, 1.62], [3.6, 1.62]] }   # plate load -> B+3 (approach from the left)
+  - { from: R7.b, to: C7.a, via: [[13.32, 1.535], [3.6, 1.62]] }   # plate load -> B+3 (approach from the left)
   - { from: C3.b, to: R9.a, via: [[16, -0.4], [12, -0.4]] }    # coupler -> 6V6 grid node
-  - { from: V1.pin3, to: R6.a, via: [[24, 1.68], [13.4, 1.68]] } # V1B cathode -> 1.5k
+  - { from: V1.pin3, to: R6.a, via: [[23.363, 1.68], [13.465, 1.68]] } # V1B cathode -> 1.5k
   - { from: R6.b, to: [1.45, 13] }                       # 1.5k -> ground bus
-  - { from: SPK.tip, to: R11.a, via: [[16.3, 1.9], [17, 1.9]] }    # speaker hot -> NFB resistor
+  - { from: SPK.tip, to: R11.a, via: [[16.2, 1.9], [17, 1.9]] }    # speaker hot -> NFB resistor
   - { from: R11.b, to: R6.a, via: [[18, 2.6], [12.3, 2.6], [12.3, 0.5]] } # NFB resistor -> V1B cathode (deep lane, own column)
-  - { from: VR1.lug2, to: V1.pin2, via: [[14, -0.45], [20, -0.35]] }  # volume wiper -> V1B grid
-  - { from: VR1.lug1, to: [1.45, 14], via: [[12.5, 0.3]] } # volume ground (bowed clear of the C3/R7 eyelet stack at col14)
+  - { from: VR1.lug2, to: V1.pin2, via: [[14.135, -0.45], [20, -0.35]] }  # volume wiper -> V1B grid
+  - { from: VR1.lug1, to: [1.45, 14], via: [[12.4, 0.2]] } # volume ground (bowed clear of the C3/R7 eyelet stack at col14)
 
   # --- V1A input stage (12AX7, first half) ----------------------------------
   - { from: V1.pin6, to: R5.a, via: [[24.3, 1.5], [20, 1.5]] } # V1A plate -> 100k load
   - { from: R5.b, to: C7.a, via: [[19, 1.15], [7.2, 1.15]] }  # plate load -> B+3 (approach from the right)
-  - { from: V1.pin6, to: C2.a, via: [[23.3, 0.95], [21, 0.95]] } # V1A plate -> volume coupler
+  - { from: V1.pin6, to: C2.a, via: [[23.3, 0.935], [21, 0.95]] } # V1A plate -> volume coupler
   - { from: C2.b, to: VR1.lug3, via: [[21, -0.45], [14, -0.5]] }  # coupler -> volume top
-  - { from: V1.pin8, to: R4.a, via: [[24, 1.72], [26.6, 1.72]] } # V1A cathode -> 1.5k
+  - { from: V1.pin8, to: R4.a, via: [[23.57, 2.52], [26.6, 1.72]] } # V1A cathode -> 1.5k
   - { from: R4.b, to: [1.45, 27] }                       # 1.5k -> ground bus
   - { from: C1.a, to: R4.a }                             # cathode bypass across 1.5k
   - { from: C1.b, to: [1.45, 29], via: [[29.4, 1.4]] }  # bowed clear of R3.a's eyelet (same column)
@@ -226,7 +226,7 @@ runs:
   # through it on its way to the heaters. So this is NOT a twisted pair: each
   # socket takes a green feed and returns to chassis on its own, and earns no
   # twisted-pair legend entry (see wire_legend above).
-  - { from: PT.green1, to: [1.45, 1.6], style: heater, via: [[0.8, 1.25]] }     # grounded 6.3 V leg
+  - { from: PT.green1, to: [1.45, 1.6], style: heater, via: [[0.96, 1.25]] }     # grounded 6.3 V leg
   - { from: PT.green2, to: PL1.a, style: heater, via: [[-0.6, 1.28]] }          # 6.3 V feed -> pilot lite
   - { from: PL1.a, to: V2.pin7, style: heater, via: [[-1.2, 2.6], [10, 2.6]] }  # feed -> 6V6 heater
   - { from: V2.pin7, to: V1.pin4, style: heater, via: [[10, 2.62], [24, 2.62]] } # 6V6 -> 12AX7 heater
@@ -237,7 +237,7 @@ runs:
   # mark, and the 12AX7's heater centre tap at pin 9 straight up to one -- no CT
   # resistors are shown or in the BOM.
   - { from: V2.pin2, to: [1.45, 9.6], style: heater }
-  - { from: V1.pin9, to: [1.45, 25], style: heater, via: [[26, 2.0]] }
+  - { from: V1.pin9, to: [1.45, 25], style: heater, via: [[26, 2]] }
 
 # net_map — the reviewable data layer that reconciles the drawn wiring with the
 # DC-operating-point netlist (netlist.cir) for pipeline/verify_layout_nets.py.

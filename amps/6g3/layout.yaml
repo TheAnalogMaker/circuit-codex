@@ -168,83 +168,83 @@ runs:
   # socket carried one run — a rectifier with no filament supply at all. The
   # equivalence gate could not see the hole, because it excludes the PT and
   # rectifier AC side by rule; see the `heaters:` block at the head of the file.
-  - { from: T1.red1, to: V6.pin4, via: [[0.9, 0.35], [1.5, 1.30]] }
+  - { from: T1.red1, to: V6.pin4, via: [[0.9, 0.35], [1.5, 1.3]] }
   - { from: T1.red2, to: V6.pin6, via: [[1.2, 0.58], [2.2, 1.36]] }
   - { from: T1.red-yellow, to: [1.45, 0.4], via: [[0.15, 0.92]] }
   - { from: T1.yellow1, to: V6.pin2, via: [[0.45, 1.28], [0.95, 2.05]] }
-  - { from: T1.yellow2, to: V6.pin8, via: [[0.18, 1.55], [0.62, 2.62], [3.0, 2.62]] }
-  - { from: V6.pin8, to: RD1.a, color: red, via: [[1.0, 2.45], [1.0, -0.55]] }
+  - { from: T1.yellow2, to: V6.pin8, via: [[0.18, 1.55], [0.62, 2.62], [3, 2.62]] }
+  - { from: V6.pin8, to: RD1.a, color: red, via: [[1, 2.45], [1, -0.55]] }
 
   # === B+1 (+375 V): reservoir node — OT centre tap and oscillator plate ===
-  - { from: RD1.a, to: T2.red, color: red, via: [[2.9, -0.52], [11.9, -0.52], [11.9, 1.30]] }
+  - { from: RD1.a, to: T2.red, color: red, via: [[2.9, -0.52], [11.9, -0.52], [11.9, 1.3]] }
   - { from: RD1.a, to: RL4.a, color: red, via: [[2.4, -0.76], [28.4, -0.76]] }
 
   # === B+2 (+365 V): the two 6V6 screens, on one backbone lead ============
-  - { from: RD1.b, to: RD2.a, color: red, via: [[3.6, -0.80], [6.0, -0.80]] }
+  - { from: RD1.b, to: RD2.a, color: red, via: [[3.6, -0.8], [6, -0.8]] }
   - { from: RD1.b, to: V4.pin4, color: red, via: [[3.4, -0.32], [1.7, -0.32], [0.75, 0.62], [0.75, 1.66], [5.2, 1.66]] }
   - { from: V4.pin4, to: V5.pin4, color: red, via: [[6.2, 1.62], [9.3, 1.62]] }
-  - { from: T2.blue, to: V4.pin3, via: [[13.1, 2.74], [4.6, 2.74], [4.6, 1.90]] }
-  - { from: T2.brown, to: V5.pin3, via: [[13.7, 2.96], [8.6, 2.96], [8.6, 1.90]] }
+  - { from: T2.blue, to: V4.pin3, via: [[13.1, 2.74], [4.6, 2.74], [4.6, 1.9]] }
+  - { from: T2.brown, to: V5.pin3, via: [[13.7, 2.96], [8.6, 2.96], [8.6, 1.9]] }
   - { from: T2.green, to: SPK.tip, via: [[14.4, 1.92]] }
   - { from: SPK.sleeve, to: [1.45, 16.9], via: [[16.9, 2.24]] }
 
   # === B+3 (+325 V): the two inverter plate loads ==========================
-  - { from: RD2.b, to: RD3.a, color: red, via: [[7.1, -0.80], [9.5, -0.80]] }
+  - { from: RD2.b, to: RD3.a, color: red, via: [[7.1, -0.8], [9.5, -0.8]] }
   - { from: RD2.b, to: RLA.a, color: red, via: [[7.2, -0.34], [5.3, -0.34]] }
   - { from: RLA.a, to: RLB.a, color: red, via: [[5.4, -0.12], [7.6, -0.12]] }
 
   # === B+4 (+270 V): the driver decoupler and both channel plate loads =====
-  - { from: RD3.b, to: RD4.a, color: red, via: [[10.9, -0.60], [50.4, -0.60]] }
+  - { from: RD3.b, to: RD4.a, color: red, via: [[10.9, -0.6], [50.4, -0.6]] }
   - { from: RD4.a, to: RL2.a, color: red, via: [[51.6, -0.42], [63.4, -0.42]] }
   - { from: RL2.a, to: RL1.a, color: red }
   - { from: RL1.a, to: C3.a, color: red }
 
   # === bias supply: an HT leg → 100k → rectifier → 25 µF / 22k → -26 V ====
-  - { from: V6.pin6, to: R11.a, color: red, via: [[3.4, 2.56], [12.5, 2.56], [12.5, -0.56], [14.0, -0.56]] }
-  - { from: R11.b, to: D1.a, via: [[15.6, -0.80], [17.4, -0.80]] }
-  - { from: D1.b, to: C25.a, via: [[18.6, -0.80], [20.4, -0.80]] }
+  - { from: V6.pin6, to: R11.a, color: red, via: [[3.4, 2.56], [12.5, 2.56], [12.5, -0.56], [14, -0.56]] }
+  - { from: R11.b, to: D1.a, via: [[15.6, -0.8], [17.4, -0.8]] }
+  - { from: D1.b, to: C25.a, via: [[18.6, -0.8], [20.4, -0.8]] }
   - { from: C25.a, to: R12.a, via: [[21.2, -0.86], [23.2, -0.86]] }
   - { from: C25.b, to: [1.45, 27.6], via: [[21.7, -0.54], [27.6, -0.54]] }
   - { from: R12.b, to: [1.45, 28.2], via: [[24.6, -0.68], [28.2, -0.68]] }
-  - { from: C25.a, to: VR6.lug1, color: brown, via: [[21.4, -0.50], [28.6, -0.50], [28.6, -0.88]] }
+  - { from: C25.a, to: VR6.lug1, color: brown, via: [[21.4, -0.5], [29.75, -0.5]] }
 
   # === the Intensity control sits in the bias line =========================
-  - { from: C19.b, to: VR6.lug3, color: brown, via: [[43.4, -0.30], [30.8, -0.30]] }
-  - { from: VR6.lug2, to: C20.a, via: [[30.45, -0.78], [29.0, -0.86], [27.0, -0.86]] }
-  - { from: C20.b, to: [1.45, 27.0], via: [[27.3, -0.44], [27.0, 0.45]] }
+  - { from: C19.b, to: VR6.lug3, color: brown, via: [[43.4, -0.3], [30.8, -0.3]] }
+  - { from: VR6.lug2, to: C20.a, via: [[30.45, -0.78], [29, -0.86], [27, -0.86]] }
+  - { from: C20.b, to: [1.45, 27], via: [[27.3, -0.44], [27, 0.45]] }
   - { from: VR6.lug2, to: RG4.a, color: yellow, via: [[29.6, -0.42], [2.4, -0.42]] }
   - { from: RG4.a, to: RG5.a, color: yellow, via: [[2.5, -0.16], [10.6, -0.16]] }
 
   # === output stage: grids and cathodes ===================================
   - { from: C12.a, to: V4.pin5, via: [[2.4, 1.38], [6.4, 1.38]] }
   - { from: C13.b, to: V5.pin5, via: [[10.6, 1.42], [10.4, 1.66]] }
-  - { from: V4.pin8, to: [1.45, 7.0], via: [[7.1, 2.26]] }
+  - { from: V4.pin8, to: [1.45, 7], via: [[7.1, 2.26]] }
   - { from: V5.pin8, to: [1.45, 11.6], via: [[11.4, 2.26]] }
 
   # === phase inverter: plates, grids, cathodes, tail ======================
   - { from: RLA.b, to: V3.pin1, via: [[5.4, 1.52], [17.5, 1.52], [17.5, 2.62], [19.2, 2.62]] }
   - { from: RLB.b, to: V3.pin6, via: [[8.4, 1.28], [20.6, 1.28]] }
-  - { from: RNFB.a, to: RNF1.a, via: [[14.4, -0.20], [15.6, -0.20]] }
-  - { from: RNF1.a, to: C14.a, via: [[16.4, -0.20], [17.6, -0.20]] }
-  - { from: RNFB.b, to: SPK.tip, via: [[14.2, 1.84], [16.0, 1.84]] }
+  - { from: RNFB.a, to: RNF1.a, via: [[14.4, -0.2], [15.6, -0.2]] }
+  - { from: RNF1.a, to: C14.a, via: [[16.4, -0.2], [17.6, -0.2]] }
+  - { from: RNFB.b, to: SPK.tip, via: [[14.249, 1.84], [16, 1.84]] }
   - { from: RNF1.b, to: [1.45, 16] }
   - { from: RT2.b, to: RGA.a }
   - { from: RGA.a, to: RTAIL.a, via: [[20.4, -0.18], [21.6, -0.18]] }
   - { from: RTAIL.a, to: RGB.a, via: [[22.4, -0.18], [23.6, -0.18]] }
-  - { from: RGA.b, to: V3.pin2, via: [[19.9, 1.60], [18.2, 2.10]] }
+  - { from: RGA.b, to: V3.pin2, via: [[19.9, 1.6], [18.2, 2.1]] }
   - { from: RGB.b, to: V3.pin7, via: [[23.4, 1.36], [21.2, 1.36]] }
   - { from: RTAIL.b, to: V3.pin8, via: [[22.2, 1.74], [21.8, 2.34]] }
-  - { from: RTAIL.b, to: V3.pin3, via: [[21.4, 1.50], [18.4, 1.50], [18.4, 1.92]] }
+  - { from: RTAIL.b, to: V3.pin3, via: [[21.4, 1.5], [18.4, 1.5], [18.4, 1.92]] }
   - { from: C14.b, to: RGB.b, via: [[18.4, 2.92], [23.4, 2.92]] }
-  - { from: RGA.b, to: C9.b, via: [[21.4, 1.70], [21.4, 3.14], [25.6, 3.14]] }
+  - { from: RGA.b, to: C9.b, via: [[21.4, 1.7], [21.4, 3.14], [25.6, 3.14]] }
 
   # === tremolo oscillator (annotation layer) ==============================
   - { from: C16.a, to: V2.pin1, via: [[32.6, 2.64], [40.6, 2.64]] }
   - { from: C16.a, to: R10.a, via: [[32.6, -0.12], [36.4, -0.12]] }
-  - { from: C16.b, to: VR5.lug1, color: blue, via: [[31.6, 1.30], [43.4, 1.30], [43.4, -0.24], [41.4, -0.24]] }
-  - { from: VR5.lug3, to: R9.a, via: [[43.2, -0.94]] }
+  - { from: C16.b, to: VR5.lug1, color: blue, via: [[31.6, 1.3], [43.4, 1.3], [43.4, -0.24], [41.4, -0.24]] }
+  - { from: VR5.lug3, to: R9.a, via: [[41.901, -1.15]] }
   - { from: VR5.lug2, to: VR5.lug3 }       # I-FA: the 100k lug strapped to the wiper; blue lead on lug 1
-  - { from: R9.b, to: [1.45, 45.2], via: [[45.4, -0.34], [45.2, 0.50]] }
+  - { from: R9.b, to: [1.45, 45.2], via: [[45.4, -0.34], [45.2, 0.5]] }
   - { from: C18.b, to: R7.a }
   - { from: C18.b, to: V2.pin2, via: [[38.4, 2.22], [40.4, 2.22]] }
   - { from: R7.b, to: [1.45, 42.2] }
@@ -252,12 +252,12 @@ runs:
   - { from: JTR.sleeve, to: [1.45, 37.2], via: [[37.2, 1.86]] }
   - { from: R8.a, to: RK3.a, via: [[35.4, -0.56], [43.6, -0.56]] }
   - { from: RK3.a, to: C11.a, via: [[44.4, -0.14], [45.6, -0.14]] }
-  - { from: RK3.a, to: V2.pin3, via: [[44.4, 1.70], [40.6, 1.70]] }
+  - { from: RK3.a, to: V2.pin3, via: [[44.4, 1.7], [40.6, 1.7]] }
   - { from: RK3.b, to: [1.45, 44] }
   - { from: C11.b, to: [1.45, 46] }
 
   # === driver =============================================================
-  - { from: RL3.b, to: V2.pin6, via: [[48.6, 1.56], [43.0, 1.56]] }
+  - { from: RL3.b, to: V2.pin6, via: [[48.6, 1.56], [43, 1.56]] }
   - { from: RL3.a, to: RD4.b, via: [[49.5, -0.18], [50.6, -0.18]] }
   - { from: RL3.a, to: C9.a, color: yellow, via: [[48.4, -0.36], [26.4, -0.36]] }
   - { from: R5.b, to: R6.b }
@@ -266,28 +266,28 @@ runs:
   - { from: RK2.a, to: V2.pin8, via: [[56.4, 2.44], [43.4, 2.44]] }
   - { from: RK2.b, to: [1.45, 57] }
   - { from: C4.b, to: [1.45, 59] }
-  - { from: VR1.lug2, to: R5.a, via: [[72.0, -0.54], [53.4, -0.54]] }
-  - { from: VR3.lug2, to: R6.a, via: [[61.4, -0.30], [55.4, -0.30]] }
+  - { from: VR1.lug2, to: R5.a, via: [[72, -0.54], [53.4, -0.54]] }
+  - { from: VR3.lug2, to: R6.a, via: [[61.4, -0.3], [55.4, -0.3]] }
 
   # === channel input stages ===============================================
   - { from: C2.b, to: RL2.b }
-  - { from: RL2.b, to: V1.pin1, via: [[64.4, 2.40], [66.8, 2.40]] }
+  - { from: RL2.b, to: V1.pin1, via: [[64.4, 2.4], [66.8, 2.4]] }
   - { from: RL1.b, to: C3.b }
   - { from: C3.b, to: C1.b }
-  - { from: RL1.b, to: V1.pin6, via: [[66.4, 1.58], [69.0, 1.58]] }
+  - { from: RL1.b, to: V1.pin6, via: [[66.4, 1.58], [69, 1.58]] }
   - { from: RK1.a, to: C10.a, via: [[72.4, -0.14], [73.6, -0.14]] }
   - { from: RK1.a, to: V1.pin8, via: [[71.6, 1.66], [69.8, 2.28]] }
   - { from: V1.pin8, to: V1.pin3, via: [[68.8, 2.86], [65.6, 2.86], [65.6, 1.96]] }
   - { from: RK1.b, to: [1.45, 72] }
   - { from: C10.b, to: [1.45, 74] }
-  - { from: C2.a, to: VR3.lug3, via: [[62.4, -0.24], [63.0, -0.62]] }
+  - { from: C2.a, to: VR3.lug3, via: [[62.4, -0.24], [63, -0.62]] }
   - { from: C1.a, to: VR1.lug3, via: [[70.4, -0.24], [73.6, -0.24], [73.4, -0.66]] }
   - { from: VR4.lug2, to: C2.a, via: [[57.6, -0.66], [61.6, -0.66]] }
   - { from: VR2.lug2, to: C1.a, via: [[68.6, -0.46], [69.6, -0.46]] }
-  - { from: JB.tip, to: V1.pin2, via: [[65.2, -0.20], [66.0, 1.52], [66.2, 2.16]] }
+  - { from: JB.tip, to: V1.pin2, via: [[65.2, -0.2], [66, 1.52], [66.2, 2.16]] }
   - { from: JN.tip, to: V1.pin7, via: [[75.6, 0.55], [70.2, 1.72]] }
-  - { from: VR1.lug1, to: [1.45, 75.2], via: [[72.0, -0.80], [75.2, -0.50], [75.2, 0.55]] }
-  - { from: VR3.lug1, to: [1.45, 60.6], via: [[61.0, -0.84], [60.6, 0.62]] }
+  - { from: VR1.lug1, to: [1.45, 75.2], via: [[72.46, -0.8], [75.2, -0.5], [75.2, 0.55]] }
+  - { from: VR3.lug1, to: [1.45, 60.6], via: [[62.15, -0.84], [60.6, 0.62]] }
 
   # === 6.3 V heater chain (green twisted pair) ============================
   # PT green pair → pilot lamp → V4 → V5 → V3 → V2 → V1. The sheet annotates
@@ -302,11 +302,11 @@ runs:
   # open X under every power socket. The 6.3 V winding has no polarity, so
   # which of the two heater lugs a leg lands on is a drafting choice, not a
   # circuit claim; both remain heater pins (validated against the basing data).
-  - { from: PL1.b, to: V4.pin2, style: twisted, via: [[-1.2, 3.56], [5.0, 3.56]] }
-  - { from: V4.pin7, to: V5.pin2, style: twisted, via: [[6.9, 3.56], [9.0, 3.56]] }
-  - { from: V5.pin7, to: V3.pin4, style: twisted, via: [[10.9, 3.60], [19.4, 3.60]] }
-  - { from: V3.pin5, to: V2.pin4, style: twisted, via: [[20.6, 3.60], [41.4, 3.60]] }
-  - { from: V2.pin5, to: V1.pin4, style: twisted, via: [[42.6, 3.60], [67.4, 3.60]] }
+  - { from: PL1.b, to: V4.pin2, style: twisted, via: [[-1.2, 3.56], [5, 3.56]] }
+  - { from: V4.pin7, to: V5.pin2, style: twisted, via: [[6.9, 3.56], [9, 3.56]] }
+  - { from: V5.pin7, to: V3.pin4, style: twisted, via: [[10.9, 3.6], [19.4, 3.6]] }
+  - { from: V3.pin5, to: V2.pin4, style: twisted, via: [[20.6, 3.6], [41.4, 3.6]] }
+  - { from: V2.pin5, to: V1.pin4, style: twisted, via: [[42.6, 3.6], [67.4, 3.6]] }
   - { from: V1.pin4, to: V1.pin5, style: twisted }
 
 # net_map — reviewable reconciliation of the drawn wiring with the DC netlist

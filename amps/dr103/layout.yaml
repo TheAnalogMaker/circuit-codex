@@ -212,7 +212,7 @@ runs:
 
   # --- silicon HT bridge + series-pair reservoir bank ------------------------
   - { from: PT.ht1, to: D1.a, via: [[-1.06, 0.4], [-1.06, 2.15], [7.6, 2.15], [7.9, 1.62]] }  # HT winding (PT-AC)
-  - { from: PT.ht2, to: D2.a, via: [[-1.33, 0.74], [-1.33, 2.35], [9.6, 2.35], [9.9, 1.62]] } # HT winding (PT-AC)
+  - { from: PT.ht2, to: D2.a, via: [[-1.33, 0.578], [-1.33, 2.35], [9.6, 2.35], [9.9, 1.62]] } # HT winding (PT-AC)
   - { from: D3.b, to: D1.a, via: [[12.4, 1.74], [8.9, 1.74]] }
   - { from: D4.b, to: D2.a, via: [[14.6, 1.9], [10.9, 1.9]] }
   - { from: D3.a, to: [1.45, 11.7], via: [[11.7, 1.24]] }
@@ -220,8 +220,8 @@ runs:
   - { from: D1.b, to: D2.b, via: [[9.6, 1.28]] }                        # bridge output (B+1)
   - { from: D1.b, to: C17.a, via: [[8.6, 0.55]] }                       # B+1 -> reservoir
   - { from: C18.b, to: [1.45, 12.4], via: [[12.3, 0.75]] }
-  - { from: C17.a, to: RB3.a, via: [[8.6, -0.35], [16.6, -0.35], [17.0, 0.6]] }
-  - { from: C17.b, to: RB3.b, via: [[10.4, -0.62], [18.0, -0.62], [18.0, 0.55]] }  # mid-point
+  - { from: C17.a, to: RB3.a, via: [[8.6, -0.35], [16.6, -0.35], [17, 0.6]] }
+  - { from: C17.b, to: RB3.b, via: [[10.4, -0.62], [18, -0.62], [18, 0.55]] }  # mid-point
   - { from: RB4.b, to: [1.45, 19.4], via: [[19.4, 1.24]] }
 
   # --- rail droppers: 100 R -> B+2, 470 R -> screens, 1 k / 47 k / 22 k ------
@@ -254,13 +254,13 @@ runs:
   - { from: RS5.a, to: RS6.a, via: [[49.2, 0.5], [51.8, 0.5]] }
   - { from: RS5.b, to: V5.pin5, via: [[50.6, 1.62]] }
   - { from: RSC5.b, to: V5.pin4, via: [[50.4, 0.9], [50.9, 1.5]] }
-  - { from: RS6.b, to: V6.pin5, via: [[53.6, 1.66]] }
+  - { from: RS6.b, to: V6.pin5, via: [[53.6, 1.632]] }
   - { from: RSC6.b, to: V6.pin4, via: [[53.4, 0.92], [54.4, 1.54]] }
   - { from: V5.pin1, to: V5.pin8 }                                      # suppressor -> cathode
   - { from: V5.pin8, to: [1.45, 51.7], via: [[51.7, 1.68]] }
   - { from: V6.pin1, to: V6.pin8 }
   - { from: V6.pin8, to: [1.45, 55.2], via: [[55.2, 1.68]] }
-  - { from: V5.pin3, to: T1.pa, via: [[50.2, 2.12], [50.0, 2.76], [66.2, 2.76]] }
+  - { from: V5.pin3, to: T1.pa, via: [[50.2, 2.12], [50, 2.76], [66.2, 2.76]] }
   - { from: V6.pin3, to: T1.pa, via: [[53.7, 2.18], [53.6, 3.04], [67.4, 3.04]] }
 
 
@@ -269,122 +269,122 @@ runs:
   - { from: RS7.a, to: RS8.a, via: [[59.2, 0.5], [61.8, 0.5]] }
   - { from: RS7.b, to: V7.pin5, via: [[60.6, 1.62]] }
   - { from: RSC7.b, to: V7.pin4, via: [[60.4, 0.9], [60.9, 1.5]] }
-  - { from: RS8.b, to: V8.pin5, via: [[63.6, 1.66]] }
+  - { from: RS8.b, to: V8.pin5, via: [[63.6, 1.62]] }
   - { from: RSC8.b, to: V8.pin4, via: [[63.4, 0.92], [64.4, 1.54]] }
   - { from: V7.pin1, to: V7.pin8 }
   - { from: V7.pin8, to: [1.45, 61.7], via: [[61.7, 1.68]] }
   - { from: V8.pin1, to: V8.pin8 }
   - { from: V8.pin8, to: [1.45, 65.2], via: [[65.2, 1.68]] }
-  - { from: V7.pin3, to: T1.pb, via: [[60.2, 2.2], [60.0, 3.32], [66.0, 3.32]] }
+  - { from: V7.pin3, to: T1.pb, via: [[60.2, 2.2], [60, 3.32], [66, 3.32]] }
   - { from: V8.pin3, to: T1.pb, via: [[63.7, 2.26], [63.6, 3.46], [67.9, 3.46]] }
 
   # --- negative-bias backbone: the filter node to both grid leaks -----------
-  - { from: RB2.a, to: RGL1.b, via: [[5.4, 1.85], [5.4, 2.50], [44.4, 2.50], [45.2, 1.30], [46.6, 1.30]] }
-  - { from: RGL1.b, to: RGL2.b, via: [[47.6, 1.30], [56.4, 1.30]] }
+  - { from: RB2.a, to: RGL1.b, via: [[5.4, 1.85], [5.4, 2.5], [44.4, 2.5], [45.2, 1.3], [46.6, 1.3]] }
+  - { from: RGL1.b, to: RGL2.b, via: [[47.6, 1.3], [56.4, 1.3]] }
 
   # --- B+1 to the output-transformer centre tap ----------------------------
-  - { from: C17.a, to: T1.ct, via: [[8.0, -1.05], [66.4, -1.05], [67.4, 1.05]] }
+  - { from: C17.a, to: T1.ct, via: [[8, -1.05], [66.4, -1.05], [67.4, 1.05]] }
 
   # --- output transformer secondary -> speaker jacks -> feedback ------------
   - { from: T1.sa, to: SPK, via: [[68.6, 2.5], [70.4, 2.2]] }
-  - { from: T1.sb, to: SPK, via: [[69.4, 3.0], [71.6, 2.6]] }
-  - { from: SPK, to: RNFB.a, via: [[71.4, 1.95], [73.0, 2.05]] }
+  - { from: T1.sb, to: SPK, via: [[69.4, 3], [71.6, 2.6]] }
+  - { from: SPK, to: RNFB.a, via: [[71.4, 1.95], [73, 2.05]] }
   - { from: RNFB.b, to: RT2.a, via: [[74.6, 2.7], [74.6, 3.88], [103.2, 3.88]] }
 
   # --- feedback-junction shunt leg + presence network ----------------------
-  - { from: RPD.a, to: RT2.a, via: [[75.8, 1.24], [75.8, -0.42], [102.8, -0.42], [103.2, 0.72]] }
+  - { from: RPD.a, to: RT2.a, via: [[75.34, 1.24], [75.8, -0.42], [102.8, -0.42], [103.2, 0.76]] }
   - { from: RPD.b, to: C10.b, via: [[77.6, 1.24], [78.4, 0.6]] }
   - { from: C10.a, to: [1.45, 75.6], via: [[75.6, 0.6]] }
   - { from: C11.b, to: VR7.lug3, via: [[82.4, -0.5], [84.3, -0.5]] }
-  - { from: VR7.lug1, to: C12.a, via: [[83.7, -0.72], [86.0, -0.72], [86.0, -0.3]] }
-  - { from: VR7.lug2, to: RPG.a, via: [[84.0, -0.62], [89.6, -0.62], [90.0, 0.35]] }
-  - { from: RPG.b, to: [1.45, 90.0] }
+  - { from: VR7.lug1, to: C12.a, via: [[83.7, -0.72], [86, -0.72], [86, -0.3]] }
+  - { from: VR7.lug2, to: RPG.a, via: [[84, -0.62], [89.6, -0.62], [90, 0.35]] }
+  - { from: RPG.b, to: [1.45, 90] }
   - { from: C12.b, to: RT2.a, via: [[88.4, -0.9], [101.4, -0.9], [102.4, 0.68]] }
 
   # --- V4 ECC81 long-tailed-pair phase inverter ----------------------------
   - { from: RLA.a, to: C20.a, via: [[92.4, 2.62], [30.4, 2.62], [30.4, 0.5]] }   # plate loads -> B+3
-  - { from: RLB.a, to: RLA.a, via: [[94.0, 1.22], [92.4, 1.22]] }
+  - { from: RLB.a, to: RLA.a, via: [[94, 1.22], [92.4, 1.22]] }
   - { from: RLA.b, to: V4.pin6, via: [[93.4, 1.7], [95.9, 1.75]] }
   - { from: RLB.b, to: V4.pin1, via: [[95.6, 1.35], [95.9, 2.05]] }
-  - { from: C13.a, to: RLA.b, via: [[45.6, 0.5], [45.6, 3.60], [93.0, 3.60]] }   # PPIA (deep lane)
-  - { from: C14.a, to: RLB.b, via: [[55.9, 0.5], [55.9, 3.74], [95.0, 3.74]] }   # PPIB (deep lane)
-  - { from: RGB.a, to: V4.pin2, via: [[98.8, 1.6], [95.6, 2.0]] }
+  - { from: C13.a, to: RLA.b, via: [[45.6, 0.5], [45.6, 3.6], [93, 3.6]] }   # PPIA (deep lane)
+  - { from: C14.a, to: RLB.b, via: [[55.9, 0.5], [55.9, 3.74], [94.855, 3.74]] }   # PPIB (deep lane)
+  - { from: RGB.a, to: V4.pin2, via: [[98.8, 1.6], [95.6, 2]] }
   - { from: C9.a, to: RGB.a, via: [[98.4, 0.62]] }
   - { from: C9.b, to: RT2.a, via: [[100.4, 1.32], [102.6, 1.32]] }
-  - { from: V4.pin8, to: RTAIL.a, via: [[97.4, 1.5], [97.4, 0.75], [101.8, 0.75]] }
-  - { from: V4.pin3, to: RTAIL.a, via: [[94.8, 1.3], [94.8, 0.42], [101.0, 0.42]] }
+  - { from: V4.pin8, to: RTAIL.a, via: [[97.4, 1.721], [97.4, 0.75], [101.8, 0.75]] }
+  - { from: V4.pin3, to: RTAIL.a, via: [[94.8, 1.3], [94.8, 0.42], [101, 0.42]] }
   - { from: RTAIL.b, to: RT2.a, via: [[102.5, 1.05]] }
-  - { from: RT2.b, to: [1.45, 104.0] }
+  - { from: RT2.b, to: [1.45, 104] }
 
   # --- V3 driver + second cathode follower --------------------------------
-  - { from: RL4.a, to: C22.a, via: [[115.0, 4.02], [40.4, 4.02], [40.4, 0.5]] }  # -> B+5
+  - { from: RL4.a, to: C22.a, via: [[115, 4.02], [40.4, 4.02], [40.4, 0.5]] }  # -> B+5
   - { from: RL4.b, to: V3.pin6, via: [[116.5, 1.6], [110.6, 1.75]] }
   - { from: V3.pin6, to: C8.b, via: [[111.2, 1.3], [112.6, 0.62]] }              # plate -> coupler
   - { from: C8.b, to: R18.b, via: [[111.5, 0.62]] }                              # 1M8 in parallel
   - { from: C8.a, to: R18.a }
   - { from: R18.a, to: V3.pin2, via: [[110.2, 1.3], [109.3, 1.9]] }              # -> CF grid
   - { from: RG3.a, to: C8.a, via: [[109.5, 0.28]] }
-  - { from: RG3.b, to: [1.45, 109.0] }
+  - { from: RG3.b, to: [1.45, 109] }
   - { from: V3.pin1, to: RL4.a, via: [[109.2, 2.58], [115.6, 2.58], [115.6, 1.35]] }  # CF plate -> B+5
   - { from: V3.pin8, to: RK3.a, via: [[112.6, 1.42]] }
-  - { from: RK3.b, to: [1.45, 113.0] }
+  - { from: RK3.b, to: [1.45, 113] }
   - { from: C7.a, to: RK3.a }
   - { from: C7.b, to: [1.45, 114.3], via: [[114.3, 0.6]] }
   - { from: V3.pin3, to: RKCF2.a, via: [[107.8, 1.5]] }                          # CF cathode -> load
-  - { from: RKCF2.b, to: [1.45, 107.0] }
+  - { from: RKCF2.b, to: [1.45, 107] }
   - { from: RKCF2.a, to: RGB.b, via: [[106.6, -1.05], [101.2, -1.05], [101.2, 0.45], [100.6, 0.75]] }  # CF -> inverter grid
   - { from: RGB.b, to: V4.pin7, via: [[100.4, 1.3], [97.4, 1.3], [96.9, 1.5]] }
-  - { from: C11.a, to: RL4.b, via: [[80.0, 1.6], [80.0, 4.16], [116.8, 4.16], [116.8, 1.2], [116.3, 1.02]] }  # presence tap (deep lane)
+  - { from: C11.a, to: RL4.b, via: [[80, 1.6], [80, 4.16], [116.8, 4.16], [116.8, 1.2], [116.3, 1.02]] }  # presence tap (deep lane)
 
   # --- master volume + tone stack (C4 / C5 / C6 on the board) ---------------
-  - { from: VR6.lug2, to: V3.pin7, via: [[116.0, -0.6], [112.35, -0.6], [112.35, 1.35], [111.4, 1.68]] }
-  - { from: VR6.lug1, to: [1.45, 117.4], via: [[115.6, -0.85], [117.4, -0.85], [117.4, 1.9]] }
+  - { from: VR6.lug2, to: V3.pin7, via: [[116, -0.6], [112.35, -0.6], [112.35, 1.35], [111.4, 1.68]] }
+  - { from: VR6.lug1, to: [1.45, 117.4], via: [[116.347, -0.85], [117.4, -0.85], [117.4, 1.9]] }
   - { from: RTM.b, to: VR6.lug3, via: [[119.4, 0.55], [119.4, -0.35], [116.4, -0.35]] }
-  - { from: VR3.lug2, to: RTM.a, via: [[121.0, -0.55], [118.4, -0.55], [118.0, 0.55]] }  # treble wiper alone
+  - { from: VR3.lug2, to: RTM.a, via: [[121, -0.55], [118.4, -0.55], [118, 0.55]] }  # treble wiper alone
   - { from: V2.pin3, to: RSL.a, via: [[127.2, 1.75], [124.4, 1.6]] }             # CF cathode -> slope
   - { from: RSL.a, to: C4.a, via: [[123.2, 0.5]] }                             # node A (CF output) -> 100 pF treble cap
   - { from: C4.b, to: VR3.lug3 }                                               # 100 pF -> treble top
   - { from: RSL.b, to: C5.a }                                                  # slope foot (node B) -> the bass and middle caps' shared eyelet
   - { from: C5.b, to: VR4.lug3 }                                               # 47 nF bass cap -> bass node
-  - { from: VR3.lug1, to: VR4.lug3, via: [[121.0, -0.72], [123.0, -0.72]] }      # treble bottom -> bass node
-  - { from: VR4.lug2, to: VR4.lug3, via: [[123.15, -0.66], [123.15, -0.95], [123.56, -0.95]] }  # rheostat strap
+  - { from: VR3.lug1, to: VR4.lug3, via: [[121, -0.72], [123, -0.72]] }      # treble bottom -> bass node
+  - { from: VR4.lug2, to: VR4.lug3, via: [[123.15, -0.66], [122.998, -0.95], [123.54, -0.998]] }  # rheostat strap
   - { from: VR4.lug1, to: VR5.lug3, via: [[122.9, -0.55], [125.6, -0.55]] }      # bass foot -> middle top
   - { from: C6.b, to: VR5.lug2 }                                               # 47 nF middle cap -> middle wiper
   - { from: VR5.lug1, to: [1.45, 125.5], via: [[125.5, -0.4], [125.5, 1.9]] }
 
   # --- V2 second stage + cathode follower ---------------------------------
   - { from: V2.pin3, to: RKCF.a, via: [[126.8, 1.5]] }
-  - { from: RKCF.b, to: [1.45, 126.0] }
-  - { from: RL3.a, to: C21.a, via: [[134.3, 2.90], [36.4, 2.90], [36.4, 0.35]] }  # -> B+4
+  - { from: RKCF.b, to: [1.45, 126] }
+  - { from: RL3.a, to: C21.a, via: [[134.3, 2.9], [36.4, 2.9], [36.4, 0.35]] }  # -> B+4
   - { from: RL3.b, to: V2.pin6, via: [[134.5, 1.6], [129.6, 1.75]] }
   - { from: V2.pin6, to: V2.pin2, via: [[129.4, 1.5], [128.3, 1.9]] }            # DC-coupled to the CF
   - { from: V2.pin1, to: RD4.a, via: [[128.2, 2.36], [37.6, 2.36], [37.6, 1.28]] }  # CF plate -> B+3
   - { from: V2.pin8, to: RK2.a, via: [[131.5, 1.5]] }
-  - { from: RK2.b, to: [1.45, 132.0] }
+  - { from: RK2.b, to: [1.45, 132] }
   - { from: RM1.b, to: V2.pin7, via: [[128.2, 1.6], [129.6, 1.95]] }
   - { from: RM2.b, to: V2.pin7, via: [[129.9, 1.72]] }
 
   # --- volume controls -> the mixing resistors ----------------------------
-  - { from: VR1.lug2, to: RM1.a, via: [[139.0, -0.5], [127.0, -0.5]] }
-  - { from: VR2.lug2, to: RM2.a, via: [[144.0, -0.62], [129.0, -0.62]] }
+  - { from: VR1.lug2, to: RM1.a, via: [[139, -0.5], [127, -0.5]] }
+  - { from: VR2.lug2, to: RM2.a, via: [[144, -0.62], [129, -0.62]] }
   - { from: VR1.lug1, to: [1.45, 138.5], via: [[138.5, 0.6]] }
   - { from: VR2.lug1, to: [1.45, 144.9], via: [[143.6, -0.25], [144.7, -0.25], [144.9, 0.55]] }
-  - { from: C2.b, to: VR1.lug3, via: [[141.0, -0.44], [139.0, -0.44]] }
+  - { from: C2.b, to: VR1.lug3, via: [[141, -0.44], [139, -0.44]] }
   - { from: C3.b, to: VR2.lug3, via: [[144.1, -0.2]] }
 
   # --- V1 ECC83 input valve -----------------------------------------------
-  - { from: JB, to: V1.pin7, via: [[136.0, -0.56], [143.6, -0.56]] }
-  - { from: JN, to: V1.pin2, via: [[142.0, -0.72], [142.6, -0.72], [142.6, 1.85]] }
+  - { from: JB, to: V1.pin7, via: [[136, -0.56], [143.532, -0.56]] }
+  - { from: JN, to: V1.pin2, via: [[142, -0.72], [142.6, -0.72], [142.6, 1.85]] }
   - { from: RL1.a, to: RD5.b, via: [[138.6, 3.18], [43.6, 3.18], [43.6, 1.24], [42.6, 1.16]] }  # -> B+5
-  - { from: RL2.a, to: RL1.a, via: [[142.0, 1.24], [139.4, 1.24]] }
+  - { from: RL2.a, to: RL1.a, via: [[142, 1.24], [139.4, 1.24]] }
   - { from: V1.pin6, to: RL1.b, via: [[140.4, 1.6]] }
   - { from: V1.pin6, to: C2.a, via: [[142.5, 1.55], [139.4, 1.72]] }
-  - { from: V1.pin1, to: RL2.b, via: [[143.9, 1.6], [143.0, 1.3]] }
-  - { from: V1.pin1, to: C3.a, via: [[143.5, 0.6], [142.0, 0.6]] }
-  - { from: V1.pin8, to: RK1.a, via: [[145.2, 1.6]] }
-  - { from: RK1.b, to: [1.45, 146.0] }
+  - { from: V1.pin1, to: RL2.b, via: [[143.9, 1.6], [143, 1.3]] }
+  - { from: V1.pin1, to: C3.a, via: [[143.5, 0.6], [142, 0.6]] }
+  - { from: V1.pin8, to: RK1.a, via: [[145.2, 1.769]] }
+  - { from: RK1.b, to: [1.45, 146] }
   - { from: C1.a, to: RK1.a }
-  - { from: C1.b, to: [1.45, 147.0], via: [[147.0, 0.6]] }
+  - { from: C1.b, to: [1.45, 147], via: [[147, 0.6]] }
   - { from: V1.pin3, to: C1.a, via: [[143.9, 2.2], [148.8, 2.35], [148.8, 0.28], [147.2, 0.28]] }
 
   # --- 6.3 V heater chain (green twisted pair, derived) -------------------

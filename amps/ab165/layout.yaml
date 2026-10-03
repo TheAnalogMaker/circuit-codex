@@ -151,18 +151,18 @@ runs:
   # pigtails and the chassis parts' terminals sit clear above them. ==========
   - { from: TR2.red, to: RD1.a, color: red, via: [[1.2, -1.45]] }
   - { from: TR3.red, to: RD1.a, color: red, via: [[8.42, -0.24], [2.3, -0.24]] }
-  - { from: RD1.a, to: RS1.a, color: red, via: [[1.55, -0.60], [-0.7, -0.32], [-0.7, 1.86]] }
+  - { from: RD1.a, to: RS1.a, color: red, via: [[1.55, -0.6], [-0.7, -0.32], [-0.7, 1.86]] }
   - { from: RS1.a, to: RS2.a, color: red, via: [[0.2, 2.94], [5.21, 2.94]] }
-  - { from: TR3.blue, to: V5.pin3, via: [[8.81, 2.62], [0.85, 2.62], [0.85, 2.02]] }
-  - { from: TR3.brown, to: V6.pin3, via: [[9.19, 2.78], [6.1, 2.78], [6.1, 2.02]] }
-  - { from: TR3.green, to: SPK.tip, via: [[9.58, -0.05], [11.35, 0.55], [11.35, 1.70]] }
+  - { from: TR3.blue, to: V5.pin3, via: [[8.787, 2.62], [0.85, 2.62], [0.85, 2.02]] }
+  - { from: TR3.brown, to: V6.pin3, via: [[9.258, 2.78], [6.1, 2.78], [6.1, 2.02]] }
+  - { from: TR3.green, to: SPK.tip, via: [[9.58, -0.05], [11.35, 0.55], [11.35, 1.7]] }
   - { from: SPK.sleeve, to: [1.45, 12.6] }
 
   # === the AB165 local-feedback pair: each output plate back to its inverter
   # plate through 220 kOhm, and the plate end of each to its own output tube ===
-  - { from: RBSA.a, to: V5.pin3, via: [[6, -0.10], [1.72, -0.10], [1.72, 1.68]] }
+  - { from: RBSA.a, to: V5.pin3, via: [[6, -0.1], [1.72, -0.1], [1.72, 1.68]] }
   - { from: RBSB.a, to: V6.pin3, via: [[8, 0.62], [6.35, 0.62], [6.35, 1.66]] }
-  - { from: RBSA.b, to: RLPA.b, via: [[7.4, 0.40], [11.6, 0.40]] }
+  - { from: RBSA.b, to: RLPA.b, via: [[7.4, 0.4], [11.6, 0.4]] }
   - { from: RBSB.b, to: RLPB.b, via: [[9.4, 0.22], [13.6, 0.22]] }
 
   # === rail ladder: the three chassis droppers feed the plate-load backbone ====
@@ -172,9 +172,9 @@ runs:
   - { from: RLPA.a, to: RLPB.a, via: [[11.6, 0.55], [12.6, 0.55]] }
   - { from: RD2.b, to: RLN2.a, via: [[4.39, -0.64], [21.4, -0.64]] }
   - { from: RLN2.a, to: RLM.a, via: [[22.4, -0.18], [44.6, -0.18]] }
-  - { from: RD3.b, to: RLN1.a, via: [[5.99, -0.50], [28.4, -0.50]] }
+  - { from: RD3.b, to: RLN1.a, via: [[5.99, -0.5], [28.4, -0.5]] }
   - { from: RLN1.a, to: RLB2.a, via: [[29.6, -0.34], [50.4, -0.34]] }
-  - { from: RLB2.a, to: RLB1.a, via: [[51.4, -0.20], [57.6, -0.20]] }
+  - { from: RLB2.a, to: RLB1.a, via: [[51.4, -0.2], [57.6, -0.2]] }
 
   # === bias line. On the sheet each 220 kOhm grid leak returns to its own tap
   # either side of the 10 kOhm-L BIAS BALANCE control, and the redrawn schematic
@@ -187,92 +187,92 @@ runs:
   - { from: RS1.b, to: V5.pin4, via: [[1.35, 1.62]] }
   - { from: RS2.b, to: V6.pin4, via: [[6.55, 1.66]] }
   - { from: C1.b, to: RGS1.a, via: [[1.3, 0.38], [3.55, 0.38], [3.55, 1.62]] }
-  - { from: RGS1.b, to: V5.pin5, via: [[4.2, 1.60], [2.9, 1.60]] }
+  - { from: RGS1.b, to: V5.pin5, via: [[4.2, 1.6], [2.9, 1.6]] }
   - { from: C2.b, to: RGS2.a, via: [[4.2, 0.52], [11.55, 0.52], [11.55, 1.62], [9.6, 1.62]] }
   - { from: RGS2.b, to: V6.pin5, via: [[9.4, 1.74], [8.1, 1.74]] }
-  - { from: V5.pin8, to: [1.45, 1.2], via: [[2.3, 2.30], [1.2, 2.30]] }
+  - { from: V5.pin8, to: [1.45, 1.2], via: [[2.3, 2.3], [1.2, 2.3]] }
   - { from: V6.pin8, to: [1.45, 8.4], via: [[8.4, 2.32]] }
 
   # === phase inverter: plates -> couplers, cathodes -> tail, leaks -> junction =
-  - { from: RLPA.b, to: V4.pin1, via: [[12.6, 1.30], [14.2, 1.30], [14.2, 2.32], [15.05, 2.32]] }
-  - { from: V4.pin1, to: C1.a, via: [[15.2, 3.12], [0.35, 3.12], [0.35, 0.20]] }
+  - { from: RLPA.b, to: V4.pin1, via: [[12.6, 1.3], [14.2, 1.3], [14.2, 2.32], [15.05, 2.32]] }
+  - { from: V4.pin1, to: C1.a, via: [[15.2, 3.12], [0.35, 3.12], [0.35, 0.2]] }
   - { from: RLPB.b, to: V4.pin6, via: [[14.2, 0.72], [17.6, 0.72], [17.6, 1.62], [16.9, 1.68]] }
-  - { from: V4.pin6, to: C2.a, via: [[16.6, 3.30], [3.3, 3.30], [3.3, 0.28]] }
-  - { from: RGPA.a, to: V4.pin2, via: [[14.75, 0.30], [14.75, 1.74], [15.05, 1.94]] }
-  - { from: RGPB.a, to: V4.pin7, via: [[17.25, 0.30], [17.25, 1.72], [16.95, 1.82]] }
+  - { from: V4.pin6, to: C2.a, via: [[16.6, 3.3], [3.3, 3.3], [3.3, 0.28]] }
+  - { from: RGPA.a, to: V4.pin2, via: [[14.75, 0.3], [14.75, 1.74], [15.05, 1.94]] }
+  - { from: RGPB.a, to: V4.pin7, via: [[17.25, 0.3], [17.25, 1.72], [16.95, 1.82]] }
   - { from: V4.pin3, to: RTAIL.a, via: [[14.55, 1.72], [12.6, 1.28]] }
   - { from: V4.pin8, to: RTAIL.a, via: [[16.95, 2.48], [12.3, 2.48]] }
   - { from: RTAIL.b, to: RGPA.b }
   - { from: RGPA.b, to: RGPB.b }
   - { from: RGPB.b, to: RT2.a, via: [[18.2, 0.72]] }
   - { from: RT2.b, to: [1.45, 19] }
-  - { from: CPIB.a, to: RGPB.a, via: [[19.6, 0.30], [17.6, 0.30]] }
+  - { from: CPIB.a, to: RGPB.a, via: [[19.6, 0.3], [17.6, 0.3]] }
   - { from: CPIB.b, to: [1.45, 20.4] }
 
   # === negative feedback: speaker line -> 47k -> 0.1 uF -> inverter hot grid ===
   - { from: SPK.tip, to: RNFB.a, via: [[10.9, 1.85], [10.5, 1.28], [7.4, 1.28]] }
-  - { from: CNFB.b, to: RGPA.a, via: [[11.4, 0.85], [14.45, 0.85], [14.45, 0.20]] }
+  - { from: CNFB.b, to: RGPA.a, via: [[11.4, 0.85], [14.45, 0.85], [14.45, 0.2]] }
 
   # === Normal channel second stage (V2b, pins 6/7/8) ==========================
-  - { from: RLN2.b, to: V2.pin6, via: [[23.2, -0.06], [27.42, -0.06], [27.42, 1.55]] }
-  - { from: RLN2.b, to: RMXN.a, via: [[23.3, 0.30], [25.7, 0.30]] }
+  - { from: RLN2.b, to: V2.pin6, via: [[23.2, -0.06], [27.42, -0.1], [27.42, 1.55]] }
+  - { from: RLN2.b, to: RMXN.a, via: [[23.3, 0.3], [25.7, 0.3]] }
   - { from: VRVN.lug2, to: V2.pin7, via: [[25, -0.68], [28.2, -0.68], [28.2, 1.72]] }
-  - { from: V2.pin8, to: RKN2.a, via: [[28.2, 2.60], [23.5, 2.60], [23.5, 1.20], [24.2, 0.34]] }
+  - { from: V2.pin8, to: RKN2.a, via: [[28.2, 2.6], [23.5, 2.6], [23.457, 1.2], [24.2, 0.34]] }
   - { from: CKN2.a, to: [1.45, 24] }
-  - { from: RKN2.b, to: [1.45, 25], via: [[25, 1.20]] }
+  - { from: RKN2.b, to: [1.45, 25], via: [[25, 1.2]] }
 
   # === Normal channel input (V2a, pins 1/2/3) ================================
-  - { from: RLN1.b, to: V2.pin1, via: [[30.3, 0.34], [30.3, 2.80], [27.2, 2.80], [26.8, 2.45]] }
-  - { from: JN.tip, to: V2.pin2, via: [[30.36, -0.62], [25.5, -0.62], [25.5, 1.80], [26, 1.98]] }
-  - { from: V2.pin3, to: RKN1.a, via: [[25.2, 2.00], [25.2, 2.40], [31.6, 2.40], [31.6, 0.55]] }
+  - { from: RLN1.b, to: V2.pin1, via: [[30.3, 0.34], [30.3, 2.8], [27.2, 2.8], [26.8, 2.45]] }
+  - { from: JN.tip, to: V2.pin2, via: [[30.36, -0.62], [25.5, -0.62], [25.5, 1.8], [26, 1.98]] }
+  - { from: V2.pin3, to: RKN1.a, via: [[25.2, 2], [25.2, 2.4], [31.6, 2.4], [31.6, 0.55]] }
   - { from: CKN1.a, to: [1.45, 31] }
-  - { from: RKN1.b, to: [1.45, 32], via: [[32, 1.20]] }
+  - { from: RKN1.b, to: [1.45, 32], via: [[32, 1.2]] }
 
   # === Normal channel tone stack and its controls. The harness is the D-FE
   # trio: BLUE from the Bass control's foot lug (the 6.8 kOhm sits on that
   # lug), BROWN from its wiper, WHITE from the Treble control's top lug. The
   # Bass wiper jumps to the Treble foot lug and the Treble wiper to the top of
   # the Volume control; the Bass control's third lug is left free, as drawn. ===
-  - { from: RLN1.b, to: CTN.a, via: [[30.62, 0.30], [30.62, 1.14], [33.7, 1.14]] }
+  - { from: RLN1.b, to: CTN.a, via: [[30.62, 0.3], [30.62, 1.14], [33.7, 1.14]] }
   - { from: CBN.a, to: CBN2.a }
-  - { from: CTN.b, to: VRTN.lug3, color: white, via: [[34, -0.84], [23.31, -0.84]] }
+  - { from: CTN.b, to: VRTN.lug3, color: white, via: [[34, -0.84], [22.894, -0.84]] }
   - { from: CBN2.b, to: VRBN.lug1, color: blue, via: [[36, -0.74], [20.69, -0.74]] }
   - { from: CBN.b, to: VRBN.lug2, color: brown, via: [[38, -0.79], [21, -0.79]] }
   - { from: VRBN.lug2, to: VRTN.lug1, via: [[21.3, -0.56], [22.69, -0.56]] }
   - { from: VRTN.lug2, to: VRVN.lug3, via: [[23, -0.56], [25.31, -0.56]] }
 
   # === channel mixer: both 220k mixing resistors + the 470k blend resistor ====
-  - { from: RMXN.b, to: RFBM.b, via: [[27.8, 0.30], [27.8, 1.30], [40.45, 1.30], [40.45, 0.35]] }
+  - { from: RMXN.b, to: RFBM.b, via: [[27.8, 0.3], [27.8, 1.3], [40.45, 1.3], [40.45, 0.35]] }
   - { from: RFBM.b, to: CMIX.a, via: [[41.4, 0.42], [41.6, 0.42]] }
-  - { from: RMXB.b, to: RFBM.b, via: [[56.2, 2.98], [41.2, 2.98], [41.05, 0.75]] }
+  - { from: RMXB.b, to: RFBM.b, via: [[56.117, 2.98], [41.2, 2.98], [41.05, 0.75]] }
 
   # === mixer / driver (V3b, pins 6/7/8) ======================================
   - { from: RGM.a, to: V3.pin7, via: [[43.9, 1.28], [44.69, 1.55]] }
   - { from: RGM.b, to: [1.45, 43.4] }
-  - { from: RLM.b, to: V3.pin6, via: [[46.6, 0.30], [46.6, 1.62], [45.1, 1.66]] }
+  - { from: RLM.b, to: V3.pin6, via: [[46.6, 0.3], [46.6, 1.62], [45.1, 1.66]] }
   - { from: RFBM.a, to: RLM.b, via: [[40.2, -0.44], [45.8, -0.44]] }
-  - { from: CPIA.a, to: RLM.b, via: [[48.8, -0.30], [46.2, -0.30]] }
-  - { from: V3.pin8, to: RKM.a, via: [[45.2, 2.42], [47.6, 2.42], [47.6, 1.30], [47.8, 0.30]] }
+  - { from: CPIA.a, to: RLM.b, via: [[48.8, -0.3], [46.2, -0.3]] }
+  - { from: V3.pin8, to: RKM.a, via: [[45.2, 2.42], [47.6, 2.42], [47.6, 1.3], [47.8, 0.3]] }
   - { from: CKM.a, to: [1.45, 47] }
-  - { from: RKM.b, to: [1.45, 48], via: [[48, 1.20]] }
-  - { from: CPIA.b, to: RGPA.a, via: [[50.4, 3.48], [13.6, 3.48], [13.6, 0.20]] }
+  - { from: RKM.b, to: [1.45, 48], via: [[48, 1.2]] }
+  - { from: CPIA.b, to: RGPA.a, via: [[50.4, 3.48], [13.6, 3.48], [13.6, 0.2]] }
 
   # === Bass Instrument channel second stage (V1b, pins 6/7/8) =================
-  - { from: RLB2.b, to: V1.pin6, via: [[52.2, -0.06], [57.42, -0.06], [57.42, 1.55]] }
-  - { from: RLB2.b, to: RMXB.a, via: [[52.3, 0.30], [54.7, 0.30]] }
-  - { from: VRVB.lug2, to: V1.pin7, via: [[53.00, -0.68], [61.00, -0.68], [61.00, 1.72], [58.4, 1.72]] }
-  - { from: V1.pin8, to: RKB2.a, via: [[58.2, 2.60], [52.5, 2.60], [52.5, 1.20], [53.3, 0.34]] }
+  - { from: RLB2.b, to: V1.pin6, via: [[52.2, -0.092], [57.42, -0.06], [57.42, 1.55]] }
+  - { from: RLB2.b, to: RMXB.a, via: [[52.3, 0.3], [54.7, 0.3]] }
+  - { from: VRVB.lug2, to: V1.pin7, via: [[53, -0.68], [61, -0.68], [61, 1.72], [58.4, 1.72]] }
+  - { from: V1.pin8, to: RKB2.a, via: [[58.2, 2.6], [52.5, 2.6], [52.5, 1.2], [53.3, 0.34]] }
   - { from: CKB2.a, to: [1.45, 53] }
-  - { from: RKB2.b, to: [1.45, 54], via: [[54, 1.20]] }
+  - { from: RKB2.b, to: [1.45, 54], via: [[54, 1.2]] }
 
   # === Bass Instrument channel input (V1a, pins 1/2/3) =======================
-  - { from: RLB1.b, to: V1.pin1, via: [[60.3, 0.34], [60.3, 2.80], [57.2, 2.80], [56.75, 2.45]] }
+  - { from: RLB1.b, to: V1.pin1, via: [[60.3, 0.34], [60.3, 2.8], [57.2, 2.8], [56.75, 2.45]] }
   - { from: RLB1.a, to: CLB1.a }
   - { from: RLB1.b, to: CLB1.b }
-  - { from: JB.tip, to: V1.pin2, via: [[59.36, -0.62], [54.3, -0.62], [54.3, 1.80], [55.6, 1.98]] }
-  - { from: V1.pin3, to: RKB1.a, via: [[55.2, 2.00], [55.2, 2.40], [71.6, 2.40], [71.6, 0.55]] }
+  - { from: JB.tip, to: V1.pin2, via: [[59.36, -0.62], [54.3, -0.62], [54.3, 1.8], [55.6, 1.98]] }
+  - { from: V1.pin3, to: RKB1.a, via: [[55.2, 2], [55.2, 2.4], [71.6, 2.4], [71.6, 0.55]] }
   - { from: CKB1.a, to: [1.45, 71] }
-  - { from: RKB1.b, to: [1.45, 72], via: [[72, 1.20]] }
+  - { from: RKB1.b, to: [1.45, 72], via: [[72, 1.2]] }
 
   # === Bass Instrument tone stack and its controls: the same BLUE / BROWN /
   # WHITE harness, jumpers and free Bass third lug as the Normal channel, and
@@ -281,19 +281,19 @@ runs:
   - { from: CLB1.b, to: CTB.a }
   - { from: CBB.a, to: CBB2.a }
   - { from: CDEEP.a, to: CBB.a }
-  - { from: CTB.b, to: VRTB.lug3, color: white, via: [[62, -0.84], [51.31, -0.84]] }
+  - { from: CTB.b, to: VRTB.lug3, color: white, via: [[62, -0.84], [50.894, -0.84]] }
   - { from: CBB2.b, to: VRBB.lug1, color: blue, via: [[64, -0.74], [48.69, -0.74]] }
   - { from: CBB.b, to: VRBB.lug2, color: brown, via: [[66, -0.79], [49, -0.79]] }
   - { from: VRBB.lug2, to: VRTB.lug1, via: [[49.3, -0.56], [50.69, -0.56]] }
   - { from: VRTB.lug2, to: VRVB.lug3, via: [[51, -0.56], [53.31, -0.56]] }
-  - { from: CDEEP.b, to: SWDEEP, via: [[68, -0.50], [55.5, -0.50]] }
+  - { from: CDEEP.b, to: SWDEEP, via: [[68, -0.5], [55.5, -0.5]] }
 
   # === pot grounds (island controls) =========================================
-  - { from: VRVN.lug1, to: [1.45, 21.5], via: [[24.6, -0.30], [21.5, -0.30]] }
+  - { from: VRVN.lug1, to: [1.45, 21.5], via: [[24.6, -0.3], [21.5, -0.3]] }
   - { from: VRVB.lug1, to: [1.45, 50.5], via: [[52.6, -0.44], [50.5, -0.44]] }
 
   # === power-transformer annotation: HT centre tap, 6.3 V heater chain ========
-  - { from: TR1.red-yellow, to: [1.45, 0.95], via: [[-1.3, 1.10]] }
+  - { from: TR1.red-yellow, to: [1.45, 0.95], via: [[-1.3, 1.1]] }
   - { from: TR1.green, to: PL1.a, style: twisted }
   - { from: PL1.b, to: V5.pin7, style: twisted, via: [[-1.2, 3.85], [2, 3.85]] }
   - { from: V5.pin2, to: V6.pin7, style: twisted, via: [[2.4, 3.85], [7.2, 3.85]] }

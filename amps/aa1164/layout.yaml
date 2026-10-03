@@ -152,7 +152,7 @@ runs:
   - { from: TR1.red1, to: V7.pin4, via: [[1.5, 0.32]] }
   - { from: TR1.red2, to: V7.pin6, via: [[2.7, 0.58]] }
   - { from: TR1.red-yellow, to: [1.45, 1.4], via: [[0.5, 1.25]] }   # HT centre tap → ground
-  - { from: V7.pin8, to: CF1.a, color: red, via: [[1.6, 1.2]] }     # B+ out → reservoir
+  - { from: V7.pin8, to: CF1.a, color: red, via: [[1.564, 1.236]] }     # B+ out → reservoir
 
   # === filter-can negatives → ground bus ======================================
   - { from: CF1.b, to: [1.45, 0] }
@@ -164,11 +164,11 @@ runs:
   # this circuit) and one lead runs back to the +400 eyelet at the left end. ====
   - { from: V6.pin4, to: V5.pin4, color: red, via: [[15.4, 2.45], [10.9, 2.45]] }
   - { from: V5.pin4, to: CF2.a, color: red, via: [[10.2, 1.45], [9, 1.2], [9, -0.5], [1.2, -0.5]] }
-  - { from: TR3.red, to: CF2.a, color: red, via: [[51.6, 2.86], [3, 2.86], [3, 1.0]] }  # reverb-trans primary → +400
+  - { from: TR3.red, to: CF2.a, color: red, via: [[51.6, 2.86], [3, 2.86], [3, 1]] }  # reverb-trans primary → +400
 
   # === output transformer: centre tap on the reservoir, plates on the 6V6s =====
-  - { from: TR2.red, to: CF1.a, color: red, via: [[11.4, 0.4], [9.4, 2.55], [-0.4, 2.55]] }
-  - { from: TR2.blue, to: V5.pin3, via: [[12.8, 3.0], [10.5, 3.0]] }
+  - { from: TR2.red, to: CF1.a, color: red, via: [[9.4, 2.55], [-0.78, 2.55]] }
+  - { from: TR2.blue, to: V5.pin3, via: [[12.664, 3], [10.5, 3]] }
   - { from: TR2.brown, to: V6.pin3, via: [[13.4, 3.08], [15, 3.08]] }
   - { from: TR2.green, to: SPK.tip, via: [[13.4, 1.05]] }
   - { from: SPK.sleeve, to: [1.45, 17.4] }
@@ -182,8 +182,8 @@ runs:
 
   # === output stage: grids, cathodes, and the −34 V bias line ==================
   - { from: C1.b, to: V5.pin5, via: [[11.9, 1.5]] }
-  - { from: C2.b, to: V6.pin5, via: [[16.7, 1.55]] }
-  - { from: V5.pin8, to: [1.45, 11.5], via: [[11.4, 1.7]] }
+  - { from: C2.b, to: V6.pin5, via: [[16.6, 1.55]] }
+  - { from: V5.pin8, to: [1.45, 11.5], via: [[11.45, 1.7]] }
   - { from: V6.pin8, to: [1.45, 14.5], via: [[14.7, 1.5]] }
   - { from: RGL1.b, to: RGL2.b, via: [[13.4, 1.15], [16.6, 1.15]] }   # the two grid leaks meet on the bias line
 
@@ -209,7 +209,7 @@ runs:
   - { from: CKTO.a, to: [1.45, 32.4], via: [[32.4, 0.6]] }
   - { from: VRSPD.lug3, to: CTO1.b }                                   # Speed control on the first node
   - { from: VRSPD.lug2, to: VRSPD.lug1, via: [[28.55, -0.76]] }        # rheostat strap
-  - { from: VRSPD.lug1, to: RSPD.a, via: [[28.39, -0.7], [30.21, -0.7]] }
+  - { from: VRSPD.lug1, to: RSPD.a, via: [[28.666, -0.7], [30.21, -0.7]] }
   - { from: RSPD.b, to: CKTO.a, via: [[31.6, -0.5]] }                  # 100 kΩ to ground
 
   # === reverb recovery (V3, left half): plate, grid, cathode ===================
@@ -241,10 +241,10 @@ runs:
   # concentric lanes. Routed as a single deep waypoint (as they were) each one
   # dropped straight down and came back on itself — a hairpin with no terminus,
   # which reads as a drafting artefact rather than a jumper between two lugs.
-  - { from: V2.pin6, to: V2.pin1, via: [[54.122, 1.640], [53.417, 1.686], [52.933, 1.853], [52.858, 2.075]] }   # tie the two plates (PRD)
+  - { from: V2.pin6, to: V2.pin1, via: [[54.122, 1.64], [53.417, 1.686], [52.933, 1.853], [52.858, 2.075]] }   # tie the two plates (PRD)
   - { from: V2.pin1, to: TR3.blue, via: [[52.8, 2.36], [52, 2.36]] }
   - { from: V2.pin7, to: V2.pin2, via: [[55.289, 2.161], [54.889, 2.478], [53.608, 2.573], [52.861, 2.276]] }   # tie the two grids (GRD)
-  - { from: V2.pin7, to: RGRD.a, via: [[55.6, 2.0], [55.6, 2.55], [52.6, 2.55], [52.6, 0.5]] }
+  - { from: V2.pin7, to: RGRD.a, via: [[55.6, 2], [55.6, 2.55], [52.6, 2.55], [52.6, 0.5]] }
   - { from: RGRD.b, to: [1.45, 51.2] }
   - { from: V2.pin8, to: RKRD.a, via: [[56.4, 1.9]] }
   - { from: V2.pin3, to: RKRD.a, via: [[54.4, 1.1], [55.6, 0.3]] }
@@ -263,13 +263,13 @@ runs:
   # === preamp second stage (V1 pins 6/7/8) =====================================
   - { from: RLN2.b, to: V1.pin6, via: [[59.4, 1.6], [66.7, 1.6]] }
   - { from: VRVOL.lug2, to: V1.pin7, via: [[61.3, -0.5], [61.3, 1.52], [66.98, 1.52], [66.98, 1.93]] }
-  - { from: VRVOL.lug1, to: [1.45, 64.4], via: [[61.4, -0.75], [64.4, 0.5]] }
+  - { from: VRVOL.lug1, to: [1.45, 64.4], via: [[61.4, -0.815], [64.4, 0.5]] }
   - { from: V1.pin8, to: RKN2.a, via: [[67.3, 2.07], [67.3, 1.3], [63.55, 1.3], [63.55, 0.35]] }
   - { from: CKN2.a, to: [1.45, 61.6] }
   - { from: RKN2.b, to: [1.45, 63.4] }
 
   # === preamp input stage (V1 pins 1/2/3) ======================================
-  - { from: RLN1.b, to: V1.pin1, via: [[69.3, 1.6], [69.3, 2.75], [65.0, 2.75], [65.0, 2.3]] }
+  - { from: RLN1.b, to: V1.pin1, via: [[69.3, 1.6], [69.3, 2.75], [65, 2.75], [65, 2.3]] }
   - { from: JIN.tip, to: RGN1.a, via: [[77, -1.1]] }
   - { from: JIN.sleeve, to: [1.45, 79.2], via: [[79.2, -0.6]] }
   - { from: RGN1.a, to: V1.pin2, via: [[75.6, -0.4], [75.6, 2.85], [64.85, 2.85], [64.85, 2.07]] }
@@ -284,9 +284,9 @@ runs:
   - { from: VRT.lug3, to: CT.b, via: [[49.91, -0.3], [69.7, -0.3]] }       # Treble high end ← 250 pF
   - { from: VRB.lug1, to: CB2.b, via: [[46.49, -0.45], [70.7, -0.45]] }    # Bass low end ← .047
   - { from: VRB.lug2, to: CB1.b, via: [[46.8, -0.6], [71.7, -0.6]] }       # Bass wiper ← .1
-  - { from: VRB.lug2, to: VRT.lug1, via: [[47.0, -0.78], [49.1, -0.78]] }  # …and on to the Treble's low end
-  - { from: VRT.lug2, to: VRVOL.lug3, via: [[49.75, -0.66], [61.7, -0.66]] } # Treble wiper → Volume
-  - { from: VRB.lug1, to: RSL.b }                  # 6.8 kΩ at the bass control…
+  - { from: VRB.lug2, to: VRT.lug1, via: [[47, -0.78], [49.567, -0.78]] }  # …and on to the Treble's low end
+  - { from: VRT.lug2, to: VRVOL.lug3, via: [[49.75, -0.66], [61.15, -0.66]] } # Treble wiper → Volume
+  - { from: VRB.lug1, to: RSL.b, via: [[46.866, -0.828]] }                  # 6.8 kΩ at the bass control…
   - { from: RSL.a, to: [1.45, 44.45], via: [[44.45, -0.5]] }               # …to ground
 
   # === 6.3 V heater chain (green twisted pair) =================================

@@ -209,11 +209,11 @@ bus:
   - { from: [1.45, -0.5], to: [1.45, 88.5] }
 
 runs:
-  - { from: T1.red1, to: V9.pin4, via: [[4.094, 0.32]] }
-  - { from: T1.red2, to: V9.pin6, via: [[4.459, 0.809]] }
-  - { from: T1.red-yellow, to: [1.45, 3.2], via: [[-0.098, 0.922]] }
+  - { from: T1.red1, to: V9.pin4, via: [[4.187, 0.32]] }
+  - { from: T1.red2, to: V9.pin6, via: [[4.337, 0.809]] }
+  - { from: T1.red-yellow, to: [1.45, 3.2], via: [[-0.051, 0.922]] }
   - { from: T1.yellow1, to: V9.pin2, via: [[-1.855, 0.457], [3.431, 1.281]] }
-  - { from: T1.yellow2, to: V9.pin8, via: [[-2.231, 0.506], [1.506, 1.485], [3.15, 2.62]] }
+  - { from: T1.yellow2, to: V9.pin8, via: [[-2.299, 0.506], [1.506, 1.485], [3.15, 2.62]] }
   - { from: V9.pin8, to: CH1.hi, color: red, via: [[6.3, 1.72]] }
   - { from: CH1.lo, to: RS1.a, color: red }
   - { from: T1.blue-red, to: DBIAS.a }
@@ -240,7 +240,7 @@ runs:
   - { from: RD4.b, to: RTOP.a, color: red, via: [[19.19, -0.72], [47.6, -0.72], [47.6, 1.22]] }
   - { from: RTOP.a, to: RLS.a, color: red, via: [[48.4, 1.22], [55.6, 1.22]] }
   - { from: T2.blue, to: V7.pin3, via: [[11.5, -0.2], [11.5, 1.785]] }
-  - { from: T2.brown, to: V8.pin3, via: [[16, -0.06], [16, 1.754]] }
+  - { from: T2.brown, to: V8.pin3, via: [[16, -0.06], [16, 1.804]] }
   - { from: T2.green, to: SPK.tip, via: [[20, -0.113], [20, 1.111]] }
   - { from: SPK.sleeve, to: [1.45, 18.2] }
   - { from: RS1.b, to: V7.pin4 }
@@ -263,7 +263,7 @@ runs:
   - { from: CPIN.b, to: RGPA.b, via: [[26.6, 1.22], [22.4, 1.22]] }
   - { from: CGB.b, to: RGPB.b, via: [[25.6, 1.32], [23.4, 1.32]] }
   - { from: CGB.a, to: RNFB.a }
-  - { from: RNFB.b, to: SPK.tip, via: [[23.886, 1.258], [21.2, 1.25]] }
+  - { from: RNFB.b, to: SPK.tip, via: [[23.628, 1.258], [21.2, 1.25]] }
   - { from: RT2.b, to: VRPRES.lug1, via: [[23.19, -0.3]] }
   - { from: RPF.a, to: RT2.b, via: [[24.51, -0.45], [25, -0.45]] }
   - { from: RPF.b, to: [1.45, 26.5], via: [[25.6, -0.28], [26.5, -0.28], [26.5, 1.2]] }
@@ -351,7 +351,7 @@ runs:
   - { from: V2.pin8, to: V2.pin3 }
   - { from: RKD.b, to: [1.45, 72] }
   - { from: CKD.b, to: [1.45, 73] }
-  - { from: VRV1.lug2, to: V2.pin2, via: [[59.5, -0.44], [58.5, -0.12], [58.5, 1.58], [68.666, 1.593]] }
+  - { from: VRV1.lug2, to: V2.pin2, via: [[59.5, -0.44], [58.5, -0.12], [58.5, 1.58], [68.206, 1.593]] }
   - { from: VRV1.lug1, to: [1.45, 57.5], via: [[59.19, -0.15], [57.5, -0.15]] }
   - { from: VRV2.lug2, to: V2.pin7, via: [[71.8, -0.44], [72.5, -0.12], [72.5, 1.58], [71.2, 1.58]] }
   - { from: VRV2.lug1, to: [1.45, 75.6], via: [[71.49, -0.15], [75.6, -0.15]] }
@@ -383,7 +383,7 @@ runs:
   - { from: RSL1.b, to: [1.45, 70.5], via: [[70.29, -0.5], [70.5, -0.5]] }
   - { from: VRB1.lug1, to: [1.45, 63.6], via: [[64.39, -0.2], [63.6, -0.2]] }
   - { from: VRT1.lug2, to: VRV1.lug3, via: [[62.1, -0.4], [59.81, -0.4]] }
-  - { from: VRV1.lug3, to: CBR1.a, via: [[59.45, -0.62], [57.91, -0.62]] }
+  - { from: VRV1.lug3, to: CBR1.a, via: [[59.272, -0.62], [57.91, -0.62]] }
   - { from: CBR1.b, to: VRV1.lug2, via: [[58.69, -0.5], [59, -0.55]] }
   - { from: CC2T.b, to: RS2T.a, via: [[80, -0.52], [75.31, -0.42]] }
   - { from: RS2T.a, to: CT2.a, via: [[75.01, -0.72], [73.01, -0.72]] }

@@ -136,8 +136,8 @@ runs:
   # The eight PT pigtails stack only a few pixels apart, so they fan at the left
   # edge and run in the band BELOW the board to the rectifier socket, clear of
   # the eyelets the bias supply's own leads terminate on.
-  - { from: PT.red-blue, to: D1.a, via: [[-0.85, -0.3], [-0.85, 3.05], [0.0, 3.05]] }
-  - { from: PT.red-yellow, to: [1.45, -0.15], via: [[-0.5, -0.05], [-0.15, -0.05]] }
+  - { from: PT.red-blue, to: D1.a, via: [[-0.85, -0.3], [-0.85, 3.05], [0, 3.05]] }
+  - { from: PT.red-yellow, to: [1.45, -0.15], via: [[-0.4, -0.05], [-0.15, 1.32]] }
   - { from: PT.red1, to: V8.pin4, via: [[-0.55, 0.2], [-0.55, 2.55], [2.4, 2.55]] }
   - { from: PT.red2, to: V8.pin6, via: [[-0.42, 0.5], [-0.42, 2.75], [4.35, 2.75]] }
   - { from: PT.yellow1, to: V8.pin2, via: [[-1.58, 0.23], [-1.58, 2.95], [1.85, 2.95]] }
@@ -162,7 +162,7 @@ runs:
   - { from: RB2.a, to: RB1.b }
   - { from: RB2.b, to: [1.45, 3.15] }
   - { from: C15b.b, to: [1.45, 1.3], via: [[1.55, 0.3]] }
-  - { from: C15.b, to: [1.45, 5.6], via: [[5.0, 0.34]] }
+  - { from: C15.b, to: [1.45, 5.6], via: [[5, 0.34]] }
   # the two 220k grid leaks chain back to the -41 V node
   - { from: RGL1.b, to: RB1.b, via: [[6.6, 0.5], [1.4, 0.5]] }
   - { from: RGL2.b, to: RGL1.b, via: [[8.6, 1.12], [7.4, 1.12]] }
@@ -170,10 +170,10 @@ runs:
   # --- output quartet: one coupler and one 220k leak per PAIR, with the
   #     1.5k stopper bridging that pair's two grid pins ----------------------
   - { from: C8.b, to: RGL1.a }
-  - { from: RGL1.a, to: V4.pin5, via: [[6.6, 1.26], [8.6, 1.26], [8.6, 1.52]] }
+  - { from: RGL1.a, to: V4.pin5, via: [[6.6, 1.26], [8.6, 1.26], [8.626, 1.52]] }
   - { from: V4.pin5, to: RGS1.a, via: [[9.15, 1.55], [8.95, 1.62]] }
   - { from: RGS1.b, to: V5.pin5, via: [[10.45, 1.62], [10.85, 1.55], [12.6, 1.52]] }
-  - { from: C9.b, to: RGL2.a, via: [[11.1, 0.58], [9.0, 0.58]] }
+  - { from: C9.b, to: RGL2.a, via: [[11.1, 0.58], [9, 0.58]] }
   - { from: RGL2.a, to: V6.pin5, via: [[8.9, 1.3], [18.9, 1.3], [18.9, 1.5]] }
   - { from: V6.pin5, to: RGS2.a, via: [[20.05, 1.55], [19.85, 1.62]] }
   - { from: RGS2.b, to: V7.pin5, via: [[21.35, 1.62], [21.75, 1.55], [23.5, 1.52]] }
@@ -184,7 +184,7 @@ runs:
   - { from: RS2.b, to: V5.pin4, via: [[11.4, 1.52]] }
   - { from: RS3.a, to: RS2.a, via: [[16.5, 2.45], [14.6, 2.45]] }
   - { from: RS3.b, to: V6.pin4, via: [[18.3, 1.52]] }
-  - { from: RS4.a, to: RS3.a, via: [[24.95, 3.0], [15.85, 3.0]] }
+  - { from: RS4.a, to: RS3.a, via: [[24.95, 3], [15.85, 3]] }
   - { from: RS4.b, to: V7.pin4, via: [[22.3, 1.52]] }
   # plates: each PAIR's two plates reach the same end of the OT primary, each
   # in its own deep lane, leaving pin 3 on the LEFT of the ring as it sits
@@ -200,7 +200,7 @@ runs:
   # speaker jacks and the feedback tap
   - { from: T3.black, to: SPK, via: [[52.3, 0.59], [52.3, 5.55], [28.5, 5.55], [28.5, 2.35]] }
   - { from: T3.green, to: SPK, via: [[51.9, 0.69], [51.9, 5.85], [26.4, 5.85], [26.4, 2.6]] }
-  - { from: SPK, to: RNF.a, via: [[28.0, 2.55], [29.55, 2.55]] }
+  - { from: SPK, to: RNF.a, via: [[28, 2.55], [29.55, 2.55]] }
   - { from: RNF.b, to: RT2.b, via: [[30.75, 2.75], [30.75, 4.35], [21.6, 4.35], [21.6, 1.25], [20.3, 1.25]] }
 
   # --- long-tailed-pair phase inverter (V3) ---------------------------------
@@ -213,8 +213,8 @@ runs:
   - { from: RLA.b, to: V3.pin1, via: [[11.4, 1.24], [15.4, 1.24], [15.4, 3.05], [31.99, 3.05], [31.99, 2.46]] }
   - { from: RLA.b, to: C8.a, via: [[10.6, 0.34], [6.4, 0.34]] }
   - { from: C8.a, to: C10.a, via: [[7.4, 0.66], [11.85, 0.66]] }
-  - { from: RLB.b, to: V3.pin6, via: [[13.5, 1.06], [34.01, 1.06], [34.01, 1.55]] }
-  - { from: RLB.b, to: C9.a, via: [[13.0, 0.42], [9.35, 0.42]] }
+  - { from: RLB.b, to: V3.pin6, via: [[13.5, 1.125], [32.892, 1.06], [34.01, 1.55]] }
+  - { from: RLB.b, to: C9.a, via: [[13, 0.42], [9.35, 0.42]] }
   - { from: C9.a, to: C10.b, via: [[9.05, 0.74], [13.85, 0.74]] }
   - { from: RGA.a, to: V3.pin2, via: [[12.9, 1.15], [12.9, 3.32], [31.34, 3.32], [31.34, 2.2]] }
   - { from: C6.b, to: RGA.a, via: [[20.9, 0.62], [14.3, 0.62]] }
@@ -228,12 +228,12 @@ runs:
   - { from: C7.b, to: RT2.b, via: [[17.35, 0.72], [20.55, 0.72]] }
 
   # --- V2A driver + V2B cathode follower -------------------------------------
-  - { from: C14.a, to: RL3.a, via: [[29.2, -0.3], [31.25, -0.3], [31.25, 0.3], [31.0, 0.62]] }   # descends clear of C14's grounded eyelet, into RL3.a from above
+  - { from: C14.a, to: RL3.a, via: [[29.2, -0.3], [31.25, -0.3], [31.25, 0.3], [31, 0.62]] }   # descends clear of C14's grounded eyelet, into RL3.a from above
   - { from: RL3.b, to: V2.pin6, via: [[32.35, 1.22], [40.61, 1.22], [40.61, 1.55]] }
   - { from: RL3.b, to: V2.pin2, via: [[32.6, 0.66], [37.94, 0.66], [37.94, 2.2]] }
   - { from: V2.pin1, to: RL2.a, via: [[38.59, 2.46], [38.59, 2.9], [36.4, 2.9], [36.4, 0.5]] }
-  - { from: V2.pin8, to: RK2.a, via: [[41.26, 2.2], [42.3, 2.2], [42.3, 3.18], [31.6, 3.18], [31.6, 0.24], [33.0, 0.24]] }
-  - { from: RM1.b, to: V2.pin7, via: [[25.9, 1.44], [26.3, 1.44], [26.3, 3.57], [41.26, 3.57], [41.26, 1.86]] }
+  - { from: V2.pin8, to: RK2.a, via: [[41.26, 2.2], [42.3, 2.2], [42.3, 3.18], [31.6, 3.18], [31.6, 0.24], [33, 0.24]] }
+  - { from: RM1.b, to: V2.pin7, via: [[25.9, 1.44], [26.3, 1.44], [26.68, 3.57], [41.26, 3.57], [41.26, 1.86]] }
   - { from: V2.pin3, to: RSL.a, via: [[37.4, 1.86], [37.4, 4.07], [19.9, 4.07], [19.9, 1.62]] }
   - { from: RK2.b, to: [1.45, 33] }
 
@@ -244,51 +244,51 @@ runs:
   - { from: C5.a, to: VR3.lug1, via: [[23.2, -0.6], [23.2, -1.62], [23.65, -1.62]] }
   - { from: VR3.lug1, to: VR4.lug3, via: [[23.15, -1.22], [20.55, -1.22]] }
   - { from: VR4.lug2, to: VR4.lug3 }
-  - { from: C5b.a, to: VR5.lug2, via: [[25.4, -1.85], [16.0, -1.85]] }
+  - { from: C5b.a, to: VR5.lug2, via: [[25.4, -1.85], [16, -1.85]] }
   - { from: VR4.lug1, to: VR5.lug3, via: [[19.45, -1.22], [16.55, -1.22]] }
-  - { from: VR3.lug2, to: C6.a, via: [[24.0, -0.54], [19.2, -0.54]] }
+  - { from: VR3.lug2, to: C6.a, via: [[24, -0.54], [19.2, -0.54]] }
   - { from: VR5.lug1, to: [1.45, 18.6], via: [[15.4, -0.68], [18.6, -0.68]] }
 
   # --- volume controls + channel mixers -> the V2A grid ----------------------
-  - { from: VR1.lug2, to: RM1.a, via: [[29.0, -0.68], [25.35, -0.68], [25.35, 0.42], [24.75, 0.42]] }
-  - { from: VR1.lug1, to: [1.45, 28.4] }
-  - { from: VR2.lug2, to: RM2.a, via: [[33.0, -1.32], [26.65, -1.32], [26.65, 0.36], [27.05, 0.36]] }
+  - { from: VR1.lug2, to: RM1.a, via: [[29, -0.68], [25.35, -0.68], [25.35, 0.42], [24.75, 0.42]] }
+  - { from: VR1.lug1, to: [1.45, 28.4], via: [[27.777, -0.016]] }
+  - { from: VR2.lug2, to: RM2.a, via: [[33, -1.32], [26.65, -1.32], [26.65, 0.36], [27.05, 0.36]] }
   - { from: RM2.b, to: RM1.b, via: [[28.4, 0.72], [26.6, 0.72]] }
   - { from: VR2.lug1, to: [1.45, 32.6], via: [[32.7, -0.6]] }
 
   # --- 12AY7 input pair (V1): two jacks per channel --------------------------
   # Each jack reaches the grid through its own 68k; the 1M leak sits on jack 1's
   # tip, so it chains to that jack rather than to the stopper's own eyelet.
-  - { from: JB1, to: R1s.a, via: [[38.0, -0.42], [39.0, -0.42]] }
-  - { from: RG1.a, to: JB1, via: [[39.6, -1.28], [38.0, -1.28]] }
+  - { from: JB1, to: R1s.a, via: [[38, -0.42], [39, -0.42]] }
+  - { from: RG1.a, to: JB1, via: [[39.6, -1.28], [38, -1.28]] }
   - { from: RG1.b, to: [1.45, 38.4], via: [[39.6, -1.62], [38.4, -1.62]] }
-  - { from: JB2, to: R2s.a, via: [[41.4, -0.62], [41.0, -0.62]] }
-  - { from: R2s.b, to: R1s.b, via: [[42.4, 0.62], [40.0, 0.62]] }
+  - { from: JB2, to: R2s.a, via: [[41.4, -0.62], [41, -0.62]] }
+  - { from: R2s.b, to: R1s.b, via: [[42.4, 0.62], [40, 0.62]] }
   - { from: R1s.b, to: V1.pin7, via: [[40.3, 0.78], [47.66, 0.78], [47.66, 1.86]] }
-  - { from: JN1, to: R3s.a, via: [[44.0, -0.42], [43.0, -0.42]] }
-  - { from: RG2.a, to: JN1, via: [[45.6, -1.28], [44.0, -1.28]] }
+  - { from: JN1, to: R3s.a, via: [[44, -0.42], [43, -0.42]] }
+  - { from: RG2.a, to: JN1, via: [[45.6, -1.28], [44, -1.28]] }
   - { from: RG2.b, to: [1.45, 49.4], via: [[45.6, -1.62], [49.4, -1.62]] }
   - { from: JN2, to: R4s.a, via: [[47.4, -0.62], [45.35, -0.62]] }
-  - { from: R4s.b, to: R3s.b, via: [[46.4, 0.62], [44.0, 0.62]] }
+  - { from: R4s.b, to: R3s.b, via: [[46.4, 0.62], [44, 0.62]] }
   - { from: R3s.b, to: V1.pin2, via: [[43.85, 1.32], [44.34, 1.32], [44.34, 2.2]] }
   - { from: V1.pin6, to: RL1.b, via: [[47.01, 1.6], [47.01, 1.16], [35.2, 1.16]] }
   - { from: RL1.b, to: C1.a, via: [[35.4, 0.34], [34.3, 0.34]] }
   - { from: RL3.a, to: RL1.a, via: [[31.4, 0.5], [33.6, 0.5]] }
-  - { from: RL1.a, to: RL2.a, via: [[34.4, 0.62], [36.0, 0.62]] }
-  - { from: C1.b, to: VR1.lug3, via: [[36.0, -0.4], [29.57, -0.4]] }
+  - { from: RL1.a, to: RL2.a, via: [[34.4, 0.62], [36, 0.62]] }
+  - { from: C1.b, to: VR1.lug3, via: [[36, -0.4], [29.57, -0.4]] }
   - { from: V1.pin1, to: RL2.b, via: [[44.99, 2.46], [43.99, 2.46], [43.99, 1.26], [37.05, 1.26]] }
   - { from: RL2.b, to: C2.a, via: [[37.4, 0.3], [38.3, 0.3]] }
-  - { from: C2.b, to: VR2.lug3, via: [[40.0, -0.46], [33.31, -0.46]] }
+  - { from: C2.b, to: VR2.lug3, via: [[40, -0.46], [33.31, -0.46]] }
   - { from: V1.pin3, to: V1.pin8, via: [[44.34, 1.86], [43.54, 1.86], [43.54, 2.95], [47.06, 2.95], [47.06, 2.5]] }
   - { from: V1.pin8, to: RK1.a, via: [[47.66, 2.2], [48.56, 2.1], [48.56, 1.05], [48.3, 1.05]] }
   - { from: RK1.b, to: [1.45, 47.5] }
-  - { from: C3.a, to: RK1.a, via: [[45.0, 0.2], [47.7, 0.2]] }
+  - { from: C3.a, to: RK1.a, via: [[45, 0.2], [47.7, 0.2]] }
   - { from: C3.b, to: [1.45, 46.6] }
 
   # --- presence control (5k), at the phase-inverter tail foot -----------------
-  - { from: VR6.lug3, to: RT2.b, via: [[11.0, -2.1], [21.45, -2.1]] }
+  - { from: VR6.lug3, to: RT2.b, via: [[11, -2.1], [21.45, -2.1]] }
   - { from: VR6.lug1, to: [1.45, 10.6], via: [[10.6, -0.58]] }
-  - { from: VR6.lug2, to: C16.a, via: [[11.0, -1.3], [13.0, -1.3]] }
+  - { from: VR6.lug2, to: C16.a, via: [[11, -1.3], [13, -1.3]] }
   - { from: C16.b, to: [1.45, 13.35], via: [[13.35, -0.5]] }
 
   # --- 6.3 V heater chain (green twisted pair) -------------------------------

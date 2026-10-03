@@ -350,7 +350,7 @@ runs:
   - { from: V3.pin6, to: CCD1.a, via: [[36.5, 1.6], [37, 1.3]] }
   - { from: RLR1.b, to: CCR1.a }
   - { from: V3.pin1, to: RLR1.b, via: [[33.9, 2.78], [38.6, 2.78], [38.6, 1.3]] }
-  - { from: CCR1.b, to: VRREV.lug3 }
+  - { from: CCR1.b, to: VRREV.lug3, via: [[37.461, 0.174]] }
   - { from: VRREV.lug1, to: [1.45, 30.6], via: [[30.6, -0.5]] }
   - { from: JRI.tip, to: V3.pin2, via: [[42.7, 2.9], [33.4, 3.45]] }
   - { from: JRP.tip, to: JRI.tip, via: [[39.5, 2.75], [43.5, 2.75]] }
@@ -380,14 +380,14 @@ runs:
   # === vibrato channel ======================================================
   - { from: RLV1.b, to: CTV.a }
   - { from: V2.pin1, to: RLV1.b, via: [[52.9, 2.25], [49.5, 1.6]] }
-  - { from: CTV.b, to: VRTV.lug3 }
+  - { from: CTV.b, to: VRTV.lug3, via: [[46.486, 0.235]] }
   - { from: CBV2.a, to: CBV.a }
-  - { from: CBV2.b, to: VRMV.lug3 }
-  - { from: CBV.b, to: VRBV.lug3, via: [[43.505, -1.111]] }
-  - { from: VRTV.lug2, to: VRVV.lug3, via: [[43.5, -0.8], [47.3, -0.8]] }
-  - { from: VRTV.lug1, to: VRBV.lug3, via: [[41.6, -0.78], [36.8, -0.78]] }
+  - { from: CBV2.b, to: VRMV.lug3, via: [[47.617, -0.15], [39.8, -0.81]] }
+  - { from: CBV.b, to: VRBV.lug3, via: [[43.505, -1.111], [38.337, -1.399]] }
+  - { from: VRTV.lug2, to: VRVV.lug3, via: [[43.5, -0.8], [46.53, -0.8]] }
+  - { from: VRTV.lug1, to: VRBV.lug3, via: [[43.18, -0.78], [36.42, -0.78]] }
   - { from: VRBV.lug2, to: VRBV.lug3 }
-  - { from: VRBV.lug1, to: VRMV.lug3, via: [[36.2, -0.72], [40.3, -0.72]] }
+  - { from: VRBV.lug1, to: VRMV.lug3, via: [[36.2, -0.72], [40.25, -0.72]] }
   - { from: VRMV.lug2, to: VRMV.lug3 }
   - { from: VRMV.lug1, to: [1.45, 39.6], via: [[39.6, -0.5]] }
   - { from: VRVV.lug1, to: [1.45, 46.6], via: [[46.6, -0.5]] }
@@ -411,9 +411,9 @@ runs:
   - { from: CTN.b, to: VRTN.lug3 }
   - { from: CBN2.a, to: CBN.a }
   - { from: CBN2.b, to: VRBN.lug1, via: [[59.231, -0.113]] }
-  - { from: CBN.b, to: VRBN.lug3 }
-  - { from: VRTN.lug2, to: VRVN.lug3, via: [[58, -0.8], [61.8, -0.8]] }
-  - { from: VRTN.lug1, to: VRBN.lug3, via: [[56.34, -0.76], [54.8, -0.76]] }
+  - { from: CBN.b, to: VRBN.lug3, via: [[61.188, 0.297]] }
+  - { from: VRTN.lug2, to: VRVN.lug3, via: [[58, -0.8], [60.75, -0.8]] }
+  - { from: VRTN.lug1, to: VRBN.lug3, via: [[58.42, -0.76], [54.42, -0.76]] }
   - { from: VRBN.lug2, to: VRBN.lug3 }
   - { from: VRVN.lug1, to: [1.45, 61.2], via: [[61.2, -0.5]] }
   - { from: VRVN.lug2, to: V1.pin7, via: [[61.5, -0.62], [64.4, -0.62], [64.4, 1.9]] }

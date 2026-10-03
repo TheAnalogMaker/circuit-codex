@@ -182,7 +182,7 @@ runs:
   - { from: V6.pin8, to: RCHOKE.hi, color: red, via: [[4.35, 2.68], [1.5, 2.68]] }
   - { from: V6.pin8, to: C17.a, color: red, via: [[3.55, 2.3], [3.55, 0.45], [3.2, 0.3]] }
   - { from: T2.red, to: V6.pin8, color: red, via: [[49.7, 0.245], [49.7, 3.7], [0.7, 3.7], [0.548, 2.85]] }
-  - { from: RCHOKE.lo, to: C10.a, via: [[1.859, 0.767], [5.7, 0.72]] }
+  - { from: RCHOKE.lo, to: C10.a, via: [[1.765, 0.767], [5.7, 0.72]] }
 
   # --- filtered rail: BP2 filter, two rail droppers, BP3/BP4 filters -------
   - { from: C10.a, to: RD1.a, via: [[5.52, 0.06]] }
@@ -209,9 +209,9 @@ runs:
   - { from: RGL1.a, to: V4.pin5, via: [[9.4, 2.3], [6.4, 2.3]] }
   - { from: C3.b, to: R6s.a, via: [[16.5, 0.62]] }
   - { from: R6s.b, to: V5.pin5, via: [[15.5, 2.5], [12.6, 2.5]] }
-  - { from: RGL2.a, to: V5.pin5, via: [[13.32, 1.115], [9.6, 1.05]] }
+  - { from: RGL2.a, to: V5.pin5, via: [[12.087, 1.115], [9.6, 1.05]] }
   - { from: V4.pin4, to: C10.a, via: [[6.6, 0.8], [6.3, 0.35]] }
-  - { from: V5.pin4, to: C10.a, via: [[9.5, 1.62], [7.35, 1.62], [7.35, 0.75], [6.45, 0.25]] }
+  - { from: V5.pin4, to: C10.a, via: [[9.5, 1.62], [7.35, 1.62], [7.52, 0.75], [6.45, 0.25]] }
   - { from: V4.pin3, to: T2.brown, via: [[5.5, 2.68], [51.3, 2.68], [51.3, 0.86], [49.1, 0.31]] }
   - { from: V5.pin3, to: T2.blue, via: [[10, 2.85], [51.6, 2.85], [51.6, 0.41], [49.4, 0.41], [50.761, 0.875]] }
   - { from: V4.pin8, to: [1.45, 7.9], via: [[7.9, 2.75], [9.326, 2.549]] }
@@ -248,24 +248,24 @@ runs:
   - { from: C14.b, to: RF1.a }                     # TB, upper -> lower
   - { from: RSH.b, to: [1.45, 30.2] }
   - { from: C8.b, to: VR4.lug1 }                   # 250 pF -> Treble end lug
-  - { from: VR4.lug3, to: C7.a }                   # Treble cold end -> 0.01 at the pot
+  - { from: VR4.lug3, to: C7.a, via: [[34.561, -1.115]] }                   # Treble cold end -> 0.01 at the pot
   - { from: C7.b, to: C12.b }                      # 0.01 -> ground (the 8 uF can's ground eyelet)
   - { from: RSL.b, to: VR3.lug2 }                  # 100k -> the Bass pot's WIPER
-  - { from: VR3.lug3, to: C15.a }                  # Bass far end -> 0.005 at the pot
-  - { from: C15.b, to: RSH.b, via: [[31.196, -0.5], [30.5, 0.5]] }  # 0.005 -> ground
+  - { from: VR3.lug3, to: C15.a, via: [[29.591, -0.759]] }                  # Bass far end -> 0.005 at the pot
+  - { from: C15.b, to: RSH.b, via: [[31.196, -0.55]] }  # 0.005 -> ground
   - { from: VR3.lug1, to: [1.45, 28.6], via: [[29.1, -0.5], [28.6, -0.2]] }  # Bass end lug grounded
   - { from: RSR.a, to: RSL.b, via: [[32.3, -0.45], [29.3, -0.203]] }        # 220k from the bass wiper node...
-  - { from: RSR.b, to: VR4.lug2, via: [[33.3, -0.75], [34.4, -0.62]] }     # ...to the Treble wiper
+  - { from: RSR.b, to: VR4.lug2, via: [[33.3, -0.75], [34.428, -0.62]] }     # ...to the Treble wiper
   # The Treble wiper is the network's output: the driver's grid, V3 pin 2.
   - { from: RSR.b, to: V3.pin2, via: [[32.95, -0.5], [22.7, -0.5], [22.7, 2.5], [20.6, 2.5]] }
 
   # --- V2 (12AY7): V2A gain stage on pins 1-2-3, V2B follower on 6-7-8 -----
   - { from: C12.a, to: RL3.a }                     # B+4, upper -> lower
   - { from: RL3.b, to: V2.pin1, via: [[35.4, 1.7], [35.5, 2.35]] }      # plate load -> V2A plate
-  - { from: V2.pin7, to: V2.pin1, via: [[37.58, 2.297], [36.56, 2.45]] }   # V2A plate -> V2B grid (DC-coupled strap)
+  - { from: V2.pin7, to: V2.pin1, via: [[37.75, 2.247], [36.56, 2.45]] }   # V2A plate -> V2B grid (DC-coupled strap)
   - { from: V2.pin6, to: C12.a, via: [[37, 1.6], [36.6, 0.9], [34.25, 0.45]] }  # V2B (follower) plate -> B+4
   - { from: V2.pin2, to: RF1.b, via: [[35.4, 2.1], [32.4, 1.62]] }      # V2A grid <- the mixing node
-  - { from: V2.pin3, to: RK2.a, via: [[35.6, 1.68], [38.614, 1.66], [38.35, 0.4]] }  # V2A cathode -> 1.5k
+  - { from: V2.pin3, to: RK2.a, via: [[35.6, 1.68], [38.671, 1.66], [38.35, 0.4]] }  # V2A cathode -> 1.5k
   - { from: RK2.b, to: [1.45, 38.4] }
   - { from: C4b.a, to: RK2.a }
   - { from: C4b.b, to: [1.45, 39.6], via: [[39.6, 0.478]] }
