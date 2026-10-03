@@ -4,10 +4,16 @@
 
 anchors:
   TR3.1: BP1               # OT primary, V5 plate end — primary DCR omitted
-  TR3.2: BP1               # OT primary centre tap (the <B+1> rail)
+  TR3.2: BP1               # OT primary centre tap (the <B+0> node, reservoir
+                           # side of the choke: standby -> TR3 CT and TR2 in)
   TR3.3: BP1               # OT primary, V6 plate end
   TR3.4: "0"               # OT secondary hot — secondary DCR folded into ground
                            # (RNFB's return); mirrors layout net_map SPK: '0'.
+  # netlist.cir models no element for the choke TR2 (BP1 drives the plates and
+  # the screen feed alike), so the drawn <B+0> node (standby, OT centre tap,
+  # choke input) and <B+1> (choke output: screens, C12, RD1) are one node.
+  TR2.1: BP1               # choke, reservoir / centre-tap end (<B+0>)
+  TR2.2: BP1               # choke, screen-rail end (<B+1>)
   # The sheet draws the bias supply's two balanced rails, <-45V A> and <-45V B>,
   # which meet only inside the bias supply (RBB1/RBB2 -> the balance pot).
   # netlist.cir replaces that whole supply with one ideal source, VBIAS NBIAS 0,
@@ -25,3 +31,12 @@ symbols:
 # Hard-gated: verify_schematic_nets.py fails CI on any finding for this sheet.
 # Claimed 2026-09-02 after the drawing went clean against netlist.cir.
 schematic_claim: verified
+
+series_bridge:
+  # The 1 M input leak hangs from jack 1's tip, jack side of the jack-1 68 k,
+  # as D-FE draws it on both channels (schematic 7087x4274, Bass crop
+  # 140,950,1300,2150; Normal 140,2700,1300,3900); the 68 k carries no DC grid
+  # current, so the netlist's RGB1 GB1 0 / RGN1 GN1 0 run the grid node
+  # through it.
+  R1b: "68 k Bass jack-1 grid stopper — netlist node GB1 runs through it to the 1 M leak at the jack-1 tip"
+  R1n: "68 k Normal jack-1 grid stopper — netlist node GN1 runs through it to the 1 M leak at the jack-1 tip"

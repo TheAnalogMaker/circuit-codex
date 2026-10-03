@@ -1084,7 +1084,7 @@ const TONE_STACK_SPECS = [
   },
   {
     id: 'ab165', kind: 'tb', wiring: 'ladder',
-    blurb: 'The blackface Bassman\'s two-knob stack, plotted from the Normal channel as the AB165 sheet wires it: treble-wiper output, bass rheostat, 6.8 kΩ fixed leg. The bass-instrument channel is the same ladder with a 390 pF treble cap and an 8.2 kΩ foot — gated against that drawing, not plotted twice.',
+    blurb: 'The blackface Bassman\'s two-knob stack, plotted from the Normal channel as the AB165 sheet wires it: treble-wiper output, bass rheostat, 6.8 kΩ fixed leg. The bass-instrument channel is the same ladder with a 330 pF treble cap and an 8.2 kΩ foot — gated against that drawing, not plotted twice.',
     drive: { kind: 'plate', tube: '12ax7', plateLoad: 'RLN1' },
     load: 'VRVN',
     refs: { slope: 'RSN', trebleCap: 'CTN', treblePot: 'VRTN', bassCap: 'CBN', bassPot: 'VRBN', midCap: 'CBN2' },
@@ -1128,7 +1128,7 @@ const TONE_STACK_SPECS = [
 //   ab763 vibrato — the AB763 draws its two-knob ladder twice; the preset
 //     solves the normal channel, and this entry keeps the vibrato channel gated.
 //   ab165 bass instrument — the preset plots the Normal channel; this channel
-//     is the same ladder with different part values (390 pF / 8.2 kΩ).
+//     is the same ladder with different part values (330 pF / 8.2 kΩ).
 //   ab763-twin vibrato — the preset plots the Normal channel; this channel is
 //     identical part for part and stays gated so a later drawing change cannot
 //     silently desync them.

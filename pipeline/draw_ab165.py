@@ -32,25 +32,33 @@ s = Sch()
 
 def input_stage(y, j1, j2, r1, r2, rleak, vref, rload, rk, ck, rail,
                 shunt_ref=None, shunt_val=None, unit=None):
-    """Two-jack channel input: 68 kΩ stoppers → grid (1 MΩ leak) → 12AX7 with a
-    100 kΩ plate load to `rail` and a 1.5 kΩ ‖ 25 µF cathode. `shunt_ref` adds
-    the bass channel's capacitor straight across the plate load. Returns the
-    triode pin dict."""
+    """Two-jack channel input: 68 kΩ stoppers → grid → 12AX7 with a 100 kΩ
+    plate load to `rail` and a 1.5 kΩ ‖ 25 µF cathode, with the 1 MΩ leak at
+    jack 1's tip. `shunt_ref` adds the bass channel's capacitor straight across
+    the plate load. Returns the triode pin dict."""
     gb = 40  # grid-bus x
     # Each jack lead starts ON its label's anchor: a global label connects at
     # that point only, so a wire begun a few mm away leaves the jack floating.
     s.glabel(j1, 12, y - 4, 180)
     s.glabel(j2, 12, y + 4, 180)
-    l, r = s.series_h("R", r1, "68k", 22, y - 4)
+    l, r = s.series_h("R", r1, "68k", 30, y - 4)
     s.wire(12, y - 4, l, y - 4)
     s.wire(r, y - 4, gb, y - 4)
-    l, r = s.series_h("R", r2, "68k", 22, y + 4)
+    # The 1M leak hangs from the jack-1 TIP, jack side of its 68k, as D-FE
+    # draws it on both channels (schematic 7087x4274, Bass crop
+    # 140,950,1300,2150; Normal 140,2700,1300,3900): jack 1 tip -> 1M ->
+    # ground; jack 2's contact -> jack 1's tip; jack 1's contact -> ground.
+    # Until 2026-10-03 this sheet hung it on the grid bus (V1 audit, ab165.md).
+    # r1 carries no DC, so the netlist's RGB1 GB1 0 sees one node either way
+    # (sch_map.yaml series_bridge, the AA1164 / AB763 idiom).
+    s.junction(18, y - 4)
+    s.sym("R", rleak, "1M", 18, y - 4 - 3.81, lx=2.2, ly=0.0)
+    s.gnd(18, y - 11.62, rot=90)
+    l, r = s.series_h("R", r2, "68k", 30, y + 4)
     s.wire(12, y + 4, l, y + 4)
     s.wire(r, y + 4, gb, y + 4)
     s.wire(gb, y - 4, gb, y + 4)
     s.junction(gb, y)
-    s.sym("R", rleak, "1M", gb, y + 3.81 + 4)
-    s.gnd(gb, y + 7.62 + 4)
     t = s.triode(vref, "12AX7 (7025)", 52, y, unit=unit)
     s.wire(gb, y, t["g"][0], y)
     s.plate_load(rload, "100k", t["p"], rail)
@@ -158,7 +166,7 @@ t1a = input_stage(YB, "BASS 1", "BASS 2", "R1b", "R2b", "RGB1", "V1A",
                   "RLB1", "RKB1", "CKB1", "B+4",
                   shunt_ref="CLB1", shunt_val=".01u", unit=2)
 teeB = YB - 7.62 - 3.48
-n2b, wipB = tone_stack(teeB, "CTB", "390p", "RSB", "CBB", ".1u", "CBB2", ".1u",
+n2b, wipB = tone_stack(teeB, "CTB", "330p", "RSB", "CBB", ".1u", "CBB2", ".1u",
                        "RSLB", "8.2k", "VRTB", "VRBB", "VRVB")
 # DEEP: a further 0.1 µF from the slope foot to ground through its own switch
 s.wire(n2b[0], n2b[1], n2b[0], n2b[1] + 3)
@@ -346,7 +354,13 @@ s.wire(XO, 105, 343.11, 105)
 s.wire(343.11, 105, 343.11, 93.08)     # V6 plate -> primary B
 s.wire(343.11, 88, 340.57, 88)
 s.wire(340.57, 88, 340.57, 84)
-s.glabel("B+1", 340.57, 84, 90)        # primary centre tap
+# The primary centre tap takes the HT on the RESERVOIR side of the choke: D-FE
+# runs it from the standby switch's +425 V node, ahead of TR2, while the
+# screens, the 1 kOhm dropper and the first 20-525 hang on the choke's output
+# (schematic 7087x4274, crop 5300,2050,7000,3800). Until 2026-10-03 this sheet
+# put it on B+1, after the choke (V1 audit, ab165.md). netlist.cir models no
+# choke, so both sides are BP1 (sch_map anchors TR2.1/TR2.2).
+s.glabel("B+0", 340.57, 84, 90)        # primary centre tap
 s.wire(360.89, 85.46, 366, 85.46)
 s.glabel("SPKR", 366, 85.46, 0)
 s.wire(360.89, 90.54, 366, 90.54)
@@ -406,6 +420,9 @@ st1, st2 = s.switch("SWSTBY", "STANDBY", 122, YPW)
 s.wire(116, YPW, st1, YPW)
 s.sym("CHOKE", "TR2", "125C1A", 142, YPW, lx=-5.0, ly=-6.4)
 s.wire(st2, YPW, 134.38, YPW)
+s.junction(130.7, YPW)                 # standby -> choke: the OT centre tap's node
+s.wire(130.7, YPW, 130.7, YPW + 4)
+s.glabel("B+0", 130.7, YPW + 4, 270)
 s.wire(149.62, YPW, 160, YPW)
 for x, cx, cref, rail, cval in [(154, 160, "C12", "B+1", "20u"),
                                 (174, 180, "C13", "B+2", "20u"),
@@ -427,7 +444,17 @@ s.wire(220, YPW, 226, YPW)
 
 # ============================ BIAS SUPPLY ============================
 YBI = 258
-s.note('Bias supply — one HT leg through 470 Ω · 1 W and a silicon diode; the 10 kΩ-L balance control gives each output tube its own 10 kΩ leg')
+s.note('Bias supply — one HT lead through 470 Ω · 1 W and a silicon diode, one filter can; the 10 kΩ-L hum-balance pot and its two 10 kΩ legs form a bridge: V5 returns to the wiper (-45 V), V6 to the legs\' junction')
+# D-FE (schematic 7087x4274, crop 4300,2050,5600,3000): the 470 1W leaves the
+# winding's upper lead (drawn here off the lower one: the two ends of the
+# centre-tapped winding are interchangeable), and the diode's negative end is
+# node N: ONE filter capacitor (+ to ground, no value printed)
+# and one end of the 10K-L. The pot's other end is node L, 15K to ground. Two
+# 10K legs, one from each pot end, meet at node T. V5's 220K returns to the
+# WIPER (lettered -45V), V6's to T. Until 2026-10-03 this sheet drew two filter
+# cans, a wiper strapped to an end lug, and a 10K per tube from either pot end
+# (V1 audit, ab165.md). netlist.cir still replaces the whole supply with one
+# ideal -45 V source; at the pot's centre T and the wiper sit at one voltage.
 s.junction(65, pt["ht_b"][1])
 s.wire(65, pt["ht_b"][1], 65, YBI)
 bl4, br4 = s.series_h("R", "RBIAS", "470 1W", 75, YBI)
@@ -435,36 +462,29 @@ s.wire(65, YBI, bl4, YBI)
 # cathode faces the winding: the filter charges negative
 s.sym("DIODE_SS", "DBIAS", "Si", 90, YBI, rot=0, lx=-3.0, ly=-5.4, mirror="y")
 s.wire(br4, YBI, 84.92, YBI)
-s.wire(95.08, YBI, 110, YBI)
+s.wire(95.08, YBI, 128, YBI)
 s.junction(100, YBI)
 s.sym("C", "CB1", "elec", 100, YBI + 3.81)
 s.gnd(100, YBI + 7.62)
-s.junction(106, YBI)
-s.sym("C", "CB2", "elec", 106, YBI + 3.81)
-s.gnd(106, YBI + 7.62)
-# Balance control. The sheet draws the 10 kΩ-L as a two-terminal element in the
-# divider — its two ends feed the two 10 kΩ legs, one leg per output tube, and
-# the 15 kΩ foot grounds the ladder. Drawn here with the wiper strapped to its
-# own end lug, the same reading the corpus gives a pot a drawing shows with two
-# terminals; netlist.cir replaces the whole supply with an ideal −45 V source.
-s.wire(110, YBI, 128, YBI)
-s.sym("POT", "VRBAL", "10k-L bal", 128, YBI + 3.81, lx=-6.6)
+# node N = the pot's upper end; the pot is mirrored so its wiper faces left
 s.junction(128, YBI)
-s.wire(133.08, YBI + 3.81, 137, YBI + 3.81)
-s.wire(137, YBI + 3.81, 137, YBI)
-s.wire(137, YBI, 128, YBI)
-s.sym("R", "RBB1", "10k", 120, YBI - 3.81, lx=-8.4)
-s.wire(120, YBI, 128, YBI)
-s.wire(120, YBI - 7.62, 120, YBI - 10)
-s.glabel("-45V A", 120, YBI - 10, 90)
+s.sym("POT", "VRBAL", "10k-L bal", 128, YBI + 3.81, mirror="y", lx=2.4, ly=-1.5)
+s.wire(122.92, YBI + 3.81, 116, YBI + 3.81)
+s.wire(116, YBI + 3.81, 116, YBI + 12)
+s.glabel("-45V A", 116, YBI + 12, 270)            # V5's grid leak: the wiper
+# node L: 15K to ground and the other 10K leg
 s.junction(128, YBI + 7.62)
 s.sym("R", "RBB3", "15k", 128, YBI + 11.43)
 s.gnd(128, YBI + 15.24)
-s.wire(128, YBI + 7.62, 140, YBI + 7.62)
-s.wire(140, YBI + 7.62, 140, YBI + 2)
-s.sym("R", "RBB2", "10k", 140, YBI - 1.81, lx=4.4)
-s.wire(140, YBI - 5.62, 140, YBI - 10)
-s.glabel("-45V B", 140, YBI - 10, 90)
+s.wire(128, YBI + 7.62, 142, YBI + 7.62)
+s.sym("R", "RBB1", "10k", 142, YBI + 3.81, lx=2.2)
+s.wire(142, YBI, 142, YBI - 7.62)
+# node N -> the first 10K leg -> node T
+s.sym("R", "RBB2", "10k", 128, YBI - 3.81, lx=-8.4)
+s.junction(128, YBI - 7.62)
+s.wire(128, YBI - 7.62, 142, YBI - 7.62)
+s.wire(128, YBI - 7.62, 128, YBI - 12)
+s.glabel("-45V B", 128, YBI - 12, 90)             # V6's grid leak: node T
 
 s.write(OUT)
 print(f"wrote {OUT}")

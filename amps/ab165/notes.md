@@ -14,9 +14,10 @@ The drawing letters the three preamp bottles **7025**, the low-noise selected
 
 ## Signal path
 
-**Bass channel.** Two inputs (68 kΩ stoppers on a 1 MΩ leak) → a 12AX7 stage
+**Bass channel.** Two inputs (68 kΩ stoppers into the grid, with the 1 MΩ leak at
+input 1's tip, jack side of its stopper) → a 12AX7 stage
 with a 100 kΩ plate load, a 1.5 kΩ/25 µF cathode, and the **0.01 µF treble cut
-across the plate load** → a two-knob tone stack (100 kΩ slope, a 390 pF treble
+across the plate load** → a two-knob tone stack (100 kΩ slope, a 330 pF treble
 cap, 250 kΩ Treble and Bass, 8.2 kΩ foot) with a **DEEP** switch that grounds a
 further 0.1 µF at the foot of the ladder → a 1 MΩ Volume → a second 12AX7 stage
 (100 kΩ plate, 1.5 kΩ cathode).
@@ -52,16 +53,20 @@ sheet.
 
 The **6L6GC pair** is fixed-biased at **−45 V** through 220 kΩ 5 % leaks and
 1500 Ω stoppers, with 470 Ω · 1 W screen resistors and grounded cathodes. The
-bias line is trimmed by a **10 kΩ-L balance control** — the sheet's "hum
-balance", the one the notice tells you to reset when you fit new bottles — with
-10 kΩ to each end and 15 kΩ to ground. Simulated idle is about **37 mA per
+bias is trimmed by a **10 kΩ-L balance control** — the sheet's "hum
+balance", the one the notice tells you to reset when you fit new bottles. The
+pot sits across the bias node and a 15 kΩ foot to ground; a 10 kΩ leg from each
+of its ends meets at one junction. V5's grid leak returns to the pot's wiper
+(lettered −45 V), V6's to that junction, so turning the pot moves one tube's
+bias against the other's. Simulated idle is about **37 mA per
 plate at +425 V**, near 16 W, a little over half the 6L6GC's rating.
 
 ## Power
 
 320-0-320 V (TR1 125P7D; 125P7DX on the export model) → three series silicon
 diodes per leg → **+425 V** across two 70 µF · 350 V cans in series with 220 kΩ
-· 1 W balancing → standby switch → the 125C1A choke → **+425 V** at the screens
+· 1 W balancing → standby switch → **+425 V** at the output transformer's
+centre tap and the 125C1A choke → **+425 V** at the screens
 → 1 kΩ · 1 W → **+415 V** at the inverter → 4.7 kΩ · 1 W → **+390 V** at the
 second stages and the driver → 27 kΩ · 1 W → **+320 V** at the two channel
 inputs. The netlist drives only the first of those and solves the rest through
@@ -69,7 +74,7 @@ the drawing's own droppers, so the printed ladder is a checked claim: +415 and
 +390 land within half a percent of print, +320 within five.
 
 A separate negative supply — 470 Ω · 1 W off the HT winding, a silicon diode
-and two filter cans — feeds the bias divider.
+and one filter capacitor — feeds the bias divider.
 
 ## Reading against the printed chart
 

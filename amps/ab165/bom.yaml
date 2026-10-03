@@ -4,18 +4,18 @@
 # cross-checks every one of them against it in both directions.
 # Values are the drawing's; its notice sets ½ W / 10 % resistors and 400 V caps
 # unless marked otherwise.
-notes: "The drawing shows one jack symbol per channel input pair; the chassis carries two per channel. The two bias-supply filter cans carry polarity marks but no printed value. The 6L6GC pair is simulated on this corpus's own clean-room 6L6GC model."
+notes: "The drawing shows both instrument jacks (1 and 2) of each channel with their normalling contacts; this sheet draws them as the two input labels, with the 1 MΩ leak at jack 1's tip, jack side of its 68 kΩ stopper, where D-FE puts it. The schematic draws ONE bias-supply filter capacitor, with polarity marks and no printed value. The output transformer's centre tap takes the HT on the reservoir side of the filter choke; the screens, the first 20 µF can and the 1 kΩ dropper hang on the choke's output. The 6L6GC pair is simulated on this corpus's own clean-room 6L6GC model."
 items:
   # --- Bass channel input (V1a) ---
   - { ref: R1b, part: "Carbon comp resistor", value: "68 kΩ · ½ W",  role: "Bass input grid stopper (jack 1)" }
   - { ref: R2b, part: "Carbon comp resistor", value: "68 kΩ · ½ W",  role: "Bass input grid stopper (jack 2)" }
-  - { ref: RGB1, part: "Carbon comp resistor", value: "1 MΩ · ½ W",  role: "Bass input grid leak" }
+  - { ref: RGB1, part: "Carbon comp resistor", value: "1 MΩ · ½ W",  role: "Bass input leak, jack 1's tip to ground (jack side of R1b); the grid's DC return through R1b" }
   - { ref: RLB1, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "V1a plate load" }
   - { ref: CLB1, part: "Film capacitor",      value: "0.01 µF · 400 V", role: "Treble-cut shunt across the V1a plate load" }
   - { ref: RKB1, part: "Carbon comp resistor", value: "1.5 kΩ · ½ W", role: "V1a cathode bias" }
   - { ref: CKB1, part: "Electrolytic capacitor", value: "25 µF · 25 V", role: "V1a cathode bypass" }
   # --- Bass channel tone stack ---
-  - { ref: CTB, part: "Mica capacitor",       value: "390 pF",         role: "Bass-channel treble cap" }
+  - { ref: CTB, part: "Mica capacitor",       value: "330 pF",         role: "Bass-channel treble cap" }
   - { ref: VRTB, part: "Audio-taper potentiometer", value: "250 kΩ-A", role: "Bass channel Treble" }
   - { ref: RSB, part: "Carbon comp resistor", value: "100 kΩ · ½ W",   role: "Bass-channel tone-stack slope resistor" }
   - { ref: CBB, part: "Coupling capacitor",   value: "0.1 µF",         role: "Bass-channel tone-stack bass cap, slope node to the treble-lug/bass node" }
@@ -33,7 +33,7 @@ items:
   # --- Normal channel input (V2a) ---
   - { ref: R1n, part: "Carbon comp resistor", value: "68 kΩ · ½ W",  role: "Normal input grid stopper (jack 1)" }
   - { ref: R2n, part: "Carbon comp resistor", value: "68 kΩ · ½ W",  role: "Normal input grid stopper (jack 2)" }
-  - { ref: RGN1, part: "Carbon comp resistor", value: "1 MΩ · ½ W",  role: "Normal input grid leak" }
+  - { ref: RGN1, part: "Carbon comp resistor", value: "1 MΩ · ½ W",  role: "Normal input leak, jack 1's tip to ground (jack side of R1n); the grid's DC return through R1n" }
   - { ref: RLN1, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "V2a plate load" }
   - { ref: RKN1, part: "Carbon comp resistor", value: "1.5 kΩ · ½ W", role: "V2a cathode bias" }
   - { ref: CKN1, part: "Electrolytic capacitor", value: "25 µF · 25 V", role: "V2a cathode bypass" }
@@ -74,13 +74,13 @@ items:
   # --- Output stage (6L6GC pair) ---
   - { ref: C1,  part: "Film capacitor",       value: "0.022 µF · 400 V", role: "PI hot plate → V5 grid" }
   - { ref: C2,  part: "Film capacitor",       value: "0.022 µF · 400 V", role: "PI cold plate → V6 grid" }
-  - { ref: RGL1, part: "Carbon comp resistor", value: "220 kΩ · ½ W · 5%", role: "V5 grid leak, from the −45 V bias line" }
-  - { ref: RGL2, part: "Carbon comp resistor", value: "220 kΩ · ½ W · 5%", role: "V6 grid leak, from the −45 V bias line" }
+  - { ref: RGL1, part: "Carbon comp resistor", value: "220 kΩ · ½ W · 5%", role: "V5 grid leak, from the BIAS BALANCE wiper (the sheet's −45 V)" }
+  - { ref: RGL2, part: "Carbon comp resistor", value: "220 kΩ · ½ W · 5%", role: "V6 grid leak, from the junction of the two 10 kΩ bias legs" }
   - { ref: RGS1, part: "Carbon comp resistor", value: "1.5 kΩ · ½ W", role: "V5 grid stopper" }
   - { ref: RGS2, part: "Carbon comp resistor", value: "1.5 kΩ · ½ W", role: "V6 grid stopper" }
   - { ref: RS1, part: "Wirewound resistor",   value: "470 Ω · 1 W",   role: "V5 screen resistor" }
   - { ref: RS2, part: "Wirewound resistor",   value: "470 Ω · 1 W",   role: "V6 screen resistor" }
-  - { ref: TR3, part: "Output transformer",   value: "Fender 125A13A", role: "Push-pull 6L6GC output" }
+  - { ref: TR3, part: "Output transformer",   value: "Fender 125A13A", role: "Push-pull 6L6GC output; centre tap on the reservoir side of the choke" }
   # --- Negative feedback ---
   - { ref: RNFB, part: "Carbon comp resistor", value: "47 kΩ · ½ W",  role: "Negative feedback, speaker line → PI hot grid (DC-blocked)" }
   - { ref: CNFB, part: "Coupling capacitor",  value: "0.1 µF · 400 V", role: "Negative-feedback series capacitor" }
@@ -104,12 +104,11 @@ items:
   # --- Bias supply ---
   - { ref: RBIAS, part: "Wirewound resistor", value: "470 Ω · 1 W",   role: "Bias-supply series resistor off the HT winding" }
   - { ref: DBIAS, part: "Rectifier (bias)",   value: "silicon diode", role: "Bias-supply rectifier" }
-  - { ref: CB1, part: "Electrolytic capacitor", value: "electrolytic (value not printed)", role: "Bias-supply filter" }
-  - { ref: CB2, part: "Electrolytic capacitor", value: "electrolytic (value not printed)", role: "Bias-supply filter" }
-  - { ref: RBB1, part: "Carbon comp resistor", value: "10 kΩ · ½ W",  role: "Bias divider, balance-pot end (V5 side)" }
-  - { ref: RBB2, part: "Carbon comp resistor", value: "10 kΩ · ½ W",  role: "Bias divider, balance-pot end (V6 side)" }
-  - { ref: RBB3, part: "Carbon comp resistor", value: "15 kΩ · ½ W",  role: "Bias divider foot to ground" }
-  - { ref: VRBAL, part: "Linear potentiometer", value: "10 kΩ-L",     role: "BIAS BALANCE — the sheet's 'hum balance' control" }
+  - { ref: CB1, part: "Electrolytic capacitor", value: "electrolytic (value not printed)", role: "Bias-supply filter, the diode's negative node to ground (+ to ground); the one capacitor the schematic draws there" }
+  - { ref: RBB1, part: "Carbon comp resistor", value: "10 kΩ · ½ W",  role: "Bias bridge leg, the balance pot's 15 kΩ end → V6's grid-leak return" }
+  - { ref: RBB2, part: "Carbon comp resistor", value: "10 kΩ · ½ W",  role: "Bias bridge leg, the balance pot's diode end → V6's grid-leak return" }
+  - { ref: RBB3, part: "Carbon comp resistor", value: "15 kΩ · ½ W",  role: "Bias divider foot, the balance pot's far end to ground" }
+  - { ref: VRBAL, part: "Linear potentiometer", value: "10 kΩ-L",     role: "BIAS BALANCE — the sheet's 'hum balance' control; across the bias node and the 15 kΩ foot, its wiper is V5's −45 V return" }
   # --- Mains (period parts) ---
   - { ref: SWAC, part: "Switch",              value: "SPST",          role: "AC switch" }
   - { ref: F1,  part: "Fuse",                 value: "2 A slo-blo",   role: "Mains fuse" }

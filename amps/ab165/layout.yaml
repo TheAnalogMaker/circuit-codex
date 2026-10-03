@@ -23,7 +23,7 @@ board:
   rows: 2
   cols: 73
   title: "AB165 · eyelet board layout"
-caption: "Redrawn from the published Fender 'Bassman-Amp AB165' layout drawing — principal board components, in the order the drawing shows them, following the chassis' own tube row. Both channels' tone stacks are on the board, as the published sheet draws them: beside each channel's first stage stand the treble capacitor (250 pF Normal, 390 pF Bass) and the capacitors off the foot of the 100 kΩ slope resistor (0.047 µF and 0.1 µF on the Normal channel; three 0.1 µF on the Bass channel, the third switched to ground by DEEP), and a blue, brown and white harness takes them to the Bass and Treble controls, each Bass control's wiper jumped to its Treble control and its third lug left free. The 6.8 kΩ and 8.2 kΩ legs are mounted on the Bass controls and the 120 pF BRIGHT capacitor at its switch, so those three, like the input grid stoppers and grid leaks at the jacks, are documented schematic-only here. The 470 Ω screen resistors and 1.5 kΩ grid stoppers are drawn where the sheet mounts them, at the output sockets, and the supply droppers are drawn as the chassis-mounted parts they are, with the filter cans and the rectifier / bias supply drawn minimally — the two 220 kΩ output-grid leaks return to one bias line here, as the simulated netlist models them, rather than to the separate taps either side of the BIAS BALANCE control that the schematic draws. The two 220 kΩ local-feedback resistors ride their own terminal strip on the published sheet and are drawn here on the board. The 6.3 V heater chain (green twisted pair, PT → pilot lamp → the two 6L6GC output tubes → 12AT7 inverter → the three 7025 preamp tubes) is routed as the published sheet shows it; the amplifier is solid-state rectified, so there is no rectifier heater. Not a trace or a dimensioned reproduction."
+caption: "Redrawn from the published Fender 'Bassman-Amp AB165' layout drawing — principal board components, in the order the drawing shows them, following the chassis' own tube row. Both channels' tone stacks are on the board, as the published sheet draws them: beside each channel's first stage stand the treble capacitor (250 pF Normal, 330 pF Bass) and the capacitors off the foot of the 100 kΩ slope resistor (0.047 µF and 0.1 µF on the Normal channel; three 0.1 µF on the Bass channel, the third switched to ground by DEEP), and a blue, brown and white harness takes them to the Bass and Treble controls, each Bass control's wiper jumped to its Treble control and its third lug left free. The 6.8 kΩ and 8.2 kΩ legs are mounted on the Bass controls and the 120 pF BRIGHT capacitor at its switch, so those three, like the input grid stoppers and grid leaks at the jacks, are documented schematic-only here. The 470 Ω screen resistors and 1.5 kΩ grid stoppers are drawn where the sheet mounts them, at the output sockets, and the supply droppers are drawn as the chassis-mounted parts they are, with the filter cans and the rectifier / bias supply drawn minimally — the two 220 kΩ output-grid leaks return to one bias line here, as the simulated netlist models them, rather than to the BIAS BALANCE control's wiper (V5) and the junction of its two 10 kΩ legs (V6), where the schematic returns them. The two 220 kΩ local-feedback resistors ride their own terminal strip on the published sheet and are drawn here on the board. The 6.3 V heater chain (green twisted pair, PT → pilot lamp → the two 6L6GC output tubes → 12AT7 inverter → the three 7025 preamp tubes) is routed as the published sheet shows it; the amplifier is solid-state rectified, so there is no rectifier heater. Not a trace or a dimensioned reproduction."
 source:
   desc: "Fender 'Bassman-Amp AB165' layout drawing (D-FE), title block read directly: 'FENDER MODEL \"BASSMAN-AMP AB165\" LAYOUT'"
   url: "https://el34world.com/charts/Schematics/Files/Fender/Fender_bassman_ab165_layout.pdf"
@@ -88,10 +88,10 @@ parts:
   - { ref: RLB1, a: [0, 58], b: [0, 60] }   # 100k plate load (BC→PB1)
   - { ref: CLB1, a: [1, 58], b: [1, 60] }   # .01 µF straight across that plate load
   # --- Bass Instrument tone stack, off the V1a plate, at the board's right end:
-  # the 390 PF, then three .1 whose lower leads all reach one foot eyelet with
+  # the 330 PF, then three .1 whose lower leads all reach one foot eyelet with
   # the 100K slope resistor; the rightmost .1 is the DEEP cap, its top lead
   # running straight up to the DEEP switch.
-  - { ref: CTB,   a: [1, 62], b: [0, 62] }  # 390 pF treble cap: V1a plate → Treble top (white)
+  - { ref: CTB,   a: [1, 62], b: [0, 62] }  # 330 pF treble cap: V1a plate → Treble top (white)
   - { ref: RSB,   a: [1, 62], b: [1, 64] }  # 100k slope: V1a plate → slope foot
   - { ref: CBB2,  a: [1, 64], b: [0, 64] }  # .1: slope foot → Bass foot lug (blue; 8.2k on the pot)
   - { ref: CBB,   a: [1, 66], b: [0, 66] }  # .1: slope foot → Bass wiper / Treble foot (brown)
@@ -150,7 +150,11 @@ runs:
   # lanes, each in its own row so no two read as one wire; the transformer
   # pigtails and the chassis parts' terminals sit clear above them. ==========
   - { from: TR2.red, to: RD1.a, color: red, via: [[1.2, -1.45]] }
-  - { from: TR3.red, to: RD1.a, color: red, via: [[8.42, -0.24], [2.3, -0.24]] }
+  # The OT centre tap takes the HT on the reservoir side of the choke, as the
+  # D-FE schematic draws it (crop 5300,2050,7000,3800: standby -> CT and choke
+  # input; choke output -> screens, C12, the 1 kOhm). Until 2026-10-03 this
+  # run landed it on RD1.a, the choke OUTPUT (V1 audit, ab165.md).
+  - { from: TR3.red, to: TR2.plate, color: red, via: [[8.42, -0.24], [1.0, -0.24]] }
   - { from: RD1.a, to: RS1.a, color: red, via: [[1.55, -0.6], [-0.7, -0.32], [-0.7, 1.86]] }
   - { from: RS1.a, to: RS2.a, color: red, via: [[0.2, 2.94], [5.21, 2.94]] }
   - { from: TR3.blue, to: V5.pin3, via: [[8.787, 2.62], [0.85, 2.62], [0.85, 2.02]] }
@@ -176,9 +180,9 @@ runs:
   - { from: RLN1.a, to: RLB2.a, via: [[29.6, -0.34], [50.4, -0.34]] }
   - { from: RLB2.a, to: RLB1.a, via: [[51.4, -0.2], [57.6, -0.2]] }
 
-  # === bias line. On the sheet each 220 kOhm grid leak returns to its own tap
-  # either side of the 10 kOhm-L BIAS BALANCE control, and the redrawn schematic
-  # keeps those two taps apart. netlist.cir replaces the whole bias supply with
+  # === bias line. On the sheet V5's 220 kOhm grid leak returns to the 10 kOhm-L
+  # BIAS BALANCE wiper and V6's to the junction of the two 10 kOhm legs, and the
+  # redrawn schematic keeps those two returns apart. netlist.cir replaces the whole bias supply with
   # one ideal -45 V source, so the board's two returns are drawn as the single
   # line that source models — the balance control itself is not drawn. =========
   - { from: RGL1.b, to: RGL2.b, via: [[1.4, 1.22], [3.6, 1.22]] }
@@ -316,6 +320,11 @@ net_map:
     TR3.blue:  BP1    # OT primary, V5 plate lead → +425 V
     TR3.brown: BP1    # OT primary, V6 plate lead → +425 V
     SPK: "0"          # speaker jack — OT-secondary DCR folded into ground
+    # The filter choke: netlist.cir models no element for it (BP1 drives the
+    # plates and the screen feed alike), so both its leads sit at BP1 — the
+    # reservoir side (with the OT centre tap) and the screen-node side.
+    TR2.plate: BP1    # choke input: standby side, with the OT centre tap
+    TR2.red:   BP1    # choke output: screens, C12, the 1 kOhm dropper
   # Netlist elements with no discrete same-named board part — reported in
   # coverage, never a failure (their nodes still have to check out):
   netlist_unplaced:
@@ -326,7 +335,6 @@ net_map:
   # Parts the sheet draws that this board neither places nor wires — each
   # read off the cited layout drawing (sheet ↔ board gate, 2026-09-10).
   not_on_board:
-    TR2: "filter choke — a chassis part the Bassman AB165 layout (D-FE, read at 2148 × 1578) does not draw: the +425 V and +415 V eyelets at the board's left end run by dashed leads to chassis holes. On this board it is the off-board choke stub (kind: choke) with only its red output lead wired, to the +425 V node at RD1: its other lead goes to the standby switch, which this board does not draw, so the sheet ↔ board gate cannot compare it as a two-lead part"
     VRBAL: "10K-L bias balance — a chassis-mounted pot drawn beside the bias sub-box on the layout (its '-45V' lug lettered, and the sheet's '* reset hum balance' note), not on the eyelet board"
     RBB3: "15 kΩ bias-divider foot — lettered '15K' inside the 10K-L bias balance pot's outline on the layout: a resistor mounted on the pot, off the board"
     RSLN: "6.8 kΩ normal-channel bleed — lettered inside the Normal channel's Bass 250K-A pot outline on the layout: mounted on the pot, not on the eyelet board"
@@ -336,8 +344,7 @@ net_map:
     CDEATH: ".047-600 ground-switch capacitor — drawn at the GROUND SWITCH on the layout's mains row, off the board"
     DBIAS: "bias rectifier diode — drawn in the layout's bias sub-box (470 1W → diode → 50|50 cap) beside the pilot light, not on the main eyelet board"
     RBIAS: "470 Ω · 1 W bias feed — the '470 1W' in the layout's bias sub-box, not on the main eyelet board"
-    CB1: "bias filter — one section of the '50|50' can in the layout's bias sub-box, not on the main eyelet board"
-    CB2: "bias filter — the other section of the '50|50' can in the layout's bias sub-box, not on the main eyelet board"
+    CB1: "bias filter — the one capacitor the D-FE schematic draws on the bias node (crop 4300,2050,5600,3000); an earlier read of the layout's bias sub-box lettered its can '50|50', not on the main eyelet board"
 
 # Board-scope rules for the sheet ↔ board gate: parts the sheet draws that
 # this board deliberately does not, by designator glob, each with where the
