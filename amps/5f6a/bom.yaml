@@ -1,8 +1,10 @@
 # Parts list — reference designators match schematic.kicad_sch exactly.
-notes: "The schematic draws one jack per channel (the chassis has four). The presence pot and its 0.1 µF wiper cap are chassis wiring, and the negative-feedback resistor mounts on the eyelet board beside the tail's 10 kΩ, as the factory layout places it. They are this revision's headline change from the 5F6, so all three carry designators (RNF, VR6, C16) and are drawn on the schematic. Parts drawn only as annotations (bright cap, balance cap) are listed without designators."
+notes: "Both pages draw four input jacks, two per channel, each with its own 68 kΩ stopper (R1s/R3s Bright, R2s/R4s Normal), and hang each channel's 1 MΩ leak from jack 1's tip; jack 2's contact rests on jack 1's tip. The presence pot and its 0.1 µF wiper cap are chassis wiring, and the negative-feedback resistor mounts on the eyelet board beside the tail's 10 kΩ, as the factory layout places it. They are this revision's headline change from the 5F6, so all three carry designators (RNF, VR6, C16) and are drawn on the schematic. Parts drawn only as annotations (bright cap, balance cap) are listed without designators."
 items:
-  - { ref: R1s, part: "Carbon comp resistor", value: "68 kΩ · ½ W",  role: "Bright-channel grid stopper" }
-  - { ref: R2s, part: "Carbon comp resistor", value: "68 kΩ · ½ W",  role: "Normal-channel grid stopper" }
+  - { ref: R1s, part: "Carbon comp resistor", value: "68 kΩ · ½ W",  role: "Bright-channel grid stopper (jack 1)" }
+  - { ref: R3s, part: "Carbon comp resistor", value: "68 kΩ · ½ W",  role: "Bright-channel grid stopper (jack 2)" }
+  - { ref: R2s, part: "Carbon comp resistor", value: "68 kΩ · ½ W",  role: "Normal-channel grid stopper (jack 1)" }
+  - { ref: R4s, part: "Carbon comp resistor", value: "68 kΩ · ½ W",  role: "Normal-channel grid stopper (jack 2)" }
   - { ref: RG1, part: "Carbon comp resistor", value: "1 MΩ · ½ W",   role: "Bright input grid leak" }
   - { ref: RG2, part: "Carbon comp resistor", value: "1 MΩ · ½ W",   role: "Normal input grid leak" }
   - { ref: RL1, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "V1A plate load" }

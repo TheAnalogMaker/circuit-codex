@@ -20,6 +20,18 @@ for ch, (y, jack, gref, pref, plref, cref, vref, mref) in enumerate([
     s.wire(30.48, y, l, y)
     t = s.triode(pref, "12AY7", 49.53, y)
     s.wire(r, y, t["g"][0], y)
+    # Jack 2 has its own 68k into the same grid: I-EG draws four jacks and
+    # four 68 Ks, two per channel, on both pages (schematic 6412x3947, crop
+    # 0,750,1950,2800; layout 6402x3641, crop 4600,300,6402,2400). Jack 2's
+    # contact rests on jack 1's tip and jack 1's on ground; the labels here do
+    # not draw the contacts. Until 2026-10-03 this sheet drew one 68k per
+    # channel (V1 audit, 5f6a.md).
+    s.glabel(f"{jack} 2", 26, y - 8, 180)
+    s.wire(26, y - 8, 30.48, y - 8)
+    l2, r2 = s.series_h("R", f"R{ch + 3}s", "68k", 34.29, y - 8)
+    s.wire(r2, y - 8, 40.5, y - 8)
+    s.wire(40.5, y - 8, 40.5, y)
+    s.junction(40.5, y)
     # the 1M grid leak hangs at the jack, ahead of the 68k stopper, as the
     # factory schematic and layout both draw it
     s.junction(28.5, y)
