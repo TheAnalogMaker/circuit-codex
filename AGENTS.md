@@ -81,6 +81,12 @@ git diff --exit-code -- ../amps ../site/public/schematics   # zero schematic dri
                                   #   byte for byte. Same gate as models/.
 cd pipeline && python3 check_tonestack_wiring.py  # drawn tone stack == plotted one
 cd pipeline && python3 check_layouts.py      # BOTH layout renders + collision lint (+waivers)
+python3 pipeline/check_pot_orientation.py --selftest && \
+python3 pipeline/check_pot_orientation.py   # every pot is drawn from the side the
+                                  #   layout says it is drawn from. A SEPARATE
+                                  #   claim from the DC equivalence below, which
+                                  #   proves which NET a lug sits on and never
+                                  #   where the lug is drawn.
 python3 pipeline/render_og.py --check        # per-amp social cards match their layouts
 python3 pipeline/verify_layout_nets.py       # layout↔netlist equivalence (+--selftest)
                                   #   + rectifier polarity: every board diode's

@@ -167,12 +167,71 @@ sign and drift-gates `reference/electrolytics.yaml`.
 | `value` | Only meaningful on a **ref-less** item, and only for `kind: part`. Values live in `bom.yaml`, keyed by ref, so a layout and the parts list can never disagree — and that stays true for every part the BOM knows. But the annotation layer draws parts the electrical model does not carry (a negative-feedback resistor stated only as a schematic *text note*, so it has no symbol and therefore no BOM ref), and those had no way to state a value at all: they shipped as blank bodies. A ref'd item ignores this field, so the two can never diverge. The value must be sourced in a comment; the lint fails a ref-less `kind: part` that has neither |
 | `cathode` | Only for a `kind: part` whose BOM type is a diode/rectifier — `a` \| `b`, same meaning as on `parts[]` |
 | `plus` | Required for a `kind: part` whose BOM type is electrolytic — `a` \| `b`, same meaning as on `parts[]`. Both styles draw the `+` beside the declared terminal on all four edges; `glyph: lamp` is incompatible |
+| `lugs` | Only for `kind: pot` — `board` (default) \| `panel`: which side of the pot body the three lugs fan out on. `board` is how these drawings place them and how a builder wires them; `panel` is how the factory sheets draw them, lugs toward the control panel with the leads running back over the body. It changes only where the fan sits, never the order within it: the order is fixed by the drawing's viewing side (below) and is gated |
 | `label_nudge` / `value_nudge` | For `kind: pot` — `[dx, dy]` px shifts for the name+value pair / the value alone, keeping the label's opaque halo. `kind: tube` accepts `label_nudge` too (the socket caption as one piece), for a caption whose whole natural band is occupied by a routed run. Same status as `parts[]`'s nudges: an authored starting point for the automatic placement pass, not the mechanism |
 | `tap` | Only for `kind: pot` — `true` declares a **tapped** potentiometer: a fixed connection into the resistance element brought out as a fourth solder lug, addressed as `VRn.lug4`. Drawn as a fourth pip lettered `T` on the pot's flank (the left flank of a top/bottom-edge pot, the upper flank of a left/right-edge one), never as a member of the 1/2/3 fan, whose order is the part's own. The render refuses `tap: true` on a pot whose `bom.yaml` value states no tap, and refuses `.lug4` on a pot that does not declare one — a tap is a fact about the part, so both the parts list and the layout have to say it. The 6G6-B's Normal-channel Treble control (`350 kΩ, 70 kΩ tap` on the E-FB sheet) is the corpus's one tapped pot; its tap carries the 0.1 µF from the slope foot, and the schematic draws it on the matching four-pin `cx:POT_TAP` symbol |
 
 Tubes draw their real pin ring with pin numbers; the pin count is read from the
 tube's `reference/tubes/<tube>.yaml` basing data (via the `ref`'s BOM value), so
 `runs` can address a socket pin and have it validated.
+
+### Which side the drawing is seen from — and why a pot has to care
+
+A board-layout diagram is drawn from **one** side of the chassis, and every
+component on it has to agree about which. These drawings are **wiring-side**
+drawings: the reader is looking into the open chassis at the side the leads are
+soldered on. That is already asserted by the tube sockets, whose pin rings are
+numbered clockwise — the standard bottom-view basing order, which each tube's
+`reference/tubes/<tube>.yaml` states as `basing.view: bottom`.
+
+For most parts the viewing side is invisible: a resistor looks the same from
+either side. A **potentiometer does not**. Its terminals are numbered by the
+part — 1 the counter-clockwise end, 2 the wiper, 3 the clockwise end — and that
+triad is rigid however the pot is clocked in its mounting hole. What changes with
+the viewing side is the direction it reads in:
+
+| Seen from | 1 → 2 → 3 sweeps |
+|---|---|
+| the shaft / knob side (component side) | counter-clockwise about the body |
+| the **wiring side** (rear, into the chassis) | **clockwise** about the body |
+
+So the sweep, not the position, is the fact worth stating: it survives any
+rotation of the pot and pins down exactly one thing, which side the reader is
+standing on. An amp declares it once, in `meta.yaml`:
+
+```yaml
+conventions:
+  layout_view: wiring        # wiring | component
+```
+
+`wiring` is the default and is what every factory layout sheet read for this
+corpus draws — the 5E3 (F-EE), 5F6-A (I-EG), 6G3 (I-FA), AB763 Twin and Deluxe
+Reverb (C-FD) and AA1164 sheets all fan the lugs toward the control panel with the
+grounded lug at the counter-clockwise end, and all number their sockets clockwise.
+An amp that says nothing takes `wiring`, so no layout needs editing to be correct;
+a drawing genuinely made from the knob side says `component` and is checked
+against that instead.
+
+`pipeline/check_pot_orientation.py` gates it: it asks the renderer where each pot's
+lugs land, measures the sweep about the body, and fails a pot that contradicts the
+declared view (**V1**), a drawing whose pots disagree with each other (**V2** —
+one sheet cannot be two views), an unknown word in either declaration (**V3**),
+a fan with no readable sweep at all (**V4**), and a fan drawn on the opposite side
+from its own `lugs:` (**V5**). `--selftest` plants one fault per class and requires
+each to be named.
+
+The gate exists because no other one can see this. `verify_layout_nets.py` proves
+which **net** each lug sits on — that `VR1.lug1` really is the grounded end — and
+says nothing at all about where lug 1 is drawn, because a mirrored fan is
+electrically the same drawing. From the first pot in the corpus until 2026-09-09
+`pot_lug_pos()` offset the lugs along the tangent with one fixed sign, which comes
+out clockwise on `bottom` and `left` and mirrored on `top` and `right`; 213 of the
+corpus's 215 pots are `edge: top`, and every gate stayed green.
+
+Nor is it what `reference/sheet-board.yaml` calls `pot_orientation_flipped`. That
+class is a net fact — the schematic's pin 1 lands on the board's `lug1` rather
+than `lug3` — about how the SCHEMATIC symbol is turned; it is information only,
+and no change to where the board draws its lugs can move it.
 
 ### Generic 2-lead off-board parts (`kind: part`)
 
@@ -209,7 +268,7 @@ Every `runs`/`bus` endpoint is one of:
 | `[row, col]` | a bare board eyelet (or a routing point on the ground bus) |
 | `"REF.a"` / `"REF.b"` | a board part's eyelet (`REF` is a `parts[]` ref), **or** a generic 2-lead off-board part's terminal (`REF` is an `offboard` `kind: part` id) |
 | `"V1.pin3"` | a tube socket pin — **validated** against `reference/tubes/<tube>.yaml` basing; an out-of-range/unknown pin fails the render (and CI). On a `style: twisted` (heater) run a tube endpoint must additionally be a **heater/filament** pin |
-| `"VR1.lug2"` | a potentiometer lug (`1` \| `2` \| `3`; `2` is the wiper). `"VR1.lug4"` is the **tap** of a pot the layout declares `tap: true` (see `offboard[]`); on any other pot it is an error |
+| `"VR1.lug2"` | a potentiometer lug (`1` \| `2` \| `3`; `1` the counter-clockwise end, `2` the wiper, `3` the clockwise end). Which node a lug sits on is proved by the equivalence gate; where it is *drawn* is fixed by the drawing's viewing side and gated separately — see "Which side the drawing is seen from" above. `"VR1.lug4"` is the **tap** of a pot the layout declares `tap: true` (see `offboard[]`); on any other pot it is an error |
 | `"JI"` / `"JI.tip"` / `"JI.sleeve"` | a jack (bare id = body) |
 | `"T2.green"` | a transformer / choke lead by colour name — each distinct colour gets its own stacked, colour-matched pigtail on the board-facing edge |
 
