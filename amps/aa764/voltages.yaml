@@ -15,7 +15,7 @@ nodes:
   BP2: { chart: 350, tol_pct: 5,  note: "6V6 screen node, after the 1 kΩ · 1 W dropper (R14)" }
   BP3: { chart: 330, tol_pct: 5,  note: "preamp plate rail, after the 10 kΩ · 1 W dropper (R15)" }
   P1A: { chart: 200, tol_pct: 20, note: "12AX7 first-stage plate, chart pin 1" }
-  K1A: { chart: 1.8, tol_pct: 20, note: "12AX7 first-stage cathode over 1.5 kΩ, chart pin 3. Read +1.8 on both I-FD pages (V1 audit 2026-10-03, aa764.md): the layout glyph (2171x1591, crop 1540,980,1640,1070) closes its lower bowl, unlike the 9 of the same page's +19V (crop 1020,990,1090,1060); until then the corpus carried +1.9" }
+  K1A: { chart: 1.8, tol_pct: 20, note: "12AX7 first-stage cathode over 1.5 kΩ, chart pin 3. Read +1.8; the I-FD layout page settles it (V1 audit 2026-10-03, aa764.md): its glyph (2171x1591, crop 1540,980,1640,1070) closes its lower bowl, unlike the 9 of the same page's +19V (crop 1020,990,1090,1060). The 72 ppi I-FD schematic is too coarse to decide; it does not contradict the layout. Until then the corpus carried +1.9" }
   P1B: { chart: 205, tol_pct: 20, note: "12AX7 second-stage plate, chart pin 6" }
   K1B: { chart: 1.7, tol_pct: 20, note: "12AX7 second-stage cathode, chart pin 8 — 1.5 kΩ down to the 47 Ω/2.7 kΩ feedback divider" }
   K2:  { chart: 19,  tol_pct: 20, note: "6V6GT cathode over 470 Ω · 1 W, chart pin 8" }
