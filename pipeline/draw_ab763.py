@@ -8,7 +8,8 @@ top, the reverb + tremolo block below them, the long-tailed-pair phase inverter 
 to keep every block clear of its neighbours and of the title block (bottom-right).
 
 Redrawn from circuit facts — never a trace of a factory drawing. Rails: B+1 = +415
-(6V6 plates, OT centre tap, reverb driver via T4), B+2 = +415 screens (post-choke),
+(6V6 plates, OT centre tap), B+2 = +415 the drawing's node [B] (post-choke: screens,
+the reverb driver via T4, the tremolo),
 B+3 = +325, the drawing's node [C] (the PI plates only), B+4 = the drawing's node
 [D], which the chart gives no voltage (every 100k preamp stage: both channel
 inputs, both second stages, the reverb recovery and the mix driver); -35 V is the
@@ -271,7 +272,7 @@ s.sym("OT_SE", "T4", "125A20B", 96, YR - 4)
 s.wire(82, YR - 10, 87.11, YR - 10)
 s.wire(87.11, YR - 10, 87.11, YR - 6.54)      # plates -> PRI_P
 s.wire(87.11, YR - 1.46, 87.11, YR + 2)
-s.glabel("B+1", 87.11, YR + 2, 90)            # PRI_B -> B+1
+s.glabel("B+2", 87.11, YR + 2, 90)            # PRI_B -> B+2: C-FD runs TR4's B+ lead to box [B], the post-choke node
 s.wire(104.89, YR - 6.54, 110, YR - 6.54)
 s.wire(110, YR - 6.54, 110, YR - 16)
 s.glabel("REVERB TANK", 110, YR - 16, 90)

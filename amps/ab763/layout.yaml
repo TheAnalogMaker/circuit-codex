@@ -211,13 +211,17 @@ runs:
   - { from: T1.yellow2, to: V9.pin8, via: [[-0.15, 1.85], [0.57, 2.68], [3.1, 2.68]] }
   - { from: V9.pin8, to: C10.a, color: red, via: [[1.6, 1.2]] }    # B+ out → reservoir
 
-  # === B+1 net: spread across the reservoir (C10.a) and screen (C11.a) eyelets,
-  # tied by the choke. The feeds to C11.a approach the shared eyelet from four
+  # === B+1 (+420 V, reservoir C10.a) and B+2 (+415 V, node [B], C11.a): two
+  # eyelets the C-FD layout letters separately, joined only through the off-board
+  # choke — its RED lead on +420, its YELLOW on +415. The OT centre tap stays on
+  # B+1; the screens, the dropper and the reverb transformer's B+ (TR4 → box [B]
+  # on the C-FD schematic) are on B+2. The feeds to C11.a approach the eyelet from four
   # fanned bearings (≥18° apart) — from the left (choke), flat from the right
   # (screen node), and two risers in the clear corridor right of the GZ34 and the
   # far-left lane — so no two read as one wire and none grazes a ground drop or a
   # rectifier lead (choke DCR ~0 at DC). ========================================
-  - { from: C10.a, to: C11.a }                                      # reservoir ↔ screen node (choke)
+  - { from: C10.a, to: T2.red }                                     # reservoir (+420 V eyelet) → choke, RED lead
+  - { from: T2.yellow, to: C11.a }                                  # choke, YELLOW lead → screen node (+415 V eyelet)
   - { from: T3.red, to: C10.a, color: red, via: [[11.4, 0.4], [9.4, 2.55], [-0.51, 2.55]] } # OT centre tap → B+1 (peel left of the blue plate lead, drop left of V7)
   - { from: RS2.a, to: RS1.a, color: red, via: [[14, 0.5], [10.4, 0.5]] }     # screen backbone (flat, above the 6V6 pins)
   - { from: RS1.a, to: C11.a, color: red, via: [[10, 2.5], [4.7, 2.5], [4.7, 0.15], [2.3, 0.15]] } # screen node → B+1 (flat approach from the right)
