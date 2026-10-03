@@ -252,7 +252,7 @@ s.wire(248.81, 150, 254, 150)
 s.glabel("SCR", 254, 150, 0)
 
 # ---- power supply + bias ------------------------------------------------
-s.text("Power — 360-0-360 HT, GZ34, 20H choke (OT centre tap after it) · bias: HT-tap R, diode, 8u, 16k, shunt R + elec -> -BIAS", 25, 158, 1.4)
+s.text("Power — 360-0-360 HT, GZ34, 20H choke (OT centre tap after it)", 25, 158, 1.4)
 for x, ref, ht in [(41.91, "V7A", "HT_A"), (54.61, "V7B", "HT_B")]:
     s.glabel(ht, x, 157.5, 90)
     s.wire(x, 157.5, x, 160.16)
