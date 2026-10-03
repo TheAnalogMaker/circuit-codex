@@ -76,6 +76,13 @@ jobs:
       # layout-sheet.svg): staleness, well-formedness, wiring collisions, and the
       # label checks against each style's own type.
       - run: python pipeline/check_layouts.py
+      # Every pot is drawn from the side the layout says it is drawn from: lugs
+      # 1->2->3 sweep clockwise about the body on a wiring-side drawing. A
+      # SEPARATE claim from layout<->netlist equivalence, which proves which net
+      # a lug sits on and never where it is drawn — 213 of 215 pots shipped
+      # mirrored under every other gate. The self-test plants one fault per class.
+      - run: python pipeline/check_pot_orientation.py --selftest
+      - run: python pipeline/check_pot_orientation.py
       # Every amp page's link-preview card carries a crop of that amp's own
       # layout drawing, so a changed layout, meta.yaml or card renderer leaves a
       # committed card showing a board the corpus no longer draws. --check needs
