@@ -250,10 +250,10 @@ runs:
   - { from: RL1A.b, to: V1.pin1, via: [[54.6, 0.5], [54.6, 2.45], [58.6, 2.45], [59.25, 2.36]] }
   - { from: CT.b, to: VRT.lug1, via: [[55.95, -0.62]] }
   - { from: CB1.b, to: VRT.lug3, via: [[57.4, 0.7], [57.4, -0.55], [57.06, -0.62]] }
-  - { from: CB1.b, to: VRB.lug1, via: [[57.9, 0.95], [59.9, 0.95], [59.94, -0.62]] }
+  - { from: CB1.b, to: VRB.lug2, via: [[57.9, 0.95], [59.9, 0.95], [60.25, -0.45]] }  # 0.1 µF → Bass wiper
   - { from: CB2.a, to: CB1.a, via: [[58.4, 0.5], [57.7, 1.25], [56.35, 1.25]] }
-  - { from: CB2.b, to: VRB.lug3, via: [[59.5, -0.45], [60.5, -0.45], [60.55, -0.62]] }
-  - { from: VRB.lug2, to: VRB.lug3, via: [[60.5, -0.66], [61.25, -0.66], [61.1, -0.72]] }  # rheostat tie
+  - { from: CB2.b, to: VRB.lug3, via: [[59.5, -0.2], [60.9, -0.2], [60.85, -0.62]] }  # 0.047 µF → Bass, lower end
+  - { from: VRB.lug1, to: VRB.lug2 }   # bass wiper strapped to its upper end (the factory leaves that lug bare)
   - { from: RBL.b, to: [1.45, 58.6] }
   - { from: VRT.lug2, to: VRV.lug1, via: [[56.5, -0.5], [51.0, -0.5], [50.65, -0.62]] }
   - { from: VRV.lug3, to: [1.45, 50.6], via: [[51.35, -0.62], [51.6, 0.5]] }
