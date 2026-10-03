@@ -10,7 +10,8 @@
 # droppers; see netlist.cir.
 #
 # VERIFIED 2026-08-08 against this printed chart. Nine of its eleven nodes are
-# gated, worst 3.9% (KPI/JPI) against the sheet's own +/-20% convention. The
+# gated; worst 12.1% (JPI) since 2026-10-03, when RKA became the printed 1k
+# (V1 audit), against the sheet's own +/-20% convention. The
 # two 7025 plates print +135 V on both pages, which the chart's own +1.5 V
 # cathode figures contradict, so PA and PB are carried as disputed.
 source: "Fender 'Princeton' Model 6G2 (H-FA) drawing, printed voltages: +315 (reservoir / OT centre tap), +312 (6V6 screen node), +280 (preamp/PI rail), +230 (cathodyne plate), +135 (both 7025 plates, printed on the schematic and the layout page — disputed, see PA), +1.5 (both 7025 cathodes), cathodyne cathode +56.5 into a +55 tail junction, -35 (6V6 fixed bias, and the tremolo oscillator's own +200/oscillating plate, excluded — see the circuit story)"
@@ -40,7 +41,7 @@ nodes:
       +280 V drops about 103 V, leaving about 177 V at the plate, not 135.
   KB:   { chart: 1.5, tol_pct: 20, note: "V1B cathode, over its unbypassed 1.5k — the 56k speaker feedback lands on this node, a second DC path to ground (the speaker line sits at ~0 V through the output transformer's secondary)" }
   PPI:  { chart: 230, tol_pct: 20, note: "cathodyne plate, 56k load from BD" }
-  KPI:  { chart: 56.5, tol_pct: 20, note: "cathodyne cathode pin, above the 1.5k cathode resistor into the tail" }
-  JPI:  { chart: 55,  tol_pct: 20, note: "cathodyne tail junction (1.5k cathode resistor / 56k-to-ground), grid-leak return" }
+  KPI:  { chart: 56.5, tol_pct: 20, note: "cathodyne cathode pin, above the 1k cathode resistor into the tail" }
+  JPI:  { chart: 55,  tol_pct: 20, note: "cathodyne tail junction (1k cathode resistor / 56k-to-ground), grid-leak return" }
   G61:  { chart: -35, tol_pct: 8,  note: "6V6 (V3) grid — behind its 1500 ohm stopper and a 220k 5% leak from the -35 V bias line" }
   G62:  { chart: -35, tol_pct: 8,  note: "6V6 (V4) grid, the same stopper-and-leak wiring" }

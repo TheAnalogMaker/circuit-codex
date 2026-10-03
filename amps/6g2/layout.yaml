@@ -112,7 +112,7 @@ parts:
   - { ref: C7, a: [1, 3], b: [1, 5] }         # 0.1 uF PI plate(.b) -> V3 coupler node(.a)
   - { ref: RL3, a: [0, 5], b: [1, 5] }        # 56k cathodyne plate load (BD.a -> PPI.b, shares C7.b)
   # --- cathodyne cathode / tail network — every leg wired explicitly -----
-  - { ref: RKA, a: [0, 8], b: [1, 8] }        # 1.5k cathode resistor: K(.a) -> JPI(.b)
+  - { ref: RKA, a: [0, 8], b: [1, 8] }        # 1k cathode resistor: K(.a) -> JPI(.b)
   - { ref: RGPI, a: [0, 12], b: [1, 12] }     # 1M grid leak: GPI(.a) -> JPI(.b)
   - { ref: RKB, a: [0, 15], b: [1, 15] }      # 56k tail-to-ground: GND(.a) -> JPI(.b)
   # --- tail coupler + V4 grid stopper -------------------------------------

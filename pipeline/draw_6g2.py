@@ -156,10 +156,10 @@ s.wire(158.38, 66, GX, GY)
 s.junction(GX, GY)
 tapPI = plate_rl("RL3", "56k", t2a["p"], "BD")   # (172, 54.9)
 
-# Cathode stack: K -> RKA(1.5k) -> tail junction JPI -> RKB(56k) -> gnd
+# Cathode stack: K -> RKA(1k, as H-FA prints it) -> tail junction JPI -> RKB(56k) -> gnd
 s.wire(XPI, 73.62, XPI, 76)
 s.junction(XPI, 76)
-s.sym("R", "RKA", "1.5k", XPI, 79.81)
+s.sym("R", "RKA", "1k", XPI, 79.81)
 JPI_X, JPI_Y = XPI, 83.62
 s.junction(JPI_X, JPI_Y)
 s.sym("R", "RKB", "56k", XPI, 87.43)

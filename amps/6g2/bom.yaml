@@ -29,7 +29,7 @@ items:
   # --- V2A cathodyne phase inverter ---
   - { ref: RL3,  part: "Carbon comp resistor", value: "56 kΩ · ½ W",   role: "Cathodyne plate load" }
   - { ref: RGPI, part: "Carbon comp resistor", value: "1 MΩ · ½ W",    role: "Cathodyne grid leak, returned to the tail junction (not ground)" }
-  - { ref: RKA,  part: "Carbon comp resistor", value: "1.5 kΩ · ½ W",  role: "Cathodyne cathode resistor, into the tail junction. OPEN (V1 audit 2026-10-03, 6g2.md): both H-FA pages print 1000 here (layout crop 3760,2600,4000,2850), not 1500; the DC change awaits the governor. Corpus history: the same 1.5 kΩ used elsewhere on this sheet as a grid stopper; an initial read as 700 Ω did not reproduce the printed cathode/junction chart values (+56.5 V / +55 V) in simulation; 1.5 kΩ reproduces both within 4%" }
+  - { ref: RKA,  part: "Carbon comp resistor", value: "1 kΩ · ½ W",  role: "Cathodyne cathode resistor, into the tail junction. The H-FA layout page prints 1000 (crop 3760,2600,4000,2850; it matches the same page's 1000 Ω dropper, not V1A's 1500); the 72 ppi schematic is too coarse to decide. Until the 2026-10-03 V1 audit (6g2.md) the corpus carried 1.5 kΩ, a value chosen to fit the printed +56.5 V / +55 V chart pair, not read from the drawing" }
   - { ref: RKB,  part: "Carbon comp resistor", value: "56 kΩ · ½ W",   role: "Cathodyne tail-to-ground resistor; printed 56K on both H-FA pages, crisp on the 800 ppi layout (crop 3400,2050,4500,3750)" }
   - { ref: C7,   part: "Coupling capacitor",  value: "0.1 µF · 400 V", role: "Cathodyne plate → V3's coupler node" }
   - { ref: C8,   part: "Coupling capacitor",  value: "0.1 µF · 400 V", role: "Cathodyne cathode pin (+56.5 V) → V4's coupler node; taken off the cathode, not the tail junction, on both pages" }

@@ -127,12 +127,11 @@ The drawing prints a comprehensive per-pin voltage chart, values ±20 %, read
 to ground with an electronic voltmeter — the notice Fender printed on its
 charts throughout this period — and considerably more complete than the
 5F2-A's undocumented single-ended predecessor or the AC15's five scattered
-annotations. The simulation reproduces every gated node, nine in all, within
-4 % of the printed chart (worst nodes: the cathodyne's cathode pin and tail
-junction, 3.9 %; then V1B's cathode, 3.4 %, where the feedback resistor is a
-second path to ground; every other node inside 2 %) — tighter than every other
-*verified* entry in this corpus, all eighteen of which report a worst node
-above 3.9 %.
+annotations. The simulation reproduces every gated node, nine in all, inside the
+sheet's ±20 % (worst nodes: the cathodyne's tail junction, 12.1 %, and its
+cathode pin, 11.0 %, both simulated high; then the cathodyne plate, 4.5 %, and
+V1B's cathode, 3.9 %, where the feedback resistor is a second path to ground;
+every other node inside 3 %).
 
 Two printed figures are carried as disputed rather than gated. Both pages
 print **+135 V** at both 7025 plates, the 3 unambiguous on the 800 ppi layout
@@ -140,26 +139,26 @@ copy. The same chart prints +1.5 V over each 1.5 kΩ cathode resistor, which
 is 1.0 mA; 1.0 mA through a 100 kΩ plate load from the +280 V rail leaves
 about 180 V at the plate, and 135 V would need 1.45 mA, which would put 2.2 V
 on the cathode. No reading of the sheet makes both figures true, so the plates
-are recorded as printed and set aside. The simulation puts them at 185 V
-and 184 V.
+are recorded as printed and set aside. The simulation puts them at 184 V
+and 183 V.
 
-One component value on this sheet is settled by the chart rather than by the
-ink, and it is worth stating which: the cathodyne's cathode resistor, in the
-faintest corner of the scan, reads plausibly as 700 Ω. Simulated against the
-netlist, 700 Ω does not reproduce the printed
-+56.5 V (cathode) / +55 V (tail junction) pair — it lands both nodes over
-20 % high. 1.5 kΩ — a value this same sheet uses repeatedly elsewhere, as
-every 6V6 grid stopper — reproduces both within 4 %, and is a far more
-plausible misread of a faint "1500" than an unrelated "700" would be. The
-tail-to-ground resistor (56 kΩ) is read in agreement with the identical
-cathodyne recipe the 5F10 and AA964 factory drawings independently carry, and
-that value is further confirmed by the same chart match. Everything else — the
-rail chain, both preamp stages, the cathodyne's plate load, the output stage,
-and the bias supply — carries no such ambiguity.
+The cathodyne's cathode resistor is read as printed: **1000 Ω**. The 800 ppi
+layout page settles it: its "1000" matches the 1000 Ω dropper's lettering on
+the same page and not V1A's "1500". The 72 ppi schematic is too coarse to
+decide on its own. Until the 2026-10-03 source audit this corpus carried
+1.5 kΩ: an early read of the coarse schematic gave "700", which simulated over 20 % high,
+and 1.5 kΩ was then chosen because it reproduced the printed +56.5 V / +55 V
+pair within 4 %. That was a fit to the chart, not a reading of the ink, and
+the printed 1000 Ω replaces it. At 1000 Ω the cathode and tail junction
+simulate 11–12 % above the chart — inside the sheet's own ±20 %. The
+tail-to-ground resistor (56 kΩ) is read on both pages, in agreement with the
+identical cathodyne recipe the 5F10 and AA964 factory drawings independently
+carry. The rail chain, both preamp stages, the cathodyne's plate load, the
+output stage and the bias supply carry no such ambiguity.
 
 This circuit is published as **verified**: every node the chart prints is
 compared — nine gated, the two 7025 plates disputed as above — and the worst
-gated node sits 3.9 % out against a sheet that states its own readings to
+gated node sits 12.1 % out against a sheet that states its own readings to
 ±20 %.
 
 ## The oscillator, excluded
@@ -179,6 +178,5 @@ No ancestor lands in this corpus: the 5F2-A is the Princeton this circuit
 replaces, but it is explicitly not a derivation of it (see above). Forward,
 the AA964 blackface Princeton keeps this circuit's fixed-bias 6V6 pair and its
 cathodyne almost unchanged, refining only the rectifier (5Y3GT → GZ34) and the
-exact cathode-network values — which is also why the 6G2's own faint-scan
-cathode resistors could be cross-checked against a drawing one generation
-newer.
+exact cathode-network values; the AA964's 1 kΩ cathodyne cathode resistor is
+the same value the 6G2's own layout page prints.
