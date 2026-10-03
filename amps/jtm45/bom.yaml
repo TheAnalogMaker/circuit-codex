@@ -39,8 +39,9 @@ items:
   - { ref: C10, part: "Coupling capacitor",   value: "0.1 µF · 400 V", role: "PI → V6 grid" }
   - { ref: RGL1, part: "Carbon comp resistor", value: "220 kΩ · ½ W", role: "V5 grid leak, from the −50 V bias line" }
   - { ref: RGL2, part: "Carbon comp resistor", value: "220 kΩ · ½ W", role: "V6 grid leak, from the −50 V bias line" }
-  - { ref: RS1, part: "Carbon comp resistor", value: "1 kΩ · 2 W",   role: "V5 screen resistor" }
-  - { ref: RS2, part: "Carbon comp resistor", value: "1 kΩ · 2 W",   role: "V6 screen resistor" }
+  - { ref: RS3, part: "Carbon comp resistor", value: "1 kΩ · 2 W",   role: "Shared screen feed, B+2 → the screen junction (one resistor for both KT66 screens)" }
+  - { ref: RS1, part: "Carbon comp resistor", value: "470 Ω · 1 W",  role: "V5 screen resistor, from the screen junction. Printed '470 1W' (probable)" }
+  - { ref: RS2, part: "Carbon comp resistor", value: "470 Ω · 1 W",  role: "V6 screen resistor, from the screen junction. Printed '?70 1W': the first digit is not legible; 470 is the only standard value of that form (670 and 870 are not), which is elimination, not a reading" }
   - { ref: RD1, part: "Power resistor",       value: "8.2 kΩ · 1 W", role: "Rail dropper B+2 → B+3" }
   - { ref: RD2, part: "Power resistor",       value: "10 kΩ · 1 W",  role: "Rail dropper B+3 → B+4" }
   - { ref: L1,  part: "Filter choke",         value: "20 H",         role: "B+1 → B+2 (output-transformer centre tap, screen feed, PI dropper)" }

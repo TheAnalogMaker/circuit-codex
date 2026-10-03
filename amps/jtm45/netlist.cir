@@ -73,7 +73,8 @@ RNFB PRES 0 27k
 
 * KT66 pair — fixed bias via 220k grid leaks (RGL1/RGL2) from the -50 V line;
 * cathodes grounded. Plates sit at B+2 (the OT centre tap is after the choke;
-* primary DCR omitted). 1k 2W screen resistors. The PI plates couple straight to the grids through 0.1u caps
+* primary DCR omitted). Screens as drawn: ONE shared 1k 2W (RS3) from B+2 to a
+* screen junction SJ, then a 470R 1W to each screen (RS1 -> V5, RS2 -> V6). The PI plates couple straight to the grids through 0.1u caps
 * (C9/C10; the factory drawing has no grid stopper): modelled so the
 * layout-equivalence gate checks the
 * inter-stage routing and push-pull phase natively (each output grid is its own
@@ -82,11 +83,12 @@ RNFB PRES 0 27k
 C9 PPIA G5 0.1u
 RGL1 G5 NBIAS 220k
 XV5 BP2 S5 G5 0 KT66
-RS1 BP2 S5 1k
+RS3 BP2 SJ 1k
+RS1 SJ S5 470
 C10 PPIB G6 0.1u
 RGL2 G6 NBIAS 220k
 XV6 BP2 S6 G6 0 KT66
-RS2 BP2 S6 1k
+RS2 SJ S6 470
 
 * cathode-bypass cap (both leads on a named DC node — placement layout-checked)
 C3 KA 0 250u

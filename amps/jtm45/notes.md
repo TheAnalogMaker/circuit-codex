@@ -23,8 +23,9 @@ TMB tone stack (56 kΩ slope; 270 pF treble, 0.02 µF bass and 0.02 µF middle c
 25 kΩ pots) → 0.02 µF → **long-tailed-pair PI**: 82 kΩ and 100 kΩ plates,
 470 Ω + 10 kΩ tail, both 1 MΩ grid leaks returned to the tail junction →
 0.1 µF couplers straight onto the grids (the drawing has no grid stoppers) →
-**KT66 pair**, fixed-biased through 220 kΩ leaks, with **1 kΩ · 2 W screen
-stoppers** → output transformer,
+**KT66 pair**, fixed-biased through 220 kΩ leaks, their screens fed through
+**one shared 1 kΩ · 2 W** and then **a 470 Ω · 1 W per screen** → output
+transformer,
 27 kΩ negative feedback into the tail foot with the 5 kΩ presence control
 and its 0.1 µF wiper-to-ground capacitor.
 
@@ -45,8 +46,8 @@ which is why the valve numbering skips from V1 to V3.
 The JTM45 is drawn from the 5F6-A, and the two schematics line up stage for
 stage. The differences are exactly the ones that give the JTM45 its voice: an
 ECC83 rather than a 12AY7 at the input (more front-end gain), KT66 output
-valves, 1 kΩ screen stoppers in place of Fender's 470 Ω, and a stiffer, higher
-HT rail.
+valves, a shared 1 kΩ screen feed added ahead of the 470 Ω each screen
+keeps, and a stiffer, higher HT rail.
 
 ## The tone network, as the drawing wires it
 
@@ -80,3 +81,8 @@ carrying the 100 pF, so V1B is the bright channel. V1A's printed load reads
 this drawing. The corpus keeps 100 kΩ because the chart prints both input
 plates at 220 V on one shared cathode, which a 180 kΩ / 100 kΩ pair could not
 give; that rules 180 kΩ out, it does not read the digit.
+
+The screen feed is drawn as one 1 kΩ · 2 W from the node after the choke to a
+junction, then a 1 W resistor to each screen. The upper one reads "470"; the
+lower one's first digit is not legible, and 470 is kept because 670 and 870 are
+not standard values, which is elimination rather than a reading.

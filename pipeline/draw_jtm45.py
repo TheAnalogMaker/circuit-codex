@@ -9,7 +9,8 @@ follower, V4 phase inverter, V5/V6 KT66, V7 GZ34).
 
 The circuit is Marshall's copy of the tweed 5F6-A, so the layout mirrors
 draw_5f6a.py with British-supply values (ECC83 input, KT66 output, 1 kohm
-screen stoppers, 20 H choke with the OT centre tap after it, 8.2 kohm dropper, diode bias supply).
+screen feed (one shared 1k 2W, then 470R per screen), 20 H choke with the
+OT centre tap after it, 8.2 kohm dropper, diode bias supply).
 """
 from pathlib import Path
 
@@ -219,11 +220,11 @@ for y, pref, cref, sref, glref in [
     s.sym("R", glref, "220k", 210.62, gy + 3.81)
     s.wire(210.62, gy + 7.62, 210.62, gy + 10.16)
     s.glabel("-50V", 210.62, gy + 10.16, 270)
-    # screen resistor to B+2
+    # each screen's own 470R 1W, from the shared screen junction SCR
     s.wire(p["g2"][0], p["g2"][1], p["g2"][0] + 1.9, p["g2"][1])
-    sl2, sr2 = s.series_h("R", sref, "1k 2W", p["g2"][0] + 5.71, p["g2"][1])
+    sl2, sr2 = s.series_h("R", sref, "470 1W", p["g2"][0] + 5.71, p["g2"][1])
     s.wire(sr2, p["g2"][1], p["g2"][0] + 11.5, p["g2"][1])
-    s.glabel("B+2", p["g2"][0] + 11.5, p["g2"][1], 0)
+    s.glabel("SCR", p["g2"][0] + 11.5, p["g2"][1], 0)
     s.gnd(220.98, p["k"][1] + 0)
 
 # ---- output transformer -------------------------------------------------
@@ -242,6 +243,13 @@ s.wire(257.81, 107.46, 260.35, 107.46)
 s.glabel("SPKR", 260.35, 107.46, 0)
 s.wire(257.81, 112.54, 260.35, 112.54)
 s.glabel("GND", 260.35, 112.54, 0)
+
+# ---- shared screen feed: ONE 1k 2W from B+2 to the screen junction --------
+s.glabel("B+2", 236, 150, 180)
+s.wire(236, 150, 241.19, 150)
+s.series_h("R", "RS3", "1k 2W", 245, 150)
+s.wire(248.81, 150, 254, 150)
+s.glabel("SCR", 254, 150, 0)
 
 # ---- power supply + bias ------------------------------------------------
 s.text("Power — 360-0-360 HT, GZ34, 20H choke (OT centre tap after it) · bias: HT-tap diode, 150k, .05u + 25u -> -50V", 25, 158, 1.4)
