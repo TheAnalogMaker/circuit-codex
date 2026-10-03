@@ -54,6 +54,12 @@ Pull requests that break these are closed regardless of quality:
 6. A maintainer reviews. Circuits land as `draft`; the `verified` badge requires the
    simulated operating point within tolerance of the published chart **and**
    maintainer sign-off.
+   A verified circuit's review is pinned to a fingerprint of its facts; if your
+   change alters a value, a connection or a dispute on one, re-export
+   `reference/verification-freshness.yaml`
+   (`python3 pipeline/verification_freshness.py --export`) and its page will say
+   the change awaits the maintainer's re-review. Only the maintainer stamps a
+   review (`pipeline/stamp_verification.py`).
 
 New here — human or AI agent? Start with the site's
 [About page](https://circuitcodex.com/about/) and this repo's `AGENTS.md` for the

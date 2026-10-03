@@ -23,6 +23,8 @@ Schema will stabilize at the end of Phase 0 (pilot: 5f1, 5e3, 5f6a).
 | `verification.status` | enum | ✓ | `draft` · `verified` — contributors leave this `draft`. **Only a maintainer sets `verified`, and only after the gates pass.** CI can block a claim; it can never grant one. |
 | `verification.date` | date | when verified | |
 | `verification.max_deviation_pct` | number | when verified | Worst node deviation, simulated vs published chart |
+| `verification.facts_sha256` | string | — | **Written only by the maintainer**, with `pipeline/stamp_verification.py <id>` — never by hand, never by an agent or contributor. The circuit's facts fingerprint (`pipeline/verification_freshness.py`) at the maintainer's last review. A verified circuit whose current fingerprint differs, or that has none, is listed in `reference/verification-freshness.yaml` and its page says "changes since then are awaiting maintainer re-review" |
+| `verification.reviewed` | date | — | Written with `facts_sha256` by the same tool: the day of that review |
 | `added` | date | when draft | Day the circuit landed in the corpus (its git landing date). The feed dates a draft by it — production builds are shallow clones, so git cannot. Verified circuits are dated by `verification.date` instead |
 | `contributors` | list | — | GitHub handles, in landing order |
 | `conventions.designators` | enum | ✓ | `sequential` (`R1…R13`, class + running number) · `functional` (`RD1`/`RL4`/`CK1`, role coded). Both schemes ship; the page tells the reader which one it is written in. `validate.py` derives the scheme from `bom.yaml` and fails when the declaration disagrees — see [docs/lettering-conventions.md](lettering-conventions.md) |

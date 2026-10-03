@@ -29,6 +29,11 @@ deploys, and each build stamps `/version.json` with its revision so
 4. **Verified is earned, never granted by an agent.** CI gates block; only the human
    maintainer's sign-off grants. Never set `verification.status: verified` or
    `wiring_claim: verified` unless the corresponding gates actually pass locally.
+   Never run `pipeline/stamp_verification.py` on a real amp, and never write
+   `verification.facts_sha256` or `verification.reviewed` by hand: the stamp is
+   the maintainer's review, and only the maintainer makes it. If your change moves
+   a verified amp's facts, re-export `reference/verification-freshness.yaml`
+   (`python3 pipeline/verification_freshness.py --export`) — that never stamps.
 5. **Honesty over completeness.** A chart that contradicts itself becomes a
    `disputed: true` node with `dispute_note` arithmetic — never force-fitted. A layout
    without a factory source says "derived". Draft badges are published, not hidden.
@@ -133,6 +138,17 @@ python3 pipeline/verify_sheet_vs_board.py    # sheet<->board net equivalence ove
                                   #   swaps are searched for. EXCLUDES heaters
                                   #   and the pilot lamp (check_heaters owns
                                   #   them) and lists what it could not anchor.
+python3 pipeline/verification_freshness.py --selftest && \
+python3 pipeline/verification_freshness.py   # has a verified circuit's facts moved
+                                  #   since the maintainer's review? Hashes the
+                                  #   netlist, chart values/tolerances/disputes,
+                                  #   BOM and both drawings' net partitions (no
+                                  #   comments, routes or fonts) and gates the
+                                  #   worklist reference/verification-freshness.yaml
+                                  #   for drift (regenerate with --export). A
+                                  #   pending amp never fails it. The stamp,
+                                  #   pipeline/stamp_verification.py, is the
+                                  #   MAINTAINER's alone - agents never run it.
 python3 pipeline/check_sections.py --selftest && \
 python3 pipeline/check_sections.py           # every valve section the tube complement
                                   #   supplies (counted from the tube's own
