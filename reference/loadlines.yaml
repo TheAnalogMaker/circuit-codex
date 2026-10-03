@@ -138,10 +138,10 @@ stages:
   output_tubes: 2
   config: push-pull
   bias: fixed
-  plate_node: BP1
-  plate_v: 390.0
+  plate_node: BP2
+  plate_v: 385.024
   screen_node: BP2
-  screen_v: 389.289
+  screen_v: 385.024
   cathode_node: '0'
   cathode_v: 0.0
   rk_total: null
@@ -156,8 +156,8 @@ stages:
   ot_primary_approx: false
   ot_primary_note: push-pull output transformer — Push-pull output into 2 × 10 in speakers, with an external-speaker
     jack
-  sim_ip_ma: 37.4631
-  sim_ig2_ma: 2.258
+  sim_ip_ma: 35.7586
+  sim_ig2_ma: 2.0843
 - amp: '5e5a'
   name_style: Tweed Pro-style
   tube: '5881'
