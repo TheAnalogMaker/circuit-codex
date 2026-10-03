@@ -1,20 +1,20 @@
 # Parts list — reference designators match schematic.kicad_sch exactly.
 notes: "The schematic draws one jack per channel (the chassis has four). This is the plain (non-tremolo) head: the factory drawing's V2 tremolo valve and its 2G374 transistor signal-shunt network are omitted, so the valve numbering follows the drawing (V1 input, V3 second stage + cathode follower, V4 phase inverter, V5/V6 KT66, V7 GZ34). The bright cap is annotated and listed without a designator."
 items:
-  - { ref: R1s, part: "Carbon comp resistor", value: "68 kΩ · ½ W",  role: "Bright-channel grid stopper" }
-  - { ref: R2s, part: "Carbon comp resistor", value: "68 kΩ · ½ W",  role: "Normal-channel grid stopper" }
-  - { ref: RG1, part: "Carbon comp resistor", value: "1 MΩ · ½ W",   role: "Bright input grid leak" }
-  - { ref: RG2, part: "Carbon comp resistor", value: "1 MΩ · ½ W",   role: "Normal input grid leak" }
-  - { ref: RL1, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "V1A plate load" }
+  - { ref: R1s, part: "Carbon comp resistor", value: "68 kΩ · ½ W",  role: "Normal-channel grid stopper (V1A)" }
+  - { ref: R2s, part: "Carbon comp resistor", value: "68 kΩ · ½ W",  role: "Bright-channel grid stopper (V1B)" }
+  - { ref: RG1, part: "Carbon comp resistor", value: "1 MΩ · ½ W",   role: "Normal input grid leak (V1A)" }
+  - { ref: RG2, part: "Carbon comp resistor", value: "1 MΩ · ½ W",   role: "Bright input grid leak (V1B)" }
+  - { ref: RL1, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "V1A plate load. Printed '1■0K': the middle digit is a solid blob that is not legible (0 or 8). 100 kΩ is modelled because the chart's equal 220 V plates on a shared cathode falsify 180 kΩ; that is elimination, not a reading" }
   - { ref: RL2, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "V1B plate load" }
   - { ref: RK1, part: "Carbon comp resistor", value: "820 Ω · ½ W",  role: "Shared ECC83 input cathode bias" }
   - { ref: C3,  part: "Electrolytic capacitor", value: "250 µF · 6 V", role: "Shared input cathode bypass" }
-  - { ref: C1,  part: "Coupling capacitor",   value: "0.02 µF · 400 V", role: "V1A → bright volume" }
-  - { ref: C2,  part: "Coupling capacitor",   value: "0.02 µF · 400 V", role: "V1B → normal volume" }
-  - { ref: VR1, part: "Audio-taper potentiometer", value: "1 MΩ",    role: "Bright volume (100 pF bright cap across it)" }
-  - { ref: VR2, part: "Audio-taper potentiometer", value: "1 MΩ",    role: "Normal volume" }
-  - { ref: RM1, part: "Carbon comp resistor", value: "270 kΩ · ½ W", role: "Bright-channel mixer" }
-  - { ref: RM2, part: "Carbon comp resistor", value: "270 kΩ · ½ W", role: "Normal-channel mixer" }
+  - { ref: C1,  part: "Coupling capacitor",   value: "0.02 µF · 400 V", role: "V1A → normal volume" }
+  - { ref: C2,  part: "Coupling capacitor",   value: "0.02 µF · 400 V", role: "V1B → bright volume" }
+  - { ref: VR1, part: "Audio-taper potentiometer", value: "1 MΩ",    role: "Normal volume (fed by V1A)" }
+  - { ref: VR2, part: "Audio-taper potentiometer", value: "1 MΩ",    role: "Bright volume, fed by V1B (100 pF bright cap across it)" }
+  - { ref: RM1, part: "Carbon comp resistor", value: "270 kΩ · ½ W", role: "Normal-channel mixer" }
+  - { ref: RM2, part: "Carbon comp resistor", value: "270 kΩ · ½ W", role: "Bright-channel mixer" }
   - { ref: RL3, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "V3A plate load" }
   - { ref: RK2, part: "Carbon comp resistor", value: "820 Ω · ½ W",  role: "V3A cathode bias" }
   - { ref: RKCF, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "Cathode-follower load" }
@@ -58,7 +58,7 @@ items:
   - { ref: V7,  part: "Rectifier tube",       value: "GZ34",           role: "Full-wave rectifier (V7A/V7B)" }
   - { ref: T3,  part: "Output transformer",   value: "Push-pull, KT66 primary", role: "Push-pull output to the speaker" }
   - { ref: "—", part: "Power transformer",    value: "360-0-360 V HT · 6.3 V heaters", role: "HT + heaters + rectifier filament" }
-  - { ref: "—", part: "Mica capacitor",       value: "100 pF",         role: "Bright cap across VR1 (annotation only on schematic)" }
+  - { ref: "—", part: "Mica capacitor",       value: "100 pF",         role: "Bright cap across VR2, the volume V1B feeds (annotation only on schematic)" }
   - { ref: RNFB, part: "Carbon comp resistor", value: "27 kΩ · ½ W", role: "Negative feedback, speaker → tail foot" }
   - { ref: VR6, part: "Linear potentiometer", value: "5 kΩ", role: "Presence track, tail foot → ground" }
   - { ref: C17, part: "Film capacitor", value: "0.1 µF · 400 V", role: "Presence wiper → ground" }

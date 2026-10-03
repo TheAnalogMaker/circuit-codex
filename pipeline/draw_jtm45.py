@@ -18,10 +18,14 @@ from schematic_lib import Sch
 OUT = Path(__file__).resolve().parent.parent / "amps" / "jtm45" / "schematic.kicad_sch"
 s = Sch()
 
-# ---- V1 ECC83, bright + normal channels, shared 820R/250u cathode ---------
+# ---- V1 ECC83, normal + bright channels, shared 820R/250u cathode ---------
+# The drawing letters the sections: V1A's plate feeds the plain volume and
+# V1B's plate feeds the volume carrying the 100 pF, so V1B is the bright
+# channel. (Until 2026-10-03 this sheet called V1A bright.) The jack -> grid
+# wiring is unchanged; only the channel names follow the volumes.
 for ch, (y, jack, gref, pref, plref, cref, vref, mref) in enumerate([
-        (92, "BRIGHT", "RG1", "V1A", "RL1", "C1", "VR1", "RM1"),
-        (126, "NORMAL", "RG2", "V1B", "RL2", "C2", "VR2", "RM2")]):
+        (92, "NORMAL", "RG1", "V1A", "RL1", "C1", "VR1", "RM1"),
+        (126, "BRIGHT", "RG2", "V1B", "RL2", "C2", "VR2", "RM2")]):
     s.glabel(jack, 26, y, 180)
     s.wire(26, y, 30.48, y)
     l, r = s.series_h("R", f"R{ch + 1}s", "68k", 34.29, y)
@@ -46,7 +50,7 @@ for ch, (y, jack, gref, pref, plref, cref, vref, mref) in enumerate([
     s.wire(mr, ty + 3.81, 91.44, ty + 3.81)
     s.wire(91.44, ty + 3.81, 91.44, 109)
 s.junction(91.44, 109)
-s.text("100 pF bright cap across VR1 omitted (AC only)", 56, 76, 1.1)
+s.text("100 pF bright cap across VR2 omitted (AC only)", 58, 104, 1.1)
 
 # shared cathode
 s.wire(49.53, 99.62, 49.53, 103)

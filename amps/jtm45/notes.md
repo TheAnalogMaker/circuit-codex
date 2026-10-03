@@ -14,9 +14,10 @@ the mid-1960s revision shared across the tremolo combos and the 1987 head.
 
 ## Circuit walkthrough (short form)
 
-Bright + normal channels (1 MΩ leaks, 68 kΩ stoppers) → **V1** ECC83 (100 kΩ
-plates, shared 820 Ω cathode with 250 µF bypass) → 0.02 µF couplers → 1 MΩ
-volume pots (100 pF bright cap) → 270 kΩ mixers → **V3A** ECC83 (100 kΩ plate,
+Normal (V1A) and bright (V1B) channels (1 MΩ leaks, 68 kΩ stoppers) → **V1**
+ECC83 (100 kΩ plates, shared 820 Ω cathode with 250 µF bypass) → 0.02 µF
+couplers → 1 MΩ volume pots (the 100 pF bright cap sits on the volume V1B
+feeds) → 270 kΩ mixers → **V3A** ECC83 (100 kΩ plate,
 820 Ω cathode) → **V3B cathode follower, DC-coupled** (100 kΩ cathode load) →
 TMB tone stack (56 kΩ slope; 270 pF treble, 0.02 µF bass and 0.02 µF middle caps; 250 kΩ / 1 MΩ /
 25 kΩ pots) → 0.02 µF → **long-tailed-pair PI**: 82 kΩ and 100 kΩ plates,
@@ -71,3 +72,11 @@ junction, whose 5 kΩ track and 27 kΩ feedback resistor both return to ground.
 The largest deviation is 9.7% at the shared input cathode, within the chart's
 ±20% tube-pin tolerance. The tail junction carries no numerical chart value:
 the drawing marks the inverter grids only “+”, so it is reported informationally.
+
+The drawing letters the input valve's sections, and that fixes which channel is
+which: V1A's plate feeds the plain volume and V1B's plate feeds the volume
+carrying the 100 pF, so V1B is the bright channel. V1A's printed load reads
+"1■0K", its middle digit a solid blob that cannot be told from a 0 or an 8 on
+this drawing. The corpus keeps 100 kΩ because the chart prints both input
+plates at 220 V on one shared cathode, which a 180 kΩ / 100 kΩ pair could not
+give; that rules 180 kΩ out, it does not read the digit.
