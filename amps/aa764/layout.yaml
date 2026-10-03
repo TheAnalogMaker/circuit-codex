@@ -176,15 +176,17 @@ runs:
 
   # === tone stack: the control leads the sheet marks BROWN, BLUE, WHITE ====
   # Every pot lug is approached square-on so no lead reads as landing on its
-  # neighbour: the lugs sit only 11 px apart. Two things the sheet leaves to the
-  # schematic and that are therefore NOT drawn here: the Bass control's wiper is
-  # strapped to its upper lug (the schematic sheet draws the tie; the layout
-  # sheet shows only the two leads below), and the two lower tone-cap leads reach
-  # the slope-node eyelet as one solder point — the sheet curves the 0.047 µF
-  # lead across to it, this redraw seats that cap on the eyelet and runs the
-  # 0.1 µF lead across instead. Same node either way.
+  # neighbour: the lugs sit only 11 px apart. The layout wires the Bass control
+  # as a rheostat: its wiper takes the 0.1 µF lead and the arc to the Treble
+  # control's lower lug, its lower lug the 0.047 µF lead and the 15 kΩ to
+  # ground, and its upper lug is left bare. This redraw straps that bare
+  # lug to the wiper, as the schematic draws the tie (no change to the circuit).
+  # The two lower tone-cap leads reach the slope-node eyelet as one solder point
+  # — the sheet curves the 0.047 µF lead across to it, this redraw seats that
+  # cap on the eyelet and runs the 0.1 µF lead across instead. Same node either way.
   - { from: C2.a, to: VR2.lug1, color: white, via: [[33.00, -0.45], [32.19, -0.45]] }  # 250 pF → Treble
-  - { from: C3.a, to: VR3.lug1, color: blue, via: [[38.80, -0.42], [38.80, -1.50], [27.69, -1.50]] }   # 0.1 µF → Bass, upper end
+  - { from: C3.a, to: VR3.lug2, color: blue, via: [[38.80, -0.42], [38.80, -1.50], [28.00, -1.50]] }   # 0.1 µF → Bass wiper
+  - { from: VR3.lug1, to: VR3.lug2 }                                                   # bass wiper strapped to its upper end (the factory leaves that lug bare)
   - { from: C3.b, to: R6.b }                                                           # 0.1 µF lower lead → slope node
   - { from: C4.a, to: VR3.lug3, color: brown, via: [[34.80, -0.52], [28.31, -0.52]] }  # 0.047 µF → Bass, lower end
   - { from: R7.a, to: VR3.lug3, via: [[29.30, -1.10], [28.31, -1.36]] }                # 15 kΩ bass leg, from above
