@@ -253,3 +253,25 @@ net_map:
     JSPK1: "0"       # speaker jack — OT-secondary DCR folded into ground
   series_bridge:
     RGS1: "33 kΩ input grid stopper at the jack — no DC grid current flows, so the netlist's grid node runs through it"
+  # Parts the sheet draws that this board neither places nor wires. JMI
+  # published no board-layout drawing for the AC15, so no factory sheet says
+  # where any of them mounts: each entry states what the circuit drawing
+  # (OA/031) shows and why this DERIVED board leaves it out (sheet ↔ board
+  # gate, 2026-10-02).
+  not_on_board:
+    CH1: "smoothing choke (Radiospares, 10–20 H) — the OA/031 circuit drawing puts it between the reservoir and the +315 V rail; this derived board draws it only as the off-board choke stub (kind: choke, leads hi/lo), which the sheet ↔ board gate has no two-lead vocabulary for. No factory layout records where it mounts"
+    F1: "mains fuse — on the primary side of the circuit drawing; this derived board does not draw the mains wiring (caption). JMI published no layout sheet, so where the factory mounted it is not on record"
+    CBR: "250 pF Brilliance cap — the circuit drawing bridges it with the Brilliance switch; this derived board leaves the switch and its cap off the eyelet grid (caption). No factory layout records where it mounts"
+    RIN1: "68 kΩ Normal-channel stopper of the drawing's dual-jack input arrangement — this derived board draws the single-jack alternate the drawing also carries (JN, the 33 kΩ RGS1), not the dual-jack pair. No factory layout records where it mounts"
+    RIN2: "68 kΩ Normal-channel stopper of the dual-jack arrangement — as RIN1"
+    RIN3: "68 kΩ Vibrato/Tremolo input stopper — that channel's networks are not drawn on this derived board (caption: only its three valve sockets and heaters appear). No factory layout records where it mounts"
+    RIN4: "68 kΩ Vibrato/Tremolo input stopper — as RIN3"
+    RGS2: "33 kΩ Vibrato/Tremolo grid stopper, single-jack arrangement — that channel is not drawn on this derived board (caption). No factory layout records where it mounts"
+    RG2: "1 MΩ Vibrato/Tremolo input grid leak — that channel is not drawn on this derived board (caption). No factory layout records where it mounts"
+    RKV1: "2.2 kΩ Vibrato/Tremolo first-stage cathode resistor — that channel is not drawn on this derived board (caption). No factory layout records where it mounts"
+    CKV1: "25 µF Vibrato/Tremolo first-stage cathode bypass — that channel is not drawn on this derived board (caption). No factory layout records where it mounts"
+    CVC: "0.01 µF Vibrato/Tremolo inter-stage coupler — that channel is not drawn on this derived board (caption). No factory layout records where it mounts"
+    RGV: "1 MΩ Vibrato/Tremolo inter-stage grid return — that channel is not drawn on this derived board (caption). No factory layout records where it mounts"
+    RKV2: "1.5 kΩ Vibrato/Tremolo second-stage cathode resistor — that channel is not drawn on this derived board (caption). No factory layout records where it mounts"
+    RD3: "22 kΩ · 3 W Vibrato/Tremolo rail dropper from +315 V — that channel's supply is not drawn on this derived board (caption). No factory layout records where it mounts"
+    CF3: "33 µF Vibrato/Tremolo supply smoothing — that channel's supply is not drawn on this derived board (caption). No factory layout records where it mounts"
