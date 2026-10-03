@@ -173,27 +173,24 @@ s.sym("C", "C17", ".1u", 193, 147.62)
 s.gnd(193, 151.43)
 
 # ---- KT66 pair, fixed bias ----------------------------------------------
-for y, pref, cref, sref, glref, stref in [
-        (84, "V5", "C9", "RS1", "RGL1", "R5s"),
-        (136, "V6", "C10", "RS2", "RGL2", "R6s")]:
+# Each 0.1 coupler lands straight on its grid node, as the factory drawing draws
+# it: no grid stopper. (Until 2026-10-03 this sheet drew 33k stoppers here; the
+# drawing's only 33K is in the tremolo depth network.)
+for y, pref, cref, sref, glref in [
+        (84, "V5", "C9", "RS1", "RGL1"),
+        (136, "V6", "C10", "RS2", "RGL2")]:
     if y == 84:
         s.wire(176.53, 80.9, 194.31, 80.9)
         s.junction(176.53, 80.9)
         cl, crr = s.series_h("C", cref, ".1u", 198.12, 80.9)
-        s.wire(crr, 80.9, 203, 80.9)
-        stl, str2 = s.series_h("R", stref, "33k", 206.81, 80.9)
-        s.wire(203, 80.9, stl, 80.9)
-        s.wire(str2, 80.9, 210.62, 80.9)
+        s.wire(crr, 80.9, 210.62, 80.9)
         s.wire(210.62, 80.9, 210.62, 84)
         gy = 84
     else:
         s.wire(176.53, 114.9, 191.77, 114.9)   # lower PI plate tee
         s.junction(176.53, 114.9)
         cl, crr = s.series_h("C", cref, ".1u", 195.58, 114.9)
-        s.wire(crr, 114.9, 201, 114.9)
-        stl, str2 = s.series_h("R", stref, "33k", 204.81, 114.9)
-        s.wire(201, 114.9, stl, 114.9)
-        s.wire(str2, 114.9, 210.62, 114.9)
+        s.wire(crr, 114.9, 210.62, 114.9)
         s.wire(210.62, 114.9, 210.62, 136)
         gy = 136
     p = s.pentode(pref, "KT66", 220.98, gy)

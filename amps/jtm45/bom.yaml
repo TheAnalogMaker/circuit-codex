@@ -35,8 +35,6 @@ items:
   - { ref: C8,  part: "Film capacitor",       value: "0.1 µF · 400 V", role: "V4B grid AC-coupled to the presence/feedback node" }
   - { ref: C9,  part: "Coupling capacitor",   value: "0.1 µF · 400 V", role: "PI → V5 grid" }
   - { ref: C10, part: "Coupling capacitor",   value: "0.1 µF · 400 V", role: "PI → V6 grid" }
-  - { ref: R5s, part: "Carbon comp resistor", value: "33 kΩ · ½ W",  role: "V5 grid stopper" }
-  - { ref: R6s, part: "Carbon comp resistor", value: "33 kΩ · ½ W",  role: "V6 grid stopper" }
   - { ref: RGL1, part: "Carbon comp resistor", value: "220 kΩ · ½ W", role: "V5 grid leak, from the −50 V bias line" }
   - { ref: RGL2, part: "Carbon comp resistor", value: "220 kΩ · ½ W", role: "V6 grid leak, from the −50 V bias line" }
   - { ref: RS1, part: "Carbon comp resistor", value: "1 kΩ · 2 W",   role: "V5 screen resistor" }

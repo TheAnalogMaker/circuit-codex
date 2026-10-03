@@ -42,8 +42,9 @@ source:
 # resolves, so all three ECC83 dual-triodes (input, driver+CF, phase inverter)
 # anchor by basing alongside the two KT66 outputs (0 UNANCHORED — the whole
 # preamp+PI is checked, not silently skipped). The output grids are un-collapsed
-# to distinct nodes and their PI-plate couplers (C9/C10), grid stoppers (R5s/R6s)
-# and 220k grid leaks (RGL1/RGL2) are checked as real parts.
+# to distinct nodes and their PI-plate couplers (C9/C10) and 220k grid leaks
+# (RGL1/RGL2) are checked as real parts. (The 33k grid stoppers this board once
+# carried were removed 2026-10-03: the factory drawing has none.)
 wiring_claim: verified
 
 # Board-mounted parts. a / b are eyelet endpoints [row, col]; the body is drawn
@@ -76,10 +77,8 @@ parts:
   # --- KT66 output support: grid stoppers, grid leaks, screen stoppers ---------
   - { ref: C9,   a: [0, 18], b: [0, 20] }   # 0.1 µF PI(V4A) -> V5 grid coupler
   - { ref: C10,  a: [0, 22], b: [0, 24] }   # 0.1 µF PI(V4B) -> V6 grid coupler
-  - { ref: R5s,  a: [1, 17], b: [1, 18] }   # 33k V5 grid stopper
   - { ref: RGL1, a: [1, 19], b: [1, 20] }   # 220k V5 grid leak -> -50V
   - { ref: RS1,  a: [1, 21], b: [1, 22] }   # 1k 2W V5 screen
-  - { ref: R6s,  a: [1, 24], b: [1, 25] }   # 33k V6 grid stopper
   - { ref: RGL2, a: [1, 26], b: [1, 27] }   # 220k V6 grid leak -> -50V
   - { ref: RS2,  a: [1, 28], b: [1, 29] }   # 1k 2W V6 screen
   # --- long-tailed-pair phase inverter (V4) -----------------------------------
@@ -174,7 +173,7 @@ runs:
   - { from: C11.b, to: [1.45, 8] }                 # filter negatives -> ground bus
   - { from: C12.b, to: [1.45, 11] }
   - { from: C13.b, to: [1.45, 14] }
-  - { from: C14.b, to: [1.45, 17], via: [[17.4, 0.7]] }   # bowed clear of R5s.a at col 17 row 1
+  - { from: C14.b, to: [1.45, 17], via: [[17.4, 0.7]] }   # bowed clear of row 1, col 17
 
   # --- bias supply: HT tap -> 1N4007 -> 150k -> -50V (.05u + 25u filter) ------
   - { from: V7.pin6, to: D1.a, via: [[5, 1.7]] }  # HT tap -> bias diode (approaches D1.a from lower-left, off col 6)
@@ -189,11 +188,9 @@ runs:
   - { from: RS2.a, to: RS1.a, via: [[28, 1.24], [21.6, 1.24]] }   # B+2 screen backbone (shallow bow above the KT66 pins; approaches RS1.a from the right)
   - { from: RS1.b, to: V5.pin4, via: [[22.7, 2.55]] }          # -> V5 screen (excursion pulled right, clear of the V5 label)
   - { from: RS2.b, to: V6.pin4, via: [[29.7, 2.55]] }          # -> V6 screen (excursion pulled right, clear of the V6 label)
-  - { from: C9.b, to: R5s.a, via: [[19, 1.5]] }               # PI coupler -> V5 grid stopper
-  - { from: R5s.b, to: V5.pin5, via: [[18.708, 1.565]] }          # grid stopper -> V5 grid
+  - { from: C9.b, to: V5.pin5, via: [[19, 1.5], [18.708, 1.565]] }   # PI coupler -> V5 grid (the drawing has no stopper)
   - { from: RGL1.a, to: V5.pin5, via: [[20, 1.72]] }           # grid leak -> V5 grid
-  - { from: C10.b, to: R6s.a, via: [[24, 1.5]] }               # PI coupler -> V6 grid stopper
-  - { from: R6s.b, to: V6.pin5, via: [[25.5, 1.581]] }          # grid stopper -> V6 grid
+  - { from: C10.b, to: V6.pin5, via: [[24, 1.5], [25.5, 1.581]] }   # PI coupler -> V6 grid (the drawing has no stopper)
   - { from: RGL2.a, to: V6.pin5, via: [[27, 1.72]] }           # grid leak -> V6 grid
   - { from: RGL1.b, to: RGL2.b, via: [[20.3, 1.12], [27.3, 1.12]] }  # -50V ties both leaks (shallow bow above the KT66 grid pins; approaches RGL2.b from the right)
   - { from: RGL2.b, to: C16.a, via: [[24, 2.24], [1, 2.24]] }      # -50V backbone -> bias node (leaves RGL2.b steeply down-left to lane 2.24; clears V7 pins)
@@ -310,8 +307,8 @@ net_map:
     T3.ct: BP1       # OT primary centre tap → B+1
     SPK: "0"         # speaker jack — OT-secondary DCR folded into ground (the NFB return reads as ground at DC)
   # (The 220k KT66 grid leaks RGL1/RGL2 are now MODELLED resistors in netlist.cir
-  # — G5/G6 → NBIAS — together with the 0.1u PI-plate coupling caps C9/C10 and the
-  # 33k grid stoppers R5s/R6s, so the whole push-pull output-grid drive is checked
+  # — G5/G6 → NBIAS — together with the 0.1u PI-plate coupling caps C9/C10, so the
+  # whole push-pull output-grid drive is checked
   # natively. They are no longer series-bridged: bridging them would short both
   # grids onto the bias rail and hide a crossed-output or coupler-to-wrong-grid
   # fault, which is exactly the escape the hardened gate closes.)

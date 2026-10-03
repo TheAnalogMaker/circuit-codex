@@ -21,8 +21,9 @@ volume pots (100 pF bright cap) → 270 kΩ mixers → **V3A** ECC83 (100 kΩ pl
 TMB tone stack (56 kΩ slope; 270 pF treble, 0.02 µF bass and 0.02 µF middle caps; 250 kΩ / 1 MΩ /
 25 kΩ pots) → 0.02 µF → **long-tailed-pair PI**: 82 kΩ and 100 kΩ plates,
 470 Ω + 10 kΩ tail, both 1 MΩ grid leaks returned to the tail junction →
-0.1 µF couplers → **KT66 pair**, fixed-biased through 220 kΩ leaks, with
-33 kΩ grid stoppers and **1 kΩ · 2 W screen stoppers** → output transformer,
+0.1 µF couplers straight onto the grids (the drawing has no grid stoppers) →
+**KT66 pair**, fixed-biased through 220 kΩ leaks, with **1 kΩ · 2 W screen
+stoppers** → output transformer,
 27 kΩ negative feedback into the tail foot with the 5 kΩ presence control
 and its 0.1 µF wiper-to-ground capacitor.
 
