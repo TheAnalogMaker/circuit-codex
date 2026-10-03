@@ -25,6 +25,18 @@ for ch, (y, jack, sref, gref, pref, plref, cref, vref, mref) in enumerate([
     s.wire(30.48, y, l, y)
     t = s.triode(pref, "12AY7", 49.53, y)
     s.wire(r, y, t["g"][0], y)
+    # Jack 2 has its own 68k into the same grid: F-EG draws four jacks and
+    # four 68 Ks, two per channel, on both pages (schematic 6039x3508, crop
+    # 0,850,1300,2550; layout 6286x3564, crop 4950,450,6000,2250). Jack 2's
+    # contact rests on jack 1's tip and jack 1's on ground; the labels here do
+    # not draw the contacts. Until 2026-10-03 this sheet drew one 68k per
+    # channel (V1 audit, 5f6.md).
+    s.glabel(f"{jack} 2", 26, y - 8, 180)
+    s.wire(26, y - 8, 30.48, y - 8)
+    l2, r2 = s.series_h("R", f"R{ch + 3}s", "68k", 34.29, y - 8)
+    s.wire(r2, y - 8, 40.5, y - 8)
+    s.wire(40.5, y - 8, 40.5, y)
+    s.junction(40.5, y)
     # The 1M grid leak hangs from the JACK-1 tip node, jack side of the 68k
     # stopper, as the factory sheet draws it (jack 1 tip -> 1 MEG -> ground;
     # the stoppers run from the jack tips to the grid). The stopper carries
@@ -47,7 +59,7 @@ for ch, (y, jack, sref, gref, pref, plref, cref, vref, mref) in enumerate([
     s.wire(mr, ty + 3.81, 91.44, ty + 3.81)
     s.wire(91.44, ty + 3.81, 91.44, 109)
 s.junction(91.44, 109)
-s.note("100 pF bright cap across VR1 omitted (AC only) · each channel's second jack adds another 68 kΩ stopper")# shared cathode
+s.note("100 pF bright cap across VR1 omitted (AC only) ")# shared cathode
 s.wire(49.53, 99.62, 49.53, 103)
 s.wire(49.53, 103, 56.13, 103)
 s.wire(49.53, 133.62, 49.53, 137)

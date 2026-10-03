@@ -11,9 +11,9 @@
 # input pair at the right.
 board:
   rows: 2
-  cols: 54
+  cols: 56
   title: "5F6 · eyelet board layout"
-caption: "Redrawn from the published Fender 5F6 layout drawing (F-EG) — the principal board components in the order the drawing shows them, with their hookup. Parts the sheet mounts on the tube sockets rather than the board are drawn where they sit: the 1.5 kΩ output grid stoppers and 100 Ω screen resistors at the 5881 sockets, and the 100 kΩ V2A plate load across the 12AX7 socket, between the plate pin and the cathode-follower plate pin that already carries +325 V. The 1 MΩ input grid leaks sit at their input jacks and the 0.1 µF presence capacitor at the presence pot, as the sheet draws them. Only the first jack of each channel is shown; the chassis carries four, each second jack adding another 68 kΩ grid stopper onto the same grid. The three 20 µF plate, screen and phase-inverter filter capacitors are in the chassis filter pan, not on the board — the sheet feeds the +432 V and +430 V eyelets from there through a chassis grommet — so only the 8 µF preamp filter appears here. The board's several chassis-ground returns are drawn as one bare ground bus in the house style. The 6.3 V heater chain (green twisted pair, power transformer → pilot lamp → the 5881 pair → the two 12AX7s → the 12AY7) follows the daisy order of the sheet's pin-by-pin heater marks, with the winding centre tap grounded at the chassis; the 83 is directly heated from the 5 V winding and off the 6.3 V chain. The power-transformer primary leads land on chassis switches, off the board. Not a trace or a dimensioned reproduction."
+caption: "Redrawn from the published Fender 5F6 layout drawing (F-EG) — the principal board components in the order the drawing shows them, with their hookup. Parts the sheet mounts on the tube sockets rather than the board are drawn where they sit: the 1.5 kΩ output grid stoppers and 100 Ω screen resistors at the 5881 sockets, and the 100 kΩ V2A plate load across the 12AX7 socket, between the plate pin and the cathode-follower plate pin that already carries +325 V. The 1 MΩ input grid leaks sit at their input jacks and the 0.1 µF presence capacitor at the presence pot, as the sheet draws them. Each of the four input jacks has its own 68 kΩ grid stopper on the board (R1s/R3s Bright, R2s/R4s Normal), the two of a channel joined at its grid; the jack-normalling contacts have no board terminal and are not drawn. The three 20 µF plate, screen and phase-inverter filter capacitors are in the chassis filter pan, not on the board — the sheet feeds the +432 V and +430 V eyelets from there through a chassis grommet — so only the 8 µF preamp filter appears here. The board's several chassis-ground returns are drawn as one bare ground bus in the house style. The 6.3 V heater chain (green twisted pair, power transformer → pilot lamp → the 5881 pair → the two 12AX7s → the 12AY7) follows the daisy order of the sheet's pin-by-pin heater marks, with the winding centre tap grounded at the chassis; the 83 is directly heated from the 5 V winding and off the 6.3 V chain. The power-transformer primary leads land on chassis switches, off the board. Not a trace or a dimensioned reproduction."
 source:
   desc: "Fender 'Bassman' Model 5F6 layout drawing (F-EG), page 1"
   url: "https://el34world.com/charts/Schematics/files/Fender/Fender_bassman_5f6.pdf"
@@ -83,6 +83,10 @@ parts:
   - { ref: RK1,  a: [0, 51], b: [1, 51] }   # 820 Ω shared 12AY7 cathode (vertical)
   # Polarity: DC sign (source read; no legible printed capacitor + used); lead C3.a: KAY = +2.6 V (op-points); lead C3.b: 0 = +0.0 V (ground); more-positive lead is C3.a.
   - { ref: C3,   a: [0, 52], b: [0, 53] , plus: a }   # 250 µF 12AY7 cathode bypass
+  # F-EG's board carries four 68 Ks, two per channel (layout 6286x3564, crop
+  # 4950,450,6000,2250); until 2026-10-03 this board seated one per channel.
+  - { ref: R3s,  a: [0, 54], b: [0, 55] }   # 68k bright-channel jack-2 grid stopper
+  - { ref: R4s,  a: [1, 54], b: [1, 55] }   # 68k normal-channel jack-2 grid stopper
 
 offboard:
   - { id: PT,   kind: xfmr,  edge: left, at: 0.2, label: "Power trans" }
@@ -114,13 +118,15 @@ offboard:
   - { id: RG1,  ref: RG1, kind: part, edge: top, at: 47.8, label: "RG1" }
   - { id: JN,   kind: jack, edge: top, at: 50, label: "Normal in" }
   - { id: RG2,  ref: RG2, kind: part, edge: top, at: 51.8, label: "RG2" }
+  - { id: JB2,  kind: jack, edge: top, at: 54.2, label: "Bright in 2" }
+  - { id: JN2,  kind: jack, edge: top, at: 55.8, label: "Normal in 2" }
   - { id: T3,   ref: T3, kind: xfmr, edge: right, at: 0.5, label: "Output trans" }
 
 # Ground bus — the bare tinned rail running the length of the board just below
 # the bottom eyelet row; the filter, cathode, bias-bleeder and pot grounds all
 # tie to it.
 bus:
-  - { from: [1.45, -0.4], to: [1.45, 53.4] }
+  - { from: [1.45, -0.4], to: [1.45, 55.4] }
 
 runs:
   # --- power transformer secondary → 83 rectifier (marked colours) ---------
@@ -169,12 +175,12 @@ runs:
   - { from: RGL1.a, to: V4.pin6, via: [[16.9, 1.34], [18.35, 1.9]] }   # grid leak → V4 grid tie
   - { from: RGS1.a, to: V4.pin6, via: [[18.7, 1.98]] }                  # stopper from the tie pin…
   - { from: RGS1.b, to: V4.pin5, via: [[19.6, 1.6], [17.25, 1.6]] }   # …to the V4 grid
-  - { from: V5.pin3, to: T3.brown, via: [[8.3, 1.72], [8, 2.92], [54.1, 2.92], [54.1, 0.41]] }  # V5 plate → OT primary
-  - { from: V4.pin3, to: T3.blue, via: [[15.8, 1.74], [15.5, 3.08], [53.9, 3.08], [53.9, 0.31]] }  # V4 plate → OT primary
+  - { from: V5.pin3, to: T3.brown, via: [[8.3, 1.72], [8, 2.92], [54.1, 2.92], [56.3, 0.41]] }  # V5 plate → OT primary
+  - { from: V4.pin3, to: T3.blue, via: [[15.8, 1.74], [15.5, 3.08], [53.9, 3.08], [54.223, 0.31]] }  # V4 plate → OT primary
   - { from: V5.pin8, to: [1.45, 12.5], via: [[12.5, 2.34]] }   # V5 cathode → ground (fixed bias)
   - { from: V4.pin8, to: [1.45, 20], via: [[20, 2.32]] }   # V4 cathode → ground
   - { from: T3.green, to: SPK, via: [[54.7, 0.59], [54.7, 3.24], [25, 3.24], [25, 2.1]] }  # OT secondary hot → speaker jacks
-  - { from: T3.black, to: [1.45, 21.6], via: [[54.9, 0.69], [54.9, 3.44], [21.6, 3.44], [21.6, 2.55]] }  # OT secondary → ground
+  - { from: T3.black, to: [1.45, 21.6], via: [[54.9, 1.002], [54.9, 3.44], [21.6, 3.44], [21.6, 2.55]] }  # OT secondary → ground
   - { from: RNF.a, to: SPK, via: [[19.3, 1.3], [21.8, 2.44], [22.6, 2.6]] }  # speaker node → 27k feedback
 
   # --- long-tailed-pair phase inverter (V3) -------------------------------
@@ -242,14 +248,18 @@ runs:
   - { from: RG1.a, to: JB, via: [[47.411, -1.34], [46, -1.34]] }    # bright grid leak → input node
   - { from: RG1.b, to: [1.45, 44.7], via: [[48.189, -1.44], [44.7, -0.3]] }
   - { from: JN, to: R2s.a, via: [[50, -0.6], [46.6, -0.6]] }     # normal jack → 68k stopper
-  - { from: R2s.b, to: V1.pin2, via: [[48.3, 1.3], [48.3, 2.42]] }  # → V1B grid
+  - { from: R2s.b, to: V1.pin2, via: [[48.3, 1.332], [48.3, 2.42]] }  # → V1B grid
   - { from: RG2.a, to: JN, via: [[51.411, -1.34], [50, -1.34]] }    # normal grid leak → input node
   - { from: RG2.b, to: [1.45, 47.3], via: [[52.189, -1.46], [47.3, -0.32]] }
+  - { from: JB2, to: R3s.b }                                     # bright jack 2 -> its own 68k
+  - { from: R3s.a, to: R1s.b, via: [[53.6, 0.5], [44.6, 0.5]] }   # -> the V1A grid eyelet
+  - { from: JN2, to: R4s.b }                                     # normal jack 2 -> its own 68k
+  - { from: R4s.a, to: R2s.b, via: [[53.7, 1.366], [48.597, 1.383]] }   # -> the V1B grid eyelet
   - { from: V1.pin6, to: RL1.b, via: [[50, 1.62], [46.6, 1.62]] }  # V1A plate → 100k load
   - { from: V1.pin6, to: C1.a, via: [[49.3, 2.4], [45.6, 1.9], [45.6, 0.4]] }  # V1A plate → coupler
   - { from: V1.pin1, to: RL2.b, via: [[49.6, 2.5], [50.6, 2.8], [50.6, 1.3]] } # V1B plate → 100k load
   - { from: V1.pin1, to: C2.a, via: [[48.6, 2.62], [47.55, 2.5], [47.55, 0.6]] }  # V1B plate → coupler
-  - { from: RL1.a, to: C18.a, via: [[45, 0.52], [12.9, 0.52]] }    # B+4 rail → V1A plate load
+  - { from: RL1.a, to: C18.a, via: [[45, 0.52], [12.9, 0.62]] }    # B+4 rail → V1A plate load
   - { from: RL2.a, to: RL1.a, via: [[49, 0.36], [45.9, 0.42]] }    # B+4 rail → V1B plate load
   - { from: C1.b, to: VR1.lug3, via: [[47.3, -0.36], [36.31, -0.36]] }  # coupler → bright volume
   - { from: C2.b, to: VR2.lug3, via: [[50, -0.24], [41.31, -0.24]] }  # coupler → normal volume
@@ -285,6 +295,8 @@ net_map:
   series_bridge:
     R1s: "68k bright-channel input grid stopper — no DC grid current, so the grid sits at the jack node"
     R2s: "68k normal-channel input grid stopper — same"
+    R3s: "68k bright-channel jack-2 grid stopper — no DC grid current, no drop"
+    R4s: "68k normal-channel jack-2 grid stopper — same"
   netlist_unplaced:
     RCHOKE: "filter choke L1 is chassis-mounted (B+1 → B+2); the netlist models its ~130 Ω DCR as RCHOKE"
     RG3: "V2A grid return — realised through the volume pots (VR1/VR2) and the 270k channel mixers to ground, not a discrete board resistor"

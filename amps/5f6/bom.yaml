@@ -3,10 +3,12 @@
 # watt, 10% tolerance unless otherwise noted" — so the only parts carrying
 # anything else here are the two phase-inverter plate resistors (both printed
 # 5%) and the two rail droppers (both printed 1 W).
-notes: "Resistor and potentiometer designators are shared with the 5F6-A, so the two revisions read side by side. The capacitor numbers are not, and cannot be: the 5F6 carries two capacitors the 5F6-A does not — the 25 µF across V2A's cathode resistor (C4) and the 47 pF across the phase-inverter plates (C12) — so from C4 onward the two runs diverge and the same C number names a different part on each page. Read a capacitor by its role, not by its number, when comparing the revisions. The parts list covers one jack per channel (the chassis carries four, each channel's second jack adding another 68 kΩ stopper). Speaker jacks, the a-c line and ground switch, the pilot lamp and the standby-switch bypass capacitor are on the chassis, not the board, and are not listed. The output transformer keeps the 5F6-A's T3 for the same reason, which is why no T1 or T2 appears; the power transformer, like the other off-board parts, is listed without a designator."
+notes: "Resistor and potentiometer designators are shared with the 5F6-A, so the two revisions read side by side. The capacitor numbers are not, and cannot be: the 5F6 carries two capacitors the 5F6-A does not — the 25 µF across V2A's cathode resistor (C4) and the 47 pF across the phase-inverter plates (C12) — so from C4 onward the two runs diverge and the same C number names a different part on each page. Read a capacitor by its role, not by its number, when comparing the revisions. Both pages draw four input jacks, two per channel, each with its own 68 kΩ stopper (R1s/R3s Bright, R2s/R4s Normal), and hang each channel's 1 MΩ leak from jack 1's tip. Speaker jacks, the a-c line and ground switch, the pilot lamp and the standby-switch bypass capacitor are on the chassis, not the board, and are not listed. The output transformer keeps the 5F6-A's T3 for the same reason, which is why no T1 or T2 appears; the power transformer, like the other off-board parts, is listed without a designator."
 items:
-  - { ref: R1s, part: "Carbon comp resistor", value: "68 kΩ · ½ W",  role: "Bright-channel grid stopper" }
-  - { ref: R2s, part: "Carbon comp resistor", value: "68 kΩ · ½ W",  role: "Normal-channel grid stopper" }
+  - { ref: R1s, part: "Carbon comp resistor", value: "68 kΩ · ½ W",  role: "Bright-channel grid stopper (jack 1)" }
+  - { ref: R3s, part: "Carbon comp resistor", value: "68 kΩ · ½ W",  role: "Bright-channel grid stopper (jack 2)" }
+  - { ref: R2s, part: "Carbon comp resistor", value: "68 kΩ · ½ W",  role: "Normal-channel grid stopper (jack 1)" }
+  - { ref: R4s, part: "Carbon comp resistor", value: "68 kΩ · ½ W",  role: "Normal-channel grid stopper (jack 2)" }
   - { ref: RG1, part: "Carbon comp resistor", value: "1 MΩ · ½ W",   role: "Bright input grid leak" }
   - { ref: RG2, part: "Carbon comp resistor", value: "1 MΩ · ½ W",   role: "Normal input grid leak" }
   - { ref: RL1, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "V1A plate load" }
