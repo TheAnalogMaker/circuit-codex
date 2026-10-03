@@ -318,3 +318,8 @@ net_map:
     RG1: "1 M instrument input grid leak — mounted at the input jacks, not on the eyelet board"
     RG2: "1 M mic input grid leak — mounted at the input jacks, not on the eyelet board"
     RG3: "the two 1 M volume pots (VR1/VR2) — netlist models their shared DC return as one grid-leak (G2A -> 0)"
+  # Parts the sheet draws that this board neither places nor wires — each
+  # read off the cited layout drawing (sheet ↔ board gate, 2026-10-02).
+  not_on_board:
+    C5: "500 pF treble cap — the 5E3 layout (F-EE, read at 6600 × 5100) letters it '.0005 MICA' and strings it from the Tone pot's right lug to the instrument Volume pot's top lug in the control row, at the controls and not on the eyelet board"
+    C6: "0.005 µF · 600 V tone cap — the 5E3 layout draws it ('.005 600') hanging from the Tone pot's left lug to a chassis ground symbol in the control row, at the control and not on the eyelet board"
