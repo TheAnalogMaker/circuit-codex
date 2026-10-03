@@ -29,7 +29,7 @@ board:
   rows: 2
   cols: 49
   title: "5E4-A · eyelet board layout"
-caption: "Redrawn from the published Fender 5E4-A 'Super-Amp' layout drawing (G-EE), page 1 — principal board components and their hookup, in the order the drawing shows them. The chassis has four input jacks (two per channel); the drawing's four 68 kΩ grid stoppers collapse to the two the schematic/BOM model (R1s, R2s), and the two 1 MΩ input grid leaks (RG1, RG2) mount at the channel jacks as the sheet shows. The tone network is wired as the sheet draws it: the 250 pF treble cap, 0.1 µF bass coupler and its 220 kΩ leak sit on the board; the 0.01 µF (C6) hangs at the treble pot and the 0.005 µF (C7) at the bass pot, whose other end lug is grounded to its case; the bass branch lands on the bass pot's WIPER, and the second 220 kΩ (RSR) is strung pot-to-pot from the bass wiper to the treble wiper, whose lead alone carries the output to the phase inverter. The presence pot, the 56 kΩ negative-feedback resistor (both landing at the driver's cathode), the 100 pF bright cap, and the two AC-line caps are chassis wiring drawn schematically or off the board. The negative-bias supply takes the power transformer's own bias tap — the red-blue lead — onto the 18 kΩ, which feeds the selenium rectifier beside the board; the rectifier's other terminal is the −32 V line, the order the drawing shows. The power-transformer primary (black) lands on chassis switches, off the board; the 6.3 V heater chain (green twisted pair, PT → pilot lamp → the two 6V6GT output tubes → 12AX7 phase inverter → 12AY7 → 12AY7) is routed as the published sheet shows it, and the directly-heated 5U4GA rectifier runs off the 5 V winding, not the 6.3 V chain. Not a trace or a dimensioned reproduction."
+caption: "Redrawn from the published Fender 5E4-A 'Super-Amp' layout drawing (G-EE), page 1 — principal board components and their hookup, in the order the drawing shows them. The chassis has four input jacks (two per channel); the drawing's four 68 kΩ grid stoppers collapse to the two the schematic/BOM model (R1s, R2s), and the two 1 MΩ input grid leaks (RG1, RG2) mount at the channel jacks as the sheet shows. The tone network is wired as the sheet draws it: the 250 pF treble cap, 0.1 µF bass coupler and its 220 kΩ leak sit on the board; the 0.01 µF (C6) hangs at the treble pot and the 0.005 µF (C7) at the bass pot, whose other end lug is grounded to its case; the bass branch lands on the bass pot's WIPER, and the second 220 kΩ (RSR) is strung pot-to-pot from the bass wiper to the treble wiper, whose lead alone carries the output to the phase inverter. The 5 kΩ presence pot is wired as the layout sheet draws it: a rheostat from the driver's cathode, its far lug strapped to the wiper, with the 0.1 µF from that lug to chassis mounted at the pot. The 56 kΩ negative-feedback resistor (which also lands at the driver's cathode), the 100 pF bright cap, and the two AC-line caps are chassis wiring drawn schematically or off the board. The negative-bias supply takes the power transformer's own bias tap — the red-blue lead — onto the 18 kΩ, which feeds the selenium rectifier beside the board; the rectifier's other terminal is the −32 V line, the order the drawing shows. The power-transformer primary (black) lands on chassis switches, off the board; the 6.3 V heater chain (green twisted pair, PT → pilot lamp → the two 6V6GT output tubes → 12AX7 phase inverter → 12AY7 → 12AY7) is routed as the published sheet shows it, and the directly-heated 5U4GA rectifier runs off the 5 V winding, not the 6.3 V chain. Not a trace or a dimensioned reproduction."
 source:
   desc: "Fender 'Super-Amp' Model 5E4-A layout drawing (G-EE), page 1 — the factory's own board sheet, printing part values, the tube row and a second set of measured voltages (+245 at the cathodyne plate, +190 at the driver plate, +250 at the preamp can, +130 at the cathode follower, +125 at each 12AY7 plate, +1.9 at both cathode cans, -32 at the bias filter)"
   url: "https://el34world.com/charts/Schematics/files/Fender/Fender_super_5e4a.pdf"
@@ -122,7 +122,8 @@ offboard:
   # off the factory layout, where schematic.kicad_sch at cdc5afd draws D1 with
   # its anode (DIODE_SS pin 1) on HT_TAP instead.
   - { id: D1, ref: D1, kind: part, edge: top, at: 0.5, label: "D1", cathode: b }
-  - { id: VRP, kind: pot, edge: top, at: 4,  label: "Presence" }
+  - { id: VRP, ref: VRP, kind: pot, edge: top, at: 4,  label: "Presence" }
+  - { id: CP,  ref: CP, kind: part, edge: top, at: 2.0, label: "Presence cap" }   # 0.1 µF at the pot (G-EE layout): strapped lug -> chassis
   - { id: C7,  ref: C7, kind: part, edge: top, at: 21.8, label: "C7" }
   - { id: VR4, ref: VR4, kind: pot, edge: top, at: 24, label: "Bass" }
   - { id: RSR, ref: RSR, kind: part, edge: top, at: 26, label: "RSR" }
@@ -300,7 +301,9 @@ runs:
 
   # --- presence control (5k), on the driver's cathode -------------------------
   - { from: VRP.lug3, to: RK3.a, via: [[4, -0.8], [18.5, -0.8], [18.5, 0.55]] } # presence -> the driver's cathode (down the row-0 gap left of C10)
-  - { from: VRP.lug1, to: [1.45, 3.6], via: [[3.6, 0.5]] }   # presence ground (landing between the red-bus climb and RD1.a col)
+  - { from: VRP.lug1, to: VRP.lug2 }   # far lug strapped to the wiper, as the layout sheet wires it
+  - { from: CP.b, to: VRP.lug1, via: [[2.4, -0.62], [3.7, -0.62]] }       # 0.1 µF at the pot ...
+  - { from: CP.a, to: C15.b, via: [[1.6, -0.3], [2.0, -0.3]] }   # ... -> chassis, at the bias can's grounded eyelet
 
   # --- 6.3 V heater chain (green twisted pair) ------------------------------
   # PT green pair -> pilot lamp -> V4 6V6 -> V5 6V6 -> V3 12AX7 (PI) -> V2 12AY7

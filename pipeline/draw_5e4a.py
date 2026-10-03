@@ -155,6 +155,17 @@ s.plate_load("RLB", "56k", tp["p"], "B+3")
 # driver cathode: 1.5k to ground; the 56k NFB + presence land here
 s.sym("R", "RK3", "1.5k", 176.53, 137.43)
 s.gnd(176.53, 141.24)
+# presence (G-EE): a 5k rheostat from the driver's cathode, wiper strapped to
+# its far end (as the layout sheet wires the pot), 0.1 µF from there to ground
+s.junction(176.53, 133.62)
+s.wire(176.53, 133.62, 168, 133.62)
+s.sym("POT", "VRP", "5k presence", 168, 137.43, rot=180, lx=-14.0, ly=-1.5)
+s.wire(162.92, 137.43, 161, 137.43)
+s.wire(161, 137.43, 161, 141.24)
+s.wire(161, 141.24, 168, 141.24)
+s.junction(168, 141.24)
+s.sym("C", "CP", ".1u", 168, 145.05, lx=2.2)
+s.gnd(168, 148.86)
 # driver plate tee -> C8 0.02 -> cathodyne grid (left side, up to y=92)
 s.junction(176.53, 114.9)
 c8l, c8r = s.series_h("C", "C8", ".02u", 168, 114.9)
@@ -176,7 +187,7 @@ s.sym("R", "RKA", "1.5k", 184.5, 105.81, lx=2.0)
 s.junction(184.5, 109.62)
 s.sym("R", "RKB", "56k", 184.5, 113.43, lx=2.0)
 s.gnd(184.5, 117.24)
-s.note("56k NFB from the speaker + 5k presence (0.1 µF on its wiper) land on V3A's cathode (annotation)")
+s.note("56k NFB from the speaker lands on V3A's cathode (annotation)")
 
 # ---- 6V6GT pair, fixed bias ----------------------------------------------
 # V4 is driven from the cathodyne's PLATE (C9, 0.1-400), V5 from its

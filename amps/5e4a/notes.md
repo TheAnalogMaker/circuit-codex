@@ -122,6 +122,8 @@ The board layout here is **not** derived: Fender published a layout sheet for
 this circuit, page 1 of the same drawing, and the board order and the
 lead-by-lead wiring are read from it. The chassis carries four input jacks; the
 schematic draws one per channel, and the two 1 MΩ grid leaks mount at the jacks
-as the layout sheet shows. The presence pot, the negative-feedback resistor,
-the bright cap and the AC-line capacitors are chassis wiring drawn schematically
-or off the board.
+as the layout sheet shows. The presence pot and its 0.1 µF are drawn as the
+layout sheet wires them, at the pot: a rheostat from the driver's cathode with
+its far lug strapped to the wiper, the 0.1 µF from there to chassis. The
+negative-feedback resistor, the bright cap and the AC-line capacitors are
+chassis wiring drawn schematically or off the board.

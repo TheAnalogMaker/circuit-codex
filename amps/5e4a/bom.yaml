@@ -66,8 +66,8 @@ items:
   - { ref: T1,  part: "Power transformer",    value: "HT · 6.3 V heaters · 5 V rectifier filament", role: "HT winding with a centre tap and a bias tap between one end and the centre tap (the layout letters that lead red-blue), 5 V rectifier-filament and 6.3 V heater windings; the bias rectifier is fed from the tap, not from a rectifier plate" }
   - { ref: T3,  part: "Output transformer",   value: "push-pull output transformer", role: "Push-pull output into 2 × 10 in speakers, with an external-speaker jack" }
   - { ref: "—", part: "Mica capacitor",       value: "100 pF",         role: "Bright cap across VR1 (annotation only on the schematic)" }
-  - { ref: "—", part: "Linear potentiometer", value: "5 kΩ",           role: "Presence (annotation only)" }
-  - { ref: "—", part: "Film capacitor",       value: "0.1 µF · 200 V", role: "Presence-wiper capacitor to ground (annotation only)" }
+  - { ref: VRP, part: "Linear potentiometer", value: "5 kΩ",           role: "Presence: a rheostat from V3A's cathode, its far lug strapped to the wiper, into CP" }
+  - { ref: CP,  part: "Film capacitor",       value: "0.1 µF · 200 V", role: "Presence capacitor, the pot's wiper to ground; mounts at the pot on the layout sheet" }
   - { ref: "—", part: "Carbon comp resistor", value: "56 kΩ · ½ W",   role: "Negative feedback, speaker → V3A cathode (annotation only)" }
   - { ref: "—", part: "Film capacitor",       value: "0.05 µF · 600 V (×2)", role: "AC-line filter caps (annotation only)" }
   - { ref: "—", part: "Toggle switch",        value: "SPST",           role: "Standby switch (annotation only)" }
