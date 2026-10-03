@@ -28,7 +28,7 @@ familiar two-knob stack. **Bass Instrument** gets a third gain stage and a tone
 network with an extra rung — the channel the amp is named for, and the one the
 panel puts first.
 
-**Normal.** Two jacks on 68 kΩ stoppers and a shared 1 MΩ leak → **V2a**
+**Normal.** Two jacks on 68 kΩ stoppers, the 1 MΩ leak at jack 1's tip → **V2a**
 (100 kΩ plate load, 1.5 kΩ cathode, 25 µF bypass) → the blackface **treble/bass
 ladder**: a 250 pF treble cap and a 100 kΩ slope resistor both off the plate, 0.1 µF
 from the slope foot to the treble-lug/bass junction, a 250 kΩ bass rheostat down
@@ -37,7 +37,7 @@ volume with a switched **120 pF Bright** cap across it → **V2b**, an identical
 100 kΩ / 1.5 kΩ stage → 220 kΩ into the inverter's grid node.
 
 **Bass Instrument.** Same input arrangement into **V1a**, then the same ladder
-scaled for the low end. The treble cap is still 250 pF, but it feeds a **250 kΩ
+scaled for the low end. The treble cap is still 250 pF, but it feeds a **220 kΩ
 series resistor above a 50 kΩ treble pot**, so the control moves a small window of
 a much larger divider. The slope resistor is still 100 kΩ, and off its foot hang
 **three** 0.1 µF capacitors where the Normal channel has a 0.1 and a 0.047: one
@@ -53,8 +53,8 @@ that rolls off above about 1.5 kHz — and that feeds **V3b**, a third 100 kΩ /
 1.5 kΩ stage whose cathode resistor is the only one of the sheet's five preamp
 cathodes with **no bypass capacitor** (the phase inverter's shared 470 Ω cathode
 resistor is the sheet's other unbypassed one), and whose plate load carries
-**0.005 µF straight across it**, a corner
-near 800 Hz. Attenuate, amplify again with local
+**0.003 µF straight across it** (the layout letters ".003"; until
+2026-10-03 this entry read 0.005), a corner near 1.3 kHz. Attenuate, amplify again with local
 degeneration, then roll the top off at the plate: gain restored without the
 brightness that would come with it. V3b's plate then meets the Normal channel
 through its own 220 kΩ.

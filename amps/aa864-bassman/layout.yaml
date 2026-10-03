@@ -75,7 +75,7 @@ parts:
   - { ref: CKN2, a: [0, 62], b: [1, 62] , plus: a }  # 25 µF V2b cathode bypass
   # --- Bass-channel driver (V3b) ---
   - { ref: RLB3, a: [0, 65], b: [0, 67] }  # 100k driver plate load (PB3→BPR)
-  - { ref: CLB3, a: [1, 65], b: [1, 67] }  # 0.005 µF straight across RLB3
+  - { ref: CLB3, a: [1, 65], b: [1, 67] }  # 0.003 µF straight across RLB3 (layout ".003", crop 1570,790,1640,910)
   - { ref: RKB3, a: [0, 69], b: [1, 69] }  # 1.5k driver cathode, no bypass can
   # --- Bass Instrument channel ---
   - { ref: CCB2, a: [0, 72], b: [0, 73] }  # 0.1 µF V1b plate → driver grid divider
@@ -91,7 +91,7 @@ parts:
   # Polarity: printed '+' on the cited source; lead CKB1.a: KB1 = +1.9 V (op-points); lead CKB1.b: 0 = +0.0 V (ground); more-positive lead is CKB1.a.
   - { ref: CKB1, a: [0, 89], b: [1, 89] , plus: a }  # 25 µF V1a cathode bypass
   - { ref: CTB,  a: [1, 91], b: [1, 92] }  # 250 pF treble cap off the V1a plate
-  - { ref: RTB,  a: [1, 93], b: [1, 94] }  # 250k above the 50k treble pot
+  - { ref: RTB,  a: [1, 93], b: [1, 94] }  # 220k above the 50k treble pot (lettered "220K" in series with the "250 PF" on the layout)
   - { ref: RSB1, a: [1, 96], b: [1, 97] }  # 100k slope resistor
   - { ref: CBB1, a: [0, 96], b: [0, 97] }  # 0.1 µF slope node → treble-lug/bass junction
   - { ref: CBB2, a: [1, 98], b: [1, 99] }  # 0.1 µF slope node → the grounded foot
@@ -250,8 +250,13 @@ runs:
   - { from: VRBIAS.lug3, to: RBIAS2.a, via: [[34.548, -1.048], [36.57, -1.75]] }
   - { from: RBIAS2.b, to: [1.45, 41.4], via: [[39.8, -1.05], [46.4, -1.05], [46.4, 5.9], [41.4, 5.9]] }
   # === mains (annotation layer) ===========================================
-  - { from: FUSE.a, to: TR1.black1, via: [[43.316, 2.79], [-0.8, 2.786], [-0.8, 0.44]] }
-  - { from: FUSE.b, to: SWAC, via: [[44.9, 2.3], [46.2, 2.3]] }
+  # H-FD puts the fuse and the AC switch on OPPOSITE legs: one ground-switch
+  # lug -> fuse -> one primary lead, the other lug -> AC switch -> the other
+  # (layout 2115x1548, crop 440,1100,960,1420; schematic 6061x3777, crop
+  # 2350,2850,4300,3500). The line side (cord, receptacle, ground-switch lugs)
+  # has no board terminal; FUSE.a is that side. Until 2026-10-03 this board
+  # ran the fuse from one primary lead into the switch lead (V1 audit).
+  - { from: FUSE.b, to: TR1.black1, via: [[43.316, 2.79], [-0.8, 2.786], [-0.8, 0.44]] }
   - { from: SWAC, to: TR1.black2, via: [[48.05, 5.4], [-2.6, 5.4], [-2.624, 0.73]] }
   - { from: SWGND, to: CDEATH.a, via: [[61, 2.55], [62.2, 2.55]] }
   - { from: CDEATH.b, to: [1.45, 64] }
@@ -267,12 +272,12 @@ runs:
   - { from: RSN.b, to: CBN.a, via: [[53.379, 1.85], [53.422, 1.85]] }
   - { from: RSN.b, to: CBN2.a, via: [[53.5, 0.75], [56.1, 1.55], [56, 1.1]] }
   - { from: CBN.b, to: VRTN.lug3, via: [[55.35, 0.75], [54.6, -0.2], [54.25, -0.62]] }
-  - { from: CBN.b, to: VRBN.lug2, via: [[55.4, -0.8], [50.372, -0.656], [50, -0.775]] }
-  - { from: CBN2.b, to: VRBN.lug3, via: [[57.2, -0.15], [51.4, -0.75], [50.036, -1.028]] }
+  - { from: CBN.b, to: VRBN.lug2, via: [[55.4, -0.8], [50.112, -0.826]] }
+  - { from: CBN2.b, to: VRBN.lug3, via: [[57.2, -0.15], [51.4, -0.75], [50.036, -0.807]] }
   - { from: CBN2.b, to: RSLN.a, via: [[57.35, 1.45], [58, 1.45]] }
   - { from: RSLN.b, to: [1.45, 59] }
   - { from: VRBN.lug1, to: VRBN.lug2 }
-  - { from: VRTN.lug2, to: VRVN.lug1, via: [[53.5, -1], [55.42, -0.997], [56.292, -1.087]] }
+  - { from: VRTN.lug2, to: VRVN.lug1, via: [[53.72, -0.93], [55.43, -0.997], [57.092, -0.757]] }
   - { from: VRVN.lug3, to: [1.45, 58.6], via: [[56.39, -0.45], [58.6, 1.9], [57.747, 1.636]] }
   - { from: VRVN.lug2, to: V2.pin7, via: [[56.797, -0.173], [59.935, 1.35], [55.9, 2.95], [54.217, 1.916]] }
   - { from: VRVN.lug1, to: CBRN.a, via: [[56.05, -1.5], [61.9, -1.3]] }
@@ -286,9 +291,12 @@ runs:
   # === Normal input jacks =================================================
   - { from: JN1.tip, to: R1n.a, via: [[67.5, -1.5], [69.3, -1.5]] }
   - { from: JN2.tip, to: R2n.a, via: [[65, -1.85], [71.8, -1.85]] }
-  - { from: R1n.b, to: RGN1.a, via: [[70.7, -1.15], [74.3, -1.15]] }
-  - { from: R2n.b, to: RGN1.a, via: [[73.2, -1.95], [75.4, -1.95], [75, -1.05]] }
-  - { from: RGN1.a, to: V2.pin2, via: [[74.5, -3], [45, -3], [45, 4.5], [50.283, 2.16]] }
+  # H-FD hangs the 1M leak from jack 1's tip, jack side of its 68k (layout
+  # 2115x1548 at both jack clusters; schematic 6061x3777, Normal crop
+  # 300,2500,1950,3500). Until 2026-10-03 this board put it on the grid bus.
+  - { from: RGN1.a, to: R1n.a, via: [[74.3, -1.15], [70.7, -1.15]] }
+  - { from: R2n.b, to: R1n.b, via: [[73.2, -1.95], [70.4, -1.95]] }
+  - { from: R1n.b, to: V2.pin2, via: [[74.5, -3], [45, -3], [45, 4.5], [50.283, 2.16]] }
   - { from: RGN1.b, to: [1.45, 76.2], via: [[75.7, -0.55], [75.737, 2.129], [76.2, 1.9]] }
   - { from: JN1.sleeve, to: [1.45, 68.8], via: [[68.25, -0.4], [69.677, 1.812], [68.78, 1.846]] }
   - { from: JN2.sleeve, to: [1.45, 66.4], via: [[65.75, -0.62], [65.25, 1.9]] }
@@ -329,15 +337,17 @@ runs:
   - { from: CBB2.b, to: [1.45, 99.9] }
   - { from: CBB3.b, to: SWDEEP, via: [[99.4, -0.75], [98.9, -0.85]] }
   - { from: VRBB.lug1, to: VRBB.lug2 }
-  - { from: VRTB.lug2, to: VRVB.lug1, via: [[91, -2.35], [83.25, -2.35], [83.25, -1.42]] }
+  - { from: VRTB.lug2, to: VRVB.lug1, via: [[91, -2.35], [83.25, -2.35], [83.25, -1.47], [84.937, -1.162]] }
   - { from: VRVB.lug3, to: [1.45, 83.4], via: [[83.999, -0.45], [83.4, 1.35]] }
   - { from: VRVB.lug2, to: V1.pin7, via: [[84.147, 0.125], [91.908, 0.412], [90.362, 2.063], [87.408, 1.952]] }
   # === Bass input jacks ==================================================
   - { from: JB1.tip, to: R1b.a, via: [[95.5, 2.9], [97.8, 2.9]] }
   - { from: JB2.tip, to: R2b.a, via: [[92, 3.15], [99.8, 3.15]] }
-  - { from: R1b.b, to: RGB1.a, via: [[98.3, 3.3], [98.8, 3.3], [98.8, -0.5], [99.9, -0.55]] }
-  - { from: R2b.b, to: RGB1.a, via: [[102.1, 2.4], [102.1, -0.1], [100.4, -0.2]] }
-  - { from: RGB1.a, to: V1.pin2, via: [[99.9, -3.7], [91.6, -3.7], [91.6, 4.6], [84.283, 2.16]] }
+  # The Bass leak likewise hangs from jack 1's tip (schematic Bass crop
+  # 300,880,1950,2000). Until 2026-10-03 this board put it on the grid bus.
+  - { from: RGB1.a, to: R1b.a, via: [[99.9, -0.55], [98.8, -0.5], [98.553, 3.3], [98.748, 3.3]] }
+  - { from: R2b.b, to: R1b.b, via: [[102.1, 2.4], [102.1, 3.6], [98.6, 3.6]] }
+  - { from: R1b.b, to: V1.pin2, via: [[100.52, -2.634], [99.9, -3.7], [91.6, -3.7], [91.6, 4.6], [84.283, 2.16]] }
   - { from: RGB1.b, to: [1.45, 100.4], via: [[100.6, -1.5], [102.8, -0.95], [102.8, 2.2]] }
   - { from: JB1.sleeve, to: [1.45, 94.8] }
   - { from: JB2.sleeve, to: [1.45, 91.3] }
@@ -369,8 +379,18 @@ net_map:
     # The bias supply is replaced by an ideal -44 V source; the adjust pot's
     # wiper is the line the two 220 kOhm grid leaks return to.
     VRBIAS.lug2: NBIAS
+  # The 1 M input leaks hang from jack 1's tip, jack side of the jack-1 68 k
+  # (H-FD, both channels); the 68 k carries no DC grid current, so the
+  # netlist's RGB1 GB1 0 / RGN1 GN1 0 run the grid node through it.
+  series_bridge:
+    R1b: "68 k Bass jack-1 grid stopper — netlist node GB1 runs through it to the 1 M leak at the jack-1 tip"
+    R1n: "68 k Normal jack-1 grid stopper — netlist node GN1 runs through it to the 1 M leak at the jack-1 tip"
+  # The board draws the mains from the primary leads outward only: the cord,
+  # the receptacle and the ground switch's two line lugs have no terminal here.
+  not_on_board:
+    FUSE: "2 A slo-blo mains fuse — drawn with its primary-side lead only (FUSE.b → TR1.black1); its line-side lead lands on a ground-switch lug on the layout's mains row, which this board does not draw"
   netlist_unplaced:
-    RGB1: "1 MΩ Bass-channel input grid leak — mounted at the input jacks, not on the eyelet board"
-    RGN1: "1 MΩ Normal input grid leak — mounted at the input jacks, not on the eyelet board"
+    RGB1: "1 MΩ Bass-channel input leak, jack 1's tip to ground — mounted at the input jacks, not on the eyelet board"
+    RGN1: "1 MΩ Normal input leak, jack 1's tip to ground — mounted at the input jacks, not on the eyelet board"
     RGB2: "Bass-channel second-stage grid return — realised through the 250 kΩ volume control, not a discrete board resistor (GB2→0)"
     RGN2: "Normal second-stage grid return — realised through the 1 MΩ volume control, not a discrete board resistor (GN2→0)"

@@ -31,7 +31,7 @@
 * inverter's 22k tail returns through it.
 *
 * DC-open caps are MODELLED where BOTH leads land on a named DC node (every
-* cathode-bypass can, the interstage couplers, the 0.005 uF across the driver's
+* cathode-bypass can, the interstage couplers, the 0.003 uF across the driver's
 * plate load, the 0.001 uF across the divider foot, the PI cold-grid 0.1/200) so an
 * eventual layout is placement-checked; open at DC they move no operating point.
 * Caps into the abstracted tone / volume networks stay omitted — no DC path runs
@@ -68,14 +68,14 @@ CKB2 KB2 0 25u
 * --- Bass channel driver V3b (7025), the third gain stage this channel has and
 *     the Normal channel does not. Its grid is fed from V1b through a 0.1 uF
 *     coupler into a 220k/220k divider (0.001 uF across the foot), so the grid sits
-*     at 0 V DC. 100k plate load with 0.005 uF across it; the 1.5k cathode is
+*     at 0 V DC. 100k plate load with 0.003 uF across it; the 1.5k cathode is
 *     UNBYPASSED — the only preamp cathode on the sheet without a can.
 CCB2 PB2 NDIV 0.1u
 RDV1 NDIV GB3 220k
 RDV2 GB3 0 220k
 CDV  GB3 0 0.001u
 RLB3 BPR PB3 100k
-CLB3 PB3 BPR 0.005u
+CLB3 PB3 BPR 0.003u
 XV3B PB3 GB3 KB3 12AX7
 RKB3 KB3 0 1500
 

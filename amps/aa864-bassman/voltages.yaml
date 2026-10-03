@@ -29,7 +29,7 @@ nodes:
   KB1:  { chart: 2.0, tol_pct: 20, note: "Bass channel input cathode over 1.5k (25 uF bypass)" }
   PB2:  { chart: 235, tol_pct: 20, note: "Bass channel 2nd-stage plate (V1b), 100k from the preamp rail" }
   KB2:  { chart: 2.0, tol_pct: 20, note: "Bass channel 2nd-stage cathode over 1.5k (25 uF bypass)" }
-  PB3:  { chart: 240, tol_pct: 20, note: "Bass channel driver plate (V3b), 100k with 0.005 uF across it" }
+  PB3:  { chart: 240, tol_pct: 20, note: "Bass channel driver plate (V3b), 100k with 0.003 uF across it" }
   KB3:  { chart: 1.9, tol_pct: 20, note: "Bass channel driver cathode over 1.5k — the one preamp cathode with no bypass can" }
   PN1:  { chart: 250, tol_pct: 20, note: "Normal channel input plate (V2a), 100k from the preamp rail" }
   KN1:  { chart: 1.8, tol_pct: 20, note: "Normal channel input cathode over 1.5k (25 uF bypass)" }

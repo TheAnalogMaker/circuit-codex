@@ -36,21 +36,30 @@ XV2 = 158      # second triode
 
 
 def input_stage(y, j1, j2, r1, r2, rleak, vref, rload, rk, ck, unit=None):
-    """Two-jack input: 68k stoppers -> grid (1M leak) -> 7025 -> 100k plate load
-    off the preamp rail + 1.5k/25u cathode RC. Returns the triode pin dict."""
+    """Two-jack input: 68k stoppers -> grid -> 7025 -> 100k plate load off the
+    preamp rail + 1.5k/25u cathode RC, with the 1M leak at jack 1's tip.
+    Returns the triode pin dict."""
     gb, d = 40, 5.5                          # grid-bus x, jack-row spacing
     s.glabel(j1, 12, y - d, 180)
     s.glabel(j2, 12, y + d, 180)
     l, r = s.series_h("R", r1, "68k", 22, y - d)
     s.wire(12, y - d, l, y - d)
     s.wire(r, y - d, gb, y - d)
+    # The 1M leak hangs from jack 1's TIP, jack side of its 68k, as H-FD draws
+    # it on both channels (schematic 6061x3777, Bass crop 300,880,1950,2000;
+    # Normal 300,2500,1950,3500): jack 1 tip -> 1M -> ground; jack 2's contact
+    # -> jack 1's tip; jack 1's contact -> ground. Until 2026-10-03 this sheet
+    # (and the board) hung it on the grid bus (V1 audit, aa864-bassman.md). r1
+    # carries no DC, so the netlist's leak sees one node either way
+    # (sch_map.yaml series_bridge, the AB165 idiom).
+    s.junction(15, y - d)
+    s.sym("R", rleak, "1M", 15, y - d - 3.81, lx=2.2, ly=0.0)
+    s.gnd(15, y - d - 7.62, rot=90)
     l, r = s.series_h("R", r2, "68k", 22, y + d)
     s.wire(12, y + d, l, y + d)
     s.wire(r, y + d, gb, y + d)
     s.wire(gb, y - d, gb, y + d)
     s.junction(gb, y)
-    s.sym("R", rleak, "1M", gb, y + 3.81 + d)
-    s.gnd(gb, y + 7.62 + d)
     t = s.triode(vref, "7025", XV1, y, unit=unit)
     s.wire(gb, y, t["g"][0], y)
     s.plate_load(rload, "100k", t["p"], "B+PRE")
@@ -86,10 +95,10 @@ TB = YB - 11.1                       # plate-tee / tone-stack input line
 s.text("Bass Instrument channel — three gain stages", 12, 32, 1.6)
 # The factory schematic (6061×3777) prints its own pin numbers: each channel's
 # input stage on 2/1/3 (unit 2) and its second stage on 7/6/8 (unit 1).
-input_stage(YB, "BASS 2", "BASS 1", "R1b", "R2b", "RGB1", "V1A", "RLB1", "RKB1", "CKB1",
+input_stage(YB, "BASS 1", "BASS 2", "R1b", "R2b", "RGB1", "V1A", "RLB1", "RKB1", "CKB1",
             unit=2)
 
-# --- Bass tone stack. 250 pF off the plate into a 250k series resistor above a
+# --- Bass tone stack. 250 pF off the plate into a 220k series resistor above a
 #     50k treble pot; ONE 100k slope resistor down to the ladder node; and three
 #     0.1 uF caps off that node — one across to the treble-lug/bass-top junction,
 #     one into the grounded foot, and one the Deep switch parallels with it. The
@@ -101,7 +110,13 @@ tl, tr = s.series_h("C", "CTB", "250p", 94, TB - 13.62)
 s.wire(78, TB, 78, TB - 13.62)
 s.wire(78, TB - 13.62, tl, TB - 13.62)
 s.wire(tr, TB - 13.62, XPOT, TB - 13.62)
-s.sym("R", "RTB", "250k", XPOT, TB - 9.81, lx=-9.6)
+# H-FD letters the series resistor "220K": on the layout's board, in series
+# with the "250 PF" (2115x1548, crop 1580,660,2080,930), and on the schematic,
+# whose two leading glyphs match each other and the "220K" of the driver
+# divider (6061x3777, crops 1300,1000,1400,1280 vs 2150,1180,2260,1480), not
+# the flat-topped 5 of "250 PF" (1060,900,1200,1020). Until 2026-10-03 this
+# sheet carried 250k (V1 audit, aa864-bassman.md).
+s.sym("R", "RTB", "220k", XPOT, TB - 9.81, lx=-9.6)
 s.sym("POT", "VRTB", "50k treb", XPOT, TB - 2.19)
 sl, sr = s.series_h("R", "RSB1", "100k", XSLP, TB + 6)
 s.wire(78, TB, 78, TB + 6)
@@ -156,14 +171,19 @@ s.junction(XDIV, TB + 15.24)
 # ============================ BASS DRIVER (same row, right of the pad) =======
 XD = 212
 s.text("Bass-channel driver V3B — the one preamp cathode with no bypass can, and", 60, 98, 1.4)
-s.text("0.005 µF straight across its plate load", 60, 103, 1.4)
+s.text("0.003 µF straight across its plate load", 60, 103, 1.4)
 s.wire(XDIV, TB + 7.62, 200, TB + 7.62)
 s.junction(XDIV + 8, TB + 7.62)
 s.wire(200, TB + 7.62, 200, YB)
 t3b = s.triode("V3B", "7025", XD, YB)
 s.wire(200, YB, t3b["g"][0], YB)
 s.plate_load("RLB3", "100k", t3b["p"], "B+PRE")
-s.sym("C", "CLB3", ".005u", XD + 8, TB - 3.81, lx=2.6)
+# ".003" on the layout's board, across the driver's 100K (2115x1548, crop
+# 1570,790,1640,910: a round-topped 3, not the flat-topped 5 of the "1500"
+# beside it); the schematic's last digit is ink-filled and undecidable alone
+# (6061x3777, crop 2840,1360,2920,1560). Until 2026-10-03 this sheet carried
+# .005 (V1 audit, aa864-bassman.md).
+s.sym("C", "CLB3", ".003u", XD + 8, TB - 3.81, lx=2.6)
 s.wire(XD, TB, XD + 8, TB)
 s.wire(XD, TB - 7.62, XD + 8, TB - 7.62)
 s.junction(XD, TB)
@@ -180,7 +200,7 @@ s.glabel("PIMIX", 244, TB, 0)
 YN = 180
 TN = YN - 11.1
 s.text("Normal channel — the blackface two-knob stack", 12, 143, 1.6)
-input_stage(YN, "NORM 2", "NORM 1", "R1n", "R2n", "RGN1", "V2A", "RLN1", "RKN1", "CKN1",
+input_stage(YN, "NORM 1", "NORM 2", "R1n", "R2n", "RGN1", "V2A", "RLN1", "RKN1", "CKN1",
             unit=2)
 s.wire(XV1, TN, 78, TN)
 s.junction(XV1, TN)
@@ -356,14 +376,22 @@ YPW = 235
 s.text("Power supply — TR1 125P7D 305-0-305 (125P7DX export), three series silicon diodes per phase, "
        "125C1A choke; no rectifier tube", 26, 205, 1.4)
 s.pt("T1", "125P7D", 50, YPW)
+# The AC switch and the fuse sit on OPPOSITE legs of the line, as H-FD draws
+# them: the schematic runs one leg through the AC SWITCH and the other through
+# the 2 AMP SLO-BLO fuse to the primary (6061x3777, crop 2350,2850,4300,3500),
+# and the layout wires the fuse from one ground-switch lug and the AC switch
+# from the other, each on to a primary lead (2115x1548, crop 440,1100,960,1420).
+# The two-pin plug prints no polarity, so the legs are numbered, not named.
+# Until 2026-10-03 this sheet put the fuse and the switch in series on one leg
+# (V1 audit, aa864-bassman.md).
 s.glabel("AC LINE", 10, YPW - 5.08, 180)
-s.wire(10, YPW - 5.08, 15.92, YPW - 5.08)
-fl2, fr2 = s.fuse("FUSE", "2A slo-blo", 21, YPW - 5.08)
-s.wire(fr2, YPW - 5.08, 29.92, YPW - 5.08)
+s.wire(10, YPW - 5.08, 29.92, YPW - 5.08)
 swl2, swr2 = s.switch("SWAC", "AC", 35, YPW - 5.08)
 s.wire(swr2, YPW - 5.08, 41.11, YPW - 5.08)
-s.glabel("AC LINE N", 10, YPW + 5.08, 180)
-s.wire(10, YPW + 5.08, 41.11, YPW + 5.08)
+s.glabel("AC LINE 2", 10, YPW + 5.08, 180)
+s.wire(10, YPW + 5.08, 15.92, YPW + 5.08)
+fl2, fr2 = s.fuse("FUSE", "2A slo-blo", 21, YPW + 5.08, ly=4.6)
+s.wire(fr2, YPW + 5.08, 41.11, YPW + 5.08)
 s.wire(58.89, YPW, 63, YPW)
 s.gnd(63, YPW)                                # HT centre tap
 # two three-diode strings

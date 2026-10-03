@@ -1199,7 +1199,7 @@ const TONE_STACK_GATE_EXTRAS = [
     // Wiring-only, and it must stay that way until the solver grows an element
     // for it: the ladder tonestack.js models has no resistor between the treble
     // capacitor and the treble pot, and this channel's drawing has one. The
-    // AA864 sheet letters 250 kOhm there, above a 50 kOhm Treble pot.
+    // AA864 drawing letters 220 kOhm there, above a 50 kOhm Treble pot.
     id: 'aa864-bassman', kind: 'tb', wiring: 'ladder', channel: 'bass instrument',
     refs: { slope: 'RSB1', trebleCap: 'CTB', trebleSeries: 'RTB', treblePot: 'VRTB', bassCap: 'CBB1', bassPot: 'VRBB', midCap: 'CBB2' },
     midLeg: { kind: 'ground' },
