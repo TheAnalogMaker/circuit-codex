@@ -340,3 +340,11 @@ net_map:
   # wiring above; no signal pin is DC-checked.
   excluded_tubes:
     V4: "12AX7 tremolo (both sections) — a phase-shift oscillator and a cathode follower into the Intensity control, with no static DC operating point (excluded from netlist.cir; see notes.md)"
+  # Parts the sheet draws that this board neither places nor wires — each
+  # read off the cited layout drawing (sheet ↔ board gate, 2026-10-02).
+  not_on_board:
+    C11: "0.047 µF · 600 V line cap — the Vibro-Champ AA764 layout (I-FD, read at 6600 × 5100) draws it ('.047-600V') from the 1 A slo-blo fuse holder's lug to a chassis ground arrow, in the mains wiring and not on the eyelet board"
+    R22: "470 kΩ V4A plate load — the layout letters '470K' inside the tremolo 12AX7's socket outline, soldered across the socket from pin 1 to pin 6 (the +340 V plate of the follower section): at the socket, not on the eyelet board"
+    R25: "100 kΩ fixed leg of the Speed control — the layout draws it ('100K') inside the 3.0M-RA Speed pot's outline, from a lug to the pot's ground arrow: at the control, not on the eyelet board"
+    R24: "Speed control, 3 MΩ reverse-audio (3.0M-RA 0015) — a panel pot in the layout's control row; its stub is placed here but no lug is wired, because the leads it takes land on the oscillator's phase-shift ladder, which the factory board mounts and this redraw does not yet draw (see the caption)"
+    R27: "Intensity control, 25 kΩ reverse-audio (25K-RA 37947) — a panel pot in the layout's control row whose lug leads the layout runs down to the eyelet board; its stub is placed here but no lug is wired, because its wiper is fed through the follower's 68 kΩ (R26), which the factory board mounts and this redraw does not yet draw, and its lug wiring is left with that network (see the caption)"
