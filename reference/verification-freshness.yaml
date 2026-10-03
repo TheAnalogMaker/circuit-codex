@@ -6,8 +6,9 @@
 # WHAT THIS IS. Every verified circuit whose facts have changed since the
 # maintainer last reviewed them, or that has never been stamped. The facts are
 # netlist.cir, the voltages.yaml chart values, tolerances and disputed flags,
-# the bom.yaml refs, parts and values, and the schematic's and the board's net
-# partitions - no comments, coordinates, routes or fonts (see the gate's
+# the bom.yaml refs, parts and values, the schematic's and the board's net
+# partitions, the board's declared electrolytic '+' leads and its heater
+# declarations - no comments, coordinates, routes or fonts (see the gate's
 # docstring). `verification.facts_sha256` in meta.yaml records the fingerprint
 # the maintainer reviewed; `current` is what the files hash to now.
 #
@@ -24,115 +25,115 @@
 # `pipeline/verification_freshness.py --export`, which never stamps anything.
 amps:
   5c1:
-    current: 341204932b4b45c2e6c4e1a07b0da1ca02e70ac87b576c48e22b8a72b05980f8
+    current: c04cd8d8c8d88ac3971207c55fcbc14bfa273b6ebc0cb62c512de9ce2e83196e
     reason: never stamped
     reviewed: null
     stamped: null
     verified: '2026-08-08'
   5e1:
-    current: fe9be0914926dd0d2302940dcfce7b94d4746f91c556cf750a2455ff722cc2ea
+    current: f2307bf39c4d0fcac4f532e0083be8dd9362ad08d4f95ddad1dad130706bc2d7
     reason: never stamped
     reviewed: null
     stamped: null
     verified: '2026-07-18'
   5e3:
-    current: ed383cdd18966e64be78b2ca9fb51ca502c1c47699c88927fc1924dd9d914725
+    current: b6f142552cd05a17ed5468e38536b64bb68750905cb2fd5b02469608a8bf8a9a
     reason: never stamped
     reviewed: null
     stamped: null
     verified: '2026-07-18'
   5e4a:
-    current: 847608451ff20c8927964e520c671edf1d4dcb0e05585695dce27b1957ba73dc
+    current: 963aac87b3901580f87425ee563f10998bc4a10f513da445a0dfd201a67b96a3
     reason: never stamped
     reviewed: null
     stamped: null
     verified: '2026-08-08'
   5f1:
-    current: ad4f7476001e8c7b6639e9151742f423cc34a15a0845e0084524fc746cf1e089
+    current: fae24e30c98a28d064c63b98bbdf233318f239e9a6a1fc3df8fe22789b2b2e27
     reason: never stamped
     reviewed: null
     stamped: null
     verified: '2026-07-18'
   5f10:
-    current: d97985f0b62aa84ccb3e2755439fcde11b602ec3799be995ea41147d78e5346e
+    current: 2786733ced974834cd3424fd2b478a17079561cf286d15bec71b7163ed5852dd
     reason: never stamped
     reviewed: null
     stamped: null
     verified: '2026-07-18'
   5f4:
-    current: d100b14dfae04f391c148f956d8847a285a82afacb308ecc4a28ea14c388507c
+    current: 4d3122348a9c2b98177de28c629cb934b0df1d58b2121a929140c554396fd2e3
     reason: never stamped
     reviewed: null
     stamped: null
     verified: '2026-08-03'
   5f6:
-    current: a9ed4021ae1f05193e8e70c4c256763418af8a4d9523623b3789b35a362ae503
+    current: ec3c0e903f40ce30b6a690b4ff1979da3355f1f6284de45f180a0af872c218b3
     reason: never stamped
     reviewed: null
     stamped: null
     verified: '2026-08-02'
   5f6a:
-    current: da43df15db6fe368cc67bde36a10ea98871c8a3e395b95d2df843178d311ca2a
+    current: cb66f649ced477dcc43b0de2b20c062f5b63293be8a0a697c9b82770eb03aa97
     reason: never stamped
     reviewed: null
     stamped: null
     verified: '2026-07-18'
   6g2:
-    current: 8d788b48484381f1c0ff4b0d09a08a9458de0db5c73a502908028f69768a759d
+    current: 632fbbac88146d282358dc674c41e006cf7b1e43d7a60100a3e485752c35873c
     reason: never stamped
     reviewed: null
     stamped: null
     verified: '2026-08-08'
   6g3:
-    current: 20a8aa1885bd1701c74f22baa90939dbd4e1ab2570e4afcc5be159eaf31396a9
+    current: 0875b32c73eb7fd3b52f3a27d94bd5923ea4cc21f04870c1b631d2bd85fb2902
     reason: never stamped
     reviewed: null
     stamped: null
     verified: '2026-08-02'
   aa1164:
-    current: baba5fdf221a626f6b446b2a2f96af43db78326af7e5056436ee3722a0fee684
+    current: ce30a47858ad32069a105e24f2c86a2e619fdc3e830d90ca1c33469983dbd860
     reason: never stamped
     reviewed: null
     stamped: null
     verified: '2026-08-02'
   aa764:
-    current: 6f8bd5d002cb3100bb52800ce6ce86dd209c1b9ed9a6a99bc4aaf30d12c26dbc
+    current: 24e1d824e298ca85cfb7d08dc395b76700e43776993f151973dd73f6bfd2cbdd
     reason: never stamped
     reviewed: null
     stamped: null
     verified: '2026-08-02'
   aa864-bassman:
-    current: 6887ff55b0388c11872c292038f5263e3ef57741f73731a41a57ae71339318ae
+    current: cdeeff5c7e9631b4995fc85bc9e2b6eb080006f7b9b2590eaadf69591bc0e430
     reason: never stamped
     reviewed: null
     stamped: null
     verified: '2026-08-13'
   aa964:
-    current: d3027aadc31c4cb84927da56ee406c198f552f7e84469dceaeeb12137089ee7b
+    current: e3d29781da0604994023c46fc2160b63dcfa59b5ad6bb53387c83f8a6e99357b
     reason: never stamped
     reviewed: null
     stamped: null
     verified: '2026-08-02'
   ab165:
-    current: 31b2d78bebbec574e91203a41f389041107e0ed582f7f51ee34df33773e36aac
+    current: 67b7123ede61001ce6dd963ef9ca9adb976dd738d27a6fe4f9ace80d5a65c5c9
     reason: never stamped
     reviewed: null
     stamped: null
     verified: '2026-08-08'
   ab763:
-    current: d8c1060432978e0e4a1ee01bf71180eada50e51f5f56d5458a8430391ed7d88b
+    current: 07bd9dc435aca1b35ef0b524da6fd5ea00492eac4267f41a5a71c6aee6f73e05
     reason: never stamped
     reviewed: null
     stamped: null
     verified: '2026-07-19'
   ab763-twin:
-    current: 42645968977a9e5c52b0ff2ebc924ff7c76bf595863e335841a9669397c8e3bf
+    current: bfc4bd3a28302daff7fda2098ca539b0f5f21bc34e99b410149c5c5079f79dc0
     reason: never stamped
     reviewed: null
     stamped: null
     verified: '2026-08-08'
   jtm45:
-    current: 8710132769294a3a09549102a8bd1d6079b51a3205e63addc12bba5f9abb2216
+    current: 15ec225cc5dfdf467bb86fac5b7f214b398cf695f59dcb5d93369bf8dab041c2
     reason: never stamped
     reviewed: null
     stamped: null

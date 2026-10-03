@@ -44,6 +44,19 @@ A SHA-256 over a canonical JSON form of, per amp:
                verify_sheet_vs_board's own extraction (its `Board`, i.e.
                verify_layout_nets.LayoutGraph). Bare eyelet nodes (`@r,c`)
                are coordinates and are dropped.
+  polarity     every electrolytic the board draws (parts[] rows and off-board
+               `kind: part` stubs whose BOM part is an electrolytic, as
+               verify_layout_nets.board_electrolytics picks them): [ref, the
+               layout's declared `plus:` lead]. A can with no `plus:` is
+               recorded as None — never render_layouts' position default — so
+               declaring, moving or removing a '+' is a change.
+  heaters      the layout's `heaters:` block, as check_heaters.check_layout
+               reads it: per circuit its id, supply volts, grounded_leg,
+               winding_ct and humdinger part(s); per socket its feed and return
+               pins (each sorted); per pilot lamp its return. `winding`,
+               `source` and pilot `source` text are prose and dropped. Whether
+               the layer is declared `heaters_pending` / `heaters_unsourced` is
+               kept as a flag, its prose is not. Circuits are sorted.
 
 Every collection is sorted, so ordering never matters. Coordinates, `via`
 waypoints, run colours, fonts, symbol and label positions and every comment
@@ -93,6 +106,7 @@ import yaml
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from verify_layout_nets import GND, ROOT                                  # noqa: E402
+from render_layouts import category                                       # noqa: E402
 from verify_sheet_vs_board import Board, Sheet, _swap_refs               # noqa: E402
 
 AMPS = ROOT / "amps"
@@ -170,10 +184,68 @@ def sheet_facts(amp_id: str, amp_dir: Path) -> dict:
             "units": sorted([ref, str(u)] for ref, u in sh.units.items())}
 
 
-def board_facts(amp_id: str, amp_dir: Path) -> list:
+def board_facts(amp_id: str, amp_dir: Path) -> dict:
+    """The board's net partition, its electrolytics' declared '+' leads and its
+    heater declarations, all read off one verify_sheet_vs_board `Board`."""
     bd = Board(amp_id, amp_dir)
-    return _partition({str(m) for m in members if not str(m).startswith("@")}
-                      for members in bd.LG.nets().values())
+    return {"nets": _partition({str(m) for m in members if not str(m).startswith("@")}
+                               for members in bd.LG.nets().values()),
+            "polarity": polarity_facts(bd.R),
+            "heaters": heater_facts(bd.layout)}
+
+
+def polarity_facts(R) -> list:
+    """[ref, declared '+' lead] for every electrolytic the board draws — the
+    parts[] rows and off-board `kind: part` stubs verify_layout_nets'
+    board_electrolytics() judges, picked by the same BOM category. The lead is
+    the layout's own `plus:`, never render_layouts' position default: a can
+    with no declaration is recorded as None, so declaring one is a change."""
+    def electro(ref):
+        return category(str((R.bom.get(ref) or {}).get("part", ""))) == "electro"
+    out = [[str(p["ref"]), p.get("plus")] for p in R.parts
+           if p.get("ref") and electro(p["ref"])]
+    out += [[str(it["ref"]), it.get("plus")] for it in R.offboard
+            if it.get("kind") == "part" and it.get("ref") and it.get("id")
+            and electro(it["ref"])]
+    return sorted(out, key=lambda r: (r[0], str(r[1])))
+
+
+def _pins(x) -> list:
+    try:
+        return sorted(int(p) for p in (x or []))
+    except (TypeError, ValueError):
+        return [str(x)]
+
+
+def heater_facts(layout: dict) -> dict:
+    """The `heaters:` declarations, as check_heaters.check_layout() reads them:
+    per circuit its id, supply volts, grounded_leg, winding_ct and humdinger
+    part(s); per socket its feed and return pins; per pilot lamp its return.
+    `winding`, `source` and every pilot `source` are prose and dropped. Whether
+    the layer is declared pending or unsourced is kept as a flag; its prose is
+    not."""
+    circuits = []
+    for c in layout.get("heaters") or []:
+        if not isinstance(c, dict):
+            circuits.append(_num(c))
+            continue
+        hum = c.get("humdinger")
+        hum = [hum] if isinstance(hum, str) else [str(x) for x in (hum or [])]
+        circuits.append({
+            "id": _text(c.get("id")),
+            "volts": _num(c.get("volts")),
+            "grounded_leg": _text(c.get("grounded_leg")),
+            "winding_ct": _text(c.get("winding_ct")),
+            "humdinger": sorted(hum),
+            "sockets": {str(sid): ([_pins(g.get("feed")), _pins(g.get("return"))]
+                                   if isinstance(g, dict) else _num(g))
+                        for sid, g in (c.get("sockets") or {}).items()},
+            "pilot": {str(lid): (_text(e.get("return")) if isinstance(e, dict) else _num(e))
+                      for lid, e in (c.get("pilot") or {}).items()},
+        })
+    return {"circuits": sorted(circuits, key=lambda c: json.dumps(c, sort_keys=True)),
+            "pending": bool(str(layout.get("heaters_pending", "") or "").strip()),
+            "unsourced": bool(str(layout.get("heaters_unsourced", "") or "").strip())}
 
 
 def facts(amp_id: str, amp_dir: "Path | None" = None) -> dict:
@@ -267,8 +339,9 @@ WORKLIST_HEADER = """\
 # WHAT THIS IS. Every verified circuit whose facts have changed since the
 # maintainer last reviewed them, or that has never been stamped. The facts are
 # netlist.cir, the voltages.yaml chart values, tolerances and disputed flags,
-# the bom.yaml refs, parts and values, and the schematic's and the board's net
-# partitions - no comments, coordinates, routes or fonts (see the gate's
+# the bom.yaml refs, parts and values, the schematic's and the board's net
+# partitions, the board's declared electrolytic '+' leads and its heater
+# declarations - no comments, coordinates, routes or fonts (see the gate's
 # docstring). `verification.facts_sha256` in meta.yaml records the fingerprint
 # the maintainer reviewed; `current` is what the files hash to now.
 #
@@ -317,6 +390,7 @@ def check_worklist(amps_dir: Path = AMPS, path: Path = WORKLIST) -> list:
 # self-test — on temp copies; the committed tree is never touched
 # ===========================================================================
 SELFTEST_AMP = "5f6a"
+HEATER_AMP = SELFTEST_AMP     # declares its heater layer (winding-ct, five sockets)
 
 
 def _sub(path: Path, old: str, new: str, count: int = 1):
@@ -454,14 +528,20 @@ def selftest() -> int:
 
     print(f"verification_freshness self-test on temp copies of {SELFTEST_AMP} ({tmp})")
     f0 = facts(SELFTEST_AMP)
-    for part in ("netlist", "voltages", "bom", "board"):
+    for part in ("netlist", "voltages", "bom"):
         if not f0[part]:
             fails.append(f"no {part} facts extracted")
-    if not (f0["sheet"] or {}).get("nets"):
-        fails.append("no sheet nets extracted")
+    for part, key in (("sheet", "nets"), ("board", "nets"), ("board", "polarity")):
+        if not (f0[part] or {}).get(key):
+            fails.append(f"no {part} {key} extracted")
+    hf = facts(HEATER_AMP)["board"]["heaters"]["circuits"]
+    if not hf:
+        fails.append(f"no heater circuits extracted from {HEATER_AMP}")
+    board = f0["board"] or {}
     print(f"  extracted {len(f0['netlist'])} netlist lines, {len(f0['voltages'])} nodes, "
           f"{len(f0['bom'])} BOM items, {len((f0['sheet'] or {}).get('nets', []))} sheet nets, "
-          f"{len(f0['board'] or [])} board nets")
+          f"{len(board.get('nets', []))} board nets, {len(board.get('polarity', []))} "
+          f"electrolytics; {len(hf)} heater circuits on {HEATER_AMP}")
     try:
         case("unchanged copy", lambda d: None, False)
         case("BOM value", _bom_value, True)
@@ -478,6 +558,20 @@ def selftest() -> int:
         case("schematic fonts and a property's position", _sheet_cosmetics, False)
         case("comments, notes and roles reworded", _comments, False)
         case("a chart number written as a float", _yaml_numbers, False)
+        case("an electrolytic's '+' moved to its other lead",
+             lambda d: _re_sub(d / "layout.yaml", r"plus: ([ab])",
+                               lambda m: "plus: " + ("a" if m.group(1) == "b" else "b")), True)
+        case("an electrolytic's '+' declaration removed",
+             lambda d: _re_sub(d / "layout.yaml", r" *, *plus: [ab]", ""), True)
+        case("a heater socket's legs redeclared (12.6 V series grouping)",
+             lambda d: _sub(d / "layout.yaml", "V1: { feed: [4, 5], return: [9] }",
+                            "V1: { feed: [4], return: [5] }"), True)
+        case("a heater circuit's grounded leg redeclared",
+             lambda d: _sub(d / "layout.yaml", "grounded_leg: winding-ct\n    winding_ct: PT.green-yellow",
+                            "grounded_leg: return"), True)
+        case("heater winding and source prose reworded",
+             lambda d: (_re_sub(d / "layout.yaml", r'^(\s+winding: ")', r"\1Reworded: "),
+                        _re_sub(d / "layout.yaml", r"^(\s+source: >-\n\s+)", r"\1Reworded. ")), False)
 
         # stamp -> drops off the worklist; a fact change -> back on it
         n += 1
@@ -529,8 +623,9 @@ def selftest() -> int:
     if fails:
         print(f"SELFTEST FAIL - {len(fails)} case(s): {', '.join(fails)}")
         return 1
-    print("SELFTEST PASS - values, nets and disputes flip the fingerprint; routes, "
-          "fonts, positions and comments do not; a stamp clears the amp until its facts change")
+    print("SELFTEST PASS - values, nets, disputes, '+' leads and heater declarations flip "
+          "the fingerprint; routes, fonts, positions and comments do not; a stamp clears "
+          "the amp until its facts change")
     return 0
 
 
