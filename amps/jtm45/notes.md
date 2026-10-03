@@ -17,7 +17,7 @@ the mid-1960s revision shared across the tremolo combos and the 1987 head.
 Normal (V1A) and bright (V1B) channels (1 MΩ leaks, 68 kΩ stoppers) → **V1**
 ECC83 (100 kΩ plates, shared 820 Ω cathode with 250 µF bypass) → 0.02 µF
 couplers → 1 MΩ volume pots (the 100 pF bright cap sits on the volume V1B
-feeds) → 270 kΩ mixers → **V3A** ECC83 (100 kΩ plate,
+feeds) → 270 kΩ mixers, the bright one bridged by a 56 pF capacitor → **V3A** ECC83 (100 kΩ plate,
 820 Ω cathode) → **V3B cathode follower, DC-coupled** (100 kΩ cathode load) →
 TMB tone stack (56 kΩ slope; 270 pF treble, 0.02 µF bass and 0.02 µF middle caps; 250 kΩ / 1 MΩ /
 25 kΩ pots) → 0.02 µF → **long-tailed-pair PI**: 82 kΩ and 100 kΩ plates,

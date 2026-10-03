@@ -99,6 +99,7 @@ parts:
   # --- channel mixers + V3A second stage --------------------------------------
   - { ref: RM1,  a: [1, 48], b: [1, 49] }   # 270k normal-channel mixer (V1A)
   - { ref: RM2,  a: [1, 50], b: [1, 51] }   # 270k bright-channel mixer (V1B)
+  - { ref: C19,  a: [0, 50], b: [0, 51] }   # 56 pF across the bright-channel mixer RM2
   - { ref: RK2,  a: [0, 52], b: [1, 52] }   # 820 V3A cathode (vertical)
   - { ref: RL3,  a: [1, 53], b: [1, 54] }   # 100k V3A plate load
   # --- ECC83 input pair (V1): normal (V1A) + bright (V1B) channels (right end) -------------
@@ -254,7 +255,9 @@ runs:
 
   # --- volume controls -> channel mixers -------------------------------------
   - { from: VR1.lug2, to: RM1.a, via: [[53.96, -0.84], [47.95, -0.55]] }   # normal vol wiper -> mixer
-  - { from: VR2.lug2, to: RM2.a, via: [[59, -0.56], [50, -0.56]] } # bright vol wiper -> mixer
+  - { from: VR2.lug2, to: C19.a, via: [[59, -0.56], [50, -0.56]] } # bright vol wiper -> 56 pF / mixer top
+  - { from: C19.a, to: RM2.a }                                      # 56 pF across the bright mixer (top)
+  - { from: C19.b, to: RM2.b }                                      # 56 pF across the bright mixer (V3A-grid side)
   - { from: VR1.lug1, to: [1.45, 53], via: [[56.442, 1.218]] }   # normal volume ground (drop col 53.5, threads between RL3.a and RL3.b)
   - { from: VR2.lug1, to: [1.45, 57], via: [[60.675, -0.739]] }             # bright volume ground
   - { from: C1.b, to: VR1.lug3, via: [[55, -0.45], [54, -0.45]] }  # V1A coupler -> normal vol top

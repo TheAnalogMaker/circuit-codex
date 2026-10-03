@@ -49,6 +49,15 @@ for ch, (y, jack, gref, pref, plref, cref, vref, mref) in enumerate([
     s.wire(81.28, ty + 3.81, ml, ty + 3.81)
     s.wire(mr, ty + 3.81, 91.44, ty + 3.81)
     s.wire(91.44, ty + 3.81, 91.44, 109)
+    if vref == "VR2":
+        # The drawing hangs a capacitor across the bright channel's 270k, its
+        # value printed "56pF" (first glyph partly overdrawn by the cap's lead).
+        my = ty + 3.81
+        s.sym("C", "C19", "56p", 85.09, my + 5.08, rot=90, lx=-3.2, ly=4.2)
+        s.wire(ml, my, ml, my + 5.08)
+        s.wire(mr, my, mr, my + 5.08)
+        s.junction(ml, my)
+        s.junction(mr, my)
 s.junction(91.44, 109)
 s.text("100 pF bright cap across VR2 omitted (AC only)", 58, 104, 1.1)
 

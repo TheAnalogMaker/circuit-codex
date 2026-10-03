@@ -15,6 +15,7 @@ items:
   - { ref: VR2, part: "Audio-taper potentiometer", value: "1 MΩ",    role: "Bright volume, fed by V1B (100 pF bright cap across it)" }
   - { ref: RM1, part: "Carbon comp resistor", value: "270 kΩ · ½ W", role: "Normal-channel mixer" }
   - { ref: RM2, part: "Carbon comp resistor", value: "270 kΩ · ½ W", role: "Bright-channel mixer" }
+  - { ref: C19, part: "Mica capacitor",       value: "56 pF",          role: "Across the bright-channel 270 kΩ mixer (RM2). Printed '56pF', the first glyph partly overdrawn by the capacitor's lead: value probable, not certain" }
   - { ref: RL3, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "V3A plate load" }
   - { ref: RK2, part: "Carbon comp resistor", value: "820 Ω · ½ W",  role: "V3A cathode bias" }
   - { ref: RKCF, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "Cathode-follower load" }
