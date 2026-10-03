@@ -154,7 +154,7 @@ runs:
   # carries one more pigtail and the whole fan sits at a new spacing. This
   # lead needed a second waypoint to stay clear of RK66's board terminal.
   - { from: PT.yellow1, to: V5.pin2, via: [[0.35, 1.18], [0.95, 1.5]] }    # 5 V rectifier filament
-  - { from: PT.yellow2, to: V5.pin8, via: [[0.909, 1.41]] }    # 5 V rectifier filament / B+
+  - { from: PT.yellow2, to: V5.pin8, via: [[0.942, 1.41]] }    # 5 V rectifier filament / B+
   - { from: V5.pin8, to: C11.a, color: red, via: [[1.6, 0.992]] }   # B+ out → first filter (from lower-left)
 
   # --- filtered B+ rail (three 16 µF cans, 5k then 22k droppers) -------------
@@ -181,8 +181,8 @@ runs:
   - { from: T2.sec_c, to: [1.45, 27.2], via: [[27.6, 0.86], [27.6, 3.35]] }  # OT secondary common → ground bus
   - { from: T2.sec_h, to: SPK, via: [[29.55, 0.74], [29.55, 3.05]] }   # OT secondary hot → speaker jacks
   - { from: C11.a, to: T2.red, via: [[3, 2.6], [30.2, 2.6], [30.2, 0.38]] }    # B+1 → OT centre tap (drop col 30.2)
-  - { from: T2.blue, to: V3.pin3, via: [[30.5, 0.5], [30.5, 2.72], [4, 2.72]] }    # OT primary → V3 plate (drop col 30.5)
-  - { from: T2.brown, to: V4.pin3, via: [[30.7, 0.62], [30.7, 2.84], [7.4, 2.84]] } # OT primary → V4 plate (drop col 30.7)
+  - { from: T2.blue, to: V3.pin3, via: [[30.5, 0.6], [30.5, 2.72], [4.8, 2.72]] }    # OT primary → V3 plate (drop col 30.5)
+  - { from: T2.brown, to: V4.pin3, via: [[30.7, 0.647], [30.7, 2.84], [7.4, 2.84]] } # OT primary → V4 plate (drop col 30.7)
 
   # --- output transformer secondary → speaker jacks --------------------------
   # The speaker jack was PLACED and never wired: of the corpus's forty boards
@@ -221,38 +221,38 @@ runs:
   - { from: RKA.a, to: C8.a }                        # cathode (the 1.5k's top) → cathode-side coupler, as F-EE's layout draws it
   - { from: C8.b, to: V4.pin5, via: [[15.77, 3.32], [8.5, 3.32]] }  # coupler → V4 grid (approach from left of pin 8)
   - { from: RGPI.a, to: RKA.b, via: [[17, 0.6], [12.4, 0.6]] }    # PI grid leak → junction (upper lane)
-  - { from: RGPI.b, to: V2.pin2, via: [[18.6, 1.7]] }  # PI grid leak → V2B grid (from right)
+  - { from: RGPI.b, to: V2.pin2, via: [[18.628, 1.667]] }  # PI grid leak → V2B grid (from right)
 
   # --- driver / second stage (V2A) + tone -----------------------------------
   - { from: V2.pin6, to: RL3.a, via: [[18.7, 1.55]] }  # V2A plate → 100k plate load
   - { from: RL3.b, to: C13.a, via: [[19.6, -0.72], [9.4, -0.72]] }  # V2A plate load → B+3 (over the top, per schematic)
-  - { from: V2.pin6, to: VR3.lug3, via: [[18.2, -0.6], [8, -0.6]] } # V2A plate → tone (over the top)
-  - { from: VR3.lug2, to: V2.pin2, via: [[8, -0.5], [14, 0.7], [16, 1.756]] } # tone wiper → PI grid (clears RL4.a)
-  - { from: VR3.lug1, to: [1.45, 7.6], via: [[6.677, 0.034]] }              # tone ground
+  - { from: V2.pin6, to: VR3.lug3, via: [[18.255, -0.6], [8, -0.39]] } # V2A plate → tone (over the top)
+  - { from: VR3.lug2, to: V2.pin2, via: [[8, -0.5], [14, 0.7], [15.981, 1.664]] } # tone wiper → PI grid (clears RL4.a)
+  - { from: VR3.lug1, to: [1.45, 7.6], via: [[8.967, -0.575], [6.677, 0.034]] }              # tone ground
   - { from: V2.pin8, to: RK2.a, via: [[20.6, 1.55]] }  # V2A cathode → 1.5k (from right)
   - { from: RK2.b, to: [1.45, 20] }                  # 1.5k → ground bus
   - { from: C4.a, to: [1.45, 19.3] }                 # cathode bypass ground (lane between the V2.pin7 wiper feed and RL3.b)
 
   # --- volume controls → V2A grid -------------------------------------------
-  - { from: VR1.lug2, to: V2.pin7, via: [[14, -0.45], [16.5, 1], [18.6, 1.55]] } # inst vol wiper (clears RGPI.a)
-  - { from: VR2.lug2, to: V2.pin7, via: [[18.4, -0.5], [19, 1.5]] }   # mic vol wiper
+  - { from: VR1.lug2, to: V2.pin7, via: [[13.967, -0.398], [16.598, 1.032], [18.665, 1.583]] } # inst vol wiper (clears RGPI.a)
+  - { from: VR2.lug2, to: V2.pin7, via: [[18.465, -0.532], [19.032, 1.5]] }   # mic vol wiper
   - { from: VR1.lug1, to: [1.45, 13.5] }             # volume grounds
-  - { from: VR2.lug1, to: [1.45, 17.3], via: [[16.97, 1.431]] }
+  - { from: VR2.lug1, to: [1.45, 17.3], via: [[19.431, -0.059], [16.97, 1.431]] }
 
   # --- 12AY7 input stage (V1): instrument + mic channels ---------------------
   - { from: JI, to: R1s.b, via: [[22, -0.45]] }      # inst jack → grid stopper
   - { from: R1s.a, to: V1.pin7, via: [[25.7, 1.55]] }  # grid stopper → V1A grid (right of pin 6)
   - { from: V1.pin6, to: C1.a, via: [[21.4, 0.3]] }  # V1A plate → volume coupler (up-left)
-  - { from: C1.b, to: VR1.lug3, via: [[23, -0.52], [14.3, -0.52]] }
+  - { from: C1.b, to: VR1.lug3, via: [[22.45, -0.61], [13.53, -0.31]] }
   - { from: V1.pin6, to: RL1.a, via: [[23.254, 2.19]] }  # V1A plate → 100k load (from left)
   - { from: RL1.b, to: C13.a, via: [[21.6, -0.76], [9.9, -0.76]] }  # plate load → B+3 (over the top)
   - { from: JM, to: R2s.b, via: [[25, -0.55], [28.5, -0.55]] }  # mic jack → grid stopper (clears C2.b)
   - { from: R2s.a, to: V1.pin2, via: [[26.5, 1.75]] }  # grid stopper → V1B grid (from lower-right)
   - { from: V1.pin1, to: C2.a, via: [[23.376, 2.193], [24.33, 0.83]] }  # V1B plate → volume coupler (up-left)
-  - { from: C2.b, to: VR2.lug3, via: [[26, -0.44], [18.3, -0.44]] }
-  - { from: V1.pin1, to: RL2.a, via: [[24.8, 1.87], [23.6, 1.83]] }  # V1B plate → 100k load (leave pin 1 right)
+  - { from: C2.b, to: VR2.lug3, via: [[26, -0.06], [18.3, -0.44]] }
+  - { from: V1.pin1, to: RL2.a, via: [[24.715, 1.87], [23.6, 1.83]] }  # V1B plate → 100k load (leave pin 1 right)
   - { from: RL2.b, to: C13.a, via: [[23.5, -0.84], [8.6, -0.84]] }  # plate load → B+3 (over the top)
-  - { from: V1.pin3, to: RK1.a, via: [[23.669, 1.614]] }  # V1 cathode → shared 820 Ω (from lower-left)
+  - { from: V1.pin3, to: RK1.a, via: [[23.669, 1.587]] }  # V1 cathode → shared 820 Ω (from lower-left)
   - { from: V1.pin8, to: RK1.a, via: [[28.2, 1.45]] } # (from lower-right)
   - { from: RK1.b, to: [1.45, 27] }                  # 820 Ω → ground bus
   - { from: C10.a, to: RK1.a }                       # cathode bypass
@@ -281,8 +281,8 @@ runs:
   # configuration as data and pipeline/check_heaters.py proves it, against the
   # GE 12AX7 / RCA 12AY7 sheets' own 6.3 V parallel grouping and against the
   # runs below.
-  - { from: PT.green1, to: [1.45, 1.6], style: heater, via: [[0.6, 1.35]] }      # grounded 6.3 V leg
-  - { from: PT.green2, to: PL1.a, style: heater, via: [[-0.6, 1.05]] }           # 6.3 V feed → pilot lamp
+  - { from: PT.green1, to: [1.45, 1.6], style: heater, via: [[0.75, 1.4]] }      # grounded 6.3 V leg
+  - { from: PT.green2, to: PL1.a, style: heater, via: [[-0.62, 1.05]] }           # 6.3 V feed → pilot lamp
   - { from: PL1.a, to: V3.pin7, style: heater, via: [[-1.2, 3.6], [5, 3.6]] }   # the feed leaves the SAME terminal it arrived on (the sheet's one dot)    # feed → V3 heater
   - { from: V3.pin7, to: V4.pin7, style: heater, via: [[5.4, 3.62], [8.5, 3.62]] }   # V3 → V4 heater
   - { from: V4.pin7, to: V2.pin4, style: heater, via: [[9, 3.64], [18, 3.64]] }    # V4 → V2 heater

@@ -178,7 +178,7 @@ runs:
   # "+", unlettered; it is named here by its place on the winding (the tap
   # between an HT end and the centre tap, the schematic's HT_TAP), not by a
   # guessed colour.
-  - { from: T1.ht_tap, to: D1.a, via: [[-1.472, 0.357], [-1.472, -1.043], [1.211, -1.043]] }
+  - { from: T1.ht_tap, to: D1.a, via: [[-1.472, 0.397], [-1.472, -1.043], [1.211, -1.043]] }
   - { from: D1.b, to: R11.a, via: [[1.989, -0.75], [1, -0.75]] }
   - { from: R11.a, to: C13.a }
   - { from: C13.b, to: [1.45, 3] }
@@ -188,8 +188,8 @@ runs:
   - { from: C14.b, to: [1.45, 7] }
   # === the Depth control sits in the bias line ==========================
   - { from: C14.a, to: VR5.lug1, color: yellow, via: [[7.556, -0.336], [23.194, -0.336]] }
-  - { from: R10.b, to: VR5.lug3, color: brown, via: [[71.722, -0.302], [23.806, -0.302]] }
-  - { from: VR5.lug2, to: RG4.a, color: yellow, via: [[23.5, -0.612], [21, -0.612]] }
+  - { from: R10.b, to: VR5.lug3, color: brown, via: [[71.657, -0.302], [23.227, -0.302], [22.024, -0.583]] }
+  - { from: VR5.lug2, to: RG4.a, color: yellow, via: [[23.136, -0.504], [21, -0.612]] }
   - { from: RG4.a, to: RG5.a, color: yellow }
   # === output stage: screens, grids, plates, cathodes ====================
   - { from: RS1.b, to: V4.pin4, via: [[16, 1.233], [8.753, 1.233]] }
@@ -208,7 +208,7 @@ runs:
   - { from: RLB.b, to: C8.b, via: [[34, 1.336], [29, 1.336]] }
   - { from: RLB.b, to: V2.pin1, via: [[34.833, 1.388], [37.833, 1.388], [37.833, 2.328], [39.536, 2.328]] }
   - { from: C5.b, to: RGA.a, via: [[37, 1.147], [38, 1.147], [38, -0.06], [39, -0.06]] }
-  - { from: RGA.a, to: V2.pin7, via: [[40.056, -0.06], [42.278, -0.06], [42.278, 2.198]] }
+  - { from: RGA.a, to: V2.pin7, via: [[40.056, -0.06], [42.278, 0.32], [42.278, 2.198]] }
   - { from: RGA.b, to: RTAIL.b }
   - { from: RTAIL.b, to: RT2.a, via: [[41.722, 1.147], [43.944, 1.147], [43.944, -0.06], [43, -0.06]] }
   - { from: RT2.a, to: RGB.b }
@@ -227,7 +227,7 @@ runs:
   - { from: RL3.b, to: V3.pin1, via: [[50.889, 1.147], [56.9, 1.147], [56.9, 2.6]] }
   - { from: V3.pin7, to: V3.pin1, via: [[59.784, 2.576], [59.2, 2.95], [57.07, 2.95]] }
   - { from: C9.b, to: VR4.lug1, color: blue, via: [[53, -0.474], [53.694, -0.474]] }
-  - { from: VR4.lug3, to: [1.45, 52.4], via: [[54.306, -0.543], [52.4, -0.543]] }
+  - { from: VR4.lug3, to: [1.45, 52.4], via: [[53.786, -0.543], [52.4, -0.543]] }
   - { from: VR4.lug2, to: R9.a, via: [[54, -0.612], [57.611, -0.612]] }
   - { from: R9.b, to: [1.45, 59.9], via: [[58.389, -0.681], [59.9, -0.681]] }
   - { from: R8.a, to: RK3.a, via: [[56, -0.06], [61, -0.06]] }
@@ -236,7 +236,7 @@ runs:
   - { from: JTR.tip, to: C10.b, via: [[47.361, 2.543], [55.056, 2.543], [55.056, 1.198], [56, 1.198]] }
   - { from: JTR.sleeve, to: [1.45, 47.6] }
   - { from: RK3.a, to: CK3.a }
-  - { from: RK3.a, to: V3.pin3, via: [[61.722, -0.363], [56.3, -0.06], [56.3, 2.3]] }
+  - { from: RK3.a, to: V3.pin3, via: [[59.672, -0.363], [56.3, -0.06], [56.3, 2.3]] }
   - { from: RK3.b, to: [1.45, 61] }
   - { from: CK3.b, to: [1.45, 63] }
   - { from: RK4.a, to: V3.pin8, via: [[65.889, -0.164], [65.889, 2.6], [58.8, 2.6]] }
@@ -260,16 +260,16 @@ runs:
   # Each coupler lands on its pot's WIPER; one end of each volume pot is
   # grounded and the other joins the shared mixing node, which the tone
   # control's wiper also sits on and which feeds C5.
-  - { from: C1.b, to: VR1.lug2, via: [[77.5, 0.55], [77.5, -0.3], [78, -0.3]] }
+  - { from: C1.b, to: VR1.lug2, via: [[77.5, 0.55], [77.5, -0.269], [78.434, -0.392]] }
   - { from: C3.a, to: C1.b, via: [[70.611, -0.681], [70.611, 1.095], [77, 1.095]] }
-  - { from: C2.b, to: VR2.lug2, via: [[82.5, 0.55], [82.5, -0.4]] }
-  - { from: VR1.lug1, to: [1.45, 76.6], via: [[77.694, -0.474], [76.6, -0.474]] }
-  - { from: VR2.lug1, to: [1.45, 80.8], via: [[81.694, -0.543], [80.8, -0.458]] }
-  - { from: VR1.lug3, to: VR2.lug3, via: [[78.306, -0.405], [82.306, -0.405]] }
-  - { from: VR1.lug3, to: C5.a, via: [[78.806, -0.336], [36.995, -0.339]] }
+  - { from: C2.b, to: VR2.lug2, via: [[82.5, -0.4], [82.348, -0.925]] }
+  - { from: VR1.lug1, to: [1.45, 76.6], via: [[77.749, -1.092], [76.6, -0.629]] }
+  - { from: VR2.lug1, to: [1.45, 80.8], via: [[81.766, -0.783], [80.7, -0.458]] }
+  - { from: VR1.lug3, to: VR2.lug3, via: [[78.306, -0.405], [80.606, -0.405]] }
+  - { from: VR1.lug3, to: C5.a, via: [[78.382, 0.371], [78.806, -0.336], [37.165, -0.339]] }
   - { from: VR3.lug2, to: C5.a, via: [[67.556, -0.216], [36.167, -0.216], [36.167, 0]] }
-  - { from: VR3.lug3, to: C3.b, via: [[68.306, -0.75], [71.889, -0.75]] }
-  - { from: VR3.lug1, to: C4.a, via: [[67.694, -0.474], [74.211, -0.474]] }
+  - { from: VR3.lug3, to: C3.b, via: [[67.921, -0.772], [71.889, -0.75]] }
+  - { from: VR3.lug1, to: C4.a, via: [[73.061, -0.474]] }
   - { from: C4.b, to: [1.45, 75.6], via: [[74.989, -0.582], [75.6, -0.543]] }
   # === 6.3 V heater chain (green twisted pair) ===========================
   # PT green pair -> pilot lamp -> V4 -> V5 -> V2 -> V3 -> V1. The sheet

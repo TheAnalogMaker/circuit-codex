@@ -155,12 +155,12 @@ runs:
   - { from: RK3.b, to: [1.45, 28] }
 
   # --- volume + tone controls onto the V2A grid -----------------------------
-  - { from: VR1.lug3, to: VR2.lug3, via: [[35.95, -0.52], [31.75, -0.52]] }
-  - { from: VR2.lug3, to: V2.pin7, via: [[31.3, -0.34], [33, -0.34], [33, 1.5]] }
+  - { from: VR1.lug3, to: VR2.lug3, via: [[35.95, -0.52], [31.5, -0.52]] }
+  - { from: VR2.lug3, to: V2.pin7, via: [[31.267, -0.38], [33, -0.34], [33, 1.5]] }
   - { from: VR3.lug2, to: VR2.lug3, via: [[24.9, -0.46], [30.77, -0.46]] }
-  - { from: VR1.lug1, to: VR2.lug1, via: [[33.2, -0.16]] }   # pot grounds chained
-  - { from: VR2.lug1, to: [1.45, 28.6] }
-  - { from: VR3.lug1, to: C6.b, via: [[23.984, -1.229]] }                   # tone: 0.005 µF to ground
+  - { from: VR1.lug1, to: VR2.lug1, via: [[35.972, -0.477], [33.463, -0.304]] }   # pot grounds chained
+  - { from: VR2.lug1, to: [1.45, 28.6], via: [[32.925, -0.752]] }
+  - { from: VR3.lug1, to: C6.b, via: [[24.804, -0.779]] }                   # tone: 0.005 µF to ground
   - { from: C6.a, to: [1.45, 24.4] }
   - { from: VR3.lug3, to: C5.a, via: [[24.994, -0.684]] }                   # tone: 500 pF onto channel 2
   - { from: C5.b, to: C3.b, via: [[28.4, -0.62], [36.4, -0.62]] }
@@ -168,7 +168,7 @@ runs:
   # --- 12AY7 input stage: channel 2 (two jacks) -----------------------------
   - { from: RL2.b, to: C3.a }                      # plate load → coupler (PAY2)
   - { from: V1.pin1, to: RL2.b, via: [[42.6, 2.5], [35.7, 2.5]] }   # V1B plate
-  - { from: C3.b, to: VR2.lug2, via: [[35.6, -0.28], [31.4, -0.28]] }
+  - { from: C3.b, to: VR2.lug2, via: [[35.75, -0.13], [31.45, -0.61]] }
   - { from: J2, to: R2S.b, via: [[37.5, -1.05], [36.6, -0.4]] }
   - { from: J3, to: R3S.b, via: [[43, -1.05], [43, -0.52]] }
   - { from: R2S.a, to: V1.pin2, via: [[39.4, 1.75]] }   # stoppers meet at V1B grid
@@ -176,7 +176,7 @@ runs:
   - { from: J1, to: V1.pin7, via: [[46.3, -1.06], [48.3, -0.34], [48.3, 1.85]] }
   - { from: V1.pin6, to: C2.a, via: [[43.4, 1.55], [40.4, 1.55]] }  # V1A plate → coupler
   - { from: C2.a, to: RL1.a }                      # plate load (PAY1)
-  - { from: C2.b, to: VR1.lug2, via: [[41.6, -0.46], [35.9, -0.46]] }
+  - { from: C2.b, to: VR1.lug2, via: [[41.75, -0.29], [35.715, -0.918]] }
   # --- 12AY7 cathode --------------------------------------------------------
   - { from: V1.pin3, to: C1.a, via: [[42.4, 1.62], [45.6, 1.62]] }
   - { from: C1.a, to: RK1.a }

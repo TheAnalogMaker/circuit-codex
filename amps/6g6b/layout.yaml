@@ -192,7 +192,7 @@ runs:
   - { from: RB2.a, to: RGL5.b, via: [[4.4, 1.85], [38.6, 1.85]] }
 
   # --- silicon HT rectifier legs -----------------------------------------
-  - { from: PT.ht1, to: DR1.a, via: [[-2.426, 0.675], [-2.4, 1.7], [8.2, 1.7], [8.4, 1.62]] }
+  - { from: PT.ht1, to: DR1.a, via: [[-2.426, 0.607], [-2.4, 1.7], [8.2, 1.7], [8.4, 1.62]] }
   - { from: DR3.b, to: DR6.b, via: [[11.4, 1.28]] }
   - { from: PT.ht3, to: DR4.a, via: [[-3.2, 1.2], [-3.2, 3.4], [13.2, 3.4], [13.4, 1.62]] }
 
@@ -211,7 +211,7 @@ runs:
 
   # BP355 lane: the Normal channel's own two plate loads share it (RL2A's 100k
   # and RL2B's 220k), matching the drawing's single +355 V lane under that row
-  - { from: RL2A.a, to: RL2B.b, via: [[91.97, -2.4], [109.225, -2.4]] }
+  - { from: RL2A.a, to: RL2B.b, via: [[91.97, -2.4], [109.29, -2.4]] }
   - { from: RL1A.a, to: V1.pin1, via: [[160.6, -2.6], [168.6, -2.6], [168.6, -0.9], [166.6, -0.9], [166.6, 2.13]] }
 
   # MIXG deep lane: RG3A (V3A grid) -> VR2 (Bass ch. Volume wiper) — the
@@ -221,8 +221,8 @@ runs:
   # --- V5/V6 output support -----------------------------------------------
   - { from: RL4A.b, to: C2.a, via: [[57.059, -3.4], [37.4, -3.4], [37.4, -0.4]] }
   - { from: C2.b, to: V5.pin5, via: [[39.6, -0.4], [39.802, -0.4], [39.6, 1.05], [42, 1.6]] }
-  - { from: RGL5.a, to: V5.pin5, via: [[39.708, -0.216], [40, 0.3], [40, 1.49]] }
-  - { from: RS5.b, to: V5.pin4, via: [[42.6, 0.5], [44.1, 1.483]] }
+  - { from: RGL5.a, to: V5.pin5, via: [[39.708, -0.216], [40.085, 0.3], [40, 1.49]] }
+  - { from: RS5.b, to: V5.pin4, via: [[42.6, 0.5], [44.1, 1.454]] }
   - { from: V5.pin3, to: T3.pri_a, via: [[42, 2.16], [42, 3.4], [54.959, 3.4]] }
   - { from: V5.pin8, to: [1.45, 42], via: [[43.316, 1.648]] }
   - { from: RL4B.b, to: C3.a, via: [[59.6, -3.8], [44.4, -3.8], [44.4, -0.4]] }
@@ -232,14 +232,14 @@ runs:
   - { from: V6.pin3, to: T3.pri_b, via: [[49, 2.16], [49, 3.6], [55, 3.6]] }
   - { from: V6.pin8, to: [1.45, 49], via: [[50.063, 1.56]] }
   - { from: T3.ct, to: T3.pri_b, via: [[55.222, 3.268], [51, 3.75]] }
-  - { from: T3.sec_h, to: SPK, via: [[57.5, 2.6], [59, 2.2]] }
+  - { from: T3.sec_h, to: SPK, via: [[57.721, 2.6], [59, 2.2]] }
   - { from: T3.sec_c, to: SPK, via: [[57.5, 3.4], [61, 2.8]] }
 
   # --- long-tailed-pair phase inverter (V4A/V4B) --------------------------
   - { from: RM2.b, to: C1.a, via: [[84.236, -1.648], [64.5, -2.8], [64.5, -2], [52.4, -2], [52.4, -0.4]] }   # mixing node -> the .0005
   - { from: RM1.b, to: RM2.b, via: [[113.4, -2], [85.6, -2], [85.6, -0.3]] }   # V2B's 470k lands on the mixing node
   - { from: C1.b, to: V4.pin2, via: [[54.642, 1.13], [63.61, 1.698], [64.2, 2.07]] }
-  - { from: RL4A.b, to: V4.pin1, via: [[57.6, -0.2], [62.4, -0.2], [62.4, 2.35], [65.3, 2.35]] }
+  - { from: RL4A.b, to: V4.pin1, via: [[57.6, -0.128], [62.4, -0.2], [62.4, 2.35], [65.3, 2.35]] }
   - { from: RL4B.b, to: V4.pin6, via: [[59.847, -0.265], [66.6, 0.19], [66.6, 1.55]] }
   - { from: RG4A.a, to: V4.pin2, via: [[60.4, -0.55], [62.8, -0.55], [62.8, 1.95], [64.6, 1.95]] }
   - { from: RG4A.b, to: RT2.b, via: [[60.6, 1.15]] }
@@ -254,15 +254,15 @@ runs:
   - { from: VR7.lug1, to: [1.45, 68], via: [[66.8, -0.4], [68, -0.4], [68, 1.2]] }
 
   # --- Bass channel, later stages (V3A/V3B) + its Treble -----------------
-  - { from: RG3A.a, to: V3.pin2, via: [[70.6, -1.2], [78.2, -1.2], [78.2, 2.07]] }
+  - { from: RG3A.a, to: V3.pin2, via: [[70.6, -1.504], [78.2, -1.2], [78.2, 2.07]] }
   - { from: RG3A.b, to: [1.45, 70] }
   - { from: RL3A.b, to: V3.pin1, via: [[71.4, -0.15], [79.239, -0.15], [79.2, 2.35], [81.3, 2.35]] }
   - { from: RK3A.a, to: V3.pin3, via: [[71.6, 1.62], [80.8, 1.62]] }
   - { from: RK3A.b, to: [1.45, 72] }
   - { from: RL3A.b, to: CDR1.a, via: [[72.6, -0.4], [74.4, -0.4]] }
-  - { from: CDR1.b, to: VR6.lug3, via: [[76.6, -0.4], [76, -0.9]] }
+  - { from: CDR1.b, to: VR6.lug3, via: [[76.6, -0.4], [75.74, -0.9]] }
   - { from: VR6.lug2, to: RG3B.a, via: [[76, -0.75], [79.6, -0.552]] }
-  - { from: VR6.lug1, to: [1.45, 76], via: [[75.753, -0.4], [74.85, 1.7]] }
+  - { from: VR6.lug1, to: [1.45, 76], via: [[78.003, -0.66], [74.85, 1.7]] }
   - { from: RG3B.a, to: V3.pin7, via: [[78.92, -0.6], [82.6, -0.6], [82.6, 1.6], [83.1, 1.93]] }
   - { from: RG3B.b, to: [1.45, 79] }
   - { from: RL3B.b, to: V3.pin6, via: [[81.4, 0.5], [81.4, 1.52], [82.2, 1.52]] }
@@ -285,19 +285,19 @@ runs:
   # Normal-channel tone network (the .00025's foot shares the plate eyelet
   # with the slope's head; the .05's foot shares the slope-foot eyelet).
   - { from: RL2A.b, to: CTN4.b, via: [[93.5, 0.25], [96.7, 0.55], [96.9, 1.2]] }  # plate node -> .00025 foot / slope head
-  - { from: CTN4.a, to: VR3.lug3, via: [[97, -0.4], [98.4, -0.75]] }              # .00025 top -> Treble hot lug
+  - { from: CTN4.a, to: VR3.lug3, via: [[97, -0.3], [97.149, -0.415]] }              # .00025 top -> Treble hot lug
   - { from: CTN7.b, to: CTN5.b, via: [[100.6, 1.4], [99.4, 1.4]] }                # .1 foot -> the slope foot
-  - { from: CTN7.a, to: VR3.lug4, via: [[100.6, -0.3], [97.2, -0.3], [97.2, -1.02]] }   # .1 top -> Treble TAP (node B)
+  - { from: CTN7.a, to: VR3.lug4, via: [[100.6, -0.3], [97.198, -0.3], [97.2, -1.02]] }   # .1 top -> Treble TAP (node B)
   - { from: VR4.lug3, to: CTN7.a, via: [[102.4, -0.75], [101.4, -0.45]] }         # Bass hot lug -> node B
-  - { from: CTN5.a, to: VR4.lug1, via: [[99.4, -0.5], [101.6, -0.5]] }            # .05 top -> Bass foot lug (node C)
+  - { from: CTN5.a, to: VR4.lug1, via: [[99.4, -0.5], [102.03, -1.1]] }            # .05 top -> Bass foot lug (node C)
   - { from: VR4.lug2, to: VR4.lug1, via: [[102, -0.88]] }                         # wiper strapped to the foot lug
-  - { from: RTN4.a, to: VR4.lug1, via: [[104, -0.7], [102.2, -0.7]] }             # 6800 at the pot: foot lug ...
+  - { from: RTN4.a, to: VR4.lug1, via: [[104, -0.7], [102.44, -0.7]] }             # 6800 at the pot: foot lug ...
   - { from: RTN4.b, to: [1.45, 104.8], via: [[104.8, -0.4]] }                     # ... -> chassis ground
-  - { from: CTN6.b, to: VR3.lug1, via: [[96.2, -0.7], [97.56, -0.7]] }             # .005 at the pot: Treble cold lug ...
+  - { from: CTN6.b, to: VR3.lug1, via: [[96.709, -0.545], [97.24, -0.42]] }             # .005 at the pot: Treble cold lug ...
   - { from: CTN6.a, to: [1.45, 95.4], via: [[95.4, -0.4]] }                       # ... -> chassis ground
-  - { from: VR3.lug2, to: VR5.lug3, via: [[98, -0.6], [108, -0.6], [108, -0.724]] }
+  - { from: VR3.lug2, to: VR5.lug3, via: [[98, -0.6], [108, -0.6]] }
   - { from: VR5.lug1, to: [1.45, 111], via: [[108.145, -0.544], [110.957, -0.306], [109.097, 1.848], [111, 1.9]] }
-  - { from: VR5.lug2, to: V2.pin2, via: [[107.846, -0.781], [107.695, 0.334], [107.8, 1.992]] }
+  - { from: VR5.lug2, to: V2.pin2, via: [[108.106, -0.731], [107.695, 0.124], [107.75, 1.992]] }
   - { from: RG2B.a, to: V2.pin2, via: [[106.4, -0.55], [107.567, -0.55], [107.6, 1.95]] }
   - { from: RG2B.b, to: [1.45, 106] }
   - { from: RL2B.a, to: V2.pin1, via: [[107.4, -0.15], [108.34, -0.1], [106.863, 1.635], [108, 1.98]] }
@@ -327,12 +327,12 @@ runs:
   - { from: RK1B.a, to: V1.pin3, via: [[169.4, 1.5], [166.8, 1.644], [166.079, 1.605]] }
   - { from: RK1B.b, to: [1.45, 170] }
   - { from: RK1B.a, to: RTN2.a, via: [[169.8, 1.2], [178, 1.2]] }    # cathode -> node A
-  - { from: RTN1.b, to: VR2.lug3, via: [[176, -3], [157.9, -3], [157.9, -0.9]] }   # T -> Volume top
+  - { from: RTN1.b, to: VR2.lug3, via: [[176, -3], [157.9, -3], [157.35, -0.9]] }   # T -> Volume top
   - { from: VR1.lug2, to: RTN3.b, via: [[177.3, -0.6], [174, -0.6]] }    # Bass wiper -> B
-  - { from: VR1.lug1, to: CTN3.b, via: [[176.6, -1.083], [172, -0.85]] }  # Bass far lug -> C
+  - { from: VR1.lug1, to: CTN3.b, via: [[176.875, -1.083], [172, -0.85]] }  # Bass far lug -> C
   - { from: RBF.a, to: VR1.lug1, via: [[179.3, -0.75]] }    # 820 at the pot: far lug ...
   - { from: RBF.b, to: [1.45, 180.1], via: [[180.1, -0.4]] }               # ... -> chassis ground
-  - { from: VR2.lug1, to: [1.45, 158], via: [[158.535, -0.4], [159.6, 1.9]] }
+  - { from: VR2.lug1, to: [1.45, 158], via: [[158.535, -0.4], [159.6, 1.69]] }
 
   # --- 6.3 V heater chain (twisted pair, drawing's own socket order) --------
   - { from: PT.heat, to: PL1.a, style: twisted }

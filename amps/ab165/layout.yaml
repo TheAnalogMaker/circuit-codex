@@ -235,11 +235,11 @@ runs:
   # the Volume control; the Bass control's third lug is left free, as drawn. ===
   - { from: RLN1.b, to: CTN.a, via: [[30.62, 0.3], [30.62, 1.14], [33.7, 1.14]] }
   - { from: CBN.a, to: CBN2.a }
-  - { from: CTN.b, to: VRTN.lug3, color: white, via: [[34, -0.84], [22.894, -0.84]] }
-  - { from: CBN2.b, to: VRBN.lug1, color: blue, via: [[36, -0.74], [20.69, -0.74]] }
-  - { from: CBN.b, to: VRBN.lug2, color: brown, via: [[38, -0.79], [21, -0.79]] }
-  - { from: VRBN.lug2, to: VRTN.lug1, via: [[21.3, -0.56], [22.69, -0.56]] }
-  - { from: VRTN.lug2, to: VRVN.lug3, via: [[23, -0.56], [25.31, -0.56]] }
+  - { from: CTN.b, to: VRTN.lug3, color: white, via: [[29.869, -1.056], [24.855, -0.638], [22.794, -0.84]] }
+  - { from: CBN2.b, to: VRBN.lug1, color: blue, via: [[36, -0.74], [21.21, -0.74]] }
+  - { from: CBN.b, to: VRBN.lug2, color: brown, via: [[38, -0.79], [21.21, -0.827]] }
+  - { from: VRBN.lug2, to: VRTN.lug1, via: [[21.337, -0.56], [23.001, -0.56]] }
+  - { from: VRTN.lug2, to: VRVN.lug3, via: [[23, -0.56], [25.15, -0.56]] }
 
   # === channel mixer: both 220k mixing resistors + the 470k blend resistor ====
   - { from: RMXN.b, to: RFBM.b, via: [[27.8, 0.3], [27.8, 1.3], [40.45, 1.3], [40.45, 0.35]] }
@@ -281,16 +281,16 @@ runs:
   - { from: CLB1.b, to: CTB.a }
   - { from: CBB.a, to: CBB2.a }
   - { from: CDEEP.a, to: CBB.a }
-  - { from: CTB.b, to: VRTB.lug3, color: white, via: [[62, -0.84], [50.894, -0.84]] }
-  - { from: CBB2.b, to: VRBB.lug1, color: blue, via: [[64, -0.74], [48.69, -0.74]] }
-  - { from: CBB.b, to: VRBB.lug2, color: brown, via: [[66, -0.79], [49, -0.79]] }
+  - { from: CTB.b, to: VRTB.lug3, color: white, via: [[61.779, -0.79], [51.064, -1.446], [49.765, -1.165]] }
+  - { from: CBB2.b, to: VRBB.lug1, color: blue, via: [[64, -0.74], [50.591, -1.54]] }
+  - { from: CBB.b, to: VRBB.lug2, color: brown, via: [[66, -0.69], [49.21, -0.79]] }
   - { from: VRBB.lug2, to: VRTB.lug1, via: [[49.3, -0.56], [50.69, -0.56]] }
-  - { from: VRTB.lug2, to: VRVB.lug3, via: [[51, -0.56], [53.31, -0.56]] }
+  - { from: VRTB.lug2, to: VRVB.lug3, via: [[50.62, -0.56], [52.98, -0.56]] }
   - { from: CDEEP.b, to: SWDEEP, via: [[68, -0.5], [55.5, -0.5]] }
 
   # === pot grounds (island controls) =========================================
-  - { from: VRVN.lug1, to: [1.45, 21.5], via: [[24.6, -0.3], [21.5, -0.3]] }
-  - { from: VRVB.lug1, to: [1.45, 50.5], via: [[52.6, -0.44], [50.5, -0.44]] }
+  - { from: VRVN.lug1, to: [1.45, 21.5], via: [[21.5, -0.3], [21.486, 1.427]] }
+  - { from: VRVB.lug1, to: [1.45, 50.5], via: [[53.281, -0.619], [52.41, -0.44], [50.5, -0.44]] }
 
   # === power-transformer annotation: HT centre tap, 6.3 V heater chain ========
   - { from: TR1.red-yellow, to: [1.45, 0.95], via: [[-1.3, 1.1]] }

@@ -184,22 +184,22 @@ runs:
   - { from: R9.b, to: [1.45, 12] }                       # grid leak -> ground bus
 
   # --- V1B driver stage (12AX7, second half) --------------------------------
-  - { from: V1.pin1, to: R7.a, via: [[23.966, 1.6], [15, 1.6]] }   # V1B plate -> 100k load
+  - { from: V1.pin1, to: R7.a, via: [[23.951, 1.6], [15, 1.6]] }   # V1B plate -> 100k load
   - { from: C3.a, to: R7.a }                             # plate node -> coupler
   - { from: R7.b, to: C7.a, via: [[13.32, 1.535], [3.6, 1.62]] }   # plate load -> B+3 (approach from the left)
   - { from: C3.b, to: R9.a, via: [[16, -0.4], [12, -0.4]] }    # coupler -> 6V6 grid node
-  - { from: V1.pin3, to: R6.a, via: [[23.363, 1.68], [13.465, 1.68]] } # V1B cathode -> 1.5k
+  - { from: V1.pin3, to: R6.a, via: [[23.253, 1.68], [13.465, 1.68]] } # V1B cathode -> 1.5k
   - { from: R6.b, to: [1.45, 13] }                       # 1.5k -> ground bus
   - { from: SPK.tip, to: R11.a, via: [[16.2, 1.9], [17, 1.9]] }    # speaker hot -> NFB resistor
   - { from: R11.b, to: R6.a, via: [[18, 2.6], [12.3, 2.6], [12.3, 0.5]] } # NFB resistor -> V1B cathode (deep lane, own column)
-  - { from: VR1.lug2, to: V1.pin2, via: [[14.135, -0.45], [20, -0.35]] }  # volume wiper -> V1B grid
-  - { from: VR1.lug1, to: [1.45, 14], via: [[12.4, 0.2]] } # volume ground (bowed clear of the C3/R7 eyelet stack at col14)
+  - { from: VR1.lug2, to: V1.pin2, via: [[14, -0.77], [20.05, -0.3]] }  # volume wiper -> V1B grid
+  - { from: VR1.lug1, to: [1.45, 14], via: [[12.383, 0.183]] } # volume ground (bowed clear of the C3/R7 eyelet stack at col14)
 
   # --- V1A input stage (12AX7, first half) ----------------------------------
   - { from: V1.pin6, to: R5.a, via: [[24.3, 1.5], [20, 1.5]] } # V1A plate -> 100k load
   - { from: R5.b, to: C7.a, via: [[19, 1.15], [7.2, 1.15]] }  # plate load -> B+3 (approach from the right)
   - { from: V1.pin6, to: C2.a, via: [[23.3, 0.935], [21, 0.95]] } # V1A plate -> volume coupler
-  - { from: C2.b, to: VR1.lug3, via: [[21, -0.45], [14, -0.5]] }  # coupler -> volume top
+  - { from: C2.b, to: VR1.lug3, via: [[19.56, -0.71], [14, -0.798]] }  # coupler -> volume top
   - { from: V1.pin8, to: R4.a, via: [[23.57, 2.52], [26.6, 1.72]] } # V1A cathode -> 1.5k
   - { from: R4.b, to: [1.45, 27] }                       # 1.5k -> ground bus
   - { from: C1.a, to: R4.a }                             # cathode bypass across 1.5k

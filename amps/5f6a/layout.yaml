@@ -299,23 +299,23 @@ runs:
   # wiper fed from the second 0.02 µF; output = the treble wiper alone)
   - { from: V2.pin3, to: RSL.a, via: [[29.7, 1.6], [27, 1.6]] }
   - { from: RSL.a, to: C4.a, via: [[27.5, 0.62], [30.6, 0.62]] }
-  - { from: C4.b, to: VR3.lug3, via: [[32.3, -0.74], [16.31, -0.74]] }
+  - { from: C4.b, to: VR3.lug3, via: [[32.3, -0.74], [16.04, -0.74]] }
   - { from: RSL.b, to: C5.b, via: [[28.3, 0.5]] }
-  - { from: C5.a, to: VR3.lug1, via: [[29.2, -0.6], [29.2, -1.25], [15.69, -1.25]] }
-  - { from: VR3.lug1, to: VR4.lug3, via: [[15.5, -1.05], [12.5, -1.05]] }
+  - { from: C5.a, to: VR3.lug1, via: [[29.2, -0.6], [29.2, -1.42], [17.29, -1.25]] }
+  - { from: VR3.lug1, to: VR4.lug3, via: [[16.04, -1.05], [12.24, -0.67]] }
   - { from: VR4.lug2, to: VR4.lug3 }
-  - { from: C5b.a, to: VR5.lug2, via: [[30.3, -1.15], [8, -1.15]] }
-  - { from: VR4.lug1, to: VR5.lug3, via: [[12.2, -1.05], [7.96, -1.05]] }
+  - { from: C5b.a, to: VR5.lug2, via: [[30.3, -1.5], [8.26, -1.25]] }
+  - { from: VR4.lug1, to: VR5.lug3, via: [[12.2, -1.05], [7.96, -1.6], [7.277, -1.055]] }
   - { from: VR3.lug2, to: C6.a, via: [[16, -0.54], [24.6, -0.54], [24.6, 0]] }
   - { from: VR5.lug1, to: [1.45, 7.4], via: [[8.298, 0.373]] }
 
   # --- volume controls + channel mixers → V2A grid ---------------------------
-  - { from: VR1.lug2, to: RM1.a, via: [[23, -0.58], [27.5, -0.58], [27.5, 0.45], [28.7, 0.45]] }
+  - { from: VR1.lug2, to: RM1.a, via: [[23.8, -1.21], [27.5, -0.58], [27.5, 0.45], [28.7, 0.45]] }
   - { from: RM1.b, to: V2.pin7, via: [[30, 1.4], [31.69, 1.4]] }
   - { from: VR1.lug1, to: [1.45, 22.4], via: [[23.924, 0.849]] }
-  - { from: VR2.lug2, to: RM2.a, via: [[28.5, -0.7], [28.5, -0.46], [30.5, -0.46], [30.5, 0.5]] }
+  - { from: VR2.lug2, to: RM2.a, via: [[28.5, -0.7], [29.3, -0.46], [30.5, -0.46], [30.5, 0.5]] }
   - { from: RM2.b, to: V2.pin7, via: [[32.4, 1.6], [32.2, 1.6]] }
-  - { from: VR2.lug1, to: [1.45, 28.6], via: [[28.6, -0.55]] }
+  - { from: VR2.lug1, to: [1.45, 28.6], via: [[29.75, -0.55]] }
 
   # --- 12AY7 input pair (V1): bright + normal channels -----------------------
   # Grids approached from above (pin7) / below (pin2, clear of pin3); plates to
@@ -340,7 +340,7 @@ runs:
 
   # --- presence control (5k), at the phase-inverter tail foot -----------------
   - { from: VR6.lug3, to: C7.b, via: [[3.85, -0.82], [22.55, -0.82], [22.55, -0.25]] }
-  - { from: VR6.lug1, to: [1.45, 4.8], via: [[4.8, -0.55]] }
+  - { from: VR6.lug1, to: [1.45, 4.8], via: [[4.7, -0.82]] }
   - { from: VR6.lug2, to: C16.a, via: [[4, -1.3], [6, -1.3]] }
   - { from: C16.b, to: [1.45, 6.8], via: [[6.8, -0.5]] }
 
@@ -368,21 +368,21 @@ runs:
   - { from: V4.pin7, to: V5.pin7, style: heater, via: [[10.5, 3.62], [11.644, 2.612]] }
   - { from: V5.pin7, to: V3.pin4, style: heater, via: [[10.5, 3.64], [20, 3.64]] }
   - { from: V3.pin4, to: V3.pin5, style: heater }   # 12AX7 ends strapped for 6.3 V
-  - { from: V3.pin4, to: V2.pin4, style: heater, via: [[20.4, 3.6], [31, 3.6]] }
+  - { from: V3.pin4, to: V2.pin4, style: heater, via: [[18.8, 3.6], [31, 3.6]] }
   - { from: V2.pin4, to: V2.pin5, style: heater }   # 12AX7 ends strapped for 6.3 V
-  - { from: V2.pin4, to: V1.pin4, style: heater, via: [[31.35, 3.6]] }
+  - { from: V2.pin4, to: V1.pin4, style: heater, via: [[32.15, 5.212]] }
   - { from: V1.pin4, to: V1.pin5, style: heater }   # 12AY7 ends strapped for 6.3 V
 
   # Leg B — the other green, reaching each 5881 at pin 2 and each noval at the
   # centre tap. It runs the same lane a shade deeper: the pair is twisted in the
   # chassis, but with the winding's own centre tap grounded the two legs are
   # separate conductors and the drawing states them as such.
-  - { from: PT.green2, to: PL1.b, style: heater, via: [[-1.362, 1.324], [-2.07, 2.85]] }               # second leg → the lamp's other terminal
+  - { from: PT.green2, to: PL1.b, style: heater, via: [[-0.184, 0.581], [-1.362, 1.324], [-2.07, 2.85]] }               # second leg → the lamp's other terminal
   - { from: PL1.b, to: V4.pin2, style: heater, via: [[-1.55, 3.95], [6.1, 3.95]] }
-  - { from: V4.pin2, to: V5.pin2, style: heater, via: [[6.1, 3.97], [10.1, 3.97]] }
-  - { from: V5.pin2, to: V3.pin9, style: heater, via: [[10.1, 3.99], [22.986, 3.514]] }
-  - { from: V3.pin9, to: V2.pin9, style: heater, via: [[21, 3.95], [31.6, 3.95]] }
-  - { from: V2.pin9, to: V1.pin9, style: heater, via: [[32, 3.95], [38.6, 3.95]] }
+  - { from: V4.pin2, to: V5.pin2, style: heater, via: [[7.491, 3.608], [9.735, 4.107]] }
+  - { from: V5.pin2, to: V3.pin9, style: heater, via: [[10.1, 3.99], [22.886, 3.514]] }
+  - { from: V3.pin9, to: V2.pin9, style: heater, via: [[26.059, 4.735], [31.86, 3.95]] }
+  - { from: V2.pin9, to: V1.pin9, style: heater, via: [[29.955, 2.531], [30.4, 3.95]] }
 
   # The winding's own centre tap, grounded at the chassis as the sheet marks it.
   - { from: PT.green-yellow, to: [1.45, 0.3] }

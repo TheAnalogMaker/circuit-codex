@@ -217,7 +217,7 @@ runs:
   - { from: T1.red1, to: V5.pin4, via: [[0.8, 0.35], [1.6, 1.3]] }
   - { from: T1.red2, to: V5.pin6, via: [[1.1, 0.58], [2.3, 1.36]] }
   - { from: T1.red-yellow, to: [1.45, 0.4], via: [[0.15, 0.92]] }   # HT centre tap → ground bus
-  - { from: T1.yellow1, to: V5.pin2, via: [[0.3, 0.62], [0.9, 2.1]] }   # 5 V rectifier filament
+  - { from: T1.yellow1, to: V5.pin2, via: [[0.3, 0.62], [0.97, 2.05]] }   # 5 V rectifier filament
   - { from: T1.yellow2, to: V5.pin8, via: [[0.9, 0.913], [2.9, 2.464]] }   # 5 V rectifier filament / B+
   - { from: V5.pin8, to: RD1.a, color: red, via: [[3.3, 2.2], [3.3, -0.15]] }
 
@@ -245,9 +245,9 @@ runs:
   - { from: RD2.b, to: C13.a, color: red }
   - { from: C13.b, to: [1.45, 10.7] }
   - { from: RD1.b, to: V3.pin4, color: red, via: [[4.5, 0.2], [1.8, 0.2], [1.8, 1.66], [5.2, 1.66]] }
-  - { from: V3.pin4, to: V4.pin4, color: red, via: [[6.2, 1.62], [9.3, 1.607]] }
+  - { from: V3.pin4, to: V4.pin4, color: red, via: [[6.2, 1.6], [9.3, 1.607]] }
   - { from: T2.blue, to: V3.pin3, via: [[13.1, 2.74], [4.6, 2.74], [4.6, 1.9]] }
-  - { from: T2.brown, to: V4.pin3, via: [[13.7, 2.96], [8.6, 2.96], [8.957, 1.9]] }
+  - { from: T2.brown, to: V4.pin3, via: [[13.7, 2.96], [8.6, 2.96]] }
   - { from: T2.green, to: SPK.tip, via: [[14.4, 1.92]] }
   - { from: SPK.sleeve, to: [1.45, 16.9], via: [[16.9, 2.24]] }
   - { from: RD2.b, to: RL3.a, color: red, via: [[9.7, 0.2], [5.4, 0.2]] }
@@ -266,19 +266,19 @@ runs:
   # drawn from pin 2 and reached the same node only through a link across the
   # rectifier's own filament pins — a short across the 5 V winding that the
   # sheet does not draw, removed 2026-09-09 with the heater read; see notes.md.
-  - { from: V5.pin4, to: R5.a, color: red, via: [[0.901, 1.631], [1.387, -0.3], [15, -0.3]] }
+  - { from: V5.pin4, to: R5.a, color: red, via: [[0.641, 1.631], [1.387, -0.3], [15, -0.3]] }
   - { from: R5.b, to: D1.a }
   - { from: D1.b, to: C14.a }
   - { from: C14.a, to: R6.a, via: [[21.2, -0.85]] }
   - { from: C14.b, to: [1.45, 16.8] }
   - { from: R6.b, to: [1.45, 22.5] }
-  - { from: R6.a, to: VR4.lug1, color: brown, via: [[22.645, -0.9], [39.95, -1.044]] }
+  - { from: R6.a, to: VR4.lug1, color: brown, via: [[22.645, -0.9], [40.094, -1.087]] }
 
   # === the Intensity control sits IN the bias line =========================
   - { from: C9.b, to: VR4.lug3, color: brown, via: [[39.4, -0.2], [40.4, -0.2]] }
   - { from: VR4.lug2, to: C10.a, via: [[40.45, -0.35], [39, -0.38], [37, -0.38]] }
   - { from: C10.b, to: [1.45, 37] }
-  - { from: VR4.lug2, to: RGL4.a, color: yellow, via: [[40.6, -0.6], [21.3, -0.6]] }
+  - { from: VR4.lug2, to: RGL4.a, color: yellow, via: [[39.62, -0.6], [21.3, -0.6]] }
   - { from: RGL4.a, to: RGL3.a, color: yellow, via: [[20.7, -0.6], [3, -0.6]] }
 
   # === output stage: grids and cathodes ====================================
@@ -315,7 +315,7 @@ runs:
   # === Speed control (VR3) with its own end resistor R3 ====================
   - { from: VR3.lug1, to: CTO1.b, via: [[43.69, -0.42], [41, -0.42]] }   # Speed node -> rheostat
   - { from: VR3.lug2, to: VR3.lug3 }
-  - { from: VR3.lug3, to: R3.a, via: [[44.713, -1.202]] }
+  - { from: VR3.lug3, to: R3.a, via: [[43.773, -0.802]] }
   - { from: R3.b, to: [1.45, 47.45], via: [[47.45, -0.55]] }
 
   # === driver ==================================================================
@@ -327,26 +327,26 @@ runs:
   - { from: C4.b, to: V1.pin2, via: [[55.4, -0.2], [63.86, -0.2], [63.9, 1.78]] }
 
   # === input stage ===============================================================
-  - { from: RL1.b, to: V1.pin6, via: [[61.752, 1.74], [64.08, 1.9]] }
+  - { from: RL1.b, to: V1.pin6, via: [[61.752, 1.74], [63.958, 1.9]] }
   - { from: RL1.b, to: C2.a, via: [[61.6, -0.35], [68.4, -0.35]] }
   - { from: RK1.a, to: C1.a, via: [[63.4, -0.14], [65.6, -0.14]] }
-  - { from: RK1.a, to: V1.pin8, via: [[63.4, 1.632], [64.132, 1.994]] }
+  - { from: RK1.a, to: V1.pin8, via: [[63.4, 1.592], [64.112, 1.994]] }
   - { from: RK1.b, to: [1.45, 63] }
   - { from: C1.b, to: [1.45, 65] }
 
   # === 68k stoppers + input leak mount at the jacks (not on the board) =====
-  - { from: JA.tip, to: V1.pin7, via: [[73, -0.2], [73.2, 0.55], [65.1, 2.28]] }
+  - { from: JA.tip, to: V1.pin7, via: [[73, -0.2], [73.2, 0.55], [65.2, 2.28]] }
   - { from: JB.tip, to: V1.pin7, via: [[70, -0.2], [63.6, 2.28]] }
 
   # === Tone/Volume network: read from the schematic (mounted at the pots) =
   # C3/C10/VR1-4 are all off-board (natural terminal height ~y=-0.9..-0.97,
   # same band discussed above), so adjacent-item hops here stay direct.
   - { from: C2.b, to: VR2.lug3, via: [[65.37, -0.17]] }
-  - { from: VR2.lug3, to: C3.a, via: [[61.02, -1.1], [56, -1.05]] }
-  - { from: C3.b, to: VR1.lug1, via: [[58.003, -1.25]] }
+  - { from: VR2.lug3, to: C3.a, via: [[60.182, -1.028], [57.994, -1.448]] }
+  - { from: C3.b, to: VR1.lug1, via: [[58.703, -0.8]] }
   - { from: VR1.lug1, to: VR1.lug2 }
   - { from: VR1.lug3, to: [1.45, 58.5] }
-  - { from: VR2.lug1, to: [1.45, 59.8] }
+  - { from: VR2.lug1, to: [1.45, 59.8], via: [[63.045, -0.662]] }
   - { from: VR2.lug2, to: C4.a, via: [[59.2, -0.42]] }
 
   # === 6.3 V heaters — single-ended, one green leg grounded ==================

@@ -116,13 +116,13 @@ runs:
   # === PT secondary → EZ81 → reservoir → choke → the +315 V rail ==============
   # The four PT pigtails stack ~14 px apart, so each leaves on its own row and
   # drops in its own column before diving — no two read as one wire.
-  - { from: T1.red1, to: V8.pin1, via: [[-1.70, 0.169], [-1.70, 2.52], [1.70, 2.52]] }
-  - { from: T1.red2, to: V8.pin7, via: [[-1.40, 0.290], [-1.40, 3.05], [3.90, 3.05], [3.90, 2.25]] }
-  - { from: T1.red-yellow, to: [1.45, 0.2], via: [[-1.10, 0.410], [-1.10, 1.20], [0.20, 1.20]] }
+  - { from: T1.red1, to: V8.pin1, via: [[-1.7, 0.169], [-1.7, 2.52], [1.7, 2.52]] }
+  - { from: T1.red2, to: V8.pin7, via: [[-1.4, 0.29], [-1.4, 3.05], [3.9, 3.05], [3.9, 2.25]] }
+  - { from: T1.red-yellow, to: [1.45, 0.2], via: [[-1.1, 0.41], [-1.1, 1.2], [0.2, 1.2]] }
   - { from: V8.pin3, to: CR1.a, color: red, via: [[1.55, 1.62], [0.42, 1.62], [0.42, 0.34]] }
   - { from: CR1.b, to: [1.45, 1] }
-  - { from: CR1.a, to: CH1.hi, via: [[1.30, -0.42], [5.90, -0.42]] }
-  - { from: CH1.lo, to: CR2.a, color: red, via: [[6.90, -0.52], [2.30, -0.52]] }
+  - { from: CR1.a, to: CH1.hi, via: [[1.3, -0.42], [5.9, -0.42]] }
+  - { from: CH1.lo, to: CR2.a, color: red, via: [[6.9, -0.52], [2.3, -0.52]] }
   - { from: CR2.b, to: [1.45, 2] }
   - { from: CF1.b, to: [1.45, 5] }
   - { from: CF2.b, to: [1.45, 8] }
@@ -130,82 +130,82 @@ runs:
   # === +315 V rail (BP1): filter can, OT centre tap, both screen stoppers, and
   # the two droppers. The backbone rides the top lane at row -0.30; each tap
   # leaves its shared eyelet on its own bearing. ==============================
-  - { from: T2.red, to: CR2.a, color: red, via: [[23.42, -0.62], [2.00, -0.62]] }
-  - { from: CR2.a, to: RD1.a, color: red, via: [[2.36, -0.30], [3.70, -0.30]] }
-  - { from: RD1.a, to: RD2.a, color: red, via: [[4.30, -0.30], [6.70, -0.30]] }
-  - { from: RD2.a, to: RSC1.a, color: red, via: [[7.35, -0.30], [10.65, -0.30]] }
+  - { from: T2.red, to: CR2.a, color: red, via: [[23.42, -0.62], [2, -0.62]] }
+  - { from: CR2.a, to: RD1.a, color: red, via: [[2.36, -0.3], [3.7, -0.3]] }
+  - { from: RD1.a, to: RD2.a, color: red, via: [[4.3, -0.3], [6.7, -0.3]] }
+  - { from: RD2.a, to: RSC1.a, color: red, via: [[7.35, -0.3], [10.65, -0.3]] }
   - { from: RSC1.a, to: RSC2.a, color: red, via: [[11.35, 0.28], [13.65, 0.28]] }
 
   # === channel rails: BPN and BPPI run in the sub-board corridor, each in its
   # own lane, so they clear the output-transformer pigtails and the pot lugs ===
-  - { from: RD1.b, to: RL1.a, via: [[5.40, 1.18], [46.60, 1.18]] }
+  - { from: RD1.b, to: RL1.a, via: [[5.4, 1.18], [46.6, 1.18]] }
   - { from: RL1.a, to: RS1.a, via: [[47.35, 0.28], [48.65, 0.28]] }
-  - { from: RD2.b, to: RLA.a, via: [[8.40, 1.32], [29.60, 1.32]] }
+  - { from: RD2.b, to: RLA.a, via: [[8.4, 1.32], [29.6, 1.32]] }
   - { from: RLA.a, to: RLB.a, via: [[30.35, 0.28], [31.65, 0.28]] }
 
   # === output stage: screens, grids, plates, the shared cathode ===============
-  - { from: RSC1.b, to: V3.pin9, via: [[12.60, 0.60], [12.60, 2.60], [12.15, 2.60]] }
-  - { from: RSC2.b, to: V4.pin9, via: [[15.40, 0.60], [15.40, 2.62], [20.90, 2.52]] }
-  - { from: RST1.b, to: V3.pin2, via: [[18.40, 0.60], [18.40, 2.26], [10.60, 2.26]] }
-  - { from: RST2.b, to: V4.pin2, via: [[23.40, 0.55], [23.40, 2.95], [19.00, 2.44]] }
+  - { from: RSC1.b, to: V3.pin9, via: [[12.6, 0.6], [12.6, 2.6], [12.15, 2.6]] }
+  - { from: RSC2.b, to: V4.pin9, via: [[15.4, 0.6], [15.4, 2.62], [20.9, 2.52]] }
+  - { from: RST1.b, to: V3.pin2, via: [[18.4, 0.6], [18.4, 2.26], [10.6, 2.26]] }
+  - { from: RST2.b, to: V4.pin2, via: [[23.4, 0.55], [23.4, 2.95], [19, 2.44]] }
   - { from: RGL1.b, to: [1.45, 18] }
   - { from: RGL2.b, to: [1.45, 23] }
-  - { from: V3.pin7, to: T2.blue, via: [[13.10, 1.60], [13.10, -0.44], [23.60, -0.44]] }
-  - { from: V4.pin7, to: T2.brown, via: [[21.60, 1.55], [21.60, -0.90], [23.80, -0.90]] }
-  - { from: V3.pin3, to: R22.a, via: [[10.30, 1.62], [25.05, 1.62], [25.05, 0.40]] }
-  - { from: V4.pin3, to: R22.a, via: [[18.85, 1.70], [18.85, 3.15], [25.40, 3.15], [25.40, 0.45]] }
+  - { from: V3.pin7, to: T2.blue, via: [[13.1, 1.6], [13.1, -0.44], [23.6, -0.44]] }
+  - { from: V4.pin7, to: T2.brown, via: [[21.6, 1.55], [21.6, -0.9], [23.8, -0.9]] }
+  - { from: V3.pin3, to: R22.a, via: [[10.3, 1.62], [25.05, 1.62], [25.05, 0.4]] }
+  - { from: V4.pin3, to: R22.a, via: [[18.85, 1.7], [18.85, 3.15], [25.4, 3.15], [25.4, 0.45]] }
   - { from: R22.a, to: CKO.a }
   - { from: R22.b, to: [1.45, 26] }
   - { from: CKO.b, to: [1.45, 27] }
-  - { from: T2.green, to: JSPK1.tip, via: [[24.19, -0.52], [26.20, -0.52], [26.20, 1.90], [24.30, 1.90]] }
-  - { from: JSPK1.sleeve, to: [1.45, 22.4], via: [[23.75, 1.90]] }
+  - { from: T2.green, to: JSPK1.tip, via: [[24.19, -0.52], [26.387, -0.52], [26.2, 1.9], [24.171, 1.9]] }
+  - { from: JSPK1.sleeve, to: [1.45, 22.4], via: [[23.75, 1.9]] }
 
   # === phase inverter: anodes → couplers, grids, the tail ======================
-  - { from: RLA.b, to: V2.pin6, via: [[31.40, 1.55], [34.20, 1.62]] }
-  - { from: RLB.b, to: V2.pin1, via: [[32.15, 0.60], [32.15, 2.45], [33.00, 2.42]] }
-  - { from: V2.pin6, to: CC1.a, via: [[35.15, 1.55], [35.15, 2.90], [16.30, 2.90]] }
-  - { from: V2.pin1, to: CC2.a, via: [[32.90, 3.45], [21.40, 3.45]] }
-  - { from: RGA.a, to: V2.pin7, via: [[35.40, 0.55], [35.40, 1.75]] }
-  - { from: RGB.a, to: V2.pin2, via: [[36.50, 0.50], [31.60, 0.50], [31.60, 2.07]] }
-  - { from: V2.pin8, to: RTAIL.a, via: [[35.30, 1.62], [36.90, 0.62]] }
-  - { from: V2.pin3, to: RTAIL.a, via: [[32.60, 1.60], [32.60, 0.20], [36.50, 0.20]] }
-  - { from: RTAIL.b, to: RT2.a, via: [[37.40, 1.18], [38.00, 0.62]] }
-  - { from: RGA.b, to: RT2.a, via: [[35.00, 1.32], [37.35, 1.32], [37.55, 0.35]] }
-  - { from: RGB.b, to: RT2.a, via: [[36.00, 1.50], [39.00, 1.50], [39.00, 0.45]] }
+  - { from: RLA.b, to: V2.pin6, via: [[31.4, 1.55], [34.2, 1.62]] }
+  - { from: RLB.b, to: V2.pin1, via: [[32.15, 0.6], [32.15, 2.45], [33, 2.42]] }
+  - { from: V2.pin6, to: CC1.a, via: [[35.15, 1.55], [35.15, 2.9], [16.3, 2.9]] }
+  - { from: V2.pin1, to: CC2.a, via: [[32.9, 3.45], [21.4, 3.45]] }
+  - { from: RGA.a, to: V2.pin7, via: [[35.4, 0.55], [35.4, 1.75]] }
+  - { from: RGB.a, to: V2.pin2, via: [[36.5, 0.5], [31.6, 0.5], [31.6, 2.07]] }
+  - { from: V2.pin8, to: RTAIL.a, via: [[35.372, 1.62], [36.9, 0.62]] }
+  - { from: V2.pin3, to: RTAIL.a, via: [[32.6, 1.6], [32.6, 0.2], [36.5, 0.2]] }
+  - { from: RTAIL.b, to: RT2.a, via: [[37.4, 1.18], [38, 0.62]] }
+  - { from: RGA.b, to: RT2.a, via: [[35, 1.32], [37.35, 1.32], [37.55, 0.35]] }
+  - { from: RGB.b, to: RT2.a, via: [[36, 1.568], [39, 1.5], [39.04, 0.45]] }
   - { from: RT2.b, to: [1.45, 38] }
 
   # === Top Cut — 0.005 µF in series with 250 kΩ, bridged across the anodes =====
-  - { from: RLA.b, to: CTC.a, via: [[31.30, -0.48], [31.61, -0.60]] }
+  - { from: RLA.b, to: CTC.a, via: [[31.3, -0.48], [31.61, -0.6]] }
   - { from: CTC.b, to: VR3.lug3, via: [[32.39, -1.26], [29.81, -1.26]] }
-  - { from: VR3.lug1, to: RLB.b, via: [[29.19, -0.66], [32.80, -0.66]] }
+  - { from: VR3.lug1, to: RLB.b, via: [[29.19, -0.66], [32.8, -0.66]] }
   - { from: VR3.lug2, to: VR3.lug1 }
 
   # === the two channel volumes into the inverter's two grids ==================
-  - { from: VR1.lug2, to: CIN1.a, via: [[44.50, -0.52], [43.40, -0.52]] }
-  - { from: CIN1.b, to: V2.pin7, via: [[44.60, 0.94], [38.30, 0.94], [38.30, 1.90], [35.40, 1.90]] }
+  - { from: VR1.lug2, to: CIN1.a, via: [[44.5, -0.52], [43.4, -0.52]] }
+  - { from: CIN1.b, to: V2.pin7, via: [[44.6, 0.94], [38.3, 0.94], [38.3, 1.9], [35.4, 1.9]] }
   - { from: VR1.lug1, to: [1.45, 44.19] }
-  - { from: VR2.lug2, to: CIN2.a, via: [[39.00, -0.52], [40.10, -0.52]] }
-  - { from: CIN2.b, to: V2.pin2, via: [[41.60, 1.12], [40.60, 1.12], [40.60, 2.62], [32.60, 2.62]] }
-  - { from: VR2.lug1, to: [1.45, 38.69] }
+  - { from: VR2.lug2, to: CIN2.a, via: [[39, -0.52], [40.1, -0.52]] }
+  - { from: CIN2.b, to: V2.pin2, via: [[41.6, 1.12], [40.6, 1.12], [40.6, 2.62], [32.6, 2.62]] }
+  - { from: VR2.lug1, to: [1.45, 38.69], via: [[41.214, -0.135]] }
 
   # === Normal channel: EF86 anode, screen, cathode, grid ======================
-  - { from: RL1.b, to: V1.pin6, via: [[48.40, 1.58], [51.50, 1.62]] }
-  - { from: RL1.b, to: CO1.a, via: [[48.40, -0.28], [55.60, -0.28]] }
-  - { from: CO1.b, to: VR1.lug3, via: [[57.45, -0.30], [57.45, -1.58], [44.81, -1.58]] }
-  - { from: RS1.b, to: V1.pin1, via: [[50.60, 0.50], [50.60, 2.60], [50.85, 2.60]] }
+  - { from: RL1.b, to: V1.pin6, via: [[48.4, 1.58], [51.5, 1.62]] }
+  - { from: RL1.b, to: CO1.a, via: [[48.4, -0.28], [55.6, -0.28]] }
+  - { from: CO1.b, to: VR1.lug3, via: [[57.45, -1.58], [44.81, -1.58], [43.162, -1.237]] }
+  - { from: RS1.b, to: V1.pin1, via: [[50.6, 0.5], [50.6, 2.6], [50.85, 2.6]] }
   - { from: CS1.b, to: [1.45, 50] }
-  - { from: V1.pin3, to: RK1.a, via: [[50.30, 1.68], [50.30, 0.42], [52.60, 0.28]] }
-  - { from: V1.pin8, to: RK1.a, via: [[53.60, 2.30], [53.60, 0.35], [53.35, 0.20]] }
+  - { from: V1.pin3, to: RK1.a, via: [[50.3, 1.68], [50.3, 0.42], [52.6, 0.28]] }
+  - { from: V1.pin8, to: RK1.a, via: [[53.6, 2.3], [53.6, 0.35], [53.35, 0.2]] }
   - { from: RK1.a, to: CK1.a }
   - { from: RK1.b, to: [1.45, 53] }
   - { from: CK1.b, to: [1.45, 54] }
-  - { from: V1.pin2, to: [1.45, 49.7], via: [[50.10, 2.35]] }
-  - { from: V1.pin7, to: [1.45, 52.4], via: [[52.70, 1.75]] }
-  - { from: JN.tip, to: RGS1.a, via: [[56.86, -1.40], [54.21, -1.40]] }
-  - { from: RGS1.b, to: V1.pin9, via: [[55.70, -0.72], [55.70, 2.78], [52.60, 2.78]] }
-  - { from: RG1.a, to: V1.pin9, via: [[54.30, 2.45], [51.50, 2.45]] }
-  - { from: RG1.b, to: [1.45, 54.5], via: [[54.50, 1.72]] }
-  - { from: JN.sleeve, to: [1.45, 55.4], via: [[57.70, -1.20], [55.40, -1.20], [55.40, 1.10]] }
+  - { from: V1.pin2, to: [1.45, 49.7], via: [[50.1, 2.35]] }
+  - { from: V1.pin7, to: [1.45, 52.4], via: [[52.7, 1.75]] }
+  - { from: JN.tip, to: RGS1.a, via: [[56.86, -1.4], [54.21, -1.4]] }
+  - { from: RGS1.b, to: V1.pin9, via: [[55.7, -0.72], [55.7, 2.78], [52.6, 2.78]] }
+  - { from: RG1.a, to: V1.pin9, via: [[54.3, 2.45], [51.5, 2.45]] }
+  - { from: RG1.b, to: [1.45, 54.5], via: [[54.5, 1.72]] }
+  - { from: JN.sleeve, to: [1.45, 55.4], via: [[57.7, -1.2], [55.4, -1.2], [55.4, 1.1]] }
 
   # === 6.3 V heater chain (green twisted pair) ================================
   # Mains transformer → pilot lamp → EZ81 → the two EL84s → the phase inverter →
@@ -214,7 +214,7 @@ runs:
   # (unlike the directly-heated American rectifiers elsewhere in this corpus).
   # Twisted runs land only on heater pins (noval 4/5) — validated by the render.
   - { from: T1.green, to: PL1.a, style: twisted }
-  - { from: PL1.b, to: V8.pin4, style: twisted, via: [[-1.2, 4.0], [2.6, 4.0]] }
+  - { from: PL1.b, to: V8.pin4, style: twisted, via: [[-1.2, 4], [2.6, 4]] }
   - { from: V8.pin5, to: V3.pin4, style: twisted, via: [[2.6, 4.02], [11.5, 4.02]] }
   - { from: V3.pin5, to: V4.pin4, style: twisted, via: [[11.5, 4.04], [20, 4.04]] }
   - { from: V4.pin5, to: V2.pin4, style: twisted, via: [[20, 4.06], [34, 4.06]] }

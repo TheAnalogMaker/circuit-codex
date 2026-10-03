@@ -270,17 +270,17 @@ runs:
   # The two lower tone-cap leads reach the slope-node eyelet as one solder point
   # — the sheet curves the 0.047 µF lead across to it, this redraw seats that
   # cap on the eyelet and runs the 0.1 µF lead across instead. Same node either way.
-  - { from: C2.a, to: VR2.lug1, color: white, via: [[38, -0.45], [37.19, -0.45]] }  # 250 pF → Treble
+  - { from: C2.a, to: VR2.lug1, color: white, via: [[38, -0.45], [38.62, -0.62]] }  # 250 pF → Treble
   - { from: C3.a, to: VR3.lug2, color: blue, via: [[43.8, -0.42], [43.8, -1.5], [33, -1.5]] }   # 0.1 µF → Bass wiper
   - { from: VR3.lug1, to: VR3.lug2 }                                                   # bass wiper strapped to its upper end (the factory leaves that lug bare)
   - { from: C3.b, to: R6.b }                                                           # 0.1 µF lower lead → slope node
-  - { from: C4.a, to: VR3.lug3, color: brown, via: [[39.8, -0.52], [33.31, -0.52]] }  # 0.047 µF → Bass, lower end
-  - { from: R7.a, to: VR3.lug3, via: [[34.3, -1.1], [33.31, -1.36]] }                # 15 kΩ bass leg, from above
+  - { from: C4.a, to: VR3.lug3, color: brown, via: [[39.8, -0.52], [33.31, -0.47]] }  # 0.047 µF → Bass, lower end
+  - { from: R7.a, to: VR3.lug3, via: [[34.29, -1.1], [33.09, -0.76]] }                # 15 kΩ bass leg, from above
   - { from: R7.b, to: [1.45, 31.2], via: [[35.79, -0.36], [31.2, -0.36]] }            # 15 kΩ → ground bus
-  - { from: VR3.lug2, to: VR2.lug3, via: [[33, -0.7], [37.81, -0.7]] }            # bass wiper → treble lower lug
-  - { from: VR2.lug2, to: VR1.lug1, via: [[37.5, -0.62], [41.69, -0.62]] }            # treble wiper → volume top
-  - { from: VR1.lug3, to: [1.45, 44.3], via: [[42.31, -0.78], [44.3, -0.78]] }        # volume ground
-  - { from: VR1.lug2, to: V1.pin7, via: [[42, -1.2], [51.6, -1.2], [51.6, 1.62]] }  # volume wiper → V1B grid
+  - { from: VR3.lug2, to: VR2.lug3, via: [[33, -0.7], [37.01, -0.7]] }            # bass wiper → treble lower lug
+  - { from: VR2.lug2, to: VR1.lug1, via: [[37.95, -0.62], [41.69, -0.62]] }            # treble wiper → volume top
+  - { from: VR1.lug3, to: [1.45, 44.3], via: [[41.93, -0.78], [44.3, -0.78]] }        # volume ground
+  - { from: VR1.lug2, to: V1.pin7, via: [[42, -0.6], [51.6, -1.2], [51.6, 1.62]] }  # volume wiper → V1B grid
 
   # === input jacks, stoppers and the 1 MΩ grid leak ========================
   - { from: JIN2, to: R2.a, via: [[44.8, -1.02], [45, -0.42]] }
@@ -303,12 +303,12 @@ runs:
   # cathode (the 1.5 kΩ). Speed: the 100k from its left lug to chassis, that
   # lug strapped to the wiper, the right lug down to the ladder's Speed node.
   # The pedal jack's tip is the ladder's pedal node.
-  - { from: R27.lug2, to: R26.a, via: [[18.5, -0.55], [14.6, -0.55]] }                     # Intensity wiper -> 68k
-  - { from: R27.lug1, to: [1.45, 15.3], via: [[18.2, -0.7], [15.3, -0.7]] }              # Intensity left lug -> chassis
-  - { from: R27.lug3, to: R9.b, via: [[18.8, -0.45], [24.4, -0.45], [24.4, 1]] }       # Intensity right lug -> V1B cathode (K1B)
-  - { from: R25.b, to: R24.lug1, via: [[22.602, -0.712]] }                                                            # 100k on the pot: left lug ...
+  - { from: R27.lug2, to: R26.a, via: [[18.5, -0.29], [14.6, -0.55]] }                     # Intensity wiper -> 68k
+  - { from: R27.lug1, to: [1.45, 15.3], via: [[18.5, -0.7], [15.3, -0.7]] }              # Intensity left lug -> chassis
+  - { from: R27.lug3, to: R9.b, via: [[18.32, -0.27], [24.4, -0.62], [24.39, 1]] }       # Intensity right lug -> V1B cathode (K1B)
+  - { from: R25.b, to: R24.lug1, via: [[23.682, -0.762]] }                                                            # 100k on the pot: left lug ...
   - { from: R25.a, to: [1.45, 22.2], via: [[21.2, -0.62], [22.2, -0.62]] }                 # ... -> chassis
-  - { from: R24.lug1, to: R24.lug2, via: [[23.37, -0.74], [23.45, -0.91]] }                  # Speed: left lug strapped to the wiper
+  - { from: R24.lug1, to: R24.lug2, via: [[23.37, -0.84]] }                  # Speed: left lug strapped to the wiper
   - { from: R24.lug3, to: C15.a, via: [[23.8, -0.3], [16, -0.3]] }                     # Speed right lug -> Speed node
   - { from: J1.tip, to: R20.a, via: [[14.4, -0.18], [18, -0.18]] }                       # pedal tip -> pedal node
   - { from: C16.a, to: V4.pin1, via: [[16, 1.3], [17.8, 2.3]] }                      # ladder foot -> V4A plate (strapped to V4B grid)
@@ -331,11 +331,11 @@ runs:
   - { from: T1.green2, to: PL1.a, style: heater, via: [[-1.65, 0.64], [-1.65, -0.55]] }
   - { from: PL1.b, to: [1.45, -0.45], style: heater, via: [[-2.05, -0.779], [-2.05, 0.05], [-0.55, 0.05]] }   # pilot lamp return → ground
   - { from: PL1.a, to: V2.pin2, style: heater, via: [[-1.3, -1.1], [10.2, -1.1], [10.2, 3.65], [13.6, 3.65]] }
-  - { from: V2.pin2, to: V1.pin4, style: heater, via: [[13.45, 3.42], [47.95, 3.42]] }
+  - { from: V2.pin2, to: V1.pin4, style: heater, via: [[13.4, 3.8], [49.55, 3.42]] }
   - { from: V1.pin4, to: V1.pin5, style: heater, via: [[48.3, 1.5]] }             # 12AX7 pins 4+5 strapped for 6.3 V
   - { from: V2.pin7, to: [1.45, 16.85], style: heater, via: [[15.207, 1.769], [16.85, 1.95]] }                      # 6V6 heater return → ground
   - { from: V1.pin9, to: [1.45, 49.9], style: heater, via: [[49.9, 1.52]] }                      # 12AX7 heater centre tap → ground
-  - { from: V1.pin5, to: V4.pin4, style: heater, via: [[48.4, 3.65], [18.9, 3.27]] }   # daisy chain continues to V4
+  - { from: V1.pin5, to: V4.pin4, style: heater, via: [[48.3, 3.65], [18.95, 3.27]] }   # daisy chain continues to V4
   - { from: V4.pin4, to: V4.pin5, style: heater, via: [[19.5, 1.5]] }             # 12AX7 pins 4+5 strapped for 6.3 V
   - { from: V4.pin9, to: [1.45, 21.1], style: heater, via: [[21.1, 2.32]] }                      # 12AX7 heater centre tap → ground
 

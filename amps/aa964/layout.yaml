@@ -163,7 +163,7 @@ runs:
   # === PT → GZ34 rectifier → reservoir (annotation layer) =====================
   # Each of the seven stacked PT pigtails leaves horizontally on its own row and
   # dives in its own column into its own deep lane, so no two read as one wire.
-  - { from: TR1.red1, to: V5.pin4, via: [[-0.85, 0.26], [-0.85, 2.3], [10.0, 2.3], [10.0, 1.666], [11.563, 1.666]] }
+  - { from: TR1.red1, to: V5.pin4, via: [[-0.85, 0.26], [-0.85, 2.3], [10, 2.3], [10, 1.666], [11.563, 1.666]] }
   - { from: TR1.red2, to: V5.pin6, via: [[-0.45, 0.32], [-0.45, 3.2], [14.4, 3.2], [14.4, 1.84], [13.106, 1.84]] }
   - { from: TR1.red-yellow, to: [1.45, 0.6], via: [[-0.65, 0.386]] }        # HT centre tap → ground
   - { from: TR1.yellow1, to: V5.pin2, via: [[-1.25, 0.45], [-1.25, 3.45], [9.4, 3.45], [10.742, 2.107]] }
@@ -174,9 +174,9 @@ runs:
   - { from: CA.a, to: RD1.a }                                             # reservoir → +420 eyelet
   - { from: CB.a, to: RD1.b }                                             # screen-rail section
   - { from: CC.a, to: RD2.b }                                             # +370 section
-  - { from: RD3.a, to: CC.a, via: [[6.7, 2.55], [5.1, 2.55]] }            # third dropper, at the can
+  - { from: RD3.a, to: CC.a, via: [[6.7, 2.5], [6.16, 2.55]] }            # third dropper, at the can
   - { from: RD3.b, to: CD.a, via: [[7.5, 2.75], [8.9, 2.75]] }
-  - { from: CD.a, to: [0, 8], color: red, via: [[9.0, 1.5]] }            # +290 onto the board
+  - { from: CD.a, to: [0, 8], color: red, via: [[9, 1.5]] }            # +290 onto the board
   - { from: CA.b, to: [1.45, 1.4] }
   - { from: CB.b, to: [1.45, 3.4] }
   - { from: CC.b, to: [1.45, 5.4] }
@@ -203,16 +203,16 @@ runs:
   # === output tubes: grids, cathodes ==========================================
   - { from: C1.b, to: V3.pin5, via: [[18.7, 0.75], [18.5, 1.666], [17.437, 1.666]] }
   - { from: C2.b, to: V4.pin5, via: [[21.4, 0.6], [21.937, 1.666]] }
-  - { from: V3.pin8, to: [1.45, 15.2], via: [[17.82, 2.341], [15.9, 2.24]] }
-  - { from: V4.pin8, to: [1.45, 19.7], via: [[22.32, 2.341], [20.4, 2.24]] }
+  - { from: V3.pin8, to: [1.45, 15.2], via: [[17.82, 2.341], [16.33, 2.24]] }
+  - { from: V4.pin8, to: [1.45, 19.7], via: [[22.32, 2.341], [20.4, 1.86]] }
   - { from: RGL1.b, to: RGL2.b, via: [[18.6, 1.25], [21.4, 1.25]] }       # -34 V line across
 
   # === cathodyne phase inverter (V2B) =========================================
   - { from: RLPI.b, to: V2.pin6, via: [[26.4, 0.6], [26.9, 2.72], [33.2, 2.72], [33.2, 1.716], [32.25, 1.716]] }
-  - { from: RLPI.b, to: C1.a, via: [[26.0, -0.3], [17.0, -0.3]] }         # PPI → hot coupler
+  - { from: RLPI.b, to: C1.a, via: [[26, -0.3], [17, -0.3]] }         # PPI → hot coupler
   - { from: RGPI.a, to: V2.pin7, via: [[28.4, 0.9], [28.2, 2.52], [33.9, 2.52], [33.9, 1.916], [32.717, 1.916]] }
   - { from: RKPI.b, to: V2.pin8, via: [[30.4, 1.15], [34.4, 2.16], [32.717, 2.16]] }
-  - { from: RKPI.b, to: C2.a, via: [[29.8, -0.5], [21.0, -0.5]] }         # KPI → cold coupler
+  - { from: RKPI.b, to: C2.a, via: [[29.8, -0.5], [21, -0.5]] }         # KPI → cold coupler
   - { from: RTAIL.b, to: [1.45, 29] }
 
   # === tremolo oscillator (annotation layer) ==================================
@@ -220,47 +220,47 @@ runs:
   - { from: RTO.b, to: CTO1.a, via: [[33.5, 1.28], [36.3, 1.28], [36.8, 0.4]] }  # plate → ladder
   - { from: CTOUT1.a, to: CTOUT2.a }                                      # output node (same column)
   - { from: CTOUT1.b, to: [1.45, 35] }
-  - { from: CTOUT2.b, to: VRINT.lug1, via: [[35.0, -0.35], [34.45, -0.62]] }
+  - { from: CTOUT2.b, to: VRINT.lug1, via: [[35, -0.35], [34.45, -0.62], [34.803, -0.722]] }
   - { from: CTO3.b, to: V2.pin2, via: [[40.3, 0.6], [40.9, 2.95], [29.2, 2.95], [30.283, 2.16]] }
   - { from: RTO1.b, to: V2.pin3, via: [[38.6, 2.28], [29.6, 2.28], [29.6, 1.916], [30.283, 1.916]] }
   - { from: RTO1.b, to: CKTO.a, via: [[39.4, 1.62], [40.6, 1.62]] }
   - { from: RKTO.b, to: [1.45, 38] }
   - { from: RTO2.b, to: [1.45, 40.3] }
   - { from: CKTO.b, to: [1.45, 42] }
-  - { from: CTO1.b, to: VRSPD.lug1, via: [[38.0, -0.35], [37.45, -0.62]] }   # first node → Speed
-  - { from: VRSPD.lug2, to: VRSPD.lug1, via: [[38.0, -0.66], [37.0, -0.66], [37.2, -0.72]] }  # rheostat tie
+  - { from: CTO1.b, to: VRSPD.lug1, via: [[38, -0.35], [39.05, -0.62]] }   # first node → Speed
+  - { from: VRSPD.lug2, to: VRSPD.lug1, via: [[38.03, -0.66], [37.2, -0.67], [37.665, -0.914]] }  # rheostat tie
   - { from: VRSPD.lug3, to: RSPD.a, via: [[38.85, -0.62], [40.6, -0.62]] }
-  - { from: RSPD.b, to: [1.45, 43.2], via: [[42.4, -0.55], [43.2, 0.0]] }
-  - { from: CTO2.b, to: JVIB.tip, via: [[39.0, -0.4], [36.6, -0.4], [36.6, 1.75]] }  # footswitch shorts the ladder
+  - { from: RSPD.b, to: [1.45, 43.2], via: [[42.4, -0.55], [43.2, 0]] }
+  - { from: CTO2.b, to: JVIB.tip, via: [[39, -0.4], [36.6, -0.4], [36.6, 1.75]] }  # footswitch shorts the ladder
   - { from: JVIB.sleeve, to: [1.45, 37.6] }
   # the Intensity wiper IS the -34 V bias line; it runs the length of the chassis
   # in its own deep lane and rises to the grid-leak eyelet clear of both sockets.
-  - { from: VRINT.lug2, to: RGL1.b, via: [[35.4, -0.55], [35.6, 3.4], [18.7, 3.4], [18.7, 1.1]] }
+  - { from: VRINT.lug2, to: RGL1.b, via: [[35.4, -0.93], [35.6, 3.4], [18.87, 3.4], [18.8, 1.15]] }
 
   # === second stage (V1B): cathode pair, feedback tail, coupler ===============
   - { from: CK1B.a, to: RK1B.a, via: [[46.6, -0.35], [47.4, -0.35]] }     # K1B
   - { from: CK1B.b, to: RK1B.b, via: [[46.6, 1.25], [47.4, 1.25]] }       # J1B
   - { from: CK1B.a, to: V1.pin8, via: [[46.2, 0.55], [46.8, 3.55], [62.6, 3.55], [62.6, 2.16], [61.217, 2.16]] }
   - { from: R47.b, to: [1.45, 49] }
-  - { from: CC1.a, to: RGPI.a, via: [[52.0, -0.78], [28.2, -0.78]] }      # coupler → inverter grid
-  - { from: RL1B.b, to: V1.pin6, via: [[53.2, 0.6], [54.0, 2.7], [62.0, 2.7], [62.0, 1.716], [60.75, 1.716]] }
+  - { from: CC1.a, to: RGPI.a, via: [[52, -0.78], [28.2, -0.78]] }      # coupler → inverter grid
+  - { from: RL1B.b, to: V1.pin6, via: [[53.2, 0.6], [54, 2.7], [62, 2.7], [62, 1.716], [60.75, 1.716]] }
 
   # === tone stack + volume ====================================================
   - { from: RL1A.b, to: RS.a }                                            # V1A plate onto the slope R
   - { from: RL1A.b, to: V1.pin1, via: [[54.6, 0.5], [54.6, 2.45], [58.6, 2.45], [59.25, 2.36]] }
-  - { from: CT.b, to: VRT.lug1, via: [[55.95, -0.62]] }
+  - { from: CT.b, to: VRT.lug1, via: [[58.25, -0.62]] }
   - { from: CB1.b, to: VRT.lug3, via: [[57.4, 0.7], [57.4, -0.55], [57.06, -0.62]] }
-  - { from: CB1.b, to: VRB.lug2, via: [[57.9, 0.95], [59.9, 0.95], [60.25, -0.45]] }  # 0.1 µF → Bass wiper
+  - { from: CB1.b, to: VRB.lug2, via: [[58.72, 0.95], [60.07, 0.67], [61.4, -0.45]] }  # 0.1 µF → Bass wiper
   - { from: CB2.a, to: CB1.a, via: [[58.4, 0.5], [57.7, 1.25], [56.35, 1.25]] }
   - { from: CB2.b, to: VRB.lug3, via: [[59.5, -0.2], [60.9, -0.2], [60.85, -0.62]] }  # 0.047 µF → Bass, lower end
   - { from: VRB.lug1, to: VRB.lug2 }   # bass wiper strapped to its upper end (the factory leaves that lug bare)
   - { from: RBL.b, to: [1.45, 58.6] }
-  - { from: VRT.lug2, to: VRV.lug1, via: [[56.5, -0.5], [51.0, -0.5], [50.65, -0.62]] }
-  - { from: VRV.lug3, to: [1.45, 50.6], via: [[51.35, -0.62], [51.6, 0.5]] }
-  - { from: VRV.lug2, to: V1.pin7, via: [[51.0, -0.35], [52.4, 0.9], [62.9, 0.9], [62.9, 1.916], [61.217, 1.916]] }
+  - { from: VRT.lug2, to: VRV.lug1, via: [[56.5, -0.51], [51.15, -0.5]] }
+  - { from: VRV.lug3, to: [1.45, 50.6], via: [[50.55, -0.62], [51.6, 0.5]] }
+  - { from: VRV.lug2, to: V1.pin7, via: [[51, -0.35], [52.4, 0.9], [62.9, 0.9], [62.9, 1.916], [61.217, 1.916]] }
 
   # === first stage (V1A): input jack, cathode pair ============================
-  - { from: JIN.tip, to: V1.pin2, via: [[64.4, -0.4], [64.4, 2.9], [57.0, 2.9], [58.783, 2.16]] }
+  - { from: JIN.tip, to: V1.pin2, via: [[64.4, -0.4], [64.4, 2.9], [57, 2.9], [58.783, 2.16]] }
   - { from: JIN.sleeve, to: [1.45, 65.2] }
   - { from: RK1A.a, to: CK1A.a, via: [[62.4, -0.35], [63.6, -0.35]] }     # K1A
   - { from: RK1A.a, to: V1.pin3, via: [[62.2, 0.45], [57.7, 0.45], [57.7, 1.916], [58.783, 1.916]] }
@@ -273,17 +273,17 @@ runs:
   # end. The sheet arrows the chain from both lamp terminals, so the socket
   # order (V3 → V4 → V2 → V1) is this drawing's convention; the landings at
   # every socket are the sheet's. The GZ34 is heated from the 5 V winding.
-  - { from: TR1.green1, to: PL1.a, style: heater }
-  - { from: TR1.green2, to: PL1.b, style: heater }
+  - { from: TR1.green1, to: PL1.a, style: heater, via: [[-3.2, 0.499]] }
+  - { from: TR1.green2, to: PL1.b, style: heater, via: [[-3.2, 0.71]] }
   - { from: PL1.a, to: V3.pin7, style: heater, via: [[-1.2, 4.2], [18.26, 4.2]] }
-  - { from: PL1.b, to: V3.pin2, style: heater, via: [[-1.5, 4.5], [15.74, 4.5]] }
+  - { from: PL1.b, to: V3.pin2, style: heater, via: [[-3.1, 4.5]] }
   - { from: V3.pin7, to: V4.pin7, style: heater, via: [[18.26, 4.2], [22.76, 4.2]] }
   - { from: V3.pin2, to: V4.pin2, style: heater, via: [[15.74, 4.5], [20.24, 4.5]] }
   - { from: V4.pin7, to: V2.pin4, style: heater, via: [[22.76, 4.2], [30.75, 4.2]] }
-  - { from: V4.pin2, to: V2.pin9, style: heater, via: [[20.24, 4.5], [32.2, 4.5]] }
+  - { from: V4.pin2, to: V2.pin9, style: heater, via: [[22.35, 4.963], [20.24, 4.5]] }
   - { from: V2.pin4, to: V2.pin5, style: heater }
-  - { from: V2.pin4, to: V1.pin4, style: heater, via: [[30.75, 4.2], [59.25, 4.2]] }
-  - { from: V2.pin9, to: V1.pin9, style: heater, via: [[32.2, 4.5], [60.7, 4.5]] }
+  - { from: V2.pin4, to: V1.pin4, style: heater, via: [[59.25, 4.2], [58.305, 4.421]] }
+  - { from: V2.pin9, to: V1.pin9, style: heater, via: [[39.075, 5.241], [43.927, 5.156]] }
   - { from: V1.pin4, to: V1.pin5, style: heater }
   - { from: TR1.green-yellow, to: [1.45, -0.2], via: [[-0.15, 0.64]] }    # heater winding centre tap → ground (tied to the HT centre tap on the sheet)
 

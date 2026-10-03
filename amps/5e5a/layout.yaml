@@ -173,7 +173,7 @@ runs:
   - { from: PT.red2, to: V6.pin6, via: [[2.05, 0.85], [3.48, 1.51]] }
   - { from: PT.red-yellow, to: [1.45, 2], via: [[1.2, 1.15]] }
   - { from: PT.yellow1, to: V6.pin2, via: [[0.853, 0.7], [0.62, 2.5], [1.83, 2.75]] }
-  - { from: PT.yellow2, to: V6.pin8, via: [[2.7, 0.55], [2.7, 2.3]] }
+  - { from: PT.yellow2, to: V6.pin8, via: [[2.7, 0.57], [2.7, 2.3]] }
 
   # --- B+1: the rectifier output lands on the first 16 uF can (C17) and feeds
   # the choke input; the choke's OUTPUT is BP2 and gets the second can (C10).
@@ -182,7 +182,7 @@ runs:
   - { from: V6.pin8, to: RCHOKE.hi, color: red, via: [[4.35, 2.68], [1.5, 2.68]] }
   - { from: V6.pin8, to: C17.a, color: red, via: [[3.55, 2.3], [3.55, 0.45], [3.2, 0.3]] }
   - { from: T2.red, to: V6.pin8, color: red, via: [[49.7, 0.245], [49.7, 3.7], [0.7, 3.7], [0.548, 2.85]] }
-  - { from: RCHOKE.lo, to: C10.a, via: [[1.765, 0.767], [5.7, 0.72]] }
+  - { from: RCHOKE.lo, to: C10.a, via: [[1.661, 0.767], [5.7, 0.72]] }
 
   # --- filtered rail: BP2 filter, two rail droppers, BP3/BP4 filters -------
   - { from: C10.a, to: RD1.a, via: [[5.52, 0.06]] }
@@ -209,7 +209,7 @@ runs:
   - { from: RGL1.a, to: V4.pin5, via: [[9.4, 2.3], [6.4, 2.3]] }
   - { from: C3.b, to: R6s.a, via: [[16.5, 0.62]] }
   - { from: R6s.b, to: V5.pin5, via: [[15.5, 2.5], [12.6, 2.5]] }
-  - { from: RGL2.a, to: V5.pin5, via: [[12.087, 1.115], [9.6, 1.05]] }
+  - { from: RGL2.a, to: V5.pin5, via: [[12.087, 1.115], [9.6, 1.07]] }
   - { from: V4.pin4, to: C10.a, via: [[6.6, 0.8], [6.3, 0.35]] }
   - { from: V5.pin4, to: C10.a, via: [[9.5, 1.62], [7.35, 1.62], [7.52, 0.75], [6.45, 0.25]] }
   - { from: V4.pin3, to: T2.brown, via: [[5.5, 2.68], [51.3, 2.68], [51.3, 0.86], [49.1, 0.31]] }
@@ -248,12 +248,12 @@ runs:
   - { from: C14.b, to: RF1.a }                     # TB, upper -> lower
   - { from: RSH.b, to: [1.45, 30.2] }
   - { from: C8.b, to: VR4.lug1 }                   # 250 pF -> Treble end lug
-  - { from: VR4.lug3, to: C7.a, via: [[34.561, -1.115]] }                   # Treble cold end -> 0.01 at the pot
+  - { from: VR4.lug3, to: C7.a, via: [[34.191, -0.785]] }                   # Treble cold end -> 0.01 at the pot
   - { from: C7.b, to: C12.b }                      # 0.01 -> ground (the 8 uF can's ground eyelet)
   - { from: RSL.b, to: VR3.lug2 }                  # 100k -> the Bass pot's WIPER
-  - { from: VR3.lug3, to: C15.a, via: [[29.591, -0.759]] }                  # Bass far end -> 0.005 at the pot
+  - { from: VR3.lug3, to: C15.a, via: [[29.526, -0.741]] }                  # Bass far end -> 0.005 at the pot
   - { from: C15.b, to: RSH.b, via: [[31.196, -0.55]] }  # 0.005 -> ground
-  - { from: VR3.lug1, to: [1.45, 28.6], via: [[29.1, -0.5], [28.6, -0.2]] }  # Bass end lug grounded
+  - { from: VR3.lug1, to: [1.45, 28.6], via: [[29.56, -0.5], [28.6, -0.2]] }  # Bass end lug grounded
   - { from: RSR.a, to: RSL.b, via: [[32.3, -0.45], [29.3, -0.203]] }        # 220k from the bass wiper node...
   - { from: RSR.b, to: VR4.lug2, via: [[33.3, -0.75], [34.428, -0.62]] }     # ...to the Treble wiper
   # The Treble wiper is the network's output: the driver's grid, V3 pin 2.
@@ -272,18 +272,18 @@ runs:
   - { from: C12.b, to: [1.45, 37.5], via: [[37.5, 0.5]] }
 
   # --- channel mixers + volumes -> V2 grid ----------------------------------
-  - { from: VR1.lug2, to: RMX1.a, via: [[42.5, -0.45], [39.3, -0.45], [39.3, 1.12]] }
+  - { from: VR1.lug2, to: RMX1.a, via: [[42.5, -0.408], [39.3, -0.45], [39.3, 1.12]] }
   - { from: RMX1.b, to: RF1.b, via: [[39.6, 1.25], [32.723, 1.25]] }
   - { from: VR1.lug1, to: [1.45, 42.6] }
   - { from: VR2.lug2, to: RMX2.a, via: [[45.5, -0.5], [41.6, -0.5]] }
   - { from: RMX2.b, to: RF1.b, via: [[41.6, 1.32], [32.6, 1.32]] }
-  - { from: VR2.lug1, to: [1.45, 45.6] }
+  - { from: VR2.lug1, to: [1.45, 45.6], via: [[47.623, 1.182]] }
 
   # --- 12AY7 input pair (V1): instrument + mic channels ----------------------
   - { from: JI, to: R1s.b, via: [[48.5, -0.45]] }
   - { from: RG1.a, to: R1s.b }
   - { from: RG1.b, to: [1.45, 44.9] }
-  - { from: R1s.a, to: V1.pin7, via: [[48, 1.9], [47.558, 1.9]] }
+  - { from: R1s.a, to: V1.pin7, via: [[48, 1.9], [47.566, 1.9]] }
   - { from: V1.pin6, to: RL1.b, via: [[46.5, 1.7], [44, 1.7]] }
   - { from: RL1.a, to: C12.a, via: [[43, 0.55], [35.6, 0.55]] }
   - { from: V1.pin6, to: C5.a, via: [[46.157, 1.85], [42.3, 1.85], [42.3, 0.4]] }
@@ -295,7 +295,7 @@ runs:
   - { from: V1.pin1, to: RL2.b, via: [[45.5, 2.05], [46, 1.6]] }
   - { from: RL2.a, to: C12.a, via: [[45, 0.3], [35.5, 0.283]] }
   - { from: V1.pin1, to: C6.a, via: [[46.5, 2.18], [45.3, 2.18], [45.3, 0.4]] }
-  - { from: C6.b, to: VR2.lug3, via: [[46, -0.42], [45.5, -0.42]] }
+  - { from: C6.b, to: VR2.lug3, via: [[46, -0.42], [45.5, -0.5]] }
   - { from: V1.pin8, to: RK1.a, via: [[46.6, 3.4], [48.12, 3.4], [47.7, 0.7]] }
   - { from: V1.pin3, to: RK1.a, via: [[47.5, 2.3], [48.4, 2.3], [48.4, 0.6]] }
   - { from: RK1.b, to: [1.45, 47.2] }

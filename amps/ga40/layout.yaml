@@ -133,55 +133,55 @@ runs:
   # Each pigtail leaves along its own row and drops in its own vertical lane, so
   # no two transformer leads read as one. Every lead is lettered by function:
   # with no factory layout sheet this drawing asserts no wire colours.
-  - { from: T1.ha, to: V7.pin4, via: [[-1.55, 0.274], [-1.55, 2.42], [3.0, 2.42]] }
+  - { from: T1.ha, to: V7.pin4, via: [[-1.55, 0.274], [-1.55, 2.42], [3.036, 2.42]] }
   - { from: T1.hb, to: V7.pin6, via: [[-1.35, 0.337], [-1.35, 2.95], [5.4, 2.95]] }
-  - { from: T1.ct, to: [1.45, -0.25], via: [[-1.15, 0.400], [-1.15, 1.22], [-0.25, 1.22]] }
+  - { from: T1.ct, to: [1.45, -0.25], via: [[-1.15, 0.4], [-1.15, 1.22], [-0.25, 1.22]] }
   - { from: T1.ra, to: V7.pin8, via: [[-0.95, 0.463], [-0.95, 3.25], [4.7, 3.25]] }
   - { from: T1.rb, to: V7.pin2, via: [[-0.75, 0.526], [-0.75, 3.58], [3.3, 3.58]] }
-  - { from: V7.pin8, to: CF1.a, via: [[4.6, 2.12], [1.8, 1.85]] }
+  - { from: V7.pin8, to: CF1.a, via: [[4.6, 2.07], [1.8, 1.85]] }
 
   # === reservoir -> choke -> the post-choke node ============================
-  - { from: CF1.a, to: L1.hi, via: [[1.0, -0.55]] }
-  - { from: L1.lo, to: CF2.a, via: [[4.0, -0.55]] }
+  - { from: CF1.a, to: L1.hi, via: [[1, -0.55]] }
+  - { from: L1.lo, to: CF2.a, via: [[4, -0.55]] }
   # That node is the output-transformer centre tap, and BOTH screens hang
   # straight on it: this circuit has no screen resistors at all.
-  - { from: CF2.a, to: T2.ct, via: [[5.0, -0.55], [14.6, -0.55], [14.6, 3.30], [23.6, 3.30]] }
+  - { from: CF2.a, to: T2.ct, via: [[5, -0.55], [14.6, -0.55], [14.6, 3.3], [23.6, 3.3]] }
   - { from: T2.ct, to: V6.pin4, via: [[23.4, 1.15], [16.75, 1.15]] }
-  - { from: CF2.a, to: V5.pin4, via: [[6.2, -0.80], [12.0, -0.80], [12.0, 1.30]] }
-  - { from: V5.pin3, to: T2.pa, via: [[10.0, 2.20], [10.0, 3.05], [24.2, 3.05]] }
-  - { from: V6.pin3, to: T2.pb, via: [[16.0, 2.20], [16.0, 3.55], [24.6, 3.55]] }
-  - { from: T2.sa, to: SPK.tip, via: [[25.4, 2.05], [29.6, 2.05]] }
+  - { from: CF2.a, to: V5.pin4, via: [[6.2, -0.8], [12, -0.8], [12, 1.3]] }
+  - { from: V5.pin3, to: T2.pa, via: [[10, 2.2], [10, 3.05], [24.2, 3.05]] }
+  - { from: V6.pin3, to: T2.pb, via: [[16, 2.2], [16, 3.55], [24.6, 3.55]] }
+  - { from: T2.sa, to: SPK.tip, via: [[25.449, 2.05], [29.6, 2.05]] }
   - { from: T2.sb, to: SPK.sleeve, via: [[25.7, 2.36], [30.4, 2.36]] }
   - { from: SPK.sleeve, to: [1.45, 31.5], via: [[31.5, 2.15]] }
 
   # === the two dropped rails, tapped along the board ========================
-  - { from: [0, 8], to: RL4B.a, via: [[8.5, -1.30], [18.5, -1.30]] }
-  - { from: RL4B.a, to: RL4A.a, via: [[19.5, -1.30], [25.5, -1.30]] }
-  - { from: [0, 11], to: RL1.a, via: [[11.5, -1.80], [54.5, -1.80]] }
-  - { from: RL1.a, to: RS1.a, via: [[55.5, -1.30], [61.5, -1.30]] }
+  - { from: [0, 8], to: RL4B.a, via: [[8.5, -1.3], [18.5, -1.3]] }
+  - { from: RL4B.a, to: RL4A.a, via: [[19.5, -1.3], [26.119, -1.3]] }
+  - { from: [0, 11], to: RL1.a, via: [[11.5, -1.8], [54.5, -1.8]] }
+  - { from: RL1.a, to: RS1.a, via: [[55.5, -1.3], [61.5, -1.3]] }
   - { from: CF1.b, to: [1.45, 1] }
   - { from: CF2.b, to: [1.45, 5] }
   - { from: CF3.b, to: [1.45, 11] }
 
   # === output stage: cathodes, grids ========================================
-  - { from: V5.pin8, to: RKO.a, via: [[11.8, 2.35], [15.4, 1.60]] }
+  - { from: V5.pin8, to: RKO.a, via: [[11.8, 2.35], [15.4, 1.6]] }
   - { from: RKO.a, to: CKO.a, via: [[14.5, -0.52], [15.5, -0.52]] }
-  - { from: CKO.a, to: V6.pin8, via: [[17.9, 1.60], [18.6, 2.35]] }
+  - { from: CKO.a, to: V6.pin8, via: [[17.9, 1.6], [18.6, 2.35]] }
   - { from: RKO.b, to: [1.45, 14] }
   - { from: CKO.b, to: [1.45, 16] }
-  - { from: RGL6.a, to: V6.pin5, via: [[23.0, -0.80], [17.3, -0.80], [17.3, 1.55]] }
+  - { from: RGL6.a, to: V6.pin5, via: [[23, -0.8], [17.3, -0.8], [17.3, 1.55]] }
   - { from: RGL6.b, to: [1.45, 23] }
-  - { from: RPA.a, to: V5.pin5, via: [[30.2, -1.05], [13.0, -1.05], [13.0, 1.60]] }
+  - { from: RPA.a, to: V5.pin5, via: [[26.52, -0.823], [13, -1.05], [13, 1.6]] }
   - { from: RPB.b, to: [1.45, 32] }
 
   # === paraphase inverter ===================================================
-  - { from: RL4A.b, to: V4.pin6, via: [[28.4, -0.80], [37.4, -0.80]] }
+  - { from: RL4A.b, to: V4.pin6, via: [[28.4, -0.8], [37.4, -0.8]] }
   - { from: RL4B.b, to: V4.pin1, via: [[21.4, -1.55], [32.8, -1.55], [32.8, 2.95], [36.2, 2.95]] }
   - { from: RPA.b, to: V4.pin2, via: [[30.7, 1.72], [35.6, 1.72], [35.6, 2.35]] }
   - { from: RM1.b, to: V4.pin7, via: [[43.4, 1.75], [38.9, 1.75]] }
   - { from: RK4.a, to: V4.pin3, via: [[34.3, 1.28], [35.3, 1.82]] }
   - { from: RK4.a, to: CK4.a, via: [[34.5, -0.52], [35.5, -0.52]] }
-  - { from: CK4.a, to: V4.pin8, via: [[36.6, 1.30], [39.6, 1.30], [39.6, 2.05]] }
+  - { from: CK4.a, to: V4.pin8, via: [[36.6, 1.3], [39.6, 1.3], [39.6, 2.05]] }
   - { from: RK4.b, to: [1.45, 34] }
   - { from: CK4.b, to: [1.45, 36] }
 
@@ -194,13 +194,13 @@ runs:
   # circuit drawing wires both channels' volumes. See bom.yaml VR1.
   - { from: CV1.b, to: VR1.lug2, via: [[59.6, -0.32]] }
   - { from: VR1.lug1, to: [1.45, 61.3], via: [[61.3, -0.55]] }
-  - { from: VR1.lug3, to: RM1.a, via: [[60.4, -2.05], [41.0, -2.05]] }
+  - { from: VR1.lug3, to: RM1.a, via: [[59.342, -0.955], [60.4, -2.05], [41, -2.05]] }
 
   # === channel 1 ============================================================
   - { from: RL1.b, to: V1.pin8, via: [[57.4, 1.15], [66.4, 1.15], [66.4, 2.55]] }
-  - { from: RS1.b, to: V1.pin7, via: [[64.4, 1.28], [67.2, 1.28], [67.2, 1.90]] }
+  - { from: RS1.b, to: V1.pin7, via: [[64.4, 1.28], [67.2, 1.28], [67.2, 1.9]] }
   - { from: CS1.b, to: [1.45, 64] }
-  - { from: RK1.a, to: V1.pin3, via: [[65.4, 1.08], [62.0, 1.72], [62.0, 1.93]] }
+  - { from: RK1.a, to: V1.pin3, via: [[65.4, 1.08], [62, 1.72], [62, 1.93]] }
   - { from: RK1.a, to: CK1.a, via: [[66.5, -0.52], [67.5, -0.52]] }
   - { from: RK1.b, to: [1.45, 66] }
   - { from: CK1.b, to: [1.45, 68] }
@@ -210,7 +210,7 @@ runs:
   - { from: V1.pin9, to: V1.pin3 }
   - { from: RIN1.a, to: RIN2.a }
   - { from: RIN1.b, to: RIN2.b }
-  - { from: RIN2.a, to: V1.pin1, via: [[69.8, 1.60], [68.4, 2.30], [65.6, 2.90]] }
+  - { from: RIN2.a, to: V1.pin1, via: [[69.8, 1.6], [68.4, 2.3], [65.6, 2.9]] }
   - { from: RIN1.b, to: RG1.a, via: [[72.4, -0.42], [73.6, -0.42]] }
   - { from: RG1.b, to: [1.45, 74] }
   - { from: JI1.tip, to: RIN1.b, via: [[70.9, -0.95], [71.9, -0.95]] }
@@ -225,14 +225,14 @@ runs:
   # heater pins — noval 4/5 on the 5879 and the 12AX7, octal 2/7 on the 6V6GTs,
   # and octal 7/8 on the 6SQ7, whose pin 2 is its triode grid, not a heater —
   # each validated against the reference/tubes basing data.
-  - { from: T1.fil, to: PL1.a, style: twisted, via: [[-1.2, 4.20], [0.2, 4.20]] }
+  - { from: T1.fil, to: PL1.a, style: twisted, via: [[-1.2, 4.2], [0.2, 4.2]] }
   # Route the pilot feed beside CF1 so the heater pair does not cover its +.
-  - { from: PL1.b, to: V5.pin2, style: twisted, via: [[1.8, 4.20], [10.4, 4.20]] }
-  - { from: V5.pin7, to: V6.pin2, style: twisted, via: [[12.0, 4.20], [16.4, 4.20]] }
-  - { from: V6.pin7, to: V4.pin4, style: twisted, via: [[18.0, 4.20], [36.4, 4.20]] }
-  - { from: V4.pin5, to: V3.pin7, style: twisted, via: [[38.0, 4.20], [45.4, 4.20]] }
-  - { from: V3.pin8, to: V2.pin4, style: twisted, via: [[47.0, 4.20], [50.4, 4.20]] }
-  - { from: V2.pin5, to: V1.pin4, style: twisted, via: [[52.0, 4.20], [64.4, 4.20]] }
+  - { from: PL1.b, to: V5.pin2, style: twisted, via: [[1.8, 4.2], [10.4, 4.2]] }
+  - { from: V5.pin7, to: V6.pin2, style: twisted, via: [[12, 4.2], [16.4, 4.2]] }
+  - { from: V6.pin7, to: V4.pin4, style: twisted, via: [[18, 4.2], [36.4, 4.2]] }
+  - { from: V4.pin5, to: V3.pin7, style: twisted, via: [[38, 4.2], [45.4, 4.2]] }
+  - { from: V3.pin8, to: V2.pin4, style: twisted, via: [[47, 4.2], [50.4, 4.2]] }
+  - { from: V2.pin5, to: V1.pin4, style: twisted, via: [[52, 4.2], [64.4, 4.2]] }
 
 # net_map — reviewable reconciliation of the drawn wiring with the DC netlist
 # (netlist.cir) for pipeline/verify_layout_nets.py. See docs/layout-schema.md.

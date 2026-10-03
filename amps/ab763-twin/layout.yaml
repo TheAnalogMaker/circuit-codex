@@ -225,8 +225,8 @@ runs:
   - { from: RLV2.a, to: RLN1.a, via: [[92.4, -0.6], [97.45, 0.2], [97.6, 0.4]] }
   - { from: RLN1.a, to: RLN2.a, via: [[98.3, -0.32], [107.7, -0.32]] }
   # === -52 V bias line: both grid leaks up to the balance control's wiper =====
-  - { from: RGL1.a, to: VRBAL.lug2, via: [[5.4, -0.35], [5.4, -2.05], [35.6, -2.05]] }
-  - { from: RGL2.a, to: VRBAL.lug2, via: [[15.4, -0.5], [15.4, -2.28], [37.6, -2.28]] }
+  - { from: RGL1.a, to: VRBAL.lug2, via: [[5.4, -2.05], [34.8, -2.05], [36.621, -0.991]] }
+  - { from: RGL2.a, to: VRBAL.lug2, via: [[15.4, -2.28], [37.6, -2.28], [36.35, -0.595]] }
   # the raw negative supply (the balance control's top) → the tremolo's 2.2M
   - { from: RTOG3.a, to: VRBAL.lug3, via: [[40.7, -0.45], [35.9, -0.45]] }
   # === output stage: grid line, grid stoppers, screens, cathodes, plates ======
@@ -270,8 +270,8 @@ runs:
   # === channel mixer ===========================================================
   - { from: CPIA.b, to: V6.pin7, via: [[34.6, 1.3], [30.7, 2]] }
   - { from: CCN2.b, to: RMIXN.a, via: [[110.3, -3.05], [34.3, -3.05]] }
-  - { from: CCD1.b, to: VRINT.lug3, via: [[68.3, -0.78], [39.74, -0.78]] }
-  - { from: VRINT.lug3, to: RMIXV.a, via: [[39.9, -0.6], [36.3, -0.6]] }
+  - { from: CCD1.b, to: VRINT.lug3, via: [[58.399, -0.8], [39.495, -0.798]] }
+  - { from: VRINT.lug3, to: RMIXV.a, via: [[39.42, -0.6], [36.3, -0.6]] }
   # === tremolo (V5) ============================================================
   - { from: V5.pin3, to: RKTO1.a, via: [[44.2, 1.62], [40.3, 1.62], [39.4, 0.6]] }
   - { from: CKTO1.a, to: [1.45, 38] }
@@ -286,18 +286,18 @@ runs:
   - { from: RTOG1.b, to: RTOG2.b }
   - { from: RTO10.b, to: RLAMP.b }
   - { from: [0, 49], to: [1.45, 49] }
-  - { from: VRINT.lug2, to: [0, 46], via: [[39.6, -0.66], [45.7, -0.66]] }
+  - { from: VRINT.lug2, to: [0, 46], via: [[39.787, -0.762], [45.657, -0.617]] }
   - { from: VRSPD.lug2, to: CTO1.a, via: [[43.4, -0.45], [44.3, -0.2], [44.3, 0.8]] }
   - { from: VRSPD.lug3, to: VRSPD.lug2 }
   - { from: VRINT.lug1, to: CKTO1.a, via: [[39.29, -0.5], [38.3, -0.5]] }
-  - { from: VRSPD.lug1, to: RTOSP.a, via: [[43.09, -0.38], [45.51, -0.38]] }
+  - { from: VRSPD.lug1, to: RTOSP.a, via: [[45.51, -0.38]] }
   - { from: RTOSP.b, to: [1.45, 52.6], via: [[46.29, -0.45], [52.6, -0.45]] }
   # === reverb recovery + reverb/dry mix driver (V4) ===========================
   - { from: RGR1.a, to: V4.pin2, via: [[55.5, 0.3], [55.5, 1.2], [58.94, 1.2]] }
   - { from: RGR1.b, to: [1.45, 54] }
   - { from: RLR1.b, to: V4.pin1, via: [[57.3, 0.5], [57.3, 1.35], [60.2, 2.15]] }
   - { from: VRREV.lug3, to: CCR1.b, via: [[57.8, -0.5]] }
-  - { from: VRREV.lug2, to: RMR.a, via: [[57, -0.64], [62.7, -0.64]] }
+  - { from: VRREV.lug2, to: RMR.a, via: [[57, -1.02], [62.7, -0.47]] }
   - { from: VRREV.lug1, to: [1.45, 53.3], via: [[56.69, -0.55], [53.3, -0.55]] }
   - { from: V4.pin3, to: RKE.a, via: [[59.7, 1.25], [59.7, 0.3]] }
   - { from: V4.pin8, to: RKE.a, via: [[62.33, 1.77], [60.45, 1.3], [60.45, 0.3]] }
@@ -328,21 +328,21 @@ runs:
   - { from: V2.pin6, to: CTV.b, via: [[89.4, 1.6], [87.3, 1.25]] }
   - { from: CBV2.b, to: CBV.b, via: [[83.3, 1.2], [84.7, 1.2]] }
   - { from: CTV.a, to: VRTV.lug3, via: [[87.3, -0.5]] }
-  - { from: CBV.a, to: VRTV.lug1, via: [[86.7, -0.5]] }
+  - { from: CBV.a, to: VRTV.lug1, via: [[87.278, -0.5]] }
   - { from: CBV2.a, to: VRMV.lug3, via: [[83, -0.45]] }
-  - { from: VRTV.lug1, to: VRBV.lug3, via: [[86.291, -0.72], [78.679, -0.72]] }
+  - { from: VRTV.lug1, to: VRBV.lug3, via: [[86.291, -0.82], [78.829, -0.43]] }
   - { from: VRBV.lug2, to: VRBV.lug3 }
   - { from: VRMV.lug3, to: VRBV.lug1, via: [[81.635, -0.412], [78.657, -0.6]] }
   - { from: VRMV.lug2, to: VRMV.lug3 }
-  - { from: VRMV.lug1, to: [1.45, 80.45], via: [[81.5, -0.52], [80.45, -0.52]] }
-  - { from: VRTV.lug2, to: VRVV.lug3, via: [[86.958, -0.62], [90.5, -0.62]] }
+  - { from: VRMV.lug1, to: [1.45, 80.45], via: [[81.292, -0.08], [80.466, 0.002]] }
+  - { from: VRTV.lug2, to: VRVV.lug3, via: [[86.382, -0.905], [89.522, -0.626]] }
   - { from: JV.tip, to: V2.pin7, via: [[92.5, -0.5], [92.5, 1.3], [91.2, 1.7]] }
   - { from: V2.pin8, to: RKV1.a, via: [[89.75, 2.09], [89.6, 0.5]] }
   - { from: CKV1.a, to: [1.45, 89] }
   - { from: RKV1.b, to: [1.45, 90] }
   - { from: RLV2.b, to: V2.pin1, via: [[92, 1.8]] }
   - { from: VRVV.lug2, to: V2.pin2, via: [[90.2, -0.5], [88.5, 0.5], [88.5, 1.9]] }
-  - { from: VRVV.lug1, to: CKV1.a, via: [[89.89, -0.5], [89.2, -0.3]] }
+  - { from: VRVV.lug1, to: CKV1.a, via: [[90.69, -0.5], [89.2, -0.3]] }
   - { from: V2.pin3, to: RKA.a, via: [[90.5, 2.35], [93.6, 1.8]] }
   - { from: CKA.a, to: [1.45, 93] }
   - { from: RKA.b, to: [1.45, 94.5], via: [[94.4, 1.4]] }
@@ -350,21 +350,21 @@ runs:
   - { from: RLN1.b, to: V1.pin6, via: [[99.2, 1.62]] }
   - { from: V1.pin6, to: CTN.b, via: [[106.01, 1.483], [104.3, 1.25]] }
   - { from: CBN2.b, to: CBN.b, via: [[100.3, 1.2], [101.7, 1.2]] }
-  - { from: CTN.a, to: VRTN.lug3, via: [[104.3, -0.5]] }
-  - { from: CBN.a, to: VRTN.lug1, via: [[103.7, -0.5]] }
+  - { from: CTN.a, to: VRTN.lug3 }
+  - { from: CBN.a, to: VRTN.lug1, via: [[104.38, -0.5]] }
   - { from: CBN2.a, to: VRMN.lug3, via: [[100, -0.45]] }
-  - { from: VRTN.lug1, to: VRBN.lug3, via: [[103.927, -0.72], [96.985, -0.72]] }
+  - { from: VRTN.lug1, to: VRBN.lug3, via: [[104.808, -1.446], [104.477, -1.678], [96.778, -0.995]] }
   - { from: VRBN.lug2, to: VRBN.lug3 }
   - { from: VRMN.lug3, to: VRBN.lug1, via: [[99.777, -0.6], [96.3, -0.6]] }
   - { from: VRMN.lug2, to: VRMN.lug3 }
-  - { from: VRMN.lug1, to: [1.45, 97.45], via: [[99.5, -0.52], [97.45, -0.52]] }
-  - { from: VRTN.lug2, to: VRVN.lug3, via: [[103.95, -0.62], [107.14, -0.62]] }
+  - { from: VRMN.lug1, to: [1.45, 97.45], via: [[100.043, -0.39], [97.45, -0.52]] }
+  - { from: VRTN.lug2, to: VRVN.lug3, via: [[104.185, -0.446], [107.14, -0.62]] }
   - { from: JN.tip, to: V1.pin7, via: [[110.6, -0.5], [110.6, 1.3], [108.2, 1.7]] }
   - { from: V1.pin8, to: RKN1.a, via: [[106.772, 2.09], [106.6, 0.5]] }
   - { from: CKN1.a, to: [1.45, 106] }
   - { from: RKN1.b, to: [1.45, 107] }
   - { from: RLN2.b, to: V1.pin1, via: [[109, 1.8]] }
-  - { from: VRVN.lug2, to: V1.pin2, via: [[108.16, -0.54], [105.456, 0.48], [105.6, 1.9]] }
+  - { from: VRVN.lug2, to: V1.pin2, via: [[107.352, -0.54], [105.456, 0.48], [105.6, 1.9]] }
   - { from: VRVN.lug1, to: CKN1.a, via: [[107.89, -0.5], [106.2, -0.3]] }
   # the normal channel's second stage shares the [A] cathode network with the
   # vibrato channel's — one 820 Ω and one 25 µF for both, drawn on the vibrato side

@@ -196,9 +196,9 @@ runs:
   - { from: RBB.b, to: C18.a, via: [[6.6, 0.55]] }       # divider node -> filter
   - { from: RBB.b, to: RBC.a, via: [[8.2, 1.22]] }       # divider node -> 47k
   - { from: C18.b, to: [1.45, 8.4], via: [[8.4, 0.78]] }
-  - { from: RBC.b, to: VR7.lug3, via: [[10.4, -0.4], [5.9, -0.4]] }  # 47k -> bias trimmer
-  - { from: VR7.lug2, to: VR7.lug3, via: [[5.15, -0.66], [5.107, -0.95], [5.092, -0.95]] }  # wiper strapped: a variable resistor
-  - { from: VR7.lug1, to: [1.45, 4.9], via: [[4.5, -0.28], [4.9, 0.72]] } # trimmer ground
+  - { from: RBC.b, to: VR7.lug3, via: [[10.4, -0.4], [5.016, -0.4]] }  # 47k -> bias trimmer
+  - { from: VR7.lug2, to: VR7.lug3, via: [[5.065, -0.804], [5.107, -0.823], [5.007, -0.805]] }  # wiper strapped: a variable resistor
+  - { from: VR7.lug1, to: [1.45, 4.9], via: [[5.029, -0.426], [4.9, 0.72]] } # trimmer ground
 
   # --- silicon HT bridge + series-pair reservoir bank ------------------------
   - { from: PT.ht1, to: D2.a, via: [[-1.06, 0.4], [-1.06, 2.05], [11.6, 2.05], [11.9, 1.62]] }  # HT winding -> bridge (PT-AC)
@@ -314,10 +314,10 @@ runs:
   - { from: C8.b, to: VR3.lug3 }                                      # 500 pF -> treble top
   - { from: RSL.b, to: C9.a }                                         # slope foot (node B) -> the bass and middle caps' shared eyelet
   - { from: C9.b, to: VR4.lug3 }                                      # 0.022 µF bass cap -> bass-cap node
-  - { from: VR3.lug1, to: VR4.lug3, via: [[85, -0.72], [87, -0.72]] } # treble bottom -> bass-cap node
-  - { from: VR3.lug2, to: C11.a, via: [[85, -0.55], [74.5, -0.55]] }   # treble wiper (the stack's output, alone) -> PI coupler
-  - { from: VR4.lug2, to: VR4.lug3, via: [[87.15, -0.66], [87.046, -0.95], [87.54, -0.998]] }  # bass wiper strapped to its hot lug (rheostat)
-  - { from: VR4.lug1, to: VR5.lug3, via: [[86.9, -0.55], [89.6, -0.55]] } # bass foot -> middle top
+  - { from: VR3.lug1, to: VR4.lug3, via: [[85, -0.72], [86.52, -0.978]] } # treble bottom -> bass-cap node
+  - { from: VR3.lug2, to: C11.a, via: [[85, -0.411], [74.5, -0.55]] }   # treble wiper (the stack's output, alone) -> PI coupler
+  - { from: VR4.lug2, to: VR4.lug3, via: [[87.046, -0.9]] }  # bass wiper strapped to its hot lug (rheostat)
+  - { from: VR4.lug1, to: VR5.lug3, via: [[86.9, -0.55], [88.96, -0.992]] } # bass foot -> middle top
   - { from: C10.b, to: VR5.lug2 }                                     # 0.022 µF middle cap -> the middle pot's WIPER
   - { from: VR5.lug1, to: [1.45, 89.5], via: [[89.5, -0.4], [89.5, 1.9]] } # middle ground
 
@@ -334,11 +334,11 @@ runs:
   - { from: RM2.b, to: V2.pin7, via: [[93.9, 1.72]] }                 # channel-II mixer -> V2A grid
 
   # --- volume controls -> channel mixers ------------------------------------
-  - { from: VR1.lug2, to: RM1.a, via: [[100, -0.5], [91, -0.5]] }  # channel I wiper -> mixer
-  - { from: VR2.lug2, to: RM2.a, via: [[105, -0.62], [93, -0.62]] } # channel II wiper -> mixer
-  - { from: VR1.lug1, to: [1.45, 99.5], via: [[99.482, 0.6]] }           # channel I volume ground
-  - { from: VR2.lug1, to: [1.45, 105.9], via: [[104.6, -0.25], [105.7, -0.25], [105.9, 0.55]] } # ch II volume ground
-  - { from: C3.b, to: VR1.lug3, via: [[102, -0.44], [100, -0.44]] } # V1A coupler -> ch I volume top
+  - { from: VR1.lug2, to: RM1.a, via: [[100, -0.35], [91, -0.86]] }  # channel I wiper -> mixer
+  - { from: VR2.lug2, to: RM2.a, via: [[105, -1], [93.55, -0.62]] } # channel II wiper -> mixer
+  - { from: VR1.lug1, to: [1.45, 99.5], via: [[99.482, 0.535]] }           # channel I volume ground
+  - { from: VR2.lug1, to: [1.45, 105.9], via: [[104.875, -0.214], [105.7, -0.25], [105.9, 0.55]] } # ch II volume ground
+  - { from: C3.b, to: VR1.lug3, via: [[102, -0.44], [100, -0.413]] } # V1A coupler -> ch I volume top
   - { from: C4.b, to: VR2.lug3, via: [[105.1, -0.2]] }                  # V1B coupler -> ch II volume top
 
   # --- ECC83 input pair (V1) ------------------------------------------------

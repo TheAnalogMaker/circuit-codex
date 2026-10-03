@@ -186,9 +186,9 @@ runs:
   - { from: PT.ht1, to: RBA.a }                          # HT winding's top end -> 220k (PT-AC)
   - { from: C15.b, to: [1.45, 2] }                       # filter -> ground
   - { from: C16.b, to: [1.45, 3] }                       # filter -> ground
-  - { from: RBC.b, to: VR6.lug1 }                        # 47k -> trimmer
-  - { from: VR6.lug2, to: VR6.lug1, via: [[4.35, -0.66], [4.366, -0.95], [3.94, -0.977]] }   # wiper strapped: a variable resistor
-  - { from: VR6.lug3, to: [1.45, 5], via: [[5, -0.3]] }   # trimmer -> chassis
+  - { from: RBC.b, to: VR6.lug1, via: [[5.673, -0.231]] }                        # 47k -> trimmer
+  - { from: VR6.lug2, to: VR6.lug1, via: [[4.372, -0.66], [4.5, -0.57]] }   # wiper strapped: a variable resistor
+  - { from: VR6.lug3, to: [1.45, 5], via: [[5, 0.246]] }   # trimmer -> chassis
   - { from: RGL1.b, to: RGL2.b, via: [[30.4, 1.16], [36.9, 1.16]] } # -BIAS ties both grid leaks
   - { from: RGL1.b, to: RBC.a, via: [[29.5, 1.15], [28.3, 1.15], [28.3, 2.5], [3.8, 2.5], [3.8, 0.2]] } # -BIAS backbone -> bias node
 
@@ -203,7 +203,7 @@ runs:
   - { from: V4.pin8, to: [1.45, 32], via: [[31.9, 1.62]] } # V4 cathode -> ground
   - { from: V5.pin1, to: V5.pin8 }                       # V5 suppressor -> cathode
   - { from: V5.pin8, to: [1.45, 39], via: [[38.9, 1.62]] } # V5 cathode -> ground
-  - { from: V4.pin3, to: T1.pa, via: [[29.4, 2], [28.9, 2.88], [79.4, 2.88], [79.4, 0.31]] }  # V4 plate -> OT
+  - { from: V4.pin3, to: T1.pa, via: [[29.4, 2], [28.9, 2.88], [79.4, 2.88], [79.4, 0.867]] }  # V4 plate -> OT
   - { from: V5.pin3, to: T1.pb, via: [[36.4, 2], [35.9, 3], [79.6, 3], [79.761, 0.41]] }    # V5 plate -> OT
   - { from: T1.sa, to: SPK, via: [[80.5, 0.6], [80.5, 3.36], [41.4, 3.36], [41.4, 2.15]] } # OT secondary -> speaker
   - { from: T1.sb, to: SPK, via: [[80.7, 0.7], [80.7, 3.48], [40.6, 3.48]] } # OT secondary -> speaker
@@ -243,10 +243,10 @@ runs:
   - { from: C8.b, to: VR3.lug3 }                                      # 500 pF -> treble top
   - { from: RSL.b, to: C9.a }                                         # slope foot (node B) -> the bass and middle caps' shared eyelet
   - { from: C9.b, to: VR4.lug3 }                                      # 0.022 µF bass cap -> bass-cap node
-  - { from: VR3.lug1, to: VR4.lug3, via: [[52, -0.72], [54, -0.72]] } # treble bottom -> bass-cap node
-  - { from: VR3.lug2, to: C11.a, via: [[52, -0.55], [41.5, -0.55]] }  # treble wiper (the stack's output, alone) -> PI coupler
-  - { from: VR4.lug2, to: VR4.lug3, via: [[54.15, -0.66], [54.508, -0.95], [54.527, -1.165]] }  # bass wiper strapped to its hot lug (rheostat)
-  - { from: VR4.lug1, to: VR5.lug3, via: [[53.9, -0.55], [56.6, -0.55]] } # bass foot -> middle top
+  - { from: VR3.lug1, to: VR4.lug3, via: [[52, -0.72], [53.252, -1.078]] } # treble bottom -> bass-cap node
+  - { from: VR3.lug2, to: C11.a, via: [[52, -0.406], [41.5, -0.55]] }  # treble wiper (the stack's output, alone) -> PI coupler
+  - { from: VR4.lug2, to: VR4.lug3, via: [[54.193, -0.66], [54.041, -0.907]] }  # bass wiper strapped to its hot lug (rheostat)
+  - { from: VR4.lug1, to: VR5.lug3, via: [[53.9, -0.55], [56.277, -0.55]] } # bass foot -> middle top
   - { from: C10.b, to: VR5.lug2 }                                     # 0.022 µF middle cap -> the middle pot's WIPER
   - { from: VR5.lug1, to: [1.45, 56.5], via: [[56.5, -0.4], [56.5, 1.9]] } # middle bottom -> ground
 
@@ -263,15 +263,15 @@ runs:
   - { from: RM2.b, to: V2.pin7, via: [[60.9, 1.72]] }         # normal mixer -> V2A grid
 
   # --- volume controls -> channel mixers -------------------------------------
-  - { from: VR1.lug2, to: RM1.a, via: [[67, -0.5], [58, -0.5]] }   # bright vol wiper -> mixer
-  - { from: VR2.lug2, to: RM2.a, via: [[72, -0.62], [60, -0.62]] } # normal vol wiper -> mixer
-  - { from: VR1.lug1, to: [1.45, 66.5], via: [[66.5, 0.6]] }   # bright volume ground
+  - { from: VR1.lug2, to: RM1.a, via: [[66.898, -1.18], [58.085, -0.5]] }   # bright vol wiper -> mixer
+  - { from: VR2.lug2, to: RM2.a, via: [[72, -1.015], [60.032, -0.62]] } # normal vol wiper -> mixer
+  - { from: VR1.lug1, to: [1.45, 66.5], via: [[68.722, -0.25], [66.5, 0.6]] }   # bright volume ground
   - { from: VR2.lug1, to: [1.45, 72.9], via: [[71.6, -0.25], [72.7, -0.25], [72.9, 0.55]] } # normal volume ground
   - { from: C3.b, to: VR1.lug3, via: [[69, -0.44], [67, -0.44]] }  # V1A coupler -> bright vol top
-  - { from: C4.b, to: VR2.lug3, via: [[72.1, -0.2]] }             # V1B coupler -> normal vol top
+  - { from: C4.b, to: VR2.lug3, via: [[71.6, -0.75]] }             # V1B coupler -> normal vol top
 
   # --- ECC83 input pair (V1): bright (V1A) + normal (V1B) --------------------
-  - { from: JB, to: V1.pin7, via: [[64, -0.56], [71.6, -0.56]] }   # bright jack -> V1A grid
+  - { from: JB, to: V1.pin7, via: [[64, -0.56], [72.15, -0.56]] }   # bright jack -> V1A grid
   - { from: JN, to: V1.pin2, via: [[70, -0.72], [70.6, -0.72], [70.6, 1.85]] } # normal jack -> V1B grid
   - { from: RL1.a, to: C22.a, via: [[66.6, 2.64], [26.4, 2.64], [26.2, 0.45]] } # V1A plate load -> B+5 (deep lane)
   - { from: RL2.a, to: RL1.a, via: [[70, 1.24], [67.4, 1.24]] } # B+5 backbone -> RL2.a
@@ -290,7 +290,7 @@ runs:
 
   # --- presence control (off-board) at the phase-inverter tail foot ----------
   - { from: VRP.lug3, to: RT2.b, via: [[51, 0.8], [53, 0.778]] }  # presence -> tail foot, under the treble cap
-  - { from: VRP.lug1, to: [1.45, 50.6], via: [[48.904, -0.712]] }                      # presence ground
+  - { from: VRP.lug1, to: [1.45, 50.6], via: [[50.364, 0.247]] }                      # presence ground
 
   # --- 6.3 V heater chain (green twisted pair, standard-practice / derived) ---
   # No factory layout sheet exists, so the daisy order is the physical socket

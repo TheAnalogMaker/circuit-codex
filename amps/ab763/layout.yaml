@@ -305,7 +305,7 @@ runs:
   - { from: RLR1.b, to: V3.pin1, via: [[48, 1.62]] }             # plate load → V3 plate (PR1)
   - { from: V3.pin1, to: CCR1.b }                                 # recovery plate → the .003
   - { from: CCR1.a, to: VRREV.lug3, via: [[54, -0.4], [49.3, -0.4]] } # .003 → Reverb pot top
-  - { from: VRREV.lug2, to: RMR.a, via: [[49, -0.62], [55, -0.62]] } # Reverb pot wiper → 470k
+  - { from: VRREV.lug2, to: RMR.a, via: [[49, -0.657], [55, -0.598]] } # Reverb pot wiper → 470k
   - { from: V3.pin2, to: JRO.tip, via: [[51.607, 2.089]] }                                # recovery grid ← tank return (GR1)
   - { from: V3.pin8, to: RKR1.a, via: [[50.55, 1.62], [50.551, 0.498]] }          # cathode → 820Ω (KR1)
   - { from: CKR1.a, to: [1.45, 49] }                            # bypass → ground
@@ -339,7 +339,7 @@ runs:
   - { from: CTO2.a, to: VRSPD.lug1 }                             # the ladder's middle node → Speed
   - { from: VRSPD.lug2, to: VRSPD.lug3 }                         # Speed as a rheostat; its 100k (RTO1) is on the pot
   - { from: VRINT.lug3, to: CCD1.b, via: [[50.031, -0.098]] }                             # Intensity top ← the mix output (TREM, link Y)
-  - { from: VRINT.lug1, to: [1.45, 43.6] }                       # Intensity bottom → ground
+  - { from: VRINT.lug1, to: [1.45, 43.6], via: [[42.936, -0.826]] }                       # Intensity bottom → ground
   - { from: RGD2.b, to: [1.45, 52] }                           # grid leak → ground (straight down off RGD2.b, clear of the grid lead)
   - { from: V3.pin3, to: RKR1.a, via: [[51.32, 2.35], [50.39, 1.88]] }  # cathode → the shared 820Ω (box [E], KE)
 
@@ -352,7 +352,7 @@ runs:
 
   # === vibrato 2nd stage V2b (unit2 of V2): plate, grid, cathode ===============
   - { from: RLV2.b, to: V2.pin6 }           # plate load → V2 plate (PV2)
-  - { from: VRVV.lug2, to: V2.pin7, via: [[58, -0.55], [63.5, -0.55], [63.5, 1.5], [64.3, 1.75]] } # vibrato-vol wiper → V2b grid (GV2)
+  - { from: VRVV.lug2, to: V2.pin7, via: [[57.47, -0.27], [63.5, -0.55], [63.5, 1.5], [64.3, 1.75]] } # vibrato-vol wiper → V2b grid (GV2)
   - { from: V2.pin8, to: RKV2.a, via: [[64.4, 2.2], [66.6, 1.8]] }  # cathode → the shared 820Ω (box [A], KA)
   - { from: CKV2.a, to: [1.45, 66] }
   - { from: RKV2.b, to: [1.45, 67.5], via: [[67.3, 1.4]] }      # 820Ω → ground (drop right, clear of the cathode ascent)
@@ -384,7 +384,7 @@ runs:
   - { from: CBN.b, to: VRBN.lug1, via: [[66.981, -0.001]] }                              # Bass node → Bass top
   - { from: VRBN.lug1, to: VRBN.lug2 }                            # Bass wired as a rheostat
   - { from: CBN2.b, to: VRBN.lug3 }                             # 0.047 → Bass foot (its 6.8k is on the pot)
-  - { from: VRTN.lug2, to: VRVN.lug3, via: [[68.231, -1.236]] }                              # Treble wiper → Volume top
+  - { from: VRTN.lug2, to: VRVN.lug3, via: [[67.933, -0.556]] }                              # Treble wiper → Volume top
 
   # === pot grounds (island controls) ==========================================
   - { from: VRVN.lug1, to: [1.45, 68.5], via: [[66.424, 0.696]] }

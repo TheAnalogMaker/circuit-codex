@@ -239,19 +239,19 @@ runs:
 
   # --- cathode-follower FMV tone stack — the ladder the I-EG sheet draws ------
   - { from: RSL.a, to: C4.a, via: [[21.4, 0.6], [25.6, 0.6]] }
-  - { from: C4.b, to: VR3.lug3, via: [[27.3, -0.72], [24.31, -0.72]] }
+  - { from: C4.b, to: VR3.lug3, via: [[27.3, -0.72], [24, -0.72]] }
   - { from: RSL.b, to: C5.b, via: [[22.4, 0.46], [23.9, 0.46]] }
-  - { from: C5.a, to: VR3.lug1, via: [[23.2, -0.6], [23.2, -1.62], [23.65, -1.62]] }
+  - { from: C5.a, to: VR3.lug1, via: [[21.437, -1.293], [23.621, -1.62], [24.945, -1.204]] }
   - { from: VR3.lug1, to: VR4.lug3, via: [[23.15, -1.22], [20.55, -1.22]] }
   - { from: VR4.lug2, to: VR4.lug3 }
   - { from: C5b.a, to: VR5.lug2, via: [[25.4, -1.85], [16, -1.85]] }
-  - { from: VR4.lug1, to: VR5.lug3, via: [[19.45, -1.22], [16.55, -1.22]] }
+  - { from: VR4.lug1, to: VR5.lug3, via: [[20.6, -1.22], [16, -1.22]] }
   - { from: VR3.lug2, to: C6.a, via: [[24, -0.54], [19.2, -0.54]] }
   - { from: VR5.lug1, to: [1.45, 18.6], via: [[15.4, -0.68], [18.6, -0.68]] }
 
   # --- volume controls + channel mixers -> the V2A grid ----------------------
-  - { from: VR1.lug2, to: RM1.a, via: [[29, -0.68], [25.35, -0.68], [25.35, 0.42], [24.75, 0.42]] }
-  - { from: VR1.lug1, to: [1.45, 28.4], via: [[27.777, -0.016]] }
+  - { from: VR1.lug2, to: RM1.a, via: [[28.74, -0.927], [25.35, -0.68], [25.35, 0.42], [24.75, 0.42]] }
+  - { from: VR1.lug1, to: [1.45, 28.4], via: [[29.96, -0.114]] }
   - { from: VR2.lug2, to: RM2.a, via: [[33, -1.32], [26.65, -1.32], [26.65, 0.36], [27.05, 0.36]] }
   - { from: RM2.b, to: RM1.b, via: [[28.4, 0.72], [26.6, 0.72]] }
   - { from: VR2.lug1, to: [1.45, 32.6], via: [[32.7, -0.6]] }
@@ -286,7 +286,7 @@ runs:
   - { from: C3.b, to: [1.45, 46.6] }
 
   # --- presence control (5k), at the phase-inverter tail foot -----------------
-  - { from: VR6.lug3, to: RT2.b, via: [[11, -2.1], [21.45, -2.1]] }
+  - { from: VR6.lug3, to: RT2.b, via: [[8.889, -1.802], [11, -2.1], [21.45, -2.1]] }
   - { from: VR6.lug1, to: [1.45, 10.6], via: [[10.6, -0.58]] }
   - { from: VR6.lug2, to: C16.a, via: [[11, -1.3], [13, -1.3]] }
   - { from: C16.b, to: [1.45, 13.35], via: [[13.35, -0.5]] }

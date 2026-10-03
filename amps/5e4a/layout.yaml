@@ -251,8 +251,8 @@ runs:
   # wiper; the treble wiper's lead alone carries the output to the PI grid.)
   - { from: V2.pin3, to: RKCF.a, via: [[32, 1.6], [29.4, 1.5]] } # CF cathode (node A) -> 100k load (leaves pin3 steeply up-left)
   - { from: RKCF.b, to: [1.45, 28.6] }               # CF load -> ground bus
-  - { from: C5.a, to: VR3.lug3, via: [[28.35, -0.55]] } # 250 pF -> treble hot lug (the sheet's RED lead)
-  - { from: VR3.lug1, to: C6.a, via: [[27.69, -1.2], [29.9, -1.2]] } # treble cold lug -> 0.01 at the pot (high lane, above the lug row)
+  - { from: C5.a, to: VR3.lug3, via: [[28.3, -0.6]] } # 250 pF -> treble hot lug (the sheet's RED lead)
+  - { from: VR3.lug1, to: C6.a, via: [[28.889, -1.2], [29.9, -1.2]] } # treble cold lug -> 0.01 at the pot (high lane, above the lug row)
   - { from: C6.b, to: [1.45, 30.6], via: [[30.55, -0.6]] }      # 0.01 -> chassis ground (drawn to the bus)
   - { from: C16.b, to: RKCF.a, via: [[23.4, -0.5], [28.5, -0.5]] } # node A -> 0.1 bass coupler (top lane; lands the shared CF eyelet)
   - { from: C16.a, to: RSL.a, via: [[21.6, 1.25], [26.5, 1.25]] }   # 0.1 coupler -> node B (the 100k's feed)
@@ -262,16 +262,16 @@ runs:
   - { from: RSL.b, to: VR4.lug2, via: [[26, 0.857], [24.047, -0.3]] } # 100k -> the bass pot's WIPER (the sheet's YELLOW lead)
   - { from: RSR.a, to: VR4.lug2, via: [[25.7, -0.75], [24.35, -0.75]] } # 220k RSR -> bass wiper
   - { from: RSR.b, to: VR3.lug2, via: [[26.4, -0.75], [27.75, -0.75]] } # 220k RSR -> treble wiper
-  - { from: VR4.lug3, to: C7.a, via: [[24.5, -1.063], [22.1, -1.05]] } # bass end lug -> 0.005 at the pot
+  - { from: VR4.lug3, to: C7.a, via: [[22.1, -1.05]] } # bass end lug -> 0.005 at the pot
   - { from: C7.b, to: [1.45, 21.2], via: [[21.2, -0.7], [21.2, 0.6]] } # 0.005 -> chassis ground (drawn to the bus, down the row-0 gap left of C16)
-  - { from: VR4.lug1, to: [1.45, 23.7], via: [[23.476, 0.139]] }           # bass end lug grounded to the case -> bus
+  - { from: VR4.lug1, to: [1.45, 23.7], via: [[24.532, -0.862], [23.476, 0.139]] }           # bass end lug grounded to the case -> bus
   - { from: VR3.lug2, to: V3.pin2, via: [[28.6, -0.6], [21.5, -0.6], [21.5, 2.3]] } # treble wiper -> driver grid (the sheet's WHITE lead: below the lug row, then down the row-0/row-1 gap at col 21.5)
 
   # --- channel volumes + mixers -> V2A grid ----------------------------------
-  - { from: VR1.lug2, to: RM1.a, via: [[39, -0.45], [31.3, -0.45], [31.3, 0.85]] } # ch1 wiper -> mixer (drops clear of C4.b eyelet/ground)
+  - { from: VR1.lug2, to: RM1.a, via: [[38.83, -0.45], [31.3, -0.45], [31.3, 0.85]] } # ch1 wiper -> mixer (drops clear of C4.b eyelet/ground)
   - { from: RM1.b, to: V2.pin7, via: [[33.9, 2], [34.2, 1.95]] }    # mixer -> V2A grid (approaches pin7 from the right, clear of pin6/pin8)
   - { from: VR1.lug1, to: [1.45, 38.7] }           # ch1 volume ground (clear of RL1.a eyelet)
-  - { from: VR2.lug2, to: RM2.a, via: [[43, -0.5], [35.847, -0.5]] } # ch2 wiper -> mixer
+  - { from: VR2.lug2, to: RM2.a, via: [[43.06, -0.86], [35.847, -0.5]] } # ch2 wiper -> mixer
   - { from: RM2.b, to: V2.pin7, via: [[36, 1.9], [34.4, 1.9]] } # mixer -> V2A grid (approaches pin7 from the right, clear of pin6)
   - { from: VR2.lug1, to: [1.45, 43] }             # ch2 volume ground
 
@@ -284,7 +284,7 @@ runs:
   - { from: V1.pin6, to: RL1.b, via: [[43.5, 1.7], [40, 1.7]] }   # V1A plate -> 100k load
   - { from: RL1.a, to: C14.a, via: [[39.039, 0.55], [37, 0.55]] }   # B+4 rail -> V1A plate load
   - { from: V1.pin6, to: C1.a, via: [[44.2, 1.85], [38.3, 1.85], [38.3, 0.4]] }    # V1A plate -> coupler (dips below pin6, clear of pin3, climbs clear of RL3.b eyelet)
-  - { from: C1.b, to: VR1.lug3, via: [[40, -0.4], [39, -0.4]] } # coupler -> ch1 volume
+  - { from: C1.b, to: VR1.lug3, via: [[40, -0.4], [38.2, -0.4]] } # coupler -> ch1 volume
   - { from: JM, to: R2s.b, via: [[47.6, 0.45], [47.6, 1]] }      # ch2 jack -> 68k stopper (diverges left of C3.b, into R2s.b from the left)
   - { from: RG2.a, to: R2s.b, via: [[48.9, -0.2], [48.6, 0.65]] }  # ch2 1 MΩ grid leak -> input node
   - { from: RG2.b, to: [1.45, 46.6], via: [[46.7, 0.5]] }      # grid leak -> ground bus (clear of R2s.a drop)
@@ -300,7 +300,7 @@ runs:
   - { from: C3.b, to: [1.45, 48.25], via: [[48.25, 0.9]] }   # cathode-bypass negative -> ground (right of R2s.b, clear of the sec1 rise)
 
   # --- presence control (5k), on the driver's cathode -------------------------
-  - { from: VRP.lug3, to: RK3.a, via: [[4, -0.8], [18.5, -0.8], [18.5, 0.55]] } # presence -> the driver's cathode (down the row-0 gap left of C10)
+  - { from: VRP.lug3, to: RK3.a, via: [[3.8, -0.83], [18.5, -0.82], [18.5, 0.55]] } # presence -> the driver's cathode (down the row-0 gap left of C10)
   - { from: VRP.lug1, to: VRP.lug2 }   # far lug strapped to the wiper, as the layout sheet wires it
   - { from: CP.b, to: VRP.lug1, via: [[2.4, -0.62], [3.7, -0.62]] }       # 0.1 µF at the pot ...
   - { from: CP.a, to: C15.b, via: [[1.6, -0.3], [2, -0.3]] }   # ... -> chassis, at the bias can's grounded eyelet

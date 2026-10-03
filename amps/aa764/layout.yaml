@@ -132,12 +132,12 @@ runs:
   # The seven secondary leads leave the transformer straight out, each in its own
   # lane, before turning — no two read as one wire and no lead passes close to a
   # neighbour's pigtail.
-  - { from: T1.red1, to: V3.pin4, via: [[-1.35, 0.260], [-0.60, 0.50]] }        # HT plate 1
-  - { from: T1.red2, to: V3.pin6, via: [[-1.25, 0.324], [-0.20, 1.00]] }        # HT plate 2
-  - { from: T1.red-yellow, to: [1.45, 0.15], via: [[-1.45, 0.387], [-1.00, 0.95]] }  # HT centre tap → ground
-  - { from: T1.yellow1, to: V3.pin2, via: [[-1.50, 0.450], [-1.50, 1.62]] }     # 5 V rectifier filament
+  - { from: T1.red1, to: V3.pin4, via: [[-1.35, 0.26], [-0.58, 0.5]] }        # HT plate 1
+  - { from: T1.red2, to: V3.pin6, via: [[-1.25, 0.324], [-0.2, 1]] }        # HT plate 2
+  - { from: T1.red-yellow, to: [1.45, 0.15], via: [[-1.45, 0.387], [-0.812, 0.95]] }  # HT centre tap → ground
+  - { from: T1.yellow1, to: V3.pin2, via: [[-1.5, 0.45], [-1.5, 1.62]] }     # 5 V rectifier filament
   - { from: T1.yellow2, to: V3.pin8, via: [[-1.15, 0.513], [-0.75, 2.35]] }     # 5 V filament / B+ out
-  - { from: V3.pin8, to: C8.a, color: red, via: [[4.60, 2.35], [6.95, 1.72]] }  # +360 V → reservoir
+  - { from: V3.pin8, to: C8.a, color: red, via: [[4.6, 2.35], [6.95, 1.72]] }  # +360 V → reservoir
 
   # === filtered rails: three 20 µF sections split by the 1 kΩ and 10 kΩ =====
   - { from: C8.a, to: R14.b, via: [[7.42, 0.72]] }       # reservoir → B+1 eyelet
@@ -148,31 +148,31 @@ runs:
   - { from: C10.b, to: [1.45, 2] }
 
   # === output transformer, speaker jack and the 6V6GT ======================
-  - { from: T2.red, to: C8.a, color: red, via: [[6.30, 1.35]] }                 # OT primary → B+1
-  - { from: T2.blue, to: V2.pin3, color: blue, via: [[9.00, 2.90], [12.90, 2.90], [13.30, 1.60]] }  # OT primary → 6V6 plate
-  - { from: T2.black, to: [1.45, 9.6], via: [[9.30, 1.78]] }                    # OT secondary common → ground
-  - { from: T2.yellow, to: SPK, color: yellow, via: [[9.90, 2.35]] }            # OT secondary → speaker
-  - { from: V2.pin4, to: C9.a, via: [[14.20, 1.55], [4.40, 1.55]] }             # screen → B+2
-  - { from: V2.pin8, to: R13.a, via: [[16.30, 2.20], [16.30, 1.72], [12.60, 1.72]] }           # cathode → 470 Ω
+  - { from: T2.red, to: C8.a, color: red, via: [[6.3, 1.35]] }                 # OT primary → B+1
+  - { from: T2.blue, to: V2.pin3, color: blue, via: [[9, 2.9], [12.9, 2.9], [13.3, 1.6]] }  # OT primary → 6V6 plate
+  - { from: T2.black, to: [1.45, 9.6], via: [[9.3, 1.78]] }                    # OT secondary common → ground
+  - { from: T2.yellow, to: SPK, color: yellow, via: [[9.9, 2.35]] }            # OT secondary → speaker
+  - { from: V2.pin4, to: C9.a, via: [[14.2, 1.55], [4.4, 1.55]] }             # screen → B+2
+  - { from: V2.pin8, to: R13.a, via: [[16.3, 2.2], [16.3, 1.72], [12.6, 1.72]] }           # cathode → 470 Ω
   - { from: R13.b, to: [1.45, 11] }                                             # 470 Ω → ground bus
-  - { from: C7.a, to: R13.a, via: [[12.10, -0.32]] }                            # bypass across the 470 Ω
+  - { from: C7.a, to: R13.a, via: [[12.1, -0.32]] }                            # bypass across the 470 Ω
   - { from: C7.b, to: [1.45, 13] }
-  - { from: V2.pin5, to: R12.b, via: [[16.60, 1.36], [27.90, 1.36], [28.10, 0.72]] }           # grid → 220 kΩ / coupler eyelet
-  - { from: R12.a, to: [1.45, 26.6], via: [[26.60, 0.55]] }                     # 220 kΩ grid leak → ground
+  - { from: V2.pin5, to: R12.b, via: [[16.6, 1.36], [27.9, 1.36], [28.1, 0.72]] }           # grid → 220 kΩ / coupler eyelet
+  - { from: R12.a, to: [1.45, 26.6], via: [[26.6, 0.55]] }                     # 220 kΩ grid leak → ground
 
   # === negative-feedback divider and the 12AX7 driver cathode ==============
-  - { from: R11.b, to: SPK, via: [[18.00, 2.52], [12.30, 2.52]] }   # 2.7 kΩ feedback → speaker jack
+  - { from: R11.b, to: SPK, via: [[18, 2.52], [12.3, 2.52]] }   # 2.7 kΩ feedback → speaker jack
   - { from: R11.a, to: R9.a }                                       # KFB tie (the drawing's jumper)
-  - { from: C5.a, to: R9.a, via: [[21.60, -0.30]] }                 # 25 µF across the 1.5 kΩ
-  - { from: C5.b, to: R9.b, via: [[21.60, 1.20]] }
-  - { from: R10.a, to: R9.a, via: [[23.60, -0.80], [20.00, -0.80]] }   # 47 Ω onto the KFB node, from above
+  - { from: C5.a, to: R9.a, via: [[21.6, -0.3]] }                 # 25 µF across the 1.5 kΩ
+  - { from: C5.b, to: R9.b, via: [[21.6, 1.2]] }
+  - { from: R10.a, to: R9.a, via: [[23.6, -0.8], [20, -0.8]] }   # 47 Ω onto the KFB node, from above
   - { from: R10.b, to: [1.45, 24] }                                 # 47 Ω → ground bus
-  - { from: V1.pin8, to: R9.b, via: [[45.60, 2.62], [20.35, 2.62]] }   # V1B cathode → 1.5 kΩ (deep lane)
+  - { from: V1.pin8, to: R9.b, via: [[45.6, 2.62], [20.35, 2.62]] }   # V1B cathode → 1.5 kΩ (deep lane)
 
   # === 12AX7 driver plate, coupler and the +330 V rail =====================
-  - { from: V1.pin6, to: C6.b, via: [[45.30, 1.58], [29.60, 1.58]] }   # V1B plate → coupler / plate load
-  - { from: R8.b, to: C10.a, via: [[31.60, 1.32], [31.60, 3.20], [1.20, 3.20], [1.20, 1.32]] }  # +330 V rail → the plate loads
-  - { from: V1.pin1, to: R4.b, via: [[42.60, 2.32], [33.40, 2.32]] }   # V1A plate → 100 kΩ / 250 pF / slope
+  - { from: V1.pin6, to: C6.b, via: [[45.3, 1.58], [29.6, 1.58]] }   # V1B plate → coupler / plate load
+  - { from: R8.b, to: C10.a, via: [[31.6, 1.32], [31.6, 3.2], [1.2, 3.2], [1.2, 1.32]] }  # +330 V rail → the plate loads
+  - { from: V1.pin1, to: R4.b, via: [[42.6, 2.32], [33.4, 2.32]] }   # V1A plate → 100 kΩ / 250 pF / slope
 
   # === tone stack: the control leads the sheet marks BROWN, BLUE, WHITE ====
   # Every pot lug is approached square-on so no lead reads as landing on its
@@ -184,44 +184,44 @@ runs:
   # The two lower tone-cap leads reach the slope-node eyelet as one solder point
   # — the sheet curves the 0.047 µF lead across to it, this redraw seats that
   # cap on the eyelet and runs the 0.1 µF lead across instead. Same node either way.
-  - { from: C2.a, to: VR2.lug1, color: white, via: [[33.00, -0.45], [32.19, -0.45]] }  # 250 pF → Treble
-  - { from: C3.a, to: VR3.lug2, color: blue, via: [[38.80, -0.42], [38.80, -1.50], [28.00, -1.50]] }   # 0.1 µF → Bass wiper
+  - { from: C2.a, to: VR2.lug1, color: white, via: [[33, -0.45], [33.79, -0.45]] }  # 250 pF → Treble
+  - { from: C3.a, to: VR3.lug2, color: blue, via: [[38.8, -0.42], [38.8, -1.5], [28, -1.5]] }   # 0.1 µF → Bass wiper
   - { from: VR3.lug1, to: VR3.lug2 }                                                   # bass wiper strapped to its upper end (the factory leaves that lug bare)
   - { from: C3.b, to: R6.b }                                                           # 0.1 µF lower lead → slope node
-  - { from: C4.a, to: VR3.lug3, color: brown, via: [[34.80, -0.52], [28.31, -0.52]] }  # 0.047 µF → Bass, lower end
-  - { from: R7.a, to: VR3.lug3, via: [[29.30, -1.10], [28.31, -1.36]] }                # 15 kΩ bass leg, from above
-  - { from: R7.b, to: [1.45, 26.2], via: [[30.79, -0.36], [26.20, -0.36]] }            # 15 kΩ → ground bus
-  - { from: VR3.lug2, to: VR2.lug3, via: [[28.00, -0.70], [32.81, -0.70]] }            # bass wiper → treble lower lug
-  - { from: VR2.lug2, to: VR1.lug1, via: [[32.50, -0.62], [36.69, -0.62]] }            # treble wiper → volume top
-  - { from: VR1.lug3, to: [1.45, 39.3], via: [[37.31, -0.78], [39.30, -0.78]] }        # volume ground
-  - { from: VR1.lug2, to: V1.pin7, via: [[37.00, -1.20], [46.60, -1.20], [46.60, 1.62]] }  # volume wiper → V1B grid
+  - { from: C4.a, to: VR3.lug3, color: brown, via: [[34.8, -0.52], [28.31, -0.52]] }  # 0.047 µF → Bass, lower end
+  - { from: R7.a, to: VR3.lug3, via: [[29.25, -1.1], [28.21, -0.71]] }                # 15 kΩ bass leg, from above
+  - { from: R7.b, to: [1.45, 26.2], via: [[30.79, -0.36], [26.2, -0.36]] }            # 15 kΩ → ground bus
+  - { from: VR3.lug2, to: VR2.lug3, via: [[28.705, -0.7], [32.47, -0.7]] }            # bass wiper → treble lower lug
+  - { from: VR2.lug2, to: VR1.lug1, via: [[32.5, -0.62], [35.112, -0.373]] }            # treble wiper → volume top
+  - { from: VR1.lug3, to: [1.45, 39.3], via: [[37.154, -0.78], [39.3, -0.78]] }        # volume ground
+  - { from: VR1.lug2, to: V1.pin7, via: [[37, -1.2], [46.6, -1.2], [46.6, 1.62]] }  # volume wiper → V1B grid
 
   # === input jacks, stoppers and the 1 MΩ grid leak ========================
-  - { from: J2, to: R2.a, via: [[39.80, -1.02], [40.00, -0.42]] }
-  - { from: J1, to: R1.a, via: [[42.30, -1.02], [42.00, -0.42]] }
+  - { from: J2, to: R2.a, via: [[39.8, -1.02], [40, -0.42]] }
+  - { from: J1, to: R1.a, via: [[42.3, -1.02], [42, -0.42]] }
   - { from: R2.b, to: R1.b }                                        # the two stoppers meet
-  - { from: R1.b, to: V1.pin2, via: [[42.60, 1.40]] }               # → V1A grid
-  - { from: R3.a, to: J1, via: [[47.21, -1.44], [43.40, -1.44]] }   # 1 MΩ grid leak at jack 1
-  - { from: R3.b, to: [1.45, 49.30], via: [[49.30, -0.50]] }        # grid leak → ground bus
+  - { from: R1.b, to: V1.pin2, via: [[42.6, 1.4]] }               # → V1A grid
+  - { from: R3.a, to: J1, via: [[47.21, -1.44], [43.4, -1.44]] }   # 1 MΩ grid leak at jack 1
+  - { from: R3.b, to: [1.45, 49.3], via: [[49.3, -0.5]] }        # grid leak → ground bus
 
   # === 12AX7 first-stage cathode ==========================================
-  - { from: V1.pin3, to: R5.a, via: [[42.90, 1.28], [44.60, 0.30]] }  # V1A cathode → 1.5 kΩ
+  - { from: V1.pin3, to: R5.a, via: [[42.9, 1.28], [44.6, 0.3]] }  # V1A cathode → 1.5 kΩ
   - { from: R5.b, to: [1.45, 45] }
-  - { from: C1.a, to: R5.a, via: [[46.40, 0.30]] }                    # bypass across the 1.5 kΩ
+  - { from: C1.a, to: R5.a, via: [[46.4, 0.3]] }                    # bypass across the 1.5 kΩ
   - { from: C1.b, to: [1.45, 47] }
 
   # === 6.3 V heaters — single-ended, one leg grounded (annotation layer) ====
   # The sheet grounds one green transformer lead and runs the other to the pilot
   # lamp and on to both heaters, so this is not a twisted pair: every socket gets
   # a green feed and a grounded return.
-  - { from: T1.green1, to: [1.45, -0.35], via: [[-0.85, 0.577], [-0.85, 1.30]] }   # grounded 6.3 V leg
-  - { from: T1.green2, to: PL1.a, color: green, via: [[-1.65, 0.640], [-1.65, -0.55]] }
+  - { from: T1.green1, to: [1.45, -0.35], via: [[-0.85, 0.577], [-0.85, 1.3]] }   # grounded 6.3 V leg
+  - { from: T1.green2, to: PL1.a, color: green, via: [[-1.65, 0.64], [-1.65, -0.55]] }
   - { from: PL1.b, to: [1.45, -0.45], via: [[-2.05, -0.779], [-2.05, 0.05], [-0.55, 0.05]] }   # pilot lamp return → ground
-  - { from: PL1.a, to: V2.pin2, color: green, via: [[-1.30, -1.10], [10.20, -1.10], [10.20, 3.65], [13.60, 3.65]] }
-  - { from: V2.pin2, to: V1.pin4, color: green, via: [[14.60, 3.42], [42.90, 3.42]] }
-  - { from: V1.pin4, to: V1.pin5, color: green, via: [[43.30, 1.50]] }             # 12AX7 pins 4+5 strapped for 6.3 V
+  - { from: PL1.a, to: V2.pin2, color: green, via: [[-1.3, -1.1], [10.2, -1.1], [10.2, 3.65], [13.6, 3.65]] }
+  - { from: V2.pin2, to: V1.pin4, color: green, via: [[14.88, 3.42], [44.5, 3.42]] }
+  - { from: V1.pin4, to: V1.pin5, color: green, via: [[43.3, 1.5]] }             # 12AX7 pins 4+5 strapped for 6.3 V
   - { from: V2.pin7, to: [1.45, 16.85], via: [[16.85, 1.95]] }                      # 6V6 heater return → ground
-  - { from: V1.pin9, to: [1.45, 44.9], via: [[44.90, 2.32]] }                      # 12AX7 heater centre tap → ground
+  - { from: V1.pin9, to: [1.45, 44.9], via: [[44.9, 2.32]] }                      # 12AX7 heater centre tap → ground
 
 # net_map — the reviewable data layer that reconciles the drawn wiring with the
 # DC-operating-point netlist (netlist.cir) for pipeline/verify_layout_nets.py.

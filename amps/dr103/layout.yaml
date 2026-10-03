@@ -296,8 +296,8 @@ runs:
   - { from: RPD.b, to: C10.b, via: [[77.6, 1.24], [78.4, 0.6]] }
   - { from: C10.a, to: [1.45, 75.6], via: [[75.6, 0.6]] }
   - { from: C11.b, to: VR7.lug3, via: [[82.4, -0.5], [84.3, -0.5]] }
-  - { from: VR7.lug1, to: C12.a, via: [[83.7, -0.72], [86, -0.72], [86, -0.3]] }
-  - { from: VR7.lug2, to: RPG.a, via: [[84, -0.62], [89.6, -0.62], [90, 0.35]] }
+  - { from: VR7.lug1, to: C12.a, via: [[84.113, -0.72], [86, -0.72], [86, -0.3]] }
+  - { from: VR7.lug2, to: RPG.a, via: [[84.144, -0.62], [89.6, -0.62], [90, 0.35]] }
   - { from: RPG.b, to: [1.45, 90] }
   - { from: C12.b, to: RT2.a, via: [[88.4, -0.9], [101.4, -0.9], [102.4, 0.68]] }
 
@@ -339,16 +339,16 @@ runs:
   # --- master volume + tone stack (C4 / C5 / C6 on the board) ---------------
   - { from: VR6.lug2, to: V3.pin7, via: [[116, -0.6], [112.35, -0.6], [112.35, 1.35], [111.4, 1.68]] }
   - { from: VR6.lug1, to: [1.45, 117.4], via: [[116.347, -0.85], [117.4, -0.85], [117.4, 1.9]] }
-  - { from: RTM.b, to: VR6.lug3, via: [[119.4, 0.55], [119.4, -0.35], [116.4, -0.35]] }
-  - { from: VR3.lug2, to: RTM.a, via: [[121, -0.55], [118.4, -0.55], [118, 0.55]] }  # treble wiper alone
+  - { from: RTM.b, to: VR6.lug3, via: [[119.4, 0.55], [119.4, -0.35], [115.6, -0.6]] }
+  - { from: VR3.lug2, to: RTM.a, via: [[121, -0.406], [118.4, -0.55], [118, 0.55]] }  # treble wiper alone
   - { from: V2.pin3, to: RSL.a, via: [[127.2, 1.75], [124.4, 1.6]] }             # CF cathode -> slope
   - { from: RSL.a, to: C4.a, via: [[123.2, 0.5]] }                             # node A (CF output) -> 100 pF treble cap
   - { from: C4.b, to: VR3.lug3 }                                               # 100 pF -> treble top
   - { from: RSL.b, to: C5.a }                                                  # slope foot (node B) -> the bass and middle caps' shared eyelet
   - { from: C5.b, to: VR4.lug3 }                                               # 47 nF bass cap -> bass node
-  - { from: VR3.lug1, to: VR4.lug3, via: [[121, -0.72], [123, -0.72]] }      # treble bottom -> bass node
-  - { from: VR4.lug2, to: VR4.lug3, via: [[123.15, -0.66], [122.998, -0.95], [123.54, -0.998]] }  # rheostat strap
-  - { from: VR4.lug1, to: VR5.lug3, via: [[122.9, -0.55], [125.6, -0.55]] }      # bass foot -> middle top
+  - { from: VR3.lug1, to: VR4.lug3, via: [[121, -0.72]] }      # treble bottom -> bass node
+  - { from: VR4.lug2, to: VR4.lug3, via: [[123.15, -0.66], [122.998, -0.69]] }  # rheostat strap
+  - { from: VR4.lug1, to: VR5.lug3, via: [[123.784, -0.55], [125.297, -0.92]] }      # bass foot -> middle top
   - { from: C6.b, to: VR5.lug2 }                                               # 47 nF middle cap -> middle wiper
   - { from: VR5.lug1, to: [1.45, 125.5], via: [[125.5, -0.4], [125.5, 1.9]] }
 
@@ -365,10 +365,10 @@ runs:
   - { from: RM2.b, to: V2.pin7, via: [[129.9, 1.72]] }
 
   # --- volume controls -> the mixing resistors ----------------------------
-  - { from: VR1.lug2, to: RM1.a, via: [[139, -0.5], [127, -0.5]] }
-  - { from: VR2.lug2, to: RM2.a, via: [[144, -0.62], [129, -0.62]] }
-  - { from: VR1.lug1, to: [1.45, 138.5], via: [[138.5, 0.6]] }
-  - { from: VR2.lug1, to: [1.45, 144.9], via: [[143.6, -0.25], [144.7, -0.25], [144.9, 0.55]] }
+  - { from: VR1.lug2, to: RM1.a, via: [[138.779, -0.935], [127, -0.5]] }
+  - { from: VR2.lug2, to: RM2.a, via: [[143.98, -1.05], [139.696, -1.499], [129, -0.62]] }
+  - { from: VR1.lug1, to: [1.45, 138.5], via: [[140.435, -0.213], [138.4, 0.55]] }
+  - { from: VR2.lug1, to: [1.45, 144.9], via: [[143.86, -0.2], [144.7, -0.25], [144.9, 0.55]] }
   - { from: C2.b, to: VR1.lug3, via: [[141, -0.44], [139, -0.44]] }
   - { from: C3.b, to: VR2.lug3, via: [[144.1, -0.2]] }
 

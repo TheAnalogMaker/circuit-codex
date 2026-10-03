@@ -209,7 +209,7 @@ runs:
   - { from: V3.pin3, to: RK3.a, via: [[29.78, 2.25], [14.6, 2.25], [14.6, 0.26]] }
   - { from: RK3.b, to: [1.45, 15] }
   - { from: RNF.a, to: RK3.a, via: [[15.8, 0.5]] }
-  - { from: VR5.lug3, to: RK3.a, via: [[14.143, -0.674]] }
+  - { from: VR5.lug3, to: RK3.a, via: [[14.143, -0.486]] }
   - { from: VR5.lug1, to: VR5.lug2 }
   - { from: VR5.lug2, to: CPR.a, via: [[13.954, -0.566]] }
   - { from: CPR.b, to: [1.45, 17.6], via: [[17.6, -0.3]] }
@@ -242,32 +242,32 @@ runs:
   - { from: RBL.a, to: [1.45, 47] }
   - { from: RTS.a, to: RBL.b, via: [[53, 1.25], [48.2, 1.25]] }
   - { from: RFB.a, to: RTS.a, via: [[55, 0.7], [53, 0.7]] }
-  - { from: RTS.b, to: VR4.lug2, via: [[54.2, 0.4], [54.2, -1.022], [46.6, -1.263]] }
+  - { from: RTS.b, to: VR4.lug2, via: [[54.2, 0.4], [54.2, -1.352], [46.44, -1.213]] }
   - { from: VR4.lug1, to: [1.45, 45.2], via: [[45.2, -0.3]] }
-  - { from: VR4.lug3, to: CBS.a, via: [[45, -1.4]] }
+  - { from: VR4.lug3, to: CBS.a, via: [[45, -1.25]] }
   - { from: CBS.b, to: [1.45, 44.9], via: [[44.9, -0.3]] }
-  - { from: VR4.lug2, to: RTO.a, via: [[46.621, -0.736]] }
+  - { from: VR4.lug2, to: RTO.a, via: [[46.384, -0.931]] }
   - { from: RTO.b, to: VR3.lug2, via: [[50.567, -1.064]] }
-  - { from: C4.b, to: VR3.lug3, via: [[51.05, -0.789]] }
-  - { from: VR3.lug1, to: C7.a, via: [[50.87, -0.783]] }
+  - { from: C4.b, to: VR3.lug3, via: [[51.026, -0.789]] }
+  - { from: VR3.lug1, to: C7.a, via: [[51.378, -0.783]] }
   - { from: C7.b, to: [1.45, 53.8], via: [[53.8, -0.3]] }
-  - { from: C8.a, to: VR3.lug2, via: [[51.49, -1.287]] }
-  - { from: C8.b, to: VR3.lug3, via: [[52.09, -1.317]] }
+  - { from: C8.a, to: VR3.lug2, via: [[51.49, -0.737]] }
+  - { from: C8.b, to: VR3.lug3, via: [[52.09, -0.547]] }
   - { from: RFB.b, to: V2.pin2, via: [[56.2, 2.1], [48.5, 2.3]] }
   - { from: RM1.b, to: RFB.b, via: [[58.2, 1.25], [56.2, 1.25]] }
   - { from: RM2.b, to: RM1.b, via: [[60.2, 1.2], [58.3, 1.2]] }
   - { from: VR1.lug2, to: RM1.a, via: [[59, -0.6], [57, -0.4]] }
-  - { from: VR2.lug2, to: RM2.a, via: [[64.5, -0.7], [59, -0.3]] }
+  - { from: VR2.lug2, to: RM2.a, via: [[64.126, -0.7], [59, -0.3]] }
   # --- input stage ------------------------------------------------------------
   - { from: V1.pin6, to: RL1.b, via: [[64.2, 1.919]] }
   - { from: CC1.a, to: RL1.b, via: [[61, 0.5], [64, 0.6]] }
-  - { from: CC1.b, to: VR1.lug3 }
+  - { from: CC1.b, to: VR1.lug3, via: [[57.76, -0.461]] }
   - { from: CBR.a, to: VR1.lug3, via: [[59.765, -1.398]] }
-  - { from: CBR.b, to: VR1.lug2, via: [[59.301, -0.737]] }
-  - { from: VR1.lug1, to: [1.45, 60.6], via: [[60.6, -0.2]] }
+  - { from: CBR.b, to: VR1.lug2, via: [[59.791, -0.419]] }
+  - { from: VR1.lug1, to: [1.45, 60.6], via: [[60.6, -0.3]] }
   - { from: V1.pin1, to: RL2.b, via: [[66.2, 2]] }
   - { from: CC2.a, to: RL2.b, via: [[67, 0.5], [66, 0.6]] }
-  - { from: CC2.b, to: VR2.lug3, via: [[67.05, -0.46]] }
+  - { from: CC2.b, to: VR2.lug3, via: [[66.384, -0.56]] }
   - { from: VR2.lug1, to: [1.45, 62.6], via: [[62.6, -0.2]] }
   - { from: V1.pin8, to: V1.pin3 }
   - { from: V1.pin8, to: RK1.a, via: [[71.6, 2], [71.6, -0.2]] }

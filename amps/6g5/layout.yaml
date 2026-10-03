@@ -309,11 +309,11 @@ runs:
   # === oscillator and its output ===============================================
   - { from: RWV.b, to: CV1.b, via: [[52.6, 1.26], [47.4, 1.26]] }
   - { from: RWV.a, to: VRINT.lug2 }
-  - { from: CTW.a, to: VRINT.lug2, via: [[53.01, -0.55], [52, -0.55]] }
+  - { from: CTW.a, to: VRINT.lug2, via: [[53.01, -0.55], [52.68, -0.55]] }
   - { from: CTW.b, to: [1.45, 53.8], via: [[53.79, -0.3], [53.5, -0.3], [53.5, 1.2]] }
   - { from: CTX.a, to: CTOF.a }
-  - { from: CTOF.a, to: VRINT.lug3, via: [[54.6, -0.45], [52.31, -0.45]] }
-  - { from: VRINT.lug1, to: [1.45, 51.5], via: [[51.69, -0.3], [51.5, -0.3], [51.5, 1.2]] }
+  - { from: CTOF.a, to: VRINT.lug3, via: [[54.6, -0.45], [52.206, -0.43]] }
+  - { from: VRINT.lug1, to: [1.45, 51.5], via: [[52.64, -0.45], [51.5, -0.25], [51.5, 1.37]] }
   - { from: CTX.b, to: [1.45, 54] }
   - { from: CTOF.b, to: RTOF.a }
   - { from: RTOF.b, to: CTOP.a }
@@ -323,8 +323,8 @@ runs:
   - { from: CTO3.a, to: V3.pin1, via: [[59.5, 1.367]] }
   - { from: CTO3.b, to: CTO1.a }
   - { from: CTO3.b, to: VRSPD.lug3, via: [[59.4, 0.6], [59.4, -0.3], [58.81, -0.5]] }
-  - { from: VRSPD.lug1, to: RSPD.a, via: [[58.19, -0.62], [59.51, -0.62]] }
-  - { from: VRSPD.lug2, to: RSPD.a, via: [[58.5, -0.45], [59.3, -0.45], [59.289, -0.62]] }
+  - { from: VRSPD.lug1, to: RSPD.a, via: [[59.51, -0.98]] }
+  - { from: VRSPD.lug2, to: RSPD.a, via: [[58.968, -0.45], [59.3, -0.45], [59.204, -0.62]] }
   - { from: RSPD.b, to: [1.45, 60.5], via: [[60.29, -0.3], [60.5, -0.3], [60.5, 1.2]] }
   - { from: CTO1.b, to: RTOG1.a }
   - { from: RTOG1.a, to: CTO2.a }
@@ -368,8 +368,8 @@ runs:
   - { from: RK2.b, to: [1.45, 82] }
   - { from: CK2.b, to: [1.45, 83] }
   - { from: VRV1.lug2, to: V2.pin2, via: [[69.5, -0.44], [68.5, -0.12], [68.5, 1.58], [78.448, 1.593]] }
-  - { from: VRV1.lug1, to: [1.45, 67.5], via: [[69.19, -0.15], [67.5, -0.15]] }
-  - { from: VRV2.lug2, to: V2.pin7, via: [[81.8, -0.44], [82.5, -0.12], [82.5, 1.58], [81.2, 1.58]] }
+  - { from: VRV1.lug1, to: [1.45, 67.5], via: [[69.315, -0.15], [67.5, -0.15]] }
+  - { from: VRV2.lug2, to: V2.pin7, via: [[81.608, -0.44], [82.5, -0.12], [82.5, 1.58], [81.2, 1.58]] }
   - { from: VRV2.lug1, to: [1.45, 85.6], via: [[81.49, -0.15], [85.6, -0.15]] }
 
   # === V1: both first stages ===================================================
@@ -400,30 +400,30 @@ runs:
   # from that lug to the Volume wiper, which is V2A's grid.
   - { from: CC1T.b, to: RS1T.a, via: [[89.4, -0.33], [73.01, -0.33]] }
   - { from: RS1T.a, to: CT1.a, via: [[72.71, -0.72], [70.71, -0.72]] }
-  - { from: CT1.b, to: VRT1.lug3, via: [[71.19, -0.62], [72.41, -0.62]] }
-  - { from: RS1T.b, to: VRT1.lug1, via: [[73.79, -0.5], [71.79, -0.5]] }
-  - { from: VRT1.lug1, to: VRB1.lug3, via: [[72.25, -0.55], [72.69, -0.28], [75.01, -0.28]] }
+  - { from: CT1.b, to: VRT1.lug3, via: [[71.19, -0.62], [72.052, -0.62]] }
+  - { from: RS1T.b, to: VRT1.lug1, via: [[73.79, -0.5]] }
+  - { from: VRT1.lug1, to: VRB1.lug3, via: [[72.554, -0.55], [72.69, -0.28], [74.684, -0.28]] }
   - { from: VRB1.lug3, to: CF1.a, via: [[75.45, -0.62], [75.61, -0.62]] }
   - { from: CF1.b, to: RF1.a, via: [[76.39, -0.75], [79.16, -0.75]] }
   - { from: VRB1.lug2, to: RF1.a, via: [[74.7, -0.45], [79.51, -0.45]] }
   - { from: RF1.b, to: [1.45, 80.5], via: [[80.29, -0.5], [80.5, -0.5]] }
-  - { from: VRB1.lug1, to: [1.45, 73.6], via: [[74.39, -0.2], [73.6, -0.2]] }
-  - { from: VRT1.lug2, to: VRV1.lug3, via: [[72.1, -0.4], [69.81, -0.4]] }
-  - { from: VRV1.lug3, to: CBR1.a, via: [[69.272, -0.62], [67.91, -0.62]] }
-  - { from: CBR1.b, to: VRV1.lug2, via: [[68.69, -0.5], [69, -0.55]] }
+  - { from: VRB1.lug1, to: [1.45, 73.6], via: [[74.77, -0.45], [73.6, -0.15]] }
+  - { from: VRT1.lug2, to: VRV1.lug3, via: [[72.1, -0.4], [69.01, -0.4]] }
+  - { from: VRV1.lug3, to: CBR1.a, via: [[68.864, -0.653], [67.91, -0.62]] }
+  - { from: CBR1.b, to: VRV1.lug2, via: [[68.69, -0.55], [69.1, -0.39]] }
 
   # === channel-2 tone network, as the A-FJ page mounts it (no bright cap) =====
   - { from: CC2T.b, to: RS2T.a, via: [[90, -0.52], [85.31, -0.42]] }
   - { from: RS2T.a, to: CT2.a, via: [[85.01, -0.72], [83.01, -0.72]] }
-  - { from: CT2.b, to: VRT2.lug3, via: [[83.49, -0.62], [84.71, -0.62]] }
-  - { from: RS2T.b, to: VRT2.lug1, via: [[86.09, -0.5], [84.09, -0.5]] }
-  - { from: VRT2.lug1, to: VRB2.lug3, via: [[84.55, -0.55], [84.99, -0.28], [87.31, -0.28]] }
+  - { from: CT2.b, to: VRT2.lug3, via: [[83.49, -0.62], [84.17, -0.62]] }
+  - { from: RS2T.b, to: VRT2.lug1, via: [[85.506, -0.349], [84.09, -0.5]] }
+  - { from: VRT2.lug1, to: VRB2.lug3, via: [[84.638, -0.55], [84.99, -0.28], [86.919, -0.28]] }
   - { from: VRB2.lug3, to: CF2.a, via: [[87.75, -0.62], [87.91, -0.62]] }
   - { from: CF2.b, to: RF2.a, via: [[88.69, -0.75], [91.46, -0.75]] }
-  - { from: VRB2.lug2, to: RF2.a, via: [[87.612, -0.45], [91.81, -0.45]] }
+  - { from: VRB2.lug2, to: RF2.a, via: [[87.39, -0.4], [91.81, -0.5]] }
   - { from: RF2.b, to: [1.45, 92.8], via: [[92.59, -0.5], [92.8, -0.5]] }
-  - { from: VRB2.lug1, to: [1.45, 86.5], via: [[86.69, -0.2], [86.5, -0.2]] }
-  - { from: VRT2.lug2, to: VRV2.lug3, via: [[84.4, -0.4], [82.11, -0.4]] }
+  - { from: VRB2.lug1, to: [1.45, 86.5], via: [[87.481, -0.429], [86.5, -0.158]] }
+  - { from: VRT2.lug2, to: VRV2.lug3, via: [[84.002, -0.4], [81.388, -0.4]] }
 
   # === 6.3 V heater chain (twisted pair) =======================================
   # PT green pair -> pilot lamp -> V7 -> V8 -> V5 -> V4 -> V3 -> V2 -> V1, the
