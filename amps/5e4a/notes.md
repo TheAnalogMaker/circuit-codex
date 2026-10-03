@@ -104,25 +104,26 @@ prints the rails and every cathode; the layout sheet, same title block and same
 notice, prints the plate voltages beside the eyelets they belong to. Between
 them the chart covers every node this netlist solves, so the entry is gated
 against the drawing's own figures at the drawing's own tolerance. Every rail
-lands within 6%; the worst node is the shared 12AY7 input cathode at 10.0%,
-with the driver plate next at 9.2%. Nothing is disputed and nothing is
-force-fitted.
+lands within 5%; the worst node is the shared 12AY7 input cathode at 8.7%,
+with the two 12AY7 plates and the driver plate next at 8.0%. Nothing is
+disputed and nothing is force-fitted.
 
-One approximation is stated rather than hidden. The sheet's 390 → 385 V drop
-across the choke is taken by the whole plate-plus-screen current, but this
-netlist omits output-transformer primary DCR — so the plate current reaches the
-6V6GTs without crossing the choke, and only the screen and preamp current does.
-The choke's DCR is entered as a plain 60 Ω estimate and the small residual is
-recorded, because inventing a resistance that reproduces a drop the model
-routes around would be arithmetic dressed up as a measurement.
+One approximation is stated rather than hidden. Both pages hang the
+output-transformer centre tap on the +385 V node with the screens, so the
+sheet's 390 → 385 V drop across the choke is taken by the whole output stage's
+current. This netlist omits output-transformer primary DCR, so the plates sit
+on that node too. The choke's DCR is entered as a plain 60 Ω estimate, not
+fitted; with the whole current crossing it, it lands the +385 V node within a
+tenth of a volt. Until 2026-10-03 this entry drew the centre tap on the
+reservoir side of the choke, a misreading both pages contradict.
 
 ## A note on the drawings
 
 The board layout here is **not** derived: Fender published a layout sheet for
 this circuit, page 1 of the same drawing, and the board order and the
-lead-by-lead wiring are read from it. The chassis carries four input jacks; the
-schematic draws one per channel, and the two 1 MΩ grid leaks mount at the jacks
-as the layout sheet shows. The presence pot and its 0.1 µF are drawn as the
+lead-by-lead wiring are read from it. Both pages draw four input jacks, two per
+channel, each with its own 68 kΩ stopper; each channel's 1 MΩ leak hangs from
+jack 1's tip, and the layout sheet mounts it there. The presence pot and its 0.1 µF are drawn as the
 layout sheet wires them, at the pot: a rheostat from the driver's cathode with
 its far lug strapped to the wiper, the 0.1 µF from there to chassis. The
 negative-feedback resistor, the bright cap and the AC-line capacitors are

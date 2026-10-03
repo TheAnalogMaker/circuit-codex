@@ -10,8 +10,13 @@
 * DC conventions (as in the sibling 5F4): B+1 is DRIVEN at the printed +390 V
 * and every node below it is DERIVED. The 5U4GA, its HT winding and the
 * reservoir ahead of B+1 are not modelled. The choke between B+1 and B+2 is
-* modelled as a DCR estimate (the drawing prints 390 -> 385 across it). Output-
-* transformer primary DCR is omitted, so both 6V6GT plates sit at B+1. The
+* modelled as a DCR estimate (the drawing prints 390 -> 385 across it). The
+* output-transformer centre tap takes B+2, the choke's output, with the screens:
+* G-EE draws it into the screen line on the schematic and letters its RED lead
+* onto a 6V6GT screen pin on the layout (V1 audit 2026-10-03; until then this
+* netlist hung the plates on B+1). Output-transformer primary DCR is omitted,
+* so both 6V6GT plates sit at B+2 and the whole output-stage current crosses
+* the choke. The
 * selenium bias supply (18 kΩ + selenium cell + 100 µF/56 kΩ) is replaced by an
 * ideal -32 V source at its printed value: it is a rectifier/filter network, not
 * an operating point this netlist can solve. DC-open caps are MODELLED where
@@ -83,11 +88,12 @@ RKB JPI 0 56k
 * The change that separates this revision from the plain 5E4 the family file
 * documents: 6V6GT where the wide-panel Supers ran 6L6G. Grids return to the
 * -32 V selenium supply through 220 kOhm leaks; screens tie straight to B+2 with
-* no screen resistors, exactly as on the sheet; cathodes are grounded.
+* no screen resistors, exactly as on the sheet, and the plates reach B+2 through
+* the output-transformer primary (DCR omitted); cathodes are grounded.
 RGL1 NBIAS G51 220k
-XV4 BP1 BP2 G51 0 6V6GT
+XV4 BP2 BP2 G51 0 6V6GT
 RGL2 NBIAS G52 220k
-XV5 BP1 BP2 G52 0 6V6GT
+XV5 BP2 BP2 G52 0 6V6GT
 * Cathodyne -> output-grid drive: C9 carries the cathodyne's 56 kOhm PLATE to the
 * V4 grid and C10 its CATHODE to the V5 grid — the split-load pair of outputs the
 * sheet draws — each through a 1.5 kOhm stopper. DC-open, so the operating point

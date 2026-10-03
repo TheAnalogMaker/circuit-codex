@@ -29,6 +29,18 @@ for ch, (y, jack, gref, pref, plref, cref, vref, mref) in enumerate([
     s.wire(30.48, y, l, y)
     t = s.triode(pref, "12AY7", 49.53, y)
     s.wire(r, y, t["g"][0], y)
+    # Jack 2 has its own 68k into the same grid: G-EE draws four jacks and
+    # four 68 Ks, two per channel, on both pages (schematic 6232x3528, crop
+    # 0,820,1900,2600; layout 6210x3501, crop 4800,480,6200,2500). Jack 2's
+    # contact rests on jack 1's tip and jack 1's on ground; the labels here do
+    # not draw the contacts. Until 2026-10-03 this sheet drew one 68k per
+    # channel (V1 audit, 5e4a.md).
+    s.glabel(f"{jack} J2", 26, y - 8, 180)
+    s.wire(26, y - 8, 30.48, y - 8)
+    l2, r2 = s.series_h("R", f"R{ch + 3}s", "68k", 34.29, y - 8)
+    s.wire(r2, y - 8, 40.5, y - 8)
+    s.wire(40.5, y - 8, 40.5, y)
+    s.junction(40.5, y)
     # The 1M grid leak hangs from the JACK-1 tip node, jack side of the 68k
     # stopper, as the factory sheet draws it (jack 1 tip -> 1 MEG -> ground;
     # the stoppers run from the jack tips to the grid). The stopper carries
@@ -97,7 +109,7 @@ s.gnd(116.84, 127.12)
 # recombine at the phase inverter's grid:
 #   treble: A -> 250 pF -> treble pot; its far end -> .01 -> ground; the
 #           wiper is the output;
-#   bass:   A -> .1-200 -> node B (220k to ground, 4.7M feedback return)
+#   bass:   A -> .1-200 -> node B (220k to ground, the 5M V2A grid return)
 #           -> 100k -> the BASS POT'S WIPER (one end lug -> .005 -> ground,
 #           the other grounded outright) -> 220k -> the output node.
 # No coupling capacitor follows: the output node IS the PI grid.
@@ -117,7 +129,7 @@ s.wire(163, 97.81, 163, 126)
 c16l, c16r = s.series_h("C", "C16", ".1u", 130, 119.5)
 s.wire(124.46, 119.5, c16l, 119.5)
 s.wire(c16r, 119.5, 137, 119.5)
-s.junction(137, 119.5)                  # node B: 220k leak + 4.7M feedback
+s.junction(137, 119.5)                  # node B: 220k leak + the 5M V2A grid return
 s.sym("R", "RSH", "220k", 137, 123.31)
 s.gnd(137, 127.12)
 sl, sr = s.series_h("R", "RSL", "100k", 143, 119.5)
@@ -236,7 +248,12 @@ s.wire(235.7, 126.5, 235.7, 115.08)
 s.wire(235.7, 115.08, 240.61, 115.08)
 s.wire(240.61, 110, 238.07, 110)
 s.wire(238.07, 110, 238.07, 107)
-s.glabel("B+1", 238.07, 107, 90)
+# The centre tap takes B+2, the choke's output, with the screens: G-EE runs
+# it into the screen line on the schematic (6232x3528, crop 4900,750,5450,1650)
+# and letters its RED lead onto the right 6V6GT's pin 4 on the layout
+# (6210x3501, crop 1150,2400,2300,3150). Until 2026-10-03 this sheet put it on
+# B+1, the reservoir side (V1 audit, 5e4a.md).
+s.glabel("B+2", 238.07, 107, 90)
 s.wire(258.39, 107.46, 260.93, 107.46)
 s.glabel("SPKR", 260.93, 107.46, 0)
 s.wire(258.39, 112.54, 260.93, 112.54)

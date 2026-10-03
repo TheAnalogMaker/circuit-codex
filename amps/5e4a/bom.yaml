@@ -3,20 +3,22 @@
 # values, not part numbers), so these follow the corpus's own convention, kept
 # deliberately in step with the sibling 5F4 so the two entries read as the
 # revision and its successor.
-notes: "The schematic draws one jack per channel; the chassis has four (two per channel), which the layout sheet shows. The interstage coupler C8 is the one part the schematic sheet leaves unlabelled — its value is read from the layout sheet of the same drawing, which prints a 0.02 µF · 600 V can in that position. The tone network is capacitor-isolated and omitted from the DC netlist (the phase-inverter grid's DC path through it is modelled as a single leak resistor). The G-EE sheets print no transformer or choke part numbers, so none is claimed. Parts drawn only as annotations (bright cap, presence pot, negative-feedback resistor, AC-line caps, power transformer) are listed without designators."
+notes: "Both pages draw four input jacks, two per channel, each with its own 68 kΩ stopper into the channel's grid, and hang the channel's 1 MΩ leak from jack 1's tip, jack side of its stopper; jack 2's contact rests on jack 1's tip. The pots are lettered by value only; neither page prints a taper. The output-transformer centre tap takes the choke's output (+385 V) with the screens, on both pages. The interstage coupler C8 is the one part the schematic sheet leaves unlabelled — its value is read from the layout sheet of the same drawing, which prints a 0.02 µF · 600 V can in that position. The tone network is capacitor-isolated and omitted from the DC netlist (the phase-inverter grid's DC path through it is modelled as a single leak resistor). The G-EE sheets print no transformer or choke part numbers, so none is claimed. Parts drawn only as annotations (bright cap, presence pot, negative-feedback resistor, AC-line caps, power transformer) are listed without designators."
 items:
-  - { ref: R1s, part: "Carbon comp resistor", value: "68 kΩ · ½ W",  role: "Channel-1 grid stopper" }
-  - { ref: R2s, part: "Carbon comp resistor", value: "68 kΩ · ½ W",  role: "Channel-2 grid stopper" }
-  - { ref: RG1, part: "Carbon comp resistor", value: "1 MΩ · ½ W",   role: "Channel-1 input grid leak" }
-  - { ref: RG2, part: "Carbon comp resistor", value: "1 MΩ · ½ W",   role: "Channel-2 input grid leak" }
+  - { ref: R1s, part: "Carbon comp resistor", value: "68 kΩ · ½ W",  role: "Channel-1 grid stopper (jack 1)" }
+  - { ref: R3s, part: "Carbon comp resistor", value: "68 kΩ · ½ W",  role: "Channel-1 grid stopper (jack 2)" }
+  - { ref: R2s, part: "Carbon comp resistor", value: "68 kΩ · ½ W",  role: "Channel-2 grid stopper (jack 1)" }
+  - { ref: R4s, part: "Carbon comp resistor", value: "68 kΩ · ½ W",  role: "Channel-2 grid stopper (jack 2)" }
+  - { ref: RG1, part: "Carbon comp resistor", value: "1 MΩ · ½ W",   role: "Channel-1 input leak, jack 1's tip to ground (the grid returns through R1s)" }
+  - { ref: RG2, part: "Carbon comp resistor", value: "1 MΩ · ½ W",   role: "Channel-2 input leak, jack 1's tip to ground (the grid returns through R2s)" }
   - { ref: RL1, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "V1A plate load" }
   - { ref: RL2, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "V1B plate load" }
   - { ref: RK1, part: "Carbon comp resistor", value: "820 Ω · ½ W",  role: "Shared 12AY7 cathode bias" }
   - { ref: C3,  part: "Electrolytic capacitor", value: "25 µF · 25 V", role: "Shared 12AY7 cathode bypass" }
   - { ref: C1,  part: "Coupling capacitor",   value: "0.02 µF · 600 V", role: "V1A → channel-1 volume" }
   - { ref: C2,  part: "Coupling capacitor",   value: "0.02 µF · 600 V", role: "V1B → channel-2 volume" }
-  - { ref: VR1, part: "Audio-taper potentiometer", value: "1 MΩ",    role: "Instrument volume (100 pF bright cap across it)" }
-  - { ref: VR2, part: "Audio-taper potentiometer", value: "1 MΩ",    role: "Mic volume" }
+  - { ref: VR1, part: "Potentiometer (taper not marked on the drawing)", value: "1 MΩ",    role: "Instrument volume (100 pF bright cap across it)" }
+  - { ref: VR2, part: "Potentiometer (taper not marked on the drawing)", value: "1 MΩ",    role: "Mic volume" }
   - { ref: RM1, part: "Carbon comp resistor", value: "270 kΩ · ½ W", role: "Instrument-channel mixer" }
   - { ref: RM2, part: "Carbon comp resistor", value: "270 kΩ · ½ W", role: "Mic-channel mixer" }
   - { ref: RL3, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "V2A plate load" }
@@ -32,7 +34,7 @@ items:
   - { ref: C16, part: "Film capacitor",       value: "0.1 µF · 200 V", role: "Tone network — bass-branch coupling capacitor" }
   - { ref: RSH, part: "Carbon comp resistor", value: "220 kΩ · ½ W",  role: "Tone network — bass-branch leak to ground" }
   - { ref: RSR, part: "Carbon comp resistor", value: "220 kΩ · ½ W",  role: "Tone network — bass branch into the stack output (the phase-inverter grid)" }
-  - { ref: VR4, part: "Audio-taper potentiometer", value: "1 MΩ",    role: "Bass (the network injects at its wiper)" }
+  - { ref: VR4, part: "Potentiometer (taper not marked on the drawing)", value: "1 MΩ",    role: "Bass (the network injects at its wiper)" }
   - { ref: RLA, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "V3A (driver) plate load" }
   - { ref: RK3, part: "Carbon comp resistor", value: "1.5 kΩ · ½ W", role: "V3A cathode bias (the 56 kΩ feedback and the presence network land here)" }
   - { ref: C8,  part: "Coupling capacitor",   value: "0.02 µF · 600 V", role: "Driver plate → cathodyne grid — the one value the schematic sheet leaves unlabelled; read from the layout sheet" }
@@ -66,7 +68,7 @@ items:
   - { ref: T1,  part: "Power transformer",    value: "HT · 6.3 V heaters · 5 V rectifier filament", role: "HT winding with a centre tap and a bias tap between one end and the centre tap (the layout letters that lead red-blue), 5 V rectifier-filament and 6.3 V heater windings; the bias rectifier is fed from the tap, not from a rectifier plate" }
   - { ref: T3,  part: "Output transformer",   value: "push-pull output transformer", role: "Push-pull output into 2 × 10 in speakers, with an external-speaker jack" }
   - { ref: "—", part: "Mica capacitor",       value: "100 pF",         role: "Bright cap across VR1 (annotation only on the schematic)" }
-  - { ref: VRP, part: "Linear potentiometer", value: "5 kΩ",           role: "Presence: a rheostat from V3A's cathode, its far lug strapped to the wiper, into CP" }
+  - { ref: VRP, part: "Potentiometer (taper not marked on the drawing)", value: "5 kΩ",           role: "Presence: a rheostat from V3A's cathode, its far lug strapped to the wiper, into CP" }
   - { ref: CP,  part: "Film capacitor",       value: "0.1 µF · 200 V", role: "Presence capacitor, the pot's wiper to ground; mounts at the pot on the layout sheet" }
   - { ref: "—", part: "Carbon comp resistor", value: "56 kΩ · ½ W",   role: "Negative feedback, speaker → V3A cathode (annotation only)" }
   - { ref: "—", part: "Film capacitor",       value: "0.05 µF · 600 V (×2)", role: "AC-line filter caps (annotation only)" }
