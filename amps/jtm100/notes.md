@@ -20,7 +20,8 @@ other common name, JTM45/100.
 
 ## Circuit walkthrough (short form)
 
-Four jacks across two channels (1 MΩ leaks, 68 kΩ stoppers) → **V1** ECC83
+Four jacks across two channels (a 68 kΩ stopper per jack, each channel's 1 MΩ
+leak at its jack-1 tip) → **V1** ECC83
 (100 kΩ plates, one shared 820 Ω cathode with a 25 µF bypass) → 0.02 µF
 couplers → 1 MΩ volume pots (100 pF bright cap across the second) → 270 kΩ
 mixers → **V3A** ECC83 (100 kΩ plate, unbypassed 820 Ω cathode) → **V3B

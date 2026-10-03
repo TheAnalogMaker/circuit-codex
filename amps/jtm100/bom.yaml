@@ -5,8 +5,10 @@ notes: >-
   the sheet's V2 tremolo valve, its transistor, and the depth network that shunts
   the V3A grid node are omitted, so the valve numbering follows the drawing and
   skips V2 (V1 input pair, V3 second stage + cathode follower, V4 phase inverter,
-  V5-V8 the KT66 quartet). The schematic draws one jack per channel; the chassis
-  carries four. Capacitor working voltages are NOT given: this drawing prints
+  V5-V8 the KT66 quartet). The drawing shows four input jacks, two per channel,
+  each with its own 68 kOhm stopper (R1s/R3s channel I into V1A, R2s/R4s channel II
+  into V1B), and hangs each channel's 1 MOhm leak from jack 1's tip (jack 1 = the
+  jack carrying the leak, the lower jack of each pair on the drawing). Capacitor working voltages are NOT given: this drawing prints
   none for the signal-path parts, and the corpus does not invent ratings. The
   drawing's own footnote — "all resistors are half watt unless otherwise stated"
   — supplies the wattage for every resistor the sheet does not letter, including
@@ -16,10 +18,12 @@ notes: >-
   and the capacitor paralleling the channel II mixer, whose value the archived
   scan does not render.
 items:
-  - { ref: R1s, part: "Carbon comp resistor", value: "68 kΩ · ½ W",  role: "Channel I grid stopper (one per jack; four on the chassis)" }
-  - { ref: R2s, part: "Carbon comp resistor", value: "68 kΩ · ½ W",  role: "Channel II grid stopper" }
-  - { ref: RG1, part: "Carbon comp resistor", value: "1 MΩ · ½ W",   role: "Channel I input grid leak" }
-  - { ref: RG2, part: "Carbon comp resistor", value: "1 MΩ · ½ W",   role: "Channel II input grid leak" }
+  - { ref: R1s, part: "Carbon comp resistor", value: "68 kΩ · ½ W",  role: "Channel I grid stopper, jack 1 (V1A)" }
+  - { ref: R3s, part: "Carbon comp resistor", value: "68 kΩ · ½ W",  role: "Channel I grid stopper, jack 2 (V1A)" }
+  - { ref: R2s, part: "Carbon comp resistor", value: "68 kΩ · ½ W",  role: "Channel II grid stopper, jack 1 (V1B)" }
+  - { ref: R4s, part: "Carbon comp resistor", value: "68 kΩ · ½ W",  role: "Channel II grid stopper, jack 2 (V1B)" }
+  - { ref: RG1, part: "Carbon comp resistor", value: "1 MΩ · ½ W",   role: "Channel I input grid leak, from jack 1's tip to ground" }
+  - { ref: RG2, part: "Carbon comp resistor", value: "1 MΩ · ½ W",   role: "Channel II input grid leak, from jack 1's tip to ground" }
   - { ref: RL1, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "V1A plate load" }
   - { ref: RL2, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "V1B plate load" }
   - { ref: RK1, part: "Carbon comp resistor", value: "820 Ω · ½ W",  role: "Shared ECC83 input cathode bias" }

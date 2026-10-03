@@ -29,3 +29,12 @@ winding_labels:
   HT_A: ht_a      # an HT winding end; the D1-D2-D3 stack, and bias
                   # rectifier D7 through RB1 and VR6
   HT_B: ht_b      # the other end; the D4-D5-D6 stack
+
+series_bridge:
+  # Each 1 M input leak hangs from jack 1's tip, jack side of the jack-1 68 k,
+  # as the 1959T drawing draws it (1068x759: channel I pair crop 30,120,250,230,
+  # channel II pair crop 30,230,250,340; jack 1 = the lower jack of each pair,
+  # the one carrying the 1M). The 68 k carries no DC grid current, so the
+  # netlist's RG1 G1A 0 / RG2 G1B 0 run the grid node through it.
+  R1s: "68 k channel I jack-1 grid stopper — netlist node G1A runs through it to the 1 M leak at the jack-1 tip"
+  R2s: "68 k channel II jack-1 grid stopper — netlist node G1B runs through it to the 1 M leak at the jack-1 tip"

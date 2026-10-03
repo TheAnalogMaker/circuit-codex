@@ -40,13 +40,22 @@ MIXLINE_X = 100.0
 V3_Y = 140.0
 
 # ====================== V1 input — two channels, shared cathode ==============
-# Each channel: input jack -> 68k stopper -> grid (1M leak to ground); 100k
-# plate load to B+4; 0.02 uF coupler -> 1M volume -> 270k mixer into the shared
-# V3A grid line. The chassis carries four jacks — two per channel, each with its
-# own 68k — and the drawing gives each channel one grid leak.
-for (y, jack, sref, gref, vtube, plref, cpref, vref, mref, brC) in [
+# Each channel: two input jacks, each through its own 68k stopper to the grid,
+# the 1M leak from jack 1's tip to ground; 100k plate load to B+4; 0.02 uF
+# coupler -> 1M volume -> 270k mixer into the shared V3A grid line. The drawing
+# (1068x759) draws four jacks and four 68 Ks (channel I pair crop
+# 30,120,250,230 into V1A; channel II pair crop 30,230,250,340, its junction
+# running round to V1B's grid, crop 180,80,330,300). Jack 1 here is the jack
+# carrying the 1M at its tip: the LOWER jack of each pair on the drawing. The
+# drawing does not separate the normalling contacts from the tip lines (the
+# upper jack's line drops onto the lower jack's tip line, the lower jack's line
+# drops to the ground line); the labels here do not draw the contacts. Until
+# 2026-10-03 this sheet drew one 68k per channel and hung the 1M on the grid
+# side of it (V1 audit cleanup H). The stoppers carry no DC (sch_map
+# series_bridge), so the netlist sees one node either way.
+for ch, (y, jack, sref, gref, vtube, plref, cpref, vref, mref, brC) in enumerate([
         (60, "CH I IN",  "R1s", "RG1", "V1A", "RL1", "C1", "VR1", "RM1", None),
-        (96, "CH II IN", "R2s", "RG2", "V1B", "RL2", "C2", "VR2", "RM2", "C23")]:
+        (96, "CH II IN", "R2s", "RG2", "V1B", "RL2", "C2", "VR2", "RM2", "C23")]):
     t = s.triode(vtube, "ECC83", 54, y)
     gx = t["g"][0]                                   # 46.38
     s.glabel(jack, 20, y, 180)
@@ -54,9 +63,16 @@ for (y, jack, sref, gref, vtube, plref, cpref, vref, mref, brC) in [
     hl, hr = s.series_h("R", sref, "68k", 33, y)
     s.wire(26, y, hl, y)
     s.wire(hr, y, gx, y)
+    s.glabel(f"{jack} 2", 20, y - 8, 180)
+    s.wire(20, y - 8, 26, y - 8)
+    h2l, h2r = s.series_h("R", f"R{ch + 3}s", "68k", 33, y - 8)
+    s.wire(26, y - 8, h2l, y - 8)
+    s.wire(h2r, y - 8, 42, y - 8)
+    s.wire(42, y - 8, 42, y)
     s.junction(42, y)
-    s.sym("R", gref, "1M", 42, y + 3.81, lx=-9.6, ly=1.2)   # clear of the stopper body
-    s.gnd(42, y + 7.62)
+    s.junction(hl, y)
+    s.sym("R", gref, "1M", hl, y + 3.81, lx=2.2, ly=0.0)
+    s.gnd(hl, y + 7.62)
     s.plate_load(plref, "100k", t["p"], "B+4")
     # plate stub -> coupler -> volume pot -> mixer
     ty = y - 7.62 - 3.48
