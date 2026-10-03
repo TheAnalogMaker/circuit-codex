@@ -11,7 +11,7 @@
 # (GZ34 · 5881 · 5881 · 12AX7 · 12AX7 · 12AY7).
 board:
   rows: 2
-  cols: 43
+  cols: 46
   title: "5F6-A · eyelet board layout"
 
 # This 6.3 V winding is CENTRE-TAPPED and the tap is what the sheet grounds, so
@@ -65,7 +65,7 @@ heaters:
       pin, so the winding floats at B+ and neither leg is grounded.
     sockets:
       V6: { feed: [2], return: [8] }        # GZ34 — pin 8 shared with the cathode
-caption: "Redrawn from the published Fender 5F6-A layout drawing (I-EG) — principal board components and their hookup, in the order the drawing shows them. The tone-stack capacitors mount on the board, as the factory sheet places them — the two 0.02 µF caps sharing their node-B eyelet with the 56 kΩ slope's lead and the 250 pF mica beside them — and the bias supply’s two 8 µF · 150 V cans sit at the board's left end as the factory board mounts them, C15b on the rectifier side of the 15 kΩ and C15 on the −48 V side, their + ends sharing one grounded eyelet; the pots are wired as the sheet draws: the bass pot a rheostat with its wiper strapped into the treble-lug node, the middle pot's wiper fed from the second 0.02 µF, the treble wiper alone carrying the output. The four-jack input network's 68 kΩ grid stoppers and the cathode-follower's 100 kΩ load are drawn schematically or omitted for legibility; the 1 MΩ input grid leaks (RG1 bright, RG2 normal) are placed at their input jacks. The 6.3 V winding is centre-tapped and it is the tap that is grounded, not either leg: the green-yellow lead goes to the chassis and the two greens float about it. The sheet names each socket's heater landings with a short stub marked X rather than routing the leads, and those landings are what the drawing states — all three noval bottles have pins 4+5 strapped for 6.3 V parallel with the centre tap at pin 9 carrying the other leg, and each 5881 takes the two legs on its only heater pins, 2 and 7. The order the two legs reach the sockets in (pilot lamp → the two 5881 outputs → the two 12AX7s → 12AY7 input) follows the sheet's own physical order. The GZ34 rectifier is directly heated from the 5 V winding, the transformer's yellow pair, and off the 6.3 V chain. The power-transformer primary leads land on chassis switches, off the board. The 10 kΩ tail's far end is not grounded: it carries the 27 kΩ feedback resistor, the presence pot's track and the V3B grid's 0.1 µF, as the sheet wires it; the factory board mounts that 27 kΩ beside the 10 kΩ, and it is drawn here beside the speaker jacks. Not a trace or a dimensioned reproduction."
+caption: "Redrawn from the published Fender 5F6-A layout drawing (I-EG) — principal board components and their hookup, in the order the drawing shows them. The tone-stack capacitors mount on the board, as the factory sheet places them — the two 0.02 µF caps sharing their node-B eyelet with the 56 kΩ slope's lead and the 250 pF mica beside them — and the bias supply’s two 8 µF · 150 V cans sit at the board's left end as the factory board mounts them, C15b on the rectifier side of the 15 kΩ and C15 on the −48 V side, their + ends sharing one grounded eyelet; the pots are wired as the sheet draws: the bass pot a rheostat with its wiper strapped into the treble-lug node, the middle pot's wiper fed from the second 0.02 µF, the treble wiper alone carrying the output. The 68 kΩ input grid stoppers stand at the board's right end, where the factory mounts them; the factory draws four, one from each of the four input jacks, and this redraw — like the schematic — carries one jack per channel and so the stopper on that jack. The 1 MΩ input grid leaks (RG1 bright, RG2 normal) are placed at their input jacks, on the jack side of the stoppers. The cathode follower's 100 kΩ load is omitted for legibility. The 6.3 V winding is centre-tapped and it is the tap that is grounded, not either leg: the green-yellow lead goes to the chassis and the two greens float about it. The sheet names each socket's heater landings with a short stub marked X rather than routing the leads, and those landings are what the drawing states — all three noval bottles have pins 4+5 strapped for 6.3 V parallel with the centre tap at pin 9 carrying the other leg, and each 5881 takes the two legs on its only heater pins, 2 and 7. The order the two legs reach the sockets in (pilot lamp → the two 5881 outputs → the two 12AX7s → 12AY7 input) follows the sheet's own physical order. The GZ34 rectifier is directly heated from the 5 V winding, the transformer's yellow pair, and off the 6.3 V chain. The power-transformer primary leads land on chassis switches, off the board. The 10 kΩ tail's far end is not grounded: it carries the 27 kΩ feedback resistor, the presence pot's track and the V3B grid's 0.1 µF, as the sheet wires it; the factory board mounts that 27 kΩ beside the 10 kΩ, and it is drawn here beside the speaker jacks. Not a trace or a dimensioned reproduction."
 source:
   desc: "Fender 'Bassman' Model 5F6-A layout drawing (I-EG), page 1"
   url: "https://el34world.com/charts/Schematics/files/Fender/Fender_bassman_5f6a.pdf"
@@ -135,6 +135,15 @@ parts:
   - { ref: RK1,  a: [0, 40], b: [1, 40] }   # 820 Ω shared 12AY7 cathode (vertical)
   # Polarity: DC sign (source read; no legible printed capacitor + used); lead C3.a: KAY = +2.6 V (op-points); lead C3.b: 0 = +0.0 V (ground); more-positive lead is C3.a.
   - { ref: C3,   a: [0, 41], b: [0, 42] , plus: a }   # 250 µF 12AY7 cathode bypass
+  # input grid stoppers, at the board's right end where the factory mounts them
+  # (layout crop (4950,1350)-(6000,2900)): each channel's 68 kΩs stand from a
+  # top eyelet carrying a jack lead down to the eyelet whose lead goes to the
+  # grid. The factory draws two per channel, one from each of the channel's
+  # two jacks; this redraw, like the schematic and bom.yaml, carries one jack
+  # per channel and so draws the stopper on that jack (jack 1, the one with
+  # the 1 MΩ across it).
+  - { ref: R1s,  a: [0, 43], b: [1, 43] }   # 68k bright stopper: jack (a) -> V1A grid (b)
+  - { ref: R2s,  a: [0, 45], b: [1, 45] }   # 68k normal stopper: jack (a) -> V1B grid (b)
 
 offboard:
   - { id: PT,   kind: xfmr, edge: left,  at: 0.2, label: "Power trans" }
@@ -172,7 +181,7 @@ offboard:
 # the bottom eyelet row; the filter, cathode, bias-bleeder, and pot grounds all
 # tie to it.
 bus:
-  - { from: [1.45, -0.4], to: [1.45, 42.4] }
+  - { from: [1.45, -0.4], to: [1.45, 45.4] }
 
 # Wiring — read lead-by-lead from the published 5F6-A layout drawing (I-EG). The
 # transformer leads carry the colours marked on that drawing. The 6.3 V heater
@@ -241,13 +250,13 @@ runs:
   # OT/plate leads reach the T3 pigtails by rising at staggered columns then a
   # short horizontal stub to each pigtail's row, so no two leads read as one wire
   # where they bunch at the transformer.
-  - { from: V4.pin3, to: T3.blue, via: [[4.3, 2.7], [43.2, 2.7], [43.2, 0.31]] }
-  - { from: V5.pin3, to: T3.brown, via: [[7.7, 2.85], [43, 2.85], [43, 0.41]] }
-  - { from: T3.red, to: C11.a, color: red, via: [[43.4, 0.5], [43.4, 2.6], [2.55, 2.6], [2.55, 0.35]] }
+  - { from: V4.pin3, to: T3.blue, via: [[4.3, 2.7], [45.6, 2.7], [45.6, 0.31]] }
+  - { from: V5.pin3, to: T3.brown, via: [[7.7, 2.85], [45.75, 2.85], [45.75, 0.41]] }
+  - { from: T3.red, to: C11.a, color: red, via: [[45.9, 0.5], [45.9, 2.6], [2.55, 2.6], [2.55, 0.35]] }
   - { from: V4.pin8, to: [1.45, 6.96] }
   - { from: V5.pin8, to: [1.45, 10.96] }
-  - { from: T3.black, to: SPK, via: [[43.6, 0.59], [43.6, 3.05], [16.5, 3.05], [16.5, 2]] }
-  - { from: T3.green, to: SPK, via: [[43.8, 0.69], [43.8, 3.2], [15, 3.2]] }
+  - { from: T3.black, to: SPK, via: [[46.05, 0.59], [46.05, 3.05], [16.5, 3.05], [16.5, 2]] }
+  - { from: T3.green, to: SPK, via: [[46.2, 0.69], [46.2, 3.2], [15, 3.2]] }
   - { from: SPK, to: RNF.a, via: [[15.4, 2.55], [17.9, 2.55]] }
   - { from: RNF.b, to: RT2.b, via: [[19.5, 2.6], [19.5, 3.35], [26, 3.35]] }
 
@@ -311,12 +320,14 @@ runs:
   # --- 12AY7 input pair (V1): bright + normal channels -----------------------
   # Grids approached from above (pin7) / below (pin2, clear of pin3); plates to
   # loads and couplers, cathodes to the shared RK1.a — each shared node fanned.
-  - { from: JB, to: V1.pin7, via: [[34, -0.45], [38.69, -0.45]] }
+  - { from: JB, to: R1s.a, via: [[34, -0.45], [43, -0.45]] }
+  - { from: R1s.b, to: V1.pin7, via: [[43, 1.55], [38.69, 1.55]] }
   - { from: V1.pin6, to: RL1.b, via: [[38.9, 1.62], [37.2, 1.62]] }
   - { from: RL3.a, to: RL1.a, via: [[34.4, 0.5], [35.6, 0.5]] }
   - { from: V1.pin6, to: C1.a, via: [[38, 1.7], [33.4, 1.7], [33.4, 0.3]] }
   - { from: C1.b, to: VR1.lug3, via: [[36, -0.38], [23.566, -0.36]] }
-  - { from: JN, to: V1.pin2, via: [[39.925, -0.55], [39.535, -0.104], [39.5, 2.4]] }
+  - { from: JN, to: R2s.a, via: [[40, -0.6], [45, -0.6]] }
+  - { from: R2s.b, to: V1.pin2, via: [[45, 2.4], [39.5, 2.4]] }
   - { from: V1.pin1, to: RL2.b, via: [[37.9, 1.9], [37.9, 1.5], [39, 1.5]] }
   - { from: RL1.a, to: RL2.a, via: [[36.4, 0.4], [38, 0.4]] }
   - { from: V1.pin1, to: C2.a, via: [[37.6, 2], [37.6, 0.3]] }
@@ -389,6 +400,11 @@ net_map:
     SPK: "0"         # speaker jack — OT-secondary DCR folded into ground (the NFB return reads as ground at DC)
   # Netlist elements with no discrete same-named board part — reported in
   # coverage, never a failure (their nodes still have to check out).
+  # DC-transparent input stoppers the netlist omits (no grid current, no drop):
+  # the jack node and the grid node are one netlist node.
+  series_bridge:
+    R1s: "68 kΩ bright-channel input grid stopper — omitted from netlist (grid == input node at DC)"
+    R2s: "68 kΩ normal-channel input grid stopper — omitted from netlist (grid == input node at DC)"
   netlist_unplaced:
     RCHOKE: "filter choke L1, a chassis part off the board (B+1 → B+2; the layout runs both leads to a grommet); the netlist models its ~130 Ω DCR as RCHOKE"
     RG3:  "V2A grid return — realised through the volume pots (VR1/VR2) and 270k channel mixers to ground, not a discrete board resistor"

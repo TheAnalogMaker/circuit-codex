@@ -20,9 +20,11 @@ for ch, (y, jack, gref, pref, plref, cref, vref, mref) in enumerate([
     s.wire(30.48, y, l, y)
     t = s.triode(pref, "12AY7", 49.53, y)
     s.wire(r, y, t["g"][0], y)
-    s.junction(t["g"][0] - 3.81, y)
-    s.sym("R", gref, "1M", t["g"][0] - 3.81, y + 3.81)
-    s.gnd(t["g"][0] - 3.81, y + 7.62)
+    # the 1M grid leak hangs at the jack, ahead of the 68k stopper, as the
+    # factory schematic and layout both draw it
+    s.junction(28.5, y)
+    s.sym("R", gref, "1M", 28.5, y + 3.81)
+    s.gnd(28.5, y + 7.62)
     s.plate_load(plref, "100k", t["p"], "B+4")
     # coupler -> volume pot -> 270k mixer into the shared V2A grid line
     ty = y - 7.62 - 3.48                # plate stub tee
