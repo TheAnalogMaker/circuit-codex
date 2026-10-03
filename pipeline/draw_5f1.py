@@ -24,10 +24,21 @@ s = Sch()
 # --------------------------------------------------------------- the 5F1
 
 # V1A input stage -----------------------------------------------------
-s.glabel("INPUT", 33, 100, 180)
+s.glabel("INPUT 1", 33, 100, 180)
 s.wire(33, 100, 41.91, 100)
 s.sym("R", "R3", "68k", 45.72, 100, 90, lx=-3.2, ly=-6.0)
 s.wire(49.53, 100, 53.34, 100)
+# Jack 2 has its own 68 K into the same grid node: K-EE draws two 68 Ks, one
+# per jack (schematic page 1306x994, crop 0,290,300,260; layout page 1147x988,
+# crop 800,150,300,300). Jack 2's contact rests on jack 1's tip and jack 1's on
+# ground; the glabel inputs here do not draw the contacts. Until 2026-10-03
+# this sheet drew one shared 68 K (V1 audit, 5f1.md).
+s.glabel("INPUT 2", 33, 92, 180)
+s.wire(33, 92, 41.91, 92)
+s.sym("R", "R2", "68k", 45.72, 92, 90, lx=-3.2, ly=-6.0)
+s.wire(49.53, 92, 51.5, 92)
+s.wire(51.5, 92, 51.5, 100)
+s.junction(51.5, 100)
 s.sym("TRIODE", "V1A", "12AX7", 60.96, 100, lx=6.0, ly=-6.4)
 # 1M grid leak R1 hangs from the INPUT jack's tip node, jack side of the 68k
 # stopper, as the factory sheet draws it (jack 1 tip -> 1 MEG -> ground).

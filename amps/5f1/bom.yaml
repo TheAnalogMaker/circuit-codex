@@ -1,9 +1,10 @@
 # Parts list — reference designators match schematic.kicad_sch exactly.
 # vendor_url fields land with the Phase-1 affiliate/BOM work.
-notes: "Numbering follows the schematic; gaps (R2, R12, …) are intentional. Power transformer and chassis hardware are listed at the end without designators."
+notes: "Numbering follows the schematic; gaps (R12, C2, C4) are intentional. Power transformer and chassis hardware are listed at the end without designators."
 items:
-  - { ref: R1,  part: "Carbon comp resistor", value: "1 MΩ · ½ W",       role: "Input grid leak" }
-  - { ref: R3,  part: "Carbon comp resistor", value: "68 kΩ · ½ W",      role: "Input grid stopper" }
+  - { ref: R1,  part: "Carbon comp resistor", value: "1 MΩ · ½ W",       role: "Input leak, jack 1's tip to ground (the V1A grid returns through R3)" }
+  - { ref: R2,  part: "Carbon comp resistor", value: "68 kΩ · ½ W",      role: "Input 2 grid stopper" }
+  - { ref: R3,  part: "Carbon comp resistor", value: "68 kΩ · ½ W",      role: "Input 1 grid stopper" }
   - { ref: R4,  part: "Carbon comp resistor", value: "1.5 kΩ · ½ W",     role: "V1A cathode bias" }
   - { ref: R5,  part: "Carbon comp resistor", value: "100 kΩ · ½ W",     role: "V1A plate load" }
   - { ref: R6,  part: "Carbon comp resistor", value: "1.5 kΩ · ½ W",     role: "V1B cathode bias" }

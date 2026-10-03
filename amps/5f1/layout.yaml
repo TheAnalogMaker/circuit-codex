@@ -18,7 +18,7 @@ wiring_claim: verified
 
 board:
   rows: 2
-  cols: 20
+  cols: 22
   title: "5F1 · eyelet board layout"
 
 # The heaters here are single-ended rather than a twisted pair, so the automatic
@@ -67,7 +67,7 @@ heaters:
       rectified B+, so neither leg is grounded and it is never on the 6.3 V chain.
     sockets:
       V3: { feed: [2], return: [8] }        # 5Y3GT directly-heated filament
-caption: "Redrawn from the published Fender 5F1 layout drawing (K-EE), page 2 — principal board components and point-to-point wiring, in the order and connections the drawing shows. The drawing's two-jack \"linked input\" pad (two 68k resistors + jack-normalling contacts converging on one node) is represented through the single 68k (R3) already modelled in this entry's parts list and schematic, matching that simplification. The 6.3 V heater supply is single-ended: one green transformer lead is grounded and the other feeds the pilot lamp and both heaters, so each socket carries a green feed and a grounded return (12AX7 pins 4+5 strapped for 6.3 V parallel, centre tap at pin 9 to ground; 6V6GT fed at pin 7, pin 2 to ground). The 5Y3GT keeps its own 5 V filament winding. The pilot lamp is drawn with the single terminal the sheet gives it, the feed passing through on its way to the heaters; its return is the lamp's own shell to the chassis. The chassis-mounted 1 MΩ grid leak (R1) at the input jacks is routed as the published sheet shows it. Not a trace or a dimensioned reproduction."
+caption: "Redrawn from the published Fender 5F1 layout drawing (K-EE), page 2 — principal board components and point-to-point wiring, in the order and connections the drawing shows. Each input jack has its own 68 kΩ (R3 for jack 1, R2 for jack 2), the two joined at the V1A grid, as the drawing shows; the jack-normalling contacts (jack 2's onto jack 1's tip, jack 1's to ground) have no board terminal and are not drawn. The 6.3 V heater supply is single-ended: one green transformer lead is grounded and the other feeds the pilot lamp and both heaters, so each socket carries a green feed and a grounded return (12AX7 pins 4+5 strapped for 6.3 V parallel, centre tap at pin 9 to ground; 6V6GT fed at pin 7, pin 2 to ground). The 5Y3GT keeps its own 5 V filament winding. The pilot lamp is drawn with the single terminal the sheet gives it, the feed passing through on its way to the heaters; its return is the lamp's own shell to the chassis. The chassis-mounted 1 MΩ grid leak (R1) at the input jacks is routed as the published sheet shows it. Not a trace or a dimensioned reproduction."
 source:
   desc: "Fender 'Champ-Amp' Model 5F1 layout drawing (K-EE), page 2"
   url: "https://el34world.com/charts/Schematics/files/Fender/Fender_champ_5f1_schem.pdf"
@@ -99,7 +99,8 @@ parts:
   - { ref: R5,  a: [1, 15], b: [1, 17] }   # 100k V1A plate load (b nudged off R4's column — see notes)
   - { ref: R4,  a: [0, 16], b: [1, 16] }   # 1.5k V1A cathode (vertical leg)
   - { ref: C1,  a: [0, 17], b: [0, 19] }   # 0.02 µF coupler, V1A → volume
-  - { ref: R3,  a: [1, 18], b: [1, 19] }   # 68k input grid stopper
+  - { ref: R3,  a: [1, 18], b: [1, 19] }   # 68k input-1 grid stopper
+  - { ref: R2,  a: [1, 20], b: [1, 21] }   # 68k input-2 grid stopper (K-EE draws two 68 Ks, one per jack)
 
 # Off-board items drawn as labelled stubs around the board, in the drawing's
 # positions: tubes along the bottom, the volume pot and input jacks up top,
@@ -190,11 +191,16 @@ runs:
   - { from: VR1.lug1, to: [1.45, 9.7], via: [[12.356, -0.898]] }                  # volume ground
 
   # --- V1A input stage (12AX7, first half) ----------------------------------
-  - { from: J1, to: R3.a, via: [[16.2, -0.4], [20, -0.35], [20, 1.4]] }   # In 1 → grid stopper
-  - { from: J2, to: R3.a, via: [[19.2, -0.4], [18.2, 0.6]] }              # In 2 → grid stopper (from above)
+  # K-EE (layout page 1147x988, crop 800,150,300,300) gives each jack its own
+  # 68 K, the two joined at the V1A grid; jack 2's contact rests on jack 1's
+  # tip and jack 1's on ground (no board terminal, not drawn). Until
+  # 2026-10-03 this board ran both jacks into one 68 K (V1 audit, 5f1.md).
+  - { from: J1, to: R3.a, via: [[15.8, 0.45], [17.6, 0.8]] }   # In 1 → its grid stopper
+  - { from: J2, to: R2.a, via: [[18.3, -0.85], [20, -0.85]] }              # In 2 → its own grid stopper
   - { from: R1.a, to: R3.a, via: [[19.306, 0.55]] }            # 1 MΩ grid leak → input node
   - { from: R1.b, to: [1.45, 19.3] }                         # grid leak → ground bus
   - { from: R3.b, to: V1.pin7, via: [[19, 1.55]] }       # grid stopper → V1A grid
+  - { from: R2.b, to: V1.pin7, via: [[21, 2.0], [18.4, 2.0]] }   # input-2 stopper → V1A grid
   - { from: V1.pin6, to: R5.a, via: [[16.6, 1.55]] }     # V1A plate → 100k load
   - { from: R5.b, to: C8.a, via: [[15.03, 1.62], [15.2, 2.51], [4, 2.55], [3.33, 0.45]] }  # plate load → B+3 (deep lane, from left)
   - { from: V1.pin6, to: C1.a, via: [[17.5, 1.2]] }      # V1A plate → volume coupler
@@ -250,7 +256,8 @@ net_map:
   # DC-transparent series parts the netlist omits (no DC grid current -> zero
   # drop): their two leads are shorted so the netlist node runs through them.
   series_bridge:
-    R3: "68 k input grid stopper — omitted from netlist (grid == input node at DC)"
+    R3: "68 k input-1 grid stopper — omitted from netlist (grid == jack-1 tip, where the 1 M leak hangs, at DC)"
+    R2: "68 k input-2 grid stopper — omitted from netlist (no DC grid current, no drop)"
   # Netlist elements with no discrete board part — reported in coverage, never a
   # failure (their nodes still have to check out).
   netlist_unplaced:
