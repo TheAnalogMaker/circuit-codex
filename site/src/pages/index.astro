@@ -1,6 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
 import { corpusByFamily, corpusStats, displayId, datasetJsonLd, GITHUB } from '../lib/corpus.js';
+import { reviewPending } from '../lib/verification.js';
 // The corpus grid is grouped by amp line — the family that documents each circuit
 // in the history tier, oldest cosmetic era first. Grouping and order both come from
 // the data (see corpusByFamily), so a new circuit files itself under the right
@@ -122,6 +123,7 @@ const itemList = {
                 {a.meta.verification?.status === 'verified'
                   ? <span class="chip v">verified</span>
                   : <span class="chip">draft</span>}
+                {reviewPending(a) && <span class="chip" title="Changes since the verified date are awaiting maintainer re-review">re-review pending</span>}
               </div>
             </a>
           ))}

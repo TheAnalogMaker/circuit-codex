@@ -1,7 +1,7 @@
 ---
 import Base from '../../layouts/Base.astro';
 import VerificationPanel from '../../components/VerificationPanel.astro';
-import { loadVerificationReports, verificationRows } from '../../lib/verification.js';
+import { loadVerificationReports, reviewPending, REVIEW_PENDING_NOTE, verificationRows } from '../../lib/verification.js';
 import { ampCorrections, archiveRevision } from '../../lib/revisions.js';
 import { loadCorpus, displayId, ampMetaDescription, layoutAlt, layoutMinWidth, topologyHref, circuitFamilyMap, loadHistory, TOPOLOGY_DIMENSIONS, loadLoadlineStages, toneStackPresetIds, ampOpPoints, designatorScheme, schematicNetsVerified, listPhrase, correctionUrl, GITHUB } from '../../lib/corpus.js';
 
@@ -34,6 +34,10 @@ const schematicNetsChecked = schematicNetsVerified(amp);
 // scaled down past legibility. See layoutMinWidth() in lib/corpus.js.
 const layoutFloor = layoutMinWidth(amp);
 const isVerified = v.status === 'verified';
+// A verified circuit whose facts have moved since the maintainer's stamp (or
+// that has no stamp yet) keeps its dated badge and says the rest plainly.
+// See reviewPending() in lib/verification.js.
+const awaitingReview = reviewPending(amp);
 // --- lineage (explore) — related circuits documented in this amp's meta.yaml,
 //     limited to those present in the corpus so links never 404. Rendered as one
 //     row in the metadata panel below. Delimited for hand-merge.
@@ -207,6 +211,7 @@ const styleNoBreak = String(m.name_style).replace(/-/g, '‑');
     {v.status === 'verified'
       ? <span class="chip ok">✓ verified {vDate}</span>
       : <span class="chip">draft</span>}
+    {awaitingReview && <span class="review-note">· {REVIEW_PENDING_NOTE}</span>}
     <nav class="jump" aria-label="On this page">
       {amp.hasSchematic && <a href="#schematic">Schematic</a>}
       {amp.hasLayout && <a href="#layout">Layout</a>}
@@ -685,6 +690,7 @@ const styleNoBreak = String(m.name_style).replace(/-/g, '‑');
 
 <style>
   .amp-head{display:flex;align-items:baseline;gap:16px;flex-wrap:wrap;padding:56px 0 8px}
+  .review-note{color:var(--muted);font-size:13px;margin-left:-8px}
   .jump{flex-basis:100%;display:flex;flex-wrap:wrap;gap:6px 14px;margin:4px 0 0;
     font-family:var(--disp);text-transform:uppercase;letter-spacing:.12em;font-size:11.5px}
   .jump a{color:var(--muted)}

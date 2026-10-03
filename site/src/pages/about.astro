@@ -124,6 +124,15 @@ const dataset = datasetJsonLd(Astro.site);
       <span class="chip">chart disputed</span> with the arithmetic shown, never silently
       forced to fit. Circuits that haven't completed the chain carry a
       <span class="chip">draft</span> badge.</p>
+    <p>A badge is a review of the circuit as it stood on its date. When the maintainer
+      grants or re-confirms it, a fingerprint of the circuit's facts — netlist, chart
+      values and tolerances, disputed flags, parts list, and the connections both drawings
+      make — is recorded with it. If those facts change afterwards (a corrected value, a
+      redrawn connection), the badge keeps its date and the page adds
+      <em>changes since then are awaiting maintainer re-review</em>
+      (<span class="chip">re-review pending</span> on the circuit cards) until the
+      maintainer reviews it again. Comments, layout routing and lettering are not facts and
+      never trigger it. Only the maintainer records a review.</p>
 
     {/* The drawing checks are deliberately NOT items in the list above: that list
         is the chain that earns the badge, and the schematic gate is independent

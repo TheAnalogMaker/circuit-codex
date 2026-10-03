@@ -9,12 +9,29 @@ const ROOT = path.resolve(process.cwd(), '..');
 export const parseReport = (text) => yaml.load(text, { schema: yaml.FAILSAFE_SCHEMA });
 let reports;
 export function loadVerificationReports() {
-  if (!reports) reports = Object.fromEntries(['sheet-board', 'heaters', 'electrolytics'].map((name) => {
+  if (!reports) reports = Object.fromEntries(['sheet-board', 'heaters', 'electrolytics', 'verification-freshness'].map((name) => {
     const file = path.join(ROOT, 'reference', `${name}.yaml`);
     return [name, fs.existsSync(file) ? parseReport(fs.readFileSync(file, 'utf8')) : null];
   }));
   return reports;
 }
+
+// reference/verification-freshness.yaml (pipeline/verification_freshness.py)
+// lists every verified circuit whose facts - netlist, chart values, BOM, the
+// two drawings' nets - no longer match what the maintainer stamped at review,
+// or that carries no stamp. Such a circuit is still verified, on its date; the
+// page adds that the changes since then await re-review. Presence by id is the
+// whole contract: the file's values are never decoded here.
+export function reviewPending(amp, reports = loadVerificationReports()) {
+  return amp.meta?.verification?.status === 'verified'
+    && Boolean(reports['verification-freshness']?.amps?.[amp.id]);
+}
+export const REVIEW_PENDING_NOTE = 'changes since then are awaiting maintainer re-review';
+const isoDate = (value) => {
+  if (!value) return null;
+  const d = value instanceof Date ? value : new Date(value);
+  return Number.isNaN(d.getTime()) ? String(value) : d.toISOString().slice(0, 10);
+};
 
 const yes = (value) => value === true || value === 'true';
 const count = (value) => value !== undefined && value !== null && /^\d+$/.test(String(value))
@@ -41,7 +58,10 @@ export function verificationRows(amp, { schematicChecked = false, opRows = [], r
   else if (gated.length) dc = row('dc', 'DC operating point',
     amp.meta?.verification?.status === 'verified' ? 'Verified' : 'Within target',
     `${counted(gated.length, 'reference node')} ${gated.length === 1 ? 'is' : 'are'} within tolerance.`
-      + (amp.meta?.verification?.status === 'verified' ? ' Maintainer verification is recorded.' : ' The circuit remains a draft awaiting maintainer review.'), [], 'checked');
+      + (amp.meta?.verification?.status !== 'verified' ? ' The circuit remains a draft awaiting maintainer review.'
+        : reviewPending(amp, reports) ? ` Maintainer verification is recorded${isoDate(amp.meta.verification.date) ? ` for ${isoDate(amp.meta.verification.date)}` : ''}; ${REVIEW_PENDING_NOTE}.`
+          : ' Maintainer verification is recorded.'), [], 'checked');
+  if (reviewPending(amp, reports)) dc.details.push('The circuit\'s facts (netlist, reference voltages, parts list and both drawings\' connections) have changed since the maintainer\'s review, or no review fingerprint is on record yet. The badge stands on its date until the maintainer re-reviews.');
   if (disputed) dc.details.push(`${counted(disputed, 'disputed node')} ${disputed === 1 ? 'is' : 'are'} excluded from the tolerance result; ${disputed === 1 ? 'its' : 'their'} reasoning is listed in the operating-point table.`);
   dc.details.push('This compares simulated DC conditions with the cited reference. It does not test sound, physical construction or every part of the circuit.');
   result.push(dc);

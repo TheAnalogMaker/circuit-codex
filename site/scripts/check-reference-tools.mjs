@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { parseReport, verificationRows, loadVerificationReports } from '../src/lib/verification.js';
+import { parseReport, verificationRows, loadVerificationReports, reviewPending } from '../src/lib/verification.js';
 import { loadCorpus, ampOpPoints, schematicNetsVerified } from '../src/lib/corpus.js';
 import { comparisonSelection, comparisonUrl, difference, fieldDifference } from '../src/lib/comparison-state.js';
 import { comparisonCircuits } from '../src/lib/comparison.js';
@@ -50,6 +50,24 @@ test('voltage mismatch and missing simulation override a recorded verified badge
   assert.equal(status(verificationRows({...amp,meta:{verification:{status:'draft'}}}, {opRows:[{...current,within:true}]}), 'dc'), 'Within target');
   for (const n of [{gated:true,sim:42}, {...current,sim:NaN}, {...current,within:undefined}, {...current,chart:undefined}]) {
     assert.equal(status(verificationRows(amp, {opRows:[n]}), 'dc'), 'Incomplete');
+  }
+});
+test('a verified circuit on the re-review worklist keeps its badge and says the review is pending', () => {
+  const ok = { gated:true, disputed:false, chart:100, sim:101, within:true };
+  const listed = { 'verification-freshness': { amps: { [amp.id]: { reason: 'never stamped' } } } };
+  const pending = verificationRows(amp, { opRows:[ok], reports:listed }).find((r) => r.id === 'dc');
+  assert.equal(pending.status, 'Verified');
+  assert.match(pending.summary, /awaiting maintainer re-review/);
+  const current = verificationRows(amp, { opRows:[ok], reports:{ 'verification-freshness': { amps: {} } } }).find((r) => r.id === 'dc');
+  assert.doesNotMatch(current.summary, /re-review/);
+  assert.equal(reviewPending({...amp, meta:{verification:{status:'draft'}}}, listed), false);
+  // the committed worklist: every listed id is a verified circuit, and each is pending
+  const published = loadVerificationReports()['verification-freshness'];
+  assert.ok(published && published.amps);
+  for (const id of Object.keys(published.amps)) {
+    const a = amps.find((x) => x.id === id);
+    assert.ok(a && a.meta.verification?.status === 'verified', id);
+    assert.ok(reviewPending(a), id);
   }
 });
 test('comparison URLs round-trip, reject unknown and duplicate circuits, preserve missing data', () => {

@@ -1,5 +1,5 @@
 import { loadCorpus, displayId, circuitFamilyMap, loadLoadlineStages, toneStackPresetIds, ampOpPoints, schematicNetsVerified, TOPOLOGY_DIMENSIONS } from './corpus.js';
-import { loadVerificationReports, verificationRows } from './verification.js';
+import { loadVerificationReports, reviewPending, verificationRows } from './verification.js';
 
 export function comparisonCircuits() {
   const topology = (key, meta) => {
@@ -29,7 +29,8 @@ export function comparisonCircuits() {
         bias: topology('bias', m),
         inverter: topology('phase_inverter', m),
         tone: topology('tone_stack', m),
-        status: m.verification?.status === 'verified' ? 'Verified' : 'Draft',
+        status: m.verification?.status === 'verified'
+          ? (reviewPending(amp, reports) ? 'Verified, re-review pending' : 'Verified') : 'Draft',
         reference: amp.voltages?.source || null,
         ...Object.fromEntries(checks.map((r) => [`check-${r.id}`, `${r.status} — ${r.summary}`])),
       },
