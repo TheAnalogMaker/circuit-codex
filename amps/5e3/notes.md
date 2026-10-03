@@ -1,7 +1,7 @@
 # 5E3 — Tweed Deluxe-style
 
-The most-built amp circuit in DIY history: two channels into a 12AY7, a 12AX7
-second stage feeding the famous interactive volume/tone network, a cathodyne
+The most-built amp circuit in DIY history: two channels into a 12AY7, the
+famous interactive volume/tone network feeding a 12AX7 second stage, a cathodyne
 phase inverter, and a cathode-biased 6V6GT push-pull pair with no negative
 feedback — the recipe for tweed compression and breakup. Produced 1955–1960.
 Its direct ancestor is the wide-panel 5D3, which shares this tube complement and
@@ -9,12 +9,37 @@ output stage but inverts phase with a self-balancing paraphase instead.
 
 ## Circuit walkthrough (short form)
 
-Two channels (each: 1M grid leak, 68k stoppers) → **V1** 12AY7 (100k plates,
-shared 820 Ω bypassed cathode) → 0.1 µF couplers → interactive 1M volume pots
-(+ single tone control: 500 pF/0.005 µF network) → **V2A** 12AX7 (100k plate,
-1.5k bypassed cathode) → tone-cap coupling → **V2B cathodyne phase inverter**
-→ 0.1 µF couplers → **V3/V4** 6V6GT pair (220k grid leaks, 1.5k stoppers,
-shared 250 Ω 5W bypassed cathode) → 8 kΩ : 8 Ω output transformer.
+Two channels, each with two input jacks (a 68k stopper per jack, the
+channel's 1M leak at jack 1's tip) → **V1** 12AY7 (100k plates, shared 820 Ω
+bypassed cathode) → 0.1 µF couplers into the **wipers** of the two 1M volume
+pots, whose grounded ends and joined grid ends make the interactive pair →
+**V2A** 12AX7 (100k plate, 1.5k bypassed cathode) → coupling cap (value not
+legible on the drawing) → **V2B cathodyne phase inverter** → 0.1 µF couplers →
+**V3/V4** 6V6GT pair (220k grid leaks, 1.5k stoppers, shared 250 Ω 5W
+bypassed cathode) → 8 kΩ : 8 Ω output transformer.
+
+## The volume and tone network
+
+Fender wired the 5E3's volumes backwards from the usual way, and the single
+tone knob only makes sense once you see it. Each 0.1 µF coupler lands on its
+volume's wiper. One end of each track goes to ground, and the other ends of
+both tracks are joined and run to the V2A grid. Turning a channel up moves its
+wiper toward the grid end. Because the two tracks share that grid line, each
+volume loads the other channel. The tone pot hangs between the instrument
+channel's wiper node and ground: 500 pF from that node to one end of the tone
+track, and 0.005 µF from the other end to ground. Its wiper sits on the shared
+grid line. It is a treble/cut blend that takes its signal from the instrument
+channel's coupler and feeds the second stage's input. Both pages of the F-EE
+drawing show it this way. Until the 2026-10-03 source audit, the corpus drew
+the conventional wiring instead: couplers on the pot ends, the grid off the
+wipers, and the tone network between the V2A plate and the phase-inverter
+grid.
+
+The coupling cap from V2A's plate to the cathodyne grid is drawn on both pages
+but its value cannot be read. The schematic gives none, and the layout box
+reads ".02 .1FD. 600 VOLTS", an overwritten revision whose digit could be
+either .02 or .1 µF. The parts list leaves it as "value not legible" rather
+than guess. It is DC-open, so the simulation does not need it.
 
 Power: 325-0-325 PT → 5Y3GT → three 16 µF/450 V nodes separated by **5,000 Ω**
 and **22k** droppers: B+1 (output plates) → B+2 (screens) → B+3 (preamp).
@@ -23,8 +48,8 @@ and **22k** droppers: B+1 (output plates) → B+2 (screens) → B+3 (preamp).
 
 The 5E3's phase inverter uses a wiring detail that's easy to miss: V2B's
 cathode runs through **1.5k** to a junction, then **56k** to ground, and the
-**1M grid leak returns to that junction** rather than to ground — the tone
-network's capacitors AC-couple the grid. The lower output coupler is taken off
+**1M grid leak returns to that junction** rather than to ground, and the
+coupling cap from V2A's plate AC-couples the grid. The lower output coupler is taken off
 the cathode itself, at the top of the 1.5k, not off the junction: both the
 schematic and the layout page draw it there. The stage therefore biases itself:
 simulation puts the cathode at 45.8 V and the junction at 44.6 V — a clean

@@ -972,9 +972,11 @@ function tubeSmallSignal(tubeId) {
 //          single-knob network; it would need its own model.
 //   5d3    single-knob, but with a 500 pF treble path alongside the cut capacitor.
 //   6g3    two single-knob controls, each with the same extra treble path.
-//   5e3    single-knob (500 pF / 0.005 µF), but the control sits inside the amp's
-//          interactive volume network rather than being fed from one stage, so the
-//          single-resistance drive model this solver assumes does not describe it.
+//   5e3    single-knob blend inside the interactive volume pair: the volumes are fed
+//          on their wipers, the tone pot runs from the instrument volume's wiper
+//          through 500 pF and to ground through 0.005 µF, and its wiper sits on the
+//          V2A grid line the volumes' end lugs feed (F-EE, both pages; V1 audit
+//          2026-10-03). No single-stage drive, so this solver's model does not apply.
 //   5f10   single-knob blend, not a cut: the tone pot's wiper sits on the volume's
 //          input, one end bleeds to ground through 0.005 µF and the other reaches
 //          the volume wiper through 500 pF (F-EF, both pages; V1 audit 2026-10-03).

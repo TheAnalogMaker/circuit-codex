@@ -402,15 +402,16 @@ const LIBURL = `${GITHUB}/blob/main/pipeline/schematic_lib.py`;
       <a href="/amps/5e3/">5E3</a> is a textbook example of the pattern above — here is how it reads,
       part by part, straight off the schematic.</p>
     <div class="walk">
-      <p>The instrument jack feeds a <strong>68 kΩ</strong> grid stopper into the grid of
-        <strong>V1A</strong>, one half of the 12AY7 twin triode. A <strong>1 MΩ</strong> grid-leak
-        resistor holds that grid at ground. From the cathode, a single <strong>820 Ω</strong>
+      <p>The first instrument jack feeds a <strong>68 kΩ</strong> grid stopper into the grid of
+        <strong>V1A</strong>, one half of the 12AY7 twin triode. A <strong>1 MΩ</strong> leak from
+        that jack&rsquo;s tip to ground holds the grid at ground through the stopper (the second
+        jack has its own 68 kΩ into the same grid). From the cathode, a single <strong>820 Ω</strong>
         resistor — shared with the other channel&rsquo;s triode and bypassed by a
         <strong>25 µF · 25 V</strong> capacitor — sets the bias. The plate climbs through a
         <strong>100 kΩ</strong> load resistor to the <strong>B+3</strong> preamp rail, where the
         archive&rsquo;s published measurements put it near <strong>140 V</strong>. And a
         <strong>0.1 µF · 400 V</strong> coupling capacitor carries the amplified signal off the plate
-        to the 1 MΩ volume control and the stage that follows.</p>
+        to the wiper of the 1 MΩ volume control and on to the stage that follows.</p>
       <p>That is the same six ideas — coupling in, grid leak, cathode RC, the tube, plate load,
         coupling out — with this circuit&rsquo;s actual values filled in. Open the
         <a href="/amps/5e3/">5E3&rsquo;s interactive schematic</a> and the whole amplifier is this

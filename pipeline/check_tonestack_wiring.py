@@ -156,9 +156,12 @@ UNCHECKED_NETWORKS = {
     # (trebleCutElements) but not the blend, and the two are different networks.
     "5d3": "Single-knob blend: the 1 M tone pot divides between a 500 pF treble path "
            "and a 0.005 uF cut path, with its wiper feeding the next grid. No lab model.",
-    "5e3": "Single-knob blend as the 5D3 draws it, and the control additionally sits "
-           "inside this amp's interactive volume network rather than being fed from one "
-           "stage, so even the drive model the solver assumes does not describe it.",
+    "5e3": "Single-knob blend inside the interactive volume pair: the 1 M tone pot "
+           "runs from the instrument volume's wiper (the C1 coupler node) through 500 pF "
+           "to one end and through 0.005 uF to ground from the other, with its wiper on "
+           "the V2A grid line the two volumes' end lugs feed (the volumes are fed on their "
+           "wipers). Drawn plate-to-PI-grid until the 2026-10-03 V1 audit found both "
+           "drawings had it wrong (F-EE, both pages). No lab model.",
     "5g9": "Single-knob blend as the 5D3 draws it (500 pF treble path, 0.005 uF cut), "
            "wiper on the mixing node. No lab model.",
     "6g3:normal": "Single-knob blend, one per channel — the 6G3 draws the 5D3 network "
