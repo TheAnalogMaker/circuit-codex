@@ -1,16 +1,21 @@
 # Board layout — redrawn from the published Fender 5G9 'Tremolux' drawing
-# (B-EI), page 2, which is a factory LAYOUT sheet in its own right. Part refs
+# (B-EI), whose factory LAYOUT page is page 1 of the EL34World copy cited under
+# `source:` (page 2 of the Schematic Heaven copy). Part refs
 # are the shared key into bom.yaml; the renderer reads each value and part type
 # from there. A legible, schematic-style redraw of the board's principal
 # components in the order the drawing shows them — never a trace or a
 # dimensioned reproduction.
 #
-# The board reads left→right as the sheet's does: the bias divider and its two
+# The board reads left→right: the bias divider and its two
 # 8 µF cans with the 10 kΩ · 1 W dropper at the left end, then the output
 # stage's screen resistors, grid leaks and couplers, then the phase inverter,
 # then the tremolo, and the two channel input stages at the right — matching the
 # tube row below it (5U4GB · 6V6GT · 6V6GT · 12AX7 inverter · 12AX7 tremolo ·
-# 12AY7). The panel controls are drawn beside the parts they serve rather than
+# 12AY7). The factory layout differs (B-EI layout page, native 6518 × 4128):
+# the tremolo group sits next to the bias supply and its 12AX7 is the socket
+# beside the output pair, ahead of the inverter's, and the screen resistors and
+# the tremolo's 100 kΩ plate load mount on the sockets — the caption says so.
+# The panel controls are drawn beside the parts they serve rather than
 # in the sheet's own left-to-right knob order (Depth · Speed · Tone · Inst. Vol.
 # · Mic. Vol.), so their leads stay readable — the house practice on every
 # layout in this corpus.
@@ -26,7 +31,7 @@ board:
   rows: 2
   cols: 90
   title: "5G9 · eyelet board layout"
-caption: "Redrawn from the published Fender 5G9 'Tremolux' drawing (B-EI), page 2 — the factory layout sheet — showing the principal board components and their hookup in the order that drawing shows them. Off the board: the four 20 µF · 500 V filter cans sit in the condenser box on the back of the chassis and the bias rectifier in its own small housing, both drawn here as stubs so every supply rail stays traceable; the tone capacitors and the Speed control's 100 kΩ end resistor mount at their pots. The four 68 kΩ grid stoppers sit on the board's right end, one pair per channel, each pair running from that channel's two jacks to one eyelet that feeds the 12AY7 grid; only the two 1 MΩ input grid leaks mount at the jacks. The bias rectifier takes a lead of its own from the power transformer — the tap between an HT end and the centre tap — straight to its \"+\" terminal. In the tremolo bottle the oscillator sits on pins 1–3 and the cathode follower on pins 6–8, with the 100 kΩ plate load between the two plates and the follower's grid strapped to the oscillator's plate. The 6.3 V heater chain (green twisted pair, PT → pilot lamp → the two 6V6GT output tubes → the three small bottles) is drawn in the conventional daisy order: the sheet annotates it \"to all 6.3 volt heaters and pilot light\" rather than routing it. The 5U4GB is off that chain — it takes the 5 V winding. Not a trace or a dimensioned reproduction."
+caption: "Redrawn from the published Fender 5G9 'Tremolux' layout drawing (B-EI; page 1 of the EL34World copy, page 2 of Schematic Heaven's) — the principal board components and their hookup. Deviations from that drawing, stated plainly: it mounts each 6V6GT's 470 Ω · 1 W screen resistor on the valve socket (pin 4 to the +368 V tie on pin 6) and the tremolo's 100 kΩ plate load across its 12AX7's two plates at the socket, and it seats the tremolo group at the board's left end beside the bias supply, its 12AX7 the socket next to the output pair with the phase inverter's after it; this redraw draws those three resistors on the board and the phase inverter's parts and socket ahead of the tremolo's. Off the board: the four 20 µF · 500 V filter cans sit in the condenser box on the back of the chassis and the bias rectifier in its own small housing, both drawn here as stubs so every supply rail stays traceable; the tone capacitors and the Speed control's 100 kΩ end resistor mount at their pots. The four 68 kΩ grid stoppers sit on the board's right end, one pair per channel, each pair running from that channel's two jacks to one eyelet that feeds the 12AY7 grid; only the two 1 MΩ input grid leaks mount at the jacks. The bias rectifier takes a lead of its own from the power transformer — the tap between an HT end and the centre tap — straight to its \"+\" terminal. In the tremolo bottle the oscillator sits on pins 1–3 and the cathode follower on pins 6–8, with the 100 kΩ plate load between the two plates and the follower's grid strapped to the oscillator's plate. The 6.3 V heater chain (green twisted pair, PT → pilot lamp → the two 6V6GT output tubes → the three small bottles) is drawn in the conventional daisy order: the sheet annotates it \"to all 6.3 volt heaters and pilot light\" rather than routing it. The 5U4GB is off that chain — it takes the 5 V winding. Not a trace or a dimensioned reproduction."
 source:
   desc: "Fender 'Tremolux' Model 5G9 drawing (B-EI) — the factory LAYOUT page (page 1 of the el34world copy; the schematic page is the one redrawn in this amp's schematic.kicad_sch). This board order is read from that layout page, not derived from the schematic. Read at its native 6518 x 4128 raster (701 ppi) via the Wayback Machine, el34world.com being unreachable"
   url: "https://web.archive.org/web/20150316142123/http://el34world.com/charts/Schematics/files/fender/Fender_TREMOLUX_5G9.pdf"
