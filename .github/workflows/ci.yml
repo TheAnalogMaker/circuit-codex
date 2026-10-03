@@ -130,12 +130,12 @@ jobs:
       - run: python pipeline/verify_sheet_vs_board.py
       # A verified badge is a review of the facts as they stood that day. Each
       # verified amp's facts (netlist, chart values/tolerances/disputes, BOM,
-      # and the sheet's and board's net partitions - no comments, routes or
-      # fonts) hash to a fingerprint the maintainer stamps into meta.yaml with
+      # the sheet's and board's net partitions, the board's electrolytic '+'
+      # leads and heater declarations - no comments, routes or fonts) hash to a fingerprint the maintainer stamps into meta.yaml with
       # pipeline/stamp_verification.py. reference/verification-freshness.yaml
       # lists every verified amp whose facts no longer match its stamp, and the
       # site marks those "re-review pending". Pending never fails CI; a stale
-      # worklist does. The self-test proves a value, net or dispute change flips
+      # worklist does. The self-test proves a value, net, dispute, '+' or heater change flips
       # the fingerprint and a re-route, font or comment change does not.
       - run: python pipeline/verification_freshness.py --selftest
       - run: python pipeline/verification_freshness.py --check

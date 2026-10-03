@@ -142,8 +142,9 @@ python3 pipeline/verification_freshness.py --selftest && \
 python3 pipeline/verification_freshness.py   # has a verified circuit's facts moved
                                   #   since the maintainer's review? Hashes the
                                   #   netlist, chart values/tolerances/disputes,
-                                  #   BOM and both drawings' net partitions (no
-                                  #   comments, routes or fonts) and gates the
+                                  #   BOM, both drawings' net partitions, the
+                                  #   board's electrolytic '+' leads and heater
+                                  #   declarations (no comments, routes or fonts) and gates the
                                   #   worklist reference/verification-freshness.yaml
                                   #   for drift (regenerate with --export). A
                                   #   pending amp never fails it. The stamp,

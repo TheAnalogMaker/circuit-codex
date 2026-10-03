@@ -61,7 +61,7 @@ export function verificationRows(amp, { schematicChecked = false, opRows = [], r
       + (amp.meta?.verification?.status !== 'verified' ? ' The circuit remains a draft awaiting maintainer review.'
         : reviewPending(amp, reports) ? ` Maintainer verification is recorded${isoDate(amp.meta.verification.date) ? ` for ${isoDate(amp.meta.verification.date)}` : ''}; ${REVIEW_PENDING_NOTE}.`
           : ' Maintainer verification is recorded.'), [], 'checked');
-  if (reviewPending(amp, reports)) dc.details.push('The circuit\'s facts (netlist, reference voltages, parts list and both drawings\' connections) have changed since the maintainer\'s review, or no review fingerprint is on record yet. The badge stands on its date until the maintainer re-reviews.');
+  if (reviewPending(amp, reports)) dc.details.push('The circuit\'s facts (netlist, reference voltages, parts list, both drawings\' connections, capacitor polarity marks and heater declarations) have changed since the maintainer\'s review, or no review fingerprint is on record yet. The badge stands on its date until the maintainer re-reviews.');
   if (disputed) dc.details.push(`${counted(disputed, 'disputed node')} ${disputed === 1 ? 'is' : 'are'} excluded from the tolerance result; ${disputed === 1 ? 'its' : 'their'} reasoning is listed in the operating-point table.`);
   dc.details.push('This compares simulated DC conditions with the cited reference. It does not test sound, physical construction or every part of the circuit.');
   result.push(dc);
