@@ -220,12 +220,17 @@ amps:
       why: 'C5.a: on KFB, which has no simulated volts'
   'aa764-vibro':
     counts:
-      cans: 6
+      cans: 7
       right: 5
-      undecided: 1
+      undecided: 2
       unmarked: 0
       wrong: 0
     not_decided:
+    - leads: '''+'' lead C18.a: reaches only ground, through R23; other lead C18.b: 0 = +0.0 V (ground)'
+      plus_drawn_at: a
+      ref: C18
+      verdict: undecided
+      why: 'C18.a: reaches only ground, through R23'
     - leads: '''+'' lead C5.b: K1B = +1.7 V (op-points); other lead C5.a: on KFB, which has no simulated
         volts'
       plus_drawn_at: b
@@ -384,8 +389,8 @@ amps:
       unmarked: 0
       wrong: 0
 summary:
-  cans: 269
+  cans: 270
   right: 253
-  undecided: 16
+  undecided: 17
   unmarked: 0
   wrong: 0
