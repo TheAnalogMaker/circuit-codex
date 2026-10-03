@@ -64,7 +64,12 @@ s.wire(54, 107.62, 54, 109)
 s.shunt_rc("RK1", "1.5k", "C1", "25u", 54, 109)
 
 # ---- volume + tone ------------------------------------------------------
-# 6AT6 plate -> .02u -> volume(1M); bright .0005u across it; tone(1M)+.005u
+# 6AT6 plate -> .02u -> volume(1M) top = node A. The F-EF sheet (and its
+# layout page, lug for lug) hangs the TONE pot's WIPER on node A: one end of
+# the tone track bleeds to ground through .005u, the other reaches the volume
+# WIPER (node W, the driver grid) through .0005u — a single-knob blend between
+# a cut path and a treble path, not a bright cap across the volume plus a
+# separate cut rheostat (the drawing until 2026-10-03; V1 audit, 5f10.md).
 tee = 100 - 7.62 - 3.48        # plate-stub tee y
 s.wire(54, tee, 63, tee)
 s.junction(54, tee)
@@ -73,27 +78,25 @@ s.wire(63, tee, cl, tee)
 s.wire(cr, tee, 74, tee)       # node A (volume top)
 s.sym("POT", "VR1", "1M vol", 74, tee + 3.81)
 s.gnd(74, tee + 7.62)          # cold lug: pot centre + 3.81, not + 7.62
-# bright cap across the volume: node A -> wiper
-s.wire(74, tee, 74, tee - 4)
-s.wire(74, tee - 4, 82, tee - 4)
-bl, br = s.series_h("C", "C3", "500p", 86, tee - 4)
-s.wire(82, tee - 4, bl, tee - 4)
-s.wire(br, tee - 4, 92, tee - 4)
-s.wire(92, tee - 4, 92, tee + 3.81)
-s.wire(79.08, tee + 3.81, 92, tee + 3.81)   # wiper to bright-cap return = node W
+s.wire(79.08, tee + 3.81, 92, tee + 3.81)   # volume wiper = node W
 s.junction(79.08, tee + 3.81)
-# tone: node A -> .005u -> tone pot(1M) -> gnd  (treble bleed)
-s.wire(74, tee, 74, tee - 8)
+# tone pot: wiper -> node A (up and over), pin 1 -> .005u -> ground,
+# pin 3 -> .0005u -> node W
+s.sym("POT", "VR2", "1M tone", 96, tee - 6, lx=-12.5)
+s.wire(101.08, tee - 6, 104, tee - 6)
+s.wire(104, tee - 6, 104, tee - 22)
+s.wire(104, tee - 22, 74, tee - 22)
+s.wire(74, tee - 22, 74, tee)
 s.junction(74, tee)
-tl, tr = s.series_h("C", "C4", ".005u", 100, tee - 8)
-s.wire(74, tee - 8, tl, tee - 8)
-s.wire(tr, tee - 8, 106, tee - 8)
-s.sym("POT", "VR2", "1M tone", 106, tee - 8 + 3.81)
-s.gnd(106, tee - 8 + 7.62)     # cold lug: pot centre + 3.81, not + 7.62
-s.wire(111.08, tee - 8 + 3.81, 111.08, tee - 8)   # wiper tied to top (rheostat)
-s.wire(111.08, tee - 8, 106, tee - 8)
+s.sym("C", "C4", ".005u", 96, tee - 13.62)
+s.gnd(96, tee - 17.43, rot=90)
+s.sym("C", "C3", "500p", 96, tee + 1.62)
+s.wire(96, tee + 5.43, 96, tee + 8)
+s.wire(96, tee + 8, 92, tee + 8)
+s.junction(92, tee + 8)
 # node W -> 12AX7 driver grid
-s.wire(92, tee + 3.81, 92, 110)
+s.wire(92, tee + 3.81, 92, tee + 8)
+s.wire(92, tee + 8, 92, 110)
 s.wire(92, 110, 106.38, 110)
 
 # ---- V2A 12AX7 driver ---------------------------------------------------
@@ -225,7 +228,7 @@ s.gnd(124.46, 185.42)
 # centre tap, through the 6800 INTO the selenium rectifier's "+" end, with the
 # 56K bleeder and the two 25 uF cans on the -27 V side. Until 2026-09-10 this
 # row hung the rectifier on a 5Y3GT plate (HT_B) and put the resistor after it.
-s.text("Bias supply — HT tap -> 6.8k -> selenium rectifier -> -27 V (25u x2)", 138, 160, 1.3)
+s.text("Bias supply — HT tap -> 6.8k -> selenium rectifier -> -27 V (25u)", 138, 160, 1.3)
 s.glabel("HT_TAP", 138, 168, 180)
 l, r = s.series_h("R", "RB1", "6.8k", 145.5, 168)
 s.wire(138, 168, l, 168)

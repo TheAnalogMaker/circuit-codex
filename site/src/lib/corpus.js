@@ -975,7 +975,9 @@ function tubeSmallSignal(tubeId) {
 //   5e3    single-knob (500 pF / 0.005 µF), but the control sits inside the amp's
 //          interactive volume network rather than being fed from one stage, so the
 //          single-resistance drive model this solver assumes does not describe it.
-//   5f10   single-knob; not yet built as a preset.
+//   5f10   single-knob blend, not a cut: the tone pot's wiper sits on the volume's
+//          input, one end bleeds to ground through 0.005 µF and the other reaches
+//          the volume wiper through 500 pF (F-EF, both pages; V1 audit 2026-10-03).
 //
 // Adding one is cheap once the wiring is known; publishing a curve for a network
 // that is not the circuit's own is not recoverable.
@@ -1199,11 +1201,7 @@ const TONE_STACK_GATE_EXTRAS = [
   },
   // Single-knob cuts: a capacitor and a rheostat bleeding treble to ground.
   // 5F2-A is the lab's plotted preset and is walked from TONE_STACK_SPECS; the
-  // four below draw the same branch and are held here at lug level.
-  {
-    id: '5f10', kind: 'single-knob', wiring: 'treble-cut',
-    refs: { tonePot: 'VR2', cutCap: 'C4' },
-  },
+  // three below draw the same branch and are held here at lug level.
   {
     id: '6g2', kind: 'single-knob', wiring: 'treble-cut',
     refs: { tonePot: 'VR1', cutCap: 'C3' },

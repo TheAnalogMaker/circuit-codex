@@ -13,8 +13,9 @@ front end. Produced through the late tweed years.
 
 Three inputs (each a 68 kΩ stopper, grid grounded through the switched jacks) →
 **6AT6** first stage (100 kΩ plate load, 1.5 kΩ cathode with a 25 µF bypass) →
-0.02 µF coupler → **1 MΩ volume** (with a 500 pF bright cap) and a **1 MΩ tone**
-control (0.005 µF) → **12AX7 driver** (100 kΩ plate, 1.5 kΩ *unbypassed* cathode)
+0.02 µF coupler → **1 MΩ volume**, with a **1 MΩ tone** control whose wiper sits
+on the volume's input and whose ends blend between a 0.005 µF cut to ground and
+a 500 pF path to the volume wiper → **12AX7 driver** (100 kΩ plate, 1.5 kΩ *unbypassed* cathode)
 → 0.02 µF → **12AX7 cathodyne phase inverter** (56 kΩ plate load, 1.5 kΩ + 56 kΩ
 cathode stack, 1 MΩ grid leak returned to the junction) → 0.1 µF couplers →
 **6V6GT pair**, fixed-biased at −27 V through 220 kΩ grid leaks with 1.5 kΩ
@@ -24,7 +25,7 @@ runs from the speaker back to the driver's cathode.
 Power: HT winding → **5Y3GT** → **+305 V** plates (16 µF) → 470 Ω → **+302 V**
 screens → 22 kΩ → **+250 V** preamp (16 µF). The bias supply takes a tap on
 the HT winding through a 6.8 kΩ series resistor into a selenium rectifier; a
-56 kΩ bleeder and two 25 µF cans sit on the **−27 V** grid line.
+56 kΩ bleeder and one 25 µF can (printed 25 V) sit on the **−27 V** grid line.
 
 ## Fixed bias in a tweed
 
@@ -41,6 +42,19 @@ the junction at 46.4 V, a clean −1.3 V grid-to-cathode. The plate (56 kΩ from
 The lower output coupler is taken off the cathode pin itself — the +44.3 V node
 at the top of the 1.5 kΩ — not off the junction: both the schematic and the
 layout page draw it there.
+
+## The tone control is a blend, not a cut
+
+Both F-EF pages draw the same network, lug for lug: the 0.02 µF coupler lands
+on the volume's input lug, and the 1 MΩ tone pot's **wiper** is strapped to that
+same lug. One end of the tone track bleeds to ground through 0.005 µF; the other
+reaches the volume's **wiper**, the driver grid, through 500 pF. Turning the
+knob slides between the cut path and the treble path. Until 2026-10-03 the
+sheet drew a 500 pF bright cap across the volume plus a separate 0.005 µF and
+rheostat to ground, and the board ran the coupler into one end of the tone
+track and grounded the other bare. The two drawings disagreed with each other
+as well as with the source, which is what the sheet-board gate had been
+reporting. It is all capacitor-coupled, so no DC operating point moved.
 
 ## Verification — against the printed factory chart
 

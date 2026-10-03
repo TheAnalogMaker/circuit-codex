@@ -164,6 +164,10 @@ UNCHECKED_NETWORKS = {
     "6g3:normal": "Single-knob blend, one per channel — the 6G3 draws the 5D3 network "
                   "twice with different cut capacitors. No lab model.",
     "6g3:bright": "The second of the 6G3's two single-knob blends (0.02 uF cut).",
+    "5f10": "Single-knob blend: the 1 M tone pot's wiper sits on the volume's input lug, "
+            "one end bleeds to ground through 0.005 uF and the other reaches the volume "
+            "wiper through 500 pF (F-EF, both pages). Walked as a treble-cut until the "
+            "2026-10-03 V1 audit found both drawings had it wrong. No lab model.",
 
     # --- networks the lab has no `kind` for at all.
     "6g6b:bass": "Cathode-follower-fed network with a 1 MOhm bass leg bridged by two "

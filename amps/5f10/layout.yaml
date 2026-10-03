@@ -17,8 +17,8 @@
 # + B+1 centre tap) are derived honestly from the schematic/netlist, and its
 # leads are left in the neutral hookup tone since the sheet gives them no
 # colour. Grid stoppers mounted directly at a tube socket (the 6V6 pair's
-# 1.5 kΩ stoppers) are likewise omitted for legibility, as are the tone/bright
-# caps that mount right at the pot lugs rather than on the board.
+# 1.5 kΩ stoppers) are likewise omitted for legibility. The two tone caps that
+# mount at the pot lugs are drawn as chassis-edge parts beside the pots.
 # Machine-checked equivalence: the point-to-point wiring drawn below has been
 # verified electrically equivalent to the simulated netlist (netlist.cir) by
 # pipeline/verify_layout_nets.py — see the net_map block at the foot of this
@@ -83,7 +83,7 @@ board:
   rows: 2
   cols: 60
   title: "5F10 · eyelet board layout"
-caption: "Redrawn from the published Fender Harvard 5F10 layout drawing (F-EF) — principal board components, in the order the drawing shows them. The output transformer is not drawn on the source sheet as a discrete symbol; its connections are derived from the schematic and left uncoloured. Grid stoppers mounted at the 6V6 sockets and the tone/bright caps at the pot lugs are omitted for legibility. The negative-bias supply takes the power transformer's bias tap — the white lead — onto the 6.8 kΩ, which feeds the selenium rectifier beside the board; the rectifier's other terminal is the bias line to both 6V6 grid leaks, the order the drawing shows. The 6.3 V heater supply is single-ended — the sheet grounds one green transformer lead with the HT centre tap and runs the other to the pilot lamp's one terminal and on to the heaters — so it is drawn as single green leads, PT → pilot lamp → the two 6V6 output tubes → 12AX7 → 6AT6 in physical socket order (the sheet arrows the chain; the landings — 6V6 pins 7 fed and 2 grounded, 12AX7 pins 4+5 strapped with the centre tap at pin 9 grounded, 6AT6 pin 3 fed and 4 grounded — are the sheet's); the directly-heated 5Y3GT rectifier runs off the 5 V winding, not the 6.3 V chain. Not a trace or a dimensioned reproduction."
+caption: "Redrawn from the published Fender Harvard 5F10 layout drawing (F-EF) — principal board components, in the order the drawing shows them. The output transformer is not drawn on the source sheet as a discrete symbol; its connections are derived from the schematic and left uncoloured. Grid stoppers mounted at the 6V6 sockets are omitted for legibility. The tone network is wired as the sheet draws it: the coupler lands on the Volume pot's input lug with the Tone WIPER strapped to it, the 0.005 µF (C4) hangs from one Tone end lug to ground and the 500 pF (C3) runs from the other to the Volume wiper. The negative-bias supply takes the power transformer's bias tap — the white lead — onto the 6.8 kΩ, which feeds the selenium rectifier beside the board; the rectifier's other terminal is the bias line to both 6V6 grid leaks, the order the drawing shows. The 6.3 V heater supply is single-ended — the sheet grounds one green transformer lead with the HT centre tap and runs the other to the pilot lamp's one terminal and on to the heaters — so it is drawn as single green leads, PT → pilot lamp → the two 6V6 output tubes → 12AX7 → 6AT6 in physical socket order (the sheet arrows the chain; the landings — 6V6 pins 7 fed and 2 grounded, 12AX7 pins 4+5 strapped with the centre tap at pin 9 grounded, 6AT6 pin 3 fed and 4 grounded — are the sheet's); the directly-heated 5Y3GT rectifier runs off the 5 V winding, not the 6.3 V chain. Not a trace or a dimensioned reproduction."
 source:
   desc: "Fender 'Harvard' Model 5F10 drawing (F-EF), page 1 of 2 (the layout page; page 2 is the schematic this entry redraws)"
   url: "https://el34world.com/charts/Schematics/files/Fender/Fender_harvard_5f10.pdf"
@@ -95,7 +95,7 @@ parts:
   - { ref: RB2, a: [0, 0],  b: [1, 0] }    # 56k bias bleeder
   - { ref: RB1, a: [0, 2],  b: [1, 2] }    # 6.8k bias series resistor
   # Polarity: printed '+' on the cited source; lead C11.a: NBIAS = -27.0 V (ideal source VBIAS); lead C11.b: 0 = +0.0 V (ground); more-positive lead is C11.b.
-  - { ref: C11, a: [0, 4],  b: [1, 4] , plus: b }    # 25 µF bias filter (drawing shows one legible can; BOM notes a second, unmarked)
+  - { ref: C11, a: [0, 4],  b: [1, 4] , plus: b }    # 25 µF · 25 V bias filter — the drawing's only one (layout page: "25MF. 25V.")
   # B+ filter chain (three 16 µF cans, 470 Ω then 22 k droppers)
   # Polarity: DC sign (source read; no legible printed capacitor + used); lead C8.a: BP1 = +305.0 V (ideal source VBP1); lead C8.b: 0 = +0.0 V (ground); more-positive lead is C8.a.
   - { ref: C8,  a: [0, 6],  b: [1, 6] , plus: a }    # 16 µF · 450 V, B+1
@@ -159,6 +159,11 @@ offboard:
   - { id: V1,   ref: V1,  kind: tube, edge: bottom, at: 53,  label: "V1 · 6AT6" }
   - { id: VR2,  ref: VR2, kind: pot,  edge: top, at: 24,  label: "Tone" }
   - { id: VR1,  ref: VR1, kind: pot,  edge: top, at: 32,  label: "Volume" }
+  # The tone network's two caps hang at the pot lugs on the F-EF layout page:
+  # .005 from the Tone pot's left lug to its case, .0005 strung from the Tone
+  # pot's right lug to the Volume wiper (V1 audit 2026-10-03, 5f10.md).
+  - { id: C4,   ref: C4,  kind: part, edge: top, at: 20.5, label: "C4" }
+  - { id: C3,   ref: C3,  kind: part, edge: top, at: 28,   label: "C3" }
   - { id: JI1,  kind: jack,  edge: top, at: 48,  label: "Input 1" }
   - { id: JI2,  kind: jack,  edge: top, at: 51,  label: "Input 2" }
   - { id: JI3,  kind: jack,  edge: top, at: 54,  label: "Input 3" }
@@ -185,7 +190,7 @@ runs:
   - { from: PT.red1, to: V5.pin4, via: [[2.6, 0.5], [3, 1.7]] }   # HT plate 1
   - { from: PT.red2, to: V5.pin6, via: [[2.6, 0.85], [4.2, 2]] }   # HT plate 2
   - { from: PT.red-yellow, to: [1.45, 2], via: [[1.2, 1.15]] }   # HT centre tap → ground bus (drawing labels this lead "yellow-red")
-  - { from: PT.yellow1, to: V5.pin2, via: [[1.45, 0.5], [0.525, 2.477], [2.3, 2.75]] }   # 5 V rectifier filament
+  - { from: PT.yellow1, to: V5.pin2, via: [[1.448, 0.5], [0.525, 2.477], [2.3, 2.75]] }   # 5 V rectifier filament
   - { from: PT.yellow2, to: V5.pin8, via: [[3.3, 0.55], [3.3, 2.3]] }   # 5 V rectifier filament / B+ output
   - { from: V5.pin8, to: C8.a, color: red, via: [[5.2, 1.55]] }   # B+ out → first filter
 
@@ -267,10 +272,18 @@ runs:
   - { from: V1.pin7, to: RL1.a, via: [[53, 1.6]] }   # 6AT6 plate → 100k load
   - { from: RL1.b, to: C10.a, via: [[46, 0.9], [20.3, 0.9]] }   # plate load → B+3
   - { from: V1.pin7, to: C2.a, via: [[52.4, 1.45]] }   # 6AT6 plate → coupler
-  - { from: C2.b, to: VR2.lug3, via: [[47.5, -0.5], [24, -0.5]] }   # coupler → tone (first pot after 6AT6)
-  - { from: VR2.lug2, to: VR1.lug3, via: [[24, -0.85], [32, -0.85]] }   # tone wiper → volume input
-  - { from: VR2.lug1, to: [1.45, 23.2], via: [[26.262, -0.885], [24.8, 0.85]] }   # tone ground
-  - { from: VR1.lug1, to: [1.45, 33], via: [[31, 0.8], [32.968, 1.415]] }   # volume ground
+  # Tone/volume as the F-EF layout page wires them, lug for lug: the coupler
+  # lands on the Volume's input lug, and the Tone WIPER is strapped to that same
+  # lug; the Tone's two end lugs carry its caps (.005 to ground, .0005 to the
+  # Volume wiper). Until 2026-10-03 the coupler landed on a Tone end lug and the
+  # other end was grounded bare, a network the sheet does not draw.
+  - { from: C2.b, to: VR1.lug3, via: [[47.5, -0.55], [32, -0.24]] }   # coupler → volume input
+  - { from: VR2.lug2, to: VR1.lug3, via: [[24, -0.85], [31.642, -0.85]] }   # tone wiper → volume input
+  - { from: VR2.lug1, to: C4.a, via: [[23.988, -0.746]] }   # tone end → .005
+  - { from: C4.b, to: [1.45, 20.5] }   # .005 → ground
+  - { from: VR2.lug3, to: C3.a, via: [[23.904, -0.644]] }   # tone other end → .0005
+  - { from: C3.b, to: VR1.lug2, via: [[31.796, -0.681]] }   # .0005 → volume wiper (driver grid)
+  - { from: VR1.lug1, to: [1.45, 33], via: [[31, 0.8]] }   # volume ground
   - { from: V1.pin2, to: RK1.a, via: [[53.458, 1.717]] }   # 6AT6 cathode → 1.5k
   - { from: RK1.b, to: [1.45, 56] }   # 1.5k → ground bus
   - { from: C1.a, to: RK1.a }   # cathode bypass
