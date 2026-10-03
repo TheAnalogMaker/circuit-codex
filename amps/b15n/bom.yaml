@@ -126,7 +126,7 @@ items:
   - { ref: C16B, part: "Electrolytic capacitor", value: "40 µF · 500 V", role: "Preamp-rail filter — the second section of the C16 can" }
   - { ref: C16C, part: "Electrolytic capacitor", value: "40 µF · 500 V", role: "Driver-rail filter — the third section of the C16 can" }
   # --- Negative-bias supply (present on the drawing; not modelled — see notes.md) ---
-  - { ref: D1,  part: "Rectifier (bias)",      value: "F-4 (selenium)", role: "Bias-supply rectifier, lettered F-4 on the drawing" }
+  - { ref: D1,  part: "Rectifier (bias)",      value: "F-4", role: "Bias-supply rectifier, lettered F-4 on both cited sheets (no material printed)" }
   - { ref: R36, part: "Carbon comp resistor",  value: "100 kΩ · 2 W · 5%", role: "Bias-supply feed resistor, between the bias line and the rectifier corner" }
   - { ref: R34, part: "Carbon comp resistor",  value: "47 kΩ · 5%",    role: "Bias-supply divider" }
   - { ref: R35, part: "Carbon comp resistor",  value: "56 kΩ · 5%",    role: "Bias-supply divider" }
