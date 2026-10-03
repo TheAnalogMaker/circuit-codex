@@ -108,8 +108,11 @@ s.glabel("BP265", 86, 29, 90)
 SGY = v1["g2"][1]
 l, r = s.series_h("R", "RS1", "750k", 112, SGY)
 s.wire(v1["g2"][0], SGY, l, SGY)
-s.wire(r, SGY, 124, SGY)
-s.glabel("BP265", 124, SGY, 0)
+# The rail label hangs DOWN at x=120, short of the coupler's run at x=124: the
+# coupler's vertical passes this row, and a lead ending on it would tie the
+# volume wiper to the +265 V rail.
+s.wire(r, SGY, 120, SGY)
+s.glabel("BP265", 120, SGY, 270)
 s.junction(100, SGY)
 s.sym("C", "CS1", ".05u", 100, SGY + 3.81)
 s.gnd(100, SGY + 7.62)
@@ -127,7 +130,7 @@ s.wire(r, TEE1, 124, TEE1)
 # the same way channel 2's own volume is wired. The track's top end is the output.
 s.wire(124, TEE1, 124, 56)
 s.wire(124, 56, 139.08, 56)
-s.sym("POT", "VR1", "1M", 134, 47.81, lx=-11.4, ly=2.4)
+s.sym("POT", "VR1", "1M", 134, 47.81, lx=4.2, ly=-1.64)
 s.wire(139.08, 56, 139.08, 47.81)
 s.gnd(134, 51.62)
 s.wire(134, 44, 134, 34)
