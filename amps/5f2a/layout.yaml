@@ -305,3 +305,9 @@ net_map:
   # failure (their nodes still have to check out).
   netlist_unplaced:
     RVOL: "1 M volume pot VR1 — netlist models the pot as a grid-leak (G1B -> 0); its wiper->grid tie is verified at the grid net"
+  # Parts the sheet draws that this board neither places nor wires — each
+  # read off the cited layout drawing (sheet ↔ board gate, 2026-10-02).
+  not_on_board:
+    C3: "0.005 µF treble shunt — the 5F2-A layout (K-EG, read at 6600 × 5100) draws it ('.005') inside the Tone pot's outline, from a lug to the pot's ground arrow: at the control, not on the eyelet board"
+    C4: "500 pF tone cap — the 5F2-A layout letters it '.0005' and strings it from the Tone pot's right lug to the Volume pot's top lug: at the controls, not on the eyelet board"
+    C11: "0.05 µF · 600 V line cap — the 5F2-A layout draws it ('.05-600') from the ¾ A fuse holder's lug to a chassis ground arrow at the top-left corner, in the mains wiring and not on the eyelet board"
