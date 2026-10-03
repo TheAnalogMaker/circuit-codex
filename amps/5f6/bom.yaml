@@ -3,7 +3,7 @@
 # watt, 10% tolerance unless otherwise noted" — so the only parts carrying
 # anything else here are the two phase-inverter plate resistors (both printed
 # 5%) and the two rail droppers (both printed 1 W).
-notes: "Resistor and potentiometer designators are shared with the 5F6-A, so the two revisions read side by side. The capacitor numbers are not, and cannot be: the 5F6 carries two capacitors the 5F6-A does not — the 25 µF across V2A's cathode resistor (C4) and the 47 pF across the phase-inverter plates (C12) — so from C4 onward the two runs diverge and the same C number names a different part on each page. Read a capacitor by its role, not by its number, when comparing the revisions. Both pages draw four input jacks, two per channel, each with its own 68 kΩ stopper (R1s/R3s Bright, R2s/R4s Normal), and hang each channel's 1 MΩ leak from jack 1's tip. Speaker jacks, the a-c line and ground switch, the pilot lamp and the standby-switch bypass capacitor are on the chassis, not the board, and are not listed. The output transformer keeps the 5F6-A's T3 for the same reason, which is why no T1 or T2 appears; the power transformer, like the other off-board parts, is listed without a designator."
+notes: "Resistor and potentiometer designators are shared with the 5F6-A, so the two revisions read side by side. The capacitor numbers are not, and cannot be: the 5F6 carries two capacitors the 5F6-A does not — the 25 µF across V2A's cathode resistor (C4) and the 47 pF across the phase-inverter plates (C12) — so from C4 onward the two runs diverge and the same C number names a different part on each page. Read a capacitor by its role, not by its number, when comparing the revisions. Both pages draw four input jacks, two per channel, each with its own 68 kΩ stopper (R1s/R3s Bright, R2s/R4s Normal), and hang each channel's 1 MΩ leak from jack 1's tip. Speaker jacks, the a-c line and ground switch, the pilot lamp and the 0.05 µF · 600 V from the standby switch's rectifier side to ground are on the chassis, not the board, and are not listed. The output transformer keeps the 5F6-A's T3 for the same reason, which is why no T1 or T2 appears; the power transformer, like the other off-board parts, is listed without a designator."
 items:
   - { ref: R1s, part: "Carbon comp resistor", value: "68 kΩ · ½ W",  role: "Bright-channel grid stopper (jack 1)" }
   - { ref: R3s, part: "Carbon comp resistor", value: "68 kΩ · ½ W",  role: "Bright-channel grid stopper (jack 2)" }
@@ -27,7 +27,7 @@ items:
   - { ref: RKCF, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "Cathode-follower load" }
   - { ref: RSL, part: "Carbon comp resistor", value: "56 kΩ · ½ W",  role: "Tone-stack slope resistor" }
   - { ref: C5,  part: "Mica capacitor",       value: "250 pF",        role: "Tone stack — treble" }
-  - { ref: VR3, part: "Potentiometer",        value: "250 kΩ",        role: "Treble" }
+  - { ref: VR3, part: "Linear potentiometer", value: "250 kΩ",        role: "Treble" }
   - { ref: C6,  part: "Film capacitor",       value: "0.02 µF · 400 V", role: "Tone stack — slope junction to the treble/bass node" }
   - { ref: C7,  part: "Film capacitor",       value: "0.02 µF · 400 V", role: "Tone stack — slope junction to the middle wiper" }
   - { ref: VR4, part: "Audio-taper potentiometer", value: "1 MΩ",    role: "Bass (wired as a variable resistor)" }
@@ -71,6 +71,6 @@ items:
   - { ref: V4,  part: "Power tube",           value: "5881",           role: "Push-pull output (upper)" }
   - { ref: V5,  part: "Power tube",           value: "5881",           role: "Push-pull output (lower)" }
   - { ref: V6,  part: "Rectifier tube",       value: "83",             role: "Full-wave mercury-vapour rectifier (V6A/V6B)" }
-  - { ref: T3,  part: "Output transformer",   value: "Fender 45249 · 2 Ω secondary", role: "Push-pull output into four 8 Ω speakers" }
+  - { ref: T3,  part: "Output transformer",   value: "Fender 45249", role: "Push-pull output into four speakers on four parallel jacks (neither page prints an impedance)" }
   - { ref: "—", part: "Power transformer",    value: "Fender 8087 · 325-0-325 V",    role: "HT + heaters + rectifier filament" }
   - { ref: "—", part: "Mica capacitor",       value: "100 pF",         role: "Bright cap across VR1" }

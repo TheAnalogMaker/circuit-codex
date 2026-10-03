@@ -37,8 +37,9 @@ schematic and layout here follow the sheets:
 - One 0.02 µF capacitor runs from the slope resistor's foot to the node shared
   by the treble pot's **lower lug** and the bass pot — the treble pot's cold end
   sits on the far side of that capacitor, not on the slope foot.
-- The bass pot is a **rheostat**: the layout sheet straps its wiper, and the pot
-  stands in series between that node and the middle pot's top lug.
+- The bass pot is a **rheostat**: the layout sheet takes the treble pot's lower-lug
+  lead onto the bass pot's wiper and leaves its far lug without a lead, so the
+  pot stands in series between that node and the middle pot's top lug.
 - The other 0.02 µF runs from the slope foot to the middle pot's **wiper**, so
   the Middle control slides the capacitor's injection point along a 25 kΩ leg
   that never leaves the circuit.
@@ -92,8 +93,8 @@ preamp values, so the differences are narrow and specific:
 - **Second-stage cathode.** The 5F6 bypasses V2A's 820 Ω cathode resistor with
   25 µF; the 5F6-A leaves the same resistor unbypassed. It costs the later amp
   gain at the bottom of the band before the tone stack ever sees the signal.
-- **Output transformer secondary.** Both sheets print the same 45249 and the
-  same 2 Ω secondary for four 8 Ω speakers.
+- **Output transformer.** Both sheets print the same 45249 and draw four
+  speakers on four parallel jacks; neither prints an impedance.
 
 One thing to watch when reading the two parts lists together: the resistor and
 pot designators are shared, but the capacitor numbers are not. This amp carries
