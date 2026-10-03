@@ -40,21 +40,29 @@ s = Sch()
 
 def input_stage(y, j1, j2, r1, r2, rleak, vref, vval, rload, rk, ck, ckval, rail,
                 unit=None):
-    """Two-jack input: 68k stoppers -> grid (1M leak) -> triode -> plate load + RC cathode.
-    Returns the triode pin dict."""
+    """Two-jack input: 68k stoppers -> grid -> triode -> plate load + RC cathode,
+    with the 1M leak at jack 1's tip. Returns the triode pin dict."""
     gb = 40  # grid-bus x
     s.glabel(j1, 12, y - 4, 180)
     s.glabel(j2, 12, y + 4, 180)
-    l, r = s.series_h("R", r1, "68k", 22, y - 4)
+    l, r = s.series_h("R", r1, "68k", 30, y - 4)
     s.wire(12, y - 4, l, y - 4)          # the lead must REACH the jack label
     s.wire(r, y - 4, gb, y - 4)
-    l, r = s.series_h("R", r2, "68k", 22, y + 4)
+    # The 1M leak hangs from the jack-1 TIP, jack side of its 68k, as C-FD
+    # draws it (schematic 6070x4274, crop 200,780,800,1500: jack 1 tip -> 1M
+    # -> ground; jack 2's contact -> jack 1's tip; jack 1's contact ->
+    # ground; the Vibrato pair the same at 200,1900,800,2600). Until
+    # 2026-10-03 this sheet hung it on the grid bus (V1 audit, ab763.md
+    # carry-over). r1 carries no DC, so the netlist's RGN1 GN1 0 sees one
+    # node either way (sch_map.yaml series_bridge, the AA1164 idiom).
+    s.junction(18, y - 4)
+    s.sym("R", rleak, "1M", 18, y - 4 - 3.81, lx=2.2, ly=0.0)
+    s.gnd(18, y - 11.62, rot=90)
+    l, r = s.series_h("R", r2, "68k", 30, y + 4)
     s.wire(12, y + 4, l, y + 4)
     s.wire(r, y + 4, gb, y + 4)
     s.wire(gb, y - 4, gb, y + 4)
     s.junction(gb, y)
-    s.sym("R", rleak, "1M", gb, y + 3.81 + 4)
-    s.gnd(gb, y + 7.62 + 4)
     t = s.triode(vref, vval, 52, y, unit=unit)
     s.wire(gb, y, t["g"][0], y)
     s.plate_load(rload, "100k", t["p"], rail)
@@ -72,7 +80,7 @@ s.note('KA / KE are the drawing\'s boxed [A] / [E]: V1B and V2B share the one 82
 
 # ============================ NORMAL CHANNEL (top row) ================
 YN = 62
-s.text("Normal channel", 12, 48, 1.6)
+s.text("Normal channel", 12, 45, 1.6)
 t1 = input_stage(YN, "NORM 1", "NORM 2", "R1n", "R2n", "RGN1", "V1A", "12AX7",
                  "RLN1", "RKN1", "CKN1", "25u", "B+4", unit=2)
 
@@ -152,7 +160,7 @@ s.glabel("PIG", 230, teeN2, 0)
 
 # ============================ VIBRATO CHANNEL (second row) ============
 YV = 100
-s.text("Vibrato channel (reverb + tremolo)", 12, 86, 1.6)
+s.text("Vibrato channel (reverb + tremolo)", 12, 83, 1.6)
 t2 = input_stage(YV, "VIB 1", "VIB 2", "R1v", "R2v", "RGV1", "V2A", "12AX7",
                  "RLV1", "RKV1", "CKV1", "25u", "B+4", unit=2)
 

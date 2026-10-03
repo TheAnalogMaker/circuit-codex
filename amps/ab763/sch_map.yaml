@@ -25,6 +25,12 @@ series_bridge:
   # G62 run through them and netlist.cir models no element there.
   R7s: "1.5 k V7 grid stopper — netlist node G61 runs through it"
   R8s: "1.5 k V8 grid stopper — netlist node G62 runs through it"
+  # The 1 M input leak hangs from jack 1's tip, jack side of the jack-1 68 k,
+  # as C-FD draws it on both channels (schematic crop 200,780,800,1500); the
+  # 68 k carries no DC grid current, so the netlist's RGN1 GN1 0 / RGV1 GV1 0
+  # run the grid node through it.
+  R1n: "68 k Normal jack-1 grid stopper — netlist node GN1 runs through it to the 1 M leak at the jack-1 tip"
+  R1v: "68 k Vibrato jack-1 grid stopper — netlist node GV1 runs through it to the 1 M leak at the jack-1 tip"
 
 element_pins:
   # netlist RTR4 BP1 PRD 200 is the reverb-transformer primary DCR, not a

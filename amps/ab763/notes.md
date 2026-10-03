@@ -13,8 +13,8 @@ current they can deliver.
 
 ## Signal path
 
-**Normal channel.** Two inputs (each a 68 kΩ stopper on a 1 MΩ leak) → first
-12AX7 stage (100 kΩ plate load, 1.5 kΩ cathode with a 25 µF bypass) → a
+**Normal channel.** Two inputs (68 kΩ stoppers into the grid, with the 1 MΩ
+leak at input 1's tip, jack side of its stopper) → first 12AX7 stage (100 kΩ plate load, 1.5 kΩ cathode with a 25 µF bypass) → a
 treble-bass tone stack (100 kΩ slope, 250 kΩ treble and bass, 6.8 kΩ bleed, and
 250 pF · 0.1 µF · 0.047 µF caps) and a 1 MΩ volume → a second 12AX7 stage
 (100 kΩ plate load) → a 0.047 µF coupler and a 220 kΩ mixing resistor into the
