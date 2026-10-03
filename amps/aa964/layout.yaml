@@ -302,3 +302,19 @@ net_map:
   netlist_unplaced:
     RG1A: "1 MΩ input grid leak — mounted at the input jacks, not on the eyelet board"
     RG1B: "second-stage grid return — realised through the 1 MΩ volume control, not a discrete board resistor (G1B→0)"
+  # Parts the sheet draws that this board neither places nor wires — each
+  # read off the cited layout drawing (sheet ↔ board gate, 2026-10-02).
+  not_on_board:
+    RBF: "100 kΩ · 5 % bias feed — the AA964 layout (L-FD, read at 6492 × 4767) draws it ('100K 5%') in the boxed bias sub-board at the upper left, off the main eyelet board"
+    DBIAS: "bias rectifier diode — drawn in the layout's boxed bias sub-board at the upper left, in series after the 100 kΩ, off the main eyelet board"
+    CBIAS: "25 µF · 50 V bias filter — drawn ('25 + − 50') in the layout's boxed bias sub-board at the upper left, off the main eyelet board"
+    RB: "27 kΩ bias bleeder — drawn ('27K') across the 25 µF in the layout's boxed bias sub-board at the upper left, off the main eyelet board"
+    CDEATH: "0.047 µF · 600 V ground-switch capacitor — drawn ('.047-600 V') at the GROUND SWITCH on the layout's mains row along the bottom edge, one lead to a chassis ground arrow: off the board"
+    FUSE: "1 A slo-blo mains fuse — drawn ('1A SLO.BLO. FUSE') in the layout's mains row along the bottom edge, between the ground switch and the AC switch: a chassis part, off the board"
+
+# Board-scope rules for the sheet ↔ board gate: parts the sheet draws that
+# this board deliberately does not, by designator glob, each with where the
+# cited layout drawing mounts them (2026-10-02).
+scope:
+  not_drawn:
+    - { match: "R[12]n", why: "68 kΩ input grid stoppers — the AA964 layout (L-FD) hangs one from each Instruments jack's lug, the pair meeting below the jacks before the lead to the board, beside the 1 MΩ leak at jack 1: at the jacks and not on the eyelet board" }
