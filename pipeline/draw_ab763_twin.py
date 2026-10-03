@@ -32,21 +32,28 @@ s = Sch()
 
 
 def input_stage(y, j1, j2, r1, r2, rleak, vref, vval, rload, rk, ck, rail, x=52):
-    """Two-jack input: 68k stoppers -> grid (1M leak) -> triode -> plate load + RC
-    cathode. Returns the triode pin dict."""
+    """Two-jack input: 68k stoppers -> grid -> triode -> plate load + RC
+    cathode, with the 1M leak at jack 1's tip. Returns the triode pin dict."""
     gb = 40  # grid-bus x
     s.glabel(j1, 12, y - 4, 180)
     s.glabel(j2, 12, y + 4, 180)
-    l, r = s.series_h("R", r1, "68k", 22, y - 4)
+    l, r = s.series_h("R", r1, "68k", 30, y - 4)
     s.wire(12, y - 4, l, y - 4)          # the lead must REACH the jack label
     s.wire(r, y - 4, gb, y - 4)
-    l, r = s.series_h("R", r2, "68k", 22, y + 4)
+    # The 1M leak hangs from the jack-1 TIP, jack side of its 68k, as C-FD
+    # draws it (schematic 6138x4384, crop 230,950,760,1650: jack 1 tip -> 1M
+    # -> ground; jack 2's contact -> jack 1's tip; jack 1's contact ->
+    # ground). Until 2026-10-03 this sheet hung it on the grid bus (V1 audit,
+    # ab763-twin.md). r1 carries no DC, so the netlist's RGN1 GN1 0 sees one
+    # node either way (sch_map.yaml series_bridge, the AA1164 idiom).
+    s.junction(18, y - 4)
+    s.sym("R", rleak, "1M", 18, y - 4 - 3.81, lx=2.2, ly=0.0)
+    s.gnd(18, y - 11.62, rot=90)
+    l, r = s.series_h("R", r2, "68k", 30, y + 4)
     s.wire(12, y + 4, l, y + 4)
     s.wire(r, y + 4, gb, y + 4)
     s.wire(gb, y - 4, gb, y + 4)
     s.junction(gb, y)
-    s.sym("R", rleak, "1M", gb, y + 3.81 + 4)
-    s.gnd(gb, y + 7.62 + 4)
     t = s.triode(vref, vval, x, y)
     s.wire(gb, y, t["g"][0], y)
     s.plate_load(rload, "100k", t["p"], rail)

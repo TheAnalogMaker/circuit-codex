@@ -3,12 +3,12 @@
 # a part is modelled and are descriptive otherwise. Values are the drawing's; its
 # notice sets ½ W / 10% resistors and 400 V capacitors unless a part says
 # otherwise.
-notes: "The schematic draws one jack per channel input pair; the chassis carries two per channel. Two cathode networks are SHARED between stages and appear once here, under the boxed node letter the drawing gives them: RKA/CKA ([A], the two channels' second stages) and RKE/CKE ([E], reverb recovery and mix driver). The tremolo tube's parts are listed, but neither of its halves has a static DC point, so both are excluded from the netlist (see the circuit story). The main rectifier is silicon: two three-diode strings off the 340-0-340 V winding."
+notes: "The schematic draws both instrument jacks (1 and 2) of each channel with their normalling contacts; this sheet draws them as the two input labels, with the 1 MΩ leak at jack 1's tip, jack side of its 68 kΩ stopper, where C-FD puts it. Two cathode networks are SHARED between stages and appear once here, under the boxed node letter the drawing gives them: RKA/CKA ([A], the two channels' second stages) and RKE/CKE ([E], reverb recovery and mix driver). The tremolo tube's parts are listed, but neither of its halves has a static DC point, so both are excluded from the netlist (see the circuit story). The main rectifier is silicon: two three-diode strings off the 340-0-340 V winding."
 items:
   # --- Normal channel input ---
   - { ref: R1n, part: "Carbon comp resistor", value: "68 kΩ · ½ W",  role: "Normal input grid stopper (jack 1)" }
   - { ref: R2n, part: "Carbon comp resistor", value: "68 kΩ · ½ W",  role: "Normal input grid stopper (jack 2)" }
-  - { ref: RGN1, part: "Carbon comp resistor", value: "1 MΩ · ½ W",  role: "Normal input grid leak" }
+  - { ref: RGN1, part: "Carbon comp resistor", value: "1 MΩ · ½ W",  role: "Normal input leak, jack 1's tip to ground (jack side of R1n); the grid's DC return through R1n" }
   - { ref: RLN1, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "Normal input plate load" }
   - { ref: RKN1, part: "Carbon comp resistor", value: "1.5 kΩ · ½ W", role: "Normal input cathode bias" }
   - { ref: CKN1, part: "Electrolytic capacitor", value: "25 µF · 25 V", role: "Normal input cathode bypass" }
@@ -28,7 +28,7 @@ items:
   # --- Vibrato channel input ---
   - { ref: R1v, part: "Carbon comp resistor", value: "68 kΩ · ½ W",  role: "Vibrato input grid stopper (jack 1)" }
   - { ref: R2v, part: "Carbon comp resistor", value: "68 kΩ · ½ W",  role: "Vibrato input grid stopper (jack 2)" }
-  - { ref: RGV1, part: "Carbon comp resistor", value: "1 MΩ · ½ W",  role: "Vibrato input grid leak" }
+  - { ref: RGV1, part: "Carbon comp resistor", value: "1 MΩ · ½ W",  role: "Vibrato input leak, jack 1's tip to ground (jack side of R1v); the grid's DC return through R1v" }
   - { ref: RLV1, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "Vibrato input plate load" }
   - { ref: RKV1, part: "Carbon comp resistor", value: "1.5 kΩ · ½ W", role: "Vibrato input cathode bias" }
   - { ref: CKV1, part: "Electrolytic capacitor", value: "25 µF · 25 V", role: "Vibrato input cathode bypass" }
@@ -136,6 +136,7 @@ items:
   - { ref: RB2, part: "Carbon comp resistor", value: "27 kΩ · ½ W",   role: "Bias divider leg to ground" }
   # --- Mains (period parts) ---
   - { ref: CDEATH, part: "Ceramic capacitor", value: "0.047 µF · 600 V", role: "Ground-switch cap (period; not in modern builds)" }
+  - { ref: "—", part: "Fuse", value: "2½ A slo-blo", role: "Mains fuse (schematic '2½ AMP SLO. BLO.'; layout '2.5 AMP SLO BLO FUSE')" }
   # --- Tubes ---
   - { ref: V1,  part: "Preamp tube",          value: "12AX7 (7025)",   role: "Normal channel input + 2nd stage" }
   - { ref: V2,  part: "Preamp tube",          value: "12AX7 (7025)",   role: "Vibrato channel input + 2nd stage" }

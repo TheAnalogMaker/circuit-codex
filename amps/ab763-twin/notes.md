@@ -15,8 +15,8 @@ chosen for the current they can deliver, and the tremolo runs on its own 12AX7.
 
 ## Signal path
 
-**Both channels, up to the volume control.** Two inputs (each a 68 kΩ stopper
-on a 1 MΩ leak) → a 12AX7 stage (100 kΩ plate load, 1.5 kΩ cathode with a 25 µF
+**Both channels, up to the volume control.** Two inputs (68 kΩ stoppers into
+the grid, with the 1 MΩ leak at input 1's tip, jack side of its stopper) → a 12AX7 stage (100 kΩ plate load, 1.5 kΩ cathode with a 25 µF
 bypass) → a **three-knob tone stack** — 250 pF treble capacitor and 100 kΩ slope
 resistor both leaving the plate node, 0.1 µF to the node shared by the treble
 pot's lower lug and the bass pot, 0.047 µF down to the 10 kΩ middle control, and
