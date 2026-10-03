@@ -2,12 +2,12 @@
 # Reference designators follow the DC netlist where a part is modeled and are
 # descriptive otherwise. Values are the drawing's; the notice sets 1/2 W / 10%
 # resistors and 400 V caps unless noted.
-notes: "The drawing shows one jack per channel input pair; the chassis carries two per channel. The tremolo tube's parts (both halves of V5: the phase-shift oscillator and the neon-lamp driver) and the reverb-tank interconnect parts are listed, but neither tremolo half has a static DC point, so V5 is excluded from the netlist (see the circuit story). The Normal channel's tone stack is the fixed two-knob ladder (6.8 kΩ bleed); the Vibrato channel's third pot is a genuine 10 kΩ Middle control wired in place of that bleed resistor, not a shared component — the two stacks are asymmetric, read as printed. Two cathode networks are shared, and each is listed once, under the boxed letter the drawing gives it: RKA/CKA carry both second stages (Normal and Vibrato), RKE/CKE both the mix driver and the reverb recovery. Neither the Normal second stage nor the mix driver has a cathode resistor of its own."
+notes: "The drawing shows both instrument jacks (1 and 2) of each channel with their normalling contacts; this sheet draws them as the two input labels, with the 1 MΩ leak at jack 1's tip, jack side of its 68 kΩ stopper, where C-FD puts it. The tremolo tube's parts (both halves of V5: the phase-shift oscillator and the neon-lamp driver) and the reverb-tank interconnect parts are listed, but neither tremolo half has a static DC point, so V5 is excluded from the netlist (see the circuit story). The Normal channel's tone stack is the fixed two-knob ladder (6.8 kΩ bleed); the Vibrato channel's third pot is a genuine 10 kΩ Middle control wired in place of that bleed resistor, not a shared component — the two stacks are asymmetric, read as printed. Two cathode networks are shared, and each is listed once, under the boxed letter the drawing gives it: RKA/CKA carry both second stages (Normal and Vibrato), RKE/CKE both the mix driver and the reverb recovery. Neither the Normal second stage nor the mix driver has a cathode resistor of its own."
 items:
   # --- Normal channel input (V1a) ---
   - { ref: R1n, part: "Carbon comp resistor", value: "68 kΩ · ½ W",  role: "Normal input grid stopper (jack 1)" }
   - { ref: R2n, part: "Carbon comp resistor", value: "68 kΩ · ½ W",  role: "Normal input grid stopper (jack 2)" }
-  - { ref: RGN1, part: "Carbon comp resistor", value: "1 MΩ · ½ W",  role: "Normal input grid leak" }
+  - { ref: RGN1, part: "Carbon comp resistor", value: "1 MΩ · ½ W",  role: "Normal input leak, jack 1's tip to ground (jack side of R1n); the grid's DC return through R1n" }
   - { ref: RLN1, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "V1a plate load" }
   - { ref: RKN1, part: "Carbon comp resistor", value: "1.5 kΩ · ½ W", role: "V1a cathode bias" }
   - { ref: CKN1, part: "Electrolytic capacitor", value: "25 µF · 25 V", role: "V1a cathode bypass" }
@@ -28,7 +28,7 @@ items:
   # --- Vibrato channel input (V2a) + 2nd stage (V2b) ---
   - { ref: R1v, part: "Carbon comp resistor", value: "68 kΩ · ½ W",  role: "Vibrato input grid stopper (jack 1)" }
   - { ref: R2v, part: "Carbon comp resistor", value: "68 kΩ · ½ W",  role: "Vibrato input grid stopper (jack 2)" }
-  - { ref: RGV1, part: "Carbon comp resistor", value: "1 MΩ · ½ W",  role: "Vibrato input grid leak" }
+  - { ref: RGV1, part: "Carbon comp resistor", value: "1 MΩ · ½ W",  role: "Vibrato input leak, jack 1's tip to ground (jack side of R1v); the grid's DC return through R1v" }
   - { ref: RLV1, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "V2a plate load" }
   - { ref: RKV1, part: "Carbon comp resistor", value: "1.5 kΩ · ½ W", role: "V2a cathode bias" }
   - { ref: CKV1, part: "Electrolytic capacitor", value: "25 µF · 25 V", role: "V2a cathode bypass" }

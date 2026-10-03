@@ -14,8 +14,8 @@ labelled plain 12AX7; the reverb driver and phase inverter are **12AT7s**.
 
 ## Signal path
 
-**Normal channel.** Two inputs (each a 68 kΩ stopper on a 1 MΩ leak) → a
-12AX7 stage (100 kΩ plate load, 1.5 kΩ cathode with a 25 µF bypass) → a
+**Normal channel.** Two inputs (68 kΩ stoppers into the grid, with the 1 MΩ
+leak at input 1's tip, jack side of its stopper) → a 12AX7 stage (100 kΩ plate load, 1.5 kΩ cathode with a 25 µF bypass) → a
 **two-knob** tone stack — Treble and Bass only, the middle leg tied to a fixed
 6.8 kΩ bleed resistor rather than a control — and a 1 MΩ volume with its own
 120 pF bright switch → a **second 12AX7 stage** (100 kΩ plate; its cathode

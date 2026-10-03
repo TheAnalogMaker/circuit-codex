@@ -31,3 +31,11 @@ schematic_claim: verified
 winding_labels:
   BIAS TAP: tap   # a dedicated PT tap (the sheet's own note), feeding
                   # DBIAS; T1's symbol has no tap pin
+
+series_bridge:
+  # The 1 M input leak hangs from jack 1's tip, jack side of the jack-1 68 k,
+  # as C-FD draws it on both channels (schematic 2161x1500, crops
+  # 90,250,300,500 and 90,640,300,890); the 68 k carries no DC grid current,
+  # so the netlist's RGN1 GN1 0 / RGV1 GV1 0 run the grid node through it.
+  R1n: "68 k Normal jack-1 grid stopper — netlist node GN1 runs through it to the 1 M leak at the jack-1 tip"
+  R1v: "68 k Vibrato jack-1 grid stopper — netlist node GV1 runs through it to the 1 M leak at the jack-1 tip"
