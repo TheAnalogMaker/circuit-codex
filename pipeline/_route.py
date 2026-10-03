@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import math
 import random
+import re
 import sys
 import time
 from pathlib import Path
@@ -34,6 +35,19 @@ SOFT_ANGLE = 15.0      # …as does a shallower-than-comfortable convergence
 SOFT_SEP = 4.0
 SOFT_W = 55.0          # margins matter: clearing the gate by 0.3 px is not clear
 HARD_W = 4000000.0
+# Two leads of ONE pot crossing near its body. Not a lint finding — the hop the
+# renderer draws keeps them legible — but under a pot it reads as the leads
+# being on the wrong lugs, which on a page people build from is a wiring error.
+# Priced far above churn and soft margins, far below a gate finding: a re-route
+# never trades a lint failure for an untangled fan.
+CROSS_W = 300000.0
+CROSS_RAD = 80.0       # px from the pot body's centre that counts as its fan
+# A lead drawn across a pot body (radius 18) is the cheap way out of a fan
+# tangle — up over the knob and back down — and reads worse than the crossing
+# it avoids, so it is priced above one: the search never buys an untangled fan
+# with a lead over the knob.
+BODY_CLEAR = 21.0
+BODY_W = 3 * CROSS_W
 # The drawing is the deliverable, not the number: a re-route that clears the
 # gate by sending a lead on a detour is worse than the finding it fixed. Churn
 # is priced in — added waypoints and added wire length both cost — so the
@@ -82,6 +96,25 @@ class Model:
                     self.pair_hard[i][j] = h
                     self.pair_soft[i][j] = s
         self.hard = sum(sum(r) for r in self.pair_hard)
+        self.pots = {str(it.get("id")): self.rend.off_pos(it)
+                     for it in self.rend.offboard if it.get("kind") == "pot"}
+        self.run_pots = []
+        for spec in self.specs:
+            hit = set()
+            for end in (spec.get("from"), spec.get("to")):
+                mm = re.match(r"^(\w+)\.lug[1-4]$", str(end))
+                if mm and mm.group(1) in self.pots:
+                    hit.add(mm.group(1))
+            self.run_pots.append(hit)
+        self.pair_cross = [[0] * self.n for _ in range(self.n)]
+        for i in range(self.n):
+            for j in range(i + 1, self.n):
+                c = self._cross(i, j)
+                self.pair_cross[i][j] = self.pair_cross[j][i] = c
+        self.cross = sum(self.pair_cross[i][j] for i in range(self.n)
+                         for j in range(i + 1, self.n))
+        self.body = [self._body(i) for i in range(self.n)]
+        self.btot = sum(self.body)
         self.soft = sum(sum(r) for r in self.pair_soft)
         self.base_pts = [list(p) if p else None for p in self.pts]
         self.base_len = [self._plen(i) for i in range(self.n)]
@@ -214,6 +247,49 @@ class Model:
             soft += (SOFT_TERM - d) ** 2
         return hard, soft
 
+    def _cross(self, i, j):
+        """Crossings between two leads of the same pot within CROSS_RAD of its
+        body — the fan tangle a reader takes for leads on the wrong lugs."""
+        shared = self.run_pots[i] & self.run_pots[j]
+        pa, pb = self.pts[i], self.pts[j]
+        if not shared or pa is None or pb is None:
+            return 0
+        n = 0
+        for pid in shared:
+            cx, cy = self.pots[pid]
+            for sa in range(len(pa) - 1):
+                p1, p2 = pa[sa], pa[sa + 1]
+                for sb in range(len(pb) - 1):
+                    p3, p4 = pb[sb], pb[sb + 1]
+                    d = ((p2[0] - p1[0]) * (p4[1] - p3[1])
+                         - (p2[1] - p1[1]) * (p4[0] - p3[0]))
+                    if abs(d) < 1e-9:
+                        continue
+                    t = ((p3[0] - p1[0]) * (p4[1] - p3[1])
+                         - (p3[1] - p1[1]) * (p4[0] - p3[0])) / d
+                    u = ((p3[0] - p1[0]) * (p2[1] - p1[1])
+                         - (p3[1] - p1[1]) * (p2[0] - p1[0])) / d
+                    if 1e-6 < t < 1 - 1e-6 and 1e-6 < u < 1 - 1e-6:
+                        x = p1[0] + t * (p2[0] - p1[0])
+                        y = p1[1] + t * (p2[1] - p1[1])
+                        if math.hypot(x - cx, y - cy) < CROSS_RAD:
+                            n += 1
+        return n
+
+    def _body(self, i):
+        """Pot bodies run i's polyline passes over (within BODY_CLEAR of the
+        centre). A lug sits 22 px out, so a lead leaving its lug away from the
+        body never counts."""
+        pts = self.pts[i]
+        if pts is None:
+            return 0
+        n = 0
+        for cx, cy in self.pots.values():
+            if any(_point_seg_dist((cx, cy), pts[k], pts[k + 1]) < BODY_CLEAR
+                   for k in range(len(pts) - 1)):
+                n += 1
+        return n
+
     # ---- incremental update -------------------------------------------------
     def reroute(self, i, via):
         """Apply a via list to run i; return an undo token."""
@@ -225,6 +301,10 @@ class Model:
         old_colh = [self.pair_hard[j][i] for j in range(self.n)]
         old_cols = [self.pair_soft[j][i] for j in range(self.n)]
         old_hard, old_soft, old_churn = self.hard, self.soft, self.churn
+        old_crow = list(self.pair_cross[i])
+        old_cross = self.cross
+        old_body = self.body[i]
+        old_btot = self.btot
         self.churn -= self._churn_of(i)
         if via:
             spec["via"] = [list(v) for v in via]
@@ -232,6 +312,9 @@ class Model:
             spec.pop("via", None)
         self._geom(i)
         self.churn += self._churn_of(i)
+        nb = self._body(i)
+        self.btot += nb - self.body[i]
+        self.body[i] = nb
         for j in range(self.n):
             if j == i:
                 continue
@@ -243,12 +326,16 @@ class Model:
             self.hard += h2 - self.pair_hard[j][i]
             self.soft += s2 - self.pair_soft[j][i]
             self.pair_hard[j][i], self.pair_soft[j][i] = h2, s2
+            c = self._cross(i, j)
+            self.cross += c - self.pair_cross[i][j]
+            self.pair_cross[i][j] = self.pair_cross[j][i] = c
         return (i, old_via, old_pts, old_plain, old_bb, old_rowh, old_rows,
-                old_colh, old_cols, old_hard, old_soft, old_churn)
+                old_colh, old_cols, old_hard, old_soft, old_churn,
+                old_crow, old_cross, old_body, old_btot)
 
     def undo(self, tok):
         (i, old_via, old_pts, old_plain, old_bb, rowh, rows, colh, cols,
-         hard, soft, churn) = tok
+         hard, soft, churn, crow, cross, body, btot) = tok
         spec = self.specs[i]
         if old_via is None:
             spec.pop("via", None)
@@ -261,6 +348,12 @@ class Model:
             self.pair_hard[j][i] = colh[j]
             self.pair_soft[j][i] = cols[j]
         self.hard, self.soft, self.churn = hard, soft, churn
+        self.pair_cross[i] = crow
+        for j in range(self.n):
+            self.pair_cross[j][i] = crow[j]
+        self.cross = cross
+        self.body[i] = body
+        self.btot = btot
 
     def legible(self, i):
         """Hard constraint on the DRAWING, independent of the gate: a fix that
@@ -278,7 +371,8 @@ class Model:
 
     @property
     def score(self):
-        return self.hard * HARD_W + self.soft * SOFT_W + self.churn
+        return (self.hard * HARD_W + self.cross * CROSS_W + self.btot * BODY_W
+                + self.soft * SOFT_W + self.churn)
 
     def snapshot(self):
         return [[list(v) for v in (s.get("via") or [])] for s in self.specs]
@@ -292,12 +386,16 @@ class Model:
         """Runs implicated in a finding, weighted. Hard-only by default: the
         soft term is a tie-break for the runs already being worked on, never a
         licence to re-route a lead that reads fine."""
-        w = {}
+        w = {i: 40.0 * b for i, b in enumerate(self.body) if b}
         for i in range(self.n):
             for j in range(self.n):
                 if i == j:
                     continue
                 v = self.pair_hard[i][j] * 40.0
+                # a fan crossing is worked like a finding — it is priced below
+                # one, so working it never trades a lint failure for it
+                if i < j and self.pair_cross[i][j]:
+                    v += self.pair_cross[i][j] * 40.0
                 if not hard_only and self.pair_soft[i][j] > TIGHT_SOFT:
                     v += self.pair_soft[i][j] * 0.05
                 if v:
@@ -353,7 +451,8 @@ def optimise(amp: str, iters: int = 3000, seed: int = 7, verbose=True,
              min_gain: float = 12.0):
     m = model or Model(amp)
     rng = random.Random(seed)
-    print(f"{amp}: start hard={m.hard} soft={m.soft:.0f}")
+    print(f"{amp}: start hard={m.hard} cross={m.cross} body={m.btot} "
+          f"soft={m.soft:.0f}")
     stall = 0
     margin_left = 0
     best_hard, best_score = m.hard, m.score
@@ -367,7 +466,8 @@ def optimise(amp: str, iters: int = 3000, seed: int = 7, verbose=True,
         w = m.blame(hard_only=(m.hard > 0))
         if m.hard == 0:
             if margin_left == 0:
-                margin_left = 420
+                # a tangled pot fan gets a longer pass than clearances alone
+                margin_left = 1600 if (m.cross or m.btot) else 420
                 print(f"  gate green at it{it} — margin pass")
             margin_left -= 1
             if margin_left <= 0:
@@ -428,7 +528,8 @@ def optimise(amp: str, iters: int = 3000, seed: int = 7, verbose=True,
                                  or (m.hard == best_hard
                                      and m.score > best_score)):
         m.restore(snapshot)
-    print(f"{amp}: end hard={m.hard} soft={m.soft:.0f} churn={m.churn:.0f}")
+    print(f"{amp}: end hard={m.hard} cross={m.cross} body={m.btot} soft={m.soft:.0f} "
+          f"churn={m.churn:.0f}")
     return m
 
 
