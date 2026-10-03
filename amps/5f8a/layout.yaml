@@ -334,6 +334,11 @@ net_map:
     RG3:  "V2A grid return — realised through the volume pots (VR1/VR2) and the 270k channel mixers to ground, not a discrete board resistor"
     RKCF: "V2B cathode-follower 100 kΩ load — omitted from this redraw for legibility, as on the 5F6-A page; its node is carried here by the RSL.a feed"
     RPRES: "the 5 kΩ presence pot VR6's track, chassis-mounted from the tail's foot (lug 3, on RT2.b) to the ground bus (lug 1)"
+  # Sheet terminal -> board terminal: the sheet letters the bias tap HT_TAP (the
+  # factory schematic's own winding terminal between an HT end and the centre
+  # tap); the layout page brings it out as the transformer's RED-BLUE lead.
+  leads:
+    "<HT_TAP>": PT.red-blue
 
 # Board-scope rules for the sheet ↔ board gate: parts the sheet draws that
 # this board deliberately does not, by designator glob, each with where the

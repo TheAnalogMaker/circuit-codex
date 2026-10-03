@@ -33,4 +33,7 @@ schematic_claim: verified
 # line; the gate calls it a STALE DECLARATION until you do.
 winding_labels:
   HT_A: ht_a      # an HT winding end
-  HT_B: ht_b      # the other HT winding end; also feeds bias rectifier D1
+  HT_B: ht_b      # the other HT winding end
+  HT_TAP: tap     # the bias tap feeding the selenium rectifier D1: the factory schematic
+                  # takes it from its own winding terminal between an HT end and the
+                  # centre tap, the layout from the transformer's own red-blue lead

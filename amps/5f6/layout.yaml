@@ -288,6 +288,11 @@ net_map:
   netlist_unplaced:
     RCHOKE: "filter choke L1 is chassis-mounted (B+1 → B+2); the netlist models its ~130 Ω DCR as RCHOKE"
     RG3: "V2A grid return — realised through the volume pots (VR1/VR2) and the 270k channel mixers to ground, not a discrete board resistor"
+  # Sheet terminal -> board terminal: the sheet letters the bias tap HT_TAP (the
+  # factory schematic's own winding terminal between an HT end and the centre
+  # tap); the layout page brings it out as the transformer's RED-BLUE lead.
+  leads:
+    "<HT_TAP>": PT.red-blue
 
 # Board-scope rules for the sheet ↔ board gate: parts the sheet draws that
 # this board deliberately does not, by designator glob, each with where the

@@ -313,7 +313,7 @@ s.wire(143.51, 185.26, 143.51, 187.8)
 s.sym("C", "C14", "8u", 148.59, 191.61)
 s.gnd(148.59, 195.42)
 # bias supply (compact): HT tap -> selenium rect -> 15k -> -41V node, 56k bleeder
-s.glabel("HT_B", 144.5, 206.0, 180)
+s.glabel("HT_TAP", 144.5, 206.0, 180)   # the bias tap: its own winding terminal, between an HT end and the centre tap
 s.wire(144.5, 206.0, 148.31, 206.0)
 s.sym("DIODE_SS", "D1", "SEL", 153.39, 206.0, lx=-2.0, ly=-5.4, rot=180, label_rot=0)
 s.wire(158.47, 206.0, 162.28, 206.0)
