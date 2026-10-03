@@ -74,6 +74,9 @@ amps:
       added: 2026-09-02
 
   6g6b:
+    - pin: VR1.3
+      reason: "The Bass-channel Bass control is a rheostat: the E-FB layout page wires only its wiper (to the 10k's foot) and one end lug (the 820 foot), and its third lug is bare, so that end is free in the amplifier as well as on the sheet."
+      added: 2026-10-02
     - pin: T1.1
       reason: "The mains side is deliberately outside this drawing (the PT primary, ground switch, fuse and standby switch are omitted per meta.yaml and the sheet's own notes), and netlist.cir models no transformer, so the primary pins carry no lead."
       added: 2026-09-02

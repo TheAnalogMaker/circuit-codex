@@ -86,61 +86,62 @@ s.gnd(92, BY + 25.62)
 NA_Y = BY + 10
 s.junction(92, NA_Y)
 
-# --- Bass tone network: NA (V1B cathode) -> [1M || (.00025+47k)] -> NX; NX ->
-# 10k || VR1(Bass) -> NY; NY -> 820 -> gnd; NX -> VR2(Volume) -> wiper = MIXG
-NW_Y = NA_Y + 20
+# --- Bass tone network, as both E-FB pages draw it. NA (V1B's cathode) feeds
+# the .00025 + 47k branch up to NT, the Volume pot's top, and the 1M down to NX;
+# from NX one .25 climbs to NB and the other to NC. The 10k joins NT to NB; the
+# Bass control is a 25k rheostat from NB (wiper) to NC (its far lug — the
+# third lug is free on the layout page); NC -> 820 -> ground.
 s.wire(92, NA_Y, 100, NA_Y)
-rl, rr = s.series_h("R", "RTN2", "1M", 104, NW_Y - 10)
-s.wire(100, NA_Y, 100, NW_Y - 10)
-s.wire(rl - 3.81, NW_Y - 10, rl, NW_Y - 10)   # NA line, out to the bridging column
 s.junction(100, NA_Y)
-s.junction(100, NW_Y - 10)
+# treble branch: NA -> 250p -> 47k -> NT
 s.wire(100, NA_Y, 100, NA_Y - 15)
 cl2, cr2 = s.series_h("C", "CTN1", "250p", 103.81, NA_Y - 15)
 tl, tr = s.series_h("R", "RTN1", "47k", 114, NA_Y - 15)
 s.wire(cr2, NA_Y - 15, tl, NA_Y - 15)      # 250p in SERIES with the 47k slope
 s.wire(tr, NA_Y - 15, 120, NA_Y - 15)
-s.wire(120, NA_Y - 15, 120, NW_Y - 10)
-s.junction(120, NW_Y - 10)
-s.wire(rr, NW_Y - 10, 120, NW_Y - 10)
-NX = (120, NW_Y - 10)
-# bridging caps: NW (bottom of RTN2) -> CTN2 -> NX ; NW -> CTN3 -> NY
-NW = (104 + 3.81, NW_Y)
-s.wire(rl - 3.81, NW_Y - 10, rl - 3.81, NW_Y)
-s.junction(rl - 3.81, NW_Y)
-bl, br = s.series_h("C", "CTN2", ".25u", 112, NW_Y)
-s.wire(rl - 3.81, NW_Y, bl, NW_Y)
-s.wire(br, NW_Y, 120, NW_Y)
-s.wire(120, NW_Y, 120, NW_Y - 10)
-s.junction(120, NW_Y)
-NY_Y = NW_Y + 20
-s.wire(rl - 3.81, NW_Y, rl - 3.81, NY_Y)
-bl2, br2 = s.series_h("C", "CTN3", ".25u", 112, NY_Y)
-s.wire(rl - 3.81, NY_Y, bl2, NY_Y)
-s.wire(br2, NY_Y, 120, NY_Y)
-s.sym("R", "RTN3", "10k", 120, NW_Y - 10 + 20, lx=-9.4, ly=-4.0)
-s.wire(120, NW_Y, 120, NW_Y - 10 + 20 - 3.81)
-s.wire(120, NY_Y, 120, NW_Y - 10 + 20 + 3.81)
-NY = (120, NY_Y)
-# Bass pot (25k-L) in parallel with RTN3, wiper strapped to its own hot lug
-s.sym("POT", "VR1", "25k-L", 132, NW_Y - 10 + 20, lx=2.4, ly=-1.5)
-s.wire(120, NW_Y - 10 + 16.19, 132, NW_Y - 10 + 16.19)
-s.wire(120, NW_Y - 10 + 23.81, 132, NW_Y - 10 + 23.81)
-s.wire(137.08, NW_Y - 10 + 20, 140, NW_Y - 10 + 20)
-s.wire(140, NW_Y - 10 + 20, 140, NW_Y - 10 + 16.19)
-s.wire(140, NW_Y - 10 + 16.19, 132, NW_Y - 10 + 16.19)
-# foot: NY -> 820 -> ground
-s.wire(120, NY_Y, 120, NY_Y + 8.38)        # NY -> the 820 foot
-s.junction(120, NY_Y)
-s.sym("R", "RBF", "820", 120, NY_Y + 12.19)
-s.gnd(120, NY_Y + 16)
-# Volume pot, top fed from NX, wiper -> MIXG
-s.wire(120, NW_Y - 10, 148, NW_Y - 10)
-s.sym("POT", "VR2", "250k-L", 148, NW_Y - 10 + 3.81)
-s.gnd(148, NW_Y - 10 + 7.62 + 3.81)
-s.wire(148, NW_Y - 10 + 7.62, 148, NW_Y - 10 + 11.43)
-s.wire(153.08, NW_Y - 10 + 3.81, MIXG_X, NW_Y - 10 + 3.81)   # WIPER, not lug 1
-s.wire(MIXG_X, NW_Y - 10 + 3.81, MIXG_X, 152)
+NT = (120, NA_Y - 15)
+s.junction(*NT)
+# NA -> 1M -> NX
+NX_Y = NA_Y + 22
+s.sym("R", "RTN2", "1M", 100, NA_Y + 11, lx=-9.4)
+s.wire(100, NA_Y, 100, NA_Y + 11 - 3.81)
+s.wire(100, NA_Y + 11 + 3.81, 100, NX_Y)
+s.junction(100, NX_Y)
+# NT -> 10k -> NB
+s.sym("R", "RTN3", "10k", 120, NA_Y + 3.5, lx=2.4)
+s.wire(120, NA_Y - 15, 120, NA_Y + 3.5 - 3.81)
+s.wire(120, NA_Y + 3.5 + 3.81, 120, NX_Y)
+NB = (120, NX_Y)
+s.junction(*NB)
+# NX -> .25 -> NB
+bl, br = s.series_h("C", "CTN2", ".25u", 110, NX_Y)
+s.wire(100, NX_Y, bl, NX_Y)
+s.wire(br, NX_Y, 120, NX_Y)
+# NX -> .25 -> NC
+NC_Y = NX_Y + 11
+s.wire(100, NX_Y, 100, NC_Y)
+bl2, br2 = s.series_h("C", "CTN3", ".25u", 110, NC_Y)
+s.wire(100, NC_Y, bl2, NC_Y)
+s.wire(br2, NC_Y, 130, NC_Y)
+NC = (130, NC_Y)
+s.junction(*NC)
+# Bass rheostat (25k-L), drawn turned over: its wiper (left) on NB, lug 1
+# (bottom) on NC, lug 3 (top) free — the layout page wires no third lug
+s.sym("POT", "VR1", "25k-L", 130, NX_Y, rot=180, lx=2.4, ly=-1.5)
+s.wire(130 - 5.08, NX_Y, 120, NX_Y)
+s.wire(130, NX_Y + 3.81, 130, NC_Y)
+# foot: NC -> 820 -> ground
+s.wire(130, NC_Y, 130, NC_Y + 8.38)
+s.sym("R", "RBF", "820", 130, NC_Y + 12.19)
+s.gnd(130, NC_Y + 16)
+# Volume pot, top fed from NT, wiper -> MIXG
+VOL_Y = NT[1] + 3.81
+s.wire(120, NT[1], 148, NT[1])
+s.sym("POT", "VR2", "250k-L", 148, VOL_Y)
+s.gnd(148, VOL_Y + 7.62)
+s.wire(148, VOL_Y + 3.81, 148, VOL_Y + 7.62)
+s.wire(153.08, VOL_Y, MIXG_X, VOL_Y)   # WIPER, not lug 1
+s.wire(MIXG_X, VOL_Y, MIXG_X, 152)
 s.text("Bass ch. tone network: redrawn from the E-FB", 160, 78, 1.15)
 s.text("schematic page, driven by V1B's cathode. Not", 160, 81.5, 1.15)
 s.text("modelled in the netlist (control island).", 160, 85, 1.15)

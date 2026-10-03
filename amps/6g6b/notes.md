@@ -20,9 +20,11 @@ cathode, 220 kΩ plate off the Bass row's +230 V lane, printed +135 V/+1.1 V)
 → **V1B**, a *cathode follower* direct-coupled to that plate: its own plate
 lead goes straight to the same +230 V lane with no plate resistor in it, and
 its 100 kΩ cathode load is the stage's output, printed +136 V. That cathode
-drives the Bass/Volume network (1 MΩ and a 250 pF + 47 kΩ branch, two
-0.25 µF bridging caps, a 10 kΩ dropper paralleled by the 25 kΩ-L Bass pot,
-an 820 Ω foot and a 250 kΩ-L Volume pot) whose wiper feeds V3A (below).
+drives the Bass/Volume network: a 250 pF + 47 kΩ branch up to the top of the
+250 kΩ-L Volume pot, and a 1 MΩ down to a node from which two 0.25 µF caps
+rise — one to the 10 kΩ's foot (the 10 kΩ hangs from the Volume top), which
+is the 25 kΩ-L Bass rheostat's wiper, the other to the rheostat's far lug,
+where an 820 Ω foot goes to ground. The Volume wiper feeds V3A (below).
 
 **Normal channel**: two inputs → **V2A** (1.5 kΩ cathode, 100 kΩ plate load
 climbing to that channel's own +355 V lane, printed +230 V/+1.9 V) → a

@@ -14,14 +14,14 @@ items:
   - { ref: RK1A, part: "Carbon comp resistor", value: "2.7 kΩ · ½ W", role: "V1A cathode bias" }
   - { ref: CK1A, part: "Electrolytic capacitor", value: "25 µF (dual-can pair)", role: "V1A cathode bypass" }
   - { ref: RK1B, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "V1B cathode-follower load to ground — the stage's output, feeding the Bass channel's tone network" }
-  - { ref: CTN1, part: "Mica capacitor", value: "250 pF (.00025 µF)", role: "Bass ch. tone network: treble-bleed branch, off V1B's cathode" }
-  - { ref: RTN1, part: "Carbon comp resistor", value: "47 kΩ · ½ W", role: "Bass ch. tone network: treble-bleed branch slope, in series with CTN1" }
-  - { ref: RTN2, part: "Carbon comp resistor", value: "1 MΩ · ½ W", role: "Bass ch. tone network: bass-leg resistor, off V1B's cathode in parallel with the CTN1/RTN1 branch" }
-  - { ref: CTN2, part: "Film capacitor", value: "0.25 µF", role: "Bass ch. tone network: bass-leg bridging cap (upper)" }
-  - { ref: CTN3, part: "Film capacitor", value: "0.25 µF", role: "Bass ch. tone network: bass-leg bridging cap (lower)" }
-  - { ref: RTN3, part: "Carbon comp resistor", value: "10 kΩ · ½ W", role: "Bass ch. tone network: dropper, paralleled by the Bass pot" }
-  - { ref: VR1, part: "Linear potentiometer (rheostat)", value: "25 kΩ-L", role: "Bass ch. Bass control, in parallel with RTN3" }
-  - { ref: RBF, part: "Carbon comp resistor", value: "820 Ω · ½ W", role: "Bass ch. tone-network foot, to ground" }
+  - { ref: CTN1, part: "Mica capacitor", value: "250 pF (.00025 µF)", role: "Bass ch. tone network: treble branch, off V1B's cathode, in series with RTN1 up to the Volume pot's top" }
+  - { ref: RTN1, part: "Carbon comp resistor", value: "47 kΩ · ½ W", role: "Bass ch. tone network: treble branch slope, CTN1 to the Volume pot's top" }
+  - { ref: RTN2, part: "Carbon comp resistor", value: "1 MΩ · ½ W", role: "Bass ch. tone network: off V1B's cathode down to the node both 0.25 µF caps share" }
+  - { ref: CTN2, part: "Film capacitor", value: "0.25 µF", role: "Bass ch. tone network: from the 1M's foot to the Bass pot's wiper (the 10k's foot)" }
+  - { ref: CTN3, part: "Film capacitor", value: "0.25 µF", role: "Bass ch. tone network: from the 1M's foot to the Bass pot's far lug (the 820's top)" }
+  - { ref: RTN3, part: "Carbon comp resistor", value: "10 kΩ · ½ W", role: "Bass ch. tone network: from the Volume pot's top down to the Bass pot's wiper" }
+  - { ref: VR1, part: "Linear potentiometer (rheostat)", value: "25 kΩ-L", role: "Bass ch. Bass control: a rheostat from the 10k's foot (wiper) to the 820 foot (far lug); its third lug is free on the layout page" }
+  - { ref: RBF, part: "Carbon comp resistor", value: "820 Ω · ½ W", role: "Bass ch. tone-network foot, the Bass pot's far lug to ground; mounts at the Bass pot on the layout page" }
   - { ref: VR2, part: "Linear potentiometer", value: "250 kΩ-L", role: "Bass ch. Volume control; wiper feeds V3A's grid, the channel's next gain stage" }
 
   # --- Normal channel input + V2A/V2B
