@@ -978,6 +978,9 @@ function tubeSmallSignal(tubeId) {
 //   5f10   single-knob blend, not a cut: the tone pot's wiper sits on the volume's
 //          input, one end bleeds to ground through 0.005 µF and the other reaches
 //          the volume wiper through 500 pF (F-EF, both pages; V1 audit 2026-10-03).
+//   6g2    the 5F10's blend, not a cut: the same tone-pot wiring, the coupler on the
+//          volume's top lug and the tone wiper, 0.005 µF to ground and 500 pF to the
+//          volume wiper (H-FA, both pages; V1 audit 2026-10-03).
 //
 // Adding one is cheap once the wiring is known; publishing a curve for a network
 // that is not the circuit's own is not recoverable.
@@ -1201,11 +1204,7 @@ const TONE_STACK_GATE_EXTRAS = [
   },
   // Single-knob cuts: a capacitor and a rheostat bleeding treble to ground.
   // 5F2-A is the lab's plotted preset and is walked from TONE_STACK_SPECS; the
-  // three below draw the same branch and are held here at lug level.
-  {
-    id: '6g2', kind: 'single-knob', wiring: 'treble-cut',
-    refs: { tonePot: 'VR1', cutCap: 'C3' },
-  },
+  // two below draw the same branch and are held here at lug level.
   {
     // The 6161 hangs a second, fixed 500 pF shunt (CT1) on the same node. The
     // gate walks the branch the control is in; the fixed cap is a parallel

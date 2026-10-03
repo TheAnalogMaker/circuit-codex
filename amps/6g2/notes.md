@@ -17,17 +17,22 @@ the 12AX7; the second small bottle is a plain 12AX7.
 
 ## Signal path
 
-**Input.** Two jacks share a 68 kΩ stopper each into a common 1 MΩ grid leak,
-into V1A — 100 kΩ plate load, 1.5 kΩ cathode with its own 25 µF bypass.
+**Input.** Each of the two jacks has its own 68 kΩ stopper into V1A's grid;
+the 1 MΩ leak hangs at jack 1's tip, on the jack side of its stopper, and jack
+2's switch contact normals onto that tip — both pages of the drawing put it
+there. V1A has a 100 kΩ plate load and a 1.5 kΩ cathode with its own 25 µF
+bypass.
 
-**Tone and Volume.** A single 0.02 µF coupler carries V1A's plate into the
-Tone/Volume network: a 1 MΩ-A Tone control (capacitor-coupled cut, single-knob
-style, the same architecture the tweed 5F2-A used) and a 1 MΩ-A Volume pot.
-This network is not in the DC netlist — the wiper draws no grid current, so
-its own resistance never sets an operating point, exactly as the corpus treats
-every other volume/tone network. A second 0.02 µF coupler carries the wiper
-into V1B, the second stage: 100 kΩ plate load and a 1.5 kΩ cathode resistor
-left unbypassed, because the global feedback lands there (see Output below).
+**Tone and Volume.** A 0.02 µF coupler carries V1A's plate to the top of
+the 1 MΩ-A Volume pot, and to the wiper of the 1 MΩ-A Tone pot. One end of the
+Tone pot bleeds to ground through 0.005 µF; the other reaches the Volume wiper
+through 500 pF. It is a single-knob blend, the network the 5F10 Harvard draws,
+not a simple treble cut. The Volume wiper is V1B's grid, with no second
+coupler. This network is not in the DC netlist — the grid draws no current, so
+the pots' resistance never sets an operating point, exactly as the corpus
+treats every other volume/tone network. V1B, the second stage, has a 100 kΩ
+plate load and a 1.5 kΩ cathode resistor left unbypassed, because the global
+feedback lands there (see Output below).
 
 **Cathodyne phase inverter.** V1B's plate couples through 0.02 µF into the
 grid of a **cathodyne** — a single 12AX7 triode with matched output impedances,
@@ -40,9 +45,9 @@ identical wiring the sibling **5F10 Harvard** and the descendant **AA964**
 Princeton both use for their own cathodynes (56 kΩ plate, small cathode
 resistor into a 56 kΩ tail, 1 MΩ leak to the junction) — a recipe this corpus
 now has three independent factory drawings for. The plate output couples
-0.1 µF into one 6V6's grid; the tail-junction output couples 0.1 µF into the
-other's, exactly mirroring how the 5F10's own netlist takes its second
-coupler from the junction rather than the bare cathode pin.
+0.1 µF into one 6V6's grid; the other 0.1 µF is taken off the cathode pin
+(+56.5 V), not the tail junction, on both pages of the drawing — the way the
+5F10's own drawing takes it too.
 
 **Output.** Two 6V6GTs, grounded cathodes. Each cathodyne output couples
 through 0.1 µF onto a node with a 1500 Ω grid stopper to its grid and a

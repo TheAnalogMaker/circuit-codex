@@ -3,7 +3,7 @@
 
 Values per the published 6G2 Princeton (H-FA) drawing (see amps/6g2/meta.yaml).
 Signal flows left->right: two-jack input (V1A) -> a single-knob Tone/Volume
-network -> V1B second stage -> a cathodyne phase inverter (V2A) -> a
+blend (the 5F10 network) -> V1B second stage -> a cathodyne phase inverter (V2A) -> a
 fixed-bias 6V6GT pair, with a 56k from the speaker line back to V1B's
 unbypassed cathode closing the global feedback loop. The bias-vary tremolo
 oscillator (V2B, the OTHER half of the cathodyne's own bottle) sits below with
@@ -46,12 +46,22 @@ s.note('Rails: BP +315 (reservoir · OT centre tap · oscillator plate) · BS +3
 s.note('Heaters, PT primary/mains, pilot lamp and chassis switches are omitted here — see the netlist, the sources list and the board drawing. The drawing prints the first bottle 7025, a low-noise 12AX7.')
 
 # ============================ INPUT + V1A =============================
-s.text("Input — two jacks share a 68k stopper each into a common 1M leak", 12, 46, 1.5)
+s.text("Input — a 68k stopper from each jack; the 1M leak at jack 1's tip", 12, 46, 1.5)
 s.glabel("INPUT-1", 24, 60, 180)
 s.wire(24, 60, 28.48, 60)
 la, ra = s.series_h("R", "R1", "68k", 32.29, 60)
 s.wire(28.48, 60, la, 60)
 s.wire(ra, 60, 44, 60)
+# The 1M leak hangs from jack 1's TIP, jack side of its 68k, as H-FA draws it
+# (schematic 1282x994, crop 40,390,420,680: jack 1 tip -> 1M -> ground; jack
+# 2's contact -> jack 1's tip; jack 1's contact -> ground; the layout page
+# mounts it across jack 1's lugs, crop 5650,500,6450,1350). Until 2026-10-03
+# this sheet hung it on the grid bus (V1 audit, 6g2.md). R1 carries no DC, so
+# the netlist's RG1 GA 0 sees one node either way (sch_map.yaml series_bridge,
+# the AA1164 idiom).
+s.junction(26.5, 60)
+s.sym("R", "RG1", "1M", 26.5, 60 - 3.81, lx=2.2, ly=0.0)
+s.gnd(26.5, 52.38, rot=90)
 
 s.glabel("INPUT-2", 24, 72, 180)
 s.wire(24, 72, 28.48, 72)
@@ -63,19 +73,21 @@ s.wire(44, 60, 44, 72)
 s.junction(44, 60)
 s.junction(44, 72)
 s.junction(44, 66)
-s.wire(44, 66, 48, 66)
-s.junction(48, 66)
-s.sym("R", "RG1", "1M", 48, 69.81)
-s.gnd(48, 73.62)
 
 t1a = s.triode("V1A", "7025", 62, 66)
-s.wire(48, 66, t1a["g"][0], 66)
+s.wire(44, 66, t1a["g"][0], 66)
 s.wire(62, 73.62, 62, 76)
 s.shunt_rc("RK1", "1.5k", "C1", "25u", 62, 76)
 tapA = plate_rl("RL1", "100k", t1a["p"], "BD")   # (62, 54.9)
 
 # ============================ TONE / VOLUME NETWORK ====================
-s.caption('Tone/Volume — single-knob cut network (capacitor-coupled Tone; Volume feeds V1B through its own coupler)', 62, 44, 1.3)
+# As H-FA draws it on both pages (schematic crop 250,330,560,680; layout
+# 3900,500,5500,1200): the coupler lands on the Volume's top lug AND the Tone
+# pot's WIPER; one Tone end bleeds to ground through .005, the other reaches
+# the Volume wiper -- V1B's grid -- through .0005. No coupler between the
+# Volume wiper and V1B. Until 2026-10-03 this sheet drew a 500 pF + rheostat
+# cut to ground and a phantom .02 (C4) wiper coupler (V1 audit, 6g2.md).
+s.caption('Tone/Volume — single-knob blend: Tone wiper on the Volume top, .005 to ground, .0005 to the Volume wiper (V1B grid)', 62, 38, 1.3)
 s.wire(tapA[0], tapA[1], 74, tapA[1])
 s.junction(*tapA)
 cl, cr = s.series_h("C", "C2", ".02u", 77.81, tapA[1])
@@ -83,27 +95,24 @@ s.wire(74, tapA[1], cl, tapA[1])
 s.wire(cr, tapA[1], 84, tapA[1])
 s.wire(84, tapA[1], 84, 66)           # node X down to the row baseline
 s.junction(84, tapA[1])
-s.junction(84, 66)
 
-# Volume VR2: top = X, bottom = gnd, wiper -> C4 -> V1B grid
+# Volume VR2: top = X, bottom = gnd, wiper -> V1B grid directly
 s.sym("POT", "VR2", "1M-A", 84, 69.81, ly=-4.2)
 s.wire(84, 73.62, 84, 76)
 s.gnd(84, 76)
-s.wire(89.08, 69.81, 96, 69.81)
-cl2, cr2 = s.series_h("C", "C4", ".02u", 100, 69.81)
-s.wire(96, 69.81, cl2, 69.81)
-s.wire(cr2, 69.81, 108, 69.81)
+s.wire(89.08, 69.81, 108, 69.81)
 s.wire(108, 69.81, 108, 66)           # node Y -> V1B grid tee
+s.junction(96, 69.81)
 
-# Tone: X -> C3 (.0005u mica) -> VR1 (1M-A, wired as a rheostat) -> gnd
-s.wire(84, 66, 76, 66)
-s.sym("C", "C3", "500p", 76, 69.81, ly=-6.2)
-s.sym("POT", "VR1", "1M-A", 76, 77.43, ly=2.2)
-s.wire(81.08, 77.43, 81.08, 73.62)
-s.wire(81.08, 73.62, 76, 73.62)
-s.wire(76, 81.24, 76, 83)
-s.gnd(76, 83)
-s.text("Tone", 66, 87, 1.2)
+# Tone VR1 (1M-A), mirrored so its wiper faces X: wiper <- X; top end ->
+# C5 .005 -> ground; bottom end -> C3 .0005 -> the Volume wiper (node Y).
+s.wire(84, tapA[1], 90.92, tapA[1])
+s.sym("POT", "VR1", "1M-A", 96, tapA[1], mirror="y", lx=2.2, ly=-1.2)
+s.sym("C", "C5", ".005u", 96, tapA[1] - 7.62, lx=2.2, ly=0.0)
+s.gnd(96, tapA[1] - 11.43, rot=90)
+s.sym("C", "C3", "500p", 96, tapA[1] + 7.62, lx=2.2, ly=0.0)
+s.wire(96, tapA[1] + 11.43, 96, 69.81)
+s.text("Tone", 100, tapA[1] + 2.6, 1.2)
 
 # ============================ V1B SECOND STAGE ==========================
 t1b = s.triode("V1B", "7025", 122, 66)
@@ -132,7 +141,7 @@ s.glabel("SPKR", 130, 86, 270)
 tapB = plate_rl("RL2", "100k", t1b["p"], "BD")   # (122, 54.9)
 
 # ============================ CATHODYNE PHASE INVERTER ===================
-s.caption('Cathodyne phase inverter — plate + tail-junction outputs drive the two 6V6 grids', 150, 44, 1.4)
+s.caption('Cathodyne phase inverter — plate + cathode outputs drive the two 6V6 grids', 150, 44, 1.4)
 s.wire(tapB[0], tapB[1], 140, tapB[1])
 s.junction(*tapB)
 cl6, cr6 = s.series_h("C", "C6", ".02u", 144.19, tapB[1])
@@ -149,6 +158,7 @@ tapPI = plate_rl("RL3", "56k", t2a["p"], "BD")   # (172, 54.9)
 
 # Cathode stack: K -> RKA(1.5k) -> tail junction JPI -> RKB(56k) -> gnd
 s.wire(XPI, 73.62, XPI, 76)
+s.junction(XPI, 76)
 s.sym("R", "RKA", "1.5k", XPI, 79.81)
 JPI_X, JPI_Y = XPI, 83.62
 s.junction(JPI_X, JPI_Y)
@@ -176,9 +186,14 @@ s.wire(186, tapPI[1], cl7, tapPI[1])
 s.wire(cr7, tapPI[1], 208, tapPI[1])
 s.wire(208, tapPI[1], 208, GY3)
 
-# tail-junction coupler C8 -> V4 grid stopper RG4
-s.wire(JPI_X, JPI_Y, 186, JPI_Y)
-s.junction(JPI_X, JPI_Y)
+# cathode-pin coupler C8 -> V4 grid stopper RG4. H-FA takes this coupler off
+# the CATHODE (+56.5 V), not the tail junction: schematic crop 530,420,800,660
+# runs the cathode node right and down into the .1; the layout lands the .1 on
+# the eyelet that carries the 1000's lower end and the "+56.5V" lead to pin 8
+# (crop 3400,2050,4500,3750). Until 2026-10-03 this sheet took it off JPI.
+s.wire(XPI, 76, 180, 76)
+s.wire(180, 76, 180, JPI_Y)
+s.wire(180, JPI_Y, 186, JPI_Y)
 cl8, cr8 = s.series_h("C", "C8", ".1u", 190.19, JPI_Y)
 s.wire(186, JPI_Y, cl8, JPI_Y)
 s.wire(cr8, JPI_Y, 208, GY4)
@@ -351,7 +366,7 @@ s.glabel("HT_B", 150, YBI, 180)
 l, r = s.series_h("R", "R5", "100k 5%", 164, YBI)
 s.wire(150, YBI, l, YBI)
 s.wire(r, YBI, 173.92, YBI)
-s.sym("DIODE_SS", "D1", "selenium", 179, YBI, lx=-3.4, ly=-5.6, rot=180, label_rot=0)
+s.sym("DIODE_SS", "D1", "diode", 179, YBI, lx=-3.4, ly=-5.6, rot=180, label_rot=0)
 s.wire(184.08, YBI, 190, YBI)
 s.junction(190, YBI)
 s.sym("C", "C14", "25u", 190, YBI + 3.81)

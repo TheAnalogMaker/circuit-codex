@@ -42,8 +42,8 @@
 *
 * DC-open caps are MODELLED where BOTH leads land on a named DC node (V1A's
 * cathode-bypass can, the driver-to-cathodyne coupler, and the cathodyne's
-* two output couplers — the plate coupler and the tail-junction coupler,
-* matching the 5F10's own cathodyne wiring) so the board layout is placement-
+* two output couplers — the plate coupler and the cathode-pin coupler, which
+* H-FA takes off the +56.5 V cathode, not the tail) so the board layout is placement-
 * checked; open at DC they move no operating point. The input-stage coupler
 * into the abstracted volume/tone network stays omitted, as does the tone/
 * volume network itself — the driver grid sees it only as a DC return to
@@ -58,8 +58,10 @@ VBIAS NBIAS 0 DC -35
 RD1 BP BS 1000
 RD2 BS BD 10k
 
-* --- V1A (7025 = 12AX7), input stage: two jacks share a 68k stopper each into
-*     a 1M grid leak; 100k plate load off BD; 1.5k cathode with a 25 uF bypass.
+* --- V1A (7025 = 12AX7), input stage: a 68k stopper from each jack into the
+*     grid; the 1M leak hangs at jack 1's tip, jack side of its 68k (no DC
+*     grid current, so RG1 GA 0 is that leak); 100k plate load off BD; 1.5k
+*     cathode with a 25 uF bypass.
 RL1 BD PA 100k
 XV1A PA GA KA 12AX7
 RG1 GA 0 1meg
@@ -98,7 +100,7 @@ C6 PB GPI 0.02u
 *     (N61, N62) with a 220k 5% leak to the -35 V line and a 1500 ohm grid
 *     stopper to the grid; screens on the +312 V node BS; cathodes grounded;
 *     plates on BP. Two distinct single-ended bottles V3 / V4, one driven
-*     from the cathodyne's plate output, the other from its tail junction.
+*     from the cathodyne's plate output, the other from its cathode pin.
 XV3 BP BS G61 0 6V6GT
 RG3 N61 G61 1500
 RGL3 NBIAS N61 220k
@@ -106,4 +108,4 @@ XV4 BP BS G62 0 6V6GT
 RG4 N62 G62 1500
 RGL4 NBIAS N62 220k
 C7 PPI N61 0.1u
-C8 JPI N62 0.1u
+C8 KPI N62 0.1u

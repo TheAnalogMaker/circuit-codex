@@ -5,23 +5,23 @@
 # value below is the drawing's own — except the two flagged in their own role
 # line, which lean on the sibling 5F10/AA964 cathodyne family pattern where
 # this sheet's own scan is faint (see meta.yaml sources).
-notes: "Both input jacks share one 68 kΩ stopper each into a common 1 MΩ leak. The tremolo oscillator's own parts are listed for the record; its DC operating point is excluded from the netlist (see the circuit story). Parts drawn only as annotations — mains cap, fuse, switches, pilot lamp — are listed without designators. The two transformers are numbered T1 (power) and T2 (output) under the archive's convention; the drawing's own labels are TR1 and TR2."
+notes: "Each input jack has its own 68 kΩ stopper into the grid; the 1 MΩ leak hangs at jack 1's tip, jack side of its stopper (jack 2's contact → jack 1's tip, jack 1's contact → ground), as both H-FA pages draw it. The tremolo oscillator's own parts are listed for the record; its DC operating point is excluded from the netlist (see the circuit story). Parts drawn only as annotations — mains cap, fuse, switches, pilot lamp — are listed without designators. The two transformers are numbered T1 (power) and T2 (output) under the archive's convention; the drawing's own labels are TR1 and TR2."
 items:
   # --- Input (V1A) ---
   - { ref: R1,  part: "Carbon comp resistor", value: "68 kΩ · ½ W",    role: "Input grid stopper (jack 1)" }
   - { ref: R2,  part: "Carbon comp resistor", value: "68 kΩ · ½ W",    role: "Input grid stopper (jack 2)" }
-  - { ref: RG1, part: "Carbon comp resistor", value: "1 MΩ · ½ W",     role: "V1A grid leak" }
+  - { ref: RG1, part: "Carbon comp resistor", value: "1 MΩ · ½ W",     role: "Input leak, jack 1's tip to ground (jack side of R1); V1A's DC grid return through R1" }
   - { ref: RL1, part: "Carbon comp resistor", value: "100 kΩ · ½ W",   role: "V1A plate load" }
   - { ref: RK1, part: "Carbon comp resistor", value: "1.5 kΩ · ½ W",   role: "V1A cathode bias" }
   - { ref: C1,  part: "Electrolytic capacitor", value: "25 µF · 25 V", role: "V1A cathode bypass" }
   # --- Tone / Volume (abstracted — AC only, no DC netlist node) ---
   - { ref: C2,  part: "Coupling capacitor",   value: "0.02 µF · 400 V", role: "V1A plate → Tone/Volume network" }
-  - { ref: VR1, part: "Linear potentiometer", value: "1 MΩ-A",         role: "Tone (capacitor-coupled cut, single-knob style)" }
-  - { ref: C3,  part: "Mica capacitor",       value: "500 pF",      role: "Tone cut cap" }
+  - { ref: VR1, part: "Audio-taper potentiometer", value: "1 MΩ-A",    role: "Tone — single-knob blend: wiper on the Volume's top lug (the coupler node), one end to ground through C5, the other to the Volume wiper through C3" }
+  - { ref: C3,  part: "Capacitor",            value: "500 pF",      role: "Tone pot end → Volume wiper (V1B grid); printed .0005" }
+  - { ref: C5,  part: "Capacitor",            value: "0.005 µF · 400 V", role: "Tone pot end → ground; printed .005 on both pages" }
   - { ref: VR2, part: "Audio-taper potentiometer", value: "1 MΩ-A",    role: "Volume" }
-  - { ref: C4,  part: "Coupling capacitor",   value: "0.02 µF · 400 V", role: "Volume wiper → V1B grid" }
   # --- V1B second stage ---
-  - { ref: RG2, part: "—",                    value: "—",              role: "V1B grid returns to ground through the Volume pot's own body — no discrete leak resistor; modelled in the DC netlist as a nominal 1 MΩ, since no grid current flows and the pot's own value is not load-bearing" }
+  - { ref: RG2, part: "—",                    value: "—",              role: "V1B grid sits directly on the Volume wiper and returns to ground through the Volume pot's own track — no discrete leak resistor; modelled in the DC netlist as a nominal 1 MΩ, since no grid current flows and the pot's own value is not load-bearing" }
   - { ref: RL2, part: "Carbon comp resistor", value: "100 kΩ · ½ W",   role: "V1B plate load" }
   - { ref: RK2, part: "Carbon comp resistor", value: "1.5 kΩ · ½ W",   role: "V1B cathode bias, unbypassed — the drawing's only 25 µF cathode can is V1A's" }
   - { ref: RNFB, part: "Carbon comp resistor", value: "56 kΩ · ½ W",  role: "Global negative feedback, speaker line → V1B cathode" }
@@ -29,10 +29,10 @@ items:
   # --- V2A cathodyne phase inverter ---
   - { ref: RL3,  part: "Carbon comp resistor", value: "56 kΩ · ½ W",   role: "Cathodyne plate load" }
   - { ref: RGPI, part: "Carbon comp resistor", value: "1 MΩ · ½ W",    role: "Cathodyne grid leak, returned to the tail junction (not ground)" }
-  - { ref: RKA,  part: "Carbon comp resistor", value: "1.5 kΩ · ½ W",  role: "Cathodyne cathode resistor, into the tail junction — the same 1.5 kΩ used elsewhere on this sheet as a grid stopper; an initial read as 700 Ω did not reproduce the printed cathode/junction chart values (+56.5 V / +55 V) in simulation; 1.5 kΩ reproduces both within 4%" }
-  - { ref: RKB,  part: "Carbon comp resistor", value: "56 kΩ · ½ W",   role: "Cathodyne tail-to-ground resistor — read against the faint corner of this sheet, cross-checked against the identical 56 kΩ tail on the sibling 5F10 (Harvard) and AA964 (blackface Princeton) cathodynes, and consistent with the printed chart once RKA above was corrected" }
+  - { ref: RKA,  part: "Carbon comp resistor", value: "1.5 kΩ · ½ W",  role: "Cathodyne cathode resistor, into the tail junction. OPEN (V1 audit 2026-10-03, 6g2.md): both H-FA pages print 1000 here (layout crop 3760,2600,4000,2850), not 1500; the DC change awaits the governor. Corpus history: the same 1.5 kΩ used elsewhere on this sheet as a grid stopper; an initial read as 700 Ω did not reproduce the printed cathode/junction chart values (+56.5 V / +55 V) in simulation; 1.5 kΩ reproduces both within 4%" }
+  - { ref: RKB,  part: "Carbon comp resistor", value: "56 kΩ · ½ W",   role: "Cathodyne tail-to-ground resistor; printed 56K on both H-FA pages, crisp on the 800 ppi layout (crop 3400,2050,4500,3750)" }
   - { ref: C7,   part: "Coupling capacitor",  value: "0.1 µF · 400 V", role: "Cathodyne plate → V3's coupler node" }
-  - { ref: C8,   part: "Coupling capacitor",  value: "0.1 µF · 400 V", role: "Cathodyne tail junction → V4's coupler node" }
+  - { ref: C8,   part: "Coupling capacitor",  value: "0.1 µF · 400 V", role: "Cathodyne cathode pin (+56.5 V) → V4's coupler node; taken off the cathode, not the tail junction, on both pages" }
   # --- V2B tremolo oscillator (excluded from the DC netlist — see notes.md) ---
   - { ref: RL4, part: "Carbon comp resistor", value: "220 kΩ · ½ W",   role: "Oscillator plate load, off the +315 V reservoir (BP)" }
   - { ref: RKTO, part: "Carbon comp resistor", value: "3.3 kΩ · ½ W", role: "Oscillator cathode bias" }
@@ -62,7 +62,7 @@ items:
   - { ref: C13, part: "Electrolytic capacitor", value: "30 µF · 450 V", role: "Filter, +280 V preamp/PI node" }
   # --- Bias supply ---
   - { ref: R5,  part: "Carbon comp resistor", value: "100 kΩ · 5 % · ½ W", role: "Bias-supply feed from the HT winding" }
-  - { ref: D1,  part: "Rectifier (bias)",     value: "selenium · silicon diode in modern builds", role: "Bias-supply rectifier" }
+  - { ref: D1,  part: "Rectifier (bias)",     value: "rectifier diode (type not printed) · silicon diode in modern builds", role: "Bias-supply rectifier; both H-FA pages draw a plain diode symbol and name no type" }
   - { ref: C14, part: "Electrolytic capacitor", value: "25 µF · 50 V", role: "Bias-supply filter" }
   - { ref: R6,  part: "Carbon comp resistor", value: "30 kΩ · 5 % · ½ W", role: "Bias-supply bleeder — sets the -35 V line" }
   # --- Tubes ---

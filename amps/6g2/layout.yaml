@@ -98,7 +98,7 @@ heaters:
       never on the 6.3 V chain.
     sockets:
       V5: { feed: [2], return: [8] }        # 5Y3GT directly-heated filament
-caption: "Redrawn from the published Fender \"Princeton\" Model 6G2 layout drawing (H-FA) — principal board components and their hookup, in the order the drawing shows them. Off the board: the two 68 kΩ input grid stoppers and the 1 MΩ input grid leak mount at the jacks (the sheet's own \"Instruments\" jacks carry a resistor right at the lug); the Tone cut cap, the Intensity wiper-to-ground cap and the Speed control's 100 kΩ mount at their own pots; the two 1.5 kΩ grid stoppers, which the drawing mounts at the 6V6GT sockets, are drawn on the board beside their 220 kΩ grid leaks; the rail-dropper chain (RD1/RD2 + the three filter caps) and the bias-supply group (R5/D1/C14/R6) each sit in the sheet's own small sub-boxes rather than on the eyelet strip, drawn here as off-board stubs so every rail stays traceable. The 6.3 V heater supply is single-ended: one green transformer lead is grounded alongside the red-yellow HT centre tap, and the other feeds the pilot light and every heater, so each socket carries a green feed and a grounded return (7025 and 12AX7 pins 4+5 strapped for 6.3 V parallel with the centre tap at pin 9 to ground; each 6V6GT fed at pin 2 and returned at pin 7, which the sheet takes to the cathode at pin 8, the shell at pin 1, and ground). Those landings are the drawing's own; the feed's daisy order (pilot light → the two 6V6 output tubes → the 12AX7 → the 7025) is the conventional reading of the sheet's \"to all 6.3 volt htrs\" arrow, which states the connection rather than routing it. The 5Y3GT rectifier is directly heated and keeps its own 5 V winding, the transformer's yellow pair, off this chain. Not a trace or a dimensioned reproduction."
+caption: "Redrawn from the published Fender \"Princeton\" Model 6G2 layout drawing (H-FA) — principal board components and their hookup, in the order the drawing shows them. Off the board: the two 68 kΩ input grid stoppers and the 1 MΩ input grid leak mount at the jacks (the sheet's own \"Instruments\" jacks carry a resistor right at the lug); the Tone control's two caps, the Intensity wiper-to-ground cap and the Speed control's 100 kΩ mount at their own pots; the two 1.5 kΩ grid stoppers, which the drawing mounts at the 6V6GT sockets, are drawn on the board beside their 220 kΩ grid leaks; the rail-dropper chain (RD1/RD2 + the three filter caps) and the bias-supply group (R5/D1/C14/R6) each sit in the sheet's own small sub-boxes rather than on the eyelet strip, drawn here as off-board stubs so every rail stays traceable. The 6.3 V heater supply is single-ended: one green transformer lead is grounded alongside the red-yellow HT centre tap, and the other feeds the pilot light and every heater, so each socket carries a green feed and a grounded return (7025 and 12AX7 pins 4+5 strapped for 6.3 V parallel with the centre tap at pin 9 to ground; each 6V6GT fed at pin 2 and returned at pin 7, which the sheet takes to the cathode at pin 8, the shell at pin 1, and ground). Those landings are the drawing's own; the feed's daisy order (pilot light → the two 6V6 output tubes → the 12AX7 → the 7025) is the conventional reading of the sheet's \"to all 6.3 volt htrs\" arrow, which states the connection rather than routing it. The 5Y3GT rectifier is directly heated and keeps its own 5 V winding, the transformer's yellow pair, off this chain. Not a trace or a dimensioned reproduction."
 source:
   desc: "Fender \"Princeton\" Model 6G2 layout drawing (H-FA) — title block reads \"FENDER 'PRINCETON' LAYOUT MODEL 6G2 H-FA\", matching the schematic's own H-FA drawing number"
   url: "https://el34world.com/charts/Schematics/files/Fender/Fender_princeton_6g2.pdf"
@@ -116,7 +116,7 @@ parts:
   - { ref: RGPI, a: [0, 12], b: [1, 12] }     # 1M grid leak: GPI(.a) -> JPI(.b)
   - { ref: RKB, a: [0, 15], b: [1, 15] }      # 56k tail-to-ground: GND(.a) -> JPI(.b)
   # --- tail coupler + V4 grid stopper -------------------------------------
-  - { ref: C8, a: [1, 19], b: [1, 21] }       # 0.1 uF: JPI(.a) -> V4 coupler node(.b) — both row1
+  - { ref: C8, a: [1, 19], b: [1, 21] }       # 0.1 uF: cathode KPI(.a) -> V4 coupler node(.b) — both row1; H-FA takes it off the cathode, not the tail
   - { ref: RGL4, a: [0, 21], b: [1, 21] }     # 220k 5% V4 grid leak: -35V(.a) -> coupler node(.b)
   - { ref: RG4, a: [1, 22], b: [1, 21] }      # 1.5k V4 grid stopper: grid(.a, run to V4 pin 5) <- coupler node(.b)
   # --- driver -> cathodyne coupler ----------------------------------------
@@ -140,7 +140,6 @@ parts:
   - { ref: RL2, a: [0, 48], b: [1, 48] }      # 100k plate load (BD -> PB)
   - { ref: RK2, a: [0, 50], b: [1, 50] }      # 1.5k cathode resistor
   - { ref: RNFB, a: [0, 52], b: [1, 52] }     # 56k global feedback: V1B cathode(.a) -> speaker line(.b)
-  - { ref: C4, a: [0, 55], b: [1, 55] }       # 0.02 uF Volume wiper -> V1B grid
   # --- input stage (V1A) -----------------------------------------------------
   - { ref: RL1, a: [0, 61], b: [1, 61] }      # 100k plate load (BD -> PA)
   - { ref: RK1, a: [0, 63], b: [1, 63] }      # 1.5k cathode resistor
@@ -189,8 +188,12 @@ offboard:
   # the Speed rheostat's 100k: the layout page draws it on the pot's own lugs,
   # returned to the pot case, not on the eyelet board
   - { id: R3, ref: R3, kind: part, edge: top, at: 46.4, label: "R3" }
-  - { id: C3, ref: C3, kind: part, edge: top, at: 56, label: "C3" }
+  # the Tone pot's two caps: the layout page draws the .005 inside the pot
+  # outline (lug to the pot case) and the .0005 from its far lug to the
+  # Volume wiper (crop 3900,500,5500,1200 of 6510x4752)
+  - { id: C3, ref: C3, kind: part, edge: top, at: 56.8, label: "C3" }
   - { id: VR1, ref: VR1, kind: pot, edge: top, at: 58.5, label: "Tone" }
+  - { id: C5, ref: C5, kind: part, edge: top, at: 59.75, label: "C5" }
   - { id: VR2, ref: VR2, kind: pot, edge: top, at: 61, label: "Volume" }
   - { id: JB, kind: jack, edge: top, at: 70, label: "Instruments 2" }
   - { id: JA, kind: jack, edge: top, at: 73, label: "Instruments 1" }
@@ -297,7 +300,7 @@ runs:
   - { from: RGPI.b, to: RKB.b, via: [[12.6, 1.15], [15.4, 1.15]] }
   - { from: RGPI.a, to: V2.pin7, via: [[12.4, 1.35], [24, 1.35], [24.144, 1.89]] }
   - { from: RKB.a, to: [1.45, 13] }
-  - { from: RKB.b, to: C8.a, via: [[15.6, 1.15], [19.4, 1.15]] }
+  - { from: C8.a, to: V2.pin8, via: [[19, 1.12], [21.15, 1.12], [21.15, 2.069]] }   # cathode-pin coupler (H-FA: the .1 sits on the cathode eyelet, crop 3400,2050,4500,3750)
   - { from: C6.a, to: RGPI.a, via: [[26.4, -0.2], [12.4, -0.2]] }
   - { from: C6.b, to: RL2.b, via: [[26.6, -0.3], [48.6, -0.3]] }
 
@@ -324,7 +327,6 @@ runs:
   - { from: RK2.a, to: V1.pin3, via: [[50.432, 1.66], [63, 1.66]] }
   - { from: RK2.b, to: [1.45, 50] }
   - { from: RNFB.b, to: SPK.tip, via: [[52.4, 3.3], [16.2, 3.3], [16.2, 2.2]] }   # speaker line back to V1B's cathode
-  - { from: C4.b, to: V1.pin2, via: [[55.4, -0.2], [63.86, -0.2], [63.9, 1.78]] }
 
   # === input stage ===============================================================
   - { from: RL1.b, to: V1.pin6, via: [[61.752, 1.74], [63.958, 1.9]] }
@@ -338,16 +340,20 @@ runs:
   - { from: JA.tip, to: V1.pin7, via: [[73, -0.2], [73.2, 0.55], [65.2, 2.28]] }
   - { from: JB.tip, to: V1.pin7, via: [[70, -0.2], [63.6, 2.28]] }
 
-  # === Tone/Volume network: read from the schematic (mounted at the pots) =
-  # C3/C10/VR1-4 are all off-board (natural terminal height ~y=-0.9..-0.97,
-  # same band discussed above), so adjacent-item hops here stay direct.
+  # === Tone/Volume network (mounted at the pots), as H-FA draws it ========
+  # Layout crop 3900,500,5500,1200 of 6510x4752: Tone lug 1 -> .005 -> the pot
+  # case; Tone wiper -> Volume lug 3 (the coupler's lug); Tone lug 3 -> .0005
+  # -> Volume wiper; Volume lug 1 to the case; Volume wiper -> V1B grid. The
+  # schematic agrees (crop 250,330,560,680 of 1282x994). Until 2026-10-03 this
+  # board drew a 500 pF + rheostat cut and a .02 wiper coupler (V1 audit).
   - { from: C2.b, to: VR2.lug3, via: [[65.37, -0.17]] }
-  - { from: VR2.lug3, to: C3.a, via: [[60.182, -1.028], [57.994, -1.448]] }
-  - { from: C3.b, to: VR1.lug1, via: [[58.703, -0.8]] }
-  - { from: VR1.lug1, to: VR1.lug2 }
-  - { from: VR1.lug3, to: [1.45, 58.5] }
+  - { from: VR2.lug3, to: VR1.lug2, via: [[60.69, -0.72], [58.5, -0.72]] }
+  - { from: VR1.lug1, to: C5.a }
+  - { from: C5.b, to: [1.45, 60.14] }
+  - { from: VR1.lug3, to: C3.b }
+  - { from: C3.a, to: VR2.lug2, via: [[56.41, -1.55], [61, -1.55]] }
   - { from: VR2.lug1, to: [1.45, 59.8], via: [[63.045, -0.662]] }
-  - { from: VR2.lug2, to: C4.a, via: [[59.2, -0.42]] }
+  - { from: VR2.lug2, to: V1.pin2, via: [[61, -0.25], [63.86, -0.25], [63.9, 1.78]] }
 
   # === 6.3 V heaters — single-ended, one green leg grounded ==================
   # Read pin by pin off the H-FA sheet at 800 ppi; the configuration is stated
