@@ -16,6 +16,15 @@ series_bridge:
   # 68 k input grid stopper: no DC grid current, so netlist node G1A runs
   # through it. Not a board part, so layout.yaml has no reason to name it.
   R3: "68 k V1a input grid stopper — netlist node G1A runs through it"
+  # The 2204PRE.DGM sheet letters the position 'link R14': a wire from the
+  # Treble wiper to the Master Volume's top, no resistor. The board draws it
+  # as that wire (VR3.lug2 -> VR2), so its two sheet nets are one conductor.
+  R14: "link 'R14' (2204PRE.DGM) — a wire from the Treble wiper to the Master Volume, no resistor fitted"
+  # SEL2, the 16/8/4 Ω selector: in every position it joins the speaker jacks
+  # to an output-transformer secondary tap (2204PWR.DGM), the winding the
+  # netlist folds into ground. Chassis hardware the board does not draw — its
+  # secondary lead runs to the jacks through it.
+  SEL2: "speaker impedance selector (16/8/4 Ω) — in every position a closed contact from an OT secondary tap to the speaker jacks"
 
 symbols:
   # netlist RCHOKE BP1 BP2 50 Ω is the filter choke's winding DCR, not a

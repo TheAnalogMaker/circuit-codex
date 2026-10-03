@@ -173,7 +173,7 @@ runs:
   - { from: C19.b, to: [1.45, 10.6], via: [[10.6, 0.62]] }
   - { from: C19.a, to: R26.a, via: [[8.7, 0.30], [9.7, 0.30], [9.95, 0.86]] }
   - { from: R26.b, to: RV1.lug3, via: [[11.6, 1.30], [8.6, 2.05]] }
-  - { from: RV1.lug2, to: RV1.lug3, via: [[8.9, 2.22], [8.3, 2.22]] }   # wiper strapped
+  - { from: RV1.lug2, to: RV1.lug1, via: [[7.85, 1.70]] }   # wiper strapped to the grounded end, as the sheet draws it
   - { from: RV1.lug1, to: [1.45, 7.0], via: [[7.4, 2.05]] }
 
   # --- HT rectifier + reservoir (B+1) -----------------------------------------
@@ -347,7 +347,6 @@ net_map:
   not_on_board:
     T3: "choke — the 2204PWR.DGM sheet (read at 2051 × 1408) draws 'T3 Choke' in the HT line between the reservoir and the HT fuse; a chassis part, drawn on this derived board only as the off-board choke stub (kind: choke), which the sheet ↔ board gate has no two-lead vocabulary for"
     C17: "0.1 µF presence capacitor — drawn from the feedback node to the VR6 22k presence pot on the 2204PWR.DGM sheet; mounted at the presence control on this derived board (caption)"
-    R14: "the panel link the 2204PRE.DGM sheet letters link 'R14', from the Treble pot's wiper to the Master Volume — a wire at the controls, not a board part (caption)"
 
 # Board-scope rules for the sheet ↔ board gate: parts the sheet draws that
 # this board deliberately does not, by designator glob, each with where the
