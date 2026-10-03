@@ -37,7 +37,7 @@ items:
   - { ref: RKA, part: "Carbon comp resistor", value: "1.5 kΩ · ½ W", role: "Cathodyne cathode resistor (cathode → the 56 kΩ junction)" }
   - { ref: RKB, part: "Carbon comp resistor", value: "56 kΩ · ½ W",  role: "Cathodyne cathode load (junction → ground)" }
   - { ref: RNF, part: "Carbon comp resistor", value: "56 kΩ · ½ W",  role: "Negative feedback, speaker → V3A (driver) cathode" }
-  - { ref: VR6, part: "Linear potentiometer", value: "5 kΩ",        role: "Presence — from the driver's cathode to ground" }
+  - { ref: VR6, part: "Linear potentiometer", value: "5 kΩ",        role: "Presence — a rheostat from the driver's cathode into C17: the schematic leaves its far end open and the layout page straps it to the wiper; nothing grounds the track" }
   - { ref: C17, part: "Film capacitor",       value: "0.1 µF · 200 V", role: "Presence wiper to ground" }
   - { ref: C9,  part: "Coupling capacitor",   value: "0.1 µF · 400 V", role: "Cathodyne plate → V4 grid" }
   - { ref: C10, part: "Coupling capacitor",   value: "0.1 µF · 200 V", role: "Cathodyne cathode → V5 grid" }
@@ -55,7 +55,7 @@ items:
   - { ref: D1,  part: "Rectifier (bias)",     value: "selenium (silicon diode in modern builds)", role: "Bias supply rectifier" }
   - { ref: RB1, part: "Carbon comp resistor", value: "6.8 kΩ · ½ W", role: "Bias supply series resistor" }
   - { ref: RB2, part: "Carbon comp resistor", value: "56 kΩ · ½ W",  role: "Bias supply bleeder" }
-  - { ref: C15, part: "Electrolytic capacitor", value: "8 µF · 150 V", role: "Bias supply filter" }
+  - { ref: C15, part: "Electrolytic capacitor", value: "100 µF · 25 V", role: "Bias supply filter, −40 V line to ground (the layout page prints \"100 MFD. 25 VOLTS\"; the schematic gives it no value)" }
   - { ref: V1,  part: "Preamp tube",          value: "12AY7",          role: "Both input stages (V1A/V1B)" }
   - { ref: V2,  part: "Preamp tube",          value: "12AX7",          role: "Gain stage + cathode follower (V2A/V2B)" }
   - { ref: V3,  part: "Preamp tube",          value: "12AX7",          role: "Phase-inverter driver + split-load cathodyne (V3A/V3B)" }
@@ -65,4 +65,4 @@ items:
   - { ref: T1,  part: "Power transformer",    value: "Fender 8087",    role: "HT winding with a centre tap and a bias tap between one end and the centre tap (the layout letters that lead red-blue), 5 V rectifier-filament and 6.3 V heater windings; the bias rectifier is fed from the tap, not from a rectifier plate" }
   - { ref: T3,  part: "Output transformer",   value: "Fender 45216",   role: "Push-pull output into 2 × 10 in speakers" }
   - { ref: "—", part: "Mica capacitor",       value: "100 pF",         role: "Bright cap across VR1 (annotation only on schematic)" }
-  - { ref: "—", part: "Film capacitor",       value: "0.05 µF · 600 V (×2)", role: "AC-line filter caps (annotation only)" }
+  - { ref: "—", part: "Film capacitor",       value: "0.05 µF · 600 V (×2)", role: "One at the ground switch (AC line), one from the 5U4G's output — the standby switch's rectifier side — to ground (annotation only)" }

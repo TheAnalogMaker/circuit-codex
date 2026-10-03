@@ -183,7 +183,12 @@ s.wire(nr, 145, 152, 145)
 s.wire(124, 145, nl, 145)
 s.glabel("SPKR", 124, 145, 180)
 s.sym("POT", "VR6", "5k pres", 152, 148.81)
-s.gnd(152, 152.62)
+# C-EG: the presence track's far end is NOT grounded — the schematic leaves
+# it open and the layout page bows that lug to the wiper, so the 5k is a
+# rheostat from the cathode into the 0.1 uF. Grounded here until 2026-10-03,
+# which drew a 5k DC path from the cathode to ground (V1 audit, 5f4.md).
+s.wire(152, 152.62, 157.08, 152.62)
+s.wire(157.08, 152.62, 157.08, 148.81)        # far end strapped to the wiper
 s.wire(157.08, 148.81, 166, 148.81)          # presence wiper -> 0.1 uF -> gnd
 s.sym("C", "C17", ".1u", 166, 152.62)
 s.gnd(166, 156.43)
@@ -293,7 +298,7 @@ s.junction(178.04, 160.72)
 s.sym("R", "RB2", "56k", 178.04, 164.53)
 s.gnd(178.04, 168.34)
 s.junction(180.58, 160.72)
-s.sym("C", "C15", "8u", 180.58, 164.53, lx=2.2)
+s.sym("C", "C15", "100u", 180.58, 164.53, lx=2.2)
 s.gnd(180.58, 168.34)
 s.glabel("-40V", 183.12, 160.72, 0)
 
