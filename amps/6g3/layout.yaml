@@ -241,9 +241,9 @@ runs:
   # === tremolo oscillator (annotation layer) ==============================
   - { from: C16.a, to: V2.pin1, via: [[32.6, 2.64], [40.6, 2.64]] }
   - { from: C16.a, to: R10.a, via: [[32.6, -0.12], [36.4, -0.12]] }
-  - { from: C16.b, to: VR5.lug2, color: blue, via: [[31.6, 1.30], [43.4, 1.30], [43.4, -0.24], [41.4, -0.24]] }
+  - { from: C16.b, to: VR5.lug1, color: blue, via: [[31.6, 1.30], [43.4, 1.30], [43.4, -0.24], [41.4, -0.24]] }
   - { from: VR5.lug3, to: R9.a, via: [[43.2, -0.94]] }
-  - { from: VR5.lug1, to: VR5.lug2 }
+  - { from: VR5.lug2, to: VR5.lug3 }       # I-FA: the 100k lug strapped to the wiper; blue lead on lug 1
   - { from: R9.b, to: [1.45, 45.2], via: [[45.4, -0.34], [45.2, 0.50]] }
   - { from: C18.b, to: R7.a }
   - { from: C18.b, to: V2.pin2, via: [[38.4, 2.22], [40.4, 2.22]] }
