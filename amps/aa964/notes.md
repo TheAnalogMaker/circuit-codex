@@ -15,7 +15,7 @@ whole phase inverter.
 
 ## Signal path
 
-Two input jacks, each a 68 kΩ stopper on a shared 1 MΩ leak → **V1A**
+Two input jacks, each a 68 kΩ stopper into the grid, with the 1 MΩ leak at input 1's tip → **V1A**
 (100 kΩ plate load, 1.5 kΩ cathode with a 25 µF bypass) → a **treble/bass tone
 stack** (250 kΩ treble and bass controls, a 100 kΩ slope resistor, 6.8 kΩ bleed,
 and 250 pF · 0.1 µF · 0.047 µF caps) and a 1 MΩ volume → **V1B**, an identical

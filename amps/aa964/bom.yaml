@@ -4,12 +4,12 @@
 # redrawn schematic (schematic.kicad_sch) by pipeline/validate.py, in both
 # directions. Values are the drawing's; its notice sets ½ W · 10 % resistors and
 # 400 V capacitors unless marked otherwise.
-notes: "The drawing shows two input jacks sharing one grid leak. The tremolo oscillator's parts are listed in full, but its DC operating point is excluded from the simulation for the reason given in the circuit notes below. Tube designators V1–V5 are this archive's, not the drawing's — Fender numbered the sockets on the tube chart, not the schematic; the TR1/TR2 transformer labels are the drawing's own. The 125P1B is the power transformer Fender shared across the Champ, the Princeton and the Princeton Reverb, and the HT winding is not annotated the same way on every sheet: this drawing prints 340-0-340 V, as does the Princeton Reverb AA1164, while the Champ AA764 sheet prints 320-0-320 V for the same part number. Each entry records the figure its own drawing prints."
+notes: "The schematic draws both instrument jacks (1 and 2) with their normalling contacts; this sheet draws them as the two input labels, with the 1 MΩ leak at jack 1's tip, jack side of its 68 kΩ stopper, where both L-FD pages put it. The tremolo oscillator's parts are listed in full, but its DC operating point is excluded from the simulation for the reason given in the circuit notes below. Tube designators V1–V5 are this archive's, not the drawing's — Fender numbered the sockets on the tube chart, not the schematic; the TR1/TR2 transformer labels are the drawing's own. The 125P1B is the power transformer Fender shared across the Champ, the Princeton and the Princeton Reverb, and the HT winding is not annotated the same way on every sheet: this drawing prints 340-0-340 V, as does the Princeton Reverb AA1164, while the Champ AA764 sheet prints 320-0-320 V for the same part number. Each entry records the figure its own drawing prints."
 items:
   # --- Input and first stage (V1A) ---
   - { ref: R1n, part: "Carbon comp resistor", value: "68 kΩ · ½ W",   role: "Input grid stopper (jack 1)" }
   - { ref: R2n, part: "Carbon comp resistor", value: "68 kΩ · ½ W",   role: "Input grid stopper (jack 2)" }
-  - { ref: RG1A, part: "Carbon comp resistor", value: "1 MΩ · ½ W",   role: "Input grid leak" }
+  - { ref: RG1A, part: "Carbon comp resistor", value: "1 MΩ · ½ W",   role: "Input leak, jack 1's tip to ground (jack side of R1n); the grid's DC return through R1n" }
   - { ref: RL1A, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "V1A plate load" }
   - { ref: RK1A, part: "Carbon comp resistor", value: "1.5 kΩ · ½ W", role: "V1A cathode bias" }
   - { ref: CK1A, part: "Electrolytic capacitor", value: "25 µF · 25 V", role: "V1A cathode bypass" }
@@ -51,7 +51,7 @@ items:
   - { ref: CTOUT1, part: "Film capacitor",    value: "0.02 µF",       role: "Oscillator output shunt to ground" }
   - { ref: CTOUT2, part: "Coupling capacitor", value: "0.1 µF",       role: "Oscillator output coupling into the intensity control" }
   - { ref: VRINT, part: "Linear potentiometer", value: "250 kΩ-L",    role: "Intensity — taps the bias line" }
-  - { ref: JVIB, part: "Jack",               value: "single-pole footswitch", role: "Vibrato pedal — shorts the oscillator grid to ground" }
+  - { ref: JVIB, part: "Jack",               value: "single-pole footswitch", role: "Vibrato pedal — grounds the phase-shift ladder's middle node (CTO2 / CTO3 / RTO1) to stop the oscillator" }
   # --- Output stage (6V6GT pair) ---
   - { ref: RGL1, part: "Carbon comp resistor", value: "220 kΩ · ½ W · 5%", role: "V3 grid leak, from the −34 V bias line" }
   - { ref: RGL2, part: "Carbon comp resistor", value: "220 kΩ · ½ W · 5%", role: "V4 grid leak, from the −34 V bias line" }
@@ -71,7 +71,7 @@ items:
   - { ref: SW2, part: "Switch",               value: "3-position",    role: "Ground switch (period part)" }
   - { ref: CDEATH, part: "Ceramic capacitor", value: "0.047 µF · 600 V", role: "Ground-switch cap (period; not in modern builds)" }
   # --- Bias supply ---
-  - { ref: RBF, part: "Carbon comp resistor", value: "100 kΩ · ½ W",  role: "Bias-supply feed from the HT winding" }
+  - { ref: RBF, part: "Carbon comp resistor", value: "100 kΩ · ½ W · 5%",  role: "Bias-supply feed from the HT winding (the layout prints '100K 5%')" }
   - { ref: DBIAS, part: "Rectifier (bias)",   value: "silicon diode", role: "Bias-supply rectifier" }
   - { ref: RB,  part: "Carbon comp resistor", value: "27 kΩ · ½ W",   role: "Bias-supply bleeder" }
   - { ref: CBIAS, part: "Electrolytic capacitor", value: "25 µF · 50 V", role: "Bias-supply filter" }

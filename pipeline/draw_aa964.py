@@ -34,15 +34,23 @@ GB = 40                                        # grid bus x
 l, r = s.series_h("R", "R2n", "68k", 24, YN - 4)
 s.wire(12, YN - 4, l, YN - 4)
 s.wire(r, YN - 4, GB, YN - 4)
-l, r = s.series_h("R", "R1n", "68k", 24, YN + 4)
+l, r = s.series_h("R", "R1n", "68k", 30, YN + 4)
 s.wire(12, YN + 4, l, YN + 4)
 s.wire(r, YN + 4, GB, YN + 4)
 s.wire(GB, YN - 4, GB, YN + 4)
 s.junction(GB, YN)
-s.sym("R", "RG1A", "1M", GB, YN + 7.81)        # 1M grid leak at the jacks
-s.gnd(GB, YN + 11.62)
+# The 1M leak hangs from the jack-1 TIP, jack side of R1n, as both L-FD pages
+# draw it (schematic 1471x934, crop 60,160,300,420: jack 1 tip -> 1M ->
+# ground; jack 2's contact -> jack 1's tip; jack 1's contact -> ground; the
+# layout 2166x1591 puts the 1M inside jack 1's ring). Until 2026-10-03 this
+# sheet hung it on the grid bus (V1 audit, aa964.md). R1n carries no DC, so
+# the netlist's RG1A G1A 0 sees one node either way (sch_map series_bridge).
+s.junction(18, YN + 4)
+s.sym("R", "RG1A", "1M", 18, YN + 4 + 3.81, lx=2.2, ly=0.0)
+s.gnd(18, YN + 11.62)
 # The L-FD drawing prints the input grid "2", plate "1", cathode "3" and the
-# second stage 7/6/8; the PI 7/6/8 and the oscillator 2/1/3 (6322x3926) —
+# second stage 7/6/8; the PI 7/6/8 and the oscillator 2/1/3 (cited L-FD print
+# 1471x934; the uncited I-FD capture, 6322x3926, numbers them the same) —
 # so each A section below is datasheet unit 2 and each B unit 1.
 t1a = s.triode("V1A", "7025", 52, YN, unit=2)
 s.wire(GB, YN, t1a["g"][0], YN)
