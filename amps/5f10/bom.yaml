@@ -1,6 +1,9 @@
 # Parts list — reference designators match schematic.kicad_sch exactly.
 notes: "The chassis has three input jacks (1/2/3), each with its own 68 kΩ stopper; the 6AT6 grid returns to ground through the switched jacks. Only the 6AT6 triode section is used (its twin diodes are unwired). Parts drawn only as annotations (power transformer, AC-line caps, fuse, switch, pilot lamp) are listed without designators."
 items:
+  - { ref: JI1, part: "Jack socket, switched", value: "1/4 in", role: "Input 1 — unplugged, its normalling contact grounds its own tip: the 6AT6 grid's DC return through R1s (no grid leak)" }
+  - { ref: JI2, part: "Jack socket, switched", value: "1/4 in", role: "Input 2 — unplugged, its normalling contact ties its tip to jack 1's tip" }
+  - { ref: JI3, part: "Jack socket, switched", value: "1/4 in", role: "Input 3 — unplugged, its normalling contact ties its tip to jack 2's tip" }
   - { ref: R1s, part: "Carbon comp resistor", value: "68 kΩ · ½ W",  role: "Input 1 grid stopper (grid returns to ground through this jack)" }
   - { ref: R2s, part: "Carbon comp resistor", value: "68 kΩ · ½ W",  role: "Input 2 grid stopper" }
   - { ref: R3s, part: "Carbon comp resistor", value: "68 kΩ · ½ W",  role: "Input 3 grid stopper" }
