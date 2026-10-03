@@ -400,7 +400,7 @@ amps:
       pot_as_resistor: 0
       pot_orientation_flipped: 0
       section_swap: 0
-      sheet_only_declared: 2
+      sheet_only_declared: 3
       sheet_only_undeclared: 0
       split: 0
       stale_declarations: 0
@@ -412,6 +412,7 @@ amps:
     pot_orientation_flipped: []
     section_swap: []
     sheet_only_declared:
+    - C11b
     - D1
     - RKCF
     sheet_only_undeclared: []
@@ -944,7 +945,7 @@ amps:
       pot_as_resistor: 0
       pot_orientation_flipped: 6
       section_swap: 0
-      sheet_only_declared: 18
+      sheet_only_declared: 19
       sheet_only_undeclared: 0
       split: 0
       stale_declarations: 0
@@ -963,7 +964,6 @@ amps:
     section_swap: []
     sheet_only_declared:
     - CB1
-    - CB2
     - CBRV
     - CDEATH
     - DBIAS
@@ -971,6 +971,8 @@ amps:
     - R1v
     - R2n
     - R2v
+    - R7s
+    - R8s
     - RBAL
     - RBIAS
     - RGN1
@@ -1298,7 +1300,7 @@ amps:
       sheet_only_undeclared: 0
       split: 0
       stale_declarations: 0
-      two_terminal_checked: 49
+      two_terminal_checked: 47
       unresolved: 0
     merged: []
     misplaced: []
@@ -1441,9 +1443,9 @@ summary:
   pot_as_resistor: 0
   pot_orientation_flipped: 44
   section_swap: 0
-  sheet_only_declared: 269
+  sheet_only_declared: 271
   sheet_only_undeclared: 0
   split: 0
   stale_declarations: 0
-  two_terminal_checked: 2172
+  two_terminal_checked: 2170
   unresolved: 3
