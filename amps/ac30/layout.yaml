@@ -303,3 +303,18 @@ net_map:
     R2:  "68 kΩ input resistor at Brilliant jack 1 — no DC grid current flows, so the netlist's grid node runs through it"
     R12: "68 kΩ input resistor at Normal jack 2 — no DC grid current flows, so the netlist's grid node runs through it"
     R13: "68 kΩ input resistor at Normal jack 1 — no DC grid current flows, so the netlist's grid node runs through it"
+  # Parts the sheet draws that this board neither places nor wires. JMI
+  # published no board-layout drawing for the AC30/6, so no factory sheet says
+  # where any of them mounts: each entry states what the circuit drawing
+  # (OS/065) shows and why this DERIVED board leaves it out (sheet ↔ board
+  # gate, 2026-10-02).
+  not_on_board:
+    CH1: "smoothing choke (10–20 H · 100 mA, Radiospares) — the OS/065 circuit drawing puts it between the reservoir and the +320 V rail; this derived board draws it only as the off-board choke stub (kind: choke, leads hi/lo), which the sheet ↔ board gate has no two-lead vocabulary for. No factory layout records where it mounts"
+    F1: "3 A mains fuse — on the primary side of the circuit drawing; this derived board does not draw the mains switch, fuse or selector (caption). JMI published no layout sheet, so where the factory mounted it is not on record"
+    R40: "15 kΩ Vibrato/Tremolo supply dropper — the Vibrato/Tremolo generator is not drawn on this derived board (caption: its networks are not resolved by the published drawing; only its three valve sockets and heaters appear). No factory layout records where it mounts"
+    C19: "32 µF Vibrato/Tremolo supply smoothing — the generator is not drawn on this derived board (caption). No factory layout records where it mounts"
+    R41: "47 kΩ Vibrato/Tremolo modulator anode network — the generator is not drawn on this derived board (caption). No factory layout records where it mounts"
+    R42: "22 kΩ Vibrato/Tremolo modulator network — the generator is not drawn on this derived board (caption). No factory layout records where it mounts"
+    R43: "10 kΩ Vibrato/Tremolo modulator anode load (V8, one section) — the generator is not drawn on this derived board (caption). No factory layout records where it mounts"
+    R44: "10 kΩ Vibrato/Tremolo modulator anode load (V8, other section) — the generator is not drawn on this derived board (caption). No factory layout records where it mounts"
+    C41: "0.005 µF Vibrato/Tremolo modulator-network cap (the 7-2-61 modification) — the generator is not drawn on this derived board (caption). No factory layout records where it mounts"
