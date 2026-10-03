@@ -78,6 +78,15 @@ s.wire(96.52, t2a["k"][1], 96.52, t2a["k"][1] + 1.5)
 s.plate_load("RL3", "100k", t2a["p"], "B+3")
 
 # ---- cathodyne PI ------------------------------------------------------
+# V2A plate -> PI grid: F-EE draws a coupling capacitor here with no value on
+# the schematic (crop 2300,800,2000,1600) and ".02 .1FD. / 600 VOLTS" on the
+# layout (crop 4450,1900,300,650), a revision whose digit cannot be decided.
+# Lettered as no value, the JTM45 C20 precedent. (Added 2026-10-03, V1 audit.)
+s.wire(t2a["p"][0], t2a["p"][1], 106.68, t2a["p"][1])   # tee off the plate PIN
+s.junction(t2a["p"][0], t2a["p"][1])
+s.sym("C", "C3", "C", 110.49, t2a["p"][1], rot=90, lx=-3.2, ly=-6.2)
+s.wire(114.3, t2a["p"][1], 128.27, t2a["p"][1])
+s.wire(128.27, t2a["p"][1], 128.27, 112)
 tpi = s.triode("V2B", "12AX7", 138.43, 112)
 s.wire(128.27, 112, tpi["g"][0], 112)
 s.plate_load("RL4", "56k", tpi["p"], "B+3")

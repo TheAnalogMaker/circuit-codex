@@ -16,6 +16,7 @@ items:
   - { ref: RL3, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "V2A plate load" }
   - { ref: RK2, part: "Carbon comp resistor", value: "1.5 kΩ · ½ W", role: "V2A cathode bias" }
   - { ref: C4,  part: "Electrolytic capacitor", value: "25 µF · 25 V", role: "V2A cathode bypass" }
+  - { ref: C3,  part: "Capacitor",            value: "value not legible", role: "V2A plate → cathodyne grid coupler. The schematic draws it with no value; the layout letters it \".02 .1FD. 600 VOLTS\", an overwritten revision whose digit cannot be decided (.02 or .1 µF), so no value is given. 600 V on the layout. DC-open, so not in the DC model" }
   - { ref: C5,  part: "Mica capacitor",       value: "500 pF",        role: "Tone: instrument volume's wiper → tone pot end" }
   - { ref: VR3, part: "Audio-taper potentiometer", value: "1 MΩ",    role: "Tone: track between the 500 pF and the 0.005 µF, wiper on the V2A grid line" }
   - { ref: C6,  part: "Film capacitor",       value: "0.005 µF · 600 V", role: "Tone: tone pot's other end → ground" }

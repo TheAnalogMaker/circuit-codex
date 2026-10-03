@@ -9,7 +9,10 @@
 * at DC, they move no operating point); caps into the abstracted volume/tone
 * network stay omitted.
 * Cathodyne PI per the drawing: cathode -> 1.5k -> junction -> 56k -> gnd,
-* with the 1M grid leak returned to the junction (tone caps AC-couple the grid).
+* with the 1M grid leak returned to the junction; the grid is AC-coupled from
+* the V2A plate by C3, which F-EE draws with an illegible value (".02 .1FD." on
+* the layout, no value on the schematic). C3 is not modelled (DC-open; no value
+* is invented for it).
 .include models/12ay7.inc
 .include models/12ax7.inc
 .include models/6v6gt.inc

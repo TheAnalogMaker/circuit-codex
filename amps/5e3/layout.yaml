@@ -98,6 +98,7 @@ parts:
   - { ref: RK2,  a: [0, 20], b: [1, 20] }   # 1.5k V2A cathode (vertical)
   # Polarity: DC sign (source read; no legible printed capacitor + used); lead C4.a: 0 = +0.0 V (ground); lead C4.b: K2A = +1.2 V (op-points); more-positive lead is C4.b.
   - { ref: C4,   a: [0, 19], b: [0, 20] , plus: b }   # 25 µF V2A cathode bypass
+  - { ref: C3,   a: [0, 20.75], b: [1, 20.75] }   # V2A plate → PI grid coupler, value not legible (F-EE letters ".02 .1FD. 600 VOLTS"); vertical, between the V2A plate load and the 1500/25 µF as the drawing places it
   - { ref: RL3,  a: [1, 18.7], b: [1, 19.6] }   # 100k V2A plate load (own eyelets, clear of RK2 ground tie [1,20] and C4 ground tie under [0,19])
   - { ref: C1,   a: [0, 21], b: [0, 23] }   # 0.1 µF V1A → instrument volume
   - { ref: C2,   a: [0, 24], b: [0, 26] }   # 0.1 µF V1B → mic volume
@@ -228,6 +229,11 @@ runs:
   # --- driver / second stage (V2A) -----------------------------------------
   - { from: V2.pin6, to: RL3.a, via: [[18.7, 1.55]] }  # V2A plate → 100k plate load
   - { from: RL3.b, to: C13.a, via: [[19.6, -0.72], [9.4, -0.72]] }  # V2A plate load → B+3 (over the top, per schematic)
+  # F-EE couples the V2A plate to the cathodyne grid through a cap the schematic
+  # draws with no value and the layout letters ".02 .1FD. / 600 VOLTS" (crop
+  # 4450,1900,300,650). Missing from this board until 2026-10-03 (V1 audit).
+  - { from: C3.a, to: RL3.a, via: [[20.75, -0.2], [19.0, 0.5]] }   # coupler → V2A plate (the plate load's eyelet)
+  - { from: C3.b, to: RGPI.b, via: [[20.95, 1.28], [17.7, 1.28]] }    # coupler → V2B (cathodyne) grid, at the grid leak's eyelet
   - { from: V2.pin8, to: RK2.a, via: [[20.6, 1.55]] }  # V2A cathode → 1.5k (from right)
   - { from: RK2.b, to: [1.45, 20] }                  # 1.5k → ground bus
   - { from: C4.a, to: [1.45, 19.3] }                 # cathode bypass ground (lane between the V2.pin7 wiper feed and RL3.b)
