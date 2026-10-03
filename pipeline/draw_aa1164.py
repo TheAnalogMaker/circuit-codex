@@ -30,7 +30,7 @@ s.note('Rails: B+1 +420 (reservoir / OT centre tap) · B+2 +400 (screens, reverb
 
 # ============================ PREAMP (band 1, left) ==================
 YN = 56
-s.caption('Preamp — two inputs, 7025 (12AX7) gain stage, treble/bass stack, Volume, second stage', 12, 32, 1.5)# --- inputs: two 68k stoppers onto a shared 1M grid leak
+s.caption('Preamp — two inputs, 7025 (12AX7) gain stage, treble/bass stack, Volume, second stage', 12, 32, 1.5)# --- inputs: two 68k stoppers into the grid, the 1M leak at jack 1's tip
 s.glabel("INPUT 1", 12, YN - 4, 180)
 l, r = s.series_h("R", "R1a", "68k", 30, YN - 4)
 s.wire(12, YN - 4, l, YN - 4)
