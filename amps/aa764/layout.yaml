@@ -245,3 +245,7 @@ net_map:
   # failure (their nodes still have to check out).
   netlist_unplaced:
     RVOL: "1 MΩ volume pot VR1 — the netlist models the pot as V1B's grid-leak return (G1B → 0); its wiper→grid tie is verified at the grid net"
+  # Parts the sheet draws that this board neither places nor wires — each
+  # read off the cited layout drawing (sheet ↔ board gate, 2026-10-02).
+  not_on_board:
+    C11: "0.047 µF · 600 V line cap — the AA764 layout (I-FD, read at 6509 × 4767) draws it ('.047-600') from the 1 A slo-blo fuse holder's lug to a chassis ground arrow beside the AC cord, in the mains wiring and not on the eyelet board"
