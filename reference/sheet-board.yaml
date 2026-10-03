@@ -98,8 +98,8 @@ amps:
       pot_as_resistor: 0
       pot_orientation_flipped: 0
       section_swap: 0
-      sheet_only_declared: 0
-      sheet_only_undeclared: 1
+      sheet_only_declared: 1
+      sheet_only_undeclared: 0
       split: 0
       stale_declarations: 0
       two_terminal_checked: 19
@@ -110,9 +110,9 @@ amps:
     pot_as_resistor: []
     pot_orientation_flipped: []
     section_swap: []
-    sheet_only_declared: []
-    sheet_only_undeclared:
+    sheet_only_declared:
     - L1
+    sheet_only_undeclared: []
     split: []
     stale_declarations: []
     unresolved: []
@@ -127,8 +127,8 @@ amps:
       pot_as_resistor: 0
       pot_orientation_flipped: 0
       section_swap: 0
-      sheet_only_declared: 4
-      sheet_only_undeclared: 2
+      sheet_only_declared: 6
+      sheet_only_undeclared: 0
       split: 0
       stale_declarations: 0
       two_terminal_checked: 28
@@ -139,13 +139,13 @@ amps:
     pot_orientation_flipped: []
     section_swap: []
     sheet_only_declared:
+    - C5
+    - C6
     - R3s
     - R4s
     - RG1
     - RG2
-    sheet_only_undeclared:
-    - C5
-    - C6
+    sheet_only_undeclared: []
     split: []
     stale_declarations: []
     unresolved:
@@ -312,8 +312,8 @@ amps:
       pot_as_resistor: 0
       pot_orientation_flipped: 2
       section_swap: 0
-      sheet_only_declared: 0
-      sheet_only_undeclared: 3
+      sheet_only_declared: 3
+      sheet_only_undeclared: 0
       split: 0
       stale_declarations: 0
       two_terminal_checked: 22
@@ -330,11 +330,11 @@ amps:
     - VR1
     - VR2
     section_swap: []
-    sheet_only_declared: []
-    sheet_only_undeclared:
+    sheet_only_declared:
     - C11
     - C3
     - C4
+    sheet_only_undeclared: []
     split: []
     stale_declarations: []
     unresolved: []
@@ -411,8 +411,8 @@ amps:
       pot_as_resistor: 0
       pot_orientation_flipped: 0
       section_swap: 0
-      sheet_only_declared: 1
-      sheet_only_undeclared: 5
+      sheet_only_declared: 3
+      sheet_only_undeclared: 3
       split: 0
       stale_declarations: 0
       two_terminal_checked: 47
@@ -423,11 +423,11 @@ amps:
     pot_orientation_flipped: []
     section_swap: []
     sheet_only_declared:
+    - D1
+    - L1
     - RKCF
     sheet_only_undeclared:
     - C15b
-    - D1
-    - L1
     - R1s
     - R2s
     split: []
@@ -776,8 +776,8 @@ amps:
       pot_as_resistor: 0
       pot_orientation_flipped: 2
       section_swap: 0
-      sheet_only_declared: 0
-      sheet_only_undeclared: 1
+      sheet_only_declared: 1
+      sheet_only_undeclared: 0
       split: 0
       stale_declarations: 0
       two_terminal_checked: 28
@@ -791,9 +791,9 @@ amps:
     - VR1
     - VR2
     section_swap: []
-    sheet_only_declared: []
-    sheet_only_undeclared:
+    sheet_only_declared:
     - C11
+    sheet_only_undeclared: []
     split: []
     stale_declarations: []
     unresolved: []
@@ -808,8 +808,8 @@ amps:
       pot_as_resistor: 0
       pot_orientation_flipped: 2
       section_swap: 0
-      sheet_only_declared: 0
-      sheet_only_undeclared: 12
+      sheet_only_declared: 5
+      sheet_only_undeclared: 7
       split: 0
       stale_declarations: 0
       two_terminal_checked: 29
@@ -823,20 +823,20 @@ amps:
     - VR1
     - VR2
     section_swap: []
-    sheet_only_declared: []
-    sheet_only_undeclared:
+    sheet_only_declared:
     - C11
+    - R22
+    - R24
+    - R25
+    - R27
+    sheet_only_undeclared:
     - C15
     - C16
     - C17
     - C18
     - R21
-    - R22
     - R23
-    - R24
-    - R25
     - R26
-    - R27
     split: []
     stale_declarations: []
     unresolved: []
@@ -897,8 +897,8 @@ amps:
       pot_as_resistor: 0
       pot_orientation_flipped: 2
       section_swap: 0
-      sheet_only_declared: 1
-      sheet_only_undeclared: 8
+      sheet_only_declared: 9
+      sheet_only_undeclared: 0
       split: 0
       stale_declarations: 0
       two_terminal_checked: 45
@@ -916,8 +916,6 @@ amps:
     - VRV
     section_swap: []
     sheet_only_declared:
-    - RG1A
-    sheet_only_undeclared:
     - CBIAS
     - CDEATH
     - DBIAS
@@ -926,6 +924,8 @@ amps:
     - R2n
     - RB
     - RBF
+    - RG1A
+    sheet_only_undeclared: []
     split: []
     stale_declarations: []
     unresolved: []
@@ -1153,8 +1153,8 @@ amps:
       pot_as_resistor: 0
       pot_orientation_flipped: 0
       section_swap: 0
-      sheet_only_declared: 0
-      sheet_only_undeclared: 16
+      sheet_only_declared: 16
+      sheet_only_undeclared: 0
       split: 0
       stale_declarations: 0
       two_terminal_checked: 35
@@ -1164,8 +1164,7 @@ amps:
     pot_as_resistor: []
     pot_orientation_flipped: []
     section_swap: []
-    sheet_only_declared: []
-    sheet_only_undeclared:
+    sheet_only_declared:
     - CBR
     - CF3
     - CH1
@@ -1182,6 +1181,7 @@ amps:
     - RIN4
     - RKV1
     - RKV2
+    sheet_only_undeclared: []
     split: []
     stale_declarations: []
     unresolved: []
@@ -1196,8 +1196,8 @@ amps:
       pot_as_resistor: 0
       pot_orientation_flipped: 0
       section_swap: 0
-      sheet_only_declared: 0
-      sheet_only_undeclared: 9
+      sheet_only_declared: 9
+      sheet_only_undeclared: 0
       split: 0
       stale_declarations: 0
       two_terminal_checked: 46
@@ -1207,8 +1207,7 @@ amps:
     pot_as_resistor: []
     pot_orientation_flipped: []
     section_swap: []
-    sheet_only_declared: []
-    sheet_only_undeclared:
+    sheet_only_declared:
     - C19
     - C41
     - CH1
@@ -1218,6 +1217,7 @@ amps:
     - R42
     - R43
     - R44
+    sheet_only_undeclared: []
     split: []
     stale_declarations: []
     unresolved: []
@@ -1513,17 +1513,17 @@ amps:
     unresolved: []
 summary:
   amps: 40
-  amps_with_findings: 21
+  amps_with_findings: 19
   anchors: 1394
   board_only: 1
-  claimed_amps_with_findings: 20
+  claimed_amps_with_findings: 18
   merged: 8
   misplaced: 33
   pot_as_resistor: 0
   pot_orientation_flipped: 33
   section_swap: 0
-  sheet_only_declared: 246
-  sheet_only_undeclared: 59
+  sheet_only_declared: 293
+  sheet_only_undeclared: 12
   split: 1
   stale_declarations: 0
   two_terminal_checked: 2135
