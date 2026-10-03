@@ -355,6 +355,47 @@ def load_iron(amp_id: str) -> dict:
     return out
 
 
+# Which way the board lies from an off-board item on each edge, in SVG's y-down
+# frame. The renderer places every board-facing terminal along this vector.
+BOARD_NORMAL = {"top": (0.0, 1.0), "bottom": (0.0, -1.0),
+                "left": (1.0, 0.0), "right": (-1.0, 0.0)}
+
+LAYOUT_VIEWS = ("wiring", "component")
+_VIEW_CACHE: dict[str, str] = {}
+
+
+def load_layout_view(amp_id: str) -> str:
+    """meta.yaml `conventions.layout_view` — which side of the chassis the board
+    drawing is seen from, `wiring` (default) or `component`.
+
+    It matters for exactly one part. A resistor looks the same from either side;
+    a potentiometer does not. Its terminals are numbered by the part — 1 the
+    counter-clockwise end, 2 the wiper, 3 the clockwise end — and that triad is
+    rigid however the pot is clocked in its hole, so which way it reads round the
+    body is a statement about where the READER is standing: counter-clockwise
+    from the shaft side, clockwise from the wiring side.
+
+    `wiring` is the default because that is what these drawings are and what
+    every factory layout sheet read for this corpus draws. An amp that says
+    nothing gets it; an amp that says something is checked against what it said
+    (check_pot_orientation.py). An unknown word falls back to the default here
+    and is reported there rather than being silently honoured."""
+    if amp_id in _VIEW_CACHE:
+        return _VIEW_CACHE[amp_id]
+    path = ROOT / "amps" / amp_id / "meta.yaml"
+    view = "wiring"
+    if path.exists():
+        try:
+            data = yaml.safe_load(path.read_text()) or {}
+        except Exception:  # noqa: BLE001 — a malformed meta.yaml is validate.py's finding
+            data = {}
+        raw = (data.get("conventions") or {}).get("layout_view")
+        if raw is not None and str(raw).strip().lower() in LAYOUT_VIEWS:
+            view = str(raw).strip().lower()
+    _VIEW_CACHE[amp_id] = view
+    return view
+
+
 def load_bom(amp_dir: Path) -> dict:
     raw = yaml.safe_load((amp_dir / "bom.yaml").read_text())
     out = {}
@@ -1181,6 +1222,9 @@ class Renderer:
         self.layout = layout
         self.bom = bom
         self.amp_id = amp_id
+        # Which side of the chassis this drawing is seen from — see
+        # load_layout_view(). Read once; pot_lug_pos() is the only consumer.
+        self.layout_view = load_layout_view(amp_id)
         b = layout.get("board", {})
         self.rows = int(b.get("rows", 2))
         self.cols = int(b.get("cols", 20))
@@ -2309,17 +2353,46 @@ class Renderer:
         return x + TUBE_R * math.sin(theta), y - TUBE_R * math.cos(theta)
 
     def pot_lug_pos(self, item, lug):
+        """Where lugs 1, 2 and 3 sit on a pot body.
+
+        The lugs sit on the board-facing side of the pot; their ORDER along that
+        side is not a free choice. A potentiometer's terminals are numbered by
+        the part — 1 the counter-clockwise end, 2 the wiper, 3 the clockwise end
+        — and that triad is rigid however the pot is clocked in its hole. Seen
+        from the shaft side, 1 -> 2 -> 3 sweeps COUNTER-CLOCKWISE about the body;
+        seen from the WIRING side, CLOCKWISE. These are wiring-side drawings: it
+        is why tube_pin_pos() numbers its rings clockwise (the standard
+        bottom-view basing order the tube data declares as `basing.view: bottom`),
+        and it is what every factory layout sheet read for this corpus draws —
+        the 5E3 (F-EE), 5F6-A (I-EG), 6G3 (I-FA), AB763 Twin and Deluxe Reverb
+        (C-FD) and AA1164 sheets all put the grounded lug at the
+        counter-clockwise end of the fan.
+
+        So the tangential offset must reverse with the board-facing normal.
+        Spelling `(lug - 2) * 11` with one fixed sign on every edge does not: it
+        comes out clockwise on `bottom` and `left` and MIRRORED on `top` and
+        `right` — 213 of the corpus's 215 pots. Electrically invisible, because
+        verify_layout_nets.py proves which NET each lug sits on and never where
+        the lug is drawn, so it shipped unseen until 2026-09-09.
+        check_pot_orientation.py gates it now.
+        """
         cx, cy = self.off_pos(item)
         r = 18
-        # lugs sit on the board-facing side of the pot; 1/2/3 left→right
         edge = item.get("edge", "top")
-        if edge == "bottom":
-            return cx + (lug - 2) * 11, cy - r - 4
-        if edge == "left":
-            return cx + r + 4, cy + (lug - 2) * 11
-        if edge == "right":
-            return cx - r - 4, cy + (lug - 2) * 11
-        return cx + (lug - 2) * 11, cy + r + 4          # top (board below)
+        # Out from the body toward the board...
+        nx, ny = BOARD_NORMAL.get(edge, BOARD_NORMAL["top"])
+        # ...or toward the control panel, where the factory sheets fan them,
+        # leads running back over the body. `lugs: panel` is a rotation of the
+        # pot in its own hole: it moves the fan and never reorders it.
+        if str(item.get("lugs", "board")).strip().lower() == "panel":
+            nx, ny = -nx, -ny
+        # The tangent that carries lug 1 -> lug 3 CLOCKWISE about the body, which
+        # is the wiring-side order; a component-side drawing is its mirror.
+        tx, ty = -ny, nx
+        if self.layout_view == "component":
+            tx, ty = -tx, -ty
+        off = (lug - 2) * 11
+        return cx + nx * (r + 4) + tx * off, cy + ny * (r + 4) + ty * off
 
     def pot_tap_pos(self, item):
         """Where a tapped pot's fourth terminal sits: `VRn.lug4`.
