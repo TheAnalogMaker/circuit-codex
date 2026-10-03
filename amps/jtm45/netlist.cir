@@ -3,11 +3,14 @@
 * factory drawing's component values and printed valve-voltage chart (see
 * meta.yaml); no drawing reproduced.
 *
-* DC conventions: B+1 driven at the chart's +450 V reservoir (GZ34 cathode);
-* downstream rails DERIVED through the real dropper values. The 20H choke is
-* modeled as a DCR estimate; the output-transformer primary DCR is omitted, so
-* the KT66 plate node sits at B+1 (chart prints 430 at the plate pin, 20 V of
-* omitted OT/reservoir drop — within the 20% tube-pin tolerance). DC-open caps
+* DC conventions: B+1 driven at the chart's +450 V reservoir (the node after
+* the standby switch); downstream rails DERIVED through the real dropper values.
+* The drawing lands the output-transformer centre tap AFTER the 20H choke, on
+* the +440 V node it shares with the 8.2k dropper, the screen feed and a filter
+* cap, so the choke carries the KT66 plate current as well as the screens and
+* preamp. The choke is modeled as a DCR estimate; the output-transformer primary
+* DCR is omitted, so the KT66 plate node sits at B+2 (chart prints 430 at the
+* plate pin; plates are not gated). DC-open caps
 * are MODELLED where both leads land on a named DC node (the PI->output couplers
 * C9/C10, the tail-bootstrap C8, and the shared-input cathode-bypass C3) so their
 * board placement is layout-checked; open at DC, they move no operating point.
@@ -24,7 +27,7 @@
 VBP1 BP1 0 DC 450
 VBIAS NBIAS 0 DC -50
 
-* rail chain: reservoir -> 20H choke -> screens node -> 8.2k -> PI -> 10k -> preamp
+* rail chain: reservoir -> 20H choke -> OT centre tap + screen feed node -> 8.2k -> PI -> 10k -> preamp
 RCHOKE BP1 BP2 150
 RD1 BP2 BP3 8.2k
 RD2 BP3 BP4 10k
@@ -68,9 +71,9 @@ RT2 JPI PRES 10k
 RPRES PRES 0 5k
 RNFB PRES 0 27k
 
-* KT66 pair — fixed bias via 220k grid leaks (RGL1/RGL2) from the -50 V line,
-* 1k 2W screen resistors, cathodes grounded. Plates sit at B+1 (OT primary DCR
-* omitted). The PI plates couple straight to the grids through 0.1u caps
+* KT66 pair — fixed bias via 220k grid leaks (RGL1/RGL2) from the -50 V line;
+* cathodes grounded. Plates sit at B+2 (the OT centre tap is after the choke;
+* primary DCR omitted). 1k 2W screen resistors. The PI plates couple straight to the grids through 0.1u caps
 * (C9/C10; the factory drawing has no grid stopper): modelled so the
 * layout-equivalence gate checks the
 * inter-stage routing and push-pull phase natively (each output grid is its own
@@ -78,11 +81,11 @@ RNFB PRES 0 27k
 * sits at the -50 V bias node through its leak and the DC op point is unmoved.
 C9 PPIA G5 0.1u
 RGL1 G5 NBIAS 220k
-XV5 BP1 S5 G5 0 KT66
+XV5 BP2 S5 G5 0 KT66
 RS1 BP2 S5 1k
 C10 PPIB G6 0.1u
 RGL2 G6 NBIAS 220k
-XV6 BP1 S6 G6 0 KT66
+XV6 BP2 S6 G6 0 KT66
 RS2 BP2 S6 1k
 
 * cathode-bypass cap (both leads on a named DC node — placement layout-checked)

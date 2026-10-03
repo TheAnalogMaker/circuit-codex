@@ -64,13 +64,13 @@ parts:
   - { ref: C16,  a: [0, 0],  b: [0, 1], value_nudge: [0, -12] , plus: b }    # 25 µF bias reservoir; value lifted off run[1]
   - { ref: C15,  a: [0, 3],  b: [0, 4] }    # 0.05 µF bias filter
   # --- main filter cans + rail droppers (power end, left) ---------------------
-  # Polarity: DC sign (source read; no legible printed capacitor + used); lead C11.a: BP1 = +450.0 V (ideal source VBP1); lead C11.b: 0 = +0.0 V (ground); more-positive lead is C11.a.
+  # Polarity: printed '+' on the cited source (reservoir: − toward the return, + toward the 450 V node, cap at ≈(1855,755) in the second read); lead C11.a: BP1 = +450.0 V (ideal source VBP1); lead C11.b: 0 = +0.0 V (ground); more-positive lead is C11.a.
   - { ref: C11,  a: [0, 6],  b: [0, 8] , plus: a }    # 32 µF reservoir, B+1
-  # Polarity: DC sign (source read; no legible printed capacitor + used); lead C12.a: BP2 = +448.7 V (op-points); lead C12.b: 0 = +0.0 V (ground); more-positive lead is C12.a.
-  - { ref: C12,  a: [0, 9],  b: [0, 11] , plus: a }   # 16 µF filter, B+2 (screens)
-  # Polarity: DC sign (source read; no legible printed capacitor + used); lead C13.a: BP3 = +380.4 V (op-points); lead C13.b: 0 = +0.0 V (ground); more-positive lead is C13.a.
+  # Polarity: printed '+' on the cited source (the post-choke cap at ≈(1679,119), + toward HT, in the second read); lead C12.a: BP2 = +433.8 V (op-points); lead C12.b: 0 = +0.0 V (ground); more-positive lead is C12.a.
+  - { ref: C12,  a: [0, 9],  b: [0, 11] , plus: a }   # 32 µF filter, B+2 (OT centre tap, screen feed)
+  # Polarity: printed '+' on the cited source (the '16' after the 8.2K, crop (1590,225,1650,270) in the second read); lead C13.a: BP3 = +367.6 V (op-points); lead C13.b: 0 = +0.0 V (ground); more-positive lead is C13.a.
   - { ref: C13,  a: [0, 12], b: [0, 14] , plus: a }   # 16 µF filter, B+3 (PI)
-  # Polarity: DC sign (source read; no legible printed capacitor + used); lead C14.a: BP4 = +326.3 V (op-points); lead C14.b: 0 = +0.0 V (ground); more-positive lead is C14.a.
+  # Polarity: DC sign (source read; no legible printed capacitor + used); lead C14.a: BP4 = +315.3 V (op-points); lead C14.b: 0 = +0.0 V (ground); more-positive lead is C14.a.
   - { ref: C14,  a: [0, 15], b: [0, 17] , plus: a }   # 16 µF filter, B+4 (preamp)
   - { ref: RD1,  a: [1, 9],  b: [1, 10] }   # 8.2k dropper B+2->B+3
   - { ref: RD2,  a: [1, 12], b: [1, 13] }   # 10k dropper B+3->B+4
@@ -167,8 +167,8 @@ runs:
 
   # --- filtered B+ rail: choke, then 8.2k and 10k droppers -------------------
   - { from: C11.a, to: L1.hi }                     # B+1 -> 20H choke
-  - { from: L1.lo, to: C12.a }                     # choke -> B+2 (screens)
-  - { from: C12.a, to: RD1.a, via: [[9.35, 0.7]] } # B+2 -> 8.2k dropper (bows right, clear of the C12.a lower-left feeds)
+  - { from: L1.lo, to: C12.a }                     # choke -> B+2 (OT centre tap, screen feed, PI dropper)
+  - { from: C12.a, to: RD1.a, via: [[9.707, 0.7]] } # B+2 -> 8.2k dropper (bows right, clear of the C12.a lower-left feeds)
   - { from: RD1.b, to: C13.a }                     # -> B+3 (PI)
   - { from: C13.a, to: RD2.a, via: [[13, 0.6]] }   # B+3 -> 10k dropper (bows right, clear of the RLA-load approach)
   - { from: RD2.b, to: C14.a }                     # -> B+4 (preamp)
@@ -192,13 +192,13 @@ runs:
   - { from: RS2.b, to: V6.pin4, via: [[29.7, 2.55]] }          # -> V6 screen (excursion pulled right, clear of the V6 label)
   - { from: C9.b, to: V5.pin5, via: [[19, 1.5], [18.708, 1.565]] }   # PI coupler -> V5 grid (the drawing has no stopper)
   - { from: RGL1.a, to: V5.pin5, via: [[20, 1.72]] }           # grid leak -> V5 grid
-  - { from: C10.b, to: V6.pin5, via: [[24, 1.5], [25.5, 1.581]] }   # PI coupler -> V6 grid (the drawing has no stopper)
+  - { from: C10.b, to: V6.pin5, via: [[24.247, 1.5], [25.701, 1.581]] }   # PI coupler -> V6 grid (the drawing has no stopper)
   - { from: RGL2.a, to: V6.pin5, via: [[27, 1.72]] }           # grid leak -> V6 grid
   - { from: RGL1.b, to: RGL2.b, via: [[20.3, 1.12], [27.3, 1.12]] }  # -50V ties both leaks (shallow bow above the KT66 grid pins; approaches RGL2.b from the right)
   - { from: RGL2.b, to: C16.a, via: [[24, 2.24], [1, 2.24]] }      # -50V backbone -> bias node (leaves RGL2.b steeply down-left to lane 2.24; clears V7 pins)
   - { from: V5.pin3, to: T3.pa, via: [[17.3, 2.9], [62.5, 2.9], [62.5, 0.31]] }    # V5 plate -> OT primary (own drop col 62.5, up to the pa pigtail)
   - { from: V6.pin3, to: T3.pb, via: [[24, 3.05], [62.7, 3.05], [62.7, 0.405]] }  # V6 plate -> OT primary (own drop col 62.7)
-  - { from: T3.ct, to: C11.a, via: [[62.3, 0.5], [62.3, 2.72], [7, 2.72]] }  # OT centre tap -> B+1 (own drop col 62.3; approaches C11.a from lower-right)
+  - { from: T3.ct, to: C12.a, via: [[62.3, 0.5], [62.3, 2.72], [10, 2.72]] }  # OT centre tap -> B+2, after the choke, as the drawing lands it (own drop col 62.3; approaches C12.a from lower-right)
   - { from: V5.pin8, to: [1.45, 20], via: [[20.8, 1.5]] }              # V5 cathode -> ground (bows right of V5.pin5)
   - { from: V6.pin8, to: [1.45, 27], via: [[27.8, 1.5]] }              # V6 cathode -> ground (bows right of V6.pin5)
   - { from: T3.sa, to: SPK, via: [[63.4, 0.595], [63.4, 3.2], [31, 3.2], [31, 1.86]] }    # OT secondary -> speaker (own drop col 63.4, right of C3.b ground; up the left of the Spkr label)
@@ -305,12 +305,13 @@ runs:
 # netlist for pipeline/verify_layout_nets.py. See docs/layout-schema.md.
 net_map:
   # Terminals the netlist gives no discrete node to reach on their own. The two
-  # KT66 plates and the OT primary centre tap all co-anchor to B+1 — the netlist
-  # omits the OT primary DCR, so both plate nodes and the CT collapse to B+1.
+  # KT66 plates and the OT primary centre tap all co-anchor to B+2 — the drawing
+  # lands the centre tap after the choke, and the netlist omits the OT primary
+  # DCR, so both plate nodes and the CT collapse to B+2.
   anchors:
-    T3.pa: BP1       # V5 KT66 plate → OT primary
-    T3.pb: BP1       # V6 KT66 plate → OT primary
-    T3.ct: BP1       # OT primary centre tap → B+1
+    T3.pa: BP2       # V5 KT66 plate → OT primary
+    T3.pb: BP2       # V6 KT66 plate → OT primary
+    T3.ct: BP2       # OT primary centre tap → B+2
     SPK: "0"         # speaker jack — OT-secondary DCR folded into ground (the NFB return reads as ground at DC)
   # (The 220k KT66 grid leaks RGL1/RGL2 are now MODELLED resistors in netlist.cir
   # — G5/G6 → NBIAS — together with the 0.1u PI-plate coupling caps C9/C10, so the

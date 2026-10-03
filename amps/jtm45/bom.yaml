@@ -43,9 +43,9 @@ items:
   - { ref: RS2, part: "Carbon comp resistor", value: "1 kΩ · 2 W",   role: "V6 screen resistor" }
   - { ref: RD1, part: "Power resistor",       value: "8.2 kΩ · 1 W", role: "Rail dropper B+2 → B+3" }
   - { ref: RD2, part: "Power resistor",       value: "10 kΩ · 1 W",  role: "Rail dropper B+3 → B+4" }
-  - { ref: L1,  part: "Filter choke",         value: "20 H",         role: "B+1 → B+2 (screens)" }
-  - { ref: C11, part: "Electrolytic capacitor", value: "32 µF · 500 V", role: "Reservoir filter, B+1" }
-  - { ref: C12, part: "Electrolytic capacitor", value: "16 µF · 500 V", role: "Filter, B+2" }
+  - { ref: L1,  part: "Filter choke",         value: "20 H",         role: "B+1 → B+2 (output-transformer centre tap, screen feed, PI dropper)" }
+  - { ref: C11, part: "Electrolytic capacitor", value: "32 µF · 500 V", role: "Reservoir filter, B+1 (the 450 V node after the standby switch)" }
+  - { ref: C12, part: "Electrolytic capacitor", value: "32 µF · 500 V", role: "Filter, B+2 (the node the OT centre tap sits on). Its label is the same glyph pair as the reservoir's '32': value probable" }
   - { ref: C13, part: "Electrolytic capacitor", value: "16 µF · 500 V", role: "Filter, B+3" }
   - { ref: C14, part: "Electrolytic capacitor", value: "16 µF · 450 V", role: "Filter, B+4" }
   - { ref: D1,  part: "Rectifier (bias)",     value: "1N4007 (silicon diode)", role: "Bias supply rectifier" }
@@ -58,7 +58,7 @@ items:
   - { ref: V5,  part: "Power tube",           value: "KT66",           role: "Push-pull output (upper)" }
   - { ref: V6,  part: "Power tube",           value: "KT66",           role: "Push-pull output (lower)" }
   - { ref: V7,  part: "Rectifier tube",       value: "GZ34",           role: "Full-wave rectifier (V7A/V7B)" }
-  - { ref: T3,  part: "Output transformer",   value: "Push-pull, KT66 primary", role: "Push-pull output to the speaker" }
+  - { ref: T3,  part: "Output transformer",   value: "Push-pull, KT66 primary", role: "Push-pull output to the speaker; centre tap on B+2, after the choke" }
   - { ref: "—", part: "Power transformer",    value: "360-0-360 V HT · 6.3 V heaters", role: "HT + heaters + rectifier filament" }
   - { ref: "—", part: "Mica capacitor",       value: "100 pF",         role: "Bright cap across VR2, the volume V1B feeds (annotation only on schematic)" }
   - { ref: RNFB, part: "Carbon comp resistor", value: "27 kΩ · ½ W", role: "Negative feedback, speaker → tail foot" }

@@ -9,7 +9,7 @@ follower, V4 phase inverter, V5/V6 KT66, V7 GZ34).
 
 The circuit is Marshall's copy of the tweed 5F6-A, so the layout mirrors
 draw_5f6a.py with British-supply values (ECC83 input, KT66 output, 1 kohm
-screen stoppers, 20 H choke, 8.2 kohm dropper, diode/150k bias supply).
+screen stoppers, 20 H choke with the OT centre tap after it, 8.2 kohm dropper, diode bias supply).
 """
 from pathlib import Path
 
@@ -237,14 +237,14 @@ s.wire(235.08, 126.5, 235.08, 115.08)
 s.wire(235.08, 115.08, 240.03, 115.08)
 s.wire(240.03, 110, 237.49, 110)
 s.wire(237.49, 110, 237.49, 107)
-s.glabel("B+1", 237.49, 107, 90)
+s.glabel("B+2", 237.49, 107, 90)     # the drawing's CT sits after the choke
 s.wire(257.81, 107.46, 260.35, 107.46)
 s.glabel("SPKR", 260.35, 107.46, 0)
 s.wire(257.81, 112.54, 260.35, 112.54)
 s.glabel("GND", 260.35, 112.54, 0)
 
 # ---- power supply + bias ------------------------------------------------
-s.text("Power — 360-0-360 HT, GZ34, 20H choke · bias: HT-tap diode, 150k, .05u + 25u -> -50V", 25, 158, 1.4)
+s.text("Power — 360-0-360 HT, GZ34, 20H choke (OT centre tap after it) · bias: HT-tap diode, 150k, .05u + 25u -> -50V", 25, 158, 1.4)
 for x, ref, ht in [(41.91, "V7A", "HT_A"), (54.61, "V7B", "HT_B")]:
     s.glabel(ht, x, 157.5, 90)
     s.wire(x, 157.5, x, 160.16)
@@ -263,7 +263,7 @@ s.junction(105.41, 177.8)
 s.glabel("B+2", 105.41, 175.26, 90)
 s.wire(105.41, 175.26, 105.41, 177.8)
 s.junction(108.86, 177.8)
-s.sym("C", "C12", "16u", 108.86, 181.61)
+s.sym("C", "C12", "32u", 108.86, 181.61)
 s.gnd(108.86, 185.42)
 l, r = s.series_h("R", "RD1", "8.2k", 115.57, 177.8)
 s.wire(r, 177.8, 127, 177.8)
