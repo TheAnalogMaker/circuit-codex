@@ -16,7 +16,7 @@ wiring_claim: verified
 
 board:
   rows: 2
-  cols: 30
+  cols: 33
   title: "5E3 · eyelet board layout"
 
 # The heater supply is single-ended, so the green leads are not a twisted pair
@@ -65,7 +65,7 @@ heaters:
       chain.
     sockets:
       V5: { feed: [2], return: [8] }        # 5Y3GT directly-heated filament
-caption: "Redrawn from the published Fender 5E3 layout drawing (F-EE) — principal board components, in the order the drawing shows them. The output-grid stoppers at the 6V6 sockets are omitted for legibility. The volumes are fed on their wipers and the V2A grid is taken off their joined right-hand lugs; the tone capacitors mount in the control row, the 500 pF from the tone pot to the instrument volume's wiper and the 0.005 µF from the tone pot to ground, with the tone wiper on the volumes' grid-end lugs, as the drawing wires them. The 6.3 V heater supply is single-ended, as both pages of the sheet show: one green transformer lead is grounded and the other feeds the pilot lamp and then the heaters, so each socket carries a green feed and a grounded return (6V6GT fed at pin 7, pin 2 to chassis; 12AX7 and 12AY7 pins 4+5 strapped for 6.3 V parallel with the centre tap at pin 9 to chassis). It is therefore drawn as single green leads, not as a twisted pair. The 5Y3GT rectifier is directly heated from its own 5 V winding and off the 6.3 V chain. The output transformer's secondary is drawn to the speaker jacks — the sheet brings one lead through a chassis grommet to the jack tip and links the two jacks there, and the schematic grounds the secondary's other end. Not a trace or a dimensioned reproduction."
+caption: "Redrawn from the published Fender 5E3 layout drawing (F-EE) — principal board components, in the order the drawing shows them. The output-grid stoppers at the 6V6 sockets are omitted for legibility. Each channel has two input jacks, each with its own 68 kΩ on the board, the pair joined at the grid, and the channel's 1 MΩ leak runs from a ground lug to jack 1's tip at the jacks; the jack-normalling contacts (jack 2's onto jack 1's tip, jack 1's to ground) have no board terminal and are not drawn. The volumes are fed on their wipers and the V2A grid is taken off their joined right-hand lugs; the tone capacitors mount in the control row, the 500 pF from the tone pot to the instrument volume's wiper and the 0.005 µF from the tone pot to ground, with the tone wiper on the volumes' grid-end lugs, as the drawing wires them. The 6.3 V heater supply is single-ended, as both pages of the sheet show: one green transformer lead is grounded and the other feeds the pilot lamp and then the heaters, so each socket carries a green feed and a grounded return (6V6GT fed at pin 7, pin 2 to chassis; 12AX7 and 12AY7 pins 4+5 strapped for 6.3 V parallel with the centre tap at pin 9 to chassis). It is therefore drawn as single green leads, not as a twisted pair. The 5Y3GT rectifier is directly heated from its own 5 V winding and off the 6.3 V chain. The output transformer's secondary is drawn to the speaker jacks — the sheet brings one lead through a chassis grommet to the jack tip and links the two jacks there, and the schematic grounds the secondary's other end. Not a trace or a dimensioned reproduction."
 source:
   desc: "Fender 'Deluxe' Model 5E3 layout drawing (F-EE), page 1"
   url: "https://el34world.com/charts/Schematics/files/Fender/Fender_deluxe_5e3.pdf"
@@ -105,8 +105,12 @@ parts:
   - { ref: RL1,  a: [1, 21], b: [1, 22] }   # 100k V1A plate load
   - { ref: RL2,  a: [1, 23], b: [1, 24] }   # 100k V1B plate load
   # 12AY7 input stage (right end)
-  - { ref: R1s,  a: [1, 25], b: [1, 26] }   # 68k instrument grid stopper
-  - { ref: R2s,  a: [1, 27], b: [1, 28] }   # 68k mic grid stopper
+  # F-EE draws four 68 Ks, two per V1 grid (one per jack); the board widened
+  # by three columns on 2026-10-03 to seat the jack-2 pair (V1 audit, 5e3.md).
+  - { ref: R1s,  a: [1, 25], b: [1, 26] }   # 68k instrument jack-1 grid stopper
+  - { ref: R1s2, a: [1, 27], b: [1, 28] }   # 68k instrument jack-2 grid stopper
+  - { ref: R2s,  a: [1, 29], b: [1, 30] }   # 68k mic jack-1 grid stopper
+  - { ref: R2s2, a: [1, 31], b: [1, 32] }   # 68k mic jack-2 grid stopper
   - { ref: RK1,  a: [0, 26.5], b: [1, 26.5] }   # 820 Ω shared 12AY7 cathode (vertical; own eyelet, clear of R2s's grid tie at [1,27])
   # Polarity: DC sign (source read; no legible printed capacitor + used); lead C10.a: KAY = +1.8 V (op-points); lead C10.b: 0 = +0.0 V (ground); more-positive lead is C10.a.
   - { ref: C10,  a: [0, 28], b: [0, 29] , plus: a }   # 25 µF 12AY7 cathode bypass
@@ -127,14 +131,22 @@ offboard:
   # "Volume" labels dropped that distinction on the drawing.
   - { id: VR1, ref: VR1, kind: pot, edge: top, at: 14, label: "Volume · inst" }
   - { id: VR2, ref: VR2, kind: pot, edge: top, at: 18, label: "Volume · mic" }
-  - { id: JI,  kind: jack, edge: top, at: 22, label: "Inst in" }
-  - { id: JM,  kind: jack, edge: top, at: 25, label: "Mic in" }
+  # Four input jacks, two per channel, and each channel's 1 MEG from a ground
+  # lug to jack 1's tip, as F-EE's layout draws them. The normalling contacts
+  # (jack 2's onto jack 1's tip, jack 1's to ground) have no board terminal and
+  # are not drawn.
+  - { id: RG1, ref: RG1, kind: part, edge: top, at: 20.8, label: "RG1" }
+  - { id: JI1, kind: jack, edge: top, at: 22.2, label: "Inst 1" }
+  - { id: JI2, kind: jack, edge: top, at: 24.0, label: "Inst 2" }
+  - { id: RG2, ref: RG2, kind: part, edge: top, at: 26.2, label: "RG2" }
+  - { id: JM1, kind: jack, edge: top, at: 27.6, label: "Mic 1" }
+  - { id: JM2, kind: jack, edge: top, at: 29.0, label: "Mic 2" }
   - { id: T2,  ref: T2, kind: xfmr, edge: right, at: 0.5, label: "Output trans" }
 
 # Ground bus — the bare-wire rail that runs the length of the board just below
 # the bottom eyelet row; the cathode, filter, and pot grounds all tie to it.
 bus:
-  - { from: [1.45, -0.4], to: [1.45, 29.4] }
+  - { from: [1.45, -0.4], to: [1.45, 32.4] }
 
 # Wiring — read lead-by-lead from the published 5E3 layout drawing (F-EE). The
 # transformer leads carry the colours marked on that drawing (black/green MAINS
@@ -181,11 +193,11 @@ runs:
   # lanes: the terminal names ("SEC H", "SEC C") are lettered beside their own
   # pigtails, and that lane has to stay clear of a conductor — the same
   # arrangement amps/5f2a uses for the identical pair of leads.
-  - { from: T2.sec_c, to: [1.45, 27.2], via: [[27.6, 0.86], [27.6, 3.35]] }  # OT secondary common → ground bus
-  - { from: T2.sec_h, to: SPK, via: [[29.55, 0.74], [29.55, 3.05]] }   # OT secondary hot → speaker jacks
-  - { from: C11.a, to: T2.red, via: [[3, 2.6], [30.2, 2.6], [30.2, 0.38]] }    # B+1 → OT centre tap (drop col 30.2)
-  - { from: T2.blue, to: V3.pin3, via: [[30.5, 0.6], [30.5, 2.72], [4.8, 2.72]] }    # OT primary → V3 plate (drop col 30.5)
-  - { from: T2.brown, to: V4.pin3, via: [[30.7, 0.647], [30.7, 2.84], [7.4, 2.84]] } # OT primary → V4 plate (drop col 30.7)
+  - { from: T2.sec_c, to: [1.45, 30.2], via: [[30.6, 0.86], [30.6, 3.35]] }  # OT secondary common → ground bus
+  - { from: T2.sec_h, to: SPK, via: [[32.55, 0.74], [32.55, 3.05], [13.6, 3.05]] }   # OT secondary hot → speaker jacks
+  - { from: C11.a, to: T2.red, via: [[3, 2.6], [33.2, 2.6], [33.2, 0.38]] }    # B+1 → OT centre tap (drop col 33.2)
+  - { from: T2.blue, to: V3.pin3, via: [[33.5, 0.6], [33.5, 2.72], [4.8, 2.72]] }    # OT primary → V3 plate (drop col 33.5)
+  - { from: T2.brown, to: V4.pin3, via: [[33.7, 0.647], [33.7, 2.84], [7.4, 2.84]] } # OT primary → V4 plate (drop col 33.7)
 
   # --- output transformer secondary → speaker jacks --------------------------
   # The speaker jack was PLACED and never wired: of the corpus's forty boards
@@ -259,14 +271,26 @@ runs:
   - { from: VR2.lug1, to: [1.45, 17.3], via: [[19.431, -0.059], [16.97, 1.431]] }
 
   # --- 12AY7 input stage (V1): instrument + mic channels ---------------------
-  - { from: JI, to: R1s.b, via: [[22, -0.45]] }      # inst jack → grid stopper
+  # F-EE (layout 6361x3988; schematic crop 0,500,1700,1700) gives each jack
+  # its own 68 K, the pair joined at the grid, and hangs the 1 MEG from a ground
+  # lug to jack 1's tip. Until 2026-10-03 this board drew one jack and one 68 K
+  # per channel and left the leaks off it (V1 audit, 5e3.md).
+  - { from: JI1, to: R1s.b, via: [[22.2, -0.45]] }   # inst jack 1 → its grid stopper
+  - { from: JI2, to: R1s2.b, via: [[24.0, -0.3], [27.4, -0.3], [27.4, 0.5]] }   # inst jack 2 → its own grid stopper
+  - { from: RG1.b, to: JI1 }                         # 1 MEG → inst jack 1's tip
+  - { from: RG1.a, to: VR2.lug1 }                    # 1 MEG → ground, at the control row's grounded lug (F-EE grounds it at a lug beside the jacks)
   - { from: R1s.a, to: V1.pin7, via: [[25.7, 1.55]] }  # grid stopper → V1A grid (right of pin 6)
+  - { from: R1s2.a, to: R1s.a, via: [[27, 1.3], [24.8, 1.3]] }   # the jack-2 stopper joins the jack-1 one at the grid
   - { from: V1.pin6, to: C1.a, via: [[21.4, 0.3]] }  # V1A plate → volume coupler (up-left)
   - { from: C1.b, to: VR1.lug2, via: [[22.45, -0.61], [14.6, -0.5]] }
   - { from: V1.pin6, to: RL1.a, via: [[23.254, 2.19]] }  # V1A plate → 100k load (from left)
   - { from: RL1.b, to: C13.a, via: [[21.6, -0.76], [9.9, -0.76]] }  # plate load → B+3 (over the top)
-  - { from: JM, to: R2s.b, via: [[25, -0.55], [28.5, -0.55]] }  # mic jack → grid stopper (clears C2.b)
+  - { from: JM1, to: R2s.b, via: [[27.6, -0.55], [30, -0.55]] }  # mic jack 1 → its grid stopper
+  - { from: JM2, to: R2s2.b, via: [[29.0, -0.4], [32, -0.4]] }    # mic jack 2 → its own grid stopper
+  - { from: RG2.b, to: JM1 }                         # 1 MEG → mic jack 1's tip
+  - { from: RG2.a, to: [1.45, 24.1] }                # 1 MEG → ground
   - { from: R2s.a, to: V1.pin2, via: [[26.5, 1.75]] }  # grid stopper → V1B grid (from lower-right)
+  - { from: R2s2.a, to: R2s.a, via: [[31, 1.3], [29.2, 1.3]] }   # the jack-2 stopper joins the jack-1 one at the grid
   - { from: V1.pin1, to: C2.a, via: [[23.376, 2.193], [24.33, 0.83]] }  # V1B plate → volume coupler (up-left)
   - { from: C2.b, to: VR2.lug2, via: [[26, -0.06], [18.3, -0.44]] }
   - { from: V1.pin1, to: RL2.a, via: [[24.715, 1.87], [23.6, 1.83]] }  # V1B plate → 100k load (leave pin 1 right)
@@ -275,7 +299,7 @@ runs:
   - { from: V1.pin8, to: RK1.a, via: [[28.2, 1.45]] } # (from lower-right)
   - { from: RK1.b, to: [1.45, 27] }                  # 820 Ω → ground bus
   - { from: C10.a, to: RK1.a }                       # cathode bypass
-  - { from: C10.b, to: [1.45, 29] }
+  - { from: C10.b, to: [1.45, 28.55] }
 
   # --- 6.3 V heaters — single-ended, one green leg grounded -----------------
   # CORRECTED 2026-09-09, and the correction is the same class as issue #30:
@@ -329,11 +353,11 @@ net_map:
     T2.sec_c: "0"    # OT secondary common — grounded on the schematic page
   # DC-transparent grid stoppers the netlist omits (no DC grid current):
   series_bridge:
-    R1s: "68 k instrument-channel grid stopper — omitted from netlist (grid == input node at DC)"
-    R2s: "68 k mic-channel grid stopper — omitted from netlist"
+    R1s: "68 k instrument jack-1 grid stopper — omitted from netlist (grid == jack-1 tip, where the 1 M leak RG1 hangs, at DC)"
+    R1s2: "68 k instrument jack-2 grid stopper — omitted from netlist (no DC grid current, no drop)"
+    R2s: "68 k mic jack-1 grid stopper — omitted from netlist (grid == jack-1 tip, where the 1 M leak RG2 hangs, at DC)"
+    R2s2: "68 k mic jack-2 grid stopper — omitted from netlist (no DC grid current, no drop)"
   # Netlist elements realised off the board or by a control, not a discrete board
   # part — reported in coverage, never a failure (their nodes still check out):
   netlist_unplaced:
-    RG1: "1 M instrument input grid leak — mounted at the input jacks, not on the eyelet board"
-    RG2: "1 M mic input grid leak — mounted at the input jacks, not on the eyelet board"
     RG3: "the two 1 M volume pots (VR1/VR2) — the V2A grid returns through both tracks (grid-end lug 3 to grounded lug 1) in parallel; the netlist models that DC return as one grid-leak (G2A -> 0)"

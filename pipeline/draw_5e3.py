@@ -11,20 +11,29 @@ OUT = Path(__file__).resolve().parent.parent / "amps" / "5e3" / "schematic.kicad
 s = Sch()
 
 # ---- V1 12AY7, two channels, shared 820R cathode ------------------------
+# Each channel has two jacks, each through its own 68K into the grid, and the
+# 1 MEG leak hangs from jack 1's TIP, jack side of its 68K: F-EE schematic
+# (6118x3617, crop 0,500,1700,1700) and layout page alike. Jack 1's contact
+# goes to ground and jack 2's rests on jack 1's tip; the labels here do not
+# draw the contacts. Until 2026-10-03 this sheet drew one jack and one 68K per
+# channel with the leak on the grid node (V1 audit, 5e3.md). R1s/R2s carry no
+# DC grid current, so the netlist's RG1/RG2 see one node (series_bridge).
 for ch, (y, jack, gref, pref, plref) in enumerate(
         [(96, "INST", "RG1", "V1A", "RL1"), (128, "MIC", "RG2", "V1B", "RL2")]):
-    s.glabel(jack, 30, y, 180)
-    s.wire(30, y, 34.29, y)
+    s.glabel(f"{jack} 1", 26, y, 180)
+    s.wire(26, y, 34.29, y)
     l, r = s.series_h("R", f"R{ch + 1}s", "68k", 38.1, y)
-    s.wire(34.29, y, l, y)
     t = s.triode(pref, "12AY7", 53.34, y)
     s.wire(r, y, t["g"][0], y)
-    # The leak hangs off the stopper's OWN right pin, which is the grid node.
-    # `t["g"][0] - 4` put it 0.19 mm clear of that lead: drawn on it, wired to
-    # nothing.
-    s.junction(r, y)
-    s.sym("R", gref, "1M", r, y + 3.81)
-    s.gnd(r, y + 7.62)
+    s.junction(30, y)
+    s.sym("R", gref, "1M", 30, y + 3.81, lx=2.2, ly=2.6)   # leak at jack 1's tip
+    s.gnd(30, y + 7.62)
+    s.glabel(f"{jack} 2", 26, y - 8, 180)
+    s.wire(26, y - 8, 34.29, y - 8)
+    l, r2 = s.series_h("R", f"R{ch + 1}s2", "68k", 38.1, y - 8)
+    s.wire(r2, y - 8, 43.18, y - 8)
+    s.wire(43.18, y - 8, 43.18, y)
+    s.junction(43.18, y)
     s.plate_load(plref, "100k", t["p"], "B+3")
 
 # shared cathode bus: both K pins to x=60.96 rail, 820R + 25u to ground

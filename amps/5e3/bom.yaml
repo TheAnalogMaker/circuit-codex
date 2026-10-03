@@ -1,10 +1,12 @@
 # Parts list — reference designators match schematic.kicad_sch exactly.
-notes: "The schematic draws one input jack per channel (the real chassis has four, sharing these grid resistors). Dropper wattages are not marked on the drawing."
+notes: "Each channel has two input jacks, each through its own 68 kΩ into the grid, with the channel's 1 MΩ leak from jack 1's tip to ground, as F-EE draws it on both pages; the jacks themselves and their normalling contacts are not listed. Dropper wattages are not marked on the drawing."
 items:
-  - { ref: R1s, part: "Carbon comp resistor", value: "68 kΩ · ½ W",  role: "Instrument-channel grid stopper" }
-  - { ref: R2s, part: "Carbon comp resistor", value: "68 kΩ · ½ W",  role: "Mic-channel grid stopper" }
-  - { ref: RG1, part: "Carbon comp resistor", value: "1 MΩ · ½ W",   role: "Instrument input grid leak" }
-  - { ref: RG2, part: "Carbon comp resistor", value: "1 MΩ · ½ W",   role: "Mic input grid leak" }
+  - { ref: R1s, part: "Carbon comp resistor", value: "68 kΩ · ½ W",  role: "Instrument grid stopper (jack 1)" }
+  - { ref: R1s2, part: "Carbon comp resistor", value: "68 kΩ · ½ W", role: "Instrument grid stopper (jack 2)" }
+  - { ref: R2s, part: "Carbon comp resistor", value: "68 kΩ · ½ W",  role: "Mic grid stopper (jack 1)" }
+  - { ref: R2s2, part: "Carbon comp resistor", value: "68 kΩ · ½ W", role: "Mic grid stopper (jack 2)" }
+  - { ref: RG1, part: "Carbon comp resistor", value: "1 MΩ · ½ W",   role: "Instrument input leak, jack 1's tip to ground (the V1A grid returns through R1s)" }
+  - { ref: RG2, part: "Carbon comp resistor", value: "1 MΩ · ½ W",   role: "Mic input leak, jack 1's tip to ground (the V1B grid returns through R2s)" }
   - { ref: RL1, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "V1A plate load" }
   - { ref: RL2, part: "Carbon comp resistor", value: "100 kΩ · ½ W", role: "V1B plate load" }
   - { ref: RK1, part: "Carbon comp resistor", value: "820 Ω · ½ W",  role: "Shared 12AY7 cathode bias" }

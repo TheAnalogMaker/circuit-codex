@@ -24,6 +24,8 @@ RD1 BP1 BP2 5k
 RD2 BP2 BP3 22k
 
 * V1 12AY7 — two channels, shared 820R cathode (25 uF bypass omitted for DC)
+* RG1/RG2 hang from each channel's jack-1 tip; the 68k stoppers (two per grid,
+* one per jack) carry no DC grid current, so the leak sits on the grid node.
 RL1 BP3 PAY1 100k
 XV1A PAY1 GAY1 KAY 12AY7
 RG1 GAY1 0 1meg
