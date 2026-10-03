@@ -571,9 +571,14 @@ s.wire(kr, teec, XPI + 26, teec)
 s.wire(XPI + 26, teec, XPI + 26, 140)
 
 XO = 320
-for y, vref, glref, sref, gnode in [(92, "V7", "RGL1", "RS1", XPI + 26),
-                                     (140, "V8", "RGL2", "RS2", XPI + 26)]:
-    s.wire(gnode, y, XO - 7.62, y)
+# Each 6V6 grid takes a 1500 stopper from the leak/coupler node: the C-FD
+# schematic letters "1500" in both grid leads, and the layout mounts one on each
+# 6V6 socket, pin 5 to the pin-1 tie lug. DC-transparent (sch_map series_bridge).
+for y, vref, glref, sref, stref, gnode in [(92, "V7", "RGL1", "RS1", "R7s", XPI + 26),
+                                           (140, "V8", "RGL2", "RS2", "R8s", XPI + 26)]:
+    stl, str_ = s.series_h("R", stref, "1.5k", 300, y)
+    s.wire(gnode, y, stl, y)
+    s.wire(str_, y, XO - 7.62, y)
     p = s.pentode(vref, "6V6GT", XO, y)
     s.junction(gnode, y)
     s.sym("R", glref, "220k", gnode, y + 3.81)
@@ -666,7 +671,7 @@ s.gnd(164, YPW + 11.81 + 3.81)
 
 # ============================ BIAS SUPPLY ===========================
 YB = YPW - 6
-s.text("Bias supply — off an HT tap → -35 V (25u/50u, 10k-L divider)", 190, 229, 1.3)
+s.text("Bias supply — off an HT tap → -35 V (25u 50 V, 10k-L divider)", 190, 229, 1.3)
 s.glabel("HT_B", 190, YB, 180)
 s.wire(190, YB, 193.92, YB)
 s.sym("DIODE_SS", "DBIAS", "Si", 199, YB, lx=-2.0, ly=-5.4, rot=180, label_rot=0)
@@ -677,11 +682,11 @@ s.wire(r, YB, 224, YB)
 s.junction(218, YB)
 s.sym("C", "CB1", "25u", 218, YB + 3.81)
 s.gnd(218, YB + 7.62)
-s.junction(224, YB)
-s.sym("C", "CB2", "50u", 224, YB + 3.81)
-s.gnd(224, YB + 7.62)
+# One filter cap: the C-FD sheet letters it "-25 / +50" (25 µF, 50 V) on a single
+# symbol, and the layout's bias sub-box draws one can, "25 50". Until 2026-10-03
+# this sheet split that pair into a 25u and a phantom 50u.
 # Bias divider, as the C-FD sheet draws it: the 10K-L control runs from the raw
-# supply (the rectifier / 470 / 25u-50u node) to RBAL 10k, which returns to
+# supply (the rectifier / 470 / 25u node) to RBAL 10k, which returns to
 # ground, and the -35 V line is the control's WIPER. The raw end is labelled
 # BIAS RAW. The sheet used to draw the control as a rheostat in series with
 # RBAL and take -35 V off RBAL's far end, with no path to ground.

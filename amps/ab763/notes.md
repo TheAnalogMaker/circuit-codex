@@ -77,7 +77,8 @@ coupler — and a 0.001 µF capacitor carries that node into a 12AT7
 that junction to the feedback node, both 1 MΩ grid leaks returned to the
 junction) splits the signal for the
 **6V6GT pair**. The output tubes are fixed-biased at **−35 V** through 220 kΩ
-leaks, with 470 Ω · 1 W screen resistors, and an 820 Ω negative-feedback resistor
+leaks, with 1.5 kΩ grid stoppers mounted on the sockets and 470 Ω · 1 W screen
+resistors, and an 820 Ω negative-feedback resistor
 returns from the speaker to the foot of the inverter's tail, where a 47 Ω goes
 to ground: the tail current and the feedback share that node.
 
@@ -88,8 +89,8 @@ plates (the output transformer centre tap sits at +420 V) → filter choke →
 **+415 V** screens → a 10 kΩ dropper → **+325 V** at the phase-inverter plates
 → a second 10 kΩ dropper → the preamp rail every 100 kΩ-loaded 12AX7 stage
 hangs from — both channels' input and second stages, the reverb recovery and the
-mix driver — which the chart gives no voltage of its own. A separate negative supply — a 470 Ω · 1 W feed, a rectifier, 25 µF and
-50 µF cans and a 10 kΩ divider — provides the **−35 V** fixed bias.
+mix driver — which the chart gives no voltage of its own. A separate negative supply — a 470 Ω · 1 W feed, a rectifier, one 25 µF · 50 V
+can and a 10 kΩ divider — provides the **−35 V** fixed bias.
 
 ## Bias and lineage
 

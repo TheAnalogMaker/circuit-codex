@@ -18,6 +18,14 @@ anchors:
 # (No `symbols:` entry is needed: the sheet letters both Normal-channel stages
 # V1A and V1B, matching the netlist's XV1A and XV1B.)
 
+series_bridge:
+  # 1.5 k output grid stoppers: the C-FD schematic letters "1500" in each 6V6
+  # grid lead, and its layout mounts each one on the socket (pin 5 to the pin-1
+  # tie lug), off the eyelet board. No DC grid current, so netlist nodes G61 /
+  # G62 run through them and netlist.cir models no element there.
+  R7s: "1.5 k V7 grid stopper — netlist node G61 runs through it"
+  R8s: "1.5 k V8 grid stopper — netlist node G62 runs through it"
+
 element_pins:
   # netlist RTR4 BP1 PRD 200 is the reverb-transformer primary DCR, not a
   # discrete resistor: it is the T4 primary winding, B+ lead to plate lead.

@@ -100,6 +100,8 @@ items:
   # --- Output stage (6V6GT pair) ---
   - { ref: RGL1, part: "Carbon comp resistor", value: "220 kΩ · ½ W · 5%", role: "V7 grid leak, from the −35 V bias line" }
   - { ref: RGL2, part: "Carbon comp resistor", value: "220 kΩ · ½ W · 5%", role: "V8 grid leak, from the −35 V bias line" }
+  - { ref: R7s, part: "Carbon comp resistor", value: "1.5 kΩ · ½ W",  role: "V7 grid stopper, mounted on the 6V6 socket (pin 5 to the tie lug)" }
+  - { ref: R8s, part: "Carbon comp resistor", value: "1.5 kΩ · ½ W",  role: "V8 grid stopper, mounted on the 6V6 socket (pin 5 to the tie lug)" }
   - { ref: RS1, part: "Wirewound resistor",   value: "470 Ω · 1 W",   role: "V7 screen resistor" }
   - { ref: RS2, part: "Wirewound resistor",   value: "470 Ω · 1 W",   role: "V8 screen resistor" }
   - { ref: T3,  part: "Output transformer",   value: "Fender 125A1A", role: "Push-pull 6V6 output" }
@@ -115,8 +117,7 @@ items:
   # --- Bias supply ---
   - { ref: RBIAS, part: "Wirewound resistor", value: "470 Ω · 1 W",   role: "Bias-supply series resistor" }
   - { ref: DBIAS, part: "Rectifier (bias)",   value: "silicon diode", role: "Bias-supply rectifier" }
-  - { ref: CB1, part: "Electrolytic capacitor", value: "25 µF · 50 V", role: "Bias-supply filter" }
-  - { ref: CB2, part: "Electrolytic capacitor", value: "50 µF · 50 V", role: "Bias-supply filter" }
+  - { ref: CB1, part: "Electrolytic capacitor", value: "25 µF · 50 V", role: "Bias-supply filter — the one can the C-FD drawing shows, lettered '25 / 50' (µF / V)" }
   - { ref: VRBAL, part: "Linear potentiometer", value: "10 kΩ-L",     role: "Bias control: across the raw negative supply with RBAL; the −35 V line is its wiper" }
   - { ref: RBAL, part: "Carbon comp resistor", value: "10 kΩ · ½ W",  role: "Bias divider leg, from the 10K-L control to ground" }
   # --- Death cap / mains (period part) ---
