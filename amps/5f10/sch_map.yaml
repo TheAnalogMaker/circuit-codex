@@ -15,6 +15,16 @@ series_bridge:
   Rs1: "1.5 k upper-6V6 grid stopper — netlist node G6A runs through it"
   Rs2: "1.5 k lower-6V6 grid stopper — netlist node G6B runs through it"
 
+symbols:
+  # The netlist's 6AT6 grid return. The sheet has no grid leak: it draws the
+  # grid bus -> R1s 68 k -> jack 1's tip, and jack 1's normalling contact
+  # (cx:JACK_SW, closed with nothing plugged in) to ground. The gate joins that
+  # contact's tip and N pins, so R1s spans GAT and 0 only through the drawn
+  # contact. R2s and R3s reach the same ground through contacts 2 and 1 and are
+  # reported as not DC-checked. layout.yaml keeps RGAT under netlist_unplaced:
+  # the board draws no contacts.
+  RGAT: R1s
+
 # Hard-gated: verify_schematic_nets.py fails CI on any finding for this sheet.
 # Claimed 2026-09-02 after the drawing went clean against netlist.cir.
 schematic_claim: verified

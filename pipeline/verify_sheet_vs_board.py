@@ -43,6 +43,9 @@ Anchors — terminals that carry the SAME identity on both surfaces:
                  sheet jack whose reference is a board jack id. A board that
                  wires only the jack BODY (`J`) anchors the sheet's tip softly
                  to it and says so; the sleeve then anchors to nothing.
+                 cx:JACK_SW is the same jack plus pin 3 (N), its normalling
+                 contact; the board has no terminal for a shunt contact, so
+                 N anchors to nothing and is named in scope.
   declared       `net_map.leads` — a per-amp declaration mapping a sheet
                  terminal (`T2.1`, or a label such as `<TANK RET>`) to a board
                  terminal (`T2.blue`, `JTKO.tip`). Transformer leads carry
@@ -154,8 +157,9 @@ TUBE_LIBS = {"cx:TRIODE": "TRIODE", "cx:PENTODE": "PENTODE", "cx:DIODE_TUBE": "D
 # the pilot lamp sits on the heater layer and check_heaters.py owns it.
 TWO_TERM_LIBS = {"cx:R", "cx:C", "cx:DIODE_SS", "cx:FUSE", "cx:CHOKE"}
 POT_LIB = "cx:POT"
-JACK_LIB = "cx:JACK"
-# cx:JACK pin 1 is named T (tip) and pin 2 S (sleeve) in schematic_lib.LIB;
+JACK_LIBS = {"cx:JACK", "cx:JACK_SW"}
+# cx:JACK pin 1 is named T (tip) and pin 2 S (sleeve) in schematic_lib.LIB, and
+# cx:JACK_SW keeps those numbers (its pin 3, N, is the normalling contact);
 # render_layouts.resolve() names a board jack's contacts `.tip` and `.sleeve`
 # (`.ring` is drawn at the sleeve but is its own terminal, and no sheet symbol
 # has a ring). A bare jack id on the board is the BODY — see sheet_terminals().
@@ -542,7 +546,7 @@ def sheet_terminals(sh: Sheet, bd: Board, swap: frozenset = frozenset()):
                                     f"{', '.join(m.split('.')[1] for m in missing)} wired to nothing"))
                 continue
             twoterm[ref] = (pins["1"], pins["2"], ta, tb)
-        elif lib == JACK_LIB:
+        elif lib in JACK_LIBS:
             bid = bd.id_of_ref.get(ref, ref)
             if bid not in bd.jack_ids:
                 notes.append(f"sheet jack {ref} has no board jack of that id — not anchored")
@@ -563,6 +567,9 @@ def sheet_terminals(sh: Sheet, bd: Board, swap: frozenset = frozenset()):
                                  f"read as the tip; the sleeve anchors to nothing")
                 else:
                     partial.append((ref, f"jack {contact} unwired on the board"))
+            if pins.get("3") is not None:
+                notes.append(f"jack {ref}: normalling contact (pin 3) — the board has no "
+                             f"shunt-contact terminal; not anchored")
         else:
             unmatched[lib or "?"].append(ref)
 

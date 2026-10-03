@@ -945,7 +945,8 @@ label ↔ the ground bus; a section's electrode ↔ a socket pin, through
 section; pot wipers (`VRn.2` ↔ `VRn.lug2`); jack contacts (`cx:JACK` pin 1 ↔
 `J.tip`, pin 2 ↔ `J.sleeve`, for a sheet jack whose reference is a board jack id
 — a board that wires only the jack *body* anchors the sheet's tip to it softly
-and says so); and whatever `net_map.leads` declares (below). Two-terminal parts
+and says so; `cx:JACK_SW` is the same jack plus pin 3, its normalling contact,
+which no board terminal names and which is listed in scope); and whatever `net_map.leads` declares (below). Two-terminal parts
 — including an off-board `kind: choke`, read by the two leads the board wires,
 whatever their names (`hi`/`lo`, `in`/`out`, `red`/`yellow`); one with fewer
 than two wired is `SHEET-ONLY` and must be declared —

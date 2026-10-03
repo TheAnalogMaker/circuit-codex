@@ -24,7 +24,7 @@
 #         reason: <one sentence>
 #         added: YYYY-MM-DD
 
-updated: 2026-09-02
+updated: 2026-10-02
 amps:
   ga40:
     - pin: V2.1
@@ -83,3 +83,14 @@ amps:
     - pin: VR7.2
       reason: "bom.yaml records that the Presence pot's wiper feeds a 0.1 uF/200 V capacitor down to the foot node, but that capacitor carries no reference designator of its own in bom.yaml, so the sheet leaves the wiper open rather than draw a part the parts list does not name."
       added: 2026-09-02
+
+  5f10:
+    - pin: JI1.2
+      reason: "The F-EF sheet draws each input jack as its tip and its normalling contact only, with no sleeve, so the sheet leaves the sleeve pin unwired rather than assert a connection the source does not show."
+      added: 2026-10-02
+    - pin: JI2.2
+      reason: "The F-EF sheet draws each input jack as its tip and its normalling contact only, with no sleeve, so the sheet leaves the sleeve pin unwired rather than assert a connection the source does not show."
+      added: 2026-10-02
+    - pin: JI3.2
+      reason: "The F-EF sheet draws each input jack as its tip and its normalling contact only, with no sleeve, so the sheet leaves the sleeve pin unwired rather than assert a connection the source does not show."
+      added: 2026-10-02

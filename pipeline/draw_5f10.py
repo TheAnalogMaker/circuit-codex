@@ -12,35 +12,48 @@ OUT = Path(__file__).resolve().parent.parent / "amps" / "5f10" / "schematic.kica
 s = Sch()
 
 # ---- input: three jacks, each a 68k stopper, merged to the 6AT6 grid ------
-# The chassis has three jacks (1/2/3) and no grid leak: the sheet returns the
-# 6AT6 grid to ground through jack 1's normalling contact, which closes when
-# nothing is plugged into it, so the DC path is ground -> contact -> jack-1 tip
-# -> R1s -> grid bus. netlist.cir models that state as `RGAT GAT 0 68k`.
+# The chassis has three jacks (1/2/3) and no grid leak. The F-EF sheet draws
+# each jack's normalling (shunt) contact as an arrow up onto its tip line and
+# chains them: jack 3's contact to jack 2's tip, jack 2's to jack 1's tip,
+# jack 1's to ground. With nothing plugged in every contact is closed, so the
+# 6AT6 grid's DC path is grid bus -> R1s -> jack-1 tip -> jack-1 contact ->
+# ground (R2s and R3s reach the same ground through the chain). The sheet
+# draws the jacks' tip and contact only, no sleeve, so the sleeve pins stay
+# unwired (sch_open_pins.yaml). netlist.cir models the closed state as
+# `RGAT GAT 0 68k`, which sch_map.yaml binds to R1s; verify_schematic_nets.py
+# joins each cx:JACK_SW's tip and contact, so that binding holds only through
+# the drawn contact chain.
 #
-# R1s therefore has to sit between ground and the bus, and it does. What this
-# sheet used to do as well was letter that grounded node IN1 — so the drawing
-# said input jack 1 is shorted to ground, on a page carrying
-# schematic_claim: verified. No gate could see it: the equivalence gate begins
-# at the grid and this corpus's netlists model no input node, so an input label
-# on the ground bus is invisible to it (2026-09-09, the only such case in the
-# corpus). The label is gone; the ground and the resistor are what the sheet
-# draws, and the caption now says which contact closes the path.
+# History: before cx:JACK_SW the ground was a bare symbol at R1s's foot with a
+# caption saying which contact it stood for, and until 2026-09-09 that
+# grounded node was also lettered IN1 — the drawing said input jack 1 is
+# shorted to ground, on a page carrying schematic_claim: verified. No gate
+# could see it: the equivalence gate began at the grid and the netlist models
+# no input node.
 GB = 44          # grid-bus x
-for jack, ref, y in [("IN3", "R3s", 86), ("IN2", "R2s", 96)]:
-    s.glabel(jack, 16, y, 180)
-    s.wire(16, y, 20, y)
-    l, r = s.series_h("R", ref, "68k", 26, y)
-    s.wire(20, y, l, y)
+JX = 20          # jack centres (mirrored: contacts face right, at JX + 5.08)
+jk = {}
+for n, ref, y in [(3, "R3s", 86), (2, "R2s", 96), (1, "R1s", 112)]:
+    j = jk[n] = s.jack_sw(f"JI{n}", f"input {n}", JX, y + 2.54, mirror=True,
+                          lx=-14.0, ly=-0.8)
+    l, r = s.series_h("R", ref, "68k", 36, y)
+    s.wire(j["tip"][0], y, l, y)
     s.wire(r, y, GB, y)
     s.junction(GB, y)
-l, r = s.series_h("R", "R1s", "68k", 26, 112)
-s.wire(20, 112, l, 112)
-s.wire(r, 112, GB, 112)
-s.junction(GB, 112)
-s.gnd(20, 116)                 # jack-1 normalling contact, closed: the grid's DC reference
-s.wire(20, 112, 20, 116)
+# normalling chain, as F-EF draws it: contact 3 -> tip 2, contact 2 -> tip 1,
+# contact 1 -> ground
+for n, cx in [(3, 28), (2, 30)]:
+    nx, ny = jk[n]["norm"]
+    ty = jk[n - 1]["tip"][1]
+    s.wire(nx, ny, cx, ny)
+    s.wire(cx, ny, cx, ty)
+    s.junction(cx, ty)
+nx, ny = jk[1]["norm"]
+s.wire(nx, ny, 28, ny)
+s.wire(28, ny, 28, ny + 6)
+s.gnd(28, ny + 6)
 s.wire(GB, 86, GB, 112)        # grid bus
-s.caption('Inputs 2-3 via 68k stoppers; jack 1 unplugged grounds the grid through R1s', 14, 80, 1.1)
+s.caption('Inputs: an unplugged jack\'s shunt contact closes on its tip (3 > 2 > 1 > gnd)', 6, 79, 1.1)
 
 # ---- V1 6AT6 first stage ------------------------------------------------
 t1 = s.triode("V1", "6AT6", 54, 100)

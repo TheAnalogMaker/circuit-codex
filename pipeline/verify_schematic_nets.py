@@ -276,6 +276,14 @@ WINDINGS = {
 # THROUGH them are still one node: a fuse, and a switch in the position the
 # sheet draws it (the DC netlist models the amp in play).
 WINDING_CLOSERS = {"cx:FUSE", "cx:SWITCH"}
+# Symbols whose contract closes a contact at DC, as (tip pin, contact pin): a
+# jack's normalling (shunt) contact rests on the tip with nothing plugged in,
+# and the DC netlist models the amp with nothing plugged in (the 5F10's
+# `RGAT GAT 0 68k` is its 6AT6 grid returned to ground through jack 1's
+# contact). The two pins are joined before anything binds, like a declared
+# series_bridge — but by the symbol, so no amp has to declare it. Not a
+# polarity-walk or winding closer: an input jack sits in no supply.
+CONTACT_CLOSERS = {"cx:JACK_SW": ("1", "3")}
 # The winding terminals a sheet may letter as a global label instead of
 # drawing its transformer's pin, each with the cx:PT pin it stands for (None:
 # the symbol has no pin for it, as for a separate bias winding). WHICH label
@@ -420,6 +428,17 @@ def check_amp(amp_id: str, sch_path: "Path | None" = None,
         else:
             res.scope.append(f"series_bridge {ref}: symbol has no pins 1/2 — "
                              f"not bridged ({src})")
+
+    # Closed contacts the symbol itself draws (CONTACT_CLOSERS): a jack's
+    # normalling contact, closed with nothing plugged in.
+    for ref, lib in sorted(G.lib.items()):
+        pair = CONTACT_CLOSERS.get(lib)
+        if pair is None:
+            continue
+        a, b = (f"{ref}.{n}" for n in pair)
+        if G.join(a, b):
+            res.info.append(f"closed {a} / {b} ({lib.replace('cx:', '')} normalling "
+                            f"contact — the DC netlist models nothing plugged in)")
 
     # Anchors: terminal -> node. Co-anchoring to one node declares the DC bridge
     # the netlist collapses (an OT primary whose DCR is omitted).
@@ -1328,6 +1347,11 @@ def selftest() -> int:
          {"SPLIT", "UNMAPPED", "NODE MISMATCH", "UNREALISED"},
          lambda t: _delete_wire(t, _pin_xy("jtm45", "V1A", "3")),
          "V1A"),
+        ("5f10", "jack 1's normalling contact cut from ground — the 6AT6 "
+                 "grid's only DC return (RGAT, bound to R1s through cx:JACK_SW)",
+         {"SPLIT", "UNMAPPED", "NODE MISMATCH", "UNREALISED"},
+         lambda t: _delete_wire(t, _pin_xy("5f10", "JI1", "3")),
+         "R1s"),
     ]
     fails: list[str] = []
     n_cases = 0

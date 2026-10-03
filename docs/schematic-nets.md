@@ -98,6 +98,19 @@ Treble control), `cx:DUALCAN`, `cx:OT_PP`, `cx:PT` — has no unambiguous "two
 ends", and guessing one is how a gate starts lying. Name the two terminals in `sch_map.element_pins`, or declare
 the element `netlist_undrawn`.
 
+**A jack's normalling contact is closed.** `cx:JACK_SW` is a quarter-inch jack
+that draws its shunt contact: pin 1 tip and pin 2 sleeve as on `cx:JACK`, pin 3
+the spring that rests on the tip with nothing plugged in. The DC netlist models
+the amp with nothing plugged in, so the gate joins every `cx:JACK_SW`'s pins 1
+and 3 before anything binds, as if a `series_bridge` had been declared, and
+prints the join with the other declarations. The symbol makes the claim, so no
+amp declares it. The 5F10 is why it exists: it has no grid leak, and F-EF
+returns the 6AT6 grid to ground through jack 1's contact. Its `RGAT GAT 0 68k`
+binds to `R1s` through `sch_map.symbols`, so the gate holds `R1s` to `GAT` and
+`0`, which is true only through the drawn contact. The self-test cuts that
+contact from ground and requires a `SPLIT` naming `R1s`. The join is not a
+polarity-walk or winding closer: an input jack sits in no supply.
+
 ---
 
 ## Data the amp declares

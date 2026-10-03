@@ -416,6 +416,17 @@ _LIB_TEMPLATE = f"""  (lib_symbols
 # and 4 the TAP, brought out on the left below centre — nearer pin 3, which is
 # where a 70 k tap on a 350 k element sits. The lead into the element ends in
 # a short bar so a tap is never mistaken for a second wiper.
+#
+# cx:JACK_SW — a quarter-inch jack with its normalling (shunt) contact: the
+# spring that rests on the tip with nothing plugged in and lifts off when a
+# plug goes in. cx:JACK's two pins keep their numbers (1 = T tip, 2 = S
+# sleeve), so every table keyed on them carries over; 3 = N is the contact,
+# brought out between them and drawn as an arrow up onto the tip line, the way
+# the Fender sheets draw it. The 5F10 (F-EF) returns its 6AT6 grid to ground
+# through jack 1's contact and has no grid leak, which is what this symbol is
+# for: verify_schematic_nets.py treats T-N as one DC node (closed, nothing
+# plugged in — the state netlist.cir models), so a grid return drawn through
+# it is checked, not captioned.
 _LIB_EXTENSIONS = {
     "POT_TAP": f"""    (symbol "cx:POT_TAP" (pin_numbers hide) (pin_names hide) (in_bom yes) (on_board yes)
       (property "Reference" "VR" (at 2.54 1.27 0) {FONT})
@@ -430,6 +441,20 @@ _LIB_EXTENSIONS = {
         {_pin("passive", 0, -3.81, 90, 1.27, "3", "3")}
         {_pin("passive", 5.08, 0, 180, 1.778, "W", "2")}
         {_pin("passive", -5.08, -1.524, 0, 1.778, "T", "4")}))""",
+    "JACK_SW": f"""    (symbol "cx:JACK_SW" (pin_numbers hide) (pin_names hide) (in_bom yes) (on_board yes)
+      (property "Reference" "J" (at 3.81 5.08 0) {FONT})
+      (property "Value" "jack" (at 3.81 2.54 0) {FONT})
+      (symbol "JACK_SW_0_1"
+        (circle (center 3.175 0) (radius 2.54) {_STROKE})
+        {_poly("(xy -2.54 2.54) (xy 0.635 2.54)")}
+        {_poly("(xy -2.54 -2.54) (xy 1.905 -2.54)")}
+        {_poly("(xy 1.905 -2.54) (xy 1.905 -1.016)")}
+        {_poly("(xy -2.54 0) (xy -0.635 0) (xy -0.635 2.54)")}
+        {_poly("(xy -1.143 1.778) (xy -0.635 2.54) (xy -0.127 1.778)")})
+      (symbol "JACK_SW_1_1"
+        {_pin("passive", -5.08, 2.54, 0, 2.54, "T", "1")}
+        {_pin("passive", -5.08, -2.54, 0, 2.54, "S", "2")}
+        {_pin("passive", -5.08, 0, 0, 2.54, "N", "3")}))""",
 }
 
 
@@ -638,6 +663,7 @@ LABEL_DEFAULT = {
     "OPTO": (4.4, -8.0),
     "CONN3": (-5.0, 4.0),
     "JACK": (3.0, -6.6),
+    "JACK_SW": (3.0, -6.6),
     "LAMP": (4.4, -5.4),
     "DUALCAN": (4.6, -1.0),
     "TRIODE": (6.0, -6.4),
@@ -1264,6 +1290,18 @@ class Sch:
         self.sym("JACK", ref, val, x, y, lx=lx, ly=ly, mirror="y" if mirror else "")
         sx = 5.08 if mirror else -5.08
         return {"tip": (x + sx, y - 2.54), "sleeve": (x + sx, y + 2.54)}
+
+    def jack_sw(self, ref: str, val: str, x: float, y: float,
+                lx: float | None = None, ly: float = -6.6, mirror: bool = False) -> dict:
+        """Quarter-inch jack with its normalling contact (cx:JACK_SW): `jack()`
+        plus `norm`, the shunt contact that rests on the tip when nothing is
+        plugged in, brought out midway between tip and sleeve."""
+        if lx is None:
+            lx = -4.0 if mirror else 3.0
+        self.sym("JACK_SW", ref, val, x, y, lx=lx, ly=ly, mirror="y" if mirror else "")
+        sx = 5.08 if mirror else -5.08
+        return {"tip": (x + sx, y - 2.54), "sleeve": (x + sx, y + 2.54),
+                "norm": (x + sx, y)}
 
     def switch(self, ref: str, val: str, x: float, y: float,
                lx: float = -3.4, ly: float = -6.0) -> tuple:

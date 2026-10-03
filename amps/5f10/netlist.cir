@@ -27,6 +27,9 @@ RD2 BP2 BP3 22k
 * V1 6AT6 first stage (1.5k cathode, 25uF bypass; grid ref via input jacks)
 RL1 BP3 PAT 100k
 XV1 PAT GAT KAT 6AT6
+* RGAT is the CLOSED state: nothing plugged in, jack 1's normalling contact
+* grounds the jack-1 tip, so R1s (68 k) runs from the grid to ground (the sheet
+* draws the contact as cx:JACK_SW JI1; sch_map.yaml binds RGAT to R1s).
 RGAT GAT 0 68k
 RK1 KAT 0 1.5k
 
