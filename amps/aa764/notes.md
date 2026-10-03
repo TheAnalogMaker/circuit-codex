@@ -90,7 +90,7 @@ solving everything below it:
 |---|---|---|
 | Screen rail | +350 V | +354 V (1.1 %) |
 | Preamp rail | +330 V | +332 V (0.5 %) |
-| V1A plate / cathode | +200 V / +1.9 V | +218 V / +1.7 V |
+| V1A plate / cathode | +200 V / +1.8 V | +218 V / +1.7 V |
 | V1B plate / cathode | +205 V / +1.7 V | +220 V / +1.7 V |
 | 6V6 cathode | +19 V | +22.6 V (19 %) |
 
