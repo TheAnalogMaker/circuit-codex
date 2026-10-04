@@ -298,10 +298,10 @@ stages:
   output_tubes: 2
   config: push-pull
   bias: fixed
-  plate_node: BP1
-  plate_v: 415.0
+  plate_node: BP2
+  plate_v: 401.976
   screen_node: BP2
-  screen_v: 413.267
+  screen_v: 401.976
   cathode_node: '0'
   cathode_v: 0.0
   rk_total: null
@@ -315,8 +315,8 @@ stages:
   ot_primary_z: null
   ot_primary_approx: false
   ot_primary_note: Fender 45216 — Push-pull output into 2 × 10 in speakers
-  sim_ip_ma: 50.8846
-  sim_ig2_ma: 2.7781
+  sim_ip_ma: 44.0233
+  sim_ig2_ma: 2.2892
 - amp: '5f6'
   name_style: Tweed Bassman-style
   tube: '5881'
@@ -340,7 +340,8 @@ stages:
   grid_supply_note: null
   ot_primary_z: null
   ot_primary_approx: false
-  ot_primary_note: Fender 45249 · 2 Ω secondary — Push-pull output into four 8 Ω speakers
+  ot_primary_note: Fender 45249 — Push-pull output into four speakers on four parallel jacks (neither
+    page prints an impedance)
   sim_ip_ma: 29.6907
   sim_ig2_ma: 0.9755
 - amp: '5f6a'
