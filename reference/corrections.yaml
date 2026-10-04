@@ -1,27 +1,255 @@
 # Curated, visitor-facing correction events. Original verification dates stay
 # in each circuit's metadata. A later edit is not a new verification grant.
 corrections:
+  - id: jtm45-channels-2026-10-03
+    date: '2026-10-03'
+    amps: ['jtm45']
+    title: JTM45 bright and normal channels
+    description: 'The factory drawing feeds the bright volume, the one carrying the 100 pF capacitor, from V1B, and the plain volume from V1A. The channel names had been swapped; the input wiring is unchanged. The first input stage''s printed plate load has an illegible middle digit, and 100 kΩ is kept because the printed chart rules out the alternative.'
+    commit: b7993eeed3c94aba504032d9752d912b331c90ea
+  - id: jtm45-added-caps-2026-10-03
+    date: '2026-10-03'
+    amps: ['jtm45']
+    title: JTM45 mixer and phase-inverter capacitors
+    description: 'Two capacitors the factory drawing shows are now included. A 56 pF capacitor (probable reading) bridges the bright channel''s mixing resistor, and a capacitor of illegible value joins the two phase-inverter plates. Neither affects the DC operating point.'
+    commit: 70f6ff8ce22c720d893835f463fc964d3b6fbe2c
+  - id: jtm45-ht-feed-2026-10-03
+    date: '2026-10-03'
+    amps: ['jtm45']
+    title: JTM45 output-transformer feed and screen supply
+    description: 'The output transformer''s centre tap now connects after the filter choke, as the factory drawing shows, and the filter there is 32 µF. The output-valve screens are fed through one shared 1 kΩ resistor and then a 470 Ω resistor each, replacing a 1 kΩ resistor per screen. The supply rails move down and remain within the published chart tolerances.'
+    commit: bd01bbbe96bed8efbdf04e43b8be0182f165b430
+  - id: jtm45-bias-2026-10-03
+    date: '2026-10-03'
+    amps: ['jtm45']
+    title: JTM45 bias supply as drawn
+    description: 'The bias supply follows the factory drawing. A series resistor and a diode feed an 8 µF filter, then a 16 kΩ resistor feeds the grid-line node, which has a resistor and a capacitor to ground. Two resistor values and one capacitor value are not legible or not printed, and are listed that way. The 0.05 µF capacitor sits at the rectifier, not in the bias supply. The drawing''s only bias figure, printed "10 5V", cannot be the operating bias and is shown as disputed. The model''s −50 V bias is an assumption, not a reading.'
+    commit: 268cd85f35cafd3dc59f183b6cf4ba4c3d8d0299
+  - id: 5c1-input-resistors-2026-10-03
+    date: '2026-10-03'
+    amps: ['5c1']
+    title: 5C1 input resistors
+    description: 'The two 75 kΩ input resistors now sit in series between each jack and the first stage''s coupling capacitor, as the factory drawing shows. Both drawings had placed them as shunts to ground with the jacks wired straight to the capacitor. No operating point changes.'
+    commit: e51e2c44483d6aae5733bc827fc214ff2266da93
+  - id: 5e1-input-leak-2026-10-03
+    date: '2026-10-03'
+    amps: ['5e1']
+    title: 5E1 input grid-leak position
+    description: 'The 1 MΩ input resistor now hangs from jack 1''s tip, on the jack side of its 68 kΩ, as the factory drawing shows. The schematic had it on the grid, and the board wired it to the grid pin. No operating point changes.'
+    commit: be65a613ffaf27966770568837d77c4ea1b4dfb9
+  - id: 5f1-second-input-resistor-2026-10-03
+    date: '2026-10-03'
+    amps: ['5f1']
+    title: 5F1 second input resistor
+    description: Each input jack now has its own 68 kΩ resistor into the first stage, as the factory drawing shows. The parts list, schematic and board had carried one shared resistor. No operating point changes.
+    commit: a6a37d7977c62a032dcac75ff3630263f3f12ca6
+  - id: ab763-input-leaks-2026-10-03
+    date: '2026-10-03'
+    amps: ['ab763']
+    title: AB763 input grid leaks at the first input jack
+    description: 'The schematic now hangs each channel''s 1 MΩ input leak from input 1''s tip, on the jack side of its 68 kΩ stopper, as the factory drawing shows. It had been drawn on the valve''s grid. The board already mounted the leaks at the jacks, and no operating point changes.'
+    commit: 3fa0d9d90353c8f990ed8a295db2b6f126fbbcd2
+  - id: ab763-super-input-leaks-2026-10-03
+    date: '2026-10-03'
+    amps: ['ab763-super']
+    title: AB763 Super Reverb input grid leaks at the first input jack
+    description: 'The schematic now hangs each channel''s 1 MΩ input leak from input 1''s tip, on the jack side of its 68 kΩ stopper, as the Super Reverb''s own factory drawing shows. It had been drawn on the valve''s grid. No operating point changes. The circuit remains a draft.'
+    commit: fe052839ca374813514bfc4d93b026a82b2195d0
+  - id: ab165-tone-ot-bias-2026-10-03
+    date: '2026-10-03'
+    amps: ['ab165']
+    title: AB165 input leaks, bass treble capacitor, output-transformer feed and bias network
+    description: 'The bass channel''s treble capacitor is 330 pF, as the factory drawing letters it; it had been listed as 390 pF. The output transformer''s centre tap now takes its supply ahead of the choke, on both the schematic and the board. The bias network is drawn as the factory bridge, with its single filter capacitor, and the input leaks hang from input 1''s tip. No operating point changes.'
+    commit: af8686c93885be5cb356a0071fb08fb848d5f8e9
+  - id: 6g2-tone-pi-2026-10-03
+    date: '2026-10-03'
+    amps: ['6g2']
+    title: 6G2 tone control, phase-inverter coupling and input leak
+    description: 'The tone control is now wired as the factory drawing shows, a blend between the volume control''s input and wiper with its 0.005 µF capacitor to ground. A coupling capacitor the drawing does not show has been removed. The phase inverter''s lower output is taken from its cathode, and the input leak hangs from input 1''s tip. The bias rectifier''s type is no longer stated, since the drawing does not print one.'
+    commit: 742d2d86d86d3dff2b7eb5fee9f6709d263a4d56
+  - id: 6g2-cathodyne-resistor-2026-10-03
+    date: '2026-10-03'
+    amps: ['6g2']
+    title: 6G2 phase-inverter cathode resistor read as printed
+    description: 'The phase inverter''s cathode resistor is now the 1 kΩ printed on the factory layout drawing. The previous 1.5 kΩ had been chosen to match the printed voltages rather than read from the drawing. The cathode and tail voltages now simulate 11–12 % above the chart, within the drawing''s stated ±20 %.'
+    commit: c4333b3599f1b39e0d9121ff32f93f5ff1dbe1d0
+  - id: 6g3-input-leaks-switch-2026-10-03
+    date: '2026-10-03'
+    amps: ['6g3']
+    title: 6G3 input leaks, ground switch and bias rectifier
+    description: 'The schematic now hangs each channel''s 1 MΩ input leak from input 1''s tip, as the factory drawing shows; it had been drawn on the valve''s grid. The ground switch is recorded as a two-way switch, and the bias rectifier''s type is no longer stated, since the drawing does not print one. No operating point changes.'
+    commit: ff50046fdd1857f2f509075ab745d8c33cbab394
+  - id: ab165-bias-filter-2026-10-03
+    date: '2026-10-03'
+    amps: ['ab165']
+    title: AB165 bias filter capacitor value from the factory layout
+    description: 'The bias supply''s single filter capacitor is now listed as 50 µF at 50 V, as the factory layout drawing letters it; the schematic gives no value. The layout drawing is now cited as a source, and it agrees with the schematic on the one capacitor, the bias-balance network and the bass channel''s 330 pF treble capacitor. No operating point changes.'
+    commit: 45797e5ff9dba81ab4bdc52d6cc27fd0ef377c2c
+  - id: 5e3-preamp-network-2026-10-03
+    date: '2026-10-03'
+    amps: ['5e3']
+    title: 5E3 volume, tone and input wiring
+    description: 'The schematic and board now wire the two volume controls the way the factory drawing does, with each preamp coupling capacitor feeding the control''s wiper and the second stage''s grid taken from the joined ends of the two tracks. The single tone control has moved from between the second stage and the phase inverter to the second stage''s input, between the instrument volume''s wiper and ground, with its wiper on that grid line. The coupling capacitor from the second stage to the phase inverter is now shown. Its value is not given because the drawing''s marking cannot be read. Each channel now has its two input jacks, each with its own 68 kΩ resistor, and the channel''s 1 MΩ resistor sits at the first jack. The simulated operating points are unchanged, and the circuit''s verification status is unchanged.'
+    commit: 64249e939108599ff46f46bc49aa442d67091b87
+  - id: 5e4a-input-stoppers-2026-10-03
+    date: '2026-10-03'
+    amps: ['5e4a']
+    title: '5E4-A: each input jack has its own 68 kΩ stopper'
+    description: 'The factory drawing shows four input jacks, each with its own 68 kΩ resistor to its channel''s grid. We showed one per channel and said the schematic draws one jack per channel. The second stopper on each channel is now on the parts list, the schematic and the board.'
+    commit: 4b8015da395108a3bdcc49624aec35665de2d7c5
+  - id: 5e4a-ot-centre-tap-2026-10-03
+    date: '2026-10-03'
+    amps: ['5e4a']
+    title: '5E4-A: output-transformer centre tap is after the choke'
+    description: 'Both factory pages connect the output transformer''s centre tap to the +385 V node with the screens, after the filter choke. We drew it on the +390 V reservoir before the choke, on the schematic, the board and the simulation. All three are corrected. The simulated +385 V rail now matches the printed figure, and the worst node''s deviation is 8.7 %, down from 10.0 %.'
+    commit: 4b8015da395108a3bdcc49624aec35665de2d7c5
+  - id: aa864-input-leaks-2026-10-03
+    date: '2026-10-03'
+    amps: ['aa864-bassman']
+    title: 'AA864: input 1 MΩ resistors sit at jack 1'
+    description: 'The factory drawing connects each channel''s 1 MΩ input resistor to jack 1''s tip, before that jack''s 68 kΩ resistor. We drew it on the grid side on both the schematic and the board. Both are corrected.'
+    commit: df3c31898371a92f63359c0047af9d8d22984516
+  - id: aa864-mains-2026-10-03
+    date: '2026-10-03'
+    amps: ['aa864-bassman']
+    title: 'AA864: fuse and power switch are on opposite mains legs'
+    description: The factory drawings put the 2 A slow-blow fuse on one leg of the mains and the AC switch on the other. Our schematic put them in series on one leg, and our board drew the fuse across the transformer primary. Both are corrected.
+    commit: df3c31898371a92f63359c0047af9d8d22984516
+  - id: aa864-treble-series-2026-10-03
+    date: '2026-10-03'
+    amps: ['aa864-bassman']
+    title: 'AA864: Bass channel treble resistor is 220 kΩ'
+    description: 'The resistor between the Bass channel''s 250 pF treble capacitor and its treble control is 220 kΩ, as the layout drawing letters it and the schematic agrees. We listed 250 kΩ.'
+    commit: df3c31898371a92f63359c0047af9d8d22984516
+  - id: aa864-driver-cap-2026-10-03
+    date: '2026-10-03'
+    amps: ['aa864-bassman']
+    title: 'AA864: driver plate capacitor is .003 µF'
+    description: 'The capacitor across the Bass channel driver''s 100 kΩ plate resistor is lettered .003 µF on the layout drawing. We listed .005 µF. The roll-off it sets is near 1.3 kHz rather than 800 Hz.'
+    commit: df3c31898371a92f63359c0047af9d8d22984516
+  - id: 5f6-input-stoppers-2026-10-03
+    date: '2026-10-03'
+    amps: ['5f6']
+    title: '5F6: each input jack has its own 68 kΩ stopper'
+    description: The factory drawing shows four input jacks, each with its own 68 kΩ resistor. We showed one per channel and noted the second as a simplification. Both are now drawn and listed.
+    commit: a13991970420e87d1300d23ee27aa1921aa91b39
+  - id: jtm45-input-jacks-2026-10-03
+    date: '2026-10-03'
+    amps: ['jtm45']
+    title: JTM45 input jacks and grid leaks
+    description: 'The factory drawing shows four input jacks, each with its own 68 kΩ stopper, and hangs each channel''s 1 MΩ leak from its first jack''s tip, on the jack side of the stopper. We showed one jack per channel and drew the leak on the grid side. Both are corrected, and no operating point changes.'
+    commit: b726555635b8c348027837df3d1678af5c14d074
+  - id: jtm100-input-jacks-2026-10-03
+    date: '2026-10-03'
+    amps: ['jtm100']
+    title: JTM100 input jacks and grid leaks
+    description: 'The cited drawing shows four input jacks, each with its own 68 kΩ stopper, with each channel''s 1 MΩ leak at its first jack''s tip. We showed one jack per channel and drew the leak on the grid side. Both are corrected, and no operating point changes. The circuit remains a draft.'
+    commit: 068fa7b43a95ce48b65ce5044050499a4805fd55
+  - id: b15n-bias-rectifier-2026-10-03
+    date: '2026-10-03'
+    amps: ['b15n']
+    title: B15N bias rectifier listed as lettered
+    description: 'The bias rectifier is now listed as the drawings letter it, F-4. Neither cited sheet prints a rectifier type, so the earlier "selenium" has been removed.'
+    commit: 138b65854a9368c2cde702d78fb8dce9c2856813
+  - id: 5f4-ot-centre-tap-2026-10-03
+    date: '2026-10-03'
+    amps: ['5f4']
+    title: 5F4 output-transformer centre tap and input stoppers
+    description: 'The output transformer''s centre tap now takes the supply node after the choke, with the screens, as both factory pages draw it. It had been connected to the reservoir side of the choke. The corrected operating point remains within the published chart tolerances. Each of the four input jacks now has its own 68 kΩ grid stopper, as both pages show; the parts list had carried two.'
+    commit: a085257d2e8535dcf71eaa017dda3a2c39b5c38f
+  - id: 5f6a-input-stoppers-2026-10-03
+    date: '2026-10-03'
+    amps: ['5f6a']
+    title: 5F6-A input grid stoppers
+    description: Each of the four input jacks now has its own 68 kΩ grid stopper, as both factory pages show. The parts list, schematic and board had carried one per channel. No operating point changes.
+    commit: 1ad5f458c09b1d9e4a7d279d8b9a0ba30bd46388
+  - id: 5e5a-input-stoppers-2026-10-03
+    date: '2026-10-03'
+    amps: ['5e5a']
+    title: 5E5-A input grid stoppers
+    description: Each of the four input jacks now has its own 68 kΩ grid stopper, as both factory pages show. The parts list had described one stopper per channel as representative. No operating point changes. The circuit remains a draft.
+    commit: b790a0827e9812a6a6c570676745a710e7f5f063
+  - id: 5f6-ot-impedance-2026-10-03
+    date: '2026-10-03'
+    amps: ['5f6']
+    title: 5F6 output-transformer impedance and tone-control notes
+    description: 'The parts list no longer gives the output transformer a 2 Ω secondary; neither factory page prints an impedance. The notes now describe the bass control''s wiring as the layout drawing shows it, and the treble control carries the linear taper the layout prints.'
+    commit: 70057f6673a4adcebe7435c12f0a649deb3a874c
+  - id: 5f10-tone-network-2026-10-03
+    date: '2026-10-03'
+    amps: ['5f10']
+    title: 5F10 tone control, bias filter and line capacitor
+    description: 'The tone control is now wired as the factory drawing shows, a single-knob blend whose wiper sits on the volume control''s input, with 0.005 µF to ground from one end and 500 pF to the volume wiper from the other. The schematic and the board had each drawn it differently and both incorrectly. The bias supply has one 25 µF filter capacitor, the mains has one line capacitor, and the pilot bulb''s type is no longer stated because the drawing does not print one. No operating point changes.'
+    commit: 1e464595da76c7c373a8c7cd4eb490e5f9a83d56
+  - id: aa1164-input-reverb-2026-10-03
+    date: '2026-10-03'
+    amps: ['aa1164']
+    title: AA1164 input grid leak and reverb footswitch
+    description: 'The 1 MΩ input leak now hangs from jack 1''s tip, on the jack side of its 68 kΩ resistor, and the reverb footswitch jack connects to the reverb recovery grid, as the factory drawing shows. The schematic had the leak on the grid and the footswitch on the reverb control''s wiper. No operating point changes.'
+    commit: dbfa9ab1200623c104fe4669d263333c40364212
+  - id: 5f4-bias-presence-2026-10-03
+    date: '2026-10-03'
+    amps: ['5f4']
+    title: 5F4 bias filter capacitor and presence control
+    description: 'The bias filter capacitor is listed as the layout drawing letters it, 100 µF at 25 V; it had been listed as 8 µF at 150 V. The presence control''s far end is no longer grounded; the factory leaves it open on the schematic and ties it to the wiper on the layout. No operating point changes.'
+    commit: 06efbd5cea4c7b0238741c22d82a615432e3232d
+  - id: ab763-stoppers-bias-2026-10-03
+    date: '2026-10-03'
+    amps: ['ab763']
+    title: AB763 output grid stoppers and bias filter
+    description: Each 6V6 grid now has the 1.5 kΩ stopper both factory pages draw at the valve socket. The bias supply has one filter capacitor, lettered 25 µF at 50 V; a second 50 µF capacitor that the drawing does not show has been removed. No operating point changes.
+    commit: 0d856bbd32bbd0839e563eb58d4c1c216aa3ec94
+  - id: 5f6a-reservoir-2026-10-03
+    date: '2026-10-03'
+    amps: ['5f6a']
+    title: 5F6-A reservoir capacitors
+    description: The +432 V reservoir node carries two 20 µF capacitors in parallel, as the factory schematic draws; the second was missing. No operating point changes.
+    commit: bd5349f01d07584afc87037bb33672b03078ef1f
+  - id: jtm45-grid-stoppers-2026-10-03
+    date: '2026-10-03'
+    amps: ['jtm45']
+    title: JTM45 output grid stoppers removed
+    description: The factory drawing couples each phase-inverter output straight to its KT66 grid. The 33 kΩ grid stoppers we listed are not on the drawing and have been removed. No operating point changes.
+    commit: 287a59150872348b5a9e86de5f0b2efca25cc93e
+  - id: ab763-twin-inputs-2026-10-03
+    date: '2026-10-03'
+    amps: ['ab763-twin']
+    title: AB763 Twin Reverb input grid leaks and mains fuse
+    description: 'Each channel''s 1 MΩ input leak now hangs from jack 1''s tip, on the jack side of its 68 kΩ resistor, as the factory drawing shows; it had been drawn on the grid. The 2½ A slow-blow mains fuse is now on the parts list. No operating point changes.'
+    commit: 1bab4626cbc417a67e2eb9689c765d87c921c77e
+  - id: aa964-input-2026-10-03
+    date: '2026-10-03'
+    amps: ['aa964']
+    title: AA964 input grid leak and vibrato footswitch
+    description: 'The 1 MΩ input leak now hangs from jack 1''s tip, as the factory drawing shows; it had been drawn on the grid. The bias-feed resistor carries its printed 5 % tolerance, and the vibrato footswitch is described as grounding the phase-shift ladder''s middle node. No operating point changes.'
+    commit: 46a9e3eb7cdf7b3ea8f7d4de75efb4fcd353301a
+  - id: aa764-k1a-2026-10-03
+    date: '2026-10-03'
+    amps: ['aa764']
+    title: AA764 first-stage cathode voltage
+    description: The first-stage cathode figure is +1.8 V, as the factory layout page prints it; we had +1.9 V. The low-resolution schematic is too coarse to decide the digit, and the notes now say so. The simulated value remains within tolerance.
+    commit: 70b4558d1263ed8d7ed812710d1fb8fa50d489cd
   - id: ab763-tail-2026-09-27
     date: '2026-09-27'
-    amps: [ab763]
+    amps: ['ab763']
     title: AB763 phase-inverter feedback return
     description: The model, schematic and board now return the phase-inverter tail to the feedback junction shown by the factory drawing. It had been connected directly to ground. The corrected operating point remains within the published chart tolerances.
     commit: 052aec37c520c9df7f6c28cd55fe35aae700229d
   - id: aa1164-speed-sections-2026-09-22
     date: '2026-09-22'
-    amps: [aa1164]
+    amps: ['aa1164']
     title: AA1164 Speed-control connection and input-valve sections
     description: The schematic now straps the Speed control's wiper to the lug carrying the ground resistor and assigns the input and second-stage valve sections to the factory drawing's pins. The schematic and board comparison now agrees for this circuit.
     commit: 6cc33f1
   - id: ab763-super-driver-2026-09-22
     date: '2026-09-22'
-    amps: [ab763-super]
+    amps: ['ab763-super']
     title: AB763 Super Reverb lamp-driver voltage and heater coverage
     description: The circuit notes now give the factory drawing's lamp-driver cathode value as 170 V, correcting a tenfold transcription error. The layout identifies its 6.3 V heater grouping as awaiting a source read; the earlier claim that no factory layout drawing existed has been removed.
     commit: 8902d24
   - id: 6g6b-supply-2026-09-18
     date: '2026-09-18'
-    amps: [6g6b]
+    amps: ['6g6b']
     title: 6G6-B supply chain and output-stage feeds
     description: The supply droppers follow the factory drawing's order. The output plates use the reservoir supply and the screens use the node after the choke; those feeds had been interchanged. The circuit remains a draft.
     commit: df21e09
