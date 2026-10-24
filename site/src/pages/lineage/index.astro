@@ -430,8 +430,8 @@ const jsonld = {
       revisions, and a <strong>derivation arrow</strong> drawn wherever one circuit's redrawn
       schematic is a documented derivation of another in a <em>different</em> family.
       {nModels} models across {history.length} lines, {nDoc} with a documented circuit.
-      Hover a lane to isolate it; click a solid chip for its circuit, an outline chip for its
-      family history.</p>
+      Hover or tap a lane to isolate it (tap it again to show every line); a solid chip opens
+      its circuit, an outline chip its family history.</p>
   </header>
 
   <figure class="fig">
@@ -458,7 +458,8 @@ const jsonld = {
             <rect class={i % 2 ? 'band-bg alt' : 'band-bg'} x={X0 - 8} y={b.top - 4}
                   width={PLOTW + 16} height={b.height - 8} rx="7" />
             <text class="lane" x={10} y={laneLines(b.fam).length === 1 ? b.mid : b.mid - 6.5}
-                  dominant-baseline="middle">
+                  dominant-baseline="middle" tabindex="0" role="button" aria-pressed="false"
+                  aria-label={`Show only the ${lineName(b.fam)} line`}>
               {laneLines(b.fam).map((l, li) => <tspan x={10} dy={li === 0 ? 0 : 13}>{l}</tspan>)}
             </text>
             {b.succ.map((d) => <path class="succ" d={d} fill="none" />)}
@@ -557,7 +558,14 @@ const jsonld = {
 
   /* --- SVG element styling (scoped; applies to build-time markup) --- */
   .tree .fam{transition:opacity .12s ease}
-  .tree:has(.fam:hover) .fam:not(:hover){opacity:.24}
+  /* Hover isolation only where a pointer really hovers; a phone keeps :hover stuck
+     on the last-tapped lane, which would undo the unpin below. */
+  @media (hover: hover){.tree:not(.iso):has(.fam:hover) .fam:not(:hover){opacity:.24}}
+  /* Touch has no hover: tapping a lane's name or empty band pins the isolation. */
+  .tree.iso .fam:not(.on){opacity:.24}
+  .tree .lane,.tree .band-bg{cursor:pointer}
+  .tree .lane:focus-visible{outline:none;fill:var(--amber)}
+  .tree .fam.on .lane{fill:var(--amber)}
 
   .tree .grid line{stroke:var(--line-soft);stroke-width:1}
   .tree .grid line.axis{stroke:var(--line);stroke-width:1.5}
@@ -588,3 +596,35 @@ const jsonld = {
   .tree .node:hover .cid,.tree .node:focus-visible .cid{fill:var(--amber)}
   .tree .node:hover .span,.tree .node:focus-visible .span{stroke:var(--amber-dim)}
 </style>
+
+<script>
+  // Pin lane isolation on tap or keypress: the hover rule above cannot fire on a
+  // phone, and close to half the site's real visits come from one.
+  const tree = document.querySelector('svg.tree');
+  if (tree) {
+    const pin = (fam) => {
+      const on = fam && !fam.classList.contains('on');
+      tree.querySelectorAll('.fam.on').forEach((f) => {
+        f.classList.remove('on');
+        f.querySelector('.lane')?.setAttribute('aria-pressed', 'false');
+      });
+      tree.classList.toggle('iso', on);
+      if (on) {
+        fam.classList.add('on');
+        fam.querySelector('.lane')?.setAttribute('aria-pressed', 'true');
+      }
+    };
+    tree.addEventListener('click', (e) => {
+      const target = e.target;
+      if (!(target instanceof Element) || !target.matches('.lane, .lane tspan, .band-bg')) return;
+      pin(target.closest('.fam'));
+    });
+    tree.addEventListener('keydown', (e) => {
+      const target = e.target;
+      if (!(target instanceof Element) || !target.matches('.lane')) return;
+      if (e.key !== 'Enter' && e.key !== ' ') return;
+      e.preventDefault();
+      pin(target.closest('.fam'));
+    });
+  }
+</script>
