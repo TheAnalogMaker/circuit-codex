@@ -157,6 +157,9 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
+      # The Worker in front of every request: www→apex, guessed-URL aliases, and the
+      # lowercase retry for capitalised circuit codes, against a stand-in asset store.
+      - run: node --test worker/index.test.mjs
       - run: npm ci
         working-directory: site
       - run: node --test scripts/check-tonestack-state.mjs
