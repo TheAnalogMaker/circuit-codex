@@ -86,7 +86,11 @@ const ldBlocks = [
 <!-- Cloudflare Web Analytics — cookieless; disclosed on /about/ and in the footer -->
 <script type="module" is:inline src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "99bac2012cc545cc9ed94952c8cb36dd", "spa": false}'></script>
 {ldBlocks.map((block) => <script type="application/ld+json" set:html={JSON.stringify(block)} />)}
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='55' r='30' fill='none' stroke='%23e89b3f' stroke-width='8'/><rect x='44' y='10' width='12' height='28' rx='4' fill='%23e89b3f'/></svg>" />
+<link rel="icon" href="/favicon.ico" sizes="32x32" />
+<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+<link rel="manifest" href="/site.webmanifest" />
+<meta name="theme-color" content="#171310" />
 <style is:global>
   :root{
     --ground:#171310;--panel:#211a14;--well:#120f0c;
