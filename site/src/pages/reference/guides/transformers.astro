@@ -16,7 +16,7 @@ const LEAD_ROWS = [
   { key: 'pri',  chips: ['black'],           name: 'Black + Black',       count: '×2', winding: 'Primary',                  service: 'Mains input, ~120 V AC — switched through the fuse and power switch' },
   { key: 'ht',   chips: ['red'],             name: 'Red + Red',           count: '×2', winding: 'High-voltage secondary',   service: 'Plate supply to the rectifier — the ends of the HT winding (325-0-325 V AC on both drawings)' },
   { key: 'ht',   chips: ['red', 'yellow'],   name: 'Red / yellow',        count: '×1', winding: 'HT centre tap',            service: 'Midpoint of the HT winding — the B+ return, to the first filter / ground' },
-  { key: 'rec',  chips: ['yellow'],          name: 'Yellow + Yellow',     count: '×2', winding: 'Rectifier filament',       service: '5 V for a directly-heated tube rectifier — 5Y3GT, 5U4G, GZ34' },
+  { key: 'rec',  chips: ['yellow'],          name: 'Yellow + Yellow',     count: '×2', winding: 'Rectifier filament',       service: '5 V for the tube rectifier\'s filament or heater — 5Y3GT and 5U4G (directly heated) or GZ34 (indirectly heated) — a winding that floats at B+' },
   { key: 'htr',  chips: ['green'],           name: 'Green + Green',        count: '×2', winding: 'Heater secondary',        service: '6.3 V for the preamp and power-tube heaters' },
   { key: 'htr',  chips: ['green', 'yellow'], name: 'Green / yellow',      count: '×1', winding: 'Heater centre tap',        service: 'Midpoint of the 6.3 V winding — hum reference, grounded or elevated (present on the 5F6-A, not the 5E3)' },
 ];
@@ -60,7 +60,7 @@ const GROUPS = [
   {
     id: 'rec',
     label: ['Rectifier', '5 V'], labelX: 632, labelY: 356, labelAnchor: 'start',
-    readout: 'Rectifier filament — two YELLOW leads · 5 V for a directly-heated tube rectifier (5Y3GT, 5U4G, GZ34).',
+    readout: 'Rectifier filament — two YELLOW leads · 5 V for the tube rectifier (5Y3GT and 5U4G directly heated, GZ34 indirectly heated); the winding sits at B+.',
     aria: 'Rectifier filament winding, two yellow leads',
     leads: [
       { base: 'yellow', d: 'M420 236 C 500 236, 520 344, 604 344', x: 604, y: 344 },
