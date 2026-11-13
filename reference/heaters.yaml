@@ -161,37 +161,52 @@ amps:
     findings: []
     fully_established: true
   5e4a:
-    centre_tapped_sockets:
-      V1:
-        drawn_on_pins:
-        - 4
-        - 5
-        grouping: opposite-legs
-        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
-        tube: 12ay7
-      V2:
-        drawn_on_pins:
-        - 4
-        - 5
-        grouping: opposite-legs
-        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
-        tube: 12ay7
-      V3:
-        drawn_on_pins:
-        - 4
-        - 5
-        grouping: opposite-legs
-        reading: pins [4, 5] drawn on opposite legs — the 12.6 V grouping; at 6.3 V they are ONE leg instead
-        tube: 12ax7
-    declared: false
-    findings:
-    - detail: pins [4, 5] are one leg at 6.3 V and opposite legs at 12.6 V
-      kind: unclassified
-      pins:
-      - 4
-      - 5
-      socket: V1
-    fully_established: false
+    centre_tapped_sockets: {}
+    circuits:
+    - grounded_leg: return
+      id: h63
+      sockets:
+        V1:
+          feed:
+          - 4
+          - 5
+          return:
+          - 9
+        V2:
+          feed:
+          - 4
+          - 5
+          return:
+          - 9
+        V3:
+          feed:
+          - 4
+          - 5
+          return:
+          - 9
+        V4:
+          feed:
+          - 7
+          return:
+          - 2
+        V5:
+          feed:
+          - 7
+          return:
+          - 2
+      volts: 6.3
+    - grounded_leg: none
+      id: h5
+      sockets:
+        V6:
+          feed:
+          - 2
+          return:
+          - 8
+      volts: 5.0
+    declared: true
+    findings: []
+    fully_established: true
   5e5a:
     centre_tapped_sockets:
       V1:
@@ -1515,13 +1530,13 @@ amps:
     no_factory_layout_sheet: No Marshall board-layout sheet was located for the model 2204; this board
       is derived from the factory drawing sheets, so no factory drawing can establish its heater legs.
 summary:
-  declared_and_checked: 15
-  doubtful_sockets: 98
+  declared_and_checked: 16
+  doubtful_sockets: 95
   doubtful_sockets_no_factory_sheet: 31
-  doubtful_sockets_pending_a_read: 67
-  fully_established: 11
+  doubtful_sockets_pending_a_read: 64
+  fully_established: 12
   layouts: 40
   layouts_with_no_factory_layout_sheet: 11
-  links_needing_a_source_read: 25
+  links_needing_a_source_read: 24
   links_that_short_the_supply: 0
-  not_established: 25
+  not_established: 24

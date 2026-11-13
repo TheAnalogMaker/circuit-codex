@@ -25,11 +25,82 @@
 # stated -2.6% shift, see the netlist header).
 wiring_claim: verified
 
+wire_legend:
+  heater: "green — 6.3 V heaters (single-ended; one leg grounded at the transformer)"
+
+# What the heater circuits WIRE, stated as data rather than left to be inferred
+# from pin labels (see docs/layout-schema.md, "The `heaters:` block").
+# pipeline/check_heaters.py proves each entry against the valves' datasheets and
+# against the heater runs drawn below. Page numbers follow the G-EE PDF: page 1
+# is the LAYOUT, page 2 the SCHEMATIC. Crop boxes are in the native pixels of
+# the cached 300 dpi renders (page 1 6210 x 3501, page 2 6232 x 3528).
+heaters:
+  - id: h63
+    volts: 6.3
+    winding: "6.3 V secondary — the transformer's green pair, one lead grounded"
+    grounded_leg: return
+    pilot:
+      PL1:
+        return: chassis
+        source: >-
+          Page 1 draws the pilot lite with ONE terminal dot (crop
+          1450,850-1850,1150): exactly two leads meet on it, the GREEN feed from
+          the transformer and the lead that carries on to the first 6V6GT's pin
+          7. The lamp's return through its holder to the chassis is not drawn on
+          the sheet and is not drawn on this board.
+    source: >-
+      Fender "Super-Amp" Model 5E4-A drawing (G-EE), both pages read from the
+      cached 300 dpi renders; page 1's title block reads FENDER "SUPER-AMP"
+      LAYOUT / MODEL 5E4-A* / G-EE, page 2's FENDER "SUPER-AMP" SCHEMATIC /
+      MODEL 5E4-A* / G-EE. Page 2 grounds one end of the lowest secondary and
+      arrows the other "TO ALL 6.3 VOLT FILAMENTS AND PILOT LITE" (crop
+      3750,2550-5100,3400). On page 1 one GREEN lead and the RED-YELLOW HT
+      centre tap meet at a solder dot under a ground symbol (crop
+      100,1150-1150,2150); the other GREEN runs to the pilot lite, and from the
+      lamp's one terminal a lead swings left, drops past the board's left end
+      and loops under the first 6V6GT to its pin 7 (crops 1250,950-1750,1450;
+      950,1350-1450,1850; 900,1850-1400,2350; 950,2350-1450,2850;
+      1380,2850-1580,3150). It is a separate lead from the one beside it that
+      runs from the standby switch into the board's corner hole. Pin 7 is joined
+      to the second 6V6GT's pin 7 (crops 1050,2650-1650,3250;
+      1600,2780-2120,3120), which loops under both speaker jacks to the 12AX7's
+      pin 4 (crops 2050,2780-2450,3400; 2250,2950-3400,3420), then pin 4 to pin
+      4 at the middle 12AY7 and on to the last 12AY7's pin 4, where the chain
+      ends (spans in crops 3400,2600-4900,3450 and 4600,2550-6150,3450; pin
+      landings in 3180,3030-3480,3330; 4280,3030-4560,3260;
+      5350,3000-5650,3250). At each of the three novals a bow outside the rim
+      ties pins 4 and 5, and pin 9 carries a short stub to its own ground symbol
+      (crops 3300,2700-3550,2900; 4380,2700-4620,2880; 5450,2650-5720,2880):
+      the 6.3 V parallel grouping. At each 6V6GT pins 2, 1 and 8 are bowed
+      together and pin 2 runs to a ground symbol (crop 1000,2350-2450,3350), so
+      each socket returns to chassis on its own. The sheet shows no twisting and no lead dress, and the
+      schematic gives no socket pins.
+    sockets:
+      V4: { feed: [7], return: [2] }        # 6V6GT — fed at pin 7, pin 2 to ground
+      V5: { feed: [7], return: [2] }        # 6V6GT, same
+      V3: { feed: [4, 5], return: [9] }     # 12AX7 at 6.3 V — ends strapped, centre tap to ground
+      V2: { feed: [4, 5], return: [9] }     # 12AY7, same
+      V1: { feed: [4, 5], return: [9] }     # 12AY7, same
+  - id: h5
+    volts: 5.0
+    winding: "5 V rectifier-filament secondary — the transformer's yellow pair"
+    grounded_leg: none
+    source: >-
+      Page 2 runs both leads of the top secondary to the 5U4GA's filament, one
+      of them also leaving as the B+ line, and puts no ground symbol on that
+      winding (crop 3750,2550-5100,3400). Page 1 lands the two YELLOW leads on
+      pins 2 and 8 — the left-hand lettered YELLOW curving under the socket to
+      pin 2, the right-hand one to pin 8 — with a second lead leaving pin 8 and
+      no ground at either pin (crops 150,2300-1150,3300; 300,2500-1100,3300). The filament carries the rectified B+, so
+      neither leg is grounded and it is never on the 6.3 V chain.
+    sockets:
+      V6: { feed: [2], return: [8] }        # 5U4GA directly-heated filament
+
 board:
   rows: 2
   cols: 51
   title: "5E4-A · eyelet board layout"
-caption: "Redrawn from the published Fender 5E4-A 'Super-Amp' layout drawing (G-EE), page 1 — principal board components and their hookup, in the order the drawing shows them. The chassis has four input jacks (two per channel); each jack has its own 68 kΩ grid stopper, as the drawing's board carries four (R1s and R3s for the Instrument jacks, R2s and R4s for the Mic jacks), the two of a channel joined at its grid; the two 1 MΩ input leaks (RG1, RG2) mount at each channel's jack 1 as the sheet shows, and the jack-normalling contacts have no board terminal and are not drawn. The tone network is wired as the sheet draws it: the 250 pF treble cap, 0.1 µF bass coupler and its 220 kΩ leak sit on the board; the 0.01 µF (C6) hangs at the treble pot and the 0.005 µF (C7) at the bass pot, whose other end lug is grounded to its case; the bass branch lands on the bass pot's WIPER, and the second 220 kΩ (RSR) is strung pot-to-pot from the bass wiper to the treble wiper, whose lead alone carries the output to the phase inverter. The 5 kΩ presence pot is wired as the layout sheet draws it: a rheostat from the driver's cathode, its far lug strapped to the wiper, with the 0.1 µF from that lug to chassis mounted at the pot. The 56 kΩ negative-feedback resistor (which also lands at the driver's cathode), the 100 pF bright cap, and the two AC-line caps are chassis wiring drawn schematically or off the board. The negative-bias supply takes the power transformer's own bias tap — the red-blue lead — onto the 18 kΩ, which feeds the selenium rectifier beside the board; the rectifier's other terminal is the −32 V line, the order the drawing shows. The power-transformer primary (black) lands on chassis switches, off the board; the 6.3 V heater chain (green twisted pair, PT → pilot lamp → the two 6V6GT output tubes → 12AX7 phase inverter → 12AY7 → 12AY7) is routed as the published sheet shows it, and the directly-heated 5U4GA rectifier runs off the 5 V winding, not the 6.3 V chain. Not a trace or a dimensioned reproduction."
+caption: "Redrawn from the published Fender 5E4-A 'Super-Amp' layout drawing (G-EE), page 1 — principal board components and their hookup, in the order the drawing shows them. The chassis has four input jacks (two per channel); each jack has its own 68 kΩ grid stopper, as the drawing's board carries four (R1s and R3s for the Instrument jacks, R2s and R4s for the Mic jacks), the two of a channel joined at its grid; the two 1 MΩ input leaks (RG1, RG2) mount at each channel's jack 1 as the sheet shows, and the jack-normalling contacts have no board terminal and are not drawn. The tone network is wired as the sheet draws it: the 250 pF treble cap, 0.1 µF bass coupler and its 220 kΩ leak sit on the board; the 0.01 µF (C6) hangs at the treble pot and the 0.005 µF (C7) at the bass pot, whose other end lug is grounded to its case; the bass branch lands on the bass pot's WIPER, and the second 220 kΩ (RSR) is strung pot-to-pot from the bass wiper to the treble wiper, whose lead alone carries the output to the phase inverter. The 5 kΩ presence pot is wired as the layout sheet draws it: a rheostat from the driver's cathode, its far lug strapped to the wiper, with the 0.1 µF from that lug to chassis mounted at the pot. The 56 kΩ negative-feedback resistor (which also lands at the driver's cathode), the 100 pF bright cap, and the two AC-line caps are chassis wiring drawn schematically or off the board. The negative-bias supply takes the power transformer's own bias tap — the red-blue lead — onto the 18 kΩ, which feeds the selenium rectifier beside the board; the rectifier's other terminal is the −32 V line, the order the drawing shows. The power-transformer primary (black) lands on chassis switches, off the board; the 6.3 V heater supply is single-ended, as both sheets draw it: one green transformer lead is grounded with the red-yellow HT centre tap, and the other feeds the pilot lamp and then one green conductor on to the two 6V6GT output tubes (pin 7 to pin 7), the 12AX7 phase inverter and the two 12AY7s (pin 4 to pin 4). Each socket returns to ground on its own: the 6V6GTs at pin 2, and the three novals with pins 4+5 strapped for 6.3 V parallel and the centre tap at pin 9 to ground. The pilot lamp is drawn with the single terminal the sheet gives it, the feed passing through on its way to the heaters; its return is the lamp's own shell to the chassis. The sheet draws no twisting or lead dress. The directly-heated 5U4GA rectifier runs off the 5 V winding, not the 6.3 V chain. Not a trace or a dimensioned reproduction."
 source:
   desc: "Fender 'Super-Amp' Model 5E4-A layout drawing (G-EE), page 1 — the factory's own board sheet, printing part values, the tube row and a second set of measured voltages (+245 at the cathodyne plate, +190 at the driver plate, +250 at the preamp can, +130 at the cathode follower, +125 at each 12AY7 plate, +1.9 at both cathode cans, -32 at the bias filter)"
   url: "https://el34world.com/charts/Schematics/files/Fender/Fender_super_5e4a.pdf"
@@ -158,25 +229,27 @@ bus:
 # the 5U4G, and the output-transformer primary (V4 plate BROWN, V5 plate BLUE,
 # centre tap RED to B+2, onto a 6V6GT screen pin as the sheet letters it). The PT primary (BLACK) lands on the chassis switches,
 # off the board, so it is not drawn. The 6.3 V heater winding is the GREEN pair
-# (the sheet shows plain green/green — no centre tap on this transformer); it
-# feeds the pilot lamp and then daisy-chains socket to socket in physical order
-# (rendered as a green twisted pair, style: twisted). The directly-heated 5U4G
+# (the sheet shows plain green/green — no centre tap on this transformer) and
+# it is SINGLE-ENDED: one green is grounded with the red-yellow HT centre tap,
+# the other feeds the pilot lamp's one terminal and then chains socket to
+# socket in physical order as one green conductor (style: heater), each socket
+# returning to the ground bus on its own. The directly-heated 5U4G
 # runs off the 5 V winding and is not on the 6.3 V chain. The two 1 MΩ input
 # grid leaks (RG1, RG2) mount at the channel jacks as generic 2-lead off-board
 # parts (kind: part). The bias supply takes the transformer's own bias tap —
 # the RED-BLUE lead — onto the 18k, which feeds the selenium rectifier, a
 # chassis part beside the board. Endpoints reference board eyelets (REF.a/REF.b),
 # tube socket pins (Vn.pinN, validated against reference/tubes basing — heater
-# pins on the twisted runs), pot lugs (VRn.lugN), jacks, off-board 2-lead parts
-# (RG1.a/RG1.b, PL1.a/PL1.b), choke/transformer leads (by colour). `via`
+# pins on the heater runs), pot lugs (VRn.lugN), jacks, off-board 2-lead parts
+# (RG1.a/RG1.b, PL1.a), choke/transformer leads (by colour). `via`
 # waypoints are [col, row]; row<0 routes above the board, row>1 below it.
 runs:
   # --- power transformer secondary -> 5U4G rectifier (marked colours) --------
   - { from: PT.red1, to: V6.pin4, via: [[2.1, 0.5], [2.5, 1.7]] }                 # HT plate 1
   - { from: PT.red2, to: V6.pin6, via: [[2, 0.85], [3.55, 1.45]] }                 # HT plate 2
-  - { from: PT.red-yellow, to: [1.45, 2], via: [[1.2, 1.15]] }         # HT centre tap -> ground bus
-  - { from: PT.yellow1, to: V6.pin2, via: [[0.9, 0.7], [0.65, 1], [1.8, 2.68]] }              # 5 V rectifier filament (steeper dive, clear of yellow2)
-  - { from: PT.yellow2, to: V6.pin8, via: [[2.7, 0.55], [2.7, 2.3]] }              # 5 V filament / cathode (B+ out) (clear of RB2.b)
+  - { from: PT.red-yellow, to: [1.45, 2], via: [[0.35, 0.55]] }         # HT centre tap -> ground bus
+  - { from: PT.yellow1, to: V6.pin2, via: [[0.878, 0.7], [0.532, 2.5], [1.8, 2.75]] }              # 5 V rectifier filament (route as the 5F4 board's, clear of the re-stacked pigtails)
+  - { from: PT.yellow2, to: V6.pin8, via: [[2.7, 0.563], [2.7, 2.3]] }              # 5 V filament / cathode (B+ out) (clear of RB2.b)
   - { from: V6.pin8, to: C11.a, color: red, via: [[4.35, 2.68], [4.35, 0.4]] }   # B+ -> first filter (climbs col4.35, clear of bias eyelets)
 
   # --- filtered B+ rail: choke, then two 10k droppers ------------------------
@@ -319,19 +392,38 @@ runs:
   - { from: CP.b, to: VRP.lug1, via: [[2.4, -0.62], [3.7, -0.62]] }       # 0.1 µF at the pot ...
   - { from: CP.a, to: C15.b, via: [[1.6, -0.3], [2, -0.3]] }   # ... -> chassis, at the bias can's grounded eyelet
 
-  # --- 6.3 V heater chain (green twisted pair) ------------------------------
-  # PT green pair -> pilot lamp -> V4 6V6 -> V5 6V6 -> V3 12AX7 (PI) -> V2 12AY7
-  # -> V1 12AY7, in the drawing's physical daisy order. The 5U4GA rectifier is
-  # directly heated off the 5 V winding, so it is not on this chain. Twisted
-  # runs land only on heater pins (6V6 octal 2/7, noval 4/5); routed in a deep
-  # lane below the output harness.
-  - { from: PT.green, to: PL1.a, style: twisted }                                    # 6.3 V -> pilot lamp
-  - { from: PL1.b, to: V4.pin7, style: twisted, via: [[-1.2, 3.7], [6.5, 3.7]] }     # lamp -> V4 6V6 heater
-  - { from: V4.pin2, to: V5.pin7, style: twisted, via: [[6.5, 3.72], [10.5, 3.72]] } # V4 -> V5 heater
-  - { from: V5.pin2, to: V3.pin4, style: twisted, via: [[10.5, 3.74], [20, 3.74]] }  # V5 -> V3 (PI) heater
-  - { from: V3.pin5, to: V2.pin4, style: twisted, via: [[20, 3.72], [33, 3.72]] }    # V3 -> V2 heater
-  - { from: V2.pin5, to: V1.pin4, style: twisted, via: [[33, 3.7], [44, 3.7]] }      # V2 -> V1 heater
-  - { from: V1.pin4, to: V1.pin5, style: twisted } # close the pair at the last socket
+  # --- 6.3 V heater circuit: SINGLE-ENDED (one leg grounded) ----------------
+  # Read from the G-EE sheets (crop register in the `heaters:` block above):
+  # the schematic (page 2) grounds one end of the 6.3 V winding and arrows the
+  # other "TO ALL 6.3 VOLT FILAMENTS AND PILOT LITE"; the layout (page 1) takes
+  # one GREEN lead to a ground symbol together with the RED-YELLOW HT centre
+  # tap, and runs the other GREEN to the pilot lite's ONE drawn terminal, on
+  # through it to V4 pin 7 -> V5 pin 7 -> V3 pin 4 -> V2 pin 4 -> V1 pin 4.
+  # Each noval's pins 4 and 5 are bowed together (6.3 V parallel) and pin 9 is
+  # stubbed to its own ground symbol; each 6V6GT's pin 2 is bowed to pins 1 and
+  # 8 and taken to a ground symbol (pin 8's own ground run is drawn above). So
+  # the feed is ONE green conductor (style: heater) and each socket returns to
+  # chassis on its own. Until 2026-11-13 this was drawn as a twisted pair
+  # daisied 7->2->7->2->4->5->4->5->4: the 12.6 V grouping, a floating pair, and
+  # a two-terminal series lamp, none of which the sheet shows. The 5U4GA is
+  # directly heated off the 5 V winding and is not on this chain.
+  - { from: PT.green1, to: [1.45, 1.4], style: heater, via: [[-1.73, 0.35], [-1.695, 1.003]] }   # grounded 6.3 V leg (with the red-yellow, as the sheet draws it)
+  - { from: PT.green2, to: PL1.a, style: heater, via: [[-1.604, 2.331]] }                        # 6.3 V feed -> pilot lite's one terminal
+  - { from: PL1.a, to: V4.pin7, style: heater, via: [[-1.2, 3.7], [6.5, 3.7]] }     # feed passes through the lamp terminal -> V4 6V6GT pin 7
+  - { from: V4.pin7, to: V5.pin7, style: heater, via: [[6.5, 3.72], [10.5, 3.72]] } # V4 pin 7 -> V5 pin 7
+  - { from: V5.pin7, to: V3.pin4, style: heater, via: [[10.5, 3.74], [20, 3.74]] }  # V5 pin 7 -> V3 12AX7 pin 4 (under the speaker jacks on the sheet)
+  - { from: V3.pin4, to: V3.pin5, style: heater }   # 12AX7 pins 4+5 bowed together (6.3 V parallel)
+  - { from: V3.pin4, to: V2.pin4, style: heater, via: [[20.4, 3.72], [33, 3.72]] }  # V3 pin 4 -> V2 12AY7 pin 4
+  - { from: V2.pin4, to: V2.pin5, style: heater }   # 12AY7 pins 4+5 bowed together
+  - { from: V2.pin4, to: V1.pin4, style: heater, via: [[33.4, 3.7], [44, 3.7]] }    # V2 pin 4 -> V1 12AY7 pin 4 (end of chain)
+  - { from: V1.pin4, to: V1.pin5, style: heater }   # 12AY7 pins 4+5 bowed together
+  # Returns: each socket's grounded leg to the ground bus, as the sheet grounds
+  # each one locally.
+  - { from: V4.pin2, to: [1.45, 6.1], style: heater, via: [[5.43, 1.591]] }  # 6V6GT heater return -> ground
+  - { from: V5.pin2, to: [1.45, 10.1], style: heater }                       # 6V6GT heater return -> ground
+  - { from: V3.pin9, to: [1.45, 20.6], style: heater }                       # 12AX7 centre tap -> ground
+  - { from: V2.pin9, to: [1.45, 33.6], style: heater }                       # 12AY7 centre tap -> ground
+  - { from: V1.pin9, to: [1.45, 44.6], style: heater }                       # 12AY7 centre tap -> ground
 
 # net_map — the reviewable data layer reconciling the drawn wiring with the
 # DC-operating-point netlist (netlist.cir) for pipeline/verify_layout_nets.py.
