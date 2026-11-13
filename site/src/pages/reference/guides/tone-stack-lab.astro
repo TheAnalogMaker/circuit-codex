@@ -294,8 +294,8 @@ const description = 'An interactive frequency-response lab for the passive tone 
         stops.</strong> In the {threeKnob.length} three-knob presets, the middle
         pot's full track always stands between the network's foot and ground.
         Bass and Middle at zero do not remove that resistance. Its value varies:
-        {middleValues}. The textbook
-        redrawing of the same parts — output node joined to both wipers, rheostat mid
+        {middleValues}. The commonly redrawn
+        version of the same parts — output node joined to both wipers, rheostat mid
         leg — would instead tie the output to ground through the remains of the
         network and go nearly silent; the solver also holds that form, but these
         {threeKnob.length} presets use the ladder wiring.</p>
@@ -326,9 +326,12 @@ const description = 'An interactive frequency-response lab for the passive tone 
         <em>ladder</em> wiring used by the {ladder.length} three-knob and blackface
         two-knob presets: the bass pot is a rheostat in
         series down the network's lower half, and the Bass control works by varying how
-        hard that lower half loads the treble pot. The <em>joined</em> wiring — the
-        textbook redrawing of the same parts, with the treble and bass wipers meeting
-        at a single output node — is kept in the solver as a reference form.
+        hard that lower half loads the treble pot. The <em>joined</em> wiring — a common
+        redrawing of the same parts, with the treble and bass wipers meeting at a single
+        output node — is kept in the solver as a reference form. It is not the network
+        of the published closed-form analysis of the Bassman stack (Yeh and Smith,
+        DAFx-06): that transfer function is the ladder, and the archive's checks hold the
+        ladder to it.
         Either way
         the controls cannot be separated; the wirings differ in <em>where</em> the
         collision happens, and, as the sections below show, in what happens at the
@@ -427,7 +430,12 @@ const description = 'An interactive frequency-response lab for the passive tone 
         ladder network in both its mid-leg forms (the three-knob 5F6 and 5F6-A, the
         fixed-leg AA964 and AB763), and the 5F4's split network, using the same
         simulator the archive uses to verify every operating point — and agrees with
-        each to within 5 × 10⁻⁵ dB across the sweep. For what a decibel is, see
+        each to within 5 × 10⁻⁵ dB across the sweep. That proves the arithmetic, not the
+        wiring — ngspice is handed the same element list. The wiring is checked separately:
+        on the Bassman's values, with an ideal source and no load, the ladder reproduces
+        Yeh and Smith's closed-form transfer function to within a thousandth of a decibel
+        at every setting tested, while the joined form misses it by up to 8.5 dB. For what
+        a decibel is, see
         <a href="/reference/guides/units-conventions/">units and notation</a>.</p>
     </div>
   </section>

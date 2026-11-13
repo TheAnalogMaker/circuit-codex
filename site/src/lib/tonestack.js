@@ -121,11 +121,14 @@ export function solveAt(elements, n, out, f) {
 //     control slides the injection point along a fixed 25 kΩ leg instead of
 //     shrinking the leg itself.
 //
-//   'joined' — the textbook idealisation of the same parts (Duncan-style
-//     "FMV"): treble lower lug on the slope foot, treble and bass wipers
-//     joined at one output node, mid capacitor on the top of a rheostat-wired
-//     mid leg. Kept as the textbook reference form; as of the 2026-08-03
-//     re-reading of the published drawings, no preset's own sheet draws it.
+//   'joined' — a commonly redrawn idealisation of the same parts: treble
+//     lower lug on the slope foot, treble and bass wipers joined at one output
+//     node, mid capacitor on the top of a rheostat-wired mid leg. Kept as a
+//     reference form only; as of the 2026-08-03 re-reading of the published
+//     drawings, no preset's own sheet draws it. It is not the network of the
+//     published closed-form analysis either: Yeh and Smith's transfer function
+//     for the '59 Bassman stack (DAFx-06) is the ladder, and
+//     scripts/check-tonestack-spice.mjs holds the ladder to it.
 //
 //   'split' — a different network again: the tweed 5F4's tone circuit
 //     (splitStackElements below), in which treble and bass ride two separate
@@ -156,7 +159,7 @@ export function solveAt(elements, n, out, f) {
 //       N5 :  Yc3(V5−V2) + Yb2(V5−Vo) + Ym·V5                             = 0
 //
 //     Setting Rsource to zero collapses the first equation to V0 = 1 and recovers
-//     the textbook five-node form.
+//     the ideal-source five-node form.
 //
 //     A control at 10 puts its wiper at the "more of this" end: treble 10 ties
 //     the output straight to the treble cap, bass 10 ties it straight to the

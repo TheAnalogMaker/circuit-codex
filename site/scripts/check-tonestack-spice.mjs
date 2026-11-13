@@ -100,6 +100,61 @@ try {
 }
 console.log(`     worst parity residual overall: ${worst.d.toExponential(2)} dB (${worst.label})`);
 
+// ------------------------------------------- 1b. independent topology check
+// Parity above proves the solver's arithmetic: ngspice is handed the SAME
+// element list networkFor() builds, so a wrong wire would pass it. This check
+// is independent of the element lists. Yeh and Smith published the '59
+// Bassman stack's transfer function in closed form (D. T. Yeh and J. O. Smith,
+// "Discretization of the '59 Fender Bassman tone stack", DAFx-06), with the
+// treble (t), middle (m) and bass (l) pots as track fractions. Their H(s) is
+// evaluated here on the Bassman values against the lab's 'ladder' network with
+// an ideal source and no load — the conditions the closed form assumes. It
+// agrees to within rounding; the 'joined' form misses it by several dB, which
+// is why the lab plots the ladder.
+const YEH_TOL_DB = 5e-3; // observed ~7e-4 dB: the solver's 0.5 Ω pot end-stop floor
+function yehDb({ C1, C2, C3, R1, R2, R3, R4 }, t, m, l, f) {
+  const b1 = t*C1*R1 + m*C3*R3 + l*(C1*R2 + C2*R2) + (C1*R3 + C2*R3);
+  const b2 = t*(C1*C2*R1*R4 + C1*C3*R1*R4) - m*m*(C1*C3*R3*R3 + C2*C3*R3*R3)
+    + m*(C1*C3*R1*R3 + C1*C3*R3*R3 + C2*C3*R3*R3) + l*(C1*C2*R1*R2 + C1*C2*R2*R4 + C1*C3*R2*R4)
+    + l*m*(C1*C3*R2*R3 + C2*C3*R2*R3) + (C1*C2*R1*R3 + C1*C2*R3*R4 + C1*C3*R3*R4);
+  const b3 = l*m*(C1*C2*C3*R1*R2*R3 + C1*C2*C3*R2*R3*R4) - m*m*(C1*C2*C3*R1*R3*R3 + C1*C2*C3*R3*R3*R4)
+    + m*(C1*C2*C3*R1*R3*R3 + C1*C2*C3*R3*R3*R4) + t*C1*C2*C3*R1*R3*R4 - t*m*C1*C2*C3*R1*R3*R4
+    + t*l*C1*C2*C3*R1*R2*R4;
+  const a1 = (C1*R1 + C1*R3 + C2*R3 + C2*R4 + C3*R4) + m*C3*R3 + l*(C1*R2 + C2*R2);
+  const a2 = m*(C1*C3*R1*R3 - C2*C3*R3*R4 + C1*C3*R3*R3 + C2*C3*R3*R3) + l*m*(C1*C3*R2*R3 + C2*C3*R2*R3)
+    - m*m*(C1*C3*R3*R3 + C2*C3*R3*R3) + l*(C1*C2*R2*R4 + C1*C2*R1*R2 + C1*C3*R2*R4 + C2*C3*R2*R4)
+    + (C1*C2*R1*R4 + C1*C3*R1*R4 + C1*C2*R3*R4 + C1*C2*R1*R3 + C1*C3*R3*R4 + C2*C3*R3*R4);
+  const a3 = l*m*(C1*C2*C3*R1*R2*R3 + C1*C2*C3*R2*R3*R4) - m*m*(C1*C2*C3*R1*R3*R3 + C1*C2*C3*R3*R3*R4)
+    + m*(C1*C2*C3*R3*R3*R4 + C1*C2*C3*R1*R3*R3 - C1*C2*C3*R1*R3*R4) + l*C1*C2*C3*R1*R2*R4
+    + C1*C2*C3*R1*R3*R4;
+  const w = 2 * Math.PI * f; // s = jω
+  const num = Math.hypot(-b2 * w * w, b1 * w - b3 * w ** 3);
+  const den = Math.hypot(1 - a2 * w * w, a1 * w - a3 * w ** 3);
+  return 20 * Math.log10(num / den);
+}
+{
+  const yv = { C1: 250e-12, C2: 20e-9, C3: 20e-9, R1: 250e3, R2: 1e6, R3: 25e3, R4: 56e3 };
+  const parts = { slope: yv.R4, trebleCap: yv.C1, treblePot: yv.R1, bassCap: yv.C2, bassPot: yv.R2,
+    midCap: yv.C3, midPot: yv.R3, rSource: 0 };
+  const ladder = { kind: 'fmv', parts: { ...parts, wiring: 'ladder' } };
+  const joined = { kind: 'fmv', parts: { ...parts, wiring: 'joined' } };
+  const settings = [[5, 5, 5], [10, 10, 10], [2, 8, 3], [9, 1, 7], [5, 0, 5], [5, 10, 0], [0, 5, 10]];
+  const freqs = [20, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000];
+  let wL = 0, wJ = 0;
+  for (const [t, m, b] of settings) for (const f of freqs) {
+    const y = yehDb(yv, t / 10, m / 10, b / 10, f);
+    wL = Math.max(wL, Math.abs(y - responseDb(ladder, pos(t, m, b), f)));
+    wJ = Math.max(wJ, Math.abs(y - responseDb(joined, pos(t, m, b), f)));
+  }
+  const ok = wL <= YEH_TOL_DB;
+  if (!ok) failures++;
+  console.log(`${ok ? 'ok  ' : 'FAIL'} topology ladder vs Yeh & Smith closed form: worst |Δ| ${wL.toExponential(2)} dB over ${settings.length * freqs.length} points`);
+  // The joined form must NOT match — if it ever does, the two wirings have
+  // been made the same network and the check above proves nothing.
+  if (!(wJ > 1)) fail(`topology joined form agrees with the closed form (worst |Δ| ${wJ.toFixed(2)} dB) — the networks are no longer distinct`);
+  else console.log(`ok   topology joined form differs from the closed form, as it should: worst |Δ| ${wJ.toFixed(1)} dB`);
+}
+
 // -------------------------------------------------------- 2. study figures
 const at1k = (p, q) => responseDb(p, q, 1000);
 function expect(label, got, want, tol) {
