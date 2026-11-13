@@ -94,6 +94,7 @@ const ldBlocks = [
 <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 <link rel="manifest" href="/site.webmanifest" />
 <meta name="theme-color" content="#171310" />
+<meta name="color-scheme" content="dark" />
 <style is:global>
   /* --faint and --oxblood are text colours as well as accents: #94836b and #cf6a50
      hold 4.5:1 (WCAG AA) on --ground, --panel and --well. The old #7a6a54 and
@@ -107,6 +108,9 @@ const ldBlocks = [
     --body:"Avenir Next",Seravek,"Segoe UI",system-ui,sans-serif;
     --mono:"SF Mono",Menlo,Consolas,monospace;
   }
+  /* The site is dark-only: tell the browser, so native controls (select pop-ups,
+     number spinners, scrollbars, autofill) render dark rather than light. */
+  :root{color-scheme:dark}
   *{box-sizing:border-box}
   body{background:var(--ground);color:var(--ink);font-family:var(--body);line-height:1.6;margin:0;min-height:100vh}
   .wrap{max-width:1020px;margin:0 auto;padding:0 24px}
