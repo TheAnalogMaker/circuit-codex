@@ -936,7 +936,9 @@ const styleNoBreak = String(m.name_style).replace(/-/g, '‑');
   .notes :global(h2){font-size:15px;letter-spacing:.12em;margin:22px 0 6px}
   .notes :global(p){color:var(--muted);font-size:14.5px;max-width:72ch}
   .notes :global(li){color:var(--muted);font-size:14.5px}
-  .notes :global(table){font-size:13px;margin:10px 0}
+  /* A story table (6G4, 6G5) can be wider than a phone: it scrolls in place
+     rather than widening the page. */
+  .notes :global(table){font-size:13px;margin:10px 0;display:block;max-width:100%;overflow-x:auto}
   .notes :global(strong){color:var(--ink)}
   /* Printing the page: the board drawing is the part worth paper, so it prints
      whole rather than scrolled, and the on-screen controls drop out. (The
