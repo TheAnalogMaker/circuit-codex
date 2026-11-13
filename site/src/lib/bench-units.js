@@ -14,7 +14,10 @@ export function ohms(v) {
     .replace(/[\u03A9\u03C9\u2126]/g, '')
     .toLowerCase()
     .replace(/ohms?/g, '')
-    .replace(/\s+/g, '');
+    .replace(/\s+/g, '')
+    // Tube-era drawings letter a megohm "MEG." (1 MEG., 2.2 Meg) — the same
+    // megohm as a bare M, and read as one.
+    .replace(/meg\.?$/, 'm');
   if (s === '') return null;
   const mult = { r: 1, k: 1e3, m: 1e6 };
   let m = s.match(/^(\d*)([rkm])(\d+)$/);
@@ -29,13 +32,18 @@ export function ohms(v) {
 // p/n/u/µ are the SI prefixes; a bare m is millifarads.
 //
 // Tube-era drawings do not use the µ symbol. They letter a microfarad "MFD"
-// (see the units guide). "0.02mfd" and "25 MFD" are that word, not a milli
-// prefix with stray letters — bare "22m" stays 22 mF so the two cannot collapse.
+// or "MF" (see the units guide), and a picofarad "MMF" or "µµF" — a
+// micro-microfarad. "0.02mfd", ".02 MF" and "25 MFD" are microfarads, not a
+// milli prefix with stray letters: no amplifier part is sized in millifarads,
+// and reading ".02 MF" as 20 mF once put a coupling-cap corner at 0.008 Hz.
+// A bare "22m" (no F at all) stays 22 mF, the SI reading of the prefix alone.
 export function farads(v) {
   if (v == null) return null;
   let s = String(v).trim().toLowerCase().replace(/farads?/g, '').replace(/\s+/g, '');
   if (s === '') return null;
-  const mfd = s.match(/^(\d*\.?\d+)(µ|u|m)fd\.?$/);
+  const pico = s.match(/^(\d*\.?\d+)(µµ|uu|mm)fd?\.?$/);
+  if (pico) return parseFloat(pico[1]) * 1e-12;
+  const mfd = s.match(/^(\d*\.?\d+)(µ|u|m)fd?\.?$/);
   if (mfd) return parseFloat(mfd[1]) * 1e-6;
   s = s.replace(/f$/, '');
   if (s === '') return null;
@@ -43,4 +51,17 @@ export function farads(v) {
   const m = s.match(/^(\d*\.?\d+)([pnuµm]?)$/);
   if (!m) return null;
   return parseFloat(m[1]) * (m[2] ? suf[m[2]] : 1e-6);
+}
+
+// A plain number, read strictly. parseFloat() takes the longest numeric prefix,
+// so "1,000" came back as 1 and "12abc" as 12 — a wrong answer printed as if it
+// were right. A field either holds a whole number or it is unreadable; the
+// minus sign the pages print (U+2212) reads as a minus.
+export function number(v) {
+  if (v == null) return null;
+  const s = String(v).trim().replace(/\u2212/g, '-');
+  if (s === '') return null;
+  if (!/^[+-]?(\d+\.?\d*|\.\d+)(e[+-]?\d+)?$/i.test(s)) return null;
+  const n = Number(s);
+  return Number.isFinite(n) ? n : null;
 }
