@@ -1,5 +1,39 @@
 # Cloudflare static-asset response headers.
+#
+# Cache-Control is set by exactly one rule per path: when two rules match the same
+# path, Cloudflare joins their values for a header with a comma, which would turn
+# two policies into one nonsense header. Paths no rule names (HTML pages, feeds,
+# sitemaps, downloads, the pagefind entry files) keep the platform default,
+# `public, max-age=0, must-revalidate`, so a deploy is visible on the next view.
+
 # version.json names the source revision this deploy was built from. It must never
 # be served from a cache, or a post-deploy check could read a stale copy and pass.
 /version.json
   Cache-Control: no-store
+
+# Astro's build output: every file name carries a content hash, so a changed file
+# is a new URL and an old URL never changes meaning.
+/_astro/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# Pagefind's index chunks are content-hashed too. Its entry files
+# (pagefind-entry.json, pagefind.js, the UI) are not, and they name the chunks of
+# the current build, so they stay on the default: a stale entry file would point
+# the search at chunks the next deploy deleted.
+/pagefind/fragment/*
+  Cache-Control: public, max-age=31536000, immutable
+/pagefind/index/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# Published under stable names, so a correction to a drawing reuses the URL. An
+# hour's cache, then served stale for up to a day while the edge revalidates.
+/layouts/*
+  Cache-Control: public, max-age=3600, stale-while-revalidate=86400
+/schematics/*
+  Cache-Control: public, max-age=3600, stale-while-revalidate=86400
+/og/*
+  Cache-Control: public, max-age=3600, stale-while-revalidate=86400
+/og.png
+  Cache-Control: public, max-age=3600, stale-while-revalidate=86400
+/vendor/*
+  Cache-Control: public, max-age=3600, stale-while-revalidate=86400
