@@ -56,19 +56,21 @@ const itemList = {
         own data could not back. The three-beat second line is unchanged: the
         site's social card (site/scripts/og-card.svg) sets the same cadence. */}
     <h1>Classic tube amp circuits.<br />Redrawn. Verified. Connected.</h1>
-    <p class="lede">The amplifiers that made electric guitar — as clean KiCad schematics,
-      <strong>simulation-checked netlists</strong>, and structured metadata, built in the open.
-      No scans: every circuit is redrawn from the underlying facts. A
-      <a href="/about/#verified">verified</a> badge means the netlist landed inside
-      the published voltage chart in CI; drafts are published with the blocker named.
-      Free forever, CC-BY-SA.
+    <p class="lede">Redrawn schematics, board layouts and simulated voltages for
+      {stats.circuits} classic guitar tube amps, free to study and reuse (CC-BY-SA).
+      No scans: every circuit is redrawn from the underlying facts, and a
+      <a href="/about/#verified">verified</a> badge means the circuit's simulated
+      voltages land inside the voltage chart published for it.</p>
+    <p class="lede lede-2">Under the hood: clean KiCad schematics,
+      <strong>simulation-checked netlists</strong> and structured metadata, built in
+      the open and checked in CI; drafts are published with the blocker named.
       New here? <a href="/about/">Start with what this is, what it proves, and how to
       contribute</a>.</p>
     <div class="stats" role="list">
       <div class="stat" role="listitem"><div class="n">{stats.circuits}</div><div class="l">circuit{stats.circuits === 1 ? '' : 's'}</div></div>
       <div class="stat" role="listitem"><div class="n">{stats.verified}</div><div class="l">{verifiedLabel}</div></div>
       <div class="stat" role="listitem"><div class="n">{stats.models}</div><div class="l">CC0 tube SPICE models</div></div>
-      <div class="stat" role="listitem"><div class="n">{stats.historyModels}</div><div class="l">model histories</div></div>
+      <div class="stat" role="listitem"><div class="n">{stats.historyModels}</div><div class="l">models on the timeline</div></div>
     </div>
   </header>
 
@@ -103,7 +105,7 @@ const itemList = {
   <section id="circuits">
     <h2>The corpus</h2>
     <p class="sub">Every documented circuit, grouped by the line it belongs to, oldest era first.
-      <a href="/history/">The history tier</a> places each line's other models;
+      <a href="/history/">The line histories</a> place each line's other models;
       <a href="/compare/">compare two circuits</a> to follow their differences;
       <a href={`${GITHUB}/blob/main/CONTRIBUTING.md`}>contributions welcome</a>.</p>
     <div class="corpus-filter" role="group" aria-label="Filter circuits by status">
@@ -222,6 +224,7 @@ const itemList = {
   .inline-link{color:var(--amber)}
   .corpus-filter{display:flex;flex-wrap:wrap;gap:8px;margin:-6px 0 20px}
   .corpus-filter .chip{background:transparent;cursor:pointer}
+  .lede-2{font-size:15px;margin-top:-4px}
   .status-note{color:var(--muted);font-size:13.5px;margin:-8px 0 20px;max-width:70ch}
   .status-note .chip{font-size:10.5px}
 </style>
