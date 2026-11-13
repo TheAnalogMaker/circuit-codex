@@ -95,10 +95,13 @@ const ldBlocks = [
 <link rel="manifest" href="/site.webmanifest" />
 <meta name="theme-color" content="#171310" />
 <style is:global>
+  /* --faint and --oxblood are text colours as well as accents: #94836b and #cf6a50
+     hold 4.5:1 (WCAG AA) on --ground, --panel and --well. The old #7a6a54 and
+     #9c4a38 measured 3.3-3.5:1 and 2.8-3.0:1, the latter on the safety line. */
   :root{
     --ground:#171310;--panel:#211a14;--well:#120f0c;
-    --ink:#eee2c8;--muted:#a3927b;--faint:#7a6a54;
-    --amber:#e89b3f;--amber-dim:#b97c33;--oxblood:#9c4a38;
+    --ink:#eee2c8;--muted:#a3927b;--faint:#94836b;
+    --amber:#e89b3f;--amber-dim:#b97c33;--oxblood:#cf6a50;
     --ok:#8fae7e;--line:#3a3025;--line-soft:#2c241c;
     --disp:"Avenir Next Condensed","Arial Narrow","Helvetica Neue",Arial,sans-serif;
     --body:"Avenir Next",Seravek,"Segoe UI",system-ui,sans-serif;
