@@ -59,7 +59,8 @@ const TOLS = [
       third is the number of zeros — so <b>103</b> is 10 followed by three zeros,
       10,000 pF. A one- or two-digit number is the value in picofarads directly
       (<b>47</b> = 47 pF); an <b>R</b> stands in for a decimal point (<b>4R7</b> =
-      4.7 pF). A trailing letter is the tolerance.</p>
+      4.7 pF). A decimal below 1, the way older paper and film parts are printed, is in
+      microfarads (<b>.02</b> = 0.02 µF). A trailing letter is the tolerance.</p>
   </section>
 
   <section>
@@ -210,10 +211,22 @@ const TOLS = [
       s = s.slice(0, -1);
     }
     let pf, work;
-    if (/[R.]/.test(s)) {
+    if (/^\d*R\d+$/.test(s)) {
+      // R as the decimal point is a picofarad marking: 4R7 = 4.7 pF.
       const num = parseFloat(s.replace('R', '.'));
       if (!isFinite(num) || num <= 0) return { error: 1 };
-      pf = num; work = 'Direct value';
+      pf = num; work = 'R marks the decimal point — picofarads';
+    } else if (/^(\d+\.\d*|\.\d+)$/.test(s)) {
+      const num = parseFloat(s);
+      if (!isFinite(num) || num <= 0) return { error: 1 };
+      if (num < 1) {
+        // ".02" or "0.1" printed on a part is microfarads — the way tube-era
+        // paper and film caps are lettered (".02 400 V"). Read as picofarads it
+        // came out a million times too small.
+        pf = num * 1e6; work = 'Decimal value below 1 — microfarads, as printed on older parts';
+      } else {
+        pf = num; work = 'Direct value in pF';
+      }
     } else if (/^\d+$/.test(s)) {
       if (s.length === 3) {
         const sig = parseInt(s.slice(0, 2), 10);
