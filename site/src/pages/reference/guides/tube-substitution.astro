@@ -218,9 +218,11 @@ const RECT = [
         plate around mid-supply (1 mA drops 100 V across it, so V<sub>plate</sub> ≈ 200 V).
         The <strong>5751</strong> lands almost exactly where the 12AX7 did — same current,
         same 1.8 V or so of bias — the true drop-in. The lower-µ tubes
-        (<strong>12AT7</strong>, <strong>12AU7</strong>) reach a given current at a less
-        negative grid, so they settle at slightly more current and pull the plate down a
-        little, trading a touch of headroom for the far bigger change, which is the gain.
+        (<strong>12AT7</strong>, <strong>12AU7</strong>) let the plate voltage pull harder
+        against the grid, so at the same grid voltage they pass more current — the
+        datasheets bias a 12AU7 at −8.5 V for 10.5 mA where a 12AX7 sits at −2 V for 1.2 mA.
+        In a 12AX7 position they settle at more current and pull the plate down, trading
+        some headroom for the far bigger change, which is the gain.
         No swap in this family needs the bias re-set; only the plate voltage drifts.</p>
     </div>
   </section>
@@ -257,10 +259,16 @@ const RECT = [
         and dissipates at roughly half the level of a 6L6-family tube (12 W plate rating
         against 23–30 W). In a <em>fixed-bias</em> amp — the
         <a href="/amps/5f6a/">5F6-A</a>, <a href="/amps/5f4/">5F4</a>, or
-        <a href="/amps/jtm45/">JTM45</a> — the bias supply must be re-set for the tube
-        type: more negative for a bigger tube, less negative for a smaller one. Drop 6L6s
-        into a bias set for 6V6s and they run cold and thin; drop 6V6s into a bias set for
-        6L6s and they red-plate. In a <em>cathode-biased</em> amp like the
+        <a href="/amps/jtm45/">JTM45</a> — the bias must be re-measured and re-set for the
+        tube type, because the idle current you are aiming for differs by roughly the ratio
+        of the plate ratings, about two and a half to one. Do not reach for a rule of thumb
+        about which way to turn it: at the same plate and screen voltage the two types need
+        a similar grid voltage — the datasheets put a 6V6GT at −12.5 V for 45 mA and a 6L6GC
+        at −14 V for 72 mA, both at 250 V — so the setting that is right for one is close to
+        a setting the other will also accept, at a very different current. Measure the
+        cathode current of each tube and set it against <em>that</em> tube's rating. The
+        larger hazard in putting 6V6s into a big-bottle amp is not the bias at all but the
+        plate and screen voltage, below. In a <em>cathode-biased</em> amp like the
         <a href="/amps/5e3/">5E3</a> the shared cathode resistor self-corrects to a degree,
         but it was sized for the tube fitted, and a much larger tube will overheat it.</p>
       <p><strong>Plate voltage is the hard limit.</strong> A 6V6GT is rated to about 315 V
@@ -344,12 +352,14 @@ const RECT = [
         least of the three, so it never overloads the winding on that count.</p>
       <p><strong>Socket wiring.</strong> The 5Y3 and 5U4 share the 5T base exactly
         (filament = cathode, B+ taken from the filament pins, plates on 4 and 6), so they
-        interchange directly. The GZ34 uses the 5DA base: its cathode is separate, brought
-        out on pin 8, with the heater on pins 2 and 8. Where an amp takes B+ from pin 8 the
-        GZ34 drops straight in; where an amp bridges <em>both</em> filament pins to B+ — as
-        some directly-heated designs do — the socket needs a small rewire (lift pin 2 off
-        B+) so the 5 V winding is not compromised. Confirm the socket before assuming a
-        drop-in.</p>
+        interchange directly. The GZ34 uses the 5DA base: it is indirectly heated, but its
+        cathode is strapped to the heater inside the envelope at pin 8, so pin 8 is both
+        heater and cathode and the heater's other end is on pin 2. The rectified B+ should
+        leave the socket from pin 8. Where an amp takes B+ from pin 8 the GZ34 drops straight
+        in; where it takes B+ from pin 2, move the B+ lead to pin 8 so the supply current
+        is not routed through the heater circuit.
+        Either way the whole 5 V winding sits at B+, so both of its leads are lethal. Confirm
+        the socket before assuming a drop-in.</p>
     </div>
   </section>
 
@@ -378,7 +388,11 @@ const RECT = [
 </Base>
 
 <script type="application/json" id="ts-data" is:inline set:html={jsonForScript(TUBES9A)}></script>
-<script is:inline>
+<script>
+// One reader for "100k", "4k7" and "100kΩ" across every bench tool — this page
+// carried its own copy, which lowercased before stripping Ω and so refused
+// "100kΩ" (the bug lib/bench-units.js already fixed).
+import { ohms } from '../../../lib/bench-units.js';
 (function () {
   const TUBES = JSON.parse(document.getElementById('ts-data').textContent);
   const byTube = {}; TUBES.forEach((t) => { byTube[t.tube] = t; });
@@ -389,15 +403,6 @@ const RECT = [
 
   const BAR_X = 96, BAR_W = 236, ROW_H = 40, TOP = 22, BAR_H = 22;
 
-  function ohms(v) {
-    if (v == null) return null;
-    let s = String(v).trim().toLowerCase().replace(/ohms?|Ω/g, '').replace(/\s+/g, '');
-    if (s === '') return null;
-    const mult = { r: 1, k: 1e3, m: 1e6 };
-    let m = s.match(/^(\d*)([rkm])(\d+)$/); if (m) return parseFloat((m[1] || '0') + '.' + m[3]) * mult[m[2]];
-    m = s.match(/^(\d*\.?\d+)([rkm]?)$/); if (m) return parseFloat(m[1]) * (m[2] ? mult[m[2]] : 1);
-    return null;
-  }
   const gainAt = (t, RL) => (t.mu * RL) / (t.rp + RL);
   const fmtRL = (o) => (o >= 1e6 ? Number((o / 1e6).toPrecision(4)) + ' MΩ'
     : o >= 1e3 ? Number((o / 1e3).toPrecision(4)) + ' kΩ' : Number(o.toPrecision(4)) + ' Ω');
