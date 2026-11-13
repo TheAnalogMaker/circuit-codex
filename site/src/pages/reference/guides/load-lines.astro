@@ -228,6 +228,13 @@ const description =
       thousand ohms, so the <b>AC load line</b> tilts across the operating point at that
       much shallower slope. The amplifier idles on the first line and swings along the
       second.</p>
+    <p>A push-pull stage has two AC lines, because the load each tube sees depends on
+      whether its partner is still conducting. Around idle both tubes conduct and share the
+      primary, so each sees half the plate-to-plate impedance (Z<sub>aa</sub>/2). Drive it
+      hard enough that one tube cuts off and the other carries the whole primary alone,
+      seeing a quarter of it (Z<sub>aa</sub>/4) — the steeper class-B line, drawn from the
+      idle plate voltage on the axis. A class-AB amplifier swings along the first near idle
+      and along the second at full power.</p>
 
     <h3>Where they cross is the answer</h3>
     <p>Only one point satisfies both the tube and the circuit at once: the point where the
@@ -400,13 +407,22 @@ function readState() {
   };
 }
 
-/** DC resistance in the plate circuit, and the per-tube AC load (null when unknown). */
+/**
+ * DC resistance in the plate circuit, and the per-tube AC load (null when unknown).
+ *
+ * Push-pull has two per-tube loads, not one. While both tubes conduct (the
+ * class-A region around idle) each sees half the plate-to-plate primary,
+ * Zaa/2. Once one tube cuts off (the class-B region) the other drives the whole
+ * primary alone and sees a quarter of it, Zaa/4 — the steeper line, drawn from
+ * the quiescent plate voltage on the axis rather than through the idle point.
+ */
 function loads(s) {
   const dcPlate = s.loadKind === 'res' ? s.ra : s.dcr;
+  const pp = s.loadKind === 'ot' && s.cfg === 'pp' && s.zp != null;
   const acPlate = s.loadKind === 'res'
     ? s.ra
-    : (s.zp == null ? null : (s.cfg === 'pp' ? s.zp / 4 : s.zp));
-  return { dcPlate, acPlate };
+    : (s.zp == null ? null : (s.cfg === 'pp' ? s.zp / 2 : s.zp));
+  return { dcPlate, acPlate, classB: pp ? s.zp / 4 : null };
 }
 
 // ---- chart ----------------------------------------------------------------
@@ -435,7 +451,7 @@ function render() {
   const isPent = s.model.kind === 'pentode';
   $('c-vg2-wrap').hidden = !isPent;
 
-  const { dcPlate, acPlate } = loads(s);
+  const { dcPlate, acPlate, classB } = loads(s);
   const q = solveOperatingPoint({
     model: s.model,
     bplus: s.bplus,
@@ -542,6 +558,16 @@ function render() {
       g.push(`<line class="ll-ac" x1="${X(pts[0].v).toFixed(1)}" y1="${Y(pts[0].i).toFixed(1)}" x2="${X(pts[1].v).toFixed(1)}" y2="${Y(pts[1].i).toFixed(1)}"/>`);
     }
   }
+  // --- push-pull class-B region: one tube carrying the whole primary, Zaa/4,
+  // from the quiescent plate voltage on the axis.
+  let drewB = false;
+  if (classB) {
+    const pts = clipLine(q.vpk, 0, q.vpk - yMax * classB, yMax, xMax, yMax);
+    if (pts.length === 2) {
+      g.push(`<line class="ll-acb" x1="${X(pts[0].v).toFixed(1)}" y1="${Y(pts[0].i).toFixed(1)}" x2="${X(pts[1].v).toFixed(1)}" y2="${Y(pts[1].i).toFixed(1)}"/>`);
+      drewB = true;
+    }
+  }
 
   // --- operating point
   const qx = X(q.vpk), qy = Y(q.ip);
@@ -558,7 +584,8 @@ function render() {
   // --- in-figure legend
   const legend = [
     ['ll-k-dc', 'DC load line'],
-    ...(showAc ? [['ll-k-ac', 'AC load line']] : []),
+    ...(showAc ? [['ll-k-ac', classB ? 'AC line, class A (Zaa/2)' : 'AC load line']] : []),
+    ...(drewB ? [['ll-k-acb', 'Class-B region (Zaa/4)']] : []),
     ...(drewDiss ? [['ll-k-diss', `${pmax} W plate limit`]] : []),
     ['ll-k-q', 'Operating point'],
   ];
@@ -577,7 +604,7 @@ function render() {
   $('ll-cap').textContent = `${s.model.name} plate curves at ${isPent ? `${fV(q.vg2k)} screen-to-cathode, ` : ''}`
     + `${sig(vgStep, 3)} V grid steps. Computed from the corpus model ${s.model.file}.`;
 
-  renderReadout(s, q, { dcPlate, acPlate, acR, rdc, pmax, isPent });
+  renderReadout(s, q, { dcPlate, acPlate, acR, rdc, pmax, isPent, classB });
   renderFamilyTable(s, q, vgList, vgStep);
   address.schedule();
 }
@@ -654,7 +681,9 @@ function renderReadout(s, q, ctx) {
   t.push(ctx.acR == null
     ? tile('AC load, per tube', '—', 'no primary impedance given — enter one to draw the AC load line')
     : tile('AC load, per tube', fR(ctx.acR),
-      s.loadKind === 'ot' && s.cfg === 'pp' ? 'a quarter of the plate-to-plate primary' : null));
+      s.loadKind === 'ot' && s.cfg === 'pp' && ctx.classB
+        ? `class A, both tubes conducting: half the plate-to-plate primary · ${fR(ctx.classB)} (a quarter) in the class-B region, one tube conducting`
+        : null));
 
   const est = s.loadKind === 'ot' && s.cfg === 'se' && ctx.acPlate != null
     ? seOutputEstimate(s.model, q, ctx.acPlate) : null;
@@ -862,6 +891,7 @@ readUrl();
   #ll-chart .ll-diss { fill: none; stroke: var(--oxblood); stroke-width: 2.6; stroke-dasharray: 1.5 4.5; stroke-linecap: round; }
   #ll-chart .ll-dc { stroke: var(--amber); stroke-width: 2.4; }
   #ll-chart .ll-ac { stroke: var(--amber); stroke-width: 1.8; stroke-dasharray: 10 6; }
+  #ll-chart .ll-acb { stroke: var(--amber-dim); stroke-width: 1.6; stroke-dasharray: 3 3; }
   #ll-chart .ll-drop { stroke: var(--amber-dim); stroke-width: 1; stroke-dasharray: 2 4; }
   #ll-chart .ll-q { fill: var(--ground); stroke: var(--amber); stroke-width: 3; }
   #ll-chart .ll-q-halo { fill: var(--amber); opacity: .16; }
@@ -870,6 +900,7 @@ readUrl();
   #ll-chart .ll-k-sw { fill: var(--muted); }
   #ll-chart .ll-k-sw.ll-k-dc { fill: var(--amber); }
   #ll-chart .ll-k-sw.ll-k-ac { fill: var(--amber-dim); }
+  #ll-chart .ll-k-sw.ll-k-acb { fill: var(--amber-dim); opacity: .6; }
   #ll-chart .ll-k-sw.ll-k-diss { fill: var(--oxblood); }
   #ll-chart .ll-k-sw.ll-k-q { fill: var(--amber); }
 
