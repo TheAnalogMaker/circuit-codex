@@ -216,8 +216,8 @@ const styleNoBreak = String(m.name_style).replace(/-/g, '‑');
       {amp.hasSchematic && <a href="#schematic">Schematic</a>}
       {amp.hasLayout && <a href="#layout">Layout</a>}
       <a href="#op-point">Operating point</a>
-      <a href="#parts">Parts</a>
       <a href="#story">Story</a>
+      <a href="#parts">Parts</a>
       <a href="#sources">Sources</a>
       <a href="#verification">Verification</a>
       <a href={`/compare/?left=${amp.id}`}>Compare</a>
@@ -514,6 +514,15 @@ const styleNoBreak = String(m.name_style).replace(/-/g, '‑');
         </section>
       )}
 
+      {/* The story reads before the parts list: it is the part of the page a
+          guitarist came for, and it sat ~5,000px down behind every resistor. */}
+      {amp.notesHtml && (
+        <section>
+          <h2 id="story">Circuit story</h2>
+          <div class="notes" set:html={amp.notesHtml} />
+        </section>
+      )}
+
       {amp.bom && (
         <section>
           <h2 id="parts">Parts list</h2>
@@ -526,7 +535,7 @@ const styleNoBreak = String(m.name_style).replace(/-/g, '‑');
               : ` ${countWord(refs.undesignated)} parts the drawing carries as annotations rather than numbered symbols are listed here without designators, and stand outside that check.`)}
             {refs.tubeGaps.length > 0 && ` Valve numbers are the source drawing's own and are not renumbered here to close a gap: this circuit carries ${listPhrase(refs.tubes)}, and a number missing from that run is a valve the circuit does not carry.`}
             {' '}{amp.bom.notes}</p>
-          <div class="tbl"><table class="bom">
+          <div class="tbl bom-wrap"><table class="bom">
             <thead><tr><th>Ref</th><th>Part</th><th class="val">Value / rating</th><th>Role</th></tr></thead>
             <tbody>
               {amp.bom.items.map((i) => (
@@ -546,15 +555,12 @@ const styleNoBreak = String(m.name_style).replace(/-/g, '‑');
               ))}
             </tbody>
           </table></div>
+          {amp.bom.items.length > 12 && (
+            <button type="button" class="bom-more" hidden>Show all {amp.bom.items.length} parts</button>
+          )}
         </section>
       )}
 
-      {amp.notesHtml && (
-        <section>
-          <h2 id="story">Circuit story</h2>
-          <div class="notes" set:html={amp.notesHtml} />
-        </section>
-      )}
     </div>
   </div>
 
@@ -696,6 +702,24 @@ const styleNoBreak = String(m.name_style).replace(/-/g, '‑');
     });
   })();
 </script>
+<script is:inline>
+  // On a phone the parts list opens at its first 12 rows with a button for the
+  // rest (CSS hides the others only while data-collapsed is set, so without this
+  // script every row shows).
+  (function () {
+    var btn = document.querySelector('.bom-more');
+    var wrap = document.querySelector('.bom-wrap');
+    if (!btn || !wrap) return;
+    wrap.setAttribute('data-collapsed', '');
+    btn.hidden = false;
+    btn.addEventListener('click', function () {
+      wrap.removeAttribute('data-collapsed');
+      btn.hidden = true;
+      var first = wrap.querySelector('tbody tr:nth-child(13) td');
+      if (first) { first.setAttribute('tabindex', '-1'); first.focus({ preventScroll: true }); }
+    });
+  })();
+</script>
 </Base>
 
 <style>
@@ -705,6 +729,13 @@ const styleNoBreak = String(m.name_style).replace(/-/g, '‑');
     font-family:var(--disp);text-transform:uppercase;letter-spacing:.12em;font-size:11.5px}
   .jump a{color:var(--muted)}
   h1 .style .nb{white-space:nowrap}
+  .bom-more{display:none}
+  @media(max-width:599px){
+    .bom-wrap[data-collapsed] tbody tr:nth-child(n+13){display:none}
+    .bom-more:not([hidden]){display:block;width:100%;min-height:44px;margin:10px 0 0;
+      background:var(--panel);color:var(--amber);border:1px solid var(--amber-dim);border-radius:8px;
+      font-family:var(--disp);text-transform:uppercase;letter-spacing:.12em;font-size:13px;cursor:pointer}
+  }
   .sr-only{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
   /* Phone: the subtitle takes its own line (it used to break as "Hiwatt Custom" /
      "100-style · 1969–1981"), the review note drops its leading separator, the
