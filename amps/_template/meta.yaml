@@ -23,5 +23,6 @@ verification:
                            # facts_sha256 / reviewed are stamped by the maintainer alone
                            # (pipeline/stamp_verification.py) — never add them by hand
 added: 1970-01-01          # day the circuit landed in the corpus — the feed's pubDate
-                           # while draft (required: production builds cannot ask git)
+                           # while draft (required: production builds cannot ask git).
+                           # 1970-01-01 is a placeholder validate.py rejects — replace it
 contributors: []

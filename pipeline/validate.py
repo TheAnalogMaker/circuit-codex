@@ -118,6 +118,25 @@ def check_lineage_ids(raw: str, where: str) -> list[str]:
     return errors
 
 
+# The repository's first commit. `added` is the day a circuit landed in the
+# corpus, so no real value can be earlier; amps/_template ships 1970-01-01 as a
+# placeholder, and a copy that kept it would date its feed entry 1970.
+CORPUS_FIRST_DAY = datetime.date(2026, 7, 18)
+
+
+def check_added(meta: dict, where: str) -> list[str]:
+    if "added" not in meta:
+        return []
+    added = meta["added"]
+    if not isinstance(added, datetime.date):
+        return [f"{where}: 'added' must be an unquoted YYYY-MM-DD date"]
+    if added < CORPUS_FIRST_DAY:
+        return [f"{where}: 'added' {added} is before the corpus existed "
+                f"({CORPUS_FIRST_DAY}) — set the day this circuit lands, not the "
+                f"template's placeholder"]
+    return []
+
+
 def validate(meta_path: Path) -> list[str]:
     errors = []
     raw = meta_path.read_text()
@@ -153,8 +172,7 @@ def validate(meta_path: Path) -> list[str]:
     if status == "draft" and "added" not in meta:
         errors.append(f"{meta_path}: draft circuits require 'added' (the date the "
                       "circuit landed in the corpus — the feed's pubDate)")
-    if "added" in meta and not isinstance(meta["added"], datetime.date):
-        errors.append(f"{meta_path}: 'added' must be an unquoted YYYY-MM-DD date")
+    errors += check_added(meta, str(meta_path))
     errors += check_bom_refs(meta_path.parent)
     errors += check_layout_plus(meta_path.parent)
     refs = bom_refs(meta_path.parent)
@@ -753,13 +771,25 @@ def selftest(root: Path) -> int:
         ("plain ab763 is text to both loaders", "lineage:\n  derived_from: [ab763]\n", False),
         ("ids outside lineage are not this check's", "related: [5e1]\n", False),
     )
+    added_cases = (
+        ("the template's 1970-01-01 placeholder", {"added": datetime.date(1970, 1, 1)}, True),
+        ("a day before the first commit", {"added": datetime.date(2026, 7, 17)}, True),
+        ("the first commit's day", {"added": datetime.date(2026, 7, 18)}, False),
+        ("a quoted date", {"added": "2026-08-01"}, True),
+        ("no added at all (verified circuits)", {}, False),
+    )
+    for name, meta, should_fire in added_cases:
+        if bool(check_added(meta, "selftest")) != should_fire:
+            print(f"FAIL selftest: added {name} — expected "
+                  f"{'a finding' if should_fire else 'no finding'}, got the other")
+            failures += 1
     for name, raw, should_fire in lineage_cases:
         if bool(check_lineage_ids(raw, "selftest")) != should_fire:
             print(f"FAIL selftest: lineage {name} — expected "
                   f"{'a finding' if should_fire else 'no finding'}, got the other")
             failures += 1
     if failures == 0:
-        print(f"validate selftest: {len(cases) + 1 + len(plus_cases) + len(deletion_cases) + len(lineage_cases)} "
+        print(f"validate selftest: {len(cases) + 1 + len(plus_cases) + len(deletion_cases) + len(lineage_cases) + len(added_cases)} "
               "planted cases passed")
     return failures
 
