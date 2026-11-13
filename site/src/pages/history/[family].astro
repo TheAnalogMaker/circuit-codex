@@ -95,7 +95,7 @@ const breadcrumbs = [
     <figcaption class="fig-cap">Era timeline — each bar spans a model's production years;
       the chain from top to bottom is the line's succession.</figcaption>
     <div class="scroll">
-      <svg class="tl" viewBox={`0 0 ${W} ${H}`} role="img"
+      <svg class="tl" viewBox={`0 0 ${W} ${H}`} role="group"
            aria-label={`Era timeline of the ${fam.title}: ${models.length} models from ${fam.eraStart} to ${fam.eraEnd}, oldest at top. ${nVer} link a verified circuit, ${nDoc - nVer} link a circuit published as a draft, ${nHist} are history entries with no drawn circuit.`}>
         <!-- year gridlines + axis -->
         <g class="grid">

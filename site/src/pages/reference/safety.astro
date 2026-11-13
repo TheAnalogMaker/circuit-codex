@@ -236,11 +236,11 @@ const RULES = [
 
       <ol class="dis-steps">
         {STEPS.map((s) => (
-          <li class="dstep" tabindex="0" role="button" data-parts={s.parts}
+          <li><div class="dstep" tabindex="0" role="button" data-parts={s.parts}
               data-readout={s.readout} aria-label={`${s.short}. ${s.detail}`}>
             <span class="dnum" aria-hidden="true"></span>
             <span class="dtext"><strong>{s.short}.</strong> {s.detail}</span>
-          </li>
+          </div></li>
         ))}
       </ol>
     </figure>
@@ -606,6 +606,8 @@ const RULES = [
   /* ---- step list ---- */
   .dis-readout { min-height: 2.4em; margin: 12px 4px 8px; font-family: var(--mono); font-size: 13px;
     color: var(--ink); max-width: 80ch; line-height: 1.5; }
+  /* Each step's control sits inside its <li> (an <ol> may hold only list
+     items, and role=button is not allowed on <li>); the look is unchanged. */
   .dis-steps { list-style: none; counter-reset: dstep; margin: 6px 0 0; padding: 0;
     display: flex; flex-direction: column; gap: 8px; }
   .dstep { counter-increment: dstep; display: flex; gap: 14px; align-items: flex-start;

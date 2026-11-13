@@ -116,7 +116,7 @@ const nChokes = magnetics.filter((m) => /choke/i.test(m.type)).length;
 
     <figure class="pt-fig">
       <div class="pt-stage">
-        <svg viewBox="0 0 760 430" class="pt-svg" role="img" aria-labelledby="pt-title">
+        <svg viewBox="0 0 760 430" class="pt-svg" role="group" aria-labelledby="pt-title">
           <title id="pt-title">A power transformer with colour-coded winding leads: black primary,
             red high-voltage secondary with a red-yellow centre tap, yellow rectifier filament,
             and green heaters with a green-yellow centre tap.</title>
@@ -157,7 +157,7 @@ const nChokes = magnetics.filter((m) => /choke/i.test(m.type)).length;
     </figure>
 
     <div class="tbl"><table>
-      <thead><tr><th>Lead</th><th></th><th>Winding</th><th>Carries</th></tr></thead>
+      <thead><tr><th>Lead</th><th><span class="sr-only">Number of leads</span></th><th>Winding</th><th>Carries</th></tr></thead>
       <tbody>
         {LEAD_ROWS.map((r) => (
           <tr>

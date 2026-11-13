@@ -104,7 +104,7 @@ const RECT = [
 
     <div class="gl-fig">
       <svg class="gl-svg" viewBox={`0 0 400 ${TOP + ROW_H * rows.length + 6}`}
-           role="img" aria-labelledby="gl-title">
+           role="group" aria-labelledby="gl-title">
         <title id="gl-title">Gain ladder: AC voltage gain of five dual triodes into the chosen plate load</title>
         {rows.map((t, i) => {
           const y = TOP + i * ROW_H;
@@ -468,7 +468,7 @@ import { ohms } from '../../../lib/bench-units.js';
   .rl-ctl { display: flex; flex-direction: column; gap: 5px; flex: none; }
   .rl-ctl > span { font-family: var(--disp); text-transform: uppercase; letter-spacing: .1em; font-size: 10.5px; color: var(--faint); }
   .io { display: flex; align-items: center; background: var(--well); border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
-  .io:focus-within { border-color: var(--amber-dim); }
+  .io:focus-within { border-color: var(--amber); box-shadow: 0 0 0 1px var(--amber); }
   .io input { border: 0; background: transparent; color: var(--ink); font-family: var(--mono); font-size: 14px; padding: 8px 3px 8px 10px; width: 92px; }
   .io input:focus-visible { outline: none; }
   .io i { font-style: normal; font-family: var(--mono); font-size: 11.5px; color: var(--faint); padding: 0 10px 0 3px; }

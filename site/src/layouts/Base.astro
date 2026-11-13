@@ -138,6 +138,8 @@ const ldBlocks = [
     text-transform:uppercase;letter-spacing:.12em;font-size:13px}
   .skip:focus{top:10px}
   main:focus{outline:none}
+  /* Text for screen readers only. */
+  .sr-only{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
   /* The header is one row on a wide screen and stays pinned there; below 1024px
      it wraps into brand / links / search rows and is NOT sticky — a pinned
      three-row header cost a phone a third of every screen. The pinned bar is
@@ -253,5 +255,24 @@ const ldBlocks = [
   <p style="color:var(--oxblood)">⚡ Tube amplifiers carry lethal voltages, and filter capacitors hold
     charge long after power-off. Study freely; open a chassis only with <a href="/reference/safety/">high-voltage safety training</a>.</p>
 </div></footer>
+<script is:inline>
+  // A table wider than its box scrolls inside it (.tbl, story tables). A region
+  // a mouse can scroll must be reachable by keyboard too, so any that actually
+  // overflows becomes a focusable, named region.
+  (function () {
+    function mark() {
+      document.querySelectorAll('main .tbl, main .notes table').forEach(function (el) {
+        if (el.hasAttribute('tabindex') || el.scrollWidth <= el.clientWidth + 1) return;
+        var sec = el.closest('section'), h = sec && sec.querySelector('h2, h3');
+        el.setAttribute('tabindex', '0');
+        el.setAttribute('role', 'region');
+        if (!el.hasAttribute('aria-label'))
+          el.setAttribute('aria-label', (h ? h.textContent.trim() + ': ' : '') + 'scrollable table');
+      });
+    }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mark);
+    else mark();
+  })();
+</script>
 </body>
 </html>

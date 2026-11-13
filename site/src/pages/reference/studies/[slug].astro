@@ -22,7 +22,9 @@ const breadcrumbs = [
     <h1>{study.title}</h1>
     {study.subtitle && <p class="subtitle">{study.subtitle}</p>}
   </header>
-  <article class="prose" set:html={study.html} />
+  {/* Study tables are wide and scroll inside themselves (display:block below);
+      a region a mouse can scroll must be focusable so a keyboard can scroll it. */}
+  <article class="prose" set:html={study.html.replace(/<table>/g, '<table tabindex="0" aria-label="Scrollable table">')} />
 </div>
 </Base>
 
