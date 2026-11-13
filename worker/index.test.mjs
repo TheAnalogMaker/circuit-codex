@@ -5,10 +5,13 @@ import { readFileSync, existsSync } from "node:fs";
 import worker from "./index.js";
 
 const published = new Set(["/", "/amps/5f10/", "/feed.xml", "/sitemap-index.xml", "/_astro/Page_AbC12.js"]);
+let lookups = 0;
 const env = {
   ASSETS: {
     async fetch(req) {
+      lookups++;
       const { pathname } = new URL(req.url);
+      if (published.has(pathname) && req.headers.get("if-none-match") === '"v1"') return new Response(null, { status: 304 });
       if (published.has(pathname)) return new Response("ok", { status: 200 });
       if (published.has(pathname + "/")) return Response.redirect(new URL(pathname + "/", req.url).toString(), 307);
       // What not_found_handling: "404-page" serves: dist/404.html, status 404.
@@ -16,7 +19,8 @@ const env = {
     },
   },
 };
-const get = (path, host = "circuitcodex.com") => worker.fetch(new Request(`https://${host}${path}`), env);
+const get = (path, host = "circuitcodex.com", headers = {}) =>
+  worker.fetch(new Request(`https://${host}${path}`, { headers }), env);
 
 test("www redirects to the apex", async () => {
   const r = await get("/amps/5f10/?x=1", "www.circuitcodex.com");
@@ -64,4 +68,33 @@ test("a miss passes the 404 page body through, capitalised or not", async () => 
     assert.equal(r.status, 404, path);
     assert.match(await r.text(), /Nothing at this address/, path);
   }
+});
+
+test("guessed names typed in capitals still reach their alias", async () => {
+  for (const [from, to] of [["/AMPS/", "/#circuits"], ["/Feed", "/feed.xml"], ["/RSS.xml", "/feed.xml"], ["/Sitemap.xml", "/sitemap-index.xml"]]) {
+    const r = await get(from);
+    assert.equal(r.status, 301, from);
+    assert.equal(r.headers.get("location"), `https://circuitcodex.com${to}`, from);
+  }
+});
+
+test("a capitalised path that redirects again lands in one hop, query kept", async () => {
+  const r = await get("/amps/5F10?from=chart");
+  assert.equal(r.status, 301);
+  assert.equal(r.headers.get("location"), "https://circuitcodex.com/amps/5f10/?from=chart");
+});
+
+test("a revalidation (304) passes straight through without a second lookup", async () => {
+  lookups = 0;
+  const r = await get("/_astro/Page_AbC12.js", undefined, { "If-None-Match": '"v1"' });
+  assert.equal(r.status, 304);
+  assert.equal(lookups, 1);
+});
+
+test("only a miss is retried in lowercase", async () => {
+  const failing = { ASSETS: { async fetch() { lookups++; return new Response("down", { status: 503 }); } } };
+  lookups = 0;
+  const r = await worker.fetch(new Request("https://circuitcodex.com/amps/5F10/"), failing);
+  assert.equal(r.status, 503);
+  assert.equal(lookups, 1);
 });
