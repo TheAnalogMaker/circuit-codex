@@ -1,4 +1,5 @@
 ---
+import { jsonForScript } from '../../../lib/json-script.js';
 import Base from '../../../layouts/Base.astro';
 
 // Single source of truth for the interactive gain ladder AND the printed table
@@ -376,7 +377,7 @@ const RECT = [
 </div>
 </Base>
 
-<script type="application/json" id="ts-data" is:inline set:html={JSON.stringify(TUBES9A)}></script>
+<script type="application/json" id="ts-data" is:inline set:html={jsonForScript(TUBES9A)}></script>
 <script is:inline>
 (function () {
   const TUBES = JSON.parse(document.getElementById('ts-data').textContent);

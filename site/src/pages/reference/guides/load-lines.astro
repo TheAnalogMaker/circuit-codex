@@ -1,4 +1,5 @@
 ---
+import { jsonForScript } from '../../../lib/json-script.js';
 import Base from '../../../layouts/Base.astro';
 import { loadTubeModels, loadLoadlineStages, displayId, GITHUB } from '../../../lib/corpus.js';
 
@@ -73,7 +74,7 @@ const description =
       This one is live: pick a tube, set the circuit around it, and watch the point move.</p>
   </header>
 
-  <script type="application/json" id="ll-data" is:inline set:html={JSON.stringify(DATA)}></script>
+  <script type="application/json" id="ll-data" is:inline set:html={jsonForScript(DATA)}></script>
 
   <section class="explorer" aria-label="Interactive load line explorer">
     <form class="ll-controls" id="ll-form" autocomplete="off">

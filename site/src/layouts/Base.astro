@@ -1,4 +1,5 @@
 ---
+import { jsonForScript } from '../lib/json-script.js';
 const { title, description, jsonld, breadcrumbs, ogType = 'website', ogImage: card, ogImageAlt, noindex = false } = Astro.props;
 import { GITHUB, breadcrumbJsonLd } from '../lib/corpus.js';
 
@@ -87,7 +88,7 @@ const ldBlocks = [
 <meta name="twitter:image:alt" content={ogAlt} />
 <!-- Cloudflare Web Analytics — cookieless; disclosed on /about/ and in the footer -->
 <script type="module" is:inline src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "99bac2012cc545cc9ed94952c8cb36dd", "spa": false}'></script>
-{ldBlocks.map((block) => <script type="application/ld+json" set:html={JSON.stringify(block)} />)}
+{ldBlocks.map((block) => <script type="application/ld+json" set:html={jsonForScript(block)} />)}
 <link rel="icon" href="/favicon.ico" sizes="32x32" />
 <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
 <link rel="apple-touch-icon" href="/apple-touch-icon.png" />

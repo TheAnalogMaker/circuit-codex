@@ -1,4 +1,5 @@
 ---
+import { jsonForScript } from '../../../lib/json-script.js';
 import Base from '../../../layouts/Base.astro';
 import {
   loadCorpus, toneStackPresets, TONE_STACK_KINDS, TONE_STACK_GATED_IDS, TONE_STACK_GATE_ONLY_IDS, displayId,
@@ -230,7 +231,7 @@ const description = 'An interactive frequency-response lab for the passive tone 
       </svg>
     </div>
 
-    <script type="application/json" id="ts-data" is:inline set:html={JSON.stringify(clientPresets)}></script>
+    <script type="application/json" id="ts-data" is:inline set:html={jsonForScript(clientPresets)}></script>
 
     <p class="readout" id="ts-readout" aria-live="polite">{openReadout}</p>
     <p class="comparison-readout" id="ts-comparison-readout" aria-live="polite" hidden></p>

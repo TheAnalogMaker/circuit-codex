@@ -1,4 +1,5 @@
 ---
+import { jsonForScript } from '../../lib/json-script.js';
 import Base from '../../layouts/Base.astro';
 import { loadCorpus, displayId } from '../../lib/corpus.js';
 
@@ -483,7 +484,7 @@ const RULES = [
 </div>
 </Base>
 
-<script type="application/json" id="dis-default" is:inline set:html={JSON.stringify(DIS_DEFAULT)}></script>
+<script type="application/json" id="dis-default" is:inline set:html={jsonForScript(DIS_DEFAULT)}></script>
 <script is:inline>
 (function () {
   const fig = document.querySelector('.dis-fig');

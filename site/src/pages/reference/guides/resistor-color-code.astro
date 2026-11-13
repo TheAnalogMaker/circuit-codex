@@ -1,4 +1,5 @@
 ---
+import { jsonForScript } from '../../../lib/json-script.js';
 import Base from '../../../layouts/Base.astro';
 
 // Single source of truth for the interactive tool AND the printed reference
@@ -145,7 +146,7 @@ const fmtTol = (t) => (t === null ? '—' : `±${t}%`);
 </div>
 </Base>
 
-<script type="application/json" id="rc-data" is:inline set:html={JSON.stringify(COLORS)}></script>
+<script type="application/json" id="rc-data" is:inline set:html={jsonForScript(COLORS)}></script>
 <script>
 import { ohms as parseOhms } from '../../../lib/bench-units.js';
 (function () {

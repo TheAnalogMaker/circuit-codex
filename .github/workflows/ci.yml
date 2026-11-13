@@ -186,7 +186,8 @@ jobs:
       - run: node scripts/check-lineage-caption.mjs
         working-directory: site
       # Checks on the built dist/ that no source-level test can see: feed links
-      # that resolve to the entry they name.
+      # that resolve to the entry they name, and JSON data blocks that parse and
+      # hold no raw "<" (which could end their <script> early).
       - run: node --test scripts/check-built-site.mjs
         working-directory: site
       # The bench calculators and the resistor color-code tool share one reader

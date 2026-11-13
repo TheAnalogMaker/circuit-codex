@@ -1,4 +1,5 @@
 ---
+import { jsonForScript } from '../lib/json-script.js';
 import Base from '../layouts/Base.astro';
 import { comparisonCircuits, COMPARISON_FIELDS } from '../lib/comparison.js';
 import { comparisonSelection, fieldDifference } from '../lib/comparison-state.js';
@@ -44,7 +45,7 @@ const pairUrl = (a, b) => `/compare/?left=${a}&right=${b}`;
     <p><a id="left-loadline" href={`/reference/guides/load-lines/?preset=${left.id}`}>{left.name} load line</a> · <a id="right-loadline" href={`/reference/guides/load-lines/?preset=${right.id}`}>{right.name} load line</a></p>
     <p class="scope">The comparison uses documented metadata and current check results. It does not match component designators between different drawing conventions or predict the sound of a complete amplifier.</p>
   </section>
-  <script type="application/json" id="comparison-data" is:inline set:html={JSON.stringify(circuits).replaceAll('<', '\\u003c')} />
+  <script type="application/json" id="comparison-data" is:inline set:html={jsonForScript(circuits)} />
 </div>
 </Base>
 <script>
