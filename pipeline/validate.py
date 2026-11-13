@@ -83,6 +83,41 @@ def check_id(meta: dict, raw: str, where: str) -> list[str]:
     return errors
 
 
+LINEAGE_KEYS = ("derived_from", "influenced")
+
+
+def check_lineage_ids(raw: str, where: str) -> list[str]:
+    """Cross-loader guard for lineage ids, the same trap as `id` and circuit_ref.
+
+    The amp page links every derived_from/influenced id it finds in the corpus and
+    silently skips the rest. An unquoted id that looks numeric (5e1, 6161) is a
+    string to PyYAML, so every gate here passes, but js-yaml reads it as a number
+    (5e1 -> 50) and the page drops the link without a word. The quoting is read
+    from the composed node tree, where a plain scalar has no style, so flow lists
+    and block lists are judged alike."""
+    errors: list[str] = []
+    try:
+        root = yaml.compose(raw)
+    except yaml.YAMLError:
+        return errors  # the parse failure is reported by safe_load elsewhere
+    if not isinstance(root, yaml.MappingNode):
+        return errors
+    lineage = next((v for k, v in root.value if k.value == "lineage"), None)
+    if not isinstance(lineage, yaml.MappingNode):
+        return errors
+    for key_node, seq in lineage.value:
+        if key_node.value not in LINEAGE_KEYS or not isinstance(seq, yaml.SequenceNode):
+            continue
+        for item in seq.value:
+            if (isinstance(item, yaml.ScalarNode) and item.style is None
+                    and _JS_NUMERIC.match(item.value)):
+                errors.append(
+                    f"{where}:{item.start_mark.line + 1}: lineage.{key_node.value} id "
+                    f"'{item.value}' must be quoted — it parses as a number in the "
+                    f"site's YAML loader (e.g. 5e1 -> 50), and the page drops the link")
+    return errors
+
+
 def validate(meta_path: Path) -> list[str]:
     errors = []
     raw = meta_path.read_text()
@@ -130,9 +165,11 @@ def validate(meta_path: Path) -> list[str]:
             errors.append(f"{meta_path}: sources[{i}] must be a mapping with 'desc' (and ideally 'url')")
         elif "url" in src and not str(src["url"]).startswith("http"):
             errors.append(f"{meta_path}: sources[{i}].url must be an http(s) link")
-    for ancestor in (meta.get("lineage") or {}).get("derived_from", []) or []:
-        if not (meta_path.parent.parent / ancestor).is_dir():
-            errors.append(f"{meta_path}: lineage.derived_from '{ancestor}' has no amps/ directory")
+    errors += check_lineage_ids(raw, str(meta_path))
+    for key in LINEAGE_KEYS:
+        for rid in (meta.get("lineage") or {}).get(key, []) or []:
+            if not (meta_path.parent.parent / str(rid)).is_dir():
+                errors.append(f"{meta_path}: lineage.{key} '{rid}' has no amps/ directory")
     return errors
 
 
@@ -705,8 +742,24 @@ def selftest(root: Path) -> int:
                 print(f"FAIL selftest: deleting {amp_id} {ref} plus must reject an "
                       f"otherwise valid layout; got {errors!r}")
                 failures += 1
+    # Lineage ids: an unquoted numeric-looking id must fail, in flow and block
+    # lists alike; a quoted one, or a plain one js-yaml keeps as text, must not.
+    lineage_cases = (
+        ("flow list, unquoted 5e1", "lineage:\n  influenced: [5e1]\n", True),
+        ("flow list, quoted 5e1", 'lineage:\n  influenced: ["5e1"]\n', False),
+        ("block list, unquoted 5e3", "lineage:\n  derived_from:\n    - 5e3\n", True),
+        ("block list, single-quoted 6161", "lineage:\n  derived_from:\n    - '6161'\n", False),
+        ("unquoted all-digit 6161", "lineage:\n  derived_from: [6161]\n", True),
+        ("plain ab763 is text to both loaders", "lineage:\n  derived_from: [ab763]\n", False),
+        ("ids outside lineage are not this check's", "related: [5e1]\n", False),
+    )
+    for name, raw, should_fire in lineage_cases:
+        if bool(check_lineage_ids(raw, "selftest")) != should_fire:
+            print(f"FAIL selftest: lineage {name} — expected "
+                  f"{'a finding' if should_fire else 'no finding'}, got the other")
+            failures += 1
     if failures == 0:
-        print(f"validate selftest: {len(cases) + 1 + len(plus_cases) + len(deletion_cases)} "
+        print(f"validate selftest: {len(cases) + 1 + len(plus_cases) + len(deletion_cases) + len(lineage_cases)} "
               "planted cases passed")
     return failures
 
