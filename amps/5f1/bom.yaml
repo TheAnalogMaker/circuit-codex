@@ -24,5 +24,5 @@ items:
   - { ref: V1,  part: "Preamp tube",          value: "12AX7",            role: "Both gain stages (V1A/V1B)" }
   - { ref: V2,  part: "Power tube",           value: "6V6GT",            role: "Single-ended output" }
   - { ref: V3,  part: "Rectifier tube",       value: "5Y3GT",            role: "Full-wave rectifier (V3A/V3B)" }
-  - { ref: T2,  part: "Output transformer",   value: "≈5 kΩ : 8 Ω",     role: "Single-ended output (impedance not marked on the drawing; typical SE 6V6 load)" }
+  - { ref: T2,  part: "Output transformer",   value: "≈5 kΩ : 8 Ω",     role: "Single-ended output (neither page prints a primary or secondary impedance, or the speaker's; ≈5 kΩ is a typical SE 6V6 load and 8 Ω an assumed speaker)" }
   - { ref: "—", part: "Power transformer",    value: "325-0-325 V · 6.3 V · 5 V", role: "HT + heaters + rectifier filament" }

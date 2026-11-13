@@ -175,12 +175,13 @@ const SCHEMES = [
       reflects the intended load up to the tubes when the speaker impedance matches the tap it is wired
       to. Present the wrong impedance and the whole load line shifts — a lighter load than the tap
       raises the voltage the tubes swing and stresses them; a heavier load lowers the available power.
-      The single-ended tweed Champ-style circuit in this archive winds its
-      <a href="/amps/5f1/">output transformer for roughly 5 kΩ : 8 Ω</a>, expecting one 8 Ω speaker;
-      the push-pull tweed Bassman-style circuit uses a
-      <a href="/amps/5f6a/">transformer fixed at a 2 Ω secondary</a> to feed its four 8 Ω speakers
-      wired in parallel. Both are just the wiring rules above, chosen to land on the transformer the
-      builder specified.</p>
+      Neither tweed drawing behind the presets prints an impedance, so the figures here are the
+      wiring rules applied, not the factory's numbers. The single-ended tweed Champ-style circuit's
+      <a href="/amps/5f1/">output transformer</a> is taken as roughly 5 kΩ : 8 Ω, a typical
+      single-ended 6V6 load into one 8 Ω speaker. The push-pull tweed Bassman-style circuit's
+      <a href="/amps/5f6a/">transformer</a> feeds four speakers in parallel; with 8 Ω speakers that
+      is the 2 Ω load the preset shows. Check the transformer and speakers actually fitted before
+      matching a tap to either.</p>
     <div class="warn">
       <strong>Never run a tube amp with no speaker load, and keep a mismatch small.</strong> With the
       secondary open, the collapsing field can drive the primary to a voltage high enough to arc the
@@ -188,7 +189,7 @@ const SCHEMES = [
       tap into 4 Ω or 16 Ω — is usually tolerated, but a large mismatch or an open circuit is not.
       Solid-state amps have their own minimum-load limits; check the maker's rating before wiring below it.
     </div>
-    <p class="cite">Speaker figures for the two presets are read from the parts lists of the
+    <p class="cite">Speaker figures for the two presets follow the parts lists of the
       <a href="/amps/5f1/">tweed Champ-style</a> and <a href="/amps/5f6a/">tweed Bassman-style</a>
       circuits in this archive. For the transformer theory behind an impedance match, see
       <a href="https://archive.org/details/Electronic_Transformers_and_Circuits_Reuben_Lee_1955"
