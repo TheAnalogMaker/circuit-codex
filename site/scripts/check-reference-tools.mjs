@@ -101,6 +101,20 @@ test('all corpus comparisons/downloads retain identity, check coverage, attribut
     assert.deepEqual(data.checks, direct);
   }
 });
+test('downloads write dates as YYYY-MM-DD and tube names as strings, without touching the corpus', () => {
+  const isoTimestamp = /\d{4}-\d{2}-\d{2}T\d{2}:/;
+  for (const amp of amps) {
+    const data = circuitDownload(amp);
+    assert.equal(data.version, 2);
+    const text = JSON.stringify(data);
+    assert.ok(!isoTimestamp.test(text), `${amp.id}: a date serialised as a timestamp`);
+    for (const t of data.metadata.tubes || []) assert.equal(typeof t, 'string', `${amp.id}: tube ${t}`);
+    if (amp.meta.verification?.date) assert.match(String(data.metadata.verification.date), /^\d{4}-\d{2}-\d{2}$/);
+  }
+  // The shared corpus copy keeps its own types: 5F6 still letters 5881 as a number there.
+  const f6 = amps.find((a) => a.id === '5f6');
+  assert.ok(f6.meta.tubes.some((t) => typeof t === 'number'));
+});
 test('CSV quotes fields and prevents spreadsheet formula interpretation', () => {
   assert.equal(csvCell('a,"b"\nc'), '"a,""b""\nc"');
   for (const value of ['=1+1','+cmd','-1+2','@sum(1)','\t=1','  =1']) assert.ok(csvCell(value).startsWith('"\''));
