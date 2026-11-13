@@ -18,63 +18,15 @@ lineage:
 conventions:
   designators: functional   # designators carry a role code (RD1 dropper, RL3 plate load, RK2 cathode, CC3 coupler)
 sources:
-  - desc: >-
-      Fender "Bass-Man" Schematic, Model 5E6-A (drawing code A-EE): every
-      component value, the stage chain and the printed voltage chart read from
-      the published schematic at its native 6363 × 4071. A 12AY7 two-channel input
-      (1 MEG grid leaks, no stoppers; 100 kΩ plates at +130 V; shared 820 Ω /
-      250 µF cathode at +2 V; 0.0001 µF bright cap across the first Volume); a
-      second 12AY7 split into a gain stage (100 kΩ plate at +130 V, 1.5 kΩ / 25 µF
-      cathode at +2 V) direct-coupled to a cathode follower (100 kΩ cathode load
-      at +130 V); a treble/bass network fed from the follower's cathode (0.1 µF,
-      220 kΩ to ground and 10 MEG back to the gain stage's grid, 220 kΩ to the
-      Bass wiper with 0.005 µF under it, 220 kΩ to the Treble wiper; 250 pF into
-      the Treble with 0.01 µF · 400 V under it); a 12AX7 driver (100 kΩ plate at
-      +200 V, 1.5 kΩ cathode at +1.7 V, with the 20 kΩ feedback resistor and the
-      5 kΩ Presence on that cathode) into a split-load cathodyne (56 kΩ plate at
-      +260 V; 1.5 kΩ + 56 kΩ cathode at +72 V; 1 MEG grid leak to the junction);
-      0.1 µF couplers onto 220 kΩ leaks from −42 V and 1.5 kΩ stoppers into a
-      fixed-bias 6L6G pair (plates +405 V). Supply: two 5U4GA in parallel,
-      16 µF at +420 V, a choke, two 16 µF at +410 V (screens and the OT centre
-      tap), 10 kΩ to +335 V, 10 kΩ to +275 V; bias from an HT-winding tap through
-      3300 Ω and a selenium rectifier to −42 V with 100 µF and 56 kΩ. Not
-      reproduced here; archived at EL34World.
+  - desc: "Fender, \"Bass-Man\" Schematic, Model 5E6-A (drawing code A-EE). Supplies every component value, the stage chain and the printed voltage chart. Not reproduced here; archived at EL34World."
     url: "https://el34world.com/charts/Schematics/files/Fender/Fender_bassman_5e6a.pdf"
-  - desc: >-
-      Fender "Bass-Man" Layout, Model 5E6-A (A-EE), page 1, read at its native
-      6463 × 3809: the board's parts in order, the socket wiring (the second
-      12AY7's 100 kΩ plate load across its socket from pin 6 to pin 1 with a pin 7
-      to pin 1 jumper; the 12AX7's +200 V driver plate on pin 1 and +260 V
-      cathodyne plate on pin 6; each 6L6G's 1.5 kΩ stopper on the socket), the
-      choke's two leads rising to the +420 V and +410 V cans, the tone parts at
-      the controls, and the printed +70 V at the cathodyne's resistor junction.
-      It letters three parts differently from the schematic page: one mixer
-      250 K, the Treble's bleed capacitor 600 V, and a 47 MMF across the Treble
-      control that the schematic page does not draw. Not reproduced here;
-      archived at EL34World.
+  - desc: "Fender, \"Bass-Man\" Layout, Model 5E6-A (drawing code A-EE), page 1. Supplies the order of parts on the board; the socket wiring (the second 12AY7's 100 kΩ plate load across its socket from pin 6 to pin 1, with a pin 7 to pin 1 jumper; the 12AX7's driver plate on pin 1 and cathodyne plate on pin 6; each 6L6G's 1.5 kΩ grid stopper on the socket); the choke's two leads to the +420 V and +410 V capacitors; the tone parts at the controls; and the +70 V printed at the cathodyne's resistor junction. It letters three parts differently from the schematic: one mixer resistor as 250 K, the Treble bleed capacitor's rating as 600 V, and a \"47 MMF\" capacitor across the Treble control that the schematic does not draw. Not reproduced here; archived at EL34World."
     url: "https://el34world.com/charts/Schematics/files/Fender/Fender_bassman_5e6a.pdf"
-  - desc: >-
-      Fender "Bass-Man" Schematic, Model 5E6 (same A-EE drawing code as the
-      5E6-A) — read side by side with the 5E6-A to date the one substantive
-      change: a handwritten note on the 5E6 sheet by the bias-supply resistor
-      reads "THIS CHANGE TO INCREASE BIAS ON PLATES SO WON'T GET HOT", with the
-      resistor's value struck through; the 5E6-A drawing prints the changed
-      value (3300 Ω) cleanly with no annotation, confirming the -A suffix marks
-      that fix landing. A lower series resistor ahead of this bias rectifier
-      delivers a more negative (larger-magnitude) bias, consistent with the
-      note's stated intent of reducing 6L6G plate dissipation.
+  - desc: "Fender, \"Bass-Man\" Schematic, Model 5E6 (same drawing code A-EE as the 5E6-A). Read side by side with the 5E6-A to date the one substantive change. A handwritten note beside the bias-supply resistor reads \"THIS CHANGE TO INCREASE BIAS ON PLATES SO WON'T GET HOT\", with the resistor's value struck through. The 5E6-A prints the new value (3300 Ω) cleanly with no note, so the -A suffix marks that fix. A smaller series resistor ahead of this bias rectifier gives a more negative bias, which fits the note's aim of reducing 6L6G plate dissipation."
     url: "https://el34world.com/charts/Schematics/files/Fender/Fender_bassman_5e6.pdf"
-  - desc: >-
-      Schematic Heaven, Fender Bassman 5E6-A schematic + layout scan — a second
-      archived copy of the same A-EE drawing.
+  - desc: "Schematic Heaven, Fender Bassman 5E6-A schematic and layout scan. A second archived copy of the same A-EE drawing."
     url: "https://schematicheaven.net/fenderamps/bassman_5e6a_schem.pdf"
-  - desc: >-
-      Wikipedia, "Fender Bassman" — dates the 5E6/5E6-A narrow-panel dual-
-      rectifier 4x10 circuits to 1955-1957 as evolutionary refinements of the
-      5D6; this corpus entry uses the defensible later portion of that range
-      (1956-1957) for the -A revision specifically, since no source gives a
-      clean split between 5E6 and 5E6-A production dates (see the Bassman
-      family page).
+  - desc: "Wikipedia, \"Fender Bassman\". Dates the 5E6 and 5E6-A narrow-panel, dual-rectifier 4×10 circuits to 1955–1957, as refinements of the 5D6. This page uses the later part of that range (1956–1957) for the -A revision, because no source gives a clear split between 5E6 and 5E6-A production dates (see the Bassman family page)."
     url: "https://en.wikipedia.org/wiki/Fender_Bassman"
 verification:
   status: draft   # Rebuilt 2026-09-10 from the A-EE drawing's two pages: the

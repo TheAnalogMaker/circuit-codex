@@ -22,45 +22,11 @@ lineage:
 conventions:
   designators: functional   # designators carry a role code (RD1 dropper, RL4 plate load, CK1 cathode bypass)
 sources:
-  - desc: "Fender 'Pro-Amp' Model 5E5-A schematic (J-EE): component values read
-      directly from the published drawing, plus the printed voltage chart
-      embedded on the sheet itself (Fender's own convention: 'VOLTAGES READ TO
-      GROUND WITH ELECTRONIC VOLTMETER, VALUES SHOWN +/- 20%') — rails
-      +390/+385/+300/+250, bias -32 V; V1 (12AY7, mic+instrument channels)
-      shared 820 ohm/dual-25uF cathode at +1.9 V, 100k plates; V2 (12AY7) with
-      both sections used, a gain stage (1500 ohm/25uF cathode at +1.9 V, 100k
-      plate load) DC-coupled into a cathode follower (100k cathode load,
-      +130 V); V3 (12AX7) driver cathode +1.6 V, split-load cathodyne cathode
-      +58 V over the 1.5k/56k junction at +56.5 V; two 68k stoppers and a 1M
-      leak per channel, 0.02uF couplers, 1M INST/MIC VOL pots with a .0001
-      bright cap on INST only, 270k mixers, a 5 MEG from V2's grid to the tone
-      network's bass branch, the follower-fed Treble/Bass network (250 pF into
-      a 1M Treble pot with .01 to ground; .1 coupler, 220k leak, 100k into a
-      1M Bass pot's wiper with .005 on its far end, 220k to the driver grid),
-      a 5K PRESENCE pot and 100k feedback resistor on the driver's cathode,
-      56k cathodyne plate, 1M grid leak returned to the cathodyne junction,
-      220k output grid leaks, 0.1uF cathodyne-to-output couplers, two 10K rail
-      droppers, 16-450 filters at +390/+385/+300 and 8-450 at +250. The PDF
-      carries the page as one 1506 x 864 image, and every component value is
-      legible at that resolution. Not reproduced here; archived at Schematic
-      Heaven"
+  - desc: "Fender, \"Pro-Amp\" Model 5E5-A schematic (drawing code J-EE). Supplies the component values and the voltage chart printed on the sheet, under Fender's notice \"VOLTAGES READ TO GROUND WITH ELECTRONIC VOLTMETER, VALUES SHOWN +/- 20%\". Every value printed on the schematic is legible in this copy. Not reproduced here; archived at Schematic Heaven."
     url: "https://schematicheaven.net/fenderamps/pro_5e5a_schem.pdf"
-  - desc: "Fender 'Pro-Amp' Model 5E5-A layout drawing (J-EE), same sheet set —
-      corroborates the tube complement (5U4GA, 2x6L6GB, 12AX7, 2x12AY7), the
-      BASS/TREBLE (1M) and PRESENCE (5K) pot values, and the two-input-per-channel
-      MIC/INST front panel; letters the interstage coupler the schematic leaves
-      blank (0.02 MFD 600 VOLTS) and prints the plate voltages the schematic
-      omits (V1 +125 V, driver +190 V, cathodyne +245 V); shows the socket pins
-      each stage uses (V2's gain stage on 1-2-3 with its 100k plate load across
-      pins 6 and 1, the follower on 6-7-8; V3's driver on 1-2-3, the cathodyne
-      on 6-7-8); and is the source the board drawing is redrawn from"
+  - desc: "Fender, \"Pro-Amp\" Model 5E5-A layout drawing (drawing code J-EE), from the same sheet set. Confirms the tube complement (5U4GA, two 6L6GB, 12AX7, two 12AY7), the Bass and Treble (1 MΩ) and Presence (5 kΩ) pot values, and the two-input MIC/INST front panel. It letters the interstage coupler that the schematic leaves blank (\"0.02 MFD 600 VOLTS\") and prints plate voltages the schematic omits (V1 +125 V, driver +190 V, cathodyne +245 V). It shows which socket pins each stage uses: V2's gain stage on pins 1-2-3 with its 100 kΩ plate load across pins 6 and 1, the follower on 6-7-8; V3's driver on 1-2-3 and the cathodyne on 6-7-8. The board drawing on this page is redrawn from it."
     url: "https://schematicheaven.net/fenderamps/pro_5e5a_schem.pdf"
-  - desc: "Mojotone Fender Field Guide, 'Fender Narrow Panel Tweed Pro' — 5E5
-      (1955)/5E5-A (1956-1960) dating, full tube complement (12AY7 mic/instrument,
-      half-12AX7 phase inverter split-load, 6L6GB or 5881 output, 5U4GA
-      rectifier), fixed/nonadjustable bias with a selenium bias rectifier, and
-      the 5E5-A's reintroduced NFB loop with a Presence control (the 5E5 had
-      removed feedback entirely) — cross-reference for the schematic reading"
+  - desc: "Mojotone, Fender Field Guide, \"Fender Narrow Panel Tweed Pro\". Supplies the 5E5 (1955) and 5E5-A (1956–1960) dating; the tube complement (12AY7 mic and instrument stages, half a 12AX7 as a split-load phase inverter, 6L6GB or 5881 output, 5U4GA rectifier); the fixed, non-adjustable bias with a selenium bias rectifier; and the 5E5-A's return of the negative-feedback loop with a Presence control (the 5E5 had removed feedback entirely). A cross-reference for the schematic reading."
     url: "https://mojotone.com/blogs/fender-field-guide/fender-narrow-panel-tweed-pro"
 verification:
   status: draft   # One reason, stated rather than tuned away.

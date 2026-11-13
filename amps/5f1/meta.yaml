@@ -18,13 +18,13 @@ lineage:
 conventions:
   designators: sequential   # parts numbered straight through (R1…R13), as the source sheet does
 sources:
-  - desc: "Rob Robinette, 'How Amps Work' (5F1-based walkthrough) — component roles, PT 325-0-325, B+ node structure (its 16uF caps / dual-10k droppers figures were corrected by the drawing read-off: 16/8/8uF, 10k+22k)"
+  - desc: "Rob Robinette, \"How Amps Work\" (a walkthrough based on the 5F1). Supplies the role of each component, the 325-0-325 V power transformer and the structure of the B+ nodes. Its filter and dropper figures (16 µF capacitors, two 10 kΩ droppers) differ from the drawing, which gives 16/8/8 µF and 10 kΩ + 22 kΩ; this page uses the drawing's values."
     url: "https://robrobinette.com/How_Amps_Work.htm"
-  - desc: "ampbooks.com classic-circuit analysis (5E1 revision) — cross-reference for stage values and 6V6 cathode operating point"
+  - desc: "ampbooks.com, classic-circuit analysis (5E1 revision). A cross-reference for stage values and the 6V6 cathode operating point."
     url: "https://www.ampbooks.com/mobile/classic-circuits/fender-champ-5e1/"
-  - desc: "Fender 5F1 published voltage chart — all node/pin values read directly from the published drawing (2026-07-18); no factory drawing reproduced here. Scans are indexed in the EL34World archive"
+  - desc: "Fender, 5F1 published voltage chart. Supplies every node and pin voltage. No factory drawing is reproduced here; scans are indexed in the EL34World archive."
     url: "https://el34world.com/charts/TubeAmpSchematics.htm"
-  - desc: "Fender 'Champ-Amp' 5F1 layout drawing (K-EE), page 2 — the source for the order the board-layout drawing on this page places parts on the eyelet board. Redrawn from the published facts, never traced"
+  - desc: "Fender, \"Champ-Amp\" 5F1 layout drawing (drawing code K-EE), page 2. Supplies the order of parts on the eyelet board for the board-layout drawing on this page. That drawing is redrawn from the published facts, never traced."
     url: "https://el34world.com/charts/Schematics/files/Fender/Fender_champ_5f1_schem.pdf"
 verification:
   status: verified   # chart fully read from published drawing; CI-gated

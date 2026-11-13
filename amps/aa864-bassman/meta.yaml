@@ -23,43 +23,11 @@ lineage:
 conventions:
   designators: functional   # designators carry a role code (RD1 dropper, RL4 plate load, CK1 cathode bypass)
 sources:
-  - desc: >-
-      Fender 'BASSMAN-AMP AA864' drawing, title block read directly: FENDER MODEL
-      "BASSMAN-AMP AA864" P/B, drawing code H-FD, Fender Electric Instrument Co.,
-      Fullerton, California. Every component value and the whole printed voltage
-      chart read from that sheet — two channels (Bass Instrument, Normal) on three
-      7025 bottles, a 12AT7 long-tailed-pair phase inverter, a fixed-bias 6L6GC (2)
-      pair, and solid-state rectification (three series silicon diodes per phase).
-      Printed chart: +422 (reservoir, and again at the OT centre tap / choke
-      input past the standby switch), +420 (6L6 plates), +420 (screen rail after
-      the choke, and again at the 6L6 screens), +410 (PI plate rail), +340 (preamp rail — the layout sheet marks the same node +380; see the operating-point table),
-      +250/+250 (Normal channel plates), +235/+235 (Bass channel plates), +240
-      (Bass-channel driver plate), +220/+205 (PI plates), +95 (PI cathodes), +93
-      (PI tail junction), +2.0/+2.0/+1.8/+1.8/+1.9 (preamp cathodes), −44 (fixed
-      bias). Notice on the sheet: "Voltages read to ground with electronic
-      voltmeter. Values shown + or − 20%. All resistors 1/2 watt, 10% tolerance if
-      not specified. All capacitors at least 400 volt rating if not specified."
-      Transformer table on the sheet: TR1 125P7D (125P7DX on the export model),
-      TR2 125C1A choke, TR3 125A13A output. Not reproduced here; archived at
-      EL34World
+  - desc: "Fender, MODEL \"BASSMAN-AMP AA864\" P/B (drawing code H-FD), Fender Electric Instrument Co., Fullerton, California. Supplies every component value, the whole printed voltage chart and the transformer table (TR1 125P7D, or 125P7DX on the export model; TR2 125C1A choke; TR3 125A13A output). The chart prints the preamp rail as +340 V, but the layout sheet marks the same node +380 V; see the operating-point table. The sheet's notice reads \"Voltages read to ground with electronic voltmeter. Values shown + or − 20%. All resistors 1/2 watt, 10% tolerance if not specified. All capacitors at least 400 volt rating if not specified.\" Not reproduced here; archived at EL34World."
     url: "https://el34world.com/charts/Schematics/files/Fender/Fender_bassman_aa864.pdf"
-  - desc: >-
-      Fender 'BASSMAN-AMP AA864' layout drawing, title block read directly: FENDER
-      MODEL "BASSMAN-AMP AA864" LAYOUT P/B, drawing code H-FD, Fender Electric
-      Instrument Company, Fullerton, California, U.S.A. — the same two notices as
-      the circuit sheet. The order in which the board carries its parts, the
-      chassis positions of the six sockets (6L6GC · 6L6GC · 12AT7 · 7025 · 7025 ·
-      7025), the two control clusters and their part numbers, and the wire colours
-      of the transformer leads are read from it. It also prints +380 V at the
-      preamp-rail eyelet, where the circuit sheet prints +340 V. Not reproduced
-      here; archived at EL34World
+  - desc: "Fender, MODEL \"BASSMAN-AMP AA864\" LAYOUT P/B (drawing code H-FD), Fender Electric Instrument Company, Fullerton, California, U.S.A., with the same two notices as the circuit sheet. Supplies the order of parts on the board, the chassis positions of the six sockets (6L6GC · 6L6GC · 12AT7 · 7025 · 7025 · 7025), the two control clusters and their part numbers, and the colours of the transformer leads. It prints +380 V at the preamp-rail eyelet, where the circuit sheet prints +340 V. Not reproduced here; archived at EL34World."
     url: "https://el34world.com/charts/Schematics/Files/Fender/Fender_bassman_aa864_layout.pdf"
-  - desc: >-
-      Wikipedia, 'Fender Bassman' — the AA864 dated 1964 as the first blackface
-      Bassman, a 50-watt piggyback head over a separate cabinet, superseded by the
-      AB165 c. 1965. The drawing prints no power rating, so the 50 W figure is
-      carried from here and from this corpus's own Bassman family file, not read
-      off the sheet
+  - desc: "Wikipedia, \"Fender Bassman\". Dates the AA864 to 1964 as the first blackface Bassman, a 50 W piggyback head over a separate cabinet, replaced by the AB165 around 1965. The drawing prints no power rating, so the 50 W figure comes from here and from this site's Bassman family history, not from the sheet."
     url: "https://en.wikipedia.org/wiki/Fender_Bassman"
 verification:
   status: verified  # Maintainer (GM) sign-off 2026-08-13, in-session. The
