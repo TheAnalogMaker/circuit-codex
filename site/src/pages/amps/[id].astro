@@ -207,11 +207,11 @@ const styleNoBreak = String(m.name_style).replace(/-/g, '‑');
 
 <div class="wrap wrap-wide">
   <header class="amp-head">
-    <h1>{displayId(amp.id)} <span class="style">{styleNoBreak} · {m.era.start}–{m.era.end} · {m.wattage} W</span></h1>
+    <h1>{displayId(amp.id)} <span class="style">{styleNoBreak}<span class="nb"> · {m.era.start}–{m.era.end} · {m.wattage} W</span></span></h1>
     {v.status === 'verified'
       ? <span class="chip ok">✓ verified {vDate}</span>
       : <span class="chip">draft</span>}
-    {awaitingReview && <span class="review-note">· {REVIEW_PENDING_NOTE}</span>}
+    {awaitingReview && <span class="review-note"><span class="sep">· </span>{REVIEW_PENDING_NOTE}</span>}
     <nav class="jump" aria-label="On this page">
       {amp.hasSchematic && <a href="#schematic">Schematic</a>}
       {amp.hasLayout && <a href="#layout">Layout</a>}
@@ -228,12 +228,22 @@ const styleNoBreak = String(m.name_style).replace(/-/g, '‑');
     <div class="main figures">
       <VerificationPanel rows={checks} />
       <div class="viewer" id="schematic">
-        <div class="viewer-head">Schematic — redrawn in KiCad · scroll to zoom, drag to pan</div>
+        {/* The viewer wants a click or tap before it takes the wheel or a drag
+            (until then the page scrolls past it), so the head says that, and says
+            nothing about zooming where there is no sheet yet. The drawing is a
+            canvas a screen reader cannot read; the group names it and points to the
+            parts list and operating-point table, which carry the same circuit as text. */}
+        <div class="viewer-head">{amp.hasSchematic
+          ? 'Schematic — redrawn in KiCad · click or tap the sheet, then scroll or pinch to zoom and drag to pan'
+          : 'Schematic — redrawn in KiCad'}</div>
         {amp.hasSchematic ? (
-          <div class="viewer-canvas">
+          <div class="viewer-canvas" role="group" aria-label={`Interactive schematic: ${m.name_style} ${displayId(amp.id)}, redrawn in KiCad`}
+               aria-describedby={`schematic-alt-${amp.id}`}>
+            <p class="sr-only" id={`schematic-alt-${amp.id}`}>The drawing is an image. Every
+              component it shows is listed in the parts list below, and every node voltage in
+              the operating-point table; the KiCad file is under Downloads.</p>
             <script type="module" src="/vendor/kicanvas.js" is:inline></script>
-            <kicanvas-embed src={`/schematics/${amp.id}.kicad_sch`} controls="basic"
-              aria-label={`Interactive schematic: ${m.name_style} ${displayId(amp.id)}, redrawn in KiCad`}></kicanvas-embed>
+            <kicanvas-embed src={`/schematics/${amp.id}.kicad_sch`} controls="basic"></kicanvas-embed>
             <noscript><p class="viewer-fallback">Interactive schematic requires JavaScript.
               Download the redrawn KiCad schematic for {displayId(amp.id)}:
               <a href={`${ghDir}/schematic.kicad_sch`}>schematic.kicad_sch</a>.</p></noscript>
@@ -694,6 +704,21 @@ const styleNoBreak = String(m.name_style).replace(/-/g, '‑');
   .jump{flex-basis:100%;display:flex;flex-wrap:wrap;gap:6px 14px;margin:4px 0 0;
     font-family:var(--disp);text-transform:uppercase;letter-spacing:.12em;font-size:11.5px}
   .jump a{color:var(--muted)}
+  h1 .style .nb{white-space:nowrap}
+  .sr-only{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+  /* Phone: the subtitle takes its own line (it used to break as "Hiwatt Custom" /
+     "100-style · 1969–1981"), the review note drops its leading separator, the
+     status chip is readable, and the on-page links are 44px touch targets in one
+     sideways-scrolling row rather than two rows of 18px text. */
+  @media(max-width:599px){
+    h1 .style{display:block;margin-top:6px}
+    .review-note{margin-left:0;flex-basis:100%}
+    .review-note .sep{display:none}
+    .amp-head .chip{font-size:12px;padding:4px 11px}
+    .jump{flex-wrap:nowrap;overflow-x:auto;gap:0 18px;font-size:12px;scrollbar-width:none;
+      -webkit-mask-image:linear-gradient(to right,#000 82%,transparent);mask-image:linear-gradient(to right,#000 82%,transparent)}
+    .jump a{display:inline-flex;align-items:center;min-height:44px;white-space:nowrap}
+  }
   #schematic,#layout,#op-point,#parts,#story,#sources{scroll-margin-top:72px}
   h1{font-size:38px;letter-spacing:.05em;margin:0}
   /* The subtitle now lives inside the h1 (one heading for SEO/a11y) but keeps its
