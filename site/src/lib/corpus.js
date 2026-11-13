@@ -16,7 +16,29 @@ function readIfExists(p) {
   return fs.existsSync(p) ? fs.readFileSync(p, 'utf8') : null;
 }
 
+// Build-time memo for the whole-corpus loaders. Every amp page, and most helpers
+// below, ask for the corpus again; uncached, a build re-read and re-parsed every
+// amp's YAML and markdown 184 times, about 10 s of an 11 s build. Callers treat
+// the results as read-only (they map, filter and copy before sorting), which is
+// what makes sharing one copy safe.
+//
+// Under `astro dev` the data files live outside Vite's module graph, so a cached
+// copy would serve an edited meta.yaml stale until the server restarts; there
+// every call reads afresh, as it always did. Plain node (the check scripts) has
+// no import.meta.env and caches like a build.
+const CACHE_LOADS = !import.meta.env?.DEV;
+const _loaded = new Map();
+function cached(key, load) {
+  if (!CACHE_LOADS) return load();
+  if (!_loaded.has(key)) _loaded.set(key, load());
+  return _loaded.get(key);
+}
+
 export function loadCorpus() {
+  return cached('corpus', readCorpus);
+}
+
+function readCorpus() {
   const amps = fs.readdirSync(AMPS_DIR, { withFileTypes: true })
     .filter((d) => d.isDirectory() && !d.name.startsWith('_'))
     .map((d) => {
@@ -449,6 +471,10 @@ export function loadSources() {
 }
 
 export function loadTubes() {
+  return cached('tubes', readTubes);
+}
+
+function readTubes() {
   const dir = path.join(REFERENCE_DIR, 'tubes');
   const tubes = fs.readdirSync(dir)
     .filter((f) => f.endsWith('.yaml'))
@@ -707,6 +733,10 @@ function assignAnchors(models) {
 // having rows. A family page that inferred one from the other put a verified check
 // mark on four Marshall circuits whose own pages say draft.
 export function loadHistory() {
+  return cached('history', readHistory);
+}
+
+function readHistory() {
   if (!fs.existsSync(HISTORY_DIR)) return [];
   const byId = new Map(loadCorpus().map((a) => [a.id, a]));
   const fams = fs.readdirSync(HISTORY_DIR)
