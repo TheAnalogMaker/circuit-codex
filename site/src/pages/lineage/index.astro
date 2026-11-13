@@ -1,6 +1,7 @@
 ---
 import Base from '../../layouts/Base.astro';
 import { loadCorpus, loadHistory, displayId, GITHUB } from '../../lib/corpus.js';
+import { reviewPending } from '../../lib/verification.js';
 
 // ---------------------------------------------------------------------------
 // Lineage — a build-time family tree of the corpus. Every model in the history tier
@@ -18,6 +19,10 @@ import { loadCorpus, loadHistory, displayId, GITHUB } from '../../lib/corpus.js'
 // ---------------------------------------------------------------------------
 const amps = loadCorpus();
 const byId = new Map(amps.map((a) => [a.id, a]));
+// The ✓ marks a verified circuit; the legend says how many of those carry changes
+// since their maintainer review, as every other page that shows the badge does.
+const nVerified = amps.filter((a) => a.meta.verification?.status === 'verified').length;
+const nPending = amps.filter((a) => reviewPending(a)).length;
 const history = loadHistory();
 
 // circuit id -> family slug (documented circuits only), to classify derivation edges
@@ -505,6 +510,7 @@ const jsonld = {
     <div class="legend">
       <span class="lg"><span class="sw doc"></span>Documented circuit — links its page</span>
       <span class="lg"><span class="sw ghost"></span>History-tier model — links its family history</span>
+      <span class="lg"><span class="sw-tick" aria-hidden="true">✓</span><a href="/about/#verified">Verified</a> circuit{nPending > 0 && ` — ${nPending === nVerified ? 'all' : nPending} awaiting re-review of changes since their verified date`}</span>
       <span class="lg"><span class="sw-span"></span>Chip sits at the era introduced · bar spans the production years</span>
       <span class="lg"><span class="sw-succ"></span>Succession within a family</span>
       <span class="lg"><span class="sw-arrow"></span>Documented derivation between families</span>
@@ -549,6 +555,7 @@ const jsonld = {
   .legend .sw.ghost{background:transparent;border:1.3px dashed var(--faint)}
   .legend .sw-span{width:22px;height:0;border-top:1.8px solid var(--line);display:inline-block;position:relative}
   .legend .sw-span::after{content:"";position:absolute;right:-2px;top:-3.5px;width:5px;height:5px;border-radius:50%;background:var(--faint)}
+  .legend .sw-tick{width:22px;text-align:center;color:var(--ok);font-size:12px}
   .legend .sw-succ{width:22px;height:0;border-top:1.6px dotted var(--muted);display:inline-block}
   .legend .sw-arrow{width:22px;height:0;border-top:2px solid var(--amber-dim);display:inline-block;position:relative}
   .legend .sw-arrow::after{content:"▸";position:absolute;right:-4px;top:-9px;color:var(--amber-dim);font-size:11px}

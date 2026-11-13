@@ -8,6 +8,13 @@ import { reviewPending } from '../lib/verification.js';
 // heading and a new family line adds its own section.
 const families = corpusByFamily();
 const stats = corpusStats();
+// Verified circuits whose facts changed after the maintainer's review. The badge
+// stands on its date, so the headline count says how many of them await re-review
+// rather than letting "verified" read as current for every one.
+const pending = families.flatMap((f) => f.amps).filter((a) => reviewPending(a)).length;
+const verifiedLabel = pending === 0 ? 'verified'
+  : pending === stats.verified ? 'verified · all awaiting re-review'
+  : `verified · ${pending} awaiting re-review`;
 
 // Section subtitle: the era style(s) the group's circuits record, the years they span,
 // and how many are documented — omitting any part the data doesn't carry.
@@ -59,7 +66,7 @@ const itemList = {
       contribute</a>.</p>
     <div class="stats" role="list">
       <div class="stat" role="listitem"><div class="n">{stats.circuits}</div><div class="l">circuit{stats.circuits === 1 ? '' : 's'}</div></div>
-      <div class="stat" role="listitem"><div class="n">{stats.verified}</div><div class="l">verified</div></div>
+      <div class="stat" role="listitem"><div class="n">{stats.verified}</div><div class="l">{verifiedLabel}</div></div>
       <div class="stat" role="listitem"><div class="n">{stats.models}</div><div class="l">CC0 tube SPICE models</div></div>
       <div class="stat" role="listitem"><div class="n">{stats.historyModels}</div><div class="l">model histories</div></div>
     </div>
@@ -104,6 +111,9 @@ const itemList = {
       <button type="button" class="chip" data-filter="verified" aria-pressed="false">Verified</button>
       <button type="button" class="chip" data-filter="draft" aria-pressed="false">Draft</button>
     </div>
+    {pending > 0 && <p class="status-note">A <span class="chip v">verified · re-review pending</span> circuit
+      was verified on the date shown on its page; changes since then are awaiting maintainer
+      re-review. <a href="/about/#verified">What verified means</a>.</p>}
     {families.map((f) => (
       <div class="fam">
         <div class="fam-head">
@@ -121,9 +131,8 @@ const itemList = {
                 <span class="chip">{a.meta.era.start}–{a.meta.era.end}</span>
                 <span class="chip">{a.meta.topology.phase_inverter === 'none' ? 'single-ended' : a.meta.topology.phase_inverter}</span>
                 {a.meta.verification?.status === 'verified'
-                  ? <span class="chip v">verified</span>
-                  : <span class="chip">draft</span>}
-                {reviewPending(a) && <span class="chip" title="Changes since the verified date are awaiting maintainer re-review">re-review pending</span>}
+                  ? <span class="chip v status">{reviewPending(a) ? 'verified · re-review pending' : 'verified'}</span>
+                  : <span class="chip status">draft</span>}
               </div>
             </a>
           ))}
@@ -213,4 +222,6 @@ const itemList = {
   .inline-link{color:var(--amber)}
   .corpus-filter{display:flex;flex-wrap:wrap;gap:8px;margin:-6px 0 20px}
   .corpus-filter .chip{background:transparent;cursor:pointer}
+  .status-note{color:var(--muted);font-size:13.5px;margin:-8px 0 20px;max-width:70ch}
+  .status-note .chip{font-size:10.5px}
 </style>

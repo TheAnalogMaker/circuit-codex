@@ -1,6 +1,7 @@
 ---
 import Base from '../../layouts/Base.astro';
-import { loadHistory, GITHUB } from '../../lib/corpus.js';
+import { loadHistory, loadCorpus, GITHUB } from '../../lib/corpus.js';
+import { reviewPending } from '../../lib/verification.js';
 
 // ---------------------------------------------------------------------------
 // History index — one card per amp *line* (Champ, Deluxe, Bassman, Marshall lead
@@ -16,6 +17,10 @@ const totalDocumented = families.reduce((n, f) => n + f.documentedCount, 0);
 // Most documented circuits are published as drafts; the tier prose below has to
 // say so rather than describing every linked circuit as verified.
 const totalVerified = families.reduce((n, f) => n + f.verifiedCount, 0);
+// Verified circuits whose facts changed since the maintainer's review.
+const pendingIds = new Set(loadCorpus().filter((a) => reviewPending(a)).map((a) => a.id));
+const pendingIn = (f) => f.models.filter((m) => m.tier === 'verified' && pendingIds.has(m.ampId)).length;
+const totalPending = families.reduce((n, f) => n + pendingIn(f), 0);
 
 // A short lede pulled from the family summary — first sentence, so the card stays tight.
 function firstSentence(text) {
@@ -57,7 +62,7 @@ const jsonld = {
       drawn yet. The rest link straight to a circuit page — most of those published as
       drafts, a smaller number <a href="/about/#verified">verified</a>. {families.length}
       lines, {totalModels} models, {totalDocumented} with a documented circuit,
-      {totalVerified} of them verified.</p>
+      {totalVerified} of them verified{totalPending > 0 && ` (${totalPending === totalVerified ? 'all' : totalPending} awaiting re-review of changes since)`}.</p>
   </header>
 
   <section>
@@ -74,7 +79,7 @@ const jsonld = {
               newly documented circuit moves the number on its own. */}
           {f.documentedCount > 0 && (
             <div class="cdoc">{f.documentedCount} of {f.models.length} models documented{
-              f.verifiedCount > 0 ? ` · ${f.verifiedCount} verified` : ''}</div>
+              f.verifiedCount > 0 ? ` · ${f.verifiedCount} verified${pendingIn(f) > 0 ? ', re-review pending' : ''}` : ''}</div>
           )}
           <p class="cdesc">{firstSentence(f.summary)}</p>
           <div class="chips">

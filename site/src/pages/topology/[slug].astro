@@ -230,9 +230,8 @@ const breadcrumbs = [
           <div class="chips">
             <span class="chip">{a.meta.era.start}–{a.meta.era.end}</span>
             {a.meta.verification?.status === 'verified'
-              ? <span class="chip v">verified</span>
+              ? <span class="chip v">{reviewPending(a) ? 'verified · re-review pending' : 'verified'}</span>
               : <span class="chip">draft</span>}
-            {reviewPending(a) && <span class="chip" title="Changes since the verified date are awaiting maintainer re-review">re-review pending</span>}
           </div>
         </a>
       ))}
