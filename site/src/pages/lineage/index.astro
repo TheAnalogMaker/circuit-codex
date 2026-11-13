@@ -440,8 +440,11 @@ const jsonld = {
   </header>
 
   <figure class="fig">
+    <p class="swipe-hint" hidden>Swipe the chart sideways to follow each line through the
+      years; it opens at the first documented circuit, and the earlier models are to the left.</p>
+    <div class="scroll-wrap">
     <div class="scroll">
-      <svg class="tree" viewBox={`0 0 ${W} ${H}`} role="img"
+      <svg class="tree" viewBox={`0 0 ${W} ${H}`} role="group" data-gutter={X0 - 8}
            aria-label="Family tree of the amp lines: every model arranged by family lane and era, with succession lines within families and documented derivation arrows between them.">
         <!-- year gridlines + axis -->
         <g class="grid">
@@ -462,11 +465,6 @@ const jsonld = {
           <g class="fam">
             <rect class={i % 2 ? 'band-bg alt' : 'band-bg'} x={X0 - 8} y={b.top - 4}
                   width={PLOTW + 16} height={b.height - 8} rx="7" />
-            <text class="lane" x={10} y={laneLines(b.fam).length === 1 ? b.mid : b.mid - 6.5}
-                  dominant-baseline="middle" tabindex="0" role="button" aria-pressed="false"
-                  aria-label={`Show only the ${lineName(b.fam)} line`}>
-              {laneLines(b.fam).map((l, li) => <tspan x={10} dy={li === 0 ? 0 : 13}>{l}</tspan>)}
-            </text>
             {b.succ.map((d) => <path class="succ" d={d} fill="none" />)}
             {b.nodes.map((n) => {
               const m = n.m, box = n.box;
@@ -487,6 +485,17 @@ const jsonld = {
                 </a>
               );
             })}
+            {/* The lane's name comes after its chips, over a backdrop the width of
+                the label gutter, so that on a phone, where the chart scrolls
+                sideways, the script below can keep both pinned at the left edge
+                (--stick) without the chips painting over them. The backdrop is
+                the lane's tap target too. */}
+            <rect class="lane-bg" x={-24} y={b.top - 8} width={X0 + 16} height={b.height} rx="7" />
+            <text class="lane" x={10} y={laneLines(b.fam).length === 1 ? b.mid : b.mid - 6.5}
+                  dominant-baseline="middle" tabindex="0" role="button" aria-pressed="false"
+                  aria-label={`Show only the ${lineName(b.fam)} line`}>
+              {laneLines(b.fam).map((l, li) => <tspan x={10} dy={li === 0 ? 0 : 13}>{l}</tspan>)}
+            </text>
           </g>
         ))}
 
@@ -506,6 +515,7 @@ const jsonld = {
           </g>
         ))}
       </svg>
+    </div>
     </div>
     <div class="legend">
       <span class="lg"><span class="sw doc"></span>Documented circuit — links its page</span>
@@ -547,6 +557,14 @@ const jsonld = {
   .lede em{color:var(--muted);font-style:italic}
   .fig{margin:26px 0 0}
   .scroll{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--well);padding:8px 8px 4px}
+  /* Phone affordances, switched on by the script only when the chart is wider
+     than its box: a hint above it, and soft edges where more chart lies beyond. */
+  .swipe-hint{color:var(--muted);font-size:13.5px;margin:0 2px 8px}
+  .scroll-wrap{position:relative}
+  .scroll-wrap::before,.scroll-wrap::after{content:"";position:absolute;top:1px;bottom:1px;width:28px;pointer-events:none;opacity:0;transition:opacity .15s ease}
+  .scroll-wrap::before{left:var(--fade-l,1px);background:linear-gradient(to right,var(--well),transparent)}
+  .scroll-wrap::after{right:1px;border-radius:0 10px 10px 0;background:linear-gradient(to left,var(--well),transparent)}
+  .scroll-wrap.can-l::before,.scroll-wrap.can-r::after{opacity:1}
   .tree{display:block;width:100%;min-width:1040px;height:auto}
   .legend{display:flex;gap:20px;flex-wrap:wrap;margin:14px 2px 0;color:var(--faint);font-size:12px}
   .legend .lg{display:inline-flex;align-items:center;gap:7px}
@@ -570,8 +588,14 @@ const jsonld = {
   @media (hover: hover){.tree:not(.iso):has(.fam:hover) .fam:not(:hover){opacity:.24}}
   /* Touch has no hover: tapping a lane's name or empty band pins the isolation. */
   .tree.iso .fam:not(.on){opacity:.24}
-  .tree .lane,.tree .band-bg{cursor:pointer}
-  .tree .lane:focus-visible{outline:none;fill:var(--amber)}
+  .tree .lane,.tree .band-bg,.tree .lane-bg{cursor:pointer}
+  .tree .lane,.tree .lane-bg{transform:translateX(var(--stick,0px))}
+  .tree .lane-bg{fill:var(--well);stroke:none}
+  /* Focus shows as the lane's own outlined label box, not a browser ring
+     around the bare text. */
+  .tree .lane:focus{outline:none}
+  .tree .lane:focus-visible{fill:var(--amber)}
+  .tree .fam:has(.lane:focus-visible) .lane-bg{stroke:var(--amber);stroke-width:2}
   .tree .fam.on .lane{fill:var(--amber)}
 
   .tree .grid line{stroke:var(--line-soft);stroke-width:1}
@@ -623,7 +647,7 @@ const jsonld = {
     };
     tree.addEventListener('click', (e) => {
       const target = e.target;
-      if (!(target instanceof Element) || !target.matches('.lane, .lane tspan, .band-bg')) return;
+      if (!(target instanceof Element) || !target.matches('.lane, .lane tspan, .band-bg, .lane-bg')) return;
       pin(target.closest('.fam'));
     });
     tree.addEventListener('keydown', (e) => {
@@ -633,5 +657,35 @@ const jsonld = {
       e.preventDefault();
       pin(target.closest('.fam'));
     });
+
+    // On a narrow screen the chart scrolls sideways. Keep the lane names pinned
+    // at the left edge, open at the first documented circuit rather than at the
+    // empty 1940s, and show the hint and edge fades only when there is more to see.
+    const scroller = tree.closest('.scroll');
+    const wrap = tree.closest('.scroll-wrap');
+    const hint = document.querySelector('.swipe-hint');
+    const gutter = Number(tree.dataset.gutter) || 0;
+    const viewW = tree.viewBox.baseVal.width;
+    const unit = () => viewW / tree.getBoundingClientRect().width;
+    // "Narrow" = the box shows well under the whole chart (a phone); a laptop
+    // that clips a few pixels keeps its plain left-aligned chart.
+    const narrow = () => scroller.clientWidth < 0.75 * scroller.scrollWidth;
+    const sync = () => {
+      const max = scroller.scrollWidth - scroller.clientWidth;
+      tree.style.setProperty('--stick', `${scroller.scrollLeft * unit()}px`);
+      wrap.style.setProperty('--fade-l', `${gutter / unit() + 9}px`);
+      wrap.classList.toggle('can-l', scroller.scrollLeft > 2);
+      wrap.classList.toggle('can-r', scroller.scrollLeft < max - 2);
+      if (hint) hint.hidden = !narrow();
+    };
+    if (scroller && wrap) {
+      if (narrow()) {
+        const xs = [...tree.querySelectorAll('.node.doc .chip')].map((r) => r.x.baseVal.value);
+        if (xs.length) scroller.scrollLeft = Math.max(0, (Math.min(...xs) - gutter - 12) / unit());
+      }
+      scroller.addEventListener('scroll', sync, { passive: true });
+      addEventListener('resize', sync);
+      sync();
+    }
   }
 </script>
