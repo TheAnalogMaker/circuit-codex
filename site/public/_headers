@@ -6,6 +6,20 @@
 # sitemaps, downloads, the pagefind entry files) keep the platform default,
 # `public, max-age=0, must-revalidate`, so a deploy is visible on the next view.
 
+# Security headers on every asset response. No Cache-Control here, so the cache
+# rules below never meet a second value. Responses the Worker builds itself (its
+# 301s) carry none of these; every page and file served from dist does.
+# - HSTS without includeSubDomains or preload: only the apex is known to be HTTPS-
+#   only, and preload is a one-way door.
+# - frame-ancestors 'none' is the whole CSP: the site embeds nothing that needs
+#   to frame it, and a full policy waits on the inline scripts, the analytics
+#   beacon, pagefind and kicanvas.
+/*
+  Strict-Transport-Security: max-age=31536000
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Content-Security-Policy: frame-ancestors 'none'
+
 # version.json names the source revision this deploy was built from. It must never
 # be served from a cache, or a post-deploy check could read a stale copy and pass.
 /version.json
