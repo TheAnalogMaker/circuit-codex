@@ -25,7 +25,7 @@ basing:
     Mullard/Philips lettering it is drawn from.
   pins:
     1: { element: internal-connection }
-    2: { element: heater }
+    2: { element: heater, hv: true, note: "this heater end sits at B+ too — pin 8, the winding's other end, is the B+ output, so the whole 5 V winding floats at B+ (within 5 V of it) and both its leads are lethal" }
     3: { element: nc }
     4: { element: diode-plate, unit: 1, hv: true }
     5: { element: nc }
