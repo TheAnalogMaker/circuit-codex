@@ -26,6 +26,7 @@
 wiring_claim: verified
 
 wire_legend:
+  green: "green — output transformer, V5 plate lead (lettered GREEN on the sheet; not a heater)"
   heater: "green — 6.3 V heaters (single-ended; one leg grounded at the transformer)"
 
 # What the heater circuits WIRE, stated as data rather than left to be inferred
@@ -228,7 +229,7 @@ bus:
 # Wiring — read lead-by-lead from the published 5E4-A layout drawing (G-EE). The
 # transformer leads carry the colours marked on that drawing: the PT secondary
 # (RED/RED HT plates, YELLOW/YELLOW 5 V filament, RED-YELLOW HT centre tap) to
-# the 5U4G, and the output-transformer primary (V4 plate BROWN, V5 plate BLUE,
+# the 5U4G, and the output-transformer primary (V4 plate BROWN, V5 plate GREEN,
 # centre tap RED to B+2, onto a 6V6GT screen pin as the sheet letters it). The PT primary (BLACK) lands on the chassis switches,
 # off the board, so it is not drawn. The 6.3 V heater winding is the GREEN pair
 # (the sheet shows plain green/green — no centre tap on this transformer) and
@@ -292,7 +293,12 @@ runs:
   - { from: V4.pin4, to: C12.a, via: [[5.7, 1.5]] } # V4 screen -> +385 (B+2) (rises clear of V4.pin3, approaches C12.a from the left)
   - { from: V5.pin4, to: C12.a, via: [[7.4, 1.75], [6.3, 0.5]] } # V5 screen -> +385 (B+2) (breaks left above the plate pin, clear of V4 cathode drop)
   - { from: V4.pin3, to: T3.brown, via: [[4.5, 2.68], [49.1, 2.68], [49.1, 1.058]] }  # V4 plate -> OT primary (brown), rises at the right margin clear of R2s/RG2
-  - { from: V5.pin3, to: T3.blue, via: [[9, 2.85], [49.4, 2.85], [50.55, 0.63]] }    # V5 plate -> OT primary (blue), rises right of brown
+  # The V5 plate lead is lettered GREEN on the G-EE layout (page 1): of the two
+  # OT leads that reach V5, RED is lettered just above the line that lands on
+  # pin 4 and GREEN just above the line that lands on pin 3, each label on its
+  # own wire as the sheet letters the PT's GREEN and RED-BLUE (crops
+  # 1480,2640-1780,2900 and 1450,2500-2500,3420). Drawn blue until 2026-11-13.
+  - { from: V5.pin3, to: T3.green, via: [[9, 2.85], [49.4, 2.85], [50.55, 0.63]] }   # V5 plate -> OT primary (green, as G-EE letters it), rises right of brown
   # G-EE letters the OT's RED lead onto the right 6V6GT's pin 4, the screen
   # line on B+2 (layout 6210x3501, crop 1150,2400,2300,3150), and the schematic
   # runs the centre tap into the screen line (6232x3528, crop 4900,750,5450,1650).
@@ -445,7 +451,7 @@ net_map:
   # wrongly short the cathodyne's cathode junction (JPI) to ground.
   anchors:
     T3.brown: BP2    # OT primary, V4 plate lead — netlist omits OT primary DCR (plate node = B+2)
-    T3.blue:  BP2    # OT primary, V5 plate lead
+    T3.green: BP2    # OT primary, V5 plate lead (lettered GREEN on G-EE page 1)
     T3.red:   BP2    # OT primary centre tap → second filter (B+2, with the screens)
   # DC-transparent series parts the netlist omits (no DC grid current → zero
   # drop): their two leads are shorted so the netlist node runs through them.
