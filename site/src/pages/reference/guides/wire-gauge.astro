@@ -1,8 +1,9 @@
 ---
 import Base from '../../../layouts/Base.astro';
 
-// American Wire Gauge — diameter and a conservative "chassis wiring" ampacity
-// (single conductor, free air, not bundled). Figures follow the AWG standard
+// American Wire Gauge — diameter and the "chassis wiring" ampacity (single
+// conductor, free air, not bundled). That column is the chart's most generous
+// rating — an upper limit, not a conservative design figure. Figures follow the AWG standard
 // formula and its published load chart; see the citation at the foot of the
 // page. `use` is this archive's own read on where each gauge turns up in a
 // point-to-point tube-amp chassis, not a spec off any one build sheet.
@@ -56,8 +57,13 @@ const AWG = [
       below that pair are reserved for the mains lead and the high-voltage bus, where
       fault current is the concern, not signal.</p>
     <p class="note">"Chassis wiring" ampacity assumes one insulated conductor in free
-      air, not bundled with others — a conservative bench rule of thumb, not a building
-      code. Point-to-point amp wiring almost never approaches these ceilings; what
+      air, not bundled with others, and accepts a real temperature rise — it is the
+      <em>most generous</em> column of the published chart, an upper limit rather than
+      a safe design figure. The same chart's power-transmission column, and the building
+      wiring codes, rate every one of these gauges far lower. Bundled in a loom, in a hot
+      chassis, or carrying mains current, size a gauge up or two rather than run near these
+      numbers — and wire the mains side to the cord and fuse rating, not to this column.
+      Point-to-point amp wiring almost never approaches these ceilings; what
       actually decides a gauge is the insulation's voltage rating, whether it fits the
       lug or eyelet it is soldered to, and whether it survives years of heat next to a
       power tube — not raw current capacity. See the
@@ -124,7 +130,7 @@ const AWG = [
     <a href="https://en.wikipedia.org/wiki/American_wire_gauge" rel="external nofollow">Wikipedia, "American wire gauge"</a>
     and the <a href="https://www.powerstream.com/Wire_Size.htm" rel="external nofollow">PowerStream AWG wire size chart</a>,
     itself drawn from the <em>Handbook of Electronic Tables and Formulas for American
-    Wire Gauge</em>. Treat the ampacity column as a bench rule of thumb, not a code
+    Wire Gauge</em>. Treat the ampacity column as an upper limit, not a design figure or a code
     reference — anything feeding mains current should follow the National Electrical
     Code and a qualified electrician.</p>
 </div>
