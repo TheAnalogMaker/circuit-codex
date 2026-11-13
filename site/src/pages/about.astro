@@ -50,9 +50,10 @@ const dataset = datasetJsonLd(Astro.site);
   <section id="what">
     <h2>What this is</h2>
     <p>Circuit Codex is an open, structured archive of vintage guitar tube-amplifier
-      circuits. Every circuit here is <strong>independently redrawn from its underlying
-      facts</strong> — component values, topology, published voltage charts — never
-      scanned or traced from factory drawings, and republished as structured data:
+      circuits. Every circuit here is <strong>redrawn</strong>: its component values,
+      connections and voltage chart are read off the published factory drawings and drawn
+      again from scratch — no drawing is scanned, traced or reproduced — and republished as
+      structured data:
       an interactive schematic, a board-layout diagram, a simulation-checked operating
       point, a parts list, and a sourced circuit story.</p>
     <p>The archive currently documents <strong>{nCircuits} circuits</strong>
@@ -102,8 +103,9 @@ const dataset = datasetJsonLd(Astro.site);
     <p>The <span class="chip ok">✓ verified</span> badge is earned through a chain of
       checks that runs on every change:</p>
     <ol>
-      <li><strong>Facts read, never traced.</strong> Values and chart voltages are read
-        from published drawings and cited; the schematic is drawn independently.</li>
+      <li><strong>Read, then redrawn.</strong> Values and chart voltages are read from the
+        published drawings and cited; the schematic and board diagram are drawn again from
+        those facts.</li>
       <li><strong>Simulation vs. the published chart.</strong> The circuit's netlist is
         simulated in ngspice and the DC operating point must land within stated tolerance
         of the printed chart — tube pins within the ±20% measurement convention the era's

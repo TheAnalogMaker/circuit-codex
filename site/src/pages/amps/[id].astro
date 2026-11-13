@@ -1,7 +1,7 @@
 ---
 import Base from '../../layouts/Base.astro';
 import VerificationPanel from '../../components/VerificationPanel.astro';
-import { loadVerificationReports, reviewPending, REVIEW_PENDING_NOTE, verificationRows } from '../../lib/verification.js';
+import { loadVerificationReports, reviewPending, REVIEW_PENDING_NOTE, DRAFT_NOTE, verificationRows } from '../../lib/verification.js';
 import { ampCorrections, archiveRevision } from '../../lib/revisions.js';
 import { loadCorpus, displayId, ampMetaDescription, layoutAlt, layoutMinWidth, topologyHref, circuitFamilyMap, loadHistory, TOPOLOGY_DIMENSIONS, loadLoadlineStages, toneStackPresetIds, ampOpPoints, designatorScheme, schematicNetsVerified, listPhrase, correctionUrl, GITHUB } from '../../lib/corpus.js';
 
@@ -212,6 +212,7 @@ const styleNoBreak = String(m.name_style).replace(/-/g, '‑');
       ? <span class="chip ok">✓ verified {vDate}</span>
       : <span class="chip">draft</span>}
     {awaitingReview && <span class="review-note"><span class="sep">· </span>{REVIEW_PENDING_NOTE}</span>}
+    {v.status !== 'verified' && <span class="review-note"><span class="sep">· </span>{DRAFT_NOTE}</span>}
     <nav class="jump" aria-label="On this page">
       {amp.hasSchematic && <a href="#schematic">Schematic</a>}
       {amp.hasLayout && <a href="#layout">Layout</a>}

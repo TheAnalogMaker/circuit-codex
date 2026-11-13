@@ -24,9 +24,9 @@ the page. Browse the live corpus at
 
 ## Principles
 
-1. **Redrawn from facts, never scanned.** Every schematic is independently drawn from
-   the underlying circuit — component values, topology, published voltage charts. No
-   factory drawings are reproduced or traced.
+1. **Redrawn, never scanned.** Every schematic and board diagram is drawn again from the
+   facts read off the published factory drawings — component values, connections, voltage
+   charts. No factory drawing is scanned, traced or reproduced.
 2. **Circuit-number-first naming.** Circuits are identified by their designation
    (`5e3`, `jtm45`, `ab763`); maker names appear only descriptively ("Tweed
    Deluxe-style"). This project is not affiliated with or endorsed by any amplifier

@@ -27,6 +27,8 @@ export function reviewPending(amp, reports = loadVerificationReports()) {
     && Boolean(reports['verification-freshness']?.amps?.[amp.id]);
 }
 export const REVIEW_PENDING_NOTE = 'changes since then are awaiting maintainer re-review';
+// What a draft badge means, wherever one is shown on its own.
+export const DRAFT_NOTE = 'this circuit is still under validation and review';
 const isoDate = (value) => {
   if (!value) return null;
   const d = value instanceof Date ? value : new Date(value);

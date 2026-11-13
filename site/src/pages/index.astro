@@ -61,12 +61,12 @@ const itemList = {
     <h1>Classic tube amp circuits.<br />Redrawn. Verified. Connected.</h1>
     <p class="lede">Redrawn schematics, board layouts and simulated voltages for
       {stats.circuits} classic guitar tube amps, free to study and reuse (CC-BY-SA).
-      No scans: every circuit is redrawn from the underlying facts, and a
+      Every circuit is redrawn from the facts on its published factory drawings, and a
       <a href="/about/#verified">verified</a> badge means the circuit's simulated
       voltages land inside the voltage chart published for it.</p>
     <p class="lede lede-2">Under the hood: clean KiCad schematics,
       <strong>simulation-checked netlists</strong> and structured metadata, built in
-      the open and checked in CI; drafts are published with the blocker named.
+      the open and checked in CI; a draft is a circuit still under validation and review.
       New here? <a href="/about/">Start with what this is, what it proves, and how to
       contribute</a>.</p>
     <div class="stats" role="list">
@@ -118,7 +118,8 @@ const itemList = {
     </div>
     {pending > 0 && <p class="status-note">A <span class="chip v">verified · re-review pending</span> circuit
       was verified on the date shown on its page; changes since then are awaiting maintainer
-      re-review. <a href="/about/#verified">What verified means</a>.</p>}
+      re-review. A <span class="chip">draft</span> circuit is still under validation and
+      review. <a href="/about/#verified">What verified means</a>.</p>}
     <label class="fam-jump" hidden>Jump to line
       <select>
         <option value="">Choose a line…</option>
