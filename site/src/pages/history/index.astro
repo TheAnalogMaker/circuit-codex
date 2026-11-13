@@ -58,7 +58,7 @@ const jsonld = {
     <p class="lede">A documented circuit is one moment in a line that ran for decades. This
       section places each amp in its family — the chain of revisions it came from and the
       ones that followed — as a dated, sourced era timeline. Most entries are
-      <strong>history-tier</strong>: the model is placed and cited but its circuit isn't
+      <strong>timeline entries</strong>: the model is placed and cited but its circuit isn't
       drawn yet. The rest link straight to a circuit page — most of those published as
       drafts, a smaller number <a href="/about/#verified">verified</a>. {families.length}
       lines, {totalModels} models, {totalDocumented} with a documented circuit,
@@ -84,7 +84,7 @@ const jsonld = {
           <p class="cdesc">{firstSentence(f.summary)}</p>
           <div class="chips">
             {f.models.length - f.documentedCount > 0
-              ? <span class="chip">{f.models.length - f.documentedCount} history-tier</span>
+              ? <span class="chip">{f.models.length - f.documentedCount} not yet drawn</span>
               : <span class="chip v">line fully documented</span>}
           </div>
         </a>
@@ -92,13 +92,13 @@ const jsonld = {
     </div>
   </section>
 
-  <p class="foot-note">History-tier entries record a model's place, era, tube complement
+  <p class="foot-note">Timeline entries record a model's place, era, tube complement
     and the change that defined it, with sources — but no redrawn schematic, simulated
     operating point, or parts list yet. Those are the documented circuits, earned one at a
     time. A documented circuit is not automatically a verified one: it is published as a
     draft until its operating point has been held against a published voltage chart and a
     maintainer has signed off, and each family page marks which of its circuits have. Want
-    to move an entry from history-tier to documented?
+    to turn a timeline entry into a documented circuit?
     <a href="/about/#contribute">Here's how to contribute a circuit.</a></p>
 </div>
 </Base>

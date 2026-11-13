@@ -410,7 +410,7 @@ const nDoc = history.reduce((n, f) => n + f.documentedCount, 0);
 const title = 'Lineage — the family tree of classic guitar amp circuits · Circuit Codex';
 const description =
   'A family tree of vintage guitar tube-amp circuits: every model placed on an era axis by family line, with a light succession line through each family and documented derivation arrows drawn only between families where the metadata records them — ' +
-  `${arrowWord} in all, ${arrowList}. Documented circuits link their page; history-tier models link their family history.`;
+  `${arrowWord} in all, ${arrowList}. Documented circuits link their page; models whose circuits are not yet drawn link their family history.`;
 const canonical = new URL('lineage/', Astro.site).href;
 const jsonld = {
   '@context': 'https://schema.org',
@@ -519,7 +519,7 @@ const jsonld = {
     </div>
     <div class="legend">
       <span class="lg"><span class="sw doc"></span>Documented circuit — links its page</span>
-      <span class="lg"><span class="sw ghost"></span>History-tier model — links its family history</span>
+      <span class="lg"><span class="sw ghost"></span>Timeline entry, circuit not yet drawn — links its family history</span>
       <span class="lg"><span class="sw-tick" aria-hidden="true">✓</span><a href="/about/#verified">Verified</a> circuit{nPending > 0 && ` — ${nPending === nVerified ? 'all' : nPending} awaiting re-review of changes since their verified date`}</span>
       <span class="lg"><span class="sw-span"></span>Chip sits at the era introduced · bar spans the production years</span>
       <span class="lg"><span class="sw-succ"></span>Succession within a family</span>
@@ -538,7 +538,7 @@ const jsonld = {
       bar runs to the end of production{compressed && <>; the era axis compresses to the right of
       the {BREAK} gridline — the tick steps widen from five years to ten there — so the few late
       chapters that reach the 1990s do not squeeze the crowded 1946–1968 core where the corpus
-      lives</>}. Outline chips are history-tier models — placed and
+      lives</>}. Outline chips are timeline entries — placed and
       sourced, their circuits not yet drawn — so each family reads as a complete chain even where
       only one or two circuits are documented; the gaps are honest, and an outline chip becomes
       solid when its circuit lands. A chip with no second line is a model whose family file

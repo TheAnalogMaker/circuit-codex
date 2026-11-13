@@ -57,7 +57,7 @@ const title = `${fam.title} — history & era timeline · Circuit Codex`;
 const description =
   `The ${fam.title.replace(/^The /, '')} model by model, ${fam.eraStart}–${fam.eraEnd}: ` +
   `every revision dated, its tube complement and defining change sourced — ${nDoc} with a ` +
-  `documented circuit, ${nHist} history-tier. ${fam.maker_style} guitar amplifier lineage.`;
+  `documented circuit, ${nHist} on the timeline with the circuit not yet drawn. ${fam.maker_style} guitar amplifier lineage.`;
 const canonical = new URL(`history/${fam.slug}/`, Astro.site).href;
 const jsonld = {
   '@context': 'https://schema.org',
@@ -87,7 +87,7 @@ const breadcrumbs = [
       <span class="chip">{models.length} model{models.length === 1 ? '' : 's'}</span>
       <span class="chip v">{nDoc} documented</span>
       {nVer > 0 && <a class="chip ok" href="/about/#verified">{nVer} verified{nPend > 0 && ` · ${nPend === nVer ? 'all' : nPend} re-review pending`}</a>}
-      {nHist > 0 && <span class="chip">{nHist} history-tier</span>}
+      {nHist > 0 && <span class="chip">{nHist} not yet drawn</span>}
     </div>
   </header>
 
