@@ -52,7 +52,7 @@ const STEPS = [
     readout: 'Reservoir cap, still near B+ — a filter capacitor holds its charge for minutes to hours.' },
   { parts: 'part-resistor cap1',
     short: 'Discharge through a resistor',
-    detail: "Bleed the charge through a resistor on insulated leads — roughly 1 kΩ to 50 kΩ, a few watts — from the cap's positive terminal to chassis, held for several seconds. Never short a cap with a bare screwdriver.",
+    detail: "Bleed the charge through a resistor on insulated leads — roughly 1 kΩ to 50 kΩ, a few watts — from the cap's positive terminal to chassis, held for several seconds (longer at the high-resistance end or on a large cap — see below). Never short a cap with a bare screwdriver.",
     readout: 'Discharge tool — a resistor on insulated leads bleeds the charge without the violent spark, pitted contacts, and stressed cap of a dead short.' },
   { parts: 'part-meter cap1',
     short: 'Verify near zero',
@@ -111,9 +111,9 @@ const RULES = [
         roughly between 300 V and 450 V in normal operation — and some run higher: a
         360-0-360 transformer (the JTM45's) can push its reservoir near 500 V idling
         unloaded, and any supply reads highest when the amp is cold and drawing no
-        current. Mains-frequency current at those potentials, across the body, is far
-        more than enough to stop a heart; it is the current that kills, and a few tens of
-        milliamps is enough.</p>
+        current. B+ is direct current, not the alternating current at the wall, but at
+        these potentials either can drive a lethal current through the body; it is the
+        current that kills, and tens of milliamps across the chest can stop a heart.</p>
       <p><strong>Filter capacitors store the charge — and hold it.</strong> To smooth the
         rectified supply into steady DC, the amp charges a bank of electrolytic filter
         capacitors to the full B+. Switch off and the tubes stop drawing, but the capacitors
@@ -249,9 +249,15 @@ const RULES = [
       <strong>Discharge through a resistor, not a screwdriver.</strong> Shorting a charged
       filter cap with a bare blade throws a violent spark, pits the tool and the cap's
       terminals, and stresses the capacitor — and it teaches the wrong reflex. A resistor of
-      about 1 kΩ to 50 kΩ, a few watts, on insulated leads, bleeds the same charge away in a
-      second or two with no drama. Then <em>verify with the meter</em>: the discharge is only
-      done when the meter, on that cap, reads a few volts or less.
+      about 1 kΩ to 50 kΩ, a few watts, on insulated leads, bleeds the same charge away with
+      no drama — but not instantly. The time scales with resistance times capacitance:
+      50 kΩ across a 40 µF node has a time constant of 2 seconds, and falling from 450 V to
+      5 V takes about four and a half time constants, roughly 9 seconds; a 100 µF node takes
+      over 20. Hold the resistor on for a generous count, then <em>verify with the meter</em>:
+      the discharge is only done when the meter, on that cap, reads a few volts or less.
+      An electrolytic can also creep back up by a few volts after it has been discharged,
+      as charge soaked into its dielectric returns — so re-measure before reaching in after
+      any pause, and many technicians clip a bleed lead across the node while they work.
     </div>
 
     <p class="cite">The procedure is the one given in every reputable amp-repair text and
@@ -360,9 +366,10 @@ const RULES = [
       <figure class="dc-panel safe">
         <figcaption><span class="dc-tag good">Modern practice — three-wire cord</span></figcaption>
         <svg viewBox="0 0 340 240" role="img" aria-labelledby="dc-b-title">
-          <title id="dc-b-title">A three-wire grounded mains cord: line and neutral feed the
-            power transformer through the fuse and switch, and the earth conductor bonds
-            directly to the chassis. The death cap and ground switch are removed.</title>
+          <title id="dc-b-title">A three-wire grounded mains cord: the line (hot) conductor
+            reaches the power transformer through the fuse and the power switch, the neutral
+            runs straight to the transformer, and the earth conductor bonds directly to the
+            chassis. The death cap and ground switch are removed.</title>
           <!-- three-wire plug -->
           <rect x="16" y="64" width="26" height="66" rx="4" class="dc-plug" />
           <line x1="42" y1="76" x2="90" y2="76" class="dc-wire live" />
@@ -421,8 +428,11 @@ const RULES = [
         how it earned its name.</p>
       <p><strong>The fix everyone agrees on.</strong> Remove the death cap and the ground
         switch entirely, and replace the two-wire cord with a modern three-wire grounded cord:
-        line and neutral to the fuse, switch, and power transformer as before, and the third
-        (green) earth conductor bonded directly to the chassis at a solid ground point. The
+        the line (hot) conductor through the fuse and then the power switch to the power
+        transformer, the neutral straight to the transformer, and the third (green) earth
+        conductor bonded directly to the chassis at a solid ground point. The fuse and switch
+        belong in the line conductor only: fused or switched in the neutral, a blown fuse or
+        an open switch leaves the transformer primary connected to the live line. The
         chassis is then held at earth potential by the mains ground, not floated through a
         capacitor, and any fault trips the breaker instead of energising the chassis. Adding a
         proper earth is not enough on its own — the cap and switch come out. This is the
