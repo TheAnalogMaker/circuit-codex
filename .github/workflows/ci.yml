@@ -185,6 +185,10 @@ jobs:
         working-directory: site
       - run: node scripts/check-lineage-caption.mjs
         working-directory: site
+      # Checks on the built dist/ that no source-level test can see: feed links
+      # that resolve to the entry they name.
+      - run: node --test scripts/check-built-site.mjs
+        working-directory: site
       # The bench calculators and the resistor color-code tool share one reader
       # for 4k7 / 1M / 0.02mfd. A second copy is how "MFD" (the units guide's
       # own word for µF) was refused as a negative.
