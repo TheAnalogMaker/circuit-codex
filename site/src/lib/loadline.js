@@ -14,6 +14,14 @@
 // Units in this module are SI at the boundary — volts, ohms, amps — except where a
 // name says otherwise. Model equations: N. Koren, "Improved vacuum-tube models for
 // SPICE simulations", Glass Audio 8(5), 1996 (published methodology).
+//
+// Koren's equations as usually distributed multiply the plate-current term by
+// (1 + sgn E1) — PWR(E1,EX)+PWRS(E1,EX) in his SPICE files, a factor of two
+// whenever the tube conducts. The corpus form uses uramp(E1)^EX / KG1 instead,
+// and its fit absorbs that two into KG1. The fits are self-consistent (the
+// 12AX7 file returns 1.200 mA, 1600 µmho at its 250 V / −2 V anchor), but a KG1
+// from a published Koren parameter set is NOT interchangeable with one here:
+// use each set with its own form.
 
 /** ln(1 + e^z), overflow-safe — ngspice evaluates ln(1+exp(z)) in doubles. */
 export function softplus(z) {

@@ -285,7 +285,10 @@ const description =
       archive's own tube models — the same CC0 files
       <a href={`${GITHUB}/blob/main/models/METHODOLOGY.md`}>fitted to published datasheet
       anchor points</a> and handed to ngspice when a circuit's operating point is verified.
-      Each model's anchor is listed below.</p>
+      Each model's anchor is listed below. The equations take Koren's form without the
+      factor of two his own SPICE files carry on the plate-current term; each fit absorbs
+      it into K<sub>G1</sub>, so these parameters are not interchangeable with published
+      Koren parameter sets — use each with its own equations.</p>
     <div class="tbl"><table>
       <thead><tr><th>Tube</th><th>Form</th><th>Fitted to</th><th>Max plate dissipation</th></tr></thead>
       <tbody>
