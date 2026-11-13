@@ -174,6 +174,22 @@ const ldBlocks = [
   /* On a phone the field takes a row of its own rather than sitting beside
      whichever link happened to wrap last. */
   @media(max-width:599px){.nav-search{flex-basis:100%}}
+  /* Touch targets: on a coarse pointer every header and footer link is at least
+     44px tall (they were 20px), and the search field is 16px text so iOS Safari
+     does not zoom the page when it takes focus. On a phone the five section
+     links share one row; GitHub stays in the footer ("Corpus repo"). */
+  @media(pointer:coarse){
+    .nav-in>a,.nav-links a,footer .row a{display:inline-flex;align-items:center;min-height:44px}
+    .nav-links{row-gap:0}
+    .nav-search input{font-size:16px;padding:9px 14px}
+    footer .row{row-gap:0}
+    input:not([type=range],[type=checkbox],[type=radio]),select,textarea{font-size:max(16px,1em)}
+  }
+  @media(max-width:599px){
+    .nav-in{row-gap:4px}
+    .nav-links{column-gap:14px;letter-spacing:.12em}
+    .nav-links .nav-gh{display:none}
+  }
   .nav-search input::placeholder{color:var(--faint);font-family:var(--disp);font-size:12px;letter-spacing:.1em;text-transform:uppercase}
   .nav-search input:focus{outline:2px solid var(--amber);outline-offset:2px;border-color:var(--amber-dim)}
   h1,h2,h3{font-family:var(--disp);text-transform:uppercase;font-weight:600;letter-spacing:.06em;text-wrap:balance}
@@ -209,7 +225,7 @@ const ldBlocks = [
     <a href="/lineage/">Lineage</a>
     <a href="/reference/">Reference</a>
     <a href="/about/">About</a>
-    <a href={GITHUB}>GitHub</a>
+    <a class="nav-gh" href={GITHUB}>GitHub</a>
     <form class="nav-search" action="/search/" method="get" role="search">
       <input type="search" name="q" placeholder="Search" aria-label="Search the archive" enterkeyhint="search" autocomplete="off" />
     </form>
