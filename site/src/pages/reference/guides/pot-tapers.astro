@@ -86,9 +86,9 @@ const nUnmarked = pots.filter((p) => p.taper === 'Not marked').length;
     <a class="back" href="/reference/">← Reference</a>
     <div class="eyebrow">Practical guide</div>
     <h1>Potentiometer taper: audio vs. linear</h1>
-    <p class="lede">Turn a linear pot a quarter-turn and hardly anything happens; turn
-      the last quarter-turn and the level rockets past comfortable. That is not a
-      broken control — it is the wrong taper. Two curves relate a potentiometer's
+    <p class="lede">Use a linear pot as a volume control and the first quarter-turn
+      does nearly everything — the level leaps up off zero — while the rest of the
+      travel barely changes it. That is not a broken control — it is the wrong taper. Two curves relate a potentiometer's
       shaft rotation to the resistance it presents, and which one sits under a given
       knob decides whether it feels smooth or feels broken.</p>
   </header>
@@ -180,11 +180,12 @@ const nUnmarked = pots.filter((p) => p.taper === 'Not marked').length;
         roughly to the <em>logarithm</em> of sound power, a relationship known as the
         <a href="https://en.wikipedia.org/wiki/Weber%E2%80%93Fechner_law" rel="external nofollow">Weber–Fechner law</a>.
         Wire a volume pot with a linear taper and the electrical output rises evenly
-        with rotation, but the perceived loudness does not: because the ear's
-        sensitivity itself falls off logarithmically, a linear pot crowds almost all
-        of the <em>audible</em> change into roughly the last quarter of the shaft's
-        travel. The first three-quarters of the knob feels like it is barely doing
-        anything, and then the volume takes off all at once near the top.</p>
+        with rotation, but the perceived loudness does not. In decibels, a linear
+        divider is at −12 dB a quarter of the way round, −6 dB at half, and −2.5 dB at
+        three-quarters: almost all of the <em>audible</em> change is crowded into the
+        first quarter of the shaft's travel, and the last quarter adds only about
+        2.5 dB. The volume leaps up off the bottom of the dial, and the top half of the
+        knob feels like it is barely doing anything.</p>
       <p>An audio (logarithmic) taper pot pre-distorts the resistance curve to
         cancel that effect, so that a given amount of shaft rotation produces
         roughly the same <em>felt</em> change in loudness whether the knob starts at
@@ -286,7 +287,7 @@ const nUnmarked = pots.filter((p) => p.taper === 'Not marked').length;
         convention its maker used: modern US/Asian practice reads
         <strong>A = log (audio), B = linear</strong>, while the older code some
         European manufacturers used reads <strong>A = linear</strong>, with log
-        marked <strong>B or C</strong> instead — and the exact code still varies by
+        marked <strong>C</strong> instead — and the exact code still varies by
         manufacturer even within those groups. This is exactly the ambiguity every
         BOM entry in this corpus sidesteps by spelling out "Audio-taper" or "Linear"
         in English rather than reproducing a single stamped letter. It is also why a
