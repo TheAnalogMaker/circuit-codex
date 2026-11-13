@@ -44,5 +44,5 @@ items:
   - { ref: V3,  part: "Power tube",           value: "6V6GT",          role: "Push-pull output (upper)" }
   - { ref: V4,  part: "Power tube",           value: "6V6GT",          role: "Push-pull output (lower)" }
   - { ref: V5,  part: "Rectifier tube",       value: "5Y3GT",          role: "Full-wave rectifier (V5A/V5B)" }
-  - { ref: T2,  part: "Output transformer",   value: "8 kΩ : 8 Ω",     role: "Push-pull output" }
+  - { ref: T2,  part: "Output transformer",   value: "≈8 kΩ : 8 Ω",    role: "Push-pull output (the schematic letters the extra-speaker jack \"8-Ω\"; neither page prints the primary impedance — ≈8 kΩ is a typical 6V6 push-pull load)" }
   - { ref: "—", part: "Power transformer",    value: "325-0-325 V · 6.3 V · 5 V", role: "HT + heaters + rectifier filament" }

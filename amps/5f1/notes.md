@@ -12,7 +12,7 @@ Two input jacks, each through its own 68k grid stopper (a 1M leak from jack 1's 
 unbypassed on the drawing, as is V1B's) → 0.02 µF coupling → 1M audio volume pot → **V1B** (12AX7, 100k plate,
 1.5k cathode) → 0.02 µF coupling → **V2** 6V6GT (cathode-biased, 470 Ω 5 W,
 220k grid leak) → single-ended output transformer (≈5 kΩ : 8 Ω, typical for a single-ended 6V6;
-the drawing doesn't mark it) → speaker.
+neither page marks the transformer's impedance or the speaker's — both figures are assumptions) → speaker.
 Negative feedback: 22k from the speaker jack into V1B's cathode (at DC this
 parallels the 1.5k through the secondary's near-zero DCR).
 

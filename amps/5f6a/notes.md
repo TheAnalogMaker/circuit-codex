@@ -20,7 +20,8 @@ TMB tone stack (56k slope, 250 pF treble, 0.02 µF caps; 250k/1M/25k pots) →
 tail, both 1M grid leaks returned to the tail junction, 47 pF across the
 plates →
 0.1 µF couplers → **5881 pair**, fixed-biased at −48 V through 220k leaks,
-**470 Ω 1W screen resistors** → 2 Ω output (four 8 Ω speakers), with 27 kΩ of
+**470 Ω 1W screen resistors** → the 45249 output transformer into four speakers in parallel
+(2 Ω if each is 8 Ω — neither page prints an impedance), with 27 kΩ of
 negative feedback returning to the foot of the phase-inverter tail — the far
 end of its 10k, which is not grounded — alongside the 5 kΩ presence pot's
 track and the second grid's 0.1 µF.
@@ -64,8 +65,8 @@ its sheets draw.
 ## What the revision changed
 
 Both drawings print the same rails (+432/+430/+385/+325), the same −48 V bias
-and the same transformer set (8087 power, 14684 choke, 45249 output into a 2 Ω
-secondary), so the differences from the [5F6](/amps/5f6/) are narrow and
+and the same transformer set (8087 power, 14684 choke, 45249 output; neither page
+prints the output transformer's impedance), so the differences from the [5F6](/amps/5f6/) are narrow and
 specific:
 
 - **Rectifier.** The 83 mercury-vapour tube gives way to the GZ34.

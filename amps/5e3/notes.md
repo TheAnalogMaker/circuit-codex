@@ -16,7 +16,8 @@ pots, whose grounded ends and joined grid ends make the interactive pair →
 **V2A** 12AX7 (100k plate, 1.5k bypassed cathode) → coupling cap (value not
 legible on the drawing) → **V2B cathodyne phase inverter** → 0.1 µF couplers →
 **V3/V4** 6V6GT pair (220k grid leaks, 1.5k stoppers, shared 250 Ω 5W
-bypassed cathode) → 8 kΩ : 8 Ω output transformer.
+bypassed cathode) → output transformer (8 Ω secondary, as the schematic's "EXTRA 8-Ω SPKR."
+jack implies; the ≈8 kΩ primary is a typical 6V6 push-pull figure, not printed on either page).
 
 ## The volume and tone network
 
