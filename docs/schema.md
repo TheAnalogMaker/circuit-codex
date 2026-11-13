@@ -19,7 +19,7 @@ Schema will stabilize at the end of Phase 0 (pilot: 5f1, 5e3, 5f6a).
 | `topology.tone_stack` | string | ✓ | `single-knob` · `fmv` · `james` · `cathode-follower-fmv` · … |
 | `lineage.derived_from` | list of ids | — | Direct circuit ancestors (solid edges in the graph) |
 | `lineage.influenced` | list of ids | — | Looser influence (dashed edges) |
-| `sources` | list of `{desc, url}` | ✓ | Where the circuit facts came from (published charts, dated revisions, measurements) — cite and link; `url` optional only when no canonical link exists. Never "traced from factory drawing" |
+| `sources` | list of `{desc, url}` | ✓ | Where the circuit facts came from (published charts, dated revisions, measurements) — cite and link; `url` optional only when no canonical link exists. Never "traced from factory drawing". Write each `desc` in the citation format in [docs/STYLE.md](STYLE.md#citation-format-for-sources): `Publisher, "Title as printed" (drawing code, date). What this source supplies.` plus any caveat a reader needs |
 | `verification.status` | enum | ✓ | `draft` · `verified` — contributors leave this `draft`. **Only a maintainer sets `verified`, and only after the gates pass.** CI can block a claim; it can never grant one. |
 | `verification.date` | date | when verified | |
 | `verification.max_deviation_pct` | number | when verified | Worst node deviation, simulated vs published chart |

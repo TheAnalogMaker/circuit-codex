@@ -16,7 +16,8 @@ lineage:
   derived_from: []         # circuit ids
   influenced: []
 sources: []                # list of {desc, url} — cite AND link every claim source
-                           # e.g. - desc: "Published X chart — values read from the drawing"
+                           # desc follows the citation format in docs/STYLE.md:
+                           # e.g. - desc: 'Fender, "Harvard" Model 5F10 schematic and layout (drawing code F-EF). Supplies every component value and the printed voltage chart.'
                            #        url: "https://..."
 verification:
   status: draft            # draft | verified — leave draft. A maintainer sets verified only after the gates pass
