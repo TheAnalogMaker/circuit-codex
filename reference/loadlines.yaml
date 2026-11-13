@@ -127,8 +127,9 @@ stages:
   grid_supply_basis: cathode-bias
   grid_supply_note: null
   ot_primary_z: 8000.0
-  ot_primary_approx: false
-  ot_primary_note: '8 kΩ : 8 Ω — Push-pull output'
+  ot_primary_approx: true
+  ot_primary_note: '≈8 kΩ : 8 Ω — Push-pull output (the schematic letters the extra-speaker jack "8-Ω";
+    neither page prints the primary impedance — ≈8 kΩ is a typical 6V6 push-pull load)'
   sim_ip_ma: 37.766
   sim_ig2_ma: 3.1453
 - amp: '5e4a'
@@ -233,8 +234,8 @@ stages:
   grid_supply_note: null
   ot_primary_z: 5000.0
   ot_primary_approx: true
-  ot_primary_note: '≈5 kΩ : 8 Ω — Single-ended output (impedance not marked on the drawing; typical SE
-    6V6 load)'
+  ot_primary_note: '≈5 kΩ : 8 Ω — Single-ended output (neither page prints a primary or secondary impedance,
+    or the speaker''s; ≈5 kΩ is a typical SE 6V6 load and 8 Ω an assumed speaker)'
   sim_ip_ma: 35.3028
   sim_ig2_ma: 3.0555
 - amp: '5f10'
@@ -367,7 +368,8 @@ stages:
   grid_supply_note: null
   ot_primary_z: null
   ot_primary_approx: false
-  ot_primary_note: Fender 45249 · 2 Ω secondary — Push-pull output into four 8 Ω speakers
+  ot_primary_note: Fender 45249 — Push-pull output into four speakers in parallel (neither page prints
+    an impedance; 2 Ω is the parallel sum of four 8 Ω speakers, not a drawing figure)
   sim_ip_ma: 29.5368
   sim_ig2_ma: 0.9647
 - amp: '5f8a'
