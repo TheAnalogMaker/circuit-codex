@@ -1,5 +1,5 @@
 ---
-const { title, description, jsonld, breadcrumbs, ogType = 'website', ogImage: card, ogImageAlt } = Astro.props;
+const { title, description, jsonld, breadcrumbs, ogType = 'website', ogImage: card, ogImageAlt, noindex = false } = Astro.props;
 import { GITHUB, breadcrumbJsonLd } from '../lib/corpus.js';
 
 // Absolute URLs for canonical + social cards (Astro.site = https://circuitcodex.com).
@@ -65,7 +65,9 @@ const ldBlocks = [
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>{title}</title>
 <meta name="description" content={description} />
-<link rel="canonical" href={canonical} />
+{noindex
+  ? <meta name="robots" content="noindex" />
+  : <link rel="canonical" href={canonical} />}
 <link rel="sitemap" href="/sitemap-index.xml" />
 <link rel="alternate" type="application/rss+xml" title="Circuit Codex — new circuits &amp; studies" href="/feed.xml" />
 <link rel="alternate" type="application/rss+xml" title="Circuit Codex — corrections" href="/corrections.xml" />
@@ -73,7 +75,7 @@ const ldBlocks = [
 <meta property="og:type" content={ogType} />
 <meta property="og:title" content={title} />
 <meta property="og:description" content={description} />
-<meta property="og:url" content={canonical} />
+{!noindex && <meta property="og:url" content={canonical} />}
 <meta property="og:image" content={ogImage} />
 <meta property="og:image:width" content="1200" />
 <meta property="og:image:height" content="630" />
