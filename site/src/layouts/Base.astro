@@ -122,6 +122,12 @@ const ldBlocks = [
   a{color:var(--amber);text-decoration:none}
   a:hover,a:focus-visible{text-decoration:underline}
   :focus-visible{outline:2px solid var(--amber);outline-offset:2px;border-radius:2px}
+  /* Skip link: first stop for a keyboard user, off-screen until focused. */
+  .skip{position:absolute;left:12px;top:-60px;z-index:20;padding:10px 16px;border-radius:6px;
+    background:var(--panel);border:1px solid var(--amber-dim);font-family:var(--disp);
+    text-transform:uppercase;letter-spacing:.12em;font-size:13px}
+  .skip:focus{top:10px}
+  main:focus{outline:none}
   /* The header is one row on a wide screen and stays pinned there; below 1024px
      it wraps into brand / links / search rows and is NOT sticky — a pinned
      three-row header cost a phone a third of every screen. The pinned bar is
@@ -188,6 +194,7 @@ const ldBlocks = [
 </style>
 </head>
 <body data-pagefind-body data-figure-page={isFigurePage ? '' : undefined}>
+<a class="skip" href="#main" data-pagefind-ignore>Skip to content</a>
 <nav data-pagefind-ignore><div class="wrap nav-in">
   <a href="/" style="text-decoration:none"><span class="brand">The Analog Maker <b>/ Circuit Codex</b></span></a>
   <div class="nav-links">
@@ -202,7 +209,7 @@ const ldBlocks = [
     </form>
   </div>
 </div></nav>
-<slot />
+<main id="main" tabindex="-1"><slot /></main>
 <footer data-pagefind-ignore><div class="wrap">
   <div class="row">
     <span>© 2026 The Analog Maker</span>
