@@ -44,7 +44,7 @@ heaters:
         return: chassis
         source: >-
           Page 1 draws the pilot lite with ONE terminal dot (crop
-          1450,850-1850,1150): exactly two leads meet on it, the GREEN feed from
+          1400,750-1950,1200): exactly two leads meet on it, the GREEN feed from
           the transformer and the lead that carries on to the first 6V6GT's pin
           7. The lamp's return through its holder to the chassis is not drawn on
           the sheet and is not drawn on this board.
@@ -54,7 +54,7 @@ heaters:
       LAYOUT / MODEL 5E4-A* / G-EE, page 2's FENDER "SUPER-AMP" SCHEMATIC /
       MODEL 5E4-A* / G-EE. Page 2 grounds one end of the lowest secondary and
       arrows the other "TO ALL 6.3 VOLT FILAMENTS AND PILOT LITE" (crop
-      3750,2550-5100,3400). On page 1 one GREEN lead and the RED-YELLOW HT
+      3800,2550-5950,3420). On page 1 one GREEN lead and the RED-YELLOW HT
       centre tap meet at a solder dot under a ground symbol (crop
       100,1150-1150,2150); the other GREEN runs to the pilot lite, and from the
       lamp's one terminal a lead swings left, drops past the board's left end
@@ -63,14 +63,16 @@ heaters:
       1380,2850-1580,3150). It is a separate lead from the one beside it that
       runs from the standby switch into the board's corner hole. Pin 7 is joined
       to the second 6V6GT's pin 7 (crops 1050,2650-1650,3250;
-      1600,2780-2120,3120), which loops under both speaker jacks to the 12AX7's
+      1000,2350-2450,3350), which loops under both speaker jacks to the 12AX7's
       pin 4 (crops 2050,2780-2450,3400; 2250,2950-3400,3420), then pin 4 to pin
       4 at the middle 12AY7 and on to the last 12AY7's pin 4, where the chain
       ends (spans in crops 3400,2600-4900,3450 and 4600,2550-6150,3450; pin
       landings in 3180,3030-3480,3330; 4280,3030-4560,3260;
-      5350,3000-5650,3250). At each of the three novals a bow outside the rim
-      ties pins 4 and 5, and pin 9 carries a short stub to its own ground symbol
-      (crops 3300,2700-3550,2900; 4380,2700-4620,2880; 5450,2650-5720,2880):
+      5350,3000-5650,3250). At each of the three novals an arc drawn inside the
+      socket rim, forming a lens with it, ties pins 4 and 5 (crops
+      3180,3030-3480,3330; 4280,3030-4560,3260; 5350,3000-5650,3250), and pin 9
+      carries a short stub to its own ground symbol (crops 3300,2700-3550,2900;
+      4380,2700-4620,2880; 5450,2650-5720,2880):
       the 6.3 V parallel grouping. At each 6V6GT pins 2, 1 and 8 are bowed
       together and pin 2 runs to a ground symbol (crop 1000,2350-2450,3350), so
       each socket returns to chassis on its own. The sheet shows no twisting and no lead dress, and the
@@ -88,7 +90,7 @@ heaters:
     source: >-
       Page 2 runs both leads of the top secondary to the 5U4GA's filament, one
       of them also leaving as the B+ line, and puts no ground symbol on that
-      winding (crop 3750,2550-5100,3400). Page 1 lands the two YELLOW leads on
+      winding (crop 3800,2550-5950,3420). Page 1 lands the two YELLOW leads on
       pins 2 and 8 — the left-hand lettered YELLOW curving under the socket to
       pin 2, the right-hand one to pin 8 — with a second lead leaving pin 8 and
       no ground at either pin (crops 150,2300-1150,3300; 300,2500-1100,3300). The filament carries the rectified B+, so
@@ -100,7 +102,7 @@ board:
   rows: 2
   cols: 51
   title: "5E4-A · eyelet board layout"
-caption: "Redrawn from the published Fender 5E4-A 'Super-Amp' layout drawing (G-EE), page 1 — principal board components and their hookup, in the order the drawing shows them. The chassis has four input jacks (two per channel); each jack has its own 68 kΩ grid stopper, as the drawing's board carries four (R1s and R3s for the Instrument jacks, R2s and R4s for the Mic jacks), the two of a channel joined at its grid; the two 1 MΩ input leaks (RG1, RG2) mount at each channel's jack 1 as the sheet shows, and the jack-normalling contacts have no board terminal and are not drawn. The tone network is wired as the sheet draws it: the 250 pF treble cap, 0.1 µF bass coupler and its 220 kΩ leak sit on the board; the 0.01 µF (C6) hangs at the treble pot and the 0.005 µF (C7) at the bass pot, whose other end lug is grounded to its case; the bass branch lands on the bass pot's WIPER, and the second 220 kΩ (RSR) is strung pot-to-pot from the bass wiper to the treble wiper, whose lead alone carries the output to the phase inverter. The 5 kΩ presence pot is wired as the layout sheet draws it: a rheostat from the driver's cathode, its far lug strapped to the wiper, with the 0.1 µF from that lug to chassis mounted at the pot. The 56 kΩ negative-feedback resistor (which also lands at the driver's cathode), the 100 pF bright cap, and the two AC-line caps are chassis wiring drawn schematically or off the board. The negative-bias supply takes the power transformer's own bias tap — the red-blue lead — onto the 18 kΩ, which feeds the selenium rectifier beside the board; the rectifier's other terminal is the −32 V line, the order the drawing shows. The power-transformer primary (black) lands on chassis switches, off the board; the 6.3 V heater supply is single-ended, as both sheets draw it: one green transformer lead is grounded with the red-yellow HT centre tap, and the other feeds the pilot lamp and then one green conductor on to the two 6V6GT output tubes (pin 7 to pin 7), the 12AX7 phase inverter and the two 12AY7s (pin 4 to pin 4). Each socket returns to ground on its own: the 6V6GTs at pin 2, and the three novals with pins 4+5 strapped for 6.3 V parallel and the centre tap at pin 9 to ground. The pilot lamp is drawn with the single terminal the sheet gives it, the feed passing through on its way to the heaters; its return is the lamp's own shell to the chassis. The sheet draws no twisting or lead dress. The directly-heated 5U4GA rectifier runs off the 5 V winding, not the 6.3 V chain. Not a trace or a dimensioned reproduction."
+caption: "Redrawn from the published Fender 5E4-A 'Super-Amp' layout drawing (G-EE), page 1 — principal board components and their hookup, in the order the drawing shows them. The chassis has four input jacks (two per channel); each jack has its own 68 kΩ grid stopper, as the drawing's board carries four (R1s and R3s for the Instrument jacks, R2s and R4s for the Mic jacks), the two of a channel joined at its grid; the two 1 MΩ input leaks (RG1, RG2) mount at each channel's jack 1 as the sheet shows, and the jack-normalling contacts have no board terminal and are not drawn. The tone network is wired as the sheet draws it: the 250 pF treble cap, 0.1 µF bass coupler and its 220 kΩ leak sit on the board; the 0.01 µF (C6) hangs at the treble pot and the 0.005 µF (C7) at the bass pot, whose other end lug is grounded to its case; the bass branch lands on the bass pot's WIPER, and the second 220 kΩ (RSR) is strung pot-to-pot from the bass wiper to the treble wiper, whose lead alone carries the output to the phase inverter. The 5 kΩ presence pot is wired as the layout sheet draws it: a rheostat from the driver's cathode, its far lug strapped to the wiper, with the 0.1 µF from that lug to chassis mounted at the pot. The 56 kΩ negative-feedback resistor (which also lands at the driver's cathode), the 100 pF bright cap, and the two AC-line caps are chassis wiring drawn schematically or off the board. The negative-bias supply takes the power transformer's own bias tap — the red-blue lead — onto the 18 kΩ, which feeds the selenium rectifier beside the board; the rectifier's other terminal is the −32 V line, the order the drawing shows. The power-transformer primary (black) lands on chassis switches, off the board; the 6.3 V heater supply is single-ended, as both sheets draw it: one green transformer lead is grounded with the red-yellow HT centre tap, and the other feeds the pilot lamp and then one green conductor on to the two 6V6GT output tubes (pin 7 to pin 7), the 12AX7 phase inverter and the two 12AY7s (pin 4 to pin 4). Each socket returns to ground on its own: the 6V6GTs at pin 2, and the three novals with pins 4+5 strapped for 6.3 V parallel and the centre tap at pin 9 to ground. The sheet draws the pilot lamp with a single terminal, the feed passing through it on its way to the heaters; only that lug is wired here (the lamp glyph's second lug is left unconnected), and the lamp's return is not drawn on the sheet. The sheet draws no twisting or lead dress. The directly-heated 5U4GA rectifier runs off the 5 V winding, not the 6.3 V chain. Not a trace or a dimensioned reproduction."
 source:
   desc: "Fender 'Super-Amp' Model 5E4-A layout drawing (G-EE), page 1 — the factory's own board sheet, printing part values, the tube row and a second set of measured voltages (+245 at the cathodyne plate, +190 at the driver plate, +250 at the preamp can, +130 at the cathode follower, +125 at each 12AY7 plate, +1.9 at both cathode cans, -32 at the bias filter)"
   url: "https://el34world.com/charts/Schematics/files/Fender/Fender_super_5e4a.pdf"
@@ -245,6 +247,9 @@ bus:
 # waypoints are [col, row]; row<0 routes above the board, row>1 below it.
 runs:
   # --- power transformer secondary -> 5U4G rectifier (marked colours) --------
+  # 2026-11-13: the red-yellow and both yellow leads' `via` points were
+  # re-routed around the re-stacked PT pigtails (green1/green2); their
+  # endpoints are unchanged, so this is drawing geometry only.
   - { from: PT.red1, to: V6.pin4, via: [[2.1, 0.5], [2.5, 1.7]] }                 # HT plate 1
   - { from: PT.red2, to: V6.pin6, via: [[2, 0.85], [3.55, 1.45]] }                 # HT plate 2
   - { from: PT.red-yellow, to: [1.45, 2], via: [[0.35, 0.55]] }         # HT centre tap -> ground bus
