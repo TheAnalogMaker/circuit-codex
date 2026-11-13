@@ -108,3 +108,58 @@ test('replacing or clearing a comparison drops old family values and restores th
   assert.equal(referenceSetting(state).pos.treble, 1);
   assert.equal(referenceSetting(state).pos.bass, 1);
 });
+
+// ---- url-sync: the labs' address writer (src/lib/url-sync.js) --------------
+import { urlSync } from '../src/lib/url-sync.js';
+
+function fakeClock() {
+  let now = 0, next = 1;
+  const timers = new Map();
+  return {
+    setTimer: (fn, ms) => { const id = next++; timers.set(id, { fn, at: now + ms }); return id; },
+    clearTimer: (id) => timers.delete(id),
+    advance(ms) {
+      now += ms;
+      for (const [id, t] of [...timers]) if (t.at <= now) { timers.delete(id); t.fn(); }
+    },
+  };
+}
+
+test('a burst of control changes writes the address once, with the last setting', () => {
+  const clock = fakeClock();
+  const writes = [];
+  let value = 0;
+  const sync = urlSync(() => `/lab/?bass=${value}`, {
+    history: { replaceState: (_s, _t, url) => writes.push(url) }, target: {}, ...clock,
+  });
+  for (value = 0; value <= 400; value++) { sync.schedule(); clock.advance(16); }
+  value = 7.3;
+  sync.schedule();
+  assert.equal(writes.length, 0, 'nothing is written while the controls are moving');
+  clock.advance(300);
+  assert.deepEqual(writes, ['/lab/?bass=7.3']);
+});
+
+test('a throttled History API does not throw out of the lab', () => {
+  const clock = fakeClock();
+  const sync = urlSync(() => '/lab/', {
+    history: { replaceState: () => { throw new Error('SecurityError: replaceState throttled'); } },
+    target: {}, ...clock,
+  });
+  sync.schedule();
+  assert.doesNotThrow(() => clock.advance(300));
+  assert.doesNotThrow(() => sync.flush());
+});
+
+test('leaving the page inside the settle window still writes the latest setting', () => {
+  const clock = fakeClock();
+  const writes = [];
+  const handlers = {};
+  const sync = urlSync(() => '/lab/?treble=2.0', {
+    history: { replaceState: (_s, _t, url) => writes.push(url) },
+    target: { addEventListener: (type, fn) => { handlers[type] = fn; } }, ...clock,
+  });
+  sync.schedule();
+  handlers.pagehide();
+  assert.deepEqual(writes, ['/lab/?treble=2.0']);
+});

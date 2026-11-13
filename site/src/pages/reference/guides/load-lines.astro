@@ -339,6 +339,7 @@ const description =
 <script>
 import { plateCurrent, solveOperatingPoint, plateCurve, gridSteps, niceStep, seOutputEstimate }
   from '../../../lib/loadline.js';
+import { urlSync } from '../../../lib/url-sync.js';
 
 const DATA = JSON.parse(document.getElementById('ll-data').textContent);
 const MODELS = new Map(DATA.models.map((m) => [m.name, m]));
@@ -577,7 +578,7 @@ function render() {
 
   renderReadout(s, q, { dcPlate, acPlate, acR, rdc, pmax, isPent });
   renderFamilyTable(s, q, vgList, vgStep);
-  syncUrl(s);
+  address.schedule();
 }
 
 /** Clip the segment (v1,i1)-(v2,i2) to the plot box; returns 0 or 2 points. */
@@ -738,13 +739,14 @@ const PARAMS = [
   ['vg1', () => $('c-vg1').value, (v) => { $('c-vg1').value = v; }],
 ];
 
-function syncUrl(s) {
+// The address this setup is shared at, built from the controls (see url-sync.js).
+function setupUrl() {
   const u = new URLSearchParams();
   if (activePreset) u.set('preset', activePreset);
   for (const [key, get] of PARAMS) u.set(key, get());
-  const next = `${location.pathname}?${u.toString()}`;
-  history.replaceState(null, '', next);
+  return `${location.pathname}?${u.toString()}`;
 }
+const address = urlSync(setupUrl);
 
 function readUrl() {
   const u = new URLSearchParams(location.search);
@@ -830,11 +832,13 @@ document.getElementById('ll-presets').addEventListener('click', (e) => {
 
 $('c-copy').addEventListener('click', async () => {
   const btn = $('c-copy');
+  address.flush();
+  const href = new URL(setupUrl(), location.href).href;
   try {
-    await navigator.clipboard.writeText(location.href);
+    await navigator.clipboard.writeText(href);
     btn.textContent = 'Link copied';
   } catch {
-    btn.textContent = location.href;
+    btn.textContent = href;
   }
   setTimeout(() => { btn.textContent = 'Copy link to this setup'; }, 2200);
 });

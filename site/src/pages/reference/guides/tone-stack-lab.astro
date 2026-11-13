@@ -544,6 +544,7 @@ const description = 'An interactive frequency-response lab for the passive tone 
     CONTROLS, readLabState, writeLabState, selectLabPreset, pinLabComparison,
     referenceSetting, labCurvePaths,
   } from '../../../lib/tonestack-state.js';
+  import { urlSync } from '../../../lib/url-sync.js';
 
   const el = (id) => document.getElementById(id);
   const dataNode = el('ts-data');
@@ -577,6 +578,13 @@ const description = 'An interactive frequency-response lab for the passive tone 
     const copyUrl = el('ts-copy-url');
 
     let state = readLabState(location.search, PRESETS);
+    // The address this setting is shared at, built from state (see url-sync.js).
+    const stateUrl = () => {
+      const url = new URL(location.href);
+      url.search = writeLabState(state, url.search).toString();
+      return url;
+    };
+    const address = urlSync(stateUrl);
     picker.disabled = false;
     for (const button of [pin, reset, copy]) button.disabled = false;
     el('lab').classList.add('is-interactive');
@@ -670,9 +678,7 @@ const description = 'An interactive frequency-response lab for the passive tone 
       hover.textContent = 'Point at the chart to read a frequency.';
       copyStatus.textContent = '';
       copyFallback.hidden = true;
-      const url = new URL(location.href);
-      url.search = writeLabState(state, url.search).toString();
-      history.replaceState(null, '', url);
+      address.schedule();
     }
 
     function selectPreset(id) {
@@ -697,9 +703,9 @@ const description = 'An interactive frequency-response lab for the passive tone 
       pin.focus();
     });
     reset.addEventListener('click', () => { state = selectLabPreset(state, state.preset); render(); });
-    window.addEventListener('popstate', () => { state = readLabState(location.search, PRESETS); render(); });
     copy.addEventListener('click', async () => {
-      const url = new URL(location.href);
+      address.flush();
+      const url = stateUrl();
       url.hash = 'lab';
       try {
         await navigator.clipboard.writeText(url.href);

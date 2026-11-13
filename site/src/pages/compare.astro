@@ -92,7 +92,6 @@ const pairUrl = (a, b) => `/compare/?left=${a}&right=${b}`;
     try { await navigator.clipboard.writeText(location.href); document.getElementById('copy-result').textContent = 'Link copied.'; }
     catch { document.getElementById('copy-result').textContent = 'Copy the address from your browser to share this comparison.'; }
   });
-  window.addEventListener('popstate', () => { selection = comparisonSelection(location.search, ids); show(); });
   show();
 </script>
 <style>
