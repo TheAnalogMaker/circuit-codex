@@ -15,6 +15,9 @@ const pending = families.flatMap((f) => f.amps).filter((a) => reviewPending(a)).
 const verifiedLabel = pending === 0 ? 'verified'
   : pending === stats.verified ? 'verified · all awaiting re-review'
   : `verified · ${pending} awaiting re-review`;
+// In-page anchor for each line, for the jump control a phone uses instead of
+// scrolling past every card.
+const famAnchor = (f) => `line-${f.key.replace(/^[a-z]+:/, '').replace(/[^a-z0-9]+/gi, '-').toLowerCase()}`;
 
 // Section subtitle: the era style(s) the group's circuits record, the years they span,
 // and how many are documented — omitting any part the data doesn't carry.
@@ -116,8 +119,14 @@ const itemList = {
     {pending > 0 && <p class="status-note">A <span class="chip v">verified · re-review pending</span> circuit
       was verified on the date shown on its page; changes since then are awaiting maintainer
       re-review. <a href="/about/#verified">What verified means</a>.</p>}
+    <label class="fam-jump" hidden>Jump to line
+      <select>
+        <option value="">Choose a line…</option>
+        {families.map((f) => <option value={famAnchor(f)}>{f.title}</option>)}
+      </select>
+    </label>
     {families.map((f) => (
-      <div class="fam">
+      <div class="fam" id={famAnchor(f)}>
         <div class="fam-head">
           <h3>{f.href ? <a href={f.href}>{f.title}</a> : f.title}</h3>
           <div class="fam-meta">{famMeta(f)}</div>
@@ -169,6 +178,20 @@ const itemList = {
         if (url.href !== location.href) history.replaceState(null, '', url);
       }
 
+      // Jump-to-line: shown only where script runs (it needs it), and only on a
+      // narrow screen (CSS), where the grid is a long single column.
+      const jump = root.querySelector('.fam-jump');
+      if (jump) {
+        jump.hidden = false;
+        jump.querySelector('select').addEventListener('change', function () {
+          const target = this.value && document.getElementById(this.value);
+          if (!target) return;
+          if (target.hidden) apply('all');
+          target.scrollIntoView();
+          const h = target.querySelector('h3 a, h3');
+          if (h) { h.setAttribute('tabindex', '-1'); h.focus({ preventScroll: true }); }
+        });
+      }
       const initial = new URLSearchParams(location.search).get('status');
       apply(initial === 'verified' || initial === 'draft' ? initial : 'all');
       root.addEventListener('click', function (e) {
@@ -227,4 +250,24 @@ const itemList = {
   .lede-2{font-size:15px;margin-top:-4px}
   .status-note{color:var(--muted);font-size:13.5px;margin:-8px 0 20px;max-width:70ch}
   .status-note .chip{font-size:10.5px}
+  .fam-jump{display:none}
+  .fam{scroll-margin-top:12px}
+  /* A phone shows one card per row: 41 full cards ran the page to ~12,000px.
+     Below 600px each circuit is a compact row (code, name and wattage, status);
+     the valve list and era chips stay on the circuit page, one tap away. */
+  @media(max-width:599px){
+    .corpus-filter .chip{min-height:44px;padding:0 16px}
+    .fam-jump:not([hidden]){display:flex;flex-direction:column;gap:6px;margin:0 0 20px;
+      font-family:var(--disp);text-transform:uppercase;letter-spacing:.12em;font-size:12px;color:var(--muted)}
+    .fam-jump select{font:16px var(--body);text-transform:none;letter-spacing:0;color:var(--ink);
+      background:var(--well);border:1px solid var(--line);border-radius:8px;padding:10px 12px;min-height:44px}
+    #circuits .grid{gap:8px}
+    #circuits .card{display:grid;grid-template-columns:auto 1fr;grid-template-areas:"id status" "style style";
+      align-items:center;gap:2px 12px;padding:10px 14px;min-height:44px}
+    #circuits .card .id{grid-area:id;font-size:20px}
+    #circuits .card .style{grid-area:style;margin-top:0}
+    #circuits .card .tubes{display:none}
+    #circuits .card .chips{grid-area:status;justify-self:end;margin:0;padding:0}
+    #circuits .card .chips .chip:not(.status){display:none}
+  }
 </style>
