@@ -20,6 +20,7 @@ wiring_claim: verified
 
 wire_legend:
   green: "green — output and reverb transformer leads (lettered GREEN on the sheet; not a heater)"
+  heater: "green — 6.3 V heaters (floating pair; the green-yellow centre tap grounded at the chassis)"
 
 # What the heater circuits WIRE, stated as data rather than left to be inferred
 # from pin labels (see docs/layout-schema.md, "The `heaters:` block").
