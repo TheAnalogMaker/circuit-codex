@@ -18,6 +18,9 @@
 # layer (not in netlist.cir).
 wiring_claim: verified
 
+wire_legend:
+  green: "green — output and reverb transformer leads (lettered GREEN on the sheet; not a heater)"
+
 # What the heater circuits WIRE, stated as data rather than left to be inferred
 # from pin labels (see docs/layout-schema.md, "The `heaters:` block").
 # pipeline/check_heaters.py proves each entry against the valves' datasheets and
@@ -32,10 +35,12 @@ heaters:
     grounded_leg: winding-ct
     winding_ct: TR1.green-yellow
     source: >-
-      Fender "Princeton Reverb-Amp AA1164" drawing (K-FD), D 045427 rev A, both
-      pages read from the cached renders; page 1's title block reads PRINCETON
-      REVERB-AMP AA1164 LAYOUT, sheet 2 of 2, page 2's PRINCETON REVERB-AMP
-      AA1164 SCHEMATIC, sheet 1 of 2. Page 2 draws the lowest secondary of TR1
+      Fender "Schematic & Wiring Diagram AA1164, Princeton Reverb Amp" (K-FD),
+      drawing no. D 045427 rev A, both pages read from the cached renders. Both
+      title blocks carry that same drawing title; page 1's reads SHEET 2 OF 2
+      under the header "PRINCETON REVERB-AMP AA1164" LAYOUT (crop
+      4500,3740-5700,4360), page 2's SHEET 1 OF 2 under "PRINCETON REVERB-AMP
+      AA1164" SCHEMATIC (crop 4420,3740-5520,4320). Page 2 draws the lowest secondary of TR1
       with three leads: the two ends arrowed "TO ALL 6.3V. HEATERS & PILOT
       LIGHT" and the middle lead taken to a ground arrow, with a 100 Ω resistor
       from each end lead to its own ground (crop 3750,2750-4850,3500). On page 1
@@ -81,7 +86,7 @@ board:
   rows: 2
   cols: 80
   title: "AA1164 · eyelet board layout"
-caption: "Redrawn from the published Fender AA1164 Princeton Reverb-Amp layout sheet — board components in the order the drawing shows them. The tone stack sits at the board's right end where the sheet mounts it (the 250 pF, 0.1 µF and 0.047 µF capacitors and the 100 kΩ slope), with the 6.8 kΩ leg drawn at the bass control, which the sheet grounds through the control's case; the tremolo oscillator's phase-shift network sits mid-board between the phase inverter and the reverb-recovery cathode, with the Speed control's 100 kΩ drawn at that control. The negative-bias supply is a separate small board beside the pilot lamp and is not drawn, and the input grid stoppers hang at the jacks. The supply chain is drawn the way the board carries it: each filter can shares an eyelet with the dropper it feeds, so +420 → 1 kΩ → +400 → 18 kΩ → +320 → 18 kΩ → +240 reads straight across the left end. The 6.3 V heater supply floats about its own grounded centre tap — both sheets ground the transformer's green-yellow lead, and the layout ties it to the red-yellow HT centre tap — with a 100 Ω resistor from each leg to chassis at the pilot lamp, which the sheet draws off the board and which are not drawn here. The two green leads land one on each pilot-lamp terminal and the chain is arrowed \"to all 6.3 volt heaters\" from both; it is drawn as two green conductors, one per leg, running PT → pilot lamp → the two 6V6GT output tubes → the 12AX7 tremolo/inverter → the 12AX7 reverb/mixer → the 12AT7 reverb driver → the 7025 preamp, an order that is this archive's convention, since the sheet does not route the chain (the landings — 6V6GT pins 2 and 7, novals with pins 4 and 5 strapped and the centre tap at pin 9 — are the sheet's). The 5U4GB is directly heated from the separate 5 V winding, its yellow pair on pins 2 and 8, and is off the 6.3 V chain. Not a trace or a dimensioned reproduction."
+caption: "Redrawn from the published Fender AA1164 Princeton Reverb-Amp layout sheet — board components in the order the drawing shows them. The tone stack sits at the board's right end where the sheet mounts it (the 250 pF, 0.1 µF and 0.047 µF capacitors and the 100 kΩ slope), with the 6.8 kΩ leg drawn at the bass control, which the sheet grounds through the control's case; the tremolo oscillator's phase-shift network sits mid-board between the phase inverter and the reverb-recovery cathode, with the Speed control's 100 kΩ drawn at that control. The negative-bias supply is a separate small board beside the pilot lamp and is not drawn, and the input grid stoppers hang at the jacks. The supply chain is drawn the way the board carries it: each filter can shares an eyelet with the dropper it feeds, so +420 → 1 kΩ → +400 → 18 kΩ → +320 → 18 kΩ → +240 reads straight across the left end. The 6.3 V heater supply floats about the winding's own centre tap, which is grounded. The schematic grounds the winding's middle lead; the layout letters it green-yellow and takes it to ground with the red-yellow HT centre tap. Both sheets also run a 100 Ω resistor from each heater leg to chassis. The layout mounts that pair at the pilot lamp, off the board, and it is not drawn here. The two green leads land one on each pilot-lamp terminal, and the sheet arrows the chain \"to all 6.3 volt heaters\" from both terminals rather than routing it. It is drawn as two green conductors, one per leg: power transformer → pilot lamp → the two 6V6GT output tubes → the 12AX7 tremolo/inverter → the 12AX7 reverb/mixer → the 12AT7 reverb driver → the 7025 preamp. That socket order is this archive's convention. The landings are the sheet's: 6V6GT pins 2 and 7, and on each noval pins 4 and 5 strapped with the centre tap at pin 9. The 5U4GB is directly heated from the separate 5 V winding, its yellow pair on pins 2 and 8, and is off the 6.3 V chain. Not a trace or a dimensioned reproduction."
 source:
   desc: "Fender 'Princeton Reverb-Amp AA1164' drawing no. D 045427 rev A, sheet 2 of 2 (layout)"
   url: "https://el34world.com/charts/Schematics/files/Fender/Fender_princeton_reverb_aa1164.pdf"
@@ -360,7 +365,7 @@ runs:
   - { from: TR1.green1, to: PL1.a, style: heater, via: [[-3.2, 0.499]] }
   - { from: TR1.green2, to: PL1.b, style: heater, via: [[-3.2, 0.71]] }
   - { from: PL1.a, to: V5.pin7, style: heater, via: [[-1.2, 4.2], [11, 4.2]] }
-  - { from: PL1.b, to: V5.pin2, style: heater, via: [[-3.1, 4.5]] }
+  - { from: PL1.b, to: V5.pin2, style: heater, via: [[-3.1, 4.5], [10.6, 4.5]] }
   - { from: V5.pin7, to: V6.pin7, style: heater }
   - { from: V5.pin2, to: V6.pin2, style: heater }
   - { from: V6.pin7, to: V4.pin4, style: heater }
@@ -375,11 +380,11 @@ runs:
   - { from: V2.pin4, to: V1.pin4, style: heater }
   - { from: V2.pin9, to: V1.pin9, style: heater }
   - { from: V1.pin4, to: V1.pin5, style: heater }
-  - { from: TR1.green-yellow, to: [1.45, 1.2], via: [[0.3, 1.1]] }    # heater winding centre tap → ground (with the HT centre tap on the sheet)
+  - { from: TR1.green-yellow, to: [1.45, 1.0], via: [[-1.0, 0.57], [0.28, 1.33]] }    # heater winding centre tap → ground (with the HT centre tap on the sheet)
 
   # === 5 V rectifier filament (heaters: h5) ===================================
-  - { from: TR1.yellow1, to: V7.pin2, via: [[-1.25, 0.45], [-1.25, 3.3], [1.6, 3.3]] }
-  - { from: TR1.yellow2, to: V7.pin8, via: [[-1.6, 0.513], [-1.6, 3.4], [2.6, 3.4]] }
+  - { from: TR1.yellow1, to: V7.pin2, via: [[-1.25, 0.66], [-1.25, 3.3], [1.6, 3.3]] }
+  - { from: TR1.yellow2, to: V7.pin8, via: [[-1.6, 0.72], [-1.6, 3.4], [2.6, 3.4]] }
 
 # net_map — reviewable reconciliation of the drawn wiring with the DC netlist
 # (netlist.cir) for pipeline/verify_layout_nets.py. See docs/layout-schema.md.
@@ -428,4 +433,4 @@ net_map:
 scope:
   not_drawn:
     - { match: "R1[ab]", why: "68 kΩ input grid stoppers — the AA1164 layout hangs both from the Instruments jack lugs beside the 1 MΩ leak, at the jacks and not on the eyelet board" }
-    - { match: "RH[12]", why: "100 Ω heater hum-balance pair — drawn at the pilot light on the layout, one from each heater lead to chassis ground, off the board; the heater return the board draws is the grounded green-yellow centre tap both sheets show" }
+    - { match: "RH[12]", why: "100 Ω heater hum-balance pair — drawn at the pilot light on the layout, one from each heater lead to chassis ground, off the board; the heater return the board draws is the winding's grounded centre tap, which both sheets draw and the layout letters green-yellow" }
